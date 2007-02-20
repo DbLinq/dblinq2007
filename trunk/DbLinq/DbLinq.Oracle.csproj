@@ -1,0 +1,75 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{42B135DF-562B-48FD-9A63-4301D29321A6}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DBLinq</RootNamespace>
+    <AssemblyName>DBLinq.Oracle.Prototype</AssemblyName>
+    <StartupObject>
+    </StartupObject>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;ORACLE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DLinq, Version=1.0.2319.19044, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="System.Data.OracleClient" />
+    <Reference Include="System.Query" />
+    <Reference Include="System.Data.Extensions" />
+    <Reference Include="System.Xml.XLinq" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Linq\clause\DeleteClauseBuilder.cs" />
+    <Compile Include="Linq\clause\InsertClauseBuilder.cs" />
+    <Compile Include="Linq\EntityMSet.cs" />
+    <Compile Include="Linq\IModified.cs" />
+    <Compile Include="Linq\AutoGenIdAttribute.cs" />
+    <Compile Include="Linq\QueryProcessor.cs" />
+    <Compile Include="util\CSharp.cs" />
+    <Compile Include="util\ExprEnum.cs" />
+    <Compile Include="util\ExprExtensions.cs" />
+    <Compile Include="util\Operators.cs" />
+    <Compile Include="util\ReverseAssociationParts.cs" />
+    <Compile Include="util\RowEnumeratorCompiler.cs" />
+    <Compile Include="util\RowEnumerator.cs" />
+    <Compile Include="Linq\clause\FromClauseBuilder.cs" />
+    <Compile Include="Linq\MContext.cs" />
+    <Compile Include="Linq\MTable.cs" />
+    <Compile Include="Linq\MTable_Projected.cs" />
+    <Compile Include="Linq\ObjFromRow.cs" />
+    <Compile Include="Linq\ProjectionData.cs" />
+    <Compile Include="util\DumpExpressionXml.cs" />
+    <Compile Include="Linq\SessionVars.cs" />
+    <Compile Include="Linq\clause\WhereClauseBuilder.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="util\AttribHelper.cs" />
+    <Compile Include="util\RowScalar.cs" />
+    <Compile Include="Linq\clause\SqlExpressionParts.cs" />
+    <Compile Include="util\TypeEnum.cs" />
+    <Compile Include="util\VarName.cs" />
+    <Compile Include="vendor\Oracle\DataReader2_Ora.cs" />
+    <Compile Include="vendor\Oracle\OracleTypeConversions.cs" />
+  </ItemGroup>
+  <Import Project="$(ProgramFiles)\LINQ Preview\Misc\Linq.targets" />
+</Project>

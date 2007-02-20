@@ -1,0 +1,69 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{93E8F1C0-866E-4447-94FC-0C36E5CB2243}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MysqlMetal</RootNamespace>
+    <AssemblyName>OracleMetal</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.OracleClient" />
+    <Reference Include="System.Query" />
+    <Reference Include="System.Data.DLinq" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="codeGen\CodeGenClass.cs" />
+    <Compile Include="codeGen\CodeGenField.cs" />
+    <Compile Include="codeGen\CodeGenAll.cs" />
+    <Compile Include="Program_Oracle.cs" />
+    <Compile Include="schema\CSharp.cs" />
+    <Compile Include="mmConfig.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="schema\DlinqSchema.cs" />
+    <Compile Include="schema\IDBVendor.cs" />
+    <Compile Include="schema\oracle\OraExtensions.cs" />
+    <Compile Include="schema\oracle\OraTypeMap.cs" />
+    <Compile Include="schema\oracle\User_Constraints.cs" />
+    <Compile Include="schema\oracle\User_Tab_Columns.cs" />
+    <Compile Include="schema\oracle\OracleVendor.cs" />
+    <Compile Include="schema\oracle\UserTablesSql.cs" />
+    <Compile Include="util\Util.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="bin\run_oraMetal.bat" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="bin\oraFieldRenames.xml">
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="schema\mysql\" />
+  </ItemGroup>
+  <Import Project="$(ProgramFiles)\LINQ Preview\Misc\Linq.targets" />
+</Project>
