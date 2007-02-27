@@ -6,5 +6,5 @@ Get started:
 2) install MySql Query browser
 3) install LinqTestDB database from ClientCodeMysql/sql/create_LinqTestDB.sql
 4) compile and run MysqlMetal to create a C# class which represents the database.
-5) place this generated class in your ClientCode2/user
-6) Compile and run ClientCode2, report sucess/failure to http://code2code.net/wordpress
+5) place this generated class in your ClientCodeMysql/user
+6) Compile and run ClientCodeMysql, report sucess/failure to http://code2code.net/wordpress
