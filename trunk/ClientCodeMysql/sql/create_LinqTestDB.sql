@@ -116,6 +116,9 @@ insert Products (ProductName,QuantityPerUnit) VALUES ('Pen',10);
 insert Products (ProductName,QuantityPerUnit) VALUES ('Bicycle',1);
 insert Products (ProductName,QuantityPerUnit) VALUES ('Phone',3);
 insert Products (ProductName,QuantityPerUnit) VALUES ('SAM',1);
+insert Products (ProductName,QuantityPerUnit) VALUES ('iPod',0);
+insert Products (ProductName,QuantityPerUnit) VALUES ('Toilet Paper',2);
+insert Products (ProductName,QuantityPerUnit) VALUES ('Fork',5);
 
 truncate table Orders;
 insert Orders (CustomerID, ProductID, OrderDate)

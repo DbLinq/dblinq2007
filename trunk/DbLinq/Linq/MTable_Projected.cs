@@ -15,67 +15,40 @@ using System.Data.DLinq;
 using System.Expressions;
 using DBLinq.Linq.clause;
 using DBLinq.util;
-//using MySql.Data.MySqlClient;
 
 namespace DBLinq.Linq
 {
+    /// <summary>
+    /// Used in queries where we project from a row type into a new type.
+    /// Unlike MTable, it does not have SaveAll() and Insert(), 
+    /// since objects returned from here are not 'live'.
+    /// </summary>
+    /// <typeparam name="T">eg. 'int' in query 'from e in db.Employees select e.ID'</typeparam>
     class MTable_Projected<T> 
         : IQueryable<T>
         , IGetModifiedEnumerator<T>
     {
         public SessionVars _vars;
-        //public WhereClauses _whereClauses;
-        public SqlExpressionParts _sqlParts;
-        public readonly LambdaExpression _selectExpr;
-        Expression _expression;
-        ProjectionData _projectionData;
-
-        //eg. when calling "SELECT e.Name FROM Employee", _sourceType=Employee and T=String
-        Type _sourceType; 
-        //public MTable_Projected(SessionVars vars, Expression expr, LambdaExpression whereExpr,LambdaExpression selectExpr)
 
         public MTable_Projected(SessionVars vars)
         {
             _vars = vars;
-            //this._whereExpr = vars.whereExpr;
-            this._selectExpr = vars.selectExpr;
-            this._sqlParts = vars._sqlParts;
-            //WhereClauseBuilder whereBuilder = new WhereClauseBuilder();
-            string methodName;
-            LambdaExpression lambda = WhereClauseBuilder.FindLambda(vars.createQueryExpr,out methodName);
-            switch(methodName)
-            {
-                case "Where":
-                    //WhereClauses whereClauses = whereBuilder.Main_AnalyzeLambda(lambda);
-                    //this._sqlParts.whereList.Add( whereClauses.sb.ToString());
-                    vars.whereExpr.Add(lambda);
-                    break;
-                case "Select":
-                    _selectExpr = lambda;
-                    _projectionData = ProjectionData.FromSelectExpr(_selectExpr);
-                    vars.projectionData = _projectionData;
-                    break;
-                case "SelectMany":
-                    _selectExpr = lambda;
-                    _projectionData = ProjectionData.FromSelectManyExpr(_selectExpr);
-                    vars.projectionData = _projectionData;
-                    break;
-                default:
-                    Console.WriteLine("MTable_Proj ERROR L54 - unprepared for method "+methodName);
-                    break;
-            }
-            //Console.WriteLine("WHERE "+_whereClauses.sb);
-            ParameterExpression paramExpr0 = lambda.Parameters[0];
-            _sourceType = paramExpr0.Type;
-
-
-            _expression = vars.createQueryExpr;
         }
 
         public IQueryable<S> CreateQuery<S>(Expression expression)
         {
-            throw new ApplicationException("L61: Not prepared for double projection");
+            //this occurs in GroupBy followed by Where, eg. F6B_OrdersByCity()
+            Console.WriteLine("MTable_Proj.CreateQuery: T=<"+typeof(T)+"> -> S=<"+typeof(S)+">");
+            Console.WriteLine("MTable_Proj.CreateQuery: "+expression);
+
+            //todo: Clone SessionVars, call StoreQuery, and return secondary MTable_Proj?
+            SessionVars vars2 = _vars.Clone();
+            vars2.StoreQuery(expression);
+            MTable_Projected<S> projectedQ2 = new MTable_Projected<S>(vars2);
+            return projectedQ2;
+            //throw new ApplicationException("L61: Not prepared for double projection");
         }
+
         public S Execute<S>(Expression expression)
         {
             Console.WriteLine("MTable_Proj.Execute<"+typeof(S)+">: "+expression);
@@ -88,7 +61,8 @@ namespace DBLinq.Linq
         public IEnumerator<T> GetEnumerator()
         {
             //we don't keep projections in cache, pass cache=null
-            QueryProcessor.ProcessLambdas(_vars);
+            Console.WriteLine("MTable_Proj.GetEnumerator <"+typeof(T)+">");
+            QueryProcessor.ProcessLambdas(_vars); //for test D7, already done in MTable.CreateQ?
             RowEnumerator<T> rowEnumerator = new RowEnumerator<T>(_vars,null);
             rowEnumerator.ExecuteSqlCommand();
             return rowEnumerator;

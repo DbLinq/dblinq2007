@@ -6,12 +6,12 @@ using System;
 using System.Data;
 using System.Collections.Generic;
 using System.Text;
-using MySql.Data.MySqlClient;
+using Npgsql;
 
 namespace DBLinq.util
 {
     /// <summary>
-    /// This class wraps MySqlDataReader.
+    /// This class wraps NpgsqlDataReader.
     /// It logs exceptions and provides methods to retrieve nullable types.
     /// 
     /// When we have a workaround for FatalExecutionEngineError on nullables, 
@@ -19,8 +19,8 @@ namespace DBLinq.util
     /// </summary>
     public class DataReader2 //: IDataRecord
     {
-        MySqlDataReader _rdr;
-        public DataReader2(MySqlDataReader rdr)
+        NpgsqlDataReader _rdr;
+        public DataReader2(NpgsqlDataReader rdr)
         {
             _rdr = rdr;
         }
@@ -87,11 +87,36 @@ namespace DBLinq.util
         {
             try
             {
-                return _rdr.GetInt32(index);
+                DbType dbType1 = _rdr.GetFieldDbType(index);
+                NpgsqlTypes.NpgsqlDbType dbType2 = _rdr.GetFieldNpgsqlDbType(index);
+                if(dbType2==NpgsqlTypes.NpgsqlDbType.Bigint)
+                {
+                    return (int)_rdr.GetInt64(index);
+                }
+                else if(dbType2==NpgsqlTypes.NpgsqlDbType.Integer)
+                {
+                    //ok
+                }
+                else
+                {
+                    //there is a problem (we're getting text)
+                    Console.WriteLine("DataReader2.GetInt32: got unexpected type:"+dbType2);
+                    object val = _rdr.GetValue(index);
+                    Console.WriteLine("DataReader2.GetInt32: got unexpected type:"+dbType2+"  val="+val);
+                }
+
+                //PgSql seems to give us Int64
+                return (int)_rdr.GetInt32(index);
             } 
             catch(Exception ex)
             {
                 Console.WriteLine("GetInt32 failed: "+ex);
+                try {
+                    object obj = _rdr.GetValue(index);
+                    Console.WriteLine("GetInt32 failed, offending val: "+obj);
+                } catch(Exception)
+                {
+                }
                 return 0;
             }
         }
@@ -99,7 +124,7 @@ namespace DBLinq.util
         {
             try
             {
-                return _rdr.GetUInt32(index);
+                return (uint)_rdr.GetInt32(index);
             } 
             catch(Exception ex)
             {
@@ -118,7 +143,7 @@ namespace DBLinq.util
             {
                 if(_rdr.IsDBNull(index))
                     return null;
-                return _rdr.GetUInt32(index);
+                return (uint)_rdr.GetInt32(index);
             } 
             catch(Exception ex)
             {
@@ -223,6 +248,8 @@ namespace DBLinq.util
         {
             try
             {
+                if(_rdr.IsDBNull(index))
+                    return null;
                 return _rdr.GetString(index);
             } 
             catch(Exception ex)
@@ -237,7 +264,7 @@ namespace DBLinq.util
             try
             {
                 //System.Data.SqlClient.SqlDataReader rdr2;
-                //rdr2.GetSqlBinary(); //SqlBinary does not seem to exist on MySql
+                //rdr2.GetSqlBinary(); //SqlBinary does not seem to exist on Npgsql
                 object obj = _rdr.GetValue(index);
                 if(obj==null)
                     return null; //nullable blob?

@@ -13,6 +13,9 @@ using System.Text;
 using System.Data.OracleClient;
 using XSqlConnection = System.Data.OracleClient.OracleConnection;
 using XSqlCommand = System.Data.OracleClient.OracleCommand;
+#elif POSTGRES
+using XSqlConnection = Npgsql.NpgsqlConnection;
+using XSqlCommand = Npgsql.NpgsqlCommand;
 #else
 using MySql.Data.MySqlClient;
 using XSqlConnection = MySql.Data.MySqlClient.MySqlConnection;

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Expressions;
 using System.Collections.Generic;
 using System.Text;
@@ -34,6 +35,7 @@ namespace DBLinq.util
             return (UnaryExpression)ex;
         }
 
+        [DebuggerStepThrough]
         public static LambdaExpression XLambda(this Expression ex)
         {
             if(ex==null || ex.NodeType!=ExpressionType.Lambda)
@@ -66,6 +68,14 @@ namespace DBLinq.util
             if(ex==null || ex.NodeType!=ExpressionType.MemberInit)
                 return null;
             return (MemberInitExpression)ex;
+        }
+        public static UnaryExpression XUnary(this Expression ex)
+        {
+            if(ex==null)
+                return null;
+            if(ex.NodeType!=ExpressionType.Convert)
+                return null;
+            return (UnaryExpression)ex;
         }
         
 

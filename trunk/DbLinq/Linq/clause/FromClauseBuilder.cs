@@ -10,17 +10,27 @@ namespace DBLinq.Linq.clause
     class FromClauseBuilder
     {
         /// <summary>
-        /// given type Employee, return 'SELECT e.ID, e.Name,... FROM Employee'
+        /// given type Employee, select all its fields: 'SELECT e.ID, e.Name,... FROM Employee'
         /// (by examining [Table] and [Column] attribs)
         /// </summary>
         /// <param name="selectParts">'output' - gets populated with query parts.</param>
         /// <param name="t">input type</param>
         /// <param name="nick">nickname such as $o for an Order</param>
         /// <returns></returns>
-        public static void GetClause(SqlExpressionParts selectParts, Type t1, string nick)
+        public static void SelectAllFields(SessionVars vars, SqlExpressionParts selectParts, Type t1, string nick)
         {
             Type t = AttribHelper.ExtractTypeFromMSet(t1);
             TableAttribute tAttrib = AttribHelper.GetTableAttrib(t);
+            if(tAttrib==null && t.Name.StartsWith("<Projection>"))
+            {
+                //GroupBy: given t=Proj, find our table type
+                //example: GroupBy-proj: {c => new {PostalCode = c.PostalCode, ContactName = c.ContactName}}
+                if(t==vars.groupByNewExpr.Body.Type){
+                    Type groupByParamT = vars.groupByNewExpr.Parameters[0].Type; //this is 'c' in the example
+                    tAttrib = AttribHelper.GetTableAttrib(groupByParamT);
+                }
+            }
+
             if(tAttrib==null)
                 throw new ApplicationException("Class "+t+" is missing [Table] attribute");
 
@@ -43,15 +53,29 @@ namespace DBLinq.Linq.clause
             selectParts.AddFrom( tableName2 );
         }
 
-        public static void GetClause_Projected(SqlExpressionParts selectParts, Type t, string nick, LambdaExpression selectExpr)
+        public static void GetClause_Projected(SessionVars vars, SqlExpressionParts selectParts, Type t, string nick, LambdaExpression selectExpr)
         {
             if(selectExpr==null)
             {
-                GetClause(selectParts, t, nick); //if no projection, select everything
+                SelectAllFields(vars, selectParts, t, nick); //if no projection, select everything
                 return;
             }
 
             TableAttribute tAttrib = AttribHelper.GetTableAttrib(t);
+            if(tAttrib==null && t.ToString().Contains("IGrouping`2"))
+            {
+                //special handling for GroupBy expression
+                Type[] genArgs = t.GetGenericArguments();
+                Type genArg1 = genArgs[1];
+                if(genArg1.Name.StartsWith("<Projection")){
+                    //'group new {c.PostalCode, c.ContactName} by c.City into g'
+                    Type t2 = vars.groupByExpr.Parameters[0].Type; //select 'c' (Customer)
+                    tAttrib = AttribHelper.GetTableAttrib(t2);
+                } else {
+                    tAttrib = AttribHelper.GetTableAttrib(genArg1);
+                }
+            }
+
             if(tAttrib==null)
                 throw new ApplicationException("Class "+t+" is missing [Table] attribute");
 
@@ -69,11 +93,12 @@ namespace DBLinq.Linq.clause
                 case ExpressionType.MemberInit:
                     //member init specifies the projection - specifies who to select
                     MemberInitExpression exprMember = (MemberInitExpression)selectExpr.Body;
-                    GetClauseProjected_MemberInit(selectParts, exprMember);
+                    GetClauseProjected_MemberInit(vars, selectParts, exprMember);
                     break;
                 case ExpressionType.MemberAccess:
                     //user wishes to select one field out of a class
                     string s3 = FormatMemberExpression((MemberExpression)selectExpr.Body);
+                    Console.WriteLine(" -- FromClauseBuilder.GetClause_Proj:  SELECT "+s3);
                     selectParts.selectFieldList.Add(s3); //append '$e.ID'
                     break;
                 case ExpressionType.Cast:
@@ -87,7 +112,7 @@ namespace DBLinq.Linq.clause
                     MethodCallExpression callEx = selectExpr.Body.XCast().XOp().XMethodCall();
                     if(callEx==null || callEx.Method.Name!="Select")
                         throw new ApplicationException("L87 Expected Cast{MethodCall 'Select'}, not "+selectExpr);
-                    GetClause_Projected_Select(selectParts,callEx);
+                    GetClause_Projected_Select(vars, selectParts,callEx);
                     break;
 
                 default:
@@ -95,7 +120,11 @@ namespace DBLinq.Linq.clause
             }
         }
 
-        static void GetClause_Projected_Select(SqlExpressionParts selectParts, MethodCallExpression selectCallEx)
+        /// <summary>
+        /// As mentioned above, this is used during double select 
+        /// (from c ... from o ... select new (o,c})
+        /// </summary>
+        static void GetClause_Projected_Select(SessionVars vars, SqlExpressionParts selectParts, MethodCallExpression selectCallEx)
         {
             Console.WriteLine("  GetClause_Proj_Select: "+selectCallEx);
             string callName = selectCallEx.Method.Name;
@@ -140,7 +169,7 @@ namespace DBLinq.Linq.clause
 
                 if(lambda1!=null && lambda1.Body.NodeType==ExpressionType.MemberInit)
                 {
-                    GetClauseProjected_MemberInit(selectParts, (MemberInitExpression)lambda1.Body);
+                    GetClauseProjected_MemberInit(vars, selectParts, (MemberInitExpression)lambda1.Body);
                     //GetClause_Projected(selectParts, t, "$$", lambda1);
                 }
                 StringBuilder sb2 = new StringBuilder();
@@ -150,7 +179,7 @@ namespace DBLinq.Linq.clause
             Console.WriteLine("Done Params");
         }
 
-        static void GetClauseProjected_MemberInit(SqlExpressionParts selectParts, MemberInitExpression exprMember)
+        static void GetClauseProjected_MemberInit(SessionVars vars, SqlExpressionParts selectParts, MemberInitExpression exprMember)
         {
             //int numFields = 0;
             foreach(MemberAssignment member1 in exprMember.Bindings)
@@ -169,16 +198,31 @@ namespace DBLinq.Linq.clause
                         switch(typeEnum)
                         {
                             case TypeEnum.Column:
-                                GetClause(selectParts, paramExpr.Type, VarName.GetSqlName(varName)); //todo - fix the $x
+                                SelectAllFields(vars, selectParts, paramExpr.Type, VarName.GetSqlName(varName)); //todo - fix the $x
                                 break;
                             default:
-                                throw new ArgumentOutOfRangeException("Bad MemberEnum type "+paramExpr.Type);
+                                if(paramExpr.Type.Name.StartsWith("IGrouping`"))
+                                {
+                                    //replace the GroupBy sucker with the "new {c.Customer}" that it refers to
+                                    Type groupByType = vars.groupByNewExpr.Body.Type;
+                                    SelectAllFields(vars, selectParts, groupByType, VarName.GetSqlName(varName)); //todo - fix the $x
+                                    break;
+                                }
+                                else
+                                {
+                                    throw new ArgumentOutOfRangeException("Bad MemberEnum type "+paramExpr.Type);
+                                }
                         }
                         //sbSelect.Append("[TODO: append all fields of "+paramExpr.Name+"]");
                         break;
                     case ExpressionType.MemberAccess:
                         MemberExpression memberExpr = (MemberExpression)member1.Expression;
                         ParameterExpression memberExprParm = (ParameterExpression)memberExpr.Expression;
+                        if(memberExprParm.Type.Name == "IGrouping`2")
+                        {
+                            //handled in ProjectionData. TODO: move logic here.
+                            continue;
+                        }
                         AssociationAttribute assoc;
                         bool isAssociation = AttribHelper.IsAssociation(memberExpr,out assoc);
                         if(isAssociation)
@@ -197,7 +241,7 @@ namespace DBLinq.Linq.clause
                                 //append all fields, and add a join from Orders to Customers
                                 
                                 //GetClause(selectParts, memberExpr.Type, "$"+varName); //todo - fix the $x
-                                GetClause(selectParts, memberExpr.Type, VarName.GetSqlName(varName)); //todo - fix the $x
+                                SelectAllFields(vars, selectParts, memberExpr.Type, VarName.GetSqlName(varName)); //todo - fix the $x
                                 //selectParts.joinList.Add("___ $o.CustomerID=$c.CustomerID");
                                 //sbSelect.Append(s3); //SELECT $e.ID,
                                 break;
@@ -210,8 +254,11 @@ namespace DBLinq.Linq.clause
                                 throw new ArgumentOutOfRangeException("Bad MemberEnum type "+memberExpr.Type);
                         }
                         break;
+                    case ExpressionType.MethodCall:
+                        //for GroupBy, already handled in ProjectionData. should move here?
+                        break;
                     default:
-                        throw new ArgumentOutOfRangeException("MemberInit contains binding:"+member1.Expression.NodeType);
+                        throw new ArgumentOutOfRangeException("MemberInit contains unknown binding:"+member1.Expression.NodeType);
                 }
             }
         }
@@ -285,14 +332,17 @@ namespace DBLinq.Linq.clause
         /// <summary>
         /// handle the 'Select' part of query - choose fields
         /// </summary>
-        public static void Main_AnalyzeLambda(SqlExpressionParts sqlParts, LambdaExpression selectLambda)
+        public static void Main_AnalyzeLambda(SessionVars vars)
         {
             //handle '{new {c = o.Customer, o = o}}'
+            SqlExpressionParts sqlParts = vars._sqlParts;
+            LambdaExpression selectLambda = vars.selectExpr;
             
             //string varName = "$"+selectLambda.Parameters[0].XParam().Name; //"$e"
             string varName = VarName.GetSqlName(selectLambda.Parameters[0].XParam().Name); //"$e"
             Type sourceTableType = selectLambda.Parameters[0].XParam().Type;
-            GetClause_Projected(sqlParts, sourceTableType, varName, selectLambda);
+
+            GetClause_Projected(vars, sqlParts, sourceTableType, varName, selectLambda);
 
             //MemberInitExpression memberInit = selectLambda.Body.XMemberInit();
             //if(memberInit!=null)

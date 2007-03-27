@@ -133,6 +133,9 @@ namespace DBLinq.util
             return assoc!=null;
         }
 
+        /// <summary>
+        /// given type EntityMSet{X}, return X.
+        /// </summary>
         public static Type ExtractTypeFromMSet(Type t)
         {
             if(t.IsGenericType && t.Name.EndsWith("Set`1")) 

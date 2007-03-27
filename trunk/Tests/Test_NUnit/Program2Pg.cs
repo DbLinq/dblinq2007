@@ -1,5 +1,6 @@
 #region HEADER
 using System;
+using System.Threading;
 using System.Collections.Generic;
 using System.Text;
 using System.Query;
@@ -17,11 +18,16 @@ namespace Test_NUnit
     {
         static void Main()
         {
-            //new ReadTest().C3_SelectPenIdName();
-            new ReadTest_GroupBy().G01_SimpleGroup();
+            //new ReadTest().D04_SelectProducts_OrderByName();
+            //new ReadTest_GroupBy().G01_SimpleGroup();
             //new ReadTest_GroupBy().G04_OrderSumByCustomerID();
-            //new ReadTest_Complex().F1_ProductCount();
-            //new ReadTest().D10_Products_LetterP_Desc();
+            ReadTest_Complex rc = new ReadTest_Complex();
+            rc.F1_ProductCount();
+            //rc.F2_ProductCount_Clause();
+            //rc.F2_ProductCount_Projected();
+            rc.F3_MaxProductId();
+            //new ReadTest_Complex().F3_MaxProductId();
+            //new ReadTest().D09_Products_LetterP_Take5();
             //new ReadTest().D7_OrdersFromLondon_Alt();
             //new WriteTest().G2_DeleteTest();
             //new WriteTest().G1_InsertProduct();

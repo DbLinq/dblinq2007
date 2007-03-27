@@ -56,41 +56,40 @@ namespace DBLinq.Linq
             }
             if(_vars.selectExpr!=null)
             {
-                FromClauseBuilder.Main_AnalyzeLambda(_vars._sqlParts, _vars.selectExpr);
+                FromClauseBuilder.Main_AnalyzeLambda(_vars);
             }
 
 
-            /*
-            switch(methodName)
-            {
-                case "Where":  
-                    {
-                        this._vars.whereExpr.Add(lambda);
-                    }
-                    break;
-                case "Select": 
-                    {
-                    _vars.selectExpr = lambda;
-                    FromClauseBuilder.Main_AnalyzeLambda(_sqlParts,lambda);
-                    }
-                    break;
-                case "SelectMany":
-                    //dig deeper to find the where clause
-                    _vars.selectExpr = lambda; 
-                    lambda = whereBuilder.FindSelectManyLambda(lambda,out methodName);
-                    if(methodName=="Where"){
-                        WhereClauses whereClauses = whereBuilder.Main_AnalyzeLambda(lambda);
-                        whereClauses.CopyInto(_sqlParts);
-                        _vars.whereExpr.Add(lambda);
-                    }
-                    break;
-                case "OrderBy": 
-                    _vars.orderByExpr = lambda; 
-                    break;
-                default: 
-                    throw new ApplicationException("L45: Unprepared for method "+methodName);
-            }
-             * */
+            //switch(methodName)
+            //{
+            //    case "Where":  
+            //        {
+            //            this._vars.whereExpr.Add(lambda);
+            //        }
+            //        break;
+            //    case "Select": 
+            //        {
+            //        _vars.selectExpr = lambda;
+            //        FromClauseBuilder.Main_AnalyzeLambda(_sqlParts,lambda);
+            //        }
+            //        break;
+            //    case "SelectMany":
+            //        //dig deeper to find the where clause
+            //        _vars.selectExpr = lambda; 
+            //        lambda = whereBuilder.FindSelectManyLambda(lambda,out methodName);
+            //        if(methodName=="Where"){
+            //            WhereClauses whereClauses = whereBuilder.Main_AnalyzeLambda(lambda);
+            //            whereClauses.CopyInto(_sqlParts);
+            //            _vars.whereExpr.Add(lambda);
+            //        }
+            //        break;
+            //    case "OrderBy": 
+            //        _vars.orderByExpr = lambda; 
+            //        break;
+            //    default: 
+            //        throw new ApplicationException("L45: Unprepared for method "+methodName);
+            //}
+             
         }
     }
 }

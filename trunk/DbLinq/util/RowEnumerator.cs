@@ -15,6 +15,9 @@ using System.Text;
 #if ORACLE
 using System.Data.OracleClient;
 using XSqlCommand = System.Data.OracleClient.OracleCommand;
+#elif POSTGRES
+using Npgsql;
+using XSqlCommand = Npgsql.NpgsqlCommand;
 #else
 using MySql.Data.MySqlClient;
 using XSqlCommand = MySql.Data.MySqlClient.MySqlCommand;
@@ -35,13 +38,18 @@ namespace DBLinq.util
         SessionVars _vars;
 #if ORACLE
         OracleConnection _conn;
-        OracleCommand _cmd;
+        //OracleCommand _cmd;
         OracleDataReader _rdr;
+#elif POSTGRES
+        NpgsqlConnection _conn;
+        //NpgsqlCommand _cmd;
+        NpgsqlDataReader _rdr;
 #else
         MySqlConnection _conn;
-        MySqlCommand _cmd;
+        //MySqlCommand _cmd;
         MySqlDataReader _rdr;
 #endif
+        XSqlCommand _cmd;
 
         T _current;
 
@@ -82,7 +90,9 @@ namespace DBLinq.util
 
             if(_projectionData==null && !isBuiltinType)
             {
-                _projectionData = ProjectionData.FromType(typeof(T)); //use attributes
+                //for Table types, use attributes to determine fields
+                //for projection types, return projData with only ctor assigned
+                _projectionData = ProjectionData.FromDbType(typeof(T));
             }
 
             if(isBuiltinType)
@@ -93,9 +103,21 @@ namespace DBLinq.util
             {
                 _objFromRow2 = RowEnumeratorCompiler<T>.CompileColumnRowDelegate(_projectionData);
             }
+            else if(isProjectedType && vars.groupByExpr!=null)
+            {
+                //now we know what the GroupBy object is, 
+                //and what method to use with grouping (eg Count())
+                //_projectionData.type = typeof(T);
+                //vars._sqlParts.selectFieldList.Add("Count(*)");
+
+                ProjectionData projData2 = ProjectionData.FromReflectedType(typeof(T));
+
+                //and compile the sucker
+                _objFromRow2 = RowEnumeratorCompiler<T>.CompileProjectedRowDelegate(vars, projData2);
+            }
             else if(isProjectedType)
             {
-                _objFromRow2 = RowEnumeratorCompiler<T>.CompileProjectedRowDelegate(_projectionData);
+                _objFromRow2 = RowEnumeratorCompiler<T>.CompileProjectedRowDelegate(vars, _projectionData);
             }
             else
             {
@@ -108,7 +130,8 @@ namespace DBLinq.util
                 //occurs when there no Where or Select expression, eg. 'from p in Products select p'
                 //select all fields of target type:
                 string varName = _vars.GetDefaultVarName(); //'$x'
-                FromClauseBuilder.GetClause(vars._sqlParts,typeof(T),varName);
+                FromClauseBuilder.SelectAllFields(vars, vars._sqlParts,typeof(T),varName);
+                //PS. Should _sqlParts not be empty here? Debug Clone() and AnalyzeLambda()
             }
 
             string sql = vars._sqlParts.ToString();
@@ -118,8 +141,13 @@ namespace DBLinq.util
                 //TODO: don't look at C# field name, retrieve SQL field name from attrib
                 Expression body = vars.orderByExpr.Body;
                 MemberExpression member = body as MemberExpression;
-                if(member!=null){
+                if(member!=null)
+                {
                     sql += " ORDER BY " + member.Member.Name;
+                    if(vars.orderBy_desc!=null)
+                    {
+                        sql += " " + vars.orderBy_desc;
+                    }
                 }
             }
 
@@ -241,6 +269,10 @@ namespace DBLinq.util
                 TableAttribute tAttrib1 = AttribHelper.GetTableAttrib(typeof(T));
                 return (tAttrib1!=null);
             }
+            
+            if(_vars.groupByExpr!=null)
+                return false;
+
             TableAttribute tAttrib = _vars.projectionData.tableAttribute;
             return tAttrib!=null; //
         }
