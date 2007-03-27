@@ -6,8 +6,7 @@ using System.Query;
 using System.Xml.XLinq;
 using System.Data.DLinq;
 using Client2.user;
-using MySql.Data.MySqlClient;
-//using LinqMysql.mysql;
+using Npgsql;
 
 namespace ClientCode2
 {
@@ -15,23 +14,22 @@ namespace ClientCode2
     {
         static void Main(string[] args)
         {
-            testProj();
 
-            string connStr = "server=localhost;user id=LinqUser; password=linq2; database=pgLinqTest";
-            MySqlConnection conn = new MySqlConnection(connStr);
-            conn.Open();
-            //string sql = "INSERT City (Name) VALUES ('B'); SELECT @@IDENTITY";
-            string sql = "INSERT City (Name) VALUES ('C1'), ('C2'); SELECT @@IDENTITY; SELECT @@IDENTITY";
-            MySqlCommand cmd = new MySqlCommand(sql, conn);
-            //object obj1 = cmd.ExecuteScalar();
-            //string s1 = obj1.ToString();
-            MySqlDataReader rdr = cmd.ExecuteReader();
-            int fields = rdr.FieldCount;
-            while(rdr.Read())
-            {
-                object obj1 = rdr.GetValue(0);
-                string s1 = obj1.ToString();
-            }
+            string connStr = "server=localhost;user id=LinqUser; password=linq2; database=LinqTestDB";
+            //NpgsqlConnection conn = new NpgsqlConnection(connStr);
+            //conn.Open();
+            ////string sql = "INSERT City (Name) VALUES ('B'); SELECT @@IDENTITY";
+            //string sql = "INSERT City (Name) VALUES ('C1'), ('C2'); SELECT @@IDENTITY; SELECT @@IDENTITY";
+            //NpgsqlCommand cmd = new NpgsqlCommand(sql, conn);
+            ////object obj1 = cmd.ExecuteScalar();
+            ////string s1 = obj1.ToString();
+            //NpgsqlDataReader rdr = cmd.ExecuteReader();
+            //int fields = rdr.FieldCount;
+            //while(rdr.Read())
+            //{
+            //    object obj1 = rdr.GetValue(0);
+            //    string s1 = obj1.ToString();
+            //}
 
             //TestContext db = new TestContext(connStr);
             LinqTestDB db = new LinqTestDB(connStr);
@@ -77,17 +75,5 @@ namespace ClientCode2
         //    return c1;
         //}
 
-        static void testProj()
-        {
-            //A[] aaa = new A[]{ new A() };
-            //B[] bbb = new B[]{ new B() };
-            //var q = from a in aaa from _a in bbb select new {a,_a};
-            //foreach(var v in q){
-            //    Console.WriteLine("OBJ:"+v);
-            //}
-            
-        }
     }
-    public class A { }
-    public class B { }
 }

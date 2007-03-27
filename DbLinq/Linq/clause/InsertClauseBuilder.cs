@@ -1,4 +1,5 @@
 using System;
+using System.Query;
 using System.Reflection;
 using System.Data.DLinq;
 using System.Collections.Generic;
@@ -8,6 +9,10 @@ using System.Data.OracleClient;
 using XSqlConnection = System.Data.OracleClient.OracleConnection;
 using XSqlCommand = System.Data.OracleClient.OracleCommand;
 using XSqlParameter = System.Data.OracleClient.OracleParameter;
+#elif POSTGRES
+using XSqlConnection = Npgsql.NpgsqlConnection;
+using XSqlCommand = Npgsql.NpgsqlCommand;
+using XSqlParameter = Npgsql.NpgsqlParameter;
 #else
 using MySql.Data.MySqlClient;
 using XSqlConnection = MySql.Data.MySqlClient.MySqlConnection;
@@ -35,7 +40,7 @@ namespace DBLinq.Linq.clause
             if(projData.fields.Count<1 || projData.fields[0].columnAttribute==null)
                 throw new ApplicationException("InsertClauseBuilder need to receive types that have ColumnAttributes");
 
-            StringBuilder sb = new StringBuilder("INSERT ");
+            StringBuilder sb = new StringBuilder("INSERT INTO ");
             StringBuilder sbVals = new StringBuilder("VALUES (");
             sb.Append(projData.tableAttribute.Name).Append(" (");
             List<XSqlParameter> paramList = new List<XSqlParameter>();
@@ -57,7 +62,7 @@ namespace DBLinq.Linq.clause
                 if(numFieldsAdded++> 0){ sb.Append(", "); sbVals.Append(", "); }
                 sb.Append(colAtt.Name);
 
-#if ORACLE
+#if ORACLE || POSTGRES
                 string paramName = ":p"+numFieldsAdded;
 #else
                 string paramName = "?p"+numFieldsAdded;
@@ -67,6 +72,9 @@ namespace DBLinq.Linq.clause
 #if ORACLE
                 OracleType dbType = OracleTypeConversions.ParseType(colAtt.DBType);
                 OracleParameter param = new OracleParameter(paramName,dbType);
+#elif POSTGRES
+                NpgsqlTypes.NpgsqlDbType dbType = PgsqlTypeConversions.ParseType(colAtt.DBType);
+                XSqlParameter param = new XSqlParameter(paramName,dbType);
 #else
                 MySqlDbType dbType = MySqlTypeConversions.ParseType(colAtt.DBType);
                 MySqlParameter param = new MySqlParameter(paramName,dbType);
@@ -80,6 +88,13 @@ namespace DBLinq.Linq.clause
             sb.Append(sbVals.ToString());
             //sb.Append(";\n");
             //sb.Append("SELECT @@IDENTITY"); //must be on separate line
+#if POSTGRES
+            ColumnAttribute[] colAttribs = AttribHelper.GetColumnAttribs(projData.type);
+            ColumnAttribute idColAttrib = colAttribs.FirstOrDefault(c => c.Id);
+            string idColName = idColAttrib==null ? "ERROR_L93_MissingIdCol" : idColAttrib.Name;
+            string sequenceName = projData.tableAttribute.Name+"_"+idColName+"_seq";
+            sb.Append(";SELECT currval('"+sequenceName+"')"); 
+#endif
 
             string sql = sb.ToString();
 

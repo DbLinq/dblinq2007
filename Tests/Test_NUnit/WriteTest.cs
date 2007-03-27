@@ -5,11 +5,14 @@ using System.Query;
 using System.Xml.XLinq;
 using System.Data.DLinq;
 using NUnit.Framework;
-using MySql.Data.MySqlClient;
 #if ORACLE
 using ClientCodeOra;
 using xint = System.Int32;
+#elif POSTGRES
+using Client2.user;
+using xint = System.Int32;
 #else
+using MySql.Data.MySqlClient;
 using Client2.user;
 using xint = System.UInt32;
 #endif
@@ -25,35 +28,39 @@ namespace Test_NUnit
         const string connStr = "server=localhost;user id=LinqUser; password=linq2; database=LinqTestDB";
 #endif
         
-        MySqlConnection _conn;
-        public MySqlConnection Conn 
-        { 
-            get 
-            { 
-                if(_conn==null){ _conn=new MySqlConnection(connStr); _conn.Open(); }
-                return _conn;
-            }
-        }
+        //MySqlConnection _conn;
+        //public MySqlConnection Conn 
+        //{ 
+        //    get 
+        //    { 
+        //        if(_conn==null){ _conn=new MySqlConnection(connStr); _conn.Open(); }
+        //        return _conn;
+        //    }
+        //}
 
         #region Tests 'E' test live object cache
         [Test]
         public void E1_LiveObjectsAreUnqiue()
         {
+            //grab an object twice, make sure we get the same object each time
             LinqTestDB db = new LinqTestDB(connStr);
             var q = from p in db.Products select p;
             Product pen1 = q.First();
             Product pen2 = q.First();
             string uniqueStr = "Unique"+Environment.TickCount;
             pen1.QuantityPerUnit = uniqueStr;
-            bool isSameObject = pen2.QuantityPerUnit==uniqueStr;
-            Assert.IsTrue(isSameObject,"Expected pen1 and pen2 to be the same live object, but their fields are different");
+            bool isSameObject1 = pen2.QuantityPerUnit==uniqueStr;
+            Assert.IsTrue(isSameObject1,"Expected pen1 and pen2 to be the same live object, but their fields are different");
+            object oPen1 = pen1;
+            object oPen2 = pen2;
+            bool isSameObject2 = oPen1==oPen2;
+            Assert.IsTrue(isSameObject2,"Expected pen1 and pen2 to be the same live object, but their fields are different");
         }
         #endregion
 
 
         #region Tests 'G' do insertion
-        [Test]
-        public xint G1_InsertProduct()
+        private xint insertProduct_priv()
         {
             LinqTestDB db = new LinqTestDB(connStr);
             Product newProd = new Product();
@@ -68,9 +75,15 @@ namespace Test_NUnit
         }
 
         [Test]
+        public void G1_InsertProduct()
+        {
+            insertProduct_priv();
+        }
+
+        [Test]
         public void G2_DeleteTest()
         {
-            xint insertedID = G1_InsertProduct();
+            xint insertedID = insertProduct_priv();
             Assert.Greater(insertedID,0,"DeleteTest cannot operate if row was not inserted");
             
             LinqTestDB db = new LinqTestDB(connStr);

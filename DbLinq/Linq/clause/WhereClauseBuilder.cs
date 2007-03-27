@@ -36,22 +36,35 @@ namespace DBLinq.Linq.clause
         {
             if(expr==null || expr.NodeType!=ExpressionType.MethodCall)
             {
-                //expr.NoteType==Cast when we enter via EntitySet or EntityMSet
+                //expr.NodeType==Cast when we enter via EntitySet or EntityMSet
                 throw new ApplicationException("FindLambda: L25 failure");
             }
 
             MethodCallExpression methodCall = (MethodCallExpression)expr;
+            methodName = methodCall.Method.Name;
+            //if(methodName=="GroupBy")
+            //    return null; //huh, we have 2 different lambdas here...
+
             if(methodCall.Parameters.Count!=2)
+            {
+                //This happens for GroupBy, which has 3 params
                 throw new ApplicationException("FindLambda: L28 failure");
                 //return null; //"MethodCallExpr: expected 2 params";
+            }
 
-            methodName = methodCall.Method.Name;
             //param0 is const-type
             Expression param1 = methodCall.Parameters[1];
-            if(methodName=="Including")
+            
+            if(methodName=="Take")
+            {
+                //this is a special case - there is no lambda anywhere?
+                return null;
+            }
+
+            if(methodName=="Including" || methodName=="Take")
             {
                 //if(param1.NodeType==ExpressionType.NewArrayInit)...
-                throw new ApplicationException("FindLambda: L38 'Including' clause not yet supported");
+                throw new ApplicationException("FindLambda: L38 '"+methodName+"' clause not yet supported");
             }
 
             if(param1.NodeType!=ExpressionType.Lambda)
@@ -86,6 +99,16 @@ namespace DBLinq.Linq.clause
             AnalyzeExpression(recurData, expr.Body);
             //_clauses.nickName = "$"+expr.Parameters[0].Name; //eg "$e"
             _clauses.nickName = VarName.GetSqlName(expr.Parameters[0].Name); //eg "e$"
+            return _clauses;
+        }
+
+        public WhereClauses Main_AnalyzeExpr(Expression expr)
+        {
+            this._clauses = new WhereClauses();
+            RecurData recurData = new RecurData();
+            AnalyzeExpression(recurData, expr);
+            //_clauses.nickName = VarName.GetSqlName(expr.Parameters[0].Name); //eg "e$"
+            _clauses.nickName = "£U";
             return _clauses;
         }
 
@@ -208,38 +231,70 @@ namespace DBLinq.Linq.clause
             _clauses.sb.Append(expr.Member.Name);
         }
 
-        private void AnalyzeMethodCall(RecurData recurData, MethodCallExpression expr)
+        internal void AnalyzeMethodCall(RecurData recurData, MethodCallExpression expr)
         {
             //special handling
-            if(expr.Method.Name=="op_Equality"){
-                AnalyzeExpression(recurData, expr.Parameters[0]);
-                _clauses.sb.Append(" = ");
-                AnalyzeExpression(recurData, expr.Parameters[1]);
-                return;
-            }
-            if(expr.Method.Name=="op_Inequality"){
-                AnalyzeExpression(recurData, expr.Parameters[0]);
-                _clauses.sb.Append(" != ");
-                AnalyzeExpression(recurData, expr.Parameters[1]);
-                return;
-            }
-            if(expr.Method.Name=="StartsWith"){
-                //turn "e.Name.StartsWith("X")" -> "e.Name LIKE 'X%'
-                AnalyzeExpression(recurData, expr.Object);
-                _clauses.sb.Append(" LIKE ");
-                AnalyzeExpression(recurData, expr.Parameters[0]);
-                string paramName = _clauses.lastParamName;
-                string lastParam = _clauses.paramMap[paramName] as string;
-                if(lastParam !=null){
-                    //modify parameter from X to X%
-                    _clauses.paramMap[paramName] = lastParam+"%";
-                }
-                return;
+            switch(expr.Method.Name)
+            {
+                case "op_Equality":
+                    AnalyzeExpression(recurData, expr.Parameters[0]);
+                    _clauses.sb.Append(" = ");
+                    AnalyzeExpression(recurData, expr.Parameters[1]);
+                    return;
+                case "op_Inequality":
+                    AnalyzeExpression(recurData, expr.Parameters[0]);
+                    _clauses.sb.Append(" != ");
+                    AnalyzeExpression(recurData, expr.Parameters[1]);
+                    return;
+
+                case "StartsWith":
+                case "EndWith":
+                case "Contains":
+                    {
+                        //turn "e.Name.StartsWith("X")" -> "e.Name LIKE 'X%'
+                        //turn "e.Name.Contains("X")" -> "e.Name LIKE '%X%'
+                        AnalyzeExpression(recurData, expr.Object);
+                        _clauses.sb.Append(" LIKE ");
+                        AnalyzeExpression(recurData, expr.Parameters[0]);
+                        string paramName = _clauses.lastParamName;
+                        string lastParam = _clauses.paramMap[paramName] as string;
+                        if(lastParam !=null)
+                        {
+                            //modify parameter from X to X%
+                            string modParam = "";
+                            switch(expr.Method.Name)
+                            { 
+                                case "StartsWith":  modParam = lastParam + "%"; break;
+                                case "EndWith":     modParam = "%" + lastParam; break;
+                                case "Contains":    modParam = "%" + lastParam + "%"; break;
+                            }
+                            _clauses.paramMap[paramName] = modParam;
+                        }
+                    }
+                    return;
+                case "Sum":
+                    {
+                        //extract 'OrderID' from '{g.Sum(o => Convert(o.OrderID))}'
+                        Expression sumExpr1 = expr.Parameters[1].XLambda().Body;
+                        MemberExpression sumExpr2 = sumExpr1.XUnary().Operand.XMember();
+                        _clauses.sb.Append("SUM("+sumExpr2.Member.Name+")");
+                        return;
+                    }
+                case "Count":
+                    {
+                        //given expr='{g.Count()}', produce Count expression
+                        _clauses.sb.Append("COUNT(*)");
+                        return;
+                    }
+
+                default:
+                    //detailed error will be thrown below
+                    break;
             }
             //TODO: throw for any other method - database probably cannot handle such call
             StringBuilder sb = new StringBuilder();
             expr.BuildString(sb);
-            string msg2 ="L160: Unprepared to map method "+expr.Method.Name+" ("+sb+") to SQL";
+            string msg2 ="L274: Unprepared to map method "+expr.Method.Name+" ("+sb+") to SQL";
             Console.WriteLine(msg2);
             throw new ApplicationException(msg2);
             //_clauses.sb.Append(expr.Method.Name);
@@ -294,6 +349,11 @@ namespace DBLinq.Linq.clause
         {
             public int depth;
             public int operatorPrecedence;
+
+            public override string ToString()
+            {
+                return "Recur d="+depth+" prec="+operatorPrecedence;
+            }
         }
 
     }
@@ -316,7 +376,7 @@ namespace DBLinq.Linq.clause
         public string storeParam(string value)
         {
             int count = paramMap.Count;
-#if ORACLE
+#if ORACLE || POSTGRES
             string paramName = ":P"+count;
 #else
             string paramName = "?P"+count;

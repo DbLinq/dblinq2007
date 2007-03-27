@@ -17,6 +17,9 @@ using System.Expressions;
 using System.Data.OracleClient;
 using XSqlConnection = System.Data.OracleClient.OracleConnection;
 using XSqlCommand = System.Data.OracleClient.OracleCommand;
+#elif POSTGRES
+using XSqlConnection = Npgsql.NpgsqlConnection;
+using XSqlCommand = Npgsql.NpgsqlCommand;
 #else
 using MySql.Data.MySqlClient;
 using XSqlConnection = MySql.Data.MySqlClient.MySqlConnection;
@@ -46,14 +49,8 @@ namespace DBLinq.Linq
         readonly Dictionary<T,T> _liveObjectMap = new Dictionary<T,T>();
         readonly List<T> _deleteList = new List<T>();
 
-        //WhereClauses _whereClauses;
         SqlExpressionParts _sqlParts = new SqlExpressionParts();
-        //LambdaExpression _whereExpr;
-        //LambdaExpression _selectExpr;
-        //LambdaExpression _orderByExpr;
         SessionVars _vars = new SessionVars();
-        //static int s_serial = 1;
-        //Expression _expr;
 
         public MTable(MContext parent)
         {
@@ -71,55 +68,13 @@ namespace DBLinq.Linq
         public IQueryable<S> CreateQuery<S>(Expression expr)
         {
             Console.WriteLine("MTable.CreateQuery: "+expr);
-            //DumpExpressionXml<S> formatter = new DumpExpressionXml<S>();
-            //string q = formatter.FormatExpression(0,expr);
-            //File.WriteAllText("../expr_tree"+(s_serial++)+".xml", q);
 
-            string methodName;
-            LambdaExpression lambda = WhereClauseBuilder.FindLambda(expr,out methodName);
-
-            //From the C# spec: Specifically, query expressions are translated 
-            //into invocations of methods named 
-            //Where, Select, SelectMany, Join, GroupJoin, OrderBy, OrderByDescending, ThenBy, ThenByDescending, GroupBy, and Cast
-            switch(methodName)
-            {
-                case "Where":  
-                    {
-                        Console.WriteLine("Disabled whereBuilder.Main_AnalyzeLambda");
-                        //WhereClauses whereClauses = whereBuilder.Main_AnalyzeLambda(lambda);
-                        //whereClauses.CopyInto(_sqlParts);
-                        this._vars.whereExpr.Add(lambda);
-                    }
-                    break;
-                case "Select": 
-                    {
-                        _vars.selectExpr = lambda;
-                        //FromClauseBuilder.Main_AnalyzeLambda(_sqlParts,lambda);
-                        Console.WriteLine("Disabled FromClauseBuilder.Main_AnalyzeLambda");
-                    }
-                    break;
-                case "SelectMany":
-                    //dig deeper to find the where clause
-                    _vars.selectExpr = lambda; 
-                    lambda = WhereClauseBuilder.FindSelectManyLambda(lambda,out methodName);
-                    if(methodName=="Where")
-                    {
-                        _vars.whereExpr.Add(lambda);
-                        //WhereClauses whereClauses = whereBuilder.Main_AnalyzeLambda(lambda);
-                        //whereClauses.CopyInto(_sqlParts);
-                        //_vars.whereExpr.Add(lambda);
-                    }
-                    break;
-                case "OrderBy": 
-                    _vars.orderByExpr = lambda; 
-                    break;
-                default: 
-                    throw new ApplicationException("L45: Unprepared for method "+methodName);
-            }
+            _vars.StoreQuery(expr);
             
-            if(this is IQueryable<S>){
+            if(this is IQueryable<S>)
+            {
                 //this occurs if we are not projecting
-                //meaning that we are selecting entire object
+                //(meaning that we are selecting entire row object)
                 IQueryable<S> this_S = (IQueryable<S>)this; 
                 return this_S;
             } else {
@@ -127,7 +82,7 @@ namespace DBLinq.Linq
                 //(eg. you select only a few fields: "select name from employee")
                 _vars.createQueryExpr = expr;
                 MTable_Projected<S> projectedQ = new MTable_Projected<S>(_vars);
-                projectedQ._sqlParts = _sqlParts;
+                //projectedQ._sqlParts = _sqlParts;
                 return projectedQ;
             }
         }
@@ -148,7 +103,8 @@ namespace DBLinq.Linq
         {
             QueryProcessor.ProcessLambdas(_vars);
             RowEnumerator<T> rowEnumerator = new RowEnumerator<T>(_vars, _liveObjectMap);
-            if(MContext.s_suppressSqlExecute){
+            if(MContext.s_suppressSqlExecute)
+            {
                 //we are doing GetQueryText
             } else {
                 rowEnumerator.ExecuteSqlCommand();
@@ -199,7 +155,6 @@ namespace DBLinq.Linq
 
         public void Add(T newObject)
         {
-            //TODO: queue an object for SQL INSERT
             _insertList.Add(newObject);
         }
         public void Remove(T objectToDelete)
@@ -213,42 +168,46 @@ namespace DBLinq.Linq
             if(_insertList.Count==0 && _liveObjectMap.Count==0 && _deleteList.Count==0)
                 return; //nothing to do
             object[] indices = new object[0];
-            ProjectionData proj = ProjectionData.FromType(typeof(T));
+            ProjectionData proj = ProjectionData.FromDbType(typeof(T));
             XSqlConnection conn = _parent.SqlConnection;
             foreach(T obj in _insertList)
             {
                 //INSERT EMPLOYEES (Name, DateStarted) VALUES (?p1,?p2)
                 using(XSqlCommand cmd = InsertClauseBuilder.GetClause(conn,obj,proj))
                 {
-                    //object oResult = cmd.ExecuteScalar();
+                    object objID = null;
+#if POSTGRES
+                    objID = cmd.ExecuteScalar();
+#else
+                    //Mysql:
                     cmd.ExecuteNonQuery();
                     if(proj.autoGenField!=null)
                     {
                         try
                         {
                             cmd.CommandText = "SELECT @@Identity";
-			                object id = cmd.ExecuteScalar();
-                            if(id is long){
-                                //prevent {"Object of type 'System.Int64' cannot be converted to type 'System.UInt32'."}
-                                long longID = (long)id;
-                                bool assignable1 = proj.autoGenField.FieldType.IsAssignableFrom(typeof(long));
-                                bool assignable2 = proj.autoGenField.FieldType.IsAssignableFrom(typeof(int));
-                                if(proj.autoGenField.FieldType==typeof(uint))
-                                {
-                                    uint uintID = (uint) (long) id;
-                                    id = uintID;
-                                }
-                            }
-                            proj.autoGenField.SetValue(obj, id);
-                            IModified imod = obj as IModified;
-                            if(imod!=null){
-                                imod.IsModified = false; //we just saved it - it's not 'dirty'
-                            }
+			                objID = cmd.ExecuteScalar();
+
                         }
                         catch(Exception ex)
                         {
                             Console.WriteLine("MTable.SaveAll: Failed on retrieving @@ID/assigning ID:"+ex);
                         }
+                    }
+#endif
+                    try
+                    {
+                        //set the object's ID:
+                        FieldUtils.SetObjectIdField(obj, proj.autoGenField, objID);
+
+                        IModified imod = obj as IModified;
+                        if(imod!=null){
+                            imod.IsModified = false; //we just saved it - it's not 'dirty'
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        Console.WriteLine("Failed on SetObjectIdField: "+ex);
                     }
                     //cmd.CommandText = 
                     //TODO: use reflection to assign the field ID - that way the _isModified flag will not get set

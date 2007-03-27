@@ -63,7 +63,7 @@ namespace DBLinq.util
                             //in that case, we need to project to an int.
                             _vars._sqlParts.countClause = "COUNT"; //Count or Max
                             string varName = _vars.GetDefaultVarName(); //'$x'
-                            FromClauseBuilder.GetClause(_vars._sqlParts,typeof(T),varName);
+                            FromClauseBuilder.SelectAllFields(_vars, _vars._sqlParts,typeof(T),varName);
                             QueryProcessor.ProcessLambdas(_vars);
                             using(RowEnumerator<S> rowEnum = new RowEnumerator<S>(_vars,null))
                             {
@@ -81,7 +81,7 @@ namespace DBLinq.util
                         using(IEnumerator<T> enumerator = table2.GetModifiedEnumerator( 
                             delegate(SessionVars vars)
                             { 
-                                vars._sqlParts.countClause = exprCall.Method.Name.ToUpper(); //Count or Max
+                                vars._sqlParts.countClause = exprCall.Method.Name.ToUpper(); //COUNT or MAX
                             }
                         ))
                         {

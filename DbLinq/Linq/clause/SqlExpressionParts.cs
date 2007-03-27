@@ -47,12 +47,30 @@ namespace DBLinq.Linq.clause
         /// </summary>
         public readonly List<string> whereList = new List<string>();
 
+        public readonly List<string> groupByList = new List<string>();
+
         public string           countClause;
 
         /// <summary>
         /// parameters, eg {'?P0'=>'London'}
         /// </summary>
         public readonly Dictionary<string,object> paramMap = new Dictionary<string,object>();
+
+        public SqlExpressionParts()
+        {
+            _serial = s_serial++;
+        }
+        public SqlExpressionParts(SqlExpressionParts orig)
+        {
+            _serial = s_serial++;
+            fromTableList = new List<string>(orig.fromTableList);
+            selectFieldList = new List<string>(orig.selectFieldList);
+            joinList = new List<string>(orig.joinList);
+            doneClauses = new List<string>(orig.doneClauses);
+            whereList = new List<string>(orig.whereList);
+            groupByList = new List<string>(orig.groupByList);
+            countClause = orig.countClause;
+        }
 
         #region ToString() produces a full SQL statement from parts
         public override string ToString()
@@ -102,6 +120,18 @@ namespace DBLinq.Linq.clause
                     separator = " AND ";
                 }
             }
+
+            if(groupByList.Count>0)
+            {
+                sb.Append(" GROUP BY ");
+                string separator = "";
+                foreach(string grp in groupByList)
+                {
+                    sb.Append(separator).Append(grp);
+                    separator = ", ";
+                }
+            }
+
             return sb.ToString();
         }
         #endregion
@@ -111,10 +141,12 @@ namespace DBLinq.Linq.clause
             return selectFieldList.Count==0;
         }
 
+        static int s_serial = 0;
+        int _serial;
         public SqlExpressionParts Clone()
         {
-            SqlExpressionParts clone = (SqlExpressionParts)base.MemberwiseClone();
-            return clone;
+            //clone._serial = s_serial++;
+            return new SqlExpressionParts(this);
         }
     }
 }

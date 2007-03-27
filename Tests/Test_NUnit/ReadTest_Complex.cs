@@ -5,11 +5,17 @@ using System.Query;
 using System.Xml.XLinq;
 using System.Data.DLinq;
 using NUnit.Framework;
-using MySql.Data.MySqlClient;
 #if ORACLE
 using ClientCodeOra;
 using xint = System.Int32;
+#elif POSTGRES
+using Client2.user;
+using xint = System.Int32;
+using XSqlConnection = Npgsql.NpgsqlConnection;
+using XSqlCommand = Npgsql.NpgsqlCommand;
 #else
+using XSqlConnection = MySql.Data.MySqlClient.MySqlConnection;
+using XSqlCommand = MySql.Data.MySqlClient.MySqlCommand;
 using Client2.user;
 using xint = System.UInt32;
 #endif
@@ -25,18 +31,18 @@ namespace Test_NUnit
         const string connStr = "server=localhost;user id=LinqUser; password=linq2; database=LinqTestDB";
 #endif
         
-        MySqlConnection _conn;
+        XSqlConnection _conn;
         LinqTestDB db;
         
         public ReadTest_Complex()
         {
             db = new LinqTestDB(connStr);
         }
-        public MySqlConnection Conn 
+        public XSqlConnection Conn 
         { 
             get 
             { 
-                if(_conn==null){ _conn=new MySqlConnection(connStr); _conn.Open(); }
+                if(_conn==null){ _conn=new XSqlConnection(connStr); _conn.Open(); }
                 return _conn;
             }
         }
@@ -56,6 +62,7 @@ namespace Test_NUnit
             var q = from p in db.Products select p.ProductID;
             int productCount = q.Count();
             Assert.Greater(productCount,0,"Expected non-zero product count");
+            Console.WriteLine();
         }
         [Test]
         public void F2_ProductCount_Clause()
@@ -74,17 +81,24 @@ namespace Test_NUnit
         }
 
         [Test]
-        public void F4_SimpleGroup()
+        public void F4_MinProductId()
         {
-            var q2 =
-		        from c in db.Customers
-		        where c.Country == "France"
-		        group new {c.PostalCode, c.ContactName} by c.City into g
-		        select new {g.Key,g};
+            var q = from p in db.Products select p.ProductID;
+            xint maxID = q.Min();
+            Assert.Greater(maxID,0,"Expected non-zero product count");
         }
 
+        //[Test]
+        //public void F5_AvgProductId()
+        //{
+        //    var q = from p in db.Products select p.ProductID;
+        //    xint maxID = q.Average();
+        //    Assert.Greater(maxID,0,"Expected non-zero product count");
+        //}
+
+
         [Test]
-        public void F5_ExplicitJoin()
+        public void F7_ExplicitJoin()
         {
             var q =
 	            from c in db.Customers
@@ -94,7 +108,7 @@ namespace Test_NUnit
         }
 
         [Test]
-        public void F6_IncludingClause()
+        public void F8_IncludingClause()
         {
             var q = (
 	            from c in db.Customers
@@ -115,7 +129,7 @@ namespace Test_NUnit
         }
 #endif
         [Test]
-        public void F8_Project_AndContinue()
+        public void F9_Project_AndContinue()
         {
             var q =
 	            from c in db.Customers

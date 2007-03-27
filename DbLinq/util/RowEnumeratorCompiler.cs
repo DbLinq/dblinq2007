@@ -4,7 +4,6 @@
 //Commercial code may call into this library, if it's in a different module (DLL)
 ////////////////////////////////////////////////////////////////////
 
-//#define USE_MYSQLREADER_DIRECTLY
 
 using System;
 using System.Reflection;
@@ -12,7 +11,6 @@ using System.Query;
 using System.Expressions;
 using System.Collections.Generic;
 using System.Text;
-//using MySql.Data.MySqlClient;
 using DBLinq.Linq;
 
 namespace DBLinq.util
@@ -126,13 +124,13 @@ namespace DBLinq.util
         /// construct and compile a 'new Customer(reader.GetInt32(0),reader.GetString(1));' 
         /// delegate (or similar).
         /// </summary>
-        public static Func<DataReader2,T> CompileProjectedRowDelegate(ProjectionData projData)
+        public static Func<DataReader2,T> CompileProjectedRowDelegate(SessionVars vars, ProjectionData projData)
         {
             ParameterExpression rdr = Expression.Parameter(typeof(DataReader2),"rdr");
 
             StringBuilder sb = new StringBuilder(500);
             int fieldID = 0;
-            LambdaExpression lambda = BuildProjectedRowLambda(projData, rdr, ref fieldID);
+            LambdaExpression lambda = BuildProjectedRowLambda(vars, projData, rdr, ref fieldID);
 
             lambda.BuildString(sb);
             Console.WriteLine("  RowEnumCompiler(Projection): Compiling "+sb);
@@ -146,7 +144,7 @@ namespace DBLinq.util
         private static 
             //Func<DataReader2,T> 
             LambdaExpression
-            BuildProjectedRowLambda(ProjectionData projData, ParameterExpression rdr, ref int fieldID)
+            BuildProjectedRowLambda(SessionVars vars, ProjectionData projData, ParameterExpression rdr, ref int fieldID)
         {
 
             #region CompileColumnRowDelegate
@@ -167,7 +165,7 @@ namespace DBLinq.util
                             //should compile into:
                             //  'new Projection{ new C(field0,field1), new O(field2,field3) }'
                             ProjectionData projData2 = AttribHelper.GetProjectionData(projFld.type);
-                            LambdaExpression innerLambda = BuildProjectedRowLambda(projData2, rdr, ref fieldID);
+                            LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, rdr, ref fieldID);
                             MemberInitExpression innerInit = innerLambda.Body as MemberInitExpression;
                             MemberAssignment binding = Expression.Bind(projFld.propInfo, innerInit);
                             bindings.Add(binding);
@@ -182,6 +180,25 @@ namespace DBLinq.util
                             bindings.Add(binding);
                         }
                         break;
+                    case TypeEnum.Other:
+                        {
+                            //e.g.: "select new {g.Key,g}" - but g is also a projection
+                            //Expression.MemberInit
+                            if(vars.groupByNewExpr==null)
+                                throw new ApplicationException("TODO - handle other cases than groupByNewExpr");
+                            PropertyInfo[] igroupies = projFld.propInfo.PropertyType.GetProperties();
+                            ConstructorInfo[] ictos = projFld.propInfo.PropertyType.GetConstructors();
+                            ProjectionData projInner = ProjectionData.FromSelectGroupByExpr(vars.groupByNewExpr,vars.groupByExpr,vars._sqlParts);
+                            //ProjectionData projInner = ProjectionData.FromSelectGroupByExpr(vars.groupByNewExpr,vars.groupByExpr,vars._sqlParts);
+                            LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projInner, rdr, ref fieldID);
+                            Type t1 = innerLambda.Body.Type;
+                            Type t2 = projFld.propInfo.PropertyType;
+                            //bool same  = t1==t2;
+                            MemberAssignment binding = Expression.Bind(projFld.propInfo, innerLambda.Body);
+                            bindings.Add(binding);
+                        }
+                        break;
+
                     default:
                         throw new ApplicationException("TODO - objects other than primitive and entities in CompileProjRow: "+projFld.type);
                 }
@@ -214,7 +231,7 @@ namespace DBLinq.util
 
 
         /// <summary>
-        /// return 'reader.GetString(0)' or 'reader.GetInt32(1)' 
+        /// return 'reader.GetString(0)' or 'reader.GetInt32(1)'
         /// as an Expression suitable for compilation
         /// </summary>
         static MethodCallExpression GetFieldMethodCall(Type t2,Expression rdr,int fieldID)
@@ -271,7 +288,10 @@ namespace DBLinq.util
         }
 #else
         /// <summary>
-        /// In C# 2006MayCTP, the compiled expression 
+        /// return 'reader.GetString(0)' or 'reader.GetInt32(1)'
+        /// as an Expression suitable for compilation.
+        /// 
+        /// Note: In C# 2006MayCTP, the compiled expression 
         /// 'reader.IsDbNull(0)?null:reader.GetInt32(0)'
         /// crashes the virtual machine.
         /// Instead of using MySqlDataReader, call into a wrapper class 'DataReader2' which handles nullable types for us
@@ -341,9 +361,13 @@ namespace DBLinq.util
             {
                 minfo = typeof(DataReader2).GetMethod("GetDateTimeN");
             }
-            else if(t2==typeof(char))
+            else if(t2==typeof(long))
             {
-                minfo = typeof(DataReader2).GetMethod("GetChar");
+                minfo = typeof(DataReader2).GetMethod("GetInt64");
+            }
+            else if(t2==typeof(long?))
+            {
+                minfo = typeof(DataReader2).GetMethod("GetInt64N");
             }
             else if(t2==typeof(byte[]))
             {
