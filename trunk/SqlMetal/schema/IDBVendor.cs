@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MysqlMetal.schema
+namespace SqlMetal.schema
 {
     /// <summary>
     /// both MySql and Oracle can query the database 
@@ -11,5 +11,6 @@ namespace MysqlMetal.schema
     public interface IDBVendor
     {
         DlinqSchema.Database LoadSchema();
+        string VendorName();
     }
 }

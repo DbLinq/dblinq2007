@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SqlMetal.schema.mysql
+namespace SqlMetal.schema.pgsql
 {
     static class Mappings
     {
@@ -41,6 +41,9 @@ namespace SqlMetal.schema.mysql
                 case "decimal": return "decimal";
                 case "blob": return "byte[]";
                     //TODO: blob,longblob,set, ...
+                case "character varying": return "string";
+                case "integer": return "int";
+                case "timestamp without time zone": return "DateTime";
                 default:
                     return "L80_mapCsType_unprepared_for_mysqltype_"+mysqlType;
             }

@@ -4,7 +4,7 @@ using System.Xml.Serialization;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MysqlMetal.util
+namespace SqlMetal.util
 {
     public static class Util
     {

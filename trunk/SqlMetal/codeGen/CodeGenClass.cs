@@ -6,9 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Query;
-using MysqlMetal.schema;
+using SqlMetal.schema;
 
-namespace MysqlMetal.codeGen
+namespace SqlMetal.codeGen
 {
     /// <summary>
     /// Generates a c# class representing table.
@@ -140,7 +140,7 @@ public EntityMSet<$childClassName> $fieldName
                 DlinqSchema.Table targetTable = schema.Schemas[0].Tables.FirstOrDefault( t => t.Name==assoc.Target);
                 if(targetTable==null)
                 {
-                    Console.WriteLine("ERROR L140 target table not found:"+assoc.Target);
+                    Console.WriteLine("ERROR L143 target table not found:"+assoc.Target);
                     continue;
                 }
 
@@ -188,7 +188,7 @@ public $parentClass $parentClass {
                 DlinqSchema.Table targetTable = schema.Schemas[0].Tables.FirstOrDefault( t => t.Name==assoc.Target);
                 if(targetTable==null)
                 {
-                    Console.WriteLine("ERROR L140 target table not found:"+assoc.Target);
+                    Console.WriteLine("ERROR L191 target table not found:"+assoc.Target);
                     continue;
                 }
 

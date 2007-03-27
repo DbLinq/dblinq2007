@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MysqlMetal.schema
+namespace SqlMetal.schema
 {
     class CSharp
     {

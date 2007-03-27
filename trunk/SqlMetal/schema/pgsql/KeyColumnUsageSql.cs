@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MySql.Data.MySqlClient;
+using Npgsql;
 
-namespace SqlMetal.schema.mysql
+namespace SqlMetal.schema.pgsql
 {
     /// <summary>
-    /// represents one row from MySQL's information_schema.`Key_Column_Usage` table
+    /// represents one row from Postgres' information_schema.`Key_Column_Usage` table
     /// </summary>
     public class KeyColumnUsage
     {
@@ -15,9 +15,13 @@ namespace SqlMetal.schema.mysql
         public string table_schema;
         public string table_name;
         public string column_name;
-        public string referenced_table_schema;
-        public string referenced_table_name;
-        public string referenced_column_name;
+        //public string referenced_table_schema;
+        //public string referenced_table_name;
+        //public string referenced_column_name;
+        public override string ToString()
+        {
+            return "KeyColUsage "+constraint_name+":  "+table_name+"."+column_name;
+        }
     }
 
     /// <summary>
@@ -25,7 +29,7 @@ namespace SqlMetal.schema.mysql
     /// </summary>
     class KeyColumnUsageSql
     {
-        KeyColumnUsage fromRow(MySqlDataReader rdr)
+        KeyColumnUsage fromRow(NpgsqlDataReader rdr)
         {
             KeyColumnUsage t = new KeyColumnUsage();
             int field = 0;
@@ -34,24 +38,24 @@ namespace SqlMetal.schema.mysql
             t.table_schema  = rdr.GetString(field++);
             t.table_name    = rdr.GetString(field++);
             t.column_name    = rdr.GetString(field++);
-            t.referenced_table_schema = rdr.GetString(field++);
-            t.referenced_table_name = rdr.GetString(field++);
-            t.referenced_column_name = rdr.GetString(field++);
+            //t.referenced_table_schema = rdr.GetString(field++);
+            //t.referenced_table_name = rdr.GetString(field++);
+            //t.referenced_column_name = rdr.GetString(field++);
             return t;
         }
 
-        public List<KeyColumnUsage> getConstraints(MySqlConnection conn, string db)
+        public List<KeyColumnUsage> getConstraints(NpgsqlConnection conn, string db)
         {
             string sql = @"
 SELECT constraint_schema,constraint_name,table_schema,table_name
-    ,column_name,referenced_table_schema,referenced_table_name,referenced_column_name
-FROM information_schema.`KEY_COLUMN_USAGE`
-WHERE table_schema=?db";
+    ,column_name
+FROM information_schema.KEY_COLUMN_USAGE
+WHERE constraint_catalog=:db";
 
-            using(MySqlCommand cmd = new MySqlCommand(sql, conn))
+            using(NpgsqlCommand cmd = new NpgsqlCommand(sql, conn))
             {
-                cmd.Parameters.Add("?db", db);
-                using(MySqlDataReader rdr = cmd.ExecuteReader())
+                cmd.Parameters.Add(":db", db);
+                using(NpgsqlDataReader rdr = cmd.ExecuteReader())
                 {
                     List<KeyColumnUsage> list = new List<KeyColumnUsage>();
                     while(rdr.Read())

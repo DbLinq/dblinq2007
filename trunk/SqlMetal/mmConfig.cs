@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MysqlMetal
+namespace SqlMetal
 {
     static class mmConfig
     {

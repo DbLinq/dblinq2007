@@ -1,0 +1,67 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{93E8F1C0-326E-4447-94FC-02F6E5CB2243}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SqlMetal</RootNamespace>
+    <AssemblyName>PgsqlMetal</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;POSTGRES</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Npgsql, Version=1.0.0.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\Npgsql.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.OracleClient" />
+    <Reference Include="System.Query" />
+    <Reference Include="System.Data.DLinq" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="codeGen\CodeGenClass.cs" />
+    <Compile Include="codeGen\CodeGenField.cs" />
+    <Compile Include="codeGen\CodeGenAll.cs" />
+    <Compile Include="Program_Pgsql.cs" />
+    <Compile Include="schema\CSharp.cs" />
+    <Compile Include="mmConfig.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="schema\DlinqSchema.cs" />
+    <Compile Include="schema\IDBVendor.cs" />
+    <Compile Include="schema\pgsql\ColumnSql.cs" />
+    <Compile Include="schema\pgsql\ForeignKeySql.cs" />
+    <Compile Include="schema\pgsql\KeyColumnUsageSql.cs" />
+    <Compile Include="schema\pgsql\Mappings.cs" />
+    <Compile Include="schema\pgsql\PgsqlVendor.cs" />
+    <Compile Include="schema\pgsql\TableSorter.cs" />
+    <Compile Include="schema\pgsql\TableSql.cs" />
+    <Compile Include="util\Util.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="bin\run_pgsqlMetal.bat" />
+  </ItemGroup>
+  <Import Project="$(ProgramFiles)\LINQ Preview\Misc\Linq.targets" />
+</Project>

@@ -5,10 +5,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MysqlMetal.schema;
-using MysqlMetal.util;
+using SqlMetal.schema;
+using SqlMetal.util;
 
-namespace MysqlMetal.codeGen
+namespace SqlMetal.codeGen
 {
     public class CodeGenField
     {
