@@ -2,17 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Query;
-using MySql.Data.MySqlClient;
+using Npgsql;
 using SqlMetal.util;
 
-namespace SqlMetal.schema.mysql
+namespace SqlMetal.schema.pgsql
 {
     /// <summary>
     /// this class contains MySql-specific way of retrieving DB schema.
     /// </summary>
-    class MySqlVendor : IDBVendor
+    class PgsqlVendor : IDBVendor
     {
-        public string VendorName(){ return "MySql"; }
+        public string VendorName(){ return "PostgreSQL"; }
 
         /// <summary>
         /// main entry point to load schema
@@ -22,12 +22,13 @@ namespace SqlMetal.schema.mysql
             string connStr = string.Format("server={0};user id={1}; password={2}; database={3}; pooling=false"
                 , mmConfig.server, mmConfig.user, mmConfig.password, mmConfig.database);
 
-            MySqlConnection conn = new MySqlConnection(connStr);
+            NpgsqlConnection conn = new NpgsqlConnection(connStr);
             conn.Open();
 
             DlinqSchema.Database schema = new DlinqSchema.Database();
             schema.Name = mmConfig.database;
-            schema.Class = FormatTableName(schema.Name);
+            //schema.Class = FormatTableName(schema.Name);
+            schema.Class = schema.Name;
             DlinqSchema.Schema schema0 = new DlinqSchema.Schema();
             schema0.Name = "Default";
             schema.Schemas.Add( schema0 );
@@ -59,7 +60,16 @@ namespace SqlMetal.schema.mysql
             //step 2 - load columns
             ColumnSql csql = new ColumnSql();
             List<Column> columns = csql.getColumns(conn,mmConfig.database);
+
+            KeyColumnUsageSql ksql = new KeyColumnUsageSql();
+            List<KeyColumnUsage> constraints = ksql.getConstraints(conn,mmConfig.database);
+            ForeignKeySql fsql = new ForeignKeySql();
+
+            List<ForeignKeyCrossRef> allKeys2 = fsql.getConstraints(conn,mmConfig.database);
+            List<ForeignKeyCrossRef> foreignKeys = allKeys2.Where( k => k.constraint_type == "FOREIGN KEY" ).ToList();
+            List<ForeignKeyCrossRef> primaryKeys = allKeys2.Where( k => k.constraint_type == "PRIMARY KEY" ).ToList();
             
+
             foreach(Column columnRow in columns)
             {
                 //find which table this column belongs to
@@ -72,8 +82,11 @@ namespace SqlMetal.schema.mysql
                 DlinqSchema.Column colSchema = new DlinqSchema.Column();
                 colSchema.Name = columnRow.column_name;
                 colSchema.DBType = columnRow.datatype; //.column_type ?
-                colSchema.IsIdentity = columnRow.column_key=="PRI";
-                colSchema.IsAutogen = columnRow.extra=="auto_increment";
+                KeyColumnUsage primaryKCU = constraints.FirstOrDefault(c => c.column_name==columnRow.column_name 
+                    && c.table_name==columnRow.table_name && c.constraint_name.EndsWith("_pkey"));
+
+                colSchema.IsIdentity = primaryKCU!=null; //columnRow.column_key=="PRI";
+                colSchema.IsAutogen = columnRow.column_default!=null && columnRow.column_default.StartsWith("nextval(");
                 //colSchema.IsVersion = ???
                 colSchema.Nullable = columnRow.isNullable;
                 colSchema.Type = Mappings.mapSqlTypeToCsType(columnRow.datatype, columnRow.column_type);
@@ -91,11 +104,9 @@ namespace SqlMetal.schema.mysql
             }
 
             //##################################################################
-            //step 3 - load foreign keys etc
-            KeyColumnUsageSql ksql = new KeyColumnUsageSql();
-            List<KeyColumnUsage> constraints = ksql.getConstraints(conn,mmConfig.database);
+            //step 3 - analyse foreign keys etc
 
-            TableSorter.Sort(tables, constraints); //sort tables - parents first
+            //TableSorter.Sort(tables, constraints); //sort tables - parents first
 
             foreach(KeyColumnUsage keyColRow in constraints)
             {
@@ -107,7 +118,7 @@ namespace SqlMetal.schema.mysql
                     continue;
                 }
 
-                if(keyColRow.constraint_name=="PRIMARY")
+                if(keyColRow.constraint_name.EndsWith("_pkey")) //MYSQL reads 'PRIMARY'
                 {
                     //A) add primary key
                     DlinqSchema.ColumnSpecifier primaryKey = new DlinqSchema.ColumnSpecifier();
@@ -125,14 +136,23 @@ namespace SqlMetal.schema.mysql
                     //}
                 } else 
                 {
+                    ForeignKeyCrossRef foreignKey = foreignKeys.FirstOrDefault(f=>f.constraint_name==keyColRow.constraint_name);
+                    if(foreignKey==null)
+                    {
+                        string msg = "Missing data from 'constraint_column_usage' for foreign key "+keyColRow.constraint_name;
+                        Console.WriteLine(msg);
+                        throw new ApplicationException(msg);
+                    }
+
+
                     //if not PRIMARY, it's a foreign key.
                     //both parent and child table get an [Association]
                     //table.as
                     DlinqSchema.Association assoc = new DlinqSchema.Association();
                     assoc.Kind = DlinqSchema.RelationshipKind.ManyToOneChild;
                     assoc.Name = keyColRow.constraint_name;
-                    //assoc.Target = keyColRow.referenced_table_name + "."+ keyColRow.referenced_column_name;
-                    assoc.Target = keyColRow.referenced_table_name;
+                    //assoc.Target = keyColRow.referenced_table_name;
+                    assoc.Target = foreignKey.table_name_Parent;
                     DlinqSchema.ColumnName assocCol = new DlinqSchema.ColumnName();
                     assocCol.Name = keyColRow.column_name;
                     assoc.Columns.Add(assocCol);
@@ -146,9 +166,10 @@ namespace SqlMetal.schema.mysql
                     DlinqSchema.ColumnName assocCol2 = new DlinqSchema.ColumnName();
                     assocCol2.Name = keyColRow.column_name;
                     assoc2.Columns.Add(assocCol2);
-                    DlinqSchema.Table parentTable = schema0.Tables.FirstOrDefault(t => keyColRow.referenced_table_name==t.Name);
+                    //DlinqSchema.Table parentTable = schema0.Tables.FirstOrDefault(t => keyColRow.referenced_table_name==t.Name);
+                    DlinqSchema.Table parentTable = schema0.Tables.FirstOrDefault(t => foreignKey.table_name_Parent==t.Name);
                     if(parentTable==null)
-                        Console.WriteLine("ERROR 148: parent table not found: "+keyColRow.referenced_table_name);
+                        Console.WriteLine("ERROR L151: parent table not found: "+foreignKey.table_name_Parent);
                     else
                         parentTable.Types[0].Associations.Add(assoc2);
 

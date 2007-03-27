@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MySql.Data.MySqlClient;
+using Npgsql;
 
-namespace SqlMetal.schema.mysql
+namespace SqlMetal.schema.pgsql
 {
-        /// <summary>
-    /// represents one row from MySQL's information_schema.`TABLES` table
+    /// <summary>
+    /// represents one row from POSTGRES's information_schema.`TABLES` table
     /// </summary>
     public class TableRow
     {
@@ -42,7 +42,7 @@ namespace SqlMetal.schema.mysql
     /// </summary>
     class TableSql
     {
-        TableRow fromRow(MySqlDataReader rdr)
+        TableRow fromRow(NpgsqlDataReader rdr)
         {
             TableRow t = new TableRow();
             int field = 0;
@@ -52,17 +52,18 @@ namespace SqlMetal.schema.mysql
             return t;
         }
 
-        public List<TableRow> getTables(MySqlConnection conn, string db)
+        public List<TableRow> getTables(NpgsqlConnection conn, string db)
         {
             string sql = @"
 SELECT table_catalog,table_schema,table_name
-FROM information_schema.`TABLES`
-WHERE table_schema=?db";
+FROM information_schema.TABLES
+WHERE table_catalog=:db
+AND table_schema NOT IN ('pg_catalog','information_schema')";
 
-            using(MySqlCommand cmd = new MySqlCommand(sql, conn))
+            using(NpgsqlCommand cmd = new NpgsqlCommand(sql, conn))
             {
-                cmd.Parameters.Add("?db", db);
-                using(MySqlDataReader rdr = cmd.ExecuteReader())
+                cmd.Parameters.Add(":db", db);
+                using(NpgsqlDataReader rdr = cmd.ExecuteReader())
                 {
                     List<TableRow> list = new List<TableRow>();
                     while(rdr.Read())

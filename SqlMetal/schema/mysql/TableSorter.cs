@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MysqlMetal.schema;
+using SqlMetal.schema;
 
-namespace MysqlMetal.schema.mysql
+namespace SqlMetal.schema.mysql
 {
     /// <summary>
     /// sort tables - parent tables first, child tables next.

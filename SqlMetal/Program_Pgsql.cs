@@ -8,7 +8,7 @@ using System.Query;
 using System.IO;
 using System.Collections.Generic;
 using System.Text;
-using MySql.Data.MySqlClient;
+using Npgsql;
 using SqlMetal.schema;
 using SqlMetal.codeGen;
 
@@ -29,15 +29,14 @@ namespace SqlMetal
                 string connStr = string.Format("server={0};user id={1}; password={2}; database={3}; pooling=false"
                     , mmConfig.server, mmConfig.user, mmConfig.password, mmConfig.database);
 
-                SqlMetal.schema.mysql.MySqlVendor vendorM = new SqlMetal.schema.mysql.MySqlVendor();
-                string vendorName = vendorM.VendorName();
+                SqlMetal.schema.pgsql.PgsqlVendor vendorM = new SqlMetal.schema.pgsql.PgsqlVendor();
                 DlinqSchema.Database dbSchema = vendorM.LoadSchema();
 
                 CodeGenAll codeGen = new CodeGenAll();
-                string fileBody = codeGen.generateAll(dbSchema, vendorName);
+                string fileBody = codeGen.generateAll(dbSchema, vendorM.VendorName());
                 string fname = mmConfig.database+".cs";
                 File.WriteAllText(fname, fileBody);
-                Console.WriteLine("MysqlMetal: Written file "+fname);
+                Console.WriteLine("PgsqlMetal: Written file "+fname);
             }
             catch(Exception ex)
             {

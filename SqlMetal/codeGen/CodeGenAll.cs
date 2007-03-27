@@ -5,10 +5,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MysqlMetal.schema;
-using MysqlMetal.util;
+using SqlMetal.schema;
+using SqlMetal.util;
 
-namespace MysqlMetal.codeGen
+namespace SqlMetal.codeGen
 {
     /// <summary>
     /// generates a c# class representing database.
@@ -18,7 +18,7 @@ namespace MysqlMetal.codeGen
     {
         CodeGenClass codeGenClass = new CodeGenClass();
 
-        public string generateAll(DlinqSchema.Database dbSchema)
+        public string generateAll(DlinqSchema.Database dbSchema, string vendorName)
         {
             if(dbSchema==null || dbSchema.Schemas==null || dbSchema.Schemas.Count==0 || dbSchema.Schemas[0].Tables==null)
             {
@@ -58,7 +58,7 @@ namespace $ns
             string prolog1 = prolog.Replace("$date", DateTime.Now.ToString("yyyy-MMM-dd"));
             prolog1 = prolog1.Replace("$db", mmConfig.server);
             string classesConcat = string.Join("\n\n", classBodies.ToArray());
-            classesConcat = generateDbClass(dbSchema) + "\n\n" + classesConcat;
+            classesConcat = generateDbClass(dbSchema, vendorName) + "\n\n" + classesConcat;
             string fileBody;
             if(mmConfig.@namespace==null || mmConfig.@namespace==""){
                 fileBody = prolog1 + classesConcat;
@@ -73,7 +73,7 @@ namespace $ns
 
         }
 
-        string generateDbClass(DlinqSchema.Database dbSchema)
+        string generateDbClass(DlinqSchema.Database dbSchema, string vendorName)
         {
             #region generateDbClass()
             //if (tables.Count==0)
@@ -83,7 +83,7 @@ namespace $ns
 
             const string dbClassStr = @"
 /// <summary>
-/// This class represents MySql database $dbname.
+/// This class represents $vendor database $dbname.
 /// </summary>
 public partial class $dbname : MContext
 {
@@ -118,6 +118,7 @@ public partial class $dbname : MContext
             string dbFieldInitStr = string.Join("\n\t\t", dbFieldInits.ToArray());
             string dbFieldDeclStr = string.Join("\n\t", dbFieldDecls.ToArray());
             string dbs = dbClassStr;
+            dbs = dbs.Replace("$vendor", vendorName);
             dbs = dbs.Replace("$dbname",dbName);
             dbs = dbs.Replace("$fieldInit",dbFieldInitStr);
             dbs = dbs.Replace("$fieldDecl",dbFieldDeclStr);

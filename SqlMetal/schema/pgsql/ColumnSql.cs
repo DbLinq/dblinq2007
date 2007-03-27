@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using MySql.Data.MySqlClient;
+using Npgsql;
 
-namespace SqlMetal.schema.mysql
+namespace SqlMetal.schema.pgsql
 {
     /// <summary>
     /// represents one row from information_schema.`COLUMNS`
@@ -20,7 +20,7 @@ namespace SqlMetal.schema.mysql
         /// eg 'int' or 'datetime'
         /// </summary>
         public string datatype;
-        public string extra;
+        //public string extra;
 
         /// <summary>
         /// eg. 'int(10) unsigned'
@@ -28,14 +28,19 @@ namespace SqlMetal.schema.mysql
         public string column_type;
 
         /// <summary>
-        /// null or 'PRI' or 'MUL'
-        /// </summary>
-        public string column_key;
-
-        /// <summary>
         /// eg. for column called 'int' we use csharpName='int_'
         /// </summary>
         public string csharpFieldName;
+
+        /// <summary>
+        /// eg. "nextval('products_productid_seq'::regclass)"
+        /// </summary>
+        public string column_default;
+
+        public override string ToString()
+        {
+            return "Column "+table_name+"."+column_name+"  "+datatype.Substring(0,4);
+        }
     }
 
     /// <summary>
@@ -43,7 +48,7 @@ namespace SqlMetal.schema.mysql
     /// </summary>
     class ColumnSql
     {
-        Column fromRow(MySqlDataReader rdr)
+        Column fromRow(NpgsqlDataReader rdr)
         {
             Column t = new Column();
             int field = 0;
@@ -54,25 +59,26 @@ namespace SqlMetal.schema.mysql
             string nullableStr = rdr.GetString(field++);
             t.isNullable    = nullableStr=="YES";
             t.datatype      = rdr.GetString(field++);
-            t.extra         = rdr.GetString(field++);
-            t.column_type   = rdr.GetString(field++);
-            t.column_key    = rdr.GetString(field++);
+            t.column_default = rdr.IsDBNull(field++) ? null : rdr.GetString(field-1);
+            //t.extra         = null; //rdr.GetString(field++);
+            t.column_type   = null; //rdr.GetString(field++);
+            //t.column_key    = null; //rdr.GetString(field++);
             return t;
         }
 
-        public List<Column> getColumns(MySqlConnection conn, string db)
+        public List<Column> getColumns(NpgsqlConnection conn, string db)
         {
             string sql = @"
 SELECT table_catalog,table_schema,table_name,column_name
-    ,is_nullable,data_type,extra,column_type
-    ,column_key
-FROM information_schema.`COLUMNS`
-WHERE table_schema=?db";
+    ,is_nullable,data_type,column_default
+FROM information_schema.COLUMNS
+WHERE table_catalog=:db
+AND table_schema NOT IN ('pg_catalog','information_schema')";
 
-            using(MySqlCommand cmd = new MySqlCommand(sql, conn))
+            using(NpgsqlCommand cmd = new NpgsqlCommand(sql, conn))
             {
-                cmd.Parameters.Add("?db", db);
-                using(MySqlDataReader rdr = cmd.ExecuteReader())
+                cmd.Parameters.Add(":db", db);
+                using(NpgsqlDataReader rdr = cmd.ExecuteReader())
                 {
                     List<Column> list = new List<Column>();
                     while(rdr.Read())

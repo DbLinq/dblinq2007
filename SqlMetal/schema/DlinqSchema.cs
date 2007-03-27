@@ -5,7 +5,7 @@ using System.Xml.Serialization;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MysqlMetal.schema
+namespace SqlMetal.schema
 {
     /// <summary>
     /// This class represents DB schema, extracted from MySql or Oracle,
