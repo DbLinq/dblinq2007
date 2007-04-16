@@ -17,7 +17,7 @@ namespace DBLinq.util
     /// When we have a workaround for FatalExecutionEngineError on nullables, 
     /// this can go away.
     /// </summary>
-    public class DataReader2 //: IDataRecord
+    public class DataReader2 : IDisposable //, IDataRecord
     {
         NpgsqlDataReader _rdr;
         public DataReader2(NpgsqlDataReader rdr)
@@ -25,6 +25,11 @@ namespace DBLinq.util
             _rdr = rdr;
         }
         
+        /// <summary>
+        /// Read added to support groupBy clauses, with more than one row returned at a time
+        /// </summary>
+        public bool Read(){ return _rdr.Read(); }
+
         public int FieldCount { get { return _rdr.FieldCount; } }
         public string GetName(int index){ return _rdr.GetName(index); }
         public string GetDataTypeName(int index){ return _rdr.GetDataTypeName(index); }
@@ -282,5 +287,6 @@ namespace DBLinq.util
             }
         }
 
+        public void Dispose(){ _rdr.Dispose(); }
     }
 }

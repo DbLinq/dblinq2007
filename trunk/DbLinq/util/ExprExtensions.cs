@@ -1,3 +1,9 @@
+////////////////////////////////////////////////////////////////////
+//Initial author: Jiri George Moudry, 2006.
+//License: LGPL. (Visit http://www.gnu.org)
+//Commercial code may call into this library, if it's in a different module (DLL)
+////////////////////////////////////////////////////////////////////
+
 using System;
 using System.Diagnostics;
 using System.Expressions;
@@ -73,9 +79,23 @@ namespace DBLinq.util
         {
             if(ex==null)
                 return null;
-            if(ex.NodeType!=ExpressionType.Convert)
+            if(ex.NodeType==ExpressionType.Convert
+                || ex.NodeType==ExpressionType.Cast)
+            {
+                return (UnaryExpression)ex;
+            }
+            return null;
+        }
+
+        public static Expression XCastOperand(this Expression ex)
+        {
+            if(ex==null)
                 return null;
-            return (UnaryExpression)ex;
+            if(ex.NodeType==ExpressionType.Cast)
+            {
+                return ((UnaryExpression)ex).Operand;
+            }
+            return null;
         }
         
 

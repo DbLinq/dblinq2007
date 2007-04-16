@@ -17,16 +17,21 @@ namespace Test_NUnit
     {
         static void Main()
         {
-            //new ReadTest().C3_SelectPenIdName();
-            new ReadTest_GroupBy().G01_SimpleGroup();
+            //new ReadTest_GroupBy().G01_SimpleGroup_Count();
+            new ReadTest_GroupBy().G08_OrderSumByCustomerID();
+
+            //new ReadTest().D05_SelectOrdersForProduct();
+            //new ReadTest_GroupBy().G01_SimpleGroup();
+            //new ReadTest_GroupBy().G04_SimpleGroup_WithSelector();
             //new ReadTest_GroupBy().G04_OrderSumByCustomerID();
-            //new ReadTest_Complex().F1_ProductCount();
+            //ReadTest_Complex rc = new ReadTest_Complex();
+            //rc.F10_DistinctCity();
+            //rc.F11_ConcatString();
             //new ReadTest().D10_Products_LetterP_Desc();
             //new ReadTest().D7_OrdersFromLondon_Alt();
             //new WriteTest().G2_DeleteTest();
             //new WriteTest().G1_InsertProduct();
         }
     }
-    //class Column { public string table_name; }
-    //class Table { public string table_name; }
+
 }

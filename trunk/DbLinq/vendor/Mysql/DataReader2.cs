@@ -1,7 +1,9 @@
 ////////////////////////////////////////////////////////////////////
 //Initial author: Jiri George Moudry, 2006.
 //License: LGPL. (Visit http://www.gnu.org)
+//Commercial code may call into this library, if it's in a different module (DLL)
 ////////////////////////////////////////////////////////////////////
+
 using System;
 using System.Data;
 using System.Collections.Generic;
@@ -17,7 +19,7 @@ namespace DBLinq.util
     /// When we have a workaround for FatalExecutionEngineError on nullables, 
     /// this can go away.
     /// </summary>
-    public class DataReader2 //: IDataRecord
+    public class DataReader2 : IDisposable //, IDataRecord
     {
         MySqlDataReader _rdr;
         public DataReader2(MySqlDataReader rdr)
@@ -25,6 +27,11 @@ namespace DBLinq.util
             _rdr = rdr;
         }
         
+        /// <summary>
+        /// Read added to support groupBy clauses, with more than one row returned at a time
+        /// </summary>
+        public bool Read(){ return _rdr.Read(); }
+
         public int FieldCount { get { return _rdr.FieldCount; } }
         public string GetName(int index){ return _rdr.GetName(index); }
         public string GetDataTypeName(int index){ return _rdr.GetDataTypeName(index); }
@@ -91,7 +98,7 @@ namespace DBLinq.util
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetInt32 failed: "+ex);
+                Console.WriteLine("GetInt32("+index+") failed: "+ex);
                 return 0;
             }
         }
@@ -254,6 +261,6 @@ namespace DBLinq.util
                 return null;
             }
         }
-
+        public void Dispose(){ _rdr.Close(); }
     }
 }

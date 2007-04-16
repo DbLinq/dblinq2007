@@ -1,3 +1,9 @@
+////////////////////////////////////////////////////////////////////
+//Initial author: Jiri George Moudry, 2006.
+//License: LGPL. (Visit http://www.gnu.org)
+//Commercial code may call into this library, if it's in a different module (DLL)
+////////////////////////////////////////////////////////////////////
+
 using System;
 using System.Data.DLinq;
 using System.Reflection;
@@ -101,7 +107,7 @@ namespace DBLinq.Linq
             //when selecting just a string, body is not MemberInitExpr, but MemberExpr
             MemberInitExpression memberInit = selectExpr.Body as MemberInitExpression;
             if(memberInit==null){
-                Console.WriteLine("Select is not a projection");
+                Console.WriteLine("  Select is not a projection - just a single field");
                 return null;
             }
             NewExpression newExpr = memberInit.NewExpression;
@@ -156,7 +162,7 @@ namespace DBLinq.Linq
             //when selecting just a string, body is not MemberInitExpr, but MemberExpr
             MemberInitExpression memberInit = selectExpr.Body as MemberInitExpression;
             if(memberInit==null){
-                Console.WriteLine("Select is not a projection");
+                Console.WriteLine("Select is not a projection (L159)");
                 return null;
             }
             NewExpression newExpr = memberInit.NewExpression;
@@ -178,12 +184,13 @@ namespace DBLinq.Linq
                         projField.type = projField.expr1.Type;
                         projField.typeEnum = CSharp.CategorizeType(projField.type);
 
-                        //TODO: for GroupBy selects, replace 'g.Key' with 'o.CustomerID':
-                        if(projField.expr1.Member.Name=="Key")
-                        {
-                            projField.expr1 = groupByExpr.Body as MemberExpression;
-                            sqlParts.selectFieldList.Add(projField.expr1.Member.Name);
-                        }
+                        //Now handled in ExpressionTreeParser
+                        ////TODO: for GroupBy selects, replace 'g.Key' with 'o.CustomerID':
+                        //if(projField.expr1.Member.Name=="Key")
+                        //{
+                        //    projField.expr1 = groupByExpr.Body as MemberExpression;
+                        //    sqlParts.selectFieldList.Add(projField.expr1.Member.Name);
+                        //}
                         break;
                     case ExpressionType.Parameter:
                         //occurs during 'from c ... from o ... select new {c,o}'
@@ -198,9 +205,6 @@ namespace DBLinq.Linq
                         //projField.expr1 = memberAssign.Expression as MemberExpression;
                         //projField.type = callEx.Type;
                         //projField.typeEnum = CSharp.CategorizeType(projField.type);
-                        WhereClauses clauses = new WhereClauseBuilder(sqlParts).Main_AnalyzeExpr(callEx);
-                        //clauses.CopyInto(sqlParts); //this would populate WHERE
-                        sqlParts.selectFieldList.Add(clauses.sb.ToString());
                         break;
                     default:
                         throw new ArgumentException("L86: Unprepared for "+memberAssign.Expression.NodeType);

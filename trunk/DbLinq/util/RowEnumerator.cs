@@ -15,12 +15,18 @@ using System.Text;
 #if ORACLE
 using System.Data.OracleClient;
 using XSqlCommand = System.Data.OracleClient.OracleCommand;
+using XSqlDataReader = System.Data.OracleClient.OracleDataReader;
+using XSqlConnection = System.Data.OracleClient.OracleConnection;
 #elif POSTGRES
 using Npgsql;
 using XSqlCommand = Npgsql.NpgsqlCommand;
+using XSqlDataReader = Npgsql.NpgsqlDataReader;
+using XSqlConnection = Npgsql.NpgsqlConnection;
 #else
 using MySql.Data.MySqlClient;
 using XSqlCommand = MySql.Data.MySqlClient.MySqlCommand;
+using XSqlDataReader = MySql.Data.MySqlClient.MySqlDataReader;
+using XSqlConnection = MySql.Data.MySqlClient.MySqlConnection;
 #endif
 using DBLinq.util;
 using DBLinq.Linq;
@@ -33,40 +39,19 @@ namespace DBLinq.util
     /// It creates a SqlCommand and MySqlDataReader.
     /// </summary>
     /// <typeparam name="T">the type of the row object</typeparam>
-    public class RowEnumerator<T> : IEnumerator<T>, IQueryText
+    public class RowEnumerator<T> : IEnumerable<T>, IDisposable //IEnumerator<T>
+        , IQueryText
     {
-        SessionVars _vars;
-#if ORACLE
-        OracleConnection _conn;
-        //OracleCommand _cmd;
-        OracleDataReader _rdr;
-#elif POSTGRES
-        NpgsqlConnection _conn;
-        //NpgsqlCommand _cmd;
-        NpgsqlDataReader _rdr;
-#else
-        MySqlConnection _conn;
-        //MySqlCommand _cmd;
-        MySqlDataReader _rdr;
-#endif
-        XSqlCommand _cmd;
+        protected SessionVars _vars;
+        XSqlConnection _conn;
 
-        T _current;
-
-#if USE_MYSQLREADER_DIRECTLY
-        //when Microsoft fixes FatalExecuteEngineError (crash when assembling nullables), we can use MySqlDataReader directly
-        Func<MySqlDataReader,T> _objFromRow2;
-        MySqlDataReader _rdr2;
-#else
         //while the FatalExecuteEngineError persists, we use a wrapper class to retrieve data
-        Func<DataReader2,T> _objFromRow2;
-        DataReader2 _rdr2;
-#endif
+        protected Func<DataReader2,T> _objFromRow2;
+
         Type _sourceType;
-        ProjectionData _projectionData;
-        //ICollection<T> _rowCache;
+        protected ProjectionData _projectionData;
         Dictionary<T,T> _rowCache;
-        internal readonly string _sqlString;
+        internal string _sqlString;
 
 
         public RowEnumerator(SessionVars vars, Dictionary<T,T> rowCache)
@@ -79,50 +64,7 @@ namespace DBLinq.util
             if(_conn==null || _conn.State!=ConnectionState.Open)
                 throw new ApplicationException("Connection is not open");
 
-
-            //three categories to handle:
-            //A) extract object of primitive / builtin type (eg. string or int)
-            //B) extract column object, which will be 'newed' and then tracked for changes
-            //C) extract a projection object, using default ctor and bindings, no tracking needed.
-            bool isBuiltinType = CSharp.IsPrimitiveType(typeof(T));
-            bool isColumnType  = IsColumnType();
-            bool isProjectedType = IsProjection();
-
-            if(_projectionData==null && !isBuiltinType)
-            {
-                //for Table types, use attributes to determine fields
-                //for projection types, return projData with only ctor assigned
-                _projectionData = ProjectionData.FromDbType(typeof(T));
-            }
-
-            if(isBuiltinType)
-            {
-                _objFromRow2 = RowEnumeratorCompiler<T>.CompilePrimitiveRowDelegate();
-            }
-            else if(isColumnType)
-            {
-                _objFromRow2 = RowEnumeratorCompiler<T>.CompileColumnRowDelegate(_projectionData);
-            }
-            else if(isProjectedType && vars.groupByExpr!=null)
-            {
-                //now we know what the GroupBy object is, 
-                //and what method to use with grouping (eg Count())
-                //_projectionData.type = typeof(T);
-                //vars._sqlParts.selectFieldList.Add("Count(*)");
-
-                ProjectionData projData2 = ProjectionData.FromReflectedType(typeof(T));
-
-                //and compile the sucker
-                _objFromRow2 = RowEnumeratorCompiler<T>.CompileProjectedRowDelegate(vars, projData2);
-            }
-            else if(isProjectedType)
-            {
-                _objFromRow2 = RowEnumeratorCompiler<T>.CompileProjectedRowDelegate(vars, _projectionData);
-            }
-            else
-            {
-                throw new ApplicationException("L176: RowEnumerator can handle basic types or projected types, but not "+typeof(T));
-            }
+            CompileReaderFct();
 
             //eg. '$p' for user query "from p in db.products"
             if(vars._sqlParts.IsEmpty())
@@ -160,104 +102,105 @@ namespace DBLinq.util
             Console.WriteLine("SQL: "+_sqlString);
         }
 
+        protected virtual void CompileReaderFct()
+        {
+            int fieldID = 0;
+            _objFromRow2 = RowEnumeratorCompiler<T>.CompileRowDelegate(_vars, ref fieldID);
+        }
+
         public string GetQueryText(){ return _sqlString; }
 
-        public void ExecuteSqlCommand()
+        protected XSqlCommand ExecuteSqlCommand(out DataReader2 rdr2)
         {
-            _cmd = new XSqlCommand(_sqlString,_conn);
+            XSqlCommand cmd = new XSqlCommand(_sqlString,_conn);
 
             if(_vars._sqlParts!=null)
             {
                 foreach(string paramName in _vars._sqlParts.paramMap.Keys){
                     object value = _vars._sqlParts.paramMap[paramName];
                     Console.WriteLine("SQL PARAM: "+paramName+" = "+value);
-                    _cmd.Parameters.Add(paramName,value);
+                    cmd.Parameters.Add(paramName,value);
                 }
             }
 
-            Console.WriteLine("_cmd.ExecuteCommand()");
-            _rdr = _cmd.ExecuteReader();
-#if USE_MYSQLREADER_DIRECTLY
-            _rdr2 = _rdr;
-#else
-            _rdr2 = new DataReader2(_rdr);
-#endif
+            Console.WriteLine("cmd.ExecuteCommand()");
+            XSqlDataReader _rdr = cmd.ExecuteReader();
+            rdr2 = new DataReader2(_rdr);
+
             int fields = _rdr.FieldCount;
             string hasRows = _rdr.HasRows ? "rows: yes" : "rows: no";
             Console.WriteLine("ExecuteSqlCommand numFields="+fields+ " "+hasRows);
+            return cmd;
         }
 
         #region Dispose()
         public void Dispose()
         {
-            if(_rdr!=null){ 
-                _rdr.Close();
-                _rdr = null;
-            }
-            if(_cmd!=null){ 
-                _cmd.Dispose();
-                _cmd = null;
-            }
+            //Dispose logic moved into the "yield return" loop
+            Console.WriteLine("RowEnum.Dispose()");
+            //if(_rdr!=null){ 
+            //    _rdr.Close();
+            //    _rdr = null;
+            //}
+            //if(cmd!=null){ 
+            //    cmd.Dispose();
+            //    cmd = null;
+            //}
         }
         #endregion
 
-        public object Current 
-        { 
-            get { return _current; } 
-        }
+
 
         /// <summary>
         /// this is called during foreach
         /// </summary>
-        T IEnumerator<T>.Current 
-        { 
-            get { return _current; }
-        }
-
-        public void Reset()
+        public virtual IEnumerator<T> GetEnumerator()
         {
-            throw new ApplicationException("TODO: reset MySqlDataReader");
-        }
+            if(_objFromRow2==null)
+            {
+                throw new ApplicationException("Internal error, missing _objFromRow compiled func");
+            }
 
-        /// <summary>
-        /// this is called during foreach
-        /// </summary>
-        public bool MoveNext()
-        {
-            _current = default(T);
-            bool hasNext = _rdr.Read();
-            //Console.WriteLine("RowEnumerator.MoveNext returned "+hasNext);
-            if(hasNext){
-                try {
-                    if(_objFromRow2!=null){
-                        _current = _objFromRow2(_rdr2);
+            DataReader2 rdr2;
+            using( XSqlCommand cmd = ExecuteSqlCommand(out rdr2) )
+            using( rdr2 )
+            {
+                //_current = default(T);
+                while(rdr2.Read())
+                {
+                    T current = _objFromRow2(rdr2);
 
-                        if(_rowCache!=null && _current!=null)
+                    //live object cache:
+                    if(_rowCache!=null && current!=null)
+                    {
+                        //TODO: given object's ID, try to retrieve an existing cached object
+                        //_rowCache.Add(_current); //store so we can save if modified
+                        T previousObj;
+                        //rowCache uses Order.OrderId as key (uses Order.GetHashCode and .Equals)
+                        bool contains = _rowCache.TryGetValue(current,out previousObj);
+                        if(contains)
                         {
-                            //TODO: given object's ID, try to retrieve an existing cached object
-                            //_rowCache.Add(_current); //store so we can save if modified
-                            T previousObj;
-                            //rowCache uses Order.OrderId as key (uses Order.GetHashCode and .Equals)
-                            bool contains = _rowCache.TryGetValue(_current,out previousObj);
-                            if(contains)
-                            {
-                                //discard data from DB, return previously loaded instance
-                                _current = previousObj; 
-                            }
-                            _rowCache[_current] = _current;
+                            //discard data from DB, return previously loaded instance
+                            current = previousObj; 
                         }
+                        _rowCache[current] = current;
                     }
-                    else
-                        Console.WriteLine("L149 Error: Null _objFromRow");
-                } catch(Exception ex){
-                    Console.WriteLine("RowEnumerator.ObjFromRow failed:"+ex);
+
+                    //Error: Cannot yield a value in the body of a try block with a catch clause
+                    yield return current;
                 }
             }
-            return hasNext;
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
 
         #region IsBuiltinType(), IsColumnType(), IsProjection()
 
+        //IsGroupBy: derived class returns true
+        public virtual bool IsGroupBy(){ return false; }
 
         /// <summary>
         /// if our type has the [Table] attribute, it's a column type
@@ -277,20 +220,6 @@ namespace DBLinq.util
             return tAttrib!=null; //
         }
 
-        /// <summary>
-        /// a projection has only a default ctor and some fields.
-        /// A projected class is generated by the compiler and has a name like $__proj4.
-        /// </summary>
-        bool IsProjection()
-        {
-            Type t = typeof(T);
-            ConstructorInfo[] cinfo = t.GetConstructors();
-            if(cinfo.Length!=1)
-                return false;
-            if(cinfo[0].GetParameters().Length!=0)
-                return false;
-            return true;
-        }
         #endregion
     }
 }

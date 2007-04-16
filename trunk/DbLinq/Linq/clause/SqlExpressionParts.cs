@@ -1,3 +1,9 @@
+////////////////////////////////////////////////////////////////////
+//Initial author: Jiri George Moudry, 2006.
+//License: LGPL. (Visit http://www.gnu.org)
+//Commercial code may call into this library, if it's in a different module (DLL)
+////////////////////////////////////////////////////////////////////
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,8 +13,11 @@ namespace DBLinq.Linq.clause
     /// <summary>
     /// Object which holds the pieces of a SELECT as it's being put together.
     /// </summary>
-    public class SqlExpressionParts
+    public class SqlExpressionParts //: ICloneable
     {
+        static int s_serial = 0;
+        int _serial;
+
         /// <summary>
         /// eg. {'Customers $c','Orders $o'}
         /// </summary>
@@ -17,7 +26,7 @@ namespace DBLinq.Linq.clause
         /// <summary>
         /// eg. {'$c.CustomerID','$o.Quantity'}
         /// </summary>
-        public readonly List<string> selectFieldList = new List<string>();
+        readonly List<string> selectFieldList = new List<string>();
 
         /// <summary>
         /// eg. {'$c.CustomerID==$o.CustomerID', ...}
@@ -42,14 +51,24 @@ namespace DBLinq.Linq.clause
             fromTableList.Add(fromLower);
         }
 
+        public void AddSelect(string column)
+        {
+            selectFieldList.Add(column);
+        }
+        public void AddSelect(List<string> columns)
+        {
+            selectFieldList.AddRange(columns);
+        }
+
         /// <summary>
         /// eg. {'$c.City==?P0'}
         /// </summary>
-        public readonly List<string> whereList = new List<string>();
+        private readonly List<string> whereList = new List<string>();
 
         public readonly List<string> groupByList = new List<string>();
 
         public string           countClause;
+        public string           distinctClause;
 
         /// <summary>
         /// parameters, eg {'?P0'=>'London'}
@@ -70,6 +89,17 @@ namespace DBLinq.Linq.clause
             whereList = new List<string>(orig.whereList);
             groupByList = new List<string>(orig.groupByList);
             countClause = orig.countClause;
+            distinctClause = orig.distinctClause;
+            paramMap = new Dictionary<string,object>(orig.paramMap);
+        }
+
+        public void AddWhere(string sqlExpr)
+        {
+            this.whereList.Add(sqlExpr);
+        }
+        public void AddWhere(List<string> sqlExprs)
+        {
+            this.whereList.AddRange(sqlExprs);
         }
 
         #region ToString() produces a full SQL statement from parts
@@ -77,6 +107,12 @@ namespace DBLinq.Linq.clause
         {
             StringBuilder sb = new StringBuilder(500);
             sb.Append("SELECT ");
+            if(this.distinctClause!=null)
+            {
+                //SELECT COUNT(ProductID) FROM ...
+                sb.Append(distinctClause).Append(" ");
+            }
+
             if(this.countClause!=null)
             {
                 //SELECT COUNT(ProductID) FROM ...
@@ -141,8 +177,6 @@ namespace DBLinq.Linq.clause
             return selectFieldList.Count==0;
         }
 
-        static int s_serial = 0;
-        int _serial;
         public SqlExpressionParts Clone()
         {
             //clone._serial = s_serial++;

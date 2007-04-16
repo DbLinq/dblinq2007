@@ -240,6 +240,9 @@ namespace Test_NUnit
         [Test]
         public void D07_OrdersFromLondon_Alt()
         {
+            Func<int,int> func1 = i => i+1;
+            Console.WriteLine("type="+func1.GetType());
+            //this is a SelectMany query:
             LinqTestDB db = new LinqTestDB(connStr);
             var q =
 	            from c in db.Customers
@@ -293,6 +296,13 @@ namespace Test_NUnit
             Assert.Greater(prodID0,prodID1,"Sorting is broken");
         }
 
+        [Test]
+        public void D11_Products_DoubleWhere()
+        {
+            LinqTestDB db = new LinqTestDB(connStr);
+            var q1 = db.Products.Where(p=>p.ProductID>1).Where(p=>p.ProductID<10);
+            int count1 = q1.Count();
+        }
         #endregion
 
     }

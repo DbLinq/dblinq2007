@@ -1,7 +1,9 @@
 ////////////////////////////////////////////////////////////////////
 //Initial author: Jiri George Moudry, 2006.
 //License: LGPL. (Visit http://www.gnu.org)
+//Commercial code may call into this library, if it's in a different module (DLL)
 ////////////////////////////////////////////////////////////////////
+
 using System;
 using System.Expressions;
 using System.Collections.Generic;
@@ -31,8 +33,7 @@ namespace DBLinq.Linq
         /// </summary>
         public Type             sourceType;
 
-        //public WhereClauses _whereClauses;
-        public SqlExpressionParts _sqlParts;
+        public SqlExpressionParts _sqlParts = new SqlExpressionParts();
 
         /// <summary>
         /// todo: add all top-level expressions into this collection.
@@ -62,6 +63,11 @@ namespace DBLinq.Linq
         public string           limitClause;
 
         /// <summary>
+        /// in SelectMany, there is mapping c.Orders => o
+        /// </summary>
+        public Dictionary<MemberExpression,string> memberExprNickames = new Dictionary<MemberExpression,string>();
+
+        /// <summary>
         /// every time the framework calls CreateQuery to further project our query, 
         /// record it in this list
         /// </summary>
@@ -86,7 +92,7 @@ namespace DBLinq.Linq
         public SessionVars Clone()
         {
             SessionVars clone = (SessionVars) base.MemberwiseClone();
-            clone._serial = s_serial++; //strange - MemberwiseClone assigns readonly field without the s_ser++
+            clone._serial = s_serial++; //strange - MemberwiseClone ignores readonly attrib
             clone._sqlParts = _sqlParts.Clone();
             clone.createQueryList = new List<Type>(this.createQueryList);
             clone.lambdasInOrder.AddRange(this.lambdasInOrder);
@@ -100,6 +106,7 @@ namespace DBLinq.Linq
         public void StoreQuery(Expression expr)
         {
             //huh - in case of "(db.Products).Take(5)", there is no lambda?
+            //same for "(db.Products).Distinct()", there is no lambda.
             string methodName;
             MethodCallExpression exprCall = expr.XMethodCall();
             if(exprCall!=null && exprCall.Method.Name=="GroupBy")
@@ -129,6 +136,10 @@ namespace DBLinq.Linq
                 ConstantExpression howMany2 = (ConstantExpression)howMany;
                 this.limitClause = "LIMIT "+howMany2.Value; 
             }
+            else if(methodName=="Distinct")
+            {
+                this._sqlParts.distinctClause = "DISTINCT";
+            }
             else
             {
                 StoreLambda(methodName, lambda);
@@ -156,12 +167,8 @@ namespace DBLinq.Linq
                     }
                     break;
                 case "SelectMany":
-                    selectExpr = lambda; 
-                    LambdaExpression lambda2 = WhereClauseBuilder.FindSelectManyLambda(lambda,out methodName);
-                    if(methodName=="Where")
-                    {
-                        whereExpr.Add(lambda2);
-                    }
+                    //break the SelectMany beast into constituents
+                    StoreSelectManyLambda(lambda);
                     break;
                 case "OrderBy": 
                     orderByExpr = lambda; orderBy_desc = null; break;
@@ -197,7 +204,6 @@ namespace DBLinq.Linq
                     //string tableName2 = tAttrib.Name+" "+nick; //eg. "Employee $e"
                     //_sqlParts.AddFrom(tableName2); //2B||!2B?!
                     //string s3 = FromClauseBuilder.FormatMemberExpression(grpMemberExpr);
-                    //_sqlParts.selectFieldList.Add(s3); //append '$e.ID'
 
 
                     this._sqlParts.groupByList.Add(fieldName);
@@ -209,6 +215,79 @@ namespace DBLinq.Linq
 
                 default: 
                     throw new ApplicationException("L109: method "+methodName+" not supported yet");
+            }
+        }
+
+        private void StoreSelectManyLambda(LambdaExpression lambda)
+        {
+            selectExpr = lambda; 
+            //there is an inner Where and inner Select
+            Expression exInner = lambda.Body.XCastOperand();
+            //exInner={c.Orders.Where(o => op_Equality(c.City, "London")).Select(o => new {c = c, o = o})}
+            MethodCallExpression exInnFct = exInner.XMethodCall();
+            if(exInnFct==null)
+                throw new ArgumentException("StoreSelMany L257 bad args");
+            //each parameter is a lambda
+            foreach(Expression innerLambda in exInnFct.Parameters)
+            {
+                if(innerLambda.NodeType==ExpressionType.Lambda)
+                {
+                    //eg. {o => new {c = c, o = o}}'
+                    this.selectExpr = innerLambda as LambdaExpression;
+                }
+                else
+                {
+                    //eg. '{c.Orders.Where(o => op_Equality(c.City, "London"))}'
+                    MethodCallExpression whereCall = innerLambda.XMethodCall();
+                    string methodName2 = whereCall.Method.Name;
+
+                    MemberExpression memberExpressionCache = null; //'c.Orders', needed below for nicknames
+                    ParameterExpression paramExpressionCache = null; //'o', for nicknames
+
+                    foreach(Expression whereCallParam in whereCall.Parameters)
+                    {
+                        if(whereCallParam.NodeType==ExpressionType.Cast)
+                        {
+                            //eg. '{c.Orders}'
+                            //CHANGED: - join now handled below
+                            Expression memberEx = whereCallParam.XCastOperand();
+                            memberExpressionCache = memberEx.XMember();
+                            //ParameterExpression memExParm = memberExpressionCache.Expression.XParam(); //'c'
+
+                            ////cook up delgType: c=>MSet<Order>
+                            //Type funcType1 = typeof(System.Query.Func<int,int>);
+                            //Type funcType2 = funcType1.GetGenericTypeDefinition();
+                            //Type funcType3 = funcType2.MakeGenericType(memExParm.Type, memberEx.Type);
+                            //Type delgType = funcType3;
+
+                            //List<ParameterExpression> fakeParam = new List<ParameterExpression>
+                            //{ memExParm };
+                            //LambdaExpression fakeJoinLambda = Expression.Lambda(delgType, memberEx, fakeParam);
+                            //this.whereExpr.Add(fakeJoinLambda);
+                        }
+                        else if(whereCallParam.NodeType==ExpressionType.Lambda)
+                        {
+                            //{o => op_Equality(c.City, "London")}
+                            LambdaExpression innerWhereLambda = whereCallParam as LambdaExpression;
+                            StoreLambda(methodName2,innerWhereLambda);
+                            paramExpressionCache = innerWhereLambda.Parameters[0];
+                        }
+                        else
+                        {
+                            //StoreLambda(methodName2, null);
+                        }
+                    }
+
+                    //assign nikname mapping c.Orders=o
+                    if(memberExpressionCache!=null && paramExpressionCache!=null)
+                    {
+                        //memberExprNickames[memberExpressionCache] = paramExpressionCache.Name;
+                        ParseResult result = new ParseResult(null);
+                        JoinBuilder.AddJoin1(memberExpressionCache,paramExpressionCache,result);
+                        result.CopyInto(this._sqlParts);
+                    }
+
+                }
             }
         }
     }
