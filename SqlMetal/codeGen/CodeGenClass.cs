@@ -46,8 +46,7 @@ public partial class $name $baseClass
             foreach(DlinqSchema.Column col in table.Types[0].Columns)
             {
                 List<DlinqSchema.Association> constraintsOnField 
-                    = table.Types[0].Associations.FindAll( 
-                    delegate(DlinqSchema.Association a){ return a.Name==col.Name; });
+                    = table.Types[0].Associations.FindAll( a => a.Name==col.Name );
 
                 CodeGenField codeGenField = new CodeGenField(col, constraintsOnField);
                 string fld = codeGenField.generateField();
@@ -177,8 +176,6 @@ public $parentClass $parentClass {
 	set { this.$fieldName.Entity = value; }
 }
 ";
-            //List<DlinqSchema.Association> ourParents = table.Types[0].Associations.FindAll(
-            //    delegate(DlinqSchema.Association a){ return true; }); //TODO - filter for child tables?
             var ourParents = table.Types[0].Associations 
                           .Where( a=> a.Kind==DlinqSchema.RelationshipKind.ManyToOneChild );
 

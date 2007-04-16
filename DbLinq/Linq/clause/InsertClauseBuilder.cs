@@ -1,3 +1,9 @@
+////////////////////////////////////////////////////////////////////
+//Initial author: Jiri George Moudry, 2006.
+//License: LGPL. (Visit http://www.gnu.org)
+//Commercial code may call into this library, if it's in a different module (DLL)
+////////////////////////////////////////////////////////////////////
+
 using System;
 using System.Query;
 using System.Reflection;
@@ -88,7 +94,8 @@ namespace DBLinq.Linq.clause
             sb.Append(sbVals.ToString());
             //sb.Append(";\n");
             //sb.Append("SELECT @@IDENTITY"); //must be on separate line
-#if POSTGRES
+
+#if POSTGRES //Postgres needs 'SELECT currval(sequenceName)'
             ColumnAttribute[] colAttribs = AttribHelper.GetColumnAttribs(projData.type);
             ColumnAttribute idColAttrib = colAttribs.FirstOrDefault(c => c.Id);
             string idColName = idColAttrib==null ? "ERROR_L93_MissingIdCol" : idColAttrib.Name;

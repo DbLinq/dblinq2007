@@ -43,22 +43,33 @@ namespace DBLinq.Linq
         /// <summary>
         /// the parent MContext holds our connection etc
         /// </summary>
-        MContext _parent;
+        MContext _parentDB;
         readonly List<T> _insertList = new List<T>();
-        //readonly List<T> _liveObjectList = new List<T>();
         readonly Dictionary<T,T> _liveObjectMap = new Dictionary<T,T>();
         readonly List<T> _deleteList = new List<T>();
 
-        SqlExpressionParts _sqlParts = new SqlExpressionParts();
+        //SqlExpressionParts _sqlParts = new SqlExpressionParts();
         SessionVars _vars = new SessionVars();
 
         public MTable(MContext parent)
         {
-            _parent = parent;
-            _parent.RegisterChild(this);
-            _vars.context = this._parent;
+            _parentDB = parent;
+            _parentDB.RegisterChild(this);
+            _vars.context = this._parentDB;
             _vars.sourceType = typeof(T);
-            _vars._sqlParts = _sqlParts;
+            //_vars._sqlParts = _sqlParts;
+        }
+
+        /// <summary>
+        /// this is used when we call CreateQuery to create a copy of orig table object
+        /// </summary>
+        public MTable(MTable<T> parent, SessionVars vars)
+        {
+            _insertList = parent._insertList;
+            _liveObjectMap = parent._liveObjectMap;
+            _deleteList = parent._deleteList;
+            _parentDB = parent._parentDB;
+            _vars = vars;
         }
 
         /// <summary>
@@ -67,22 +78,25 @@ namespace DBLinq.Linq
         /// </summary>
         public IQueryable<S> CreateQuery<S>(Expression expr)
         {
-            Console.WriteLine("MTable.CreateQuery: "+expr);
+            Log1.Info("MTable.CreateQuery: "+expr);
 
-            _vars.StoreQuery(expr);
+            SessionVars vars = _vars.Clone();
+            vars.StoreQuery(expr);
             
             if(this is IQueryable<S>)
             {
                 //this occurs if we are not projecting
                 //(meaning that we are selecting entire row object)
-                IQueryable<S> this_S = (IQueryable<S>)this; 
+                //IQueryable<S> this_S = (IQueryable<S>)this; 
+                //return this_S;
+                MTable<T> clonedThis = new MTable<T>(this, vars);
+                IQueryable<S> this_S = (IQueryable<S>)clonedThis; 
                 return this_S;
             } else {
                 //if we get here, we are projecting.
                 //(eg. you select only a few fields: "select name from employee")
-                _vars.createQueryExpr = expr;
-                MTable_Projected<S> projectedQ = new MTable_Projected<S>(_vars);
-                //projectedQ._sqlParts = _sqlParts;
+                vars.createQueryExpr = expr;
+                MTable_Projected<S> projectedQ = new MTable_Projected<S>(vars);
                 return projectedQ;
             }
         }
@@ -92,7 +106,7 @@ namespace DBLinq.Linq
         /// </summary>
         public S Execute<S>(Expression expression)
         {
-            Console.WriteLine("MTable.Execute<"+typeof(S)+">: "+expression);
+            Log1.Info("MTable.Execute<"+typeof(S)+">: "+expression);
             return new RowScalar<T>(_vars, this).GetScalar<S>(expression);
         }
 
@@ -107,9 +121,9 @@ namespace DBLinq.Linq
             {
                 //we are doing GetQueryText
             } else {
-                rowEnumerator.ExecuteSqlCommand();
+                //rowEnumerator.ExecuteSqlCommand();
             }
-            return rowEnumerator;
+            return rowEnumerator.GetEnumerator();
         }
 
         /// <summary>
@@ -122,7 +136,7 @@ namespace DBLinq.Linq
             fct(vars2);
             QueryProcessor.ProcessLambdas(vars2);
             RowEnumerator<T> rowEnumerator = new RowEnumerator<T>(vars2, _liveObjectMap);
-            rowEnumerator.ExecuteSqlCommand();
+            //rowEnumerator.ExecuteSqlCommand();
             return rowEnumerator;
         }
 
@@ -169,7 +183,7 @@ namespace DBLinq.Linq
                 return; //nothing to do
             object[] indices = new object[0];
             ProjectionData proj = ProjectionData.FromDbType(typeof(T));
-            XSqlConnection conn = _parent.SqlConnection;
+            XSqlConnection conn = _parentDB.SqlConnection;
             foreach(T obj in _insertList)
             {
                 //INSERT EMPLOYEES (Name, DateStarted) VALUES (?p1,?p2)
@@ -240,7 +254,7 @@ namespace DBLinq.Linq
                 string tableName = proj.tableAttribute.Name;
                 string sql = "DELETE FROM "+tableName+" WHERE "+proj.keyColumnName+" in ("+sbDeleteIDs+")";
                 Console.WriteLine("MTable SaveAll.Delete: "+sql);
-                XSqlCommand cmd = new XSqlCommand(sql, _parent.SqlConnection);
+                XSqlCommand cmd = new XSqlCommand(sql, _parentDB.SqlConnection);
                 int result = cmd.ExecuteNonQuery();
                 Console.WriteLine("MTable SaveAll.Delete returned:"+result);
             }

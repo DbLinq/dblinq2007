@@ -32,11 +32,21 @@ namespace ClientCode2
             //}
 
             //TestContext db = new TestContext(connStr);
+            int[] arr = new int[]{ 2,3,2,5 };
+            var q3 = from a in arr select a.ToString()+"i";
+            var bb = q3.ToList();
+
+            //arr.
+            //var q7 = arr.Any(.Distinct().ToArray();
+
             LinqTestDB db = new LinqTestDB(connStr);
             //var q = from at in db.alltypes select at;
             //var q = from p in db.products orderby p.ProductName select p;
             //var q = from c in db.customers from o in c.Orders 
             //        where c.City == "London" select new { c, o };
+
+            var q4 = from p in db.Products select p.ProductName+p.ProductID;
+            var q5 = q4.ToList();
 
             uint insertedID = 7;
             //var q = from p in db.Products where p.ProductID==insertedID select p;

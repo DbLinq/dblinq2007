@@ -38,8 +38,10 @@ namespace DBLinq.Linq
         public IQueryable<S> CreateQuery<S>(Expression expression)
         {
             //this occurs in GroupBy followed by Where, eg. F6B_OrdersByCity()
-            Console.WriteLine("MTable_Proj.CreateQuery: T=<"+typeof(T)+"> -> S=<"+typeof(S)+">");
-            Console.WriteLine("MTable_Proj.CreateQuery: "+expression);
+            string msg1 = "MTable_Proj.CreateQuery: T=<"+typeof(T)+"> -> S=<"+typeof(S)+">";
+            string msg2 = "MTable_Proj.CreateQuery: "+expression;
+            Log1.Info(msg1);
+            Log1.Info(msg2);
 
             //todo: Clone SessionVars, call StoreQuery, and return secondary MTable_Proj?
             SessionVars vars2 = _vars.Clone();
@@ -52,7 +54,8 @@ namespace DBLinq.Linq
         public S Execute<S>(Expression expression)
         {
             Console.WriteLine("MTable_Proj.Execute<"+typeof(S)+">: "+expression);
-            return new RowScalar<T>(_vars, this).GetScalar<S>(expression);
+            SessionVars vars = _vars.Clone();
+            return new RowScalar<T>(vars, this).GetScalar<S>(expression);
         }
 
         /// <summary>
@@ -61,11 +64,16 @@ namespace DBLinq.Linq
         public IEnumerator<T> GetEnumerator()
         {
             //we don't keep projections in cache, pass cache=null
-            Console.WriteLine("MTable_Proj.GetEnumerator <"+typeof(T)+">");
-            QueryProcessor.ProcessLambdas(_vars); //for test D7, already done in MTable.CreateQ?
-            RowEnumerator<T> rowEnumerator = new RowEnumerator<T>(_vars,null);
-            rowEnumerator.ExecuteSqlCommand();
-            return rowEnumerator;
+            Log1.Info("MTable_Proj.GetEnumerator <"+typeof(T)+">");
+
+            SessionVars vars = _vars.Clone();
+            QueryProcessor.ProcessLambdas(vars); //for test D7, already done in MTable.CreateQ?
+
+            //RowEnumerator<T> rowEnumerator = new RowEnumerator<T>(vars,null);
+            RowEnumerator<T> rowEnumerator = RowEnumFactory<T>.Create(vars,null);
+
+            //rowEnumerator.ExecuteSqlCommand();
+            return rowEnumerator.GetEnumerator();
         }
 
         /// <summary>
@@ -78,7 +86,7 @@ namespace DBLinq.Linq
             fct(vars2);
             QueryProcessor.ProcessLambdas(vars2);
             RowEnumerator<T> rowEnumerator = new RowEnumerator<T>(vars2, null);
-            rowEnumerator.ExecuteSqlCommand();
+            //rowEnumerator.ExecuteSqlCommand();
             return rowEnumerator;
         }
 
@@ -109,5 +117,9 @@ namespace DBLinq.Linq
             throw new ApplicationException("Not implemented");
         }
 
+        public void Dispose()
+        {
+            Console.WriteLine("Dispose2");
+        }
     }
 }

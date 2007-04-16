@@ -1,3 +1,9 @@
+////////////////////////////////////////////////////////////////////
+//Initial author: Jiri George Moudry, 2006.
+//License: LGPL. (Visit http://www.gnu.org)
+//Commercial code may call into this library, if it's in a different module (DLL)
+////////////////////////////////////////////////////////////////////
+
 using System;
 using System.Expressions;
 using System.Collections.Generic;
@@ -23,25 +29,13 @@ namespace DBLinq.Linq
             _vars = vars;
             //TODO - pass in either vars or a delegate which allows asking for nickname for 'o.Customer'
             _whereBuilder = new WhereClauseBuilder(vars._sqlParts);
-            _whereBuilder.NicknameRequest +=new AskNicknameHandler(_whereBuilder_NicknameRequest);
         }
 
-        string _whereBuilder_NicknameRequest(Expression ex, AssociationAttribute assoc)
-        {
-            foreach(ExprPair pair in ExprEnum.EnumExpressions(_vars.selectExpr))
-            {
-                if(pair.child.NodeType==ExpressionType.MemberAccess)
-                {
-                    MemberExpression member2 = (MemberExpression)pair.child;
-                    if(AttribHelper.IsAssociation(member2,out assoc))
-                    {
-                        return pair.name;
-                    }
-                }                
-            }
-            return null; //not found
-        }
 
+        /// <summary>
+        /// we call 'go' method, which puts together our SQL string.
+        /// </summary>
+        /// <param name="vars"></param>
         public static void ProcessLambdas(SessionVars vars)
         {
             new QueryProcessor(vars).go();
@@ -49,47 +43,54 @@ namespace DBLinq.Linq
 
         void go()
         {
+            ParseResult result = null;
             foreach(LambdaExpression lambda in _vars.whereExpr)
             {
-                WhereClauses whereClauses = _whereBuilder.Main_AnalyzeLambda(lambda);
-                whereClauses.CopyInto(_vars._sqlParts);
+                ParseInputs inputs = new ParseInputs(result);
+                result = ExpressionTreeParser.Parse(lambda.Body, inputs);
+                _vars._sqlParts.AddWhere(result.columns);
+                result.CopyInto(_vars._sqlParts); //transfer params and tablesUsed
             }
+
+            if(_vars.groupByExpr!=null)
+            {
+                ParseInputs inputs = new ParseInputs(result);
+                //inputs.groupByExpr = _vars.groupByExpr;
+
+                if(_vars.selectExpr==null //&& _vars.groupByNewExpr==null
+                    )
+                {
+                    //manually add "SELECT c.City"
+                    result = ExpressionTreeParser.Parse(_vars.groupByExpr.Body, inputs);
+                    _vars._sqlParts.AddSelect(result.columns);
+                    result.CopyInto(_vars._sqlParts); //transfer params and tablesUsed
+                }
+
+                if(_vars.groupByNewExpr==null && _vars.selectExpr==null)
+                {
+                    //eg. 'db.Customers.GroupBy( c=>c.City )' - select entire Customer
+                    ParameterExpression paramEx = _vars.groupByExpr.Parameters[0];
+                    FromClauseBuilder.SelectAllFields(_vars,_vars._sqlParts,paramEx.Type,VarName.GetSqlName(paramEx.Name));
+                }
+                else if(_vars.groupByNewExpr!=null)
+                {
+                    inputs = new ParseInputs(result);
+                    //inputs.groupByExpr = _vars.groupByExpr;
+                    result = ExpressionTreeParser.Parse(_vars.groupByNewExpr.Body, inputs);
+                    _vars._sqlParts.AddSelect(result.columns);
+                    result.CopyInto(_vars._sqlParts); //transfer params and tablesUsed
+                }
+            }
+
             if(_vars.selectExpr!=null)
             {
-                FromClauseBuilder.Main_AnalyzeLambda(_vars);
+                ParseInputs inputs = new ParseInputs(result);
+                inputs.groupByExpr = _vars.groupByExpr;
+                result = ExpressionTreeParser.Parse(_vars.selectExpr.Body, inputs);
+                _vars._sqlParts.AddSelect(result.columns);
+                result.CopyInto(_vars._sqlParts); //transfer params and tablesUsed
             }
 
-
-            //switch(methodName)
-            //{
-            //    case "Where":  
-            //        {
-            //            this._vars.whereExpr.Add(lambda);
-            //        }
-            //        break;
-            //    case "Select": 
-            //        {
-            //        _vars.selectExpr = lambda;
-            //        FromClauseBuilder.Main_AnalyzeLambda(_sqlParts,lambda);
-            //        }
-            //        break;
-            //    case "SelectMany":
-            //        //dig deeper to find the where clause
-            //        _vars.selectExpr = lambda; 
-            //        lambda = whereBuilder.FindSelectManyLambda(lambda,out methodName);
-            //        if(methodName=="Where"){
-            //            WhereClauses whereClauses = whereBuilder.Main_AnalyzeLambda(lambda);
-            //            whereClauses.CopyInto(_sqlParts);
-            //            _vars.whereExpr.Add(lambda);
-            //        }
-            //        break;
-            //    case "OrderBy": 
-            //        _vars.orderByExpr = lambda; 
-            //        break;
-            //    default: 
-            //        throw new ApplicationException("L45: Unprepared for method "+methodName);
-            //}
-             
         }
     }
 }

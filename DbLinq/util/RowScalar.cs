@@ -67,11 +67,14 @@ namespace DBLinq.util
                             QueryProcessor.ProcessLambdas(_vars);
                             using(RowEnumerator<S> rowEnum = new RowEnumerator<S>(_vars,null))
                             {
-                                rowEnum.ExecuteSqlCommand();
-                                if(!rowEnum.MoveNext())
-                                    throw new ApplicationException("RowScalar.COUNT: Unable to advance to first result");
-                                S firstS = (S)rowEnum.Current;
-                                return firstS;
+                                //rowEnum.ExecuteSqlCommand();
+                                //if(!rowEnum.MoveNext())
+                                //    throw new ApplicationException("RowScalar.COUNT: Unable to advance to first result");
+                                //S firstS = (S)rowEnum.Current;
+                                foreach(S firstS in rowEnum){
+                                    return firstS;
+                                }
+                                throw new ApplicationException("RowScalar.COUNT: Unable to advance to first result");
                             }
                         }
                         //MTable<T> table2 = _parentTable as MTable<T>;
@@ -83,7 +86,7 @@ namespace DBLinq.util
                             { 
                                 vars._sqlParts.countClause = exprCall.Method.Name.ToUpper(); //COUNT or MAX
                             }
-                        ))
+                        ).GetEnumerator())
                         {
                             bool hasOne = enumerator.MoveNext();
                             if(!hasOne)
@@ -143,7 +146,7 @@ namespace DBLinq.util
                                     vars.limitClause = "LIMIT 2"; 
                                     vars.StoreLambda("Where", lambdaParam);
                                 }
-                            );
+                            ).GetEnumerator();
                         }
                         else
                         {

@@ -1,7 +1,9 @@
 ////////////////////////////////////////////////////////////////////
 //Initial author: Jiri George Moudry, 2006.
 //License: LGPL. (Visit http://www.gnu.org)
+//Commercial code may call into this library, if it's in a different module (DLL)
 ////////////////////////////////////////////////////////////////////
+
 using System;
 using System.Query;
 using System.Diagnostics;
@@ -75,7 +77,7 @@ namespace DBLinq.Linq
             //MySql.util.RowEnumerator<T> rowEnum2 = rowEnum1 as MySql.util.RowEnumerator<T>;
             IQueryText rowEnum2 = rowEnum1 as IQueryText;
             if(rowEnum2==null)
-                return "ERROR L55 Unexpected type:"+rowEnum1;
+                return "ERROR L78 Unexpected type:"+rowEnum1;
 
             string queryText = rowEnum2.GetQueryText();
             return queryText;

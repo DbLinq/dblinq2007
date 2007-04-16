@@ -40,8 +40,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Linq\clause\DeleteClauseBuilder.cs" />
+    <Compile Include="Linq\clause\ExpressionTreeParser.cs" />
     <Compile Include="Linq\clause\InsertClauseBuilder.cs" />
+    <Compile Include="Linq\clause\JoinBuilder.cs" />
+    <Compile Include="Linq\clause\ParseResult.cs" />
     <Compile Include="Linq\EntityMSet.cs" />
     <Compile Include="Linq\IModified.cs" />
     <Compile Include="Linq\AutoGenIdAttribute.cs" />
@@ -49,6 +51,10 @@
     <Compile Include="util\CSharp.cs" />
     <Compile Include="util\ExprEnum.cs" />
     <Compile Include="util\ExprExtensions.cs" />
+    <Compile Include="util\FieldUtils.cs" />
+    <Compile Include="util\GroupHelper.cs" />
+    <Compile Include="util\Log1.cs" />
+    <Compile Include="util\Lookup.cs" />
     <Compile Include="util\Operators.cs" />
     <Compile Include="util\ReverseAssociationParts.cs" />
     <Compile Include="util\RowEnumeratorCompiler.cs" />
@@ -57,19 +63,21 @@
     <Compile Include="Linq\MContext.cs" />
     <Compile Include="Linq\MTable.cs" />
     <Compile Include="Linq\MTable_Projected.cs" />
-    <Compile Include="Linq\ObjFromRow.cs" />
     <Compile Include="Linq\ProjectionData.cs" />
     <Compile Include="util\DumpExpressionXml.cs" />
     <Compile Include="Linq\SessionVars.cs" />
     <Compile Include="Linq\clause\WhereClauseBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="util\AttribHelper.cs" />
+    <Compile Include="util\RowEnumeratorGroupBy.cs" />
+    <Compile Include="util\RowEnumFactory.cs" />
     <Compile Include="util\RowScalar.cs" />
     <Compile Include="Linq\clause\SqlExpressionParts.cs" />
     <Compile Include="util\TypeEnum.cs" />
     <Compile Include="util\VarName.cs" />
     <Compile Include="vendor\Oracle\DataReader2_Ora.cs" />
     <Compile Include="vendor\Oracle\OracleTypeConversions.cs" />
+    <Compile Include="vendor\Oracle\VendorOra.cs" />
   </ItemGroup>
   <Import Project="$(ProgramFiles)\LINQ Preview\Misc\Linq.targets" />
 </Project>

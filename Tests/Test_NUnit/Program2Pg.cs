@@ -18,14 +18,20 @@ namespace Test_NUnit
     {
         static void Main()
         {
-            //new ReadTest().D04_SelectProducts_OrderByName();
-            //new ReadTest_GroupBy().G01_SimpleGroup();
+            //new ReadTest().D07_OrdersFromLondon_Alt();
+            //new ReadTest().D06_OrdersFromLondon();
+
+            new ReadTest_GroupBy().G01_SimpleGroup();
+            //new ReadTest_GroupBy().G06_OrderCountByCustomerID();
+
             //new ReadTest_GroupBy().G04_OrderSumByCustomerID();
-            ReadTest_Complex rc = new ReadTest_Complex();
-            rc.F1_ProductCount();
+            //ReadTest_Complex rc = new ReadTest_Complex();
+            //rc.F10_DistinctCity();
+            //rc.F11_ConcatString();
+            //rc.F12_ConcatString_2();
             //rc.F2_ProductCount_Clause();
             //rc.F2_ProductCount_Projected();
-            rc.F3_MaxProductId();
+            //rc.F3_MaxProductId();
             //new ReadTest_Complex().F3_MaxProductId();
             //new ReadTest().D09_Products_LetterP_Take5();
             //new ReadTest().D7_OrdersFromLondon_Alt();

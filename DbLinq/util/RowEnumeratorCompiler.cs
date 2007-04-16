@@ -17,48 +17,92 @@ namespace DBLinq.util
 {
     public class RowEnumeratorCompiler<T>
     {
-#if USE_MYSQLREADER_DIRECTLY
-        static MySqlDataReader s_rdr;
-#endif
+        /// <summary>
+        /// the entry point - routes your call into special cases for Projection and primitive types
+        /// </summary>
+        /// <returns>compiled func which loads object from SQL reader</returns>
+        public static Func<DataReader2,T> CompileRowDelegate(SessionVars vars, ref int fieldID)
+        {
+            Func<DataReader2,T> objFromRow = null;
+
+            ProjectionData projData = vars.projectionData;
+
+            //three categories to handle:
+            //A) extract object of primitive / builtin type (eg. string or int)
+            //B) extract column object, which will be 'newed' and then tracked for changes
+            //C) extract a projection object, using default ctor and bindings, no tracking needed.
+            bool isBuiltinType = CSharp.IsPrimitiveType(typeof(T));
+            bool isColumnType  = CSharp.IsColumnType(typeof(T));
+            bool isProjectedType = CSharp.IsProjection(typeof(T));
+            //bool isGroup = IsGroupBy();
+
+            if(projData==null && !isBuiltinType)
+            {
+                //for Table types, use attributes to determine fields
+                //for projection types, return projData with only ctor assigned
+                projData = ProjectionData.FromDbType(typeof(T));
+            }
+
+            //if(isGroup)
+            //{
+            //    //_objFromRow2, SQL string handled in RowEnumGroupBy
+            //    return null;
+            //}
+            //else 
+            if(isBuiltinType)
+            {
+                objFromRow = RowEnumeratorCompiler<T>.CompilePrimitiveRowDelegate(ref fieldID);
+            }
+            else if(isColumnType)
+            {
+                objFromRow = RowEnumeratorCompiler<T>.CompileColumnRowDelegate(projData, ref fieldID);
+            }
+            else if(isProjectedType && vars.groupByExpr!=null)
+            {
+                //now we know what the GroupBy object is, 
+                //and what method to use with grouping (eg Count())
+                //_projectionData.type = typeof(T);
+                //vars._sqlParts.selectFieldList.Add("Count(*)");
+
+                ProjectionData projData2 = ProjectionData.FromReflectedType(typeof(T));
+
+                //and compile the sucker
+                objFromRow = RowEnumeratorCompiler<T>.CompileProjectedRowDelegate(vars, projData2);
+            }
+            else if(isProjectedType)
+            {
+                objFromRow = RowEnumeratorCompiler<T>.CompileProjectedRowDelegate(vars, projData);
+            }
+            else
+            {
+                throw new ApplicationException("L124: RowEnumerator can handle basic types or projected types, but not "+typeof(T));
+            }
+            return objFromRow;
+        }
 
         /// <summary>
         /// given primitive type T (eg. string or int), 
         /// construct and compile a 'reader.GetString(0);' delegate (or similar).
         /// </summary>
         public static 
-#if USE_MYSQLREADER_DIRECTLY
-            Func<MySqlDataReader,T> 
-#else
             Func<DataReader2,T> 
-#endif
-            CompilePrimitiveRowDelegate()
+            CompilePrimitiveRowDelegate(ref int fieldID)
         {
             #region CompilePrimitiveRowDelegate
             //compile one of these:
             // a) string GetRow(DataReader rdr){ return rdr.GetString(0); }
             // b) int    GetRow(DataReader rdr){ return rdr.GetInt32(0); }
 
-#if USE_MYSQLREADER_DIRECTLY
-            ParameterExpression rdr = Expression.Parameter(typeof(MySqlDataReader),"rdr");
-#else
             ParameterExpression rdr = Expression.Parameter(typeof(DataReader2),"rdr");
-#endif
 
-            MethodCallExpression body = GetFieldMethodCall(typeof(T),rdr,0);
-            //MethodInfo minfo = ChooseFieldRetrievalMethod(typeof(T));
-            //List<Expression> paramZero = new List<Expression>();
-            //paramZero.Add( Expression.Constant(0) ); //that's the zero in GetInt32(0)
-            //MethodCallExpression body = Expression.CallVirtual(minfo,rdr,paramZero);
+            MethodCallExpression body = GetFieldMethodCall(typeof(T),rdr,fieldID++);
 
             List<ParameterExpression> paramListRdr = new List<ParameterExpression>();
             paramListRdr.Add(rdr);
-#if USE_MYSQLREADER_DIRECTLY
-            LambdaExpression lambda = Expression.Lambda<Func<MySqlDataReader,T>>(body,paramListRdr);
-            Func<MySqlDataReader,T> func_t = (Func<MySqlDataReader,T>)lambda.Compile();
-#else
+
             LambdaExpression lambda = Expression.Lambda<Func<DataReader2,T>>(body,paramListRdr);
             Func<DataReader2,T> func_t = (Func<DataReader2,T>)lambda.Compile();
-#endif
+
             StringBuilder sb = new StringBuilder();
             lambda.BuildString(sb);
             Console.WriteLine("  RowEnumCompiler(Primitive): Compiled "+sb);
@@ -72,29 +116,21 @@ namespace DBLinq.util
         /// delegate (or similar).
         /// </summary>
         public static 
-#if USE_MYSQLREADER_DIRECTLY
-            Func<MySqlDataReader,T> 
-#else
             Func<DataReader2,T> 
-#endif
-            CompileColumnRowDelegate(ProjectionData projData)
+            CompileColumnRowDelegate(ProjectionData projData, ref int fieldID)
         {
             #region CompileColumnRowDelegate
             if(projData==null || projData.ctor2==null)
                 throw new ArgumentException("CompileColumnRow: need projData with ctor2");
 
-#if USE_MYSQLREADER_DIRECTLY
-            ParameterExpression rdr = Expression.Parameter(typeof(MySqlDataReader),"rdr");
-#else
             ParameterExpression rdr = Expression.Parameter(typeof(DataReader2),"rdr");
-#endif
             
             List<Expression> ctorArgs = new List<Expression>();
-            int i=0;
+
             foreach(ProjectionData.ProjectionField projFld in projData.fields)
             {
                 Type fieldType = projFld.type;
-                MethodCallExpression arg_i = GetFieldMethodCall(fieldType,rdr,i++);
+                MethodCallExpression arg_i = GetFieldMethodCall(fieldType,rdr,fieldID++);
                 ctorArgs.Add(arg_i);
             }
 
@@ -106,13 +142,10 @@ namespace DBLinq.util
             List<ParameterExpression> paramListRdr = new List<ParameterExpression>();
             paramListRdr.Add(rdr);
             StringBuilder sb = new StringBuilder(500);
-#if USE_MYSQLREADER_DIRECTLY
-            LambdaExpression lambda = Expression.Lambda<Func<MySqlDataReader,T>>(newExpr,paramListRdr);
-            Func<MySqlDataReader,T> func_t = (Func<MySqlDataReader,T>)lambda.Compile();
-#else
+
             LambdaExpression lambda = Expression.Lambda<Func<DataReader2,T>>(newExpr,paramListRdr);
             Func<DataReader2,T> func_t = (Func<DataReader2,T>)lambda.Compile();
-#endif
+
             lambda.BuildString(sb);
             Console.WriteLine("  RowEnumCompiler(Column): Compiled "+sb);
             return func_t;
@@ -141,8 +174,7 @@ namespace DBLinq.util
 
         }
 
-        private static 
-            //Func<DataReader2,T> 
+        internal static 
             LambdaExpression
             BuildProjectedRowLambda(SessionVars vars, ProjectionData projData, ParameterExpression rdr, ref int fieldID)
         {
@@ -186,15 +218,8 @@ namespace DBLinq.util
                             //Expression.MemberInit
                             if(vars.groupByNewExpr==null)
                                 throw new ApplicationException("TODO - handle other cases than groupByNewExpr");
-                            PropertyInfo[] igroupies = projFld.propInfo.PropertyType.GetProperties();
-                            ConstructorInfo[] ictos = projFld.propInfo.PropertyType.GetConstructors();
-                            ProjectionData projInner = ProjectionData.FromSelectGroupByExpr(vars.groupByNewExpr,vars.groupByExpr,vars._sqlParts);
-                            //ProjectionData projInner = ProjectionData.FromSelectGroupByExpr(vars.groupByNewExpr,vars.groupByExpr,vars._sqlParts);
-                            LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projInner, rdr, ref fieldID);
-                            Type t1 = innerLambda.Body.Type;
-                            Type t2 = projFld.propInfo.PropertyType;
-                            //bool same  = t1==t2;
-                            MemberAssignment binding = Expression.Bind(projFld.propInfo, innerLambda.Body);
+
+                            MemberAssignment binding = GroupHelper2<T>.BuildProjFieldBinding(vars, projFld, rdr, ref fieldID);
                             bindings.Add(binding);
                         }
                         break;
@@ -247,46 +272,6 @@ namespace DBLinq.util
             return callExpr;
         }
 
-#if USE_MYSQLREADER_DIRECTLY
-        static MethodInfo ChooseFieldRetrievalMethod(Type t2)
-        {
-            //TODO: handle Nullable<int> as well as int?
-            MethodInfo minfo = null;
-            if(t2==typeof(string))
-            {
-                minfo = typeof(MySqlDataReader).GetMethod("GetString");
-            }
-            else if(t2==typeof(int))
-            {
-                minfo = typeof(MySqlDataReader).GetMethod("GetInt32");
-            }
-            else if(t2==typeof(uint))
-            {
-                minfo = typeof(MySqlDataReader).GetMethod("GetUInt32");
-            }
-            else if(t2==typeof(float))
-            {
-                minfo = typeof(MySqlDataReader).GetMethod("GetFloat");
-            }
-            else if(t2==typeof(DateTime))
-            {
-                minfo = typeof(MySqlDataReader).GetMethod("GetDateTime");
-            }
-            else if(t2==typeof(char))
-            {
-                minfo = typeof(MySqlDataReader).GetMethod("GetChar");
-            }
-            else
-            {
-                //s_rdr.GetUInt32();
-                //s_rdr.GetFloat();
-                string msg = "RowEnum TODO L116: add support for type "+t2;
-                Console.WriteLine(msg);
-                throw new ApplicationException(msg);
-            }
-            return minfo;
-        }
-#else
         /// <summary>
         /// return 'reader.GetString(0)' or 'reader.GetInt32(1)'
         /// as an Expression suitable for compilation.
@@ -377,7 +362,7 @@ namespace DBLinq.util
             {
                 //s_rdr.GetUInt32();
                 //s_rdr.GetFloat();
-                string msg = "RowEnum TODO L176: add support for type "+t2;
+                string msg = "RowEnum TODO L381: add support for type "+t2;
                 Console.WriteLine(msg);
                 throw new ApplicationException(msg);
             }
@@ -387,7 +372,7 @@ namespace DBLinq.util
             return minfo;
             #endregion
         }
-#endif
+
         /// <summary>
         /// given Employee 'e', compile a method similar to 'e.ID.ToString()',
         /// which returns the object ID as a string
@@ -421,8 +406,6 @@ namespace DBLinq.util
             Func<T,string> func_t = (Func<T,string>)lambda.Compile();
             return func_t;
         }
-
-
 
     }
 }

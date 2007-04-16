@@ -8,6 +8,7 @@ using NUnit.Framework;
 #if ORACLE
 using ClientCodeOra;
 using xint = System.Int32;
+using XSqlConnection = System.Data.OracleClient.OracleConnection;
 #elif POSTGRES
 using Client2.user;
 using xint = System.Int32;
@@ -138,6 +139,54 @@ namespace Test_NUnit
 	            orderby x.Name
 	            select x;
         }
+
+        [Test]
+        public void F10_DistinctCity()
+        {
+            var q1 = from c in db.Customers select c.City;
+            var q2 = q1.Distinct();
+            
+            int numLondon = 0;
+            foreach(string city in q2)
+            {
+                if(city=="London"){ numLondon++; }
+            }
+            Assert.AreEqual( 1, numLondon, "Expected to see London once");
+        }
+
+        [Test]
+        public void F11_ConcatString()
+        {
+            var q4 = from p in db.Products select p.ProductName+p.ProductID;
+            //var q4 = from p in db.Products select p.ProductID;
+            var q5 = q4.ToList();
+            Assert.Greater( q5.Count, 2, "Expected to see some concat strings");
+            foreach(string s0 in q5)
+            {
+                bool startWithLetter = Char.IsLetter(s0[0]);
+                bool endsWithDigit = Char.IsDigit(s0[s0.Length-1]);
+                Assert.IsTrue(startWithLetter && endsWithDigit, "String must start with letter and end with digit");
+            }
+        }
+
+        [Test]
+        public void F12_ConcatString_2()
+        {
+            var q4 = from p in db.Products 
+                     where (p.ProductName+p.ProductID).Contains("e")
+                     select p.ProductName;
+                     //select p.ProductName+p.ProductID;
+            //var q4 = from p in db.Products select p.ProductID;
+            var q5 = q4.ToList();
+            //Assert.Greater( q5.Count, 2, "Expected to see some concat strings");
+            //foreach(string s0 in q5)
+            //{
+            //    bool startWithLetter = Char.IsLetter(s0[0]);
+            //    bool endsWithDigit = Char.IsDigit(s0[s0.Length-1]);
+            //    Assert.IsTrue(startWithLetter && endsWithDigit, "String must start with letter and end with digit");
+            //}
+        }
+
 
         #endregion
     }

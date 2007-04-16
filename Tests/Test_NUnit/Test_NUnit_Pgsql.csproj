@@ -50,6 +50,7 @@
     <Compile Include="..\..\ClientCodePgsql\user\LinqTestDB.cs">
       <Link>user\LinqTestDB.cs</Link>
     </Compile>
+    <Compile Include="Egg.cs" />
     <Compile Include="Program2Pg.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadTest.cs" />
