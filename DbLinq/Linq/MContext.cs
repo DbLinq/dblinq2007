@@ -18,6 +18,10 @@ using XSqlCommand = System.Data.OracleClient.OracleCommand;
 #elif POSTGRES
 using XSqlConnection = Npgsql.NpgsqlConnection;
 using XSqlCommand = Npgsql.NpgsqlCommand;
+#elif MICROSOFT
+using System.Data.SqlClient;
+using XSqlConnection = System.Data.SqlClient.SqlConnection;
+using XSqlCommand = System.Data.SqlClient.SqlCommand;
 #else
 using MySql.Data.MySqlClient;
 using XSqlConnection = MySql.Data.MySqlClient.MySqlConnection;
@@ -30,7 +34,8 @@ namespace DBLinq.Linq
     {
         //readonly List<MTable> tableList = new List<MTable>();//MTable requires 1 type arg
         readonly List<IMTable> _tableList = new List<IMTable>();
-        internal static bool s_suppressSqlExecute = false;
+        //internal static bool s_suppressSqlExecute = false;
+        System.IO.TextWriter _log;
 
         readonly string _sqlConnString;
         XSqlConnection _conn;
@@ -70,17 +75,22 @@ namespace DBLinq.Linq
         {
             if(query==null)
                 return "GetQueryText: null query";
+            IQueryText queryText1 = query as IQueryText;
+            if (queryText1 != null)
+                return queryText1.GetQueryText(); //so far, MTable_Projected has been updated to use this path
 
-            s_suppressSqlExecute = true; //TODO: get rid of this boolean flag
-            IEnumerator rowEnum1 = query.GetEnumerator();
-            s_suppressSqlExecute = false;
-            //MySql.util.RowEnumerator<T> rowEnum2 = rowEnum1 as MySql.util.RowEnumerator<T>;
-            IQueryText rowEnum2 = rowEnum1 as IQueryText;
-            if(rowEnum2==null)
-                return "ERROR L78 Unexpected type:"+rowEnum1;
+            return "ERROR L78 Unexpected type:" + query;
 
-            string queryText = rowEnum2.GetQueryText();
-            return queryText;
+            //s_suppressSqlExecute = true; //TODO: get rid of this boolean flag
+            //IEnumerator rowEnum1 = query.GetEnumerator();
+            //s_suppressSqlExecute = false;
+            ////MySql.util.RowEnumerator<T> rowEnum2 = rowEnum1 as MySql.util.RowEnumerator<T>;
+            //IQueryText rowEnum2 = rowEnum1 as IQueryText;
+            //if(rowEnum2==null)
+            //    return "ERROR L78 Unexpected type:"+rowEnum1;
+
+            //string queryText = rowEnum2.GetQueryText();
+            //return queryText;
         }
         /// <summary>
         /// FA: Returns the text of SQL commands for insert/update/delete without executing them
@@ -89,6 +99,16 @@ namespace DBLinq.Linq
         {
             return "TODO L56 GetChangeText()";
         }
+
+        /// <summary>
+        /// debugging output
+        /// </summary>
+        public System.IO.TextWriter Log
+        {
+            get { return _log; }
+            set { _log = value; }
+        }
+
         #endregion
     }
 

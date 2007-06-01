@@ -30,11 +30,12 @@ namespace DBLinq.util
                 case ExpressionType.Not:
                     return 13;
                 case ExpressionType.EQ:
-                    Console.WriteLine("TODO: verify Mysql precedence of operator '='");
+                    //Console.WriteLine("TODO: verify Mysql precedence of operator '='");
                     return 14;
                 //between, case, when, then, else: 
                 //  14
                 case ExpressionType.LT:
+                case ExpressionType.LE:
                 case ExpressionType.GE:
                 case ExpressionType.GT:
                 //is, like, regexp, in
@@ -69,7 +70,9 @@ namespace DBLinq.util
             switch(nodeType)
             {
                 case ExpressionType.GT: return ">";
+                case ExpressionType.GE: return ">=";
                 case ExpressionType.LT: return "<";
+                case ExpressionType.LE: return "<=";
                 case ExpressionType.EQ: return "=";
                 case ExpressionType.AndAlso: return "AND";
                 case ExpressionType.OrElse: return "OR";

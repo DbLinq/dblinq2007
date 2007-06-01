@@ -24,6 +24,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_NUnit_Pgsql", "Tests\T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PgsqlMetal", "SqlMetal\PgsqlMetal.csproj", "{93E8F1C0-326E-4447-94FC-02F6E5CB2243}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicrosoftMetal", "SqlMetal\MicrosoftMetal.csproj", "{96E8F1C0-866E-4447-94FC-EC36E5CB9243}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.Microsoft", "DbLinq\DbLinq.Microsoft.csproj", "{42B135DF-56AB-48FD-9A63-43B1DF2321A6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,6 +81,14 @@ Global
 		{93E8F1C0-326E-4447-94FC-02F6E5CB2243}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93E8F1C0-326E-4447-94FC-02F6E5CB2243}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93E8F1C0-326E-4447-94FC-02F6E5CB2243}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96E8F1C0-866E-4447-94FC-EC36E5CB9243}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96E8F1C0-866E-4447-94FC-EC36E5CB9243}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96E8F1C0-866E-4447-94FC-EC36E5CB9243}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96E8F1C0-866E-4447-94FC-EC36E5CB9243}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42B135DF-56AB-48FD-9A63-43B1DF2321A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42B135DF-56AB-48FD-9A63-43B1DF2321A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42B135DF-56AB-48FD-9A63-43B1DF2321A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42B135DF-56AB-48FD-9A63-43B1DF2321A6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

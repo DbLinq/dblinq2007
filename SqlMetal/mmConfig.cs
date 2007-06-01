@@ -41,6 +41,8 @@ namespace SqlMetal
         /// </summary>
         public static string renamesFile = null;
 
+        public static string schemaXmlFile = null;
+
         public static string baseClass = "IModified";
 
         #region static ctor: populate fields from app.config

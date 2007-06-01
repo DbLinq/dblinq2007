@@ -22,7 +22,16 @@ namespace SqlMetal.schema
 
         public static bool IsValueType(string csType)
         {
-            switch(csType){
+            switch(csType)
+            {
+                case "System.DateTime":
+                case "System.Int64":
+                case "System.Int16":
+                case "System.Int32":
+                case "System.Char":
+                case "System.Byte":
+                case "System.Double":
+                case "System.Decimal":
                 case "int": 
                 case "uint": 
                 case "char": 
@@ -38,6 +47,31 @@ namespace SqlMetal.schema
                     return false;
             }
         }
+
+        public static string FormatType(string csType, bool isNullable)
+        {
+            string csType2 = TypeNickName(csType);
+            if (isNullable && IsValueType(csType))
+                return csType2 + "?";
+            return csType2;
+        }
+
+        static string TypeNickName(string csType)
+        {
+            switch (csType)
+            {
+                case "System.String": return "string";
+                case "System.Int64": return "long";
+                case "System.Int16": return "short";
+                case "System.Int32": return "int";
+                case "System.Char": return "char";
+                case "System.Byte": return "byte";
+                case "System.Double": return "double";
+                case "System.Decimal": return "decimal";
+                default: return csType;
+            }
+        }
+
 
     }
 }

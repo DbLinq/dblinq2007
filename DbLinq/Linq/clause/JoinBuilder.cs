@@ -49,27 +49,66 @@ namespace DBLinq.Linq.clause
         /// </summary>
         public static void AddJoin2(MemberExpression exprOuter, ParseInputs inputs, ParseResult result)
         {
-            MemberExpression member = exprOuter.Expression.XMember();
-            if(member==null)
-            {
-                throw new Exception("L49 AddJoin2: member1.member2.member3 only allowed for associations, not for: "+member);
-            }
+            string nick1, nick2;
             AssociationAttribute assoc1, assoc2;
-            bool isAssoc = AttribHelper.IsAssociation(member,out assoc1);
-            if( ! isAssoc)
+            Type type2;
+
+            switch (exprOuter.Expression.NodeType)
             {
-                throw new Exception("L55 AddJoin2: member1.member2.member3 only allowed for associations, not for: "+member);
+                case ExpressionType.MemberAccess:
+                    {
+                        //eg. "SELECT order.Product.ProductID"
+                        MemberExpression member = exprOuter.Expression.XMember();
+                        bool isAssoc = AttribHelper.IsAssociation(member, out assoc1);
+                        if (!isAssoc)
+                        {
+                            throw new Exception("L55 AddJoin2: member1.member2.member3 only allowed for associations, not for: " + member);
+                        }
+
+                        nick1 = inputs.NicknameRequest(exprOuter, assoc1);
+                        nick1 = VarName.GetSqlName(nick1);
+
+                        //store this nickname for subsequent selects:
+                        result.memberExprNickames[member] = nick1;
+
+                        nick2 = member.Expression.XParam().Name;
+                        nick2 = VarName.GetSqlName(nick2);
+
+                        type2 = member.Expression.Type;
+
+                        //System.Reflection.PropertyInfo propInfo = exprOuter.Member as System.Reflection.PropertyInfo;
+                        string sqlColumnName = AttribHelper.GetSQLColumnName(exprOuter.Member)
+                            ?? exprOuter.Member.Name; //'City' or 'Content'
+
+                        result.AppendString(nick1 + "." + sqlColumnName); //where clause: '$c.City'
+                        break;
+                    }
+                case ExpressionType.Parameter:
+                    {
+                        //eg. "SELECT order.Product"
+                        ParameterExpression paramExpr = exprOuter.Expression.XParam();
+
+                        bool isAssoc = AttribHelper.IsAssociation(exprOuter, out assoc1);
+                        if (!isAssoc)
+                        {
+                            throw new Exception("L55 AddJoin2: member1.member2 only allowed for associations, not for: " + exprOuter.Expression);
+                        }
+
+                        //nickname for parent table (not available in Expr tree) - eg. "p94$" for Products
+                        string parentTypeName = exprOuter.Type.Name;
+                        nick2 = VarName.GetSqlName(Char.ToLower(parentTypeName[0]) + "94"); 
+                        nick1 = VarName.GetSqlName(paramExpr.Name);
+                        type2 = exprOuter.Type;
+                        SqlExpressionParts sqlParts = new SqlExpressionParts();
+                        FromClauseBuilder.SelectAllFields(new SessionVars(), sqlParts,type2, nick2);
+                        result.AppendString(sqlParts.GetSelect());
+                        break;
+                    }
+                default:
+                    throw new Exception("L49 AddJoin2: member1.member2.member3 only allowed for associations, not for: " + exprOuter.Expression);
             }
 
-            string nick1 = inputs.NicknameRequest(exprOuter, assoc1);
-            nick1 = VarName.GetSqlName( nick1 );
-            
-            //store this nickname for subsequent selects:
-            result.memberExprNickames[member] = nick1;
-
-            string nick2 = member.Expression.XParam().Name;
-            nick2 = VarName.GetSqlName(nick2);
-
+            Type type1 = exprOuter.Expression.Type;
             assoc2 = AttribHelper.FindReverseAssociation(assoc1);
 
             //string joinString = "$c.CustomerID=$o.CustomerID"
@@ -77,11 +116,11 @@ namespace DBLinq.Linq.clause
 
             //_parts.joinList.Add(joinString);
             result.addJoin(joinString);
-            result.tablesUsed[member.Expression.Type] = nick2;    //tablesUsed[Order] = $o
-            result.tablesUsed[member.Type] = nick1;               //tablesUsed[Customer] = $join
-            result.AppendString(nick1+"."+exprOuter.Member.Name); //where clause: '$c.City'
+            result.tablesUsed[type2] = nick2;    //tablesUsed[Order] = $o
+            result.tablesUsed[type1] = nick1;               //tablesUsed[Customer] = $join
+            //result.AppendString(nick1+"."+exprOuter.Member.Name); //where clause: '$c.City' //moved up
             //TODO - replace expr.Member.Name with SQL column name (use attribs)
-            Console.WriteLine("TODO: handle o.Customer.City !!!");
+            //Console.WriteLine("TODO: handle o.Customer.City !!!");
 
         }
     }

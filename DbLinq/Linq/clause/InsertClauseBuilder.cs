@@ -19,6 +19,11 @@ using XSqlParameter = System.Data.OracleClient.OracleParameter;
 using XSqlConnection = Npgsql.NpgsqlConnection;
 using XSqlCommand = Npgsql.NpgsqlCommand;
 using XSqlParameter = Npgsql.NpgsqlParameter;
+#elif MICROSOFT
+using System.Data.SqlClient;
+using XSqlConnection = System.Data.SqlClient.SqlConnection;
+using XSqlCommand = System.Data.SqlClient.SqlCommand;
+using XSqlParameter = System.Data.SqlClient.SqlParameter;
 #else
 using MySql.Data.MySqlClient;
 using XSqlConnection = MySql.Data.MySqlClient.MySqlConnection;
@@ -32,7 +37,7 @@ namespace DBLinq.Linq.clause
 {
     public class InsertClauseBuilder
     {
-        static object[] s_emptyIndices = new object[0];
+        //static object[] s_emptyIndices = new object[0];
         static Dictionary<string,string> s_logOnceMap = new Dictionary<string,string>();
 
         /// <summary>
@@ -59,32 +64,28 @@ namespace DBLinq.Linq.clause
                 if(colAtt.Id)
                     continue; //if field is ID , don't send field
 
-                PropertyInfo propInfo = projFld.propInfo;
-                object paramValue = propInfo.GetValue(objectToInsert, s_emptyIndices);
-                if(paramValue==null)
+                //PropertyInfo propInfo = projFld.propInfo;
+                //object paramValue = propInfo.GetValue(objectToInsert, s_emptyIndices);
+                object paramValue = projFld.GetFieldValue(objectToInsert);
+                if (paramValue == null)
                     continue; //don't set null fields
 
                 //append string, eg. ",Name"
                 if(numFieldsAdded++> 0){ sb.Append(", "); sbVals.Append(", "); }
                 sb.Append(colAtt.Name);
 
-#if ORACLE || POSTGRES
-                string paramName = ":p"+numFieldsAdded;
-#else
-                string paramName = "?p"+numFieldsAdded;
-#endif
-
+                //get either ":p0" or "?p0"
+                string paramName = vendor.Vendor.ParamName(numFieldsAdded);
                 sbVals.Append(paramName);
-#if ORACLE
-                OracleType dbType = OracleTypeConversions.ParseType(colAtt.DBType);
-                OracleParameter param = new OracleParameter(paramName,dbType);
-#elif POSTGRES
-                NpgsqlTypes.NpgsqlDbType dbType = PgsqlTypeConversions.ParseType(colAtt.DBType);
-                XSqlParameter param = new XSqlParameter(paramName,dbType);
-#else
-                MySqlDbType dbType = MySqlTypeConversions.ParseType(colAtt.DBType);
-                MySqlParameter param = new MySqlParameter(paramName,dbType);
-#endif
+
+                //OracleType dbType = OracleTypeConversions.ParseType(colAtt.DBType);
+                //OracleParameter param = new OracleParameter(paramName, dbType);
+                //NpgsqlTypes.NpgsqlDbType dbType = PgsqlTypeConversions.ParseType(colAtt.DBType);
+                //XSqlParameter param = new XSqlParameter(paramName, dbType);
+                //MySqlDbType dbType = MySqlTypeConversions.ParseType(colAtt.DBType);
+                //MySqlParameter param = new MySqlParameter(paramName, dbType);
+                XSqlParameter param = vendor.Vendor.CreateSqlParameter(colAtt.DBType, paramName);
+
                 param.Value = paramValue;
                 paramList.Add(param);
             }
@@ -113,6 +114,80 @@ namespace DBLinq.Linq.clause
 
             XSqlCommand cmd = new XSqlCommand(sql,conn);
             foreach(XSqlParameter param in paramList)
+            {
+                cmd.Parameters.Add(param);
+            }
+            return cmd;
+        }
+
+        /// <summary>
+        /// given type Employee, return 'INSERT Employee (ID, Name) VALUES (?p1,?p2)'
+        /// (by examining [Table] and [Column] attribs)
+        /// </summary>
+        public static XSqlCommand GetUpdateCommand(XSqlConnection conn, object objectToInsert
+            ,ProjectionData projData, string ID_to_update)
+        {
+            if (conn == null || objectToInsert == null || projData == null)
+                throw new ArgumentNullException("InsertClauseBuilder has null args");
+            if (projData.fields.Count < 1 || projData.fields[0].columnAttribute == null)
+                throw new ApplicationException("InsertClauseBuilder need to receive types that have ColumnAttributes");
+
+            StringBuilder sb = new StringBuilder("UPDATE ");
+            sb.Append(projData.tableAttribute.Name).Append(" SET ");
+            List<XSqlParameter> paramList = new List<XSqlParameter>();
+
+            string primaryKeyName = null;
+            int paramIndex=0;
+            string separator = "";
+            foreach (ProjectionData.ProjectionField projFld in projData.fields)
+            {
+                ColumnAttribute colAtt = projFld.columnAttribute;
+
+                string columnName_safe = vendor.Vendor.FieldName_Safe(colAtt.Name); //turn 'User' into '[User]'
+
+                if (colAtt.Id)
+                {
+                    primaryKeyName = columnName_safe;
+                    continue; //if field is ID , don't send field
+                }
+
+                //PropertyInfo propInfo = projFld.propInfo;
+                //object paramValue = propInfo.GetValue(objectToInsert, s_emptyIndices);
+                object paramValue = projFld.GetFieldValue(objectToInsert);
+                string paramName;
+                if (paramValue == null)
+                {
+                    paramName = "NULL";
+                    continue; //don't set null fields
+                }
+                else
+                {
+                    paramName = vendor.Vendor.ParamName(paramIndex++);
+                }
+
+                //append string, eg. ",Name=:p0"
+                sb.Append(separator).Append(columnName_safe).Append("=").Append(paramName);
+
+                separator = ", ";
+
+                XSqlParameter param = vendor.Vendor.CreateSqlParameter(colAtt.DBType, paramName);
+                param.Value = paramValue;
+                paramList.Add(param);
+            }
+            // "WHERE myID=11"
+            sb.Append(" WHERE ").Append(primaryKeyName).Append("=").Append(ID_to_update);
+
+
+            string sql = sb.ToString();
+
+            if (!s_logOnceMap.ContainsKey(sql))
+            {
+                Console.WriteLine("SQL UPDATE L175: " + sql);
+                s_logOnceMap[sql] = "unused"; //log once only
+            }
+
+            XSqlCommand cmd = new XSqlCommand(sql, conn);
+            foreach (XSqlParameter param in paramList)
             {
                 cmd.Parameters.Add(param);
             }

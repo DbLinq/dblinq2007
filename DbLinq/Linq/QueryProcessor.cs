@@ -36,12 +36,16 @@ namespace DBLinq.Linq
         /// we call 'go' method, which puts together our SQL string.
         /// </summary>
         /// <param name="vars"></param>
-        public static void ProcessLambdas(SessionVars vars)
+        public static void ProcessLambdas(SessionVars vars, Type T)
         {
-            new QueryProcessor(vars).go();
+            if (vars.sqlString != null)
+                return; //we have already processed expressions (perhaps via GetQueryText)
+            QueryProcessor qp = new QueryProcessor(vars);
+            qp.processExpressions();
+            qp.build_SQL_string(T);
         }
 
-        void go()
+        void processExpressions()
         {
             ParseResult result = null;
             foreach(LambdaExpression lambda in _vars.whereExpr)
@@ -52,17 +56,22 @@ namespace DBLinq.Linq
                 result.CopyInto(_vars._sqlParts); //transfer params and tablesUsed
             }
 
+            //Note: processing of groupByExpr populates SELECT columns.
+            //make sure they are not added twice, when selectExpr is processed.
             if(_vars.groupByExpr!=null)
             {
                 ParseInputs inputs = new ParseInputs(result);
                 //inputs.groupByExpr = _vars.groupByExpr;
+                result = ExpressionTreeParser.Parse(_vars.groupByExpr.Body, inputs);
+                string groupByFields = string.Join(",", result.columns.ToArray());
+                _vars._sqlParts.groupByList.Add(groupByFields);
 
-                if(_vars.selectExpr==null //&& _vars.groupByNewExpr==null
+                if (_vars.selectExpr == null //&& _vars.groupByNewExpr==null
                     )
                 {
                     //manually add "SELECT c.City"
-                    result = ExpressionTreeParser.Parse(_vars.groupByExpr.Body, inputs);
                     _vars._sqlParts.AddSelect(result.columns);
+
                     result.CopyInto(_vars._sqlParts); //transfer params and tablesUsed
                 }
 
@@ -91,6 +100,56 @@ namespace DBLinq.Linq
                 result.CopyInto(_vars._sqlParts); //transfer params and tablesUsed
             }
 
+        }
+
+        /// <summary>
+        /// Post-process and build SQL string.
+        /// </summary>
+        string build_SQL_string(Type T)
+        {
+            //eg. '$p' for user query "from p in db.products"
+            if (_vars._sqlParts.IsEmpty())
+            {
+                //occurs when there no Where or Select expression, eg. 'from p in Products select p'
+                //select all fields of target type:
+                string varName = _vars.GetDefaultVarName(); //'$x'
+                FromClauseBuilder.SelectAllFields(_vars, _vars._sqlParts, T, varName);
+                //PS. Should _sqlParts not be empty here? Debug Clone() and AnalyzeLambda()
+            }
+
+            string sql = _vars._sqlParts.ToString();
+
+            if (_vars.orderByExpr.Count>0)
+            {
+                //TODO: don't look at C# field name, retrieve SQL field name from attrib
+                sql += "\n ORDER BY "; // +member.Member.Name;
+                string separator = " ";
+                foreach (LambdaExpression orderByExpr in _vars.orderByExpr)
+                {
+                    Expression body = orderByExpr.Body;
+                    MemberExpression member = body as MemberExpression;
+                    if (member != null)
+                    {
+                        sql += separator + member.Member.Name;
+                        separator = ",";
+                    }
+                }
+                if (_vars.orderBy_desc != null)
+                {
+                    sql += " " + _vars.orderBy_desc;
+                }
+            }
+
+            if (_vars.limitClause != null)
+            {
+                sql += " " + _vars.limitClause;
+            }
+
+            if(_vars.log!=null)
+                _vars.log.WriteLine("SQL: " + sql);
+
+            _vars.sqlString = sql;
+            return sql;
         }
     }
 }

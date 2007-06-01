@@ -27,6 +27,7 @@ namespace DBLinq.Linq
     class MTable_Projected<T> 
         : IQueryable<T>
         , IGetModifiedEnumerator<T>
+        , IQueryText
     {
         public SessionVars _vars;
 
@@ -40,8 +41,10 @@ namespace DBLinq.Linq
             //this occurs in GroupBy followed by Where, eg. F6B_OrdersByCity()
             string msg1 = "MTable_Proj.CreateQuery: T=<"+typeof(T)+"> -> S=<"+typeof(S)+">";
             string msg2 = "MTable_Proj.CreateQuery: "+expression;
-            Log1.Info(msg1);
-            Log1.Info(msg2);
+            //Log1.Info(msg1);
+            //Log1.Info(msg2);
+            if (_vars.log != null)
+                _vars.log.WriteLine("MTable_Proj.CreateQuery: " + expression);
 
             //todo: Clone SessionVars, call StoreQuery, and return secondary MTable_Proj?
             SessionVars vars2 = _vars.Clone();
@@ -64,10 +67,11 @@ namespace DBLinq.Linq
         public IEnumerator<T> GetEnumerator()
         {
             //we don't keep projections in cache, pass cache=null
-            Log1.Info("MTable_Proj.GetEnumerator <"+typeof(T)+">");
+            if(_vars.log!=null)
+                _vars.log.WriteLine("MTable_Proj.GetEnumerator <"+typeof(T)+">");
 
             SessionVars vars = _vars.Clone();
-            QueryProcessor.ProcessLambdas(vars); //for test D7, already done in MTable.CreateQ?
+            QueryProcessor.ProcessLambdas(vars, typeof(T)); //for test D7, already done in MTable.CreateQ?
 
             //RowEnumerator<T> rowEnumerator = new RowEnumerator<T>(vars,null);
             RowEnumerator<T> rowEnumerator = RowEnumFactory<T>.Create(vars,null);
@@ -84,7 +88,7 @@ namespace DBLinq.Linq
         {
             SessionVars vars2 = _vars.Clone();
             fct(vars2);
-            QueryProcessor.ProcessLambdas(vars2);
+            QueryProcessor.ProcessLambdas(vars2, typeof(T));
             RowEnumerator<T> rowEnumerator = new RowEnumerator<T>(vars2, null);
             //rowEnumerator.ExecuteSqlCommand();
             return rowEnumerator;
@@ -93,6 +97,18 @@ namespace DBLinq.Linq
 
         IEnumerator IEnumerable.GetEnumerator()
         {
+            ////occurs for GetQueryText()
+            //if (MContext.s_suppressSqlExecute)
+            //{
+            //    //we are doing GetQueryText
+            //    QueryProcessor.ProcessLambdas(_vars, typeof(T));
+            //    RowEnumerator<T> rowEnumerator = new RowEnumerator<T>(_vars, null);
+            //    return rowEnumerator.GetEnumerator();
+            //}
+            //else
+            //{
+            //    throw new ApplicationException("Not implemented");
+            //}
             throw new ApplicationException("Not implemented");
         }
 
@@ -115,6 +131,12 @@ namespace DBLinq.Linq
         public object Execute(Expression expression)
         {
             throw new ApplicationException("Not implemented");
+        }
+
+        public string GetQueryText()
+        {
+            QueryProcessor.ProcessLambdas(_vars, typeof(T));
+            return _vars.sqlString;
         }
 
         public void Dispose()

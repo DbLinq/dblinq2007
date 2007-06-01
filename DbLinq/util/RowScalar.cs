@@ -64,7 +64,7 @@ namespace DBLinq.util
                             _vars._sqlParts.countClause = "COUNT"; //Count or Max
                             string varName = _vars.GetDefaultVarName(); //'$x'
                             FromClauseBuilder.SelectAllFields(_vars, _vars._sqlParts,typeof(T),varName);
-                            QueryProcessor.ProcessLambdas(_vars);
+                            QueryProcessor.ProcessLambdas(_vars, typeof(S));
                             using(RowEnumerator<S> rowEnum = new RowEnumerator<S>(_vars,null))
                             {
                                 //rowEnum.ExecuteSqlCommand();

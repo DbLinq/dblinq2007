@@ -43,7 +43,7 @@ namespace DBLinq.Linq
         /// <summary>
         /// there can be more than one Where clause
         /// </summary>
-        public readonly List<LambdaExpression> whereExpr = new List<LambdaExpression>();
+        public List<LambdaExpression> whereExpr = new List<LambdaExpression>();
 
         /// <summary>
         /// there can be more than one select
@@ -53,7 +53,10 @@ namespace DBLinq.Linq
         public LambdaExpression selectManyExpr;
 
 
-        public LambdaExpression orderByExpr;
+        /// <summary>
+        /// OrderBy goes first, ThenBy next
+        /// </summary>
+        public List<LambdaExpression> orderByExpr = new List<LambdaExpression>();
         public string           orderBy_desc;
 
         public LambdaExpression groupByExpr;
@@ -72,6 +75,16 @@ namespace DBLinq.Linq
         /// record it in this list
         /// </summary>
         public List<Type>       createQueryList = new List<Type>();
+
+        /// <summary>
+        /// created by post-processing in QueryProcessor.build_SQL_string(), used in RowEnumerator
+        /// </summary>
+        public string sqlString;
+
+        /// <summary>
+        /// debug output stream
+        /// </summary>
+        public System.IO.TextWriter log;
 
 
         /// <summary>
@@ -93,8 +106,10 @@ namespace DBLinq.Linq
         {
             SessionVars clone = (SessionVars) base.MemberwiseClone();
             clone._serial = s_serial++; //strange - MemberwiseClone ignores readonly attrib
+            //Console.WriteLine("  SessionVars cloned " + _serial + " -> " + clone._serial);
             clone._sqlParts = _sqlParts.Clone();
             clone.createQueryList = new List<Type>(this.createQueryList);
+            clone.whereExpr = new List<LambdaExpression>(this.whereExpr);
             clone.lambdasInOrder.AddRange(this.lambdasInOrder);
             return clone;
         }
@@ -171,19 +186,36 @@ namespace DBLinq.Linq
                     StoreSelectManyLambda(lambda);
                     break;
                 case "OrderBy": 
-                    orderByExpr = lambda; orderBy_desc = null; break;
+                    orderByExpr.Add(lambda); orderBy_desc = null; break;
                 case "OrderByDescending": 
-                    orderByExpr = lambda; orderBy_desc = "DESC"; break;
+                    orderByExpr.Add(lambda); orderBy_desc = "DESC"; break;
+                case "ThenBy":
+                    orderByExpr.Add(lambda); orderBy_desc = null; break;
 
                 case "GroupBy": 
                     groupByExpr = lambda;
-
+                    /*
                     //FIXME: This needs to ask the attribute what's the SQL fieldname
+                    switch (groupByExpr.Body.NodeType)
+                    {
+                        case ExpressionType.MemberInit:
+                            break;
+                        case ExpressionType.MemberAccess:
+                            {
+                                string fieldName = AttribHelper.GetSQLColumnName(grpMemberExpr.Member)
+                                    ?? grpMemberExpr.Member.Name;
+                                this._sqlParts.groupByList.Add(fieldName);
+                            }
+                            break;
+                        default:
+                            throw new ArgumentException("L145 Unexpected GroupBy");
+                    }
                     MemberExpression grpMemberExpr = groupByExpr.Body.XMember();
                     if(grpMemberExpr==null)
                         throw new ArgumentException("L145 Unexpected GroupBy");
 
-                    string fieldName = grpMemberExpr.Member.Name;
+                    string fieldName = AttribHelper.GetSQLColumnName(grpMemberExpr.Member) 
+                        ?? grpMemberExpr.Member.Name;
 
                     //first, build projectionData to select all fields ...
                     Type srcTableType = groupByExpr.Parameters[0].Type;
@@ -207,6 +239,7 @@ namespace DBLinq.Linq
 
 
                     this._sqlParts.groupByList.Add(fieldName);
+                     * */
                     break;
 
                 //experiment:

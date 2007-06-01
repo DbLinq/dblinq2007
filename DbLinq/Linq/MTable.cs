@@ -20,6 +20,11 @@ using XSqlCommand = System.Data.OracleClient.OracleCommand;
 #elif POSTGRES
 using XSqlConnection = Npgsql.NpgsqlConnection;
 using XSqlCommand = Npgsql.NpgsqlCommand;
+#elif MICROSOFT
+using System.Data.SqlClient;
+using XSqlConnection = System.Data.SqlClient.SqlConnection;
+using XSqlCommand = System.Data.SqlClient.SqlCommand;
+using XSqlParameter = System.Data.SqlClient.SqlParameter;
 #else
 using MySql.Data.MySqlClient;
 using XSqlConnection = MySql.Data.MySqlClient.MySqlConnection;
@@ -39,6 +44,7 @@ namespace DBLinq.Linq
         , IOrderedQueryable<T> //this is cheating ... we pretend to be always ordered
         , IMTable
         , IGetModifiedEnumerator<T>
+        , IQueryText
     {
         /// <summary>
         /// the parent MContext holds our connection etc
@@ -57,6 +63,7 @@ namespace DBLinq.Linq
             _parentDB.RegisterChild(this);
             _vars.context = this._parentDB;
             _vars.sourceType = typeof(T);
+            _vars.log = parent.Log;
             //_vars._sqlParts = _sqlParts;
         }
 
@@ -78,7 +85,12 @@ namespace DBLinq.Linq
         /// </summary>
         public IQueryable<S> CreateQuery<S>(Expression expr)
         {
-            Log1.Info("MTable.CreateQuery: "+expr);
+            //Log1.Info("MTable.CreateQuery: "+expr);
+            if (_parentDB.Log != null)
+            {
+                _vars.log = _parentDB.Log;
+                _parentDB.Log.WriteLine("MTable.CreateQuery: " + expr);
+            }
 
             SessionVars vars = _vars.Clone();
             vars.StoreQuery(expr);
@@ -115,14 +127,14 @@ namespace DBLinq.Linq
         /// </summary>
         public IEnumerator<T> GetEnumerator()
         {
-            QueryProcessor.ProcessLambdas(_vars);
+            QueryProcessor.ProcessLambdas(_vars, typeof(T));
             RowEnumerator<T> rowEnumerator = new RowEnumerator<T>(_vars, _liveObjectMap);
-            if(MContext.s_suppressSqlExecute)
-            {
-                //we are doing GetQueryText
-            } else {
-                //rowEnumerator.ExecuteSqlCommand();
-            }
+            //if(MContext.s_suppressSqlExecute)
+            //{
+            //    //we are doing GetQueryText
+            //} else {
+            //    //rowEnumerator.ExecuteSqlCommand();
+            //}
             return rowEnumerator.GetEnumerator();
         }
 
@@ -134,7 +146,7 @@ namespace DBLinq.Linq
         {
             SessionVars vars2 = _vars.Clone();
             fct(vars2);
-            QueryProcessor.ProcessLambdas(vars2);
+            QueryProcessor.ProcessLambdas(vars2, typeof(T));
             RowEnumerator<T> rowEnumerator = new RowEnumerator<T>(vars2, _liveObjectMap);
             //rowEnumerator.ExecuteSqlCommand();
             return rowEnumerator;
@@ -181,7 +193,7 @@ namespace DBLinq.Linq
             //TODO: process deleteList, insertList, liveObjectList
             if(_insertList.Count==0 && _liveObjectMap.Count==0 && _deleteList.Count==0)
                 return; //nothing to do
-            object[] indices = new object[0];
+            //object[] indices = new object[0];
             ProjectionData proj = ProjectionData.FromDbType(typeof(T));
             XSqlConnection conn = _parentDB.SqlConnection;
             foreach(T obj in _insertList)
@@ -231,6 +243,8 @@ namespace DBLinq.Linq
 
             }
 
+            Func<T, string> getObjectID = RowEnumeratorCompiler<T>.CompileIDRetrieval(proj);
+
             //todo: check object is not in two lists
             foreach(T obj in _liveObjectMap.Values)
             {
@@ -238,11 +252,16 @@ namespace DBLinq.Linq
                 if(iMod==null || !iMod.IsModified)
                     continue;
                 Console.WriteLine("MTable SaveAll TODO: save modified object");
+                string ID_to_update = getObjectID(obj);
+
+                XSqlCommand cmd = InsertClauseBuilder.GetUpdateCommand(conn, iMod, proj, ID_to_update);
+                int result = cmd.ExecuteNonQuery();
+                Console.WriteLine("MTable SaveAll.Update returned:" + result);
             }
 
             if(_deleteList.Count>0)
             {
-                Func<T,string> getObjectID = RowEnumeratorCompiler<T>.CompileIDRetrieval(proj);
+                //Func<T,string> getObjectID = RowEnumeratorCompiler<T>.CompileIDRetrieval(proj);
                 StringBuilder sbDeleteIDs = new StringBuilder();
                 int indx2=0;
                 foreach(T obj in _deleteList)
@@ -260,6 +279,10 @@ namespace DBLinq.Linq
             }
 
         }
-
+        public string GetQueryText()
+        {
+            QueryProcessor.ProcessLambdas(_vars, typeof(T));
+            return _vars.sqlString;
+        }
     }
 }

@@ -59,6 +59,11 @@ namespace DBLinq.Linq.clause
         {
             selectFieldList.AddRange(columns);
         }
+        public string GetSelect()
+        {
+            string joined = string.Join(",", selectFieldList.ToArray());
+            return joined;
+        }
 
         /// <summary>
         /// eg. {'$c.City==?P0'}
@@ -129,8 +134,8 @@ namespace DBLinq.Linq.clause
                     opt_comma = ", ";
                 }
             }
-            if(sb.Length>80){ sb.Append("\n"); } //for legibility, append a newline for long expressions
-            sb.Append(" FROM ");
+            //if(sb.Length>80){ sb.Append("\n"); } //for legibility, append a newline for long expressions
+            sb.Append("\n FROM ");
             {
                 string opt_comma = "";
                 foreach(string s in fromTableList)
@@ -148,7 +153,7 @@ namespace DBLinq.Linq.clause
 
             if(whereAndjoins.Count>0)
             {
-                sb.Append(" WHERE ");
+                sb.Append("\n WHERE ");
                 string separator = "";
                 foreach(string s in whereAndjoins)
                 {
@@ -159,7 +164,7 @@ namespace DBLinq.Linq.clause
 
             if(groupByList.Count>0)
             {
-                sb.Append(" GROUP BY ");
+                sb.Append("\n GROUP BY ");
                 string separator = "";
                 foreach(string grp in groupByList)
                 {

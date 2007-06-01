@@ -40,8 +40,9 @@ namespace DBLinq.Linq.clause
             return paramName;
         }
         public void addJoin(string joinStr)
-        { 
-            joins.Add(joinStr);
+        {
+            if( ! joins.Contains(joinStr) )
+                joins.Add(joinStr);
         }
         public readonly Dictionary<Type,string> tablesUsed = new Dictionary<Type,string>();
         public int MarkSbPosition(){ return sb.Length; }
