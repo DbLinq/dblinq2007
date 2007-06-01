@@ -57,6 +57,29 @@ namespace DBLinq.util
         }
 
         /// <summary>
+        /// from one column Employee.EmpID, extract its [Column] attrib
+        /// </summary>
+        public static ColumnAttribute GetColumnAttrib(MemberInfo memberInfo)
+        {
+            object[] colAttribs = memberInfo.GetCustomAttributes(typeof(ColumnAttribute), false);
+            if (colAttribs.Length != 1)
+            {
+                return null;
+            }
+            ColumnAttribute colAtt0 = colAttribs[0] as ColumnAttribute;
+            return colAtt0;
+        }
+
+        /// <summary>
+        /// get name of column in SQL table for one C# field.
+        /// </summary>
+        public static string GetSQLColumnName(MemberInfo memberInfo)
+        {
+            ColumnAttribute colAtt0 = GetColumnAttrib(memberInfo);
+            return colAtt0 == null ? null : colAtt0.Name;
+        }
+
+        /// <summary>
         /// prepate ProjectionData - which holds ctor and field accessors
         /// </summary>
         public static ProjectionData GetProjectionData(Type t)
@@ -80,9 +103,9 @@ namespace DBLinq.util
                 List<ColumnAttribute> colAtt = objs.OfType<ColumnAttribute>().ToList();
                 if(colAtt.Count==0)
                     continue; //not a DB field
-                ProjectionData.ProjectionField projField = new ProjectionData.ProjectionField();
+                ProjectionData.ProjectionField projField = new ProjectionData.ProjectionField(prop);
                 projField.type = prop.PropertyType;
-                projField.propInfo = prop;
+                //projField.propInfo = prop;
                 projField.columnAttribute = colAtt[0];
                 if( ! prop.CanWrite)
                     throw new ApplicationException("Cannot retrieve type "+t.Name+" from SQL - field "+prop.Name+" has no setter");

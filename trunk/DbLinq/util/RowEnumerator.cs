@@ -22,6 +22,11 @@ using Npgsql;
 using XSqlCommand = Npgsql.NpgsqlCommand;
 using XSqlDataReader = Npgsql.NpgsqlDataReader;
 using XSqlConnection = Npgsql.NpgsqlConnection;
+#elif MICROSOFT
+using System.Data.SqlClient;
+using XSqlConnection = System.Data.SqlClient.SqlConnection;
+using XSqlCommand = System.Data.SqlClient.SqlCommand;
+using XSqlDataReader = System.Data.SqlClient.SqlDataReader;
 #else
 using MySql.Data.MySqlClient;
 using XSqlCommand = MySql.Data.MySqlClient.MySqlCommand;
@@ -43,7 +48,7 @@ namespace DBLinq.util
         , IQueryText
     {
         protected SessionVars _vars;
-        XSqlConnection _conn;
+        protected XSqlConnection _conn;
 
         //while the FatalExecuteEngineError persists, we use a wrapper class to retrieve data
         protected Func<DataReader2,T> _objFromRow2;
@@ -66,6 +71,8 @@ namespace DBLinq.util
 
             CompileReaderFct();
 
+            _sqlString = vars.sqlString;
+#if NEVER
             //eg. '$p' for user query "from p in db.products"
             if(vars._sqlParts.IsEmpty())
             {
@@ -100,6 +107,7 @@ namespace DBLinq.util
 
             _sqlString = sql;
             Console.WriteLine("SQL: "+_sqlString);
+#endif
         }
 
         protected virtual void CompileReaderFct()
@@ -110,26 +118,30 @@ namespace DBLinq.util
 
         public string GetQueryText(){ return _sqlString; }
 
-        protected XSqlCommand ExecuteSqlCommand(out DataReader2 rdr2)
+        protected XSqlCommand ExecuteSqlCommand(XSqlConnection newConn, out DataReader2 rdr2)
         {
-            XSqlCommand cmd = new XSqlCommand(_sqlString,_conn);
+            XSqlCommand cmd = new XSqlCommand(_sqlString, newConn);
 
             if(_vars._sqlParts!=null)
             {
                 foreach(string paramName in _vars._sqlParts.paramMap.Keys){
                     object value = _vars._sqlParts.paramMap[paramName];
                     Console.WriteLine("SQL PARAM: "+paramName+" = "+value);
-                    cmd.Parameters.Add(paramName,value);
+                    //cmd.Parameters.Add(paramName, value); //warning CS0618: Add is obsolete:
+                    cmd.Parameters.AddWithValue(paramName, value);
                 }
             }
 
-            Console.WriteLine("cmd.ExecuteCommand()");
+            //Console.WriteLine("cmd.ExecuteCommand()");
             XSqlDataReader _rdr = cmd.ExecuteReader();
             rdr2 = new DataReader2(_rdr);
 
-            int fields = _rdr.FieldCount;
-            string hasRows = _rdr.HasRows ? "rows: yes" : "rows: no";
-            Console.WriteLine("ExecuteSqlCommand numFields="+fields+ " "+hasRows);
+            if (_vars.log != null)
+            {
+                int fields = _rdr.FieldCount;
+                string hasRows = _rdr.HasRows ? "rows: yes" : "rows: no";
+                _vars.log.WriteLine("ExecuteSqlCommand numFields=" + fields + " " + hasRows);
+            }
             return cmd;
         }
 
@@ -161,8 +173,15 @@ namespace DBLinq.util
                 throw new ApplicationException("Internal error, missing _objFromRow compiled func");
             }
 
+            string origConnString = _conn.ConnectionString;
+            //create a new connection to prevent error "SqlConnection already has SqlDataReader associated with it"
+            XSqlConnection newConn = new XSqlConnection(origConnString);
+            newConn.Open();
+            //TODO: use connection pool instead of always opening a new one
+
             DataReader2 rdr2;
-            using( XSqlCommand cmd = ExecuteSqlCommand(out rdr2) )
+            using( newConn )
+            using( XSqlCommand cmd = ExecuteSqlCommand(newConn, out rdr2) )
             using( rdr2 )
             {
                 //_current = default(T);

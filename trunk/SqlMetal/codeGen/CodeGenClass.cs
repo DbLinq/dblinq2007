@@ -42,13 +42,15 @@ public partial class $name $baseClass
             List<string> fieldBodies = new List<string>();
             List<string> properties = new List<string>();
             properties.Add("#region properties - accessors");
+            string name2 = table.Class ?? table.Name;
 
-            foreach(DlinqSchema.Column col in table.Types[0].Columns)
+            //foreach(DlinqSchema.Column col in table.Types[0].Columns)
+            foreach(DlinqSchema.Column col in table.Columns)
             {
                 List<DlinqSchema.Association> constraintsOnField 
-                    = table.Types[0].Associations.FindAll( a => a.Name==col.Name );
+                    = table.Associations.FindAll( a => a.Name==col.Name );
 
-                CodeGenField codeGenField = new CodeGenField(col, constraintsOnField);
+                CodeGenField codeGenField = new CodeGenField(name2, col, constraintsOnField);
                 string fld = codeGenField.generateField();
                 string prop = codeGenField.generateProperty();
                 fld = fld.Replace("\n", "\n\t");
@@ -63,7 +65,6 @@ public partial class $name $baseClass
             string fieldsConcat = string.Join("\n", fieldBodies.ToArray());
             string propsConcat = string.Join("\n", properties.ToArray());
             string equals = GenerateEqualsAndHash(table);
-            string name2 = table.Class;
             string baseClass = (mmConfig.baseClass==null || mmConfig.baseClass=="")
                 ? ""
                 : ": "+mmConfig.baseClass;
@@ -101,17 +102,19 @@ public $name($argList)
             List<string> ctorArgs = new List<string>();
             List<string> ctorStatements = new List<string>();
 
-            foreach(DlinqSchema.Column col in table.Types[0].Columns)
+            foreach(DlinqSchema.Column col in table.Columns)
             {
-                string arg = col.Type+" "+col.Property;
+                string property = col.Property ?? col.Name;
+                string colType2 = CSharp.FormatType(col.Type, col.Nullable);
+                string arg = colType2 + " " + property;
                 ctorArgs.Add(arg);
-                string assign = "this._"+col.Name+" = "+col.Property+";";
+                string assign = "this._" + col.Name + " = " + property + ";";
                 ctorStatements.Add(assign);
             }
 
             string argsCsv = string.Join(",", ctorArgs.ToArray());
             string statements = string.Join("\n", ctorStatements.ToArray());
-            template = template.Replace("$name", table.Class);
+            template = template.Replace("$name", table.Class ?? table.Name);
             template = template.Replace("$argList", argsCsv);
             template = template.Replace("$statements", statements);
             template = template.Replace("\n","\n\t");
@@ -127,8 +130,10 @@ public EntityMSet<$childClassName> $fieldName
 {
     get { return null; } //TODO L212
 }";
-            var ourChildren = table.Types[0].Associations 
-                          .Where( a=> a.Kind==DlinqSchema.RelationshipKind.ManyToOneParent );
+            //child table contains a ManyToOneParent Association, pointing to parent
+            //parent table contains a ManyToOneChild.
+            var ourChildren = table.Associations 
+                          .Where( a=> a.Kind==DlinqSchema.RelationshipKind.ManyToOneChild );
 
             List<string> linksToChildTables = new List<string>();
             foreach(DlinqSchema.Association assoc in ourChildren)
@@ -149,7 +154,7 @@ public EntityMSet<$childClassName> $fieldName
                 string childTableName   = assoc.Target;
                 string childColName     = assoc.Columns[0].Name; //eg. 'CustomerID'
                 string fkName           = assoc.Name; //eg. 'FK_Orders_Customers'
-                string childClassName   = targetTable.Class;
+                string childClassName   = targetTable.Class ?? targetTable.Name;
                 string fieldName        = childClassName+"s";
                 str = str.Replace("$childTableName",    childTableName);
                 str = str.Replace("$childColName",      childColName);
@@ -167,17 +172,19 @@ public EntityMSet<$childClassName> $fieldName
         {
             #region GetLinksToParentTables()
             string childLinkTemplate = @"
-private EntityRef<$parentClass> $fieldName;    
+private EntityRef<$parentClassTyp> $fieldName2;    
 
-[Association(Storage=""$fieldName"", ThisKey=""$thisKey"", Name=""$fkName"")]
+[Association(Storage=""$fieldName1"", ThisKey=""$thisKey"", Name=""$fkName"")]
 [DebuggerNonUserCode]
-public $parentClass $parentClass {
-	get { return this.$fieldName.Entity; }
-	set { this.$fieldName.Entity = value; }
+public $parentClassTyp $parentClassFld {
+	get { return this.$fieldName2.Entity; }
+	set { this.$fieldName2.Entity = value; }
 }
 ";
-            var ourParents = table.Types[0].Associations 
-                          .Where( a=> a.Kind==DlinqSchema.RelationshipKind.ManyToOneChild );
+            //child table contains a ManyToOneParent Association, pointing to parent
+            //parent table contains a ManyToOneChild.
+            var ourParents = table.Associations 
+                          .Where( a=> a.Kind==DlinqSchema.RelationshipKind.ManyToOneParent );
 
             List<string> linksToChildTables = new List<string>();
             foreach(DlinqSchema.Association assoc in ourParents)
@@ -191,16 +198,26 @@ public $parentClass $parentClass {
 
                 string str = childLinkTemplate;
 
-                string childTableName   = assoc.Target;
+                //string childTableName   = assoc.Target;
                 string thisKey          = assoc.Columns[0].Name; //eg. 'CustomerID'
                 string fkName           = assoc.Name; //eg. 'FK_Orders_Customers'
-                string parentClassName  = targetTable.Class;
+                string parentClassName  = targetTable.Class ?? targetTable.Name;
+                string parentClassNameFld = parentClassName;
                 string fieldName        = "_"+parentClassName;
-                str = str.Replace("$childTableName",    childTableName);
+                string fieldName2       = fieldName;
+                if(parentClassNameFld==thisKey)
+                {
+                    parentClassNameFld = thisKey + parentClassName; //repeat name to prevent collision (same as Linq)
+                    fieldName2 = "_"+parentClassNameFld;
+                }
+
+                //str = str.Replace("$childTableName",    childTableName);
                 str = str.Replace("$thisKey",           thisKey);
                 str = str.Replace("$fkName",            fkName);
-                str = str.Replace("$parentClass",       parentClassName);
-                str = str.Replace("$fieldName",         fieldName);
+                str = str.Replace("$parentClassTyp",       parentClassName);
+                str = str.Replace("$parentClassFld",    parentClassNameFld);
+                str = str.Replace("$fieldName1",         fieldName);
+                str = str.Replace("$fieldName2",         fieldName2);
                 linksToChildTables.Add(str);
             }
             string ret = string.Join("\n", linksToChildTables.ToArray());
@@ -226,7 +243,7 @@ public $parentClass $parentClass {
 
             //next, find reverse association (has the same name)
             DlinqSchema.Association reverseAssoc
-                = targetTable.Types[0].Associations.FirstOrDefault( a2 => a2.Name==assoc.Name );
+                = targetTable.Associations.FirstOrDefault( a2 => a2.Name==assoc.Name );
             if(reverseAssoc==null)
             {
                 Console.WriteLine("findReverseAssoc: ERROR L167 reverse assoc not found: "+assoc.Name);
@@ -263,10 +280,16 @@ public $parentClass $parentClass {
             }
             //TODO - handle composite keys
             //TODO - ensure primary key column is non-null, even for composite keys
+            if (primaryKeys == null || primaryKeys.Count == 0 && primaryKeys[0].Columns == null || primaryKeys[0].Columns.Count == 0)
+            {
+                Console.WriteLine("ERROR L269 - bad primary key data");
+                return "_L269_BAD_PRIMARY_KEY_";
+            }
+
             string fieldName = "_"+primaryKeys[0].Columns[0].Name;
 
             string result = template.Replace("$fieldID",fieldName);
-            result = result.Replace("$className", table.Class);
+            result = result.Replace("$className", table.Class ?? table.Name);
             return result;
         }
     }

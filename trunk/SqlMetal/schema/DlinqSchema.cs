@@ -21,7 +21,20 @@ namespace SqlMetal.schema
             [XmlAttribute] public AccessEnum1 Access;            
             [XmlAttribute] public string Class;
 
-            [XmlElement] public readonly List<Schema> Schemas = new List<Schema>();
+            [XmlElement("Schema")] 
+            public readonly List<Schema> Schemas = new List<Schema>();
+
+
+            public static Database LoadFromFile(string fname)
+            {
+                XmlSerializer xser = new XmlSerializer(typeof(Database));
+                using(System.IO.TextReader rdr = System.IO.File.OpenText(fname))
+                {
+                    object obj = xser.Deserialize(rdr);
+                    Database obj2 = (Database)obj;
+                    return obj2;
+                }
+            }
         }
 
         public enum AccessEnum1 { @public, @internal };
@@ -29,12 +42,22 @@ namespace SqlMetal.schema
 
         public class Schema
         {
-            [XmlAttribute] public string Name;
-            [XmlAttribute] public bool Hidden;
+            [XmlAttribute]
+            public string Name;
+            [XmlAttribute]
+            public string Property;
+            [XmlAttribute]
+            public bool Hidden;
             [XmlAttribute] public AccessEnum1 Access;            
             [XmlAttribute] public string Class;
 
-            [XmlElement] public readonly List<Table> Tables = new List<Table>();
+            [XmlElement("Table")]
+            public readonly List<Table> Tables = new List<Table>();
+
+            public override string ToString()
+            {
+                return "Dblinq.Schema nom=" + Name + " tlbs=" + Tables.Count;
+            }
         }
 
         /// <summary>
@@ -55,6 +78,7 @@ namespace SqlMetal.schema
             [XmlAttribute] public string Name;
             [XmlAttribute] public bool Hidden;
 
+            [XmlElement("Column")]
             public readonly List<ColumnName> Columns = new List<ColumnName>();
         }
         public class Index : ColumnSpecifier
@@ -73,10 +97,29 @@ namespace SqlMetal.schema
             [XmlAttribute] public AccessEnum1 Access;            
             [XmlAttribute] public string Class;
 
+            //note: Microsoft seems to use table.Columns instead of table.Types[0].Columns
+            [XmlElement("Column")]
+            public readonly List<Column> Columns = new List<Column>();
+
+            [XmlElement("Association")]
+            public readonly List<Association> Associations = new List<Association>();
+
             [XmlElement] public readonly List<ColumnSpecifier> PrimaryKey = new List<ColumnSpecifier>();
             [XmlElement] public readonly List<ColumnSpecifier> Unique = new List<ColumnSpecifier>();
             [XmlElement] public readonly List<Index> Index = new List<Index>();
+
+#if TEMP_DISABLED_TYPES
+            //note: Microsoft seems to use table.Columns instead of table.Types[0].Columns
             [XmlElement] public readonly List<Type> Types = new List<Type>();
+#endif
+
+            public override string ToString()
+            {
+                string typs = ""; // Types.Count > 0 ? " types=" + Types.Count : "";
+                string prim = PrimaryKey.Count == 0 ? "" : " primaryKeys=" + PrimaryKey.Count;
+                string cols = Columns.Count > 0 ? " columns=" + Columns.Count : "";
+                return "Dblinq.Table nom=" + Name + typs + cols + prim;
+            }
         }
 
         public class Type
@@ -87,7 +130,9 @@ namespace SqlMetal.schema
             [XmlAttribute] public string InheritanceCode;
             [XmlAttribute] public bool IsInheritanceDefault;
 
+            //note: Microsoft seems to use table.Columns instead of table.Types[0].Columns
             [XmlElement] public readonly List<Column> Columns = new List<Column>();
+
             [XmlElement] public readonly List<Association> Associations = new List<Association>();
         }
 
@@ -99,7 +144,7 @@ namespace SqlMetal.schema
             [XmlAttribute] public bool Hidden;
             [XmlAttribute] public AccessEnum2 Access;            
             [XmlAttribute] public string Property;
-            [XmlAttribute] public string DBType;
+            [XmlAttribute] public string DbType;
 
             /// <summary>
             /// CLR-type
@@ -115,6 +160,11 @@ namespace SqlMetal.schema
             [XmlAttribute] public bool IsVersion;
             [XmlAttribute] public bool IsReadOnly;
             [XmlAttribute] public UpdateCheckEnum UpdateCheck;
+
+            public override string ToString()
+            {
+                return "Column " + Name + "  " + Type;
+            }
         }
 
 #if WRONG

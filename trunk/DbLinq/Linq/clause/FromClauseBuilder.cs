@@ -51,7 +51,8 @@ namespace DBLinq.Linq.clause
 
             foreach(ColumnAttribute colAtt in colAttribs)
             {
-                string part = nick+"."+colAtt.Name; //eg. '$o.OrderID'
+                string safeColumnName = vendor.Vendor.FieldName_Safe(colAtt.Name);
+                string part = nick + "." + safeColumnName; //eg. '$o.OrderID'
                 selectParts.AddSelect( part );
             }
 

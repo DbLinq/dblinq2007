@@ -55,8 +55,26 @@ namespace DBLinq.Linq.clause
     /// </summary>
     public class ExpressionTreeParser
     {
+        static Dictionary<string, string> s_csharpOperatorToSqlMap = new Dictionary<string, string>();
+        //{
+        //    {"op_Equality", " = "},
+        //    {"op_Inequality", " != "},
+        //    {"op_GreaterThan", " > "},
+        //    {"op_LessThan", " > "},
+        //};
+
         ParseResult _result;
         ParseInputs _inputs;
+
+        static ExpressionTreeParser()
+        {
+            s_csharpOperatorToSqlMap["op_Equality"] = " = ";
+            s_csharpOperatorToSqlMap["op_Inequality"] = " != ";
+            s_csharpOperatorToSqlMap["op_GreaterThan"] = " > ";
+            s_csharpOperatorToSqlMap["op_GreaterThanOrEqual"] = " >= ";
+            s_csharpOperatorToSqlMap["op_LessThan"] = " < ";
+            s_csharpOperatorToSqlMap["op_LessThanOrEqual"] = " <= ";
+        }
 
         /// <summary>
         /// pass in bodies of Lambdas, not lambdas themselves
@@ -81,7 +99,9 @@ namespace DBLinq.Linq.clause
             switch(expr.NodeType)
             {
                 case ExpressionType.GT:
+                case ExpressionType.GE:
                 case ExpressionType.LT:
+                case ExpressionType.LE:
                 case ExpressionType.EQ:
                 case ExpressionType.AndAlso:
                 case ExpressionType.OrElse:
@@ -107,6 +127,7 @@ namespace DBLinq.Linq.clause
                 case ExpressionType.MemberInit:
                     AnalyzeMemberInit(recurData, (MemberInitExpression)expr);
                     return;
+                case ExpressionType.Convert:
                 case ExpressionType.Cast:
                     AnalyzeUnary(recurData, (UnaryExpression)expr);
                     return;
@@ -138,7 +159,11 @@ namespace DBLinq.Linq.clause
                 _result.AppendString("'");
                 //TODO: how to format the datetime string?
                 //on a UK machine, this format seems to work: '2007-12-03 08:25:00'
-                _result.AppendString(dt.ToString("yyyy-MM-dd hh:mm:ss"));
+                //_result.AppendString(dt.ToString("yyyy-MM-dd HH:mm:ss"));
+                string dateFormat = dt.TimeOfDay.TotalHours == 0
+                    ? "yyyy-MMM-dd"
+                    : "yyyy-MMM-dd HH:mm:ss";
+                _result.AppendString(dt.ToString(dateFormat)); //MS SQL requires '2007-Apr-03' format
                 _result.AppendString("'");
                 return;
             }
@@ -225,6 +250,13 @@ namespace DBLinq.Linq.clause
                 //eg. {g.Key.Length}
                 //replace {g.Key.Length} with groupByExpr={o.Customer.Length}
                 Expression replaceExpr = _inputs.groupByExpr.Body;
+                if (replaceExpr.NodeType == ExpressionType.MemberInit)
+                {
+                    //we are grouping by multiple columns
+                    //eg. new ComboGroupBy {col1 = o.Product.ProductID, col2 = o.Product.ProductName}
+                    AnalyzeExpression(recurData, replaceExpr);
+                    return;
+                }
                 System.Reflection.PropertyInfo pinfo = null;
                 Expression replaceMemberExpr = Expression.Property(replaceExpr,pinfo);
                 expr = replaceMemberExpr as MemberExpression;
@@ -237,6 +269,15 @@ namespace DBLinq.Linq.clause
                 JoinBuilder.AddJoin2(expr, _inputs, _result);
                 return;
             }
+
+            AssociationAttribute assoc;
+            if ( AttribHelper.IsAssociation(expr,out assoc) )
+            {
+                //process 'o.Customer'
+                JoinBuilder.AddJoin2(expr, _inputs, _result);
+                return;
+            }
+
             int pos1 = _result.MarkSbPosition();
 
             AnalyzeExpression(recurData, expr.Expression);
@@ -249,21 +290,46 @@ namespace DBLinq.Linq.clause
             _result.AppendString(expr.Member.Name);
         }
 
+        //Dictionary<string,string> csharpOperatorToSqlMap = new Dictionary<string,string>
+        //{
+        //    {"op_Equality", " = "},
+        //    {"op_Inequality", " != "},
+        //    {"op_GreaterThan", " > "},
+        //    {"op_LessThan", " > "},
+        //};
+
         internal void AnalyzeMethodCall(RecurData recurData, MethodCallExpression expr)
         {
+            string methodName = expr.Method.Name;
+
+            string sqlOperatorName;
+            if (s_csharpOperatorToSqlMap.TryGetValue(methodName, out sqlOperatorName))
+            {
+                //map "op_Inequality" to " != "
+                AnalyzeExpression(recurData, expr.Parameters[0]);
+                _result.AppendString(sqlOperatorName);
+                AnalyzeExpression(recurData, expr.Parameters[1]);
+                return;
+            }
+
             //special handling
             switch(expr.Method.Name)
             {
-                case "op_Equality":
-                    AnalyzeExpression(recurData, expr.Parameters[0]);
-                    _result.AppendString(" = ");
-                    AnalyzeExpression(recurData, expr.Parameters[1]);
-                    return;
-                case "op_Inequality":
-                    AnalyzeExpression(recurData, expr.Parameters[0]);
-                    _result.AppendString(" != ");
-                    AnalyzeExpression(recurData, expr.Parameters[1]);
-                    return;
+                //case "op_Equality":
+                //    AnalyzeExpression(recurData, expr.Parameters[0]);
+                //    _result.AppendString(" = ");
+                //    AnalyzeExpression(recurData, expr.Parameters[1]);
+                //    return;
+                //case "op_Inequality":
+                //    AnalyzeExpression(recurData, expr.Parameters[0]);
+                //    _result.AppendString(" != ");
+                //    AnalyzeExpression(recurData, expr.Parameters[1]);
+                //    return;
+                //case "op_GreaterThan":
+                //    AnalyzeExpression(recurData, expr.Parameters[0]);
+                //    _result.AppendString(" > ");
+                //    AnalyzeExpression(recurData, expr.Parameters[1]);
+                //    return;
 
                 case "StartsWith":
                 case "EndWith":
@@ -319,7 +385,6 @@ namespace DBLinq.Linq.clause
                     }
                 case "Concat":
                     {
-                        //given expr='{g.Count()}', produce Count expression
                         List<string> strings = new List<string>();
                         int posInitial = _result.MarkSbPosition();
                         foreach(Expression concatPart in expr.Parameters)
@@ -336,7 +401,23 @@ namespace DBLinq.Linq.clause
                         _result.Revert(posInitial);
                         string sqlConcatStr = Vendor.Concat(strings);
                         _result.AppendString(sqlConcatStr);
-                        //_result.AppendString("COUNT(*)");
+                        return;
+                    }
+                case "ToLower":
+                case "ToUpper":
+                    {
+                        string sqlFctName = expr.Method.Name == "ToLower" ? "LOWER(" : "UPPER(";
+                        _result.AppendString(sqlFctName);
+                        AnalyzeExpression(recurData, expr.Object);
+                        _result.AppendString(")");
+                        return;
+                    }
+                case "FromOADate":
+                    {
+                        //convert double to DateTime
+                        _result.AppendString("CAST(");
+                        AnalyzeExpression(recurData, expr.Parameters[0]); //it's a static fct - don't pass expr.Object
+                        _result.AppendString(" as smalldatetime)");
                         return;
                     }
 
@@ -347,7 +428,7 @@ namespace DBLinq.Linq.clause
             //TODO: throw for any other method - database probably cannot handle such call
             StringBuilder sb = new StringBuilder();
             expr.BuildString(sb);
-            string msg2 ="L274: Unprepared to map method "+expr.Method.Name+" ("+sb+") to SQL";
+            string msg2 ="L274: Unprepared to map method "+methodName+" ("+sb+") to SQL";
             Console.WriteLine(msg2);
             throw new ApplicationException(msg2);
             //_result.AppendString(expr.Method.Name);
@@ -355,6 +436,12 @@ namespace DBLinq.Linq.clause
 
         private void AnalyzeUnary(RecurData recurData, UnaryExpression expr)
         {
+            if (expr.NodeType == ExpressionType.Convert)
+            {
+                AnalyzeExpression(recurData, expr.Operand);
+                return;
+            }
+
             AnalyzeExpression(recurData, expr.Operand);
 
             string operatorStr = "UNOP:"+expr.NodeType.ToString(); //formatBinaryOperator(expr.NodeType);

@@ -64,10 +64,10 @@ namespace DBLinq.util
                 //_projectionData.type = typeof(T);
                 //vars._sqlParts.selectFieldList.Add("Count(*)");
 
-                ProjectionData projData2 = ProjectionData.FromReflectedType(typeof(T));
-
+                //ProjectionData projData2 = ProjectionData.FromReflectedType(typeof(T));
                 //and compile the sucker
-                objFromRow = RowEnumeratorCompiler<T>.CompileProjectedRowDelegate(vars, projData2);
+                //objFromRow = RowEnumeratorCompiler<T>.CompileProjectedRowDelegate(vars, projData2);
+                objFromRow = RowEnumeratorCompiler<T>.CompileProjectedRowDelegate(vars, vars.projectionData);
             }
             else if(isProjectedType)
             {
@@ -105,7 +105,7 @@ namespace DBLinq.util
 
             StringBuilder sb = new StringBuilder();
             lambda.BuildString(sb);
-            Console.WriteLine("  RowEnumCompiler(Primitive): Compiled "+sb);
+            //Console.WriteLine("  RowEnumCompiler(Primitive): Compiled "+sb);
             return func_t;
             #endregion
         }
@@ -147,7 +147,7 @@ namespace DBLinq.util
             Func<DataReader2,T> func_t = (Func<DataReader2,T>)lambda.Compile();
 
             lambda.BuildString(sb);
-            Console.WriteLine("  RowEnumCompiler(Column): Compiled "+sb);
+            //Console.WriteLine("  RowEnumCompiler(Column): Compiled "+sb);
             return func_t;
             #endregion
         }
@@ -166,7 +166,9 @@ namespace DBLinq.util
             LambdaExpression lambda = BuildProjectedRowLambda(vars, projData, rdr, ref fieldID);
 
             lambda.BuildString(sb);
-            Console.WriteLine("  RowEnumCompiler(Projection): Compiling "+sb);
+
+            if(vars.log!=null)
+                vars.log.WriteLine("  RowEnumCompiler(Projection): Compiling "+sb);
             //error lambda not in scope?!
             Func<DataReader2,T> func_t = (Func<DataReader2,T>)lambda.Compile();
 
@@ -199,7 +201,8 @@ namespace DBLinq.util
                             ProjectionData projData2 = AttribHelper.GetProjectionData(projFld.type);
                             LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, rdr, ref fieldID);
                             MemberInitExpression innerInit = innerLambda.Body as MemberInitExpression;
-                            MemberAssignment binding = Expression.Bind(projFld.propInfo, innerInit);
+                            //MemberAssignment binding = Expression.Bind(projFld.propInfo, innerInit);
+                            MemberAssignment binding = projFld.BuildMemberAssignment(innerInit);
                             bindings.Add(binding);
                         }
                         break;
@@ -208,7 +211,7 @@ namespace DBLinq.util
                             Type fieldType = projFld.type;
                             MethodCallExpression arg_i = GetFieldMethodCall(fieldType, rdr, fieldID++);
                             //MethodInfo accessor = null;
-                            MemberAssignment binding = Expression.Bind(projFld.propInfo, arg_i);
+                            MemberAssignment binding = Expression.Bind(projFld.MemberInfo, arg_i);
                             bindings.Add(binding);
                         }
                         break;
@@ -264,7 +267,9 @@ namespace DBLinq.util
             MethodInfo minfo = ChooseFieldRetrievalMethod(t2);
             if(minfo==null)
             {
-                Console.WriteLine("GetFieldMethodCall L180: failed to get methodInfo for type "+t2);
+                string msg = "GetFieldMethodCall L180: failed to get methodInfo for type " + t2;
+                Console.WriteLine(msg);
+                throw new Exception(msg);
             }
             List<Expression> paramZero = new List<Expression>();
             paramZero.Add( Expression.Constant(fieldID) ); //that's the zero in GetInt32(0)
@@ -314,11 +319,15 @@ namespace DBLinq.util
             {
                 minfo = typeof(DataReader2).GetMethod("GetInt16N");
             }
-            else if(t2==typeof(int))
+            else if (t2 == typeof(int))
             {
                 minfo = typeof(DataReader2).GetMethod("GetInt32");
             }
-            else if(t2==typeof(uint))
+            else if (t2 == typeof(int?))
+            {
+                minfo = typeof(DataReader2).GetMethod("GetInt32N");
+            }
+            else if (t2 == typeof(uint))
             {
                 minfo = typeof(DataReader2).GetMethod("GetUInt32");
             }
@@ -334,7 +343,11 @@ namespace DBLinq.util
             {
                 minfo = typeof(DataReader2).GetMethod("GetDouble");
             }
-            else if(t2==typeof(decimal))
+            else if (t2 == typeof(double?))
+            {
+                minfo = typeof(DataReader2).GetMethod("GetDoubleN");
+            }
+            else if (t2 == typeof(decimal))
             {
                 minfo = typeof(DataReader2).GetMethod("GetDecimal");
             }
@@ -358,11 +371,18 @@ namespace DBLinq.util
             {
                 minfo = typeof(DataReader2).GetMethod("GetBytes");
             }
+            else if (t2.IsEnum)
+            {
+                minfo = typeof(DataReader2).GetMethod("GetInt32");
+                string msg = "RowEnum TODO L377: compile casting from int to enum " + t2;
+                Console.WriteLine(msg);
+                throw new ApplicationException(msg);
+            }
             else
             {
                 //s_rdr.GetUInt32();
                 //s_rdr.GetFloat();
-                string msg = "RowEnum TODO L381: add support for type "+t2;
+                string msg = "RowEnum TODO L381: add support for type " + t2;
                 Console.WriteLine(msg);
                 throw new ApplicationException(msg);
             }
@@ -390,7 +410,7 @@ namespace DBLinq.util
                 if(projFld.columnAttribute.Id)
                 {
                     //found the ID column
-                    minfo = projFld.propInfo;
+                    minfo = projFld.MemberInfo as PropertyInfo;
                     break;
                 }
             }

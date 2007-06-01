@@ -11,6 +11,11 @@ namespace SqlMetal.schema
     public interface IDBVendor
     {
         DlinqSchema.Database LoadSchema();
+        
+        /// <summary>
+        /// eg. 'Oracle'
+        /// </summary>
         string VendorName();
+
     }
 }

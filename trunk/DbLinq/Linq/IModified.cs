@@ -12,6 +12,7 @@ namespace DBLinq.Linq
 {
     /// <summary>
     /// Simple interface, which allows to query which business objects have been modified.
+    /// Only objects with primary keys implement this interface.
     /// </summary>
     public interface IModified
     {
@@ -20,5 +21,10 @@ namespace DBLinq.Linq
         /// Linq sets it's IsModified status to false.
         /// </summary>
         bool IsModified { get; set; }
+
+        /// <summary>
+        /// if an object was modifed, Linq updates the row specified by this Primary Key.
+        /// </summary>
+        //object PrimaryKeyValue { get; }
     }
 }

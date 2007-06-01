@@ -23,6 +23,13 @@ namespace DBLinq.util
                 return TypeEnum.Primitive;
             if(AttribHelper.GetTableAttrib(t)!=null)
                 return TypeEnum.Column;
+            if (t.IsGenericType && t.GetGenericTypeDefinition()==typeof(Nullable<>))
+            {
+                //make 'double?' also primitive
+                Type tInner = t.GetGenericArguments()[0];
+                if (IsPrimitiveType(tInner))
+                    return TypeEnum.Primitive;
+            }
             return TypeEnum.Other;
         }
 

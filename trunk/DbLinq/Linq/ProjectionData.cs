@@ -38,7 +38,14 @@ namespace DBLinq.Linq
 
         public class ProjectionField
         {
-            public PropertyInfo propInfo;
+            public static readonly object[] s_emptyIndices = new object[0];
+
+            /// <summary>
+            /// TODO: propInfo and fieldInfo should be handled together
+            /// </summary>
+            PropertyInfo propInfo;
+            FieldInfo fieldInfo; //we can assign Properties or Fields in memberInit
+
             public MemberExpression expr1; //holds e.g. {e.ID}
             public Type type; //eg. int
 
@@ -49,10 +56,58 @@ namespace DBLinq.Linq
 
             public ColumnAttribute columnAttribute;
 
+            public ProjectionField(MemberInfo memberInfo)
+            {
+                propInfo = memberInfo as PropertyInfo;
+                if (propInfo == null)
+                    fieldInfo = memberInfo as FieldInfo;
+                if (propInfo==null && fieldInfo == null)
+                    throw new ArgumentException("Bad mInfo:" + memberInfo);
+            }
+            public Type FieldType
+            {
+                get
+                {
+                    if (propInfo != null)
+                        return propInfo.PropertyType;
+                    else
+                        return fieldInfo.FieldType;
+                }
+            }
+            public object GetFieldValue(object parentObj)
+            {
+                object paramValue;
+                if (propInfo != null)
+                    paramValue = propInfo.GetValue(parentObj, s_emptyIndices);
+                else
+                    paramValue = fieldInfo.GetValue(parentObj);
+                return paramValue;
+            }
+
+            public MemberInfo MemberInfo 
+            {
+                get { return (MemberInfo)propInfo ?? fieldInfo; }
+            }
+
             public override string ToString()
             {
                 return "ProjFld "+propInfo.Name+" "+expr1+" "+typeEnum;
             }
+
+            public bool IsValid(out string error)
+            {
+                if (type == null) { error = "Missing type"; return false; }
+                if (propInfo == null && fieldInfo==null) { error = "Missing propInfo/fieldInfo"; return false; }
+                error = null;
+                return true;
+            }
+            public MemberAssignment BuildMemberAssignment(Expression innerExpr)
+            {
+                //binding = Expression.Bind(projFld.propInfo, innerLambda.Body);
+                MemberAssignment binding = Expression.Bind(MemberInfo, innerExpr);
+                return binding;
+            }
+
         }
 
         public ProjectionData()
@@ -89,9 +144,9 @@ namespace DBLinq.Linq
             PropertyInfo[] props = t.GetProperties();
             foreach(PropertyInfo prop in props)
             {
-                ProjectionData.ProjectionField projField = new ProjectionData.ProjectionField();
+                ProjectionData.ProjectionField projField = new ProjectionData.ProjectionField(prop);
                 projField.type = prop.PropertyType;
-                projField.propInfo = prop;
+                //projField.propInfo = prop;
                 projField.typeEnum = CSharp.CategorizeType(projField.type);
                 projData.fields.Add(projField);
             }
@@ -103,22 +158,27 @@ namespace DBLinq.Linq
         /// </summary>
         public static ProjectionData FromSelectExpr(LambdaExpression selectExpr)
         {
-            ProjectionData proj = new ProjectionData();
             //when selecting just a string, body is not MemberInitExpr, but MemberExpr
             MemberInitExpression memberInit = selectExpr.Body as MemberInitExpression;
             if(memberInit==null){
                 Console.WriteLine("  Select is not a projection - just a single field");
                 return null;
             }
+
+            ProjectionData proj = new ProjectionData();
             NewExpression newExpr = memberInit.NewExpression;
             proj.ctor = newExpr.Constructor;
+#if NEVER
             foreach(MemberAssignment memberAssign in memberInit.Bindings)
             {
-                ProjectionField projField = new ProjectionField();
-                projField.propInfo = memberAssign.Member as PropertyInfo;
-                projField.type = projField.propInfo.PropertyType;
-                if(projField.type==null || projField.propInfo==null)
-                    throw new ApplicationException("ProjectionData L36: unknown type of memberInit");
+                ProjectionField projField = new ProjectionField(memberAssign.Member);
+
+                //projField.type = projField.propInfo.PropertyType; //fails for o.Product.ProductID
+                projField.type = memberAssign.Expression.Type;
+
+                string err;
+                if ( ! projField.IsValid(out err))
+                    throw new ApplicationException("ProjectionData L36: error on field: " + memberAssign.Expression + ": " + err);
 
                 switch(memberAssign.Expression.NodeType)
                 {
@@ -143,10 +203,12 @@ namespace DBLinq.Linq
                         projField.typeEnum = CSharp.CategorizeType(projField.type);
                         break;
                     default:
-                        throw new ArgumentException("L86: Unprepared for "+memberAssign.Expression.NodeType);
+                        throw new ArgumentException("L205: Unprepared for "+memberAssign.Expression.NodeType);
                 }
                 proj.fields.Add(projField);
             }
+#endif
+            LoopOverBindings(proj, memberInit);
 
             //object xx = newExpr.Args; //args.Count=0
             return proj;
@@ -158,23 +220,29 @@ namespace DBLinq.Linq
         /// </summary>
         public static ProjectionData FromSelectGroupByExpr(LambdaExpression selectExpr, LambdaExpression groupByExpr, SqlExpressionParts sqlParts)
         {
-            ProjectionData proj = new ProjectionData();
             //when selecting just a string, body is not MemberInitExpr, but MemberExpr
             MemberInitExpression memberInit = selectExpr.Body as MemberInitExpression;
+            if (memberInit==null && groupByExpr.Body.NodeType == ExpressionType.MemberInit)
+            {
+                //use groupByExpr rather than selectExpr
+                memberInit = groupByExpr.Body as MemberInitExpression;
+            }
             if(memberInit==null){
                 Console.WriteLine("Select is not a projection (L159)");
                 return null;
             }
+
+            ProjectionData proj = new ProjectionData();
             NewExpression newExpr = memberInit.NewExpression;
             proj.ctor = newExpr.Constructor;
             proj.type = newExpr.Type;
+#if NEVER
             foreach(MemberAssignment memberAssign in memberInit.Bindings)
             {
-                ProjectionField projField = new ProjectionField();
-                projField.propInfo = memberAssign.Member as PropertyInfo;
-                projField.type = projField.propInfo.PropertyType;
-                if(projField.type==null || projField.propInfo==null)
-                    throw new ApplicationException("ProjectionData L36: unknown type of memberInit");
+                ProjectionField projField = new ProjectionField(memberAssign.Member);
+                projField.type = projField.FieldType;
+                //if(projField.type==null)
+                //    throw new ApplicationException("ProjectionData L36: unknown type of memberInit");
 
                 switch(memberAssign.Expression.NodeType)
                 {
@@ -198,6 +266,9 @@ namespace DBLinq.Linq
                         projField.type = paramEx.Type;
                         projField.typeEnum = CSharp.CategorizeType(projField.type);
                         break;
+                    case ExpressionType.MethodCallVirtual:
+                        //occurs in 'select o.Name.ToLower()'
+                        break;
                     case ExpressionType.MethodCall:
                         //occurs during 'from c ... group o by o.CustomerID into g ... 
                         //select new { g.Key , OrderCount = g.Count() };
@@ -207,13 +278,67 @@ namespace DBLinq.Linq
                         //projField.typeEnum = CSharp.CategorizeType(projField.type);
                         break;
                     default:
-                        throw new ArgumentException("L86: Unprepared for "+memberAssign.Expression.NodeType);
+                        throw new ArgumentException("L274: Unprepared for "+memberAssign.Expression.NodeType);
                 }
                 proj.fields.Add(projField);
             }
+#endif
+            LoopOverBindings(proj, memberInit);
 
             //object xx = newExpr.Args; //args.Count=0
             return proj;
+        }
+
+        private static void LoopOverBindings(ProjectionData proj, MemberInitExpression memberInit)
+        {
+            foreach(MemberAssignment memberAssign in memberInit.Bindings)
+            {
+                ProjectionField projField = new ProjectionField(memberAssign.Member);
+                projField.type = projField.FieldType;
+                //if(projField.type==null)
+                //    throw new ApplicationException("ProjectionData L36: unknown type of memberInit");
+
+                switch(memberAssign.Expression.NodeType)
+                {
+                    case ExpressionType.MemberAccess:
+                        //occurs during 'select new {e.ID,e.Name}'
+                        projField.expr1 = memberAssign.Expression as MemberExpression;
+                        projField.type = projField.expr1.Type;
+                        projField.typeEnum = CSharp.CategorizeType(projField.type);
+
+                        //Now handled in ExpressionTreeParser
+                        ////TODO: for GroupBy selects, replace 'g.Key' with 'o.CustomerID':
+                        //if(projField.expr1.Member.Name=="Key")
+                        //{
+                        //    projField.expr1 = groupByExpr.Body as MemberExpression;
+                        //    sqlParts.selectFieldList.Add(projField.expr1.Member.Name);
+                        //}
+                        break;
+                    case ExpressionType.Parameter:
+                        //occurs during 'from c ... from o ... select new {c,o}'
+                        ParameterExpression paramEx = memberAssign.Expression as ParameterExpression;
+                        projField.type = paramEx.Type;
+                        projField.typeEnum = CSharp.CategorizeType(projField.type);
+                        break;
+                    case ExpressionType.MethodCallVirtual:
+                        //occurs in 'select o.Name.ToLower()'
+                        break;
+                    case ExpressionType.Convert:
+                        //occurs in 'select (CategoryEnum)o.EmployeeCategory'
+                        break;
+                    case ExpressionType.MethodCall:
+                        //occurs during 'from c ... group o by o.CustomerID into g ... 
+                        //select new { g.Key , OrderCount = g.Count() };
+                        MethodCallExpression callEx = memberAssign.Expression.XMethodCall();
+                        //projField.expr1 = memberAssign.Expression as MemberExpression;
+                        //projField.type = callEx.Type;
+                        //projField.typeEnum = CSharp.CategorizeType(projField.type);
+                        break;
+                    default:
+                        throw new ArgumentException("L274: Unprepared for "+memberAssign.Expression.NodeType);
+                }
+                proj.fields.Add(projField);
+            }        
         }
 
 

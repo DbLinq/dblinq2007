@@ -43,15 +43,13 @@ namespace DBLinq.util
         /// <returns></returns>
         public static MemberAssignment BuildProjFieldBinding(SessionVars vars, ProjectionData.ProjectionField projFld, ParameterExpression rdr, ref int fieldID)
         {
-            PropertyInfo[] igroupies = projFld.propInfo.PropertyType.GetProperties();
-            ConstructorInfo[] ictos = projFld.propInfo.PropertyType.GetConstructors();
+            PropertyInfo[] igroupies = projFld.FieldType.GetProperties();
+            ConstructorInfo[] ictos = projFld.FieldType.GetConstructors();
             ProjectionData projInner = ProjectionData.FromSelectGroupByExpr(vars.groupByNewExpr,vars.groupByExpr,vars._sqlParts);
             //ProjectionData projInner = ProjectionData.FromSelectGroupByExpr(vars.groupByNewExpr,vars.groupByExpr,vars._sqlParts);
             LambdaExpression innerLambda = RowEnumeratorCompiler<T>.BuildProjectedRowLambda(vars, projInner, rdr, ref fieldID);
-            Type t1 = innerLambda.Body.Type;
-            Type t2 = projFld.propInfo.PropertyType;
-            //bool same  = t1==t2;
-            MemberAssignment binding = Expression.Bind(projFld.propInfo, innerLambda.Body);
+            MemberAssignment binding = projFld.BuildMemberAssignment(innerLambda.Body);
+            
             return binding;
         }
     }

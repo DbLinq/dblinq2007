@@ -67,6 +67,10 @@ namespace SqlMetal.util
                 var q = from r in s_renamings.Arr where r.old==name select r.@new;
                 foreach(var @new in q){ return @new; }
             }
+            
+            if(IsMixedCase(name))
+                return name.Pluralize(); //on Microsoft, preserve case
+
             //if we get here, there was no renaming
             return name.Capitalize().Pluralize();
         }
@@ -97,6 +101,11 @@ namespace SqlMetal.util
                 foreach(var @new in q){ return @new; }
             }
 
+            //if name has a mixture of uppercase/lowercase, don't change it (don't capitalize)
+            //(Microsfot SQL Server preserves case)
+            if(IsMixedCase(name))
+                return name;
+
             return mmConfig.forceUcaseTableName 
                 ? name.Capitalize() //Char.ToUpper(column.Name[0])+column.Name.Substring(1)
                 : name;
@@ -116,6 +125,21 @@ namespace SqlMetal.util
             XmlSerializer xser = new XmlSerializer(typeof(Renamings));
             object obj = xser.Deserialize(System.IO.File.OpenText(mmConfig.renamesFile));
             s_renamings = (Renamings)obj;
+        }
+
+        public static bool IsMixedCase(string s)
+        {
+            bool foundL = false, foundU = false;
+            foreach(char c in s)
+            {
+                if(Char.IsUpper(c))
+                    foundU = true;
+                if(Char.IsLower(c))
+                    foundL = true;
+                if(foundL && foundU)
+                    return true;
+            }
+            return false;
         }
 
     }

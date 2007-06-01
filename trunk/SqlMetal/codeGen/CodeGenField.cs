@@ -16,12 +16,15 @@ namespace SqlMetal.codeGen
         string _nameU; //camelcase field name, eg. 'Cat'
         string _attrib2;
         string _constraintWarn;
+        string _tableClassName;
+        string _columnType;
         //bool _attribAutoGen;
 
 
-        public CodeGenField(DlinqSchema.Column column, List<DlinqSchema.Association> constraintsOnField )
+        public CodeGenField(string tableClassName, DlinqSchema.Column column, List<DlinqSchema.Association> constraintsOnField )
         {
             _column = column;
+            _tableClassName = tableClassName;
 
             //glue together "(Id=true, AutoGen=true,DbType="float")"
             List<string> attribParts = new List<string>();
@@ -34,7 +37,7 @@ namespace SqlMetal.codeGen
                 attribParts.Add("AutoGen=true");
                 //_attribAutoGen = true;
             }
-            attribParts.Add("DBType=\""+column.DBType+"\"");
+            attribParts.Add("DBType=\""+column.DbType+"\"");
 
             bool isPrimaryKeyCol = column.IsIdentity;
             //bool hasForeignKey   = false;
@@ -53,13 +56,15 @@ namespace SqlMetal.codeGen
             //    ? column.Name.Capitalize() //Char.ToUpper(column.Name[0])+column.Name.Substring(1)
             //    : column.Name;
             _nameU = Util.FieldName(column.Name);
+
+            _columnType = CSharp.FormatType(column.Type, column.Nullable);
         }
 
         public string generateField()
         {
             string template = @"
 protected $type _$name;";
-            template = template.Replace("$type", _column.Type);
+            template = template.Replace("$type", _columnType);
             template = template.Replace("$name", _column.Name);
             template = template.Replace("$attribOpt", _attrib2);
             template = template.Replace("$constraintWarn", _constraintWarn);
@@ -81,7 +86,13 @@ public $type $nameU
     set { _$name=value; _isModified_=true; }
 }
 ";
-            template = template.Replace("$type", this._column.Type);
+            if (_nameU == _tableClassName)
+            {
+                //_nameU += "_1"; //prevent error CS0542: 'XXX': member names cannot be the same as their enclosing type
+                _nameU = "Content"; //same as Linq To Sql
+            }
+
+            template = template.Replace("$type", _columnType);
             template = template.Replace("$nameU", _nameU);
             template = template.Replace("$name", this._column.Name);
             template = template.Replace("$attribOpt", _attrib2);
