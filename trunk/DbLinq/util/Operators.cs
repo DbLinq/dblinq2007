@@ -5,9 +5,15 @@
 ////////////////////////////////////////////////////////////////////
 
 using System;
-using System.Expressions;
 using System.Collections.Generic;
 using System.Text;
+#if LINQ_PREVIEW_2006
+//Visual Studio 2005 with Linq Preview May 2006 - can run on Win2000
+using System.Expressions;
+#else
+//Visual Studio Orcas - requires WinXP
+using System.Linq.Expressions;
+#endif
 
 namespace DBLinq.util
 {
@@ -23,28 +29,28 @@ namespace DBLinq.util
             switch(nodeType)
             {
                 case ExpressionType.OrElse:
-                case ExpressionType.BitwiseXor:
+                case ExpressionType.ExclusiveOr:
                     return 11;
                 case ExpressionType.AndAlso:
                     return 12;
                 case ExpressionType.Not:
                     return 13;
-                case ExpressionType.EQ:
+                case ExpressionType.Equal:
                     //Console.WriteLine("TODO: verify Mysql precedence of operator '='");
                     return 14;
                 //between, case, when, then, else: 
                 //  14
-                case ExpressionType.LT:
-                case ExpressionType.LE:
-                case ExpressionType.GE:
-                case ExpressionType.GT:
+                case ExpressionType.LessThan:
+                case ExpressionType.LessThanOrEqual:
+                case ExpressionType.GreaterThanOrEqual:
+                case ExpressionType.GreaterThan:
                 //is, like, regexp, in
                     return 15;
-                case ExpressionType.BitwiseOr:
+                case ExpressionType.Or:
                     return 16;
-                case ExpressionType.BitwiseAnd:
+                case ExpressionType.And:
                     return 17;
-                case ExpressionType.RShift:
+                case ExpressionType.RightShift:
                     return 18;
                 case ExpressionType.Add:
                 case ExpressionType.Subtract:
@@ -53,8 +59,9 @@ namespace DBLinq.util
                 case ExpressionType.Divide:
                 case ExpressionType.Modulo:
                     return 20;
-                case ExpressionType.BitwiseNot: //"^"?
-                    return 21;
+                //case ExpressionType.Not: //BitwiseNot - "^"?
+                //    return 21; //already above as logical not?
+
                 //case ExpressionType.Not:
                 //    return 22; //what is the difference between "!" and "NOT"?
                 //binary, collate:
@@ -69,11 +76,11 @@ namespace DBLinq.util
         {
             switch(nodeType)
             {
-                case ExpressionType.GT: return ">";
-                case ExpressionType.GE: return ">=";
-                case ExpressionType.LT: return "<";
-                case ExpressionType.LE: return "<=";
-                case ExpressionType.EQ: return "=";
+                case ExpressionType.GreaterThan: return ">";
+                case ExpressionType.GreaterThanOrEqual: return ">=";
+                case ExpressionType.LessThan: return "<";
+                case ExpressionType.LessThanOrEqual: return "<=";
+                case ExpressionType.Equal: return "=";
                 case ExpressionType.AndAlso: return "AND";
                 case ExpressionType.OrElse: return "OR";
                 case ExpressionType.Multiply:

@@ -1,7 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+#if LINQ_PREVIEW_2006
+//Visual Studio 2005 with Linq Preview May 2006 - can run on Win2000
 using System.Query;
+#else
+//Visual Studio Orcas - requires WinXP
+using System.Linq;
+#endif
+
 using Npgsql;
 using SqlMetal.util;
 
@@ -51,10 +58,10 @@ namespace SqlMetal.schema.pgsql
             }
 
             //ensure all table schemas contain one type:
-            foreach(DlinqSchema.Table tblSchema in schema0.Tables)
-            {
-                tblSchema.Types.Add( new DlinqSchema.Type());
-            }
+            //foreach(DlinqSchema.Table tblSchema in schema0.Tables)
+            //{
+            //    tblSchema.Types.Add( new DlinqSchema.Type());
+            //}
 
             //##################################################################
             //step 2 - load columns
@@ -81,7 +88,7 @@ namespace SqlMetal.schema.pgsql
                 }
                 DlinqSchema.Column colSchema = new DlinqSchema.Column();
                 colSchema.Name = columnRow.column_name;
-                colSchema.DBType = columnRow.datatype; //.column_type ?
+                colSchema.DbType = columnRow.datatype; //.column_type ?
                 KeyColumnUsage primaryKCU = constraints.FirstOrDefault(c => c.column_name==columnRow.column_name 
                     && c.table_name==columnRow.table_name && c.constraint_name.EndsWith("_pkey"));
 
@@ -100,7 +107,8 @@ namespace SqlMetal.schema.pgsql
                 if(CSharp.IsValueType(colSchema.Type) && columnRow.isNullable)
                 colSchema.Type += "?";
 
-                tableSchema.Types[0].Columns.Add(colSchema);
+                //tableSchema.Types[0].Columns.Add(colSchema);
+                tableSchema.Columns.Add(colSchema);
             }
 
             //##################################################################
@@ -149,18 +157,26 @@ namespace SqlMetal.schema.pgsql
                     //both parent and child table get an [Association]
                     //table.as
                     DlinqSchema.Association assoc = new DlinqSchema.Association();
-                    assoc.Kind = DlinqSchema.RelationshipKind.ManyToOneChild;
+
+                    //child table contains a ManyToOneParent Association, pointing to parent
+                    //parent table contains a ManyToOneChild. (observed in MS xml)
+                    assoc.Kind = DlinqSchema.RelationshipKind.ManyToOneParent;
+
                     assoc.Name = keyColRow.constraint_name;
                     //assoc.Target = keyColRow.referenced_table_name;
                     assoc.Target = foreignKey.table_name_Parent;
                     DlinqSchema.ColumnName assocCol = new DlinqSchema.ColumnName();
                     assocCol.Name = keyColRow.column_name;
                     assoc.Columns.Add(assocCol);
-                    table.Types[0].Associations.Add(assoc);
+                    table.Associations.Add(assoc);
 
                     //and insert the reverse association:
                     DlinqSchema.Association assoc2 = new DlinqSchema.Association();
-                    assoc2.Kind = DlinqSchema.RelationshipKind.ManyToOneParent;
+
+                    //child table contains a ManyToOneParent Association, pointing to parent
+                    //parent table contains a ManyToOneChild. (observed in MS xml)
+                    assoc2.Kind = DlinqSchema.RelationshipKind.ManyToOneChild;
+
                     assoc2.Name = keyColRow.constraint_name;
                     assoc2.Target = keyColRow.table_name;
                     DlinqSchema.ColumnName assocCol2 = new DlinqSchema.ColumnName();
@@ -171,7 +187,7 @@ namespace SqlMetal.schema.pgsql
                     if(parentTable==null)
                         Console.WriteLine("ERROR L151: parent table not found: "+foreignKey.table_name_Parent);
                     else
-                        parentTable.Types[0].Associations.Add(assoc2);
+                        parentTable.Associations.Add(assoc2);
 
                 }
 

@@ -17,7 +17,7 @@ namespace DBLinq.util
     /// When we have a workaround for FatalExecutionEngineError on nullables, 
     /// this can go away.
     /// </summary>
-    public class DataReader2 : IDisposable //, IDataRecord
+    public class DataReader2 : IDisposable, DBLinq.vendor.IDataReader2 //, IDataRecord
     {
         NpgsqlDataReader _rdr;
         public DataReader2(NpgsqlDataReader rdr)
@@ -125,6 +125,22 @@ namespace DBLinq.util
                 return 0;
             }
         }
+
+        public int? GetInt32N(int index)
+        {
+            try
+            {
+                if (_rdr.IsDBNull(index))
+                    return null;
+                return _rdr.GetInt32(index);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("GetInt32N(" + index + ") failed: " + ex);
+                return 0;
+            }
+        }
+
         public uint GetUInt32(int index)
         {
             try
@@ -181,6 +197,22 @@ namespace DBLinq.util
                 return 0;
             }
         }
+
+        public double? GetDoubleN(int index)
+        {
+            try
+            {
+                if (_rdr.IsDBNull(index))
+                    return null;
+                return _rdr.GetDouble(index);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("GetInt32 failed: " + ex);
+                return 0;
+            }
+        }
+
         public decimal GetDecimal(int index)
         {
             try

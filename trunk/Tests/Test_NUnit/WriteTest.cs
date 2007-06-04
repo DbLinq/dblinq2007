@@ -1,9 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+
+#if LINQ_PREVIEW_2006
+//Visual Studio 2005 with Linq Preview May 2006 - can run on Win2000
 using System.Query;
-using System.Xml.XLinq;
-using System.Data.DLinq;
+using System.Expressions;
+#else
+//Visual Studio Orcas - requires WinXP
+using System.Linq;
+using System.Linq.Expressions;
+#endif
+
 using NUnit.Framework;
 #if ORACLE
 using ClientCodeOra;
@@ -27,16 +35,13 @@ namespace Test_NUnit
 #else
         const string connStr = "server=localhost;user id=LinqUser; password=linq2; database=LinqTestDB";
 #endif
-        
-        //MySqlConnection _conn;
-        //public MySqlConnection Conn 
-        //{ 
-        //    get 
-        //    { 
-        //        if(_conn==null){ _conn=new MySqlConnection(connStr); _conn.Open(); }
-        //        return _conn;
-        //    }
-        //}
+
+        public LinqTestDB CreateDB()
+        {
+            LinqTestDB db = new LinqTestDB(connStr);
+            db.Log = Console.Out;
+            return db;
+        }
 
         #region Tests 'E' test live object cache
         [Test]
@@ -62,7 +67,8 @@ namespace Test_NUnit
         #region Tests 'G' do insertion
         private xint insertProduct_priv()
         {
-            LinqTestDB db = new LinqTestDB(connStr);
+            LinqTestDB db = CreateDB();
+
             Product newProd = new Product();
             newProd.CategoryID = 1;
             newProd.ProductName = "Temp."+Environment.TickCount;
@@ -85,9 +91,10 @@ namespace Test_NUnit
         {
             xint insertedID = insertProduct_priv();
             Assert.Greater(insertedID,0,"DeleteTest cannot operate if row was not inserted");
-            
-            LinqTestDB db = new LinqTestDB(connStr);
-            var q = from p in db.Products where p.ProductID==insertedID select p;
+
+            LinqTestDB db = CreateDB();
+
+            var q = from p in db.Products where p.ProductID == insertedID select p;
             List<Product> insertedProducts = q.ToList();
             foreach(Product insertedProd in insertedProducts)
             {

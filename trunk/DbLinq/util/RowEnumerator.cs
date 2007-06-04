@@ -5,11 +5,20 @@
 ////////////////////////////////////////////////////////////////////
 
 using System;
+#if LINQ_PREVIEW_2006
+//Visual Studio 2005 with Linq Preview May 2006 - can run on Win2000
 using System.Query;
-using System.Reflection;
 using System.Expressions;
-using System.Data;
 using System.Data.DLinq;
+#else
+//Visual Studio Orcas - requires WinXP
+using System.Linq;
+using System.Linq.Expressions;
+using System.Data.Linq;
+#endif
+
+using System.Reflection;
+using System.Data;
 using System.Collections.Generic;
 using System.Text;
 #if ORACLE
@@ -127,8 +136,11 @@ namespace DBLinq.util
                 foreach(string paramName in _vars._sqlParts.paramMap.Keys){
                     object value = _vars._sqlParts.paramMap[paramName];
                     Console.WriteLine("SQL PARAM: "+paramName+" = "+value);
-                    //cmd.Parameters.Add(paramName, value); //warning CS0618: Add is obsolete:
+#if MICROSOFT
                     cmd.Parameters.AddWithValue(paramName, value);
+#else
+                    cmd.Parameters.Add(paramName, value); //warning CS0618: Add is obsolete:
+#endif
                 }
             }
 

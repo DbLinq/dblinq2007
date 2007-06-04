@@ -5,10 +5,19 @@
 ////////////////////////////////////////////////////////////////////
 
 using System;
-using System.Expressions;
 using System.Collections.Generic;
 using System.Text;
+//using System.Data.DLinq;
+#if LINQ_PREVIEW_2006
+//Visual Studio 2005 with Linq Preview May 2006 - can run on Win2000
+using System.Expressions;
 using System.Data.DLinq;
+#else
+//Visual Studio Orcas - requires WinXP
+using System.Linq.Expressions;
+using System.Data.Linq;
+#endif
+
 using DBLinq.util;
 using DBLinq.vendor;
 
@@ -98,11 +107,11 @@ namespace DBLinq.Linq.clause
             recurData.depth++;
             switch(expr.NodeType)
             {
-                case ExpressionType.GT:
-                case ExpressionType.GE:
-                case ExpressionType.LT:
-                case ExpressionType.LE:
-                case ExpressionType.EQ:
+                case ExpressionType.GreaterThanOrEqual:
+                case ExpressionType.GreaterThan:
+                case ExpressionType.LessThan:
+                case ExpressionType.LessThanOrEqual:
+                case ExpressionType.Equal:
                 case ExpressionType.AndAlso:
                 case ExpressionType.OrElse:
                 case ExpressionType.Multiply:
@@ -111,8 +120,8 @@ namespace DBLinq.Linq.clause
                 case ExpressionType.AddChecked:
                     AnalyzeBinary(recurData, (BinaryExpression)expr);
                     return;
-                case ExpressionType.MethodCall:
-                case ExpressionType.MethodCallVirtual:
+                case ExpressionType.Call:
+                //case ExpressionType.MethodCallVirtual:
                     AnalyzeMethodCall(recurData, (MethodCallExpression)expr);
                     return;
                 case ExpressionType.MemberAccess:
@@ -175,9 +184,9 @@ namespace DBLinq.Linq.clause
             //_result.AppendString("Init");
             int fieldCount = 0;
             recurData.selectAllFields = true;
-            foreach(Binding bind in expr.Bindings)
+            foreach (MemberBinding bind in expr.Bindings)
             {
-                if(bind.BindingType!=BindingType.MemberAssignment)
+                if(bind.BindingType!=MemberBindingType.Assignment)
                     throw new ArgumentException("AnalyzeMemberInit - only prepared for MemberAssign, not "+bind.BindingType);
 
                 if(fieldCount++ > 0){ this._result.AppendString(","); }
@@ -306,9 +315,9 @@ namespace DBLinq.Linq.clause
             if (s_csharpOperatorToSqlMap.TryGetValue(methodName, out sqlOperatorName))
             {
                 //map "op_Inequality" to " != "
-                AnalyzeExpression(recurData, expr.Parameters[0]);
+                AnalyzeExpression(recurData, expr.Arguments[0]);
                 _result.AppendString(sqlOperatorName);
-                AnalyzeExpression(recurData, expr.Parameters[1]);
+                AnalyzeExpression(recurData, expr.Arguments[1]);
                 return;
             }
 
@@ -339,7 +348,7 @@ namespace DBLinq.Linq.clause
                         //turn "e.Name.Contains("X")" -> "e.Name LIKE '%X%'
                         AnalyzeExpression(recurData, expr.Object);
                         _result.AppendString(" LIKE ");
-                        AnalyzeExpression(recurData, expr.Parameters[0]);
+                        AnalyzeExpression(recurData, expr.Arguments[0]);
                         string paramName = _result.lastParamName;
                         string lastParam = _result.paramMap[paramName] as string;
                         if(lastParam !=null)
@@ -359,7 +368,7 @@ namespace DBLinq.Linq.clause
                 case "Sum":
                     {
                         //extract 'OrderID' from '{g.Sum(o => Convert(o.OrderID))}'
-                        Expression sumExpr1 = expr.Parameters[1].XLambda().Body;
+                        Expression sumExpr1 = expr.Arguments[1].XLambda().Body;
                         MemberExpression sumExpr2 = null;
                         switch(sumExpr1.NodeType)
                         {
@@ -385,9 +394,11 @@ namespace DBLinq.Linq.clause
                     }
                 case "Concat":
                     {
+                        //this path is taken in LinqPreview2006.
+                        //In OrcasBeta1, we get operator+
                         List<string> strings = new List<string>();
                         int posInitial = _result.MarkSbPosition();
-                        foreach(Expression concatPart in expr.Parameters)
+                        foreach (Expression concatPart in expr.Arguments)
                         {
                             int pos2A = _result.MarkSbPosition();
 
@@ -416,7 +427,7 @@ namespace DBLinq.Linq.clause
                     {
                         //convert double to DateTime
                         _result.AppendString("CAST(");
-                        AnalyzeExpression(recurData, expr.Parameters[0]); //it's a static fct - don't pass expr.Object
+                        AnalyzeExpression(recurData, expr.Arguments[0]); //it's a static fct - don't pass expr.Object
                         _result.AppendString(" as smalldatetime)");
                         return;
                     }
@@ -426,9 +437,7 @@ namespace DBLinq.Linq.clause
                     break;
             }
             //TODO: throw for any other method - database probably cannot handle such call
-            StringBuilder sb = new StringBuilder();
-            expr.BuildString(sb);
-            string msg2 ="L274: Unprepared to map method "+methodName+" ("+sb+") to SQL";
+            string msg2 ="L274: Unprepared to map method "+methodName+" ("+expr+") to SQL";
             Console.WriteLine(msg2);
             throw new ApplicationException(msg2);
             //_result.AppendString(expr.Method.Name);
@@ -448,9 +457,31 @@ namespace DBLinq.Linq.clause
             _result.AppendString(" "+ operatorStr + " ");
         }
 
-
         private void AnalyzeBinary(RecurData recurData, BinaryExpression expr)
         {
+            if (expr.NodeType == ExpressionType.Add && expr.Type==typeof(string))
+            {
+                //in LinqPreview2006, this used to be MethodCall "Concat"
+                List<string> strings = new List<string>();
+                int posInitial = _result.MarkSbPosition();
+                List<Expression> operands = new List<Expression>() { expr.Left, expr.Right };
+                foreach (Expression concatPart in operands)
+                {
+                    int pos2A = _result.MarkSbPosition();
+
+                    //strip bogus UnaryExpression containing MemberExpression, if any
+                    Expression concatPart2 = concatPart.XCastOperand() ?? concatPart;
+
+                    AnalyzeExpression(recurData, concatPart2);
+                    string substr = _result.Substring(pos2A);
+                    strings.Add(substr);
+                }
+                _result.Revert(posInitial);
+                string sqlConcatStr = Vendor.Concat(strings);
+                _result.AppendString(sqlConcatStr);
+                return;
+            }
+
             int precedence = Operators.GetPrecedence(expr.NodeType);
             bool needsBrackets = (recurData.operatorPrecedence > precedence);
             recurData.operatorPrecedence = precedence; //nested methods will see different precedence

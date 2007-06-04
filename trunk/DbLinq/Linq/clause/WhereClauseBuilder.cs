@@ -9,9 +9,18 @@ using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+#if LINQ_PREVIEW_2006
+//Visual Studio 2005 with Linq Preview May 2006 - can run on Win2000
 using System.Query;
-using System.Data.DLinq;
 using System.Expressions;
+using System.Data.DLinq;
+#else
+//Visual Studio Orcas - requires WinXP
+using System.Linq;
+using System.Linq.Expressions;
+using System.Data.Linq;
+#endif
+
 using DBLinq.util;
 using DBLinq.vendor;
 
@@ -41,7 +50,7 @@ namespace DBLinq.Linq.clause
         /// </summary>
         public static LambdaExpression FindLambda(Expression expr,out string methodName)
         {
-            if(expr==null || expr.NodeType!=ExpressionType.MethodCall)
+            if (expr == null || expr.NodeType != ExpressionType.Call) //MethodCall
             {
                 //expr.NodeType==Cast when we enter via EntitySet or EntityMSet
                 throw new ApplicationException("FindLambda: L25 failure");
@@ -59,7 +68,7 @@ namespace DBLinq.Linq.clause
             //if(methodName=="GroupBy")
             //    return null; //huh, we have 2 different lambdas here...
 
-            if(methodCall.Parameters.Count!=2)
+            if(methodCall.Arguments.Count!=2)
             {
                 //This happens for GroupBy, which has 3 params
                 throw new ApplicationException("FindLambda: L28 failure - Lambda does not have 2 params");
@@ -67,13 +76,23 @@ namespace DBLinq.Linq.clause
             }
 
             //param0 is const-type
-            Expression param1 = methodCall.Parameters[1];
+            Expression param1 = methodCall.Arguments[1];
             
             if(methodName=="Including")
             {
                 //if(param1.NodeType==ExpressionType.NewArrayInit)...
                 throw new ApplicationException("FindLambda: L38 '"+methodName+"' clause not yet supported");
             }
+
+#if LINQ_PREVIEW_2006
+            //in 2006, NodeType.Quote did not exist
+#else
+            //'ExpressionType.Quote' is new in Orcas Beta1. e.g. 'orderby p=>p.ProductName' is a quote
+            if (param1.NodeType == ExpressionType.Quote)
+            {
+                param1 = param1.XUnary().Operand; //inside the quote there will be a Lambda
+            }
+#endif
 
             if(param1.NodeType!=ExpressionType.Lambda)
                 throw new ApplicationException("FindLambda: L41 failure");

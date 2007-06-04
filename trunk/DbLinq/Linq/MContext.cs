@@ -5,11 +5,17 @@
 ////////////////////////////////////////////////////////////////////
 
 using System;
-using System.Query;
 using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+#if LINQ_PREVIEW_2006
+//Visual Studio 2005 with Linq Preview May 2006 - can run on Win2000
+using System.Query;
+#else
+//Visual Studio Orcas - requires WinXP
+using System.Linq;
+#endif
 
 #if ORACLE
 using System.Data.OracleClient;

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Npgsql;
 
 namespace DBLinq.vendor
 {
@@ -22,5 +23,25 @@ namespace DBLinq.vendor
         {
             return ":P"+index;
         }
+
+        /// <summary>
+        /// given 'User', return '[User]' to prevent a SQL keyword conflict
+        /// </summary>
+        public static string FieldName_Safe(string name)
+        {
+            if (name.ToLower() == "user")
+                return "[" + name + "]";
+            return name;
+        }
+
+        public static NpgsqlParameter CreateSqlParameter(string dbTypeName, string paramName)
+        {
+            //System.Data.SqlDbType dbType = DBLinq.util.SqlTypeConversions.ParseType(dbTypeName);
+            //SqlParameter param = new SqlParameter(paramName, dbType);
+            NpgsqlTypes.NpgsqlDbType dbType = PgsqlTypeConversions.ParseType(dbTypeName);
+            NpgsqlParameter param = new NpgsqlParameter(paramName, dbType);
+            return param;
+        }
+
     }
 }
