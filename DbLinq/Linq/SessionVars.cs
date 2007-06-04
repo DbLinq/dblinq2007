@@ -5,10 +5,19 @@
 ////////////////////////////////////////////////////////////////////
 
 using System;
+#if LINQ_PREVIEW_2006
+//Visual Studio 2005 with Linq Preview May 2006 - can run on Win2000
+using System.Query;
 using System.Expressions;
+#else
+//Visual Studio Orcas - requires WinXP
+using System.Linq;
+using System.Linq.Expressions;
+#endif
+
 using System.Collections.Generic;
 using System.Text;
-using System.Data.DLinq;
+//using System.Data.DLinq;
 using DBLinq.Linq.clause;
 using DBLinq.util;
 
@@ -127,15 +136,15 @@ namespace DBLinq.Linq
             if(exprCall!=null && exprCall.Method.Name=="GroupBy")
             {
                 //special case: GroupBy can come with 2 or 3 params
-                switch(exprCall.Parameters.Count)
+                switch(exprCall.Arguments.Count)
                 {
                     case 2: //'group o by o.CustomerID into g'
-                        StoreLambda("GroupBy", exprCall.Parameters[1].XLambda()); 
+                        StoreLambda("GroupBy", exprCall.Arguments[1].XLambda()); 
                         return;
                     case 3: //'group new {c.PostalCode, c.ContactName} by c.City into g'
-                        StoreLambda("GroupBy", exprCall.Parameters[1].XLambda());
-                        //StoreLambda("Select", exprCall.Parameters[2].XLambda());
-                        this.groupByNewExpr = exprCall.Parameters[2].XLambda();
+                        StoreLambda("GroupBy", exprCall.Arguments[1].XLambda());
+                        //StoreLambda("Select", exprCall.Arguments[2].XLambda());
+                        this.groupByNewExpr = exprCall.Arguments[2].XLambda();
                         return;
                     default:
                         throw new ApplicationException("StoreQuery L117: Prepared only for 2 or 3 param GroupBys");
@@ -194,52 +203,6 @@ namespace DBLinq.Linq
 
                 case "GroupBy": 
                     groupByExpr = lambda;
-                    /*
-                    //FIXME: This needs to ask the attribute what's the SQL fieldname
-                    switch (groupByExpr.Body.NodeType)
-                    {
-                        case ExpressionType.MemberInit:
-                            break;
-                        case ExpressionType.MemberAccess:
-                            {
-                                string fieldName = AttribHelper.GetSQLColumnName(grpMemberExpr.Member)
-                                    ?? grpMemberExpr.Member.Name;
-                                this._sqlParts.groupByList.Add(fieldName);
-                            }
-                            break;
-                        default:
-                            throw new ArgumentException("L145 Unexpected GroupBy");
-                    }
-                    MemberExpression grpMemberExpr = groupByExpr.Body.XMember();
-                    if(grpMemberExpr==null)
-                        throw new ArgumentException("L145 Unexpected GroupBy");
-
-                    string fieldName = AttribHelper.GetSQLColumnName(grpMemberExpr.Member) 
-                        ?? grpMemberExpr.Member.Name;
-
-                    //first, build projectionData to select all fields ...
-                    Type srcTableType = groupByExpr.Parameters[0].Type;
-                    //this.projectionData = ProjectionData.FromDbType(srcTableType);
-                    ////...and then remove fields to only keep 'fieldName'
-                    //this.projectionData.fields.RemoveAll( p=>p.propInfo.Name!=fieldName );
-                    ////...and change the type being built from 'Customer' (later, to 'Projection')
-                    //this.projectionData.type = typeof(void);
-
-
-                    //First attempt: 
-                    //LambdaExpression fakeLambda = Expression.Lambda(srcTableType, groupByExpr,null);
-                    //FromClauseBuilder.GetClause_Projected(_sqlParts,srcTableType,"nick2", fakeLambda);
-
-                    //Second attempt:
-                    //string nick = grpMemberExpr.Expression.XParam().Name + "$";
-                    //TableAttribute tAttrib = AttribHelper.GetTableAttrib(srcTableType);
-                    //string tableName2 = tAttrib.Name+" "+nick; //eg. "Employee $e"
-                    //_sqlParts.AddFrom(tableName2); //2B||!2B?!
-                    //string s3 = FromClauseBuilder.FormatMemberExpression(grpMemberExpr);
-
-
-                    this._sqlParts.groupByList.Add(fieldName);
-                     * */
                     break;
 
                 //experiment:
@@ -261,7 +224,7 @@ namespace DBLinq.Linq
             if(exInnFct==null)
                 throw new ArgumentException("StoreSelMany L257 bad args");
             //each parameter is a lambda
-            foreach(Expression innerLambda in exInnFct.Parameters)
+            foreach(Expression innerLambda in exInnFct.Arguments)
             {
                 if(innerLambda.NodeType==ExpressionType.Lambda)
                 {
@@ -277,9 +240,9 @@ namespace DBLinq.Linq
                     MemberExpression memberExpressionCache = null; //'c.Orders', needed below for nicknames
                     ParameterExpression paramExpressionCache = null; //'o', for nicknames
 
-                    foreach(Expression whereCallParam in whereCall.Parameters)
+                    foreach(Expression whereCallParam in whereCall.Arguments)
                     {
-                        if(whereCallParam.NodeType==ExpressionType.Cast)
+                        if(whereCallParam.NodeType==ExpressionType.Convert)
                         {
                             //eg. '{c.Orders}'
                             //CHANGED: - join now handled below

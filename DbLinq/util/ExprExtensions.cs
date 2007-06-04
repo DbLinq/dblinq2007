@@ -6,9 +6,15 @@
 
 using System;
 using System.Diagnostics;
-using System.Expressions;
 using System.Collections.Generic;
 using System.Text;
+#if LINQ_PREVIEW_2006
+//Visual Studio 2005 with Linq Preview May 2006 - can run on Win2000
+using System.Expressions;
+#else
+//Visual Studio Orcas - requires WinXP
+using System.Linq.Expressions;
+#endif
 
 namespace DBLinq.util
 {
@@ -20,7 +26,7 @@ namespace DBLinq.util
     {
         public static MethodCallExpression XMethodCall(this Expression ex)
         {
-            if(ex==null || ex.NodeType!=ExpressionType.MethodCall)
+            if(ex==null || ex.NodeType!=ExpressionType.Call)
                 return null;
             return (MethodCallExpression)ex;
         }
@@ -29,9 +35,9 @@ namespace DBLinq.util
         {
             if(call==null)
                 return null;
-            if(call.Parameters.Count<index)
+            if(call.Arguments.Count<index)
                 return null;
-            return call.Parameters[index];
+            return call.Arguments[index];
         }
 
         public static UnaryExpression XCast(this Expression ex)
@@ -44,7 +50,19 @@ namespace DBLinq.util
         [DebuggerStepThrough]
         public static LambdaExpression XLambda(this Expression ex)
         {
-            if(ex==null || ex.NodeType!=ExpressionType.Lambda)
+            if (ex == null)
+                return null;
+            
+#if LINQ_PREVIEW_2006
+            //Quote does not exist
+#else
+            if (ex.NodeType == ExpressionType.Quote)
+            {
+                ex = ex.XUnary().Operand;
+            }
+#endif
+
+            if (ex.NodeType != ExpressionType.Lambda)
                 return null;
             return (LambdaExpression)ex;
         }
@@ -80,7 +98,13 @@ namespace DBLinq.util
             if(ex==null)
                 return null;
             if(ex.NodeType==ExpressionType.Convert
-                || ex.NodeType==ExpressionType.Cast)
+                || ex.NodeType == ExpressionType.Cast
+#if LINQ_PREVIEW_2006
+              //in 2006, NodeType.Quote did not exist
+#else
+                || ex.NodeType == ExpressionType.Quote
+#endif
+                )
             {
                 return (UnaryExpression)ex;
             }

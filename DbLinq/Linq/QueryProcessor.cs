@@ -5,10 +5,17 @@
 ////////////////////////////////////////////////////////////////////
 
 using System;
-using System.Expressions;
 using System.Collections.Generic;
 using System.Text;
-using System.Data.DLinq;
+//using System.Data.DLinq;
+#if LINQ_PREVIEW_2006
+//Visual Studio 2005 with Linq Preview May 2006 - can run on Win2000
+using System.Expressions;
+#else
+//Visual Studio Orcas - requires WinXP
+using System.Linq.Expressions;
+#endif
+
 using DBLinq.Linq.clause;
 using DBLinq.util;
 
@@ -95,9 +102,16 @@ namespace DBLinq.Linq
             {
                 ParseInputs inputs = new ParseInputs(result);
                 inputs.groupByExpr = _vars.groupByExpr;
-                result = ExpressionTreeParser.Parse(_vars.selectExpr.Body, inputs);
-                _vars._sqlParts.AddSelect(result.columns);
-                result.CopyInto(_vars._sqlParts); //transfer params and tablesUsed
+                if (_vars.selectExpr.Body.NodeType == ExpressionType.Parameter)
+                {
+                    //'from p in Products select p' - do nothing, will result in SelectAllFields() later
+                }
+                else
+                {
+                    result = ExpressionTreeParser.Parse(_vars.selectExpr.Body, inputs);
+                    _vars._sqlParts.AddSelect(result.columns);
+                    result.CopyInto(_vars._sqlParts); //transfer params and tablesUsed
+                }
             }
 
         }

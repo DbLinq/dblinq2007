@@ -1,9 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+
+#if LINQ_PREVIEW_2006
+//Visual Studio 2005 with Linq Preview May 2006 - can run on Win2000
 using System.Query;
-using System.Xml.XLinq;
-using System.Data.DLinq;
+using System.Expressions;
+#else
+//Visual Studio Orcas - requires WinXP
+using System.Linq;
+using System.Linq.Expressions;
+#endif
+
+//using System.Data.DLinq;
 using NUnit.Framework;
 #if ORACLE
 using ClientCodeOra;
@@ -67,6 +76,14 @@ namespace Test_NUnit
         }
 #endif
 
+        public LinqTestDB CreateDB()
+        {
+            LinqTestDB db = new LinqTestDB(connStr);
+            db.Log = Console.Out;
+            return db;
+        }
+
+
         [Test]
         public void A2_ProductsTableHasEntries()
         {
@@ -101,7 +118,8 @@ namespace Test_NUnit
         [Test]
         public void A4_SelectSingleCustomer()
         {
-            LinqTestDB db = new LinqTestDB(connStr);
+            LinqTestDB db = CreateDB();
+
             // Query for a specific customer
             var cust = db.Customers.Single(c => c.CompanyName == "airbus");
             Assert.IsNotNull(cust,"Expected one customer 'airbus'");
@@ -115,7 +133,8 @@ namespace Test_NUnit
         [Test]
         public void C1_SelectProducts()
         {
-            LinqTestDB db = new LinqTestDB(connStr);
+            LinqTestDB db = CreateDB();
+
             var q = from p in db.Products select p;
             List<Product> products = q.ToList();
             int productCount = products.Count;
@@ -125,8 +144,9 @@ namespace Test_NUnit
         [Test]
         public void C2_SelectPenId()
         {
-            LinqTestDB db = new LinqTestDB(connStr);
-            var q = from p in db.Products where p.ProductName=="Pen" select p.ProductID;
+            LinqTestDB db = CreateDB();
+
+            var q = from p in db.Products where p.ProductName == "Pen" select p.ProductID;
             List<xint> productIDs = q.ToList();
             int productCount = productIDs.Count;
             Assert.AreEqual(productCount,1,"Expected one pen, got count="+productCount);
@@ -135,8 +155,10 @@ namespace Test_NUnit
         [Test]
         public void C3_SelectPenIdName()
         {
-            LinqTestDB db = new LinqTestDB(connStr);
-            var q = from p in db.Products where p.ProductName=="Pen" 
+            LinqTestDB db = CreateDB();
+
+            var q = from p in db.Products
+                    where p.ProductName == "Pen" 
                         select new { ProductId=p.ProductID, Name=p.ProductName };
             int count = 0;
             //string penName;
@@ -154,8 +176,9 @@ namespace Test_NUnit
         [Test]
         public void D01_SelectFirstPenID()
         {
-            LinqTestDB db = new LinqTestDB(connStr);
-            var q = from p in db.Products where p.ProductName=="Pen" select p.ProductID;
+            LinqTestDB db = CreateDB();
+
+            var q = from p in db.Products where p.ProductName == "Pen" select p.ProductID;
             xint productID = q.First();
             Assert.Greater(productID,0,"Expected penID>0, got "+productID);
         }
@@ -163,8 +186,9 @@ namespace Test_NUnit
         [Test]
         public void D02_SelectFirstPen()
         {
-            LinqTestDB db = new LinqTestDB(connStr);
-            var q = from p in db.Products where p.ProductName=="Pen" select p;
+            LinqTestDB db = CreateDB();
+
+            var q = from p in db.Products where p.ProductName == "Pen" select p;
             Product pen = q.First();
             Assert.IsNotNull(pen,"Expected non-null Product");
         }
@@ -172,8 +196,9 @@ namespace Test_NUnit
         [Test]
         public void D03_SelectLastPenID()
         {
-            LinqTestDB db = new LinqTestDB(connStr);
-            var q = from p in db.Products where p.ProductName=="Pen" select p.ProductID;
+            LinqTestDB db = CreateDB();
+
+            var q = from p in db.Products where p.ProductName == "Pen" select p.ProductID;
             xint productID = q.Last();
             Assert.Greater(productID,0,"Expected penID>0, got "+productID);
         }
@@ -181,7 +206,8 @@ namespace Test_NUnit
         [Test]
         public void D04_SelectProducts_OrderByName()
         {
-            LinqTestDB db = new LinqTestDB(connStr);
+            LinqTestDB db = CreateDB();
+
             var q = from p in db.Products orderby p.ProductName select p;
             string prevProductName = null;
             foreach(Product p in q)
@@ -200,7 +226,7 @@ namespace Test_NUnit
         [Test]
         public void D05_SelectOrdersForProduct()
         {
-            LinqTestDB db = new LinqTestDB(connStr);
+            LinqTestDB db = CreateDB();
             //var q = from p in db.Products where "Pen"==p.ProductName select p.Order;
             //List<Order> penOrders = q.ToList();
             //Assert.Greater(penOrders.Count,0,"Expected some orders for product 'Pen'");

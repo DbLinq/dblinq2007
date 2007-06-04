@@ -17,7 +17,7 @@ namespace DBLinq.util
     /// When we have a workaround for FatalExecutionEngineError on nullables, 
     /// this can go away.
     /// </summary>
-    public class DataReader2 : IDisposable //, IDataRecord
+    public class DataReader2 : IDisposable, DBLinq.vendor.IDataReader2 //, IDataRecord
     {
         OracleDataReader _rdr;
         public DataReader2(OracleDataReader rdr)

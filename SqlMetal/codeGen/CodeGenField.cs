@@ -34,15 +34,22 @@ namespace SqlMetal.codeGen
             if(column.IsAutogen)
             {
                 //attribParts.Add("Id=true, AutoGen=true");
+#if LINQ_PREVIEW_2006
                 attribParts.Add("AutoGen=true");
-                //_attribAutoGen = true;
+#else
+                attribParts.Add("IsDBGenerated=true");
+#endif
             }
             attribParts.Add("DBType=\""+column.DbType+"\"");
 
             bool isPrimaryKeyCol = column.IsIdentity;
             //bool hasForeignKey   = false;
             if(isPrimaryKeyCol){
+#if LINQ_PREVIEW_2006
                 attribParts.Add("Id=true");
+#else
+                attribParts.Add("IsPrimaryKey=true");
+#endif
             }
             _attrib2 = string.Join(", ", attribParts.ToArray());
 

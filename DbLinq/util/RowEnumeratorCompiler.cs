@@ -7,10 +7,19 @@
 
 using System;
 using System.Reflection;
-using System.Query;
-using System.Expressions;
 using System.Collections.Generic;
 using System.Text;
+
+#if LINQ_PREVIEW_2006
+//Visual Studio 2005 with Linq Preview May 2006 - can run on Win2000
+using System.Query;
+using System.Expressions;
+#else
+//Visual Studio Orcas - requires WinXP
+using System.Linq;
+using System.Linq.Expressions;
+#endif
+
 using DBLinq.Linq;
 
 namespace DBLinq.util
@@ -103,8 +112,8 @@ namespace DBLinq.util
             LambdaExpression lambda = Expression.Lambda<Func<DataReader2,T>>(body,paramListRdr);
             Func<DataReader2,T> func_t = (Func<DataReader2,T>)lambda.Compile();
 
-            StringBuilder sb = new StringBuilder();
-            lambda.BuildString(sb);
+            //StringBuilder sb = new StringBuilder();
+            //lambda.BuildString(sb);
             //Console.WriteLine("  RowEnumCompiler(Primitive): Compiled "+sb);
             return func_t;
             #endregion
@@ -146,7 +155,7 @@ namespace DBLinq.util
             LambdaExpression lambda = Expression.Lambda<Func<DataReader2,T>>(newExpr,paramListRdr);
             Func<DataReader2,T> func_t = (Func<DataReader2,T>)lambda.Compile();
 
-            lambda.BuildString(sb);
+            //lambda.BuildString(sb);
             //Console.WriteLine("  RowEnumCompiler(Column): Compiled "+sb);
             return func_t;
             #endregion
@@ -165,10 +174,10 @@ namespace DBLinq.util
             int fieldID = 0;
             LambdaExpression lambda = BuildProjectedRowLambda(vars, projData, rdr, ref fieldID);
 
-            lambda.BuildString(sb);
+            //lambda.BuildString(sb);
 
-            if(vars.log!=null)
-                vars.log.WriteLine("  RowEnumCompiler(Projection): Compiling "+sb);
+            //if(vars.log!=null)
+            //    vars.log.WriteLine("  RowEnumCompiler(Projection): Compiling "+sb);
             //error lambda not in scope?!
             Func<DataReader2,T> func_t = (Func<DataReader2,T>)lambda.Compile();
 
@@ -184,9 +193,8 @@ namespace DBLinq.util
             #region CompileColumnRowDelegate
             if(projData==null || projData.ctor==null)
                 throw new ArgumentException("CompileColumnRow: need projData with ctor2");
-            
-            //List<Expression> ctorArgs = new List<Expression>();
-            List<Binding> bindings = new List<Binding>();
+
+            List<MemberBinding> bindings = new List<MemberBinding>();
             //int i=0;
             foreach(ProjectionData.ProjectionField projFld in projData.fields)
             {
@@ -273,7 +281,11 @@ namespace DBLinq.util
             }
             List<Expression> paramZero = new List<Expression>();
             paramZero.Add( Expression.Constant(fieldID) ); //that's the zero in GetInt32(0)
+#if LINQ_PREVIEW_2006
             MethodCallExpression callExpr = Expression.CallVirtual(minfo,rdr,paramZero);
+#else
+            MethodCallExpression callExpr = Expression.Call(rdr, minfo, paramZero);
+#endif
             return callExpr;
         }
 
@@ -407,7 +419,9 @@ namespace DBLinq.util
             {
                 if(projFld.columnAttribute==null)
                     continue;
-                if(projFld.columnAttribute.Id)
+
+                //if (projFld.columnAttribute.Id)
+                if (projFld.columnAttribute.IsPrimaryKey)
                 {
                     //found the ID column
                     minfo = projFld.MemberInfo as PropertyInfo;
@@ -421,7 +435,11 @@ namespace DBLinq.util
             List<ParameterExpression> lambdaParams = new List<ParameterExpression>();
             lambdaParams.Add(param);
             MethodInfo minfo3 = minfo.PropertyType.GetMethod("ToString",new Type[0]);
+#if LINQ_PREVIEW_2006
             Expression body = Expression.Call(minfo3, member);
+#else
+            Expression body = Expression.Call(member, minfo3);
+#endif
             LambdaExpression lambda = Expression.Lambda<Func<T,string>>(body,lambdaParams);
             Func<T,string> func_t = (Func<T,string>)lambda.Compile();
             return func_t;

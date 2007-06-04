@@ -5,11 +5,22 @@
 ////////////////////////////////////////////////////////////////////
 
 using System;
-using System.Query;
 using System.Reflection;
-using System.Data.DLinq;
 using System.Collections.Generic;
 using System.Text;
+
+#if LINQ_PREVIEW_2006
+//Visual Studio 2005 with Linq Preview May 2006 - can run on Win2000
+using System.Query;
+using System.Expressions;
+using System.Data.DLinq;
+#else
+//Visual Studio Orcas - requires WinXP
+using System.Linq;
+using System.Linq.Expressions;
+using System.Data.Linq;
+#endif
+
 #if ORACLE
 using System.Data.OracleClient;
 using XSqlConnection = System.Data.OracleClient.OracleConnection;
@@ -61,7 +72,7 @@ namespace DBLinq.Linq.clause
             {
                 ColumnAttribute colAtt = projFld.columnAttribute;
 
-                if(colAtt.Id)
+                if (colAtt.IsPrimaryKey) //(colAtt.Id)
                     continue; //if field is ID , don't send field
 
                 //PropertyInfo propInfo = projFld.propInfo;
@@ -98,8 +109,9 @@ namespace DBLinq.Linq.clause
 
 #if POSTGRES //Postgres needs 'SELECT currval(sequenceName)'
             ColumnAttribute[] colAttribs = AttribHelper.GetColumnAttribs(projData.type);
-            ColumnAttribute idColAttrib = colAttribs.FirstOrDefault(c => c.Id);
-            string idColName = idColAttrib==null ? "ERROR_L93_MissingIdCol" : idColAttrib.Name;
+            //ColumnAttribute idColAttrib = colAttribs.FirstOrDefault(c => c.Id);
+            ColumnAttribute idColAttrib = colAttribs.FirstOrDefault(c => c.IsPrimaryKey);
+            string idColName = idColAttrib == null ? "ERROR_L93_MissingIdCol" : idColAttrib.Name;
             string sequenceName = projData.tableAttribute.Name+"_"+idColName+"_seq";
             sb.Append(";SELECT currval('"+sequenceName+"')"); 
 #endif
@@ -145,7 +157,7 @@ namespace DBLinq.Linq.clause
 
                 string columnName_safe = vendor.Vendor.FieldName_Safe(colAtt.Name); //turn 'User' into '[User]'
 
-                if (colAtt.Id)
+                if (colAtt.IsPrimaryKey) //colAtt.Id
                 {
                     primaryKeyName = columnName_safe;
                     continue; //if field is ID , don't send field

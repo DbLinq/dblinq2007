@@ -120,7 +120,7 @@ namespace DBLinq.util
             }
             catch (Exception ex)
             {
-                Console.WriteLine("GetInt32(" + index + ") failed: " + ex);
+                Console.WriteLine("GetInt32N(" + index + ") failed: " + ex);
                 return 0;
             }
         }

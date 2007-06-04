@@ -3,7 +3,16 @@ using System;
 using System.Threading;
 using System.Collections.Generic;
 using System.Text;
+
+#if LINQ_PREVIEW_2006
+//Visual Studio 2005 with Linq Preview May 2006 - can run on Win2000
 using System.Query;
+using System.Expressions;
+#else
+//Visual Studio Orcas - requires WinXP
+using System.Linq;
+using System.Linq.Expressions;
+#endif
 #endregion
 
 namespace Test_NUnit
@@ -18,10 +27,10 @@ namespace Test_NUnit
     {
         static void Main()
         {
-            //new ReadTest().D07_OrdersFromLondon_Alt();
+            //new ReadTest().D05_SelectOrdersForProduct();
             //new ReadTest().D06_OrdersFromLondon();
 
-            new ReadTest_GroupBy().G01_SimpleGroup();
+            //new ReadTest_GroupBy().G01_SimpleGroup();
             //new ReadTest_GroupBy().G06_OrderCountByCustomerID();
 
             //new ReadTest_GroupBy().G04_OrderSumByCustomerID();
@@ -35,7 +44,7 @@ namespace Test_NUnit
             //new ReadTest_Complex().F3_MaxProductId();
             //new ReadTest().D09_Products_LetterP_Take5();
             //new ReadTest().D7_OrdersFromLondon_Alt();
-            //new WriteTest().G2_DeleteTest();
+            new WriteTest().G2_DeleteTest();
             //new WriteTest().G1_InsertProduct();
         }
     }

@@ -5,11 +5,22 @@
 ////////////////////////////////////////////////////////////////////
 
 using System;
-using System.Data.DLinq;
 using System.Reflection;
-using System.Expressions;
 using System.Collections.Generic;
 using System.Text;
+
+#if LINQ_PREVIEW_2006
+//Visual Studio 2005 with Linq Preview May 2006 - can run on Win2000
+using System.Query;
+using System.Expressions;
+using System.Data.DLinq;
+#else
+//Visual Studio Orcas - requires WinXP
+using System.Linq;
+using System.Linq.Expressions;
+using System.Data.Linq;
+#endif
+
 using DBLinq.util;
 using DBLinq.Linq.clause;
 
@@ -320,13 +331,13 @@ namespace DBLinq.Linq
                         projField.type = paramEx.Type;
                         projField.typeEnum = CSharp.CategorizeType(projField.type);
                         break;
-                    case ExpressionType.MethodCallVirtual:
+                    case ExpressionType.CallVirtual:
                         //occurs in 'select o.Name.ToLower()'
                         break;
                     case ExpressionType.Convert:
                         //occurs in 'select (CategoryEnum)o.EmployeeCategory'
                         break;
-                    case ExpressionType.MethodCall:
+                    case ExpressionType.Call:
                         //occurs during 'from c ... group o by o.CustomerID into g ... 
                         //select new { g.Key , OrderCount = g.Count() };
                         MethodCallExpression callEx = memberAssign.Expression.XMethodCall();
@@ -353,10 +364,10 @@ namespace DBLinq.Linq
             if(selectExpr.Body.NodeType!=ExpressionType.Cast)
                 throw new ArgumentOutOfRangeException("FromSelectMany needs Cast");
             UnaryExpression unEx = (UnaryExpression)selectExpr.Body;
-            if(unEx.Operand.NodeType!=ExpressionType.MethodCall)
+            if(unEx.Operand.NodeType!=ExpressionType.Call)
                 throw new ArgumentOutOfRangeException("FromSelectMany needs Cast-MethodCall");
             MethodCallExpression methEx = (MethodCallExpression)unEx.Operand;
-            foreach(Expression exParm in methEx.Parameters)
+            foreach(Expression exParm in methEx.Arguments)
             {
                 ExpressionType et = exParm.NodeType;
                 if(et==ExpressionType.Lambda)

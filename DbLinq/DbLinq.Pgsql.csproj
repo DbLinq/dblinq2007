@@ -1,16 +1,16 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.50727</ProductVersion>
+    <ProductVersion>9.0.20404</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{423335DF-5677-48FD-9A63-43B1D30321A6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DBLinq</RootNamespace>
     <AssemblyName>DbLinq.Pgsql.Prototype</AssemblyName>
-    <StartupObject>
-    </StartupObject>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -25,7 +25,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;POSTGRES</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -35,12 +35,18 @@
       <HintPath>..\lib\Npgsql.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="System.Data.DLinq, Version=1.0.2319.19044, Culture=neutral, processorArchitecture=MSIL" />
-    <Reference Include="System.Query" />
-    <Reference Include="System.Data.Extensions" />
-    <Reference Include="System.Xml.XLinq" />
+    <Reference Include="System.Data.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
     <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Linq\clause\ExpressionTreeParser.cs" />
@@ -52,7 +58,7 @@
     <Compile Include="Linq\AutoGenIdAttribute.cs" />
     <Compile Include="Linq\QueryProcessor.cs" />
     <Compile Include="util\CSharp.cs" />
-    <Compile Include="util\ExprEnum.cs" />
+    <Compile Include="util\ExpressionType_Legacy.cs" />
     <Compile Include="util\ExprExtensions.cs" />
     <Compile Include="util\FieldUtils.cs" />
     <Compile Include="util\GroupHelper.cs" />
@@ -67,7 +73,6 @@
     <Compile Include="Linq\MTable.cs" />
     <Compile Include="Linq\MTable_Projected.cs" />
     <Compile Include="Linq\ProjectionData.cs" />
-    <Compile Include="util\DumpExpressionXml.cs" />
     <Compile Include="Linq\SessionVars.cs" />
     <Compile Include="Linq\clause\WhereClauseBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -78,9 +83,10 @@
     <Compile Include="Linq\clause\SqlExpressionParts.cs" />
     <Compile Include="util\TypeEnum.cs" />
     <Compile Include="util\VarName.cs" />
+    <Compile Include="vendor\IDataReader2.cs" />
     <Compile Include="vendor\Pgsql\DataReader2.cs" />
     <Compile Include="vendor\Pgsql\PgsqlTypeConversions.cs" />
     <Compile Include="vendor\Pgsql\VendorPgsql.cs" />
   </ItemGroup>
-  <Import Project="$(ProgramFiles)\LINQ Preview\Misc\Linq.targets" />
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

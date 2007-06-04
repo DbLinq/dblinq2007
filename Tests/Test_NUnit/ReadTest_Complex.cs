@@ -1,9 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+
+#if LINQ_PREVIEW_2006
+//Visual Studio 2005 with Linq Preview May 2006 - can run on Win2000
 using System.Query;
-using System.Xml.XLinq;
-using System.Data.DLinq;
+using System.Expressions;
+#else
+//Visual Studio Orcas - requires WinXP
+using System.Linq;
+using System.Linq.Expressions;
+#endif
+
 using NUnit.Framework;
 #if ORACLE
 using ClientCodeOra;
@@ -38,7 +46,9 @@ namespace Test_NUnit
         public ReadTest_Complex()
         {
             db = new LinqTestDB(connStr);
+            db.Log = Console.Out;
         }
+
         public XSqlConnection Conn 
         { 
             get 
@@ -47,6 +57,14 @@ namespace Test_NUnit
                 return _conn;
             }
         }
+
+        public LinqTestDB CreateDB()
+        {
+            LinqTestDB db = new LinqTestDB(connStr);
+            db.Log = Console.Out;
+            return db;
+        }
+
 
         #region Tests 'F' work on aggregation
         [Test]
@@ -108,6 +126,8 @@ namespace Test_NUnit
 	            select o;
         }
 
+#if INCLUDING_CLAUSE
+        //Including() clause discontinued in Studio Orcas?
         [Test]
         public void F8_IncludingClause()
         {
@@ -117,6 +137,7 @@ namespace Test_NUnit
 	            select c)
 	            .Including(c => c.Orders);
         }
+#endif
 
 #if ADD_TABLE_ORDERDETAILS
         [Test]
