@@ -185,9 +185,9 @@ namespace DBLinq.util
                 throw new ApplicationException("Internal error, missing _objFromRow compiled func");
             }
 
-            string origConnString = _conn.ConnectionString;
+            //string origConnString = _conn.ConnectionString; //for MySql, cannot retrieve prev ConnStr
             //create a new connection to prevent error "SqlConnection already has SqlDataReader associated with it"
-            XSqlConnection newConn = new XSqlConnection(origConnString);
+            XSqlConnection newConn = new XSqlConnection(_vars.context.SqlConnString);
             newConn.Open();
             //TODO: use connection pool instead of always opening a new one
 

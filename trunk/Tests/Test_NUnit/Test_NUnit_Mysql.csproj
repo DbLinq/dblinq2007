@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.50727</ProductVersion>
+    <ProductVersion>9.0.20404</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{858BAFF7-542F-4DBB-9C9B-57FCDE4DB7CE}</ProjectGuid>
     <OutputType>WinExe</OutputType>
@@ -30,8 +30,8 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -45,18 +45,20 @@
       <HintPath>..\..\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Query" />
-    <Reference Include="System.Data.DLinq" />
-    <Reference Include="System.Data.Extensions" />
-    <Reference Include="System.Xml.XLinq" />
+    <Reference Include="System.Data.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Security" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\ClientCodeMysql\user\LinqTestDB.cs">
       <Link>user\LinqTestDB.cs</Link>
     </Compile>
-    <Compile Include="Program2.cs" />
+    <Compile Include="Program2Mysql.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadTest.cs" />
     <Compile Include="ReadTest_Complex.cs" />
@@ -69,5 +71,5 @@
       <Name>MySql.Linq</Name>
     </ProjectReference>
   </ItemGroup>
-  <Import Project="$(ProgramFiles)\LINQ Preview\Misc\Linq.targets" />
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

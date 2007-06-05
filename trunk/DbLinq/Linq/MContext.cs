@@ -57,6 +57,9 @@ namespace DBLinq.Linq
             [DebuggerStepThrough]
             get { return _conn; }
         }
+
+        public string SqlConnString { get { return _sqlConnString; } }
+
         public void RegisterChild(IMTable table)
         {
             _tableList.Add(table);

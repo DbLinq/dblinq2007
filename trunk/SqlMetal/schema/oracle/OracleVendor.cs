@@ -1,14 +1,24 @@
 using System;
-using System.Query;
 using System.Collections.Generic;
 using System.Text;
 using System.Data.OracleClient;
-using MysqlMetal.util;
 
-namespace MysqlMetal.schema.oracle
+#if LINQ_PREVIEW_2006
+//Visual Studio 2005 with Linq Preview May 2006 - can run on Win2000
+using System.Query;
+#else
+//Visual Studio Orcas - requires WinXP
+using System.Linq;
+#endif
+
+using SqlMetal.util;
+
+namespace SqlMetal.schema.oracle
 {
     class OracleVendor : IDBVendor
     {
+        public string VendorName(){ return "Oracle"; }
+
         public DlinqSchema.Database LoadSchema()
         {
             //string connStr = string.Format("server={0};user id={1}; password={2}; database={3}; pooling=false"
@@ -50,10 +60,10 @@ namespace MysqlMetal.schema.oracle
             }
 
             //ensure all table schemas contain one type:
-            foreach(DlinqSchema.Table tblSchema in schema0.Tables)
-            {
-                tblSchema.Types.Add( new DlinqSchema.Type());
-            }
+            //foreach(DlinqSchema.Table tblSchema in schema0.Tables)
+            //{
+            //    tblSchema.Types.Add( new DlinqSchema.Type());
+            //}
 
             //##################################################################
             //step 2 - load columns
@@ -71,7 +81,7 @@ namespace MysqlMetal.schema.oracle
                 }
                 DlinqSchema.Column colSchema = new DlinqSchema.Column();
                 colSchema.Name = columnRow.column_name;
-                colSchema.DBType = columnRow.data_type; //.column_type ?
+                colSchema.DbType = columnRow.data_type; //.column_type ?
                 colSchema.IsIdentity = false; //columnRow.column_key=="PRI";
                 colSchema.IsAutogen = false; //columnRow.extra=="auto_increment";
                 //colSchema.IsVersion = ???
@@ -87,7 +97,8 @@ namespace MysqlMetal.schema.oracle
                 if(CSharp.IsValueType(colSchema.Type) && columnRow.isNullable)
                 colSchema.Type += "?";
 
-                tableSchema.Types[0].Columns.Add(colSchema);
+                //tableSchema.Types[0].Columns.Add(colSchema);
+                tableSchema.Columns.Add(colSchema);
             }
 
             //##################################################################
@@ -140,7 +151,9 @@ namespace MysqlMetal.schema.oracle
                     assoc.Name = constraint.constraint_name;
                     assoc.Target = referencedConstraint.table_name;
                     assoc.Columns.Add(new DlinqSchema.ColumnName(constraint.column_name));
-                    table.Types[0].Associations.Add(assoc);
+
+                    //table.Types[0].Associations.Add(assoc);
+                    table.Associations.Add(assoc);
 
                     //and insert the reverse association:
                     DlinqSchema.Association assoc2 = new DlinqSchema.Association();
@@ -150,10 +163,15 @@ namespace MysqlMetal.schema.oracle
                     assoc2.Columns.Add(new DlinqSchema.ColumnName(constraint.column_name));
 
                     DlinqSchema.Table parentTable = schema0.Tables.FirstOrDefault(t => referencedConstraint.table_name==t.Name);
-                    if(parentTable==null)
-                        Console.WriteLine("ERROR 148: parent table not found: "+referencedConstraint.table_name);
+                    if (parentTable == null)
+                    {
+                        Console.WriteLine("ERROR 148: parent table not found: " + referencedConstraint.table_name);
+                    }
                     else
-                        parentTable.Types[0].Associations.Add(assoc2);
+                    {
+                        //parentTable.Types[0].Associations.Add(assoc2);
+                        parentTable.Associations.Add(assoc2);
+                    }
 
                 }
 

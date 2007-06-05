@@ -1,5 +1,5 @@
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual C# Express Codename Orcas
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OracleMetal", "SqlMetal\OracleMetal.csproj", "{93E8F1C0-866E-4447-94FC-0C36E5CB2243}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientCodeOra", "ClientCodeOra\ClientCodeOra.csproj", "{2D81DF5B-E974-4131-9A41-519C6B9D0EBC}"

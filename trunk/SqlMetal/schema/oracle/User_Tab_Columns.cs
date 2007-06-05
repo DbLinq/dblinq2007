@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Data.OracleClient;
 
-namespace MysqlMetal.schema.oracle
+namespace SqlMetal.schema.oracle
 {
     /// <summary>
     /// represents one row from information_schema.`COLUMNS`
@@ -60,6 +60,8 @@ namespace MysqlMetal.schema.oracle
             if(t.data_type=="TIMESTAMP(6)"){
                 t.data_type = "TIMESTAMP"; //clip the '(6)' - don't know the meaning
             }
+
+            //we use OraExtensions.GetNString():
             t.data_type_mod  = rdr.GetNString(field++); //todo: null
             t.data_length  = rdr.GetNInt(field++);
             t.data_precision  = rdr.GetNString(field++); //null

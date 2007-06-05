@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Data.OracleClient;
 
-namespace MysqlMetal.schema.oracle
+namespace SqlMetal.schema.oracle
 {
     /// <summary>
     /// represents one row from Oracle's USER_TABLES table (subset)
