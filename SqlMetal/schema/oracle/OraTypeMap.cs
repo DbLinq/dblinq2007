@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MysqlMetal.schema.oracle
+namespace SqlMetal.schema.oracle
 {
     public static class OraTypeMap
     {

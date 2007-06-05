@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using MySql.Data.MySqlClient;
 
 namespace DBLinq.vendor
 {
@@ -28,5 +29,23 @@ namespace DBLinq.vendor
         {
             return "?P"+index;
         }
+
+        /// <summary>
+        /// given 'User', return '[User]' to prevent a SQL keyword conflict
+        /// </summary>
+        public static string FieldName_Safe(string name)
+        {
+            if (name.ToLower() == "user")
+                return "[" + name + "]";
+            return name;
+        }
+
+        public static MySqlParameter CreateSqlParameter(string dbTypeName, string paramName)
+        {
+            MySqlDbType dbType = MySqlTypeConversions.ParseType(dbTypeName);
+            MySqlParameter param = new MySqlParameter(paramName, dbType);
+            return param;
+        }
+
     }
 }

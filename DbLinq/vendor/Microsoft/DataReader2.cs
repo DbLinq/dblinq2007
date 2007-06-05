@@ -245,7 +245,7 @@ namespace DBLinq.util
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetInt64N failed: "+ex);
+                Console.WriteLine("GetInt64 failed: "+ex);
                 return 0;
             }
         }

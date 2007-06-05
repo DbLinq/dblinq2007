@@ -90,6 +90,8 @@ namespace DBLinq.Linq
         /// </summary>
         public string sqlString;
 
+        public string sqlConnString;
+
         /// <summary>
         /// debug output stream
         /// </summary>

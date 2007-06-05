@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Data.OracleClient;
 
 namespace DBLinq.vendor
 {
@@ -21,6 +22,23 @@ namespace DBLinq.vendor
         public static string ParamName(int index)
         {
             return ":P"+index;
+        }
+
+        /// <summary>
+        /// given 'User', return '[User]' to prevent a SQL keyword conflict
+        /// </summary>
+        public static string FieldName_Safe(string name)
+        {
+            if (name.ToLower() == "user")
+                return "[" + name + "]";
+            return name;
+        }
+
+        public static OracleParameter CreateSqlParameter(string dbTypeName, string paramName)
+        {
+            OracleType dbType = OracleTypeConversions.ParseType(dbTypeName);
+            OracleParameter param = new OracleParameter(paramName, dbType);
+            return param;
         }
 
     }

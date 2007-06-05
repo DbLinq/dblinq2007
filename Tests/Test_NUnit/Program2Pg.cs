@@ -11,7 +11,6 @@ using System.Expressions;
 #else
 //Visual Studio Orcas - requires WinXP
 using System.Linq;
-using System.Linq.Expressions;
 #endif
 #endregion
 

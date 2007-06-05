@@ -4,15 +4,22 @@
 ////////////////////////////////////////////////////////////////////
 
 using System;
-using System.Query;
 using System.IO;
 using System.Collections.Generic;
 using System.Text;
-//using MySql.Data.MySqlClient;
-using MysqlMetal.schema;
-using MysqlMetal.codeGen;
 
-namespace MysqlMetal
+#if LINQ_PREVIEW_2006
+//Visual Studio 2005 with Linq Preview May 2006 - can run on Win2000
+using System.Query;
+#else
+//Visual Studio Orcas - requires WinXP
+using System.Linq;
+#endif
+
+using SqlMetal.schema;
+using SqlMetal.codeGen;
+
+namespace SqlMetal
 {
     class Program_Oracle
     {
@@ -26,11 +33,11 @@ namespace MysqlMetal
             try 
             {
                 //string connStr = string.Format("server={0};user id={1}; password={2}; database={3}; pooling=false"
-                MysqlMetal.util.Util.InitRenames();
+                SqlMetal.util.Util.InitRenames();
                 string connStr = string.Format("server={0};user id={1}; password={2}"
                     , mmConfig.server, mmConfig.user, mmConfig.password, mmConfig.database);
 
-                MysqlMetal.schema.oracle.OracleVendor vendorO = new MysqlMetal.schema.oracle.OracleVendor();
+                SqlMetal.schema.oracle.OracleVendor vendorO = new SqlMetal.schema.oracle.OracleVendor();
                 DlinqSchema.Database dbSchema = vendorO.LoadSchema();
                 if(dbSchema==null)
                 {
@@ -39,14 +46,14 @@ namespace MysqlMetal
                 }
 
                 CodeGenAll codeGen = new CodeGenAll();
-                string fileBody = codeGen.generateAll(dbSchema);
+                string fileBody = codeGen.generateAll(dbSchema, vendorO.VendorName());
                 string fname = mmConfig.database+".cs";
                 File.WriteAllText(fname, fileBody);
-                Console.WriteLine("MysqlMetal: Written file "+fname);
+                Console.WriteLine("SqlMetal: Written file "+fname);
             }
             catch(Exception ex)
             {
-                Console.WriteLine("MysqlMetal failed:"+ex);
+                Console.WriteLine("SqlMetal failed:"+ex);
             }
         }
 
@@ -101,8 +108,8 @@ namespace MysqlMetal
 
         static void errorExit()
         {
-            Console.WriteLine("MysqlMetal usage:");
-            Console.WriteLine("MysqlMetal.exe -server:xx -db:yy -user:zz -password:**");
+            Console.WriteLine("SqlMetal usage:");
+            Console.WriteLine("SqlMetal.exe -server:xx -db:yy -user:zz -password:**");
             Console.WriteLine("Result: produces file yy.cs in local directory");
         }
 

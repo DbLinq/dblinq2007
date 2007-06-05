@@ -1,7 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+#if LINQ_PREVIEW_2006
+//Visual Studio 2005 with Linq Preview May 2006 - can run on Win2000
 using System.Query;
+#else
+//Visual Studio Orcas - requires WinXP
+using System.Linq;
+#endif
+
 using MySql.Data.MySqlClient;
 using SqlMetal.util;
 
@@ -50,10 +57,10 @@ namespace SqlMetal.schema.mysql
             }
 
             //ensure all table schemas contain one type:
-            foreach(DlinqSchema.Table tblSchema in schema0.Tables)
-            {
-                tblSchema.Types.Add( new DlinqSchema.Type());
-            }
+            //foreach(DlinqSchema.Table tblSchema in schema0.Tables)
+            //{
+            //    tblSchema.Types.Add( new DlinqSchema.Type());
+            //}
 
             //##################################################################
             //step 2 - load columns
@@ -71,7 +78,7 @@ namespace SqlMetal.schema.mysql
                 }
                 DlinqSchema.Column colSchema = new DlinqSchema.Column();
                 colSchema.Name = columnRow.column_name;
-                colSchema.DBType = columnRow.datatype; //.column_type ?
+                colSchema.DbType = columnRow.datatype; //.column_type ?
                 colSchema.IsIdentity = columnRow.column_key=="PRI";
                 colSchema.IsAutogen = columnRow.extra=="auto_increment";
                 //colSchema.IsVersion = ???
@@ -87,7 +94,8 @@ namespace SqlMetal.schema.mysql
                 if(CSharp.IsValueType(colSchema.Type) && columnRow.isNullable)
                 colSchema.Type += "?";
 
-                tableSchema.Types[0].Columns.Add(colSchema);
+                //tableSchema.Types[0].Columns.Add(colSchema);
+                tableSchema.Columns.Add(colSchema);
             }
 
             //##################################################################
@@ -129,28 +137,40 @@ namespace SqlMetal.schema.mysql
                     //both parent and child table get an [Association]
                     //table.as
                     DlinqSchema.Association assoc = new DlinqSchema.Association();
-                    assoc.Kind = DlinqSchema.RelationshipKind.ManyToOneChild;
+
+                    //assoc.Kind = DlinqSchema.RelationshipKind.ManyToOneChild;
+                    assoc.Kind = DlinqSchema.RelationshipKind.ManyToOneParent;
+
                     assoc.Name = keyColRow.constraint_name;
                     //assoc.Target = keyColRow.referenced_table_name + "."+ keyColRow.referenced_column_name;
                     assoc.Target = keyColRow.referenced_table_name;
                     DlinqSchema.ColumnName assocCol = new DlinqSchema.ColumnName();
                     assocCol.Name = keyColRow.column_name;
                     assoc.Columns.Add(assocCol);
-                    table.Types[0].Associations.Add(assoc);
+                    //table.Types[0].Associations.Add(assoc);
+                    table.Associations.Add(assoc);
 
                     //and insert the reverse association:
                     DlinqSchema.Association assoc2 = new DlinqSchema.Association();
-                    assoc2.Kind = DlinqSchema.RelationshipKind.ManyToOneParent;
+
+                    //assoc2.Kind = DlinqSchema.RelationshipKind.ManyToOneParent;
+                    assoc2.Kind = DlinqSchema.RelationshipKind.ManyToOneChild;
+
                     assoc2.Name = keyColRow.constraint_name;
                     assoc2.Target = keyColRow.table_name;
                     DlinqSchema.ColumnName assocCol2 = new DlinqSchema.ColumnName();
                     assocCol2.Name = keyColRow.column_name;
                     assoc2.Columns.Add(assocCol2);
                     DlinqSchema.Table parentTable = schema0.Tables.FirstOrDefault(t => keyColRow.referenced_table_name==t.Name);
-                    if(parentTable==null)
-                        Console.WriteLine("ERROR 148: parent table not found: "+keyColRow.referenced_table_name);
+                    if (parentTable == null)
+                    {
+                        Console.WriteLine("ERROR 148: parent table not found: " + keyColRow.referenced_table_name);
+                    }
                     else
-                        parentTable.Types[0].Associations.Add(assoc2);
+                    {
+                        //parentTable.Types[0].Associations.Add(assoc2);
+                        parentTable.Associations.Add(assoc2);
+                    }
 
                 }
 

@@ -101,9 +101,9 @@ namespace DBLinq.util
         /// </summary>
         public override IEnumerator<T> GetEnumerator()
         {
-            string origConnString = _conn.ConnectionString;
+            //string origConnString = _conn.ConnectionString;
             //create a new connection to prevent error "SqlConnection already has SqlDataReader associated with it"
-            XSqlConnection newConn = new XSqlConnection(origConnString);
+            XSqlConnection newConn = new XSqlConnection(_vars.context.SqlConnString);
             newConn.Open();
             //TODO: use connection pool instead of always opening a new one
 
