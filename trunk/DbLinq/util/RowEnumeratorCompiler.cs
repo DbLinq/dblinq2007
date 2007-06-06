@@ -185,7 +185,7 @@ namespace DBLinq.util
 
         }
 
-        internal static 
+        public static 
             LambdaExpression
             BuildProjectedRowLambda(SessionVars vars, ProjectionData projData, ParameterExpression rdr, ref int fieldID)
         {
@@ -206,8 +206,25 @@ namespace DBLinq.util
                             //occurs for 'from c ... from o ... select new {c,o}'
                             //should compile into:
                             //  'new Projection{ new C(field0,field1), new O(field2,field3) }'
+
+                            #region Ugly code to create a generic arg T for Expression.Lambda<T>
+                            //simple version: (does not work since BuildProjRow needs different generic arg than our T)
+                            //LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, rdr, ref fieldID);                            
+                            //nasty version:
                             ProjectionData projData2 = AttribHelper.GetProjectionData(projFld.type);
-                            LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, rdr, ref fieldID);
+                            Type TArg2 = projFld.FieldType;
+                            Type rowEnumCompilerType2 = typeof(RowEnumeratorCompiler<>).MakeGenericType(TArg2);
+                            object rowCompiler2 = Activator.CreateInstance(rowEnumCompilerType2);
+                            MethodInfo[] mis = rowEnumCompilerType2.GetMethods();
+                            MethodInfo mi = rowEnumCompilerType2.GetMethod("BuildProjectedRowLambda");
+                            object[] methodArgs = new object[] { vars, projData2, rdr, fieldID};
+                            //...and call BuildProjectedRowLambda():
+                            object objResult = mi.Invoke(rowCompiler2, methodArgs);
+                            fieldID = (int)methodArgs[3];
+                            LambdaExpression innerLambda = (LambdaExpression)objResult;
+                            #endregion
+                            //LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, rdr, ref fieldID);
+
                             MemberInitExpression innerInit = innerLambda.Body as MemberInitExpression;
                             //MemberAssignment binding = Expression.Bind(projFld.propInfo, innerInit);
                             MemberAssignment binding = projFld.BuildMemberAssignment(innerInit);
