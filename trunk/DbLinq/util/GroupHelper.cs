@@ -37,6 +37,19 @@ namespace DBLinq.util
             bool isGrp = meExType.Name=="IGrouping`2";
             return isGrp;
         }
+
+        /// <summary>
+        /// given T, check if it's IGrouping`2
+        /// </summary>
+        public static bool IsGrouping(Type t)
+        {
+            if (!t.IsGenericType)
+                return false;
+            //bool isGrp = t.Name == "IGrouping`2";
+            Type genBaseType = t.GetGenericTypeDefinition();
+            bool isGrp = genBaseType==typeof(System.Linq.IGrouping<,>);
+            return isGrp;
+        }
     }
 
     public class GroupHelper2<T>

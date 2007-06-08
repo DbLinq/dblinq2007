@@ -36,7 +36,12 @@ namespace DBLinq.Linq.clause
         {
             Type t = AttribHelper.ExtractTypeFromMSet(t1);
             TableAttribute tAttrib = AttribHelper.GetTableAttrib(t);
-            if(tAttrib==null && t.Name.StartsWith("<Projection>"))
+#if LINQ_PREVIEW_2006
+            string PROJECTED_CLASS_NAME = "<Projection>";
+#else
+            string PROJECTED_CLASS_NAME = "<>f__AnonymousType";
+#endif
+            if (tAttrib == null && t.Name.StartsWith(PROJECTED_CLASS_NAME))
             {
                 //GroupBy: given t=Proj, find our table type
                 //example: GroupBy-proj: {c => new {PostalCode = c.PostalCode, ContactName = c.ContactName}}

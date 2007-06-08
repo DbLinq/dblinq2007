@@ -70,13 +70,9 @@ namespace DBLinq.util
             {
                 //now we know what the GroupBy object is, 
                 //and what method to use with grouping (eg Count())
-                //_projectionData.type = typeof(T);
-                //vars._sqlParts.selectFieldList.Add("Count(*)");
-
-                //ProjectionData projData2 = ProjectionData.FromReflectedType(typeof(T));
+                ProjectionData projData2 = ProjectionData.FromReflectedType(typeof(T));
                 //and compile the sucker
-                //objFromRow = RowEnumeratorCompiler<T>.CompileProjectedRowDelegate(vars, projData2);
-                objFromRow = RowEnumeratorCompiler<T>.CompileProjectedRowDelegate(vars, vars.projectionData);
+                objFromRow = RowEnumeratorCompiler<T>.CompileProjectedRowDelegate(vars, projData2);
             }
             else if(isProjectedType)
             {

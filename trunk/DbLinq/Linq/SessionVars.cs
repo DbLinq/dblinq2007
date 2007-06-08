@@ -152,6 +152,24 @@ namespace DBLinq.Linq
                         throw new ApplicationException("StoreQuery L117: Prepared only for 2 or 3 param GroupBys");
                 }
             }
+            if (exprCall != null && exprCall.Method.Name == "SelectMany")
+            {
+                //special case: GroupBy can come with 2 or 3 params
+                switch (exprCall.Arguments.Count)
+                {
+                    case 2: //???
+                        StoreLambda("SelectMany", exprCall.Arguments[1].XLambda());
+                        return;
+                    case 3: //'from c in db.Customers from o in c.Orders where c.City == "London" select new { c, o }'
+                        //ignore arg[0]: MTable<>
+                        //ignore arg[1]: c=>c.Orders
+                        StoreLambda("Select", exprCall.Arguments[2].XLambda());
+                        return;
+                    default:
+                        throw new ApplicationException("StoreQuery L117: Prepared only for 2 or 3 param GroupBys");
+                }
+            }
+
 
             LambdaExpression lambda = WhereClauseBuilder.FindLambda(expr,out methodName);
             if(methodName=="Take")

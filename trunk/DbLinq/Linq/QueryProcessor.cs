@@ -59,7 +59,16 @@ namespace DBLinq.Linq
             {
                 ParseInputs inputs = new ParseInputs(result);
                 result = ExpressionTreeParser.Parse(lambda.Body, inputs);
-                _vars._sqlParts.AddWhere(result.columns);
+
+                if (GroupHelper.IsGrouping(lambda.Parameters[0].Type))
+                {
+                    _vars._sqlParts.AddHaving(result.columns);
+                }
+                else
+                {
+                    _vars._sqlParts.AddWhere(result.columns);
+                }
+
                 result.CopyInto(_vars._sqlParts); //transfer params and tablesUsed
             }
 
