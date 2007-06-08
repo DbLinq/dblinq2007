@@ -38,5 +38,29 @@ namespace DBLinq.util
             }
             finfo.SetValue(rowObj, id);
         }
+
+        static readonly object[] emptyIndices = new object[0];
+
+        public static object GetValue(System.Reflection.MemberInfo field, object parentObj)
+        {
+            System.Reflection.PropertyInfo propInfo = field as System.Reflection.PropertyInfo;
+            if (propInfo != null)
+            {
+                object obj = propInfo.GetValue(parentObj,emptyIndices); //retrieve 'myID' from wrapper class
+                return obj;
+            }
+            else
+            {
+                System.Reflection.FieldInfo fieldInfo = field as System.Reflection.FieldInfo;
+                if (fieldInfo == null)
+                {
+                    string msg = "L55 Member is neither Property nor Field:" + field;
+                    Console.WriteLine(msg);
+                    throw new Exception(msg);
+                }
+                object obj = fieldInfo.GetValue(parentObj);
+                return obj;
+            }
+        }
     }
 }
