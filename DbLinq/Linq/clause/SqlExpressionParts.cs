@@ -72,6 +72,8 @@ namespace DBLinq.Linq.clause
 
         public readonly List<string> groupByList = new List<string>();
 
+        public readonly List<string> havingList = new List<string>();
+
         public string           countClause;
         public string           distinctClause;
 
@@ -106,6 +108,10 @@ namespace DBLinq.Linq.clause
         {
             this.whereList.AddRange(sqlExprs);
         }
+        public void AddHaving(List<string> sqlExprs)
+        {
+            this.havingList.AddRange(sqlExprs);
+        }
 
         #region ToString() produces a full SQL statement from parts
         public override string ToString()
@@ -135,46 +141,34 @@ namespace DBLinq.Linq.clause
                 }
             }
             //if(sb.Length>80){ sb.Append("\n"); } //for legibility, append a newline for long expressions
-            sb.Append("\n FROM ");
-            {
-                string opt_comma = "";
-                foreach(string s in fromTableList)
-                {
-                    sb.Append(opt_comma).Append(s);
-                    opt_comma = ", ";
-                }
-            }
+            appendCsvList(sb, " FROM ", fromTableList, ", ");
 
             //MySql docs for JOIN:
             //http://dev.mysql.com/doc/refman/4.1/en/join.html
             //for now, we will not be using the JOIN keyword
-            List<string> whereAndjoins = new List<string>(whereList);
-            whereAndjoins.AddRange(joinList);
+            List<string> whereAndjoins = new List<string>(joinList);
+            whereAndjoins.AddRange(whereList);
 
-            if(whereAndjoins.Count>0)
-            {
-                sb.Append("\n WHERE ");
-                string separator = "";
-                foreach(string s in whereAndjoins)
-                {
-                    sb.Append(separator).Append(s);
-                    separator = " AND ";
-                }
-            }
-
-            if(groupByList.Count>0)
-            {
-                sb.Append("\n GROUP BY ");
-                string separator = "";
-                foreach(string grp in groupByList)
-                {
-                    sb.Append(separator).Append(grp);
-                    separator = ", ";
-                }
-            }
+            appendCsvList(sb, " WHERE ", whereAndjoins, " AND ");
+            appendCsvList(sb, " GROUP BY ", groupByList, ", ");
+            appendCsvList(sb, " HAVING ", havingList, ", ");
 
             return sb.ToString();
         }
+
+        void appendCsvList(StringBuilder sb, string header, List<string> list, string separator)
+        {
+            if (list.Count == 0)
+                return;
+            sb.Append(header);
+            string currSeparator = "";
+            foreach (string str in list)
+            {
+                sb.Append(currSeparator).Append(str);
+                currSeparator = separator;
+            }
+        }
+
         #endregion
     
         public bool IsEmpty()
