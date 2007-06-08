@@ -148,6 +148,7 @@ namespace DBLinq.Linq.clause
         private void AnalyzeConstant(RecurData recurData, ConstantExpression expr)
         {
             object val = expr.Value;
+
             if(expr.Type==typeof(string))
             {
                 //pass as named parameter:
@@ -155,7 +156,7 @@ namespace DBLinq.Linq.clause
                 _result.AppendString(paramName);
                 return;
             }
-            if(expr.Type==typeof(DateTime) || expr.Type==typeof(DateTime?))
+            else if(expr.Type==typeof(DateTime) || expr.Type==typeof(DateTime?))
             {
                 //this is where DateTime.Now gets given to us as a const DateTime
                 if(val==null)
@@ -286,6 +287,20 @@ namespace DBLinq.Linq.clause
                 JoinBuilder.AddJoin2(expr, _inputs, _result);
                 return;
             }
+
+            Expression inner = expr.Expression;
+            if (inner.NodeType == ExpressionType.Constant && inner.Type.Name.Contains("__DisplayClass"))
+            {
+                //in OrcasBeta1, ConstantExpression comes as MemberEXpression
+                //(they don't pass you an integer, they pass you c__DisplayClass1.myID)
+                System.Reflection.MemberInfo field = expr.Member;
+                ConstantExpression wrapperObj = (ConstantExpression)inner;
+                object constObj = FieldUtils.GetValue(field, wrapperObj.Value);
+                ConstantExpression constExpr = Expression.Constant(constObj);
+                AnalyzeConstant(recurData, constExpr);
+                return;
+            }
+
 
             int pos1 = _result.MarkSbPosition();
 
