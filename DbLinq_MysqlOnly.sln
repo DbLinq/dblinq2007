@@ -6,7 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MysqlMetal", "SqlMetal\Mysq
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_NUnit_Mysql", "Tests\Test_NUnit\Test_NUnit_Mysql.csproj", "{858BAFF7-542F-4DBB-9C9B-57FCDE4DB7CE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.MySql.Example", "ClientCodeMysql\DbLinq.MySql.Example.csproj", "{B8E7590F-1EA8-49AE-9808-A36C8A67E322}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.MySql.Example", "DbLinq.MySql.Example\DbLinq.MySql.Example.csproj", "{B8E7590F-1EA8-49AE-9808-A36C8A67E322}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -55,7 +55,7 @@
     <Reference Include="System.Security" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\ClientCodeMysql\user\LinqTestDB.cs">
+    <Compile Include="..\..\DbLinq.MySql.Example\user\LinqTestDB.cs">
       <Link>user\LinqTestDB.cs</Link>
     </Compile>
     <Compile Include="Program2Mysql.cs" />
