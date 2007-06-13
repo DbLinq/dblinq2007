@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Data;
-using System.Data.Linq;
 using System.Linq;
 
 using MySql.Data.MySqlClient;
@@ -85,6 +84,7 @@ namespace DbLinq.MySql.Example
             Console.ReadLine();
 
             // BUG: This currently will insert 3 rows when it should insert only 2
+            // SubmitChanges isn't clearing the client side transaction data
             Console.Clear();
             Console.WriteLine("db.Orders.Add(new Order { ProductID = 7, CustomerID = 1, OrderDate = DateTime.Now });");            
             db.Orders.Add(new Order { ProductID = 7, CustomerID = 1, OrderDate = DateTime.Now });
