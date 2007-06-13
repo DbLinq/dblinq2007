@@ -15,47 +15,97 @@ namespace DbLinq.MySql.Example
     {
         static void Main(string[] args)
         {
-            string connStr = "server=localhost;user id=LinqUser; password=linq2; database=linqtestdb";
-            MySqlConnection conn = new MySqlConnection(connStr);
-            conn.Open();
-            //string sql = "INSERT City (Name) VALUES ('B'); SELECT @@IDENTITY";
-            string sql = "INSERT City (Name) VALUES ('C1'), ('C2'); SELECT @@IDENTITY; SELECT @@IDENTITY";
-            MySqlCommand cmd = new MySqlCommand(sql, conn);
-            //object obj1 = cmd.ExecuteScalar();
-            //string s1 = obj1.ToString();
-            MySqlDataReader rdr = cmd.ExecuteReader();
-            int fields = rdr.FieldCount;
-            while(rdr.Read())
+            if (args.Length != 4)
             {
-                object obj1 = rdr.GetValue(0);
-                string s1 = obj1.ToString();
+                Console.WriteLine("Usage: DbLinq.MySql.Example.exe server user password database");
+                Console.WriteLine("Debug arguments can be set on project properties in visual studio.");
+                Console.WriteLine("Press enter to continue.");
+                Console.ReadLine();
+                return;
             }
 
-            //TestContext db = new TestContext(connStr);
+            string connStr = String.Format("server={0};user id={1}; password={2}; database={3}", args);
+
             LinqTestDB db = new LinqTestDB(connStr);
-            //var q = from at in db.alltypes select at;
-            //var q = from p in db.products orderby p.ProductName select p;
-            //var q = from c in db.customers from o in c.Orders 
+
+            Console.Clear();
+            Console.WriteLine("from at in db.Alltypes select at;");
+            var q1 = from at in db.Alltypes select at;
+            foreach (var v in q1)
+                ObjectDumper.Write(v);
+            Console.WriteLine("Press enter to continue.");
+            Console.ReadLine();
+
+            Console.Clear();
+            Console.WriteLine("from p in db.Products orderby p.ProductName select p;");
+            var q2 = from p in db.Products orderby p.ProductName select p;
+            foreach (var v in q2)
+                ObjectDumper.Write(v);
+            Console.WriteLine("Press enter to continue.");
+            Console.ReadLine();
+
+            // BUG: This one throws a null reference for some reason.
+            //Console.Clear();
+            //var q3 = from c in db.Customers
+            //         from o in c.Orders 
             //        where c.City == "London" select new { c, o };
+            //foreach (var v in q3)
+            //    ObjectDumper.Write(v);
+            //Console.ReadLine();
 
-            uint insertedID = 7;
-            //var q = from p in db.Products where p.ProductID==insertedID select p;
-            var q = from p in db.Products where p.ProductID==insertedID select p;
-            int ii = q.Count();
-            //var q = from c in db.Customers from o in c.Orders where c.City == "London" select new { c, o };
-            //It’s also possible to do the reverse.
-            //var q1 = from c in cc where c.CustomerID==0 select c.CustomerID.Select(0);
-            //var q = from o in db.Orders where o.Customer.City == "London" select new { c = o.Customer, o };
+            Console.Clear();
+            Console.WriteLine("from p in db.Products where p.ProductID == 7 select p;");
+            var q4 = from p in db.Products where p.ProductID == 7 select p;
+            foreach (var v in q4)
+                ObjectDumper.Write(v);
+            Console.WriteLine("Press enter to continue.");
+            Console.ReadLine();
 
+            Console.Clear();
+            Console.WriteLine("from c in db.Customers from o in c.Orders where c.City == \"London\" select new { c, o };");
+            var q5 = from c in db.Customers from o in c.Orders where c.City == "London" select new { c, o };
+            foreach (var v in q4)
+                ObjectDumper.Write(v);
+            Console.WriteLine("Press enter to continue.");
+            Console.ReadLine();
 
-            //string queryText = db.GetQueryText(q);
-            //Console.WriteLine("User sees sql:"+queryText);
+            Console.Clear();
+            Console.WriteLine("from o in db.Orders where o.Customer.City == \"London\" select new { c = o.Customer, o };");
+            var q6 = from o in db.Orders where o.Customer.City == "London" select new { c = o.Customer, o };
+            foreach (var v in q4)
+                ObjectDumper.Write(v);
+            Console.WriteLine("Press enter to continue.");
+            Console.ReadLine();
 
+            Console.Clear();
+            Console.WriteLine("db.Orders");
+            foreach (var v in db.Orders)
+                ObjectDumper.Write(v);
+            Console.WriteLine("Press enter to continue.");
+            Console.ReadLine();
 
-            foreach(var v in q){
-                Console.WriteLine("OBJ:"+v);
-            }
-            //db.SaveChanges();
+            // BUG: This currently will insert 3 rows when it should insert only 2
+            Console.Clear();
+            Console.WriteLine("db.Orders.Add(new Order { ProductID = 7, CustomerID = 1, OrderDate = DateTime.Now });");            
+            db.Orders.Add(new Order { ProductID = 7, CustomerID = 1, OrderDate = DateTime.Now });
+            db.SubmitChanges();
+            Console.WriteLine("db.Orders.Add(new Order { ProductID = 2, CustomerID = 2, OrderDate = DateTime.Now });");
+            db.Orders.Add(new Order { ProductID = 2, CustomerID = 2, OrderDate = DateTime.Now });
+            db.SubmitChanges();
+            foreach (var v in db.Orders)
+                ObjectDumper.Write(v);
+            Console.WriteLine("Press enter to continue.");
+            Console.ReadLine();
+
+            Console.Clear();
+            Console.WriteLine("db.Orders.Remove(db.Orders.First());");
+            db.Orders.Remove(db.Orders.First());
+            db.SubmitChanges();
+            foreach (var v in db.Orders)
+                ObjectDumper.Write(v);
+            Console.WriteLine("Press enter to continue.");
+            Console.ReadLine();
+
         }
     }
 }
