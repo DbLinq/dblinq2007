@@ -1,11 +1,17 @@
 
-Get started:
-1) download C# 3.0, 
-2) install MySql Query browser
-3) install LinqTestDB database from ClientCode2/sql/create_LinqTestDB.sql
-4) compile and run MysqlMetal to create a C# class which represents the database.
-5) place this generated class in your ClientCode2/user
-6) Compile and run ClientCode2, report sucess/failure to http://code2code.net/wordpress
+-= MySql.Linq 0.10 =-
 
-If you use Linq Preview from 2006May, use project file DbLinq_Studio2006.sln.
-If you use Studio Orcas from 2007May, use DbLinq.sln.
+This has been built against Orcas Beta 1.
+
+Everything is still very much a work in progress.
+
+We are in need of additional developers.  If you'd like to help out with the
+project please talk to us.
+
+Get started:
+1) Install LinqTestDB database to MySQL from create_LinqTestDB.sql
+2) Run DbLinq.MySql.Example.exe server user password linqtestdb
+3) Report bugs to our google project at http://code.google.com/p/dblinq2007/
+
+You can compile and run MysqlMetal to create a context class which represents
+your own database schemas.
