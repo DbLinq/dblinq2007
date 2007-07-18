@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.50727</ProductVersion>
+    <ProductVersion>9.0.20404</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{2D81DF5B-E974-4131-9A41-519C6B9D0EBC}</ProjectGuid>
     <OutputType>Exe</OutputType>
@@ -35,12 +35,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
     <Reference Include="System.Data.OracleClient" />
-    <Reference Include="System.Query" />
-    <Reference Include="System.Data.DLinq" />
-    <Reference Include="System.Data.Extensions" />
-    <Reference Include="System.Xml.XLinq" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -52,7 +54,7 @@
     <Content Include="sql\create_LinqTestDB_ora.sql" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DbLinq\DbLinq.Oracle.csproj">
+    <ProjectReference Include="..\..\DbLinq\DbLinq.Oracle.csproj">
       <Project>{42B135DF-562B-48FD-9A63-4301D29321A6}</Project>
       <Name>Oracle.Linq</Name>
     </ProjectReference>

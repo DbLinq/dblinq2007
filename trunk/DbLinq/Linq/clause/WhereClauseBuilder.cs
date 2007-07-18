@@ -9,12 +9,9 @@ using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-
-//Visual Studio Orcas - requires WinXP:
 using System.Linq;
 using System.Linq.Expressions;
 using System.Data.Linq;
-
 using DBLinq.util;
 using DBLinq.vendor;
 
@@ -61,14 +58,10 @@ namespace DBLinq.Linq.clause
 
             //if(methodName=="GroupBy")
             //    return null; //huh, we have 2 different lambdas here...
-#if LINQ_2006_PREVIEW
-            //used to work differently in 2006
-#else
             if (methodName == "SelectMany" && methodCall.Arguments.Count != 2)
             {
-
+                //re-visit
             }
-#endif
 
             if(methodCall.Arguments.Count!=2)
             {

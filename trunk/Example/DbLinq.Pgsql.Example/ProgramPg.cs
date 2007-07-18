@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Expressions;
+using System.Linq.Expressions;
 using System.Collections.Generic;
 using System.Text;
-using System.Query;
-using System.Xml.XLinq;
-using System.Data.DLinq;
+using System.Linq;
 using Client2.user;
 using Npgsql;
 

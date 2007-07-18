@@ -4,11 +4,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.MySql", "DbLinq\DbLi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MysqlMetal", "SqlMetal\MysqlMetal.csproj", "{93E8F1C0-866E-4447-94FC-0C36E5CB9043}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.Mysql.Example", "Example\ClientCodeMySql\ClientCodeMysql.csproj", "{B8E7590F-1EA8-49AE-9808-A36C8A67E322}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.Mysql.Example", "Example\DbLinq.Mysql.Example\DbLinq.Mysql.Example.csproj", "{B8E7590F-1EA8-49AE-9808-A36C8A67E322}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OracleMetal", "SqlMetal\OracleMetal.csproj", "{93E8F1C0-866E-4447-94FC-0C36E5CB2243}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientCodeOra", "ClientCodeOra\ClientCodeOra.csproj", "{2D81DF5B-E974-4131-9A41-519C6B9D0EBC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.Ora.Example", "Example\DbLinq.Ora.Example\DbLinq.Ora.Example.csproj", "{2D81DF5B-E974-4131-9A41-519C6B9D0EBC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.Oracle", "DbLinq\DbLinq.Oracle.csproj", "{42B135DF-562B-48FD-9A63-4301D29321A6}"
 EndProject
@@ -16,7 +16,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_NUnit_Ora", "Tests\Tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_NUnit_Mysql", "Tests\Test_NUnit\Test_NUnit_Mysql.csproj", "{858BAFF7-542F-4DBB-9C9B-57FCDE4DB7CE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientCodePgsql", "Example\DbLinq.Pgsql.Example\ClientCodePgsql.csproj", "{B8E7290F-1EA8-49AE-9808-A36C1A67E322}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.Pgsql.Example", "Example\DbLinq.Pgsql.Example\DbLinq.Pgsql.Example.csproj", "{B8E7290F-1EA8-49AE-9808-A36C1A67E322}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.Pgsql", "DbLinq\DbLinq.Pgsql.csproj", "{423335DF-5677-48FD-9A63-43B1D30321A6}"
 EndProject

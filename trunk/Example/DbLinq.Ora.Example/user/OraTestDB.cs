@@ -6,9 +6,8 @@ using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
-using System.Query;
-using System.Xml.XLinq;
-using System.Data.DLinq;
+using System.Linq;
+using System.Data.Linq;
 using DBLinq.Linq;
 
 namespace ClientCodeOra
