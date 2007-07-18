@@ -9,16 +9,8 @@ using System;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
-
-#if LINQ_PREVIEW_2006
-//Visual Studio 2005 with Linq Preview May 2006 - can run on Win2000
-using System.Query;
-using System.Expressions;
-#else
-//Visual Studio Orcas - requires WinXP
 using System.Linq;
 using System.Linq.Expressions;
-#endif
 
 using DBLinq.Linq;
 
@@ -294,11 +286,7 @@ namespace DBLinq.util
             }
             List<Expression> paramZero = new List<Expression>();
             paramZero.Add( Expression.Constant(fieldID) ); //that's the zero in GetInt32(0)
-#if LINQ_PREVIEW_2006
-            MethodCallExpression callExpr = Expression.CallVirtual(minfo,rdr,paramZero);
-#else
             MethodCallExpression callExpr = Expression.Call(rdr, minfo, paramZero);
-#endif
             return callExpr;
         }
 
@@ -448,11 +436,8 @@ namespace DBLinq.util
             List<ParameterExpression> lambdaParams = new List<ParameterExpression>();
             lambdaParams.Add(param);
             MethodInfo minfo3 = minfo.PropertyType.GetMethod("ToString",new Type[0]);
-#if LINQ_PREVIEW_2006
-            Expression body = Expression.Call(minfo3, member);
-#else
             Expression body = Expression.Call(member, minfo3);
-#endif
+
             LambdaExpression lambda = Expression.Lambda<Func<T,string>>(body,lambdaParams);
             Func<T,string> func_t = (Func<T,string>)lambda.Compile();
             return func_t;

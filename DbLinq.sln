@@ -4,7 +4,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.MySql", "DbLinq\DbLi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MysqlMetal", "SqlMetal\MysqlMetal.csproj", "{93E8F1C0-866E-4447-94FC-0C36E5CB9043}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientCodeMysql", "ClientCodeMySql\ClientCodeMysql.csproj", "{B8E7590F-1EA8-49AE-9808-A36C8A67E322}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.Mysql.Example", "Example\ClientCodeMySql\ClientCodeMysql.csproj", "{B8E7590F-1EA8-49AE-9808-A36C8A67E322}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OracleMetal", "SqlMetal\OracleMetal.csproj", "{93E8F1C0-866E-4447-94FC-0C36E5CB2243}"
 EndProject
@@ -16,13 +16,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_NUnit_Ora", "Tests\Tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_NUnit_Mysql", "Tests\Test_NUnit\Test_NUnit_Mysql.csproj", "{858BAFF7-542F-4DBB-9C9B-57FCDE4DB7CE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientCodePgsql", "ClientCodePgsql\ClientCodePgsql.csproj", "{B8E7290F-1EA8-49AE-9808-A36C1A67E322}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientCodePgsql", "Example\DbLinq.Pgsql.Example\ClientCodePgsql.csproj", "{B8E7290F-1EA8-49AE-9808-A36C1A67E322}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.Pgsql", "DbLinq\DbLinq.Pgsql.csproj", "{423335DF-5677-48FD-9A63-43B1D30321A6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_NUnit_Pgsql", "Tests\Test_NUnit\Test_NUnit_Pgsql.csproj", "{858BAFF7-542F-4DBB-940B-57333E4DB7CE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PgsqlMetal", "SqlMetal\PgsqlMetal.csproj", "{93E8F1C0-326E-4447-94FC-02F6E5CB2243}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PgsqlMetal", "SqlMetal\PgsqlMetal.csproj", "{489BB60F-3A23-4E78-AB8A-31752CE33051}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicrosoftMetal", "SqlMetal\MicrosoftMetal.csproj", "{96E8F1C0-866E-4447-94FC-EC36E5CB9243}"
 EndProject
@@ -77,10 +77,10 @@ Global
 		{858BAFF7-542F-4DBB-940B-57333E4DB7CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{858BAFF7-542F-4DBB-940B-57333E4DB7CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{858BAFF7-542F-4DBB-940B-57333E4DB7CE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{93E8F1C0-326E-4447-94FC-02F6E5CB2243}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{93E8F1C0-326E-4447-94FC-02F6E5CB2243}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{93E8F1C0-326E-4447-94FC-02F6E5CB2243}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{93E8F1C0-326E-4447-94FC-02F6E5CB2243}.Release|Any CPU.Build.0 = Release|Any CPU
+		{489BB60F-3A23-4E78-AB8A-31752CE33051}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{489BB60F-3A23-4E78-AB8A-31752CE33051}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{489BB60F-3A23-4E78-AB8A-31752CE33051}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{489BB60F-3A23-4E78-AB8A-31752CE33051}.Release|Any CPU.Build.0 = Release|Any CPU
 		{96E8F1C0-866E-4447-94FC-EC36E5CB9243}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{96E8F1C0-866E-4447-94FC-EC36E5CB9243}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{96E8F1C0-866E-4447-94FC-EC36E5CB9243}.Release|Any CPU.ActiveCfg = Release|Any CPU

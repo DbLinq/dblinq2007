@@ -10,17 +10,8 @@ using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-//using System.Data.DLinq;
-#if LINQ_PREVIEW_2006
-//Visual Studio 2005 with Linq Preview May 2006 - can run on Win2000
-using System.Query;
-using System.Expressions;
-#else
-//Visual Studio Orcas - requires WinXP
 using System.Linq;
 using System.Linq.Expressions;
-#endif
-
 using DBLinq.Linq.clause;
 using DBLinq.util;
 

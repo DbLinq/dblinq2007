@@ -9,17 +9,11 @@ using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-#if LINQ_PREVIEW_2006
-//Visual Studio 2005 with Linq Preview May 2006 - can run on Win2000
-using System.Query;
-using System.Expressions;
-using System.Data.DLinq;
-#else
-//Visual Studio Orcas - requires WinXP
+
+//Visual Studio Orcas - requires WinXP:
 using System.Linq;
 using System.Linq.Expressions;
 using System.Data.Linq;
-#endif
 
 using DBLinq.util;
 using DBLinq.vendor;
@@ -67,6 +61,14 @@ namespace DBLinq.Linq.clause
 
             //if(methodName=="GroupBy")
             //    return null; //huh, we have 2 different lambdas here...
+#if LINQ_2006_PREVIEW
+            //used to work differently in 2006
+#else
+            if (methodName == "SelectMany" && methodCall.Arguments.Count != 2)
+            {
+
+            }
+#endif
 
             if(methodCall.Arguments.Count!=2)
             {
@@ -84,15 +86,11 @@ namespace DBLinq.Linq.clause
                 throw new ApplicationException("FindLambda: L38 '"+methodName+"' clause not yet supported");
             }
 
-#if LINQ_PREVIEW_2006
-            //in 2006, NodeType.Quote did not exist
-#else
             //'ExpressionType.Quote' is new in Orcas Beta1. e.g. 'orderby p=>p.ProductName' is a quote
             if (param1.NodeType == ExpressionType.Quote)
             {
                 param1 = param1.XUnary().Operand; //inside the quote there will be a Lambda
             }
-#endif
 
             if(param1.NodeType!=ExpressionType.Lambda)
                 throw new ApplicationException("FindLambda: L41 failure");
