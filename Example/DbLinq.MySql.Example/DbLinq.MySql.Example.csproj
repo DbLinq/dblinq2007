@@ -1,4 +1,4 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -58,7 +58,7 @@
     <Compile Include="user\LinqTestDB.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DbLinq\DbLinq.MySql.csproj">
+    <ProjectReference Include="..\..\DbLinq\DbLinq.MySql.csproj">
       <Project>{42B135DF-562B-48FD-9A63-43B1D30321A6}</Project>
       <Name>DbLinq.MySql</Name>
     </ProjectReference>
