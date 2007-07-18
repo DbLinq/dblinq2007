@@ -8,15 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-#if LINQ_PREVIEW_2006
-//Visual Studio 2005 with Linq Preview May 2006 - can run on Win2000
-using System.Expressions;
-using System.Data.DLinq;
-#else
 //Visual Studio Orcas - requires WinXP
 using System.Linq.Expressions;
 using System.Data.Linq;
-#endif
 
 using DBLinq.util;
 
@@ -36,11 +30,7 @@ namespace DBLinq.Linq.clause
         {
             Type t = AttribHelper.ExtractTypeFromMSet(t1);
             TableAttribute tAttrib = AttribHelper.GetTableAttrib(t);
-#if LINQ_PREVIEW_2006
-            string PROJECTED_CLASS_NAME = "<Projection>";
-#else
             string PROJECTED_CLASS_NAME = "<>f__AnonymousType";
-#endif
             if (tAttrib == null && t.Name.StartsWith(PROJECTED_CLASS_NAME))
             {
                 //GroupBy: given t=Proj, find our table type

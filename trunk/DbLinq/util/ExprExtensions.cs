@@ -8,13 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
-#if LINQ_PREVIEW_2006
-//Visual Studio 2005 with Linq Preview May 2006 - can run on Win2000
-using System.Expressions;
-#else
-//Visual Studio Orcas - requires WinXP
 using System.Linq.Expressions;
-#endif
 
 namespace DBLinq.util
 {
@@ -53,14 +47,10 @@ namespace DBLinq.util
             if (ex == null)
                 return null;
             
-#if LINQ_PREVIEW_2006
-            //Quote does not exist
-#else
             if (ex.NodeType == ExpressionType.Quote)
             {
                 ex = ex.XUnary().Operand;
             }
-#endif
 
             if (ex.NodeType != ExpressionType.Lambda)
                 return null;
@@ -99,11 +89,7 @@ namespace DBLinq.util
                 return null;
             if(ex.NodeType==ExpressionType.Convert
                 || ex.NodeType == ExpressionType.Cast
-#if LINQ_PREVIEW_2006
-              //in 2006, NodeType.Quote did not exist
-#else
                 || ex.NodeType == ExpressionType.Quote
-#endif
                 )
             {
                 return (UnaryExpression)ex;

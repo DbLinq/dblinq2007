@@ -34,16 +34,8 @@ using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
-#if LINQ_PREVIEW_2006
-//Visual Studio 2005 with Linq Preview May 2006 - can run on Win2000
-using System.Query;
-using System.Data.DLinq;
-#else
-//Visual Studio Orcas - requires WinXP
 using System.Linq;
 using System.Data.Linq;
-#endif
-
 using DBLinq.Linq;
 ";
 
