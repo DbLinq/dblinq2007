@@ -68,6 +68,11 @@ namespace DBLinq.Linq
             throw new ApplicationException("Not implemented");
         }
 
+        //New as of Orcas Beta2 - what does it do?
+        public IQueryProvider Provider
+        {
+            get { throw new NotImplementedException("TODO: IQueryable.Provider"); }
+        }
 
     }
 

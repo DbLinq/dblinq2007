@@ -7,10 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-//Visual Studio Orcas - requires WinXP
 using System.Linq.Expressions;
 using System.Data.Linq;
-
+using System.Data.Linq.Mapping;
 using DBLinq.util;
 using DBLinq.vendor;
 
@@ -130,7 +129,7 @@ namespace DBLinq.Linq.clause
                     AnalyzeMemberInit(recurData, (MemberInitExpression)expr);
                     return;
                 case ExpressionType.Convert:
-                case ExpressionType.Cast:
+                //case ExpressionType.Cast: //Cast disappeared in Bet2?!
                     AnalyzeUnary(recurData, (UnaryExpression)expr);
                     return;
                 default:
@@ -380,8 +379,8 @@ namespace DBLinq.Linq.clause
                         MemberExpression sumExpr2 = null;
                         switch(sumExpr1.NodeType)
                         {
-                            case ExpressionType.Cast:
-                                sumExpr2 = sumExpr1.XCastOperand().XMember(); break;
+                            //case ExpressionType.Cast: //Cast disappeared in Beta2?!
+                            //    sumExpr2 = sumExpr1.XCastOperand().XMember(); break;
                             case ExpressionType.MemberAccess:
                                 sumExpr2 = sumExpr1.XMember(); break;
                             case ExpressionType.Convert:

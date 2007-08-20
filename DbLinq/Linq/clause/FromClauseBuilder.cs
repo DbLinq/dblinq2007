@@ -7,11 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-
-//Visual Studio Orcas - requires WinXP
 using System.Linq.Expressions;
 using System.Data.Linq;
-
+using System.Data.Linq.Mapping;
 using DBLinq.util;
 
 namespace DBLinq.Linq.clause

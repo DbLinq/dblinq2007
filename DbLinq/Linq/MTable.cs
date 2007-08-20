@@ -286,5 +286,12 @@ namespace DBLinq.Linq
             QueryProcessor.ProcessLambdas(_vars, typeof(T));
             return _vars.sqlString;
         }
+
+        //New as of Orcas Beta2 - what does it do?
+        public IQueryProvider Provider
+        {
+            get { throw new NotImplementedException("TODO: IQueryable.Provider"); }
+        }
+
     }
 }
