@@ -12,6 +12,7 @@ using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Data.Linq;
+using System.Data.Linq.Mapping;
 
 #if ORACLE
 using System.Data.OracleClient;

@@ -11,6 +11,7 @@ using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Data.Linq;
+using System.Data.Linq.Mapping;
 using DBLinq.util;
 using DBLinq.Linq.clause;
 
@@ -321,9 +322,12 @@ namespace DBLinq.Linq
                         projField.type = paramEx.Type;
                         projField.typeEnum = CSharp.CategorizeType(projField.type);
                         break;
-                    case ExpressionType.CallVirtual:
-                        //occurs in 'select o.Name.ToLower()'
-                        break;
+
+                    //CallVirtual disappeared in Beta2?!
+                    //case ExpressionType.CallVirtual:
+                    //    //occurs in 'select o.Name.ToLower()'
+                    //    break;
+
                     case ExpressionType.Convert:
                         //occurs in 'select (CategoryEnum)o.EmployeeCategory'
                         break;
@@ -350,9 +354,10 @@ namespace DBLinq.Linq
         /// </summary>
         public static ProjectionData FromSelectManyExpr(LambdaExpression selectExpr)
         {
-            //ProjectionData proj = new ProjectionData();
-            if(selectExpr.Body.NodeType!=ExpressionType.Cast)
-                throw new ArgumentOutOfRangeException("FromSelectMany needs Cast");
+            //Cast disappeared in Beta2?!
+            //if(selectExpr.Body.NodeType!=ExpressionType.Cast)
+            //    throw new ArgumentOutOfRangeException("FromSelectMany needs Cast");
+
             UnaryExpression unEx = (UnaryExpression)selectExpr.Body;
             if(unEx.Operand.NodeType!=ExpressionType.Call)
                 throw new ArgumentOutOfRangeException("FromSelectMany needs Cast-MethodCall");

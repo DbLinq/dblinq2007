@@ -36,9 +36,11 @@ namespace DBLinq.util
 
         public static UnaryExpression XCast(this Expression ex)
         {
-            if(ex==null || ex.NodeType!=ExpressionType.Cast)
-                return null;
-            return (UnaryExpression)ex;
+            //Cast disappeared in Bet2?!
+            return null;
+            //if(ex==null || ex.NodeType!=ExpressionType.Cast)
+            //    return null;
+            //return (UnaryExpression)ex;
         }
 
         [DebuggerStepThrough]
@@ -88,7 +90,7 @@ namespace DBLinq.util
             if(ex==null)
                 return null;
             if(ex.NodeType==ExpressionType.Convert
-                || ex.NodeType == ExpressionType.Cast
+                //|| ex.NodeType == ExpressionType.Cast //Cast disappeared in Beta2?!
                 || ex.NodeType == ExpressionType.Quote
                 )
             {
@@ -101,10 +103,11 @@ namespace DBLinq.util
         {
             if(ex==null)
                 return null;
-            if(ex.NodeType==ExpressionType.Cast)
-            {
-                return ((UnaryExpression)ex).Operand;
-            }
+            //Cast disappeared in Beta2?!
+            //if(ex.NodeType==ExpressionType.Cast)
+            //{
+            //    return ((UnaryExpression)ex).Operand;
+            //}
             return null;
         }
         

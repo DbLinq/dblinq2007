@@ -142,5 +142,11 @@ namespace DBLinq.Linq
         {
             Console.WriteLine("Dispose2");
         }
+
+        //New as of Orcas Beta2 - what does it do?
+        public IQueryProvider Provider 
+        {
+            get { throw new NotImplementedException("TODO: IQueryable.Provider"); } 
+        }
     }
 }
