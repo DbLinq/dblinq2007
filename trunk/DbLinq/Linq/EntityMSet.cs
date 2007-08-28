@@ -14,6 +14,7 @@ using System.Linq.Expressions;
 namespace DBLinq.Linq
 {
     public class EntityMSet<T> : IQueryable<T>
+        , IQueryProvider //new as of Beta2
     {
 
         /// <summary>
@@ -71,7 +72,7 @@ namespace DBLinq.Linq
         //New as of Orcas Beta2 - what does it do?
         public IQueryProvider Provider
         {
-            get { throw new NotImplementedException("TODO: IQueryable.Provider"); }
+            get { return this; }
         }
 
     }

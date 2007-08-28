@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Data;
 using System.Data.Linq;
+using System.Data.Linq.Mapping;
 
 using DBLinq.Linq;
 
@@ -145,7 +146,7 @@ namespace Client2.user
 	
 	    #region properties - accessors
 	
-		[Column(Name="int", IsDBGenerated=true, DBType="int", IsPrimaryKey=true)]
+		[Column(Name="int", IsDbGenerated=true, DbType="int", IsPrimaryKey=true)]
 		[DebuggerNonUserCode]
 		public uint Int
 		{
@@ -154,7 +155,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="intN", DBType="int")]
+		[Column(Name="intN", DbType="int")]
 		[DebuggerNonUserCode]
 		public uint? intN
 		{
@@ -163,7 +164,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="double", DBType="double")]
+		[Column(Name="double", DbType="double")]
 		[DebuggerNonUserCode]
 		public double Double
 		{
@@ -172,7 +173,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="doubleN", DBType="double")]
+		[Column(Name="doubleN", DbType="double")]
 		[DebuggerNonUserCode]
 		public double doubleN
 		{
@@ -181,7 +182,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="decimal", DBType="decimal")]
+		[Column(Name="decimal", DbType="decimal")]
 		[DebuggerNonUserCode]
 		public decimal Decimal
 		{
@@ -190,7 +191,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="decimalN", DBType="decimal")]
+		[Column(Name="decimalN", DbType="decimal")]
 		[DebuggerNonUserCode]
 		public decimal decimalN
 		{
@@ -199,7 +200,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="blob", DBType="blob")]
+		[Column(Name="blob", DbType="blob")]
 		[DebuggerNonUserCode]
 		public byte[] Blob
 		{
@@ -208,7 +209,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="blobN", DBType="blob")]
+		[Column(Name="blobN", DbType="blob")]
 		[DebuggerNonUserCode]
 		public byte[] blobN
 		{
@@ -217,7 +218,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="boolean", DBType="tinyint")]
+		[Column(Name="boolean", DbType="tinyint")]
 		[DebuggerNonUserCode]
 		public bool Boolean
 		{
@@ -226,7 +227,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="boolN", DBType="tinyint")]
+		[Column(Name="boolN", DbType="tinyint")]
 		[DebuggerNonUserCode]
 		public bool? boolN
 		{
@@ -235,7 +236,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="byte", DBType="tinyint")]
+		[Column(Name="byte", DbType="tinyint")]
 		[DebuggerNonUserCode]
 		public char Byte
 		{
@@ -244,7 +245,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="byteN", DBType="tinyint")]
+		[Column(Name="byteN", DbType="tinyint")]
 		[DebuggerNonUserCode]
 		public char? byteN
 		{
@@ -253,7 +254,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="DateTime", DBType="datetime")]
+		[Column(Name="DateTime", DbType="datetime")]
 		[DebuggerNonUserCode]
 		public DateTime DateTime
 		{
@@ -262,7 +263,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="DateTimeN", DBType="datetime")]
+		[Column(Name="DateTimeN", DbType="datetime")]
 		[DebuggerNonUserCode]
 		public DateTime? DateTimeN
 		{
@@ -271,7 +272,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="float", DBType="float")]
+		[Column(Name="float", DbType="float")]
 		[DebuggerNonUserCode]
 		public float Float
 		{
@@ -280,7 +281,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="floatN", DBType="float")]
+		[Column(Name="floatN", DbType="float")]
 		[DebuggerNonUserCode]
 		public float floatN
 		{
@@ -289,7 +290,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="char", DBType="char")]
+		[Column(Name="char", DbType="char")]
 		[DebuggerNonUserCode]
 		public string Char
 		{
@@ -298,7 +299,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="charN", DBType="char")]
+		[Column(Name="charN", DbType="char")]
 		[DebuggerNonUserCode]
 		public string charN
 		{
@@ -307,7 +308,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="text", DBType="text")]
+		[Column(Name="text", DbType="text")]
 		[DebuggerNonUserCode]
 		public string Text
 		{
@@ -316,7 +317,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="textN", DBType="text")]
+		[Column(Name="textN", DbType="text")]
 		[DebuggerNonUserCode]
 		public string textN
 		{
@@ -325,7 +326,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="short", DBType="mediumint")]
+		[Column(Name="short", DbType="mediumint")]
 		[DebuggerNonUserCode]
 		public short Short
 		{
@@ -334,7 +335,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="shortN", DBType="mediumint")]
+		[Column(Name="shortN", DbType="mediumint")]
 		[DebuggerNonUserCode]
 		public short? shortN
 		{
@@ -343,7 +344,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="numeric", DBType="decimal")]
+		[Column(Name="numeric", DbType="decimal")]
 		[DebuggerNonUserCode]
 		public decimal Numeric
 		{
@@ -352,7 +353,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="numericN", DBType="decimal")]
+		[Column(Name="numericN", DbType="decimal")]
 		[DebuggerNonUserCode]
 		public decimal numericN
 		{
@@ -361,7 +362,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="real", DBType="double")]
+		[Column(Name="real", DbType="double")]
 		[DebuggerNonUserCode]
 		public double Real
 		{
@@ -370,7 +371,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="realN", DBType="double")]
+		[Column(Name="realN", DbType="double")]
 		[DebuggerNonUserCode]
 		public double realN
 		{
@@ -379,7 +380,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="smallInt", DBType="smallint")]
+		[Column(Name="smallInt", DbType="smallint")]
 		[DebuggerNonUserCode]
 		public short smallInt
 		{
@@ -388,7 +389,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="smallIntN", DBType="smallint")]
+		[Column(Name="smallIntN", DbType="smallint")]
 		[DebuggerNonUserCode]
 		public short? smallIntN
 		{
@@ -464,7 +465,7 @@ namespace Client2.user
 	
 	    #region properties - accessors
 	
-		[Column(Name="CustomerID", IsDBGenerated=true, DBType="int", IsPrimaryKey=true)]
+		[Column(Name="CustomerID", IsDbGenerated=true, DbType="int", IsPrimaryKey=true)]
 		[DebuggerNonUserCode]
 		public uint CustomerID
 		{
@@ -473,7 +474,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="CompanyName", DBType="varchar")]
+		[Column(Name="CompanyName", DbType="varchar")]
 		[DebuggerNonUserCode]
 		public string CompanyName
 		{
@@ -482,7 +483,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="ContactName", DBType="varchar")]
+		[Column(Name="ContactName", DbType="varchar")]
 		[DebuggerNonUserCode]
 		public string ContactName
 		{
@@ -491,7 +492,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="City", DBType="varchar")]
+		[Column(Name="City", DbType="varchar")]
 		[DebuggerNonUserCode]
 		public string City
 		{
@@ -500,7 +501,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="PostalCode", DBType="varchar")]
+		[Column(Name="PostalCode", DbType="varchar")]
 		[DebuggerNonUserCode]
 		public string PostalCode
 		{
@@ -509,7 +510,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="Country", DBType="varchar")]
+		[Column(Name="Country", DbType="varchar")]
 		[DebuggerNonUserCode]
 		public string Country
 		{
@@ -518,7 +519,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="Phone", DBType="varchar")]
+		[Column(Name="Phone", DbType="varchar")]
 		[DebuggerNonUserCode]
 		public string Phone
 		{
@@ -590,7 +591,7 @@ namespace Client2.user
 	
 	    #region properties - accessors
 	
-		[Column(Name="OrderID", IsDBGenerated=true, DBType="int", IsPrimaryKey=true)]
+		[Column(Name="OrderID", IsDbGenerated=true, DbType="int", IsPrimaryKey=true)]
 		[DebuggerNonUserCode]
 		public uint OrderID
 		{
@@ -599,7 +600,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="CustomerID", DBType="int")]
+		[Column(Name="CustomerID", DbType="int")]
 		[DebuggerNonUserCode]
 		public uint CustomerID
 		{
@@ -608,7 +609,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="ProductID", DBType="int")]
+		[Column(Name="ProductID", DbType="int")]
 		[DebuggerNonUserCode]
 		public uint ProductID
 		{
@@ -617,7 +618,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="OrderDate", DBType="datetime")]
+		[Column(Name="OrderDate", DbType="datetime")]
 		[DebuggerNonUserCode]
 		public DateTime OrderDate
 		{
@@ -706,7 +707,7 @@ namespace Client2.user
 	
 	    #region properties - accessors
 	
-		[Column(Name="ProductID", IsDBGenerated=true, DBType="int", IsPrimaryKey=true)]
+		[Column(Name="ProductID", IsDbGenerated=true, DbType="int", IsPrimaryKey=true)]
 		[DebuggerNonUserCode]
 		public uint ProductID
 		{
@@ -715,7 +716,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="ProductName", DBType="varchar")]
+		[Column(Name="ProductName", DbType="varchar")]
 		[DebuggerNonUserCode]
 		public string ProductName
 		{
@@ -724,7 +725,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="SupplierID", DBType="int")]
+		[Column(Name="SupplierID", DbType="int")]
 		[DebuggerNonUserCode]
 		public uint SupplierID
 		{
@@ -733,7 +734,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="CategoryID", DBType="int")]
+		[Column(Name="CategoryID", DbType="int")]
 		[DebuggerNonUserCode]
 		public uint CategoryID
 		{
@@ -742,7 +743,7 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name="QuantityPerUnit", DBType="varchar")]
+		[Column(Name="QuantityPerUnit", DbType="varchar")]
 		[DebuggerNonUserCode]
 		public string QuantityPerUnit
 		{

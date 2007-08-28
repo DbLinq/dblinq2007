@@ -27,6 +27,7 @@ namespace DBLinq.Linq
         : IQueryable<T>
         , IGetModifiedEnumerator<T>
         , IQueryText
+        , IQueryProvider //new as of Beta2
     {
         public SessionVars _vars;
 
@@ -146,7 +147,7 @@ namespace DBLinq.Linq
         //New as of Orcas Beta2 - what does it do?
         public IQueryProvider Provider 
         {
-            get { throw new NotImplementedException("TODO: IQueryable.Provider"); } 
+            get { return this; }
         }
     }
 }
