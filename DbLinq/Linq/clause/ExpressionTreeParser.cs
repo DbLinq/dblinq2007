@@ -132,6 +132,17 @@ namespace DBLinq.Linq.clause
                 //case ExpressionType.Cast: //Cast disappeared in Bet2?!
                     AnalyzeUnary(recurData, (UnaryExpression)expr);
                     return;
+                case ExpressionType.New:
+                    {
+                        //new case in Beta2 - route into MemberInit
+                        NewExpression newExpr = (NewExpression)expr;
+                        AnalyzeNew(recurData, newExpr);
+
+                        //MemberBinding[] fakeBindings = new MemberBinding[0]; //newExpr.Arguments
+                        //MemberInitExpression fakeMemberInit = Expression.MemberInit(newExpr, fakeBindings);
+                        //AnalyzeMemberInit(recurData, fakeMemberInit);
+                        return;
+                    }
                 default:
                     throw new ApplicationException("Analyze: L105 TODO: "+expr.NodeType);
             }
@@ -238,6 +249,79 @@ namespace DBLinq.Linq.clause
             }
             //recurData.selectAllFields = false;
         }
+
+        //in Beta2, we now seem to have a new animal - select new { ProductId=p.ProductID, Name=p.ProductName }
+        //comes in not as MemberInit, but as NewExpr.
+        //thus I cloned AnalyzeMemberInit from above
+        private void AnalyzeNew(RecurData recurData, NewExpression expr)
+        {
+            //_result.AppendString("Init");
+            int fieldCount = 0;
+            recurData.selectAllFields = true;
+            foreach (Expression bind in expr.Arguments)
+            {
+                //if (bind.BindingType != MemberBindingType.Assignment)
+                //    throw new ArgumentException("AnalyzeMemberInit - only prepared for MemberAssign, not " + bind.BindingType);
+
+                if (fieldCount++ > 0) { this._result.AppendString(","); }
+                //MemberAssignment memberAssign = (MemberAssignment)bind;
+
+                //Expression MAExpr = memberAssign.Expression;
+                Expression MAExpr = bind;
+
+                string nick = null;
+                ColumnAttribute[] colAttribs = null;
+
+                switch (MAExpr.NodeType)
+                {
+                    case ExpressionType.MemberAccess:
+                        {
+                            MemberExpression memberExpr = MAExpr as MemberExpression;
+                            colAttribs = AttribHelper.GetColumnAttribs(MAExpr.Type);
+                            if (colAttribs.Length == 0)
+                            {
+                                if (GroupHelper.IsGrouping(memberExpr))
+                                {
+                                    //eg. {g.Key}
+                                    //replace {g.Key} with groupByExpr={o.Customer}
+                                    Expression replaceExpr = _inputs.groupByExpr.Body;
+                                    AnalyzeExpression(recurData, replaceExpr);
+                                }
+                                else
+                                {
+                                    //it's a primitive field (eg. p.ProductID), not a column type
+                                    AnalyzeExpression(recurData, memberExpr);
+                                }
+                                continue;
+                            }
+                            nick = _inputs.NicknameRequest(memberExpr);
+                            nick = VarName.GetSqlName(nick);
+                            break;
+                        }
+                    case ExpressionType.Parameter:
+                        {
+                            ParameterExpression paramExpr = MAExpr.XParam();
+                            nick = VarName.GetSqlName(paramExpr.Name);
+                            colAttribs = AttribHelper.GetColumnAttribs(MAExpr.Type);
+                            break;
+                        }
+                    default:
+                        AnalyzeExpression(recurData, MAExpr);
+                        continue; //unknown path
+                }
+
+                int loopIndex = 0;
+                foreach (ColumnAttribute colAtt in colAttribs)
+                {
+                    string part = nick + "." + colAtt.Name; //eg. '$o.OrderID'
+                    if (loopIndex++ > 0) { _result.EndField(); }
+                    _result.AppendString(part);
+                }
+
+            }
+            //recurData.selectAllFields = false;
+        }
+
 
         private void AnalyzeParameter(RecurData recurData, ParameterExpression expr)
         {

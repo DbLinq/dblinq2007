@@ -34,9 +34,9 @@ namespace SqlMetal.codeGen
             if(column.IsAutogen)
             {
                 //attribParts.Add("Id=true, AutoGen=true");
-                attribParts.Add("IsDBGenerated=true");
+                attribParts.Add("IsDbGenerated=true");
             }
-            attribParts.Add("DBType=\""+column.DbType+"\"");
+            attribParts.Add("DbType=\""+column.DbType+"\"");
 
             bool isPrimaryKeyCol = column.IsIdentity;
             //bool hasForeignKey   = false;

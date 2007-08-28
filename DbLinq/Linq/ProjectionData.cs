@@ -24,10 +24,21 @@ namespace DBLinq.Linq
     public class ProjectionData
     {
         public Type type;
+
+        /// <summary>
+        /// default ctor reference. As of Beta2, they seem to have eliminated use of default ctors in "<>f__AnonymousType"
+        /// </summary>
         public ConstructorInfo ctor;
+        
+        /// <summary>
+        /// ctor2 with multiple params (non-default)
+        /// </summary>
         public ConstructorInfo ctor2;
+
         public TableAttribute tableAttribute;
+
         public List <ProjectionField> fields = new List<ProjectionField>();
+
         /// <summary>
         /// this field must be populated after an INSERT.
         /// </summary>
@@ -170,46 +181,7 @@ namespace DBLinq.Linq
             ProjectionData proj = new ProjectionData();
             NewExpression newExpr = memberInit.NewExpression;
             proj.ctor = newExpr.Constructor;
-#if NEVER
-            foreach(MemberAssignment memberAssign in memberInit.Bindings)
-            {
-                ProjectionField projField = new ProjectionField(memberAssign.Member);
 
-                //projField.type = projField.propInfo.PropertyType; //fails for o.Product.ProductID
-                projField.type = memberAssign.Expression.Type;
-
-                string err;
-                if ( ! projField.IsValid(out err))
-                    throw new ApplicationException("ProjectionData L36: error on field: " + memberAssign.Expression + ": " + err);
-
-                switch(memberAssign.Expression.NodeType)
-                {
-                    case ExpressionType.MemberAccess:
-                        //occurs during 'select new {e.ID,e.Name}'
-                        projField.expr1 = memberAssign.Expression as MemberExpression;
-                        projField.type = projField.expr1.Type;
-                        projField.typeEnum = CSharp.CategorizeType(projField.type);
-                        break;
-                    case ExpressionType.Parameter:
-                        //occurs during 'from c ... from o ... select new {c,o}'
-                        ParameterExpression paramEx = memberAssign.Expression as ParameterExpression;
-                        projField.type = paramEx.Type;
-                        projField.typeEnum = CSharp.CategorizeType(projField.type);
-                        break;
-                    case ExpressionType.MethodCall:
-                        //occurs during 'from c ... group o by o.CustomerID into g ... 
-                        //select new { g.Key , OrderCount = g.Count() };
-                        MethodCallExpression callEx = memberAssign.Expression.XMethodCall();
-                        //projField.expr1 = memberAssign.Expression as MemberExpression;
-                        projField.type = callEx.Type;
-                        projField.typeEnum = CSharp.CategorizeType(projField.type);
-                        break;
-                    default:
-                        throw new ArgumentException("L205: Unprepared for "+memberAssign.Expression.NodeType);
-                }
-                proj.fields.Add(projField);
-            }
-#endif
             LoopOverBindings(proj, memberInit);
 
             //object xx = newExpr.Args; //args.Count=0
@@ -238,53 +210,7 @@ namespace DBLinq.Linq
             NewExpression newExpr = memberInit.NewExpression;
             proj.ctor = newExpr.Constructor;
             proj.type = newExpr.Type;
-#if NEVER
-            foreach(MemberAssignment memberAssign in memberInit.Bindings)
-            {
-                ProjectionField projField = new ProjectionField(memberAssign.Member);
-                projField.type = projField.FieldType;
-                //if(projField.type==null)
-                //    throw new ApplicationException("ProjectionData L36: unknown type of memberInit");
 
-                switch(memberAssign.Expression.NodeType)
-                {
-                    case ExpressionType.MemberAccess:
-                        //occurs during 'select new {e.ID,e.Name}'
-                        projField.expr1 = memberAssign.Expression as MemberExpression;
-                        projField.type = projField.expr1.Type;
-                        projField.typeEnum = CSharp.CategorizeType(projField.type);
-
-                        //Now handled in ExpressionTreeParser
-                        ////TODO: for GroupBy selects, replace 'g.Key' with 'o.CustomerID':
-                        //if(projField.expr1.Member.Name=="Key")
-                        //{
-                        //    projField.expr1 = groupByExpr.Body as MemberExpression;
-                        //    sqlParts.selectFieldList.Add(projField.expr1.Member.Name);
-                        //}
-                        break;
-                    case ExpressionType.Parameter:
-                        //occurs during 'from c ... from o ... select new {c,o}'
-                        ParameterExpression paramEx = memberAssign.Expression as ParameterExpression;
-                        projField.type = paramEx.Type;
-                        projField.typeEnum = CSharp.CategorizeType(projField.type);
-                        break;
-                    case ExpressionType.MethodCallVirtual:
-                        //occurs in 'select o.Name.ToLower()'
-                        break;
-                    case ExpressionType.MethodCall:
-                        //occurs during 'from c ... group o by o.CustomerID into g ... 
-                        //select new { g.Key , OrderCount = g.Count() };
-                        MethodCallExpression callEx = memberAssign.Expression.XMethodCall();
-                        //projField.expr1 = memberAssign.Expression as MemberExpression;
-                        //projField.type = callEx.Type;
-                        //projField.typeEnum = CSharp.CategorizeType(projField.type);
-                        break;
-                    default:
-                        throw new ArgumentException("L274: Unprepared for "+memberAssign.Expression.NodeType);
-                }
-                proj.fields.Add(projField);
-            }
-#endif
             LoopOverBindings(proj, memberInit);
 
             //object xx = newExpr.Args; //args.Count=0
