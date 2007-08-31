@@ -137,7 +137,10 @@ namespace DBLinq.util
             return projData;
         }
 
-        public static bool IsAssociation(MemberExpression memberExpr,out AssociationAttribute assoc)
+        /// <summary>
+        /// given expression {o.Customer} (type Order.Customer), check whether it has [Association] attribute
+        /// </summary>
+        public static bool IsAssociation(MemberExpression memberExpr, out AssociationAttribute assoc)
         {
             assoc = null;
             if(memberExpr==null)
@@ -152,7 +155,6 @@ namespace DBLinq.util
         /// <summary>
         /// given field Order.Customer, check whether it has [Association] attribute
         /// </summary>
-        /// <returns></returns>
         public static bool IsAssociation(PropertyInfo propInfo,out AssociationAttribute assoc)
         {
             object[] objs = propInfo.GetCustomAttributes(typeof(AssociationAttribute),false);

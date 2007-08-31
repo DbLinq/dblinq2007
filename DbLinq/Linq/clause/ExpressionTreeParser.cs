@@ -329,6 +329,9 @@ namespace DBLinq.Linq.clause
             _result.AppendString(sqlParamName); //"e$"
         }
 
+        /// <summary>
+        /// process 'a.b' or 'a.b.c' expressions
+        /// </summary>
         private void AnalyzeMember(RecurData recurData, MemberExpression expr)
         {
             if(GroupHelper.IsGrouping(expr))
@@ -348,7 +351,23 @@ namespace DBLinq.Linq.clause
                 expr = replaceMemberExpr as MemberExpression;
             }
 
+            string exprStr = expr.Expression.ToString();
+            if (exprStr.StartsWith("<>h__TransparentIdentifier"))
+            {
+                switch (expr.Expression.NodeType)
+                {
+                    case ExpressionType.MemberAccess:
+                    case ExpressionType.Parameter:
+                        //ignore the first bit in '<>h__TransparentIdentifier10$.c.City
+                        AnalyzeExpression(recurData, expr.StripTransparentID());
+                        return;
+                    default:
+                        break;
+                }
+            }
+
             MemberExpression memberInner = expr.Expression.XMember();
+            memberInner = memberInner.StripTransparentID() as MemberExpression;
             if(memberInner!=null)
             {
                 //process 'o.Customer.City'

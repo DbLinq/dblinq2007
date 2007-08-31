@@ -88,7 +88,8 @@ namespace DBLinq.Linq.clause
                 TableAttribute tAttrib = AttribHelper.GetTableAttrib(t1.Key);
                 if(tAttrib!=null)
                 {
-                    string fromClause = tAttrib.Name+" "+t1.Value;
+                    string fromClause = tAttrib.Name + " " + RemoveTransparentId(t1.Value);
+
                     sqlParts.AddFrom(fromClause);
                 }
             }
@@ -96,6 +97,22 @@ namespace DBLinq.Linq.clause
             {
                 sqlParts.joinList.Add(joinStr);
             }
+        }
+
+        static readonly System.Text.RegularExpressions.Regex s_regexTransparentID = new System.Text.RegularExpressions.Regex(
+            @"<>h__TransparentIdentifier\d+\$\.(.*)\.(.*)");
+
+        /// <summary>
+        /// shorten '<>h__TransparentIdentifier10$.c.City' into 'c$.City'
+        /// </summary>
+        string RemoveTransparentId(string name)
+        {
+            System.Text.RegularExpressions.Match m = s_regexTransparentID.Match(name);
+            if (m.Success)
+            {
+                return m.Groups[1].Value + "$." + m.Groups[2].Value;
+            }
+            return name;
         }
 
         public void EndField()

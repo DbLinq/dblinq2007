@@ -54,12 +54,35 @@ namespace DBLinq.Linq.clause
             AssociationAttribute assoc1, assoc2;
             Type type2;
 
-            switch (exprOuter.Expression.NodeType)
+            MemberExpression exprOuterOrig = exprOuter;
+            Expression exprInner = exprOuter.Expression;
+
+            if (exprOuter.Expression.NodeType == ExpressionType.MemberAccess)
+            {
+                //as of Beta2, the former 'p.ProductID' now appears here as '<>h__TransparentIdentifier.p.ProductID'
+                //the 'p' used to be a ParameterExpression - not anymore
+                MemberExpression member1 = exprOuter.Expression.XMember(); //'<>h__TransparentIdentifier.p
+                string member1Name = member1.Expression.ToString();
+                if (member1Name.StartsWith("<>h__TransparentIdentifier"))
+                {
+                    //turn '<>h__TransparentIdentifier.p.ProductID' into 'p.ProductID'
+                    string nameP = member1.Member.Name; //'p'
+                    System.Reflection.PropertyInfo propInfoP = member1.Member as System.Reflection.PropertyInfo;
+                    Type typeP = propInfoP.PropertyType; //typeof(Product)
+                    ParameterExpression fakeParam = Expression.Parameter(typeP, nameP);
+                    exprInner = fakeParam;
+                    exprOuter = Expression.MakeMemberAccess(fakeParam, exprOuterOrig.Member);
+                }
+
+            }
+
+            switch (exprInner.NodeType)
             {
                 case ExpressionType.MemberAccess:
                     {
                         //eg. "SELECT order.Product.ProductID"
-                        MemberExpression member = exprOuter.Expression.XMember();
+                        MemberExpression member = exprInner.XMember();
+
                         bool isAssoc = AttribHelper.IsAssociation(member, out assoc1);
                         if (!isAssoc)
                         {
@@ -87,7 +110,7 @@ namespace DBLinq.Linq.clause
                 case ExpressionType.Parameter:
                     {
                         //eg. "SELECT order.Product"
-                        ParameterExpression paramExpr = exprOuter.Expression.XParam();
+                        ParameterExpression paramExpr = exprInner.XParam();
 
                         bool isAssoc = AttribHelper.IsAssociation(exprOuter, out assoc1);
                         if (!isAssoc)
