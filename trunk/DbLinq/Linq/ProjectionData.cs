@@ -20,6 +20,9 @@ namespace DBLinq.Linq
     /// <summary>
     /// holds ctor and list of fields.
     /// comes from 'Select'. Used to build select statement and sql read method.
+    /// 
+    /// e.g. user code 'select new {ProductId=p.ProductID}' 
+    /// would create ProjectionData containing one ProjectionField, pointing to ProductId column. 
     /// </summary>
     public class ProjectionData
     {
@@ -49,8 +52,14 @@ namespace DBLinq.Linq
         /// </summary>
         public string keyColumnName;
 
+        /// <summary>
+        /// nested class which knows which SQL column each field refers to.
+        /// Field can be either a Property or Field.
+        /// e.g. 'select new {ProductId=p.ProductID}' would create one ProjectionField, pointing to ProductId column. 
+        /// </summary>
         public class ProjectionField
         {
+            #region ProjectionField
             public static readonly object[] s_emptyIndices = new object[0];
 
             /// <summary>
@@ -71,6 +80,18 @@ namespace DBLinq.Linq
 
             public ProjectionField(MemberInfo memberInfo)
             {
+                if (memberInfo.MemberType == MemberTypes.Method && memberInfo.Name.StartsWith("get_"))
+                {
+                    //Orcas Beta2: we got passed '{UInt32 get_ProductId()}' instead of 'ProductId'
+                    string propName = memberInfo.Name.Substring(4);
+                    PropertyInfo propInfo2 = memberInfo.DeclaringType.GetProperty(propName);
+                    if (propInfo2 != null)
+                    {
+                        this.propInfo = propInfo2; //looked up 'ProductId' from '{UInt32 get_ProductId()}'
+                        return;
+                    }
+                }
+
                 propInfo = memberInfo as PropertyInfo;
                 if (propInfo == null)
                     fieldInfo = memberInfo as FieldInfo;
@@ -120,7 +141,7 @@ namespace DBLinq.Linq
                 MemberAssignment binding = Expression.Bind(MemberInfo, innerExpr);
                 return binding;
             }
-
+            #endregion
         }
 
         public ProjectionData()
@@ -172,6 +193,16 @@ namespace DBLinq.Linq
         public static ProjectionData FromSelectExpr(LambdaExpression selectExpr)
         {
             //when selecting just a string, body is not MemberInitExpr, but MemberExpr
+            NewExpression newExpr1 = selectExpr.Body as NewExpression;
+            if (newExpr1 != null)
+            {
+                //OrcasBeta2: we now receive a NewExpression instead of a MemberInitExpression
+                ProjectionData proj1 = new ProjectionData();
+                proj1.ctor = newExpr1.Constructor;
+                LoopOverBindings_OrcasB2(proj1, newExpr1);
+                return proj1;
+            }
+
             MemberInitExpression memberInit = selectExpr.Body as MemberInitExpression;
             if(memberInit==null){
                 Console.WriteLine("  Select is not a projection - just a single field");
@@ -272,6 +303,63 @@ namespace DBLinq.Linq
             }        
         }
 
+
+        private static void LoopOverBindings_OrcasB2(ProjectionData proj, NewExpression newExpr)
+        {
+            int i = 0;
+            foreach (Expression argExpr in newExpr.Arguments)
+            {
+                MemberInfo memberInfo = newExpr.Members[i++];
+                ProjectionField projField = new ProjectionField(memberInfo);
+                projField.type = projField.FieldType;
+                //if(projField.type==null)
+                //    throw new ApplicationException("ProjectionData L36: unknown type of memberInit");
+
+                switch (argExpr.NodeType)
+                {
+                    case ExpressionType.MemberAccess:
+                        //occurs during 'select new {e.ID,e.Name}'
+                        projField.expr1 = argExpr as MemberExpression;
+                        projField.type = projField.expr1.Type;
+                        projField.typeEnum = CSharp.CategorizeType(projField.type);
+
+                        //Now handled in ExpressionTreeParser
+                        ////TODO: for GroupBy selects, replace 'g.Key' with 'o.CustomerID':
+                        //if(projField.expr1.Member.Name=="Key")
+                        //{
+                        //    projField.expr1 = groupByExpr.Body as MemberExpression;
+                        //    sqlParts.selectFieldList.Add(projField.expr1.Member.Name);
+                        //}
+                        break;
+                    case ExpressionType.Parameter:
+                        //occurs during 'from c ... from o ... select new {c,o}'
+                        ParameterExpression paramEx = argExpr as ParameterExpression;
+                        projField.type = paramEx.Type;
+                        projField.typeEnum = CSharp.CategorizeType(projField.type);
+                        break;
+
+                    //CallVirtual disappeared in Beta2?!
+                    //case ExpressionType.CallVirtual:
+                    //    //occurs in 'select o.Name.ToLower()'
+                    //    break;
+
+                    case ExpressionType.Convert:
+                        //occurs in 'select (CategoryEnum)o.EmployeeCategory'
+                        break;
+                    case ExpressionType.Call:
+                        //occurs during 'from c ... group o by o.CustomerID into g ... 
+                        //select new { g.Key , OrderCount = g.Count() };
+                        MethodCallExpression callEx = argExpr.XMethodCall();
+                        //projField.expr1 = memberAssign.Expression as MemberExpression;
+                        //projField.type = callEx.Type;
+                        //projField.typeEnum = CSharp.CategorizeType(projField.type);
+                        break;
+                    default:
+                        throw new ArgumentException("L274: Unprepared for " + argExpr.NodeType);
+                }
+                proj.fields.Add(projField);
+            }
+        }
 
         /// <summary>
         /// this path is taken during          

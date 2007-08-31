@@ -173,6 +173,14 @@ namespace DBLinq.util
 
         }
 
+        /// <summary>
+        /// given user code 'select new {ProductId=p.ProductID}', 
+        /// create expression suitable for compilation:
+        ///   either 'new <>F__AnonymousType7{rdr.GetUint(0)}' 
+        ///   or     'new <>F__AnonymousType7{ProductId=rdr.GetUint(0)}'
+        ///   
+        /// On Orcas Beta2, projections are handled using the top scheme.
+        /// </summary>
         public static 
             LambdaExpression
             BuildProjectedRowLambda(SessionVars vars, ProjectionData projData, ParameterExpression rdr, ref int fieldID)
@@ -181,6 +189,12 @@ namespace DBLinq.util
             #region CompileColumnRowDelegate
             if(projData==null || projData.ctor==null)
                 throw new ArgumentException("CompileColumnRow: need projData with ctor2");
+
+            if (projData.ctor.GetParameters().Length > 0)
+            {
+                //Orcas Beta2: previously, used default ctor. Now, must pass params into ctor:
+                return BuildProjectedRowLambda_NoBind(vars, projData, rdr, ref fieldID);
+            }
 
             List<MemberBinding> bindings = new List<MemberBinding>();
             //int i=0;
@@ -244,16 +258,8 @@ namespace DBLinq.util
                         throw new ApplicationException("TODO - objects other than primitive and entities in CompileProjRow: "+projFld.type);
                 }
 
-                //Type fieldType = projFld.type;
-                //MethodCallExpression arg_i = GetFieldMethodCall(fieldType,rdr,i++);
-                ////MethodInfo accessor = null;
-                //MemberAssignment binding = Expression.Bind(projFld.propInfo, arg_i);
-                //bindings.Add(binding);
             }
 
-            //List<Expression> paramZero = new List<Expression>();
-            //paramZero.Add( Expression.Constant(0) ); //that's the zero in GetInt32(0)
-            //MethodCallExpression body = Expression.CallVirtual(minfo,rdr,paramZero);
             NewExpression newExpr = Expression.New(projData.ctor);
             MemberInitExpression memberInit = Expression.MemberInit(newExpr,bindings);
 
@@ -270,6 +276,106 @@ namespace DBLinq.util
             #endregion
         }
 
+        /// <summary>
+        /// given user code 'select new {ProductId=p.ProductID}', 
+        /// create expression 'new <>F__AnonymousType7{rdr.GetUint(0)}' - suitable for compilation
+        /// </summary>
+        public static
+            LambdaExpression
+            BuildProjectedRowLambda_NoBind(SessionVars vars, ProjectionData projData, ParameterExpression rdr, ref int fieldID)
+        {
+
+            #region CompileColumnRowDelegate
+            if (projData == null || projData.ctor == null)
+                throw new ArgumentException("BuildProjectedRowLambda_NoBind: need projData with ctor");
+            if (projData.ctor.GetParameters().Length==0)
+                throw new ArgumentException("BuildProjectedRowLambda_NoBind: need projData with non-default ctor");
+
+            List<Expression> argList = new List<Expression>();
+            //List<MemberBinding> bindings = new List<MemberBinding>();
+
+            foreach (ProjectionData.ProjectionField projFld in projData.fields)
+            {
+                switch (projFld.typeEnum)
+                {
+                    case TypeEnum.Column:
+                        {
+                            //occurs for 'from c ... from o ... select new {c,o}'
+                            //should compile into:
+                            //  'new Projection{ new C(field0,field1), new O(field2,field3) }'
+
+                            #region Ugly code to create a generic arg T for Expression.Lambda<T>
+                            //simple version: (does not work since BuildProjRow needs different generic arg than our T)
+                            //LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, rdr, ref fieldID);                            
+                            //nasty version:
+                            ProjectionData projData2 = AttribHelper.GetProjectionData(projFld.type);
+                            Type TArg2 = projFld.FieldType;
+                            Type rowEnumCompilerType2 = typeof(RowEnumeratorCompiler<>).MakeGenericType(TArg2);
+                            object rowCompiler2 = Activator.CreateInstance(rowEnumCompilerType2);
+                            MethodInfo[] mis = rowEnumCompilerType2.GetMethods();
+                            MethodInfo mi = rowEnumCompilerType2.GetMethod("BuildProjectedRowLambda");
+                            object[] methodArgs = new object[] { vars, projData2, rdr, fieldID };
+                            //...and call BuildProjectedRowLambda():
+                            object objResult = mi.Invoke(rowCompiler2, methodArgs);
+                            fieldID = (int)methodArgs[3];
+                            LambdaExpression innerLambda = (LambdaExpression)objResult;
+                            #endregion
+                            //LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, rdr, ref fieldID);
+
+                            MemberInitExpression innerInit = innerLambda.Body as MemberInitExpression;
+                            //MemberAssignment binding = Expression.Bind(projFld.propInfo, innerInit);
+                            //MemberAssignment binding = projFld.BuildMemberAssignment(innerInit);
+                            //bindings.Add(binding);
+                            argList.Add(innerInit);
+                        }
+                        break;
+                    case TypeEnum.Primitive:
+                        {
+                            Type fieldType = projFld.type;
+                            MethodCallExpression arg_i = GetFieldMethodCall(fieldType, rdr, fieldID++);
+                            //MethodInfo accessor = null;
+                            //MemberAssignment binding = Expression.Bind(projFld.MemberInfo, arg_i);
+                            //bindings.Add(binding);
+                            argList.Add(arg_i);
+                        }
+                        break;
+                    case TypeEnum.Other:
+                        {
+                            //e.g.: "select new {g.Key,g}" - but g is also a projection
+                            //Expression.MemberInit
+                            if (vars.groupByNewExpr == null)
+                                throw new ApplicationException("TODO - handle other cases than groupByNewExpr");
+
+                            //MemberAssignment binding = GroupHelper2<T>.BuildProjFieldBinding(vars, projFld, rdr, ref fieldID);
+                            //bindings.Add(binding);
+                            throw new Exception("TODO L351 - when compiling, handle type" + projFld.typeEnum);
+                        }
+                        break;
+
+                    default:
+                        throw new ApplicationException("TODO - objects other than primitive and entities in CompileProjRow: " + projFld.type);
+                }
+            }
+
+            //List<Expression> paramZero = new List<Expression>();
+            //paramZero.Add( Expression.Constant(0) ); //that's the zero in GetInt32(0)
+            //MethodCallExpression body = Expression.CallVirtual(minfo,rdr,paramZero);
+            NewExpression newExpr = Expression.New(projData.ctor, argList);
+            //MemberInitExpression memberInit = Expression.MemberInit(newExpr, bindings);
+
+            List<ParameterExpression> paramListRdr = new List<ParameterExpression>();
+            paramListRdr.Add(rdr);
+
+            //LambdaExpression lambda = Expression.Lambda<Func<DataReader2, T>>(memberInit, paramListRdr);
+            LambdaExpression lambda = Expression.Lambda<Func<DataReader2, T>>(newExpr, paramListRdr);
+            return lambda;
+            //StringBuilder sb = new StringBuilder(500);
+            //Func<DataReader2,T> func_t = (Func<DataReader2,T>)lambda.Compile();
+            //lambda.BuildString(sb);
+            //Console.WriteLine("  RowEnumCompiler(Projection): Compiled "+sb);
+            //return func_t;
+            #endregion
+        }
 
         /// <summary>
         /// return 'reader.GetString(0)' or 'reader.GetInt32(1)'

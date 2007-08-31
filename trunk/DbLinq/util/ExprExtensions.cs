@@ -79,6 +79,58 @@ namespace DBLinq.util
                 return null;
             return (MemberExpression)ex;
         }
+
+        /// <summary>
+        /// given '<>h__TransparentIdentifier.p.ProductID', return 'p.ProductID'
+        /// given '<>h__TransparentIdentifier.p', return 'p'
+        /// (or null)
+        /// </summary>
+        public static Expression StripTransparentID(this Expression ex)
+        {
+            if (ex == null || ex.NodeType != ExpressionType.MemberAccess)
+                return ex;
+
+            MemberExpression exprOuter = ex as MemberExpression;
+            Expression exprLeft = exprOuter.Expression;
+            string leftName = exprLeft.ToString();
+            if (!leftName.StartsWith("<>h__TransparentIdentifier"))
+                return ex;
+
+            switch (exprLeft.NodeType)
+            {
+                case ExpressionType.MemberAccess:
+                    //as of Beta2, the former 'p.ProductID' now appears here as '<>h__TransparentIdentifier.p.ProductID'
+                    //the 'p' used to be a ParameterExpression - not anymore
+                    {
+                        MemberExpression member1 = exprOuter.Expression.XMember(); //'<>h__TransparentIdentifier.p
+
+                        //turn '<>h__TransparentIdentifier.p.ProductID' into 'p.ProductID'
+                        string nameP = member1.Member.Name; //'p'
+                        System.Reflection.PropertyInfo propInfoP = member1.Member as System.Reflection.PropertyInfo;
+                        Type typeP = propInfoP.PropertyType; //typeof(Product)
+                        ParameterExpression fakeParam = Expression.Parameter(typeP, nameP);
+                        MemberExpression expr2 = Expression.MakeMemberAccess(fakeParam, exprOuter.Member);
+                        return expr2;
+                    }
+
+                case ExpressionType.Parameter:
+                    {
+                        ParameterExpression param1 = exprOuter.Expression as ParameterExpression; //'<>h__TransparentIdentifier.p
+
+                        //turn '<>h__TransparentIdentifier.p.ProductID' into 'p.ProductID'
+                        string nameP = exprOuter.Member.Name; //'p'
+                        System.Reflection.PropertyInfo propInfoP = exprOuter.Member as System.Reflection.PropertyInfo;
+                        Type typeP = propInfoP.PropertyType; //typeof(Product)
+                        ParameterExpression fakeParam = Expression.Parameter(typeP, nameP);
+                        return fakeParam;
+                    }
+
+                default:
+                    return exprLeft;
+            }
+
+        }
+
         public static MemberInitExpression XMemberInit(this Expression ex)
         {
             if(ex==null || ex.NodeType!=ExpressionType.MemberInit)
