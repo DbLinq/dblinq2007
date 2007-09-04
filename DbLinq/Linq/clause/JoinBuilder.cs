@@ -40,6 +40,8 @@ namespace DBLinq.Linq.clause
             result.tablesUsed[memberExpr.Expression.Type] = nick1;//tablesUsed[Customer] = c$
             //result.tablesUsed[childType] = nick2;           //tablesUsed[Order] = join$
             result.tablesUsed[paramExpr.Type] = nick2;           //tablesUsed[Order] = join$
+
+            //result.memberExprNickames[memberExpr] = nick1; //memberExprNickames[c.Orders] = "o$"
         }
 
         /// <summary>

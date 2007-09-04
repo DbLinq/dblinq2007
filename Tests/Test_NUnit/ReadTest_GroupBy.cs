@@ -62,6 +62,8 @@ namespace Test_NUnit
             //(PostgreSql ERROR: column "c$.customerid" must appear in the GROUP BY clause or be used in an aggregate function - SQL state: 42803)
             //"SELECT City, customerid FROM customer GROUP BY City"
             LinqTestDB db = new LinqTestDB(connStr);
+            db.Log = Console.Out;
+
             var q2 = db.Customers.GroupBy( c=>c.City ).Select( g=>new{g.Key, Count=g.Count()} );
 
             int rowCount=0;

@@ -294,7 +294,17 @@ namespace DBLinq.Linq.clause
                                 }
                                 continue;
                             }
-                            nick = _inputs.NicknameRequest(memberExpr);
+
+                            //try extracting 'c' from '<>h__TransparentIdentifier10.c' 
+                            ParameterExpression expr2 = memberExpr.StripTransparentID().XParam();
+                            if (expr2 != null)
+                            {
+                                nick = expr2.Name; // VarName.GetSqlName(expr2.Name);
+                            }
+                            else
+                            {
+                                nick = _inputs.NicknameRequest(memberExpr);
+                            }
                             nick = VarName.GetSqlName(nick);
                             break;
                         }

@@ -260,6 +260,8 @@ namespace Test_NUnit
             Console.WriteLine("type="+func1.GetType());
             //this is a SelectMany query:
             LinqTestDB db = new LinqTestDB(connStr);
+            db.Log = Console.Out;
+
             var q =
 	            from c in db.Customers
 	            from o in c.Orders

@@ -154,7 +154,20 @@ namespace DBLinq.Linq
                     case 3: //'from c in db.Customers from o in c.Orders where c.City == "London" select new { c, o }'
                         //ignore arg[0]: MTable<>
                         //ignore arg[1]: c=>c.Orders
-                        StoreLambda("Select", exprCall.Arguments[2].XLambda());
+
+                        LambdaExpression lambda1 = exprCall.Arguments[1].XLambda();
+                        LambdaExpression lambda2 = exprCall.Arguments[2].XLambda();
+
+                        {
+                            MemberExpression memberExpression = lambda1.Body as MemberExpression;
+                            ParameterExpression paramExpression = lambda2.Parameters[1];
+                            ParseResult result = new ParseResult(null);
+                            JoinBuilder.AddJoin1(memberExpression, paramExpression, result);
+                            result.CopyInto(this._sqlParts);
+                        }
+
+                        //JoinBuilder.AddJoin1(lambda1.Body, lambda2.Parameters[1],);
+                        StoreLambda("Select", lambda2);
                         return;
                     default:
                         throw new ApplicationException("StoreQuery L117: Prepared only for 2 or 3 param GroupBys");

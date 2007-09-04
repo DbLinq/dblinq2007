@@ -23,8 +23,8 @@ namespace Test_NUnit
             //new ReadTest_GroupBy().G08_OrderSumByCustomerID();
 
             //new ReadTest().D05_SelectOrdersForProduct();
-            new ReadTest().D07_OrdersFromLondon_Alt();
-            //new ReadTest_GroupBy().G01_SimpleGroup();
+            //new ReadTest().D07_OrdersFromLondon_Alt();
+            new ReadTest_GroupBy().G01_SimpleGroup_Count();
             //new ReadTest_GroupBy().G04_SimpleGroup_WithSelector();
             //new ReadTest_GroupBy().G05_Group_Into();
             //ReadTest_Complex rc = new ReadTest_Complex();
