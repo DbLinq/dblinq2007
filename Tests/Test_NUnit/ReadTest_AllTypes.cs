@@ -46,7 +46,6 @@ namespace Test_NUnit
             return db;
         }
 
-        #region Tests 'C' do plain select - no aggregation
         [Test]
         public void AT1_SelectRow()
         {
@@ -77,7 +76,6 @@ namespace Test_NUnit
             Assert.IsTrue(count > 0, "Expected some entries in AllTypes, got none");
         }
 
-        #endregion
 
 
     }

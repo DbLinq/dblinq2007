@@ -470,6 +470,10 @@ namespace DBLinq.util
             {
                 minfo = typeof(DataReader2).GetMethod("GetDecimal");
             }
+            else if (t2 == typeof(decimal?))
+            {
+                minfo = typeof(DataReader2).GetMethod("GetDecimalN");
+            }
             else if(t2==typeof(DateTime))
             {
                 minfo = typeof(DataReader2).GetMethod("GetDateTime");
