@@ -29,7 +29,7 @@ namespace DBLinq.util
             ProjectionData projData = vars.projectionData;
 
             //three categories to handle:
-            //A) extract object of primitive / builtin type (eg. string or int)
+            //A) extract object of primitive / builtin type (eg. string or int or DateTime?)
             //B) extract column object, which will be 'newed' and then tracked for changes
             //C) extract a projection object, using default ctor and bindings, no tracking needed.
             bool isBuiltinType = CSharp.IsPrimitiveType(typeof(T));

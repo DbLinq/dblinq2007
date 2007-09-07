@@ -226,6 +226,7 @@ namespace DBLinq.util
         //IsGroupBy: derived class returns true
         public virtual bool IsGroupBy(){ return false; }
 
+#if DEAD_CODE
         /// <summary>
         /// if our type has the [Table] attribute, it's a column type
         /// </summary>
@@ -243,7 +244,7 @@ namespace DBLinq.util
             TableAttribute tAttrib = _vars.projectionData.tableAttribute;
             return tAttrib!=null; //
         }
-
+#endif
         #endregion
     }
 }
