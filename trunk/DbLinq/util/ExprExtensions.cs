@@ -59,12 +59,14 @@ namespace DBLinq.util
             return (LambdaExpression)ex;
         }
 
+#if DEAD_CODE
         public static Expression XOp(this UnaryExpression ex)
         {
             if(ex==null)
                 return null;
             return ex.Operand;
         }
+#endif
 
         public static ParameterExpression XParam(this Expression ex)
         {
@@ -131,12 +133,15 @@ namespace DBLinq.util
 
         }
 
+#if DEAD_CODE
         public static MemberInitExpression XMemberInit(this Expression ex)
         {
             if(ex==null || ex.NodeType!=ExpressionType.MemberInit)
                 return null;
             return (MemberInitExpression)ex;
         }
+#endif
+
         public static UnaryExpression XUnary(this Expression ex)
         {
             if(ex==null)

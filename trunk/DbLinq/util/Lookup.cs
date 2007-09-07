@@ -28,6 +28,7 @@ namespace DBLinq.util
         IEnumerator<T> IEnumerable<T>.GetEnumerator(){ return _elements.GetEnumerator(); }
         public System.Collections.IEnumerator GetEnumerator(){ return _elements.GetEnumerator(); }
 
+#if DEAD_CODE
         public static IEnumerable<Lookup<K,T>> EnumGroups(DataReader2 rdr, Func<DataReader2,K> keyReadFunc, Func<DataReader2,T> valueReadFunc)
         {
             //assumption: there is no Read() loop around this code
@@ -57,6 +58,7 @@ namespace DBLinq.util
             if(lookup!=null)
                 yield return lookup;
         }
+#endif
 
         public override string ToString()
         {

@@ -35,10 +35,25 @@ namespace DBLinq.util
         }
 
         /// <summary>
-        /// if T is string or int or friends, return true.
+        /// if T is string or int or DateTime? or friends, return true.
         /// </summary>
         public static bool IsPrimitiveType(Type t)
         {
+            if (t.IsGenericType)
+            {
+                Type genericType = t.GetGenericTypeDefinition();
+                if (genericType == typeof(Nullable<>))
+                {
+                    Type[] genericArgs = t.GetGenericArguments();
+                    bool ret = IsPrimitiveType(genericArgs[0]);
+                    return ret;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
             #region IsBuiltinType
             bool isBuiltinType = t==typeof(string)
                 || t==typeof(short)
@@ -52,7 +67,8 @@ namespace DBLinq.util
                 || t==typeof(decimal)
                 || t==typeof(char)
                 || t==typeof(byte)
-                || t==typeof(bool);
+                || t == typeof(bool)
+                || t==typeof(DateTime); //DateTime: not strictly a primitive time
             return isBuiltinType;
             #endregion
         }

@@ -196,6 +196,7 @@ namespace DBLinq.util
             return result;
         }
 
+#if DEAD_CODE
         public static bool FindReverseAssociation(ReverseAssociation.Part assocPartsIn
             ,ReverseAssociation.Part assocPartsToPopulate)
         {
@@ -218,6 +219,6 @@ namespace DBLinq.util
                 return false;
             return true;
         }
-
+#endif
     }
 }
