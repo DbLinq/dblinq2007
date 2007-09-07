@@ -201,6 +201,20 @@ namespace DBLinq.util
                 return 0;
             }
         }
+        public decimal? GetDecimalN(int index)
+        {
+            try
+            {
+                if (_rdr.IsDBNull(index))
+                    return null;
+                return _rdr.GetDecimal(index);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("GetDecimal(" + index + ") failed: " + ex);
+                return 0;
+            }
+        }
         public DateTime GetDateTime(int index)
         {
             try
@@ -224,7 +238,7 @@ namespace DBLinq.util
             catch(Exception ex)
             {
                 Console.WriteLine("GetInt32 failed: "+ex);
-                return new DateTime();
+                return null;
             }
         }
 
@@ -253,7 +267,7 @@ namespace DBLinq.util
             catch(Exception ex)
             {
                 Console.WriteLine("GetInt64N failed: "+ex);
-                return 0;
+                return null;
             }
         }
 

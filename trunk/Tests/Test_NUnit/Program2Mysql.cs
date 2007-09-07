@@ -25,7 +25,8 @@ namespace Test_NUnit
             //new ReadTest().D05_SelectOrdersForProduct();
             //new ReadTest().D07_OrdersFromLondon_Alt();
             //new ReadTest_GroupBy().G01_SimpleGroup_Count();
-            new ReadTest_AllTypes().AT2_SelectDateTimeN();
+            //new ReadTest_AllTypes().AT2_SelectDateTimeN();
+            new ReadTest_Operands().H3_Select_MemberInit();
             //new ReadTest_GroupBy().G04_SimpleGroup_WithSelector();
             //new ReadTest_GroupBy().G05_Group_Into();
             //ReadTest_Complex rc = new ReadTest_Complex();
