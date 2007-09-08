@@ -37,8 +37,12 @@ namespace SqlMetal.schema.pgsql
                 case "timestamp": return "DateTime";
                 case "enum": return "Enum";
                 case "float": return "float";
-                case "double": return "double";
-                case "decimal": return "decimal";
+                case "double":
+                case "double precision":
+                    return "double";
+                case "decimal":
+                case "numeric":
+                    return "decimal";
                 case "blob": return "byte[]";
                     //TODO: blob,longblob,set, ...
                 case "character varying": return "string";

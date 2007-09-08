@@ -83,6 +83,22 @@ Values ( (Select CustomerID from Customer Where CompanyName='MOD')
 , (Select ProductID from Products Where ProductName='SAM')
 , now());
 
+-- please match fieldnames and types to MySql AllTypes table 
+-- (DbLinq.Mysql.Example\sql\create_LinqTestDB_pg.sql)
+CREATE TABLE AllTypes
+(
+  int SERIAL NOT NULL,
+  intN integer NULL,
+  double float NOT NULL,
+  doubleN float,
+  decimal DECIMAL NOT NULL,
+  decimalN DECIMAL,
+  DateTime TIMESTAMP NOT NULL,
+  DateTimeN TIMESTAMP,
+  PRIMARY KEY(int)
+);
+
+
 COMMIT;
 
 

@@ -3,58 +3,23 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using NUnit.Framework;
+using Client2.user;
 
-#if ORACLE
-using ClientCodeOra;
+#if POSTGRES
 using xint = System.Int32;
-#elif POSTGRES
-using Client2.user;
-using xint = System.Int32;
-using XSqlConnection = Npgsql.NpgsqlConnection;
-using XSqlCommand = Npgsql.NpgsqlCommand;
 #else
-using XSqlConnection = MySql.Data.MySqlClient.MySqlConnection;
-using XSqlCommand = MySql.Data.MySqlClient.MySqlCommand;
-using Client2.user;
 using xint = System.UInt32;
 #endif
 
 namespace Test_NUnit
 {
+    /// <summary>
+    /// this test class will exercise various operands, such as 'a&&b', 'a>=b', ""+a, etc.
+    /// </summary>
     [TestFixture]
-    public class ReadTest_Operands
+    public class ReadTest_Operands : TestBase
     {
-#if ORACLE
-        const string connStr = "server=localhost;user id=system; password=linq2";
-#else //Mysql, Postgres
-        const string connStr = "server=localhost;user id=LinqUser; password=linq2; database=LinqTestDB";
 
-        XSqlConnection _conn;
-        public XSqlConnection Conn
-        {
-            get
-            {
-                if (_conn == null) { _conn = new XSqlConnection(connStr); _conn.Open(); }
-                return _conn;
-            }
-        }
-#endif
-
-#if POSTGRES
-        //Postgres sorting: A,B,C,X,d
-        const StringComparison stringComparisonType = StringComparison.Ordinal; 
-#else
-        //Mysql,Oracle sorting: A,B,C,d,X
-        const StringComparison stringComparisonType = StringComparison.InvariantCulture;
-#endif
-        public LinqTestDB CreateDB()
-        {
-            LinqTestDB db = new LinqTestDB(connStr);
-            db.Log = Console.Out;
-            return db;
-        }
-
-        #region Tests 'C' do plain select - no aggregation
         [Test]
         public void H1_SelectConcat()
         {
@@ -88,8 +53,8 @@ namespace Test_NUnit
 
         public struct ProductWrapper1
         {
-            public uint ProductID { get; set; }
-            public uint SupplierID { get; set; }
+            public xint ProductID { get; set; }
+            public xint SupplierID { get; set; }
         }
 
         [Test]
@@ -128,7 +93,6 @@ namespace Test_NUnit
             var q = from p in db.Products select p.ProductName;
             string s = db.GetQueryText(q); //MTable_Projected.GetQueryText()
         }
-        #endregion
 
 
     }
