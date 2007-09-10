@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using System.Linq.Expressions;
 using NUnit.Framework;
 using Client2.user;
 
@@ -57,15 +58,27 @@ namespace Test_NUnit
             public xint SupplierID { get; set; }
         }
 
+        public class ProductWrapper2
+        {
+            public xint ProductID { get; set; }
+            public xint SupplierID { get; set; }
+        }
+
+        public class ProductWrapper3
+        {
+            public xint ProductID { get; set; }
+            public xint SupplierID { get; set; }
+            public ProductWrapper3(xint p, xint s) { ProductID = p; SupplierID = s; }
+            public ProductWrapper3(xint p, xint s, bool unused) { ProductID = p; SupplierID = s; }
+        }
+
         [Test]
-        public void H3_Select_MemberInit()
+        public void H3_Select_MemberInit_Struct()
         {
             LinqTestDB db = CreateDB();
-
             var q = from p in db.Products
                     where p.ProductID > 20
                     select new ProductWrapper1 { ProductID = p.ProductID, SupplierID = p.SupplierID };
-
             int count = 0;
             foreach (ProductWrapper1 p in q)
             {
@@ -73,7 +86,38 @@ namespace Test_NUnit
                 count++;
             }
             Assert.IsTrue(count > 0, "Expected some products with ProductID>=20, got none");
+        }
 
+        [Test]
+        public void H4_Select_MemberInit_Class()
+        {
+            LinqTestDB db = CreateDB();
+            var q = from p in db.Products
+                    where p.ProductID > 20
+                    select new ProductWrapper2 { ProductID = p.ProductID, SupplierID = p.SupplierID };
+            int count = 0;
+            foreach (ProductWrapper2 p in q)
+            {
+                Assert.IsTrue(p.ProductID > 20, "Failed on ProductID>=20");
+                count++;
+            }
+            Assert.IsTrue(count > 0, "Expected some products with ProductID>=20, got none");
+        }
+
+        [Test]
+        public void H5_Select_MemberInit_Class2()
+        {
+            LinqTestDB db = CreateDB();
+            var q = from p in db.Products
+                    where p.ProductID > 20
+                    select new ProductWrapper3 ( p.ProductID, p.SupplierID );
+            int count = 0;
+            foreach (ProductWrapper3 p in q)
+            {
+                Assert.IsTrue(p.ProductID > 20, "Failed on ProductID>=20");
+                count++;
+            }
+            Assert.IsTrue(count > 0, "Expected some products with ProductID>=20, got none");
         }
 
         [Test]

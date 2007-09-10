@@ -82,12 +82,15 @@ namespace DBLinq.util
         public static bool IsProjection(Type t)
         {
             ConstructorInfo[] cinfo = t.GetConstructors();
-            if(cinfo.Length!=1)
+            if (cinfo.Length == 0 && t.IsValueType)
+                return true; //allow projection into user-defined structs
+            if(cinfo.Length<1)
                 return false;
             if (t.Name.Contains("<>f__AnonymousType"))
                 return true; //Beta2 logic
-            if(cinfo[0].GetParameters().Length!=0)
-                return false;
+            //ParameterInfo[] ctor0_params = cinfo[0].GetParameters();
+            //if (ctor0_params.Length != 0)
+            //    return false;
             return true;
         }
 

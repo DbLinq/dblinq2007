@@ -126,7 +126,7 @@ namespace DBLinq.util
 
             foreach(ProjectionData.ProjectionField projFld in projData.fields)
             {
-                Type fieldType = projFld.type;
+                Type fieldType = projFld.FieldType;
                 MethodCallExpression arg_i = GetFieldMethodCall(fieldType,rdr,fieldID++);
                 ctorArgs.Add(arg_i);
             }
@@ -187,10 +187,21 @@ namespace DBLinq.util
         {
 
             #region CompileColumnRowDelegate
-            if(projData==null || projData.ctor==null)
-                throw new ArgumentException("CompileColumnRow: need projData with ctor2");
+            bool hasCtor = projData != null && projData.ctor != null;
 
-            if (projData.ctor.GetParameters().Length > 0)
+            if ( ! hasCtor)
+            {
+                if (projData.type.IsValueType)
+                {
+                    //structs have no ctors, but can be new'ed okay
+                }
+                else
+                {
+                    throw new ArgumentException("CompileColumnRow: need projData with ctor2");
+                }
+            }
+
+            if (hasCtor && projData.ctor.GetParameters().Length > 0)
             {
                 //Orcas Beta2: previously, used default ctor. Now, must pass params into ctor:
                 return BuildProjectedRowLambda_NoBind(vars, projData, rdr, ref fieldID);
@@ -213,7 +224,7 @@ namespace DBLinq.util
                             //simple version: (does not work since BuildProjRow needs different generic arg than our T)
                             //LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, rdr, ref fieldID);                            
                             //nasty version:
-                            ProjectionData projData2 = AttribHelper.GetProjectionData(projFld.type);
+                            ProjectionData projData2 = AttribHelper.GetProjectionData(projFld.FieldType);
                             Type TArg2 = projFld.FieldType;
                             Type rowEnumCompilerType2 = typeof(RowEnumeratorCompiler<>).MakeGenericType(TArg2);
                             object rowCompiler2 = Activator.CreateInstance(rowEnumCompilerType2);
@@ -235,7 +246,7 @@ namespace DBLinq.util
                         break;
                     case TypeEnum.Primitive:
                         {
-                            Type fieldType = projFld.type;
+                            Type fieldType = projFld.FieldType;
                             MethodCallExpression arg_i = GetFieldMethodCall(fieldType, rdr, fieldID++);
                             //MethodInfo accessor = null;
                             MemberAssignment binding = Expression.Bind(projFld.MemberInfo, arg_i);
@@ -255,12 +266,15 @@ namespace DBLinq.util
                         break;
 
                     default:
-                        throw new ApplicationException("TODO - objects other than primitive and entities in CompileProjRow: "+projFld.type);
+                        throw new ApplicationException("TODO - objects other than primitive and entities in CompileProjRow: "+projFld.FieldType);
                 }
 
             }
 
-            NewExpression newExpr = Expression.New(projData.ctor);
+            NewExpression newExpr = hasCtor
+                ? Expression.New(projData.ctor) //for classes
+                : Expression.New(projData.type); //for structs
+
             MemberInitExpression memberInit = Expression.MemberInit(newExpr,bindings);
 
             List<ParameterExpression> paramListRdr = new List<ParameterExpression>();
@@ -308,7 +322,7 @@ namespace DBLinq.util
                             //simple version: (does not work since BuildProjRow needs different generic arg than our T)
                             //LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, rdr, ref fieldID);                            
                             //nasty version:
-                            ProjectionData projData2 = AttribHelper.GetProjectionData(projFld.type);
+                            ProjectionData projData2 = AttribHelper.GetProjectionData(projFld.FieldType);
                             Type TArg2 = projFld.FieldType;
                             Type rowEnumCompilerType2 = typeof(RowEnumeratorCompiler<>).MakeGenericType(TArg2);
                             object rowCompiler2 = Activator.CreateInstance(rowEnumCompilerType2);
@@ -331,7 +345,7 @@ namespace DBLinq.util
                         break;
                     case TypeEnum.Primitive:
                         {
-                            Type fieldType = projFld.type;
+                            Type fieldType = projFld.FieldType;
                             MethodCallExpression arg_i = GetFieldMethodCall(fieldType, rdr, fieldID++);
                             //MethodInfo accessor = null;
                             //MemberAssignment binding = Expression.Bind(projFld.MemberInfo, arg_i);
@@ -353,7 +367,7 @@ namespace DBLinq.util
                         break;
 
                     default:
-                        throw new ApplicationException("TODO - objects other than primitive and entities in CompileProjRow: " + projFld.type);
+                        throw new ApplicationException("TODO - objects other than primitive and entities in CompileProjRow: " + projFld.FieldType);
                 }
             }
 
