@@ -69,7 +69,8 @@ namespace DBLinq.Linq
             FieldInfo fieldInfo; //we can assign Properties or Fields in memberInit
 
             public MemberExpression expr1; //holds e.g. {e.ID}
-            public Type type; //eg. int
+            //public Type type; //eg. int
+            Type fieldType_NoBind;
 
             /// <summary>
             /// is this a primitive type, a DB column, or a projection?
@@ -77,6 +78,13 @@ namespace DBLinq.Linq
             public TypeEnum typeEnum;
 
             public ColumnAttribute columnAttribute;
+
+            public ProjectionField(Type fieldType)
+            {
+                fieldType_NoBind = fieldType;
+                //projField.type = projField.expr1.Type;
+                typeEnum = CSharp.CategorizeType(fieldType);
+            }
 
             public ProjectionField(MemberInfo memberInfo)
             {
@@ -88,6 +96,7 @@ namespace DBLinq.Linq
                     if (propInfo2 != null)
                     {
                         this.propInfo = propInfo2; //looked up 'ProductId' from '{UInt32 get_ProductId()}'
+                        typeEnum = CSharp.CategorizeType(this.FieldType);
                         return;
                     }
                 }
@@ -97,11 +106,16 @@ namespace DBLinq.Linq
                     fieldInfo = memberInfo as FieldInfo;
                 if (propInfo==null && fieldInfo == null)
                     throw new ArgumentException("Bad mInfo:" + memberInfo);
+
+                typeEnum = CSharp.CategorizeType(this.FieldType);
             }
+
             public Type FieldType
             {
                 get
                 {
+                    if (fieldType_NoBind != null)
+                        return fieldType_NoBind;
                     if (propInfo != null)
                         return propInfo.PropertyType;
                     else
@@ -130,7 +144,7 @@ namespace DBLinq.Linq
 
             public bool IsValid(out string error)
             {
-                if (type == null) { error = "Missing type"; return false; }
+                //if (type == null) { error = "Missing type"; return false; }
                 if (propInfo == null && fieldInfo==null) { error = "Missing propInfo/fieldInfo"; return false; }
                 error = null;
                 return true;
@@ -185,9 +199,8 @@ namespace DBLinq.Linq
             foreach(PropertyInfo prop in props)
             {
                 ProjectionData.ProjectionField projField = new ProjectionData.ProjectionField(prop);
-                projField.type = prop.PropertyType;
+                //projField.type = prop.PropertyType;
                 //projField.propInfo = prop;
-                projField.typeEnum = CSharp.CategorizeType(projField.type);
                 projData.fields.Add(projField);
             }
             return projData;
@@ -218,6 +231,7 @@ namespace DBLinq.Linq
             ProjectionData proj = new ProjectionData();
             NewExpression newExpr = memberInit.NewExpression;
             proj.ctor = newExpr.Constructor;
+            proj.type = newExpr.Type;
 
             LoopOverBindings(proj, memberInit);
 
@@ -259,7 +273,7 @@ namespace DBLinq.Linq
             foreach(MemberAssignment memberAssign in memberInit.Bindings)
             {
                 ProjectionField projField = new ProjectionField(memberAssign.Member);
-                projField.type = projField.FieldType;
+                //projField.type = projField.FieldType;
                 //if(projField.type==null)
                 //    throw new ApplicationException("ProjectionData L36: unknown type of memberInit");
 
@@ -268,8 +282,8 @@ namespace DBLinq.Linq
                     case ExpressionType.MemberAccess:
                         //occurs during 'select new {e.ID,e.Name}'
                         projField.expr1 = memberAssign.Expression as MemberExpression;
-                        projField.type = projField.expr1.Type;
-                        projField.typeEnum = CSharp.CategorizeType(projField.type);
+                        //projField.type = projField.expr1.Type;
+                        //projField.typeEnum = CSharp.CategorizeType(projField.type);
 
                         //Now handled in ExpressionTreeParser
                         ////TODO: for GroupBy selects, replace 'g.Key' with 'o.CustomerID':
@@ -282,8 +296,8 @@ namespace DBLinq.Linq
                     case ExpressionType.Parameter:
                         //occurs during 'from c ... from o ... select new {c,o}'
                         ParameterExpression paramEx = memberAssign.Expression as ParameterExpression;
-                        projField.type = paramEx.Type;
-                        projField.typeEnum = CSharp.CategorizeType(projField.type);
+                        //projField.type = paramEx.Type;
+                        //projField.typeEnum = CSharp.CategorizeType(projField.type);
                         break;
 
                     //CallVirtual disappeared in Beta2?!
@@ -312,12 +326,23 @@ namespace DBLinq.Linq
 
         private static void LoopOverBindings_OrcasB2(ProjectionData proj, NewExpression newExpr)
         {
+            //if (newExpr.Members == null)
+            //    return; //eg. "{new ProductWrapper3(p.ProductID, p.SupplierID)}"
+
             int i = 0;
             foreach (Expression argExpr in newExpr.Arguments)
             {
-                MemberInfo memberInfo = newExpr.Members[i++];
-                ProjectionField projField = new ProjectionField(memberInfo);
-                projField.type = projField.FieldType;
+                ProjectionField projField = null;
+                if (newExpr.Members == null)
+                {
+                    //eg. "{new ProductWrapper3(p.ProductID, p.SupplierID)}"
+                    projField = new ProjectionField(argExpr.Type);
+                }
+                else
+                {
+                    MemberInfo memberInfo = newExpr.Members[i++];
+                    projField = new ProjectionField(memberInfo);
+                }
                 //if(projField.type==null)
                 //    throw new ApplicationException("ProjectionData L36: unknown type of memberInit");
 
@@ -326,8 +351,6 @@ namespace DBLinq.Linq
                     case ExpressionType.MemberAccess:
                         //occurs during 'select new {e.ID,e.Name}'
                         projField.expr1 = argExpr as MemberExpression;
-                        projField.type = projField.expr1.Type;
-                        projField.typeEnum = CSharp.CategorizeType(projField.type);
 
                         //Now handled in ExpressionTreeParser
                         ////TODO: for GroupBy selects, replace 'g.Key' with 'o.CustomerID':
@@ -340,8 +363,6 @@ namespace DBLinq.Linq
                     case ExpressionType.Parameter:
                         //occurs during 'from c ... from o ... select new {c,o}'
                         ParameterExpression paramEx = argExpr as ParameterExpression;
-                        projField.type = paramEx.Type;
-                        projField.typeEnum = CSharp.CategorizeType(projField.type);
                         break;
 
                     //CallVirtual disappeared in Beta2?!

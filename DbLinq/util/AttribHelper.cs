@@ -110,7 +110,7 @@ namespace DBLinq.util
                 if(colAtt.Count==0)
                     continue; //not a DB field
                 ProjectionData.ProjectionField projField = new ProjectionData.ProjectionField(prop);
-                projField.type = prop.PropertyType;
+                //projField.type = prop.PropertyType;
                 //projField.propInfo = prop;
                 projField.columnAttribute = colAtt[0];
                 if( ! prop.CanWrite)
