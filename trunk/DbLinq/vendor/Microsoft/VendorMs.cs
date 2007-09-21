@@ -5,9 +5,13 @@
 ////////////////////////////////////////////////////////////////////
 
 using System;
+using System.Reflection;
 using System.Data.SqlClient;
 using System.Collections.Generic;
 using System.Text;
+using System.Data;
+using System.Data.Linq.Mapping;
+using DBLinq.util;
 
 namespace DBLinq.vendor
 {
@@ -45,6 +49,43 @@ namespace DBLinq.vendor
             System.Data.SqlDbType dbType = DBLinq.util.SqlTypeConversions.ParseType(dbTypeName);
             SqlParameter param = new SqlParameter(paramName, dbType);
             return param;
+        }
+
+        /// <summary>
+        /// for large number of rows, we want to use BULK INSERT, 
+        /// because it does not fill up the translation log.
+        /// </summary>
+        public static void DoBulkInsert<T>(List<T> rows, string connStr)
+        {
+            SqlBulkCopy bulkCopy = new SqlBulkCopy(connStr, SqlBulkCopyOptions.TableLock);
+            bulkCopy.DestinationTableName = AttribHelper.GetTableAttrib(typeof(T)).Name;
+            
+            DataTable dt = new DataTable();
+            KeyValuePair<PropertyInfo, ColumnAttribute>[] columns = AttribHelper.GetColumnAttribs2(typeof(T));
+            
+            foreach (KeyValuePair<PropertyInfo, ColumnAttribute> pair in columns)
+            {
+                DataColumn dc = new DataColumn();
+                dc.ColumnName = pair.Value.Name;
+                dc.DataType = pair.Key.PropertyType;
+                dt.Columns.Add(dc);
+            }
+
+            object[] indices = new object[] { };
+            foreach(T row in rows)
+            {
+                DataRow dr = dt.NewRow();
+                //use reflection to retrieve object's fields (TODO: optimize this later)
+                foreach (KeyValuePair<PropertyInfo, ColumnAttribute> pair in columns)
+                {
+                    object value = pair.Key.GetValue(row, indices);
+                    dr[pair.Value.Name] = value;
+                }
+                //dr[1
+                dt.Rows.Add(dr);
+            }
+            bulkCopy.WriteToServer(dt);
+
         }
     }
 }

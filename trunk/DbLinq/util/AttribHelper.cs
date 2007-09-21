@@ -50,11 +50,39 @@ namespace DBLinq.util
         }
 
         /// <summary>
+        /// from class Employee, walk all properties with [Column] attribs, 
+        /// and return array of {field,[Column]} pairs.
+        /// </summary>
+        public static KeyValuePair<PropertyInfo,T>[] FindPropertiesWithGivenAttrib2<T>(Type t) where T : Attribute
+        {
+            List<KeyValuePair<PropertyInfo, T>> lst = new List<KeyValuePair<PropertyInfo, T>>();
+            PropertyInfo[] infos = t.GetProperties();
+            foreach (PropertyInfo pi in infos)
+            {
+                object[] objs = pi.GetCustomAttributes(typeof(T), false);
+                List<T> partList = objs.OfType<T>().ToList();
+                //lst.AddRange(partList);
+                if (partList.Count == 0)
+                    continue;
+                lst.Add(new KeyValuePair<PropertyInfo,T>(pi,partList[0]));
+            }
+            return lst.ToArray();
+        }
+
+        /// <summary>
         /// from class Employee, walk all properties, extract their [Column] attribs
         /// </summary>
         public static ColumnAttribute[] GetColumnAttribs(Type t)
         {
             return FindPropertiesWithGivenAttrib<ColumnAttribute>(t);
+        }
+
+        /// <summary>
+        /// for Microsoft SQL bulk insert, we need a version of GetColumnAttribs with their PropInfo
+        /// </summary>
+        public static KeyValuePair<PropertyInfo, ColumnAttribute>[] GetColumnAttribs2(Type t)
+        {
+            return FindPropertiesWithGivenAttrib2<ColumnAttribute>(t);
         }
 
         /// <summary>

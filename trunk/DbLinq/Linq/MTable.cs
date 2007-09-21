@@ -199,7 +199,13 @@ namespace DBLinq.Linq
             //object[] indices = new object[0];
             ProjectionData proj = ProjectionData.FromDbType(typeof(T));
             XSqlConnection conn = _parentDB.SqlConnection;
-            foreach(T obj in _insertList)
+
+#if ENABLE_MS_BULK_INSERT
+            VendorMs.DoBulkInsert<T>(_insertList);
+            _insertList.Clear();
+#endif
+
+            foreach (T obj in _insertList)
             {
                 //INSERT EMPLOYEES (Name, DateStarted) VALUES (?p1,?p2)
                 using(XSqlCommand cmd = InsertClauseBuilder.GetClause(conn,obj,proj))
