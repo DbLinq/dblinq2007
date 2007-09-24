@@ -56,6 +56,20 @@ namespace SqlMetal.schema
             return csType2;
         }
 
+        /// <summary>
+        /// given 'dbo.Order Details', return 'Order_Details'
+        /// </summary>
+        public static string FormatTableName(string sqlTableName)
+        {
+            if (sqlTableName.Contains("."))
+            {
+                int indx = sqlTableName.IndexOf(".");
+                sqlTableName = sqlTableName.Substring(indx+1);
+            }
+            sqlTableName = sqlTableName.Replace(" ", "_");
+            return sqlTableName;
+        }
+
         static string TypeNickName(string csType)
         {
             switch (csType)

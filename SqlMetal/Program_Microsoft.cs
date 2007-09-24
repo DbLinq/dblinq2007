@@ -92,7 +92,7 @@ namespace SqlMetal
             bool gotXmlFile = false;
             foreach (string sArg in args)
             {
-                if (sArg.ToLower().EndsWith(".xml"))
+                if (sArg.ToLower().EndsWith(".xml") || sArg.ToLower().EndsWith(".dbml"))
                 {
                     mmConfig.schemaXmlFile = sArg;
                     gotXmlFile = true;

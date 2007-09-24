@@ -20,7 +20,7 @@ namespace SqlMetal.codeGen
 
         public string generateAll(DlinqSchema.Database dbSchema, string vendorName)
         {
-            if(dbSchema==null || dbSchema.Schemas==null || dbSchema.Schemas.Count==0 || dbSchema.Schemas[0].Tables==null)
+            if(dbSchema==null || dbSchema.Tables==null)
             {
                 Console.WriteLine("CodeGenAll ERROR: incomplete dbSchema, cannot start generating code");
                 return null;
@@ -43,7 +43,7 @@ using DBLinq.Linq;
             List<string> classBodies = new List<string>();
 
 
-            foreach(DlinqSchema.Table tbl in dbSchema.Schemas[0].Tables)
+            foreach(DlinqSchema.Table tbl in dbSchema.Tables)
             {
                 string classBody = codeGenClass.generateClass(dbSchema, tbl);
                 classBodies.Add(classBody);
@@ -80,7 +80,7 @@ namespace $ns
             #region generateDbClass()
             //if (tables.Count==0)
             //    return "//L69 no tables found";
-            if (dbSchema.Schemas.Count==0 || dbSchema.Schemas[0].Tables.Count==0)
+            if (dbSchema.Tables.Count==0)
                 return "//L69 no tables found";
 
             const string dbClassStr = @"
@@ -107,7 +107,7 @@ public partial class $dbname : MContext
 
             List<string> dbFieldDecls = new List<string>();
             List<string> dbFieldInits = new List<string>();
-            foreach(DlinqSchema.Table tbl in dbSchema.Schemas[0].Tables)
+            foreach(DlinqSchema.Table tbl in dbSchema.Tables)
             {
                 string tableClass = tbl.Class;
                 if (tableClass == null)
