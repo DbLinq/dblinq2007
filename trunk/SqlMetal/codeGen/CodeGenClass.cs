@@ -43,6 +43,7 @@ public partial class $name $baseClass
             List<string> properties = new List<string>();
             properties.Add("#region properties - accessors");
             string name2 = table.Class ?? table.Name;
+            name2 = CSharp.FormatTableName(name2);
 
             //foreach(DlinqSchema.Column col in table.Types[0].Columns)
             foreach(DlinqSchema.Column col in table.Columns)
@@ -141,7 +142,7 @@ public EntityMSet<$childClassName> $fieldName
                 //DlinqSchema.Association assoc2 = findReverseAssoc(schema, assoc);
                 //if(assoc2==null)
                 //    continue; //error already printed
-                DlinqSchema.Table targetTable = schema.Schemas[0].Tables.FirstOrDefault( t => t.Name==assoc.Target);
+                DlinqSchema.Table targetTable = schema.Tables.FirstOrDefault( t => t.Name==assoc.Target);
                 if(targetTable==null)
                 {
                     Console.WriteLine("ERROR L143 target table not found:"+assoc.Target);
@@ -189,7 +190,7 @@ public $parentClassTyp $parentClassFld {
             List<string> linksToChildTables = new List<string>();
             foreach(DlinqSchema.Association assoc in ourParents)
             {
-                DlinqSchema.Table targetTable = schema.Schemas[0].Tables.FirstOrDefault( t => t.Name==assoc.Target);
+                DlinqSchema.Table targetTable = schema.Tables.FirstOrDefault( t => t.Name==assoc.Target);
                 if(targetTable==null)
                 {
                     Console.WriteLine("ERROR L191 target table not found:"+assoc.Target);
@@ -234,7 +235,7 @@ public $parentClassTyp $parentClassFld {
         {
             //first, find target table
             DlinqSchema.Table targetTable 
-                = schema.Schemas[0].Tables.FirstOrDefault( t => t.Name==assoc.Target);
+                = schema.Tables.FirstOrDefault( t => t.Name==assoc.Target);
             if(targetTable==null)
             {
                 Console.WriteLine("findReverseAssoc: ERROR L158 target table not found: "+assoc.Target);

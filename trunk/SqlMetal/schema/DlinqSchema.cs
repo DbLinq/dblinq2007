@@ -12,6 +12,23 @@ namespace SqlMetal.schema
     /// and it's XML representation should correspond to Microsoft's 'DLinq Mapping Schema.xsd'
     /// We try to mimic Microsoft's schema syntax -
     /// - see 'DLinq Overview for CSharp Developers.doc', paragraph 'Here is a prototypical example of the XML syntax:'
+    /// 
+    /// 2007-Nov update: please see Microsoft documentation 'External Mapping Reference (LINQ to SQL)'
+    /// http://msdn2.microsoft.com/en-us/library/bb386907(VS.90).aspx
+    /// 
+    /// Paul Welter says in http://community.codesmithtools.com/blogs/pwelter/atom.aspx: 
+    ///   Safe Attributes to change in the Dbml file ...
+    /// - Database/@Class - The name of the DataContext class that will be generated.
+    /// - Database/@EntityNamespace - The namespace for the entity classes.
+    /// - Database/@ContextNamespace - The namespace for the DataContext class.
+    /// - Table/@Member - The property name for the table in the DataContext class.
+    /// - Type/@Name - The name of the entity class.
+    /// - Column/@Member - The property name for the column in the entity class.
+    /// - Column/@Storage - The private field LINQ to SQL will us to assign values to.
+    /// - Association/@Member - The property name for this association.
+    /// - Association/@Storage - The private field LINQ to SQL will us to assign values the association to.
+    /// - Function/@Method  - The name of the method for the database procedure.
+    /// - Parameter/@Parameter - The method argument name that maps to the database procedure parameter.
     /// </summary>
     public class DlinqSchema
     {
@@ -21,9 +38,11 @@ namespace SqlMetal.schema
             [XmlAttribute] public AccessEnum1 Access;            
             [XmlAttribute] public string Class;
 
-            [XmlElement("Schema")] 
-            public readonly List<Schema> Schemas = new List<Schema>();
+            //[XmlElement("Schema")] 
+            //public readonly List<Schema> Schemas = new List<Schema>();
 
+            [XmlElement("Table")]
+            public readonly List<Table> Tables = new List<Table>();
 
             public static Database LoadFromFile(string fname)
             {
@@ -40,25 +59,6 @@ namespace SqlMetal.schema
         public enum AccessEnum1 { @public, @internal };
         public enum AccessEnum2 { @public, @private, @internal, @protected };
 
-        public class Schema
-        {
-            [XmlAttribute]
-            public string Name;
-            [XmlAttribute]
-            public string Property;
-            [XmlAttribute]
-            public bool Hidden;
-            [XmlAttribute] public AccessEnum1 Access;            
-            [XmlAttribute] public string Class;
-
-            [XmlElement("Table")]
-            public readonly List<Table> Tables = new List<Table>();
-
-            public override string ToString()
-            {
-                return "Dblinq.Schema nom=" + Name + " tlbs=" + Tables.Count;
-            }
-        }
 
         /// <summary>
         /// simple name of column, as used within PrimaryKey and Unique elements
@@ -97,6 +97,9 @@ namespace SqlMetal.schema
             [XmlAttribute] public AccessEnum1 Access;            
             [XmlAttribute] public string Class;
 
+            [XmlAttribute]
+            public string Member;
+
             //note: Microsoft seems to use table.Columns instead of table.Types[0].Columns
             [XmlElement("Column")]
             public readonly List<Column> Columns = new List<Column>();
@@ -108,17 +111,11 @@ namespace SqlMetal.schema
             [XmlElement] public readonly List<ColumnSpecifier> Unique = new List<ColumnSpecifier>();
             [XmlElement] public readonly List<Index> Index = new List<Index>();
 
-#if TEMP_DISABLED_TYPES
-            //note: Microsoft seems to use table.Columns instead of table.Types[0].Columns
-            [XmlElement] public readonly List<Type> Types = new List<Type>();
-#endif
-
             public override string ToString()
             {
-                string typs = ""; // Types.Count > 0 ? " types=" + Types.Count : "";
                 string prim = PrimaryKey.Count == 0 ? "" : " primaryKeys=" + PrimaryKey.Count;
                 string cols = Columns.Count > 0 ? " columns=" + Columns.Count : "";
-                return "Dblinq.Table nom=" + Name + typs + cols + prim;
+                return "Dblinq.Table nom=" + Name + cols + prim;
             }
         }
 

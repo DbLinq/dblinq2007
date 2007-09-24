@@ -28,9 +28,9 @@ namespace SqlMetal.schema.mysql
             DlinqSchema.Database schema = new DlinqSchema.Database();
             schema.Name = mmConfig.database;
             schema.Class = FormatTableName(schema.Name);
-            DlinqSchema.Schema schema0 = new DlinqSchema.Schema();
-            schema0.Name = "Default";
-            schema.Schemas.Add( schema0 );
+            //DlinqSchema.Schema schema0 = new DlinqSchema.Schema();
+            //schema0.Name = "Default";
+            //schema.Schemas.Add( schema0 );
 
             //##################################################################
             //step 1 - load tables
@@ -46,7 +46,7 @@ namespace SqlMetal.schema.mysql
                 DlinqSchema.Table tblSchema = new DlinqSchema.Table();
                 tblSchema.Name = tblRow.table_name;
                 tblSchema.Class = FormatTableName(tblRow.table_name);
-                schema0.Tables.Add( tblSchema );
+                schema.Tables.Add( tblSchema );
             }
 
             //ensure all table schemas contain one type:
@@ -63,7 +63,7 @@ namespace SqlMetal.schema.mysql
             foreach(Column columnRow in columns)
             {
                 //find which table this column belongs to
-                DlinqSchema.Table tableSchema = schema0.Tables.FirstOrDefault(tblSchema => columnRow.table_name==tblSchema.Name);
+                DlinqSchema.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.table_name==tblSchema.Name);
                 if(tableSchema==null)
                 {
                     Console.WriteLine("ERROR L46: Table '"+columnRow.table_name+"' not found for column "+columnRow.column_name);
@@ -101,7 +101,7 @@ namespace SqlMetal.schema.mysql
             foreach(KeyColumnUsage keyColRow in constraints)
             {
                 //find my table:
-                DlinqSchema.Table table = schema0.Tables.FirstOrDefault(t => keyColRow.table_name==t.Name);
+                DlinqSchema.Table table = schema.Tables.FirstOrDefault(t => keyColRow.table_name==t.Name);
                 if(table==null)
                 {
                     Console.WriteLine("ERROR L46: Table '"+keyColRow.table_name+"' not found for column "+keyColRow.column_name);
@@ -154,7 +154,7 @@ namespace SqlMetal.schema.mysql
                     DlinqSchema.ColumnName assocCol2 = new DlinqSchema.ColumnName();
                     assocCol2.Name = keyColRow.column_name;
                     assoc2.Columns.Add(assocCol2);
-                    DlinqSchema.Table parentTable = schema0.Tables.FirstOrDefault(t => keyColRow.referenced_table_name==t.Name);
+                    DlinqSchema.Table parentTable = schema.Tables.FirstOrDefault(t => keyColRow.referenced_table_name==t.Name);
                     if (parentTable == null)
                     {
                         Console.WriteLine("ERROR 148: parent table not found: " + keyColRow.referenced_table_name);
