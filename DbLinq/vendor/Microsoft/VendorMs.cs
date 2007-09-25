@@ -55,9 +55,9 @@ namespace DBLinq.vendor
         /// for large number of rows, we want to use BULK INSERT, 
         /// because it does not fill up the translation log.
         /// </summary>
-        public static void DoBulkInsert<T>(List<T> rows, string connStr)
+        public static void DoBulkInsert<T>(List<T> rows, SqlConnection conn)
         {
-            SqlBulkCopy bulkCopy = new SqlBulkCopy(connStr, SqlBulkCopyOptions.TableLock);
+            SqlBulkCopy bulkCopy = new SqlBulkCopy(conn); //, SqlBulkCopyOptions.TableLock);
             bulkCopy.DestinationTableName = AttribHelper.GetTableAttrib(typeof(T)).Name;
             
             DataTable dt = new DataTable();
@@ -78,6 +78,8 @@ namespace DBLinq.vendor
                 //use reflection to retrieve object's fields (TODO: optimize this later)
                 foreach (KeyValuePair<PropertyInfo, ColumnAttribute> pair in columns)
                 {
+                    if (pair.Value.IsDbGenerated)
+                        continue; //don't assign IDENTITY col
                     object value = pair.Key.GetValue(row, indices);
                     dr[pair.Value.Name] = value;
                 }
@@ -87,5 +89,7 @@ namespace DBLinq.vendor
             bulkCopy.WriteToServer(dt);
 
         }
+
+        public static readonly Dictionary<DBLinq.Linq.IMTable, bool> UseBulkInsert = new Dictionary<DBLinq.Linq.IMTable, bool>();
     }
 }

@@ -200,9 +200,12 @@ namespace DBLinq.Linq
             ProjectionData proj = ProjectionData.FromDbType(typeof(T));
             XSqlConnection conn = _parentDB.SqlConnection;
 
-#if ENABLE_MS_BULK_INSERT
-            VendorMs.DoBulkInsert<T>(_insertList);
-            _insertList.Clear();
+#if MICROSOFT //bulk insert code
+            if(vendor.Vendor.UseBulkInsert.ContainsKey(this))
+            {
+                vendor.Vendor.DoBulkInsert(_insertList,conn);
+                _insertList.Clear();
+            }
 #endif
 
             foreach (T obj in _insertList)

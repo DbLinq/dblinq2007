@@ -59,7 +59,7 @@ namespace SqlMetal.schema
         /// <summary>
         /// given 'dbo.Order Details', return 'Order_Details'
         /// </summary>
-        public static string FormatTableName(string sqlTableName)
+        public static string FormatTableClassName(string sqlTableName)
         {
             if (sqlTableName.Contains("."))
             {
