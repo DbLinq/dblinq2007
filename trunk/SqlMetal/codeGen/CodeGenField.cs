@@ -31,14 +31,14 @@ namespace SqlMetal.codeGen
             attribParts.Add("Name=\""+column.Name+"\"");
             
             //if(column.extra=="auto_increment")
-            if(column.IsAutogen)
+            if(column.IsDbGenerated)
             {
                 //attribParts.Add("Id=true, AutoGen=true");
                 attribParts.Add("IsDbGenerated=true");
             }
             attribParts.Add("DbType=\""+column.DbType+"\"");
 
-            bool isPrimaryKeyCol = column.IsIdentity;
+            bool isPrimaryKeyCol = column.IsPrimaryKey;
             //bool hasForeignKey   = false;
             if(isPrimaryKeyCol){
                 attribParts.Add("IsPrimaryKey=true");
@@ -56,7 +56,7 @@ namespace SqlMetal.codeGen
             //    : column.Name;
             _nameU = Util.FieldName(column.Name);
 
-            _columnType = CSharp.FormatType(column.Type, column.Nullable);
+            _columnType = CSharp.FormatType(column.Type, column.CanBeNull);
         }
 
         public string generateField()
@@ -67,7 +67,7 @@ protected $type _$name;";
             template = template.Replace("$name", _column.Name);
             template = template.Replace("$attribOpt", _attrib2);
             template = template.Replace("$constraintWarn", _constraintWarn);
-            if(_column.IsAutogen){
+            if(_column.IsDbGenerated){
                 //mark this field - it must be modified on insertion
                 template = "[DBLinq.Linq.AutoGenId] "+template;
             }

@@ -42,16 +42,15 @@ public partial class $name $baseClass
             List<string> fieldBodies = new List<string>();
             List<string> properties = new List<string>();
             properties.Add("#region properties - accessors");
-            string name2 = table.Class ?? table.Name;
-            name2 = CSharp.FormatTableName(name2);
+            string className = CSharp.FormatTableClassName(table.Class ?? table.Name);
 
             //foreach(DlinqSchema.Column col in table.Types[0].Columns)
-            foreach(DlinqSchema.Column col in table.Columns)
+            foreach (DlinqSchema.Column col in table.Type.Columns)
             {
                 List<DlinqSchema.Association> constraintsOnField 
-                    = table.Associations.FindAll( a => a.Name==col.Name );
+                    = table.Type.Associations.FindAll( a => a.Name==col.Name );
 
-                CodeGenField codeGenField = new CodeGenField(name2, col, constraintsOnField);
+                CodeGenField codeGenField = new CodeGenField(className, col, constraintsOnField);
                 string fld = codeGenField.generateField();
                 string prop = codeGenField.generateProperty();
                 fld = fld.Replace("\n", "\n\t");
@@ -73,7 +72,7 @@ public partial class $name $baseClass
             string parentTables = GetLinksToParentTables(schema, table);
 
 
-            template = template.Replace("$name", name2);
+            template = template.Replace("$name", className);
             template = template.Replace("$tableName", table.Name);
             template = template.Replace("$ctors", ctor);
             template = template.Replace("$fields", fieldsConcat);
@@ -103,10 +102,10 @@ public $name($argList)
             List<string> ctorArgs = new List<string>();
             List<string> ctorStatements = new List<string>();
 
-            foreach(DlinqSchema.Column col in table.Columns)
+            foreach (DlinqSchema.Column col in table.Type.Columns)
             {
-                string property = col.Property ?? col.Name;
-                string colType2 = CSharp.FormatType(col.Type, col.Nullable);
+                string property = col.Member ?? col.Name;
+                string colType2 = CSharp.FormatType(col.Type, col.CanBeNull);
                 string arg = colType2 + " " + property;
                 ctorArgs.Add(arg);
                 string assign = "this._" + col.Name + " = " + property + ";";
@@ -115,7 +114,9 @@ public $name($argList)
 
             string argsCsv = string.Join(",", ctorArgs.ToArray());
             string statements = string.Join("\n", ctorStatements.ToArray());
-            template = template.Replace("$name", table.Class ?? table.Name);
+            string className = CSharp.FormatTableClassName(table.Class ?? table.Name);
+
+            template = template.Replace("$name", className);
             template = template.Replace("$argList", argsCsv);
             template = template.Replace("$statements", statements);
             template = template.Replace("\n","\n\t");
@@ -133,8 +134,7 @@ public EntityMSet<$childClassName> $fieldName
 }";
             //child table contains a ManyToOneParent Association, pointing to parent
             //parent table contains a ManyToOneChild.
-            var ourChildren = table.Associations 
-                          .Where( a=> a.Kind==DlinqSchema.RelationshipKind.ManyToOneChild );
+            var ourChildren = table.Type.Associations.Where( a=> a.OtherKey!=null );
 
             List<string> linksToChildTables = new List<string>();
             foreach(DlinqSchema.Association assoc in ourChildren)
@@ -142,18 +142,18 @@ public EntityMSet<$childClassName> $fieldName
                 //DlinqSchema.Association assoc2 = findReverseAssoc(schema, assoc);
                 //if(assoc2==null)
                 //    continue; //error already printed
-                DlinqSchema.Table targetTable = schema.Tables.FirstOrDefault( t => t.Name==assoc.Target);
+                DlinqSchema.Table targetTable = schema.Tables.FirstOrDefault( t => t.Name==assoc.Type);
                 if(targetTable==null)
                 {
-                    Console.WriteLine("ERROR L143 target table not found:"+assoc.Target);
+                    Console.WriteLine("ERROR L143 target table not found:" + assoc.Type);
                     continue;
                 }
 
 
                 string str = childLinkTemplate;
 
-                string childTableName   = assoc.Target;
-                string childColName     = assoc.Columns[0].Name; //eg. 'CustomerID'
+                string childTableName = assoc.Type;
+                string childColName     = assoc.OtherKey; //.Columns[0].Name; //eg. 'CustomerID'
                 string fkName           = assoc.Name; //eg. 'FK_Orders_Customers'
                 string childClassName   = targetTable.Class ?? targetTable.Name;
                 string fieldName        = childClassName+"s";
@@ -182,25 +182,22 @@ public $parentClassTyp $parentClassFld {
 	set { this.$fieldName2.Entity = value; }
 }
 ";
-            //child table contains a ManyToOneParent Association, pointing to parent
-            //parent table contains a ManyToOneChild.
-            var ourParents = table.Associations 
-                          .Where( a=> a.Kind==DlinqSchema.RelationshipKind.ManyToOneParent );
+            var ourParents = table.Type.Associations.Where( a=>a.ThisKey!=null );
 
             List<string> linksToChildTables = new List<string>();
             foreach(DlinqSchema.Association assoc in ourParents)
             {
-                DlinqSchema.Table targetTable = schema.Tables.FirstOrDefault( t => t.Name==assoc.Target);
+                DlinqSchema.Table targetTable = schema.Tables.FirstOrDefault( t => t.Name==assoc.Type );
                 if(targetTable==null)
                 {
-                    Console.WriteLine("ERROR L191 target table not found:"+assoc.Target);
+                    Console.WriteLine("ERROR L191 target table not found:"+assoc.Type);
                     continue;
                 }
 
                 string str = childLinkTemplate;
 
                 //string childTableName   = assoc.Target;
-                string thisKey          = assoc.Columns[0].Name; //eg. 'CustomerID'
+                string thisKey          = assoc.ThisKey; //.Columns[0].Name; //eg. 'CustomerID'
                 string fkName           = assoc.Name; //eg. 'FK_Orders_Customers'
                 string parentClassName  = targetTable.Class ?? targetTable.Name;
                 string parentClassNameFld = parentClassName;
@@ -235,16 +232,16 @@ public $parentClassTyp $parentClassFld {
         {
             //first, find target table
             DlinqSchema.Table targetTable 
-                = schema.Tables.FirstOrDefault( t => t.Name==assoc.Target);
+                = schema.Tables.FirstOrDefault( t => t.Name==assoc.Type );
             if(targetTable==null)
             {
-                Console.WriteLine("findReverseAssoc: ERROR L158 target table not found: "+assoc.Target);
+                Console.WriteLine("findReverseAssoc: ERROR L158 target table not found: " + assoc.Type);
                 return null;
             }
 
             //next, find reverse association (has the same name)
             DlinqSchema.Association reverseAssoc
-                = targetTable.Associations.FirstOrDefault( a2 => a2.Name==assoc.Name );
+                = targetTable.Type.Associations.FirstOrDefault( a2 => a2.Name==assoc.Name );
             if(reverseAssoc==null)
             {
                 Console.WriteLine("findReverseAssoc: ERROR L167 reverse assoc not found: "+assoc.Name);
@@ -274,23 +271,25 @@ public $parentClassTyp $parentClassFld {
 ";
 
             string tableName = table.Name;
-            List<DlinqSchema.ColumnSpecifier> primaryKeys = table.PrimaryKey;
+            //List<DlinqSchema.ColumnSpecifier> primaryKeys = table.PrimaryKey;
+            List<DlinqSchema.Column> primaryKeys = table.Type.Columns.Where(c => c.IsPrimaryKey).ToList();
             if(primaryKeys.Count==0)
             {
                 return "#warning L189 table "+tableName+" has no primary key. Multiple c# objects will refer to the same row.\n";
             }
             //TODO - handle composite keys
             //TODO - ensure primary key column is non-null, even for composite keys
-            if (primaryKeys == null || primaryKeys.Count == 0 && primaryKeys[0].Columns == null || primaryKeys[0].Columns.Count == 0)
+            if (primaryKeys == null || primaryKeys.Count == 0 //&& primaryKeys[0].Columns == null || primaryKeys[0].Columns.Count == 0
+                )
             {
                 Console.WriteLine("ERROR L269 - bad primary key data");
                 return "_L269_BAD_PRIMARY_KEY_";
             }
 
-            string fieldName = "_"+primaryKeys[0].Columns[0].Name;
+            string fieldName = "_"+primaryKeys[0].Name;
 
             string result = template.Replace("$fieldID",fieldName);
-            result = result.Replace("$className", table.Class ?? table.Name);
+            result = result.Replace("$className", CSharp.FormatTableClassName(table.Class ?? table.Name) );
             return result;
         }
     }

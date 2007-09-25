@@ -38,9 +38,6 @@ namespace SqlMetal.schema
             [XmlAttribute] public AccessEnum1 Access;            
             [XmlAttribute] public string Class;
 
-            //[XmlElement("Schema")] 
-            //public readonly List<Schema> Schemas = new List<Schema>();
-
             [XmlElement("Table")]
             public readonly List<Table> Tables = new List<Table>();
 
@@ -58,6 +55,7 @@ namespace SqlMetal.schema
 
         public enum AccessEnum1 { @public, @internal };
         public enum AccessEnum2 { @public, @private, @internal, @protected };
+        public enum UpdateCheck{ @public, @private, @internal, @protected };
 
 
         /// <summary>
@@ -76,7 +74,6 @@ namespace SqlMetal.schema
             /// name of this PrimaryKey or Unique
             /// </summary>
             [XmlAttribute] public string Name;
-            [XmlAttribute] public bool Hidden;
 
             [XmlElement("Column")]
             public readonly List<ColumnName> Columns = new List<ColumnName>();
@@ -90,123 +87,153 @@ namespace SqlMetal.schema
             [XmlAttribute] public bool IsUnique;
         }
 
+        /// <summary>
+        /// represents a dbml table - contains a type with columns.
+        /// </summary>
         public class Table
         {
             [XmlAttribute] public string Name;
-            [XmlAttribute] public bool Hidden;
             [XmlAttribute] public AccessEnum1 Access;            
             [XmlAttribute] public string Class;
 
             [XmlAttribute]
             public string Member;
 
-            //note: Microsoft seems to use table.Columns instead of table.Types[0].Columns
+
+            [XmlElement] public readonly List<ColumnSpecifier> Unique = new List<ColumnSpecifier>();
+            [XmlElement] public readonly List<Index> Index = new List<Index>();
+
+            public override string ToString()
+            {
+                string cols = Type==null 
+                    ? "null Type "
+                    : (Type.Columns.Count > 0 ? " columns=" + Type.Columns.Count : "");
+                return "Dblinq.Table nom=" + Name + cols; // +prim;
+            }
+
+            public Type Type;
+        }
+
+        public class Type
+        {
+            [XmlAttribute] public string Name;
+            [XmlAttribute] public AccessEnum2 Access;            
+            [XmlAttribute] public string InheritanceCode;
+            [XmlAttribute] public bool IsInheritanceDefault;
+
             [XmlElement("Column")]
             public readonly List<Column> Columns = new List<Column>();
 
             [XmlElement("Association")]
             public readonly List<Association> Associations = new List<Association>();
 
-            [XmlElement] public readonly List<ColumnSpecifier> PrimaryKey = new List<ColumnSpecifier>();
-            [XmlElement] public readonly List<ColumnSpecifier> Unique = new List<ColumnSpecifier>();
-            [XmlElement] public readonly List<Index> Index = new List<Index>();
-
             public override string ToString()
             {
-                string prim = PrimaryKey.Count == 0 ? "" : " primaryKeys=" + PrimaryKey.Count;
-                string cols = Columns.Count > 0 ? " columns=" + Columns.Count : "";
-                return "Dblinq.Table nom=" + Name + cols + prim;
+                return "Type " + Name + " cols=" + Columns.Count + " assoc="+Associations.Count;
             }
-        }
-
-        public class Type
-        {
-            [XmlAttribute] public string Name;
-            [XmlAttribute] public bool Hidden;
-            [XmlAttribute] public AccessEnum2 Access;            
-            [XmlAttribute] public string InheritanceCode;
-            [XmlAttribute] public bool IsInheritanceDefault;
-
-            //note: Microsoft seems to use table.Columns instead of table.Types[0].Columns
-            [XmlElement] public readonly List<Column> Columns = new List<Column>();
-
-            [XmlElement] public readonly List<Association> Associations = new List<Association>();
         }
 
         public enum UpdateCheckEnum { Always, Never, WhenChanged }
+        public enum AutoSyncEnum { Never, OnInsert, OnUpdate, Always, Default }
 
+        /// <summary>
+        /// represents a dbml column (a DB table contains a type with these columns).
+        /// </summary>
         public class Column
         {
-            [XmlAttribute] public string Name;
-            [XmlAttribute] public bool Hidden;
-            [XmlAttribute] public AccessEnum2 Access;            
-            [XmlAttribute] public string Property;
-            [XmlAttribute] public string DbType;
+            [XmlAttribute]
+            public string Name;
+
+            [XmlAttribute]
+            public string Member;
+
+            [XmlAttribute]
+            public string Storage;
 
             /// <summary>
-            /// CLR-type
+            /// CLR type, eg. 'System.Int32'
             /// </summary>
-            [XmlAttribute] public string Type;
-            [XmlAttribute] public bool Nullable;
-            [XmlAttribute] public bool IsIdentity;
-            [XmlAttribute] public bool IsAutogen;
+            [XmlAttribute]
+            public string Type;
+
+            [XmlAttribute]
+            public string DbType;
+
+            [XmlAttribute]
+            public bool IsPrimaryKey;
+
+            [XmlAttribute]
+            public bool IsDbGenerated;
+
+            [XmlAttribute]
+            public bool CanBeNull;
+
+            [XmlAttribute]
+            public UpdateCheckEnum UpdateCheck;
+
+            [XmlAttribute]
+            public bool IsDiscriminator;
 
             /// <summary>
-            /// specifies whether the data value constitutes a version stamp maintained by the database.
+            /// during CreateDatabase, describes expresion for a calculated column
             /// </summary>
-            [XmlAttribute] public bool IsVersion;
-            [XmlAttribute] public bool IsReadOnly;
-            [XmlAttribute] public UpdateCheckEnum UpdateCheck;
+            [XmlAttribute]
+            public string Expression;
+
+            [XmlAttribute]
+            public bool IsVersion;
+
+            [XmlAttribute]
+            public AutoSyncEnum AutoSync;
+
 
             public override string ToString()
             {
-                return "Column " + Name + "  " + Type;
+                string pk = IsPrimaryKey ? " (PK)" : "";
+                return "Column " + Name + "  " + DbType + pk;
             }
         }
 
-#if WRONG
-        public class Association
+        /// <summary>
+        /// represents a DBML association. Lives in Table.Type .
+        /// Associations always come in pairs - both parent and child table contain an Association.
+        /// </summary>
+        public class Association //: ColumnSpecifier
         {
-            [XmlAttribute] public string Name;
+            [XmlAttribute]
+            public string Name;
+
+            [XmlAttribute]
+            public string Member;
+
+            [XmlAttribute]
+            public string Storage;
 
             /// <summary>
-            /// The name of the underlying storage member. If specified it tells DLinq how to bypass the public property accessor for the data member and interact with the raw value itself. If not specified DLinq gets and sets the value using the public accessor. It is recommended that all association members be properties with separate storage members identified
+            /// eg. for Table 'Category', we have Assoc.Type='Products'
             /// </summary>
-            [XmlAttribute] public string Storage;
+            [XmlAttribute]
+            public string Type;
 
-            /// <summary>
-            /// A comma separated list of names of one or more members of this entity class that represent the key values on this side of the association.  If not specified, the members are assumed to be the members that make up the primary key
-            /// </summary>
-            [XmlAttribute] public string ThisKey;
 
-            /// <summary>
-            /// A comma separated list of names of one or more members of the target entity class that represent the key values on the other side of the association.  If not specified, the members are assumed to be the members that make up the other entity class’s primary key
-            /// </summary>
-            [XmlAttribute] public string OtherKey;
-            
-            /// <summary>
-            /// True if there a uniqueness constraint on the foreign key, indicating a true 1:1 relationship. This property is seldom used as 1:1 relationships are near impossible to manage within the database. Mostly entity models are defined using 1:n relationships even when they are treated as 1:1 by application developers.
-            /// </summary>
-            [XmlAttribute] public bool Unique;
+            [XmlAttribute]
+            public string ThisKey;
 
-            /// <summary>
-            /// True if the target ‘other’ type of the association is the parent of the source type. With foreign-key to primary-key relationships, the side holding the foreign-key is the child and the side holding the primary key is the parent.
-            /// </summary>
-            [XmlAttribute] public bool IsParent;
+            [XmlAttribute]
+            public string OtherKey;
 
-        }
-#endif
-        public class Association : ColumnSpecifier
-        {
-            [XmlAttribute] public RelationshipKind Kind;
+            [XmlAttribute]
+            public bool IsForeignKey;
 
-            /// <summary>
-            /// target-table name
-            /// </summary>
-            [XmlAttribute] public string Target;
+            [XmlAttribute]
+            public bool IsUnique;
 
-            [XmlAttribute] public string UpdateRule;
-            [XmlAttribute] public string DeleteRule;
+            //[XmlAttribute] public string UpdateRule;
+            [XmlAttribute]
+            public string DeleteRule;
+
+            [XmlAttribute]
+            public bool DeleteOnNull;
         }
 
         public class StoredProcedure
@@ -229,18 +256,23 @@ namespace SqlMetal.schema
         static void Main()
         {
             Table tbl = new Table();
-            tbl.Name = "Products";
+            tbl.Name = "Products"; 
+            
+            Type type = new Type();
+            type.Name = "Categories";
+            tbl.Type = type;
 
-            Schema sch = new Schema();
-            sch.Name = "Schema1";
-            sch.Tables.Add( tbl );
+            Column col = new Column();
+            col.Name = "col1";
+            tbl.Type.Columns.Add(col);
+
             Database db = new Database();
             db.Name = "LinqTestDB";
-            db.Schemas.Add(sch);
+            db.Tables.Add(tbl);
 
 
             XmlSerializer xser = new XmlSerializer(typeof(Database));
-            object obj = xser.Deserialize(System.IO.File.OpenText("c:/temp/db_test.xml"));
+            //object obj = xser.Deserialize(System.IO.File.OpenText("northwind.dbml"));
             System.IO.StringWriter sw = new System.IO.StringWriter();
             xser.Serialize(sw,db);
             System.IO.File.WriteAllText("c:/temp/db_test.xml", sw.ToString());
