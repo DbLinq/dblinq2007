@@ -43,6 +43,9 @@ namespace SqlMetal.schema
             [XmlElement("Table")]
             public readonly List<Table> Tables = new List<Table>();
 
+            /// <summary>
+            /// load a DBML file
+            /// </summary>
             public static Database LoadFromFile(string fname)
             {
                 XmlSerializer xser = new XmlSerializer(typeof(Database));
@@ -53,6 +56,38 @@ namespace SqlMetal.schema
                     return obj2;
                 }
             }
+
+            /// <summary>
+            /// save a DBML file
+            /// </summary>
+            public static void SaveDbmlFile(string fname, Database db)
+            {
+                XmlSerializer xser = new XmlSerializer(typeof(Database));
+                System.IO.StringWriter writer = new System.IO.StringWriter();
+                //using (System.IO.StreamWriter writer = System.IO.File.CreateText(fname))
+                //{
+                //    xser.Serialize(writer, db);
+                //}
+                xser.Serialize(writer, db);
+                string xml = writer.ToString();
+
+                //remove default values which would produce a huge xml file
+                xml = xml.Replace(" IsPrimaryKey=\"false\"", "");
+                xml = xml.Replace(" IsDbGenerated=\"false\"", "");
+                xml = xml.Replace(" IsDiscriminator=\"false\"", "");
+                xml = xml.Replace(" IsVersion=\"false\"", "");
+                xml = xml.Replace(" IsInheritanceDefault=\"false\"", "");
+                xml = xml.Replace(" IsForeignKey=\"false\"", "");
+                xml = xml.Replace(" IsUnique=\"false\"", "");
+                xml = xml.Replace(" DeleteOnNull=\"false\"", "");
+                xml = xml.Replace(" UpdateCheck=\"Always\"", "");
+                xml = xml.Replace(" AutoSync=\"Never\"", "");
+                xml = xml.Replace(" Access=\"public\"", "");
+
+                System.IO.File.WriteAllText(fname, xml);
+                //IsPrimaryKey="false" IsDbGenerated="false"
+            }
+
         }
 
         public enum AccessEnum1 { @public, @internal };
