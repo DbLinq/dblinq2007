@@ -45,7 +45,7 @@ namespace SqlMetal.schema.mysql
             {
                 DlinqSchema.Table tblSchema = new DlinqSchema.Table();
                 tblSchema.Name = tblRow.table_name;
-                tblSchema.Class = FormatTableName(tblRow.table_name);
+                tblSchema.Type.Name = FormatTableName(tblRow.table_name);
                 schema.Tables.Add( tblSchema );
             }
 
@@ -72,14 +72,14 @@ namespace SqlMetal.schema.mysql
                 DlinqSchema.Column colSchema = new DlinqSchema.Column();
                 colSchema.Name = columnRow.column_name;
                 colSchema.DbType = columnRow.datatype; //.column_type ?
-                colSchema.IsIdentity = columnRow.column_key=="PRI";
-                colSchema.IsAutogen = columnRow.extra=="auto_increment";
+                colSchema.IsPrimaryKey = columnRow.column_key=="PRI";
+                colSchema.IsDbGenerated = columnRow.extra=="auto_increment";
                 //colSchema.IsVersion = ???
-                colSchema.Nullable = columnRow.isNullable;
+                colSchema.CanBeNull = columnRow.isNullable;
                 colSchema.Type = Mappings.mapSqlTypeToCsType(columnRow.datatype, columnRow.column_type);
                 
                 //this will be the c# field name
-                colSchema.Property = CSharp.IsCsharpKeyword(columnRow.column_name) 
+                colSchema.Member = CSharp.IsCsharpKeyword(columnRow.column_name) 
                     ? columnRow.column_name+"_" //avoid keyword conflict - append underscore
                     : columnRow.column_name;
 
@@ -88,7 +88,7 @@ namespace SqlMetal.schema.mysql
                 colSchema.Type += "?";
 
                 //tableSchema.Types[0].Columns.Add(colSchema);
-                tableSchema.Columns.Add(colSchema);
+                tableSchema.Type.Columns.Add(colSchema);
             }
 
             //##################################################################
@@ -110,20 +110,6 @@ namespace SqlMetal.schema.mysql
 
                 if(keyColRow.constraint_name=="PRIMARY")
                 {
-                    //A) add primary key
-                    DlinqSchema.ColumnSpecifier primaryKey = new DlinqSchema.ColumnSpecifier();
-                    primaryKey.Name = keyColRow.constraint_name;
-                    DlinqSchema.ColumnName colName = new DlinqSchema.ColumnName();
-                    colName.Name = keyColRow.column_name;
-                    primaryKey.Columns.Add(colName);
-                    table.PrimaryKey.Add( primaryKey );
-
-                    //B mark the column itself as being 'IsIdentity=true'
-                    //DlinqSchema.Column col = table.Types[0].Columns.FirstOrDefault(c => keyColRow.column_name==c.Name);
-                    //if(col!=null)
-                    //{
-                    //    col.IsIdentity = true;
-                    //}
                 } else 
                 {
                     //if not PRIMARY, it's a foreign key.
@@ -131,29 +117,21 @@ namespace SqlMetal.schema.mysql
                     //table.as
                     DlinqSchema.Association assoc = new DlinqSchema.Association();
 
-                    //assoc.Kind = DlinqSchema.RelationshipKind.ManyToOneChild;
-                    assoc.Kind = DlinqSchema.RelationshipKind.ManyToOneParent;
+                    assoc.IsForeignKey = true;
 
                     assoc.Name = keyColRow.constraint_name;
-                    //assoc.Target = keyColRow.referenced_table_name + "."+ keyColRow.referenced_column_name;
-                    assoc.Target = keyColRow.referenced_table_name;
-                    DlinqSchema.ColumnName assocCol = new DlinqSchema.ColumnName();
-                    assocCol.Name = keyColRow.column_name;
-                    assoc.Columns.Add(assocCol);
+                    assoc.Type = keyColRow.referenced_table_name;
                     //table.Types[0].Associations.Add(assoc);
-                    table.Associations.Add(assoc);
+                    table.Type.Associations.Add(assoc);
 
                     //and insert the reverse association:
                     DlinqSchema.Association assoc2 = new DlinqSchema.Association();
 
-                    //assoc2.Kind = DlinqSchema.RelationshipKind.ManyToOneParent;
-                    assoc2.Kind = DlinqSchema.RelationshipKind.ManyToOneChild;
-
                     assoc2.Name = keyColRow.constraint_name;
-                    assoc2.Target = keyColRow.table_name;
-                    DlinqSchema.ColumnName assocCol2 = new DlinqSchema.ColumnName();
-                    assocCol2.Name = keyColRow.column_name;
-                    assoc2.Columns.Add(assocCol2);
+                    assoc2.Type = keyColRow.table_name;
+                    //DlinqSchema.ColumnName assocCol2 = new DlinqSchema.ColumnName();
+                    //assocCol2.Name = keyColRow.column_name;
+                    //assoc2.Columns.Add(assocCol2);
                     DlinqSchema.Table parentTable = schema.Tables.FirstOrDefault(t => keyColRow.referenced_table_name==t.Name);
                     if (parentTable == null)
                     {
@@ -161,8 +139,7 @@ namespace SqlMetal.schema.mysql
                     }
                     else
                     {
-                        //parentTable.Types[0].Associations.Add(assoc2);
-                        parentTable.Associations.Add(assoc2);
+                        parentTable.Type.Associations.Add(assoc2);
                     }
 
                 }

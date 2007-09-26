@@ -109,7 +109,7 @@ public partial class $dbname : MContext
             List<string> dbFieldInits = new List<string>();
             foreach(DlinqSchema.Table tbl in dbSchema.Tables)
             {
-                string className = CSharp.FormatTableClassName(tbl.Class ?? tbl.Name);
+                string className = tbl.Type.Name;
 
                 //string tableNamePlural = tbl.Name.Capitalize().Pluralize();
                 string tableNamePlural = Util.TableNamePlural(tbl.Member ?? tbl.Name);

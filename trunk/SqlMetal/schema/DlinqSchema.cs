@@ -32,6 +32,8 @@ namespace SqlMetal.schema
     /// </summary>
     public class DlinqSchema
     {
+        [XmlType(AnonymousType = true, Namespace = "http://schemas.microsoft.com/linqtosql/dbml/2007")]
+        [XmlRoot(Namespace = "http://schemas.microsoft.com/linqtosql/dbml/2007", IsNullable = false)]
         public class Database
         {
             [XmlAttribute] public string Name;
@@ -57,14 +59,16 @@ namespace SqlMetal.schema
         public enum AccessEnum2 { @public, @private, @internal, @protected };
         public enum UpdateCheck{ @public, @private, @internal, @protected };
 
-
+        /* Index etc - unused in Orcas Beta 2?
         /// <summary>
         /// simple name of column, as used within PrimaryKey and Unique elements
         /// </summary>
         //[XmlElement("Column")]
         public class ColumnName
         {
-            [XmlAttribute] public string Name;
+            [XmlAttribute]
+            public string Name;
+
             public ColumnName(){}
             public ColumnName(string name){ Name=name; }
         }
@@ -73,11 +77,13 @@ namespace SqlMetal.schema
             /// <summary>
             /// name of this PrimaryKey or Unique
             /// </summary>
-            [XmlAttribute] public string Name;
+            [XmlAttribute]
+            public string Name;
 
             [XmlElement("Column")]
             public readonly List<ColumnName> Columns = new List<ColumnName>();
         }
+
         public class Index : ColumnSpecifier
         {
             /// <summary>
@@ -86,22 +92,27 @@ namespace SqlMetal.schema
             [XmlAttribute] public string Style;
             [XmlAttribute] public bool IsUnique;
         }
+         * */
 
         /// <summary>
         /// represents a dbml table - contains a type with columns.
         /// </summary>
         public class Table
         {
-            [XmlAttribute] public string Name;
-            [XmlAttribute] public AccessEnum1 Access;            
-            [XmlAttribute] public string Class;
+            [XmlAttribute]
+            public string Name;
+
+            [XmlAttribute]
+            public AccessEnum1 Access;
 
             [XmlAttribute]
             public string Member;
 
+            //[XmlElement]
+            //public readonly List<ColumnSpecifier> Unique = new List<ColumnSpecifier>();
 
-            [XmlElement] public readonly List<ColumnSpecifier> Unique = new List<ColumnSpecifier>();
-            [XmlElement] public readonly List<Index> Index = new List<Index>();
+            //[XmlElement]
+            //public readonly List<Index> Index = new List<Index>();
 
             public override string ToString()
             {
@@ -111,15 +122,22 @@ namespace SqlMetal.schema
                 return "Dblinq.Table nom=" + Name + cols; // +prim;
             }
 
-            public Type Type;
+            public Type Type = new Type();
         }
 
         public class Type
         {
-            [XmlAttribute] public string Name;
-            [XmlAttribute] public AccessEnum2 Access;            
-            [XmlAttribute] public string InheritanceCode;
-            [XmlAttribute] public bool IsInheritanceDefault;
+            [XmlAttribute]
+            public string Name;
+
+            [XmlAttribute]
+            public AccessEnum2 Access;
+
+            [XmlAttribute]
+            public string InheritanceCode;
+
+            [XmlAttribute]
+            public bool IsInheritanceDefault;
 
             [XmlElement("Column")]
             public readonly List<Column> Columns = new List<Column>();
@@ -234,6 +252,13 @@ namespace SqlMetal.schema
 
             [XmlAttribute]
             public bool DeleteOnNull;
+
+            public override string ToString()
+            {
+                string keys = ThisKey != null ? " ThisKey=" + Type + "." + ThisKey : "";
+                keys += OtherKey != null ? " OtherKey=" + Type + "." + OtherKey : "";
+                return "Assoc " + Name + keys;
+            }
         }
 
         public class StoredProcedure
@@ -279,13 +304,13 @@ namespace SqlMetal.schema
         }
 
 #endif
-        public enum RelationshipKind 
-        {
-		    OneToOneChild,
-		    OneToOneParent,
-		    ManyToOneChild,
-		    ManyToOneParent
-    	}
+        //public enum RelationshipKind 
+        //{
+        //    OneToOneChild,
+        //    OneToOneParent,
+        //    ManyToOneChild,
+        //    ManyToOneParent
+        //}
 
     }
 }
