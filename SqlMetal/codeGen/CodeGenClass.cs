@@ -42,7 +42,7 @@ public partial class $name $baseClass
             List<string> fieldBodies = new List<string>();
             List<string> properties = new List<string>();
             properties.Add("#region properties - accessors");
-            string className = CSharp.FormatTableClassName(table.Class ?? table.Name);
+            string className = table.Type.Name; //CSharp.FormatTableClassName(table.Class ?? table.Name);
 
             //foreach(DlinqSchema.Column col in table.Types[0].Columns)
             foreach (DlinqSchema.Column col in table.Type.Columns)
@@ -114,7 +114,7 @@ public $name($argList)
 
             string argsCsv = string.Join(",", ctorArgs.ToArray());
             string statements = string.Join("\n", ctorStatements.ToArray());
-            string className = CSharp.FormatTableClassName(table.Class ?? table.Name);
+            string className = table.Type.Name; 
 
             template = template.Replace("$name", className);
             template = template.Replace("$argList", argsCsv);
@@ -142,7 +142,7 @@ public EntityMSet<$childClassName> $fieldName
                 //DlinqSchema.Association assoc2 = findReverseAssoc(schema, assoc);
                 //if(assoc2==null)
                 //    continue; //error already printed
-                DlinqSchema.Table targetTable = schema.Tables.FirstOrDefault( t => t.Name==assoc.Type);
+                DlinqSchema.Table targetTable = schema.Tables.FirstOrDefault(t => t.Type.Name == assoc.Type);
                 if(targetTable==null)
                 {
                     Console.WriteLine("ERROR L143 target table not found:" + assoc.Type);
@@ -155,8 +155,8 @@ public EntityMSet<$childClassName> $fieldName
                 string childTableName = assoc.Type;
                 string childColName     = assoc.OtherKey; //.Columns[0].Name; //eg. 'CustomerID'
                 string fkName           = assoc.Name; //eg. 'FK_Orders_Customers'
-                string childClassName   = targetTable.Class ?? targetTable.Name;
-                string fieldName        = childClassName+"s";
+                string childClassName = assoc.Type; // targetTable.Class ?? targetTable.Name;
+                string fieldName = assoc.Member; //childClassName+"s";
                 str = str.Replace("$childTableName",    childTableName);
                 str = str.Replace("$childColName",      childColName);
                 str = str.Replace("$fkName",            fkName);
@@ -199,7 +199,7 @@ public $parentClassTyp $parentClassFld {
                 //string childTableName   = assoc.Target;
                 string thisKey          = assoc.ThisKey; //.Columns[0].Name; //eg. 'CustomerID'
                 string fkName           = assoc.Name; //eg. 'FK_Orders_Customers'
-                string parentClassName  = targetTable.Class ?? targetTable.Name;
+                string parentClassName  = targetTable.Type.Name;
                 string parentClassNameFld = parentClassName;
                 string fieldName        = "_"+parentClassName;
                 string fieldName2       = fieldName;
@@ -289,7 +289,7 @@ public $parentClassTyp $parentClassFld {
             string fieldName = "_"+primaryKeys[0].Name;
 
             string result = template.Replace("$fieldID",fieldName);
-            result = result.Replace("$className", CSharp.FormatTableClassName(table.Class ?? table.Name) );
+            result = result.Replace("$className", table.Type.Name);
             return result;
         }
     }

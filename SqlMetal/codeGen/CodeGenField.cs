@@ -30,18 +30,21 @@ namespace SqlMetal.codeGen
             List<string> attribParts = new List<string>();
             attribParts.Add("Name=\""+column.Name+"\"");
             
-            //if(column.extra=="auto_increment")
-            if(column.IsDbGenerated)
-            {
-                //attribParts.Add("Id=true, AutoGen=true");
-                attribParts.Add("IsDbGenerated=true");
-            }
             attribParts.Add("DbType=\""+column.DbType+"\"");
 
-            bool isPrimaryKeyCol = column.IsPrimaryKey;
-            //bool hasForeignKey   = false;
-            if(isPrimaryKeyCol){
+            if(column.IsPrimaryKey)
+            {
                 attribParts.Add("IsPrimaryKey=true");
+            }
+
+            if (column.IsDbGenerated)
+            {
+                attribParts.Add("IsDbGenerated=true");
+            }
+
+            if (!column.IsPrimaryKey)
+            {
+                attribParts.Add("CanBeNull=" + column.CanBeNull.ToString().ToLower());
             }
             _attrib2 = string.Join(", ", attribParts.ToArray());
 
