@@ -26,6 +26,11 @@ namespace SqlMetal
         public static string code = null;
 
         /// <summary>
+        /// If present, write out DBML XML representing the DB
+        /// </summary>
+        public static string dbml = null;
+
+        /// <summary>
         /// convert table name 'products' to class 'Products'
         /// </summary>
         public static bool forceUcaseTableName = true;
@@ -46,6 +51,9 @@ namespace SqlMetal
         public static string baseClass = "IModified";
 
         #region static ctor: populate fields from app.config
+        /// <summary>
+        /// give preference to commandline options over app.config options
+        /// </summary>
         static mmConfig()
         {
             try
@@ -84,9 +92,8 @@ namespace SqlMetal
                     if(valueFromAppConfig==null && (!argMap.TryGetValue(minfo.Name,out valueFromCmdline)) )
                         continue; //value not specified for this setting
 
-                    string sval = valueFromCmdline!=null
-                        ? valueFromCmdline //command line args override values from app.config
-                        : valueFromAppConfig;
+                    //command line args override values from app.config
+                    string sval = valueFromCmdline ?? valueFromAppConfig;
 
                     if(sval==null)
                         continue;

@@ -10,7 +10,7 @@ namespace SqlMetal.schema.mysql
     /// <summary>
     /// this class contains MySql-specific way of retrieving DB schema.
     /// </summary>
-    class MySqlVendor : IDBVendor
+    class Vendor : IDBVendor
     {
         public string VendorName(){ return "MySql"; }
 
@@ -27,17 +27,15 @@ namespace SqlMetal.schema.mysql
 
             DlinqSchema.Database schema = new DlinqSchema.Database();
             schema.Name = mmConfig.database;
-            schema.Class = FormatTableName(schema.Name);
-            //DlinqSchema.Schema schema0 = new DlinqSchema.Schema();
-            //schema0.Name = "Default";
-            //schema.Schemas.Add( schema0 );
+            schema.Class = mmConfig.database; // FormatTableName(schema.Name);
 
             //##################################################################
             //step 1 - load tables
             TableSql tsql = new TableSql();
             List<TableRow> tables = tsql.getTables(conn,mmConfig.database);
-            if(tables==null || tables.Count==0){
-                Console.WriteLine("No tables found for schema "+mmConfig.database+", exiting");
+            if (tables == null || tables.Count == 0)
+            {
+                Console.WriteLine("No tables found for schema " + mmConfig.database + ", exiting");
                 return null;
             }
 
@@ -45,15 +43,10 @@ namespace SqlMetal.schema.mysql
             {
                 DlinqSchema.Table tblSchema = new DlinqSchema.Table();
                 tblSchema.Name = tblRow.table_name;
+                tblSchema.Member = FormatTableName(tblRow.table_name);
                 tblSchema.Type.Name = FormatTableName(tblRow.table_name);
                 schema.Tables.Add( tblSchema );
             }
-
-            //ensure all table schemas contain one type:
-            //foreach(DlinqSchema.Table tblSchema in schema0.Tables)
-            //{
-            //    tblSchema.Types.Add( new DlinqSchema.Type());
-            //}
 
             //##################################################################
             //step 2 - load columns
@@ -108,9 +101,10 @@ namespace SqlMetal.schema.mysql
                     continue;
                 }
 
-                if(keyColRow.constraint_name=="PRIMARY")
+                if (keyColRow.constraint_name == "PRIMARY")
                 {
-                } else 
+                }
+                else
                 {
                     //if not PRIMARY, it's a foreign key.
                     //both parent and child table get an [Association]
@@ -121,7 +115,8 @@ namespace SqlMetal.schema.mysql
 
                     assoc.Name = keyColRow.constraint_name;
                     assoc.Type = keyColRow.referenced_table_name;
-                    //table.Types[0].Associations.Add(assoc);
+                    assoc.ThisKey = keyColRow.column_name;
+                    assoc.Member = FormatTableName(keyColRow.referenced_table_name);
                     table.Type.Associations.Add(assoc);
 
                     //and insert the reverse association:
@@ -129,10 +124,9 @@ namespace SqlMetal.schema.mysql
 
                     assoc2.Name = keyColRow.constraint_name;
                     assoc2.Type = keyColRow.table_name;
-                    //DlinqSchema.ColumnName assocCol2 = new DlinqSchema.ColumnName();
-                    //assocCol2.Name = keyColRow.column_name;
-                    //assoc2.Columns.Add(assocCol2);
-                    DlinqSchema.Table parentTable = schema.Tables.FirstOrDefault(t => keyColRow.referenced_table_name==t.Name);
+                    assoc2.Member = FormatTableName(keyColRow.table_name);
+
+                    DlinqSchema.Table parentTable = schema.Tables.FirstOrDefault(t => keyColRow.referenced_table_name == t.Name);
                     if (parentTable == null)
                     {
                         Console.WriteLine("ERROR 148: parent table not found: " + keyColRow.referenced_table_name);
