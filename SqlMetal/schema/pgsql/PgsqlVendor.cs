@@ -5,8 +5,9 @@ using System.Linq;
 using Npgsql;
 using SqlMetal.util;
 
-namespace SqlMetal.schema.mysql { } //dummy namespace
-namespace SqlMetal.schema.mssql { } //dummy namespace
+namespace SqlMetal.schema.mysql { } //namespace only used from other csproj
+namespace SqlMetal.schema.mssql { } //namespace only used from other csproj
+namespace SqlMetal.schema.oracle { } //namespace only used from other csproj
 
 namespace SqlMetal.schema.pgsql
 {
