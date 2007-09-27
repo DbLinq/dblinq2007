@@ -145,7 +145,7 @@ public EntityMSet<$childClassName> $fieldName
                 DlinqSchema.Table targetTable = schema.Tables.FirstOrDefault(t => t.Type.Name == assoc.Type);
                 if(targetTable==null)
                 {
-                    Console.WriteLine("ERROR L143 target table not found:" + assoc.Type);
+                    Console.WriteLine("ERROR L143 target table class not found:" + assoc.Type);
                     continue;
                 }
 
@@ -187,10 +187,10 @@ public $parentClassTyp $parentClassFld {
             List<string> linksToChildTables = new List<string>();
             foreach(DlinqSchema.Association assoc in ourParents)
             {
-                DlinqSchema.Table targetTable = schema.Tables.FirstOrDefault( t => t.Name==assoc.Type );
+                DlinqSchema.Table targetTable = schema.Tables.FirstOrDefault( t => t.Type.Name==assoc.Type );
                 if(targetTable==null)
                 {
-                    Console.WriteLine("ERROR L191 target table not found:"+assoc.Type);
+                    Console.WriteLine("ERROR L191 target table type not found: " + assoc.Type + "  (processing " + assoc.Name + ")");
                     continue;
                 }
 

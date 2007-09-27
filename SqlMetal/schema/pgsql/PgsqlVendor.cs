@@ -5,12 +5,15 @@ using System.Linq;
 using Npgsql;
 using SqlMetal.util;
 
+namespace SqlMetal.schema.mysql { } //dummy namespace
+namespace SqlMetal.schema.mssql { } //dummy namespace
+
 namespace SqlMetal.schema.pgsql
 {
     /// <summary>
     /// this class contains MySql-specific way of retrieving DB schema.
     /// </summary>
-    class PgsqlVendor : IDBVendor
+    class Vendor : IDBVendor
     {
         public string VendorName(){ return "PostgreSQL"; }
 
@@ -27,11 +30,7 @@ namespace SqlMetal.schema.pgsql
 
             DlinqSchema.Database schema = new DlinqSchema.Database();
             schema.Name = mmConfig.database;
-            //schema.Class = FormatTableName(schema.Name);
             schema.Class = schema.Name;
-            DlinqSchema.Schema schema0 = new DlinqSchema.Schema();
-            schema0.Name = "Default";
-            schema.Schemas.Add( schema0 );
 
             //##################################################################
             //step 1 - load tables
@@ -46,8 +45,9 @@ namespace SqlMetal.schema.pgsql
             {
                 DlinqSchema.Table tblSchema = new DlinqSchema.Table();
                 tblSchema.Name = tblRow.table_name;
-                tblSchema.Class = FormatTableName(tblRow.table_name);
-                schema0.Tables.Add( tblSchema );
+                tblSchema.Member = FormatTableName(tblRow.table_name).Pluralize();
+                tblSchema.Type.Name = FormatTableName(tblRow.table_name);
+                schema.Tables.Add(tblSchema);
             }
 
             //ensure all table schemas contain one type:
@@ -73,7 +73,7 @@ namespace SqlMetal.schema.pgsql
             foreach(Column columnRow in columns)
             {
                 //find which table this column belongs to
-                DlinqSchema.Table tableSchema = schema0.Tables.FirstOrDefault(tblSchema => columnRow.table_name==tblSchema.Name);
+                DlinqSchema.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.table_name==tblSchema.Name);
                 if(tableSchema==null)
                 {
                     Console.WriteLine("ERROR L46: Table '"+columnRow.table_name+"' not found for column "+columnRow.column_name);
@@ -85,14 +85,14 @@ namespace SqlMetal.schema.pgsql
                 KeyColumnUsage primaryKCU = constraints.FirstOrDefault(c => c.column_name==columnRow.column_name 
                     && c.table_name==columnRow.table_name && c.constraint_name.EndsWith("_pkey"));
 
-                colSchema.IsIdentity = primaryKCU!=null; //columnRow.column_key=="PRI";
-                colSchema.IsAutogen = columnRow.column_default!=null && columnRow.column_default.StartsWith("nextval(");
+                colSchema.IsPrimaryKey = primaryKCU!=null; //columnRow.column_key=="PRI";
+                colSchema.IsDbGenerated = columnRow.column_default!=null && columnRow.column_default.StartsWith("nextval(");
                 //colSchema.IsVersion = ???
-                colSchema.Nullable = columnRow.isNullable;
+                colSchema.CanBeNull = columnRow.isNullable;
                 colSchema.Type = Mappings.mapSqlTypeToCsType(columnRow.datatype, columnRow.column_type);
                 
                 //this will be the c# field name
-                colSchema.Property = CSharp.IsCsharpKeyword(columnRow.column_name) 
+                colSchema.Member = CSharp.IsCsharpKeyword(columnRow.column_name) 
                     ? columnRow.column_name+"_" //avoid keyword conflict - append underscore
                     : columnRow.column_name;
 
@@ -101,7 +101,7 @@ namespace SqlMetal.schema.pgsql
                 colSchema.Type += "?";
 
                 //tableSchema.Types[0].Columns.Add(colSchema);
-                tableSchema.Columns.Add(colSchema);
+                tableSchema.Type.Columns.Add(colSchema);
             }
 
             //##################################################################
@@ -112,7 +112,7 @@ namespace SqlMetal.schema.pgsql
             foreach(KeyColumnUsage keyColRow in constraints)
             {
                 //find my table:
-                DlinqSchema.Table table = schema0.Tables.FirstOrDefault(t => keyColRow.table_name==t.Name);
+                DlinqSchema.Table table = schema.Tables.FirstOrDefault(t => keyColRow.table_name==t.Name);
                 if(table==null)
                 {
                     Console.WriteLine("ERROR L46: Table '"+keyColRow.table_name+"' not found for column "+keyColRow.column_name);
@@ -122,20 +122,10 @@ namespace SqlMetal.schema.pgsql
                 if(keyColRow.constraint_name.EndsWith("_pkey")) //MYSQL reads 'PRIMARY'
                 {
                     //A) add primary key
-                    DlinqSchema.ColumnSpecifier primaryKey = new DlinqSchema.ColumnSpecifier();
-                    primaryKey.Name = keyColRow.constraint_name;
-                    DlinqSchema.ColumnName colName = new DlinqSchema.ColumnName();
-                    colName.Name = keyColRow.column_name;
-                    primaryKey.Columns.Add(colName);
-                    table.PrimaryKey.Add( primaryKey );
-
-                    //B mark the column itself as being 'IsIdentity=true'
-                    //DlinqSchema.Column col = table.Types[0].Columns.FirstOrDefault(c => keyColRow.column_name==c.Name);
-                    //if(col!=null)
-                    //{
-                    //    col.IsIdentity = true;
-                    //}
-                } else 
+                    DlinqSchema.Column primaryKeyCol = table.Type.Columns.First(c => c.Name == keyColRow.column_name);
+                    primaryKeyCol.IsPrimaryKey = true;
+                } 
+                else 
                 {
                     ForeignKeyCrossRef foreignKey = foreignKeys.FirstOrDefault(f=>f.constraint_name==keyColRow.constraint_name);
                     if(foreignKey==null)
@@ -145,42 +135,32 @@ namespace SqlMetal.schema.pgsql
                         throw new ApplicationException(msg);
                     }
 
-
                     //if not PRIMARY, it's a foreign key.
                     //both parent and child table get an [Association]
-                    //table.as
                     DlinqSchema.Association assoc = new DlinqSchema.Association();
-
-                    //child table contains a ManyToOneParent Association, pointing to parent
-                    //parent table contains a ManyToOneChild. (observed in MS xml)
-                    assoc.Kind = DlinqSchema.RelationshipKind.ManyToOneParent;
-
+                    assoc.IsForeignKey = true;
                     assoc.Name = keyColRow.constraint_name;
-                    //assoc.Target = keyColRow.referenced_table_name;
-                    assoc.Target = foreignKey.table_name_Parent;
-                    DlinqSchema.ColumnName assocCol = new DlinqSchema.ColumnName();
-                    assocCol.Name = keyColRow.column_name;
-                    assoc.Columns.Add(assocCol);
-                    table.Associations.Add(assoc);
+                    //assoc.Type = keyColRow.referenced_table_name; //see below instead
+                    assoc.ThisKey = keyColRow.column_name;
+                    assoc.Member = FormatTableName(foreignKey.table_name_Parent);
+                    table.Type.Associations.Add(assoc);
 
                     //and insert the reverse association:
                     DlinqSchema.Association assoc2 = new DlinqSchema.Association();
-
-                    //child table contains a ManyToOneParent Association, pointing to parent
-                    //parent table contains a ManyToOneChild. (observed in MS xml)
-                    assoc2.Kind = DlinqSchema.RelationshipKind.ManyToOneChild;
-
                     assoc2.Name = keyColRow.constraint_name;
-                    assoc2.Target = keyColRow.table_name;
-                    DlinqSchema.ColumnName assocCol2 = new DlinqSchema.ColumnName();
-                    assocCol2.Name = keyColRow.column_name;
-                    assoc2.Columns.Add(assocCol2);
+                    assoc2.Type = table.Type.Name; //keyColRow.table_name;
+                    assoc2.Member = FormatTableName(keyColRow.table_name).Pluralize();
+                    assoc2.OtherKey = keyColRow.column_name; //.referenced_column_name;
+
                     //DlinqSchema.Table parentTable = schema0.Tables.FirstOrDefault(t => keyColRow.referenced_table_name==t.Name);
-                    DlinqSchema.Table parentTable = schema0.Tables.FirstOrDefault(t => foreignKey.table_name_Parent==t.Name);
-                    if(parentTable==null)
-                        Console.WriteLine("ERROR L151: parent table not found: "+foreignKey.table_name_Parent);
+                    DlinqSchema.Table parentTable = schema.Tables.FirstOrDefault(t => foreignKey.table_name_Parent==t.Name);
+                    if (parentTable == null)
+                        Console.WriteLine("ERROR L151: parent table not found: " + foreignKey.table_name_Parent);
                     else
-                        parentTable.Associations.Add(assoc2);
+                    {
+                        parentTable.Type.Associations.Add(assoc2);
+                        assoc.Type = parentTable.Type.Name;
+                    }
 
                 }
 
