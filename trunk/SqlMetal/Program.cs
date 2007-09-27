@@ -14,6 +14,7 @@ using SqlMetal.codeGen;
 using SqlMetal.schema.mysql; //in MySqlMetal, imports class Vendor
 using SqlMetal.schema.pgsql; //in PgsqlMetal, imports class Vendor
 using SqlMetal.schema.mssql; //in MicrosoftMetal, imports class Vendor
+using SqlMetal.schema.oracle; //in MicrosoftMetal, imports class Vendor
 
 namespace SqlMetal
 {
