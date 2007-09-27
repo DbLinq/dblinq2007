@@ -5,6 +5,9 @@ using System.Linq;
 using MySql.Data.MySqlClient;
 using SqlMetal.util;
 
+namespace SqlMetal.schema.pgsql { } //dummy namespace
+namespace SqlMetal.schema.mssql { } //dummy namespace
+
 namespace SqlMetal.schema.mysql
 {
     /// <summary>
@@ -43,7 +46,7 @@ namespace SqlMetal.schema.mysql
             {
                 DlinqSchema.Table tblSchema = new DlinqSchema.Table();
                 tblSchema.Name = tblRow.table_name;
-                tblSchema.Member = FormatTableName(tblRow.table_name);
+                tblSchema.Member = FormatTableName(tblRow.table_name).Pluralize();
                 tblSchema.Type.Name = FormatTableName(tblRow.table_name);
                 schema.Tables.Add( tblSchema );
             }
@@ -108,23 +111,20 @@ namespace SqlMetal.schema.mysql
                 {
                     //if not PRIMARY, it's a foreign key.
                     //both parent and child table get an [Association]
-                    //table.as
                     DlinqSchema.Association assoc = new DlinqSchema.Association();
-
                     assoc.IsForeignKey = true;
-
                     assoc.Name = keyColRow.constraint_name;
-                    assoc.Type = keyColRow.referenced_table_name;
+                    //assoc.Type = keyColRow.referenced_table_name; //see below instead
                     assoc.ThisKey = keyColRow.column_name;
                     assoc.Member = FormatTableName(keyColRow.referenced_table_name);
                     table.Type.Associations.Add(assoc);
 
                     //and insert the reverse association:
                     DlinqSchema.Association assoc2 = new DlinqSchema.Association();
-
                     assoc2.Name = keyColRow.constraint_name;
-                    assoc2.Type = keyColRow.table_name;
-                    assoc2.Member = FormatTableName(keyColRow.table_name);
+                    assoc2.Type = table.Type.Name; //keyColRow.table_name;
+                    assoc2.Member = FormatTableName(keyColRow.table_name).Pluralize();
+                    assoc2.OtherKey = keyColRow.referenced_column_name;
 
                     DlinqSchema.Table parentTable = schema.Tables.FirstOrDefault(t => keyColRow.referenced_table_name == t.Name);
                     if (parentTable == null)
@@ -134,6 +134,7 @@ namespace SqlMetal.schema.mysql
                     else
                     {
                         parentTable.Type.Associations.Add(assoc2);
+                        assoc.Type = parentTable.Type.Name;
                     }
 
                 }
