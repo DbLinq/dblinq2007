@@ -50,27 +50,38 @@ namespace DBLinq.vendor
             SqlParameter param = new SqlParameter(paramName, dbType);
             return param;
         }
+        
+        //NOTE: for Oracle, we want to consider 'Array Binding'
+        //http://download-west.oracle.com/docs/html/A96160_01/features.htm#1049674
 
         /// <summary>
         /// for large number of rows, we want to use BULK INSERT, 
         /// because it does not fill up the translation log.
+        /// This is enabled for tables where Vendor.UserBulkInsert[db.Table] is true.
         /// </summary>
         public static void DoBulkInsert<T>(List<T> rows, SqlConnection conn)
         {
-            SqlBulkCopy bulkCopy = new SqlBulkCopy(conn); //, SqlBulkCopyOptions.TableLock);
+            //use TableLock for speed:
+            SqlBulkCopy bulkCopy = new SqlBulkCopy(conn, SqlBulkCopyOptions.TableLock, null);
+
             bulkCopy.DestinationTableName = AttribHelper.GetTableAttrib(typeof(T)).Name;
+            //bulkCopy.SqlRowsCopied += new SqlRowsCopiedEventHandler(bulkCopy_SqlRowsCopied);
             
             DataTable dt = new DataTable();
             KeyValuePair<PropertyInfo, ColumnAttribute>[] columns = AttribHelper.GetColumnAttribs2(typeof(T));
             
             foreach (KeyValuePair<PropertyInfo, ColumnAttribute> pair in columns)
             {
+                //if (pair.Value.IsDbGenerated)
+                //    continue; //don't skip - all fields would be shifted
+
                 DataColumn dc = new DataColumn();
                 dc.ColumnName = pair.Value.Name;
                 dc.DataType = pair.Key.PropertyType;
                 dt.Columns.Add(dc);
             }
 
+            //TODO: cross-check null values against CanBeNull specifier
             object[] indices = new object[] { };
             foreach(T row in rows)
             {
@@ -78,8 +89,8 @@ namespace DBLinq.vendor
                 //use reflection to retrieve object's fields (TODO: optimize this later)
                 foreach (KeyValuePair<PropertyInfo, ColumnAttribute> pair in columns)
                 {
-                    if (pair.Value.IsDbGenerated)
-                        continue; //don't assign IDENTITY col
+                    //if (pair.Value.IsDbGenerated)
+                    //    continue; //don't assign IDENTITY col
                     object value = pair.Key.GetValue(row, indices);
                     dr[pair.Value.Name] = value;
                 }
@@ -90,6 +101,9 @@ namespace DBLinq.vendor
 
         }
 
+        /// <summary>
+        /// Client code needs to specify: 'Vendor.UserBulkInsert[db.Products]=true' to enable bulk insert.
+        /// </summary>
         public static readonly Dictionary<DBLinq.Linq.IMTable, bool> UseBulkInsert = new Dictionary<DBLinq.Linq.IMTable, bool>();
     }
 }
