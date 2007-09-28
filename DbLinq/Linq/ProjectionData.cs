@@ -18,7 +18,12 @@ using DBLinq.Linq.clause;
 namespace DBLinq.Linq
 {
     /// <summary>
-    /// holds ctor and list of fields.
+    /// Represents a new-object expression (eg. 'new {ProductId=p.ProductID') from a user's query.
+    /// This will be subsequently compiled into another expression - 'new f__anonType(reader.GetInt32())'
+    /// 
+    /// In case of db.Products.ToList(), we use reflection to retrieve all fields of Product.
+    /// 
+    /// Internally, this class holds ctor and list of fields.
     /// comes from 'Select'. Used to build select statement and sql read method.
     /// 
     /// e.g. user code 'select new {ProductId=p.ProductID}' 

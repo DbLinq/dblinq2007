@@ -177,7 +177,7 @@ private EntityRef<$parentClassTyp> $fieldName2;
 
 [Association(Storage=""$fieldName1"", ThisKey=""$thisKey"", Name=""$fkName"")]
 [DebuggerNonUserCode]
-public $parentClassTyp $parentClassFld {
+public $parentClassTyp $member {
 	get { return this.$fieldName2.Entity; }
 	set { this.$fieldName2.Entity = value; }
 }
@@ -200,20 +200,19 @@ public $parentClassTyp $parentClassFld {
                 string thisKey          = assoc.ThisKey; //.Columns[0].Name; //eg. 'CustomerID'
                 string fkName           = assoc.Name; //eg. 'FK_Orders_Customers'
                 string parentClassName  = targetTable.Type.Name;
-                string parentClassNameFld = parentClassName;
                 string fieldName        = "_"+parentClassName;
                 string fieldName2       = fieldName;
-                if(parentClassNameFld==thisKey)
+                if (assoc.Member == thisKey)
                 {
-                    parentClassNameFld = thisKey + parentClassName; //repeat name to prevent collision (same as Linq)
-                    fieldName2 = "_"+parentClassNameFld;
+                    assoc.Member = thisKey + parentClassName; //repeat name to prevent collision (same as Linq)
+                    fieldName2 = "_" + assoc.Member;
                 }
 
                 //str = str.Replace("$childTableName",    childTableName);
                 str = str.Replace("$thisKey",           thisKey);
                 str = str.Replace("$fkName",            fkName);
-                str = str.Replace("$parentClassTyp",       parentClassName);
-                str = str.Replace("$parentClassFld",    parentClassNameFld);
+                str = str.Replace("$parentClassTyp",    parentClassName);
+                str = str.Replace("$member",            assoc.Member);
                 str = str.Replace("$fieldName1",         fieldName);
                 str = str.Replace("$fieldName2",         fieldName2);
                 linksToChildTables.Add(str);
