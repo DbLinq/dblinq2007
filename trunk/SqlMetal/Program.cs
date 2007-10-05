@@ -99,7 +99,7 @@ namespace SqlMetal
             { 
                 "user", "db", "database", "password"
                 , "namespace", "ns", "server", "renamesFile"
-                , "code", "language", "dbml" 
+                , "code", "language", "dbml", "sprocs" 
             };
 
             bool gotXmlFile = false;
@@ -116,8 +116,9 @@ namespace SqlMetal
                 int colon = sArg.IndexOf(":");
                 if(colon==-1)
                 {
-                    Console.WriteLine("ERROR - Unknown arg:"+sArg);
-                    return false;
+                    //Console.WriteLine("ERROR - Unknown arg:"+sArg);
+                    //return false;
+                    continue; //boolean flag, e.g. '-sprocs'
                 }
 
                 string argName = sArg.Substring(1,colon-1);

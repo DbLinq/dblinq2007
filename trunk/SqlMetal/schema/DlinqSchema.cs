@@ -87,6 +87,7 @@ namespace SqlMetal.schema
                 xml = xml.Replace(" UpdateCheck=\"Always\"", "");
                 xml = xml.Replace(" AutoSync=\"Never\"", "");
                 xml = xml.Replace(" Access=\"public\"", "");
+                xml = xml.Replace(" InOut=\"In\"", "");
                 xml = xml.Replace(" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"","");
 
                 System.IO.File.WriteAllText(fname, xml);

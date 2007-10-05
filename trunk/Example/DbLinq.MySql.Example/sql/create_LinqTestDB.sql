@@ -176,3 +176,5 @@ VALUES(         null,
   998.9,        null,
   16000,        null);
 
+/* we also need some functions to test the -sprocs option **/
+CREATE FUNCTION hello (s CHAR(20)) RETURNS CHAR(50) RETURN CONCAT('Hello, ',s,'!');

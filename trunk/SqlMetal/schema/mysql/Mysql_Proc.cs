@@ -15,6 +15,7 @@ namespace SqlMetal.schema.mysql
         public string type;
         public string specific_name;
         public string param_list;
+        public string returns;
 
         /// <summary>
         /// dependencies are determined by analyzing foreign keys.
@@ -53,20 +54,23 @@ namespace SqlMetal.schema.mysql
             p.name = rdr.GetString(field++);
             p.type = rdr.GetString(field++);
             p.specific_name = rdr.GetString(field++);
+            
+            object oo = rdr.GetFieldType(field);
             p.param_list = rdr.GetString(field++);
+            p.returns = rdr.GetString(field++);
             return p;
         }
 
         public List<ProcRow> getProcs(MySqlConnection conn, string db)
         {
             string sql = @"
-SELECT db, name, type, specific_name, param_list
+SELECT db, name, type, specific_name, param_list, returns
 FROM mysql.proc
-WHERE db=?db AND type='PROCEDURE'";
+WHERE db=?db AND type IN ('FUNCTION','PROCEDURE')";
 
             using (MySqlCommand cmd = new MySqlCommand(sql, conn))
             {
-                cmd.Parameters.Add("?db", db);
+                cmd.Parameters.Add("?db", db.ToLower());
                 using (MySqlDataReader rdr = cmd.ExecuteReader())
                 {
                     List<ProcRow> list = new List<ProcRow>();

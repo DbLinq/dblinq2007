@@ -181,6 +181,14 @@ namespace SqlMetal.schema.mysql
                 DlinqSchema.Parameter paramObj = ParseParameterString(part);
                 if(paramObj!=null)
                     outputFunc.Parameters.Add(paramObj);
+
+                if (inputProc.returns != null)
+                {
+                    DlinqSchema.Parameter paramRet = new DlinqSchema.Parameter();
+                    paramRet.DbType = inputProc.returns;
+                    paramRet.Type = ParseDbType(inputProc.returns);
+                    outputFunc.Return.Add(paramRet);
+                }
             }
         }
 
@@ -216,16 +224,34 @@ namespace SqlMetal.schema.mysql
 
             string varName = param.Substring(0,indxSpace);
             string varType = param.Substring(indxSpace+1);
-            varType = varType.Trim();
 
             DlinqSchema.Parameter paramObj = new DlinqSchema.Parameter();
             paramObj.InOut = inOut;
             paramObj.Name = varName;
             paramObj.DbType = varType;
-            paramObj.Type = Mappings.mapSqlTypeToCsType(varType, "");
+            paramObj.Type = ParseDbType(varType);
 
             return paramObj;
         }
+
+        /// <summary>
+        /// given 'CHAR(30)', return 'string'
+        /// </summary>
+        static string ParseDbType(string dbType)
+        {
+            string varType = dbType.Trim().ToLower();
+            string varTypeQualifier = "";
+            int indxQuote = varType.IndexOf('(');
+            if (indxQuote > -1)
+            {
+                //split 'CHAR(30)' into 'char' and '(30)'
+                varTypeQualifier = varType.Substring(indxQuote);
+                varType = varType.Substring(0, indxQuote);
+            }
+            string dbTypeStr = Mappings.mapSqlTypeToCsType(varType, varTypeQualifier);
+            return dbTypeStr;
+        }
+
 
 
         public static string FormatTableName(string table_name)
