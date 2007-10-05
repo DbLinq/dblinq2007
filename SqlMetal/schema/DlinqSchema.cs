@@ -43,6 +43,10 @@ namespace SqlMetal.schema
             [XmlElement("Table")]
             public readonly List<Table> Tables = new List<Table>();
 
+            [XmlElement("Function")]
+            public readonly List<Function> Functions = new List<Function>();
+
+
             /// <summary>
             /// load a DBML file
             /// </summary>
@@ -95,40 +99,6 @@ namespace SqlMetal.schema
         public enum AccessEnum2 { @public, @private, @internal, @protected };
         public enum UpdateCheck{ @public, @private, @internal, @protected };
 
-        /* Index etc - unused in Orcas Beta 2?
-        /// <summary>
-        /// simple name of column, as used within PrimaryKey and Unique elements
-        /// </summary>
-        //[XmlElement("Column")]
-        public class ColumnName
-        {
-            [XmlAttribute]
-            public string Name;
-
-            public ColumnName(){}
-            public ColumnName(string name){ Name=name; }
-        }
-        public class ColumnSpecifier
-        {
-            /// <summary>
-            /// name of this PrimaryKey or Unique
-            /// </summary>
-            [XmlAttribute]
-            public string Name;
-
-            [XmlElement("Column")]
-            public readonly List<ColumnName> Columns = new List<ColumnName>();
-        }
-
-        public class Index : ColumnSpecifier
-        {
-            /// <summary>
-            /// eg. 'clustered'
-            /// </summary>
-            [XmlAttribute] public string Style;
-            [XmlAttribute] public bool IsUnique;
-        }
-         * */
 
         /// <summary>
         /// represents a dbml table - contains a type with columns.
@@ -139,16 +109,7 @@ namespace SqlMetal.schema
             public string Name;
 
             [XmlAttribute]
-            public AccessEnum1 Access;
-
-            [XmlAttribute]
             public string Member;
-
-            //[XmlElement]
-            //public readonly List<ColumnSpecifier> Unique = new List<ColumnSpecifier>();
-
-            //[XmlElement]
-            //public readonly List<Index> Index = new List<Index>();
 
             public override string ToString()
             {
@@ -283,6 +244,7 @@ namespace SqlMetal.schema
             public bool IsUnique;
 
             //[XmlAttribute] public string UpdateRule;
+
             [XmlAttribute]
             public string DeleteRule;
 
@@ -297,20 +259,62 @@ namespace SqlMetal.schema
             }
         }
 
-        public class StoredProcedure
-        {
-        }
-
+        /// <summary>
+        /// represents a Stored Proc or function.
+        /// </summary>
         public class Function
         {
+            [XmlAttribute]
+            public string Name;
+
+            [XmlAttribute]
+            public string Method;
+
+            [XmlElement("Parameter")]
+            public readonly List<Parameter> Parameters = new List<Parameter>();
+
+            [XmlElement("Return")]
+            public readonly List<Parameter> Return = new List<Parameter>();
+
+            public ElementType ElementType;
         }
 
+        /// <summary>
+        /// represents a stored proc parameter
+        /// </summary>
         public class Parameter
         {
+            [XmlAttribute]
+            public string Name;
+
+            [XmlAttribute("Parameter")]
+            public string parameter;
+
+            [XmlAttribute]
+            public string Type;
+
+            [XmlAttribute]
+            public string DbType;
+
+            [XmlAttribute]
+            public InOutEnum InOut;
         }
 
-        public class ResultShape
+        /// <summary>
+        /// if a stored proc returns a resultset, we represent it as ElementType having columns.
+        /// </summary>
+        public class ElementType
         {
+            [XmlElement("Column")]
+            public readonly List<Column> Columns = new List<Column>();
+        }
+
+        /// <summary>
+        /// represents Parameter Direction
+        /// </summary>
+        public enum InOutEnum
+        {
+            In, Out, InOut
         }
 
 #if TEST_SERIALIZATION
@@ -340,13 +344,6 @@ namespace SqlMetal.schema
         }
 
 #endif
-        //public enum RelationshipKind 
-        //{
-        //    OneToOneChild,
-        //    OneToOneParent,
-        //    ManyToOneChild,
-        //    ManyToOneParent
-        //}
 
     }
 }

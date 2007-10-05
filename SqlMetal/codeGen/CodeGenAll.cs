@@ -97,6 +97,8 @@ public partial class $dbname : MContext
     //these fields represent tables in database and are
     //ordered - parent tables first, child tables next. Do not change the order.
     $fieldDecl
+
+    $storedProcs
 }
 ";
             string dbName = dbSchema.Class;
@@ -124,11 +126,19 @@ public partial class $dbname : MContext
             }
             string dbFieldInitStr = string.Join("\n\t\t", dbFieldInits.ToArray());
             string dbFieldDeclStr = string.Join("\n\t", dbFieldDecls.ToArray());
+
+            List<string> storedProcList = new List<string>();
+            foreach (DlinqSchema.Function storedProc in dbSchema.Functions)
+            {
+            }
+            string storedProcsStr = "";
+
             string dbs = dbClassStr;
             dbs = dbs.Replace("$vendor", vendorName);
             dbs = dbs.Replace("$dbname",dbName);
             dbs = dbs.Replace("$fieldInit",dbFieldInitStr);
-            dbs = dbs.Replace("$fieldDecl",dbFieldDeclStr);
+            dbs = dbs.Replace("$fieldDecl", dbFieldDeclStr);
+            dbs = dbs.Replace("$storedProcs", storedProcsStr);
             return dbs;
             #endregion
         }
