@@ -70,6 +70,7 @@ namespace DBLinq.vendor
                 throw new ArgumentException("L70 Argument count mismatch");
 
             MySql.Data.MySqlClient.MySqlConnection conn = context.SqlConnection;
+            //conn.Open();
 
             string sp_name = functionAttrib.Name;
             MySqlCommand command = new MySqlCommand(sp_name);
@@ -94,6 +95,16 @@ namespace DBLinq.vendor
             }
 
             command.CommandType = System.Data.CommandType.StoredProcedure;
+
+            using (MySqlDataReader reader = command.ExecuteReader())
+            {
+                bool hasRows = reader.HasRows;
+                while (reader.Read())
+                {
+                    object obj = reader.GetFieldType(0);
+
+                }
+            }
 
             throw new NotImplementedException("TODO - call stored procs");
         }

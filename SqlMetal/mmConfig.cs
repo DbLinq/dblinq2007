@@ -61,13 +61,17 @@ namespace SqlMetal
             try
             {
                 Type t = typeof(mmConfig);
-                string[] args = Environment.CommandLine.Split(' ');
+                string[] args = Environment.CommandLine.Split(new char[]{' '}, StringSplitOptions.RemoveEmptyEntries);
                 Dictionary<string,string> argMap = new Dictionary<string,string>();
                 foreach(string arg in args)
                 {
                     int colon = arg.IndexOf(":");
-                    if(colon==-1)
-                        continue; //cannot parse this value
+                    if (colon == -1)
+                    {
+                        string left = arg.Substring(1);
+                        argMap[left] = ""; //allow boolean flag '-sprocs'
+                        continue; 
+                    }
                     if(arg.StartsWith("-") || arg.StartsWith("/"))
                     {
                         string left = arg.Substring(1,colon-1);
@@ -102,7 +106,9 @@ namespace SqlMetal
                     if(finfo.FieldType==typeof(string)){
                         finfo.SetValue(t,sval);
                     } else if(finfo.FieldType==typeof(bool)){
-                        bool bval = bool.Parse(sval);
+                        bool bval = sval == ""
+                            ? true //eg. '-sprocs'
+                            : bool.Parse(sval);
                         finfo.SetValue(t,bval);
                     } else {
                         Console.WriteLine("mmConfig.cctor L39 unprepared for type:"+minfo.ReflectedType);

@@ -33,15 +33,24 @@ namespace DBLinq.vendor
         public static MySqlDbType ParseType(string typeStr)
         {
             string typeStrL = typeStr.ToLower();
-            if(!s_typeMap.ContainsKey(typeStrL))
+            if (!s_typeMap.ContainsKey(typeStrL))
             {
-                switch(typeStrL){
+                int indxBraket = typeStrL.IndexOf('(');
+                if (indxBraket > -1)
+                {
+                    typeStrL = typeStrL.Substring(0, indxBraket);
+                }
+
+                switch (typeStrL)
+                {
+                    case "char":
+                        return MySqlDbType.String;
                     case "tinyint":
                         return MySqlDbType.Int16;
                     case "int":
                         return MySqlDbType.Int32;
                 }
-                string msg = "TODO L24: add parsing of type "+typeStr;
+                string msg = "TODO L24: add parsing of type " + typeStr;
                 Console.WriteLine(msg);
                 throw new ApplicationException(msg);
             }

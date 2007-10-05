@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define USE_STORED_PROCS
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Data;
@@ -35,6 +37,10 @@ namespace DbLinq.MySql.Example
                 ObjectDumper.Write(v);
             Console.WriteLine("Press enter to continue.");
             Console.ReadLine();
+
+#if USE_STORED_PROCS
+            string reply = db.hello("Pigafetta");
+#endif
 
             Console.Clear();
             Console.WriteLine("from p in db.Products orderby p.ProductName select p;");

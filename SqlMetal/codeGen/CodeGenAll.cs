@@ -37,6 +37,7 @@ using System.Text;
 using System.Linq;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
+using System.Reflection;
 using DBLinq.Linq;
 ";
 
@@ -130,8 +131,10 @@ public partial class $dbname : MContext
             List<string> storedProcList = new List<string>();
             foreach (DlinqSchema.Function storedProc in dbSchema.Functions)
             {
+                string s = CodeGenStoredProc.FormatProc(storedProc);
+                storedProcList.Add(s);
             }
-            string storedProcsStr = "";
+            string storedProcsStr = string.Join("\n\n", storedProcList.ToArray());
 
             string dbs = dbClassStr;
             dbs = dbs.Replace("$vendor", vendorName);

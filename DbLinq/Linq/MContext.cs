@@ -117,9 +117,10 @@ namespace DBLinq.Linq
         /// <summary>
         /// TODO - allow generated methods to call into stored procedures
         /// </summary>
-        protected System.Data.Linq.IExecuteResult ExecuteMethodCall(IMTable mtable, System.Reflection.MethodInfo method, params object[] sqlParams)
+        protected System.Data.Linq.IExecuteResult ExecuteMethodCall(MContext context, System.Reflection.MethodInfo method, params object[] sqlParams)
         {
-            throw new NotImplementedException("TODO - call [MySql]Vendor.ExecuteMethodCall");
+            System.Data.Linq.IExecuteResult result = vendor.Vendor.ExecuteMethodCall(context, method, sqlParams);
+            return result;
         }
 
     }
