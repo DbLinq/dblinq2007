@@ -85,6 +85,10 @@ namespace DBLinq.vendor
                     throw new ArgumentException("L85 The method you passed has more than one [Parameter] attribute on param " + i + ":" + method);
                 
                 ParameterAttribute paramAttrib = paramAttribs[0];
+                string paramName = "?" + paramAttrib.Name; //eg. '?param1'
+                MySqlDbType dbType = MySqlTypeConversions.ParseType(paramAttrib.DbType);
+                MySqlParameter cmdParam = new MySqlParameter(paramName, dbType);
+                command.Parameters.Add(cmdParam);
 
                 command.Parameters[i].Value = sqlParam;
             }
