@@ -50,6 +50,8 @@ namespace SqlMetal
 
         public static string baseClass = "IModified";
 
+        public static bool sprocs = false;
+
         #region static ctor: populate fields from app.config
         /// <summary>
         /// give preference to commandline options over app.config options

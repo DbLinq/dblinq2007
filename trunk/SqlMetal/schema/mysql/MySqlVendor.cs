@@ -142,8 +142,91 @@ namespace SqlMetal.schema.mysql
 
             }
 
+
+            //##################################################################
+            //step 4 - load stored procs
+            if (mmConfig.sprocs)
+            {
+                ProcSql procsql = new ProcSql();
+                List<ProcRow> procs = procsql.getProcs(conn, mmConfig.database);
+
+                foreach (ProcRow proc in procs)
+                {
+                    DlinqSchema.Function func = new DlinqSchema.Function();
+                    func.Name = proc.specific_name;
+                    ParseProcParams(proc, func);
+                    
+                    schema.Functions.Add(func);
+                }
+            }
+
             return schema;
         }
+
+        /// <summary>
+        /// parse bytes 'OUT param1 int, param2 int'.
+        /// The newly created DlinqSchema.Parameter objects will be appended to 'outputFunc'.
+        /// </summary>
+        static void ParseProcParams(ProcRow inputProc, DlinqSchema.Function outputFunc)
+        {
+            string paramString = inputProc.param_list;
+            if(paramString==null || paramString=="")
+                return;
+            string[] parts = paramString.Split(',');
+
+            char[] SPACES = new char[]{' ','\t','\n'}; //word separators
+
+            foreach (string part in parts) //part='OUT param1 int'
+            {
+                DlinqSchema.Parameter paramObj = ParseParameterString(part);
+                if(paramObj!=null)
+                    outputFunc.Parameters.Add(paramObj);
+            }
+        }
+
+        /// <summary>
+        /// parse strings such as 'INOUT param2 INT' or 'param4 varchar ( 32 )'
+        /// </summary>
+        /// <param name="paramStr"></param>
+        /// <returns></returns>
+        static DlinqSchema.Parameter ParseParameterString(string param)
+        {
+            param = param.Trim();
+            DlinqSchema.InOutEnum inOut = DlinqSchema.InOutEnum.In;
+            
+            if (param.StartsWith("IN", StringComparison.CurrentCultureIgnoreCase))
+            {
+                inOut = DlinqSchema.InOutEnum.In;
+                param = param.Substring(2).Trim();
+            }
+            if (param.StartsWith("INOUT", StringComparison.CurrentCultureIgnoreCase))
+            {
+                inOut = DlinqSchema.InOutEnum.InOut;
+                param = param.Substring(5).Trim();
+            }
+            if (param.StartsWith("OUT", StringComparison.CurrentCultureIgnoreCase))
+            {
+                inOut = DlinqSchema.InOutEnum.Out;
+                param = param.Substring(3).Trim();
+            }
+
+            int indxSpace = param.IndexOfAny(new char[] { ' ', '\t' });
+            if (indxSpace == -1)
+                return null; //cannot find space between varName and varType
+
+            string varName = param.Substring(0,indxSpace);
+            string varType = param.Substring(indxSpace+1);
+            varType = varType.Trim();
+
+            DlinqSchema.Parameter paramObj = new DlinqSchema.Parameter();
+            paramObj.InOut = inOut;
+            paramObj.Name = varName;
+            paramObj.DbType = varType;
+            paramObj.Type = Mappings.mapSqlTypeToCsType(varType, "");
+
+            return paramObj;
+        }
+
 
         public static string FormatTableName(string table_name)
         {
