@@ -27,8 +27,22 @@ namespace DbLinq.MySql.Example
 
             string connStr = String.Format("server={0};user id={1}; password={2}; database={3}", args);
 
+#if true
+            MySqlCommand cmd = new MySqlCommand("select hello(?s)", new MySqlConnection(connStr));
+            //cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Add("?s", "xx");
+            cmd.Parameters[0].Direction = ParameterDirection.Input; //.Value = "xx";
+            cmd.Connection.Open();
+            //MySqlDataReader dr = cmd.ExecuteReader();
+            object obj = cmd.ExecuteScalar();
+#endif
             // BUG: contexts must to be disposable
             LinqTestDB db = new LinqTestDB(connStr);
+
+#if USE_STORED_PROCS
+            string reply0 = db.hello0();
+            string reply = db.hello("Pigafetta");
+#endif
 
             Console.Clear();
             Console.WriteLine("from at in db.Alltypes select at;");
@@ -38,9 +52,6 @@ namespace DbLinq.MySql.Example
             Console.WriteLine("Press enter to continue.");
             Console.ReadLine();
 
-#if USE_STORED_PROCS
-            string reply = db.hello("Pigafetta");
-#endif
 
             Console.Clear();
             Console.WriteLine("from p in db.Products orderby p.ProductName select p;");

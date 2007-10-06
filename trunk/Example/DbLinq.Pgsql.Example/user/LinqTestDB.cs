@@ -47,7 +47,7 @@ namespace Client2.user
 	        set { _isModified_ = value; } 
 	    }
 	
-	    [DBLinq.Linq.AutoGenId] 
+	    [DBLinq.Linq.Mapping.AutoGenId] 
 		protected int _customerid;
 	
 		protected string _companyname;
@@ -182,7 +182,7 @@ namespace Client2.user
 	        set { _isModified_ = value; } 
 	    }
 	
-	    [DBLinq.Linq.AutoGenId] 
+	    [DBLinq.Linq.Mapping.AutoGenId] 
 		protected int _productid;
 	
 		protected string _productname;
@@ -293,7 +293,7 @@ namespace Client2.user
 	        set { _isModified_ = value; } 
 	    }
 	
-	    [DBLinq.Linq.AutoGenId] 
+	    [DBLinq.Linq.Mapping.AutoGenId] 
 		protected int _orderid;
 	
 		protected int _customerid;
@@ -406,7 +406,7 @@ namespace Client2.user
 	        set { _isModified_ = value; } 
 	    }
 	
-	    [DBLinq.Linq.AutoGenId] 
+	    [DBLinq.Linq.Mapping.AutoGenId] 
 		protected int _int;
 	
 		protected int? _intn;

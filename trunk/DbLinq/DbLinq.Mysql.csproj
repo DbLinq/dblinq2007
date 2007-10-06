@@ -55,7 +55,8 @@
     <Compile Include="Linq\clause\ParseResult.cs" />
     <Compile Include="Linq\EntityMSet.cs" />
     <Compile Include="Linq\IModified.cs" />
-    <Compile Include="Linq\AutoGenIdAttribute.cs" />
+    <Compile Include="Linq\Mapping\AutoGenIdAttribute.cs" />
+    <Compile Include="Linq\Mapping\FunctionExAttribute.cs" />
     <Compile Include="Linq\QueryProcessor.cs" />
     <Compile Include="util\CSharp.cs" />
     <Compile Include="util\ExprExtensions.cs" />

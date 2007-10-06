@@ -114,6 +114,7 @@ namespace DBLinq.Linq
 
         #endregion
 
+#if MYSQL
         /// <summary>
         /// TODO - allow generated methods to call into stored procedures
         /// </summary>
@@ -122,7 +123,9 @@ namespace DBLinq.Linq
             System.Data.Linq.IExecuteResult result = vendor.Vendor.ExecuteMethodCall(context, method, sqlParams);
             return result;
         }
-
+#else
+        //ExecuteMethodCall for Postgres, Oracle: coming later
+#endif
     }
 
     /// <summary>
