@@ -9,7 +9,9 @@ using System.Text;
 using System.Linq;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
+using System.Reflection;
 using DBLinq.Linq;
+using DBLinq.Linq.Mapping;
 
 namespace Client2.user
 {
@@ -33,6 +35,21 @@ namespace Client2.user
 		public readonly MTable<Customer> Customers;
 		public readonly MTable<Order> Orders;
 		public readonly MTable<Product> Products;
+
+        [FunctionEx(Name = "hello", ProcedureOrFunction="FUNCTION")]
+        public string hello([Parameter(Name = "s", DbType = "CHAR(20)")] string s)
+        {
+            IExecuteResult result = base.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), s);
+            return result.ReturnValue as string;
+        }
+
+        [FunctionEx(Name = "hello0", ProcedureOrFunction = "FUNCTION")]
+        public string hello0()
+        {
+            IExecuteResult result = base.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())));
+            return result.ReturnValue as string;
+        }
+
 	}
 	
 	
@@ -47,7 +64,7 @@ namespace Client2.user
 	        set { _isModified_ = value; } 
 	    }
 	
-	    [DBLinq.Linq.AutoGenId] 
+	    [DBLinq.Linq.Mapping.AutoGenId] 
 		protected uint _int;
 	
 		protected uint? _intN;
@@ -429,7 +446,7 @@ namespace Client2.user
 	        set { _isModified_ = value; } 
 	    }
 	
-	    [DBLinq.Linq.AutoGenId] 
+	    [DBLinq.Linq.Mapping.AutoGenId] 
 		protected uint _CustomerID;
 	
 		protected string _CompanyName;
@@ -564,7 +581,7 @@ namespace Client2.user
 	        set { _isModified_ = value; } 
 	    }
 	
-	    [DBLinq.Linq.AutoGenId] 
+	    [DBLinq.Linq.Mapping.AutoGenId] 
 		protected uint _OrderID;
 	
 		protected uint _CustomerID;
@@ -677,7 +694,7 @@ namespace Client2.user
 	        set { _isModified_ = value; } 
 	    }
 	
-	    [DBLinq.Linq.AutoGenId] 
+	    [DBLinq.Linq.Mapping.AutoGenId] 
 		protected uint _ProductID;
 	
 		protected string _ProductName;

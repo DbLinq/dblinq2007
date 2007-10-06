@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Data.Linq.Mapping;
 using MySql.Data.MySqlClient;
+using DBLinq.Linq.Mapping;
 
 namespace DBLinq.vendor
 {
@@ -57,13 +58,16 @@ namespace DBLinq.vendor
                 throw new ArgumentNullException("L56 Null 'method' parameter");
 
             object[] attribs1 = method.GetCustomAttributes(false);
-            List<FunctionAttribute> funcAttribs = attribs1.OfType<FunctionAttribute>().ToList();
-            if(funcAttribs.Count==0)
-                throw new ArgumentException("L61 The method you passed does not have a [Function] attribute:"+method);
-            if(funcAttribs.Count>1)
-                throw new ArgumentException("L63 The method you passed has more than one [Function] attribute:"+method);
 
-            FunctionAttribute functionAttrib = funcAttribs[0];
+            //check to make sure there is exactly one [FunctionEx]? that's below.
+            FunctionExAttribute functionAttrib = attribs1.OfType<FunctionExAttribute>().Single();
+
+            //List<FunctionExAttribute> funcAttribs = attribs1.OfType<FunctionExAttribute>().ToList();
+            //if(funcAttribs.Count==0)
+            //    throw new ArgumentException("L61 The method you passed does not have a [Function] attribute:"+method);
+            //if(funcAttribs.Count>1)
+            //    throw new ArgumentException("L63 The method you passed has more than one [Function] attribute:"+method);
+            //FunctionExAttribute functionAttrib = funcAttribs[0];
 
             System.Reflection.ParameterInfo[] paramInfos = method.GetParameters();
             if(paramInfos.Length!=sqlParams.Length)
@@ -73,41 +77,83 @@ namespace DBLinq.vendor
             //conn.Open();
 
             string sp_name = functionAttrib.Name;
-            MySqlCommand command = new MySqlCommand(sp_name);
 
+            MySqlCommand command = new MySqlCommand(sp_name, conn);
+            //MySqlCommand command = new MySqlCommand("select hello0()");
+
+            List<string> paramNames = new List<string>();
             for (int i = 0; i < paramInfos.Length; i++)
             {
                 System.Reflection.ParameterInfo paramInfo = paramInfos[i];
                 object sqlParam = sqlParams[i];
-                List<ParameterAttribute> paramAttribs = paramInfo.GetCustomAttributes(false).OfType<ParameterAttribute>().ToList();
-                if (paramAttribs.Count == 0)
-                    throw new ArgumentException("L83 The method you passed does not have a [Parameter] attribute on param "+i+":" + method);
-                if (paramAttribs.Count > 1)
-                    throw new ArgumentException("L85 The method you passed has more than one [Parameter] attribute on param " + i + ":" + method);
                 
-                ParameterAttribute paramAttrib = paramAttribs[0];
+                //TODO: check to make sure there is exactly one [Parameter]?
+                ParameterAttribute paramAttrib = paramInfo.GetCustomAttributes(false).OfType<ParameterAttribute>().Single();
+                
                 string paramName = "?" + paramAttrib.Name; //eg. '?param1'
-                MySqlDbType dbType = MySqlTypeConversions.ParseType(paramAttrib.DbType);
-                MySqlParameter cmdParam = new MySqlParameter(paramName, dbType);
+                paramNames.Add(paramName);
+                //MySqlDbType dbType = MySqlTypeConversions.ParseType(paramAttrib.DbType);
+                MySqlParameter cmdParam = new MySqlParameter(paramName, sqlParam);
+                cmdParam.Direction = System.Data.ParameterDirection.Input;
+                //if (paramInfo.IsIn)
+                //{
+                //    cmdParam.Direction = System.Data.ParameterDirection.Input;
+                //}
+                //else if (paramInfo.IsOut)
+                //{
+                //    cmdParam.Direction = System.Data.ParameterDirection.Output;
+                //}
+                //else 
+                //{
+                //    cmdParam.Direction = System.Data.ParameterDirection.InputOutput;
+                //}
                 command.Parameters.Add(cmdParam);
-
-                command.Parameters[i].Value = sqlParam;
             }
 
-            command.CommandType = System.Data.CommandType.StoredProcedure;
-
-            using (MySqlDataReader reader = command.ExecuteReader())
+            if (functionAttrib.ProcedureOrFunction == "PROCEDURE")
             {
-                bool hasRows = reader.HasRows;
-                while (reader.Read())
-                {
-                    object obj = reader.GetFieldType(0);
-
-                }
+                //procedures: under the hood, this seems to prepend 'CALL '
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+            }
+            else
+            {
+                //functions: 'SELECT myFunction()' or 'SELECT hello(?s)'
+                string cmdText = "SELECT " + command.CommandText + "($args)";
+                cmdText = cmdText.Replace("$args", string.Join(",",paramNames.ToArray()));
+                command.CommandText = cmdText;
             }
 
-            throw new NotImplementedException("TODO - call stored procs");
+            object obj = command.ExecuteScalar();
+            return new ProcResult(obj);
+            //throw new NotImplementedException("TODO - call stored procs");
         }
 
+    }
+
+    public class ProcResult : System.Data.Linq.IExecuteResult
+    {
+        #region IExecuteResult Members
+
+        public object GetParameterValue(int parameterIndex)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object ReturnValue { get; set; }
+
+        #endregion
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+        }
+
+        #endregion
+
+        public ProcResult(object retVal)
+        {
+            ReturnValue = retVal;
+        }
     }
 }

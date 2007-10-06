@@ -53,6 +53,7 @@
     <Compile Include="codeGen\CodeGenClass.cs" />
     <Compile Include="codeGen\CodeGenField.cs" />
     <Compile Include="codeGen\CodeGenAll.cs" />
+    <Compile Include="codeGen\CodeGenStoredProc.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="schema\CSharp.cs" />
     <Compile Include="mmConfig.cs" />

@@ -154,6 +154,7 @@ namespace SqlMetal.schema.mysql
                 {
                     DlinqSchema.Function func = new DlinqSchema.Function();
                     func.Name = proc.specific_name;
+                    func.ProcedureOrFunction = proc.type;
                     ParseProcParams(proc, func);
                     
                     schema.Functions.Add(func);
@@ -187,6 +188,7 @@ namespace SqlMetal.schema.mysql
                     DlinqSchema.Parameter paramRet = new DlinqSchema.Parameter();
                     paramRet.DbType = inputProc.returns;
                     paramRet.Type = ParseDbType(inputProc.returns);
+                    paramRet.InOut = System.Data.ParameterDirection.ReturnValue;
                     outputFunc.Return.Add(paramRet);
                 }
             }
@@ -200,21 +202,21 @@ namespace SqlMetal.schema.mysql
         static DlinqSchema.Parameter ParseParameterString(string param)
         {
             param = param.Trim();
-            DlinqSchema.InOutEnum inOut = DlinqSchema.InOutEnum.In;
+            System.Data.ParameterDirection inOut = System.Data.ParameterDirection.Input;
             
             if (param.StartsWith("IN", StringComparison.CurrentCultureIgnoreCase))
             {
-                inOut = DlinqSchema.InOutEnum.In;
+                inOut = System.Data.ParameterDirection.Input;
                 param = param.Substring(2).Trim();
             }
             if (param.StartsWith("INOUT", StringComparison.CurrentCultureIgnoreCase))
             {
-                inOut = DlinqSchema.InOutEnum.InOut;
+                inOut = System.Data.ParameterDirection.InputOutput;
                 param = param.Substring(5).Trim();
             }
             if (param.StartsWith("OUT", StringComparison.CurrentCultureIgnoreCase))
             {
-                inOut = DlinqSchema.InOutEnum.Out;
+                inOut = System.Data.ParameterDirection.Output;
                 param = param.Substring(3).Trim();
             }
 

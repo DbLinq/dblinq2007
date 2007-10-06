@@ -13,7 +13,8 @@ namespace SqlMetal.schema
     /// We try to mimic Microsoft's schema syntax -
     /// - see 'DLinq Overview for CSharp Developers.doc', paragraph 'Here is a prototypical example of the XML syntax:'
     /// 
-    /// 2007-Nov update: please see Microsoft documentation 'External Mapping Reference (LINQ to SQL)'
+    /// 2007-Nov update: the microsoft schema is now called 'DBML'.
+    /// Please see also Microsoft documentation 'External Mapping Reference (LINQ to SQL)'
     /// http://msdn2.microsoft.com/en-us/library/bb386907(VS.90).aspx
     /// 
     /// Paul Welter says in http://community.codesmithtools.com/blogs/pwelter/atom.aspx: 
@@ -88,7 +89,8 @@ namespace SqlMetal.schema
                 xml = xml.Replace(" AutoSync=\"Never\"", "");
                 xml = xml.Replace(" Access=\"public\"", "");
                 xml = xml.Replace(" InOut=\"In\"", "");
-                xml = xml.Replace(" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"","");
+                xml = xml.Replace(" InOut=\"Input\"", "");
+                xml = xml.Replace(" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"", "");
 
                 System.IO.File.WriteAllText(fname, xml);
                 //IsPrimaryKey="false" IsDbGenerated="false"
@@ -214,7 +216,7 @@ namespace SqlMetal.schema
         /// represents a DBML association. Lives in Table.Type .
         /// Associations always come in pairs - both parent and child table contain an Association.
         /// </summary>
-        public class Association //: ColumnSpecifier
+        public class Association
         {
             [XmlAttribute]
             public string Name;
@@ -271,6 +273,13 @@ namespace SqlMetal.schema
             [XmlAttribute]
             public string Method;
 
+            /// <summary>
+            /// this is an extension - not present in Microsoft's implementation.
+            /// Required, because we call MySql fcts differently than procs.
+            /// </summary>
+            [XmlAttribute]
+            public string ProcedureOrFunction;
+
             [XmlElement("Parameter")]
             public readonly List<Parameter> Parameters = new List<Parameter>();
 
@@ -298,7 +307,7 @@ namespace SqlMetal.schema
             public string DbType;
 
             [XmlAttribute]
-            public InOutEnum InOut;
+            public System.Data.ParameterDirection InOut;
         }
 
         /// <summary>
@@ -310,13 +319,13 @@ namespace SqlMetal.schema
             public readonly List<Column> Columns = new List<Column>();
         }
 
-        /// <summary>
-        /// represents Parameter Direction
-        /// </summary>
-        public enum InOutEnum
-        {
-            In, Out, InOut
-        }
+        ///// <summary>
+        ///// represents Parameter Direction
+        ///// </summary>
+        //public enum InOutEnum
+        //{
+        //    In, Out, InOut
+        //}
 
 #if TEST_SERIALIZATION
         static void Main()

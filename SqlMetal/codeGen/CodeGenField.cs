@@ -72,7 +72,7 @@ protected $type _$name;";
             template = template.Replace("$constraintWarn", _constraintWarn);
             if(_column.IsDbGenerated){
                 //mark this field - it must be modified on insertion
-                template = "[DBLinq.Linq.AutoGenId] "+template;
+                template = "[DBLinq.Linq.Mapping.AutoGenId] "+template;
             }
             return template;
         }

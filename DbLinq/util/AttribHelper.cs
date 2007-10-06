@@ -13,6 +13,7 @@ using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using DBLinq.Linq;
+using DBLinq.Linq.Mapping;
 
 namespace DBLinq.util
 {

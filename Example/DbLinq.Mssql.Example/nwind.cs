@@ -62,7 +62,7 @@ public partial class Categories : IModified
         set { _isModified_ = value; } 
     }
 
-    [DBLinq.Linq.AutoGenId] 
+    [DBLinq.Linq.Mapping.AutoGenId] 
 	protected int _CategoryID;
 
 	protected string _CategoryName;
@@ -514,7 +514,7 @@ public partial class Employees : IModified
         set { _isModified_ = value; } 
     }
 
-    [DBLinq.Linq.AutoGenId] 
+    [DBLinq.Linq.Mapping.AutoGenId] 
 	protected int _EmployeeID;
 
 	protected string _LastName;
@@ -1016,7 +1016,7 @@ public partial class Orders : IModified
         set { _isModified_ = value; } 
     }
 
-    [DBLinq.Linq.AutoGenId] 
+    [DBLinq.Linq.Mapping.AutoGenId] 
 	protected int _OrderID;
 
 	protected string _CustomerID;
@@ -1264,7 +1264,7 @@ public partial class Products : IModified
         set { _isModified_ = value; } 
     }
 
-    [DBLinq.Linq.AutoGenId] 
+    [DBLinq.Linq.Mapping.AutoGenId] 
 	protected int _ProductID;
 
 	protected string _ProductName;
@@ -1529,7 +1529,7 @@ public partial class Shippers : IModified
         set { _isModified_ = value; } 
     }
 
-    [DBLinq.Linq.AutoGenId] 
+    [DBLinq.Linq.Mapping.AutoGenId] 
 	protected int _ShipperID;
 
 	protected string _CompanyName;
@@ -1616,7 +1616,7 @@ public partial class Suppliers : IModified
         set { _isModified_ = value; } 
     }
 
-    [DBLinq.Linq.AutoGenId] 
+    [DBLinq.Linq.Mapping.AutoGenId] 
 	protected int _SupplierID;
 
 	protected string _CompanyName;

@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.20404</ProductVersion>
+    <ProductVersion>9.0.20706</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{423335DF-5677-48FD-9A63-43B1D30321A6}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -57,7 +57,8 @@
     <Compile Include="Linq\clause\ParseResult.cs" />
     <Compile Include="Linq\EntityMSet.cs" />
     <Compile Include="Linq\IModified.cs" />
-    <Compile Include="Linq\AutoGenIdAttribute.cs" />
+    <Compile Include="Linq\Mapping\AutoGenIdAttribute.cs" />
+    <Compile Include="Linq\Mapping\FunctionExAttribute.cs" />
     <Compile Include="Linq\QueryProcessor.cs" />
     <Compile Include="util\CSharp.cs" />
     <Compile Include="util\ExprExtensions.cs" />

@@ -13,7 +13,7 @@ namespace SqlMetal.codeGen
     public class CodeGenStoredProc
     {
         const string SP_BODY_TEMPLATE = @"
-[Function(Name=""$procNameSql"")]
+[Function(Name=""$procNameSql"" ProcedureOrFunction=""$procType"")]
 public $retType $procNameCsharp($paramString)
 {
     IExecuteResult result = base.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), $sqlArgs);

@@ -39,6 +39,7 @@ using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using System.Reflection;
 using DBLinq.Linq;
+using DBLinq.Linq.Mapping;
 ";
 
             List<string> classBodies = new List<string>();
