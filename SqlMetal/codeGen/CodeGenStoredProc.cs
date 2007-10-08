@@ -26,14 +26,18 @@ public $retType $procNameCsharp($paramString)
             string text = SP_BODY_TEMPLATE.Replace("\n", "\t\n");
             text = text.Replace("$procNameCsharp", storedProc.Name);
             text = text.Replace("$procNameSql", storedProc.Name);
+            text = text.Replace("$procType", storedProc.ProcedureOrFunction);
 
             List<string> paramStringsList = new List<string>();
+            List<string> sqlArgList = new List<string>();
             foreach (DlinqSchema.Parameter param in storedProc.Parameters)
             {
                 string paramStr = FormatProcParam(param);
                 paramStringsList.Add(paramStr);
+                sqlArgList.Add(FormatInnerArg(param));
             }
             string paramString = string.Join("\t\t,", paramStringsList.ToArray());
+            string sqlArgs = string.Join(", ", sqlArgList.ToArray());
 
             string retType = "void";
             string resultValue = "1";
@@ -45,10 +49,20 @@ public $retType $procNameCsharp($paramString)
             text = text.Replace("$resultValue", resultValue);
             text = text.Replace("$paramString", paramString);
             text = text.Replace("$retType", retType);
+            text = text.Replace("$sqlArgs", sqlArgs);
             return text;
         }
 
-        const string PARAM_TEMPLATE = @"[Parameter(Name=""$dbName"", DbType=""$dbType"")] $type $name";
+        const string ARG_TEMPLATE = @"$inOut $name";
+        const string PARAM_TEMPLATE = @"[Parameter(Name=""$dbName"", DbType=""$dbType"")] $inOut $type $name";
+
+        private static string FormatInnerArg(DlinqSchema.Parameter param)
+        {
+            string text = ARG_TEMPLATE;
+            text = text.Replace("$name", param.Name);
+            text = text.Replace("$inOut ", formatInOut(param.InOut));
+            return text;
+        }
 
         private static string FormatProcParam(DlinqSchema.Parameter param)
         {
@@ -57,7 +71,21 @@ public $retType $procNameCsharp($paramString)
             text = text.Replace("$name", param.Name);
             text = text.Replace("$dbType", param.DbType);
             text = text.Replace("$type", param.Type);
+            text = text.Replace(" $inOut", formatInOut(param.InOut));
             return text;
+        }
+
+        static string formatInOut(System.Data.ParameterDirection inOut)
+        {
+            switch (inOut)
+            {
+                //case System.Data.ParameterDirection.Input: return "";
+                case System.Data.ParameterDirection.Output: return "out ";
+                case System.Data.ParameterDirection.InputOutput: return "ref ";
+                default: return "";
+            }
+
+
         }
 
     }
