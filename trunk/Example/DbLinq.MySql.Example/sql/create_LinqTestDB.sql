@@ -1,4 +1,4 @@
-﻿DROP DATABASE IF EXISTS `linqtestdb`;
+DROP DATABASE IF EXISTS `linqtestdb`;
 
 CREATE DATABASE `linqtestdb`;
 
@@ -177,4 +177,15 @@ VALUES(         null,
   16000,        null);
 
 /* we also need some functions to test the -sprocs option **/
-CREATE FUNCTION hello (s CHAR(20)) RETURNS CHAR(50) RETURN CONCAT('Hello, ',s,'!');
+CREATE FUNCTION hello0() RETURNS char(20) RETURN 'hello0';
+CREATE FUNCTION hello1(s CHAR(20)) RETURNS char(30) RETURN CONCAT('Hello, ',s,'!');
+CREATE FUNCTION `hello2`(s CHAR(20),s2 int) RETURNS char(30) RETURN CONCAT('Hello, ',s,'!');
+
+DELIMITER $$
+DROP PROCEDURE IF EXISTS `linqtestdb`.`proc1` $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `proc1`(s CHAR(20), OUT s2 int)
+BEGIN
+set s2 = 22;
+select * from orders;
+END $$
+DELIMITER ;
