@@ -74,6 +74,7 @@ namespace SqlMetal
                 {
                     //we are supposed to write out a DBML file and exit
                     DlinqSchema.Database.SaveDbmlFile(mmConfig.dbml, dbSchema);
+                    Console.WriteLine("Written file " + mmConfig.dbml);
                     return;
                 }
 

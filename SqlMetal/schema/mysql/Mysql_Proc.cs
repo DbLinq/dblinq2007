@@ -16,6 +16,7 @@ namespace SqlMetal.schema.mysql
         public string specific_name;
         public string param_list;
         public string returns;
+        public string body;
 
         /// <summary>
         /// dependencies are determined by analyzing foreign keys.
@@ -43,6 +44,7 @@ namespace SqlMetal.schema.mysql
 
     /// <summary>
     /// class for reading from 'MYSQL.PROC'
+    /// (Note: we could also work with information_schema.routines table, but we would have to parse out param_list manually)
     /// </summary>
     class ProcSql
     {
@@ -58,13 +60,14 @@ namespace SqlMetal.schema.mysql
             object oo = rdr.GetFieldType(field);
             p.param_list = rdr.GetString(field++);
             p.returns = rdr.GetString(field++);
+            p.body = rdr.GetString(field++);
             return p;
         }
 
         public List<ProcRow> getProcs(MySqlConnection conn, string db)
         {
             string sql = @"
-SELECT db, name, type, specific_name, param_list, returns
+SELECT db, name, type, specific_name, param_list, returns, body
 FROM mysql.proc
 WHERE db=?db AND type IN ('FUNCTION','PROCEDURE')";
 

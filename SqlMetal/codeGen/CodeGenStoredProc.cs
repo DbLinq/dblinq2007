@@ -46,6 +46,15 @@ public $retType $procNameCsharp($paramString)
                 retType = storedProc.Return[0].Type;
                 resultValue = "result.ReturnValue as $retType"; //for functions...
             }
+
+            bool isDataShapeUnknown = storedProc.ElementType==null 
+                && storedProc.BodyContainsSelectStatement;
+            if (isDataShapeUnknown)
+            {
+                //if we don't know the shape of results, and the proc body contains some selects,
+                //we have no choice but to return an untyped DataSet
+                retType = "System.Data.DataSet";
+            }
             text = text.Replace("$resultValue", resultValue);
             text = text.Replace("$paramString", paramString);
             text = text.Replace("$retType", retType);

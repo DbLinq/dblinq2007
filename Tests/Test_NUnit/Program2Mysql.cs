@@ -22,7 +22,7 @@ namespace Test_NUnit
             //new ReadTest_GroupBy().G01_SimpleGroup_Count();
             //new ReadTest_GroupBy().G08_OrderSumByCustomerID();
 
-            new ReadTest().D05_SelectOrdersForProduct();
+            new ReadTest().D09_Products_LetterP_Take5();
             //new ReadTest().D07_OrdersFromLondon_Alt();
             //new ReadTest_GroupBy().G01_SimpleGroup_Count();
             //new ReadTest_AllTypes().AT2_SelectDateTimeN();

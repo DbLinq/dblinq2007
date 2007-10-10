@@ -78,54 +78,68 @@ namespace DBLinq.vendor
 
             string sp_name = functionAttrib.Name;
 
-            MySqlCommand command = new MySqlCommand(sp_name, conn);
-            //MySqlCommand command = new MySqlCommand("select hello0()");
-
-            List<string> paramNames = new List<string>();
-            for (int i = 0; i < paramInfos.Length; i++)
+            using (MySqlCommand command = new MySqlCommand(sp_name, conn))
             {
-                System.Reflection.ParameterInfo paramInfo = paramInfos[i];
-                object sqlParam = sqlParams[i];
-                
-                //TODO: check to make sure there is exactly one [Parameter]?
-                ParameterAttribute paramAttrib = paramInfo.GetCustomAttributes(false).OfType<ParameterAttribute>().Single();
-                
-                string paramName = "?" + paramAttrib.Name; //eg. '?param1'
-                paramNames.Add(paramName);
-                //MySqlDbType dbType = MySqlTypeConversions.ParseType(paramAttrib.DbType);
-                MySqlParameter cmdParam = new MySqlParameter(paramName, sqlParam);
-                cmdParam.Direction = System.Data.ParameterDirection.Input;
-                //if (paramInfo.IsIn)
-                //{
-                //    cmdParam.Direction = System.Data.ParameterDirection.Input;
-                //}
-                //else if (paramInfo.IsOut)
-                //{
-                //    cmdParam.Direction = System.Data.ParameterDirection.Output;
-                //}
-                //else 
-                //{
-                //    cmdParam.Direction = System.Data.ParameterDirection.InputOutput;
-                //}
-                command.Parameters.Add(cmdParam);
-            }
+                //MySqlCommand command = new MySqlCommand("select hello0()");
 
-            if (functionAttrib.ProcedureOrFunction == "PROCEDURE")
-            {
-                //procedures: under the hood, this seems to prepend 'CALL '
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-            }
-            else
-            {
-                //functions: 'SELECT myFunction()' or 'SELECT hello(?s)'
-                string cmdText = "SELECT " + command.CommandText + "($args)";
-                cmdText = cmdText.Replace("$args", string.Join(",",paramNames.ToArray()));
-                command.CommandText = cmdText;
-            }
+                List<string> paramNames = new List<string>();
+                for (int i = 0; i < paramInfos.Length; i++)
+                {
+                    System.Reflection.ParameterInfo paramInfo = paramInfos[i];
+                    object sqlParam = sqlParams[i];
 
-            object obj = command.ExecuteScalar();
-            return new ProcResult(obj);
-            //throw new NotImplementedException("TODO - call stored procs");
+                    //TODO: check to make sure there is exactly one [Parameter]?
+                    ParameterAttribute paramAttrib = paramInfo.GetCustomAttributes(false).OfType<ParameterAttribute>().Single();
+
+                    string paramName = "?" + paramAttrib.Name; //eg. '?param1'
+                    paramNames.Add(paramName);
+                    //MySqlDbType dbType = MySqlTypeConversions.ParseType(paramAttrib.DbType);
+                    MySqlParameter cmdParam = new MySqlParameter(paramName, sqlParam);
+                    cmdParam.Direction = System.Data.ParameterDirection.Input;
+                    //if (paramInfo.IsIn)
+                    //{
+                    //    cmdParam.Direction = System.Data.ParameterDirection.Input;
+                    //}
+                    //else if (paramInfo.IsOut)
+                    //{
+                    //    cmdParam.Direction = System.Data.ParameterDirection.Output;
+                    //}
+                    //else 
+                    //{
+                    //    cmdParam.Direction = System.Data.ParameterDirection.InputOutput;
+                    //}
+                    command.Parameters.Add(cmdParam);
+                }
+
+                if (functionAttrib.ProcedureOrFunction == "PROCEDURE")
+                {
+                    //procedures: under the hood, this seems to prepend 'CALL '
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                }
+                else
+                {
+                    //functions: 'SELECT myFunction()' or 'SELECT hello(?s)'
+                    string cmdText = "SELECT " + command.CommandText + "($args)";
+                    cmdText = cmdText.Replace("$args", string.Join(",", paramNames.ToArray()));
+                    command.CommandText = cmdText;
+                }
+
+                if (method.ReturnType == typeof(System.Data.DataSet))
+                {
+                    //unknown shape of resultset:
+                    System.Data.DataSet dataSet = new System.Data.DataSet();
+                    MySqlDataAdapter adapter = new MySqlDataAdapter();
+                    adapter.SelectCommand = command;
+                    adapter.Fill(dataSet);
+                    return new ProcResult(dataSet);
+                }
+                else
+                {
+                    object obj = command.ExecuteScalar();
+                    return new ProcResult(obj);
+                }
+                //throw new NotImplementedException("TODO - call stored procs");
+            }
         }
 
     }

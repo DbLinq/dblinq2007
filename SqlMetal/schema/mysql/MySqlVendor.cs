@@ -155,6 +155,8 @@ namespace SqlMetal.schema.mysql
                     DlinqSchema.Function func = new DlinqSchema.Function();
                     func.Name = proc.specific_name;
                     func.ProcedureOrFunction = proc.type;
+                    func.BodyContainsSelectStatement = proc.body != null
+                        && proc.body.IndexOf("select", StringComparison.OrdinalIgnoreCase) > -1;
                     ParseProcParams(proc, func);
                     
                     schema.Functions.Add(func);
@@ -182,15 +184,15 @@ namespace SqlMetal.schema.mysql
                 DlinqSchema.Parameter paramObj = ParseParameterString(part);
                 if(paramObj!=null)
                     outputFunc.Parameters.Add(paramObj);
+            }
 
-                if (inputProc.returns != null)
-                {
-                    DlinqSchema.Parameter paramRet = new DlinqSchema.Parameter();
-                    paramRet.DbType = inputProc.returns;
-                    paramRet.Type = ParseDbType(inputProc.returns);
-                    paramRet.InOut = System.Data.ParameterDirection.ReturnValue;
-                    outputFunc.Return.Add(paramRet);
-                }
+            if (inputProc.returns != null && inputProc.returns!="")
+            {
+                DlinqSchema.Parameter paramRet = new DlinqSchema.Parameter();
+                paramRet.DbType = inputProc.returns;
+                paramRet.Type = ParseDbType(inputProc.returns);
+                paramRet.InOut = System.Data.ParameterDirection.ReturnValue;
+                outputFunc.Return.Add(paramRet);
             }
         }
 
@@ -236,12 +238,16 @@ namespace SqlMetal.schema.mysql
             return paramObj;
         }
 
+        static System.Text.RegularExpressions.Regex re_CHARSET = new System.Text.RegularExpressions.Regex(@" CHARSET \w+$");
         /// <summary>
         /// given 'CHAR(30)', return 'string'
         /// </summary>
-        static string ParseDbType(string dbType)
+        static string ParseDbType(string dbType1)
         {
-            string varType = dbType.Trim().ToLower();
+            //strip 'CHARSET latin1' from the end
+            string dbType2 = re_CHARSET.Replace(dbType1, "");
+
+            string varType = dbType2.Trim().ToLower();
             string varTypeQualifier = "";
             int indxQuote = varType.IndexOf('(');
             if (indxQuote > -1)
