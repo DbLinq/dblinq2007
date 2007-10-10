@@ -182,10 +182,28 @@ CREATE FUNCTION hello1(s CHAR(20)) RETURNS char(30) RETURN CONCAT('Hello, ',s,'!
 CREATE FUNCTION `hello2`(s CHAR(20),s2 int) RETURNS char(30) RETURN CONCAT('Hello, ',s,'!');
 
 DELIMITER $$
-DROP PROCEDURE IF EXISTS `linqtestdb`.`proc1` $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `proc1`(s CHAR(20), OUT s2 int)
+
+DROP FUNCTION IF EXISTS `getOrderCount` $$
+CREATE FUNCTION `getOrderCount`(custId INT) RETURNS INT
+BEGIN
+DECLARE count1 int;
+SELECT COUNT(*) INTO count1 FROM Orders WHERE CustomerID=custId;
+RETURN count1;
+END $$
+
+DROP PROCEDURE IF EXISTS `sp_selOrders` $$
+CREATE PROCEDURE `sp_selOrders`(s CHAR(20), OUT s2 int)
 BEGIN
 set s2 = 22;
 select * from orders;
 END $$
+
+DROP PROCEDURE IF EXISTS `sp_updOrders` $$
+CREATE PROCEDURE `sp_updOrders`(custID int, prodId int)
+BEGIN
+UPDATE Orders
+SET OrderDate=Now()
+WHERE ProductId=prodId AND CustomerID=custId;
+END $$
+
 DELIMITER ;

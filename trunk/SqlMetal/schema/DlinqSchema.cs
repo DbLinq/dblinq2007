@@ -90,8 +90,9 @@ namespace SqlMetal.schema
                 xml = xml.Replace(" Access=\"public\"", "");
                 xml = xml.Replace(" InOut=\"In\"", "");
                 xml = xml.Replace(" InOut=\"Input\"", "");
+                xml = xml.Replace(" BodyContainsSelectStatement=\"false\"", "");
                 xml = xml.Replace(" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"", "");
-
+                
                 System.IO.File.WriteAllText(fname, xml);
                 //IsPrimaryKey="false" IsDbGenerated="false"
             }
@@ -280,12 +281,21 @@ namespace SqlMetal.schema
             [XmlAttribute]
             public string ProcedureOrFunction;
 
+            /// <summary>
+            /// if a stored proc contains a select statement, we need to check if it returns a resultset.
+            /// </summary>
+            [XmlAttribute]
+            public bool BodyContainsSelectStatement;
+
             [XmlElement("Parameter")]
             public readonly List<Parameter> Parameters = new List<Parameter>();
 
             [XmlElement("Return")]
             public readonly List<Parameter> Return = new List<Parameter>();
 
+            /// <summary>
+            /// describes columns of resultset returned from proc.
+            /// </summary>
             public ElementType ElementType;
         }
 
