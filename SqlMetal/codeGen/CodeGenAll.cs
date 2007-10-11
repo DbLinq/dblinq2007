@@ -16,11 +16,14 @@ namespace SqlMetal.codeGen
     /// </summary>
     public class CodeGenAll
     {
+        const string NL = "\r\n";
+        const string NLNL = "\r\n\r\n";
+
         CodeGenClass codeGenClass = new CodeGenClass();
 
         public string generateAll(DlinqSchema.Database dbSchema, string vendorName)
         {
-            if(dbSchema==null || dbSchema.Tables==null)
+            if (dbSchema == null || dbSchema.Tables == null)
             {
                 Console.WriteLine("CodeGenAll ERROR: incomplete dbSchema, cannot start generating code");
                 return null;
@@ -45,7 +48,7 @@ using DBLinq.Linq.Mapping;
             List<string> classBodies = new List<string>();
 
 
-            foreach(DlinqSchema.Table tbl in dbSchema.Tables)
+            foreach (DlinqSchema.Table tbl in dbSchema.Tables)
             {
                 string classBody = codeGenClass.generateClass(dbSchema, tbl);
                 classBodies.Add(classBody);
@@ -58,23 +61,25 @@ namespace $ns
 }
 ";
             string prolog1 = prolog.Replace("$date", DateTime.Now.ToString("yyyy-MMM-dd"));
-            string source = mmConfig.server!=null ? "server "+mmConfig.server : "file "+mmConfig.schemaXmlFile;
+            string source = mmConfig.server != null ? "server " + mmConfig.server : "file " + mmConfig.schemaXmlFile;
             //prolog1 = prolog1.Replace("$db", mmConfig.server);
             prolog1 = prolog1.Replace("$db", source);
-            string classesConcat = string.Join("\n\n", classBodies.ToArray());
-            classesConcat = generateDbClass(dbSchema, vendorName) + "\n\n" + classesConcat;
+            string classesConcat = string.Join(NLNL, classBodies.ToArray());
+            classesConcat = generateDbClass(dbSchema, vendorName) + NLNL + classesConcat;
             string fileBody;
-            if(mmConfig.@namespace==null || mmConfig.@namespace==""){
+            if (mmConfig.@namespace == null || mmConfig.@namespace == "")
+            {
                 fileBody = prolog1 + classesConcat;
-            } else {
+            }
+            else
+            {
                 string body1 = opt_namespace;
                 body1 = body1.Replace("$ns", mmConfig.@namespace);
-                classesConcat = classesConcat.Replace("\n","\n\t"); //move text one tab to the right
+                classesConcat = classesConcat.Replace(NL, NL + "\t"); //move text one tab to the right
                 body1 = body1.Replace("$classes", classesConcat);
                 fileBody = prolog1 + body1;
             }
             return fileBody;
-
         }
 
         string generateDbClass(DlinqSchema.Database dbSchema, string vendorName)
@@ -82,7 +87,7 @@ namespace $ns
             #region generateDbClass()
             //if (tables.Count==0)
             //    return "//L69 no tables found";
-            if (dbSchema.Tables.Count==0)
+            if (dbSchema.Tables.Count == 0)
                 return "//L69 no tables found";
 
             const string dbClassStr = @"
@@ -111,7 +116,7 @@ public partial class $dbname : MContext
 
             List<string> dbFieldDecls = new List<string>();
             List<string> dbFieldInits = new List<string>();
-            foreach(DlinqSchema.Table tbl in dbSchema.Tables)
+            foreach (DlinqSchema.Table tbl in dbSchema.Tables)
             {
                 string className = tbl.Type.Name;
 
@@ -126,8 +131,8 @@ public partial class $dbname : MContext
                     , tableNamePlural, className);
                 dbFieldInits.Add(fldInit);
             }
-            string dbFieldInitStr = string.Join("\n\t\t", dbFieldInits.ToArray());
-            string dbFieldDeclStr = string.Join("\n\t", dbFieldDecls.ToArray());
+            string dbFieldInitStr = string.Join(NL + "\t\t", dbFieldInits.ToArray());
+            string dbFieldDeclStr = string.Join(NL + "\t", dbFieldDecls.ToArray());
 
             List<string> storedProcList = new List<string>();
             foreach (DlinqSchema.Function storedProc in dbSchema.Functions)
@@ -135,12 +140,13 @@ public partial class $dbname : MContext
                 string s = CodeGenStoredProc.FormatProc(storedProc);
                 storedProcList.Add(s);
             }
-            string storedProcsStr = string.Join("\n\n", storedProcList.ToArray());
+            string storedProcsStr = string.Join(NLNL, storedProcList.ToArray());
 
             string dbs = dbClassStr;
+            dbs = dbs.Replace("    ", "\t"); //for spaces mean a tab
             dbs = dbs.Replace("$vendor", vendorName);
-            dbs = dbs.Replace("$dbname",dbName);
-            dbs = dbs.Replace("$fieldInit",dbFieldInitStr);
+            dbs = dbs.Replace("$dbname", dbName);
+            dbs = dbs.Replace("$fieldInit", dbFieldInitStr);
             dbs = dbs.Replace("$fieldDecl", dbFieldDeclStr);
             dbs = dbs.Replace("$storedProcs", storedProcsStr);
             return dbs;
