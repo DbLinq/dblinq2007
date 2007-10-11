@@ -12,18 +12,22 @@ namespace SqlMetal.codeGen
 {
     public class CodeGenStoredProc
     {
+        const string NL = "\r\n";
+        const string NLNL = "\r\n\r\n";
+        const string NLT = "\r\n\t";
+
         const string SP_BODY_TEMPLATE = @"
-[Function(Name=""$procNameSql"" ProcedureOrFunction=""$procType"")]
+[FunctionEx(Name=""$procNameSql"", ProcedureOrFunction=""$procType"")]
 public $retType $procNameCsharp($paramString)
 {
-    IExecuteResult result = base.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), $sqlArgs);
+    IExecuteResult result = base.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod()))$sqlArgs);
     return $resultValue;
 }
 ";
 
         public static string FormatProc(DlinqSchema.Function storedProc)
         {
-            string text = SP_BODY_TEMPLATE.Replace("\n", "\t\n");
+            string text = SP_BODY_TEMPLATE.Replace(NL, "\t" + NL);
             text = text.Replace("$procNameCsharp", storedProc.Name);
             text = text.Replace("$procNameSql", storedProc.Name);
             text = text.Replace("$procType", storedProc.ProcedureOrFunction);
@@ -36,7 +40,7 @@ public $retType $procNameCsharp($paramString)
                 paramStringsList.Add(paramStr);
                 sqlArgList.Add(FormatInnerArg(param));
             }
-            string paramString = string.Join("\t\t,", paramStringsList.ToArray());
+            string paramString = string.Join(NL + "\t\t,", paramStringsList.ToArray());
             string sqlArgs = string.Join(", ", sqlArgList.ToArray());
 
             string retType = "void";
@@ -47,7 +51,7 @@ public $retType $procNameCsharp($paramString)
                 resultValue = "result.ReturnValue as $retType"; //for functions...
             }
 
-            bool isDataShapeUnknown = storedProc.ElementType==null 
+            bool isDataShapeUnknown = storedProc.ElementType == null
                 && storedProc.BodyContainsSelectStatement;
             if (isDataShapeUnknown)
             {
@@ -58,7 +62,12 @@ public $retType $procNameCsharp($paramString)
             text = text.Replace("$resultValue", resultValue);
             text = text.Replace("$paramString", paramString);
             text = text.Replace("$retType", retType);
+            if (sqlArgs.Length > 0) 
+            { 
+                sqlArgs = ", " + sqlArgs; //pre-pend comma, if there are some args
+            }
             text = text.Replace("$sqlArgs", sqlArgs);
+            text = text.Replace(NL, NLT); //move one tab to the right
             return text;
         }
 
@@ -93,8 +102,6 @@ public $retType $procNameCsharp($paramString)
                 case System.Data.ParameterDirection.InputOutput: return "ref ";
                 default: return "";
             }
-
-
         }
 
     }

@@ -85,7 +85,7 @@ protected $type _$name;";
 public $type $nameU
 {$constraintWarn
     get { return _$name; }
-    set { _$name=value; _isModified_=true; }
+    set { _$name=value; IsModified=true; }
 }
 ";
             if (_nameU == _tableClassName)

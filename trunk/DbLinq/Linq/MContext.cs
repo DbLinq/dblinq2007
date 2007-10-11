@@ -123,6 +123,13 @@ namespace DBLinq.Linq
             System.Data.Linq.IExecuteResult result = vendor.Vendor.ExecuteMethodCall(context, method, sqlParams);
             return result;
         }
+
+        protected System.Data.Linq.IExecuteResult ExecuteMethodCall_OutParams<T>(MContext context, System.Reflection.MethodInfo method, params object[] sqlParams)
+            where T : new()
+        {
+            System.Data.Linq.IExecuteResult result = vendor.Vendor.ExecuteMethodCall_OutParams<T>(context, method, sqlParams);
+            return result;
+        }
 #else
         //ExecuteMethodCall for Postgres, Oracle: coming later
 #endif

@@ -27,7 +27,7 @@ namespace DbLinq.MySql.Example
 
             string connStr = String.Format("server={0};user id={1}; password={2}; database={3}", args);
 
-#if true
+#if false
             MySqlCommand cmd = new MySqlCommand("select hello(?s)", new MySqlConnection(connStr));
             //cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.Add("?s", "xx");
@@ -40,8 +40,10 @@ namespace DbLinq.MySql.Example
             LinqTestDB db = new LinqTestDB(connStr);
 
 #if USE_STORED_PROCS
+            int is2;
+            object xx = db.sp_selOrders("ZZ", out is2);
             string reply0 = db.hello0();
-            string reply = db.hello("Pigafetta");
+            string reply1 = db.hello1("Pigafetta");
 #endif
 
             Console.Clear();

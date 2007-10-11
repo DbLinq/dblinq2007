@@ -18,27 +18,9 @@ namespace SqlMetal.schema.mysql
         public string returns;
         public string body;
 
-        /// <summary>
-        /// dependencies are determined by analyzing foreign keys.
-        /// </summary>
-        public readonly List<TableRow> childTables = new List<TableRow>();
-
-        public IEnumerable<TableRow> EnumChildTables(int depth)
+        public override string ToString()
         {
-            if (depth > 99)
-            {
-                //prevent infinite recursion, in case of circular dependency
-                throw new ApplicationException("Circular dependency suspected");
-            }
-
-            foreach (TableRow t in childTables)
-            {
-                yield return t;
-                foreach (TableRow t2 in t.EnumChildTables(depth + 1))
-                {
-                    yield return t2;
-                }
-            }
+            return "ProcRow " + name;
         }
     }
 

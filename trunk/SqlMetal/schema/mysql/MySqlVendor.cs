@@ -173,17 +173,22 @@ namespace SqlMetal.schema.mysql
         static void ParseProcParams(ProcRow inputProc, DlinqSchema.Function outputFunc)
         {
             string paramString = inputProc.param_list;
-            if(paramString==null || paramString=="")
-                return;
-            string[] parts = paramString.Split(',');
-
-            char[] SPACES = new char[]{' ','\t','\n'}; //word separators
-
-            foreach (string part in parts) //part='OUT param1 int'
+            if (paramString == null || paramString == "")
             {
-                DlinqSchema.Parameter paramObj = ParseParameterString(part);
-                if(paramObj!=null)
-                    outputFunc.Parameters.Add(paramObj);
+                //nothing to parse
+            }
+            else
+            {
+                string[] parts = paramString.Split(',');
+
+                char[] SPACES = new char[] { ' ', '\t', '\n' }; //word separators
+
+                foreach (string part in parts) //part='OUT param1 int'
+                {
+                    DlinqSchema.Parameter paramObj = ParseParameterString(part);
+                    if (paramObj != null)
+                        outputFunc.Parameters.Add(paramObj);
+                }
             }
 
             if (inputProc.returns != null && inputProc.returns!="")

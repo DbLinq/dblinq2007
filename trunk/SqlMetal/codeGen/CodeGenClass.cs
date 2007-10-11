@@ -16,18 +16,17 @@ namespace SqlMetal.codeGen
     /// </summary>
     public class CodeGenClass
     {
+        const string NL = "\r\n";
+        const string NLNL = "\r\n\r\n";
+        const string NLT = "\r\n\t";
+
         public string generateClass(DlinqSchema.Database schema, DlinqSchema.Table table)
         {
             string template = @"
 [Table(Name=""$tableName"")]
 public partial class $name $baseClass
 {
-    bool _isModified_;
-    public bool IsModified 
-    { 
-        get { return _isModified_; } 
-        set { _isModified_ = value; } 
-    }
+    public bool IsModified { get; set; }
 
     $fields
 
@@ -47,14 +46,14 @@ public partial class $name $baseClass
             //foreach(DlinqSchema.Column col in table.Types[0].Columns)
             foreach (DlinqSchema.Column col in table.Type.Columns)
             {
-                List<DlinqSchema.Association> constraintsOnField 
-                    = table.Type.Associations.FindAll( a => a.Name==col.Name );
+                List<DlinqSchema.Association> constraintsOnField
+                    = table.Type.Associations.FindAll(a => a.Name == col.Name);
 
                 CodeGenField codeGenField = new CodeGenField(className, col, constraintsOnField);
                 string fld = codeGenField.generateField();
                 string prop = codeGenField.generateProperty();
-                fld = fld.Replace("\n", "\n\t");
-                prop = prop.Replace("\n", "\n\t");
+                fld = fld.Replace(NL, NL + "\t");
+                prop = prop.Replace(NL, NL + "\t");
                 fieldBodies.Add(fld);
                 properties.Add(prop);
             }
@@ -62,16 +61,17 @@ public partial class $name $baseClass
 
             string ctor = genCtors(table);
 
-            string fieldsConcat = string.Join("\n", fieldBodies.ToArray());
-            string propsConcat = string.Join("\n", properties.ToArray());
+            string fieldsConcat = string.Join(NL, fieldBodies.ToArray());
+            string propsConcat = string.Join(NL, properties.ToArray());
             string equals = GenerateEqualsAndHash(table);
-            string baseClass = (mmConfig.baseClass==null || mmConfig.baseClass=="")
+            string baseClass = (mmConfig.baseClass == null || mmConfig.baseClass == "")
                 ? ""
-                : ": "+mmConfig.baseClass;
+                : ": " + mmConfig.baseClass;
             string childTables = GetLinksToChildTables(schema, table);
             string parentTables = GetLinksToParentTables(schema, table);
 
 
+            template = template.Replace("    ", "\t");
             template = template.Replace("$name", className);
             template = template.Replace("$tableName", table.Name);
             template = template.Replace("$ctors", ctor);
@@ -287,7 +287,8 @@ public $parentClassTyp $member {
 
             string fieldName = "_"+primaryKeys[0].Name;
 
-            string result = template.Replace("$fieldID",fieldName);
+            template = template.Replace("    ", "\t"); //four spaces mean a tab
+            string result = template.Replace("$fieldID", fieldName);
             result = result.Replace("$className", table.Type.Name);
             return result;
         }
