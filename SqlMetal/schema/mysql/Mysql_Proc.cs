@@ -25,8 +25,9 @@ namespace SqlMetal.schema.mysql
     }
 
     /// <summary>
-    /// class for reading from 'MYSQL.PROC'
-    /// (Note: we could also work with information_schema.routines table, but we would have to parse out param_list manually)
+    /// class for reading from 'MYSQL.PROC'.
+    /// We use mysql.PROC instead of information_schema.ROUTINES, because it saves us parsing of parameters.
+    /// Note: higher permissions are required to access mysql.PROC.
     /// </summary>
     class ProcSql
     {

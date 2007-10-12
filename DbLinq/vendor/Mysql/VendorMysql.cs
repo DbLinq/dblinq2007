@@ -9,6 +9,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using System.Data.Linq.Mapping;
+using System.Reflection;
 using MySql.Data.MySqlClient;
 using DBLinq.Linq.Mapping;
 
@@ -50,103 +51,14 @@ namespace DBLinq.vendor
             return param;
         }
 
-        public static System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.MContext context, System.Reflection.MethodInfo method
-            , params object[] sqlParams)
-        {
-            //System.Reflection.MethodAttributes attribs = method.Attributes;
-            if(method==null)
-                throw new ArgumentNullException("L56 Null 'method' parameter");
 
-            object[] attribs1 = method.GetCustomAttributes(false);
-
-            //check to make sure there is exactly one [FunctionEx]? that's below.
-            FunctionExAttribute functionAttrib = attribs1.OfType<FunctionExAttribute>().Single();
-
-            //List<FunctionExAttribute> funcAttribs = attribs1.OfType<FunctionExAttribute>().ToList();
-            //if(funcAttribs.Count==0)
-            //    throw new ArgumentException("L61 The method you passed does not have a [Function] attribute:"+method);
-            //if(funcAttribs.Count>1)
-            //    throw new ArgumentException("L63 The method you passed has more than one [Function] attribute:"+method);
-            //FunctionExAttribute functionAttrib = funcAttribs[0];
-
-            System.Reflection.ParameterInfo[] paramInfos = method.GetParameters();
-            if(paramInfos.Length!=sqlParams.Length)
-                throw new ArgumentException("L70 Argument count mismatch");
-
-            MySql.Data.MySqlClient.MySqlConnection conn = context.SqlConnection;
-            //conn.Open();
-
-            string sp_name = functionAttrib.Name;
-
-            using (MySqlCommand command = new MySqlCommand(sp_name, conn))
-            {
-                //MySqlCommand command = new MySqlCommand("select hello0()");
-
-                List<string> paramNames = new List<string>();
-                for (int i = 0; i < paramInfos.Length; i++)
-                {
-                    System.Reflection.ParameterInfo paramInfo = paramInfos[i];
-                    object sqlParam = sqlParams[i];
-
-                    //TODO: check to make sure there is exactly one [Parameter]?
-                    ParameterAttribute paramAttrib = paramInfo.GetCustomAttributes(false).OfType<ParameterAttribute>().Single();
-
-                    string paramName = "?" + paramAttrib.Name; //eg. '?param1'
-                    paramNames.Add(paramName);
-                    //MySqlDbType dbType = MySqlTypeConversions.ParseType(paramAttrib.DbType);
-                    MySqlParameter cmdParam = new MySqlParameter(paramName, sqlParam);
-                    cmdParam.Direction = System.Data.ParameterDirection.Input;
-                    //if (paramInfo.IsIn)
-                    //{
-                    //    cmdParam.Direction = System.Data.ParameterDirection.Input;
-                    //}
-                    //else if (paramInfo.IsOut)
-                    //{
-                    //    cmdParam.Direction = System.Data.ParameterDirection.Output;
-                    //}
-                    //else 
-                    //{
-                    //    cmdParam.Direction = System.Data.ParameterDirection.InputOutput;
-                    //}
-                    command.Parameters.Add(cmdParam);
-                }
-
-                if (functionAttrib.ProcedureOrFunction == "PROCEDURE")
-                {
-                    //procedures: under the hood, this seems to prepend 'CALL '
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                }
-                else
-                {
-                    //functions: 'SELECT myFunction()' or 'SELECT hello(?s)'
-                    string cmdText = "SELECT " + command.CommandText + "($args)";
-                    cmdText = cmdText.Replace("$args", string.Join(",", paramNames.ToArray()));
-                    command.CommandText = cmdText;
-                }
-
-                if (method.ReturnType == typeof(System.Data.DataSet))
-                {
-                    //unknown shape of resultset:
-                    System.Data.DataSet dataSet = new System.Data.DataSet();
-                    MySqlDataAdapter adapter = new MySqlDataAdapter();
-                    adapter.SelectCommand = command;
-                    adapter.Fill(dataSet);
-                    return new ProcResult(dataSet);
-                }
-                else
-                {
-                    object obj = command.ExecuteScalar();
-                    return new ProcResult(obj);
-                }
-                //throw new NotImplementedException("TODO - call stored procs");
-            }
-        }
-
-        public static System.Data.Linq.IExecuteResult ExecuteMethodCall_OutParams<T>(DBLinq.Linq.MContext context, System.Reflection.MethodInfo method
+        /// <summary>
+        /// call mysql stored proc or stored function, 
+        /// optionally return DataSet, and collect return params.
+        /// </summary>
+        public static System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.MContext context, MethodInfo method
             , params object[] inputValues)
-            where T : new()
         {
-            //System.Reflection.MethodAttributes attribs = method.Attributes;
             if (method == null)
                 throw new ArgumentNullException("L56 Null 'method' parameter");
 
@@ -155,7 +67,7 @@ namespace DBLinq.vendor
             //check to make sure there is exactly one [FunctionEx]? that's below.
             FunctionExAttribute functionAttrib = attribs1.OfType<FunctionExAttribute>().Single();
 
-            System.Reflection.ParameterInfo[] paramInfos = method.GetParameters();
+            ParameterInfo[] paramInfos = method.GetParameters();
             //int numRequiredParams = paramInfos.Count(p => p.IsIn || p.IsRetval);
             //if (numRequiredParams != inputValues.Length)
             //    throw new ArgumentException("L161 Argument count mismatch");
@@ -173,7 +85,7 @@ namespace DBLinq.vendor
                 List<string> paramNames = new List<string>();
                 for (int i = 0; i < paramInfos.Length; i++)
                 {
-                    System.Reflection.ParameterInfo paramInfo = paramInfos[i];
+                    ParameterInfo paramInfo = paramInfos[i];
 
                     //TODO: check to make sure there is exactly one [Parameter]?
                     ParameterAttribute paramAttrib = paramInfo.GetCustomAttributes(false).OfType<ParameterAttribute>().Single();
@@ -211,8 +123,6 @@ namespace DBLinq.vendor
                     command.CommandText = cmdText;
                 }
 
-                T t = new T();
-
                 if (method.ReturnType == typeof(System.Data.DataSet))
                 {
                     //unknown shape of resultset:
@@ -220,20 +130,19 @@ namespace DBLinq.vendor
                     MySqlDataAdapter adapter = new MySqlDataAdapter();
                     adapter.SelectCommand = command;
                     adapter.Fill(dataSet);
-                    CopyOutParams<T>(t, command.Parameters);
-                    return new ProcResult(dataSet);
+                    List<object> outParamValues = CopyOutParams(paramInfos, command.Parameters);
+                    return new ProcResult(dataSet, outParamValues.ToArray());
                 }
                 else
                 {
                     object obj = command.ExecuteScalar();
-                    CopyOutParams<T>(t, command.Parameters);
-                    return new ProcResult(obj);
+                    List<object> outParamValues = CopyOutParams(paramInfos, command.Parameters);
+                    return new ProcResult(obj, outParamValues.ToArray());
                 }
-                //throw new NotImplementedException("TODO - call stored procs");
             }
         }
 
-        static System.Data.ParameterDirection GetDirection(System.Reflection.ParameterInfo paramInfo, ParameterAttribute paramAttrib)
+        static System.Data.ParameterDirection GetDirection(ParameterInfo paramInfo, ParameterAttribute paramAttrib)
         {
             //strange hack to determine what's a ref, out parameter:
             //http://lists.ximian.com/pipermain/mono-list/2003-March/012751.html
@@ -245,61 +154,70 @@ namespace DBLinq.vendor
             return System.Data.ParameterDirection.Input;
         }
 
-        static void CopyOutParams<T>(T t, MySqlParameterCollection paramSet)
+        /// <summary>
+        /// Collect all Out or InOut param values, casting them to the correct .net type.
+        /// </summary>
+        static List<object> CopyOutParams(ParameterInfo[] paramInfos, MySqlParameterCollection paramSet)
         {
-            Type type_t = typeof(T);
+            List<object> outParamValues = new List<object>();
+            //Type type_t = typeof(T);
+            int i=-1;
             foreach (MySqlParameter param in paramSet)
             {
+                i++;
                 if (param.Direction == System.Data.ParameterDirection.Input)
-                    continue;
-                object val = param.Value;
-                string paramName = param.ParameterName;
-                if (paramName.StartsWith("?"))
-                    paramName = paramName.Substring(1);
-                System.Reflection.FieldInfo fi = type_t.GetField(paramName);
-                if (fi == null)
                 {
-                    Console.WriteLine("CopyOutParams ERROR L236: cannot find field " + paramName + " in type " + type_t.Name);
+                    outParamValues.Add("unused");
                     continue;
+                }
+
+                object val = param.Value;
+                Type desired_type = paramInfos[i].ParameterType;
+
+                if (desired_type.Name.EndsWith("&"))
+                {
+                    //for ref and out parameters, we need to tweak ref types, e.g.
+                    // "System.Int32&, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+                    string fullName1 = desired_type.AssemblyQualifiedName;
+                    string fullName2 = fullName1.Replace("&", ""); 
+                    desired_type = Type.GetType(fullName2);
                 }
                 try
                 {
-                    fi.SetValue(t, val);
+                    //fi.SetValue(t, val); //fails with 'System.Decimal cannot be converted to Int32'
+                    //DBLinq.util.FieldUtils.SetObjectIdField(t, fi, val);
+                    object val2 = DBLinq.util.FieldUtils.CastValue(val, desired_type);
+                    outParamValues.Add(val2);
                 }
                 catch (Exception ex)
                 {
                     //fails with 'System.Decimal cannot be converted to Int32'
-                    Console.WriteLine("CopyOutParams ERROR L245: failed on " + type_t.Name + ".SetValue(" + paramName + "): " + ex.Message);
+                    Console.WriteLine("CopyOutParams ERROR L245: failed on CastValue(): " + ex.Message);
                 }
             }
+            return outParamValues;
         }
 
     }
 
     public class ProcResult : System.Data.Linq.IExecuteResult
     {
-        #region IExecuteResult Members
+        object[] outParamValues;
 
         public object GetParameterValue(int parameterIndex)
         {
-            throw new NotImplementedException();
+            object value = outParamValues[parameterIndex];
+            return value;
         }
 
         public object ReturnValue { get; set; }
 
-        #endregion
+        public void Dispose(){}
 
-        #region IDisposable Members
-
-        public void Dispose()
-        {
-        }
-
-        #endregion
-
-        public ProcResult(object retVal)
+        public ProcResult(object retVal, object[] outParamValues_)
         {
             ReturnValue = retVal;
+            outParamValues = outParamValues_;
         }
     }
 }

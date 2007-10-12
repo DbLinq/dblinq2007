@@ -20,7 +20,8 @@ namespace SqlMetal.codeGen
 [FunctionEx(Name=""$procNameSql"", ProcedureOrFunction=""$procType"")]
 public $retType $procNameCsharp($paramString)
 {
-    IExecuteResult result = base.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod()))$sqlArgs);
+    IExecuteResult result = base.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod()))$sqlInArgs);
+    $assignOutParams
     return $resultValue;
 }
 ";
@@ -33,18 +34,33 @@ public $retType $procNameCsharp($paramString)
             text = text.Replace("$procType", storedProc.ProcedureOrFunction);
 
             List<string> paramStringsList = new List<string>();
-            List<string> sqlArgList = new List<string>();
+            List<string> sqlInArgList = new List<string>();
+            List<string> outParamLineList = new List<string>();
+            int paramIndex = -1;
             foreach (DlinqSchema.Parameter param in storedProc.Parameters)
             {
+                paramIndex++;
                 string paramStr = FormatProcParam(param);
                 paramStringsList.Add(paramStr);
-                sqlArgList.Add(FormatInnerArg(param));
+
+                if (param.InOut == System.Data.ParameterDirection.Input || param.InOut == System.Data.ParameterDirection.InputOutput)
+                {
+                    sqlInArgList.Add(FormatInnerArg(param));
+                }
+
+                if (param.InOut == System.Data.ParameterDirection.Output || param.InOut == System.Data.ParameterDirection.InputOutput)
+                {
+                    string outParamLine = "\t" + param.Name + " = ("+param.Type+") result.GetParameterValue(" + paramIndex + ");";
+                    outParamLineList.Add(outParamLine);
+                }
             }
+
             string paramString = string.Join(NL + "\t\t,", paramStringsList.ToArray());
-            string sqlArgs = string.Join(", ", sqlArgList.ToArray());
+            string sqlInArgs = string.Join(", ", sqlInArgList.ToArray());
+            string outParamLines = string.Join(NL, outParamLineList.ToArray());
 
             string retType = "void";
-            string resultValue = "1";
+            string resultValue = "";
             if (storedProc.Return.Count > 0)
             {
                 retType = storedProc.Return[0].Type;
@@ -56,17 +72,25 @@ public $retType $procNameCsharp($paramString)
             if (isDataShapeUnknown)
             {
                 //if we don't know the shape of results, and the proc body contains some selects,
-                //we have no choice but to return an untyped DataSet
+                //we have no choice but to return an untyped DataSet.
+                //
+                //TODO: either parse proc body like microsoft, 
+                //or create a little GUI tool which would call the proc with test values, to determine result shape.
                 retType = "System.Data.DataSet";
+                resultValue = "result.ReturnValue as System.Data.DataSet";
             }
+
             text = text.Replace("$resultValue", resultValue);
             text = text.Replace("$paramString", paramString);
             text = text.Replace("$retType", retType);
-            if (sqlArgs.Length > 0) 
+            if (sqlInArgs.Length > 0) 
             { 
-                sqlArgs = ", " + sqlArgs; //pre-pend comma, if there are some args
+                sqlInArgs = ", " + sqlInArgs; //pre-pend comma, if there are some args
             }
-            text = text.Replace("$sqlArgs", sqlArgs);
+            text = text.Replace("$sqlInArgs", sqlInArgs);
+            text = text.Replace("$assignOutParams", outParamLines);
+            text = text.Replace("    \r\n", ""); //if there were no out params assigned, remove the blank line
+            text = text.Replace("    ", "\t"); //4 spaces -> tab
             text = text.Replace(NL, NLT); //move one tab to the right
             return text;
         }
