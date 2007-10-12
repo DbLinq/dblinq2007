@@ -113,13 +113,13 @@ public $name($argList)
             }
 
             string argsCsv = string.Join(",", ctorArgs.ToArray());
-            string statements = string.Join("\n", ctorStatements.ToArray());
+            string statements = string.Join(NL, ctorStatements.ToArray());
             string className = table.Type.Name; 
 
             template = template.Replace("$name", className);
             template = template.Replace("$argList", argsCsv);
             template = template.Replace("$statements", statements);
-            template = template.Replace("\n","\n\t");
+            template = template.Replace(NL, NLT);
             return template;
             #endregion
         }
@@ -164,8 +164,8 @@ public EntityMSet<$childClassName> $fieldName
                 str = str.Replace("$fieldName",         fieldName);
                 linksToChildTables.Add(str);
             }
-            string ret = string.Join("\n", linksToChildTables.ToArray());
-            ret = ret.Replace("\n","\n\t");
+            string ret = string.Join(NL, linksToChildTables.ToArray());
+            ret = ret.Replace(NL, NLT);
             return ret;
         }
 
@@ -182,13 +182,13 @@ public $parentClassTyp $member {
 	set { this.$fieldName2.Entity = value; }
 }
 ";
-            var ourParents = table.Type.Associations.Where( a=>a.ThisKey!=null );
+            var ourParents = table.Type.Associations.Where(a => a.ThisKey != null);
 
             List<string> linksToChildTables = new List<string>();
-            foreach(DlinqSchema.Association assoc in ourParents)
+            foreach (DlinqSchema.Association assoc in ourParents)
             {
-                DlinqSchema.Table targetTable = schema.Tables.FirstOrDefault( t => t.Type.Name==assoc.Type );
-                if(targetTable==null)
+                DlinqSchema.Table targetTable = schema.Tables.FirstOrDefault(t => t.Type.Name == assoc.Type);
+                if (targetTable == null)
                 {
                     Console.WriteLine("ERROR L191 target table type not found: " + assoc.Type + "  (processing " + assoc.Name + ")");
                     continue;
@@ -197,11 +197,11 @@ public $parentClassTyp $member {
                 string str = childLinkTemplate;
 
                 //string childTableName   = assoc.Target;
-                string thisKey          = assoc.ThisKey; //.Columns[0].Name; //eg. 'CustomerID'
-                string fkName           = assoc.Name; //eg. 'FK_Orders_Customers'
-                string parentClassName  = targetTable.Type.Name;
-                string fieldName        = "_"+parentClassName;
-                string fieldName2       = fieldName;
+                string thisKey = assoc.ThisKey; //.Columns[0].Name; //eg. 'CustomerID'
+                string fkName = assoc.Name; //eg. 'FK_Orders_Customers'
+                string parentClassName = targetTable.Type.Name;
+                string fieldName = "_" + parentClassName;
+                string fieldName2 = fieldName;
                 if (assoc.Member == thisKey)
                 {
                     assoc.Member = thisKey + parentClassName; //repeat name to prevent collision (same as Linq)
@@ -209,16 +209,16 @@ public $parentClassTyp $member {
                 }
 
                 //str = str.Replace("$childTableName",    childTableName);
-                str = str.Replace("$thisKey",           thisKey);
-                str = str.Replace("$fkName",            fkName);
-                str = str.Replace("$parentClassTyp",    parentClassName);
-                str = str.Replace("$member",            assoc.Member);
-                str = str.Replace("$fieldName1",         fieldName);
-                str = str.Replace("$fieldName2",         fieldName2);
+                str = str.Replace("$thisKey", thisKey);
+                str = str.Replace("$fkName", fkName);
+                str = str.Replace("$parentClassTyp", parentClassName);
+                str = str.Replace("$member", assoc.Member);
+                str = str.Replace("$fieldName1", fieldName);
+                str = str.Replace("$fieldName2", fieldName2);
                 linksToChildTables.Add(str);
             }
-            string ret = string.Join("\n", linksToChildTables.ToArray());
-            ret = ret.Replace("\n","\n\t");
+            string ret = string.Join(NL, linksToChildTables.ToArray());
+            ret = ret.Replace(NL, NLT);
             return ret;
             #endregion
         }

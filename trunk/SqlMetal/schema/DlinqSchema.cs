@@ -297,6 +297,11 @@ namespace SqlMetal.schema
             /// describes columns of resultset returned from proc.
             /// </summary>
             public ElementType ElementType;
+
+            public override string ToString()
+            {
+                return "dbml.Function " + Name;
+            }
         }
 
         /// <summary>
@@ -317,7 +322,7 @@ namespace SqlMetal.schema
             public string DbType;
 
             [XmlAttribute]
-            public System.Data.ParameterDirection InOut;
+            public System.Data.ParameterDirection InOut = System.Data.ParameterDirection.Input;
         }
 
         /// <summary>
