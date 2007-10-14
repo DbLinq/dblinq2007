@@ -28,6 +28,12 @@ public $retType $procNameCsharp($paramString)
 
         public static string FormatProc(DlinqSchema.Function storedProc)
         {
+            if (storedProc == null || storedProc.Name == null)
+            {
+                Console.WriteLine("CodeGenStoredProc: Error L33 Invalid storedProc object");
+                return "//error L33 Invalid storedProc object";
+            }
+
             string text = SP_BODY_TEMPLATE.Replace(NL, "\t" + NL);
             text = text.Replace("$procNameCsharp", storedProc.Name);
             text = text.Replace("$procNameSql", storedProc.Name);

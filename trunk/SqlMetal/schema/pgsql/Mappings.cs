@@ -49,7 +49,7 @@ namespace SqlMetal.schema.pgsql
                 case "integer": return "int";
                 case "timestamp without time zone": return "DateTime";
                 default:
-                    return "L80_mapCsType_unprepared_for_mysqltype_"+mysqlType;
+                    return "L52_mapCsType_unprepared_for_postgresqltype_"+mysqlType;
             }
             #endregion
         }
