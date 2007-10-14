@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////
+//Initial author: Jiri George Moudry, 2006.
+//License: LGPL. (Visit http://www.gnu.org)
+////////////////////////////////////////////////////////////////////
+
+//Sources: Extracting META Information from PostgreSQL - Lorenzo Alberton
+//http://www.alberton.info/postgresql_meta_info.html
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -167,7 +175,86 @@ namespace SqlMetal.schema.pgsql
 
             }
 
+            //##################################################################
+            //step 4 - analyse stored procs
+            if (mmConfig.sprocs)
+            {
+                Pg_Proc_Sql procSql = new Pg_Proc_Sql();
+                List<Pg_Proc> procs = procSql.getProcs(conn, mmConfig.database);
+
+                //4a. determine unknown types
+                Dictionary<long, string> typeOidToName = new Dictionary<long, string>();
+
+                foreach (Pg_Proc proc in procs)
+                {
+                    typeOidToName[proc.prorettype] = proc.formatted_prorettype;
+
+                    foreach (long argType in proc.progargtypes2)
+                    {
+                        if (!typeOidToName.ContainsKey(argType))
+                            typeOidToName[argType] = null;
+                    }
+
+                    //List<long> unknownTypeOids = typeOidToName.Where(kv => kv.Value == null)
+                    //    .Select(kv => kv.Key).ToList();
+                }
+
+                //4b. get names for unknown types
+                procSql.getTypeNames(conn, mmConfig.database, typeOidToName);
+
+                //4c. generate dbml objects
+                foreach (Pg_Proc proc in procs)
+                {
+                    DlinqSchema.Function dbml_fct = ParseFunction(proc, typeOidToName);
+                    schema.Functions.Add(dbml_fct);
+                }
+
+            }
             return schema;
+        }
+
+        static DlinqSchema.Function ParseFunction(Pg_Proc pg_proc, Dictionary<long, string> typeOidToName)
+        {
+            DlinqSchema.Function dbml_func = new DlinqSchema.Function();
+            dbml_func.Name = pg_proc.proname;
+
+            if (pg_proc.formatted_prorettype != null)
+            {
+                DlinqSchema.Parameter dbml_param = new DlinqSchema.Parameter();
+                dbml_param.DbType = pg_proc.formatted_prorettype;
+                dbml_param.Type = Mappings.mapSqlTypeToCsType( pg_proc.formatted_prorettype,"");
+                dbml_func.Return.Add(dbml_param);
+            }
+
+            string paramNames1 = pg_proc.proargnames;
+            if (paramNames1 == null || paramNames1.Length < 2)
+            {
+                //eg. 'hello0' has no arguments
+            }
+            else
+            {
+                string[] paramNames = paramNames1.Split(',');
+                int len = pg_proc.progargtypes2.Count;
+                if (paramNames.Length != len)
+                {
+                    Console.WriteLine("L238 Mistmatch between typeArr and nameArr for func " + pg_proc.proname);
+                    return null;
+                }
+
+                List<DlinqSchema.Parameter> paramList = new List<DlinqSchema.Parameter>();
+                for (int i = 0; i < len; i++)
+                {
+                    DlinqSchema.Parameter dbml_param = new DlinqSchema.Parameter();
+                    long argTypeOid = pg_proc.progargtypes2[i];
+                    dbml_param.DbType = typeOidToName[argTypeOid];
+                    dbml_param.Name = paramNames[i];
+                    dbml_param.Type = Mappings.mapSqlTypeToCsType(dbml_param.DbType, "");
+
+                    dbml_func.Parameters.Add(dbml_param);
+                }
+            }
+
+            return dbml_func;
         }
 
         public static string FormatTableName(string table_name)

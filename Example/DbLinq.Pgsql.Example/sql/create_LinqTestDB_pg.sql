@@ -99,6 +99,29 @@ CREATE TABLE AllTypes
 );
 
 
+CREATE FUNCTION hello0() RETURNS text AS $$ 
+  BEGIN RETURN 'hello0'; END;
+$$ LANGUAGE plpgsql;
+
+-- contatenates strings. test case: select hello2('aa','bb')
+CREATE OR REPLACE FUNCTION hello1(name text) RETURNS text AS $$ 
+  BEGIN RETURN 'hello,' || name || '!'; END;
+$$ LANGUAGE plpgsql;
+CREATE OR REPLACE FUNCTION hello2(name text, unused text) RETURNS text AS $$ 
+  BEGIN RETURN 'hello,' || name || '!'; SELECT * FROM customer; END;
+$$ LANGUAGE plpgsql;
+
+
+-- count orders for given CustomerID. test case: select getOrderCount(1)
+CREATE OR REPLACE FUNCTION getOrderCount(custId INT) RETURNS INT AS $$
+DECLARE
+  count1 INTEGER;
+BEGIN
+  SELECT COUNT(*) INTO count1 FROM Orders WHERE CustomerID=custId;
+  RETURN count1;
+END;
+$$ LANGUAGE plpgsql;
+
 COMMIT;
 
 
