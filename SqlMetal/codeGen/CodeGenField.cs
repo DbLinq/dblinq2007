@@ -13,7 +13,8 @@ namespace SqlMetal.codeGen
     public class CodeGenField
     {
         DlinqSchema.Column _column;
-        string _nameU; //camelcase field name, eg. 'Cat'
+        //string _nameU; //camelcase field name, eg. 'Cat'
+        string _propertyName;
         string _attrib2;
         string _constraintWarn;
         string _tableClassName;
@@ -49,9 +50,11 @@ namespace SqlMetal.codeGen
             _attrib2 = string.Join(", ", attribParts.ToArray());
 
             _constraintWarn = "";
-            _nameU = Util.FieldName(column.Name);
 
-            _columnType = CSharp.FormatType(column.Type, column.CanBeNull);
+            //_nameU = Util.FieldName(column.Name);
+            //_columnType = CSharp.FormatType(column.Type, column.CanBeNull);
+            _propertyName = column.Member;
+            _columnType = column.Type;
         }
 
         public string generateField()
@@ -74,20 +77,20 @@ protected $type _$name;";
             string template = @"
 [Column($attribOpt)]
 [DebuggerNonUserCode]
-public $type $nameU
+public $type $propertyName
 {$constraintWarn
     get { return _$name; }
     set { _$name = value; IsModified = true; }
 }
 ";
-            if (_nameU == _tableClassName)
+            if (_propertyName == _tableClassName)
             {
                 //_nameU += "_1"; //prevent error CS0542: 'XXX': member names cannot be the same as their enclosing type
-                _nameU = "Content"; //same as Linq To Sql
+                _propertyName = "Content"; //same as Linq To Sql
             }
 
             template = template.Replace("$type", _columnType);
-            template = template.Replace("$nameU", _nameU);
+            template = template.Replace("$propertyName", _propertyName);
             template = template.Replace("$name", this._column.Name);
             template = template.Replace("$attribOpt", _attrib2);
             template = template.Replace("$constraintWarn", _constraintWarn);

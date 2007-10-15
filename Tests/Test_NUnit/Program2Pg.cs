@@ -20,7 +20,7 @@ namespace Test_NUnit
         {
             //new ReadTest().D05_SelectOrdersForProduct();
             //new ReadTest().D06_OrdersFromLondon();
-
+            new StoredProcTest().SP3_GetOrderCount_SelField();
             //new ReadTest_GroupBy().G01_SimpleGroup();
             //new ReadTest_GroupBy().G06_OrderCountByCustomerID();
 

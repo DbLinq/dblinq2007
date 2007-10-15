@@ -59,12 +59,6 @@ namespace SqlMetal.schema.pgsql
                 schema.Tables.Add(tblSchema);
             }
 
-            //ensure all table schemas contain one type:
-            //foreach(DlinqSchema.Table tblSchema in schema0.Tables)
-            //{
-            //    tblSchema.Types.Add( new DlinqSchema.Type());
-            //}
-
             //##################################################################
             //step 2 - load columns
             ColumnSql csql = new ColumnSql();
@@ -101,9 +95,7 @@ namespace SqlMetal.schema.pgsql
                 colSchema.Type = Mappings.mapSqlTypeToCsType(columnRow.datatype, columnRow.column_type);
                 
                 //this will be the c# field name
-                colSchema.Member = CSharp.IsCsharpKeyword(columnRow.column_name) 
-                    ? columnRow.column_name+"_" //avoid keyword conflict - append underscore
-                    : columnRow.column_name;
+                colSchema.Member = Util.FieldName(columnRow.column_name);
 
                 colSchema.Type = Mappings.mapSqlTypeToCsType(columnRow.datatype, columnRow.column_type);
                 if(CSharp.IsValueType(colSchema.Type) && columnRow.isNullable)
@@ -187,16 +179,24 @@ namespace SqlMetal.schema.pgsql
 
                 foreach (Pg_Proc proc in procs)
                 {
-                    typeOidToName[proc.prorettype] = proc.formatted_prorettype;
+                    if (proc.proallargtypes == null && proc.proargtypes != null && proc.proargtypes != "")
+                        proc.proallargtypes = "{" + proc.proargtypes.Replace(' ',',') + "}"; //work around pgsql weirdness?
+                }
 
-                    foreach (long argType in proc.progargtypes2)
+                foreach (Pg_Proc proc in procs)
+                {
+                    typeOidToName[proc.prorettype] = proc.formatted_prorettype;
+                    if (proc.proallargtypes == null)
+                        continue; //no args, no Oids to resolve, skip
+
+                    string[] argTypes1 = parseCsvString(proc.proallargtypes); //eg. {23,24,1043}
+                    var argTypes2 = from t in argTypes1 select long.Parse(t);
+
+                    foreach (long argType in argTypes2)
                     {
                         if (!typeOidToName.ContainsKey(argType))
                             typeOidToName[argType] = null;
                     }
-
-                    //List<long> unknownTypeOids = typeOidToName.Where(kv => kv.Value == null)
-                    //    .Select(kv => kv.Key).ToList();
                 }
 
                 //4b. get names for unknown types
@@ -213,48 +213,74 @@ namespace SqlMetal.schema.pgsql
             return schema;
         }
 
+        /// <summary>
+        /// parse pg param modes string such as '{i,i,o}'
+        /// </summary>
+        static string[] parseCsvString(string csvString)
+        {
+            if (csvString == null || (!csvString.StartsWith("{")) || (!csvString.EndsWith("}")) )
+                return null;
+            List<string> list = new List<string>();
+            string middle = csvString.Substring(1, csvString.Length - 2);
+            string[] parts = middle.Split(',');
+            return parts;
+        }
+
         static DlinqSchema.Function ParseFunction(Pg_Proc pg_proc, Dictionary<long, string> typeOidToName)
         {
             DlinqSchema.Function dbml_func = new DlinqSchema.Function();
             dbml_func.Name = pg_proc.proname;
+            dbml_func.Method = Util.Rename(pg_proc.proname); //getproductcount -> getProductCount
 
             if (pg_proc.formatted_prorettype != null)
             {
                 DlinqSchema.Parameter dbml_param = new DlinqSchema.Parameter();
                 dbml_param.DbType = pg_proc.formatted_prorettype;
-                dbml_param.Type = Mappings.mapSqlTypeToCsType( pg_proc.formatted_prorettype,"");
+                dbml_param.Type = Mappings.mapSqlTypeToCsType(pg_proc.formatted_prorettype, "");
                 dbml_func.Return.Add(dbml_param);
             }
 
-            string paramNames1 = pg_proc.proargnames;
-            if (paramNames1 == null || paramNames1.Length < 2)
+            if (pg_proc.proallargtypes != null)
             {
-                //eg. 'hello0' has no arguments
-            }
-            else
-            {
-                string[] paramNames = paramNames1.Split(',');
-                int len = pg_proc.progargtypes2.Count;
-                if (paramNames.Length != len)
+                string[] argModes = parseCsvString(pg_proc.proargmodes);
+                string[] argNames = parseCsvString(pg_proc.proargnames);
+                string[] argTypes1 = parseCsvString(pg_proc.proallargtypes); //eg. {23,24,1043}
+                List<long> argTypes2 = (from t in argTypes1 select long.Parse(t)).ToList();
+
+                bool doLengthsMatch = (argTypes2.Count != argNames.Length
+                    || (argModes != null && argModes.Length != argNames.Length));
+                if(doLengthsMatch)
                 {
-                    Console.WriteLine("L238 Mistmatch between typeArr and nameArr for func " + pg_proc.proname);
+                    Console.WriteLine("L238 Mistmatch between modesArr, typeArr and nameArr for func " + pg_proc.proname);
                     return null;
                 }
 
                 List<DlinqSchema.Parameter> paramList = new List<DlinqSchema.Parameter>();
-                for (int i = 0; i < len; i++)
+                for (int i = 0; i < argNames.Length; i++)
                 {
                     DlinqSchema.Parameter dbml_param = new DlinqSchema.Parameter();
-                    long argTypeOid = pg_proc.progargtypes2[i];
+                    long argTypeOid = argTypes2[i];
                     dbml_param.DbType = typeOidToName[argTypeOid];
-                    dbml_param.Name = paramNames[i];
+                    dbml_param.Name = argNames[i];
                     dbml_param.Type = Mappings.mapSqlTypeToCsType(dbml_param.DbType, "");
-
+                    string inOut = argModes==null ? "i" : argModes[i];
+                    dbml_param.InOut = ParseInOut(inOut);
                     dbml_func.Parameters.Add(dbml_param);
                 }
             }
 
             return dbml_func;
+        }
+
+        static System.Data.ParameterDirection ParseInOut(string inOut)
+        {
+            switch (inOut)
+            {
+                case "i": return System.Data.ParameterDirection.Input;
+                case "o": return System.Data.ParameterDirection.Output;
+                case "b": return System.Data.ParameterDirection.InputOutput;
+                default: return System.Data.ParameterDirection.InputOutput;
+            }
         }
 
         public static string FormatTableName(string table_name)

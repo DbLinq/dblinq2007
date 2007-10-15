@@ -15,13 +15,26 @@ namespace SqlMetal.schema.pgsql
         public bool proretset;
         public long prorettype;
         public string formatted_prorettype;
+
+        /// <summary>
+        /// species types of in-args, eg. '23 1043'
+        /// </summary>
         public string proargtypes;
+
+        /// <summary>
+        /// species types of in,out args, eg. '{23,1043,1043}'
+        /// </summary>
+        public string proallargtypes;
+
+        /// <summary>
+        /// param names, eg {i1,i2,o2}
+        /// </summary>
         public string proargnames;
 
         /// <summary>
-        /// parsed list of integer proargtypes
+        /// specifies in/out modes - eg. '{i,i,o}'
         /// </summary>
-        public List<long> progargtypes2;
+        public string proargmodes;
 
         public override string ToString() { return "Pg_Proc " + proname; }
     }
@@ -38,40 +51,27 @@ namespace SqlMetal.schema.pgsql
             t.proname = rdr.GetString(field++);
             t.proretset = rdr.GetBoolean(field++);
             t.prorettype = rdr.GetInt64(field++);
-            object o2 = rdr.GetValue(field);
             t.formatted_prorettype = rdr.GetString(field++);
-            object o3 = rdr.GetValue(field);
             t.proargtypes = rdr.GetString(field++);
-            object o4 = rdr.GetValue(field);
-            if (rdr.IsDBNull(field))
-            {
-                t.proargnames = null; field++;
-            }
-            else
-            {
-                t.proargnames = rdr.GetString(field++);
-            }
-
-            //post-process:
-            if (t.proargtypes != null)
-            {
-                string[] parts = t.proargtypes.Split(' ');
-                t.progargtypes2 = new List<long>();
-                foreach (var part in parts)
-                {
-                    long longVal;
-                    if (long.TryParse(part, out longVal))
-                        t.progargtypes2.Add(longVal);
-                }
-            }
+            t.proallargtypes = GetStringOrNull(rdr, field++);
+            t.proargnames = GetStringOrNull(rdr, field++);
+            t.proargmodes = GetStringOrNull(rdr, field++);
             return t;
+        }
+
+        static string GetStringOrNull(NpgsqlDataReader rdr, int field)
+        {
+            if (rdr.IsDBNull(field))
+                return null;
+            else
+                return rdr.GetString(field++);
         }
 
         public List<Pg_Proc> getProcs(NpgsqlConnection conn, string db)
         {
             string sql = @"
 SELECT pr.proname, pr.proretset, pr.prorettype, pg_catalog.format_type(pr.prorettype, NULL) 
-  ,pr.proargtypes, pr.proargnames
+  ,pr.proargtypes, pr.proallargtypes, pr.proargnames, pr.proargmodes
 FROM pg_proc pr, pg_type tp 
 WHERE tp.oid = pr.prorettype AND pr.proisagg = FALSE 
 AND tp.typname <> 'trigger' 
