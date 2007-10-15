@@ -46,7 +46,7 @@ namespace Test_NUnit
         public void SP3_GetOrderCount_SelField()
         {
             LinqTestDB db = base.CreateDB();
-            var q = from c in db.Customers select new {c, OrderCount=db.getOrderCount((int)c.CustomerID)};
+            var q = from c in db.Customers select new {c, OrderCount=db.getOrderCount(c.CustomerID)};
 
             int count = 0;
             foreach (var v in q)
@@ -62,7 +62,7 @@ namespace Test_NUnit
         public void SP4_GetOrderCount_Having()
         {
             LinqTestDB db = base.CreateDB();
-            var q = from c in db.Customers where db.getOrderCount((int)c.CustomerID) > 1 select c;
+            var q = from c in db.Customers where db.getOrderCount(c.CustomerID) > 1 select c;
 
             int count = 0;
             foreach (var c in q)

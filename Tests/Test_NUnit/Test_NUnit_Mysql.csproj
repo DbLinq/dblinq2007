@@ -56,6 +56,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\Example\DbLinq.MySql.Example\user\DbLinq_EnumTest.cs">
+      <Link>user\DbLinq_EnumTest.cs</Link>
+    </Compile>
     <Compile Include="..\..\Example\DbLinq.MySql.Example\user\LinqTestDB.cs">
       <Link>user\LinqTestDB.cs</Link>
     </Compile>

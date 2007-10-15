@@ -28,35 +28,27 @@ namespace SqlMetal.codeGen
 
             //glue together "(Id=true, AutoGen=true,DbType="float")"
             List<string> attribParts = new List<string>();
-            attribParts.Add("Name=\""+column.Name+"\"");
+            attribParts.Add("Name = \""+column.Name+"\"");
             
-            attribParts.Add("DbType=\""+column.DbType+"\"");
+            attribParts.Add("DbType = \""+column.DbType+"\"");
 
             if(column.IsPrimaryKey)
             {
-                attribParts.Add("IsPrimaryKey=true");
+                attribParts.Add("IsPrimaryKey = true");
             }
 
             if (column.IsDbGenerated)
             {
-                attribParts.Add("IsDbGenerated=true");
+                attribParts.Add("IsDbGenerated = true");
             }
 
             if (!column.IsPrimaryKey)
             {
-                attribParts.Add("CanBeNull=" + column.CanBeNull.ToString().ToLower());
+                attribParts.Add("CanBeNull = " + column.CanBeNull.ToString().ToLower());
             }
             _attrib2 = string.Join(", ", attribParts.ToArray());
 
-            //print warning on constraints
-            //_constraintWarn = hasForeignKey
-            //    ? "\n#warning TODO L96: handle foreign constraint "+constraintsOnField[0].constraint_name
-            //    : "";
             _constraintWarn = "";
-
-            //_nameU = mmConfig.forceUcaseTableName 
-            //    ? column.Name.Capitalize() //Char.ToUpper(column.Name[0])+column.Name.Substring(1)
-            //    : column.Name;
             _nameU = Util.FieldName(column.Name);
 
             _columnType = CSharp.FormatType(column.Type, column.CanBeNull);
@@ -85,7 +77,7 @@ protected $type _$name;";
 public $type $nameU
 {$constraintWarn
     get { return _$name; }
-    set { _$name=value; IsModified=true; }
+    set { _$name = value; IsModified = true; }
 }
 ";
             if (_nameU == _tableClassName)

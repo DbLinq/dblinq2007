@@ -45,6 +45,28 @@ namespace Test_NUnit
             Assert.IsTrue(count > 0, "Expected some entries in AllTypes, got none");
         }
 
+        [Test]
+        public void AT4_SelectEnum()
+        {
+            LinqTestDB db = CreateDB();
+
+            var q = from p in db.Alltypes select p.DbLinq_EnumTest;
+            int count = q.ToList().Count;
+            Assert.IsTrue(count > 0, "Expected some enums in AllTypes, got none");
+        }
+
+        [Test]
+        public void AT5_SelectEnum_()
+        {
+            LinqTestDB db = CreateDB();
+
+            var q = from p in db.Alltypes select p.DbLinq_EnumTest;
+            string sql_string = db.GetQueryText(q);
+
+            DbLinq_EnumTest enumValue = q.First();
+            Assert.IsTrue(enumValue > 0, "Expected enum value>0 in AllTypes, got enumValue=" + enumValue);
+        }
+
 
 
     }
