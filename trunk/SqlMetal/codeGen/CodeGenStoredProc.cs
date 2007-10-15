@@ -35,7 +35,7 @@ public $retType $procNameCsharp($paramString)
             }
 
             string text = SP_BODY_TEMPLATE.Replace(NL, "\t" + NL);
-            text = text.Replace("$procNameCsharp", storedProc.Name);
+            text = text.Replace("$procNameCsharp", storedProc.Method ?? storedProc.Name);
             text = text.Replace("$procNameSql", storedProc.Name);
             text = text.Replace("$procType", storedProc.ProcedureOrFunction);
 

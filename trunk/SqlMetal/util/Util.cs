@@ -3,6 +3,7 @@ using System.Linq;
 using System.Xml.Serialization;
 using System.Collections.Generic;
 using System.Text;
+using SqlMetal.schema;
 
 namespace SqlMetal.util
 {
@@ -89,6 +90,21 @@ namespace SqlMetal.util
             //if we get here, there was no renaming
             return name.Capitalize().Singularize();
         }
+
+        /// <summary>
+        /// given 'getproductcount', return 'GetProductCount'
+        /// </summary>
+        public static string Rename(string name)
+        {
+            if (s_renamings != null)
+            {
+                //check if the XML file specifies a new name
+                var q = from r in s_renamings.Arr where r.old == name select r.@new;
+                foreach (var @new in q) { return @new; }
+            }
+            return name;
+        }
+
         /// <summary>
         /// given 'productid', return 'ProductID'
         /// </summary>
@@ -106,9 +122,14 @@ namespace SqlMetal.util
             if(IsMixedCase(name))
                 return name;
 
-            return mmConfig.forceUcaseTableName 
+            string name2 = mmConfig.forceUcaseTableName 
                 ? name.Capitalize() //Char.ToUpper(column.Name[0])+column.Name.Substring(1)
                 : name;
+
+            string name3 = CSharp.IsCsharpKeyword(name2)
+                ? name2 + "_" //avoid keyword conflict - append underscore
+                : name2;
+            return name3;
         }
 
         /// <summary>

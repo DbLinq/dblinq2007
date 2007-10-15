@@ -65,6 +65,7 @@
     <Compile Include="util\Log1.cs" />
     <Compile Include="util\Lookup.cs" />
     <Compile Include="util\Operators.cs" />
+    <Compile Include="util\ProcResult.cs" />
     <Compile Include="util\ReverseAssociationParts.cs" />
     <Compile Include="util\RowEnumeratorCompiler.cs" />
     <Compile Include="util\RowEnumerator.cs" />

@@ -8,4 +8,5 @@
   <Renaming old="productname" new="ProductName" />
   <Renaming old="orderdate" new="OrderDate" />
   <Renaming old="linqtestdb" new="LinqTestDB" />
+  <Renaming old="getordercount" new="getOrderCount" />
 </Renamings>

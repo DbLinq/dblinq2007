@@ -12,6 +12,7 @@ using System.Data.Linq.Mapping;
 using System.Reflection;
 using MySql.Data.MySqlClient;
 using DBLinq.Linq.Mapping;
+using DBLinq.util;
 
 namespace DBLinq.vendor
 {
@@ -200,24 +201,4 @@ namespace DBLinq.vendor
 
     }
 
-    public class ProcResult : System.Data.Linq.IExecuteResult
-    {
-        object[] outParamValues;
-
-        public object GetParameterValue(int parameterIndex)
-        {
-            object value = outParamValues[parameterIndex];
-            return value;
-        }
-
-        public object ReturnValue { get; set; }
-
-        public void Dispose(){}
-
-        public ProcResult(object retVal, object[] outParamValues_)
-        {
-            ReturnValue = retVal;
-            outParamValues = outParamValues_;
-        }
-    }
 }

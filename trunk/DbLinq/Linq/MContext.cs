@@ -114,7 +114,7 @@ namespace DBLinq.Linq
 
         #endregion
 
-#if MYSQL
+#if MYSQL || POSTGRES
         /// <summary>
         /// TODO - allow generated methods to call into stored procedures
         /// </summary>

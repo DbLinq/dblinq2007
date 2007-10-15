@@ -61,6 +61,7 @@
     <Compile Include="ReadTest_Complex.cs" />
     <Compile Include="ReadTest_GroupBy.cs" />
     <Compile Include="ReadTest_Operands.cs" />
+    <Compile Include="StoredProcTest.cs" />
     <Compile Include="TestBase.cs" />
     <Compile Include="WriteTest.cs" />
   </ItemGroup>
