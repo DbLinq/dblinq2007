@@ -5,12 +5,14 @@
 ////////////////////////////////////////////////////////////////////
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using DBLinq.util;
+using DBLinq.Linq.Mapping;
 using DBLinq.vendor;
 
 namespace DBLinq.Linq.clause
@@ -556,8 +558,26 @@ namespace DBLinq.Linq.clause
                     //detailed error will be thrown below
                     break;
             }
+
+            //check if the function is a stored proc:
+            object[] oCustomAttribs = expr.Method.GetCustomAttributes(false);
+            FunctionExAttribute functionAttrib = oCustomAttribs.OfType<FunctionExAttribute>().FirstOrDefault();
+            if (functionAttrib != null)
+            {
+                //it's a stored proc in the database
+                _result.AppendString(functionAttrib.Name + "(");
+                string comma = "";
+                foreach (Expression functionArg in expr.Arguments)
+                {
+                    _result.AppendString(comma); comma = ",";
+                    AnalyzeExpression(recurData, functionArg);
+                }
+                _result.AppendString(")");
+                return;
+            }
+
             //TODO: throw for any other method - database probably cannot handle such call
-            string msg2 ="L274: Unprepared to map method "+methodName+" ("+expr+") to SQL";
+            string msg2 = "L274: Unprepared to map method " + methodName + " (" + expr + ") to SQL";
             Console.WriteLine(msg2);
             throw new ApplicationException(msg2);
             //_result.AppendString(expr.Method.Name);

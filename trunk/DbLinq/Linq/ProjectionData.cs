@@ -322,7 +322,7 @@ namespace DBLinq.Linq
                         //projField.typeEnum = CSharp.CategorizeType(projField.type);
                         break;
                     default:
-                        throw new ArgumentException("L274: Unprepared for "+memberAssign.Expression.NodeType);
+                        throw new ArgumentException("L325: Unprepared for "+memberAssign.Expression.NodeType);
                 }
                 proj.fields.Add(projField);
             }        
@@ -387,7 +387,7 @@ namespace DBLinq.Linq
                         //projField.typeEnum = CSharp.CategorizeType(projField.type);
                         break;
                     default:
-                        throw new ArgumentException("L274: Unprepared for " + argExpr.NodeType);
+                        throw new ArgumentException("L390: Unprepared for " + argExpr.NodeType);
                 }
                 proj.fields.Add(projField);
             }
