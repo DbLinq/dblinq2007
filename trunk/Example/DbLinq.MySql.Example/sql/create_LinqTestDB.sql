@@ -88,6 +88,7 @@ CREATE TABLE `linqtestdb`.`AllTypes` (
   `realN` REAL,
   `smallInt` SMALLINT UNSIGNED NOT NULL DEFAULT 0,
   `smallIntN` SMALLINT UNSIGNED,
+  `DbLinq_EnumTest` SMALLINT UNSIGNED NOT NULL,
   PRIMARY KEY(`int`)
 )
 ENGINE = InnoDB
@@ -159,7 +160,8 @@ INSERT INTO linqtestdb.alltypes (
   `short` ,    `shortN` ,
   `numeric` ,  `numericN` ,
   `real` ,     `realN` ,
-  `smallInt` , `smallIntN`
+  `smallInt` , `smallIntN`,
+  `DbLinq_EnumTest`
 )
 VALUES(         null,
   2,            null, /*double*/
@@ -174,7 +176,8 @@ VALUES(         null,
   127,          null,
   999.9,        null, /*numeric*/
   998.9,        null,
-  16000,        null);
+  16000,        null, /*smallInt*/
+  1);
 
 /* we also need some functions to test the -sprocs option **/
 CREATE FUNCTION hello0() RETURNS char(20) RETURN 'hello0';
@@ -184,7 +187,7 @@ CREATE FUNCTION `hello2`(s CHAR(20),s2 int) RETURNS char(30) RETURN CONCAT('Hell
 DELIMITER $$
 
 DROP FUNCTION IF EXISTS `getOrderCount` $$
-CREATE FUNCTION `getOrderCount`(custId INT) RETURNS INT
+CREATE FUNCTION `getOrderCount`(custId INT UNSIGNED) RETURNS INT
 BEGIN
 DECLARE count1 int;
 SELECT COUNT(*) INTO count1 FROM Orders WHERE CustomerID=custId;

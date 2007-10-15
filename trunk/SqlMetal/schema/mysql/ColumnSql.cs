@@ -36,6 +36,12 @@ namespace SqlMetal.schema.mysql
         /// eg. for column called 'int' we use csharpName='int_'
         /// </summary>
         public string csharpFieldName;
+
+
+        public override string ToString()
+        {
+            return "info_schema.COLUMN: " + table_name + "." + column_name;
+        }
     }
 
     /// <summary>

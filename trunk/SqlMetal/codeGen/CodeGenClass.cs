@@ -23,7 +23,7 @@ namespace SqlMetal.codeGen
         public string generateClass(DlinqSchema.Database schema, DlinqSchema.Table table)
         {
             string template = @"
-[Table(Name=""$tableName"")]
+[Table(Name = ""$tableName"")]
 public partial class $name $baseClass
 {
     public bool IsModified { get; set; }
@@ -127,10 +127,10 @@ public $name($argList)
         string GetLinksToChildTables(DlinqSchema.Database schema, DlinqSchema.Table table)
         {
             string childLinkTemplate = @"
-[Association(Storage=""null"", OtherKey=""$childColName"", Name=""$fkName"")]
+[Association(Storage = ""null"", OtherKey = ""$childColName"", Name = ""$fkName"")]
 public EntityMSet<$childClassName> $fieldName
 {
-    get { return null; } //TODO L212
+    get { return null; } //L212 - child data available only when part of query
 }";
             //child table contains a ManyToOneParent Association, pointing to parent
             //parent table contains a ManyToOneChild.

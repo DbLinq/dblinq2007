@@ -68,21 +68,23 @@ namespace SqlMetal.schema.mysql
                 }
                 DlinqSchema.Column colSchema = new DlinqSchema.Column();
                 colSchema.Name = columnRow.column_name;
-                colSchema.DbType = columnRow.datatype; //.column_type ?
+                colSchema.DbType = columnRow.datatype;
                 colSchema.IsPrimaryKey = columnRow.column_key=="PRI";
                 colSchema.IsDbGenerated = columnRow.extra=="auto_increment";
-                //colSchema.IsVersion = ???
                 colSchema.CanBeNull = columnRow.isNullable;
+
+                //determine the C# type
                 colSchema.Type = Mappings.mapSqlTypeToCsType(columnRow.datatype, columnRow.column_type);
+                if (columnRow.column_name == "DbLinq_EnumTest")
+                    colSchema.Type = "DbLinq_EnumTest"; //hadcoded value - used during enum testing
+                if (CSharp.IsValueType(colSchema.Type) && columnRow.isNullable)
+                    colSchema.Type += "?";
                 
-                //this will be the c# field name
+                //determine the c# field name
                 colSchema.Member = CSharp.IsCsharpKeyword(columnRow.column_name) 
                     ? columnRow.column_name+"_" //avoid keyword conflict - append underscore
                     : columnRow.column_name;
 
-                colSchema.Type = Mappings.mapSqlTypeToCsType(columnRow.datatype, columnRow.column_type);
-                if(CSharp.IsValueType(colSchema.Type) && columnRow.isNullable)
-                colSchema.Type += "?";
 
                 //tableSchema.Types[0].Columns.Add(colSchema);
                 tableSchema.Type.Columns.Add(colSchema);
@@ -260,6 +262,11 @@ namespace SqlMetal.schema.mysql
                 //split 'CHAR(30)' into 'char' and '(30)'
                 varTypeQualifier = varType.Substring(indxQuote);
                 varType = varType.Substring(0, indxQuote);
+            }
+            else if (varType.IndexOf("unsigned", StringComparison.OrdinalIgnoreCase) > -1)
+            {
+                varTypeQualifier = "unsigned";
+                varType = varType.Replace("unsigned", "").Trim();
             }
             string dbTypeStr = Mappings.mapSqlTypeToCsType(varType, varTypeQualifier);
             return dbTypeStr;
