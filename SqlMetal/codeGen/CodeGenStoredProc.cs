@@ -17,7 +17,7 @@ namespace SqlMetal.codeGen
         const string NLT = "\r\n\t";
 
         const string SP_BODY_TEMPLATE = @"
-[FunctionEx(Name=""$procNameSql"", ProcedureOrFunction=""$procType"")]
+[FunctionEx(Name = ""$procNameSql"", ProcedureOrFunction = ""$procType"")]
 public $retType $procNameCsharp($paramString)
 {
     IExecuteResult result = base.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod()))$sqlInArgs);
@@ -70,11 +70,12 @@ public $retType $procNameCsharp($paramString)
             if (storedProc.Return.Count > 0)
             {
                 retType = storedProc.Return[0].Type;
-                resultValue = "result.ReturnValue as $retType"; //for functions...
+                resultValue = "($retType)result.ReturnValue"; //for functions, e.g. (int)result.RetValue
             }
 
             bool isDataShapeUnknown = storedProc.ElementType == null
-                && storedProc.BodyContainsSelectStatement;
+                && storedProc.BodyContainsSelectStatement
+                && storedProc.ProcedureOrFunction == "PROCEDURE";
             if (isDataShapeUnknown)
             {
                 //if we don't know the shape of results, and the proc body contains some selects,
@@ -95,14 +96,14 @@ public $retType $procNameCsharp($paramString)
             }
             text = text.Replace("$sqlInArgs", sqlInArgs);
             text = text.Replace("$assignOutParams", outParamLines);
-            text = text.Replace("    \r\n", ""); //if there were no out params assigned, remove the blank line
+            text = text.Replace("\t\r\n    \t\r\n", "\t\r\n"); //if there were no out params assigned, remove the blank line
             text = text.Replace("    ", "\t"); //4 spaces -> tab
             text = text.Replace(NL, NLT); //move one tab to the right
             return text;
         }
 
         const string ARG_TEMPLATE = @"$inOut $name";
-        const string PARAM_TEMPLATE = @"[Parameter(Name=""$dbName"", DbType=""$dbType"")] $inOut $type $name";
+        const string PARAM_TEMPLATE = @"[Parameter(Name = ""$dbName"", DbType = ""$dbType"")] $inOut $type $name";
 
         private static string FormatInnerArg(DlinqSchema.Parameter param)
         {
