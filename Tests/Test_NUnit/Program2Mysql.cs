@@ -22,19 +22,17 @@ namespace Test_NUnit
             //new ReadTest_GroupBy().G01_SimpleGroup_Count();
             //new ReadTest_GroupBy().G08_OrderSumByCustomerID();
 
-            new ReadTest().D09_Products_LetterP_Take5();
+            //new ReadTest().D09_Products_LetterP_Take5();
+            //new StoredProcTest().SP3_GetOrderCount_SelField();
             //new ReadTest().D07_OrdersFromLondon_Alt();
             //new ReadTest_GroupBy().G01_SimpleGroup_Count();
-            //new ReadTest_AllTypes().AT2_SelectDateTimeN();
+            //new ReadTest_AllTypes().AT5_SelectEnum_();
             //new ReadTest_Operands().H5_Select_MemberInit_Class2();
             //new ReadTest_GroupBy().G04_SimpleGroup_WithSelector();
             //new ReadTest_GroupBy().G05_Group_Into();
             //ReadTest_Complex rc = new ReadTest_Complex();
-            //rc.F10_DistinctCity();
             //rc.F11_ConcatString();
-            //new ReadTest().D10_Products_LetterP_Desc();
-            //new ReadTest().D7_OrdersFromLondon_Alt();
-            //new WriteTest().G2_DeleteTest();
+            new WriteTest().E2_UpdateEnum();
             //new WriteTest().G1_InsertProduct();
         }
     }

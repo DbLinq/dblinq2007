@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////
 //Initial author: Jiri George Moudry, 2006.
 //License: LGPL. (Visit http://www.gnu.org)
-//Commercial code may call into this library, if it's in a different module (DLL)
+//Commercial code may call into this library, if it's in a different module (DLL).
+//All changes to this library must be published.
 ////////////////////////////////////////////////////////////////////
-
 
 using System;
 using System.Reflection;
@@ -28,14 +28,13 @@ namespace DBLinq.util
 
             ProjectionData projData = vars.projectionData;
 
-            //three categories to handle:
-            //A) extract object of primitive / builtin type (eg. string or int or DateTime?)
-            //B) extract column object, which will be 'newed' and then tracked for changes
-            //C) extract a projection object, using default ctor and bindings, no tracking needed.
-            bool isBuiltinType = CSharp.IsPrimitiveType(typeof(T));
-            bool isColumnType  = CSharp.IsColumnType(typeof(T));
+            //which fields are we selecting? we have three categories to handle:
+            //A) one field ('builtin type'):           extract object of primitive / builtin type (eg. string or int or DateTime?)
+            //B) all fields of a table:                extract table object, which will be 'newed' and then tracked for changes
+            //C) several fields defined by projection: extract a projection object, using default ctor and bindings, no tracking needed.
+            bool isBuiltinType = CSharp.IsPrimitiveType(typeof(T)) || typeof(T).IsEnum;
+            bool isTableType  = CSharp.IsTableType(typeof(T));
             bool isProjectedType = CSharp.IsProjection(typeof(T));
-            //bool isGroup = IsGroupBy();
 
             if(projData==null && !isBuiltinType)
             {
@@ -44,17 +43,11 @@ namespace DBLinq.util
                 projData = ProjectionData.FromDbType(typeof(T));
             }
 
-            //if(isGroup)
-            //{
-            //    //_objFromRow2, SQL string handled in RowEnumGroupBy
-            //    return null;
-            //}
-            //else 
             if(isBuiltinType)
             {
                 objFromRow = RowEnumeratorCompiler<T>.CompilePrimitiveRowDelegate(ref fieldID);
             }
-            else if(isColumnType)
+            else if(isTableType)
             {
                 objFromRow = RowEnumeratorCompiler<T>.CompileColumnRowDelegate(projData, ref fieldID);
             }
@@ -510,10 +503,13 @@ namespace DBLinq.util
             }
             else if (t2.IsEnum)
             {
-                minfo = typeof(DataReader2).GetMethod("GetInt32");
-                string msg = "RowEnum TODO L377: compile casting from int to enum " + t2;
-                Console.WriteLine(msg);
-                throw new ApplicationException(msg);
+                //minfo = typeof(DataReader2).GetMethod("GetInt32");
+                MethodInfo genericMInfo = typeof(DataReader2).GetMethod("GetEnum");
+                minfo = genericMInfo.MakeGenericMethod(t2);
+                //if(minfo.isg
+                //string msg = "RowEnum TODO L377: compile casting from int to enum " + t2;
+                //Console.WriteLine(msg);
+                //throw new ApplicationException(msg);
             }
             else
             {
@@ -566,6 +562,17 @@ namespace DBLinq.util
             Func<T,string> func_t = (Func<T,string>)lambda.Compile();
             return func_t;
         }
+
+        /// <summary>
+        /// helper method for reading in an int from SqlDataReader, and casting it to enum
+        /// </summary>
+        public static T2 GetEnum<T2>(DataReader2 reader, int field)
+        {
+            int i = reader.GetInt32(field);
+            return (T2)Enum.ToObject(typeof(T2), i);
+        }
+
+
 
     }
 }

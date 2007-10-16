@@ -57,7 +57,9 @@ namespace DBLinq.Linq
 
         public S Execute<S>(Expression expression)
         {
-            Console.WriteLine("MTable_Proj.Execute<"+typeof(S)+">: "+expression);
+            if (_vars.log != null)
+                _vars.log.WriteLine("MTable_Proj.Execute<" + typeof(S) + ">: " + expression);
+
             SessionVars vars = _vars.Clone();
             return new RowScalar<T>(vars, this).GetScalar<S>(expression);
         }

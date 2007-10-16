@@ -94,7 +94,10 @@ namespace DBLinq.util
             return true;
         }
 
-        public static bool IsColumnType(Type t)
+        /// <summary>
+        /// is this a type with a [Table] attribute?
+        /// </summary>
+        public static bool IsTableType(Type t)
         {
             TableAttribute tAttrib1 = AttribHelper.GetTableAttrib(t);
             return (tAttrib1!=null);

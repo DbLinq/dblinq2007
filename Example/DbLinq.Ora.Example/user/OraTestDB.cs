@@ -8,9 +8,10 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Data.Linq;
+using System.Data.Linq.Mapping;
 using DBLinq.Linq;
 
-namespace ClientCodeOra
+namespace Client2.user
 {
     
 	/// <summary>
@@ -79,7 +80,7 @@ namespace ClientCodeOra
 	
 	    #region properties - accessors
 	
-		[Column(Name="PHONE", DBType="VARCHAR2")]
+		[Column(Name="PHONE", DbType = "VARCHAR2")]
 		[DebuggerNonUserCode]
 		public string Phone
 		{
@@ -88,7 +89,7 @@ namespace ClientCodeOra
 		}
 		
 	
-		[Column(Name="COUNTRY", DBType="VARCHAR2")]
+		[Column(Name="COUNTRY", DbType = "VARCHAR2")]
 		[DebuggerNonUserCode]
 		public string Country
 		{
@@ -97,7 +98,7 @@ namespace ClientCodeOra
 		}
 		
 	
-		[Column(Name="POSTALCODE", DBType="VARCHAR2")]
+		[Column(Name="POSTALCODE", DbType = "VARCHAR2")]
 		[DebuggerNonUserCode]
 		public string PostalCode
 		{
@@ -106,7 +107,7 @@ namespace ClientCodeOra
 		}
 		
 	
-		[Column(Name="CITY", DBType="VARCHAR2")]
+		[Column(Name="CITY", DbType = "VARCHAR2")]
 		[DebuggerNonUserCode]
 		public string City
 		{
@@ -115,7 +116,7 @@ namespace ClientCodeOra
 		}
 		
 	
-		[Column(Name="CONTACTNAME", DBType="VARCHAR2")]
+		[Column(Name="CONTACTNAME", DbType = "VARCHAR2")]
 		[DebuggerNonUserCode]
 		public string ContactName
 		{
@@ -124,7 +125,7 @@ namespace ClientCodeOra
 		}
 		
 	
-		[Column(Name="COMPANYNAME", DBType="VARCHAR2")]
+		[Column(Name="COMPANYNAME", DbType = "VARCHAR2")]
 		[DebuggerNonUserCode]
 		public string CompanyName
 		{
@@ -133,7 +134,7 @@ namespace ClientCodeOra
 		}
 		
 	
-		[Column(Name="CUSTOMERID", DBType="NUMBER")]
+		[Column(Name="CUSTOMERID", DbType = "NUMBER")]
 		[DebuggerNonUserCode]
 		public int CustomerID
 		{
@@ -208,7 +209,7 @@ namespace ClientCodeOra
 	
 	    #region properties - accessors
 	
-		[Column(Name="QUANTITYPERUNIT", DBType="VARCHAR2")]
+		[Column(Name="QUANTITYPERUNIT", DbType = "VARCHAR2")]
 		[DebuggerNonUserCode]
 		public string QuantityPerUnit
 		{
@@ -217,7 +218,7 @@ namespace ClientCodeOra
 		}
 		
 	
-		[Column(Name="CATEGORYID", DBType="NUMBER")]
+		[Column(Name="CATEGORYID", DbType = "NUMBER")]
 		[DebuggerNonUserCode]
 		public int CategoryID
 		{
@@ -226,7 +227,7 @@ namespace ClientCodeOra
 		}
 		
 	
-		[Column(Name="SUPPLIERID", DBType="NUMBER")]
+		[Column(Name="SUPPLIERID", DbType = "NUMBER")]
 		[DebuggerNonUserCode]
 		public int SupplierID
 		{
@@ -235,7 +236,7 @@ namespace ClientCodeOra
 		}
 		
 	
-		[Column(Name="PRODUCTNAME", DBType="VARCHAR2")]
+		[Column(Name="PRODUCTNAME", DbType = "VARCHAR2")]
 		[DebuggerNonUserCode]
 		public string ProductName
 		{
@@ -244,7 +245,7 @@ namespace ClientCodeOra
 		}
 		
 	
-		[Column(Name="PRODUCTID", DBType="NUMBER")]
+		[Column(Name="PRODUCTID", DbType = "NUMBER")]
 		[DebuggerNonUserCode]
 		public int ProductID
 		{
@@ -316,7 +317,7 @@ namespace ClientCodeOra
 	
 	    #region properties - accessors
 	
-		[Column(Name="ORDERDATE", DBType="TIMESTAMP")]
+		[Column(Name="ORDERDATE", DbType = "TIMESTAMP")]
 		[DebuggerNonUserCode]
 		public DateTime OrderDate
 		{
@@ -325,7 +326,7 @@ namespace ClientCodeOra
 		}
 		
 	
-		[Column(Name="PRODUCTID", DBType="NUMBER")]
+		[Column(Name="PRODUCTID", DbType = "NUMBER")]
 		[DebuggerNonUserCode]
 		public int ProductID
 		{
@@ -334,7 +335,7 @@ namespace ClientCodeOra
 		}
 		
 	
-		[Column(Name="CUSTOMERID", DBType="NUMBER")]
+		[Column(Name="CUSTOMERID", DbType = "NUMBER")]
 		[DebuggerNonUserCode]
 		public int CustomerID
 		{
@@ -343,7 +344,7 @@ namespace ClientCodeOra
 		}
 		
 	
-		[Column(Name="ORDERID", DBType="NUMBER")]
+		[Column(Name="ORDERID", DbType = "NUMBER")]
 		[DebuggerNonUserCode]
 		public int OrderID
 		{

@@ -1,7 +1,8 @@
 ////////////////////////////////////////////////////////////////////
 //Initial author: Jiri George Moudry, 2006.
 //License: LGPL. (Visit http://www.gnu.org)
-//Commercial code may call into this library, if it's in a different module (DLL)
+//Commercial code may call into this library, if it's in a different module (DLL).
+//All changes to this library must be published.
 ////////////////////////////////////////////////////////////////////
 
 using System;
@@ -226,25 +227,6 @@ namespace DBLinq.util
         //IsGroupBy: derived class returns true
         public virtual bool IsGroupBy(){ return false; }
 
-#if DEAD_CODE
-        /// <summary>
-        /// if our type has the [Table] attribute, it's a column type
-        /// </summary>
-        bool IsColumnType()
-        {
-            if(_vars.projectionData==null)
-            {
-                TableAttribute tAttrib1 = AttribHelper.GetTableAttrib(typeof(T));
-                return (tAttrib1!=null);
-            }
-            
-            if(_vars.groupByExpr!=null)
-                return false;
-
-            TableAttribute tAttrib = _vars.projectionData.tableAttribute;
-            return tAttrib!=null; //
-        }
-#endif
         #endregion
     }
 }

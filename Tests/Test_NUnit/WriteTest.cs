@@ -4,43 +4,29 @@ using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
+using Client2.user;
 
 #if ORACLE
-using ClientCodeOra;
 using xint = System.Int32;
 #elif POSTGRES
-using Client2.user;
 using xint = System.Int32;
 #else
 using MySql.Data.MySqlClient;
-using Client2.user;
 using xint = System.UInt32;
 #endif
 
 namespace Test_NUnit
 {
     [TestFixture]
-    public class WriteTest
+    public class WriteTest : TestBase
     {
-#if ORACLE
-        const string connStr = "server=localhost;user id=system; password=linq2";
-#else
-        const string connStr = "server=localhost;user id=LinqUser; password=linq2; database=LinqTestDB";
-#endif
-
-        public LinqTestDB CreateDB()
-        {
-            LinqTestDB db = new LinqTestDB(connStr);
-            db.Log = Console.Out;
-            return db;
-        }
 
         #region Tests 'E' test live object cache
         [Test]
         public void E1_LiveObjectsAreUnqiue()
         {
             //grab an object twice, make sure we get the same object each time
-            LinqTestDB db = new LinqTestDB(connStr);
+            LinqTestDB db = CreateDB();
             var q = from p in db.Products select p;
             Product pen1 = q.First();
             Product pen2 = q.First();
@@ -53,6 +39,25 @@ namespace Test_NUnit
             bool isSameObject2 = oPen1==oPen2;
             Assert.IsTrue(isSameObject2,"Expected pen1 and pen2 to be the same live object, but their fields are different");
         }
+
+#if MYSQL
+        [Test]
+        public void E2_UpdateEnum()
+        {
+            LinqTestDB db = CreateDB();
+
+            var q = from at in db.Alltypes where at.Int==1 select at;
+
+            Alltype row = q.First();
+            DbLinq_EnumTest newValue = row.DbLinq_EnumTest == DbLinq_EnumTest.BB
+                ? DbLinq_EnumTest.CC
+                : DbLinq_EnumTest.BB;
+
+            row.DbLinq_EnumTest = newValue;
+
+            db.SubmitChanges();
+        }
+#endif
         #endregion
 
 
