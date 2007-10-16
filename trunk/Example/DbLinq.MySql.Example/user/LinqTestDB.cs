@@ -35,14 +35,14 @@ namespace Client2.user
 		public readonly MTable<Customer> Customers;
 		public readonly MTable<Order> Orders;
 		public readonly MTable<Product> Products;
-
-
-        [FunctionEx(Name = "getOrderCount", ProcedureOrFunction = "FUNCTION")]
-        public int getOrderCount([Parameter(Name = "custId", DbType = "INT")] int custId)
-        {
-            IExecuteResult result = base.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), custId);
-            return (int)result.ReturnValue;
-        }
+	
+			
+		[FunctionEx(Name = "getOrderCount", ProcedureOrFunction = "FUNCTION")]	
+		public int getOrderCount([Parameter(Name = "custId", DbType = "INT UNSIGNED")] uint custId)	
+		{	
+			IExecuteResult result = base.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), custId);	
+			return (int)result.ReturnValue;	
+		}	
 		
 	
 		
@@ -97,7 +97,7 @@ namespace Client2.user
 	
 	
 	
-	[Table(Name="alltypes")]
+	[Table(Name = "alltypes")]
 	public partial class Alltype : IModified
 	{
 		public bool IsModified { get; set; }
@@ -159,12 +159,14 @@ namespace Client2.user
 	
 		protected short? _smallIntN;
 	
+		protected DbLinq_EnumTest _DbLinq_EnumTest;
+	
 		
 		#region costructors
 		public Alltype()
 		{
 		}
-		public Alltype(uint int_,uint? intN,double double_,double doubleN,decimal decimal_,decimal decimalN,byte[] blob,byte[] blobN,bool boolean,bool? boolN,char byte_,char? byteN,DateTime DateTime,DateTime? DateTimeN,float float_,float floatN,string char_,string charN,string text,string textN,short short_,short? shortN,decimal numeric,decimal numericN,double real,double realN,short smallInt,short? smallIntN)
+		public Alltype(uint int_,uint? intN,double double_,double doubleN,decimal decimal_,decimal decimalN,byte[] blob,byte[] blobN,bool boolean,bool? boolN,char byte_,char? byteN,DateTime DateTime,DateTime? DateTimeN,float float_,float floatN,string char_,string charN,string text,string textN,short short_,short? shortN,decimal numeric,decimal numericN,double real,double realN,short smallInt,short? smallIntN,DbLinq_EnumTest DbLinq_EnumTest)
 		{
 		    this._int = int_;
 		this._intN = intN;
@@ -194,261 +196,271 @@ namespace Client2.user
 		this._realN = realN;
 		this._smallInt = smallInt;
 		this._smallIntN = smallIntN;
+		this._DbLinq_EnumTest = DbLinq_EnumTest;
 		}
 		#endregion
 		
 	
 		#region properties - accessors
 	
-		[Column(Name="int", DbType="int", IsPrimaryKey=true, IsDbGenerated=true)]
+		[Column(Name = "int", DbType = "int", IsPrimaryKey = true, IsDbGenerated = true)]
 		[DebuggerNonUserCode]
 		public uint Int
 		{
 		    get { return _int; }
-		    set { _int=value; IsModified=true; }
+		    set { _int = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="intN", DbType="int", CanBeNull=true)]
+		[Column(Name = "intN", DbType = "int", CanBeNull = true)]
 		[DebuggerNonUserCode]
 		public uint? intN
 		{
 		    get { return _intN; }
-		    set { _intN=value; IsModified=true; }
+		    set { _intN = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="double", DbType="double", CanBeNull=false)]
+		[Column(Name = "double", DbType = "double", CanBeNull = false)]
 		[DebuggerNonUserCode]
 		public double Double
 		{
 		    get { return _double; }
-		    set { _double=value; IsModified=true; }
+		    set { _double = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="doubleN", DbType="double", CanBeNull=true)]
+		[Column(Name = "doubleN", DbType = "double", CanBeNull = true)]
 		[DebuggerNonUserCode]
 		public double doubleN
 		{
 		    get { return _doubleN; }
-		    set { _doubleN=value; IsModified=true; }
+		    set { _doubleN = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="decimal", DbType="decimal", CanBeNull=false)]
+		[Column(Name = "decimal", DbType = "decimal", CanBeNull = false)]
 		[DebuggerNonUserCode]
 		public decimal Decimal
 		{
 		    get { return _decimal; }
-		    set { _decimal=value; IsModified=true; }
+		    set { _decimal = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="decimalN", DbType="decimal", CanBeNull=true)]
+		[Column(Name = "decimalN", DbType = "decimal", CanBeNull = true)]
 		[DebuggerNonUserCode]
 		public decimal decimalN
 		{
 		    get { return _decimalN; }
-		    set { _decimalN=value; IsModified=true; }
+		    set { _decimalN = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="blob", DbType="blob", CanBeNull=false)]
+		[Column(Name = "blob", DbType = "blob", CanBeNull = false)]
 		[DebuggerNonUserCode]
 		public byte[] Blob
 		{
 		    get { return _blob; }
-		    set { _blob=value; IsModified=true; }
+		    set { _blob = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="blobN", DbType="blob", CanBeNull=true)]
+		[Column(Name = "blobN", DbType = "blob", CanBeNull = true)]
 		[DebuggerNonUserCode]
 		public byte[] blobN
 		{
 		    get { return _blobN; }
-		    set { _blobN=value; IsModified=true; }
+		    set { _blobN = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="boolean", DbType="tinyint", CanBeNull=false)]
+		[Column(Name = "boolean", DbType = "tinyint", CanBeNull = false)]
 		[DebuggerNonUserCode]
 		public bool Boolean
 		{
 		    get { return _boolean; }
-		    set { _boolean=value; IsModified=true; }
+		    set { _boolean = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="boolN", DbType="tinyint", CanBeNull=true)]
+		[Column(Name = "boolN", DbType = "tinyint", CanBeNull = true)]
 		[DebuggerNonUserCode]
 		public bool? boolN
 		{
 		    get { return _boolN; }
-		    set { _boolN=value; IsModified=true; }
+		    set { _boolN = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="byte", DbType="tinyint", CanBeNull=false)]
+		[Column(Name = "byte", DbType = "tinyint", CanBeNull = false)]
 		[DebuggerNonUserCode]
 		public char Byte
 		{
 		    get { return _byte; }
-		    set { _byte=value; IsModified=true; }
+		    set { _byte = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="byteN", DbType="tinyint", CanBeNull=true)]
+		[Column(Name = "byteN", DbType = "tinyint", CanBeNull = true)]
 		[DebuggerNonUserCode]
 		public char? byteN
 		{
 		    get { return _byteN; }
-		    set { _byteN=value; IsModified=true; }
+		    set { _byteN = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="DateTime", DbType="datetime", CanBeNull=false)]
+		[Column(Name = "DateTime", DbType = "datetime", CanBeNull = false)]
 		[DebuggerNonUserCode]
 		public DateTime DateTime
 		{
 		    get { return _DateTime; }
-		    set { _DateTime=value; IsModified=true; }
+		    set { _DateTime = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="DateTimeN", DbType="datetime", CanBeNull=true)]
+		[Column(Name = "DateTimeN", DbType = "datetime", CanBeNull = true)]
 		[DebuggerNonUserCode]
 		public DateTime? DateTimeN
 		{
 		    get { return _DateTimeN; }
-		    set { _DateTimeN=value; IsModified=true; }
+		    set { _DateTimeN = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="float", DbType="float", CanBeNull=false)]
+		[Column(Name = "float", DbType = "float", CanBeNull = false)]
 		[DebuggerNonUserCode]
 		public float Float
 		{
 		    get { return _float; }
-		    set { _float=value; IsModified=true; }
+		    set { _float = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="floatN", DbType="float", CanBeNull=true)]
+		[Column(Name = "floatN", DbType = "float", CanBeNull = true)]
 		[DebuggerNonUserCode]
 		public float floatN
 		{
 		    get { return _floatN; }
-		    set { _floatN=value; IsModified=true; }
+		    set { _floatN = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="char", DbType="char", CanBeNull=false)]
+		[Column(Name = "char", DbType = "char", CanBeNull = false)]
 		[DebuggerNonUserCode]
 		public string Char
 		{
 		    get { return _char; }
-		    set { _char=value; IsModified=true; }
+		    set { _char = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="charN", DbType="char", CanBeNull=true)]
+		[Column(Name = "charN", DbType = "char", CanBeNull = true)]
 		[DebuggerNonUserCode]
 		public string charN
 		{
 		    get { return _charN; }
-		    set { _charN=value; IsModified=true; }
+		    set { _charN = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="text", DbType="text", CanBeNull=false)]
+		[Column(Name = "text", DbType = "text", CanBeNull = false)]
 		[DebuggerNonUserCode]
 		public string Text
 		{
 		    get { return _text; }
-		    set { _text=value; IsModified=true; }
+		    set { _text = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="textN", DbType="text", CanBeNull=true)]
+		[Column(Name = "textN", DbType = "text", CanBeNull = true)]
 		[DebuggerNonUserCode]
 		public string textN
 		{
 		    get { return _textN; }
-		    set { _textN=value; IsModified=true; }
+		    set { _textN = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="short", DbType="mediumint", CanBeNull=false)]
+		[Column(Name = "short", DbType = "mediumint", CanBeNull = false)]
 		[DebuggerNonUserCode]
 		public short Short
 		{
 		    get { return _short; }
-		    set { _short=value; IsModified=true; }
+		    set { _short = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="shortN", DbType="mediumint", CanBeNull=true)]
+		[Column(Name = "shortN", DbType = "mediumint", CanBeNull = true)]
 		[DebuggerNonUserCode]
 		public short? shortN
 		{
 		    get { return _shortN; }
-		    set { _shortN=value; IsModified=true; }
+		    set { _shortN = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="numeric", DbType="decimal", CanBeNull=false)]
+		[Column(Name = "numeric", DbType = "decimal", CanBeNull = false)]
 		[DebuggerNonUserCode]
 		public decimal Numeric
 		{
 		    get { return _numeric; }
-		    set { _numeric=value; IsModified=true; }
+		    set { _numeric = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="numericN", DbType="decimal", CanBeNull=true)]
+		[Column(Name = "numericN", DbType = "decimal", CanBeNull = true)]
 		[DebuggerNonUserCode]
 		public decimal numericN
 		{
 		    get { return _numericN; }
-		    set { _numericN=value; IsModified=true; }
+		    set { _numericN = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="real", DbType="double", CanBeNull=false)]
+		[Column(Name = "real", DbType = "double", CanBeNull = false)]
 		[DebuggerNonUserCode]
 		public double Real
 		{
 		    get { return _real; }
-		    set { _real=value; IsModified=true; }
+		    set { _real = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="realN", DbType="double", CanBeNull=true)]
+		[Column(Name = "realN", DbType = "double", CanBeNull = true)]
 		[DebuggerNonUserCode]
 		public double realN
 		{
 		    get { return _realN; }
-		    set { _realN=value; IsModified=true; }
+		    set { _realN = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="smallInt", DbType="smallint", CanBeNull=false)]
+		[Column(Name = "smallInt", DbType = "smallint", CanBeNull = false)]
 		[DebuggerNonUserCode]
 		public short smallInt
 		{
 		    get { return _smallInt; }
-		    set { _smallInt=value; IsModified=true; }
+		    set { _smallInt = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="smallIntN", DbType="smallint", CanBeNull=true)]
+		[Column(Name = "smallIntN", DbType = "smallint", CanBeNull = true)]
 		[DebuggerNonUserCode]
 		public short? smallIntN
 		{
 		    get { return _smallIntN; }
-		    set { _smallIntN=value; IsModified=true; }
+		    set { _smallIntN = value; IsModified = true; }
+		}
+		
+	
+		[Column(Name = "DbLinq_EnumTest", DbType = "smallint", CanBeNull = false)]
+		[DebuggerNonUserCode]
+		public DbLinq_EnumTest DbLinq_EnumTest
+		{
+		    get { return _DbLinq_EnumTest; }
+		    set { _DbLinq_EnumTest = value; IsModified = true; }
 		}
 		
 	#endregion
@@ -474,7 +486,7 @@ namespace Client2.user
 	
 	
 	
-	[Table(Name="customer")]
+	[Table(Name = "customer")]
 	public partial class Customer : IModified
 	{
 		public bool IsModified { get; set; }
@@ -514,66 +526,66 @@ namespace Client2.user
 	
 		#region properties - accessors
 	
-		[Column(Name="CustomerID", DbType="int", IsPrimaryKey=true, IsDbGenerated=true)]
+		[Column(Name = "CustomerID", DbType = "int", IsPrimaryKey = true, IsDbGenerated = true)]
 		[DebuggerNonUserCode]
 		public uint CustomerID
 		{
 		    get { return _CustomerID; }
-		    set { _CustomerID=value; IsModified=true; }
+		    set { _CustomerID = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="CompanyName", DbType="varchar", CanBeNull=false)]
+		[Column(Name = "CompanyName", DbType = "varchar", CanBeNull = false)]
 		[DebuggerNonUserCode]
 		public string CompanyName
 		{
 		    get { return _CompanyName; }
-		    set { _CompanyName=value; IsModified=true; }
+		    set { _CompanyName = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="ContactName", DbType="varchar", CanBeNull=false)]
+		[Column(Name = "ContactName", DbType = "varchar", CanBeNull = false)]
 		[DebuggerNonUserCode]
 		public string ContactName
 		{
 		    get { return _ContactName; }
-		    set { _ContactName=value; IsModified=true; }
+		    set { _ContactName = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="City", DbType="varchar", CanBeNull=false)]
+		[Column(Name = "City", DbType = "varchar", CanBeNull = false)]
 		[DebuggerNonUserCode]
 		public string City
 		{
 		    get { return _City; }
-		    set { _City=value; IsModified=true; }
+		    set { _City = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="PostalCode", DbType="varchar", CanBeNull=false)]
+		[Column(Name = "PostalCode", DbType = "varchar", CanBeNull = false)]
 		[DebuggerNonUserCode]
 		public string PostalCode
 		{
 		    get { return _PostalCode; }
-		    set { _PostalCode=value; IsModified=true; }
+		    set { _PostalCode = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="Country", DbType="varchar", CanBeNull=false)]
+		[Column(Name = "Country", DbType = "varchar", CanBeNull = false)]
 		[DebuggerNonUserCode]
 		public string Country
 		{
 		    get { return _Country; }
-		    set { _Country=value; IsModified=true; }
+		    set { _Country = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="Phone", DbType="varchar", CanBeNull=true)]
+		[Column(Name = "Phone", DbType = "varchar", CanBeNull = true)]
 		[DebuggerNonUserCode]
 		public string Phone
 		{
 		    get { return _Phone; }
-		    set { _Phone=value; IsModified=true; }
+		    set { _Phone = value; IsModified = true; }
 		}
 		
 	#endregion
@@ -594,17 +606,17 @@ namespace Client2.user
 		#endregion
 	
 		
-		[Association(Storage="null", OtherKey="CustomerID", Name="FK_orders_1")]
+		[Association(Storage = "null", OtherKey = "CustomerID", Name = "FK_orders_1")]
 		public EntityMSet<Order> Orders
 		{
-		    get { return null; } //TODO L212
+		    get { return null; } //L212 - child data available only when part of query
 		}
 		
 	}
 	
 	
 	
-	[Table(Name="orders")]
+	[Table(Name = "orders")]
 	public partial class Order : IModified
 	{
 		public bool IsModified { get; set; }
@@ -635,39 +647,39 @@ namespace Client2.user
 	
 		#region properties - accessors
 	
-		[Column(Name="OrderID", DbType="int", IsPrimaryKey=true, IsDbGenerated=true)]
+		[Column(Name = "OrderID", DbType = "int", IsPrimaryKey = true, IsDbGenerated = true)]
 		[DebuggerNonUserCode]
 		public uint OrderID
 		{
 		    get { return _OrderID; }
-		    set { _OrderID=value; IsModified=true; }
+		    set { _OrderID = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="CustomerID", DbType="int", CanBeNull=false)]
+		[Column(Name = "CustomerID", DbType = "int", CanBeNull = false)]
 		[DebuggerNonUserCode]
 		public uint CustomerID
 		{
 		    get { return _CustomerID; }
-		    set { _CustomerID=value; IsModified=true; }
+		    set { _CustomerID = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="ProductID", DbType="int", CanBeNull=false)]
+		[Column(Name = "ProductID", DbType = "int", CanBeNull = false)]
 		[DebuggerNonUserCode]
 		public uint ProductID
 		{
 		    get { return _ProductID; }
-		    set { _ProductID=value; IsModified=true; }
+		    set { _ProductID = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="OrderDate", DbType="datetime", CanBeNull=false)]
+		[Column(Name = "OrderDate", DbType = "datetime", CanBeNull = false)]
 		[DebuggerNonUserCode]
 		public DateTime OrderDate
 		{
 		    get { return _OrderDate; }
-		    set { _OrderDate=value; IsModified=true; }
+		    set { _OrderDate = value; IsModified = true; }
 		}
 		
 	#endregion
@@ -712,7 +724,7 @@ namespace Client2.user
 	
 	
 	
-	[Table(Name="products")]
+	[Table(Name = "products")]
 	public partial class Product : IModified
 	{
 		public bool IsModified { get; set; }
@@ -746,48 +758,48 @@ namespace Client2.user
 	
 		#region properties - accessors
 	
-		[Column(Name="ProductID", DbType="int", IsPrimaryKey=true, IsDbGenerated=true)]
+		[Column(Name = "ProductID", DbType = "int", IsPrimaryKey = true, IsDbGenerated = true)]
 		[DebuggerNonUserCode]
 		public uint ProductID
 		{
 		    get { return _ProductID; }
-		    set { _ProductID=value; IsModified=true; }
+		    set { _ProductID = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="ProductName", DbType="varchar", CanBeNull=false)]
+		[Column(Name = "ProductName", DbType = "varchar", CanBeNull = false)]
 		[DebuggerNonUserCode]
 		public string ProductName
 		{
 		    get { return _ProductName; }
-		    set { _ProductName=value; IsModified=true; }
+		    set { _ProductName = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="SupplierID", DbType="int", CanBeNull=false)]
+		[Column(Name = "SupplierID", DbType = "int", CanBeNull = false)]
 		[DebuggerNonUserCode]
 		public uint SupplierID
 		{
 		    get { return _SupplierID; }
-		    set { _SupplierID=value; IsModified=true; }
+		    set { _SupplierID = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="CategoryID", DbType="int", CanBeNull=false)]
+		[Column(Name = "CategoryID", DbType = "int", CanBeNull = false)]
 		[DebuggerNonUserCode]
 		public uint CategoryID
 		{
 		    get { return _CategoryID; }
-		    set { _CategoryID=value; IsModified=true; }
+		    set { _CategoryID = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name="QuantityPerUnit", DbType="varchar", CanBeNull=false)]
+		[Column(Name = "QuantityPerUnit", DbType = "varchar", CanBeNull = false)]
 		[DebuggerNonUserCode]
 		public string QuantityPerUnit
 		{
 		    get { return _QuantityPerUnit; }
-		    set { _QuantityPerUnit=value; IsModified=true; }
+		    set { _QuantityPerUnit = value; IsModified = true; }
 		}
 		
 	#endregion
@@ -808,10 +820,10 @@ namespace Client2.user
 		#endregion
 	
 		
-		[Association(Storage="null", OtherKey="ProductID", Name="FK_orders_prod")]
+		[Association(Storage = "null", OtherKey = "ProductID", Name = "FK_orders_prod")]
 		public EntityMSet<Order> Orders
 		{
-		    get { return null; } //TODO L212
+		    get { return null; } //L212 - child data available only when part of query
 		}
 		
 	}

@@ -4,57 +4,27 @@ using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
+using Client2.user;
 
 #if ORACLE
-using ClientCodeOra;
 using xint = System.Int32;
-using XSqlConnection = System.Data.OracleClient.OracleConnection;
 #elif POSTGRES
-using Client2.user;
 using xint = System.Int32;
-using XSqlConnection = Npgsql.NpgsqlConnection;
-using XSqlCommand = Npgsql.NpgsqlCommand;
 #else
-using XSqlConnection = MySql.Data.MySqlClient.MySqlConnection;
-using XSqlCommand = MySql.Data.MySqlClient.MySqlCommand;
-using Client2.user;
 using xint = System.UInt32;
 #endif
 
 namespace Test_NUnit
 {
     [TestFixture]
-    public class ReadTest_Complex
+    public class ReadTest_Complex : TestBase
     {
-#if ORACLE
-        const string connStr = "server=localhost;user id=system; password=linq2";
-#else
-        const string connStr = "server=localhost;user id=LinqUser; password=linq2; database=LinqTestDB";
-#endif
-        
-        XSqlConnection _conn;
         LinqTestDB db;
         
         public ReadTest_Complex()
         {
-            db = new LinqTestDB(connStr);
+            db = CreateDB();
             db.Log = Console.Out;
-        }
-
-        public XSqlConnection Conn 
-        { 
-            get 
-            { 
-                if(_conn==null){ _conn=new XSqlConnection(connStr); _conn.Open(); }
-                return _conn;
-            }
-        }
-
-        public LinqTestDB CreateDB()
-        {
-            LinqTestDB db = new LinqTestDB(connStr);
-            db.Log = Console.Out;
-            return db;
         }
 
 

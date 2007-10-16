@@ -306,6 +306,27 @@ namespace DBLinq.util
                 return null;
             }
         }
+
+        /// <summary>
+        /// helper method for reading an integer, and casting it to enum
+        /// </summary>
+        public T2 GetEnum<T2>(int index)
+            where T2 : new()
+        {
+            try
+            {
+                int value = (_rdr.IsDBNull(index))
+                    ? 0
+                    : _rdr.GetInt32(index);
+                return (T2)Enum.ToObject(typeof(T2), value);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("GetEnum failed: " + ex);
+                return new T2();
+            }
+        }
+
         public void Dispose(){ _rdr.Close(); }
     }
 }

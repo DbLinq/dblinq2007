@@ -36,13 +36,41 @@ namespace DBLinq.vendor
         }
 
         /// <summary>
-        /// given 'User', return '[User]' to prevent a SQL keyword conflict
+        /// given 'int', return '`int`' to prevent a SQL keyword conflict
         /// </summary>
         public static string FieldName_Safe(string name)
         {
-            if (name.ToLower() == "user")
-                return "[" + name + "]";
-            return name;
+            string nameL = name.ToLower();
+            switch (nameL)
+            {
+                case "user":
+                case "bit":
+                case "int":
+                case "smallint":
+                case "tinyint":
+                case "mediumint":
+
+                case "float":
+                case "double":
+                case "real":
+                case "decimal":
+                case "numeric":
+
+                case "blob":
+                case "text":
+                case "char":
+                case "varchar":
+
+                case "date":
+                case "time":
+                case "datetime":
+                case "timestamp":
+                case "year":
+
+                    return "`" + name + "`";
+                default:
+                    return name;
+            }
         }
 
         public static MySqlParameter CreateSqlParameter(string dbTypeName, string paramName)

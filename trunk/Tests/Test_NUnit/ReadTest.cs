@@ -3,51 +3,21 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using NUnit.Framework;
+using Client2.user;
 
 #if ORACLE
-using ClientCodeOra;
 using xint = System.Int32;
 #elif POSTGRES
-using Client2.user;
 using xint = System.Int32;
-using XSqlConnection = Npgsql.NpgsqlConnection;
-using XSqlCommand = Npgsql.NpgsqlCommand;
 #else
-using XSqlConnection = MySql.Data.MySqlClient.MySqlConnection;
-using XSqlCommand = MySql.Data.MySqlClient.MySqlCommand;
-using Client2.user;
 using xint = System.UInt32;
 #endif
 
 namespace Test_NUnit
 {
     [TestFixture]
-    public class ReadTest
+    public class ReadTest : TestBase
     {
-#if ORACLE
-        const string connStr = "server=localhost;user id=system; password=linq2";
-#else //Mysql, Postgres
-        const string connStr = "server=localhost;user id=LinqUser; password=linq2; database=LinqTestDB";
-        
-        XSqlConnection _conn;
-        public XSqlConnection Conn 
-        { 
-            get 
-            { 
-                if(_conn==null){ _conn=new XSqlConnection(connStr); _conn.Open(); }
-                return _conn;
-            }
-        }
-#endif
-
-#if POSTGRES
-        //Postgres sorting: A,B,C,X,d
-        const StringComparison stringComparisonType = StringComparison.Ordinal; 
-#else
-        //Mysql,Oracle sorting: A,B,C,d,X
-        const StringComparison stringComparisonType = StringComparison.InvariantCulture; 
-#endif
-
         #region Tests 'A' check for DB being ready
 
 #if ORACLE
@@ -66,27 +36,14 @@ namespace Test_NUnit
         }
 #endif
 
-        public LinqTestDB CreateDB()
-        {
-            LinqTestDB db = new LinqTestDB(connStr);
-            db.Log = Console.Out;
-            return db;
-        }
-
 
         [Test]
         public void A2_ProductsTableHasEntries()
         {
             //string sql = "SELECT count(*) FROM LinqTestDB.Products";
             string sql = "SELECT count(*) FROM Products";
-            using(XSqlCommand cmd = new XSqlCommand(sql,Conn))
-            {
-                object oResult = cmd.ExecuteScalar();
-                Assert.IsNotNull("Expecting count of Products, instead got null. (sql="+sql+")");
-                Assert.IsInstanceOfType(typeof(Int64),oResult,"Expecting 'int' result from query "+sql+", instead got type "+oResult.GetType());
-                long iResult = (long)oResult;
-                Assert.Greater((int)iResult,0,"Expecting some rows in Products table, got:"+iResult+" (SQL:"+sql+")");
-            }
+            long iResult = base.ExecuteScalar(sql);
+            Assert.Greater((int)iResult,0,"Expecting some rows in Products table, got:"+iResult+" (SQL:"+sql+")");
         }
 
         [Test]
@@ -94,14 +51,8 @@ namespace Test_NUnit
         {
             //string sql = @"SELECT count(*) FROM linqtestdb.Products WHERE ProductName='Pen'";
             string sql = @"SELECT count(*) FROM Products WHERE ProductName='Pen'";
-            using(XSqlCommand cmd = new XSqlCommand(sql,Conn))
-            {
-                object oResult = cmd.ExecuteScalar();
-                Assert.IsNotNull("Expecting count of Products-Pens, instead got null. (sql="+sql+")");
-                Assert.IsInstanceOfType(typeof(Int64),oResult,"Expecting 'int' result from query "+sql+", instead got type "+oResult.GetType());
-                long iResult = (long)oResult;
-                Assert.AreEqual(iResult,1L,"Expecting one Pen in Products table, got:"+iResult+" (SQL:"+sql+")");
-            }
+            long iResult = base.ExecuteScalar(sql);
+            Assert.AreEqual(iResult,1L,"Expecting one Pen in Products table, got:"+iResult+" (SQL:"+sql+")");
         }
 #endif
 
@@ -239,7 +190,7 @@ namespace Test_NUnit
         [Test]
         public void D06_OrdersFromLondon()
         {
-            LinqTestDB db = new LinqTestDB(connStr);
+            LinqTestDB db = CreateDB();
             var q =
 	            from o in db.Orders
 	            where o.Customer.City == "London"
@@ -259,7 +210,7 @@ namespace Test_NUnit
             Func<int,int> func1 = i => i+1;
             Console.WriteLine("type="+func1.GetType());
             //this is a SelectMany query:
-            LinqTestDB db = new LinqTestDB(connStr);
+            LinqTestDB db = CreateDB();
             db.Log = Console.Out;
 
             var q =
@@ -274,7 +225,7 @@ namespace Test_NUnit
         [Test]
         public void D08_Products_Take5()
         {
-            LinqTestDB db = new LinqTestDB(connStr);
+            LinqTestDB db = CreateDB();
             var q = (from p in db.Products select p).Take(5);
             List<Product> prods = q.ToList(); 
             Assert.AreEqual(5,prods.Count,"Expected five products");
@@ -283,7 +234,7 @@ namespace Test_NUnit
         [Test]
         public void D09_Products_LetterP_Take5()
         {
-            LinqTestDB db = new LinqTestDB(connStr);
+            LinqTestDB db = CreateDB();
 
             //var q = (from p in db.Products where p.ProductName.Contains("p") select p).Take(5);
             var q = db.Products.Where( p=>p.ProductName.Contains("p")).Take(5);
@@ -299,7 +250,7 @@ namespace Test_NUnit
         [Test]
         public void D10_Products_LetterP_Desc()
         {
-            LinqTestDB db = new LinqTestDB(connStr);
+            LinqTestDB db = CreateDB();
 
             var q = (from p in db.Products where p.ProductName.Contains("p") 
                         orderby p.ProductID descending
@@ -317,7 +268,7 @@ namespace Test_NUnit
         [Test]
         public void D11_Products_DoubleWhere()
         {
-            LinqTestDB db = new LinqTestDB(connStr);
+            LinqTestDB db = CreateDB();
             var q1 = db.Products.Where(p=>p.ProductID>1).Where(p=>p.ProductID<10);
             int count1 = q1.Count();
         }

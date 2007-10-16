@@ -9,31 +9,22 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
-
 using NUnit.Framework;
+using Client2.user;
+
 #if ORACLE
-using ClientCodeOra;
 using xint = System.Int32;
 #elif POSTGRES
-using Client2.user;
 using xint = System.UInt32;
 #else
-using MySql.Data.MySqlClient;
-using Client2.user;
 using xint = System.UInt32;
 #endif
 
 namespace Test_NUnit
 {
     [TestFixture]
-    public class ReadTest_GroupBy
+    public class ReadTest_GroupBy : TestBase
     {
-#if ORACLE
-        const string connStr = "server=localhost;user id=system; password=linq2";
-#else
-        const string connStr = "server=localhost;user id=LinqUser; password=linq2; database=LinqTestDB";
-        
-#endif
 
         [Test]
         public void G01_SimpleGroup()

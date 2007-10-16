@@ -44,11 +44,17 @@ namespace DBLinq.vendor
                 switch (typeStrL)
                 {
                     case "char":
+                    case "text":
                         return MySqlDbType.String;
-                    case "tinyint":
-                        return MySqlDbType.Int16;
+
                     case "int":
                         return MySqlDbType.Int32;
+                    case "mediumint":
+                        return MySqlDbType.Int16; //go figure - MEDIUMINT is 3 bytes 
+                    case "smallint":
+                        return MySqlDbType.Int16;
+                    case "tinyint":
+                        return MySqlDbType.Byte;
                 }
                 string msg = "TODO L24: add parsing of type " + typeStr;
                 Console.WriteLine(msg);
