@@ -72,6 +72,7 @@
     <Compile Include="StoredProcTest.cs" />
     <Compile Include="TestBase.cs" />
     <Compile Include="WriteTest.cs" />
+    <Compile Include="WriteTest_BulkInsert.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\DbLinq\DbLinq.MySql.csproj">
