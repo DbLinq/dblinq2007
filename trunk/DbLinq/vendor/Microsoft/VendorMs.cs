@@ -59,7 +59,7 @@ namespace DBLinq.vendor
         /// because it does not fill up the translation log.
         /// This is enabled for tables where Vendor.UserBulkInsert[db.Table] is true.
         /// </summary>
-        public static void DoBulkInsert<T>(List<T> rows, SqlConnection conn)
+        public static void DoBulkInsert<T>(DBLinq.Linq.MTable<T> table, List<T> rows, SqlConnection conn)
         {
             //use TableLock for speed:
             SqlBulkCopy bulkCopy = new SqlBulkCopy(conn, SqlBulkCopyOptions.TableLock, null);

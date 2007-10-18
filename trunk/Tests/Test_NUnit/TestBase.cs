@@ -70,5 +70,17 @@ namespace Test_NUnit
                 return (long)oResult;
             }
         }
+
+        /// <summary>
+        /// execute a sql statement
+        /// </summary>
+        public void ExecuteNonQuery(string sql)
+        {
+            using (XSqlCommand cmd = new XSqlCommand(sql, Conn))
+            {
+                int iResult = cmd.ExecuteNonQuery();
+            }
+        }
+
     }
 }

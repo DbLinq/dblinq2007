@@ -13,11 +13,18 @@ using System.Reflection;
 using MySql.Data.MySqlClient;
 using DBLinq.Linq.Mapping;
 using DBLinq.util;
+using DBLinq.Linq;
+using DBLinq.Linq.clause;
 
 namespace DBLinq.vendor
 {
     public class Vendor
     {
+        /// <summary>
+        /// Client code needs to specify: 'Vendor.UserBulkInsert[db.Products]=10' to enable bulk insert, 10 rows at a time.
+        /// </summary>
+        public static readonly Dictionary<DBLinq.Linq.IMTable, int> UseBulkInsert = new Dictionary<DBLinq.Linq.IMTable, int>();
+
         /// <summary>
         /// Postgres string concatenation, eg 'a||b'
         /// </summary>
@@ -80,6 +87,44 @@ namespace DBLinq.vendor
             return param;
         }
 
+        /// <summary>
+        /// for large number of rows, we want to use BULK INSERT, 
+        /// because it does not fill up the translation log.
+        /// This is enabled for tables where Vendor.UserBulkInsert[db.Table] is true.
+        /// </summary>
+        public static void DoBulkInsert<T>(DBLinq.Linq.MTable<T> table, List<T> rows, MySqlConnection conn)
+        {
+            int pageSize = Vendor.UseBulkInsert[table];
+            //ProjectionData projData = ProjectionData.FromReflectedType(typeof(T));
+            ProjectionData projData = AttribHelper.GetProjectionData(typeof(T));
+            TableAttribute tableAttrib = typeof(T).GetCustomAttributes(false).OfType<TableAttribute>().Single();
+
+            //build "INSERT INTO products (ProductName, SupplierID, CategoryID, QuantityPerUnit)"
+            string header = "INSERT INTO " + tableAttrib.Name + " " + InsertClauseBuilder.InsertRowHeader(conn, projData);
+
+            foreach (List<T> page in Util.Paginate(rows, pageSize))
+            {
+                int numFieldsAdded = 0;
+                StringBuilder sbValues = new StringBuilder(" VALUES ");
+                List<MySqlParameter> paramList = new List<MySqlParameter>();
+
+                //package up all fields in N rows:
+                string separator = "";
+                foreach (T row in page)
+                {
+                    //prepare values = "(?P1, ?P2, ?P3, ?P4)"
+                    string values = InsertClauseBuilder.InsertRowFields(row, projData, paramList, ref numFieldsAdded);
+                    sbValues.Append(separator).Append(values);
+                    separator = ", ";
+                }
+
+                string sql = header + sbValues; //'INSET t1 (field1) VALUES (11),(12)'
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                paramList.ForEach(param => cmd.Parameters.Add(param));
+
+                int result = cmd.ExecuteNonQuery();
+            }
+        }
 
         /// <summary>
         /// call mysql stored proc or stored function, 
