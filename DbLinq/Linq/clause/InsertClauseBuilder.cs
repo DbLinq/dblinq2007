@@ -68,8 +68,6 @@ namespace DBLinq.Linq.clause
                 if (colAtt.IsPrimaryKey) //(colAtt.Id)
                     continue; //if field is ID , don't send field
 
-                //PropertyInfo propInfo = projFld.propInfo;
-                //object paramValue = propInfo.GetValue(objectToInsert, s_emptyIndices);
                 object paramValue = projFld.GetFieldValue(objectToInsert);
                 if (paramValue == null)
                     continue; //don't set null fields
@@ -82,12 +80,6 @@ namespace DBLinq.Linq.clause
                 string paramName = vendor.Vendor.ParamName(numFieldsAdded);
                 sbVals.Append(paramName);
 
-                //OracleType dbType = OracleTypeConversions.ParseType(colAtt.DBType);
-                //OracleParameter param = new OracleParameter(paramName, dbType);
-                //NpgsqlTypes.NpgsqlDbType dbType = PgsqlTypeConversions.ParseType(colAtt.DBType);
-                //XSqlParameter param = new XSqlParameter(paramName, dbType);
-                //MySqlDbType dbType = MySqlTypeConversions.ParseType(colAtt.DBType);
-                //MySqlParameter param = new MySqlParameter(paramName, dbType);
                 XSqlParameter param = vendor.Vendor.CreateSqlParameter(colAtt.DbType, paramName);
 
                 param.Value = paramValue;
@@ -123,6 +115,71 @@ namespace DBLinq.Linq.clause
                 cmd.Parameters.Add(param);
             }
             return cmd;
+        }
+
+        /// <summary>
+        /// given projData constructed from type Product, 
+        /// return string '(ProductName, SupplierID, CategoryID, QuantityPerUnit)'
+        /// (suitable for use in INSERT statement)
+        /// </summary>
+        public static string InsertRowHeader(XSqlConnection conn, ProjectionData projData)
+        {
+            StringBuilder sbNames = new StringBuilder("(");
+            int numFieldsAdded = 0;
+            foreach (ProjectionData.ProjectionField projFld in projData.fields)
+            {
+                ColumnAttribute colAtt = projFld.columnAttribute;
+
+                if (colAtt.IsPrimaryKey) //(colAtt.Id)
+                    continue; //if field is ID , don't send field
+
+                //object paramValue = projFld.GetFieldValue(objectToInsert);
+                //if (paramValue == null)
+                //    continue; //don't set null fields
+
+                //append string, eg. ",Name"
+                if (numFieldsAdded++ > 0)
+                {
+                    sbNames.Append(", "); 
+                }
+                sbNames.Append(colAtt.Name);
+            }
+            return sbNames.Append(")").ToString();
+        }
+
+        /// <summary>
+        /// given an object we want to insert into a table, build the '(?p1,?p2,P3)' 
+        /// and package up a list of SqlParameter objects.
+        /// 
+        /// In Mysql, called multiple times in a row to do a 'bulk insert'.
+        /// </summary>
+        public static string InsertRowFields(object objectToInsert, ProjectionData projData
+            ,List<XSqlParameter> paramList, ref int numFieldsAdded)
+        {
+            StringBuilder sbVals = new StringBuilder("(");
+            string separator = "";
+            //int numFieldsAdded = 0;
+            foreach (ProjectionData.ProjectionField projFld in projData.fields)
+            {
+                ColumnAttribute colAtt = projFld.columnAttribute;
+                if (colAtt.IsPrimaryKey) //(colAtt.Id)
+                    continue; //if field is ID , don't send field
+
+                object paramValue = projFld.GetFieldValue(objectToInsert);
+                //if (paramValue == null)
+                //    continue; //don't set null fields
+
+                //get either ":p0" or "?p0"
+                string paramName = vendor.Vendor.ParamName(numFieldsAdded++);
+                sbVals.Append(separator).Append(paramName);
+                separator = ", ";
+
+                XSqlParameter param = vendor.Vendor.CreateSqlParameter(colAtt.DbType, paramName);
+
+                param.Value = paramValue;
+                paramList.Add(param);
+            }
+            return sbVals.Append(")").ToString();
         }
 
         /// <summary>

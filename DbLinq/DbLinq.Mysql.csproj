@@ -83,6 +83,7 @@
     <Compile Include="util\RowScalar.cs" />
     <Compile Include="Linq\clause\SqlExpressionParts.cs" />
     <Compile Include="util\TypeEnum.cs" />
+    <Compile Include="util\Util.cs" />
     <Compile Include="util\VarName.cs" />
     <Compile Include="vendor\IDataReader2.cs" />
     <Compile Include="vendor\Mysql\DataReader2.cs" />

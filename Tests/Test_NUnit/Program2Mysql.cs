@@ -32,8 +32,9 @@ namespace Test_NUnit
             //new ReadTest_GroupBy().G05_Group_Into();
             //ReadTest_Complex rc = new ReadTest_Complex();
             //rc.F11_ConcatString();
-            new WriteTest().E2_UpdateEnum();
+            //new WriteTest().E2_UpdateEnum();
             //new WriteTest().G1_InsertProduct();
+            new WriteTest_BulkInsert().BI01_InsertProducts();
         }
     }
 

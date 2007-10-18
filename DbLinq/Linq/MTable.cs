@@ -133,12 +133,6 @@ namespace DBLinq.Linq
         {
             QueryProcessor.ProcessLambdas(_vars, typeof(T));
             RowEnumerator<T> rowEnumerator = new RowEnumerator<T>(_vars, _liveObjectMap);
-            //if(MContext.s_suppressSqlExecute)
-            //{
-            //    //we are doing GetQueryText
-            //} else {
-            //    //rowEnumerator.ExecuteSqlCommand();
-            //}
             return rowEnumerator.GetEnumerator();
         }
 
@@ -152,7 +146,6 @@ namespace DBLinq.Linq
             fct(vars2);
             QueryProcessor.ProcessLambdas(vars2, typeof(T));
             RowEnumerator<T> rowEnumerator = new RowEnumerator<T>(vars2, _liveObjectMap);
-            //rowEnumerator.ExecuteSqlCommand();
             return rowEnumerator;
         }
 
@@ -201,10 +194,10 @@ namespace DBLinq.Linq
             ProjectionData proj = ProjectionData.FromDbType(typeof(T));
             XSqlConnection conn = _parentDB.SqlConnection;
 
-#if MICROSOFT //bulk insert code
+#if MICROSOFT || MYSQL //bulk insert code
             if(vendor.Vendor.UseBulkInsert.ContainsKey(this))
             {
-                vendor.Vendor.DoBulkInsert(_insertList,conn);
+                vendor.Vendor.DoBulkInsert(this, _insertList, conn);
                 _insertList.Clear();
             }
 #endif
