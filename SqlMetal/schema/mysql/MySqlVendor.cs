@@ -107,12 +107,11 @@ namespace SqlMetal.schema.mysql
                     continue;
                 }
 
-                if (keyColRow.constraint_name == "PRIMARY")
+                bool isForeignKey = keyColRow.constraint_name != "PRIMARY"
+                                 && keyColRow.referenced_table_name != null;
+
+                if (isForeignKey)
                 {
-                }
-                else
-                {
-                    //if not PRIMARY, it's a foreign key.
                     //both parent and child table get an [Association]
                     DlinqSchema.Association assoc = new DlinqSchema.Association();
                     assoc.IsForeignKey = true;
