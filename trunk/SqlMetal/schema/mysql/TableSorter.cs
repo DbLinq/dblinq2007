@@ -10,13 +10,19 @@ namespace SqlMetal.schema.mysql
     /// </summary>
     class TableSorter : IComparer<TableRow>
     {
-        public static void Sort(List<TableRow> tables, List<KeyColumnUsage> foreignKeys)
+        public static void Sort(List<TableRow> tables, List<KeyColumnUsage> keys)
         {
             //TODO: walk all
-            foreach(KeyColumnUsage key in foreignKeys)
+            foreach(KeyColumnUsage key in keys)
             {
-                if(key.constraint_name.ToUpper()=="PRIMARY")
+                // ashmind: second condition may be redundant, but I'm leaving
+                // it here in fear of breaking something (no tests for now)
+                bool isForeignKey = key.referenced_table_name != null
+                                 && !string.Equals(key.constraint_name, "PRIMARY", StringComparison.InvariantCultureIgnoreCase);
+
+                if (!isForeignKey)
                     continue;
+
                 string parentTableName = key.table_name;
                 string childTableName = key.referenced_table_name;
                 //Table parentTable = tables.Find( t=>t.table_name==parentTableName );
