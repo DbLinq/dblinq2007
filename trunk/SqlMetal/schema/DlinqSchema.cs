@@ -3,6 +3,7 @@
 using System;
 using System.Xml.Serialization;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 namespace SqlMetal.schema
@@ -38,7 +39,11 @@ namespace SqlMetal.schema
         public class Database
         {
             [XmlAttribute] public string Name;
-            [XmlAttribute] public AccessEnum1 Access;            
+
+            [XmlAttribute]
+            [DefaultValue(typeof(AccessEnum1), "public")]
+            public AccessEnum1 Access;
+  
             [XmlAttribute] public string Class;
 
             [XmlElement("Table")]
@@ -68,33 +73,10 @@ namespace SqlMetal.schema
             public static void SaveDbmlFile(string fname, Database db)
             {
                 XmlSerializer xser = new XmlSerializer(typeof(Database));
-                System.IO.StringWriter writer = new System.IO.StringWriter();
-                //using (System.IO.StreamWriter writer = System.IO.File.CreateText(fname))
-                //{
-                //    xser.Serialize(writer, db);
-                //}
-                xser.Serialize(writer, db);
-                string xml = writer.ToString();
-
-                //remove default values which would produce a huge xml file
-                xml = xml.Replace(" IsPrimaryKey=\"false\"", "");
-                xml = xml.Replace(" IsDbGenerated=\"false\"", "");
-                xml = xml.Replace(" IsDiscriminator=\"false\"", "");
-                xml = xml.Replace(" IsVersion=\"false\"", "");
-                xml = xml.Replace(" IsInheritanceDefault=\"false\"", "");
-                xml = xml.Replace(" IsForeignKey=\"false\"", "");
-                xml = xml.Replace(" IsUnique=\"false\"", "");
-                xml = xml.Replace(" DeleteOnNull=\"false\"", "");
-                xml = xml.Replace(" UpdateCheck=\"Always\"", "");
-                xml = xml.Replace(" AutoSync=\"Never\"", "");
-                xml = xml.Replace(" Access=\"public\"", "");
-                xml = xml.Replace(" InOut=\"In\"", "");
-                xml = xml.Replace(" InOut=\"Input\"", "");
-                xml = xml.Replace(" BodyContainsSelectStatement=\"false\"", "");
-                xml = xml.Replace(" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"", "");
-                
-                System.IO.File.WriteAllText(fname, xml);
-                //IsPrimaryKey="false" IsDbGenerated="false"
+                using (System.IO.StreamWriter writer = System.IO.File.CreateText(fname))
+                {
+                    xser.Serialize(writer, db);
+                }
             }
 
         }
@@ -132,12 +114,14 @@ namespace SqlMetal.schema
             public string Name;
 
             [XmlAttribute]
+            [DefaultValue(typeof(AccessEnum2), "public")]
             public AccessEnum2 Access;
 
             [XmlAttribute]
             public string InheritanceCode;
 
             [XmlAttribute]
+            [DefaultValue(false)]
             public bool IsInheritanceDefault;
 
             [XmlElement("Column")]
@@ -179,18 +163,22 @@ namespace SqlMetal.schema
             public string DbType;
 
             [XmlAttribute]
+            [DefaultValue(false)]
             public bool IsPrimaryKey;
 
             [XmlAttribute]
+            [DefaultValue(false)]
             public bool IsDbGenerated;
 
             [XmlAttribute]
             public bool CanBeNull;
 
             [XmlAttribute]
+            [DefaultValue(typeof(UpdateCheckEnum), "Always")]
             public UpdateCheckEnum UpdateCheck;
 
             [XmlAttribute]
+            [DefaultValue(false)]
             public bool IsDiscriminator;
 
             /// <summary>
@@ -200,9 +188,11 @@ namespace SqlMetal.schema
             public string Expression;
 
             [XmlAttribute]
+            [DefaultValue(false)]
             public bool IsVersion;
 
             [XmlAttribute]
+            [DefaultValue(typeof(AutoSyncEnum), "Never")]
             public AutoSyncEnum AutoSync;
 
 
@@ -242,9 +232,11 @@ namespace SqlMetal.schema
             public string OtherKey;
 
             [XmlAttribute]
+            [DefaultValue(false)]
             public bool IsForeignKey;
 
             [XmlAttribute]
+            [DefaultValue(false)]
             public bool IsUnique;
 
             //[XmlAttribute] public string UpdateRule;
@@ -253,6 +245,7 @@ namespace SqlMetal.schema
             public string DeleteRule;
 
             [XmlAttribute]
+            [DefaultValue(false)]
             public bool DeleteOnNull;
 
             public override string ToString()
@@ -285,6 +278,7 @@ namespace SqlMetal.schema
             /// if a stored proc contains a select statement, we need to check if it returns a resultset.
             /// </summary>
             [XmlAttribute]
+            [DefaultValue(true)]
             public bool BodyContainsSelectStatement;
 
             [XmlElement("Parameter")]
@@ -322,6 +316,7 @@ namespace SqlMetal.schema
             public string DbType;
 
             [XmlAttribute]
+            [DefaultValue(typeof(System.Data.ParameterDirection), "Input")]
             public System.Data.ParameterDirection InOut = System.Data.ParameterDirection.Input;
         }
 
