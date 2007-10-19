@@ -278,7 +278,7 @@ namespace SqlMetal.schema
             /// if a stored proc contains a select statement, we need to check if it returns a resultset.
             /// </summary>
             [XmlAttribute]
-            [DefaultValue(true)]
+            [DefaultValue(false)]
             public bool BodyContainsSelectStatement;
 
             [XmlElement("Parameter")]
