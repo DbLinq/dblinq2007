@@ -48,7 +48,7 @@ EN-GB'><span style='mso-spacerun:yes'>    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </s
         </li>
         <li>
             <p class="MsoNormal" style="mso-layout-grid-align: none;text-autospace: none">
-                Separate permissions are required for bulk insert vs regular insertinsert</p>
+                Additional permissions are required for bulk insert (vs. regular insert)</p>
         </li>
         <li>
             <p class="MsoNormal" style="mso-layout-grid-align: none;text-autospace: none">
@@ -56,7 +56,8 @@ EN-GB'><span style='mso-spacerun:yes'>    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </s
         </li>
         <li>
             <p class="MsoNormal" style="mso-layout-grid-align: none;text-autospace: none">
-                internally, we create a DataTable to send - this costs extra memory.</p>
+                internally, we create a DataTable (containing all rows) to send - this costs extra memory. 
+                See Azamsharp, below, for alternative.</p>
         </li>
     </ul>
     Internally, we use the SqlBulkCopy class. I use Mladen's example on <a href="http://weblogs.sqlteam.com/mladenp/archive/2006/08/26/11368.aspx">

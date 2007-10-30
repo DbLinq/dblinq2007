@@ -65,6 +65,7 @@
     <Compile Include="schema\mysql\Mappings.cs" />
     <Compile Include="schema\mysql\MySqlVendor.cs" />
     <Compile Include="schema\mysql\TableSql.cs" />
+    <Compile Include="schema\SchemaPostprocess.cs" />
     <Compile Include="util\Util.cs" />
   </ItemGroup>
   <ItemGroup>

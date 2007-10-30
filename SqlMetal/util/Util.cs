@@ -21,7 +21,27 @@ namespace SqlMetal.util
                 throw new ArgumentNullException("word");
             if(word.Length<2)
                 return word;
-            string ret = Char.ToUpper(word[0])+word.Substring(1).ToLower();
+            //string ret = Char.ToUpper(word[0])+word.Substring(1).ToLower();
+            StringBuilder sb = new StringBuilder(word);
+            char prev_ch = ' ';
+            for (int i=0; i<sb.Length; i++)
+            {
+                char ch = sb[i];
+                bool prev_was_space = Char.IsWhiteSpace(prev_ch) || prev_ch == '_';
+                bool mustConvertToLower = Char.IsUpper(ch) && !prev_was_space;
+                bool mustConvertToUpper = prev_was_space;
+                if (mustConvertToLower)
+                {
+                    sb[i] = Char.ToLower(ch);
+                }
+                else if (mustConvertToUpper)
+                {
+                    sb[i] = Char.ToUpper(ch); //ensure uppercase 'D' in 'Order Details'
+                }
+                prev_ch = ch;
+            }
+
+            string ret = sb.ToString();
             
             if(mmConfig.forceUcaseID && ret.EndsWith("id"))
             {

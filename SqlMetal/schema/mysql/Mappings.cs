@@ -25,6 +25,8 @@ namespace SqlMetal.schema.mysql
                     if(column_type.Contains("unsigned"))
                         return "uint";
                     return "int";
+                case "bit":
+                    return "bool";
                 case "tinyint": 
                     if(column_type=="tinyint(1)")
                         return "bool";
