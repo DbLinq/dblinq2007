@@ -314,5 +314,15 @@ namespace DBLinq.Linq
             get { return this; }
         }
 
+        /// <summary>
+        /// TODO: RemoveAll(where_clause)
+        /// </summary>
+        [Obsolete("NOT IMPLEMENTED YET")]
+        public void RemoveAll<TSubEntity>(IEnumerable<TSubEntity> entities)
+            where TSubEntity : T
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

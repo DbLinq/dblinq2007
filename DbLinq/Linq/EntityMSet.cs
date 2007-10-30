@@ -66,12 +66,16 @@ namespace DBLinq.Linq
             throw new ApplicationException("Not implemented");
         }
 
-        public Type ElementType { 
-            get {
+        public Type ElementType
+        {
+            get
+            {
                 throw new ApplicationException("Not implemented");
             }
         }
-        public Expression Expression { 
+
+        public Expression Expression
+        {
             //copied from RdfProvider
             get { return Expression.Constant(this); }
         }
@@ -85,6 +89,15 @@ namespace DBLinq.Linq
         public object Execute(Expression expression)
         {
             throw new ApplicationException("Not implemented");
+        }
+
+        /// <summary>
+        /// TODO: Add(row)
+        /// </summary>
+        [Obsolete("NOT IMPLEMENTED YET")]
+        public void Add(T t)
+        {
+            throw new NotImplementedException();
         }
 
         //New as of Orcas Beta2 - what does it do?

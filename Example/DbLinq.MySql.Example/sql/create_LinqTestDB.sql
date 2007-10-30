@@ -18,12 +18,24 @@ FLUSH PRIVILEGES;
 
 
 ####################################################################
+## create tables
+####################################################################
+CREATE TABLE `linqtestdb`.`Categories` (
+  `CategoryID` INTEGER  NOT NULL AUTO_INCREMENT,
+  `CategoryName` VARCHAR(15) NOT NULL,
+  `Description` TEXT NULL,
+  `Picture` BLOB NULL,
+  PRIMARY KEY(`CategoryID`)
+)
+ENGINE = InnoDB;
+
+####################################################################
 CREATE TABLE `linqtestdb`.`Products` (
   `ProductID` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
-  `ProductName` VARCHAR(45) NOT NULL DEFAULT '',
-  `SupplierID` INTEGER UNSIGNED NOT NULL DEFAULT 0,
-  `CategoryID` INTEGER UNSIGNED NOT NULL DEFAULT 0,
-  `QuantityPerUnit` VARCHAR(20) NOT NULL DEFAULT '',
+  `ProductName` VARCHAR(40) NOT NULL DEFAULT '',
+  `SupplierID` INTEGER UNSIGNED NULL,
+  `CategoryID` INTEGER NULL,
+  `QuantityPerUnit` VARCHAR(20) NULL,
   `UnitPrice` DECIMAL NULL,
   `UnitsInStock` SMALLINT NULL,
   `UnitsOnOrder` SMALLINT NULL,
@@ -34,8 +46,15 @@ CREATE TABLE `linqtestdb`.`Products` (
 ENGINE = InnoDB
 COMMENT = 'Holds Products';
 
+ALTER TABLE `linqtestdb`.`Products` ADD CONSTRAINT `FK_prod_catg` FOREIGN KEY `FK_prod_catg` (`CategoryID`)
+    REFERENCES `Categories` (`CategoryID`)
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT;
+
+
+####################################################################
 CREATE TABLE `linqtestdb`.`Customers` (
-  `CustomerID` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+  `CustomerID` VARCHAR(5) NOT NULL,
   `CompanyName` VARCHAR(40) NOT NULL DEFAULT '',
   `ContactName` VARCHAR(30) NULL,
   `ContactTitle` VARCHAR(30) NULL,
@@ -49,50 +68,6 @@ CREATE TABLE `linqtestdb`.`Customers` (
   PRIMARY KEY(`CustomerID`)
 )
 ENGINE = InnoDB;
-
-####################################################################
-CREATE TABLE `linqtestdb`.`Orders` (
-  `OrderID` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
-  `CustomerID` INTEGER UNSIGNED NOT NULL DEFAULT 0,
-  `ProductID` INTEGER UNSIGNED NOT NULL DEFAULT 0,
-  `OrderDate` DATETIME NOT NULL DEFAULT 0,
-  PRIMARY KEY(`OrderID`)
-)
-ENGINE = InnoDB;
-
-ALTER TABLE `linqtestdb`.`orders` ADD CONSTRAINT `FK_orders_1` FOREIGN KEY `FK_orders_1` (`CustomerID`)
-    REFERENCES `Customers` (`CustomerID`)
-    ON DELETE RESTRICT
-    ON UPDATE RESTRICT;
-
-ALTER TABLE `linqtestdb`.`orders` ADD CONSTRAINT `FK_orders_prod` FOREIGN KEY `FK_orders_prod` (`ProductID`)
-    REFERENCES `products` (`ProductID`)
-    ON DELETE RESTRICT
-    ON UPDATE RESTRICT;
-
-####################################################################
-CREATE TABLE `linqtestdb`.`Order Details` (
-  `OrderID` INTEGER NOT NULL,
-  `ProductID` INTEGER NOT NULL,
-  `UnitPrice` DECIMAL NOT NULL,
-  `Quantity` SMALLINT NOT NULL,
-  `Discount` FLOAT NOT NULL,
-  PRIMARY KEY(`OrderID`,`ProductID`)
-)
-ENGINE = InnoDB;
-
-/*
-## Script line: 81	Can't create table 'linqtestdb.#sql-fc8_1' (errno: 150)
-ALTER TABLE `linqtestdb`.`Order Details` ADD CONSTRAINT `FK_ordersDetails_Ord` FOREIGN KEY `FK_ordersDetails_Ord` (`OrderID`)
-    REFERENCES `Orders` (`OrderID`)
-    ON DELETE RESTRICT
-    ON UPDATE RESTRICT;
-
-ALTER TABLE `linqtestdb`.`Order Details` ADD CONSTRAINT `FK_ordersDetails_Prod` FOREIGN KEY `FK_ordersDetails_Prod` (`ProductID`)
-    REFERENCES `products` (`ProductID`)
-    ON DELETE RESTRICT
-    ON UPDATE RESTRICT;
-*/
 
 ####################################################################
 CREATE TABLE `linqtestdb`.`Employees` (
@@ -109,6 +84,75 @@ ENGINE = InnoDB;
 
 ALTER TABLE `linqtestdb`.`Employees` ADD CONSTRAINT `FK_Emp_ReportsToEmp` FOREIGN KEY `FK_Emp_ReportsToEmp` (`ReportsTo`)
     REFERENCES `Employees` (`EmployeeID`)
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT;
+
+
+####################################################################
+CREATE TABLE `linqtestdb`.`Orders` (
+  `OrderID` INTEGER NOT NULL AUTO_INCREMENT,
+  `CustomerID` VARCHAR(5) NULL,
+  `EmployeeID` INTEGER UNSIGNED NULL,
+  `OrderDate` DATETIME NULL,
+  `Freight` DECIMAL NULL,
+  `ShipName` VARCHAR(40) NULL,
+  `ShipAddress` VARCHAR(60) NULL,
+  `ShipCity` VARCHAR(15) NULL,
+  `ShipRegion` VARCHAR(15) NULL,
+  `ShipPostalCode` VARCHAR(15) NULL,
+  PRIMARY KEY(`OrderID`)
+)
+ENGINE = InnoDB;
+
+ALTER TABLE `linqtestdb`.`orders` ADD CONSTRAINT `FK_orders_1` FOREIGN KEY `FK_orders_1` (`CustomerID`)
+    REFERENCES `Customers` (`CustomerID`)
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT;
+
+ALTER TABLE `linqtestdb`.`orders` ADD CONSTRAINT `FK_orders_emp` FOREIGN KEY `FK_orders_emp` (`EmployeeID`)
+    REFERENCES `Employees` (`EmployeeID`)
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT;
+
+####################################################################
+CREATE TABLE `linqtestdb`.`Order Details` (
+  `OrderID` INTEGER NOT NULL,
+  `ProductID` INTEGER UNSIGNED NOT NULL,
+  `UnitPrice` DECIMAL NOT NULL,
+  `Quantity` SMALLINT NOT NULL,
+  `Discount` FLOAT NOT NULL,
+  PRIMARY KEY(`OrderID`,`ProductID`)
+)
+ENGINE = InnoDB;
+
+ALTER TABLE `linqtestdb`.`Order Details` ADD CONSTRAINT `FK_ordersDetails_Ord` FOREIGN KEY `FK_ordersDetails_Ord` (`OrderID`)
+    REFERENCES `Orders` (`OrderID`)
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT;
+
+ALTER TABLE `linqtestdb`.`Order Details` ADD CONSTRAINT `FK_ordersDetails_Prod` FOREIGN KEY `FK_ordersDetails_Prod` (`ProductID`)
+    REFERENCES `products` (`ProductID`)
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT;
+
+####################################################################
+CREATE TABLE `linqtestdb`.`Region` (
+  `RegionID` INTEGER NOT NULL AUTO_INCREMENT,
+  `RegionDescription` VARCHAR(50) NOT NULL,
+  PRIMARY KEY(`RegionID`)
+)
+ENGINE = InnoDB;
+
+CREATE TABLE `linqtestdb`.`Territories` (
+  `TerritoryID` VARCHAR(20) NOT NULL,
+  `TerritoryDescription` VARCHAR(50) NOT NULL,
+  `RegionID` INTEGER NOT NULL,
+  PRIMARY KEY(`TerritoryID`)
+)
+ENGINE = InnoDB;
+
+ALTER TABLE `linqtestdb`.`Territories` ADD CONSTRAINT `FK_Terr_Region` FOREIGN KEY `FK_Terr_Region` (`RegionID`)
+    REFERENCES `Region` (`RegionID`)
     ON DELETE RESTRICT
     ON UPDATE RESTRICT;
 
@@ -160,18 +204,26 @@ COMMENT = 'Tests mapping of many MySQL types to CSharp types';
 USE linqtestdb;
 
 ####################################################################
+## populate tables with seed data
+####################################################################
 truncate table Orders; -- must be truncated before Customer
 truncate table Customers;
 
-insert Customers (CompanyName,ContactName,Country,PostalCode,City)
-values ('airbus','jacques','France','10000','Paris');
-insert Customers (CompanyName,ContactName,Country,PostalCode,City)
-values ('BT','graeme','U.K.','E14','London');
+insert Customers (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
+values ('AIRBU', 'airbus','jacques','France','10000','Paris');
+insert Customers (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
+values ('BT___','BT','graeme','U.K.','E14','London');
 
-insert Customers (CompanyName,ContactName,Country,PostalCode,City)
-values ('ATT','bob','USA','10021','New York');
-insert Customers (CompanyName,ContactName,Country,PostalCode,City)
-values ('MOD','(secret)','U.K.','E14','London');
+insert Customers (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
+values ('ATT__','ATT','bob','USA','10021','New York');
+insert Customers (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
+values ('UKMOD', 'MOD','(secret)','U.K.','E14','London');
+
+insert Customers (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
+values ('ALFKI', 'Alfreds Futterkiste','Maria Anders','Sales Representative','Germany','12209','Berlin','030-0074321');
+
+insert Customers (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
+values ('WARTH', 'Wartian Herkku','Pirkko Koskitalo','Accounting Manager','Finland','90110','Oulu','981-443655');
 
 truncate table Orders; -- must be truncated before Products
 truncate table Products;
@@ -185,31 +237,30 @@ insert Products (ProductName,QuantityPerUnit) VALUES ('iPod',0);
 insert Products (ProductName,QuantityPerUnit) VALUES ('Toilet Paper',2);
 insert Products (ProductName,QuantityPerUnit) VALUES ('Fork',5);
 
+truncate table Employees;
+insert Employees (LastName,FistName,Title) VALUES ('Davolio','Nancy','Sales Representative')
+
 ####################################################################
 truncate table Orders;
-insert Orders (CustomerID, ProductID, OrderDate)
+insert Orders (CustomerID, EmployeeID, OrderDate)
 Values (
   (Select CustomerID from Customers Where CompanyName='airbus')
-, (Select ProductID from Products Where ProductName='Pen')
-, now());
+, 1, now());
 
 insert Orders (CustomerID, ProductID, OrderDate)
 Values (
   (Select CustomerID from Customers Where CompanyName='BT')
-, (Select ProductID from Products Where ProductName='Phone')
-, now());
+, 1, now());
 
 insert Orders (CustomerID, ProductID, OrderDate)
 Values (
   (Select CustomerID from Customers Where CompanyName='BT')
-, (Select ProductID from Products Where ProductName='Pen')
-, now());
+, 1, now());
 
 insert Orders (CustomerID, ProductID, OrderDate)
 Values (
   (Select CustomerID from Customers Where CompanyName='MOD')
-, (Select ProductID from Products Where ProductName='SAM')
-, now());
+, 1, now());
 
 ####################################################################
 INSERT INTO linqtestdb.alltypes (
@@ -245,6 +296,8 @@ VALUES(         null,
   16000,        null, /*smallInt*/
   1);
 
+####################################################################
+## create stored procs
 ####################################################################
 /* we also need some functions to test the -sprocs option **/
 CREATE FUNCTION hello0() RETURNS char(20) RETURN 'hello0';

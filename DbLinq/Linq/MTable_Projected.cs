@@ -117,18 +117,6 @@ namespace DBLinq.Linq
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            ////occurs for GetQueryText()
-            //if (MContext.s_suppressSqlExecute)
-            //{
-            //    //we are doing GetQueryText
-            //    QueryProcessor.ProcessLambdas(_vars, typeof(T));
-            //    RowEnumerator<T> rowEnumerator = new RowEnumerator<T>(_vars, null);
-            //    return rowEnumerator.GetEnumerator();
-            //}
-            //else
-            //{
-            //    throw new ApplicationException("Not implemented");
-            //}
             throw new ApplicationException("Not implemented");
         }
 
