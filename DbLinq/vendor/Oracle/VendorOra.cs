@@ -41,5 +41,15 @@ namespace DBLinq.vendor
             return param;
         }
 
+        public static int ExecuteCommand(DBLinq.Linq.MContext context, string sql, params object[] parameters)
+        {
+            OracleConnection conn = context.SqlConnection;
+            using (OracleCommand command = new OracleCommand(sql, conn))
+            {
+                return command.ExecuteNonQuery();
+            }
+        }
+
+
     }
 }

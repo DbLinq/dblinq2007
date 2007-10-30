@@ -119,6 +119,15 @@ namespace DBLinq.vendor
 
         }
 
+        public static int ExecuteCommand(DBLinq.Linq.MContext context, string sql, params object[] parameters)
+        {
+            SqlConnection conn = context.SqlConnection;
+            using (SqlCommand command = new SqlCommand(sql, conn))
+            {
+                return command.ExecuteNonQuery();
+            }
+        }
+
         /// <summary>
         /// Client code needs to specify: 'Vendor.UserBulkInsert[db.Products]=true' to enable bulk insert.
         /// </summary>

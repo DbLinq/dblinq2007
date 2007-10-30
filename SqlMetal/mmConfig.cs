@@ -34,7 +34,11 @@ namespace SqlMetal
         /// convert table name 'products' to class 'Products'
         /// </summary>
         public static bool forceUcaseTableName = true;
-        public static bool forceUcaseFieldName = true;
+
+        /// <summary>
+        /// for mysql, we want to keep case as specified in DB.
+        /// </summary>
+        public static bool forceUcaseFieldName = false;
 
         /// <summary>
         /// rename object 'productid' to 'productID'?

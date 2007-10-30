@@ -57,7 +57,7 @@ namespace Test_NUnit
                 int entryCount = 0;
                 foreach(var c in g){
                     Assert.IsTrue(c.City!=null,"City must be non-null");
-                    Assert.IsTrue(c.CustomerID>0,"CustomerID must be > 0");
+                    Assert.IsTrue(c.CustomerID!=null,"CustomerID must be non-null");
                     entryCount++;
                 }
                 Assert.IsTrue(entryCount>0, "Must have some entries in group");
@@ -131,7 +131,7 @@ namespace Test_NUnit
             foreach(var g in q2){
                 int entryCount = 0;
                 foreach(var c in g){
-                    Assert.IsTrue(c>0,"CustomerID must be >0");
+                    Assert.IsTrue(c!=null,"CustomerID must be non-null");
                     entryCount++;
                 }
                 Assert.IsTrue(entryCount>0, "Must have some entries in group");

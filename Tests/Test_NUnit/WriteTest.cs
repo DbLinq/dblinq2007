@@ -46,7 +46,7 @@ namespace Test_NUnit
         {
             LinqTestDB db = CreateDB();
 
-            var q = from at in db.Alltypes where at.Int==1 select at;
+            var q = from at in db.Alltypes where at.int_==1 select at;
 
             Alltype row = q.First();
             DbLinq_EnumTest newValue = row.DbLinq_EnumTest == DbLinq_EnumTest.BB

@@ -107,10 +107,10 @@ namespace DbLinq.MySql.Example
             // SubmitChanges isn't clearing the client side transaction data
             Console.Clear();
             Console.WriteLine("db.Orders.Add(new Order { ProductID = 7, CustomerID = 1, OrderDate = DateTime.Now });");            
-            db.Orders.Add(new Order { ProductID = 7, CustomerID = 1, OrderDate = DateTime.Now });
+            db.Orders.Add(new Order { EmployeeID = 1, CustomerID = "ALFKI", OrderDate = DateTime.Now });
             db.SubmitChanges();
             Console.WriteLine("db.Orders.Add(new Order { ProductID = 2, CustomerID = 2, OrderDate = DateTime.Now });");
-            db.Orders.Add(new Order { ProductID = 2, CustomerID = 2, OrderDate = DateTime.Now });
+            db.Orders.Add(new Order { EmployeeID = 1, CustomerID = "ALFKI", OrderDate = DateTime.Now });
             db.SubmitChanges();
             foreach (var v in db.Orders)
                 ObjectDumper.Write(v);

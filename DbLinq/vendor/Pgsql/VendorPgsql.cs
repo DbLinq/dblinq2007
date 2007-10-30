@@ -222,5 +222,14 @@ namespace DBLinq.vendor
             return outParamValues;
         }
 
+        public static int ExecuteCommand(DBLinq.Linq.MContext context, string sql, params object[] parameters)
+        {
+            NpgsqlConnection conn = context.SqlConnection;
+            using (NpgsqlCommand command = new NpgsqlCommand(sql, conn))
+            {
+                return command.ExecuteNonQuery();
+            }
+        }
+
     }
 }
