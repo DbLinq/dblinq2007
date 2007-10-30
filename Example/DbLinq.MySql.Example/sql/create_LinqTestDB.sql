@@ -206,58 +206,59 @@ USE linqtestdb;
 ####################################################################
 ## populate tables with seed data
 ####################################################################
-truncate table Orders; -- must be truncated before Customer
-truncate table Customers;
+truncate table `linqtestdb`.`Orders`; -- must be truncated before Customer
+truncate table `linqtestdb`.`Customers`;
 
-insert Customers (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
+insert `linqtestdb`.`Customers` (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
 values ('AIRBU', 'airbus','jacques','France','10000','Paris');
-insert Customers (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
+insert `linqtestdb`.`Customers` (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
 values ('BT___','BT','graeme','U.K.','E14','London');
 
-insert Customers (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
+insert `linqtestdb`.`Customers` (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
 values ('ATT__','ATT','bob','USA','10021','New York');
-insert Customers (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
+insert `linqtestdb`.`Customers` (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
 values ('UKMOD', 'MOD','(secret)','U.K.','E14','London');
 
-insert Customers (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
+insert `linqtestdb`.`Customers` (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
 values ('ALFKI', 'Alfreds Futterkiste','Maria Anders','Sales Representative','Germany','12209','Berlin','030-0074321');
 
-insert Customers (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
+insert `linqtestdb`.`Customers` (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
 values ('WARTH', 'Wartian Herkku','Pirkko Koskitalo','Accounting Manager','Finland','90110','Oulu','981-443655');
 
-truncate table Orders; -- must be truncated before Products
-truncate table Products;
-/** WARNING: this actually inserts two 'Pen' rows into Products.
- could someone with knowledge of MySQL resolve this? */
-insert Products (ProductName,QuantityPerUnit) VALUES ('Pen',10);
-insert Products (ProductName,QuantityPerUnit) VALUES ('Bicycle',1);
-insert Products (ProductName,QuantityPerUnit) VALUES ('Phone',3);
-insert Products (ProductName,QuantityPerUnit) VALUES ('SAM',1);
-insert Products (ProductName,QuantityPerUnit) VALUES ('iPod',0);
-insert Products (ProductName,QuantityPerUnit) VALUES ('Toilet Paper',2);
-insert Products (ProductName,QuantityPerUnit) VALUES ('Fork',5);
+truncate table `linqtestdb`.`Orders`; -- must be truncated before Products
+truncate table `linqtestdb`.`Products`;
+## WARNING: this actually inserts two 'Pen' rows into Products.
+## could someone with knowledge of MySQL resolve this?
+## Answer: upgrade to newer version of MySql Query Browser - the problem will go away
+insert `linqtestdb`.`Products` (ProductName,QuantityPerUnit) VALUES ('Pen',10);
+insert `linqtestdb`.`Products` (ProductName,QuantityPerUnit) VALUES ('Bicycle',1);
+insert `linqtestdb`.`Products` (ProductName,QuantityPerUnit) VALUES ('Phone',3);
+insert `linqtestdb`.`Products` (ProductName,QuantityPerUnit) VALUES ('SAM',1);
+insert `linqtestdb`.`Products` (ProductName,QuantityPerUnit) VALUES ('iPod',0);
+insert `linqtestdb`.`Products` (ProductName,QuantityPerUnit) VALUES ('Toilet Paper',2);
+insert `linqtestdb`.`Products` (ProductName,QuantityPerUnit) VALUES ('Fork',5);
 
-truncate table Employees;
-insert Employees (LastName,FistName,Title) VALUES ('Davolio','Nancy','Sales Representative')
+truncate table `linqtestdb`.`Employees`;
+insert `linqtestdb`.`Employees` (LastName,FirstName,Title) VALUES ('Davolio','Nancy','Sales Representative');
 
 ####################################################################
-truncate table Orders;
-insert Orders (CustomerID, EmployeeID, OrderDate)
+truncate table `linqtestdb`.`Orders`;
+insert `linqtestdb`.`Orders` (CustomerID, EmployeeID, OrderDate)
 Values (
   (Select CustomerID from Customers Where CompanyName='airbus')
 , 1, now());
 
-insert Orders (CustomerID, ProductID, OrderDate)
+insert `linqtestdb`.`Orders` (CustomerID, EmployeeID, OrderDate)
 Values (
   (Select CustomerID from Customers Where CompanyName='BT')
 , 1, now());
 
-insert Orders (CustomerID, ProductID, OrderDate)
+insert `linqtestdb`.`Orders` (CustomerID, EmployeeID, OrderDate)
 Values (
   (Select CustomerID from Customers Where CompanyName='BT')
 , 1, now());
 
-insert Orders (CustomerID, ProductID, OrderDate)
+insert `linqtestdb`.`Orders` (CustomerID, EmployeeID, OrderDate)
 Values (
   (Select CustomerID from Customers Where CompanyName='MOD')
 , 1, now());
