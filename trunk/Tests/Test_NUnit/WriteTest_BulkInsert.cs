@@ -21,10 +21,10 @@ namespace Test_NUnit
 
             DBLinq.vendor.Vendor.UseBulkInsert[db.Products] = 3; //insert three rows at a time
 
-            db.Products.Add(new Product(0, "tmp_ProductA", 0, 0, "00"));
-            db.Products.Add(new Product(0, "tmp_ProductB", 0, 0, "11"));
-            db.Products.Add(new Product(0, "tmp_ProductC", 0, 0, "22"));
-            db.Products.Add(new Product(0, "tmp_ProductD", 0, 0, "33"));
+            db.Products.Add(new Product(0, "tmp_ProductA", 0, 0, "00", 1M, null, 1, 2, false));
+            db.Products.Add(new Product(0, "tmp_ProductB", 0, 0, "11", 1M, null, 1, 2, false));
+            db.Products.Add(new Product(0, "tmp_ProductC", 0, 0, "22", 1M, null, 1, 2, false));
+            db.Products.Add(new Product(0, "tmp_ProductD", 0, 0, "33", 1M, null, 1, 2, false));
             db.SubmitChanges();
 
             //confirm that we indeed inserted four rows:

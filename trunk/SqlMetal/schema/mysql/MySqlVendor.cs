@@ -311,6 +311,8 @@ namespace SqlMetal.schema.mysql
             //TODO: allow customized tableName-className mappings from an XML file
             name2 = name2.Singularize();
 
+            name2 = name2.Replace(" ", ""); // "Order Details" -> "OrderDetails"
+
             return name2;
         }
 

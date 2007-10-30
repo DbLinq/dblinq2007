@@ -1,4 +1,4 @@
-DROP DATABASE IF EXISTS `linqtestdb`;
+﻿DROP DATABASE IF EXISTS `linqtestdb`;
 
 CREATE DATABASE `linqtestdb`;
 
@@ -17,29 +17,40 @@ FLUSH PRIVILEGES;
 */
 
 
+####################################################################
 CREATE TABLE `linqtestdb`.`Products` (
   `ProductID` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
   `ProductName` VARCHAR(45) NOT NULL DEFAULT '',
   `SupplierID` INTEGER UNSIGNED NOT NULL DEFAULT 0,
   `CategoryID` INTEGER UNSIGNED NOT NULL DEFAULT 0,
   `QuantityPerUnit` VARCHAR(20) NOT NULL DEFAULT '',
+  `UnitPrice` DECIMAL NULL,
+  `UnitsInStock` SMALLINT NULL,
+  `UnitsOnOrder` SMALLINT NULL,
+  `ReorderLevel` SMALLINT NULL,
+  `Discontinued` BIT NULL,
   PRIMARY KEY(`ProductID`)
 )
 ENGINE = InnoDB
 COMMENT = 'Holds Products';
 
-CREATE TABLE `linqtestdb`.`Customer` (
+CREATE TABLE `linqtestdb`.`Customers` (
   `CustomerID` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
-  `CompanyName` VARCHAR(45) NOT NULL DEFAULT '',
-  `ContactName` VARCHAR(45) NOT NULL DEFAULT '',
-  `City` VARCHAR(45) NOT NULL DEFAULT '',
-  `PostalCode` VARCHAR(20) NOT NULL DEFAULT '',
-  `Country` VARCHAR(45) NOT NULL DEFAULT '',
-  `Phone` VARCHAR(45) NULL DEFAULT '',
+  `CompanyName` VARCHAR(40) NOT NULL DEFAULT '',
+  `ContactName` VARCHAR(30) NULL,
+  `ContactTitle` VARCHAR(30) NULL,
+  `Address` VARCHAR(60) NULL,
+  `City` VARCHAR(15) NULL,
+  `Region` VARCHAR(15) NULL,
+  `PostalCode` VARCHAR(10) NULL,
+  `Country` VARCHAR(15) NULL,
+  `Phone` VARCHAR(24) NULL,
+  `Fax` VARCHAR(24) NULL,
   PRIMARY KEY(`CustomerID`)
 )
 ENGINE = InnoDB;
 
+####################################################################
 CREATE TABLE `linqtestdb`.`Orders` (
   `OrderID` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
   `CustomerID` INTEGER UNSIGNED NOT NULL DEFAULT 0,
@@ -50,7 +61,7 @@ CREATE TABLE `linqtestdb`.`Orders` (
 ENGINE = InnoDB;
 
 ALTER TABLE `linqtestdb`.`orders` ADD CONSTRAINT `FK_orders_1` FOREIGN KEY `FK_orders_1` (`CustomerID`)
-    REFERENCES `customer` (`CustomerID`)
+    REFERENCES `Customers` (`CustomerID`)
     ON DELETE RESTRICT
     ON UPDATE RESTRICT;
 
@@ -59,6 +70,58 @@ ALTER TABLE `linqtestdb`.`orders` ADD CONSTRAINT `FK_orders_prod` FOREIGN KEY `F
     ON DELETE RESTRICT
     ON UPDATE RESTRICT;
 
+####################################################################
+CREATE TABLE `linqtestdb`.`Order Details` (
+  `OrderID` INTEGER NOT NULL,
+  `ProductID` INTEGER NOT NULL,
+  `UnitPrice` DECIMAL NOT NULL,
+  `Quantity` SMALLINT NOT NULL,
+  `Discount` FLOAT NOT NULL,
+  PRIMARY KEY(`OrderID`,`ProductID`)
+)
+ENGINE = InnoDB;
+
+/*
+## Script line: 81	Can't create table 'linqtestdb.#sql-fc8_1' (errno: 150)
+ALTER TABLE `linqtestdb`.`Order Details` ADD CONSTRAINT `FK_ordersDetails_Ord` FOREIGN KEY `FK_ordersDetails_Ord` (`OrderID`)
+    REFERENCES `Orders` (`OrderID`)
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT;
+
+ALTER TABLE `linqtestdb`.`Order Details` ADD CONSTRAINT `FK_ordersDetails_Prod` FOREIGN KEY `FK_ordersDetails_Prod` (`ProductID`)
+    REFERENCES `products` (`ProductID`)
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT;
+*/
+
+####################################################################
+CREATE TABLE `linqtestdb`.`Employees` (
+  `EmployeeID` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+  `LastName` VARCHAR(20) NOT NULL,
+  `FirstName` VARCHAR(10) NOT NULL,
+  `Title` VARCHAR(30) NULL,
+  `HireDate` DATETIME NULL,
+  `HomePhone` VARCHAR(24) NULL,
+  `ReportsTo` INTEGER UNSIGNED NULL,
+  PRIMARY KEY(`EmployeeID`)
+)
+ENGINE = InnoDB;
+
+ALTER TABLE `linqtestdb`.`Employees` ADD CONSTRAINT `FK_Emp_ReportsToEmp` FOREIGN KEY `FK_Emp_ReportsToEmp` (`ReportsTo`)
+    REFERENCES `Employees` (`EmployeeID`)
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT;
+
+####################################################################
+CREATE TABLE `linqtestdb`.`Shippers` (
+  `ShipperID` INTEGER NOT NULL AUTO_INCREMENT,
+  `CompanyName` VARCHAR(40) NOT NULL,
+  `Phone` VARCHAR(24) NULL,
+  PRIMARY KEY(`ShipperID`)
+)
+ENGINE = InnoDB;
+
+####################################################################
 CREATE TABLE `linqtestdb`.`AllTypes` (
   `int` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
   `intN` INTEGER UNSIGNED,
@@ -96,17 +159,18 @@ COMMENT = 'Tests mapping of many MySQL types to CSharp types';
 
 USE linqtestdb;
 
+####################################################################
 truncate table Orders; -- must be truncated before Customer
-truncate table Customer;
+truncate table Customers;
 
-insert Customer (CompanyName,ContactName,Country,PostalCode,City)
+insert Customers (CompanyName,ContactName,Country,PostalCode,City)
 values ('airbus','jacques','France','10000','Paris');
-insert Customer (CompanyName,ContactName,Country,PostalCode,City)
+insert Customers (CompanyName,ContactName,Country,PostalCode,City)
 values ('BT','graeme','U.K.','E14','London');
 
-insert Customer (CompanyName,ContactName,Country,PostalCode,City)
+insert Customers (CompanyName,ContactName,Country,PostalCode,City)
 values ('ATT','bob','USA','10021','New York');
-insert Customer (CompanyName,ContactName,Country,PostalCode,City)
+insert Customers (CompanyName,ContactName,Country,PostalCode,City)
 values ('MOD','(secret)','U.K.','E14','London');
 
 truncate table Orders; -- must be truncated before Products
@@ -121,31 +185,33 @@ insert Products (ProductName,QuantityPerUnit) VALUES ('iPod',0);
 insert Products (ProductName,QuantityPerUnit) VALUES ('Toilet Paper',2);
 insert Products (ProductName,QuantityPerUnit) VALUES ('Fork',5);
 
+####################################################################
 truncate table Orders;
 insert Orders (CustomerID, ProductID, OrderDate)
 Values (
-  (Select CustomerID from Customer Where CompanyName='airbus')
+  (Select CustomerID from Customers Where CompanyName='airbus')
 , (Select ProductID from Products Where ProductName='Pen')
 , now());
 
 insert Orders (CustomerID, ProductID, OrderDate)
 Values (
-  (Select CustomerID from Customer Where CompanyName='BT')
+  (Select CustomerID from Customers Where CompanyName='BT')
 , (Select ProductID from Products Where ProductName='Phone')
 , now());
 
 insert Orders (CustomerID, ProductID, OrderDate)
 Values (
-  (Select CustomerID from Customer Where CompanyName='BT')
+  (Select CustomerID from Customers Where CompanyName='BT')
 , (Select ProductID from Products Where ProductName='Pen')
 , now());
 
 insert Orders (CustomerID, ProductID, OrderDate)
 Values (
-  (Select CustomerID from Customer Where CompanyName='MOD')
+  (Select CustomerID from Customers Where CompanyName='MOD')
 , (Select ProductID from Products Where ProductName='SAM')
 , now());
 
+####################################################################
 INSERT INTO linqtestdb.alltypes (
                `intN` ,
   `double` ,   `doubleN` ,
@@ -179,6 +245,7 @@ VALUES(         null,
   16000,        null, /*smallInt*/
   1);
 
+####################################################################
 /* we also need some functions to test the -sprocs option **/
 CREATE FUNCTION hello0() RETURNS char(20) RETURN 'hello0';
 CREATE FUNCTION hello1(s CHAR(20)) RETURNS char(30) RETURN CONCAT('Hello, ',s,'!');

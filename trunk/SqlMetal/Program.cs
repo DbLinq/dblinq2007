@@ -83,6 +83,7 @@ namespace SqlMetal
                         , mmConfig.server, mmConfig.user, mmConfig.password, mmConfig.database);
 
                     dbSchema = vendor.LoadSchema();
+                    SchemaPostprocess.PostProcess_DB(dbSchema);
                 }
                 else
                 {

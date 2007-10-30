@@ -145,6 +145,13 @@ namespace DBLinq.Linq
 #else
         //ExecuteMethodCall for Postgres, Oracle: coming later
 #endif
+        /// <summary>
+        /// conflict detection is not implemented!
+        /// </summary>
+        public List<System.Data.Linq.ObjectChangeConflict> ChangeConflicts
+        {
+            get { throw new NotImplementedException(); }
+        }
     }
 
     /// <summary>

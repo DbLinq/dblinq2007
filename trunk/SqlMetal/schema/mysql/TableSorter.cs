@@ -68,12 +68,14 @@ namespace SqlMetal.schema.mysql
 
         public int Compare(TableRow a,TableRow b)
         {
-            foreach(TableRow aChild in a.EnumChildTables(0))
+            Dictionary<TableRow, bool> visitedMapA = new Dictionary<TableRow, bool>();
+            foreach (TableRow aChild in a.EnumChildTables(visitedMapA))
             {
                 if(aChild==b)
                     return +1;
             }
-            foreach(TableRow bChild in b.EnumChildTables(0))
+            Dictionary<TableRow, bool> visitedMapB = new Dictionary<TableRow, bool>();
+            foreach (TableRow bChild in b.EnumChildTables(visitedMapB))
             {
                 if(bChild==a)
                     return -1;
