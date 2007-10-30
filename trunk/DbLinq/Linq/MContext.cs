@@ -52,7 +52,6 @@ namespace DBLinq.Linq
     {
         //readonly List<MTable> tableList = new List<MTable>();//MTable requires 1 type arg
         readonly List<IMTable> _tableList = new List<IMTable>();
-        //internal static bool s_suppressSqlExecute = false;
         System.IO.TextWriter _log;
 
         readonly string _sqlConnString;
@@ -72,6 +71,11 @@ namespace DBLinq.Linq
 
         public string SqlConnString { get { return _sqlConnString; } }
 
+        public bool DatabaseExists()
+        {
+            throw new NotImplementedException();
+        }
+
         public void RegisterChild(IMTable table)
         {
             _tableList.Add(table);
@@ -85,6 +89,16 @@ namespace DBLinq.Linq
             {
                 tbl.SaveAll();
             }
+        }
+
+        /// <summary>
+        /// TODO: Not implemented
+        /// </summary>
+        /// <param name="failureMode"></param>
+        [Obsolete("NOT IMPLEMENTED YET")]
+        public virtual void SubmitChanges(System.Data.Linq.ConflictMode failureMode)
+        {
+            throw new NotImplementedException();
         }
 
         #region Debugging Support
@@ -101,18 +115,8 @@ namespace DBLinq.Linq
                 return queryText1.GetQueryText(); //so far, MTable_Projected has been updated to use this path
 
             return "ERROR L78 Unexpected type:" + query;
-
-            //s_suppressSqlExecute = true; //TODO: get rid of this boolean flag
-            //IEnumerator rowEnum1 = query.GetEnumerator();
-            //s_suppressSqlExecute = false;
-            ////MySql.util.RowEnumerator<T> rowEnum2 = rowEnum1 as MySql.util.RowEnumerator<T>;
-            //IQueryText rowEnum2 = rowEnum1 as IQueryText;
-            //if(rowEnum2==null)
-            //    return "ERROR L78 Unexpected type:"+rowEnum1;
-
-            //string queryText = rowEnum2.GetQueryText();
-            //return queryText;
         }
+
         /// <summary>
         /// FA: Returns the text of SQL commands for insert/update/delete without executing them
         /// </summary>
@@ -146,11 +150,31 @@ namespace DBLinq.Linq
         //ExecuteMethodCall for Postgres, Oracle: coming later
 #endif
         /// <summary>
-        /// conflict detection is not implemented!
+        /// TODO: conflict detection is not implemented!
         /// </summary>
+        [Obsolete("NOT IMPLEMENTED YET")]
         public List<System.Data.Linq.ObjectChangeConflict> ChangeConflicts
         {
             get { throw new NotImplementedException(); }
+        }
+
+        /// <summary>
+        /// TODO: ExecuteCommand to call raw SQL
+        /// </summary>
+        [Obsolete("NOT IMPLEMENTED YET")]
+        public int ExecuteCommand(string command, params object[] parameters)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// TODO: DataLoadOptions ds = new DataLoadOptions(); ds.LoadWith<Customer>(p => p.Orders);
+        /// </summary>
+        [Obsolete("NOT IMPLEMENTED YET")]
+        public System.Data.Linq.DataLoadOptions LoadOptions
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
         }
     }
 
