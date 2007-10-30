@@ -41,6 +41,11 @@ namespace SqlMetal.schema.mysql
     /// </summary>
     class Vendor : IDBVendor
     {
+        public Vendor()
+        {
+            mmConfig.forceUcaseFieldName = false;
+        }
+
         public string VendorName(){ return "MySql"; }
 
         /// <summary>
@@ -105,11 +110,10 @@ namespace SqlMetal.schema.mysql
                 if (CSharp.IsValueType(colSchema.Type) && columnRow.isNullable)
                     colSchema.Type += "?";
                 
-                //determine the c# field name
-                colSchema.Member = CSharp.IsCsharpKeyword(columnRow.column_name) 
-                    ? columnRow.column_name+"_" //avoid keyword conflict - append underscore
+                //determine the c# field name - this may be changed in SchemaPostprocess
+                colSchema.Member = mmConfig.forceUcaseFieldName
+                    ? Util.Capitalize(columnRow.column_name)
                     : columnRow.column_name;
-
 
                 //tableSchema.Types[0].Columns.Add(colSchema);
                 tableSchema.Type.Columns.Add(colSchema);

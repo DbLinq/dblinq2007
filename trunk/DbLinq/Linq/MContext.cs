@@ -159,12 +159,11 @@ namespace DBLinq.Linq
         }
 
         /// <summary>
-        /// TODO: ExecuteCommand to call raw SQL
+        /// use ExecuteCommand to call raw SQL
         /// </summary>
-        [Obsolete("NOT IMPLEMENTED YET")]
         public int ExecuteCommand(string command, params object[] parameters)
         {
-            throw new NotImplementedException();
+            return vendor.Vendor.ExecuteCommand(this, command, parameters);
         }
 
         /// <summary>

@@ -24,6 +24,7 @@ namespace Client2.user
 		public LinqTestDB(string connStr):base(connStr)
 		{
 			Alltypes = new MTable<Alltype>(this);
+			Categories = new MTable<Categorie>(this);
 			Customers = new MTable<Customer>(this);
 			Employees = new MTable<Employee>(this);
 			OrderDetails = new MTable<OrderDetail>(this);
@@ -37,6 +38,7 @@ namespace Client2.user
 		//these fields represent tables in database and are
 		//ordered - parent tables first, child tables next. Do not change the order.
 		public readonly MTable<Alltype> Alltypes;
+		public readonly MTable<Categorie> Categories;
 		public readonly MTable<Customer> Customers;
 		public readonly MTable<Employee> Employees;
 		public readonly MTable<OrderDetail> OrderDetails;
@@ -48,7 +50,7 @@ namespace Client2.user
 	
 			
 		[FunctionEx(Name = "getOrderCount", ProcedureOrFunction = "FUNCTION")]	
-		public int getOrderCount([Parameter(Name = "custId", DbType = "INT UNSIGNED")] uint custId)	
+		public int getOrderCount([Parameter(Name = "custId", DbType = "VARCHAR(5)")] string custId)	
 		{	
 			IExecuteResult result = base.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), custId);	
 			return (int)result.ReturnValue;	
@@ -496,13 +498,107 @@ namespace Client2.user
 	
 	
 	
+	[Table(Name = "categories")]
+	public partial class Categorie : IModified
+	{
+		public bool IsModified { get; set; }
+	
+		[DBLinq.Linq.Mapping.AutoGenId] 
+		protected int _CategoryID;
+	
+		protected string _CategoryName;
+	
+		protected string _Description;
+	
+		protected byte[] _Picture;
+	
+		
+		#region costructors
+		public Categorie()
+		{
+		}
+		public Categorie(int CategoryID,string CategoryName,string Description,byte[] Picture)
+		{
+		    this._CategoryID = CategoryID;
+		this._CategoryName = CategoryName;
+		this._Description = Description;
+		this._Picture = Picture;
+		}
+		#endregion
+		
+	
+		#region properties - accessors
+	
+		[Column(Name = "CategoryID", DbType = "int", IsPrimaryKey = true, IsDbGenerated = true)]
+		[DebuggerNonUserCode]
+		public int CategoryID
+		{
+		    get { return _CategoryID; }
+		    set { _CategoryID = value; IsModified = true; }
+		}
+		
+	
+		[Column(Name = "CategoryName", DbType = "varchar", CanBeNull = false)]
+		[DebuggerNonUserCode]
+		public string CategoryName
+		{
+		    get { return _CategoryName; }
+		    set { _CategoryName = value; IsModified = true; }
+		}
+		
+	
+		[Column(Name = "Description", DbType = "text", CanBeNull = true)]
+		[DebuggerNonUserCode]
+		public string Description
+		{
+		    get { return _Description; }
+		    set { _Description = value; IsModified = true; }
+		}
+		
+	
+		[Column(Name = "Picture", DbType = "blob", CanBeNull = true)]
+		[DebuggerNonUserCode]
+		public byte[] Picture
+		{
+		    get { return _Picture; }
+		    set { _Picture = value; IsModified = true; }
+		}
+		
+	#endregion
+		
+		#region GetHashCode(),Equals() - uses column _CategoryID to look up objects in liveObjectMap
+		//TODO: move this logic our of user code, into a generated class
+		public override int GetHashCode()
+		{
+			return _CategoryID.GetHashCode();
+		}
+		public override bool Equals(object obj)
+		{
+			Categorie o2 = obj as Categorie;
+			if(o2==null)
+				return false;
+			return _CategoryID.Equals(o2._CategoryID);
+		}
+		#endregion
+	
+		
+		[Association(Storage = "null", OtherKey = "CategoryID", Name = "FK_prod_catg")]
+		public EntityMSet<Product> Products
+		{
+		    get { return null; } //L212 - child data available only when part of query
+		}
+		
+	}
+	
+	
+	
 	[Table(Name = "customers")]
 	public partial class Customer : IModified
 	{
 		public bool IsModified { get; set; }
 	
-		[DBLinq.Linq.Mapping.AutoGenId] 
-		protected uint _CustomerID;
+		
+		protected string _CustomerID;
 	
 		protected string _CompanyName;
 	
@@ -529,7 +625,7 @@ namespace Client2.user
 		public Customer()
 		{
 		}
-		public Customer(uint CustomerID,string CompanyName,string ContactName,string ContactTitle,string Address,string City,string Region,string PostalCode,string Country,string Phone,string Fax)
+		public Customer(string CustomerID,string CompanyName,string ContactName,string ContactTitle,string Address,string City,string Region,string PostalCode,string Country,string Phone,string Fax)
 		{
 		    this._CustomerID = CustomerID;
 		this._CompanyName = CompanyName;
@@ -548,9 +644,9 @@ namespace Client2.user
 	
 		#region properties - accessors
 	
-		[Column(Name = "CustomerID", DbType = "int", IsPrimaryKey = true, IsDbGenerated = true)]
+		[Column(Name = "CustomerID", DbType = "varchar", IsPrimaryKey = true)]
 		[DebuggerNonUserCode]
-		public uint CustomerID
+		public string CustomerID
 		{
 		    get { return _CustomerID; }
 		    set { _CustomerID = value; IsModified = true; }
@@ -800,6 +896,12 @@ namespace Client2.user
 		    get { return null; } //L212 - child data available only when part of query
 		}
 		
+		[Association(Storage = "null", OtherKey = "EmployeeID", Name = "FK_orders_emp")]
+		public EntityMSet<Order> Orders
+		{
+		    get { return null; } //L212 - child data available only when part of query
+		}
+		
 		private EntityRef<Employee> _Employee;    
 		
 		[Association(Storage="_Employee", ThisKey="ReportsTo", Name="FK_Emp_ReportsToEmp")]
@@ -821,7 +923,7 @@ namespace Client2.user
 		
 		protected int _OrderID;
 	
-		protected int _ProductID;
+		protected uint _ProductID;
 	
 		protected decimal _UnitPrice;
 	
@@ -834,7 +936,7 @@ namespace Client2.user
 		public OrderDetail()
 		{
 		}
-		public OrderDetail(int OrderID,int ProductID,decimal UnitPrice,short Quantity,float Discount)
+		public OrderDetail(int OrderID,uint ProductID,decimal UnitPrice,short Quantity,float Discount)
 		{
 		    this._OrderID = OrderID;
 		this._ProductID = ProductID;
@@ -858,7 +960,7 @@ namespace Client2.user
 	
 		[Column(Name = "ProductID", DbType = "int", IsPrimaryKey = true)]
 		[DebuggerNonUserCode]
-		public int ProductID
+		public uint ProductID
 		{
 		    get { return _ProductID; }
 		    set { _ProductID = value; IsModified = true; }
@@ -910,6 +1012,25 @@ namespace Client2.user
 	
 		
 		
+		private EntityRef<Order> _Order;    
+		
+		[Association(Storage="_Order", ThisKey="OrderID", Name="FK_ordersDetails_Ord")]
+		[DebuggerNonUserCode]
+		public Order Order {
+			get { return this._Order.Entity; }
+			set { this._Order.Entity = value; }
+		}
+		
+		
+		private EntityRef<Product> _Product;    
+		
+		[Association(Storage="_Product", ThisKey="ProductID", Name="FK_ordersDetails_Prod")]
+		[DebuggerNonUserCode]
+		public Product Product {
+			get { return this._Product.Entity; }
+			set { this._Product.Entity = value; }
+		}
+		
 	}
 	
 	
@@ -920,25 +1041,43 @@ namespace Client2.user
 		public bool IsModified { get; set; }
 	
 		[DBLinq.Linq.Mapping.AutoGenId] 
-		protected uint _OrderID;
+		protected int _OrderID;
 	
-		protected uint _CustomerID;
+		protected string _CustomerID;
 	
-		protected uint _ProductID;
+		protected uint? _EmployeeID;
 	
-		protected DateTime _OrderDate;
+		protected DateTime? _OrderDate;
+	
+		protected decimal _Freight;
+	
+		protected string _ShipName;
+	
+		protected string _ShipAddress;
+	
+		protected string _ShipCity;
+	
+		protected string _ShipRegion;
+	
+		protected string _ShipPostalCode;
 	
 		
 		#region costructors
 		public Order()
 		{
 		}
-		public Order(uint OrderID,uint CustomerID,uint ProductID,DateTime OrderDate)
+		public Order(int OrderID,string CustomerID,uint? EmployeeID,DateTime? OrderDate,decimal Freight,string ShipName,string ShipAddress,string ShipCity,string ShipRegion,string ShipPostalCode)
 		{
 		    this._OrderID = OrderID;
 		this._CustomerID = CustomerID;
-		this._ProductID = ProductID;
+		this._EmployeeID = EmployeeID;
 		this._OrderDate = OrderDate;
+		this._Freight = Freight;
+		this._ShipName = ShipName;
+		this._ShipAddress = ShipAddress;
+		this._ShipCity = ShipCity;
+		this._ShipRegion = ShipRegion;
+		this._ShipPostalCode = ShipPostalCode;
 		}
 		#endregion
 		
@@ -947,37 +1086,91 @@ namespace Client2.user
 	
 		[Column(Name = "OrderID", DbType = "int", IsPrimaryKey = true, IsDbGenerated = true)]
 		[DebuggerNonUserCode]
-		public uint OrderID
+		public int OrderID
 		{
 		    get { return _OrderID; }
 		    set { _OrderID = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name = "CustomerID", DbType = "int", CanBeNull = false)]
+		[Column(Name = "CustomerID", DbType = "varchar", CanBeNull = true)]
 		[DebuggerNonUserCode]
-		public uint CustomerID
+		public string CustomerID
 		{
 		    get { return _CustomerID; }
 		    set { _CustomerID = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name = "ProductID", DbType = "int", CanBeNull = false)]
+		[Column(Name = "EmployeeID", DbType = "int", CanBeNull = true)]
 		[DebuggerNonUserCode]
-		public uint ProductID
+		public uint? EmployeeID
 		{
-		    get { return _ProductID; }
-		    set { _ProductID = value; IsModified = true; }
+		    get { return _EmployeeID; }
+		    set { _EmployeeID = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name = "OrderDate", DbType = "datetime", CanBeNull = false)]
+		[Column(Name = "OrderDate", DbType = "datetime", CanBeNull = true)]
 		[DebuggerNonUserCode]
-		public DateTime OrderDate
+		public DateTime? OrderDate
 		{
 		    get { return _OrderDate; }
 		    set { _OrderDate = value; IsModified = true; }
+		}
+		
+	
+		[Column(Name = "Freight", DbType = "decimal", CanBeNull = true)]
+		[DebuggerNonUserCode]
+		public decimal Freight
+		{
+		    get { return _Freight; }
+		    set { _Freight = value; IsModified = true; }
+		}
+		
+	
+		[Column(Name = "ShipName", DbType = "varchar", CanBeNull = true)]
+		[DebuggerNonUserCode]
+		public string ShipName
+		{
+		    get { return _ShipName; }
+		    set { _ShipName = value; IsModified = true; }
+		}
+		
+	
+		[Column(Name = "ShipAddress", DbType = "varchar", CanBeNull = true)]
+		[DebuggerNonUserCode]
+		public string ShipAddress
+		{
+		    get { return _ShipAddress; }
+		    set { _ShipAddress = value; IsModified = true; }
+		}
+		
+	
+		[Column(Name = "ShipCity", DbType = "varchar", CanBeNull = true)]
+		[DebuggerNonUserCode]
+		public string ShipCity
+		{
+		    get { return _ShipCity; }
+		    set { _ShipCity = value; IsModified = true; }
+		}
+		
+	
+		[Column(Name = "ShipRegion", DbType = "varchar", CanBeNull = true)]
+		[DebuggerNonUserCode]
+		public string ShipRegion
+		{
+		    get { return _ShipRegion; }
+		    set { _ShipRegion = value; IsModified = true; }
+		}
+		
+	
+		[Column(Name = "ShipPostalCode", DbType = "varchar", CanBeNull = true)]
+		[DebuggerNonUserCode]
+		public string ShipPostalCode
+		{
+		    get { return _ShipPostalCode; }
+		    set { _ShipPostalCode = value; IsModified = true; }
 		}
 		
 	#endregion
@@ -998,6 +1191,11 @@ namespace Client2.user
 		#endregion
 	
 		
+		[Association(Storage = "null", OtherKey = "OrderID", Name = "FK_ordersDetails_Ord")]
+		public EntityMSet<OrderDetail> OrderDetails
+		{
+		    get { return null; } //L212 - child data available only when part of query
+		}
 		
 		private EntityRef<Customer> _Customer;    
 		
@@ -1009,13 +1207,13 @@ namespace Client2.user
 		}
 		
 		
-		private EntityRef<Product> _Product;    
+		private EntityRef<Employee> _Employee;    
 		
-		[Association(Storage="_Product", ThisKey="ProductID", Name="FK_orders_prod")]
+		[Association(Storage="_Employee", ThisKey="EmployeeID", Name="FK_orders_emp")]
 		[DebuggerNonUserCode]
-		public Product Product {
-			get { return this._Product.Entity; }
-			set { this._Product.Entity = value; }
+		public Employee Employee {
+			get { return this._Employee.Entity; }
+			set { this._Employee.Entity = value; }
 		}
 		
 	}
@@ -1032,9 +1230,9 @@ namespace Client2.user
 	
 		protected string _ProductName;
 	
-		protected uint _SupplierID;
+		protected uint? _SupplierID;
 	
-		protected uint _CategoryID;
+		protected int? _CategoryID;
 	
 		protected string _QuantityPerUnit;
 	
@@ -1053,7 +1251,7 @@ namespace Client2.user
 		public Product()
 		{
 		}
-		public Product(uint ProductID,string ProductName,uint SupplierID,uint CategoryID,string QuantityPerUnit,decimal UnitPrice,short? UnitsInStock,short? UnitsOnOrder,short? ReorderLevel,bool? Discontinued)
+		public Product(uint ProductID,string ProductName,uint? SupplierID,int? CategoryID,string QuantityPerUnit,decimal UnitPrice,short? UnitsInStock,short? UnitsOnOrder,short? ReorderLevel,bool? Discontinued)
 		{
 		    this._ProductID = ProductID;
 		this._ProductName = ProductName;
@@ -1089,25 +1287,25 @@ namespace Client2.user
 		}
 		
 	
-		[Column(Name = "SupplierID", DbType = "int", CanBeNull = false)]
+		[Column(Name = "SupplierID", DbType = "int", CanBeNull = true)]
 		[DebuggerNonUserCode]
-		public uint SupplierID
+		public uint? SupplierID
 		{
 		    get { return _SupplierID; }
 		    set { _SupplierID = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name = "CategoryID", DbType = "int", CanBeNull = false)]
+		[Column(Name = "CategoryID", DbType = "int", CanBeNull = true)]
 		[DebuggerNonUserCode]
-		public uint CategoryID
+		public int? CategoryID
 		{
 		    get { return _CategoryID; }
 		    set { _CategoryID = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name = "QuantityPerUnit", DbType = "varchar", CanBeNull = false)]
+		[Column(Name = "QuantityPerUnit", DbType = "varchar", CanBeNull = true)]
 		[DebuggerNonUserCode]
 		public string QuantityPerUnit
 		{
@@ -1178,10 +1376,19 @@ namespace Client2.user
 		#endregion
 	
 		
-		[Association(Storage = "null", OtherKey = "ProductID", Name = "FK_orders_prod")]
-		public EntityMSet<Order> Orders
+		[Association(Storage = "null", OtherKey = "ProductID", Name = "FK_ordersDetails_Prod")]
+		public EntityMSet<OrderDetail> OrderDetails
 		{
 		    get { return null; } //L212 - child data available only when part of query
+		}
+		
+		private EntityRef<Categorie> _Categorie;    
+		
+		[Association(Storage="_Categorie", ThisKey="CategoryID", Name="FK_prod_catg")]
+		[DebuggerNonUserCode]
+		public Categorie Categorie {
+			get { return this._Categorie.Entity; }
+			set { this._Categorie.Entity = value; }
 		}
 		
 	}

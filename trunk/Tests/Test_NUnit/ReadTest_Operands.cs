@@ -42,34 +42,34 @@ namespace Test_NUnit
         {
             LinqTestDB db = CreateDB();
 
-            var q = db.Products.Where(p => p.ProductID >= 20);
+            var q = db.Products.Where(p => p.ProductID >= 5);
             int count = 0;
             foreach (Product p in q)
             {
-                Assert.IsTrue(p.ProductID >= 20, "Failed on ProductID>=20");
+                Assert.IsTrue(p.ProductID >= 5, "Failed on ProductID>=20");
                 count++;
             }
-            Assert.IsTrue(count > 0, "Expected some products with ProductID>=20, got none");
+            Assert.IsTrue(count > 0, "Expected some products with ProductID>=5, got none");
         }
 
         public struct ProductWrapper1
         {
             public xint ProductID { get; set; }
-            public xint SupplierID { get; set; }
+            public xint? SupplierID { get; set; }
         }
 
         public class ProductWrapper2
         {
             public xint ProductID { get; set; }
-            public xint SupplierID { get; set; }
+            public xint? SupplierID { get; set; }
         }
 
         public class ProductWrapper3
         {
             public xint ProductID { get; set; }
-            public xint SupplierID { get; set; }
-            public ProductWrapper3(xint p, xint s) { ProductID = p; SupplierID = s; }
-            public ProductWrapper3(xint p, xint s, bool unused) { ProductID = p; SupplierID = s; }
+            public xint? SupplierID { get; set; }
+            public ProductWrapper3(xint p, xint? s) { ProductID = p; SupplierID = s; }
+            public ProductWrapper3(xint p, xint? s, bool unused) { ProductID = p; SupplierID = s; }
         }
 
         [Test]
@@ -77,15 +77,15 @@ namespace Test_NUnit
         {
             LinqTestDB db = CreateDB();
             var q = from p in db.Products
-                    where p.ProductID > 20
+                    where p.ProductID > 5
                     select new ProductWrapper1 { ProductID = p.ProductID, SupplierID = p.SupplierID };
             int count = 0;
             foreach (ProductWrapper1 p in q)
             {
-                Assert.IsTrue(p.ProductID > 20, "Failed on ProductID>=20");
+                Assert.IsTrue(p.ProductID > 5, "Failed on ProductID>=20");
                 count++;
             }
-            Assert.IsTrue(count > 0, "Expected some products with ProductID>=20, got none");
+            Assert.IsTrue(count > 0, "Expected some products with ProductID>5, got none");
         }
 
         [Test]
@@ -93,15 +93,15 @@ namespace Test_NUnit
         {
             LinqTestDB db = CreateDB();
             var q = from p in db.Products
-                    where p.ProductID > 20
+                    where p.ProductID > 5
                     select new ProductWrapper2 { ProductID = p.ProductID, SupplierID = p.SupplierID };
             int count = 0;
             foreach (ProductWrapper2 p in q)
             {
-                Assert.IsTrue(p.ProductID > 20, "Failed on ProductID>=20");
+                Assert.IsTrue(p.ProductID > 5, "Failed on ProductID>=20");
                 count++;
             }
-            Assert.IsTrue(count > 0, "Expected some products with ProductID>=20, got none");
+            Assert.IsTrue(count > 0, "Expected some products with ProductID>5, got none");
         }
 
         [Test]
@@ -109,15 +109,15 @@ namespace Test_NUnit
         {
             LinqTestDB db = CreateDB();
             var q = from p in db.Products
-                    where p.ProductID > 20
+                    where p.ProductID > 5
                     select new ProductWrapper3 ( p.ProductID, p.SupplierID );
             int count = 0;
             foreach (ProductWrapper3 p in q)
             {
-                Assert.IsTrue(p.ProductID > 20, "Failed on ProductID>=20");
+                Assert.IsTrue(p.ProductID > 5, "Failed on ProductID>=20");
                 count++;
             }
-            Assert.IsTrue(count > 0, "Expected some products with ProductID>=20, got none");
+            Assert.IsTrue(count > 0, "Expected some products with ProductID>5, got none");
         }
 
         [Test]

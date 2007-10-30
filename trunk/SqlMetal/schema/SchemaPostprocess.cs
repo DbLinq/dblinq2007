@@ -24,6 +24,9 @@ namespace SqlMetal.schema
         {
             foreach (DlinqSchema.Column col in table.Type.Columns)
             {
+                if (CSharp.IsCsharpKeyword(col.Member))
+                    col.Member += "_"; //rename column 'int' -> 'int_'
+
                 if (col.Member == table.Type.Name)
                     col.Name = "Contents"; //rename field Alltypes.Alltypes to Alltypes.Contents
             }

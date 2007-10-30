@@ -290,6 +290,14 @@ namespace DBLinq.vendor
             return outParamValues;
         }
 
+        public static int ExecuteCommand(DBLinq.Linq.MContext context, string sql, params object[] parameters)
+        {
+            MySql.Data.MySqlClient.MySqlConnection conn = context.SqlConnection;
+            using (MySqlCommand command = new MySqlCommand(sql, conn))
+            {
+                return command.ExecuteNonQuery();
+            }
+        }
     }
 
 }
