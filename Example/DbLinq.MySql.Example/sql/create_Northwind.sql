@@ -301,24 +301,16 @@ insert INTO `Northwind`.`Employees` (LastName,FirstName,Title) VALUES ('Davolio'
 ####################################################################
 truncate table `Northwind`.`Orders`;
 insert `Northwind`.`Orders` (CustomerID, EmployeeID, OrderDate)
-Values (
-  (Select CustomerID from Customers Where CompanyName='airbus')
-, 1, now());
+Values ('AIRBU', 1, now());
 
 insert `Northwind`.`Orders` (CustomerID, EmployeeID, OrderDate)
-Values (
-  (Select CustomerID from Customers Where CompanyName='BT')
-, 1, now());
+Values ('BT___', 1, now());
 
 insert `Northwind`.`Orders` (CustomerID, EmployeeID, OrderDate)
-Values (
-  (Select CustomerID from Customers Where CompanyName='BT')
-, 1, now());
+Values ('BT___', 1, now());
 
 insert `Northwind`.`Orders` (CustomerID, EmployeeID, OrderDate)
-Values (
-  (Select CustomerID from Customers Where CompanyName='MOD')
-, 1, now());
+Values ('UKMOD', 1, now());
 
 ####################################################################
 INSERT INTO `Northwind`.alltypes (
