@@ -26,7 +26,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -69,6 +69,7 @@
     <Compile Include="schema\pgsql\Pg_Proc_Sql.cs" />
     <Compile Include="schema\pgsql\TableSorter.cs" />
     <Compile Include="schema\pgsql\TableSql.cs" />
+    <Compile Include="schema\SchemaPostprocess.cs" />
     <Compile Include="util\Util.cs" />
   </ItemGroup>
   <ItemGroup>

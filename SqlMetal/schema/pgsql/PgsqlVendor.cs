@@ -69,12 +69,12 @@ namespace SqlMetal.schema.pgsql
                 return null;
             }
 
-            foreach(TableRow tblRow in tables)
+            foreach (TableRow tblRow in tables)
             {
                 DlinqSchema.Table tblSchema = new DlinqSchema.Table();
                 tblSchema.Name = tblRow.table_name;
-                tblSchema.Member = FormatTableName(tblRow.table_name).Pluralize();
-                tblSchema.Type.Name = FormatTableName(tblRow.table_name);
+                tblSchema.Member = Util.FormatTableName(tblRow.table_name, false).Pluralize();
+                tblSchema.Type.Name = Util.FormatTableName(tblRow.table_name, true);
                 schema.Tables.Add(tblSchema);
             }
 
@@ -162,14 +162,14 @@ namespace SqlMetal.schema.pgsql
                     assoc.Name = keyColRow.constraint_name;
                     //assoc.Type = keyColRow.referenced_table_name; //see below instead
                     assoc.ThisKey = keyColRow.column_name;
-                    assoc.Member = FormatTableName(foreignKey.table_name_Parent);
+                    assoc.Member = Util.FormatTableName(foreignKey.table_name_Parent, true);
                     table.Type.Associations.Add(assoc);
 
                     //and insert the reverse association:
                     DlinqSchema.Association assoc2 = new DlinqSchema.Association();
                     assoc2.Name = keyColRow.constraint_name;
                     assoc2.Type = table.Type.Name; //keyColRow.table_name;
-                    assoc2.Member = FormatTableName(keyColRow.table_name).Pluralize();
+                    assoc2.Member = Util.FormatTableName(keyColRow.table_name, false).Pluralize();
                     assoc2.OtherKey = keyColRow.column_name; //.referenced_column_name;
 
                     //DlinqSchema.Table parentTable = schema0.Tables.FirstOrDefault(t => keyColRow.referenced_table_name==t.Name);
@@ -302,21 +302,6 @@ namespace SqlMetal.schema.pgsql
             }
         }
 
-        public static string FormatTableName(string table_name)
-        {
-            //TODO: allow custom renames via config file - 
-            //- this could solve keyword conflict etc
-            string name1 = table_name;
-            string name2 = mmConfig.forceUcaseTableName
-                ? name1.Capitalize() //Char.ToUpper(name1[0])+name1.Substring(1)
-                : name1;
-
-            //heuristic to convert 'Products' table to class 'Product'
-            //TODO: allow customized tableName-className mappings from an XML file
-            name2 = name2.Singularize();
-
-            return name2;
-        }
 
     }
 }

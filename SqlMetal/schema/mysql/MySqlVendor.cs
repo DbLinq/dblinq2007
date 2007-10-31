@@ -77,8 +77,8 @@ namespace SqlMetal.schema.mysql
             {
                 DlinqSchema.Table tblSchema = new DlinqSchema.Table();
                 tblSchema.Name = tblRow.table_name;
-                tblSchema.Member = FormatTableName(tblRow.table_name, false).Pluralize();
-                tblSchema.Type.Name = FormatTableName(tblRow.table_name, true);
+                tblSchema.Member = Util.FormatTableName(tblRow.table_name, false).Pluralize();
+                tblSchema.Type.Name = Util.FormatTableName(tblRow.table_name, true);
                 schema.Tables.Add(tblSchema);
             }
 
@@ -158,14 +158,14 @@ namespace SqlMetal.schema.mysql
                     assoc.Name = keyColRow.constraint_name;
                     //assoc.Type = keyColRow.referenced_table_name; //see below instead
                     assoc.ThisKey = keyColRow.column_name;
-                    assoc.Member = FormatTableName(keyColRow.referenced_table_name, true);
+                    assoc.Member = Util.FormatTableName(keyColRow.referenced_table_name, true);
                     table.Type.Associations.Add(assoc);
 
                     //and insert the reverse association:
                     DlinqSchema.Association assoc2 = new DlinqSchema.Association();
                     assoc2.Name = keyColRow.constraint_name;
                     assoc2.Type = table.Type.Name; //keyColRow.table_name;
-                    assoc2.Member = FormatTableName(keyColRow.table_name, false).Pluralize();
+                    assoc2.Member = Util.FormatTableName(keyColRow.table_name, false).Pluralize();
                     assoc2.OtherKey = keyColRow.referenced_column_name;
 
                     DlinqSchema.Table parentTable = schema.Tables.FirstOrDefault(t => keyColRow.referenced_table_name == t.Name);
@@ -311,27 +311,6 @@ namespace SqlMetal.schema.mysql
             return dbTypeStr;
         }
 
-
-        public static string FormatTableName(string table_name, bool useSingular)
-        {
-            //TODO: allow custom renames via config file - 
-            //- this could solve keyword conflict etc
-            string name1 = table_name;
-            string name2 = mmConfig.forceUcaseTableName
-                ? name1.Capitalize() //Char.ToUpper(name1[0])+name1.Substring(1)
-                : name1;
-
-            //heuristic to convert 'Products' table to class 'Product'
-            //TODO: allow customized tableName-className mappings from an XML file
-            if (useSingular)
-            {
-                name2 = name2.Singularize();
-            }
-
-            name2 = name2.Replace(" ", ""); // "Order Details" -> "OrderDetails"
-
-            return name2;
-        }
 
     }
 }
