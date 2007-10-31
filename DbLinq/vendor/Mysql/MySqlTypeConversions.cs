@@ -62,13 +62,17 @@ namespace DBLinq.vendor
                 switch (typeStrL)
                 {
                     case "char":
+                    case "varchar":
                     case "text":
                         return MySqlDbType.String;
 
+                    case "bit":
+                        return MySqlDbType.Bit;
                     case "int":
                         return MySqlDbType.Int32;
                     case "mediumint":
-                        return MySqlDbType.Int16; //go figure - MEDIUMINT is 3 bytes 
+                    case "mediumint unsigned":
+                        return MySqlDbType.Int24; //go figure - MEDIUMINT is 3 bytes 
                     case "smallint":
                         return MySqlDbType.Int16;
                     case "tinyint":

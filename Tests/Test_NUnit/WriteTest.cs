@@ -4,7 +4,7 @@ using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
-using Client2.user;
+using nwind;
 
 #if ORACLE
 using xint = System.Int32;
@@ -26,7 +26,7 @@ namespace Test_NUnit
         public void E1_LiveObjectsAreUnqiue()
         {
             //grab an object twice, make sure we get the same object each time
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
             var q = from p in db.Products select p;
             Product pen1 = q.First();
             Product pen2 = q.First();
@@ -44,7 +44,7 @@ namespace Test_NUnit
         [Test]
         public void E2_UpdateEnum()
         {
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
 
             var q = from at in db.Alltypes where at.int_==1 select at;
 
@@ -62,9 +62,9 @@ namespace Test_NUnit
 
 
         #region Tests 'G' do insertion
-        private xint insertProduct_priv()
+        private int insertProduct_priv()
         {
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
 
             Product newProd = new Product();
             newProd.CategoryID = 1;
@@ -86,10 +86,10 @@ namespace Test_NUnit
         [Test]
         public void G2_DeleteTest()
         {
-            xint insertedID = insertProduct_priv();
+            int insertedID = insertProduct_priv();
             Assert.Greater(insertedID,0,"DeleteTest cannot operate if row was not inserted");
 
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
 
             var q = from p in db.Products where p.ProductID == insertedID select p;
             List<Product> insertedProducts = q.ToList();

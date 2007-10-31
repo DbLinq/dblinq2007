@@ -2,5 +2,5 @@
   SET PASSWORD FOR 'LinqUser'@'%' = PASSWORD('linq2');
 
 --
-GRANT Select, Insert, Update, Delete ON `LinqTestDB`.* TO 'LinqUser'@'%';
+GRANT Select, Insert, Update, Delete ON `Northwind`.* TO 'LinqUser'@'%';
   FLUSH PRIVILEGES;

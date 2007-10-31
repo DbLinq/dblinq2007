@@ -3,19 +3,17 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using NUnit.Framework;
+using nwind;
 
 #if ORACLE
-using ClientCodeOra;
 using xint = System.Int32;
 #elif POSTGRES
-using Client2.user;
 using xint = System.Int32;
 using XSqlConnection = Npgsql.NpgsqlConnection;
 using XSqlCommand = Npgsql.NpgsqlCommand;
 #else
 using XSqlConnection = MySql.Data.MySqlClient.MySqlConnection;
 using XSqlCommand = MySql.Data.MySqlClient.MySqlCommand;
-using Client2.user;
 using xint = System.UInt32;
 #endif
 
@@ -29,7 +27,7 @@ namespace Test_NUnit
         [Test]
         public void SP1_CallHello0()
         {
-            LinqTestDB db = base.CreateDB();
+            Northwind db = base.CreateDB();
             string result = db.hello0();
             Assert.IsNotNull(result);
         }
@@ -37,7 +35,7 @@ namespace Test_NUnit
         [Test]
         public void SP2_CallHello1()
         {
-            LinqTestDB db = base.CreateDB();
+            Northwind db = base.CreateDB();
             string result = db.hello1("xx");
             Assert.IsTrue(result!=null && result.Contains("xx"));
         }
@@ -45,7 +43,7 @@ namespace Test_NUnit
         [Test]
         public void SP3_GetOrderCount_SelField()
         {
-            LinqTestDB db = base.CreateDB();
+            Northwind db = base.CreateDB();
             var q = from c in db.Customers select new {c, OrderCount=db.getOrderCount(c.CustomerID)};
 
             int count = 0;
@@ -61,7 +59,7 @@ namespace Test_NUnit
         [Test]
         public void SP4_GetOrderCount_Having()
         {
-            LinqTestDB db = base.CreateDB();
+            Northwind db = base.CreateDB();
             var q = from c in db.Customers where db.getOrderCount(c.CustomerID) > 1 select c;
 
             int count = 0;

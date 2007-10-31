@@ -56,11 +56,27 @@ namespace DBLinq.Linq
 
         readonly string _sqlConnString;
         XSqlConnection _conn;
+
         public MContext(string sqlConnString)
         {
             _sqlConnString = sqlConnString;
             _conn = new XSqlConnection(sqlConnString);
             _conn.Open();
+        }
+
+        public MContext(System.Data.IDbConnection dbConnection)
+        {
+            if (dbConnection == null)
+                throw new ArgumentNullException("Null db connection");
+            _conn = dbConnection as XSqlConnection;
+            _sqlConnString = dbConnection.ConnectionString;
+            try
+            {
+                _conn.Open();
+            }
+            catch (Exception)
+            {
+            }
         }
 
         public XSqlConnection SqlConnection
@@ -153,7 +169,7 @@ namespace DBLinq.Linq
         /// TODO: conflict detection is not implemented!
         /// </summary>
         [Obsolete("NOT IMPLEMENTED YET")]
-        public List<System.Data.Linq.ObjectChangeConflict> ChangeConflicts
+        public System.Data.Linq.ChangeConflictCollection ChangeConflicts
         {
             get { throw new NotImplementedException(); }
         }
@@ -164,6 +180,15 @@ namespace DBLinq.Linq
         public int ExecuteCommand(string command, params object[] parameters)
         {
             return vendor.Vendor.ExecuteCommand(this, command, parameters);
+        }
+
+        /// <summary>
+        /// Execute raw SQL query and return object
+        /// </summary>
+        [Obsolete("NOT IMPLEMENTED YET")]
+        public System.Collections.Generic.IEnumerable<TResult> ExecuteQuery<TResult>(string command, params object[] parameters)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>

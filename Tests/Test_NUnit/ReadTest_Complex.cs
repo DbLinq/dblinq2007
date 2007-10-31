@@ -4,7 +4,7 @@ using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
-using Client2.user;
+using nwind;
 
 #if ORACLE
 using xint = System.Int32;
@@ -19,7 +19,7 @@ namespace Test_NUnit
     [TestFixture]
     public class ReadTest_Complex : TestBase
     {
-        LinqTestDB db;
+        Northwind db;
         
         public ReadTest_Complex()
         {
@@ -57,7 +57,7 @@ namespace Test_NUnit
         public void F3_MaxProductId()
         {
             var q = from p in db.Products select p.ProductID;
-            xint maxID = q.Max();
+            int maxID = q.Max();
             Assert.Greater(maxID,0,"Expected non-zero product count");
         }
 
@@ -65,8 +65,8 @@ namespace Test_NUnit
         public void F4_MinProductId()
         {
             var q = from p in db.Products select p.ProductID;
-            xint maxID = q.Min();
-            Assert.Greater(maxID,0,"Expected non-zero product count");
+            int minID = q.Min();
+            Assert.Greater(minID, 0, "Expected non-zero product count");
         }
 
         //[Test]

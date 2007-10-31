@@ -53,13 +53,16 @@ namespace SqlMetal.util
 
         /// <summary>
         /// using English heuristics, convert 'dogs' to 'dog',
+        /// 'categories' to 'category',
         /// 'cat' remains unchanged.
         /// </summary>
         public static string Singularize(this string word)
         {
             if(word.Length<2)
                 return word;
-            if(word.EndsWith("s"))
+            if (word.EndsWith("ies"))
+                return word.Substring(0, word.Length - 3) + "y"; //Territories->Territory
+            if (word.EndsWith("s"))
                 return word.Substring(0,word.Length-1);
             return word;
         }

@@ -258,6 +258,11 @@ USE `Northwind`;
 ####################################################################
 ## populate tables with seed data
 ####################################################################
+truncate table `Northwind`.`Categories`;
+Insert `Northwind`.`Categories` (CategoryName,Description)
+values ('Beverages',	'Soft drinks, coffees, teas, beers, and ales')
+,      ('Condiments','Sweet and savory sauces, relishes, spreads, and seasonings');
+
 truncate table `Northwind`.`Orders`; -- must be truncated before Customer
 truncate table `Northwind`.`Customers`;
 

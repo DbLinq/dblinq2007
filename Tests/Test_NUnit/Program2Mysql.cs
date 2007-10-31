@@ -22,18 +22,18 @@ namespace Test_NUnit
             //new ReadTest_GroupBy().G01_SimpleGroup_Count();
             //new ReadTest_GroupBy().G08_OrderSumByCustomerID();
 
-            //new ReadTest().D09_Products_LetterP_Take5();
+            //new ReadTest().C1_SelectProducts();
             //new StoredProcTest().SP3_GetOrderCount_SelField();
             //new ReadTest().D05_SelectOrdersForProduct();
             //new ReadTest_GroupBy().G01_SimpleGroup_Count();
             //new ReadTest_AllTypes().AT5_SelectEnum_();
-            new ReadTest_Operands().H2_SelectGreaterOrEqual();
+            //new ReadTest_Operands().H1_SelectConcat();
             //new ReadTest_GroupBy().G04_SimpleGroup_WithSelector();
             //new ReadTest_GroupBy().G05_Group_Into();
             //ReadTest_Complex rc = new ReadTest_Complex();
             //rc.F11_ConcatString();
             //new WriteTest().E2_UpdateEnum();
-            //new WriteTest().G1_InsertProduct();
+            new WriteTest().E2_UpdateEnum();
             //new WriteTest_BulkInsert().BI01_InsertProducts();
         }
     }

@@ -436,7 +436,13 @@ namespace DBLinq.Linq.clause
 
             _result.tablesUsed[expr.Expression.Type] = varName;
             _result.AppendString(".");
-            _result.AppendString(expr.Member.Name);
+
+            //TODO: this appends "Alltypes.int_" whereas int should append "Alltypes.`int`"
+            ColumnAttribute columnAttrib = expr.Member.GetCustomAttributes(false).OfType<ColumnAttribute>().FirstOrDefault();
+            string sqlColumnName = expr.Member.Name;
+            if (columnAttrib != null)
+                sqlColumnName = Vendor.FieldName_Safe(columnAttrib.Name);
+            _result.AppendString(sqlColumnName);
         }
 
         //Dictionary<string,string> csharpOperatorToSqlMap = new Dictionary<string,string>

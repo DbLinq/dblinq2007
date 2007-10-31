@@ -3,19 +3,17 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using NUnit.Framework;
+using nwind;
 
 #if ORACLE
-using Client2.user;
 using xint = System.Int32;
 #elif POSTGRES
-using Client2.user;
 using xint = System.Int32;
 using XSqlConnection = Npgsql.NpgsqlConnection;
 using XSqlCommand = Npgsql.NpgsqlCommand;
 #else
 using XSqlConnection = MySql.Data.MySqlClient.MySqlConnection;
 using XSqlCommand = MySql.Data.MySqlClient.MySqlCommand;
-using Client2.user;
 using xint = System.UInt32;
 #endif
 
@@ -30,7 +28,7 @@ namespace Test_NUnit
 #if ORACLE
         const string connStr = "server=localhost;user id=system; password=linq2";
 #else //Mysql, Postgres
-        public const string connStr = "server=localhost;user id=LinqUser; password=linq2; database=LinqTestDB";
+        public const string connStr = "server=localhost;user id=LinqUser; password=linq2; database=Northwind";
 
         XSqlConnection _conn;
         public XSqlConnection Conn
@@ -50,9 +48,9 @@ namespace Test_NUnit
         //Mysql,Oracle sorting: A,B,C,d,X
         public const StringComparison stringComparisonType = StringComparison.InvariantCulture;
 #endif
-        public LinqTestDB CreateDB()
+        public Northwind CreateDB()
         {
-            LinqTestDB db = new LinqTestDB(connStr);
+            Northwind db = new Northwind(connStr);
             db.Log = Console.Out;
             return db;
         }

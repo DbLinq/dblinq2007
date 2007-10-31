@@ -4,7 +4,7 @@ using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
-using Client2.user;
+using nwind;
 
 #if POSTGRES
 using xint = System.Int32;
@@ -24,7 +24,7 @@ namespace Test_NUnit
         [Test]
         public void H1_SelectConcat()
         {
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
 
             var q = from p in db.Products select p.ProductName + " " + p.SupplierID;
             int count = 0;
@@ -40,7 +40,7 @@ namespace Test_NUnit
         [Test]
         public void H2_SelectGreaterOrEqual()
         {
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
 
             var q = db.Products.Where(p => p.ProductID >= 5);
             int count = 0;
@@ -54,28 +54,28 @@ namespace Test_NUnit
 
         public struct ProductWrapper1
         {
-            public xint ProductID { get; set; }
-            public xint? SupplierID { get; set; }
+            public int ProductID { get; set; }
+            public int? SupplierID { get; set; }
         }
 
         public class ProductWrapper2
         {
-            public xint ProductID { get; set; }
-            public xint? SupplierID { get; set; }
+            public int ProductID { get; set; }
+            public int? SupplierID { get; set; }
         }
 
         public class ProductWrapper3
         {
-            public xint ProductID { get; set; }
-            public xint? SupplierID { get; set; }
-            public ProductWrapper3(xint p, xint? s) { ProductID = p; SupplierID = s; }
-            public ProductWrapper3(xint p, xint? s, bool unused) { ProductID = p; SupplierID = s; }
+            public int ProductID { get; set; }
+            public int? SupplierID { get; set; }
+            public ProductWrapper3(int p, int? s) { ProductID = p; SupplierID = s; }
+            public ProductWrapper3(int p, int? s, bool unused) { ProductID = p; SupplierID = s; }
         }
 
         [Test]
         public void H3_Select_MemberInit_Struct()
         {
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
             var q = from p in db.Products
                     where p.ProductID > 5
                     select new ProductWrapper1 { ProductID = p.ProductID, SupplierID = p.SupplierID };
@@ -91,7 +91,7 @@ namespace Test_NUnit
         [Test]
         public void H4_Select_MemberInit_Class()
         {
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
             var q = from p in db.Products
                     where p.ProductID > 5
                     select new ProductWrapper2 { ProductID = p.ProductID, SupplierID = p.SupplierID };
@@ -107,7 +107,7 @@ namespace Test_NUnit
         [Test]
         public void H5_Select_MemberInit_Class2()
         {
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
             var q = from p in db.Products
                     where p.ProductID > 5
                     select new ProductWrapper3 ( p.ProductID, p.SupplierID );
@@ -123,7 +123,7 @@ namespace Test_NUnit
         [Test]
         public void I1_GetQueryText()
         {
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
 
             var q = from p in db.Products where p.ProductID > 1 select p;
             string s = db.GetQueryText(q); //MTable.GetQueryText()
@@ -132,7 +132,7 @@ namespace Test_NUnit
         [Test]
         public void I2_GetQueryText()
         {
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
 
             var q = from p in db.Products select p.ProductName;
             string s = db.GetQueryText(q); //MTable_Projected.GetQueryText()

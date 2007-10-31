@@ -116,7 +116,11 @@ namespace $ns
 /// </summary>
 public partial class $dbname : MContext
 {
-    public $dbname(string connStr):base(connStr)
+    public $dbname(string connStr) : base(connStr)
+    {
+        $fieldInit
+    }
+    public $dbname(System.Data.IDbConnection connection) : base(connection)
     {
         $fieldInit
     }

@@ -28,7 +28,7 @@ using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
-using Client2.user;
+using nwind;
 
 #if ORACLE
 using xint = System.Int32;
@@ -50,7 +50,7 @@ namespace Test_NUnit
             //Note: this SQL is allowed in Mysql but illegal on Postgres 
             //(PostgreSql ERROR: column "c$.customerid" must appear in the GROUP BY clause or be used in an aggregate function - SQL state: 42803)
             //"SELECT City, customerid FROM customer GROUP BY City"
-            LinqTestDB db = new LinqTestDB(connStr);
+            Northwind db = new Northwind(connStr);
             var q2 = db.Customers.GroupBy( c=>c.City );
 
             foreach(var g in q2){
@@ -70,7 +70,7 @@ namespace Test_NUnit
             //Note: this SQL is allowed in Mysql but illegal on Postgres 
             //(PostgreSql ERROR: column "c$.customerid" must appear in the GROUP BY clause or be used in an aggregate function - SQL state: 42803)
             //"SELECT City, customerid FROM customer GROUP BY City"
-            LinqTestDB db = new LinqTestDB(connStr);
+            Northwind db = new Northwind(connStr);
             db.Log = Console.Out;
 
             var q2 = db.Customers.GroupBy( c=>c.City ).Select( g=>new{g.Key, Count=g.Count()} );
@@ -90,7 +90,7 @@ namespace Test_NUnit
             //Note: this SQL is allowed in Mysql but illegal on Postgres 
             //(PostgreSql ERROR: column "c$.customerid" must appear in the GROUP BY clause or be used in an aggregate function - SQL state: 42803)
             //"SELECT City, customerid FROM customer GROUP BY City"
-            LinqTestDB db = new LinqTestDB(connStr);
+            Northwind db = new Northwind(connStr);
             var q2 = db.Customers.GroupBy( c=>c.City );
             var q3 = q2.First();
 
@@ -106,7 +106,7 @@ namespace Test_NUnit
             //Note: this SQL is allowed in Mysql but illegal on Postgres 
             //(PostgreSql ERROR: column "c$.customerid" must appear in the GROUP BY clause or be used in an aggregate function - SQL state: 42803)
             //"SELECT City, customerid FROM customer GROUP BY City"
-            LinqTestDB db = new LinqTestDB(connStr);
+            Northwind db = new Northwind(connStr);
             var q2 = db.Customers.GroupBy( c=>c.City, c=>new {c.City,c.CustomerID} );
 
             foreach(var g in q2){
@@ -125,7 +125,7 @@ namespace Test_NUnit
             //Note: this SQL is allowed in Mysql but illegal on Postgres 
             //(PostgreSql ERROR: column "c$.customerid" must appear in the GROUP BY clause or be used in an aggregate function - SQL state: 42803)
             //"SELECT City, customerid FROM customer GROUP BY City"
-            LinqTestDB db = new LinqTestDB(connStr);
+            Northwind db = new Northwind(connStr);
             var q2 = db.Customers.GroupBy( c=>c.City, c=>c.CustomerID );
 
             foreach(var g in q2){
@@ -141,7 +141,7 @@ namespace Test_NUnit
         [Test]
         public void G05_Group_Into()
         {
-            LinqTestDB db = new LinqTestDB(connStr);
+            Northwind db = new Northwind(connStr);
             var q2 =
                 from c in db.Customers
                 //where c.Country == "France"
@@ -173,7 +173,7 @@ namespace Test_NUnit
         [Test]
         public void G06_OrderCountByCustomerID()
         {
-            LinqTestDB db = new LinqTestDB(connStr);
+            Northwind db = new Northwind(connStr);
 
             var q2 = from o in db.Orders
                     group o by o.CustomerID into g
@@ -191,7 +191,7 @@ namespace Test_NUnit
         [Test]
         public void G07_OrderCountByCustomerID_Where()
         {
-            LinqTestDB db = new LinqTestDB(connStr);
+            Northwind db = new Northwind(connStr);
             var q2 = from o in db.Orders
                     group o by o.CustomerID into g
                     where g.Count()>1
@@ -208,7 +208,7 @@ namespace Test_NUnit
         [Test]
         public void G08_OrderSumByCustomerID()
         {
-            LinqTestDB db = new LinqTestDB(connStr);
+            Northwind db = new Northwind(connStr);
             var q2 = from o in db.Orders
                     group o by o.CustomerID into g
                     //where g.Count()>1

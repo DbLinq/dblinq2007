@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using NUnit.Framework;
-using Client2.user;
+using nwind;
 
 
 namespace Test_NUnit
@@ -18,7 +18,7 @@ namespace Test_NUnit
         [Test]
         public void AT1_SelectRow()
         {
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
 
             var q = from p in db.Alltypes select p;
             int count = q.ToList().Count;
@@ -28,7 +28,7 @@ namespace Test_NUnit
         [Test]
         public void AT2_SelectDateTimeN()
         {
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
 
             var q = from p in db.Alltypes select p.DateTimeN;
             int count = q.ToList().Count;
@@ -38,7 +38,7 @@ namespace Test_NUnit
         [Test]
         public void AT3_SelectDecimalN()
         {
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
 
             var q = from p in db.Alltypes select p.decimalN;
             int count = q.ToList().Count;
@@ -48,7 +48,7 @@ namespace Test_NUnit
         [Test]
         public void AT4_SelectEnum()
         {
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
 
             var q = from p in db.Alltypes select p.DbLinq_EnumTest;
             int count = q.ToList().Count;
@@ -58,7 +58,7 @@ namespace Test_NUnit
         [Test]
         public void AT5_SelectEnum_()
         {
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
 
             var q = from p in db.Alltypes select p.DbLinq_EnumTest;
             string sql_string = db.GetQueryText(q);

@@ -15,5 +15,10 @@ namespace DBLinq.vendor
         double? GetDoubleN(int index);
         DateTime? GetDateTimeN(int index);
         long? GetInt64N(int index);
+
+        /// <summary>
+        /// method to read a blob
+        /// </summary>
+        byte[] GetBytes(int index);
     }
 }
