@@ -81,6 +81,31 @@ namespace SqlMetal.util
         }
 
         /// <summary>
+        /// given 'categories', return either singular 'Category' or unchanged 'Catagories'
+        /// given 'order details', return 'OrderDetails'.
+        /// </summary>
+        public static string FormatTableName(string table_name, bool useSingular)
+        {
+            //TODO: allow custom renames via config file - 
+            //- this could solve keyword conflict etc
+            string name1 = table_name;
+            string name2 = mmConfig.forceUcaseTableName
+                ? name1.Capitalize() //Char.ToUpper(name1[0])+name1.Substring(1)
+                : name1;
+
+            //heuristic to convert 'Products' table to class 'Product'
+            //TODO: allow customized tableName-className mappings from an XML file
+            if (useSingular)
+            {
+                name2 = name2.Singularize();
+            }
+
+            name2 = name2.Replace(" ", ""); // "Order Details" -> "OrderDetails"
+
+            return name2;
+        }
+
+        /// <summary>
         /// given name 'EMPLOYEE', return 'Employees'
         /// </summary>
         public static string TableNamePlural(string name)

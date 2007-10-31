@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -52,8 +52,8 @@
     <Reference Include="System.Security" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Example\DbLinq.Pgsql.Example\user\LinqTestDB.cs">
-      <Link>user\LinqTestDB.cs</Link>
+    <Compile Include="..\..\Example\DbLinq.Pgsql.Example\nwind\Northwind.cs">
+      <Link>nwind\Northwind.cs</Link>
     </Compile>
     <Compile Include="Program2Pg.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

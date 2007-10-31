@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
-using Client2.user;
+using nwind;
 using Npgsql;
 
 namespace ClientCode2
@@ -13,7 +13,7 @@ namespace ClientCode2
         static void Main(string[] args)
         {
 
-            string connStr = "server=localhost;user id=LinqUser; password=linq2; database=LinqTestDB";
+            string connStr = "server=localhost;user id=LinqUser; password=linq2; database=Northwind";
             //NpgsqlConnection conn = new NpgsqlConnection(connStr);
             //conn.Open();
             ////string sql = "INSERT City (Name) VALUES ('B'); SELECT @@IDENTITY";
@@ -37,7 +37,7 @@ namespace ClientCode2
             //arr.
             //var q7 = arr.Any(.Distinct().ToArray();
 
-            LinqTestDB db = new LinqTestDB(connStr);
+            Northwind db = new Northwind(connStr);
             //var q = from at in db.alltypes select at;
             //var q = from p in db.products orderby p.ProductName select p;
             //var q = from c in db.customers from o in c.Orders 

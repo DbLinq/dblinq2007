@@ -259,27 +259,27 @@ USE `Northwind`;
 ## populate tables with seed data
 ####################################################################
 truncate table `Northwind`.`Categories`;
-Insert `Northwind`.`Categories` (CategoryName,Description)
+Insert INTO `Northwind`.`Categories` (CategoryName,Description)
 values ('Beverages',	'Soft drinks, coffees, teas, beers, and ales')
 ,      ('Condiments','Sweet and savory sauces, relishes, spreads, and seasonings');
 
 truncate table `Northwind`.`Orders`; -- must be truncated before Customer
 truncate table `Northwind`.`Customers`;
 
-insert `Northwind`.`Customers` (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
+insert INTO `Northwind`.`Customers` (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
 values ('AIRBU', 'airbus','jacques','France','10000','Paris');
-insert `Northwind`.`Customers` (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
+insert INTO `Northwind`.`Customers` (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
 values ('BT___','BT','graeme','U.K.','E14','London');
 
-insert `Northwind`.`Customers` (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
+insert INTO `Northwind`.`Customers` (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
 values ('ATT__','ATT','bob','USA','10021','New York');
-insert `Northwind`.`Customers` (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
+insert INTO `Northwind`.`Customers` (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
 values ('UKMOD', 'MOD','(secret)','U.K.','E14','London');
 
-insert `Northwind`.`Customers` (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
+insert INTO `Northwind`.`Customers` (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
 values ('ALFKI', 'Alfreds Futterkiste','Maria Anders','Sales Representative','Germany','12209','Berlin','030-0074321');
 
-insert `Northwind`.`Customers` (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
+insert INTO `Northwind`.`Customers` (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
 values ('WARTH', 'Wartian Herkku','Pirkko Koskitalo','Accounting Manager','Finland','90110','Oulu','981-443655');
 
 truncate table `Northwind`.`Orders`; -- must be truncated before Products
@@ -287,16 +287,16 @@ truncate table `Northwind`.`Products`;
 ## WARNING: this actually inserts two 'Pen' rows into Products.
 ## could someone with knowledge of MySQL resolve this?
 ## Answer: upgrade to newer version of MySql Query Browser - the problem will go away
-insert `Northwind`.`Products` (ProductName,QuantityPerUnit) VALUES ('Pen',10);
-insert `Northwind`.`Products` (ProductName,QuantityPerUnit) VALUES ('Bicycle',1);
-insert `Northwind`.`Products` (ProductName,QuantityPerUnit) VALUES ('Phone',3);
-insert `Northwind`.`Products` (ProductName,QuantityPerUnit) VALUES ('SAM',1);
-insert `Northwind`.`Products` (ProductName,QuantityPerUnit) VALUES ('iPod',0);
-insert `Northwind`.`Products` (ProductName,QuantityPerUnit) VALUES ('Toilet Paper',2);
-insert `Northwind`.`Products` (ProductName,QuantityPerUnit) VALUES ('Fork',5);
+insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit) VALUES ('Pen',10);
+insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit) VALUES ('Bicycle',1);
+insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit) VALUES ('Phone',3);
+insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit) VALUES ('SAM',1);
+insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit) VALUES ('iPod',0);
+insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit) VALUES ('Toilet Paper',2);
+insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit) VALUES ('Fork',5);
 
 truncate table `Northwind`.`Employees`;
-insert `Northwind`.`Employees` (LastName,FirstName,Title) VALUES ('Davolio','Nancy','Sales Representative');
+insert INTO `Northwind`.`Employees` (LastName,FirstName,Title) VALUES ('Davolio','Nancy','Sales Representative');
 
 ####################################################################
 truncate table `Northwind`.`Orders`;

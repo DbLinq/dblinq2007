@@ -25,6 +25,8 @@ namespace SqlMetal.schema.pgsql
                     if(column_type.Contains("unsigned"))
                         return "uint";
                     return "int";
+                case "bit":
+                    return "bool";
                 case "tinyint": 
                     if(column_type=="tinyint(1)")
                         return "bool";
@@ -33,8 +35,10 @@ namespace SqlMetal.schema.pgsql
                 case "mediumint": return "short";
                 case "bigint": return "long";
 
-                case "datetime": return "DateTime";
-                case "timestamp": return "DateTime";
+                case "date":
+                case "datetime":
+                case "timestamp": 
+                    return "DateTime";
                 case "enum": return "Enum";
                 case "float": return "float";
                 case "double":
@@ -43,7 +47,9 @@ namespace SqlMetal.schema.pgsql
                 case "decimal":
                 case "numeric":
                     return "decimal";
-                case "blob": return "byte[]";
+                case "blob":
+                case "oid":
+                    return "byte[]";
                     //TODO: blob,longblob,set, ...
                 case "character varying": return "string";
                 case "integer": return "int";
