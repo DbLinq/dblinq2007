@@ -92,7 +92,15 @@ namespace DBLinq.util
             }
         }
 
-        public bool GetBoolean(int index){ return _rdr.GetBoolean(index); }
+        public bool GetBoolean(int index)
+        {
+            //support for 'Product.Discontinued' field in Northwind DB - it's nullable, but MS samples map it to plain bool
+            if (_rdr.IsDBNull(index))
+                return false; 
+
+            return _rdr.GetBoolean(index); 
+        }
+
         public bool? GetBooleanN(int index)
         {
             try

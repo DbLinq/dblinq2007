@@ -9,6 +9,7 @@ namespace SqlMetal.schema
     /// this class contains functionality common to all vendors -
     /// a) rename field Alltypes.Alltypes to Alltypes.Contents
     /// b) rename field Employees.Employees to Employees.RefersToEmployees
+    /// c) rename field Alltypes.int to Alltypes.int_
     /// </summary>
     public class SchemaPostprocess
     {

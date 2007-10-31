@@ -73,13 +73,13 @@ namespace SqlMetal.schema.mysql
                 return null;
             }
 
-            foreach(TableRow tblRow in tables)
+            foreach (TableRow tblRow in tables)
             {
                 DlinqSchema.Table tblSchema = new DlinqSchema.Table();
                 tblSchema.Name = tblRow.table_name;
-                tblSchema.Member = FormatTableName(tblRow.table_name).Pluralize();
-                tblSchema.Type.Name = FormatTableName(tblRow.table_name);
-                schema.Tables.Add( tblSchema );
+                tblSchema.Member = FormatTableName(tblRow.table_name, false).Pluralize();
+                tblSchema.Type.Name = FormatTableName(tblRow.table_name, true);
+                schema.Tables.Add(tblSchema);
             }
 
             //##################################################################
@@ -98,7 +98,18 @@ namespace SqlMetal.schema.mysql
                 }
                 DlinqSchema.Column colSchema = new DlinqSchema.Column();
                 colSchema.Name = columnRow.column_name;
-                colSchema.DbType = columnRow.datatype;
+
+                //sample input: columnRow.column_type="varchar(15)", coloumRow.datatype="varchar"
+                //colSchema.DbType = columnRow.datatype;
+                string dbType = columnRow.column_type;
+
+                dbType = dbType.Replace("int(11)", "int") //remove some default sizes
+                    .Replace("int(10) unsigned", "int unsigned")
+                    .Replace("mediumint(8) unsigned", "mediumint unsigned")
+                    .Replace("decimal(10,0)", "decimal")
+                    ;
+                colSchema.DbType = dbType;
+
                 colSchema.IsPrimaryKey = columnRow.column_key=="PRI";
                 colSchema.IsDbGenerated = columnRow.extra=="auto_increment";
                 colSchema.CanBeNull = columnRow.isNullable;
@@ -147,14 +158,14 @@ namespace SqlMetal.schema.mysql
                     assoc.Name = keyColRow.constraint_name;
                     //assoc.Type = keyColRow.referenced_table_name; //see below instead
                     assoc.ThisKey = keyColRow.column_name;
-                    assoc.Member = FormatTableName(keyColRow.referenced_table_name);
+                    assoc.Member = FormatTableName(keyColRow.referenced_table_name, true);
                     table.Type.Associations.Add(assoc);
 
                     //and insert the reverse association:
                     DlinqSchema.Association assoc2 = new DlinqSchema.Association();
                     assoc2.Name = keyColRow.constraint_name;
                     assoc2.Type = table.Type.Name; //keyColRow.table_name;
-                    assoc2.Member = FormatTableName(keyColRow.table_name).Pluralize();
+                    assoc2.Member = FormatTableName(keyColRow.table_name, false).Pluralize();
                     assoc2.OtherKey = keyColRow.referenced_column_name;
 
                     DlinqSchema.Table parentTable = schema.Tables.FirstOrDefault(t => keyColRow.referenced_table_name == t.Name);
@@ -301,8 +312,7 @@ namespace SqlMetal.schema.mysql
         }
 
 
-
-        public static string FormatTableName(string table_name)
+        public static string FormatTableName(string table_name, bool useSingular)
         {
             //TODO: allow custom renames via config file - 
             //- this could solve keyword conflict etc
@@ -313,7 +323,10 @@ namespace SqlMetal.schema.mysql
 
             //heuristic to convert 'Products' table to class 'Product'
             //TODO: allow customized tableName-className mappings from an XML file
-            name2 = name2.Singularize();
+            if (useSingular)
+            {
+                name2 = name2.Singularize();
+            }
 
             name2 = name2.Replace(" ", ""); // "Order Details" -> "OrderDetails"
 

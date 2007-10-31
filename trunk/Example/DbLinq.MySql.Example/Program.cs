@@ -8,7 +8,7 @@ using System.Linq;
 
 using MySql.Data.MySqlClient;
 
-using Client2.user;  // contains LinqTestDB context
+using nwind;  // contains Northwind context
 
 namespace DbLinq.MySql.Example
 {
@@ -37,7 +37,7 @@ namespace DbLinq.MySql.Example
             object obj = cmd.ExecuteScalar();
 #endif
             // BUG: contexts must to be disposable
-            LinqTestDB db = new LinqTestDB(connStr);
+            Northwind db = new Northwind(connStr);
 
 #if USE_STORED_PROCS
             int is2;

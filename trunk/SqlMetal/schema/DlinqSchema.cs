@@ -196,6 +196,7 @@ namespace SqlMetal.schema
             public bool IsDbGenerated;
 
             [XmlAttribute]
+            [DefaultValue(true)]
             public bool CanBeNull;
 
             [XmlAttribute]

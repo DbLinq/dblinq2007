@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using NUnit.Framework;
-using Client2.user;
+using nwind;
 
 #if ORACLE
 using xint = System.Int32;
@@ -40,7 +40,7 @@ namespace Test_NUnit
         [Test]
         public void A2_ProductsTableHasEntries()
         {
-            //string sql = "SELECT count(*) FROM LinqTestDB.Products";
+            //string sql = "SELECT count(*) FROM Northwind.Products";
             string sql = "SELECT count(*) FROM Products";
             long iResult = base.ExecuteScalar(sql);
             Assert.Greater((int)iResult,0,"Expecting some rows in Products table, got:"+iResult+" (SQL:"+sql+")");
@@ -59,7 +59,7 @@ namespace Test_NUnit
         [Test]
         public void A4_SelectSingleCustomer()
         {
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
 
             // Query for a specific customer
             var cust = db.Customers.Single(c => c.CompanyName == "airbus");
@@ -74,7 +74,7 @@ namespace Test_NUnit
         [Test]
         public void C1_SelectProducts()
         {
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
 
             var q = from p in db.Products select p;
             List<Product> products = q.ToList();
@@ -85,10 +85,10 @@ namespace Test_NUnit
         [Test]
         public void C2_SelectPenId()
         {
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
 
             var q = from p in db.Products where p.ProductName == "Pen" select p.ProductID;
-            List<xint> productIDs = q.ToList();
+            List<int> productIDs = q.ToList();
             int productCount = productIDs.Count;
             Assert.AreEqual(productCount,1,"Expected one pen, got count="+productCount);
         }
@@ -96,7 +96,7 @@ namespace Test_NUnit
         [Test]
         public void C3_SelectPenIdName()
         {
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
 
             var q = from p in db.Products
                     where p.ProductName == "Pen" 
@@ -117,17 +117,17 @@ namespace Test_NUnit
         [Test]
         public void D01_SelectFirstPenID()
         {
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
 
             var q = from p in db.Products where p.ProductName == "Pen" select p.ProductID;
-            xint productID = q.First();
+            int productID = q.First();
             Assert.Greater(productID,0,"Expected penID>0, got "+productID);
         }
 
         [Test]
         public void D02_SelectFirstPen()
         {
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
 
             var q = from p in db.Products where p.ProductName == "Pen" select p;
             Product pen = q.First();
@@ -137,17 +137,17 @@ namespace Test_NUnit
         [Test]
         public void D03_SelectLastPenID()
         {
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
 
             var q = from p in db.Products where p.ProductName == "Pen" select p.ProductID;
-            xint productID = q.Last();
+            int productID = q.Last();
             Assert.Greater(productID,0,"Expected penID>0, got "+productID);
         }
 
         [Test]
         public void D04_SelectProducts_OrderByName()
         {
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
 
             var q = from p in db.Products orderby p.ProductName select p;
             string prevProductName = null;
@@ -167,7 +167,7 @@ namespace Test_NUnit
         [Test]
         public void D05_SelectOrdersForProduct()
         {
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
             //var q = from p in db.Products where "Pen"==p.ProductName select p.Order;
             //List<Order> penOrders = q.ToList();
             //Assert.Greater(penOrders.Count,0,"Expected some orders for product 'Pen'");
@@ -190,7 +190,7 @@ namespace Test_NUnit
         [Test]
         public void D06_OrdersFromLondon()
         {
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
             var q =
 	            from o in db.Orders
 	            where o.Customer.City == "London"
@@ -210,7 +210,7 @@ namespace Test_NUnit
             Func<int,int> func1 = i => i+1;
             Console.WriteLine("type="+func1.GetType());
             //this is a SelectMany query:
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
             db.Log = Console.Out;
 
             var q =
@@ -225,7 +225,7 @@ namespace Test_NUnit
         [Test]
         public void D08_Products_Take5()
         {
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
             var q = (from p in db.Products select p).Take(5);
             List<Product> prods = q.ToList(); 
             Assert.AreEqual(5,prods.Count,"Expected five products");
@@ -234,7 +234,7 @@ namespace Test_NUnit
         [Test]
         public void D09_Products_LetterP_Take5()
         {
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
 
             //var q = (from p in db.Products where p.ProductName.Contains("p") select p).Take(5);
             var q = db.Products.Where( p=>p.ProductName.Contains("p")).Take(5);
@@ -250,7 +250,7 @@ namespace Test_NUnit
         [Test]
         public void D10_Products_LetterP_Desc()
         {
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
 
             var q = (from p in db.Products where p.ProductName.Contains("p") 
                         orderby p.ProductID descending
@@ -260,15 +260,15 @@ namespace Test_NUnit
             List<Product> prods = q.ToList();
             Assert.Greater(prods.Count,2,"Expected couple of products with letter 'p'");
 
-            xint prodID0 = prods[0].ProductID;
-            xint prodID1 = prods[1].ProductID;
+            int prodID0 = prods[0].ProductID;
+            int prodID1 = prods[1].ProductID;
             Assert.Greater(prodID0,prodID1,"Sorting is broken");
         }
 
         [Test]
         public void D11_Products_DoubleWhere()
         {
-            LinqTestDB db = CreateDB();
+            Northwind db = CreateDB();
             var q1 = db.Products.Where(p=>p.ProductID>1).Where(p=>p.ProductID<10);
             int count1 = q1.Count();
         }
