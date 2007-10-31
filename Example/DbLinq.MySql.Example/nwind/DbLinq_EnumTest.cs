@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Client2.user
+namespace nwind
 {
     /// <summary>
     /// for testing of enum handling - used from AllTypes mysql table.

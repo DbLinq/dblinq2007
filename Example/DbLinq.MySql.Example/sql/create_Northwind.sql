@@ -1,6 +1,6 @@
-﻿DROP DATABASE IF EXISTS `linqtestdb`;
+﻿DROP DATABASE IF EXISTS `Northwind`;
 
-CREATE DATABASE `linqtestdb`;
+CREATE DATABASE `Northwind`;
 
 /*DROP USER IF EXISTS 'LinqUser'@'%'; */
 /*DELETE FROM `mysql`.`user` WHERE `User`='LinqUser';*/
@@ -11,7 +11,7 @@ CREATE DATABASE `linqtestdb`;
 CREATE USER 'LinqUser'@'%'
   IDENTIFIED BY PASSWORD '*247E8BFCE2F07F00D7FD773390A282540001077B';
 
-/* give our new user full permissions on new database: 
+/* give our new user full permissions on new database:
 GRANT ALL ON linqtestdb.*  TO 'LinqUser'@'%';
 FLUSH PRIVILEGES;
 */
@@ -20,7 +20,29 @@ FLUSH PRIVILEGES;
 ####################################################################
 ## create tables
 ####################################################################
-CREATE TABLE `linqtestdb`.`Categories` (
+
+CREATE TABLE `Northwind`.`Region` (
+  `RegionID` INTEGER NOT NULL AUTO_INCREMENT,
+  `RegionDescription` VARCHAR(50) NOT NULL,
+  PRIMARY KEY(`RegionID`)
+)
+ENGINE = InnoDB;
+
+CREATE TABLE `Northwind`.`Territories` (
+  `TerritoryID` VARCHAR(20) NOT NULL,
+  `TerritoryDescription` VARCHAR(50) NOT NULL,
+  `RegionID` INTEGER NOT NULL,
+  PRIMARY KEY(`TerritoryID`)
+)
+ENGINE = InnoDB;
+
+ALTER TABLE `Northwind`.`Territories` ADD CONSTRAINT `FK_Terr_Region` FOREIGN KEY `FK_Terr_Region` (`RegionID`)
+    REFERENCES `Region` (`RegionID`)
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT;
+
+####################################################################
+CREATE TABLE `Northwind`.`Categories` (
   `CategoryID` INTEGER  NOT NULL AUTO_INCREMENT,
   `CategoryName` VARCHAR(15) NOT NULL,
   `Description` TEXT NULL,
@@ -29,11 +51,27 @@ CREATE TABLE `linqtestdb`.`Categories` (
 )
 ENGINE = InnoDB;
 
+CREATE TABLE `Northwind`.`Suppliers` (
+  `SupplierID` INTEGER  NOT NULL AUTO_INCREMENT,
+  `CompanyName` VARCHAR(40) NOT NULL DEFAULT '',
+  `ContactName` VARCHAR(30) NULL,
+  `ContactTitle` VARCHAR(30) NULL,
+  `Address` VARCHAR(60) NULL,
+  `City` VARCHAR(15) NULL,
+  `Region` VARCHAR(15) NULL,
+  `PostalCode` VARCHAR(10) NULL,
+  `Country` VARCHAR(15) NULL,
+  `Phone` VARCHAR(24) NULL,
+  `Fax` VARCHAR(24) NULL,
+  PRIMARY KEY(`SupplierID`)
+)
+ENGINE = InnoDB;
+
 ####################################################################
-CREATE TABLE `linqtestdb`.`Products` (
-  `ProductID` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+CREATE TABLE `Northwind`.`Products` (
+  `ProductID` INTEGER NOT NULL AUTO_INCREMENT,
   `ProductName` VARCHAR(40) NOT NULL DEFAULT '',
-  `SupplierID` INTEGER UNSIGNED NULL,
+  `SupplierID` INTEGER NULL,
   `CategoryID` INTEGER NULL,
   `QuantityPerUnit` VARCHAR(20) NULL,
   `UnitPrice` DECIMAL NULL,
@@ -46,14 +84,19 @@ CREATE TABLE `linqtestdb`.`Products` (
 ENGINE = InnoDB
 COMMENT = 'Holds Products';
 
-ALTER TABLE `linqtestdb`.`Products` ADD CONSTRAINT `FK_prod_catg` FOREIGN KEY `FK_prod_catg` (`CategoryID`)
+ALTER TABLE `Northwind`.`Products` ADD CONSTRAINT `FK_prod_catg` FOREIGN KEY `FK_prod_catg` (`CategoryID`)
     REFERENCES `Categories` (`CategoryID`)
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT;
+
+ALTER TABLE `Northwind`.`Products` ADD CONSTRAINT `FK_prod_supp` FOREIGN KEY `FK_prod_supp` (`SupplierID`)
+    REFERENCES `Suppliers` (`SupplierID`)
     ON DELETE RESTRICT
     ON UPDATE RESTRICT;
 
 
 ####################################################################
-CREATE TABLE `linqtestdb`.`Customers` (
+CREATE TABLE `Northwind`.`Customers` (
   `CustomerID` VARCHAR(5) NOT NULL,
   `CompanyName` VARCHAR(40) NOT NULL DEFAULT '',
   `ContactName` VARCHAR(30) NULL,
@@ -70,94 +113,7 @@ CREATE TABLE `linqtestdb`.`Customers` (
 ENGINE = InnoDB;
 
 ####################################################################
-CREATE TABLE `linqtestdb`.`Employees` (
-  `EmployeeID` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
-  `LastName` VARCHAR(20) NOT NULL,
-  `FirstName` VARCHAR(10) NOT NULL,
-  `Title` VARCHAR(30) NULL,
-  `HireDate` DATETIME NULL,
-  `HomePhone` VARCHAR(24) NULL,
-  `ReportsTo` INTEGER UNSIGNED NULL,
-  PRIMARY KEY(`EmployeeID`)
-)
-ENGINE = InnoDB;
-
-ALTER TABLE `linqtestdb`.`Employees` ADD CONSTRAINT `FK_Emp_ReportsToEmp` FOREIGN KEY `FK_Emp_ReportsToEmp` (`ReportsTo`)
-    REFERENCES `Employees` (`EmployeeID`)
-    ON DELETE RESTRICT
-    ON UPDATE RESTRICT;
-
-
-####################################################################
-CREATE TABLE `linqtestdb`.`Orders` (
-  `OrderID` INTEGER NOT NULL AUTO_INCREMENT,
-  `CustomerID` VARCHAR(5) NULL,
-  `EmployeeID` INTEGER UNSIGNED NULL,
-  `OrderDate` DATETIME NULL,
-  `Freight` DECIMAL NULL,
-  `ShipName` VARCHAR(40) NULL,
-  `ShipAddress` VARCHAR(60) NULL,
-  `ShipCity` VARCHAR(15) NULL,
-  `ShipRegion` VARCHAR(15) NULL,
-  `ShipPostalCode` VARCHAR(15) NULL,
-  PRIMARY KEY(`OrderID`)
-)
-ENGINE = InnoDB;
-
-ALTER TABLE `linqtestdb`.`orders` ADD CONSTRAINT `FK_orders_1` FOREIGN KEY `FK_orders_1` (`CustomerID`)
-    REFERENCES `Customers` (`CustomerID`)
-    ON DELETE RESTRICT
-    ON UPDATE RESTRICT;
-
-ALTER TABLE `linqtestdb`.`orders` ADD CONSTRAINT `FK_orders_emp` FOREIGN KEY `FK_orders_emp` (`EmployeeID`)
-    REFERENCES `Employees` (`EmployeeID`)
-    ON DELETE RESTRICT
-    ON UPDATE RESTRICT;
-
-####################################################################
-CREATE TABLE `linqtestdb`.`Order Details` (
-  `OrderID` INTEGER NOT NULL,
-  `ProductID` INTEGER UNSIGNED NOT NULL,
-  `UnitPrice` DECIMAL NOT NULL,
-  `Quantity` SMALLINT NOT NULL,
-  `Discount` FLOAT NOT NULL,
-  PRIMARY KEY(`OrderID`,`ProductID`)
-)
-ENGINE = InnoDB;
-
-ALTER TABLE `linqtestdb`.`Order Details` ADD CONSTRAINT `FK_ordersDetails_Ord` FOREIGN KEY `FK_ordersDetails_Ord` (`OrderID`)
-    REFERENCES `Orders` (`OrderID`)
-    ON DELETE RESTRICT
-    ON UPDATE RESTRICT;
-
-ALTER TABLE `linqtestdb`.`Order Details` ADD CONSTRAINT `FK_ordersDetails_Prod` FOREIGN KEY `FK_ordersDetails_Prod` (`ProductID`)
-    REFERENCES `products` (`ProductID`)
-    ON DELETE RESTRICT
-    ON UPDATE RESTRICT;
-
-####################################################################
-CREATE TABLE `linqtestdb`.`Region` (
-  `RegionID` INTEGER NOT NULL AUTO_INCREMENT,
-  `RegionDescription` VARCHAR(50) NOT NULL,
-  PRIMARY KEY(`RegionID`)
-)
-ENGINE = InnoDB;
-
-CREATE TABLE `linqtestdb`.`Territories` (
-  `TerritoryID` VARCHAR(20) NOT NULL,
-  `TerritoryDescription` VARCHAR(50) NOT NULL,
-  `RegionID` INTEGER NOT NULL,
-  PRIMARY KEY(`TerritoryID`)
-)
-ENGINE = InnoDB;
-
-ALTER TABLE `linqtestdb`.`Territories` ADD CONSTRAINT `FK_Terr_Region` FOREIGN KEY `FK_Terr_Region` (`RegionID`)
-    REFERENCES `Region` (`RegionID`)
-    ON DELETE RESTRICT
-    ON UPDATE RESTRICT;
-
-####################################################################
-CREATE TABLE `linqtestdb`.`Shippers` (
+CREATE TABLE `Northwind`.`Shippers` (
   `ShipperID` INTEGER NOT NULL AUTO_INCREMENT,
   `CompanyName` VARCHAR(40) NOT NULL,
   `Phone` VARCHAR(24) NULL,
@@ -166,7 +122,103 @@ CREATE TABLE `linqtestdb`.`Shippers` (
 ENGINE = InnoDB;
 
 ####################################################################
-CREATE TABLE `linqtestdb`.`AllTypes` (
+CREATE TABLE `Northwind`.`Employees` (
+  `EmployeeID` INTEGER NOT NULL AUTO_INCREMENT,
+  `LastName` VARCHAR(20) NOT NULL,
+  `FirstName` VARCHAR(10) NOT NULL,
+  `Title` VARCHAR(30) NULL,
+  `BirthDate` DATETIME NULL,
+  `HireDate` DATETIME NULL,
+  `Address` VARCHAR(60) NULL,
+  `City` VARCHAR(15) NULL,
+  `Region` VARCHAR(15) NULL,
+  `PostalCode` VARCHAR(10) NULL,
+  `Country` VARCHAR(15) NULL,
+  `HomePhone` VARCHAR(24) NULL,
+  `Photo` BLOB NULL,
+  `Notes` TEXT NULL,
+  `ReportsTo` INTEGER NULL,
+  PRIMARY KEY(`EmployeeID`)
+)
+ENGINE = InnoDB;
+
+ALTER TABLE `Northwind`.`Employees` ADD CONSTRAINT `FK_Emp_ReportsToEmp` FOREIGN KEY `FK_Emp_ReportsToEmp` (`ReportsTo`)
+    REFERENCES `Employees` (`EmployeeID`)
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT;
+
+####################################################################
+CREATE TABLE `Northwind`.`EmployeeTerritories` (
+  `EmployeeID` INTEGER NOT NULL,
+  `TerritoryID` VARCHAR(20) NOT NULL
+)
+ENGINE = InnoDB;
+
+ALTER TABLE `Northwind`.`EmployeeTerritories` ADD CONSTRAINT `FK_EmpTerr_Emp` FOREIGN KEY `FK_EmpTerr_Emp` (`EmployeeID`)
+    REFERENCES `Employees` (`EmployeeID`)
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT;
+
+ALTER TABLE `Northwind`.`EmployeeTerritories` ADD CONSTRAINT `FK_EmpTerr_Terr` FOREIGN KEY `FK_EmpTerr_Terr` (`TerritoryID`)
+    REFERENCES `Territories` (`TerritoryID`)
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT;
+
+
+####################################################################
+CREATE TABLE `Northwind`.`Orders` (
+  `OrderID` INTEGER NOT NULL AUTO_INCREMENT,
+  `CustomerID` VARCHAR(5) NULL,
+  `EmployeeID` INTEGER NULL,
+  `OrderDate` DATETIME NULL,
+  `RequiredDate` DATETIME NULL,
+  `ShippedDate` DATETIME NULL,
+  `ShipVia` INT NULL,
+  `Freight` DECIMAL NULL,
+  `ShipName` VARCHAR(40) NULL,
+  `ShipAddress` VARCHAR(60) NULL,
+  `ShipCity` VARCHAR(15) NULL,
+  `ShipRegion` VARCHAR(15) NULL,
+  `ShipPostalCode` VARCHAR(10) NULL,
+  `ShipCountry` VARCHAR(15) NULL,
+  PRIMARY KEY(`OrderID`)
+)
+ENGINE = InnoDB;
+
+ALTER TABLE `Northwind`.`orders` ADD CONSTRAINT `FK_orders_1` FOREIGN KEY `FK_orders_1` (`CustomerID`)
+    REFERENCES `Customers` (`CustomerID`)
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT;
+
+ALTER TABLE `Northwind`.`orders` ADD CONSTRAINT `FK_orders_emp` FOREIGN KEY `FK_orders_emp` (`EmployeeID`)
+    REFERENCES `Employees` (`EmployeeID`)
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT;
+
+####################################################################
+CREATE TABLE `Northwind`.`Order Details` (
+  `OrderID` INTEGER NOT NULL,
+  `ProductID` INTEGER NOT NULL,
+  `UnitPrice` DECIMAL NOT NULL,
+  `Quantity` SMALLINT NOT NULL,
+  `Discount` FLOAT NOT NULL,
+  PRIMARY KEY(`OrderID`,`ProductID`)
+)
+ENGINE = InnoDB;
+
+ALTER TABLE `Northwind`.`Order Details` ADD CONSTRAINT `FK_ordersDetails_Ord` FOREIGN KEY `FK_ordersDetails_Ord` (`OrderID`)
+    REFERENCES `Orders` (`OrderID`)
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT;
+
+ALTER TABLE `Northwind`.`Order Details` ADD CONSTRAINT `FK_ordersDetails_Prod` FOREIGN KEY `FK_ordersDetails_Prod` (`ProductID`)
+    REFERENCES `products` (`ProductID`)
+    ON DELETE RESTRICT
+    ON UPDATE RESTRICT;
+
+
+####################################################################
+CREATE TABLE `Northwind`.`AllTypes` (
   `int` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
   `intN` INTEGER UNSIGNED,
   `double` DOUBLE NOT NULL DEFAULT 0,
@@ -201,70 +253,70 @@ CREATE TABLE `linqtestdb`.`AllTypes` (
 ENGINE = InnoDB
 COMMENT = 'Tests mapping of many MySQL types to CSharp types';
 
-USE linqtestdb;
+USE `Northwind`;
 
 ####################################################################
 ## populate tables with seed data
 ####################################################################
-truncate table `linqtestdb`.`Orders`; -- must be truncated before Customer
-truncate table `linqtestdb`.`Customers`;
+truncate table `Northwind`.`Orders`; -- must be truncated before Customer
+truncate table `Northwind`.`Customers`;
 
-insert `linqtestdb`.`Customers` (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
+insert `Northwind`.`Customers` (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
 values ('AIRBU', 'airbus','jacques','France','10000','Paris');
-insert `linqtestdb`.`Customers` (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
+insert `Northwind`.`Customers` (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
 values ('BT___','BT','graeme','U.K.','E14','London');
 
-insert `linqtestdb`.`Customers` (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
+insert `Northwind`.`Customers` (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
 values ('ATT__','ATT','bob','USA','10021','New York');
-insert `linqtestdb`.`Customers` (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
+insert `Northwind`.`Customers` (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
 values ('UKMOD', 'MOD','(secret)','U.K.','E14','London');
 
-insert `linqtestdb`.`Customers` (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
+insert `Northwind`.`Customers` (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
 values ('ALFKI', 'Alfreds Futterkiste','Maria Anders','Sales Representative','Germany','12209','Berlin','030-0074321');
 
-insert `linqtestdb`.`Customers` (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
+insert `Northwind`.`Customers` (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
 values ('WARTH', 'Wartian Herkku','Pirkko Koskitalo','Accounting Manager','Finland','90110','Oulu','981-443655');
 
-truncate table `linqtestdb`.`Orders`; -- must be truncated before Products
-truncate table `linqtestdb`.`Products`;
+truncate table `Northwind`.`Orders`; -- must be truncated before Products
+truncate table `Northwind`.`Products`;
 ## WARNING: this actually inserts two 'Pen' rows into Products.
 ## could someone with knowledge of MySQL resolve this?
 ## Answer: upgrade to newer version of MySql Query Browser - the problem will go away
-insert `linqtestdb`.`Products` (ProductName,QuantityPerUnit) VALUES ('Pen',10);
-insert `linqtestdb`.`Products` (ProductName,QuantityPerUnit) VALUES ('Bicycle',1);
-insert `linqtestdb`.`Products` (ProductName,QuantityPerUnit) VALUES ('Phone',3);
-insert `linqtestdb`.`Products` (ProductName,QuantityPerUnit) VALUES ('SAM',1);
-insert `linqtestdb`.`Products` (ProductName,QuantityPerUnit) VALUES ('iPod',0);
-insert `linqtestdb`.`Products` (ProductName,QuantityPerUnit) VALUES ('Toilet Paper',2);
-insert `linqtestdb`.`Products` (ProductName,QuantityPerUnit) VALUES ('Fork',5);
+insert `Northwind`.`Products` (ProductName,QuantityPerUnit) VALUES ('Pen',10);
+insert `Northwind`.`Products` (ProductName,QuantityPerUnit) VALUES ('Bicycle',1);
+insert `Northwind`.`Products` (ProductName,QuantityPerUnit) VALUES ('Phone',3);
+insert `Northwind`.`Products` (ProductName,QuantityPerUnit) VALUES ('SAM',1);
+insert `Northwind`.`Products` (ProductName,QuantityPerUnit) VALUES ('iPod',0);
+insert `Northwind`.`Products` (ProductName,QuantityPerUnit) VALUES ('Toilet Paper',2);
+insert `Northwind`.`Products` (ProductName,QuantityPerUnit) VALUES ('Fork',5);
 
-truncate table `linqtestdb`.`Employees`;
-insert `linqtestdb`.`Employees` (LastName,FirstName,Title) VALUES ('Davolio','Nancy','Sales Representative');
+truncate table `Northwind`.`Employees`;
+insert `Northwind`.`Employees` (LastName,FirstName,Title) VALUES ('Davolio','Nancy','Sales Representative');
 
 ####################################################################
-truncate table `linqtestdb`.`Orders`;
-insert `linqtestdb`.`Orders` (CustomerID, EmployeeID, OrderDate)
+truncate table `Northwind`.`Orders`;
+insert `Northwind`.`Orders` (CustomerID, EmployeeID, OrderDate)
 Values (
   (Select CustomerID from Customers Where CompanyName='airbus')
 , 1, now());
 
-insert `linqtestdb`.`Orders` (CustomerID, EmployeeID, OrderDate)
+insert `Northwind`.`Orders` (CustomerID, EmployeeID, OrderDate)
 Values (
   (Select CustomerID from Customers Where CompanyName='BT')
 , 1, now());
 
-insert `linqtestdb`.`Orders` (CustomerID, EmployeeID, OrderDate)
+insert `Northwind`.`Orders` (CustomerID, EmployeeID, OrderDate)
 Values (
   (Select CustomerID from Customers Where CompanyName='BT')
 , 1, now());
 
-insert `linqtestdb`.`Orders` (CustomerID, EmployeeID, OrderDate)
+insert `Northwind`.`Orders` (CustomerID, EmployeeID, OrderDate)
 Values (
   (Select CustomerID from Customers Where CompanyName='MOD')
 , 1, now());
 
 ####################################################################
-INSERT INTO linqtestdb.alltypes (
+INSERT INTO `Northwind`.alltypes (
                `intN` ,
   `double` ,   `doubleN` ,
   `decimal` ,  `decimalN` ,
