@@ -8,14 +8,14 @@ using System.Data.OracleClient;
 using XSqlCommand = System.Data.OracleClient.OracleCommand;
 #endif
 
-namespace ClientCodeOra
+namespace nwind
 {
     class Program
     {
         static void Main(string[] args)
         {
             string connStr = "server=localhost;user=system;password=linq2";
-            LinqTestDB db = new LinqTestDB(connStr);
+            Northwind db = new Northwind(connStr);
             //var q = from at in db.alltypes select at;
             //var q = from p in db.products orderby p.ProductName select p;
             //var q = from c in db.customers from o in c.Orders 

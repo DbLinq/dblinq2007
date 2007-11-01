@@ -11,15 +11,16 @@ using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using DBLinq.Linq;
 
-namespace Client2.user
+namespace nwind
 {
     
 	/// <summary>
 	/// This class represents MySql database LinqTestDB.
 	/// </summary>
-	public partial class LinqTestDB : MContext
+	public partial class Northwind : MContext
 	{
-	    public LinqTestDB(string connStr):base(connStr)
+        public Northwind(string connStr)
+            : base(connStr)
 	    {
 	        Customers = new MTable<Customer>(this);
 			Products = new MTable<Product>(this);

@@ -7,6 +7,8 @@ using nwind;
 
 #if ORACLE
 using xint = System.Int32;
+using XSqlConnection = System.Data.OracleClient.OracleConnection;
+using XSqlCommand = System.Data.OracleClient.OracleCommand;
 #elif POSTGRES
 using xint = System.Int32;
 using XSqlConnection = Npgsql.NpgsqlConnection;
@@ -30,6 +32,7 @@ namespace Test_NUnit
 #else //Mysql, Postgres
         public const string connStr = "server=localhost;user id=LinqUser; password=linq2; database=Northwind";
 
+#endif
         XSqlConnection _conn;
         public XSqlConnection Conn
         {
@@ -39,7 +42,6 @@ namespace Test_NUnit
                 return _conn;
             }
         }
-#endif
 
 #if POSTGRES
         //Postgres sorting: A,B,C,X,d

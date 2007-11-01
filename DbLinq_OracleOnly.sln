@@ -1,12 +1,12 @@
 Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual C# Express Codename Orcas
+# Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OracleMetal", "SqlMetal\OracleMetal.csproj", "{93E8F1C0-866E-4447-94FC-0C36E5CB2243}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientCodeOra", "ClientCodeOra\ClientCodeOra.csproj", "{2D81DF5B-E974-4131-9A41-519C6B9D0EBC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.Oracle", "DbLinq\DbLinq.Oracle.csproj", "{42B135DF-562B-48FD-9A63-4301D29321A6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_NUnit_Ora", "Tests\Test_NUnit\Test_NUnit_Ora.csproj", "{858BAFF7-533F-4DBB-9C9B-57FCDE4DB7CE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.Ora.Example", "Example\DbLinq.Ora.Example\DbLinq.Ora.Example.csproj", "{2D81DF5B-E974-4131-9A41-519C6B9D0EBC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,6 @@ Global
 		{93E8F1C0-866E-4447-94FC-0C36E5CB2243}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{93E8F1C0-866E-4447-94FC-0C36E5CB2243}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93E8F1C0-866E-4447-94FC-0C36E5CB2243}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2D81DF5B-E974-4131-9A41-519C6B9D0EBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2D81DF5B-E974-4131-9A41-519C6B9D0EBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2D81DF5B-E974-4131-9A41-519C6B9D0EBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2D81DF5B-E974-4131-9A41-519C6B9D0EBC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{42B135DF-562B-48FD-9A63-4301D29321A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{42B135DF-562B-48FD-9A63-4301D29321A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42B135DF-562B-48FD-9A63-4301D29321A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -29,6 +25,10 @@ Global
 		{858BAFF7-533F-4DBB-9C9B-57FCDE4DB7CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{858BAFF7-533F-4DBB-9C9B-57FCDE4DB7CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{858BAFF7-533F-4DBB-9C9B-57FCDE4DB7CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D81DF5B-E974-4131-9A41-519C6B9D0EBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D81DF5B-E974-4131-9A41-519C6B9D0EBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D81DF5B-E974-4131-9A41-519C6B9D0EBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D81DF5B-E974-4131-9A41-519C6B9D0EBC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
