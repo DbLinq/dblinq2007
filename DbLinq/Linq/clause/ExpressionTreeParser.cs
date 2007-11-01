@@ -149,7 +149,8 @@ namespace DBLinq.Linq.clause
                     AnalyzeMemberInit(recurData, (MemberInitExpression)expr);
                     return;
                 case ExpressionType.Convert:
-                //case ExpressionType.Cast: //Cast disappeared in Bet2?!
+                case ExpressionType.Not:
+                    //case ExpressionType.Cast: //Cast disappeared in Bet2?!
                     AnalyzeUnary(recurData, (UnaryExpression)expr);
                     return;
                 case ExpressionType.New:
@@ -164,9 +165,10 @@ namespace DBLinq.Linq.clause
                         return;
                     }
                 default:
-                    throw new ApplicationException("Analyze: L105 TODO: "+expr.NodeType);
+                    throw new ApplicationException("L105 TODO add parsing of expression: "+expr.NodeType);
             }
         }
+
 
         private void AnalyzeConstant(RecurData recurData, ConstantExpression expr)
         {
@@ -179,15 +181,13 @@ namespace DBLinq.Linq.clause
                 _result.AppendString(paramName);
                 return;
             }
-            else if(expr.Type==typeof(DateTime) || expr.Type==typeof(DateTime?))
+            else if (val == null)
             {
-                //this is where DateTime.Now gets given to us as a const DateTime
-                if(val==null)
-                {
-                    _result.AppendString("NULL"); //for Nullable DateTime only
-                    return;
-                }
-
+                _result.AppendString("NULL"); //for int? or DateTime? only
+                return;
+            }
+            else if (expr.Type == typeof(DateTime) || expr.Type == typeof(DateTime?))
+            {
                 DateTime dt = (DateTime)val;
                 _result.AppendString("'");
                 //TODO: how to format the datetime string?
@@ -615,7 +615,14 @@ namespace DBLinq.Linq.clause
                 return;
             }
 
+            bool isNot = expr.NodeType==ExpressionType.Not;
+            if(isNot)
+                _result.AppendString(" NOT ");
+
             AnalyzeExpression(recurData, expr.Operand);
+
+            if (isNot)
+                return;
 
             string operatorStr = "UNOP:"+expr.NodeType.ToString(); //formatBinaryOperator(expr.NodeType);
             _result.AppendString(" "+ operatorStr + " ");
