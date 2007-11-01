@@ -287,30 +287,42 @@ truncate table `Northwind`.`Products`;
 ## WARNING: this actually inserts two 'Pen' rows into Products.
 ## could someone with knowledge of MySQL resolve this?
 ## Answer: upgrade to newer version of MySql Query Browser - the problem will go away
-insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit) VALUES ('Pen',10);
-insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit) VALUES ('Bicycle',1);
-insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit) VALUES ('Phone',3);
-insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit) VALUES ('SAM',1);
-insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit) VALUES ('iPod',0);
-insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit) VALUES ('Toilet Paper',2);
-insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit) VALUES ('Fork',5);
+insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES ('Pen',10,     12, 2,  0);
+insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES ('Bicycle',1,  6, 0,  0);
+insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES ('Phone',3,    7, 0,  0);
+insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES ('SAM',1,      51, 11, 0);
+insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES ('iPod',0,     11, 0, 0);
+insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES ('Toilet Paper',2,  0, 3, 1);
+insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES ('Fork',5,   111, 0, 0);
 
 truncate table `Northwind`.`Employees`;
-insert INTO `Northwind`.`Employees` (LastName,FirstName,Title) VALUES ('Davolio','Nancy','Sales Representative');
+
+insert INTO `Northwind`.`Employees` (LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
+VALUES ('Fuller','Andrew','Vice President, Sales','19540101','19890101', '908 W. Capital Way','Tacoma',NULL);
+
+insert INTO `Northwind`.`Employees` (LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
+VALUES ('Davolio','Nancy','Sales Representative','19640101','19940101','507 - 20th Ave. E.  Apt. 2A','Seattle',1);
 
 ####################################################################
 truncate table `Northwind`.`Orders`;
-insert `Northwind`.`Orders` (CustomerID, EmployeeID, OrderDate)
-Values ('AIRBU', 1, now());
+insert `Northwind`.`Orders` (CustomerID, EmployeeID, OrderDate, Freight)
+Values ('AIRBU', 1, now(), 21.3);
 
-insert `Northwind`.`Orders` (CustomerID, EmployeeID, OrderDate)
-Values ('BT___', 1, now());
+insert `Northwind`.`Orders` (CustomerID, EmployeeID, OrderDate, Freight)
+Values ('BT___', 1, now(), 11.1);
 
-insert `Northwind`.`Orders` (CustomerID, EmployeeID, OrderDate)
-Values ('BT___', 1, now());
+insert `Northwind`.`Orders` (CustomerID, EmployeeID, OrderDate, Freight)
+Values ('BT___', 1, now(), 11.5);
 
-insert `Northwind`.`Orders` (CustomerID, EmployeeID, OrderDate)
-Values ('UKMOD', 1, now());
+insert `Northwind`.`Orders` (CustomerID, EmployeeID, OrderDate, Freight)
+Values ('UKMOD', 1, now(), 32.5);
 
 ####################################################################
 INSERT INTO `Northwind`.alltypes (

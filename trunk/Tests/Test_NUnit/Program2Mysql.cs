@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Data.Linq;
-
+using Test_NUnit.Linq_101_Samples;
 #endregion
 
 namespace Test_NUnit
@@ -33,8 +33,10 @@ namespace Test_NUnit
             //ReadTest_Complex rc = new ReadTest_Complex();
             //rc.F11_ConcatString();
             //new WriteTest().E2_UpdateEnum();
-            new WriteTest().E2_UpdateEnum();
+            //new WriteTest().E2_UpdateEnum();
             //new WriteTest_BulkInsert().BI01_InsertProducts();
+            new NullTest().NullableT_HasValue();
+            //new Count_Sum_Min_Max_Avg().LiqnToSqlCount02();
         }
     }
 

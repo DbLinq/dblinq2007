@@ -616,8 +616,26 @@ namespace DBLinq.Linq.clause
             }
 
             bool isNot = expr.NodeType==ExpressionType.Not;
-            if(isNot)
+            if (isNot)
+            {
+                MemberExpression operandMember = expr.Operand.XMember(); //eg. {e.ReportsTo.HasValue}
+                if (operandMember != null)
+                {
+                    //check for 'IS NULL' 
+                    Type opType = operandMember.Expression.Type;
+                    bool isNullExpr = opType.IsGenericType
+                        && opType.GetGenericTypeDefinition() == typeof(Nullable<>)
+                        && operandMember.Member.Name == "HasValue";
+                    if (isNullExpr)
+                    {
+                        //found special case 'X IS NOT NULL'
+                        AnalyzeExpression(recurData, operandMember.Expression); //process {e.ReportsTo}
+                        _result.AppendString(" IS NOT NULL ");
+                        return; //end special case
+                    }
+                }
                 _result.AppendString(" NOT ");
+            }
 
             AnalyzeExpression(recurData, expr.Operand);
 
