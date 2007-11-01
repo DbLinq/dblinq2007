@@ -61,6 +61,7 @@
     <Compile Include="schema\DlinqSchema.cs" />
     <Compile Include="schema\IDBVendor.cs" />
     <Compile Include="schema\mssql\MssqlVendor.cs" />
+    <Compile Include="schema\SchemaPostprocess.cs" />
     <Compile Include="util\Util.cs" />
   </ItemGroup>
   <ItemGroup>
