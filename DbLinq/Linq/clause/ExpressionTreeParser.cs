@@ -124,6 +124,7 @@ namespace DBLinq.Linq.clause
                 case ExpressionType.LessThan:
                 case ExpressionType.LessThanOrEqual:
                 case ExpressionType.Equal:
+                case ExpressionType.NotEqual:
                 case ExpressionType.AndAlso:
                 case ExpressionType.OrElse:
                 case ExpressionType.Multiply:
@@ -397,12 +398,26 @@ namespace DBLinq.Linq.clause
             }
 
             MemberExpression memberInner = expr.Expression.XMember();
-            memberInner = memberInner.StripTransparentID() as MemberExpression;
-            if(memberInner!=null)
+            if (memberInner != null)
             {
-                //process 'o.Customer.City'
-                JoinBuilder.AddJoin2(expr, _inputs, _result);
-                return;
+                //check for 'e.ReportsTo.Value'
+                bool isNullableValue = ExprExtensions.IsTypeNullable(expr.Expression)
+                    && expr.Member.Name=="Value";
+                if (isNullableValue)
+                {
+                    //process as 'e.ReportsTo' - don't go into JoinBuilder
+                    expr = memberInner;
+                }
+                else
+                {
+                    memberInner = memberInner.StripTransparentID() as MemberExpression;
+                    if (memberInner != null)
+                    {
+                        //process 'o.Customer.City'
+                        JoinBuilder.AddJoin2(expr, _inputs, _result);
+                        return;
+                    }
+                }
             }
 
             AssociationAttribute assoc;
@@ -648,7 +663,7 @@ namespace DBLinq.Linq.clause
 
         private void AnalyzeBinary(RecurData recurData, BinaryExpression expr)
         {
-            if (expr.NodeType == ExpressionType.Add && expr.Type==typeof(string))
+            if (expr.NodeType == ExpressionType.Add && expr.Type == typeof(string))
             {
                 //in LinqPreview2006, this used to be MethodCall "Concat"
                 List<string> strings = new List<string>();
@@ -671,11 +686,28 @@ namespace DBLinq.Linq.clause
                 return;
             }
 
+            bool isNE = expr.NodeType == ExpressionType.NotEqual;
+            bool isEQ = expr.NodeType == ExpressionType.Equal;
+            if (isEQ || isNE)
+            {
+                Expression exprBeingComparedWithNull;
+                if (ExprExtensions.IsNullTest(expr, out exprBeingComparedWithNull))
+                {
+                    //special case 'e.ReportsTo==null'
+                    AnalyzeExpression(recurData, exprBeingComparedWithNull);
+                    string opString = isEQ
+                        ? " IS NULL"
+                        : " IS NOT NULL";
+                    _result.AppendString(opString);
+                    return;
+                }
+            }
+
             int precedence = Operators.GetPrecedence(expr.NodeType);
             bool needsBrackets = (recurData.operatorPrecedence > precedence);
             recurData.operatorPrecedence = precedence; //nested methods will see different precedence
-            
-            if(needsBrackets)
+
+            if (needsBrackets)
             {
                 _result.AppendString("(");
             }
@@ -683,14 +715,15 @@ namespace DBLinq.Linq.clause
             AnalyzeExpression(recurData, expr.Left);
 
             string operatorStr = Operators.FormatBinaryOperator(expr.NodeType);
-            _result.AppendString(" "+ operatorStr + " ");
+            _result.AppendString(" " + operatorStr + " ");
 
             AnalyzeExpression(recurData, expr.Right);
-            if(needsBrackets)
+            if (needsBrackets)
             {
                 _result.AppendString(")");
             }
         }
+
         public struct RecurData
         {
             public int depth;

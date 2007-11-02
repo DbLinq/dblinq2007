@@ -62,6 +62,7 @@
     <Compile Include="..\..\Example\DbLinq.MySql.Example\nwind\Northwind.cs">
       <Link>user\LinqTestDB.cs</Link>
     </Compile>
+    <Compile Include="Linq_101_Samples\Advanced.cs" />
     <Compile Include="Linq_101_Samples\Count_Sum_Min_Max_Avg.cs" />
     <Compile Include="Linq_101_Samples\Null.cs" />
     <Compile Include="Program2Mysql.cs" />
