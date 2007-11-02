@@ -23,6 +23,7 @@ namespace Test_NUnit.Linq_101_Samples
                     where e.ReportsTo==null select e;
 
             List<Employee> list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
         }
 
         [Test]
@@ -34,6 +35,7 @@ namespace Test_NUnit.Linq_101_Samples
                     where !e.ReportsTo.HasValue select e;
 
             List<Employee> list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
         }
 
         [Test]
@@ -46,6 +48,33 @@ namespace Test_NUnit.Linq_101_Samples
                     select new { e.FirstName, e.LastName, ReportsTo = e.ReportsTo.Value };
 
             var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+        }
+
+        [Test]
+        public void Null_EX1()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    where null == e.ReportsTo
+                    select e;
+
+            List<Employee> list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+        }
+
+        [Test]
+        public void Null_EX2()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    where null != e.ReportsTo
+                    select e;
+
+            List<Employee> list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
         }
 
     }

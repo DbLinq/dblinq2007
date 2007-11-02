@@ -176,7 +176,7 @@ namespace DBLinq.util
 
         public static Expression XCastOperand(this Expression ex)
         {
-            if(ex==null)
+            if (ex == null)
                 return null;
             //Cast disappeared in Beta2?!
             //if(ex.NodeType==ExpressionType.Cast)
@@ -184,6 +184,58 @@ namespace DBLinq.util
             //    return ((UnaryExpression)ex).Operand;
             //}
             return null;
+        }
+
+        public static ConstantExpression XConstant(this Expression ex)
+        {
+            if (ex == null)
+                return null;
+            if (ex.NodeType == ExpressionType.Constant)
+            {
+                return ((ConstantExpression)ex);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// return true for expression 'e.ReportsTo==null' or 'null==e.ReportsTo'
+        /// </summary>
+        /// <param name="expr"></param>
+        /// <returns></returns>
+        public static bool IsNullTest(BinaryExpression expr, out Expression exprBeingComparedWithNull)
+        {
+            bool foundNullConst = false;
+            Expression exprOther = null;
+            if (expr.Left.NodeType == ExpressionType.Constant && expr.Left.XConstant().Value == null)
+            {
+                foundNullConst = true;
+                exprOther = expr.Right;
+            }
+            else if (expr.Right.NodeType == ExpressionType.Constant && expr.Right.XConstant().Value == null)
+            {
+                foundNullConst = true;
+                exprOther = expr.Left;
+            }
+
+            if (!foundNullConst)
+            {
+                exprBeingComparedWithNull = null;
+                return false;
+            }
+
+            Type opType = exprOther.Type;
+            bool isNullableExpr = opType == typeof(string)
+                            || IsTypeNullable(exprOther);
+            exprBeingComparedWithNull = exprOther;
+            return isNullableExpr;
+        }
+
+        public static bool IsTypeNullable(Expression expr)
+        {
+            if (expr == null)
+                return false;
+            Type type = expr.Type;
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
         
 
