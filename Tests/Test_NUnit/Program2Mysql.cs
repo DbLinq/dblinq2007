@@ -35,7 +35,7 @@ namespace Test_NUnit
             //new WriteTest().E2_UpdateEnum();
             //new WriteTest().E2_UpdateEnum();
             //new WriteTest_BulkInsert().BI01_InsertProducts();
-            new NullTest().NullableT_HasValue();
+            new NullTest().NullableT_Value();
             //new Count_Sum_Min_Max_Avg().LiqnToSqlCount02();
         }
     }

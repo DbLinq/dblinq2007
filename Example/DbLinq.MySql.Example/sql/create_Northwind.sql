@@ -312,16 +312,16 @@ VALUES ('Davolio','Nancy','Sales Representative','19640101','19940101','507 - 20
 
 ####################################################################
 truncate table `Northwind`.`Orders`;
-insert `Northwind`.`Orders` (CustomerID, EmployeeID, OrderDate, Freight)
+insert INTO `Northwind`.`Orders` (CustomerID, EmployeeID, OrderDate, Freight)
 Values ('AIRBU', 1, now(), 21.3);
 
-insert `Northwind`.`Orders` (CustomerID, EmployeeID, OrderDate, Freight)
+insert INTO `Northwind`.`Orders` (CustomerID, EmployeeID, OrderDate, Freight)
 Values ('BT___', 1, now(), 11.1);
 
-insert `Northwind`.`Orders` (CustomerID, EmployeeID, OrderDate, Freight)
+insert INTO `Northwind`.`Orders` (CustomerID, EmployeeID, OrderDate, Freight)
 Values ('BT___', 1, now(), 11.5);
 
-insert `Northwind`.`Orders` (CustomerID, EmployeeID, OrderDate, Freight)
+insert INTO `Northwind`.`Orders` (CustomerID, EmployeeID, OrderDate, Freight)
 Values ('UKMOD', 1, now(), 32.5);
 
 ####################################################################
