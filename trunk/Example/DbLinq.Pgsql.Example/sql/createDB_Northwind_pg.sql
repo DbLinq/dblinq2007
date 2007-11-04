@@ -113,11 +113,21 @@ CREATE TABLE Employees (
 CREATE TABLE Orders (
   OrderID SERIAL NOT NULL,
   CustomerID VARCHAR(5) NOT NULL,
-  ProductID INTEGER NOT NULL,
-  OrderDate TIMESTAMP NOT NULL,
+  EmployeeID INTEGER NULL,
+  OrderDate TIMESTAMP NULL,
+  RequiredDate TIMESTAMP NULL,
+  ShippedDate TIMESTAMP NULL,
+  ShipVia INT NULL,
+  Freight DECIMAL NULL,
+  ShipName VARCHAR(40) NULL,
+  ShipAddress VARCHAR(60) NULL,
+  ShipCity VARCHAR(15) NULL,
+  ShipRegion VARCHAR(15) NULL,
+  ShipPostalCode VARCHAR(10) NULL,
+  ShipCountry VARCHAR(15) NULL,
   PRIMARY KEY(OrderID),
   CONSTRAINT fk_order_customer FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID),
-  CONSTRAINT fk_order_product FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
+  CONSTRAINT fk_order_product FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
 );
  
 --####################################################################
@@ -149,41 +159,43 @@ insert INTO Customers (CustomerID, CompanyName,ContactName, ContactTitle, Countr
 values ('WARTH', 'Wartian Herkku','Pirkko Koskitalo','Accounting Manager','Finland','90110','Oulu','981-443655');
 
 
-truncate table Employees;
-insert INTO Employees (LastName,FirstName,Title) VALUES ('Davolio','Nancy','Sales Representative');
+truncate table Employees CASCADE;
+insert INTO Employees (LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
+VALUES ('Fuller','Andrew','Vice President, Sales','19540101','19890101', '908 W. Capital Way','Tacoma',NULL);
+
+insert INTO Employees (LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
+VALUES ('Davolio','Nancy','Sales Representative','19640101','19940101','507 - 20th Ave. E.  Apt. 2A','Seattle',1);
 
 --truncate table Orders; -- must be truncated before Products
 truncate table Products CASCADE;
 
-insert INTO Products ( ProductName,CategoryID,QuantityPerUnit) VALUES ('Pen',1,10);
-insert INTO Products ( ProductName,CategoryID,QuantityPerUnit) VALUES ('Bicycle',1,1);
-insert INTO Products ( ProductName,CategoryID,QuantityPerUnit) VALUES ('Phone',1,3);
-insert INTO Products ( ProductName,CategoryID,QuantityPerUnit) VALUES ('SAM',1,1);
-insert INTO Products ( ProductName,CategoryID,QuantityPerUnit) VALUES ('iPod',1,0);
-insert INTO Products ( ProductName,CategoryID,QuantityPerUnit) VALUES ('Toilet Paper',1,2);
-insert INTO Products ( ProductName,CategoryID,QuantityPerUnit) VALUES ('Fork',1,5);
-insert INTO Products ( ProductName,CategoryID,QuantityPerUnit) VALUES ('Spoon',1,5);
+insert INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES ('Pen',10,     12, 2,  false);
+insert INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES ('Bicycle',1,  6, 0,  false);
+insert INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES ('Phone',3,    7, 0,  false);
+insert INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES ('SAM',1,      51, 11, false);
+insert INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES ('iPod',0,     11, 0, false);
+insert INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES ('Toilet Paper',2,  0, 3, true);
+insert INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES ('Fork',5,   111, 0, false);
 
 truncate table Orders;
-insert INTO Orders ( CustomerID, ProductID, OrderDate)
-Values ( 'AIRBU'
-, (Select ProductID from Products Where ProductName='Pen')
-, now());
+insert INTO Orders (CustomerID, EmployeeID, OrderDate, Freight)
+Values ('AIRBU', 1, now(), 21.3);
 
-insert INTO Orders ( CustomerID, ProductID, OrderDate)
-Values ( 'BT___'
-, (Select ProductID from Products Where ProductName='Phone')
-, now());
+insert INTO Orders (CustomerID, EmployeeID, OrderDate, Freight)
+Values ('BT___', 1, now(), 11.1);
 
-insert INTO Orders ( CustomerID, ProductID, OrderDate)
-Values ( 'BT___'
-, (Select ProductID from Products Where ProductName='Pen')
-, now());
+insert INTO Orders (CustomerID, EmployeeID, OrderDate, Freight)
+Values ('BT___', 1, now(), 11.5);
 
-insert INTO Orders ( CustomerID, ProductID, OrderDate)
-Values ( 'UKMOD'
-, (Select ProductID from Products Where ProductName='SAM')
-, now());
+insert INTO Orders (CustomerID, EmployeeID, OrderDate, Freight)
+Values ('UKMOD', 1, now(), 32.5);
 
 
 -- please match fieldnames and types to MySql AllTypes table 

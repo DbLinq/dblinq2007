@@ -1,4 +1,4 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -55,6 +55,9 @@
     <Compile Include="..\..\Example\DbLinq.Pgsql.Example\nwind\Northwind.cs">
       <Link>nwind\Northwind.cs</Link>
     </Compile>
+    <Compile Include="Linq_101_Samples\Advanced.cs" />
+    <Compile Include="Linq_101_Samples\Count_Sum_Min_Max_Avg.cs" />
+    <Compile Include="Linq_101_Samples\Null.cs" />
     <Compile Include="Program2Pg.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadTest.cs" />
@@ -70,6 +73,9 @@
       <Project>{423335DF-5677-48FD-9A63-43B1D30321A6}</Project>
       <Name>DbLinq.Pgsql</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Linq_101_Samples\101_readme.htm" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
