@@ -170,19 +170,19 @@ VALUES ('Davolio','Nancy','Sales Representative','19640101','19940101','507 - 20
 truncate table Products CASCADE;
 
 insert INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
-VALUES ('Pen',10,     12, 2,  false);
+VALUES ('Pen',10,     12, 2,  '0');
 insert INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
-VALUES ('Bicycle',1,  6, 0,  false);
+VALUES ('Bicycle',1,  6, 0,  '0');
 insert INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
-VALUES ('Phone',3,    7, 0,  false);
+VALUES ('Phone',3,    7, 0,  '0');
 insert INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
-VALUES ('SAM',1,      51, 11, false);
+VALUES ('SAM',1,      51, 11, '0');
 insert INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
-VALUES ('iPod',0,     11, 0, false);
+VALUES ('iPod',0,     11, 0, '0');
 insert INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
-VALUES ('Toilet Paper',2,  0, 3, true);
+VALUES ('Toilet Paper',2,  0, 3, '1');
 insert INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
-VALUES ('Fork',5,   111, 0, false);
+VALUES ('Fork',5,   111, 0, '0');
 
 truncate table Orders;
 insert INTO Orders (CustomerID, EmployeeID, OrderDate, Freight)
