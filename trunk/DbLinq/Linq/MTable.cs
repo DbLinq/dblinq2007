@@ -106,7 +106,6 @@ namespace DBLinq.Linq
         /// </summary>
         public IQueryable<S> CreateQuery<S>(Expression expr)
         {
-            //Log1.Info("MTable.CreateQuery: "+expr);
             if (_parentDB.Log != null)
             {
                 _vars.log = _parentDB.Log;

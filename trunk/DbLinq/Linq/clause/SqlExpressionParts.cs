@@ -30,6 +30,7 @@ namespace DBLinq.Linq.clause
 {
     /// <summary>
     /// Object which holds the pieces of a SELECT as it's being put together.
+    /// The ToString() method is used to produce the final SQL statement.
     /// </summary>
     public class SqlExpressionParts //: ICloneable
     {
@@ -88,12 +89,25 @@ namespace DBLinq.Linq.clause
         /// </summary>
         private readonly List<string> whereList = new List<string>();
 
+        public readonly List<string> orderByList = new List<string>();
+        public string orderBy_desc;
+
         public readonly List<string> groupByList = new List<string>();
 
         public readonly List<string> havingList = new List<string>();
 
-        public string           countClause;
-        public string           distinctClause;
+        public string countClause;
+        public string distinctClause;
+
+        /// <summary>
+        /// 'Take(3)' gets translated into 'LIMIT 3'
+        /// </summary>
+        public int? limitClause;
+
+        /// <summary>
+        /// 'Skip(2)' gets translated into 'OFFSET 2'
+        /// </summary>
+        public int? offsetClause;
 
         /// <summary>
         /// parameters, eg {'?P0'=>'London'}
@@ -113,8 +127,12 @@ namespace DBLinq.Linq.clause
             doneClauses = new List<string>(orig.doneClauses);
             whereList = new List<string>(orig.whereList);
             groupByList = new List<string>(orig.groupByList);
+            orderByList = new List<string>(orig.orderByList);
+            orderBy_desc = orig.orderBy_desc;
             countClause = orig.countClause;
             distinctClause = orig.distinctClause;
+            limitClause = orig.limitClause;
+            offsetClause = orig.offsetClause;
             paramMap = new Dictionary<string,object>(orig.paramMap);
         }
 
@@ -171,6 +189,25 @@ namespace DBLinq.Linq.clause
             appendCsvList(sb, " GROUP BY ", groupByList, ", ");
             appendCsvList(sb, " HAVING ", havingList, ", ");
 
+            if (limitClause == null && offsetClause != null)
+            {
+                //Mysql does not allow OFFSET without LIMIT.
+                //use a hack:
+                //change 'SELECT * FROM customers               OFFSET 2' 
+                //into   'SELECT * FROM customers LIMIT 9999999 OFFSET 2' 
+                limitClause = 9999999;
+            }
+
+            appendCsvList(sb, " ORDER BY ", orderByList, ", ");
+            if (orderBy_desc != null)
+                sb.Append(' ').Append(orderBy_desc).Append(' '); //' DESC '
+
+            if (limitClause != null)
+                sb.Append(" LIMIT " + limitClause.Value);
+
+            if (offsetClause != null)
+                sb.Append(" OFFSET " + offsetClause.Value);
+
             return sb.ToString();
         }
 
@@ -196,6 +233,7 @@ namespace DBLinq.Linq.clause
 
         public SqlExpressionParts Clone()
         {
+            //don't use MemberwiseClone, since our fields are marked 'readonly'
             //clone._serial = s_serial++;
             return new SqlExpressionParts(this);
         }

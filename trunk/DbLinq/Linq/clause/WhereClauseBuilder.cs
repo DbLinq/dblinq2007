@@ -55,8 +55,9 @@ namespace DBLinq.Linq.clause
         }
 
         /// <summary>
-        /// given entire where clause (starts with MethodCall 'where'),
-        /// find the lambda
+        /// given entire clause (eg. where starts with MethodCall 'where'),
+        /// find the lambda, e.g. {p=>p.ProductId}.
+        /// Some expressions contain no lambdas (Take(),Skip(),Distinct()) and return null.
         /// </summary>
         public static LambdaExpression FindLambda(Expression expr,out string methodName)
         {
@@ -68,8 +69,8 @@ namespace DBLinq.Linq.clause
 
             MethodCallExpression methodCall = (MethodCallExpression)expr;
             methodName = methodCall.Method.Name;
-            
-            if(methodName=="Take" || methodName=="Distinct")
+
+            if (methodName == "Take" || methodName == "Skip" || methodName == "Distinct")
             {
                 //this is a special case - there is no lambda anywhere?
                 return null;

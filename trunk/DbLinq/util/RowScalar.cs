@@ -60,7 +60,8 @@ namespace DBLinq.util
                         throw new ApplicationException("L39: Not prepared for double projection");
                     //Microsoft syntax: "SELECT TOP 1 ProductId FROM Products"
                     //MySql syntax:     "SELECT ProductId FROM Products LIMIT 1"
-                    _vars.limitClause = "LIMIT 1";
+                    //_vars.limitClause = "LIMIT 1";
+                    _vars._sqlParts.limitClause = 1;
                     foreach(T t in _parentTable) //call GetEnumerator
                     {
                         object firstObj = t; 
@@ -160,8 +161,9 @@ namespace DBLinq.util
                             //get SessionVars, append our whereClause, append "LIMIT2"
                             enumerator = table2.GetModifiedEnumerator( 
                                 delegate(SessionVars vars)
-                                { 
-                                    vars.limitClause = "LIMIT 2"; 
+                                {
+                                    //vars.limitClause = "LIMIT 2";
+                                    vars._sqlParts.limitClause = 2;
                                     vars.StoreLambda("Where", lambdaParam);
                                 }
                             ).GetEnumerator();
