@@ -81,7 +81,7 @@ namespace DBLinq.Linq
         public LambdaExpression groupByNewExpr;
 
         public ProjectionData   projectionData;
-        public string           limitClause;
+        //public string           limitClause;
 
         /// <summary>
         /// in SelectMany, there is mapping c.Orders => o
@@ -109,13 +109,16 @@ namespace DBLinq.Linq
 
         /// <summary>
         /// Look at selectExpr or whereExpr, return e.g. '$c'
+        /// TODO - needs to be processed earlier, at ProcessLambda() time.
         /// </summary>
         public string GetDefaultVarName()
         {
             if(selectExpr!=null)
                 return VarName.GetSqlName(selectExpr.Parameters[0].Name);
-            if(whereExpr.Count>0)
+            if (whereExpr.Count > 0)
                 return VarName.GetSqlName(whereExpr[0].Parameters[0].Name);
+            if (orderByExpr.Count > 0)
+                return VarName.GetSqlName(orderByExpr[0].Parameters[0].Name);
             return VarName.GetSqlName("x"); //if no expressions, provide fallback
         }
 
@@ -193,21 +196,32 @@ namespace DBLinq.Linq
             }
 
 
-            LambdaExpression lambda = WhereClauseBuilder.FindLambda(expr,out methodName);
+            LambdaExpression lambda = WhereClauseBuilder.FindLambda(expr, out methodName);
+
+            //first, handle special cases, which have no lambdas: Take,Skip, Distinct
             if(methodName=="Take")
             {
                 Expression howMany = expr.XMethodCall().XParam(1);
                 if( !(howMany is ConstantExpression) )
-                    throw new ArgumentException("Take must come with ConstExpr");
+                    throw new ArgumentException("Take() must come with ConstExpr");
                 ConstantExpression howMany2 = (ConstantExpression)howMany;
-                this.limitClause = "LIMIT "+howMany2.Value; 
+                this._sqlParts.limitClause = (int)howMany2.Value;
             }
-            else if(methodName=="Distinct")
+            else if (methodName == "Skip")
+            {
+                Expression howMany = expr.XMethodCall().XParam(1);
+                if (!(howMany is ConstantExpression))
+                    throw new ArgumentException("Skip() must come with ConstExpr");
+                ConstantExpression howMany2 = (ConstantExpression)howMany;
+                this._sqlParts.offsetClause = (int)howMany2.Value;
+            }
+            else if (methodName == "Distinct")
             {
                 this._sqlParts.distinctClause = "DISTINCT";
             }
             else
             {
+                //then, handle regular clauses containing lambdas
                 StoreLambda(methodName, lambda);
             }
         }

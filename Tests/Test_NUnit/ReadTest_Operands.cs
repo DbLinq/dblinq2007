@@ -30,6 +30,9 @@ namespace Test_NUnit
             int count = 0;
             foreach (string s in q)
             {
+                if (s == null)
+                    continue; //concat('X',NULL) -> NULL 
+
                 bool ok = Char.IsLetterOrDigit(s[0]) && s.Contains(' ');
                 Assert.IsTrue(ok, "Concat string should start with product name, instead got:" + s);
                 count++;

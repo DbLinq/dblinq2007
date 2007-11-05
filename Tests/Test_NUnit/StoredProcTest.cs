@@ -44,12 +44,30 @@ namespace Test_NUnit
         public void SP3_GetOrderCount_SelField()
         {
             Northwind db = base.CreateDB();
-            var q = from c in db.Customers select new {c, OrderCount=db.getOrderCount(c.CustomerID)};
+            var q = from c in db.Customers 
+                    select new { c.CustomerID, OrderCount = db.getOrderCount(c.CustomerID) };
+
+            int count = 0;
+            foreach (var c in q)
+            {
+                Assert.IsNotNull(c.CustomerID);
+                Assert.Greater(c.OrderCount, -1);
+                count++;
+            }
+            Assert.Greater(count, 0);
+        }
+
+        [Test]
+        public void SP4_GetOrderCount_SelField_B()
+        {
+            Northwind db = base.CreateDB();
+            var q = from c in db.Customers 
+                    select new {c, OrderCount=db.getOrderCount(c.CustomerID)};
 
             int count = 0;
             foreach (var v in q)
             {
-                Assert.Greater(v.c.CustomerID, 0);
+                Assert.IsNotNull(v.c.CustomerID);
                 Assert.Greater(v.OrderCount, -1);
                 count++;
             }
@@ -57,7 +75,7 @@ namespace Test_NUnit
         }
 
         [Test]
-        public void SP4_GetOrderCount_Having()
+        public void SPB_GetOrderCount_Having()
         {
             Northwind db = base.CreateDB();
             var q = from c in db.Customers where db.getOrderCount(c.CustomerID) > 1 select c;

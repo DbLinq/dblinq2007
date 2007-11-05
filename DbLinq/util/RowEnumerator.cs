@@ -92,42 +92,6 @@ namespace DBLinq.util
             CompileReaderFct();
 
             _sqlString = vars.sqlString;
-#if NEVER
-            //eg. '$p' for user query "from p in db.products"
-            if(vars._sqlParts.IsEmpty())
-            {
-                //occurs when there no Where or Select expression, eg. 'from p in Products select p'
-                //select all fields of target type:
-                string varName = _vars.GetDefaultVarName(); //'$x'
-                FromClauseBuilder.SelectAllFields(vars, vars._sqlParts,typeof(T),varName);
-                //PS. Should _sqlParts not be empty here? Debug Clone() and AnalyzeLambda()
-            }
-
-            string sql = vars._sqlParts.ToString();
-
-            if(vars.orderByExpr!=null)
-            {
-                //TODO: don't look at C# field name, retrieve SQL field name from attrib
-                Expression body = vars.orderByExpr.Body;
-                MemberExpression member = body as MemberExpression;
-                if(member!=null)
-                {
-                    sql += " ORDER BY " + member.Member.Name;
-                    if(vars.orderBy_desc!=null)
-                    {
-                        sql += " " + vars.orderBy_desc;
-                    }
-                }
-            }
-
-            if(vars.limitClause!=null)
-            {
-                sql += " " + vars.limitClause;
-            }
-
-            _sqlString = sql;
-            Console.WriteLine("SQL: "+_sqlString);
-#endif
         }
 
         protected virtual void CompileReaderFct()

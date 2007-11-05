@@ -284,13 +284,18 @@ values ('WARTH', 'Wartian Herkku','Pirkko Koskitalo','Accounting Manager','Finla
 
 truncate table `Northwind`.`Orders`; -- must be truncated before Products
 truncate table `Northwind`.`Products`;
-## WARNING: this actually inserts two 'Pen' rows into Products.
+truncate table `Northwind`.`Suppliers`;
+
+insert INTO Suppliers (CompanyName, ContactName, ContactTitle, Address, City, Region, Country)
+VALUES ('alles AG', 'Harald Reitmeyer', 'Prof', 'Fischergasse 8', 'Heidelberg', 'B-W', 'Germany');
+
+## (OLD WARNING: this actually inserts two 'Pen' rows into Products.)
 ## could someone with knowledge of MySQL resolve this?
 ## Answer: upgrade to newer version of MySql Query Browser - the problem will go away
-insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
-VALUES ('Pen',10,     12, 2,  0);
-insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
-VALUES ('Bicycle',1,  6, 0,  0);
+insert INTO `Northwind`.`Products` (ProductName,SupplierID, QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES ('Pen',1, 10,     12, 2,  0);
+insert INTO `Northwind`.`Products` (ProductName,SupplierID, QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES ('Bicycle',1, 1,  6, 0,  0);
 insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
 VALUES ('Phone',3,    7, 0,  0);
 insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)

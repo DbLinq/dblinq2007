@@ -117,6 +117,15 @@ namespace DBLinq.Linq
                 }
             }
 
+            foreach(LambdaExpression orderByExpr in _vars.orderByExpr)
+            {
+                ParseInputs inputs = new ParseInputs(result);
+                result = ExpressionTreeParser.Parse(orderByExpr.Body, inputs);
+                string orderByFields = string.Join(",", result.columns.ToArray());
+                _vars._sqlParts.orderByList.Add(orderByFields);
+                _vars._sqlParts.orderBy_desc = _vars.orderBy_desc; //copy 'DESC' specifier
+            }
+
             if(_vars.selectExpr!=null)
             {
                 ParseInputs inputs = new ParseInputs(result);
@@ -151,7 +160,7 @@ namespace DBLinq.Linq
             }
 
             string sql = _vars._sqlParts.ToString();
-
+#if NEVER
             if (_vars.orderByExpr.Count>0)
             {
                 //TODO: don't look at C# field name, retrieve SQL field name from attrib
@@ -172,13 +181,13 @@ namespace DBLinq.Linq
                     sql += " " + _vars.orderBy_desc;
                 }
             }
-
             if (_vars.limitClause != null)
             {
                 sql += " " + _vars.limitClause;
             }
+#endif
 
-            if(_vars.log!=null)
+            if (_vars.log!=null)
                 _vars.log.WriteLine("SQL: " + sql);
 
             _vars.sqlString = sql;
