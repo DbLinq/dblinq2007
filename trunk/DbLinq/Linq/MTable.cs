@@ -75,17 +75,15 @@ namespace DBLinq.Linq
         readonly Dictionary<T,T> _liveObjectMap = new Dictionary<T,T>();
         readonly List<T> _deleteList = new List<T>();
 
-        //SqlExpressionParts _sqlParts = new SqlExpressionParts();
-        SessionVars _vars = new SessionVars();
+        readonly SessionVars _vars;
 
         public MTable(MContext parent)
         {
             _parentDB = parent;
             _parentDB.RegisterChild(this);
-            _vars.context = this._parentDB;
+            _vars = new SessionVars(parent);
             _vars.sourceType = typeof(T);
             _vars.log = parent.Log;
-            //_vars._sqlParts = _sqlParts;
         }
 
         /// <summary>
