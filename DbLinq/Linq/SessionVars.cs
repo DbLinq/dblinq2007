@@ -36,6 +36,8 @@ namespace DBLinq.Linq
     /// holds variables that are generated 
     /// during expression parsing and querying.
     /// They are passed from MTable to MTable_Projected to RowEnumerator.
+    /// 
+    /// TODO: refactor to hold List of Expression instead of whereExpr, selectExpr etc.
     /// </summary>
     public class SessionVars
     {
@@ -106,6 +108,32 @@ namespace DBLinq.Linq
         /// </summary>
         public System.IO.TextWriter log;
 
+        /// <summary>
+        /// used only in FromClauseBuilder. TODO: refactor away
+        /// </summary>
+        public SessionVars()
+        {
+        }
+
+        public SessionVars(MContext parentContext)
+        {
+            context = parentContext;
+        }
+
+        /// <summary>
+        /// We don't want subsequent queries (e.g. Count()) to modify early one (eg. Where)
+        /// </summary>
+        public SessionVars Clone()
+        {
+            SessionVars clone = (SessionVars)base.MemberwiseClone();
+            clone._serial = s_serial++; //strange - MemberwiseClone ignores readonly attrib
+            //Console.WriteLine("  SessionVars cloned " + _serial + " -> " + clone._serial);
+            clone._sqlParts = _sqlParts.Clone();
+            clone.createQueryList = new List<Type>(this.createQueryList);
+            clone.whereExpr = new List<LambdaExpression>(this.whereExpr);
+            clone.lambdasInOrder.AddRange(this.lambdasInOrder);
+            return clone;
+        }
 
         /// <summary>
         /// Look at selectExpr or whereExpr, return e.g. '$c'
@@ -120,21 +148,6 @@ namespace DBLinq.Linq
             if (orderByExpr.Count > 0)
                 return VarName.GetSqlName(orderByExpr[0].Parameters[0].Name);
             return VarName.GetSqlName("x"); //if no expressions, provide fallback
-        }
-
-        /// <summary>
-        /// We don't want subsequent queries (e.g. Count()) to modify early one (eg. Where)
-        /// </summary>
-        public SessionVars Clone()
-        {
-            SessionVars clone = (SessionVars) base.MemberwiseClone();
-            clone._serial = s_serial++; //strange - MemberwiseClone ignores readonly attrib
-            //Console.WriteLine("  SessionVars cloned " + _serial + " -> " + clone._serial);
-            clone._sqlParts = _sqlParts.Clone();
-            clone.createQueryList = new List<Type>(this.createQueryList);
-            clone.whereExpr = new List<LambdaExpression>(this.whereExpr);
-            clone.lambdasInOrder.AddRange(this.lambdasInOrder);
-            return clone;
         }
 
         /// <summary>
