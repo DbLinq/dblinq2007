@@ -64,7 +64,9 @@
     </Compile>
     <Compile Include="Linq_101_Samples\Advanced.cs" />
     <Compile Include="Linq_101_Samples\Count_Sum_Min_Max_Avg.cs" />
+    <Compile Include="Linq_101_Samples\Join.cs" />
     <Compile Include="Linq_101_Samples\Null.cs" />
+    <Compile Include="Linq_101_Samples\Object_Identity.cs" />
     <Compile Include="Linq_101_Samples\Top_Bottom.cs" />
     <Compile Include="Program2Mysql.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

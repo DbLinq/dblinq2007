@@ -28,16 +28,16 @@ namespace Test_NUnit
             //new ReadTest_GroupBy().G01_SimpleGroup_Count();
             //new ReadTest_AllTypes().AT5_SelectEnum_();
             //new ReadTest_Operands().H1_SelectConcat();
-            //new ReadTest_GroupBy().G04_SimpleGroup_WithSelector();
             //new ReadTest_GroupBy().G05_Group_Into();
-            //ReadTest_Complex rc = new ReadTest_Complex();
+            new ReadTest_Complex().F7_ExplicitJoin();
             //rc.F11_ConcatString();
             //new WriteTest().E2_UpdateEnum();
             //new WriteTest().E2_UpdateEnum();
             //new WriteTest_BulkInsert().BI01_InsertProducts();
             //new NullTest().NullableT_Value();
             //new Count_Sum_Min_Max_Avg().LiqnToSqlCount02();
-            new Top_Bottom().LinqToSqlTop03_Ex_Andrus();
+            //new Top_Bottom().LinqToSqlTop03_Ex_Andrus();
+            //new Join().LinqToSqlJoin01();
         }
     }
 
