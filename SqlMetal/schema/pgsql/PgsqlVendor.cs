@@ -152,7 +152,8 @@ namespace SqlMetal.schema.pgsql
                     {
                         string msg = "Missing data from 'constraint_column_usage' for foreign key "+keyColRow.constraint_name;
                         Console.WriteLine(msg);
-                        throw new ApplicationException(msg);
+                        //throw new ApplicationException(msg);
+                        continue; //as per Andrus, do not throw. //putting together an Adnrus_DB test case.
                     }
 
                     //if not PRIMARY, it's a foreign key.
