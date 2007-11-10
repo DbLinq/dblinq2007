@@ -159,9 +159,6 @@ public EntityMSet<$childClassName> $fieldName
             List<string> linksToChildTables = new List<string>();
             foreach(DlinqSchema.Association assoc in ourChildren)
             {
-                //DlinqSchema.Association assoc2 = findReverseAssoc(schema, assoc);
-                //if(assoc2==null)
-                //    continue; //error already printed
                 DlinqSchema.Table targetTable = schema.Tables.FirstOrDefault(t => t.Type.Name == assoc.Type);
                 if(targetTable==null)
                 {
@@ -175,8 +172,8 @@ public EntityMSet<$childClassName> $fieldName
                 string childTableName = assoc.Type;
                 string childColName     = assoc.OtherKey; //.Columns[0].Name; //eg. 'CustomerID'
                 string fkName           = assoc.Name; //eg. 'FK_Orders_Customers'
-                string childClassName = assoc.Type; // targetTable.Class ?? targetTable.Name;
-                string fieldName = assoc.Member; //childClassName+"s";
+                string childClassName = assoc.Type;
+                string fieldName = assoc.Member;
                 str = str.Replace("$childTableName",    childTableName);
                 str = str.Replace("$childColName",      childColName);
                 str = str.Replace("$fkName",            fkName);
@@ -277,6 +274,7 @@ public $parentClassTyp $member {
     //TODO: move this logic our of user code, into a generated class
     public override int GetHashCode()
     {
+        $checkForNullFieldId
         return $fieldID.GetHashCode();
     }
     public override bool Equals(object obj)
@@ -290,14 +288,12 @@ public $parentClassTyp $member {
 ";
 
             string tableName = table.Name;
-            //List<DlinqSchema.ColumnSpecifier> primaryKeys = table.PrimaryKey;
             List<DlinqSchema.Column> primaryKeys = table.Type.Columns.Where(c => c.IsPrimaryKey).ToList();
             if(primaryKeys.Count==0)
             {
                 return "#warning L189 table "+tableName+" has no primary key. Multiple c# objects will refer to the same row.\n";
             }
             //TODO - handle composite keys
-            //TODO - ensure primary key column is non-null, even for composite keys
             if (primaryKeys == null || primaryKeys.Count == 0 //&& primaryKeys[0].Columns == null || primaryKeys[0].Columns.Count == 0
                 )
             {
@@ -308,7 +304,15 @@ public $parentClassTyp $member {
             string fieldName = "_"+primaryKeys[0].Name;
 
             template = template.Replace("    ", "\t"); //four spaces mean a tab
+
+            //ensure primary key column is non-null, even for composite keys
+            string checkForNullFieldId = CSharp.IsValueType(primaryKeys[0].Type)
+                ? ""
+                : "if(" + fieldName + " == null) return 0;" + NL;
+            template = template.Replace("$checkForNullFieldId\r\n", checkForNullFieldId);
+
             string result = template.Replace("$fieldID", fieldName);
+
             result = result.Replace("$className", table.Type.Name);
             return result;
         }

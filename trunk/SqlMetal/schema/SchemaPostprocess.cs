@@ -32,6 +32,7 @@ namespace SqlMetal.schema
                     col.Name = "Contents"; //rename field Alltypes.Alltypes to Alltypes.Contents
             }
 
+            Dictionary<string, bool> knownAssocs = new Dictionary<string, bool>();
             foreach (DlinqSchema.Association assoc in table.Type.Associations)
             {
                 if (assoc.Member == table.Type.Name)
@@ -39,6 +40,18 @@ namespace SqlMetal.schema
                     string thisKey = assoc.ThisKey ?? "_TODO_L35";
                     assoc.Member = thisKey + assoc.Member; //rename field Employees.Employees to Employees.RefersToEmployees
                 }
+                
+                if(knownAssocs.ContainsKey(assoc.Member))
+                {
+                    //this is the Andrus test case in Pgsql:
+                    //  create table t1 ( private int primary key);
+                    //  create table t2 ( f1 int references t1, f2 int references t1 );
+
+                    assoc.Member += "_" + assoc.Name;
+
+                }
+
+                knownAssocs[assoc.Member] = true;
             }
 
         }
