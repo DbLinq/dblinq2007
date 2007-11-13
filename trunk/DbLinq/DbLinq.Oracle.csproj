@@ -86,6 +86,7 @@
     <Compile Include="vendor\Oracle\DataReader2_Ora.cs" />
     <Compile Include="vendor\Oracle\OracleTypeConversions.cs" />
     <Compile Include="vendor\Oracle\VendorOra.cs" />
+    <Compile Include="vendor\Settings.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

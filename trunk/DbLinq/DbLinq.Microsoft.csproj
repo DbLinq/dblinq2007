@@ -84,6 +84,7 @@
     <Compile Include="vendor\Microsoft\DataReader2.cs" />
     <Compile Include="vendor\Microsoft\MsSqlTypeConversions.cs" />
     <Compile Include="vendor\Microsoft\VendorMs.cs" />
+    <Compile Include="vendor\Settings.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

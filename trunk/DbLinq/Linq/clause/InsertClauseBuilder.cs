@@ -72,7 +72,8 @@ namespace DBLinq.Linq.clause
             if(projData.fields.Count<1 || projData.fields[0].columnAttribute==null)
                 throw new ApplicationException("InsertClauseBuilder need to receive types that have ColumnAttributes");
 
-            StringBuilder sb = new StringBuilder("INSERT INTO ");
+            StringBuilder sb = new StringBuilder(DBLinq.vendor.Settings.sqlStatementProlog)
+                .Append("INSERT INTO ");
             StringBuilder sbVals = new StringBuilder("VALUES (");
             sb.Append(projData.tableAttribute.Name).Append(" (");
             List<XSqlParameter> paramList = new List<XSqlParameter>();

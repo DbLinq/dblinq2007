@@ -57,6 +57,8 @@ namespace DBLinq.Linq
         readonly string _sqlConnString;
         XSqlConnection _conn;
 
+        readonly Dictionary<string, IMTable> _tableMap = new Dictionary<string, IMTable>();
+
         public MContext(string sqlConnString)
         {
             _sqlConnString = sqlConnString;
@@ -87,9 +89,20 @@ namespace DBLinq.Linq
 
         public string SqlConnString { get { return _sqlConnString; } }
 
+        [Obsolete("NOT IMPLEMENTED YET")]
         public bool DatabaseExists()
         {
             throw new NotImplementedException();
+        }
+
+        public MTable<T> GetTable<T>(string tableName) where T : IModified
+        {
+            IMTable tableExisting;
+            if (_tableMap.TryGetValue(tableName, out tableExisting))
+                return tableExisting as MTable<T>; //return existing
+            MTable<T> tableNew = new MTable<T>(this); //create new and store it
+            _tableMap[tableName] = tableNew;
+            return tableNew;
         }
 
         public void RegisterChild(IMTable table)

@@ -104,7 +104,10 @@ namespace DBLinq.util
 
         protected XSqlCommand ExecuteSqlCommand(XSqlConnection newConn, out DataReader2 rdr2)
         {
-            XSqlCommand cmd = new XSqlCommand(_sqlString, newConn);
+            //prepend user prolog string, if any
+            string sqlFull = DBLinq.vendor.Settings.sqlStatementProlog + _sqlString;
+
+            XSqlCommand cmd = new XSqlCommand(sqlFull, newConn);
 
             if(_vars._sqlParts!=null)
             {
