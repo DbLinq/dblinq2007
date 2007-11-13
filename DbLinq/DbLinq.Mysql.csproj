@@ -89,6 +89,7 @@
     <Compile Include="vendor\Mysql\DataReader2.cs" />
     <Compile Include="vendor\Mysql\MySqlTypeConversions.cs" />
     <Compile Include="vendor\Mysql\VendorMysql.cs" />
+    <Compile Include="vendor\Settings.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

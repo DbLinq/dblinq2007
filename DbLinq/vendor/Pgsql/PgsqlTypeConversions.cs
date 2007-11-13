@@ -35,6 +35,8 @@ namespace DBLinq.vendor
                         return NpgsqlDbType.Integer;
                     case "int":
                         return NpgsqlDbType.Integer;
+                    case "character":
+                        return NpgsqlDbType.Char;
                     case "character varying":
                         return NpgsqlDbType.Varchar;
                 }

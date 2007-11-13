@@ -61,8 +61,8 @@ namespace DBLinq.vendor
         /// </summary>
         public static string FieldName_Safe(string name)
         {
-            if (name.ToLower() == "user")
-                return "[" + name + "]";
+            //if (name.ToLower() == "user")
+            //    return "[" + name + "]"; //this is wrong for Pgsql, says Andrus
             return name;
         }
 

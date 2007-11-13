@@ -118,11 +118,9 @@ public partial class $dbname : MContext
 {
     public $dbname(string connStr) : base(connStr)
     {
-        $fieldInit
     }
     public $dbname(System.Data.IDbConnection connection) : base(connection)
     {
-        $fieldInit
     }
 
     //these fields represent tables in database and are
@@ -147,15 +145,19 @@ public partial class $dbname : MContext
                 //string tableNamePlural = tbl.Name.Capitalize().Pluralize();
                 string tableNamePlural = Util.TableNamePlural(tbl.Member ?? tbl.Name);
 
-                string fldDecl = string.Format("public readonly MTable<{1}> {0};"
-                    , tableNamePlural, className);
+                //string fldDecl = string.Format("public readonly MTable<{1}> {0};", tableNamePlural, className);
+                string fldDecl = "public MTable<$1> $0 { get { return base.GetTable<$1>(\"$0\"); } }"
+                    .Replace("$0", tableNamePlural)
+                    .Replace("$1", className); //cannot use string.Format() - there are curly brackets
                 dbFieldDecls.Add(fldDecl);
 
                 string fldInit = string.Format("{0} = new MTable<{1}>(this);"
                     , tableNamePlural, className);
                 dbFieldInits.Add(fldInit);
             }
-            string dbFieldInitStr = string.Join(NL + "\t\t", dbFieldInits.ToArray());
+
+            //obsolete - we cannot declare a field for each table - it's a problem for large DBs
+            //string dbFieldInitStr = string.Join(NL + "\t\t", dbFieldInits.ToArray());
             string dbFieldDeclStr = string.Join(NL + "\t", dbFieldDecls.ToArray());
 
             List<string> storedProcList = new List<string>();
@@ -164,13 +166,20 @@ public partial class $dbname : MContext
                 string s = CodeGenStoredProc.FormatProc(storedProc);
                 storedProcList.Add(s);
             }
+            
+            if (storedProcList.Count > 0)
+            {
+                storedProcList.Insert(0, "#region stored procs");
+                storedProcList.Add("#endregion");
+            }
+
             string storedProcsStr = string.Join(NLNL, storedProcList.ToArray());
 
             string dbs = dbClassStr;
             dbs = dbs.Replace("    ", "\t"); //for spaces mean a tab
             dbs = dbs.Replace("$vendor", vendorName);
             dbs = dbs.Replace("$dbname", dbName);
-            dbs = dbs.Replace("$fieldInit", dbFieldInitStr);
+            //dbs = dbs.Replace("$fieldInit", dbFieldInitStr); //no more tables as fields
             dbs = dbs.Replace("$fieldDecl", dbFieldDeclStr);
             dbs = dbs.Replace("$storedProcs", storedProcsStr);
             return dbs;
