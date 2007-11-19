@@ -72,7 +72,7 @@ namespace DBLinq.util
         /// </summary>
         /// <param name="projFld"></param>
         /// <returns></returns>
-        public static MemberAssignment BuildProjFieldBinding(SessionVars vars, ProjectionData.ProjectionField projFld, ParameterExpression rdr, ref int fieldID)
+        public static MemberAssignment BuildProjFieldBinding(SessionVarsParsed vars, ProjectionData.ProjectionField projFld, ParameterExpression rdr, ref int fieldID)
         {
             PropertyInfo[] igroupies = projFld.FieldType.GetProperties();
             ConstructorInfo[] ictos = projFld.FieldType.GetConstructors();

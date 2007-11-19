@@ -69,13 +69,13 @@ namespace Test_NUnit
             Assert.Greater(minID, 0, "Expected non-zero product count");
         }
 
-        //[Test]
-        //public void F5_AvgProductId()
-        //{
-        //    var q = from p in db.Products select p.ProductID;
-        //    xint maxID = q.Average();
-        //    Assert.Greater(maxID,0,"Expected non-zero product count");
-        //}
+        [Test]
+        public void F5_AvgProductId()
+        {
+            var q = from p in db.Products select p.ProductID;
+            double avg = q.Average();
+            Assert.Greater(avg, 0, "Expected non-zero productID average");
+        }
 
 
         [Test]
@@ -99,11 +99,9 @@ namespace Test_NUnit
 	            select c)
 	            .Including(c => c.Orders);
         }
-#endif
 
-#if ADD_TABLE_ORDERDETAILS
         [Test]
-        public void F7_Including_Nested()
+        public void F8_Including_Nested()
         {
             var q = (
 	            from c in db.Customers
@@ -112,6 +110,7 @@ namespace Test_NUnit
 	            .Including(c => c.Orders.Including(o => o.OrderDetails));
         }
 #endif
+
         [Test]
         public void F9_Project_AndContinue()
         {

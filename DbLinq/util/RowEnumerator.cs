@@ -67,23 +67,25 @@ namespace DBLinq.util
     public class RowEnumerator<T> : IEnumerable<T>, IDisposable //IEnumerator<T>
         , IQueryText
     {
-        protected SessionVars _vars;
+        protected SessionVarsParsed _vars;
         protected XSqlConnection _conn;
 
         //while the FatalExecuteEngineError persists, we use a wrapper class to retrieve data
         protected Func<DataReader2,T> _objFromRow2;
 
-        Type _sourceType;
+        //Type _sourceType;
         protected ProjectionData _projectionData;
         Dictionary<T,T> _rowCache;
         internal string _sqlString;
 
 
-        public RowEnumerator(SessionVars vars, Dictionary<T,T> rowCache)
+        public RowEnumerator(SessionVarsParsed vars, Dictionary<T,T> rowCache)
         {
             _vars = vars;
-            _rowCache = rowCache; //for [Table] objects only: keep objects (to save them if they get modified)
-            _sourceType = vars.sourceType;
+
+            //for [Table] objects only: keep objects (to save them if they get modified)
+            _rowCache = rowCache; 
+
             _conn = vars.context.SqlConnection;
             _projectionData = vars.projectionData;
             if(_conn==null || _conn.State!=ConnectionState.Open)
@@ -126,11 +128,11 @@ namespace DBLinq.util
             XSqlDataReader _rdr = cmd.ExecuteReader();
             rdr2 = new DataReader2(_rdr);
 
-            if (_vars.log != null)
+            if (_vars.context.Log != null)
             {
                 int fields = _rdr.FieldCount;
                 string hasRows = _rdr.HasRows ? "rows: yes" : "rows: no";
-                _vars.log.WriteLine("ExecuteSqlCommand numFields=" + fields + " " + hasRows);
+                _vars.context.Log.WriteLine("ExecuteSqlCommand numFields=" + fields + " " + hasRows);
             }
             return cmd;
         }

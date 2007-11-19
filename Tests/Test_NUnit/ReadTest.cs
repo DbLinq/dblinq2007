@@ -20,10 +20,7 @@ namespace Test_NUnit
     {
         #region Tests 'A' check for DB being ready
 
-#if ORACLE
-#else
 
-#if MYSQL
         /// <summary>
         /// in NUnit, tests are executed in alpha order.
         /// We want to start by checking access to DB.
@@ -31,19 +28,21 @@ namespace Test_NUnit
         [Test]
         public void A1_PingDatabase()
         {
-            bool pingOK = Conn.Ping(); //Schildkroete - Ping throws NullRef if conn is not open
-            Assert.IsTrue(pingOK,"Pinging database at "+connStr);
+            Northwind db = CreateDB();
+            bool pingOK = db.DatabaseExists();
+            //bool pingOK = Conn.Ping(); //Schildkroete - Ping throws NullRef if conn is not open
+            Assert.IsTrue(pingOK, "Pinging database at " + connStr);
         }
-#endif
 
 
         [Test]
         public void A2_ProductsTableHasEntries()
         {
+            Northwind db = CreateDB();
             //string sql = "SELECT count(*) FROM Northwind.Products";
-            string sql = "SELECT count(*) FROM Products";
-            long iResult = base.ExecuteScalar(sql);
-            Assert.Greater((int)iResult,0,"Expecting some rows in Products table, got:"+iResult+" (SQL:"+sql+")");
+            int result = db.ExecuteCommand("SELECT count(*) FROM Products");
+            //long iResult = base.ExecuteScalar(sql);
+            Assert.Greater(result, 0, "Expecting some rows in Products table, got:" + result);
         }
 
         [Test]
@@ -52,9 +51,8 @@ namespace Test_NUnit
             //string sql = @"SELECT count(*) FROM linqtestdb.Products WHERE ProductName='Pen'";
             string sql = @"SELECT count(*) FROM Products WHERE ProductName='Pen'";
             long iResult = base.ExecuteScalar(sql);
-            Assert.AreEqual(iResult,1L,"Expecting one Pen in Products table, got:"+iResult+" (SQL:"+sql+")");
+            Assert.AreEqual(iResult, 1L, "Expecting one Pen in Products table, got:" + iResult + " (SQL:" + sql + ")");
         }
-#endif
 
         [Test]
         public void A4_SelectSingleCustomer()
@@ -63,7 +61,7 @@ namespace Test_NUnit
 
             // Query for a specific customer
             var cust = db.Customers.Single(c => c.CompanyName == "airbus");
-            Assert.IsNotNull(cust,"Expected one customer 'airbus'");
+            Assert.IsNotNull(cust, "Expected one customer 'airbus'");
         }
 
         #endregion
@@ -79,7 +77,7 @@ namespace Test_NUnit
             var q = from p in db.Products select p;
             List<Product> products = q.ToList();
             int productCount = products.Count;
-            Assert.Greater(productCount,0,"Expected some products, got none");
+            Assert.Greater(productCount, 0, "Expected some products, got none");
         }
 
         [Test]
@@ -90,7 +88,7 @@ namespace Test_NUnit
             var q = from p in db.Products where p.ProductName == "Pen" select p.ProductID;
             List<int> productIDs = q.ToList();
             int productCount = productIDs.Count;
-            Assert.AreEqual(productCount,1,"Expected one pen, got count="+productCount);
+            Assert.AreEqual(productCount, 1, "Expected one pen, got count=" + productCount);
         }
 
         [Test]
@@ -99,16 +97,16 @@ namespace Test_NUnit
             Northwind db = CreateDB();
 
             var q = from p in db.Products
-                    where p.ProductName == "Pen" 
-                        select new { ProductId=p.ProductID, Name=p.ProductName };
+                    where p.ProductName == "Pen"
+                    select new { ProductId = p.ProductID, Name = p.ProductName };
             int count = 0;
             //string penName;
-            foreach(var v in q)
+            foreach (var v in q)
             {
                 Assert.AreEqual(v.Name, "Pen", "Expected ProductName='Pen'");
                 count++;
             }
-            Assert.AreEqual(count,1,"Expected one pen, got count="+count);
+            Assert.AreEqual(count, 1, "Expected one pen, got count=" + count);
         }
 
         #endregion
@@ -121,7 +119,7 @@ namespace Test_NUnit
 
             var q = from p in db.Products where p.ProductName == "Pen" select p.ProductID;
             int productID = q.First();
-            Assert.Greater(productID,0,"Expected penID>0, got "+productID);
+            Assert.Greater(productID, 0, "Expected penID>0, got " + productID);
         }
 
         [Test]
@@ -131,7 +129,7 @@ namespace Test_NUnit
 
             var q = from p in db.Products where p.ProductName == "Pen" select p;
             Product pen = q.First();
-            Assert.IsNotNull(pen,"Expected non-null Product");
+            Assert.IsNotNull(pen, "Expected non-null Product");
         }
 
         [Test]
@@ -141,7 +139,7 @@ namespace Test_NUnit
 
             var q = from p in db.Products where p.ProductName == "Pen" select p.ProductID;
             int productID = q.Last();
-            Assert.Greater(productID,0,"Expected penID>0, got "+productID);
+            Assert.Greater(productID, 0, "Expected penID>0, got " + productID);
         }
 
         [Test]
@@ -151,13 +149,13 @@ namespace Test_NUnit
 
             var q = from p in db.Products orderby p.ProductName select p;
             string prevProductName = null;
-            foreach(Product p in q)
+            foreach (Product p in q)
             {
-                if(prevProductName!=null)
+                if (prevProductName != null)
                 {
                     //int compareNames = prevProductName.CompareTo(p.ProductName);
-                    int compareNames = string.Compare( prevProductName, p.ProductName, stringComparisonType);
-                    Assert.Less(compareNames,0,"When ordering by names, expected "+prevProductName+" to come after "+p.ProductName);
+                    int compareNames = string.Compare(prevProductName, p.ProductName, stringComparisonType);
+                    Assert.Less(compareNames, 0, "When ordering by names, expected " + prevProductName + " to come after " + p.ProductName);
                 }
                 prevProductName = p.ProductName;
             }
@@ -173,18 +171,18 @@ namespace Test_NUnit
             //Assert.Greater(penOrders.Count,0,"Expected some orders for product 'Pen'");
 
             var q =
-	            from o in db.Orders
-	            where o.Customer.City == "London"
-	            select new { c = o.Customer, o };
+                from o in db.Orders
+                where o.Customer.City == "London"
+                select new { c = o.Customer, o };
 
             var list1 = q.ToList();
-            foreach(var co in list1)
+            foreach (var co in list1)
             {
-                Assert.IsNotNull(co.c,"Expected non-null customer");
-                Assert.IsNotNull(co.c.City,"Expected non-null customer city");
-                Assert.IsNotNull(co.o,"Expected non-null order");
+                Assert.IsNotNull(co.c, "Expected non-null customer");
+                Assert.IsNotNull(co.c.City, "Expected non-null customer city");
+                Assert.IsNotNull(co.o, "Expected non-null order");
             }
-            Assert.Greater(list1.Count,0,"Expected some orders for London customers");
+            Assert.Greater(list1.Count, 0, "Expected some orders for London customers");
         }
 
         [Test]
@@ -192,34 +190,34 @@ namespace Test_NUnit
         {
             Northwind db = CreateDB();
             var q =
-	            from o in db.Orders
-	            where o.Customer.City == "London"
-	            select new { c = o.Customer, o };
+                from o in db.Orders
+                where o.Customer.City == "London"
+                select new { c = o.Customer, o };
 
             var list1 = q.ToList();
-            foreach(var co in list1)
+            foreach (var co in list1)
             {
-                Assert.IsNotNull(co.c,"Expected non-null customer");
-                Assert.IsNotNull(co.o,"Expected non-null order");
+                Assert.IsNotNull(co.c, "Expected non-null customer");
+                Assert.IsNotNull(co.o, "Expected non-null order");
             }
-            Assert.Greater(list1.Count,0,"Expected some orders for London customers");
+            Assert.Greater(list1.Count, 0, "Expected some orders for London customers");
         }
         [Test]
         public void D07_OrdersFromLondon_Alt()
         {
-            Func<int,int> func1 = i => i+1;
-            Console.WriteLine("type="+func1.GetType());
+            Func<int, int> func1 = i => i + 1;
+            Console.WriteLine("type=" + func1.GetType());
             //this is a SelectMany query:
             Northwind db = CreateDB();
             db.Log = Console.Out;
 
             var q =
-	            from c in db.Customers
-	            from o in c.Orders
-	            where c.City == "London"
-	            select new { c, o };
+                from c in db.Customers
+                from o in c.Orders
+                where c.City == "London"
+                select new { c, o };
 
-            Assert.Greater(q.ToList().Count,0,"Expected some orders for London customers");
+            Assert.Greater(q.ToList().Count, 0, "Expected some orders for London customers");
         }
 
         [Test]
@@ -227,8 +225,8 @@ namespace Test_NUnit
         {
             Northwind db = CreateDB();
             var q = (from p in db.Products select p).Take(5);
-            List<Product> prods = q.ToList(); 
-            Assert.AreEqual(5,prods.Count,"Expected five products");
+            List<Product> prods = q.ToList();
+            Assert.AreEqual(5, prods.Count, "Expected five products");
         }
 
         [Test]
@@ -237,14 +235,14 @@ namespace Test_NUnit
             Northwind db = CreateDB();
 
             //var q = (from p in db.Products where p.ProductName.Contains("p") select p).Take(5);
-            var q = db.Products.Where( p=>p.ProductName.Contains("p")).Take(5);
+            var q = db.Products.Where(p => p.ProductName.Contains("p")).Take(5);
             List<Product> prods = q.ToList();
 #if POSTGRES
             int expectedCount = 0; //Only 'Toilet Paper'
 #else
             int expectedCount = 2; //Oracle, Mysql: 'Toilet Paper' and 'iPod'
 #endif
-            Assert.Greater(prods.Count,expectedCount,"Expected couple of products with letter 'p'");
+            Assert.Greater(prods.Count, expectedCount, "Expected couple of products with letter 'p'");
         }
 
         [Test]
@@ -252,24 +250,25 @@ namespace Test_NUnit
         {
             Northwind db = CreateDB();
 
-            var q = (from p in db.Products where p.ProductName.Contains("p") 
-                        orderby p.ProductID descending
-                        select p 
+            var q = (from p in db.Products
+                     where p.ProductName.Contains("p")
+                     orderby p.ProductID descending
+                     select p
             ).Take(5);
             //var q = db.Products.Where( p=>p.ProductName.Contains("p")).Take(5);
             List<Product> prods = q.ToList();
-            Assert.Greater(prods.Count,2,"Expected couple of products with letter 'p'");
+            Assert.Greater(prods.Count, 2, "Expected couple of products with letter 'p'");
 
             int prodID0 = prods[0].ProductID;
             int prodID1 = prods[1].ProductID;
-            Assert.Greater(prodID0,prodID1,"Sorting is broken");
+            Assert.Greater(prodID0, prodID1, "Sorting is broken");
         }
 
         [Test]
         public void D11_Products_DoubleWhere()
         {
             Northwind db = CreateDB();
-            var q1 = db.Products.Where(p=>p.ProductID>1).Where(p=>p.ProductID<10);
+            var q1 = db.Products.Where(p => p.ProductID > 1).Where(q => q.ProductID < 10);
             int count1 = q1.Count();
         }
         #endregion

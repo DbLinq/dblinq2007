@@ -11,8 +11,8 @@
     </style>
 </head>
 <body>
-<a href="../Default.aspx">&gt;Code2Code.net Home</a>  &nbsp; 
-<a href="index.html">&gt;DB Linq Project Home</a>  &nbsp; 
+<a href="../Default.aspx">&gt;Code2Code.net Home</a>  &nbsp;
+<a href="index.html">&gt;DB Linq Project Home</a>  &nbsp;
 <br />
 <h2>Bulk insert support in the official Microsoft Linq-to-SQL</h2>
     In the Microsoft implementation (official Linq-to-SQL), bulk insert is not supported
@@ -40,13 +40,13 @@ style='color:#A31515'>&quot;Fedex&quot;</span>, <span style='color:#A31515'>&quo
 </span><span
 lang=EN-GB style='font-size:10.0pt;font-family:"Courier New";mso-ansi-language:
 EN-GB'><span style='mso-spacerun:yes'>    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span>db.SubmitChanges();<o:p></o:p></span></p>
-    <p class="MsoNormal" 
+    <p class="MsoNormal"
     style="mso-layout-grid-align: none;text-autospace: none">
         Limitations:</p>
     <ul>
         <li>
             <p class="MsoNormal" style="mso-layout-grid-align: none;text-autospace: none">
-          ShipperID field (the IDENTITY column) is never updated on the client, because 
+          ShipperID field (the IDENTITY column) is never updated on the client, because
                 the communication is one-way</p>
         </li>
         <li>
@@ -59,7 +59,7 @@ EN-GB'><span style='mso-spacerun:yes'>    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </s
         </li>
         <li>
             <p class="MsoNormal" style="mso-layout-grid-align: none;text-autospace: none">
-                internally, we create a DataTable (containing all rows) to send - this costs extra memory. 
+                internally, we create a DataTable (containing all rows) to send - this costs extra memory.
                 See Azamsharp, below, for alternative.</p>
         </li>
     </ul>
@@ -98,7 +98,7 @@ In MySql, bulk insert seems to be called multiple-row insert.<br />
     Here is a code snippet:<p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'><span
 lang=EN-GB style='font-size:10.0pt;font-family:"Courier New";mso-ansi-language:
 EN-GB'><span style='mso-spacerun:yes'>    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span><span style='color:#2B91AF'>Vendor</span>.UseBulkInsert[db.Shippers]
-= <span style='color:blue'>3</span>; <span class="style2">//specify bulk insert, three 
+= <span style='color:blue'>3</span>; <span class="style2">//specify bulk insert, three
         rows at a time</span><br />
         <span style='mso-spacerun:yes'>    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span>db.Shippers.Add(<span
 style='color:blue'>new</span> <span style='color:#2B91AF'>Shippers</span>(-1, <span
@@ -107,13 +107,23 @@ style='color:#A31515'>&quot;UPS&quot;</span>, <span style='color:#A31515'>&quot;
 style='color:blue'>new</span> <span style='color:#2B91AF'>Shippers</span>(-1, <span
 style='color:#A31515'>&quot;Fedex&quot;</span>, <span style='color:#A31515'>&quot;900-900-9999&quot;</span>));<br />
         <span style='mso-spacerun:yes'>    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span>db.SubmitChanges();<o:p></o:p></span></p>
-    <p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'>Please 
+    <p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'>Please
         have a look at unit test WriteTest_BulkInsert.</p>
     <h2>Bulk Copy DB LINQ PostgreSQL provider</h2>
 
 <p>The PostgreSQL command is called <a href="http://www.postgresql.org/docs/8.1/interactive/sql-copy.html">COPY</a>. This is currently not exposed from DB LINQ.<br />
     Please can someone research if this can be used with anything else besides local
     files?</p>
+
+Andrus points out:<BR/>
+npgsql2 beta 1 is released.<BR/>
+
+beta 1 release notes contain note for bulk copy support:<BR/>
+
+New NpgsqlCopyIn and NpgsqlCopyOut classes support fast bulk data transfer
+with COPY FROM STDIN and COPY TO STDOUT commands as explained at<BR/>
+http://www.postgresql.org/docs/8.2/interactive/sql-copy.html
+
 
 <h2>Array Binding DB LINQ Oracle provider</h2>
     In the world of Oracle, there is a very powerful option of inserting arrays of objects.<br />

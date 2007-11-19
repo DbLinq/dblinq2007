@@ -36,13 +36,13 @@ namespace DBLinq.util
     /// </summary>
     class RowScalar<T>
     {
-        SessionVars _vars;
+        SessionVarsParsed _vars;
         IEnumerable<T> _parentTable;
 
-        public RowScalar(SessionVars vars, IEnumerable<T> parentTable)
+        public RowScalar(SessionVarsParsed vars, IEnumerable<T> parentTable)
         {
             //don't modify the parent query with any additional clauses:
-            _vars = vars.Clone();
+            _vars = vars;
 
             _parentTable = parentTable;
         }
@@ -72,6 +72,7 @@ namespace DBLinq.util
                 case "Count":
                 case "Max":
                 case "Min":
+                case "Average":
                 case "Sum":
                     {
                         bool isAlreadyProjected = _parentTable is MTable_Projected<T>;
@@ -81,36 +82,27 @@ namespace DBLinq.util
                             //but unlike those, it may be asked to work on TableRows.
                             //in that case, we need to project to an int.
                             _vars._sqlParts.countClause = "COUNT"; //Count or Max
-                            string varName = _vars.GetDefaultVarName(); //'$x'
-                            FromClauseBuilder.SelectAllFields(_vars, _vars._sqlParts,typeof(T),varName);
-                            QueryProcessor.ProcessLambdas(_vars, typeof(S));
+                            //string varName = _vars.GetDefaultVarName(); //'$x'
+                            string varName = "x$"; //TODO - get it from QueryProcessor
+                            FromClauseBuilder.SelectAllFields(_vars, _vars._sqlParts, typeof(T), varName);
+                            //QueryProcessor.ProcessLambdas(_vars, typeof(S));
                             using(RowEnumerator<S> rowEnum = new RowEnumerator<S>(_vars,null))
                             {
-                                //rowEnum.ExecuteSqlCommand();
-                                //if(!rowEnum.MoveNext())
-                                //    throw new ApplicationException("RowScalar.COUNT: Unable to advance to first result");
-                                //S firstS = (S)rowEnum.Current;
                                 foreach(S firstS in rowEnum){
                                     return firstS;
                                 }
                                 throw new ApplicationException("RowScalar.COUNT: Unable to advance to first result");
                             }
                         }
-                        //MTable<T> table2 = _parentTable as MTable<T>;
-                        //TODO: fir Count(), may need to add projection manually
-                        IGetModifiedEnumerator<T> table2 = _parentTable as IGetModifiedEnumerator<T>;
-                        //MTable_Projected<S> table2 = _parentTable as MTable_Projected<S>;
-                        using(IEnumerator<T> enumerator = table2.GetModifiedEnumerator( 
-                            delegate(SessionVars vars)
-                            { 
-                                vars._sqlParts.countClause = exprCall.Method.Name.ToUpper(); //COUNT or MAX
-                            }
-                        ).GetEnumerator())
+
+                        //during Average(), typeof(T)=int, typeof(S)=double.
+                        using (IEnumerator<S> enumerator = new RowEnumerator<S>(_vars, null)
+                            .GetEnumerator())
                         {
                             bool hasOne = enumerator.MoveNext();
                             if(!hasOne)
                                 throw new InvalidOperationException("Max/Count() called on set with zero items");
-                            T firstT = enumerator.Current;
+                            S firstT = enumerator.Current;
                             bool hasTwo = enumerator.MoveNext();
                             if(hasTwo)
                                 throw new InvalidOperationException("Max/Count() called on set with more than one item");
@@ -148,32 +140,13 @@ namespace DBLinq.util
                     }
         
                 case "Single":
-                    //do a LIMIT 2 query, throw InvalidOperationException occurs
+                    //QueryProcessor prepared a 'LIMIT 2' query, throw InvalidOperationException occurs
                     {
                         //there are two types of Sequence.Single(), one passes an extra Lambda
-                        LambdaExpression lambdaParam = expression.XMethodCall().XParam(1).XLambda();
-                        MTable<T> table2 = _parentTable as MTable<T>;
-                        IEnumerator<T> enumerator;
-                        if(lambdaParam!=null && table2!=null)
-                        {
-                            //we have to pass extra Where clause into the parentTable
-                            //var v1 = table2.CreateQuery(lambdaParam);
-                            //get SessionVars, append our whereClause, append "LIMIT2"
-                            enumerator = table2.GetModifiedEnumerator( 
-                                delegate(SessionVars vars)
-                                {
-                                    //vars.limitClause = "LIMIT 2";
-                                    vars._sqlParts.limitClause = 2;
-                                    vars.StoreLambda("Where", lambdaParam);
-                                }
-                            ).GetEnumerator();
-                        }
-                        else
-                        {
-                            enumerator = table2.GetEnumerator();
-                        }
-                        
-                        using(enumerator)
+                        //LambdaExpression lambdaParam = expression.XMethodCall().XParam(1).XLambda();
+                        //MTable<T> table2 = _parentTable as MTable<T>;
+                        //IEnumerator<T> enumerator;
+                        using (IEnumerator<T> enumerator = new RowEnumerator<T>(_vars, null).GetEnumerator())
                         {
                             //_vars.limitClause = "LIMIT 2";
                             bool hasOne = enumerator.MoveNext();

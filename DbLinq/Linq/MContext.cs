@@ -89,10 +89,17 @@ namespace DBLinq.Linq
 
         public string SqlConnString { get { return _sqlConnString; } }
 
-        [Obsolete("NOT IMPLEMENTED YET")]
         public bool DatabaseExists()
         {
-            throw new NotImplementedException();
+            try
+            {
+                int result = vendor.Vendor.ExecuteCommand(this, "SELECT 11");
+                return result == 11;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public MTable<T> GetTable<T>(string tableName) where T : IModified
@@ -231,13 +238,4 @@ namespace DBLinq.Linq
         string GetQueryText();
     }
 
-    /// <summary>
-    /// a callback that alows an outside method such as Max() or Count() modify SQL statement just before being executed
-    /// </summary>
-    public delegate void CustomExpressionHandler(SessionVars vars);
-
-    public interface IGetModifiedEnumerator<T>
-    {
-        DBLinq.util.RowEnumerator<T> GetModifiedEnumerator(CustomExpressionHandler callback);
-    }
 }

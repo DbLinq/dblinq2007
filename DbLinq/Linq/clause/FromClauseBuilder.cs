@@ -42,12 +42,12 @@ namespace DBLinq.Linq.clause
         /// <param name="t">input type</param>
         /// <param name="nick">nickname such as $o for an Order</param>
         /// <returns></returns>
-        public static void SelectAllFields(SessionVars vars, SqlExpressionParts selectParts, Type t1, string nick)
+        public static void SelectAllFields(SessionVarsParsed vars, SqlExpressionParts selectParts, Type t1, string nick)
         {
             Type t = AttribHelper.ExtractTypeFromMSet(t1);
             TableAttribute tAttrib = AttribHelper.GetTableAttrib(t);
             string PROJECTED_CLASS_NAME = "<>f__AnonymousType";
-            if (tAttrib == null && t.Name.StartsWith(PROJECTED_CLASS_NAME))
+            if (vars!=null && tAttrib == null && t.Name.StartsWith(PROJECTED_CLASS_NAME))
             {
                 //GroupBy: given t=Proj, find our table type
                 //example: GroupBy-proj: {c => new {PostalCode = c.PostalCode, ContactName = c.ContactName}}

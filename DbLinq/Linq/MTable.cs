@@ -63,7 +63,6 @@ namespace DBLinq.Linq
         IQueryable<T>
         , IOrderedQueryable<T> //this is cheating ... we pretend to be always ordered
         , IMTable
-        , IGetModifiedEnumerator<T>
         , IQueryText
         , IQueryProvider //new as of Beta2
     {
@@ -82,8 +81,6 @@ namespace DBLinq.Linq
             _parentDB = parent;
             _parentDB.RegisterChild(this);
             _vars = new SessionVars(parent);
-            _vars.sourceType = typeof(T);
-            _vars.log = parent.Log;
         }
 
         /// <summary>
@@ -106,26 +103,21 @@ namespace DBLinq.Linq
         {
             if (_parentDB.Log != null)
             {
-                _vars.log = _parentDB.Log;
                 _parentDB.Log.WriteLine("MTable.CreateQuery: " + expr);
             }
 
-            SessionVars vars = _vars.Clone();
-            vars.StoreQuery(expr);
+            SessionVars vars = new SessionVars(_vars).Add(expr);
             
             if(this is IQueryable<S>)
             {
                 //this occurs if we are not projecting
                 //(meaning that we are selecting entire row object)
-                //IQueryable<S> this_S = (IQueryable<S>)this; 
-                //return this_S;
                 MTable<T> clonedThis = new MTable<T>(this, vars);
                 IQueryable<S> this_S = (IQueryable<S>)clonedThis; 
                 return this_S;
             } else {
                 //if we get here, we are projecting.
                 //(eg. you select only a few fields: "select name from employee")
-                vars.createQueryExpr = expr;
                 MTable_Projected<S> projectedQ = new MTable_Projected<S>(vars);
                 return projectedQ;
             }
@@ -137,7 +129,9 @@ namespace DBLinq.Linq
         public S Execute<S>(Expression expression)
         {
             Log1.Info("MTable.Execute<"+typeof(S)+">: "+expression);
-            return new RowScalar<T>(_vars, this).GetScalar<S>(expression);
+            SessionVars vars2 = new SessionVars(_vars).AddScalar(expression); //clone and append Expr
+            SessionVarsParsed varsFin = QueryProcessor.ProcessLambdas(vars2, typeof(T)); //parse all
+            return new RowScalar<T>(varsFin, this).GetScalar<S>(expression);
         }
 
         /// <summary>
@@ -145,23 +139,11 @@ namespace DBLinq.Linq
         /// </summary>
         public IEnumerator<T> GetEnumerator()
         {
-            QueryProcessor.ProcessLambdas(_vars, typeof(T));
-            RowEnumerator<T> rowEnumerator = new RowEnumerator<T>(_vars, _liveObjectMap);
+            SessionVarsParsed varsFin = QueryProcessor.ProcessLambdas(_vars, typeof(T));
+            RowEnumerator<T> rowEnumerator = new RowEnumerator<T>(varsFin, _liveObjectMap);
             return rowEnumerator.GetEnumerator();
         }
 
-        /// <summary>
-        /// GetEnumerator where you can inject an extra clause, eg. "LIMIT 2" or an extra where
-        /// </summary>
-        /// <param name="fct"></param>
-        public RowEnumerator<T> GetModifiedEnumerator(CustomExpressionHandler fct)
-        {
-            SessionVars vars2 = _vars.Clone();
-            fct(vars2);
-            QueryProcessor.ProcessLambdas(vars2, typeof(T));
-            RowEnumerator<T> rowEnumerator = new RowEnumerator<T>(vars2, _liveObjectMap);
-            return rowEnumerator;
-        }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
@@ -169,22 +151,26 @@ namespace DBLinq.Linq
             return enumT;
         }
 
-        public Type ElementType { 
-            get {
-                throw new ApplicationException("Not implemented");
-            }
+        [Obsolete("NOT IMPLEMENTED YET")]
+        public Type ElementType
+        { 
+            get { throw new ApplicationException("Not implemented"); }
         }
-        public Expression Expression { 
+
+        public Expression Expression 
+        { 
             //copied from RdfProvider
             get { return Expression.Constant(this); }
         }
- 
 
+
+        [Obsolete("NOT IMPLEMENTED YET - Use CreateQuery<S>")]
         public IQueryable CreateQuery(Expression expression)
         {
             throw new ApplicationException("Not implemented");
         }
 
+        [Obsolete("NOT IMPLEMENTED YET - Use Execute<S>")]
         public object Execute(Expression expression)
         {
             throw new ApplicationException("Not implemented");
@@ -271,12 +257,12 @@ namespace DBLinq.Linq
                 IModified iMod = obj as IModified;
                 if(iMod==null || !iMod.IsModified)
                     continue;
-                Console.WriteLine("MTable SaveAll TODO: save modified object");
+                Trace.WriteLine("MTable SaveAll: saving modified object");
                 string ID_to_update = getObjectID(obj);
 
                 XSqlCommand cmd = InsertClauseBuilder.GetUpdateCommand(conn, iMod, proj, ID_to_update);
                 int result = cmd.ExecuteNonQuery();
-                Console.WriteLine("MTable SaveAll.Update returned:" + result);
+                Trace.WriteLine("MTable SaveAll.Update returned:" + result);
             }
 
             if(_deleteList.Count>0)
@@ -292,17 +278,18 @@ namespace DBLinq.Linq
                 }
                 string tableName = proj.tableAttribute.Name;
                 string sql = "DELETE FROM "+tableName+" WHERE "+proj.keyColumnName+" in ("+sbDeleteIDs+")";
-                Console.WriteLine("MTable SaveAll.Delete: "+sql);
+                Trace.WriteLine("MTable SaveAll.Delete: "+sql);
                 XSqlCommand cmd = new XSqlCommand(sql, _parentDB.SqlConnection);
                 int result = cmd.ExecuteNonQuery();
-                Console.WriteLine("MTable SaveAll.Delete returned:"+result);
+                Trace.WriteLine("MTable SaveAll.Delete returned:"+result);
             }
 
         }
+
         public string GetQueryText()
         {
-            QueryProcessor.ProcessLambdas(_vars, typeof(T));
-            return _vars.sqlString;
+            SessionVarsParsed varsFin = QueryProcessor.ProcessLambdas(_vars, typeof(T));
+            return varsFin.sqlString;
         }
 
         //New as of Orcas Beta2 - what does it do?

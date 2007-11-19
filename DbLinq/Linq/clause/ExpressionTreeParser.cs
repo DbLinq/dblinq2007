@@ -1,3 +1,4 @@
+#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -21,6 +22,7 @@
 // Authors:
 //        Jiri George Moudry
 ////////////////////////////////////////////////////////////////////
+#endregion
 
 using System;
 using System.Linq;
@@ -76,26 +78,19 @@ namespace DBLinq.Linq.clause
     /// </summary>
     public class ExpressionTreeParser
     {
-        static Dictionary<string, string> s_csharpOperatorToSqlMap = new Dictionary<string, string>();
-        //{
-        //    {"op_Equality", " = "},
-        //    {"op_Inequality", " != "},
-        //    {"op_GreaterThan", " > "},
-        //    {"op_LessThan", " > "},
-        //};
+        static Dictionary<string, string> s_csharpOperatorToSqlMap = new Dictionary<string, string>()
+        {
+            {"op_Equality", " = "},
+            {"op_Inequality", " != "},
+            {"op_GreaterThan", " > "},
+            {"op_GreaterThanOrEqual", " >= "},
+            {"op_LessThan", " > "},
+            {"op_LessThanOrEqual", " <= "},
+        };
 
         ParseResult _result;
         ParseInputs _inputs;
 
-        static ExpressionTreeParser()
-        {
-            s_csharpOperatorToSqlMap["op_Equality"] = " = ";
-            s_csharpOperatorToSqlMap["op_Inequality"] = " != ";
-            s_csharpOperatorToSqlMap["op_GreaterThan"] = " > ";
-            s_csharpOperatorToSqlMap["op_GreaterThanOrEqual"] = " >= ";
-            s_csharpOperatorToSqlMap["op_LessThan"] = " < ";
-            s_csharpOperatorToSqlMap["op_LessThanOrEqual"] = " <= ";
-        }
 
         /// <summary>
         /// pass in bodies of Lambdas, not lambdas themselves
@@ -103,9 +98,10 @@ namespace DBLinq.Linq.clause
         /// <param name="ex">body of LambdaExpr</param>
         /// <param name="inputs"></param>
         /// <returns></returns>
-        public static ParseResult Parse(Expression ex, ParseInputs inputs)
+        public static ParseResult Parse(QueryProcessor parent, Expression ex, ParseInputs inputs)
         {
             RecurData recur = new RecurData();
+            recur.parent = parent;
             ExpressionTreeParser parser = new ExpressionTreeParser();
             parser._inputs = inputs;
             parser._result = new ParseResult(inputs);
@@ -208,7 +204,7 @@ namespace DBLinq.Linq.clause
         {
             //_result.AppendString("Init");
             int fieldCount = 0;
-            recurData.selectAllFields = true;
+            //recurData.selectAllFields = true;
             foreach (MemberBinding bind in expr.Bindings)
             {
                 if(bind.BindingType!=MemberBindingType.Assignment)
@@ -278,7 +274,7 @@ namespace DBLinq.Linq.clause
         {
             //_result.AppendString("Init");
             int fieldCount = 0;
-            recurData.selectAllFields = true;
+            //recurData.selectAllFields = true;
             foreach (Expression bind in expr.Arguments)
             {
                 //if (bind.BindingType != MemberBindingType.Assignment)
@@ -356,8 +352,16 @@ namespace DBLinq.Linq.clause
 
         private void AnalyzeParameter(RecurData recurData, ParameterExpression expr)
         {
-            string sqlParamName = VarName.GetSqlName(expr.Name);
+            string sqlParamName;
+            if (recurData.parent.currentVarNames.TryGetValue(expr.Type, out sqlParamName))
+            {
+                _result.AppendString(sqlParamName); //used from D11_Products_DoubleWhere()
+                return;
+            }
+
+            sqlParamName = VarName.GetSqlName(expr.Name);
             _result.AppendString(sqlParamName); //"e$"
+            recurData.parent.currentVarNames[expr.Type] = sqlParamName;
         }
 
         /// <summary>
@@ -728,7 +732,8 @@ namespace DBLinq.Linq.clause
         {
             public int depth;
             public int operatorPrecedence;
-            public bool selectAllFields;
+            //public bool selectAllFields;
+            public QueryProcessor parent;
         }
     }
 }
