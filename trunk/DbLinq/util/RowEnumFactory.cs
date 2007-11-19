@@ -35,7 +35,7 @@ namespace DBLinq.util
         /// <summary>
         /// factory method to create either RowEnum class, or derived RowEnumGroupBy class
         /// </summary>
-        public static RowEnumerator<T> Create(SessionVars vars, Dictionary<T,T> rowCache)
+        public static RowEnumerator<T> Create(SessionVarsParsed vars, Dictionary<T,T> rowCache)
         {
             Type groupType;
             bool hasGroup = IsOrHasGroupField(vars, out groupType); 
@@ -66,7 +66,7 @@ namespace DBLinq.util
             }
         }
 
-        public static bool IsOrHasGroupField(SessionVars vars, out Type groupType)
+        public static bool IsOrHasGroupField(SessionVarsParsed vars, out Type groupType)
         {
             //## don't judge based on presence of groupByExpr - 
             //## in case of GroupBy(City).Select(new{g.Key,g.Count}) the user never sees the GroupBy

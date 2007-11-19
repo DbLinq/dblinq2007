@@ -23,13 +23,16 @@ namespace Test_NUnit
             //new ReadTest_GroupBy().G08_OrderSumByCustomerID();
 
             //new ReadTest().C1_SelectProducts();
+            //new ReadTest().A1_PingDatabase();
+            //new ReadTest().D11_Products_DoubleWhere();
+            new ReadTest_Complex().F2_ProductCount_Clause();
+
             //new StoredProcTest().SP3_GetOrderCount_SelField();
             //new ReadTest().D08_Products_Take5();
             //new ReadTest_GroupBy().G01_SimpleGroup_Count();
             //new ReadTest_AllTypes().AT5_SelectEnum_();
             //new ReadTest_Operands().H1_SelectConcat();
             //new ReadTest_GroupBy().G05_Group_Into();
-            new ReadTest_Complex().F7_ExplicitJoin();
             //rc.F11_ConcatString();
             //new WriteTest().E2_UpdateEnum();
             //new WriteTest().E2_UpdateEnum();

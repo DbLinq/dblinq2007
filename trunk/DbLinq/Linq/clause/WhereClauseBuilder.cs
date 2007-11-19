@@ -70,10 +70,14 @@ namespace DBLinq.Linq.clause
             MethodCallExpression methodCall = (MethodCallExpression)expr;
             methodName = methodCall.Method.Name;
 
-            if (methodName == "Take" || methodName == "Skip" || methodName == "Distinct")
+            switch (methodName)
             {
-                //this is a special case - there is no lambda anywhere?
-                return null;
+                case "Take": //Take, Skip, Default: a special case - there is no lambda anywhere?
+                case "Skip":
+                case "Distinct":
+
+                case "Count": //scalar
+                    return null;
             }
 
             //if(methodName=="GroupBy")

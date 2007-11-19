@@ -177,7 +177,7 @@ namespace DBLinq.Linq.clause
                 }
             }
             //if(sb.Length>80){ sb.Append("\n"); } //for legibility, append a newline for long expressions
-            appendCsvList(sb, " FROM ", fromTableList, ", ");
+            appendCsvList(sb, "\n FROM ", fromTableList, ", ");
 
             //MySql docs for JOIN:
             //http://dev.mysql.com/doc/refman/4.1/en/join.html

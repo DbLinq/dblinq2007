@@ -47,7 +47,7 @@ namespace DBLinq.util
         {
             if(call==null)
                 return null;
-            if(call.Arguments.Count<index)
+            if(call.Arguments.Count<=index)
                 return null;
             return call.Arguments[index];
         }

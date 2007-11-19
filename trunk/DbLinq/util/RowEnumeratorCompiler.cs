@@ -39,7 +39,7 @@ namespace DBLinq.util
         /// the entry point - routes your call into special cases for Projection and primitive types
         /// </summary>
         /// <returns>compiled func which loads object from SQL reader</returns>
-        public static Func<DataReader2,T> CompileRowDelegate(SessionVars vars, ref int fieldID)
+        public static Func<DataReader2,T> CompileRowDelegate(SessionVarsParsed vars, ref int fieldID)
         {
             Func<DataReader2,T> objFromRow = null;
 
@@ -164,7 +164,7 @@ namespace DBLinq.util
         /// construct and compile a 'new Customer(reader.GetInt32(0),reader.GetString(1));' 
         /// delegate (or similar).
         /// </summary>
-        public static Func<DataReader2,T> CompileProjectedRowDelegate(SessionVars vars, ProjectionData projData)
+        public static Func<DataReader2,T> CompileProjectedRowDelegate(SessionVarsParsed vars, ProjectionData projData)
         {
             ParameterExpression rdr = Expression.Parameter(typeof(DataReader2),"rdr");
 
@@ -193,7 +193,7 @@ namespace DBLinq.util
         /// </summary>
         public static 
             LambdaExpression
-            BuildProjectedRowLambda(SessionVars vars, ProjectionData projData, ParameterExpression rdr, ref int fieldID)
+            BuildProjectedRowLambda(SessionVarsParsed vars, ProjectionData projData, ParameterExpression rdr, ref int fieldID)
         {
 
             #region CompileColumnRowDelegate
@@ -306,7 +306,7 @@ namespace DBLinq.util
         /// </summary>
         public static
             LambdaExpression
-            BuildProjectedRowLambda_NoBind(SessionVars vars, ProjectionData projData, ParameterExpression rdr, ref int fieldID)
+            BuildProjectedRowLambda_NoBind(SessionVarsParsed vars, ProjectionData projData, ParameterExpression rdr, ref int fieldID)
         {
 
             #region CompileColumnRowDelegate

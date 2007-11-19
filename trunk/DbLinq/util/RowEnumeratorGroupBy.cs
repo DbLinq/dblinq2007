@@ -70,7 +70,7 @@ namespace DBLinq.util
         Func<DataReader2,Key> _keyReadFunc = null;
         Func<DataReader2,Val> _valReadFunc = null;
 
-        public RowEnumeratorGroupBy(SessionVars vars)
+        public RowEnumeratorGroupBy(SessionVarsParsed vars)
             :base(vars,null)
         {
             //try

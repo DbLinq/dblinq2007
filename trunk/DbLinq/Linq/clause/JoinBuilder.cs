@@ -144,7 +144,7 @@ namespace DBLinq.Linq.clause
                         nick1 = VarName.GetSqlName(paramExpr.Name);
                         type2 = exprOuter.Type;
                         SqlExpressionParts sqlParts = new SqlExpressionParts();
-                        FromClauseBuilder.SelectAllFields(new SessionVars(), sqlParts,type2, nick2);
+                        FromClauseBuilder.SelectAllFields(null, sqlParts,type2, nick2);
                         result.AppendString(sqlParts.GetSelect());
                         break;
                     }
