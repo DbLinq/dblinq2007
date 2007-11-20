@@ -61,6 +61,18 @@ namespace DBLinq.util
             //return (UnaryExpression)ex;
         }
 
+        /// <summary>
+        /// given Lambda Where, return 'Where'
+        /// </summary>
+        [DebuggerStepThrough]
+        public static string XLambdaName(this Expression ex)
+        {
+            MethodCallExpression mcall = ex.XMethodCall();
+            if (mcall == null)
+                return null;
+            return mcall.Method.Name;
+        }
+
         [DebuggerStepThrough]
         public static LambdaExpression XLambda(this Expression ex)
         {

@@ -280,6 +280,9 @@ insert INTO `Northwind`.`Customers` (CustomerID, CompanyName,ContactName, Contac
 values ('ALFKI', 'Alfreds Futterkiste','Maria Anders','Sales Representative','Germany','12209','Berlin','030-0074321');
 
 insert INTO `Northwind`.`Customers` (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
+values ('BONAP', 'Bon something','Bon Boss','Sales Representative','France','11109','Paris','033-0074321');
+
+insert INTO `Northwind`.`Customers` (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
 values ('WARTH', 'Wartian Herkku','Pirkko Koskitalo','Accounting Manager','Finland','90110','Oulu','981-443655');
 
 truncate table `Northwind`.`Orders`; -- must be truncated before Products

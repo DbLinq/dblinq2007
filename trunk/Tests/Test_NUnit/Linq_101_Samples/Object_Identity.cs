@@ -24,12 +24,14 @@ namespace Test_NUnit.Linq_101_Samples
             Northwind db = CreateDB();
 
             Customer cust1 = db.Customers.First(c => c.CustomerID == "BONAP");
+
             Customer cust2 = (from c in db.Customers
                               where c.CustomerID == "BONAP"
                               select c).First();
 
             bool isSameObject = Object.ReferenceEquals(cust1, cust2);
             Assert.IsTrue(isSameObject);
+            Assert.IsTrue(cust1.CustomerID=="BONAP", "CustomerID must be BONAP");
         }
 
     }

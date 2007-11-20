@@ -31,7 +31,7 @@ namespace Test_NUnit
             Northwind db = CreateDB();
             bool pingOK = db.DatabaseExists();
             //bool pingOK = Conn.Ping(); //Schildkroete - Ping throws NullRef if conn is not open
-            Assert.IsTrue(pingOK, "Pinging database at " + connStr);
+            Assert.IsTrue(pingOK, "Pinging database");
         }
 
 
@@ -205,11 +205,8 @@ namespace Test_NUnit
         [Test]
         public void D07_OrdersFromLondon_Alt()
         {
-            Func<int, int> func1 = i => i + 1;
-            Console.WriteLine("type=" + func1.GetType());
             //this is a SelectMany query:
             Northwind db = CreateDB();
-            db.Log = Console.Out;
 
             var q =
                 from c in db.Customers

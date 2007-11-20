@@ -57,6 +57,7 @@
     <Compile Include="Linq\Mapping\AutoGenIdAttribute.cs" />
     <Compile Include="Linq\Mapping\FunctionExAttribute.cs" />
     <Compile Include="Linq\QueryProcessor.cs" />
+    <Compile Include="Linq\QueryProcessor2.cs" />
     <Compile Include="util\CSharp.cs" />
     <Compile Include="util\ExprExtensions.cs" />
     <Compile Include="util\FieldUtils.cs" />

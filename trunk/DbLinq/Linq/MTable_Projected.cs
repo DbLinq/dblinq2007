@@ -78,7 +78,7 @@ namespace DBLinq.Linq
             SessionVars vars = new SessionVars(_vars).AddScalar(expression); //clone and append Expr
             SessionVarsParsed varsFin = QueryProcessor.ProcessLambdas(vars, null); //parse all
             //SessionVars vars = _vars.Clone();
-            return new RowScalar<T>(varsFin, this).GetScalar<S>(expression);
+            return new RowScalar<T>(varsFin, this, null).GetScalar<S>(expression);
         }
 
         /// <summary>

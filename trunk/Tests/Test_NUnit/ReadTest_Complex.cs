@@ -50,7 +50,8 @@ namespace Test_NUnit
         {
             var q = from p in db.Products select p.ProductID;
             int productCount = q.Count(i => i < 3);
-            Assert.Greater(productCount,0,"Expected non-zero product count");
+            Assert.Greater(productCount, 0, "Expected non-zero product count");
+            Assert.IsTrue(productCount<4, "Expected product count < 3");
         }
 
         [Test]
@@ -115,11 +116,11 @@ namespace Test_NUnit
         public void F9_Project_AndContinue()
         {
             var q =
-	            from c in db.Customers
-	            where c.City == "London"
-	            select new {Name = c.ContactName, c.Phone} into x
-	            orderby x.Name
-	            select x;
+                from c in db.Customers
+                where c.City == "London"
+                select new { Name = c.ContactName, c.Phone } into x
+                orderby x.Name
+                select x;
         }
 
         [Test]

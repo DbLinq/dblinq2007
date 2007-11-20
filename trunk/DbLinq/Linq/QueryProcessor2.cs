@@ -56,5 +56,51 @@ namespace DBLinq.Linq
 
             result.CopyInto(_vars._sqlParts); //transfer params and tablesUsed
         }
+
+        void processSelectClause(LambdaExpression selectExpr)
+        {
+            this.selectExpr = selectExpr; //store for GroupBy & friends
+
+            //necesary for projections?
+            if (_vars.groupByExpr == null)
+            {
+                _vars.projectionData = ProjectionData.FromSelectExpr(selectExpr);
+            }
+            else
+            {
+                _vars.projectionData = ProjectionData.FromSelectGroupByExpr(selectExpr, _vars.groupByExpr, _vars._sqlParts);
+            }
+
+            ParseResult result = null;
+            ParseInputs inputs = new ParseInputs(result);
+            inputs.groupByExpr = _vars.groupByExpr;
+            if (selectExpr.Body.NodeType == ExpressionType.Parameter)
+            {
+                //'from p in Products select p' - do nothing, will result in SelectAllFields() later
+            }
+            else
+            {
+                result = ExpressionTreeParser.Parse(this, selectExpr.Body, inputs);
+                _vars._sqlParts.AddSelect(result.columns);
+                result.CopyInto(_vars._sqlParts); //transfer params and tablesUsed
+
+                //support for subsequent Count() - see F2_ProductCount_Clause
+                if (result.columns.Count > 0)
+                {
+                    // currentVarNames[int] = "p$.ProductID";
+                    this.currentVarNames[selectExpr.Body.Type] = result.columns[0];
+                }
+            }
+        }
+
+        void processOrderByClause(LambdaExpression orderByExpr, string orderBy_desc)
+        {
+            ParseResult result = null;
+            ParseInputs inputs = new ParseInputs(result);
+            result = ExpressionTreeParser.Parse(this, orderByExpr.Body, inputs);
+            string orderByFields = string.Join(",", result.columns.ToArray());
+            _vars._sqlParts.orderByList.Add(orderByFields);
+            _vars._sqlParts.orderBy_desc = orderBy_desc; //copy 'DESC' specifier
+        }
     }
 }
