@@ -38,13 +38,14 @@ namespace DBLinq.util
     {
         SessionVarsParsed _vars;
         IEnumerable<T> _parentTable;
+        Dictionary<T, T> _liveObjectMap;
 
-        public RowScalar(SessionVarsParsed vars, IEnumerable<T> parentTable)
+        public RowScalar(SessionVarsParsed vars, IEnumerable<T> parentTable, Dictionary<T,T> liveObjMap)
         {
             //don't modify the parent query with any additional clauses:
             _vars = vars;
-
             _parentTable = parentTable;
+            _liveObjectMap = liveObjMap;
         }
 
         public S GetScalar<S>(Expression expression)
@@ -60,15 +61,17 @@ namespace DBLinq.util
                         throw new ApplicationException("L39: Not prepared for double projection");
                     //Microsoft syntax: "SELECT TOP 1 ProductId FROM Products"
                     //MySql syntax:     "SELECT ProductId FROM Products LIMIT 1"
-                    //_vars.limitClause = "LIMIT 1";
-                    _vars._sqlParts.limitClause = 1;
-                    foreach(T t in _parentTable) //call GetEnumerator
+                    
+                    //foreach(T t in _parentTable) //call GetEnumerator
+                    Dictionary<S, S> liveObjMapS = (Dictionary<S, S>)(object)_liveObjectMap;
+                    using (RowEnumerator<S> rowEnum = new RowEnumerator<S>(_vars, liveObjMapS))
                     {
-                        object firstObj = t; 
-                        S firstS = (S)firstObj; //huh? T can be cast to S?!
-                        return firstS;
+                        foreach(S firstS in rowEnum)
+                        {
+                            return firstS;
+                        }
+                        throw new ApplicationException("First() failed, enumeration has no entries");
                     }
-                    break;
                 case "Count":
                 case "Max":
                 case "Min":
@@ -85,7 +88,7 @@ namespace DBLinq.util
                             //string varName = _vars.GetDefaultVarName(); //'$x'
                             string varName = "x$"; //TODO - get it from QueryProcessor
                             FromClauseBuilder.SelectAllFields(_vars, _vars._sqlParts, typeof(T), varName);
-                            //QueryProcessor.ProcessLambdas(_vars, typeof(S));
+
                             using(RowEnumerator<S> rowEnum = new RowEnumerator<S>(_vars,null))
                             {
                                 foreach(S firstS in rowEnum){

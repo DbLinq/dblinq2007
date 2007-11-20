@@ -131,7 +131,7 @@ namespace DBLinq.Linq
             Log1.Info("MTable.Execute<"+typeof(S)+">: "+expression);
             SessionVars vars2 = new SessionVars(_vars).AddScalar(expression); //clone and append Expr
             SessionVarsParsed varsFin = QueryProcessor.ProcessLambdas(vars2, typeof(T)); //parse all
-            return new RowScalar<T>(varsFin, this).GetScalar<S>(expression);
+            return new RowScalar<T>(varsFin, this, _liveObjectMap).GetScalar<S>(expression);
         }
 
         /// <summary>

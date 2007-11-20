@@ -27,6 +27,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using System.Linq.Expressions;
 using DBLinq.Linq.clause;
 using DBLinq.util;
@@ -59,11 +60,13 @@ namespace DBLinq.Linq
         /// </summary>
         public Dictionary<Type, string> currentVarNames = new Dictionary<Type, string>();
 
+#if REMOVED
         /// <summary>
         /// OrderBy goes first, ThenBy next
         /// </summary>
         public List<LambdaExpression> orderByExpr = new List<LambdaExpression>();
         public string orderBy_desc;
+#endif
 
         private QueryProcessor(SessionVarsParsed vars)
         {
@@ -120,6 +123,10 @@ namespace DBLinq.Linq
                 case "Single":
                     _vars._sqlParts.limitClause = 2;
                     break;
+                case "First":
+                case "FirstOrDefault":
+                    _vars._sqlParts.limitClause = 1;
+                    break;
             }
 
             //there are two forms of Single, one passes in a Where clause
@@ -128,6 +135,11 @@ namespace DBLinq.Linq
             if (lambdaParam != null)
             {
                 //StoreLambda("Where", lambdaParam);
+                if(lambdaParam.Parameters.Count>0 && _vars.expressionChain.Count>0)
+                {
+                    Expression lastEx = _vars.expressionChain[_vars.expressionChain.Count-1];
+                    string exprCatg = lastEx.XLambdaName();
+                }
                 processWhereClause(lambdaParam);
             }
 
@@ -180,7 +192,7 @@ namespace DBLinq.Linq
                     ParameterExpression paramEx = _vars.groupByExpr.Parameters[0];
                     FromClauseBuilder.SelectAllFields(_vars,_vars._sqlParts,paramEx.Type,VarName.GetSqlName(paramEx.Name));
                 }
-                else if(_vars.groupByNewExpr!=null)
+                else  if (_vars.groupByNewExpr != null)
                 {
                     inputs = new ParseInputs(result);
                     //inputs.groupByExpr = _vars.groupByExpr;
@@ -190,6 +202,7 @@ namespace DBLinq.Linq
                 }
             }
 
+#if REMOVED
             foreach(LambdaExpression orderByExpr_ in orderByExpr)
             {
                 ParseInputs inputs = new ParseInputs(result);
@@ -214,6 +227,7 @@ namespace DBLinq.Linq
                     result.CopyInto(_vars._sqlParts); //transfer params and tablesUsed
                 }
             }
+#endif
 
         }
 
@@ -289,8 +303,8 @@ namespace DBLinq.Linq
                             result.CopyInto(_vars._sqlParts);
                         }
 
-                        //JoinBuilder.AddJoin1(lambda1.Body, lambda2.Parameters[1],);
-                        StoreLambda("Select", lambda2);
+                        //StoreLambda("Select", lambda2);
+                        processSelectClause(lambda2);
                         return;
                     default:
                         throw new ApplicationException("StoreQuery L117: Prepared only for 2 or 3 param GroupBys");
@@ -304,6 +318,13 @@ namespace DBLinq.Linq
             {
                 case "Where":
                     processWhereClause(lambda); return;
+                case "Select":
+                    processSelectClause(lambda); return;
+                case "OrderBy":
+                case "ThenBy":
+                    processOrderByClause(lambda, null); return;
+                case "OrderByDescending":
+                    processOrderByClause(lambda, "DESC"); return;
             }
 
             //first, handle special cases, which have no lambdas: Take,Skip, Distinct
@@ -345,7 +366,6 @@ namespace DBLinq.Linq
 #if REMOVED
                 case "Where":
                     whereExpr.Add(lambda); break;
-#endif
                 case "Select":
                     selectExpr = lambda;
                     //necesary for projections?
@@ -358,17 +378,19 @@ namespace DBLinq.Linq
                         _vars.projectionData = ProjectionData.FromSelectGroupByExpr(selectExpr, _vars.groupByExpr, _vars._sqlParts);
                     }
                     break;
+#endif
                 case "SelectMany":
                     //break the SelectMany beast into constituents
                     StoreSelectManyLambda(lambda);
                     break;
+#if REMOVED
                 case "OrderBy":
                     orderByExpr.Add(lambda); orderBy_desc = null; break;
                 case "OrderByDescending":
                     orderByExpr.Add(lambda); orderBy_desc = "DESC"; break;
                 case "ThenBy":
                     orderByExpr.Add(lambda); orderBy_desc = null; break;
-
+#endif
                 case "GroupBy":
                     _vars.groupByExpr = lambda;
                     break;
