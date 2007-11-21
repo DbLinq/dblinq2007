@@ -25,11 +25,11 @@ namespace Test_NUnit
             //new ReadTest().D07_OrdersFromLondon_Alt();
             //new ReadTest().A1_PingDatabase();
             //new ReadTest().D11_Products_DoubleWhere();
-            //new ReadTest_Complex().F2_ProductCount_Clause();
+            new ReadTest_Complex().F7_ExplicitJoin();
 
             //new StoredProcTest().SP3_GetOrderCount_SelField();
             //new ReadTest().D08_Products_Take5();
-            new ReadTest_GroupBy().G02_SimpleGroup_First();
+            //new ReadTest_GroupBy().G08_OrderSumByCustomerID();
             //new ReadTest_AllTypes().AT5_SelectEnum_();
             //new ReadTest_Operands().H1_SelectConcat();
             //new ReadTest_GroupBy().G05_Group_Into();

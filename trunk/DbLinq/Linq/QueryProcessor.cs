@@ -105,10 +105,20 @@ namespace DBLinq.Linq
             if (_vars.scalarExpression == null)
                 return;
 
+            Expression previousExpr = _vars.expressionChain.Count==0 
+                ? null
+                :_vars.expressionChain[_vars.expressionChain.Count - 1];
+
+            string previousExprName = previousExpr.XLambdaName();
+
             Expression expr = _vars.scalarExpression;
 
             MethodCallExpression exprCall = expr.XMethodCall();
             string methodName = exprCall != null ? exprCall.Method.Name : "Unknown_71";
+            
+            if (previousExprName == "GroupBy")
+                throw new InvalidOperationException("GroupBy must by followed by Select, not " + methodName);
+
             switch (methodName)
             {
                 case "Count":
@@ -138,7 +148,7 @@ namespace DBLinq.Linq
                 if(lambdaParam.Parameters.Count>0 && _vars.expressionChain.Count>0)
                 {
                     Expression lastEx = _vars.expressionChain[_vars.expressionChain.Count-1];
-                    string exprCatg = lastEx.XLambdaName();
+                    string exprCatg = previousExpr.XLambdaName();
                 }
                 processWhereClause(lambdaParam);
             }
@@ -311,7 +321,7 @@ namespace DBLinq.Linq
                 }
             }
 
-
+            //methodName = expr.XLambdaName();
             LambdaExpression lambda = WhereClauseBuilder.FindLambda(expr, out methodName);
 
             switch (methodName)
@@ -325,6 +335,8 @@ namespace DBLinq.Linq
                     processOrderByClause(lambda, null); return;
                 case "OrderByDescending":
                     processOrderByClause(lambda, "DESC"); return;
+                case "Join":
+                    processJoinClause(expr.XMethodCall()); return;
             }
 
             //first, handle special cases, which have no lambdas: Take,Skip, Distinct

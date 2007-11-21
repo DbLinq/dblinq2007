@@ -88,6 +88,7 @@ namespace Test_NUnit
         }
 
         [Test]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void G02_SimpleGroup_First()
         {
             //Note: this SQL is allowed in Mysql but illegal on Postgres 
@@ -175,7 +176,7 @@ namespace Test_NUnit
             var lst = q2.ToList();
             Assert.Greater(lst.Count, 0, "Expected some grouped order results");
             var result0 = lst[0];
-            Assert.Greater(result0.Key, 0, "Key must be > 0");
+            Assert.IsTrue(result0.Key!=null, "Key must be non-null");
             Assert.Greater(result0.OrderCount, 0, "Count must be > 0");
             //select new { g.Key , SumPerCustomer = g.Sum(o2=>o2.OrderID) };
         }
@@ -193,7 +194,7 @@ namespace Test_NUnit
             var lst = q2.ToList();
             Assert.Greater(lst.Count, 0, "Expected some grouped order results");
             var result0 = lst[0];
-            Assert.Greater(result0.Key, 0, "Key must be > 0");
+            Assert.IsTrue(result0.Key != null, "Key must be non-null");
             Assert.Greater(result0.OrderCount, 0, "Count must be > 0");
             //select new { g.Key , SumPerCustomer = g.Sum(o2=>o2.OrderID) };
         }
@@ -212,7 +213,7 @@ namespace Test_NUnit
             foreach (var result in lst)
             {
                 Console.WriteLine("  Result: custID=" + result.Key + " sum=" + result.OrderSum);
-                Assert.Greater(result.Key, 0, "Key must be > 0");
+                Assert.IsTrue(result.Key != null, "Key must be non-null");
                 Assert.Greater(result.OrderSum, 0f, "OrderSum must be > 0");
             }
             //select new { g.Key , SumPerCustomer = g.Sum(o2=>o2.OrderID) };
