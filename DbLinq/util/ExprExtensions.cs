@@ -67,6 +67,8 @@ namespace DBLinq.util
         [DebuggerStepThrough]
         public static string XLambdaName(this Expression ex)
         {
+            if (ex == null)
+                return null;
             MethodCallExpression mcall = ex.XMethodCall();
             if (mcall == null)
                 return null;

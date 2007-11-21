@@ -78,6 +78,9 @@ namespace DBLinq.Linq.clause
 
                 case "Count": //scalar
                     return null;
+
+                case "Join":
+                    return null;
             }
 
             //if(methodName=="GroupBy")

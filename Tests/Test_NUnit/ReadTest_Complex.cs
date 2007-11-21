@@ -82,11 +82,31 @@ namespace Test_NUnit
         [Test]
         public void F7_ExplicitJoin()
         {
+            //a nice and light nonsense join:
+            //bring in rows such as {Pen,AIRBU}
             var q =
-	            from c in db.Customers
-	            join o in db.Orders on c.CustomerID equals o.CustomerID
-	            where c.City == "London"
-	            select o;
+                from p in db.Products
+                join o in db.Orders on p.ProductID equals o.OrderID
+                select new { p.ProductName, o.CustomerID };
+
+            int rowCount = 0;
+            foreach (var v in q)
+            {
+                rowCount++;
+                Assert.IsTrue(v.ProductName != null);
+                Assert.IsTrue(v.CustomerID != null);
+            }
+            Assert.IsTrue(rowCount > 2);
+        }
+
+        [Test]
+        public void F7b_ExplicitJoin()
+        {
+            var q =
+                from c in db.Customers
+                join o in db.Orders on c.CustomerID equals o.CustomerID
+                where c.City == "London"
+                select o;
         }
 
 #if INCLUDING_CLAUSE

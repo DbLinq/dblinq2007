@@ -102,5 +102,28 @@ namespace DBLinq.Linq
             _vars._sqlParts.orderByList.Add(orderByFields);
             _vars._sqlParts.orderBy_desc = orderBy_desc; //copy 'DESC' specifier
         }
+
+        void processJoinClause(MethodCallExpression joinExpr)
+        {
+            ParseResult result = null;
+            ParseInputs inputs = new ParseInputs(result);
+
+            if (joinExpr == null || joinExpr.Arguments.Count != 5)
+                throw new ArgumentOutOfRangeException("L112 Currently only handling 5-arg Joins");
+
+            Expression arg2 = joinExpr.Arguments[2]; //{p => p.ProductID}
+            Expression arg3 = joinExpr.Arguments[3]; //{o => o.OrderID}
+            Expression arg4 = joinExpr.Arguments[4]; //{(p, o) => new <>f__AnonymousType9`2(ProductName = p.ProductName, CustomerID = o.CustomerID)}
+
+            processSelectClause(arg2.XLambda());
+            processSelectClause(arg3.XLambda());
+            throw new ArgumentOutOfRangeException("L118 TODO: Join");
+
+            //result = ExpressionTreeParser.Parse(this, joinExpr.Body, inputs);
+            //string orderByFields = string.Join(",", result.columns.ToArray());
+            //_vars._sqlParts.orderByList.Add(orderByFields);
+            //_vars._sqlParts.orderBy_desc = orderBy_desc; //copy 'DESC' specifier
+        }
+
     }
 }
