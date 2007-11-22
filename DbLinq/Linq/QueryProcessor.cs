@@ -41,38 +41,22 @@ namespace DBLinq.Linq
     public partial class QueryProcessor
     {
         readonly SessionVarsParsed _vars;
-        readonly WhereClauseBuilder _whereBuilder; // = new WhereClauseBuilder();
 
         /// <summary>
         /// there can be more than one select
         /// </summary>
         public LambdaExpression selectExpr;
 
-#if REMOVED
-        /// <summary>
-        /// there can be more than one Where clause
-        /// </summary>
-        public List<LambdaExpression> whereExpr = new List<LambdaExpression>();
-#endif
         /// <summary>
         /// given 'table.Where(x => x>2).Where(y => y<10)',
         /// we need to store the 'x' nickname and drop the 'y'.
         /// </summary>
         public Dictionary<Type, string> currentVarNames = new Dictionary<Type, string>();
 
-#if REMOVED
-        /// <summary>
-        /// OrderBy goes first, ThenBy next
-        /// </summary>
-        public List<LambdaExpression> orderByExpr = new List<LambdaExpression>();
-        public string orderBy_desc;
-#endif
 
         private QueryProcessor(SessionVarsParsed vars)
         {
             _vars = vars;
-            //TODO - pass in either vars or a delegate which allows asking for nickname for 'o.Customer'
-            _whereBuilder = new WhereClauseBuilder(vars._sqlParts);
         }
 
 
@@ -87,7 +71,7 @@ namespace DBLinq.Linq
             SessionVarsParsed varsFin = new SessionVarsParsed(vars);
             QueryProcessor qp = new QueryProcessor(varsFin); //TODO
 
-            foreach (Expression expr in vars.expressionChain)
+            foreach (MethodCallExpression expr in vars.expressionChain)
             {
                 qp.StoreQuery(expr);
             }
@@ -269,12 +253,12 @@ namespace DBLinq.Linq
         /// traverse expression and extract various selectExpr, orderByExpr, sqlParts, etc
         /// </summary>
         /// <param name="expr"></param>
-        public void StoreQuery(Expression expr)
+        public void StoreQuery(MethodCallExpression exprCall)
         {
             //huh - in case of "(db.Products).Take(5)", there is no lambda?
             //same for "(db.Products).Distinct()", there is no lambda.
-            string methodName;
-            MethodCallExpression exprCall = expr.XMethodCall();
+            string methodName = exprCall.Method.Name;
+
             if (exprCall != null && exprCall.Method.Name == "GroupBy")
             {
                 //special case: GroupBy can come with 2 or 3 params
@@ -321,8 +305,10 @@ namespace DBLinq.Linq
                 }
             }
 
-            //methodName = expr.XLambdaName();
-            LambdaExpression lambda = WhereClauseBuilder.FindLambda(expr, out methodName);
+            //LambdaExpression lambda = WhereClauseBuilder.FindLambda(expr, out methodName);
+            LambdaExpression lambda = exprCall.Arguments.Count > 1
+                ? exprCall.Arguments[1].XLambda()
+                : null; //for Distinct(), we have no lambda (see F10_DistinctCity)
 
             switch (methodName)
             {
@@ -336,13 +322,13 @@ namespace DBLinq.Linq
                 case "OrderByDescending":
                     processOrderByClause(lambda, "DESC"); return;
                 case "Join":
-                    processJoinClause(expr.XMethodCall()); return;
+                    processJoinClause(exprCall); return;
             }
 
             //first, handle special cases, which have no lambdas: Take,Skip, Distinct
             if (methodName == "Take")
             {
-                Expression howMany = expr.XMethodCall().XParam(1);
+                Expression howMany = exprCall.XParam(1);
                 if (!(howMany is ConstantExpression))
                     throw new ArgumentException("Take() must come with ConstExpr");
                 ConstantExpression howMany2 = (ConstantExpression)howMany;
@@ -350,7 +336,7 @@ namespace DBLinq.Linq
             }
             else if (methodName == "Skip")
             {
-                Expression howMany = expr.XMethodCall().XParam(1);
+                Expression howMany = exprCall.XParam(1);
                 if (!(howMany is ConstantExpression))
                     throw new ArgumentException("Skip() must come with ConstExpr");
                 ConstantExpression howMany2 = (ConstantExpression)howMany;
@@ -375,34 +361,10 @@ namespace DBLinq.Linq
             //  ThenBy, ThenByDescending, GroupBy, and Cast
             switch (methodName)
             {
-#if REMOVED
-                case "Where":
-                    whereExpr.Add(lambda); break;
-                case "Select":
-                    selectExpr = lambda;
-                    //necesary for projections?
-                    if (_vars.groupByExpr == null)
-                    {
-                        _vars.projectionData = ProjectionData.FromSelectExpr(selectExpr);
-                    }
-                    else
-                    {
-                        _vars.projectionData = ProjectionData.FromSelectGroupByExpr(selectExpr, _vars.groupByExpr, _vars._sqlParts);
-                    }
-                    break;
-#endif
                 case "SelectMany":
                     //break the SelectMany beast into constituents
                     StoreSelectManyLambda(lambda);
                     break;
-#if REMOVED
-                case "OrderBy":
-                    orderByExpr.Add(lambda); orderBy_desc = null; break;
-                case "OrderByDescending":
-                    orderByExpr.Add(lambda); orderBy_desc = "DESC"; break;
-                case "ThenBy":
-                    orderByExpr.Add(lambda); orderBy_desc = null; break;
-#endif
                 case "GroupBy":
                     _vars.groupByExpr = lambda;
                     break;
