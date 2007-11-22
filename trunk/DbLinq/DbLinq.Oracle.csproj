@@ -74,7 +74,6 @@
     <Compile Include="Linq\MTable_Projected.cs" />
     <Compile Include="Linq\ProjectionData.cs" />
     <Compile Include="Linq\SessionVars.cs" />
-    <Compile Include="Linq\clause\WhereClauseBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="util\AttribHelper.cs" />
     <Compile Include="util\RowEnumeratorGroupBy.cs" />

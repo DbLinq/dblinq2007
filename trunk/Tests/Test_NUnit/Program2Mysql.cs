@@ -25,9 +25,9 @@ namespace Test_NUnit
             //new ReadTest().D07_OrdersFromLondon_Alt();
             //new ReadTest().A1_PingDatabase();
             //new ReadTest().D11_Products_DoubleWhere();
-            new ReadTest_Complex().F7_ExplicitJoin();
+            //new ReadTest_Complex().F10_DistinctCity();
 
-            //new StoredProcTest().SP3_GetOrderCount_SelField();
+            //new StoredProcTest().SPB_GetOrderCount_Having();
             //new ReadTest().D08_Products_Take5();
             //new ReadTest_GroupBy().G08_OrderSumByCustomerID();
             //new ReadTest_AllTypes().AT5_SelectEnum_();
@@ -39,7 +39,7 @@ namespace Test_NUnit
             //new NullTest().NullableT_Value();
             //new Count_Sum_Min_Max_Avg().LiqnToSqlCount02();
             //new Top_Bottom().LinqToSqlTop03_Ex_Andrus();
-            //new Join().LinqToSqlJoin01();
+            new Join().LinqToSqlJoin01();
             //new Object_Identity().LinqToSqlObjectIdentity01();
         }
     }

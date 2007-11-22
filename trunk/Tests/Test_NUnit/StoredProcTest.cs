@@ -83,7 +83,7 @@ namespace Test_NUnit
             int count = 0;
             foreach (var c in q)
             {
-                Assert.Greater(c.CustomerID, 0);
+                Assert.IsTrue(c.CustomerID!=null, "Non-null customerID required");
                 count++;
             }
             Assert.Greater(count, 0);

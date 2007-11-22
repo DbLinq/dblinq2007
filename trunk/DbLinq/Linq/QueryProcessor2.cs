@@ -115,9 +115,21 @@ namespace DBLinq.Linq
             Expression arg3 = joinExpr.Arguments[3]; //{o => o.OrderID}
             Expression arg4 = joinExpr.Arguments[4]; //{(p, o) => new <>f__AnonymousType9`2(ProductName = p.ProductName, CustomerID = o.CustomerID)}
 
-            processSelectClause(arg2.XLambda());
-            processSelectClause(arg3.XLambda());
-            throw new ArgumentOutOfRangeException("L118 TODO: Join");
+            string joinField1, joinField2;
+            //processSelectClause(arg2.XLambda());
+            {
+                result = ExpressionTreeParser.Parse(this, arg2.XLambda().Body, inputs);
+                joinField1 = result.columns[0]; // "p$.ProductID"
+                result.CopyInto(_vars._sqlParts); //transfer params and tablesUsed
+            }
+            {
+                result = ExpressionTreeParser.Parse(this, arg3.XLambda().Body, inputs);
+                joinField2 = result.columns[0]; // "p$.ProductID"
+                result.CopyInto(_vars._sqlParts); //transfer params and tablesUsed
+            }
+            processSelectClause(arg4.XLambda());
+            _vars._sqlParts.joinList.Add(joinField1 + "=" + joinField2);
+            //throw new ArgumentOutOfRangeException("L118 TODO: Join");
 
             //result = ExpressionTreeParser.Parse(this, joinExpr.Body, inputs);
             //string orderByFields = string.Join(",", result.columns.ToArray());

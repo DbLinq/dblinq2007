@@ -56,6 +56,7 @@
     <Compile Include="Linq\Mapping\AutoGenIdAttribute.cs" />
     <Compile Include="Linq\Mapping\FunctionExAttribute.cs" />
     <Compile Include="Linq\QueryProcessor.cs" />
+    <Compile Include="Linq\QueryProcessor2.cs" />
     <Compile Include="util\CSharp.cs" />
     <Compile Include="util\ExprExtensions.cs" />
     <Compile Include="util\FieldUtils.cs" />
@@ -72,7 +73,6 @@
     <Compile Include="Linq\MTable_Projected.cs" />
     <Compile Include="Linq\ProjectionData.cs" />
     <Compile Include="Linq\SessionVars.cs" />
-    <Compile Include="Linq\clause\WhereClauseBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="util\AttribHelper.cs" />
     <Compile Include="util\RowEnumeratorGroupBy.cs" />

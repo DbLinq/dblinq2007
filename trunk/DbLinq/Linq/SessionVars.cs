@@ -49,7 +49,7 @@ namespace DBLinq.Linq
         /// chain of expressions processed so far. 
         /// for db.Employees.Where(...).Select(...), we would hold 2 expressions.
         /// </summary>
-        public readonly List<Expression> expressionChain = new List<Expression>();
+        public readonly List<MethodCallExpression> expressionChain = new List<MethodCallExpression>();
         
         /// <summary>
         /// optional scalar expression, terminating the chain
@@ -67,16 +67,22 @@ namespace DBLinq.Linq
         public SessionVars(SessionVars vars)
         { 
             context = vars.context;
-            expressionChain = new List<Expression>(vars.expressionChain);
+            expressionChain = new List<MethodCallExpression>(vars.expressionChain);
             scalarExpression = vars.scalarExpression;
         }
         public SessionVars Add(Expression expressionToAdd)
         {
-            expressionChain.Add(expressionToAdd);
+            MethodCallExpression exprCall = expressionToAdd as MethodCallExpression;
+            if (exprCall == null)
+                throw new ArgumentException("L77 Expression must be a MethodCall");
+            expressionChain.Add(exprCall);
             return this;
         }
         public SessionVars AddScalar(Expression expression)
         {
+            MethodCallExpression exprCall = expression as MethodCallExpression;
+            if (exprCall == null)
+                throw new ArgumentException("L85 Expression must be a MethodCall");
             scalarExpression = expression;
             return this;
         }
