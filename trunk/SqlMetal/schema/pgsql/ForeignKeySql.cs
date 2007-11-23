@@ -1,3 +1,4 @@
+#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -21,6 +22,7 @@
 // Authors:
 //        Jiri George Moudry
 ////////////////////////////////////////////////////////////////////
+#endregion
 
 using System;
 using System.Collections.Generic;
@@ -37,8 +39,17 @@ namespace SqlMetal.schema.pgsql
         public string constraint_name;
         public string table_name_Child;
         public string constraint_type;
+        public string table_schema_Parent;
         public string table_name_Parent;
         public string column_name;
+
+        /// <summary>
+        /// return parent table name eg. 'public.customer'
+        /// </summary>
+        public string TableNameWithSchema_Parent
+        {
+            get { return table_schema_Parent + "." + table_name_Parent; }
+        }
 
         public override string ToString()
         {
@@ -59,8 +70,9 @@ namespace SqlMetal.schema.pgsql
             t.constraint_name = rdr.GetString(field++);
             t.table_name_Child    = rdr.GetString(field++);
             t.constraint_type = rdr.GetString(field++);
-            t.table_name_Parent  = rdr.GetString(field++);
-            t.column_name    = rdr.GetString(field++);
+            t.table_schema_Parent = rdr.GetString(field++);
+            t.table_name_Parent = rdr.GetString(field++);
+            t.column_name = rdr.GetString(field++);
             return t;
         }
 
@@ -68,7 +80,7 @@ namespace SqlMetal.schema.pgsql
         {
             string sql = @"
 SELECT t.constraint_name, t.table_name, t.constraint_type,
-    c.table_name, c.column_name
+    c.table_schema, c.table_name, c.column_name
 FROM information_schema.table_constraints t,
     information_schema.constraint_column_usage c
 WHERE t.constraint_name = c.constraint_name

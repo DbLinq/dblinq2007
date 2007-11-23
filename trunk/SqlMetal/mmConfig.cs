@@ -56,6 +56,8 @@ namespace SqlMetal
 
         public static bool sprocs = false;
 
+        public static bool verboseForeignKeys = false;
+
         #region static ctor: populate fields from app.config
         /// <summary>
         /// give preference to commandline options over app.config options

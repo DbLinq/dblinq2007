@@ -18,15 +18,15 @@ namespace Test_NUnit
     {
         static void Main()
         {
-            //new ReadTest().D05_SelectOrdersForProduct();
+            //new ReadTest().A1_PingDatabase();
             //new ReadTest().D06_OrdersFromLondon();
-            new StoredProcTest().SP3_GetOrderCount_SelField();
+            //new StoredProcTest().SP3_GetOrderCount_SelField();
             //new ReadTest_GroupBy().G01_SimpleGroup();
             //new ReadTest_GroupBy().G06_OrderCountByCustomerID();
 
             //new ReadTest_GroupBy().G04_OrderSumByCustomerID();
-            //ReadTest_Complex rc = new ReadTest_Complex();
-            //rc.F10_DistinctCity();
+            ReadTest_Complex rc = new ReadTest_Complex();
+            rc.F5_AvgProductId();
             //rc.F11_ConcatString();
             //rc.F12_ConcatString_2();
             //rc.F2_ProductCount_Clause();
@@ -35,7 +35,7 @@ namespace Test_NUnit
             //new ReadTest_Complex().F3_MaxProductId();
             //new ReadTest().D09_Products_LetterP_Take5();
             //new ReadTest().D7_OrdersFromLondon_Alt();
-            new WriteTest().G2_DeleteTest();
+            //new WriteTest().G2_DeleteTest();
             //new WriteTest().G1_InsertProduct();
         }
     }

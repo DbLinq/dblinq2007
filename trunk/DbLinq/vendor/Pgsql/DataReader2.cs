@@ -1,3 +1,4 @@
+#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -21,6 +22,7 @@
 // Authors:
 //        Jiri George Moudry
 ////////////////////////////////////////////////////////////////////
+#endregion
 
 using System;
 using System.Data;
@@ -209,11 +211,17 @@ namespace DBLinq.util
         {
             try
             {
+                if (_rdr.GetFieldType(index) == typeof(decimal))
+                {
+                    //occurs in: "SELECT AVG(ProductID) FROM Products"
+                    return (double)_rdr.GetDecimal(index);
+                }
+
                 return _rdr.GetDouble(index);
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetInt32 failed: "+ex);
+                Console.WriteLine("GetDouble failed: "+ex);
                 return 0;
             }
         }

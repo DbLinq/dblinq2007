@@ -1,3 +1,4 @@
+#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -21,6 +22,7 @@
 // Authors:
 //        Jiri George Moudry
 ////////////////////////////////////////////////////////////////////
+#endregion
 
 using System;
 using System.Collections.Generic;
@@ -39,9 +41,15 @@ namespace SqlMetal.schema.pgsql
         public string table_schema;
         public string table_name;
         public string column_name;
-        //public string referenced_table_schema;
-        //public string referenced_table_name;
-        //public string referenced_column_name;
+
+        /// <summary>
+        /// return table name eg. 'public.customer'
+        /// </summary>
+        public string TableNameWithSchema
+        {
+            get { return table_schema + "." + table_name; }
+        }
+
         public override string ToString()
         {
             return "KeyColUsage "+constraint_name+":  "+table_name+"."+column_name;

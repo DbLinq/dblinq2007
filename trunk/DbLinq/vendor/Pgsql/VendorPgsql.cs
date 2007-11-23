@@ -227,7 +227,13 @@ namespace DBLinq.vendor
             NpgsqlConnection conn = context.SqlConnection;
             using (NpgsqlCommand command = new NpgsqlCommand(sql, conn))
             {
-                return command.ExecuteNonQuery();
+                //return command.ExecuteNonQuery();
+                object objResult = command.ExecuteScalar();
+                if (objResult is int)
+                    return (int)objResult;
+                if (objResult is long)
+                    return (int)(long)objResult;
+                return 0;
             }
         }
 

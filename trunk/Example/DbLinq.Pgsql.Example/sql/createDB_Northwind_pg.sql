@@ -60,7 +60,7 @@ CREATE TABLE Products (
   UnitsInStock SMALLINT NULL,
   UnitsOnOrder SMALLINT NULL,
   ReorderLevel SMALLINT NULL,
-  Discontinued BIT NULL,
+  Discontinued BIT NOT NULL,
   PRIMARY KEY(ProductID),
   CONSTRAINT FK_prod_catg FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID),
   CONSTRAINT FK_prod_supp FOREIGN KEY (SupplierID) REFERENCES Suppliers(SupplierID)

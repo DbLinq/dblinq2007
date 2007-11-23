@@ -1,3 +1,4 @@
+#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -21,6 +22,7 @@
 // Authors:
 //        Jiri George Moudry
 ////////////////////////////////////////////////////////////////////
+#endregion
 
 using System;
 using System.Collections.Generic;
@@ -61,6 +63,14 @@ namespace SqlMetal.schema.pgsql
         /// </summary>
         public string column_default;
 
+        /// <summary>
+        /// return table name eg. 'public.customer'
+        /// </summary>
+        public string TableNameWithSchema
+        {
+            get { return table_schema+"."+table_name; } 
+        }
+
         public override string ToString()
         {
             return "Column "+table_name+"."+column_name+"  "+datatype.Substring(0,4);
@@ -97,7 +107,8 @@ SELECT table_catalog,table_schema,table_name,column_name
     ,is_nullable,data_type,column_default
 FROM information_schema.COLUMNS
 WHERE table_catalog=:db
-AND table_schema NOT IN ('pg_catalog','information_schema')";
+AND table_schema NOT IN ('pg_catalog','information_schema')
+ORDER BY ordinal_position";
 
             using(NpgsqlCommand cmd = new NpgsqlCommand(sql, conn))
             {

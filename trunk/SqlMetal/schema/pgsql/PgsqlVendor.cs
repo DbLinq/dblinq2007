@@ -1,3 +1,4 @@
+#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -21,6 +22,7 @@
 // Authors:
 //        Jiri George Moudry
 ////////////////////////////////////////////////////////////////////
+#endregion
 
 //Sources: Extracting META Information from PostgreSQL - Lorenzo Alberton
 //http://www.alberton.info/postgresql_meta_info.html
@@ -63,16 +65,17 @@ namespace SqlMetal.schema.pgsql
             //##################################################################
             //step 1 - load tables
             TableSql tsql = new TableSql();
-            List<TableRow> tables = tsql.getTables(conn,mmConfig.database);
-            if(tables==null || tables.Count==0){
-                Console.WriteLine("No tables found for schema "+mmConfig.database+", exiting");
+            List<TableRow> tables = tsql.getTables(conn, mmConfig.database);
+            if (tables == null || tables.Count == 0)
+            {
+                Console.WriteLine("No tables found for schema " + mmConfig.database + ", exiting");
                 return null;
             }
 
             foreach (TableRow tblRow in tables)
             {
                 DlinqSchema.Table tblSchema = new DlinqSchema.Table();
-                tblSchema.Name = tblRow.table_name;
+                tblSchema.Name = tblRow.table_schema + "." + tblRow.table_name;
                 tblSchema.Member = Util.FormatTableName(tblRow.table_name, false).Pluralize();
                 tblSchema.Type.Name = Util.FormatTableName(tblRow.table_name, true);
                 schema.Tables.Add(tblSchema);
@@ -81,44 +84,44 @@ namespace SqlMetal.schema.pgsql
             //##################################################################
             //step 2 - load columns
             ColumnSql csql = new ColumnSql();
-            List<Column> columns = csql.getColumns(conn,mmConfig.database);
+            List<Column> columns = csql.getColumns(conn, mmConfig.database);
 
             KeyColumnUsageSql ksql = new KeyColumnUsageSql();
-            List<KeyColumnUsage> constraints = ksql.getConstraints(conn,mmConfig.database);
+            List<KeyColumnUsage> constraints = ksql.getConstraints(conn, mmConfig.database);
             ForeignKeySql fsql = new ForeignKeySql();
 
-            List<ForeignKeyCrossRef> allKeys2 = fsql.getConstraints(conn,mmConfig.database);
-            List<ForeignKeyCrossRef> foreignKeys = allKeys2.Where( k => k.constraint_type == "FOREIGN KEY" ).ToList();
-            List<ForeignKeyCrossRef> primaryKeys = allKeys2.Where( k => k.constraint_type == "PRIMARY KEY" ).ToList();
-            
+            List<ForeignKeyCrossRef> allKeys2 = fsql.getConstraints(conn, mmConfig.database);
+            List<ForeignKeyCrossRef> foreignKeys = allKeys2.Where(k => k.constraint_type == "FOREIGN KEY").ToList();
+            List<ForeignKeyCrossRef> primaryKeys = allKeys2.Where(k => k.constraint_type == "PRIMARY KEY").ToList();
 
-            foreach(Column columnRow in columns)
+
+            foreach (Column columnRow in columns)
             {
                 //find which table this column belongs to
-                DlinqSchema.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.table_name==tblSchema.Name);
-                if(tableSchema==null)
+                DlinqSchema.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.TableNameWithSchema == tblSchema.Name);
+                if (tableSchema == null)
                 {
-                    Console.WriteLine("ERROR L46: Table '"+columnRow.table_name+"' not found for column "+columnRow.column_name);
+                    Console.WriteLine("ERROR L46: Table '" + columnRow.table_name + "' not found for column " + columnRow.column_name);
                     continue;
                 }
                 DlinqSchema.Column colSchema = new DlinqSchema.Column();
                 colSchema.Name = columnRow.column_name;
                 colSchema.DbType = columnRow.datatype; //.column_type ?
-                KeyColumnUsage primaryKCU = constraints.FirstOrDefault(c => c.column_name==columnRow.column_name 
-                    && c.table_name==columnRow.table_name && c.constraint_name.EndsWith("_pkey"));
+                KeyColumnUsage primaryKCU = constraints.FirstOrDefault(c => c.column_name == columnRow.column_name
+                    && c.table_name == columnRow.table_name && c.constraint_name.EndsWith("_pkey"));
 
-                colSchema.IsPrimaryKey = primaryKCU!=null; //columnRow.column_key=="PRI";
-                colSchema.IsDbGenerated = columnRow.column_default!=null && columnRow.column_default.StartsWith("nextval(");
+                colSchema.IsPrimaryKey = primaryKCU != null; //columnRow.column_key=="PRI";
+                colSchema.IsDbGenerated = columnRow.column_default != null && columnRow.column_default.StartsWith("nextval(");
                 //colSchema.IsVersion = ???
                 colSchema.CanBeNull = columnRow.isNullable;
                 colSchema.Type = Mappings.mapSqlTypeToCsType(columnRow.datatype, columnRow.column_type);
-                
+
                 //this will be the c# field name
                 colSchema.Member = Util.FieldName(columnRow.column_name);
 
                 colSchema.Type = Mappings.mapSqlTypeToCsType(columnRow.datatype, columnRow.column_type);
-                if(CSharp.IsValueType(colSchema.Type) && columnRow.isNullable)
-                colSchema.Type += "?";
+                if (CSharp.IsValueType(colSchema.Type) && columnRow.isNullable)
+                    colSchema.Type += "?";
 
                 //tableSchema.Types[0].Columns.Add(colSchema);
                 tableSchema.Type.Columns.Add(colSchema);
@@ -129,28 +132,28 @@ namespace SqlMetal.schema.pgsql
 
             //TableSorter.Sort(tables, constraints); //sort tables - parents first
 
-            foreach(KeyColumnUsage keyColRow in constraints)
+            foreach (KeyColumnUsage keyColRow in constraints)
             {
                 //find my table:
-                DlinqSchema.Table table = schema.Tables.FirstOrDefault(t => keyColRow.table_name==t.Name);
-                if(table==null)
+                DlinqSchema.Table table = schema.Tables.FirstOrDefault(t => keyColRow.TableNameWithSchema == t.Name);
+                if (table == null)
                 {
-                    Console.WriteLine("ERROR L46: Table '"+keyColRow.table_name+"' not found for column "+keyColRow.column_name);
+                    Console.WriteLine("ERROR L138: Table '" + keyColRow.table_name + "' not found for column " + keyColRow.column_name);
                     continue;
                 }
 
-                if(keyColRow.constraint_name.EndsWith("_pkey")) //MYSQL reads 'PRIMARY'
+                if (keyColRow.constraint_name.EndsWith("_pkey")) //MYSQL reads 'PRIMARY'
                 {
                     //A) add primary key
                     DlinqSchema.Column primaryKeyCol = table.Type.Columns.First(c => c.Name == keyColRow.column_name);
                     primaryKeyCol.IsPrimaryKey = true;
-                } 
-                else 
+                }
+                else
                 {
-                    ForeignKeyCrossRef foreignKey = foreignKeys.FirstOrDefault(f=>f.constraint_name==keyColRow.constraint_name);
-                    if(foreignKey==null)
+                    ForeignKeyCrossRef foreignKey = foreignKeys.FirstOrDefault(f => f.constraint_name == keyColRow.constraint_name);
+                    if (foreignKey == null)
                     {
-                        string msg = "Missing data from 'constraint_column_usage' for foreign key "+keyColRow.constraint_name;
+                        string msg = "Missing data from 'constraint_column_usage' for foreign key " + keyColRow.constraint_name;
                         Console.WriteLine(msg);
                         //throw new ApplicationException(msg);
                         continue; //as per Andrus, do not throw. //putting together an Adnrus_DB test case.
@@ -174,7 +177,7 @@ namespace SqlMetal.schema.pgsql
                     assoc2.OtherKey = keyColRow.column_name; //.referenced_column_name;
 
                     //DlinqSchema.Table parentTable = schema0.Tables.FirstOrDefault(t => keyColRow.referenced_table_name==t.Name);
-                    DlinqSchema.Table parentTable = schema.Tables.FirstOrDefault(t => foreignKey.table_name_Parent==t.Name);
+                    DlinqSchema.Table parentTable = schema.Tables.FirstOrDefault(t => foreignKey.TableNameWithSchema_Parent == t.Name);
                     if (parentTable == null)
                         Console.WriteLine("ERROR L151: parent table not found: " + foreignKey.table_name_Parent);
                     else
@@ -200,7 +203,7 @@ namespace SqlMetal.schema.pgsql
                 foreach (Pg_Proc proc in procs)
                 {
                     if (proc.proallargtypes == null && proc.proargtypes != null && proc.proargtypes != "")
-                        proc.proallargtypes = "{" + proc.proargtypes.Replace(' ',',') + "}"; //work around pgsql weirdness?
+                        proc.proallargtypes = "{" + proc.proargtypes.Replace(' ', ',') + "}"; //work around pgsql weirdness?
                 }
 
                 foreach (Pg_Proc proc in procs)
