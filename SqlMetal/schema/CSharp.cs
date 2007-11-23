@@ -47,8 +47,11 @@ namespace SqlMetal.schema
                 case "bool": 
                 case "long": 
                 case "short": 
-                case "ulong": 
-                case "ushort": 
+                case "ulong":
+                case "ushort":
+                case "decimal":
+                case "double":
+                case "float":
                 case "DateTime": 
                     return true;
                 default: 

@@ -1,3 +1,4 @@
+#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -21,6 +22,7 @@
 // Authors:
 //        Jiri George Moudry
 ////////////////////////////////////////////////////////////////////
+#endregion
 
 using System;
 using System.Collections.Generic;
@@ -186,10 +188,11 @@ public EntityMSet<$childClassName> $fieldName
             return ret;
         }
 
-        string GetLinksToParentTables(DlinqSchema.Database schema, DlinqSchema.Table table)
-        {
-            #region GetLinksToParentTables()
-            string childLinkTemplate = @"
+        /// <summary>
+        /// this template is compatible with Microsoft standard.
+        /// You need this one to generate Northwind.cs correctly.
+        /// </summary>
+        const string childLinkTemplate_simple = @"
 private EntityRef<$parentClassTyp> $fieldName2;    
 
 [Association(Storage=""$fieldName1"", ThisKey=""$thisKey"", Name=""$fkName"")]
@@ -197,8 +200,30 @@ private EntityRef<$parentClassTyp> $fieldName2;
 public $parentClassTyp $member {
 	get { return this.$fieldName2.Entity; }
 	set { this.$fieldName2.Entity = value; }
-}
-";
+}";
+
+        /// <summary>
+        /// if you specify Metal.exe -verboseForeignKeys,
+        /// you will use this template, for slightly different code, 
+        /// where 2 fields are guaranteed not to collide (not to have same name):
+        /// (Note: there is collision avoidance code in SchemaPostprocess.cs)
+        /// </summary>
+        string childLinkTemplate_verbose = @"
+private EntityRef<$parentClassTyp> _$fkName_$thisKey;
+[Association(Storage=""$fieldName1"", ThisKey=""$thisKey"",Name=""$fkName"")]
+[DebuggerNonUserCode]
+public $parentClassTyp $fkName_$thisKey {
+    get { return this._$fkName_$thisKey.Entity; }
+    set { this._$fkName_$thisKey.Entity = value; }
+}";
+
+        string GetLinksToParentTables(DlinqSchema.Database schema, DlinqSchema.Table table)
+        {
+            #region GetLinksToParentTables()
+            string childLinkTemplate = mmConfig.verboseForeignKeys
+                ? childLinkTemplate_verbose
+                : childLinkTemplate_simple;
+
             var ourParents = table.Type.Associations.Where(a => a.ThisKey != null);
 
             List<string> linksToChildTables = new List<string>();
