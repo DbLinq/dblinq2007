@@ -29,7 +29,7 @@ namespace SqlMetal.schema
                     col.Member += "_"; //rename column 'int' -> 'int_'
 
                 if (col.Member == table.Type.Name)
-                    col.Name = "Contents"; //rename field Alltypes.Alltypes to Alltypes.Contents
+                    col.Member = "Contents"; //rename field Alltypes.Alltypes to Alltypes.Contents
             }
 
             Dictionary<string, bool> knownAssocs = new Dictionary<string, bool>();
