@@ -6,7 +6,7 @@ namespace SqlMetal.schema.oracle
 {
     public static class OraTypeMap
     {
-        public static string mapSqlTypeToCsType(string dbType, string precision)
+        public static string mapSqlTypeToCsType(string dbType, decimal? precision)
         {
             switch(dbType)
             {
