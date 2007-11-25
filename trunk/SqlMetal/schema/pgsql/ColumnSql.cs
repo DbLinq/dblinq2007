@@ -63,12 +63,31 @@ namespace SqlMetal.schema.pgsql
         /// </summary>
         public string column_default;
 
+        public int? character_maximum_length;
+        public int? numeric_precision;
+        public int? numeric_scale;
+
         /// <summary>
         /// return table name eg. 'public.customer'
         /// </summary>
         public string TableNameWithSchema
         {
             get { return table_schema+"."+table_name; } 
+        }
+
+        /// <summary>
+        /// return 'varchar(50)' or 'decimal(30,2)'
+        /// </summary>
+        public string DataTypeWithWidth
+        {
+            get 
+            {
+                if (character_maximum_length != null)
+                    return datatype + "(" + character_maximum_length + ")";
+                if (numeric_precision!= null && numeric_scale!=null)
+                    return datatype + "(" + numeric_precision +","+numeric_scale + ")";
+                return datatype;
+            }
         }
 
         public override string ToString()
@@ -97,18 +116,30 @@ namespace SqlMetal.schema.pgsql
             //t.extra         = null; //rdr.GetString(field++);
             t.column_type   = null; //rdr.GetString(field++);
             //t.column_key    = null; //rdr.GetString(field++);
+
+            t.character_maximum_length = GetIntN(rdr, field++);
+            t.numeric_precision = GetIntN(rdr, field++);
+            t.numeric_scale = GetIntN(rdr, field++);
+
             return t;
+        }
+
+        public int? GetIntN(NpgsqlDataReader rdr, int field)
+        {
+            return rdr.IsDBNull(field++) ? (int?)null : rdr.GetInt32(field - 1);
         }
 
         public List<Column> getColumns(NpgsqlConnection conn, string db)
         {
             string sql = @"
-SELECT table_catalog,table_schema,table_name,column_name
-    ,is_nullable,data_type,column_default
+SELECT table_catalog, table_schema, table_name, column_name
+    ,is_nullable, data_type, column_default
+    ,character_maximum_length, numeric_precision, numeric_scale
 FROM information_schema.COLUMNS
 WHERE table_catalog=:db
 AND table_schema NOT IN ('pg_catalog','information_schema')
-ORDER BY ordinal_position";
+ORDER BY ordinal_position
+";
 
             using(NpgsqlCommand cmd = new NpgsqlCommand(sql, conn))
             {
