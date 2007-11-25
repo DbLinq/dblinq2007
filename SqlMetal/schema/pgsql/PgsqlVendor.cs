@@ -106,7 +106,7 @@ namespace SqlMetal.schema.pgsql
                 }
                 DlinqSchema.Column colSchema = new DlinqSchema.Column();
                 colSchema.Name = columnRow.column_name;
-                colSchema.DbType = columnRow.datatype; //.column_type ?
+                colSchema.DbType = columnRow.DataTypeWithWidth; //columnRow.datatype;
                 KeyColumnUsage primaryKCU = constraints.FirstOrDefault(c => c.column_name == columnRow.column_name
                     && c.table_name == columnRow.table_name && c.constraint_name.EndsWith("_pkey"));
 

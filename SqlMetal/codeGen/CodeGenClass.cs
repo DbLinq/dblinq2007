@@ -48,8 +48,6 @@ namespace SqlMetal.codeGen
 [Table(Name = ""$tableName"")]
 public partial class $name $baseClass
 {
-    public bool IsModified { get; set; }
-
     $fields
 
     $ctors
@@ -58,6 +56,8 @@ public partial class $name $baseClass
     $equals_GetHashCode
     $linksToChildTables
     $linksToParentTables
+
+    public bool IsModified { get; set; }
 }
 ";
             List<string> fieldBodies = new List<string>();
@@ -83,7 +83,7 @@ public partial class $name $baseClass
 
             string ctor = genCtors(table);
 
-            string fieldsConcat = string.Join(NL, fieldBodies.ToArray());
+            string fieldsConcat = string.Join("", fieldBodies.ToArray());
             string propsConcat = string.Join(NL, properties.ToArray());
             string equals = GenerateEqualsAndHash(table);
             string baseClass = (mmConfig.baseClass == null || mmConfig.baseClass == "")
