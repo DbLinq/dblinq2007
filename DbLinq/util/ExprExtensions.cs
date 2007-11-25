@@ -174,6 +174,7 @@ namespace DBLinq.util
         }
 #endif
 
+        [DebuggerStepThrough]
         public static UnaryExpression XUnary(this Expression ex)
         {
             if(ex==null)
