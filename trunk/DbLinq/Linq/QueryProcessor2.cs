@@ -137,5 +137,172 @@ namespace DBLinq.Linq
             //_vars._sqlParts.orderBy_desc = orderBy_desc; //copy 'DESC' specifier
         }
 
+        private void processSelectMany(MethodCallExpression exprCall)
+        {
+            //special case: SelectMany can come with 2 or 3 params
+            switch (exprCall.Arguments.Count)
+            {
+                case 2: //???
+                    processSelectManyLambda_simple(exprCall.Arguments[1].XLambda());
+                    return;
+                case 3: //'from c in db.Customers from o in c.Orders where c.City == "London" select new { c, o }'
+                    //ignore arg[0]: MTable<>
+                    //ignore arg[1]: c=>c.Orders
+
+                    LambdaExpression lambda1 = exprCall.Arguments[1].XLambda();
+                    LambdaExpression lambda2 = exprCall.Arguments[2].XLambda();
+                    {
+                        MemberExpression memberExpression = lambda1.Body as MemberExpression;
+                        ParameterExpression paramExpression = lambda2.Parameters[1];
+                        ParseResult result = new ParseResult(null);
+                        JoinBuilder.AddJoin1(memberExpression, paramExpression, result);
+                        result.CopyInto(_vars._sqlParts);
+                    }
+
+                    //StoreLambda("Select", lambda2);
+                    processSelectClause(lambda2);
+                    return;
+                default:
+                    throw new ApplicationException("StoreQuery L117: Prepared only for 2 or 3 param GroupBys");
+            }
+        }
+
+        private void processSelectManyLambda_simple(LambdaExpression selectExpr)
+        {
+            //there is an inner Where and inner Select
+            Expression exInner = selectExpr.Body.XCastOperand();
+            //exInner={c.Orders.Where(o => op_Equality(c.City, "London")).Select(o => new {c = c, o = o})}
+            MethodCallExpression exInnFct = exInner.XMethodCall();
+            if (exInnFct == null)
+                throw new ArgumentException("StoreSelMany L257 bad args");
+            //each parameter is a lambda
+            foreach (Expression innerLambda in exInnFct.Arguments)
+            {
+                if (innerLambda.NodeType == ExpressionType.Lambda)
+                {
+                    //eg. {o => new {c = c, o = o}}'
+                    selectExpr = innerLambda as LambdaExpression;
+                }
+                else
+                {
+                    //eg. '{c.Orders.Where(o => op_Equality(c.City, "London"))}'
+                    MethodCallExpression whereCall = innerLambda.XMethodCall();
+                    processQuery(whereCall);
+#if OBSO
+                    string methodName2 = whereCall.Method.Name;
+
+                    MemberExpression memberExpressionCache = null; //'c.Orders', needed below for nicknames
+                    ParameterExpression paramExpressionCache = null; //'o', for nicknames
+
+                    foreach (Expression whereCallParam in whereCall.Arguments)
+                    {
+                        if (whereCallParam.NodeType == ExpressionType.Convert)
+                        {
+                            //eg. '{c.Orders}'
+                            //CHANGED: - join now handled below
+                            Expression memberEx = whereCallParam.XCastOperand();
+                            memberExpressionCache = memberEx.XMember();
+                            //ParameterExpression memExParm = memberExpressionCache.Expression.XParam(); //'c'
+
+                            ////cook up delgType: c=>MSet<Order>
+                            //Type funcType1 = typeof(System.Query.Func<int,int>);
+                            //Type funcType2 = funcType1.GetGenericTypeDefinition();
+                            //Type funcType3 = funcType2.MakeGenericType(memExParm.Type, memberEx.Type);
+                            //Type delgType = funcType3;
+
+                            //List<ParameterExpression> fakeParam = new List<ParameterExpression>
+                            //{ memExParm };
+                            //LambdaExpression fakeJoinLambda = Expression.Lambda(delgType, memberEx, fakeParam);
+                            //this.whereExpr.Add(fakeJoinLambda);
+                        }
+                        else if (whereCallParam.NodeType == ExpressionType.Lambda)
+                        {
+                            //{o => op_Equality(c.City, "London")}
+                            LambdaExpression innerWhereLambda = whereCallParam as LambdaExpression;
+                            //StoreLambda(methodName2, innerWhereLambda);
+                            processWhereClause(methodName2, innerWhereLambda);
+                            paramExpressionCache = innerWhereLambda.Parameters[0];
+                        }
+                        else
+                        {
+                            //StoreLambda(methodName2, null);
+                        }
+                    }
+
+                    //assign nikname mapping c.Orders=o
+                    if (memberExpressionCache != null && paramExpressionCache != null)
+                    {
+                        //memberExprNickames[memberExpressionCache] = paramExpressionCache.Name;
+                        ParseResult result = new ParseResult(null);
+                        JoinBuilder.AddJoin1(memberExpressionCache, paramExpressionCache, result);
+                        result.CopyInto(_vars._sqlParts);
+                    }
+#endif
+
+                }
+            }
+        }
+
+        void processGroupByCall(MethodCallExpression exprCall)
+        {
+            //special case: GroupBy can come with 2 or 3 params
+            switch (exprCall.Arguments.Count)
+            {
+                case 2: //'group o by o.CustomerID into g'
+                    processGroupByLambda(exprCall.Arguments[1].XLambda());
+                    return;
+                case 3: //'group new {c.PostalCode, c.ContactName} by c.City into g'
+                    processGroupByLambda(exprCall.Arguments[1].XLambda());
+                    _vars.groupByNewExpr = exprCall.Arguments[2].XLambda();
+                    return;
+                default:
+                    throw new ApplicationException("StoreQuery L117: Prepared only for 2 or 3 param GroupBys");
+            }
+        }
+
+        void processGroupByLambda(LambdaExpression groupBy)
+        {
+            ParseResult result = null;
+            ParseInputs inputs = new ParseInputs(result);
+            _vars.groupByExpr = groupBy;
+            //inputs.groupByExpr = _vars.groupByExpr;
+            result = ExpressionTreeParser.Parse(this, groupBy.Body, inputs);
+            string groupByFields = string.Join(",", result.columns.ToArray());
+            _vars._sqlParts.groupByList.Add(groupByFields);
+
+            if (selectExpr == null //&& _vars.groupByNewExpr==null
+                )
+            {
+                //manually add "SELECT c.City"
+                //_vars._sqlParts.AddSelect(result.columns);
+
+                result.CopyInto(_vars._sqlParts); //transfer params and tablesUsed
+            }
+
+#if OBSO
+            if (_vars.groupByNewExpr == null && selectExpr == null)
+            {
+                //eg. 'db.Customers.GroupBy( c=>c.City )' - select entire Customer
+                ParameterExpression paramEx = groupBy.Parameters[0];
+                FromClauseBuilder.SelectAllFields(_vars, _vars._sqlParts, paramEx.Type, VarName.GetSqlName(paramEx.Name));
+            }
+            else 
+#endif
+                if (_vars.groupByNewExpr != null)
+            {
+                inputs = new ParseInputs(result);
+                //inputs.groupByExpr = _vars.groupByExpr;
+                result = ExpressionTreeParser.Parse(this, _vars.groupByNewExpr.Body, inputs);
+                _vars._sqlParts.AddSelect(result.columns);
+                result.CopyInto(_vars._sqlParts); //transfer params and tablesUsed
+            }
+        }
+
+        void processGroupJoin(MethodCallExpression exprCall)
+        {
+            //occurs in LinqToSqlJoin10()
+            Console.WriteLine("TODO L299 Support GroupJoin()");
+        }
+
     }
 }
