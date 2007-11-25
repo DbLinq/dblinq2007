@@ -7,6 +7,9 @@ namespace SqlMetal.schema.oracle
 {
     public static class OraExtensions
     {
+        /// <summary>
+        /// read a (possibly null) string from DataReader
+        /// </summary>
         public static string GetNString(this OracleDataReader rdr, int fieldID)
         { 
             if(rdr.IsDBNull(fieldID)) return null; 

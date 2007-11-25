@@ -26,7 +26,12 @@ namespace SqlMetal.schema.oracle
         /// </summary>
         public int? data_length;
         public decimal? data_scale;
-        public string data_precision;
+
+        //Nicholas (.f1@free.fr) reports an error - data_precision being decimal
+        //reference: http://oracle.kuriositaet.de/index/master_index_DATA.html
+        //public string data_precision;
+        public decimal? data_precision;
+
 
         /// <summary>
         /// generated - DB column is actually "Nullable='Y'"
@@ -64,7 +69,11 @@ namespace SqlMetal.schema.oracle
             //we use OraExtensions.GetNString():
             t.data_type_mod  = rdr.GetNString(field++); //todo: null
             t.data_length  = rdr.GetNInt(field++);
-            t.data_precision  = rdr.GetNString(field++); //null
+
+            //Nicholas (.f1@free.fr) reports an error - data_precision being decimal
+            //t.data_precision = rdr.GetNString(field++); //null
+            t.data_precision = rdr.GetNDecimal(field++); //null //
+            
             t.data_scale  = rdr.GetNDecimal(field++); //null
 
             string nullableStr = rdr.GetString(field++);
