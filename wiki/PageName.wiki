@@ -1,0 +1,14 @@
+#summary HomePage.
+
+= Introduction =
+
+Assorted notes on DB Linq and C#.
+
+
+== DBLinq FAQ ==
+
+FaqPage
+
+== Notes on C# ==
+
+CsharpNotes
