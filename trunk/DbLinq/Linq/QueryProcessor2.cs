@@ -54,7 +54,7 @@ namespace DBLinq.Linq
                 _vars._sqlParts.AddWhere(result.columns);
             }
 
-            result.CopyInto(_vars._sqlParts); //transfer params and tablesUsed
+            result.CopyInto(this, _vars._sqlParts); //transfer params and tablesUsed
         }
 
         void processSelectClause(LambdaExpression selectExpr)
@@ -74,21 +74,25 @@ namespace DBLinq.Linq
             ParseResult result = null;
             ParseInputs inputs = new ParseInputs(result);
             inputs.groupByExpr = _vars.groupByExpr;
-            if (selectExpr.Body.NodeType == ExpressionType.Parameter)
+            Expression body = selectExpr.Body;
+
+            body = body.StripTransparentID(); //only does something in Joins - see LinqToSqlJoin01()
+
+            if (body.NodeType == ExpressionType.Parameter)
             {
                 //'from p in Products select p' - do nothing, will result in SelectAllFields() later
             }
             else
             {
-                result = ExpressionTreeParser.Parse(this, selectExpr.Body, inputs);
+                result = ExpressionTreeParser.Parse(this, body, inputs);
                 _vars._sqlParts.AddSelect(result.columns);
-                result.CopyInto(_vars._sqlParts); //transfer params and tablesUsed
+                result.CopyInto(this, _vars._sqlParts); //transfer params and tablesUsed
 
                 //support for subsequent Count() - see F2_ProductCount_Clause
                 if (result.columns.Count > 0)
                 {
                     // currentVarNames[int] = "p$.ProductID";
-                    this.currentVarNames[selectExpr.Body.Type] = result.columns[0];
+                    this.currentVarNames[body.Type] = result.columns[0];
                 }
             }
         }
@@ -120,25 +124,20 @@ namespace DBLinq.Linq
             {
                 result = ExpressionTreeParser.Parse(this, arg2.XLambda().Body, inputs);
                 joinField1 = result.columns[0]; // "p$.ProductID"
-                result.CopyInto(_vars._sqlParts); //transfer params and tablesUsed
+                result.CopyInto(this, _vars._sqlParts); //transfer params and tablesUsed
             }
             {
                 result = ExpressionTreeParser.Parse(this, arg3.XLambda().Body, inputs);
                 joinField2 = result.columns[0]; // "p$.ProductID"
-                result.CopyInto(_vars._sqlParts); //transfer params and tablesUsed
+                result.CopyInto(this, _vars._sqlParts); //transfer params and tablesUsed
             }
             processSelectClause(arg4.XLambda());
             _vars._sqlParts.joinList.Add(joinField1 + "=" + joinField2);
-            //throw new ArgumentOutOfRangeException("L118 TODO: Join");
-
-            //result = ExpressionTreeParser.Parse(this, joinExpr.Body, inputs);
-            //string orderByFields = string.Join(",", result.columns.ToArray());
-            //_vars._sqlParts.orderByList.Add(orderByFields);
-            //_vars._sqlParts.orderBy_desc = orderBy_desc; //copy 'DESC' specifier
         }
 
         private void processSelectMany(MethodCallExpression exprCall)
         {
+            //see ReadTest.D07_OrdersFromLondon_Alt(), or Join.LinqToSqlJoin01() for example
             //special case: SelectMany can come with 2 or 3 params
             switch (exprCall.Arguments.Count)
             {
@@ -146,8 +145,9 @@ namespace DBLinq.Linq
                     processSelectManyLambda_simple(exprCall.Arguments[1].XLambda());
                     return;
                 case 3: //'from c in db.Customers from o in c.Orders where c.City == "London" select new { c, o }'
-                    //ignore arg[0]: MTable<>
-                    //ignore arg[1]: c=>c.Orders
+                    //arg[0]: MTable<> - type info, ignore
+                    //arg[1]: c=>c.Orders - provides join information
+                    //arg[2]: (c, o) => new <>f__AnonymousType0`2(c = c, o = o)) --ignore
 
                     LambdaExpression lambda1 = exprCall.Arguments[1].XLambda();
                     LambdaExpression lambda2 = exprCall.Arguments[2].XLambda();
@@ -156,11 +156,10 @@ namespace DBLinq.Linq
                         ParameterExpression paramExpression = lambda2.Parameters[1];
                         ParseResult result = new ParseResult(null);
                         JoinBuilder.AddJoin1(memberExpression, paramExpression, result);
-                        result.CopyInto(_vars._sqlParts);
+                        result.CopyInto(this, _vars._sqlParts);  //transfer params and tablesUsed
                     }
 
-                    //StoreLambda("Select", lambda2);
-                    processSelectClause(lambda2);
+                    //processSelectClause(lambda2);
                     return;
                 default:
                     throw new ApplicationException("StoreQuery L117: Prepared only for 2 or 3 param GroupBys");
@@ -276,25 +275,16 @@ namespace DBLinq.Linq
                 //manually add "SELECT c.City"
                 //_vars._sqlParts.AddSelect(result.columns);
 
-                result.CopyInto(_vars._sqlParts); //transfer params and tablesUsed
+                result.CopyInto(this, _vars._sqlParts); //transfer params and tablesUsed
             }
 
-#if OBSO
-            if (_vars.groupByNewExpr == null && selectExpr == null)
-            {
-                //eg. 'db.Customers.GroupBy( c=>c.City )' - select entire Customer
-                ParameterExpression paramEx = groupBy.Parameters[0];
-                FromClauseBuilder.SelectAllFields(_vars, _vars._sqlParts, paramEx.Type, VarName.GetSqlName(paramEx.Name));
-            }
-            else 
-#endif
-                if (_vars.groupByNewExpr != null)
+            if (_vars.groupByNewExpr != null)
             {
                 inputs = new ParseInputs(result);
                 //inputs.groupByExpr = _vars.groupByExpr;
                 result = ExpressionTreeParser.Parse(this, _vars.groupByNewExpr.Body, inputs);
                 _vars._sqlParts.AddSelect(result.columns);
-                result.CopyInto(_vars._sqlParts); //transfer params and tablesUsed
+                result.CopyInto(this, _vars._sqlParts); //transfer params and tablesUsed
             }
         }
 

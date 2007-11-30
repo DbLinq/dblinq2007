@@ -40,33 +40,31 @@ namespace DBLinq.Linq.clause
     public class ParseInputs
     {
         #region ParseInputs: couple fields needed during parsing, eg. paramMap
-        public Dictionary<MemberExpression,string> memberExprNickames = new Dictionary<MemberExpression,string>();
-        public readonly Dictionary<string,object> paramMap = new Dictionary<string,object>();
         public LambdaExpression groupByExpr;
 
         public ParseInputs(ParseResult prevResult)
         {
             if(prevResult==null)
                 return;
-            this.memberExprNickames = prevResult.memberExprNickames;
-            this.paramMap = prevResult.paramMap;
+            //this.memberExprNickames = prevResult.memberExprNickames;
+            //this.paramMap = prevResult.paramMap;
         }
 
-        public string NicknameRequest(Expression expr, AssociationAttribute assoc1)
-        { 
-            //TODO this needs fixing
-            return "join";
-        }
-        /// <summary>
-        /// given 'o.Customer', return previously assigned nickname 'o$' (or join$)
-        /// </summary>
-        public string NicknameRequest(MemberExpression memberExpr)
-        {
-            string nick;
-            if(memberExprNickames.TryGetValue(memberExpr,out nick))
-                return nick;
-            return "join";
-        }
+        //public string NicknameRequest(Expression expr, AssociationAttribute assoc1)
+        //{ 
+        //    //TODO this needs fixing
+        //    return "join";
+        //}
+        ///// <summary>
+        ///// given 'o.Customer', return previously assigned nickname 'o$' (or join$)
+        ///// </summary>
+        //public string NicknameRequest(MemberExpression memberExpr)
+        //{
+        //    string nick;
+        //    if(memberExprNickames.TryGetValue(memberExpr,out nick))
+        //        return nick;
+        //    return "join";
+        //}
         #endregion
     }
 
@@ -105,7 +103,9 @@ namespace DBLinq.Linq.clause
             ExpressionTreeParser parser = new ExpressionTreeParser();
             parser._inputs = inputs;
             parser._result = new ParseResult(inputs);
-            parser.AnalyzeExpression(recur, ex);
+
+            parser.AnalyzeExpression(recur, ex); //recursion here
+
             parser._result.EndField();
             return parser._result;
         }
@@ -174,7 +174,8 @@ namespace DBLinq.Linq.clause
             if(expr.Type==typeof(string))
             {
                 //pass as named parameter:
-                string paramName = _result.storeParam((string)val);
+                //string paramName = _result.storeParam((string)val);
+                string paramName = recurData.parent.storeParam((string)val);
                 _result.AppendString(paramName);
                 return;
             }
@@ -239,7 +240,7 @@ namespace DBLinq.Linq.clause
                                 }
                                 continue;
                             }
-                            nick = _inputs.NicknameRequest(memberExpr);
+                            nick = recurData.parent.NicknameRequest(memberExpr);
                             nick = VarName.GetSqlName(nick);
                             break;
                         }
@@ -301,7 +302,9 @@ namespace DBLinq.Linq.clause
                                 {
                                     //eg. {g.Key}
                                     //replace {g.Key} with groupByExpr={o.Customer}
-                                    Expression replaceExpr = _inputs.groupByExpr.Body;
+                                    //(Expression replaceExpr = _inputs.groupByExpr.Body; //Too simple!)
+                                    Expression replaceExpr = recurData.parent.SubstitueGroupKeyExpression(memberExpr);
+
                                     AnalyzeExpression(recurData, replaceExpr);
                                 }
                                 else
@@ -320,7 +323,7 @@ namespace DBLinq.Linq.clause
                             }
                             else
                             {
-                                nick = _inputs.NicknameRequest(memberExpr);
+                                nick = recurData.parent.NicknameRequest(memberExpr);
                             }
                             nick = VarName.GetSqlName(nick);
                             break;
@@ -418,7 +421,7 @@ namespace DBLinq.Linq.clause
                     if (memberInner != null)
                     {
                         //process 'o.Customer.City'
-                        JoinBuilder.AddJoin2(expr, _inputs, _result);
+                        JoinBuilder.AddJoin2(recurData.parent, expr, _inputs, _result);
                         return;
                     }
                 }
@@ -428,7 +431,7 @@ namespace DBLinq.Linq.clause
             if ( AttribHelper.IsAssociation(expr,out assoc) )
             {
                 //process 'o.Customer'
-                JoinBuilder.AddJoin2(expr, _inputs, _result);
+                JoinBuilder.AddJoin2(recurData.parent, expr, _inputs, _result);
                 return;
             }
 
@@ -514,8 +517,8 @@ namespace DBLinq.Linq.clause
                         AnalyzeExpression(recurData, expr.Object);
                         _result.AppendString(" LIKE ");
                         AnalyzeExpression(recurData, expr.Arguments[0]);
-                        string paramName = _result.lastParamName;
-                        string lastParam = _result.paramMap[paramName] as string;
+                        string paramName = recurData.parent.lastParamName;
+                        string lastParam = recurData.parent.paramMap[paramName] as string;
                         if(lastParam !=null)
                         {
                             //modify parameter from X to X%
@@ -526,7 +529,7 @@ namespace DBLinq.Linq.clause
                                 case "EndWith":     modParam = "%" + lastParam; break;
                                 case "Contains":    modParam = "%" + lastParam + "%"; break;
                             }
-                            _result.paramMap[paramName] = modParam;
+                            recurData.parent.paramMap[paramName] = modParam;
                         }
                     }
                     return;

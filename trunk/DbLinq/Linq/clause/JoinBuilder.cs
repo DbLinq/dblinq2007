@@ -68,7 +68,7 @@ namespace DBLinq.Linq.clause
         /// b) insert into our StringBuilder '$c.City'
         /// c) insert into tablesUsed[Customer]='$c' and tablesUsed[Order]='$o'
         /// </summary>
-        public static void AddJoin2(MemberExpression exprOuter, ParseInputs inputs, ParseResult result)
+        public static void AddJoin2(QueryProcessor qp, MemberExpression exprOuter, ParseInputs inputs, ParseResult result)
         {
             string nick1, nick2;
             AssociationAttribute assoc1, assoc2;
@@ -109,11 +109,12 @@ namespace DBLinq.Linq.clause
                             throw new Exception("L55 AddJoin2: member1.member2.member3 only allowed for associations, not for: " + member);
                         }
 
-                        nick1 = inputs.NicknameRequest(exprOuter, assoc1);
+                        nick1 = qp.NicknameRequest(exprOuter, assoc1);
                         nick1 = VarName.GetSqlName(nick1);
 
                         //store this nickname for subsequent selects:
-                        result.memberExprNickames[member] = nick1;
+                        //result.memberExprNickames[member] = nick1;
+                        qp.memberExprNickames[member] = nick1;
 
                         nick2 = member.Expression.XParam().Name;
                         nick2 = VarName.GetSqlName(nick2);

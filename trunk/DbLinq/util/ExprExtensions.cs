@@ -1,3 +1,4 @@
+#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -21,6 +22,7 @@
 // Authors:
 //        Jiri George Moudry
 ////////////////////////////////////////////////////////////////////
+#endregion
 
 using System;
 using System.Diagnostics;
@@ -50,6 +52,15 @@ namespace DBLinq.util
             if(call.Arguments.Count<=index)
                 return null;
             return call.Arguments[index];
+        }
+
+        public static NewExpression XNew(this Expression expr)
+        {
+            if (expr == null)
+                return null;
+            if (expr.NodeType!=ExpressionType.New)
+                return null;
+            return expr as NewExpression;
         }
 
         public static UnaryExpression XCast(this Expression ex)
@@ -90,15 +101,6 @@ namespace DBLinq.util
                 return null;
             return (LambdaExpression)ex;
         }
-
-#if DEAD_CODE
-        public static Expression XOp(this UnaryExpression ex)
-        {
-            if(ex==null)
-                return null;
-            return ex.Operand;
-        }
-#endif
 
         public static ParameterExpression XParam(this Expression ex)
         {
@@ -164,15 +166,6 @@ namespace DBLinq.util
             }
 
         }
-
-#if DEAD_CODE
-        public static MemberInitExpression XMemberInit(this Expression ex)
-        {
-            if(ex==null || ex.NodeType!=ExpressionType.MemberInit)
-                return null;
-            return (MemberInitExpression)ex;
-        }
-#endif
 
         [DebuggerStepThrough]
         public static UnaryExpression XUnary(this Expression ex)

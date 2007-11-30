@@ -29,8 +29,10 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Data.Linq.Mapping;
 using DBLinq.Linq.clause;
 using DBLinq.util;
+using DBLinq.vendor;
 
 namespace DBLinq.Linq
 {
@@ -51,8 +53,24 @@ namespace DBLinq.Linq
         /// given 'table.Where(x => x>2).Where(y => y<10)',
         /// we need to store the 'x' nickname and drop the 'y'.
         /// </summary>
-        public Dictionary<Type, string> currentVarNames = new Dictionary<Type, string>();
+        public readonly Dictionary<Type, string> currentVarNames = new Dictionary<Type, string>();
 
+        /// <summary>
+        /// given 'group by c.CustomerID into g', we hold memberExprNicknames[c.CustomerID]='g'
+        /// </summary>
+        public readonly Dictionary<MemberExpression, string> memberExprNickames = new Dictionary<MemberExpression, string>();
+
+        /// <summary>
+        /// holds SQL parameters as they are being assigned, eg. paramMap['P0'] = 'London'
+        /// </summary>
+        public readonly Dictionary<string, object> paramMap = new Dictionary<string, object>();
+
+        public string lastParamName;
+
+        /// <summary>
+        /// eg. 'Select' or Join
+        /// </summary>
+        public string lastQueryName;
 
         private QueryProcessor(SessionVarsParsed vars)
         {
@@ -76,6 +94,9 @@ namespace DBLinq.Linq
                 qp.processQuery(expr);
             }
 
+            if (qp.lastQueryName == "GroupBy")
+                throw new InvalidOperationException("L98 GroupBy must by followed by an aggregate expression, such as Count or Max");
+
             qp.processScalarExpression();
 
             qp.build_SQL_string(T);
@@ -88,20 +109,11 @@ namespace DBLinq.Linq
             if (_vars.scalarExpression == null)
                 return;
 
-            Expression previousExpr = _vars.expressionChain.Count==0 
-                ? null
-                :_vars.expressionChain[_vars.expressionChain.Count - 1];
-
-            string previousExprName = previousExpr.XLambdaName();
-
             Expression expr = _vars.scalarExpression;
 
             MethodCallExpression exprCall = expr.XMethodCall();
             string methodName = exprCall != null ? exprCall.Method.Name : "Unknown_71";
             
-            if (previousExprName == "GroupBy")
-                throw new InvalidOperationException("GroupBy must by followed by Select, not " + methodName);
-
             switch (methodName)
             {
                 case "Count":
@@ -127,12 +139,6 @@ namespace DBLinq.Linq
             LambdaExpression lambdaParam = exprCall.XParam(1).XLambda();
             if (lambdaParam != null)
             {
-                //StoreLambda("Where", lambdaParam);
-                if(lambdaParam.Parameters.Count>0 && _vars.expressionChain.Count>0)
-                {
-                    Expression lastEx = _vars.expressionChain[_vars.expressionChain.Count-1];
-                    string exprCatg = previousExpr.XLambdaName();
-                }
                 processWhereClause(lambdaParam);
             }
 
@@ -169,14 +175,14 @@ namespace DBLinq.Linq
         /// <param name="expr"></param>
         public void processQuery(MethodCallExpression exprCall)
         {
-            //huh - in case of "(db.Products).Take(5)", there is no lambda?
-            //same for "(db.Products).Distinct()", there is no lambda.
             string methodName = exprCall.Method.Name;
 
             //LambdaExpression lambda = WhereClauseBuilder.FindLambda(expr, out methodName);
             LambdaExpression lambda = exprCall.Arguments.Count > 1
                 ? exprCall.Arguments[1].XLambda()
                 : null; //for Distinct(), we have no lambda (see F10_DistinctCity)
+            
+            lastQueryName = methodName;
 
             switch (methodName)
             {
@@ -237,13 +243,66 @@ namespace DBLinq.Linq
             if (this.currentVarNames.TryGetValue(t, out sqlVarName))
                 return sqlVarName;
 
-            //if(selectExpr!=null)
-            //    return VarName.GetSqlName(selectExpr.Parameters[0].Name);
-            //if (whereExpr.Count > 0)
-            //    return VarName.GetSqlName(whereExpr[0].Parameters[0].Name);
-            //if (orderByExpr.Count > 0)
-            //    return VarName.GetSqlName(orderByExpr[0].Parameters[0].Name);
             return VarName.GetSqlName("x"); //if no expressions, provide fallback
+        }
+
+        /// <summary>
+        /// given 'o.Customer', return previously assigned nickname 'o$' (or join$)
+        /// </summary>
+        public string NicknameRequest(MemberExpression memberExpr)
+        {
+            string nick;
+            if (memberExprNickames.TryGetValue(memberExpr, out nick))
+                return nick;
+            return "join";
+        }
+
+        public string NicknameRequest(Expression expr, AssociationAttribute assoc1)
+        {
+            //TODO this needs fixing
+            return "join";
+        }
+
+        public string storeParam(string value)
+        {
+            int count = paramMap.Count;
+            string paramName = Vendor.ParamName(count);
+            paramMap[paramName] = value;
+            lastParamName = paramName;
+            return paramName;
+        }
+
+        /// <summary>
+        /// replace {g.Key} with groupByExpr={o.CustomerID} --if key was not composite
+        /// replace {g.Key.CustomerID} with groupByExpr={o.CustomerID} --if key had multiple fields
+        /// </summary>
+        /// <returns></returns>
+        public Expression SubstitueGroupKeyExpression(MemberExpression memberExpr)
+        {
+            if (memberExpr.Expression.NodeType == ExpressionType.MemberAccess)
+            {
+                //handle case {g.Key.CustomerID} - test case G03_DoubleKey()
+                NewExpression newEx = _vars.groupByExpr.Body.XNew(); //{new <>f__AnonymousTypef`2(CustomerID = o.CustomerID, EmployeeID = o.EmployeeID)}
+                foreach (Expression ex1 in newEx.Arguments)
+                {
+                    if(ex1.NodeType!=ExpressionType.MemberAccess) 
+                        continue;
+                    MemberExpression ex1Member = ex1.XMember();
+                    //if (ex1Member.Member == memberExpr.Member)
+                    //    return ex1Member; //oops cannot compare directly - declaring type differs
+                    if (ex1Member.Member.Name == memberExpr.Member.Name)
+                        return ex1Member;
+                }
+                throw new ApplicationException("L294 Cannot find Member " + memberExpr.Member + " in groupBy clause");
+                //ParameterExpression paramexpr = _vars.groupByExpr.Body.XNew().XMember().XParam(); //{o}
+                //MemberExpression memberExpr2 = Expression.MakeMemberAccess(paramexpr, memberExpr.Member);
+                //return memberExpr2; //return part of composite key {o.CustomerID}
+            }
+            else
+            {
+                //handle case {g.Key}
+                return _vars.groupByExpr.Body; //return non composite key {o.CustomerID}
+            }
         }
 
     }

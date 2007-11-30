@@ -112,7 +112,7 @@ namespace DBLinq.Linq
         /// <summary>
         /// in SelectMany, there is mapping c.Orders => o
         /// </summary>
-        public Dictionary<MemberExpression,string> memberExprNickames = new Dictionary<MemberExpression,string>();
+        //public Dictionary<MemberExpression,string> memberExprNickames = new Dictionary<MemberExpression,string>();
 
         /// <summary>
         /// created by post-processing in QueryProcessor.build_SQL_string(), used in RowEnumerator

@@ -234,32 +234,46 @@ namespace DBLinq.Linq
         /// </summary>
         public static ProjectionData FromSelectExpr(LambdaExpression selectExpr)
         {
-            //when selecting just a string, body is not MemberInitExpr, but MemberExpr
-            NewExpression newExpr1 = selectExpr.Body as NewExpression;
-            if (newExpr1 != null)
+            switch (selectExpr.Body.NodeType)
             {
-                //OrcasBeta2: we now receive a NewExpression instead of a MemberInitExpression
-                ProjectionData proj1 = new ProjectionData();
-                proj1.ctor = newExpr1.Constructor;
-                LoopOverBindings_OrcasB2(proj1, newExpr1);
-                return proj1;
+                case ExpressionType.New:
+                    {
+                        NewExpression newExpr1 = selectExpr.Body as NewExpression;
+                        //OrcasBeta2: we now receive a NewExpression instead of a MemberInitExpression
+                        ProjectionData proj1 = new ProjectionData();
+                        proj1.ctor = newExpr1.Constructor;
+                        LoopOverBindings_OrcasB2(proj1, newExpr1);
+                        return proj1;
+                    }
+                case ExpressionType.MemberAccess:
+                case ExpressionType.Parameter:
+                    {
+                        //MemberAccess example: in LinqToSqlJoin01(), we get "{<>h__TransparentIdentifier0.o}"
+                        //Parameter example: in C1_SelectProducts(), we get Products.Select(p => p)
+                        //that means we wish to select entire 'Order' row
+                        return FromDbType(selectExpr.Body.Type);
+                    }
+                case ExpressionType.MemberInit:
+                    {
+                        MemberInitExpression memberInit = selectExpr.Body as MemberInitExpression;
+                        if (memberInit == null)
+                        {
+                            Console.WriteLine("  Select is not a projection - just a single field");
+                            return null;
+                        }
+
+                        ProjectionData proj = new ProjectionData();
+                        NewExpression newExpr = memberInit.NewExpression;
+                        proj.ctor = newExpr.Constructor;
+                        proj.type = newExpr.Type;
+
+                        LoopOverBindings(proj, memberInit);
+                        return proj;
+                    }
+                default:
+                    //throw new ApplicationException("L270 ProjData.FromSelectExpr: unprepared for " + selectExpr.Body.NodeType + " in " + selectExpr.Body);
+                    return null; //eg contatenated strings
             }
-
-            MemberInitExpression memberInit = selectExpr.Body as MemberInitExpression;
-            if(memberInit==null){
-                Console.WriteLine("  Select is not a projection - just a single field");
-                return null;
-            }
-
-            ProjectionData proj = new ProjectionData();
-            NewExpression newExpr = memberInit.NewExpression;
-            proj.ctor = newExpr.Constructor;
-            proj.type = newExpr.Type;
-
-            LoopOverBindings(proj, memberInit);
-
-            //object xx = newExpr.Args; //args.Count=0
-            return proj;
         }
 
         /// <summary>

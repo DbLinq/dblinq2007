@@ -1,3 +1,4 @@
+#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -21,6 +22,7 @@
 // Authors:
 //        Jiri George Moudry
 ////////////////////////////////////////////////////////////////////
+#endregion
 
 using System;
 using System.Collections.Generic;
@@ -34,30 +36,33 @@ using DBLinq.util;
 
 namespace DBLinq.Linq.clause
 {
+    /// <summary>
+    /// holds strings parsed out of an expression tree.
+    /// The outside user may afterward costruct a SELECT, WHERE, or any other clause with them.
+    /// </summary>
     public class ParseResult
     {
-        public readonly Dictionary<string,object> paramMap; // = new Dictionary<string,object>();
-        public string lastParamName;
+        //public readonly Dictionary<string,object> paramMap; // = new Dictionary<string,object>();
+        //public string lastParamName;
         public List<string> joins = new List<string>();
         readonly StringBuilder sb = new StringBuilder(200);
         public List<string> columns = new List<string>();
-        public readonly Dictionary<MemberExpression,string> memberExprNickames = new Dictionary<MemberExpression,string>();
 
         public ParseResult(ParseInputs input)
         {
-            paramMap = input!=null
-                ? input.paramMap
-                : new Dictionary<string,object>();
+            //paramMap = input!=null
+            //    ? input.paramMap
+            //    : new Dictionary<string,object>();
         }
 
-        public string storeParam(string value)
-        { 
-            int count = paramMap.Count;
-            string paramName = Vendor.ParamName(count);
-            paramMap[paramName] = value;
-            lastParamName = paramName;
-            return paramName;
-        }
+        //public string storeParam(string value)
+        //{ 
+        //    int count = paramMap.Count;
+        //    string paramName = Vendor.ParamName(count);
+        //    paramMap[paramName] = value;
+        //    lastParamName = paramName;
+        //    return paramName;
+        //}
         public void addJoin(string joinStr)
         {
             if( ! joins.Contains(joinStr) )
@@ -93,15 +98,16 @@ namespace DBLinq.Linq.clause
         /// transfer params and tablesUsed, but not StringBuilder
         /// </summary>
         /// <param name="sqlParts"></param>
-        public void CopyInto(SqlExpressionParts sqlParts)
+        public void CopyInto(QueryProcessor qp, SqlExpressionParts sqlParts)
         {
             //sqlParts.whereList.Add( this.sb.ToString());
-            foreach(string key in this.paramMap.Keys)
+            foreach(string key in qp.paramMap.Keys)
             {
                 //sqlParts.paramMap.Add(key, this.paramMap[key]);
-                sqlParts.paramMap[key] = paramMap[key];
+                sqlParts.paramMap[key] = qp.paramMap[key];
             }
-            foreach(var t1 in tablesUsed)
+
+            foreach (var t1 in tablesUsed)
             {
                 TableAttribute tAttrib = AttribHelper.GetTableAttrib(t1.Key);
                 if(tAttrib!=null)

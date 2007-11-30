@@ -46,37 +46,6 @@ namespace DBLinq.util
         IEnumerator<T> IEnumerable<T>.GetEnumerator(){ return _elements.GetEnumerator(); }
         public System.Collections.IEnumerator GetEnumerator(){ return _elements.GetEnumerator(); }
 
-#if DEAD_CODE
-        public static IEnumerable<Lookup<K,T>> EnumGroups(DataReader2 rdr, Func<DataReader2,K> keyReadFunc, Func<DataReader2,T> valueReadFunc)
-        {
-            //assumption: there is no Read() loop around this code
-
-            K prevK = default(K); //keyReadFunc(rdr);
-            Lookup<K,T> lookup = null;
-            while(rdr.Read())
-            {
-                if(lookup==null)
-                {
-                    prevK = keyReadFunc(rdr);
-                    T firstVal = valueReadFunc(rdr);
-                    lookup=new Lookup<K,T>(prevK, firstVal);
-                    continue;
-                }
-
-                K currK = keyReadFunc(rdr);
-                T currVal = valueReadFunc(rdr);
-                if(currK.Equals(prevK)){
-                    lookup._elements.Add(currVal);
-                } else {
-                    yield return lookup;
-                    lookup = new Lookup<K,T>(currK,currVal);
-                }
-            }
-
-            if(lookup!=null)
-                yield return lookup;
-        }
-#endif
 
         public override string ToString()
         {
