@@ -26,9 +26,23 @@ namespace Test_NUnit.Linq_101_Samples
                     select o;
 
             var list = q.ToList();
-            Assert.IsTrue(list.Count > 0);
+            Assert.IsTrue(list.Count > 0,"No rows returned");
+            Assert.IsTrue(list[0].CustomerID!=null,"Missing CustomerID");
         }
 
+        [Test(Description = "This sample uses foreign key navigation in the from clause to select all orders for customers in London")]
+        public void LinqToSqlJoin01_b()
+        {
+            Northwind db = CreateDB();
+
+            var q = from c in db.Customers
+                    from o in c.Orders
+                    where c.City == "London"
+                    select new { o.CustomerID, o.OrderID };
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+        }
 
         [Test(Description = "This sample uses foreign key navigation in the where clause to filter for Products whose Supplier is in the USA that are out of stock")]
         public void LinqToSqlJoin02()

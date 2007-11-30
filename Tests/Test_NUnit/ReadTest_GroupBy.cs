@@ -44,38 +44,14 @@ namespace Test_NUnit
     public class ReadTest_GroupBy : TestBase
     {
 
-        [Test]
-        public void G01_SimpleGroup()
-        {
-            //Note: this SQL is allowed in Mysql but illegal on Postgres 
-            //(PostgreSql ERROR: column "c$.customerid" must appear in the GROUP BY clause or be used in an aggregate function - SQL state: 42803)
-            //"SELECT City, customerid FROM customer GROUP BY City"
-            Northwind db = base.CreateDB();
-
-            var q2 = db.Customers.GroupBy(c => c.City);
-
-            foreach (var g in q2)
-            {
-                int entryCount = 0;
-                foreach (var c in g)
-                {
-                    Assert.IsTrue(c.City != null, "City must be non-null");
-                    Assert.IsTrue(c.CustomerID != null, "CustomerID must be non-null");
-                    entryCount++;
-                }
-                Assert.IsTrue(entryCount > 0, "Must have some entries in group");
-            }
-        }
 
         [Test]
         public void G01_SimpleGroup_Count()
         {
-            //Note: this SQL is allowed in Mysql but illegal on Postgres 
-            //(PostgreSql ERROR: column "c$.customerid" must appear in the GROUP BY clause or be used in an aggregate function - SQL state: 42803)
-            //"SELECT City, customerid FROM customer GROUP BY City"
             Northwind db = base.CreateDB();
 
-            var q2 = db.Customers.GroupBy(c => c.City).Select(g => new { g.Key, Count = g.Count() });
+            var q2 = db.Customers.GroupBy(c => c.City)
+                .Select(g => new { g.Key, Count = g.Count() });
 
             int rowCount = 0;
             foreach (var g in q2)
@@ -94,6 +70,7 @@ namespace Test_NUnit
             //Note: this SQL is allowed in Mysql but illegal on Postgres 
             //(PostgreSql ERROR: column "c$.customerid" must appear in the GROUP BY clause or be used in an aggregate function - SQL state: 42803)
             //"SELECT City, customerid FROM customer GROUP BY City"
+            //that's why DbLinq disallows it
             Northwind db = base.CreateDB();
             var q2 = db.Customers.GroupBy(c => c.City);
             var q3 = q2.First();
@@ -106,7 +83,8 @@ namespace Test_NUnit
         }
 
         [Test]
-        public void G03_SimpleGroup_WithSelector()
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void G03_SimpleGroup_WithSelector_Invalid()
         {
             //Note: this SQL is allowed in Mysql but illegal on Postgres 
             //(PostgreSql ERROR: column "c$.customerid" must appear in the GROUP BY clause or be used in an aggregate function - SQL state: 42803)
@@ -128,6 +106,31 @@ namespace Test_NUnit
         }
 
         [Test]
+        public void G03_DoubleKey()
+        {
+            //Note: this SQL is allowed in Mysql but illegal on Postgres 
+            //(PostgreSql ERROR: column "c$.customerid" must appear in the GROUP BY clause or be used in an aggregate function - SQL state: 42803)
+            //"SELECT City, customerid FROM customer GROUP BY City"
+            Northwind db = base.CreateDB();
+
+            var q2 = from o in db.Orders
+                     group o by new { o.CustomerID, o.EmployeeID } into g
+                     select new { g.Key.CustomerID, g.Key.EmployeeID, Count = g.Count() };
+
+            int entryCount = 0;
+            foreach (var g in q2)
+            {
+                entryCount++;
+                Assert.IsTrue(g.CustomerID != null, "Must have non-null customerID");
+                Assert.IsTrue(g.EmployeeID > 0, "Must have >0 employeeID");
+                Assert.IsTrue(g.Count >= 0, "Must have non-neg Count");
+            }
+            Assert.IsTrue(entryCount > 0, "Must have some entries in group");
+        }
+
+
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void G04_SimpleGroup_WithSelector()
         {
             //Note: this SQL is allowed in Mysql but illegal on Postgres 
@@ -157,9 +160,18 @@ namespace Test_NUnit
                 //where c.Country == "France"
                 group new { c.PostalCode, c.ContactName } by c.City into g
                 select g;
+            var q3 = from g in q2 select new { FortyTwo = 42, g.Key, Count = g.Count() };
             //select new {g.Key.Length, g};
             //select new {42,g};
-            var q3 = q2.ToList();
+
+            int entryCount = 0;
+            foreach (var g in q3)
+            {
+                Assert.IsTrue(g.FortyTwo == 42, "Forty42 must be there");
+                Assert.IsTrue(g.Count > 0, "Positive count");
+                entryCount++;
+            }
+            Assert.IsTrue(entryCount > 0, "Must have some entries in group");
         }
 
 
@@ -176,7 +188,7 @@ namespace Test_NUnit
             var lst = q2.ToList();
             Assert.Greater(lst.Count, 0, "Expected some grouped order results");
             var result0 = lst[0];
-            Assert.IsTrue(result0.Key!=null, "Key must be non-null");
+            Assert.IsTrue(result0.Key != null, "Key must be non-null");
             Assert.Greater(result0.OrderCount, 0, "Count must be > 0");
             //select new { g.Key , SumPerCustomer = g.Sum(o2=>o2.OrderID) };
         }

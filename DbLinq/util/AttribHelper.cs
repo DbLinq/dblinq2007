@@ -243,29 +243,5 @@ namespace DBLinq.util
             return result;
         }
 
-#if DEAD_CODE
-        public static bool FindReverseAssociation(ReverseAssociation.Part assocPartsIn
-            ,ReverseAssociation.Part assocPartsToPopulate)
-        {
-            if(assocPartsIn==null || assocPartsIn.propInfo==null)
-                throw new ArgumentException("Invalid reverseParts");
-            PropertyInfo propInfo = assocPartsIn.propInfo;
-            Type parentTableType = propInfo.PropertyType;
-            parentTableType = ExtractTypeFromMSet(parentTableType);
-
-            assocPartsToPopulate.tableAttrib = AttribHelper.GetTableAttrib(parentTableType);
-            if(assocPartsIn.tableAttrib==null)
-                return false;
-            AssociationAttribute[] assocs = FindPropertiesWithGivenAttrib<AssociationAttribute>(parentTableType);
-            
-            string assocName = assocPartsIn.assocAttrib.Name; //eg. 'FK_Customers_Orders'
-            
-            var q = from a in assocs where a.Name==assocName select a;
-            assocPartsToPopulate.assocAttrib = q.FirstOrDefault();
-            if(assocPartsToPopulate.assocAttrib==null)
-                return false;
-            return true;
-        }
-#endif
     }
 }

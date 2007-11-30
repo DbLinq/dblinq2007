@@ -205,7 +205,7 @@ namespace Test_NUnit
         [Test]
         public void D07_OrdersFromLondon_Alt()
         {
-            //this is a SelectMany query:
+            //this is a "SelectMany" query:
             Northwind db = CreateDB();
 
             var q =

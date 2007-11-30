@@ -58,11 +58,5 @@ namespace DBLinq.util
             public System.Reflection.PropertyInfo propInfo;
         }
 
-#if DEAD_CODE
-        public readonly Part child = new Part();
-
-        public readonly Part parent = new Part();
-#endif
-
     }
 }
