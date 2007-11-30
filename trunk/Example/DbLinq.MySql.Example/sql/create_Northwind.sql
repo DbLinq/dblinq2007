@@ -263,6 +263,12 @@ Insert INTO `Northwind`.`Categories` (CategoryName,Description)
 values ('Beverages',	'Soft drinks, coffees, teas, beers, and ales')
 ,      ('Condiments','Sweet and savory sauces, relishes, spreads, and seasonings');
 
+
+INSERT INTO Region (RegionDescription) VALUES ('North America');
+INSERT INTO Region (RegionDescription) VALUES ('Europe');
+
+INSERT INTO Territories (TerritoryID,TerritoryDescription, RegionID) VALUES ('US.Northwest', 'Northwest', 1);
+
 truncate table `Northwind`.`Orders`; -- must be truncated before Customer
 truncate table `Northwind`.`Customers`;
 
@@ -292,6 +298,9 @@ truncate table `Northwind`.`Suppliers`;
 insert INTO Suppliers (CompanyName, ContactName, ContactTitle, Address, City, Region, Country)
 VALUES ('alles AG', 'Harald Reitmeyer', 'Prof', 'Fischergasse 8', 'Heidelberg', 'B-W', 'Germany');
 
+insert INTO Suppliers (CompanyName, ContactName, ContactTitle, Address, City, Region, Country)
+VALUES ('Microsoft', 'Mr Allen', 'Monopolist', '1 MS', 'Redmond', 'WA', 'USA');
+
 ## (OLD WARNING: this actually inserts two 'Pen' rows into Products.)
 ## could someone with knowledge of MySQL resolve this?
 ## Answer: upgrade to newer version of MySql Query Browser - the problem will go away
@@ -309,6 +318,8 @@ insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit,UnitsInStock,Uni
 VALUES ('Toilet Paper',2,  0, 3, 1);
 insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
 VALUES ('Fork',5,   111, 0, 0);
+insert INTO `Northwind`.`Products` (ProductName,SupplierID, QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES ('Linq Book',2, 1, 0, 26, 0);
 
 truncate table `Northwind`.`Employees`;
 
@@ -317,6 +328,12 @@ VALUES ('Fuller','Andrew','Vice President, Sales','19540101','19890101', '908 W.
 
 insert INTO `Northwind`.`Employees` (LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
 VALUES ('Davolio','Nancy','Sales Representative','19640101','19940101','507 - 20th Ave. E.  Apt. 2A','Seattle',1);
+
+insert INTO `Northwind`.`Employees` (LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
+VALUES ('Builder','Bob','Handyman','19640101','19940101','666 dark street','Seattle',2);
+
+insert into employeeTerritories (EmployeeID,TerritoryID)
+values (2,'US.Northwest');
 
 ####################################################################
 truncate table `Northwind`.`Orders`;
