@@ -4,6 +4,10 @@
 --####################################################################
 --## create tables
 --####################################################################
+DROP TABLE t1 CASCADE;
+DROP TABLE t2;
+DROP TABLE t3;
+DROP DOMAIN ebool;
 
 --# problem 1. foreign key relation generates duplicate propery if property exists.
 --# problem 2. Column name 'private' causes error
@@ -15,7 +19,9 @@ CREATE DOMAIN ebool AS bool DEFAULT false NOT NULL;
 
 --# problem 3. GetHashCode() does not check null ids for reference types
 --# problem 4. pgsql domain types are not recognized in mappings ('ebool' above)
-CREATE TABLE t3 ( t3ID varchar(5) primary key, my_ebool ebool);
+CREATE TABLE t3 ( t3ID varchar(5) primary key, 
+my_ebool ebool,
+t3 integer); --check for 'Content' field
 
 /*
 CREATE TABLE t4 
