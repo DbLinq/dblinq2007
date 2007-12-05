@@ -40,8 +40,8 @@ namespace SqlMetal.schema
                     string thisKey = assoc.ThisKey ?? "_TODO_L35";
                     assoc.Member = thisKey + assoc.Member; //rename field Employees.Employees to Employees.RefersToEmployees
                 }
-                
-                if(knownAssocs.ContainsKey(assoc.Member))
+
+                if (knownAssocs.ContainsKey(assoc.Member))
                 {
                     //this is the Andrus test case in Pgsql:
                     //  create table t1 ( private int primary key);
@@ -50,6 +50,9 @@ namespace SqlMetal.schema
                     assoc.Member += "_" + assoc.Name;
 
                 }
+
+                if (assoc.Member == "employeeterritories" || assoc.Member == "Employeeterritories")
+                    assoc.Member = "EmployeeTerritories"; //hack to help with Northwind
 
                 knownAssocs[assoc.Member] = true;
             }

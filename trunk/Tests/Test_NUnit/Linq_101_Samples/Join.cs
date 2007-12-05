@@ -90,6 +90,10 @@ namespace Test_NUnit.Linq_101_Samples
 
             var list = q.ToList();
             Assert.IsTrue(list.Count > 0);
+            foreach (var v in list)
+            {
+                Assert.IsTrue(v.LastName1 != v.LastName2, "Last names must be different");
+            }
         }
 
         //TODO 5 - 9

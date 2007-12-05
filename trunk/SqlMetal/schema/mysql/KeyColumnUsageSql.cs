@@ -18,6 +18,14 @@ namespace SqlMetal.schema.mysql
         public string referenced_table_schema;
         public string referenced_table_name;
         public string referenced_column_name;
+
+        public override string ToString()
+        {
+            string detail = constraint_name == "PRIMARY"
+                ? table_name + " PK"
+                : constraint_name;
+            return "KeyColUsage " + detail;
+        }
     }
 
     /// <summary>

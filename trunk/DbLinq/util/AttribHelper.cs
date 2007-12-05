@@ -238,7 +238,9 @@ namespace DBLinq.util
             
             string assocName = assoc1.Name; //eg. 'FK_Customers_Orders'
             
-            var q = from a in assocs where a.Name==assocName select a;
+            var q = from a in assocs 
+                    where a.Name==assocName && a.ThisKey!=assoc1.ThisKey
+                    select a;
             AssociationAttribute result = q.FirstOrDefault();
             return result;
         }
