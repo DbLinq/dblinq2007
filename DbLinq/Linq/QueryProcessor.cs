@@ -84,8 +84,6 @@ namespace DBLinq.Linq
         /// <param name="vars"></param>
         public static SessionVarsParsed ProcessLambdas(SessionVars vars, Type T)
         {
-            //if (vars.sqlString != null)
-            //    return null; //we have already processed expressions (perhaps via GetQueryText)
             SessionVarsParsed varsFin = new SessionVarsParsed(vars);
             QueryProcessor qp = new QueryProcessor(varsFin); //TODO
 
@@ -101,7 +99,7 @@ namespace DBLinq.Linq
 
             qp.build_SQL_string(T);
 
-            return varsFin; //TODO
+            return varsFin;
         }
 
         void processScalarExpression()

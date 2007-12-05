@@ -166,6 +166,11 @@ namespace SqlMetal.schema.mysql
                     assoc2.Name = keyColRow.constraint_name;
                     assoc2.Type = table.Type.Name; //keyColRow.table_name;
                     assoc2.Member = Util.FormatTableName(keyColRow.table_name, false).Pluralize();
+                    
+                    //bool isSelfJoin = keyColRow.table_name == keyColRow.referenced_table_name;
+                    //assoc2.OtherKey = isSelfJoin
+                    //    ? keyColRow.column_name //in Employees table - "ReportsTo" appears in both [Association]
+                    //    : keyColRow.referenced_column_name;
                     assoc2.OtherKey = keyColRow.referenced_column_name;
 
                     DlinqSchema.Table parentTable = schema.Tables.FirstOrDefault(t => keyColRow.referenced_table_name == t.Name);

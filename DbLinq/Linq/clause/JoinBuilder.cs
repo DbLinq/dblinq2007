@@ -51,6 +51,8 @@ namespace DBLinq.Linq.clause
             string nick1 = VarName.GetSqlName(memberExpr.Expression.XParam().Name); // c$
             string nick2 = VarName.GetSqlName(paramExpr.Name); //o$
             assoc2 = AttribHelper.FindReverseAssociation(assoc1);
+            if (assoc2 == null)
+                throw new ApplicationException("Failed to find reverse assoc for " + assoc1.Name);
             string joinString = nick1+"."+assoc1.OtherKey+"="+nick2+"."+assoc2.ThisKey;
 
             //Type childType = AttribHelper.ExtractTypeFromMSet(memberExpr.Type);

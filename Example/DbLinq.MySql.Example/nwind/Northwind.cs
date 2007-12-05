@@ -457,7 +457,7 @@ namespace nwind
 			Alltype o2 = obj as Alltype;
 			if(o2==null)
 				return false;
-			return _int.Equals(o2._int);
+			return _int == o2._int;
 		}
 		#endregion
 	
@@ -543,7 +543,7 @@ namespace nwind
 			Category o2 = obj as Category;
 			if(o2==null)
 				return false;
-			return _CategoryID.Equals(o2._CategoryID);
+			return _CategoryID == o2._CategoryID;
 		}
 		#endregion
 	
@@ -711,7 +711,7 @@ namespace nwind
 			Customer o2 = obj as Customer;
 			if(o2==null)
 				return false;
-			return _CustomerID.Equals(o2._CustomerID);
+			return object.Equals(_CustomerID, o2._CustomerID);
 		}
 		#endregion
 	
@@ -923,7 +923,7 @@ namespace nwind
 			Employee o2 = obj as Employee;
 			if(o2==null)
 				return false;
-			return _EmployeeID.Equals(o2._EmployeeID);
+			return _EmployeeID == o2._EmployeeID;
 		}
 		#endregion
 	
@@ -1012,7 +1012,7 @@ namespace nwind
 			Employeeterritory o2 = obj as Employeeterritory;
 			if(o2==null)
 				return false;
-			return _EmployeeID.Equals(o2._EmployeeID) && _TerritoryID.Equals(o2._TerritoryID);
+			return _EmployeeID == o2._EmployeeID && object.Equals(_TerritoryID, o2._TerritoryID);
 		}
 		#endregion
 	
@@ -1126,7 +1126,7 @@ namespace nwind
 			OrderDetail o2 = obj as OrderDetail;
 			if(o2==null)
 				return false;
-			return _OrderID.Equals(o2._OrderID) && _ProductID.Equals(o2._ProductID);
+			return _OrderID == o2._OrderID && _ProductID == o2._ProductID;
 		}
 		#endregion
 	
@@ -1322,20 +1322,11 @@ namespace nwind
 			Order o2 = obj as Order;
 			if(o2==null)
 				return false;
-			return _OrderID.Equals(o2._OrderID);
+			return _OrderID == o2._OrderID;
 		}
 		#endregion
 	
 		
-		
-		private EntityRef<Employee> _Employee;    
-		
-		[Association(Storage="_Employee", ThisKey="EmployeeID", Name="FK_orders_emp")]
-		[DebuggerNonUserCode]
-		public Employee Employee {
-			get { return this._Employee.Entity; }
-			set { this._Employee.Entity = value; }
-		}
 		
 		private EntityRef<Customer> _Customer;    
 		
@@ -1344,6 +1335,15 @@ namespace nwind
 		public Customer Customer {
 			get { return this._Customer.Entity; }
 			set { this._Customer.Entity = value; }
+		}
+		
+		private EntityRef<Employee> _Employee;    
+		
+		[Association(Storage="_Employee", ThisKey="EmployeeID", Name="FK_orders_emp")]
+		[DebuggerNonUserCode]
+		public Employee Employee {
+			get { return this._Employee.Entity; }
+			set { this._Employee.Entity = value; }
 		}
 	
 		public bool IsModified { get; set; }
@@ -1491,7 +1491,7 @@ namespace nwind
 			Product o2 = obj as Product;
 			if(o2==null)
 				return false;
-			return _ProductID.Equals(o2._ProductID);
+			return _ProductID == o2._ProductID;
 		}
 		#endregion
 	
@@ -1572,7 +1572,7 @@ namespace nwind
 			Region o2 = obj as Region;
 			if(o2==null)
 				return false;
-			return _RegionID.Equals(o2._RegionID);
+			return _RegionID == o2._RegionID;
 		}
 		#endregion
 	
@@ -1652,7 +1652,7 @@ namespace nwind
 			Shipper o2 = obj as Shipper;
 			if(o2==null)
 				return false;
-			return _ShipperID.Equals(o2._ShipperID);
+			return _ShipperID == o2._ShipperID;
 		}
 		#endregion
 	
@@ -1815,7 +1815,7 @@ namespace nwind
 			Supplier o2 = obj as Supplier;
 			if(o2==null)
 				return false;
-			return _SupplierID.Equals(o2._SupplierID);
+			return _SupplierID == o2._SupplierID;
 		}
 		#endregion
 	
@@ -1895,13 +1895,13 @@ namespace nwind
 			Territory o2 = obj as Territory;
 			if(o2==null)
 				return false;
-			return _TerritoryID.Equals(o2._TerritoryID);
+			return object.Equals(_TerritoryID, o2._TerritoryID);
 		}
 		#endregion
 	
 		
 		[Association(Storage = "null", OtherKey = "TerritoryID", Name = "employeeterritories_ibfk_2")]
-		public EntityMSet<Employeeterritory> Employeeterritories
+		public EntityMSet<Employeeterritory> EmployeeTerritories
 		{
 		    get { return null; } //L212 - child data available only when part of query
 		}
