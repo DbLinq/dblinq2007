@@ -190,6 +190,22 @@ namespace DBLinq.util
                 return 0;
             }
         }
+
+        public float? GetFloatN(int index)
+        {
+            try
+            {
+                if (_rdr.IsDBNull(index))
+                    return null;
+                return _rdr.GetFloat(index);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("GetFloatN failed: " + ex);
+                return 0;
+            }
+        }
+
         public double GetDouble(int index)
         {
             try

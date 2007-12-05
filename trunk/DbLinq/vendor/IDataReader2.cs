@@ -13,6 +13,7 @@ namespace DBLinq.vendor
         int? GetInt32N(int index);
         uint? GetUInt32N(int index);
         double? GetDoubleN(int index);
+        float? GetFloatN(int index);
         DateTime? GetDateTimeN(int index);
         long? GetInt64N(int index);
 

@@ -478,11 +478,15 @@ namespace DBLinq.util
             {
                 minfo = typeof(DataReader2).GetMethod("GetUInt32N");
             }
-            else if(t2==typeof(float))
+            else if (t2 == typeof(float))
             {
                 minfo = typeof(DataReader2).GetMethod("GetFloat");
             }
-            else if(t2==typeof(double))
+            else if (t2 == typeof(float?))
+            {
+                minfo = typeof(DataReader2).GetMethod("GetFloatN");
+            }
+            else if (t2 == typeof(double))
             {
                 minfo = typeof(DataReader2).GetMethod("GetDouble");
             }

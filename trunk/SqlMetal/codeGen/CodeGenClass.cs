@@ -299,15 +299,14 @@ public $parentClassTyp $fkName_$thisKey {
     //TODO: move this logic our of user code, into a generated class
     public override int GetHashCode()
     {
-        $checkForNullFieldId
-        return $fieldID.GetHashCode();
+        return $GetHashCode_list;
     }
     public override bool Equals(object obj)
     {
         $className o2 = obj as $className;
         if(o2==null)
             return false;
-        return $fieldID.Equals(o2.$fieldID);
+        return $Equals_list;
     }
     #endregion
 ";
@@ -318,26 +317,32 @@ public $parentClassTyp $fkName_$thisKey {
             {
                 return "#warning L189 table "+tableName+" has no primary key. Multiple c# objects will refer to the same row.\n";
             }
-            //TODO - handle composite keys
-            if (primaryKeys == null || primaryKeys.Count == 0 //&& primaryKeys[0].Columns == null || primaryKeys[0].Columns.Count == 0
-                )
+
+            List<string> getHash_list = new List<string>();
+            List<string> equals_list = new List<string>();
+
+            foreach (DlinqSchema.Column primaryKey in primaryKeys)
             {
-                Console.WriteLine("ERROR L269 - bad primary key data");
-                return "_L269_BAD_PRIMARY_KEY_";
+                string fieldName = "_" + primaryKey.Name;
+                string getHash = CSharp.IsValueType(primaryKey.Type)
+                    ? fieldName+".GetHashCode()"
+                    : "("+fieldName+" == null ? 0 : "+fieldName+".GetHashCode())";
+                getHash_list.Add(getHash);
+
+                // "return $fieldID.Equals(o2.$fieldID);"
+                string equals = CSharp.IsValueType(primaryKey.Type)
+                    ? fieldName + " == o2." + fieldName
+                    : "object.Equals(" + fieldName + ", o2." + fieldName + ")";
+                equals_list.Add(equals);
             }
 
-            string fieldName = "_"+primaryKeys[0].Name;
+            string getHash_str = string.Join(" ^ ", getHash_list.ToArray());
+            string equals_str = string.Join(" && ", equals_list.ToArray());
 
             template = template.Replace("    ", "\t"); //four spaces mean a tab
-
-            //ensure primary key column is non-null, even for composite keys
-            string checkForNullFieldId = CSharp.IsValueType(primaryKeys[0].Type)
-                ? ""
-                : "if(" + fieldName + " == null) return 0;" + NL;
-            template = template.Replace("$checkForNullFieldId\r\n", checkForNullFieldId);
-
-            string result = template.Replace("$fieldID", fieldName);
-
+            string result = template;
+            result = result.Replace("$GetHashCode_list", getHash_str);
+            result = result.Replace("$Equals_list", equals_str);
             result = result.Replace("$className", table.Type.Name);
             return result;
         }

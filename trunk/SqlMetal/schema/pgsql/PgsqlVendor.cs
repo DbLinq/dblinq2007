@@ -270,6 +270,13 @@ namespace SqlMetal.schema.pgsql
                 string[] argTypes1 = parseCsvString(pg_proc.proallargtypes); //eg. {23,24,1043}
                 List<long> argTypes2 = (from t in argTypes1 select long.Parse(t)).ToList();
 
+                if (argNames == null)
+                {
+                    //proc was specified as 'FUNCTION doverlaps(IN date)' - names not specified
+                    argNames = new string[argTypes1.Length];
+                    for (int i = 0; i < argNames.Length; i++) { argNames[i] = ((char)('a' + i)).ToString(); }
+                }
+
                 bool doLengthsMatch = (argTypes2.Count != argNames.Length
                     || (argModes != null && argModes.Length != argNames.Length));
                 if(doLengthsMatch)

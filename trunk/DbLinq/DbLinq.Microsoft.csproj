@@ -81,6 +81,7 @@
     <Compile Include="Linq\clause\SqlExpressionParts.cs" />
     <Compile Include="util\TypeEnum.cs" />
     <Compile Include="util\VarName.cs" />
+    <Compile Include="vendor\IDataReader2.cs" />
     <Compile Include="vendor\Microsoft\DataReader2.cs" />
     <Compile Include="vendor\Microsoft\MsSqlTypeConversions.cs" />
     <Compile Include="vendor\Microsoft\VendorMs.cs" />
