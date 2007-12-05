@@ -69,6 +69,8 @@ namespace SqlMetal.schema.pgsql
 
                     //TODO: blob,longblob,set, ...
                 case "integer": return "int";
+                case "void": 
+                    return "void";
                 default:
                     return "L52_mapCsType_unprepared_for_postgresqltype_"+mysqlType;
             }

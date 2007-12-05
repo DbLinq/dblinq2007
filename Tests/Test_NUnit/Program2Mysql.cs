@@ -19,14 +19,16 @@ namespace Test_NUnit
     {
         static void Main()
         {
+            string s1 = null, s2 = null;
+            bool ok = object.Equals(s1, s2);
             //new ReadTest_GroupBy().G01_SimpleGroup_Count();
             //new ReadTest_GroupBy().G05_Group_Into();
             //new ReadTest().C1_SelectProducts();
-            new Join().LinqToSqlJoin04();
+            //new Join().LinqToSqlJoin04();
             //new ReadTest_Complex().F10_DistinctCity();
             //new StoredProcTest().SPB_GetOrderCount_Having();
             //new ReadTest().D08_Products_Take5();
-            //new ReadTest_AllTypes().AT5_SelectEnum_();
+            //new ReadTest_AllTypes().AT1_SelectRow();
             //new ReadTest_Operands().H1_SelectConcat();
             //rc.F11_ConcatString();
             //new WriteTest().E2_UpdateEnum();
@@ -34,7 +36,7 @@ namespace Test_NUnit
             //new NullTest().NullableT_Value();
             //new Count_Sum_Min_Max_Avg().LiqnToSqlCount02();
             //new Top_Bottom().LinqToSqlTop03_Ex_Andrus();
-            //new Object_Identity().LinqToSqlObjectIdentity01();
+            new Object_Identity().LinqToSqlObjectIdentity01();
         }
     }
 

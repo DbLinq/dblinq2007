@@ -35,6 +35,14 @@ UNIQUE (t4,kasutaja,firmanr);
 --kasgrupp_kasutaja_firmanr_unique
 */
 
+create table tCompositePK
+(
+  f1 int,
+  f2 varchar(5),
+  f3 int,  
+  primary key(f1,f2)
+);
+
 COMMIT;
 
 

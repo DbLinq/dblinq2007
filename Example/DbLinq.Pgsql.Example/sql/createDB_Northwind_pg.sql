@@ -110,6 +110,14 @@ CREATE TABLE Employees (
   PRIMARY KEY(EmployeeID)
 );
 
+--####################################################################
+CREATE TABLE  EmployeeTerritories  (
+   EmployeeID  INTEGER NOT NULL          REFERENCES Employees(EmployeeID),
+   TerritoryID  VARCHAR(20) NOT NULL     REFERENCES Territories(TerritoryID),
+  PRIMARY KEY(EmployeeID,TerritoryID)
+);
+
+
 CREATE TABLE Orders (
   OrderID SERIAL NOT NULL,
   CustomerID VARCHAR(5) NOT NULL,
@@ -139,6 +147,11 @@ values ('Beverages',	'Soft drinks, coffees, teas, beers, and ales');
 Insert INTO Categories (CategoryName,Description)
 values ('Condiments','Sweet and savory sauces, relishes, spreads, and seasonings');
 
+INSERT INTO Region (RegionDescription) VALUES ('North America');
+INSERT INTO Region (RegionDescription) VALUES ('Europe');
+
+INSERT INTO Territories (TerritoryID,TerritoryDescription, RegionID) VALUES ('US.Northwest', 'Northwest', 1);
+
 truncate table Orders; -- must be truncated before Customer
 truncate table Customers CASCADE;
 
@@ -159,15 +172,15 @@ insert INTO Customers (CustomerID, CompanyName,ContactName, ContactTitle, Countr
 values ('WARTH', 'Wartian Herkku','Pirkko Koskitalo','Accounting Manager','Finland','90110','Oulu','981-443655');
 
 
-truncate table Employees CASCADE;
-insert INTO Employees (LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
-VALUES ('Fuller','Andrew','Vice President, Sales','19540101','19890101', '908 W. Capital Way','Tacoma',NULL);
-
-insert INTO Employees (LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
-VALUES ('Davolio','Nancy','Sales Representative','19640101','19940101','507 - 20th Ave. E.  Apt. 2A','Seattle',1);
-
 --truncate table Orders; -- must be truncated before Products
 truncate table Products CASCADE;
+
+insert INTO Suppliers (CompanyName, ContactName, ContactTitle, Address, City, Region, Country)
+VALUES ('alles AG', 'Harald Reitmeyer', 'Prof', 'Fischergasse 8', 'Heidelberg', 'B-W', 'Germany');
+
+insert INTO Suppliers (CompanyName, ContactName, ContactTitle, Address, City, Region, Country)
+VALUES ('Microsoft', 'Mr Allen', 'Monopolist', '1 MS', 'Redmond', 'WA', 'USA');
+
 
 insert INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
 VALUES ('Pen',10,     12, 2,  '0');
@@ -184,6 +197,19 @@ VALUES ('Toilet Paper',2,  0, 3, '1');
 insert INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
 VALUES ('Fork',5,   111, 0, '0');
 
+insert INTO  Employees  (LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
+VALUES ('Fuller','Andrew','Vice President, Sales','19540101','19890101', '908 W. Capital Way','Tacoma',NULL);
+
+insert INTO  Employees  (LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
+VALUES ('Davolio','Nancy','Sales Representative','19640101','19940101','507 - 20th Ave. E.  Apt. 2A','Seattle',1);
+
+insert INTO  Employees  (LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
+VALUES ('Builder','Bob','Handyman','19640101','19940101','666 dark street','Seattle',2);
+
+insert into employeeTerritories (EmployeeID,TerritoryID)
+values (2,'US.Northwest');
+
+--####################################################################
 truncate table Orders;
 insert INTO Orders (CustomerID, EmployeeID, OrderDate, Freight)
 Values ('AIRBU', 1, now(), 21.3);

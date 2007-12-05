@@ -1,13 +1,15 @@
-﻿DROP DATABASE IF EXISTS `Northwind`;
+DROP DATABASE IF EXISTS `Northwind`;
 
 CREATE DATABASE `Northwind`;
+
+USE `Northwind`;
 
 /*DROP USER IF EXISTS 'LinqUser'@'%'; */
 /*DELETE FROM `mysql`.`user` WHERE `User`='LinqUser';*/
 /*DROP USER 'LinqUser'@'%';*/
 
 
-/* create user LinqUser, password: 'linq2' 
+/* create user LinqUser, password: 'linq2'
 CREATE USER 'LinqUser'@'%'
   IDENTIFIED BY PASSWORD '*247E8BFCE2F07F00D7FD773390A282540001077B';
 
@@ -21,28 +23,25 @@ FLUSH PRIVILEGES;
 ## create tables
 ####################################################################
 
-CREATE TABLE `Northwind`.`Region` (
+CREATE TABLE `Region` (
   `RegionID` INTEGER NOT NULL AUTO_INCREMENT,
   `RegionDescription` VARCHAR(50) NOT NULL,
   PRIMARY KEY(`RegionID`)
 )
 ENGINE = InnoDB;
 
-CREATE TABLE `Northwind`.`Territories` (
+CREATE TABLE `Territories` (
   `TerritoryID` VARCHAR(20) NOT NULL,
   `TerritoryDescription` VARCHAR(50) NOT NULL,
   `RegionID` INTEGER NOT NULL,
-  PRIMARY KEY(`TerritoryID`)
+  PRIMARY KEY(`TerritoryID`),
+  FOREIGN KEY `FK_Terr_Region` (`RegionID`) REFERENCES `Region` (`RegionID`)
 )
 ENGINE = InnoDB;
 
-ALTER TABLE `Northwind`.`Territories` ADD CONSTRAINT `FK_Terr_Region` FOREIGN KEY `FK_Terr_Region` (`RegionID`)
-    REFERENCES `Region` (`RegionID`)
-    ON DELETE RESTRICT
-    ON UPDATE RESTRICT;
 
 ####################################################################
-CREATE TABLE `Northwind`.`Categories` (
+CREATE TABLE `Categories` (
   `CategoryID` INTEGER  NOT NULL AUTO_INCREMENT,
   `CategoryName` VARCHAR(15) NOT NULL,
   `Description` TEXT NULL,
@@ -51,7 +50,7 @@ CREATE TABLE `Northwind`.`Categories` (
 )
 ENGINE = InnoDB;
 
-CREATE TABLE `Northwind`.`Suppliers` (
+CREATE TABLE `Suppliers` (
   `SupplierID` INTEGER  NOT NULL AUTO_INCREMENT,
   `CompanyName` VARCHAR(40) NOT NULL DEFAULT '',
   `ContactName` VARCHAR(30) NULL,
@@ -68,7 +67,7 @@ CREATE TABLE `Northwind`.`Suppliers` (
 ENGINE = InnoDB;
 
 ####################################################################
-CREATE TABLE `Northwind`.`Products` (
+CREATE TABLE `Products` (
   `ProductID` INTEGER NOT NULL AUTO_INCREMENT,
   `ProductName` VARCHAR(40) NOT NULL DEFAULT '',
   `SupplierID` INTEGER NULL,
@@ -78,25 +77,17 @@ CREATE TABLE `Northwind`.`Products` (
   `UnitsInStock` SMALLINT NULL,
   `UnitsOnOrder` SMALLINT NULL,
   `ReorderLevel` SMALLINT NULL,
-  `Discontinued` BIT NULL,
-  PRIMARY KEY(`ProductID`)
+  `Discontinued` BIT NOT NULL,
+  PRIMARY KEY(`ProductID`),
+  FOREIGN KEY `FK_prod_catg` (`CategoryID`) REFERENCES `Categories` (`CategoryID`),
+  FOREIGN KEY `FK_prod_supp` (`SupplierID`) REFERENCES `Suppliers` (`SupplierID`)
 )
 ENGINE = InnoDB
 COMMENT = 'Holds Products';
 
-ALTER TABLE `Northwind`.`Products` ADD CONSTRAINT `FK_prod_catg` FOREIGN KEY `FK_prod_catg` (`CategoryID`)
-    REFERENCES `Categories` (`CategoryID`)
-    ON DELETE RESTRICT
-    ON UPDATE RESTRICT;
-
-ALTER TABLE `Northwind`.`Products` ADD CONSTRAINT `FK_prod_supp` FOREIGN KEY `FK_prod_supp` (`SupplierID`)
-    REFERENCES `Suppliers` (`SupplierID`)
-    ON DELETE RESTRICT
-    ON UPDATE RESTRICT;
-
 
 ####################################################################
-CREATE TABLE `Northwind`.`Customers` (
+CREATE TABLE `Customers` (
   `CustomerID` VARCHAR(5) NOT NULL,
   `CompanyName` VARCHAR(40) NOT NULL DEFAULT '',
   `ContactName` VARCHAR(30) NULL,
@@ -113,7 +104,7 @@ CREATE TABLE `Northwind`.`Customers` (
 ENGINE = InnoDB;
 
 ####################################################################
-CREATE TABLE `Northwind`.`Shippers` (
+CREATE TABLE `Shippers` (
   `ShipperID` INTEGER NOT NULL AUTO_INCREMENT,
   `CompanyName` VARCHAR(40) NOT NULL,
   `Phone` VARCHAR(24) NULL,
@@ -122,7 +113,7 @@ CREATE TABLE `Northwind`.`Shippers` (
 ENGINE = InnoDB;
 
 ####################################################################
-CREATE TABLE `Northwind`.`Employees` (
+CREATE TABLE `Employees` (
   `EmployeeID` INTEGER NOT NULL AUTO_INCREMENT,
   `LastName` VARCHAR(20) NOT NULL,
   `FirstName` VARCHAR(10) NOT NULL,
@@ -138,35 +129,24 @@ CREATE TABLE `Northwind`.`Employees` (
   `Photo` BLOB NULL,
   `Notes` TEXT NULL,
   `ReportsTo` INTEGER NULL,
-  PRIMARY KEY(`EmployeeID`)
+  PRIMARY KEY(`EmployeeID`),
+  FOREIGN KEY `FK_Emp_ReportsToEmp` (`ReportsTo`)  REFERENCES `Employees` (`EmployeeID`)
 )
 ENGINE = InnoDB;
 
-ALTER TABLE `Northwind`.`Employees` ADD CONSTRAINT `FK_Emp_ReportsToEmp` FOREIGN KEY `FK_Emp_ReportsToEmp` (`ReportsTo`)
-    REFERENCES `Employees` (`EmployeeID`)
-    ON DELETE RESTRICT
-    ON UPDATE RESTRICT;
-
 ####################################################################
-CREATE TABLE `Northwind`.`EmployeeTerritories` (
+CREATE TABLE `EmployeeTerritories` (
   `EmployeeID` INTEGER NOT NULL,
-  `TerritoryID` VARCHAR(20) NOT NULL
+  `TerritoryID` VARCHAR(20) NOT NULL,
+  PRIMARY KEY(`EmployeeID`,`TerritoryID`),
+  FOREIGN KEY `FK_empTerr_emp` (`EmployeeID`) REFERENCES `Employees` (`EmployeeID`),
+  FOREIGN KEY `FK_empTerr_terr` (`TerritoryID`) REFERENCES `Territories` (`TerritoryID`)
 )
 ENGINE = InnoDB;
 
-ALTER TABLE `Northwind`.`EmployeeTerritories` ADD CONSTRAINT `FK_EmpTerr_Emp` FOREIGN KEY `FK_EmpTerr_Emp` (`EmployeeID`)
-    REFERENCES `Employees` (`EmployeeID`)
-    ON DELETE RESTRICT
-    ON UPDATE RESTRICT;
-
-ALTER TABLE `Northwind`.`EmployeeTerritories` ADD CONSTRAINT `FK_EmpTerr_Terr` FOREIGN KEY `FK_EmpTerr_Terr` (`TerritoryID`)
-    REFERENCES `Territories` (`TerritoryID`)
-    ON DELETE RESTRICT
-    ON UPDATE RESTRICT;
-
 
 ####################################################################
-CREATE TABLE `Northwind`.`Orders` (
+CREATE TABLE `Orders` (
   `OrderID` INTEGER NOT NULL AUTO_INCREMENT,
   `CustomerID` VARCHAR(5) NULL,
   `EmployeeID` INTEGER NULL,
@@ -185,20 +165,20 @@ CREATE TABLE `Northwind`.`Orders` (
 )
 ENGINE = InnoDB;
 
-ALTER TABLE `Northwind`.`orders` ADD CONSTRAINT `FK_orders_1` FOREIGN KEY `FK_orders_1` (`CustomerID`)
+ALTER TABLE `orders` ADD CONSTRAINT `FK_orders_1` FOREIGN KEY `FK_orders_1` (`CustomerID`)
     REFERENCES `Customers` (`CustomerID`)
     ON DELETE RESTRICT
     ON UPDATE RESTRICT;
 
-ALTER TABLE `Northwind`.`orders` ADD CONSTRAINT `FK_orders_emp` FOREIGN KEY `FK_orders_emp` (`EmployeeID`)
+ALTER TABLE `orders` ADD CONSTRAINT `FK_orders_emp` FOREIGN KEY `FK_orders_emp` (`EmployeeID`)
     REFERENCES `Employees` (`EmployeeID`)
     ON DELETE RESTRICT
     ON UPDATE RESTRICT;
 
 ####################################################################
-CREATE TABLE `Northwind`.`Order Details` (
-  `OrderID` INTEGER NOT NULL,
-  `ProductID` INTEGER NOT NULL,
+CREATE TABLE `Order Details` (
+  `OrderID` INTEGER NOT NULL                 REFERENCES Orders (OrderID),
+  `ProductID` INTEGER NOT NULL               REFERENCES Products (OrderID),
   `UnitPrice` DECIMAL NOT NULL,
   `Quantity` SMALLINT NOT NULL,
   `Discount` FLOAT NOT NULL,
@@ -206,19 +186,9 @@ CREATE TABLE `Northwind`.`Order Details` (
 )
 ENGINE = InnoDB;
 
-ALTER TABLE `Northwind`.`Order Details` ADD CONSTRAINT `FK_ordersDetails_Ord` FOREIGN KEY `FK_ordersDetails_Ord` (`OrderID`)
-    REFERENCES `Orders` (`OrderID`)
-    ON DELETE RESTRICT
-    ON UPDATE RESTRICT;
-
-ALTER TABLE `Northwind`.`Order Details` ADD CONSTRAINT `FK_ordersDetails_Prod` FOREIGN KEY `FK_ordersDetails_Prod` (`ProductID`)
-    REFERENCES `products` (`ProductID`)
-    ON DELETE RESTRICT
-    ON UPDATE RESTRICT;
-
 
 ####################################################################
-CREATE TABLE `Northwind`.`AllTypes` (
+CREATE TABLE `AllTypes` (
   `int` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
   `intN` INTEGER UNSIGNED,
   `double` DOUBLE NOT NULL DEFAULT 0,
@@ -253,13 +223,12 @@ CREATE TABLE `Northwind`.`AllTypes` (
 ENGINE = InnoDB
 COMMENT = 'Tests mapping of many MySQL types to CSharp types';
 
-USE `Northwind`;
 
 ####################################################################
 ## populate tables with seed data
 ####################################################################
-truncate table `Northwind`.`Categories`;
-Insert INTO `Northwind`.`Categories` (CategoryName,Description)
+truncate table `Categories`;
+Insert INTO `Categories` (CategoryName,Description)
 values ('Beverages',	'Soft drinks, coffees, teas, beers, and ales')
 ,      ('Condiments','Sweet and savory sauces, relishes, spreads, and seasonings');
 
@@ -269,31 +238,31 @@ INSERT INTO Region (RegionDescription) VALUES ('Europe');
 
 INSERT INTO Territories (TerritoryID,TerritoryDescription, RegionID) VALUES ('US.Northwest', 'Northwest', 1);
 
-truncate table `Northwind`.`Orders`; -- must be truncated before Customer
-truncate table `Northwind`.`Customers`;
+truncate table `Orders`; -- must be truncated before Customer
+truncate table `Customers`;
 
-insert INTO `Northwind`.`Customers` (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
+insert INTO `Customers` (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
 values ('AIRBU', 'airbus','jacques','France','10000','Paris');
-insert INTO `Northwind`.`Customers` (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
+insert INTO `Customers` (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
 values ('BT___','BT','graeme','U.K.','E14','London');
 
-insert INTO `Northwind`.`Customers` (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
+insert INTO `Customers` (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
 values ('ATT__','ATT','bob','USA','10021','New York');
-insert INTO `Northwind`.`Customers` (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
+insert INTO `Customers` (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
 values ('UKMOD', 'MOD','(secret)','U.K.','E14','London');
 
-insert INTO `Northwind`.`Customers` (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
+insert INTO `Customers` (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
 values ('ALFKI', 'Alfreds Futterkiste','Maria Anders','Sales Representative','Germany','12209','Berlin','030-0074321');
 
-insert INTO `Northwind`.`Customers` (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
+insert INTO `Customers` (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
 values ('BONAP', 'Bon something','Bon Boss','Sales Representative','France','11109','Paris','033-0074321');
 
-insert INTO `Northwind`.`Customers` (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
+insert INTO `Customers` (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
 values ('WARTH', 'Wartian Herkku','Pirkko Koskitalo','Accounting Manager','Finland','90110','Oulu','981-443655');
 
-truncate table `Northwind`.`Orders`; -- must be truncated before Products
-truncate table `Northwind`.`Products`;
-truncate table `Northwind`.`Suppliers`;
+truncate table `Orders`; -- must be truncated before Products
+truncate table `Products`;
+truncate table `Suppliers`;
 
 insert INTO Suppliers (CompanyName, ContactName, ContactTitle, Address, City, Region, Country)
 VALUES ('alles AG', 'Harald Reitmeyer', 'Prof', 'Fischergasse 8', 'Heidelberg', 'B-W', 'Germany');
@@ -304,53 +273,53 @@ VALUES ('Microsoft', 'Mr Allen', 'Monopolist', '1 MS', 'Redmond', 'WA', 'USA');
 ## (OLD WARNING: this actually inserts two 'Pen' rows into Products.)
 ## could someone with knowledge of MySQL resolve this?
 ## Answer: upgrade to newer version of MySql Query Browser - the problem will go away
-insert INTO `Northwind`.`Products` (ProductName,SupplierID, QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+insert INTO `Products` (ProductName,SupplierID, QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
 VALUES ('Pen',1, 10,     12, 2,  0);
-insert INTO `Northwind`.`Products` (ProductName,SupplierID, QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+insert INTO `Products` (ProductName,SupplierID, QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
 VALUES ('Bicycle',1, 1,  6, 0,  0);
-insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+insert INTO `Products` (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
 VALUES ('Phone',3,    7, 0,  0);
-insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+insert INTO `Products` (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
 VALUES ('SAM',1,      51, 11, 0);
-insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+insert INTO `Products` (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
 VALUES ('iPod',0,     11, 0, 0);
-insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+insert INTO `Products` (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
 VALUES ('Toilet Paper',2,  0, 3, 1);
-insert INTO `Northwind`.`Products` (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+insert INTO `Products` (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
 VALUES ('Fork',5,   111, 0, 0);
-insert INTO `Northwind`.`Products` (ProductName,SupplierID, QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+insert INTO `Products` (ProductName,SupplierID, QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
 VALUES ('Linq Book',2, 1, 0, 26, 0);
 
-truncate table `Northwind`.`Employees`;
+truncate table `Employees`;
 
-insert INTO `Northwind`.`Employees` (LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
+insert INTO `Employees` (LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
 VALUES ('Fuller','Andrew','Vice President, Sales','19540101','19890101', '908 W. Capital Way','Tacoma',NULL);
 
-insert INTO `Northwind`.`Employees` (LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
+insert INTO `Employees` (LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
 VALUES ('Davolio','Nancy','Sales Representative','19640101','19940101','507 - 20th Ave. E.  Apt. 2A','Seattle',1);
 
-insert INTO `Northwind`.`Employees` (LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
+insert INTO `Employees` (LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
 VALUES ('Builder','Bob','Handyman','19640101','19940101','666 dark street','Seattle',2);
 
 insert into employeeTerritories (EmployeeID,TerritoryID)
 values (2,'US.Northwest');
 
 ####################################################################
-truncate table `Northwind`.`Orders`;
-insert INTO `Northwind`.`Orders` (CustomerID, EmployeeID, OrderDate, Freight)
+truncate table `Orders`;
+insert INTO `Orders` (CustomerID, EmployeeID, OrderDate, Freight)
 Values ('AIRBU', 1, now(), 21.3);
 
-insert INTO `Northwind`.`Orders` (CustomerID, EmployeeID, OrderDate, Freight)
+insert INTO `Orders` (CustomerID, EmployeeID, OrderDate, Freight)
 Values ('BT___', 1, now(), 11.1);
 
-insert INTO `Northwind`.`Orders` (CustomerID, EmployeeID, OrderDate, Freight)
+insert INTO `Orders` (CustomerID, EmployeeID, OrderDate, Freight)
 Values ('BT___', 1, now(), 11.5);
 
-insert INTO `Northwind`.`Orders` (CustomerID, EmployeeID, OrderDate, Freight)
+insert INTO `Orders` (CustomerID, EmployeeID, OrderDate, Freight)
 Values ('UKMOD', 1, now(), 32.5);
 
 ####################################################################
-INSERT INTO `Northwind`.alltypes (
+INSERT INTO alltypes (
                `intN` ,
   `double` ,   `doubleN` ,
   `decimal` ,  `decimalN` ,

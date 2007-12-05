@@ -31,7 +31,7 @@ namespace Test_NUnit.Linq_101_Samples
 
             bool isSameObject = Object.ReferenceEquals(cust1, cust2);
             Assert.IsTrue(isSameObject);
-            Assert.IsTrue(cust1.CustomerID=="BONAP", "CustomerID must be BONAP");
+            Assert.IsTrue(cust1.CustomerID == "BONAP", "CustomerID must be BONAP - was: " + cust1.CustomerID);
         }
 
     }

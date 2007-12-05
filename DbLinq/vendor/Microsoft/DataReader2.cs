@@ -1,3 +1,4 @@
+#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -21,6 +22,7 @@
 // Authors:
 //        Jiri George Moudry
 ////////////////////////////////////////////////////////////////////
+#endregion
 
 using System;
 using System.Data;
@@ -37,7 +39,7 @@ namespace DBLinq.util
     /// When we have a workaround for FatalExecutionEngineError on nullables, 
     /// this can go away.
     /// </summary>
-    public class DataReader2 : IDisposable //, IDataRecord
+    public class DataReader2 : IDisposable, DBLinq.vendor.IDataReader2 //, IDataRecord
     {
         SqlDataReader _rdr;
         public DataReader2(SqlDataReader rdr)
@@ -188,6 +190,22 @@ namespace DBLinq.util
                 return 0;
             }
         }
+
+        public float? GetFloatN(int index)
+        {
+            try
+            {
+                if (_rdr.IsDBNull(index))
+                    return null;
+                return _rdr.GetFloat(index);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("GetFloatN failed: " + ex);
+                return 0;
+            }
+        }
+
         public double GetDouble(int index)
         {
             try
