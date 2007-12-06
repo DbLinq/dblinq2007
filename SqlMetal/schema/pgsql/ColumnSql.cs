@@ -54,6 +54,12 @@ namespace SqlMetal.schema.pgsql
         public string column_type;
 
         /// <summary>
+        /// if you use domains to typedef a new type, this will be non-null
+        /// </summary>
+        public string domain_schema;
+        public string domain_name;
+
+        /// <summary>
         /// eg. for column called 'int' we use csharpName='int_'
         /// </summary>
         public string csharpFieldName;
@@ -72,7 +78,7 @@ namespace SqlMetal.schema.pgsql
         /// </summary>
         public string TableNameWithSchema
         {
-            get { return table_schema+"."+table_name; } 
+            get { return table_schema + "." + table_name; }
         }
 
         /// <summary>
@@ -80,19 +86,22 @@ namespace SqlMetal.schema.pgsql
         /// </summary>
         public string DataTypeWithWidth
         {
-            get 
+            get
             {
+                if (mmConfig.useDomainTypes && domain_name != null)
+                    return domain_schema +"." + domain_name; //without precision - precision is already defined in CREATE DOMAIN
+
                 if (character_maximum_length != null)
                     return datatype + "(" + character_maximum_length + ")";
-                if (numeric_precision!= null && numeric_scale!=null)
-                    return datatype + "(" + numeric_precision +","+numeric_scale + ")";
+                if (numeric_precision != null && numeric_scale != null)
+                    return datatype + "(" + numeric_precision + "," + numeric_scale + ")";
                 return datatype;
             }
         }
 
         public override string ToString()
         {
-            return "Column "+table_name+"."+column_name+"  "+datatype.Substring(0,4);
+            return "Column " + table_name + "." + column_name + "  " + datatype.Substring(0, 4);
         }
     }
 
@@ -106,15 +115,17 @@ namespace SqlMetal.schema.pgsql
             Column t = new Column();
             int field = 0;
             t.table_catalog = rdr.GetString(field++);
-            t.table_schema  = rdr.GetString(field++);
-            t.table_name    = rdr.GetString(field++);
-            t.column_name   = rdr.GetString(field++);
+            t.table_schema = rdr.GetString(field++);
+            t.table_name = rdr.GetString(field++);
+            t.column_name = rdr.GetString(field++);
             string nullableStr = rdr.GetString(field++);
-            t.isNullable    = nullableStr=="YES";
-            t.datatype      = rdr.GetString(field++);
-            t.column_default = rdr.IsDBNull(field++) ? null : rdr.GetString(field-1);
+            t.isNullable = nullableStr == "YES";
+            t.datatype = rdr.GetString(field++);
+            t.domain_schema = GetStringN(rdr, field++);
+            t.domain_name = GetStringN(rdr, field++);
+            t.column_default = GetStringN(rdr, field++);
             //t.extra         = null; //rdr.GetString(field++);
-            t.column_type   = null; //rdr.GetString(field++);
+            t.column_type = null; //rdr.GetString(field++);
             //t.column_key    = null; //rdr.GetString(field++);
 
             t.character_maximum_length = GetIntN(rdr, field++);
@@ -126,14 +137,18 @@ namespace SqlMetal.schema.pgsql
 
         public int? GetIntN(NpgsqlDataReader rdr, int field)
         {
-            return rdr.IsDBNull(field++) ? (int?)null : rdr.GetInt32(field - 1);
+            return rdr.IsDBNull(field) ? (int?)null : rdr.GetInt32(field);
+        }
+        public string GetStringN(NpgsqlDataReader rdr, int field)
+        {
+            return rdr.IsDBNull(field) ? (string)null : rdr.GetString(field);
         }
 
         public List<Column> getColumns(NpgsqlConnection conn, string db)
         {
             string sql = @"
 SELECT table_catalog, table_schema, table_name, column_name
-    ,is_nullable, data_type, column_default
+    ,is_nullable, data_type, domain_schema, domain_name, column_default
     ,character_maximum_length, numeric_precision, numeric_scale
 FROM information_schema.COLUMNS
 WHERE table_catalog=:db
@@ -141,15 +156,15 @@ AND table_schema NOT IN ('pg_catalog','information_schema')
 ORDER BY ordinal_position
 ";
 
-            using(NpgsqlCommand cmd = new NpgsqlCommand(sql, conn))
+            using (NpgsqlCommand cmd = new NpgsqlCommand(sql, conn))
             {
                 cmd.Parameters.Add(":db", db);
-                using(NpgsqlDataReader rdr = cmd.ExecuteReader())
+                using (NpgsqlDataReader rdr = cmd.ExecuteReader())
                 {
                     List<Column> list = new List<Column>();
-                    while(rdr.Read())
+                    while (rdr.Read())
                     {
-                        list.Add( fromRow(rdr) );
+                        list.Add(fromRow(rdr));
                     }
                     return list;
                 }
