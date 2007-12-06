@@ -58,6 +58,13 @@ namespace SqlMetal
 
         public static bool verboseForeignKeys = false;
 
+        /// <summary>
+        /// if true, and PostgreSql database contains DOMAINS (typedefs), 
+        /// we will generate code DbType='DerivedType'.
+        /// if false, generate code DbType='BaseType'.
+        /// </summary>
+        public static bool useDomainTypes = true;
+
         #region static ctor: populate fields from app.config
         /// <summary>
         /// give preference to commandline options over app.config options
