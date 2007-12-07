@@ -22,7 +22,11 @@ namespace Test_NUnit
             //new ReadTest_GroupBy().G01_SimpleGroup_Count();
             //new ReadTest_GroupBy().G05_Group_Into();
             //new ReadTest().C1_SelectProducts();
-            new Join().LinqToSqlJoin04();
+            //new Join().LinqToSqlJoin04();
+
+            Join j = new Join();
+            j.LinqToSqlJoin03();
+            j.LinqToSqlJoin04();
             //new ReadTest_Complex().F10_DistinctCity();
             //new StoredProcTest().SPB_GetOrderCount_Having();
             //new ReadTest().D08_Products_Take5();

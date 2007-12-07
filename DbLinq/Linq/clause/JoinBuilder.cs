@@ -42,15 +42,17 @@ namespace DBLinq.Linq.clause
         /// </summary>
         public static void AddJoin1(MemberExpression memberExpr, ParameterExpression paramExpr, ParseResult result)
         {
+            AttribAndProp attribAndProp;
             AssociationAttribute assoc1, assoc2;
-            bool isAssoc1 = AttribHelper.IsAssociation(memberExpr,out assoc1);
+            bool isAssoc1 = AttribHelper.IsAssociation(memberExpr, out attribAndProp);
             if( ! isAssoc1)
                 return; //no join
+            assoc1 = attribAndProp.assoc;
 
             //user passed in part of SelectMany, eg. 'c.Orders'
             string nick1 = VarName.GetSqlName(memberExpr.Expression.XParam().Name); // c$
             string nick2 = VarName.GetSqlName(paramExpr.Name); //o$
-            assoc2 = AttribHelper.FindReverseAssociation(assoc1);
+            assoc2 = AttribHelper.FindReverseAssociation(attribAndProp);
             if (assoc2 == null)
                 throw new ApplicationException("Failed to find reverse assoc for " + assoc1.Name);
             string joinString = nick1+"."+assoc1.OtherKey+"="+nick2+"."+assoc2.ThisKey;
@@ -73,6 +75,7 @@ namespace DBLinq.Linq.clause
         public static void AddJoin2(QueryProcessor qp, MemberExpression exprOuter, ParseInputs inputs, ParseResult result)
         {
             string nick1, nick2;
+            AttribAndProp attribAndProp1;
             AssociationAttribute assoc1, assoc2;
             Type type2;
 
@@ -104,13 +107,12 @@ namespace DBLinq.Linq.clause
                     {
                         //eg. "SELECT order.Product.ProductID"
                         MemberExpression member = exprInner.XMember();
-
-                        bool isAssoc = AttribHelper.IsAssociation(member, out assoc1);
+                        bool isAssoc = AttribHelper.IsAssociation(member, out attribAndProp1);
                         if (!isAssoc)
                         {
                             throw new Exception("L55 AddJoin2: member1.member2.member3 only allowed for associations, not for: " + member);
                         }
-
+                        assoc1 = attribAndProp1.assoc;
                         nick1 = qp.NicknameRequest(exprOuter, assoc1);
                         nick1 = VarName.GetSqlName(nick1);
 
@@ -135,12 +137,13 @@ namespace DBLinq.Linq.clause
                         //eg. "SELECT order.Product"
                         ParameterExpression paramExpr = exprInner.XParam();
 
-                        bool isAssoc = AttribHelper.IsAssociation(exprOuter, out assoc1);
+                        bool isAssoc = AttribHelper.IsAssociation(exprOuter, out attribAndProp1);
                         if (!isAssoc)
                         {
                             throw new Exception("L55 AddJoin2: member1.member2 only allowed for associations, not for: " + exprOuter.Expression);
                         }
 
+                        assoc1 = attribAndProp1.assoc;
                         //nickname for parent table (not available in Expr tree) - eg. "p94$" for Products
                         string parentTypeName = exprOuter.Type.Name;
                         nick2 = VarName.GetSqlName(Char.ToLower(parentTypeName[0]) + "94"); 
@@ -156,7 +159,7 @@ namespace DBLinq.Linq.clause
             }
 
             Type type1 = exprOuter.Expression.Type;
-            assoc2 = AttribHelper.FindReverseAssociation(assoc1);
+            assoc2 = AttribHelper.FindReverseAssociation(attribAndProp1);
 
             //string joinString = "$c.CustomerID=$o.CustomerID"
             string joinString = nick1+"."+assoc1.ThisKey+"="+nick2+"."+assoc2.OtherKey;
@@ -164,10 +167,7 @@ namespace DBLinq.Linq.clause
             //_parts.joinList.Add(joinString);
             result.addJoin(joinString);
             result.tablesUsed[type2] = nick2;    //tablesUsed[Order] = $o
-            result.tablesUsed[type1] = nick1;               //tablesUsed[Customer] = $join
-            //result.AppendString(nick1+"."+exprOuter.Member.Name); //where clause: '$c.City' //moved up
-            //TODO - replace expr.Member.Name with SQL column name (use attribs)
-            //Console.WriteLine("TODO: handle o.Customer.City !!!");
+            result.tablesUsed[type1] = nick1;    //tablesUsed[Customer] = $join
 
         }
     }
