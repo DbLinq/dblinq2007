@@ -44,27 +44,11 @@ namespace DBLinq.Linq.clause
 
         public ParseInputs(ParseResult prevResult)
         {
-            if(prevResult==null)
+            if (prevResult == null)
                 return;
             //this.memberExprNickames = prevResult.memberExprNickames;
             //this.paramMap = prevResult.paramMap;
         }
-
-        //public string NicknameRequest(Expression expr, AssociationAttribute assoc1)
-        //{ 
-        //    //TODO this needs fixing
-        //    return "join";
-        //}
-        ///// <summary>
-        ///// given 'o.Customer', return previously assigned nickname 'o$' (or join$)
-        ///// </summary>
-        //public string NicknameRequest(MemberExpression memberExpr)
-        //{
-        //    string nick;
-        //    if(memberExprNickames.TryGetValue(memberExpr,out nick))
-        //        return nick;
-        //    return "join";
-        //}
         #endregion
     }
 
@@ -88,6 +72,7 @@ namespace DBLinq.Linq.clause
 
         ParseResult _result;
         ParseInputs _inputs;
+        bool _isInTransparentIdBlock;
 
 
         /// <summary>
@@ -113,7 +98,7 @@ namespace DBLinq.Linq.clause
         private void AnalyzeExpression(RecurData recurData, Expression expr)
         {
             recurData.depth++;
-            switch(expr.NodeType)
+            switch (expr.NodeType)
             {
                 case ExpressionType.GreaterThanOrEqual:
                 case ExpressionType.GreaterThan:
@@ -130,7 +115,7 @@ namespace DBLinq.Linq.clause
                     AnalyzeBinary(recurData, (BinaryExpression)expr);
                     return;
                 case ExpressionType.Call:
-                //case ExpressionType.MethodCallVirtual:
+                    //case ExpressionType.MethodCallVirtual:
                     AnalyzeMethodCall(recurData, (MethodCallExpression)expr);
                     return;
                 case ExpressionType.MemberAccess:
@@ -162,7 +147,7 @@ namespace DBLinq.Linq.clause
                         return;
                     }
                 default:
-                    throw new ApplicationException("L105 TODO add parsing of expression: "+expr.NodeType);
+                    throw new ApplicationException("L105 TODO add parsing of expression: " + expr.NodeType);
             }
         }
 
@@ -171,7 +156,7 @@ namespace DBLinq.Linq.clause
         {
             object val = expr.Value;
 
-            if(expr.Type==typeof(string))
+            if (expr.Type == typeof(string))
             {
                 //pass as named parameter:
                 //string paramName = _result.storeParam((string)val);
@@ -208,10 +193,10 @@ namespace DBLinq.Linq.clause
             //recurData.selectAllFields = true;
             foreach (MemberBinding bind in expr.Bindings)
             {
-                if(bind.BindingType!=MemberBindingType.Assignment)
-                    throw new ArgumentException("AnalyzeMemberInit - only prepared for MemberAssign, not "+bind.BindingType);
+                if (bind.BindingType != MemberBindingType.Assignment)
+                    throw new ArgumentException("AnalyzeMemberInit - only prepared for MemberAssign, not " + bind.BindingType);
 
-                if(fieldCount++ > 0){ this._result.AppendString(","); }
+                if (fieldCount++ > 0) { this._result.AppendString(","); }
                 MemberAssignment memberAssign = (MemberAssignment)bind;
                 //AnalyzeExpression(recurData,memberAssign.Expression);
 
@@ -220,21 +205,23 @@ namespace DBLinq.Linq.clause
                 string nick = null;
                 ColumnAttribute[] colAttribs = null;
 
-                switch(MAExpr.NodeType)
+                switch (MAExpr.NodeType)
                 {
                     case ExpressionType.MemberAccess:
                         {
                             MemberExpression memberExpr = MAExpr as MemberExpression;
                             colAttribs = AttribHelper.GetColumnAttribs(MAExpr.Type);
-                            if(colAttribs.Length==0)
+                            if (colAttribs.Length == 0)
                             {
-                                if(GroupHelper.IsGrouping(memberExpr))
+                                if (GroupHelper.IsGrouping(memberExpr))
                                 {
                                     //eg. {g.Key}
                                     //replace {g.Key} with groupByExpr={o.Customer}
                                     Expression replaceExpr = _inputs.groupByExpr.Body;
-                                    AnalyzeExpression(recurData,replaceExpr);
-                                } else {
+                                    AnalyzeExpression(recurData, replaceExpr);
+                                }
+                                else
+                                {
                                     //it's a primitive field (eg. p.ProductID), not a column type
                                     AnalyzeExpression(recurData, memberExpr);
                                 }
@@ -256,11 +243,11 @@ namespace DBLinq.Linq.clause
                         continue; //unknown path
                 }
 
-                int loopIndex=0;
-                foreach(ColumnAttribute colAtt in colAttribs)
+                int loopIndex = 0;
+                foreach (ColumnAttribute colAtt in colAttribs)
                 {
-                    string part = nick+"."+colAtt.Name; //eg. '$o.OrderID'
-                    if(loopIndex++>0){ _result.EndField(); }
+                    string part = nick + "." + colAtt.Name; //eg. '$o.OrderID'
+                    if (loopIndex++ > 0) { _result.EndField(); }
                     _result.AppendString(part);
                 }
 
@@ -356,7 +343,11 @@ namespace DBLinq.Linq.clause
         private void AnalyzeParameter(RecurData recurData, ParameterExpression expr)
         {
             string sqlParamName;
-            if (recurData.parent.currentVarNames.TryGetValue(expr.Type, out sqlParamName))
+            if (_isInTransparentIdBlock)
+            {
+                //don't use remembered var names during self-join
+            }
+            else if (recurData.parent.currentVarNames.TryGetValue(expr.Type, out sqlParamName))
             {
                 _result.AppendString(sqlParamName); //used from D11_Products_DoubleWhere()
                 return;
@@ -372,7 +363,7 @@ namespace DBLinq.Linq.clause
         /// </summary>
         private void AnalyzeMember(RecurData recurData, MemberExpression expr)
         {
-            if(GroupHelper.IsGrouping(expr))
+            if (GroupHelper.IsGrouping(expr))
             {
                 //eg. {g.Key.Length}
                 //replace {g.Key.Length} with groupByExpr={o.Customer.Length}
@@ -385,7 +376,7 @@ namespace DBLinq.Linq.clause
                     return;
                 }
                 System.Reflection.PropertyInfo pinfo = null;
-                Expression replaceMemberExpr = Expression.Property(replaceExpr,pinfo);
+                Expression replaceMemberExpr = Expression.Property(replaceExpr, pinfo);
                 expr = replaceMemberExpr as MemberExpression;
             }
 
@@ -397,7 +388,10 @@ namespace DBLinq.Linq.clause
                     case ExpressionType.MemberAccess:
                     case ExpressionType.Parameter:
                         //ignore the first bit in '<>h__TransparentIdentifier10$.c.City
-                        AnalyzeExpression(recurData, expr.StripTransparentID());
+                        _isInTransparentIdBlock = true;
+                        Expression stripped = expr.StripTransparentID();
+                        AnalyzeExpression(recurData, stripped);
+                        _isInTransparentIdBlock = false;
                         return;
                     default:
                         break;
@@ -409,7 +403,7 @@ namespace DBLinq.Linq.clause
             {
                 //check for 'e.ReportsTo.Value'
                 bool isNullableValue = ExprExtensions.IsTypeNullable(expr.Expression)
-                    && expr.Member.Name=="Value";
+                    && expr.Member.Name == "Value";
                 if (isNullableValue)
                 {
                     //process as 'e.ReportsTo' - don't go into JoinBuilder
@@ -427,8 +421,9 @@ namespace DBLinq.Linq.clause
                 }
             }
 
-            AssociationAttribute assoc;
-            if ( AttribHelper.IsAssociation(expr,out assoc) )
+            AttribAndProp attribAndProp;
+            //AssociationAttribute assoc;
+            if (AttribHelper.IsAssociation(expr, out attribAndProp))
             {
                 //process 'o.Customer'
                 JoinBuilder.AddJoin2(recurData.parent, expr, _inputs, _result);
@@ -490,7 +485,7 @@ namespace DBLinq.Linq.clause
             }
 
             //special handling
-            switch(expr.Method.Name)
+            switch (expr.Method.Name)
             {
                 //case "op_Equality":
                 //    AnalyzeExpression(recurData, expr.Parameters[0]);
@@ -519,15 +514,15 @@ namespace DBLinq.Linq.clause
                         AnalyzeExpression(recurData, expr.Arguments[0]);
                         string paramName = recurData.parent.lastParamName;
                         string lastParam = recurData.parent.paramMap[paramName] as string;
-                        if(lastParam !=null)
+                        if (lastParam != null)
                         {
                             //modify parameter from X to X%
                             string modParam = "";
-                            switch(expr.Method.Name)
-                            { 
-                                case "StartsWith":  modParam = lastParam + "%"; break;
-                                case "EndWith":     modParam = "%" + lastParam; break;
-                                case "Contains":    modParam = "%" + lastParam + "%"; break;
+                            switch (expr.Method.Name)
+                            {
+                                case "StartsWith": modParam = lastParam + "%"; break;
+                                case "EndWith": modParam = "%" + lastParam; break;
+                                case "Contains": modParam = "%" + lastParam + "%"; break;
                             }
                             recurData.parent.paramMap[paramName] = modParam;
                         }
@@ -538,7 +533,7 @@ namespace DBLinq.Linq.clause
                         //extract 'OrderID' from '{g.Sum(o => Convert(o.OrderID))}'
                         Expression sumExpr1 = expr.Arguments[1].XLambda().Body;
                         MemberExpression sumExpr2 = null;
-                        switch(sumExpr1.NodeType)
+                        switch (sumExpr1.NodeType)
                         {
                             //case ExpressionType.Cast: //Cast disappeared in Beta2?!
                             //    sumExpr2 = sumExpr1.XCastOperand().XMember(); break;
@@ -549,9 +544,9 @@ namespace DBLinq.Linq.clause
                                 sumExpr2 = sumExpr1.XUnary().Operand.XMember();
                                 break;
                             default:
-                                throw new ArgumentException("L277 Sum(lambda): unprepared for lambda expr "+sumExpr1.NodeType);
+                                throw new ArgumentException("L277 Sum(lambda): unprepared for lambda expr " + sumExpr1.NodeType);
                         }
-                        _result.AppendString("SUM("+sumExpr2.Member.Name+")");
+                        _result.AppendString("SUM(" + sumExpr2.Member.Name + ")");
                         return;
                     }
                 case "Count":
@@ -637,7 +632,7 @@ namespace DBLinq.Linq.clause
                 return;
             }
 
-            bool isNot = expr.NodeType==ExpressionType.Not;
+            bool isNot = expr.NodeType == ExpressionType.Not;
             if (isNot)
             {
                 MemberExpression operandMember = expr.Operand.XMember(); //eg. {e.ReportsTo.HasValue}
@@ -664,8 +659,8 @@ namespace DBLinq.Linq.clause
             if (isNot)
                 return;
 
-            string operatorStr = "UNOP:"+expr.NodeType.ToString(); //formatBinaryOperator(expr.NodeType);
-            _result.AppendString(" "+ operatorStr + " ");
+            string operatorStr = "UNOP:" + expr.NodeType.ToString(); //formatBinaryOperator(expr.NodeType);
+            _result.AppendString(" " + operatorStr + " ");
         }
 
         private void AnalyzeBinary(RecurData recurData, BinaryExpression expr)
