@@ -162,7 +162,7 @@ namespace DBLinq.Linq
                     //processSelectClause(lambda2);
                     return;
                 default:
-                    throw new ApplicationException("StoreQuery L117: Prepared only for 2 or 3 param GroupBys");
+                    throw new ApplicationException("processSelectMany: Prepared only for 2 or 3 param GroupBys");
             }
         }
 
@@ -255,7 +255,7 @@ namespace DBLinq.Linq
                     _vars.groupByNewExpr = exprCall.Arguments[2].XLambda();
                     return;
                 default:
-                    throw new ApplicationException("StoreQuery L117: Prepared only for 2 or 3 param GroupBys");
+                    throw new ApplicationException("processGroupBy: Prepared only for 2 or 3 param GroupBys");
             }
         }
 
@@ -291,6 +291,16 @@ namespace DBLinq.Linq
         void processGroupJoin(MethodCallExpression exprCall)
         {
             //occurs in LinqToSqlJoin10()
+            switch (exprCall.Arguments.Count)
+            {
+                case 5:
+                    LambdaExpression l1 = exprCall.Arguments[1].XLambda();
+                    LambdaExpression l2 = exprCall.Arguments[2].XLambda();
+                    processJoinClause(exprCall);
+                    break;
+                default:
+                    throw new ApplicationException("processGroupJoin: Prepared only for 5 param GroupBys");
+            }
             Console.WriteLine("TODO L299 Support GroupJoin()");
         }
 

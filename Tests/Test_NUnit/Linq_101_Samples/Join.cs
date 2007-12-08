@@ -98,6 +98,9 @@ namespace Test_NUnit.Linq_101_Samples
         }
 
         //TODO 5 - 9
+        /// <summary>
+        /// This sample shows how to construct a join where one side is nullable and the other isn't.
+        /// </summary>
         [Test(Description = "GroupJoin - Nullable\\Nonnullable Key Relationship")]
         public void LinqToSqlJoin10()
         {
