@@ -181,11 +181,11 @@ VALUES ('alles AG', 'Harald Reitmeyer', 'Prof', 'Fischergasse 8', 'Heidelberg', 
 insert INTO Suppliers (CompanyName, ContactName, ContactTitle, Address, City, Region, Country)
 VALUES ('Microsoft', 'Mr Allen', 'Monopolist', '1 MS', 'Redmond', 'WA', 'USA');
 
-
-insert INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
-VALUES ('Pen',10,     12, 2,  '0');
-insert INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
-VALUES ('Bicycle',1,  6, 0,  '0');
+--#################################################################################
+insert INTO Products (ProductName,SupplierID, QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES ('Pen',1, 10,     12, 2,  '0');
+insert INTO Products (ProductName,SupplierID, QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES ('Bicycle',1, 1,  6, 0,  '0');
 insert INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
 VALUES ('Phone',3,    7, 0,  '0');
 insert INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
@@ -196,6 +196,8 @@ insert INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Disc
 VALUES ('Toilet Paper',2,  0, 3, '1');
 insert INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
 VALUES ('Fork',5,   111, 0, '0');
+insert INTO Products (ProductName,SupplierID, QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES ('Linq Book',2, 1, 0, 26, '0');
 
 insert INTO  Employees  (LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
 VALUES ('Fuller','Andrew','Vice President, Sales','19540101','19890101', '908 W. Capital Way','Tacoma',NULL);

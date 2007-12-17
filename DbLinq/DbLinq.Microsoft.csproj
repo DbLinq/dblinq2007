@@ -58,6 +58,7 @@
     <Compile Include="Linq\QueryProcessor.cs" />
     <Compile Include="Linq\QueryProcessor2.cs" />
     <Compile Include="util\CSharp.cs" />
+    <Compile Include="util\ExpressionAndType.cs" />
     <Compile Include="util\ExprExtensions.cs" />
     <Compile Include="util\FieldUtils.cs" />
     <Compile Include="util\GroupHelper.cs" />

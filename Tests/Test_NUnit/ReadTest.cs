@@ -248,7 +248,7 @@ namespace Test_NUnit
             Northwind db = CreateDB();
 
             var q = (from p in db.Products
-                     where p.ProductName.Contains("p")
+                     where p.ProductName.Contains("P")
                      orderby p.ProductID descending
                      select p
             ).Take(5);

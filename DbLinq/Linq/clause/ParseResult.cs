@@ -48,7 +48,8 @@ namespace DBLinq.Linq.clause
         readonly StringBuilder sb = new StringBuilder(200);
         public List<string> columns = new List<string>();
 
-        public ParseResult(ParseInputs input)
+        public ParseResult(//ParseInputs input
+            )
         {
             //paramMap = input!=null
             //    ? input.paramMap

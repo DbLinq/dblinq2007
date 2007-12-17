@@ -64,7 +64,10 @@ namespace DBLinq.Linq.clause
         /// <param name="fromTable"></param>
         public void AddFrom(string fromTable)
         {
-            string fromLower = fromTable.ToLower();
+            //Martin Raucher reports a MySql problem with incorrect case
+            //string fromLower = fromTable.ToLower(); 
+            string fromLower = fromTable;
+
             if(fromTableList.Contains(fromLower))
                 return; //prevent dupes
             fromTableList.Add(fromLower);

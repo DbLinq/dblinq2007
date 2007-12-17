@@ -42,10 +42,25 @@ namespace DBLinq.vendor
         /// <summary>
         /// Postgres string concatenation, eg 'a||b'
         /// </summary>
-        public static string Concat(List<string> parts)
+        public static string Concat(List<ExpressionAndType> parts)
         {
-            string[] arr = parts.ToArray();
-            return string.Join("||",arr);
+            //string[] arr = parts.ToArray();
+            //return string.Join("||", arr);
+            StringBuilder sb = new StringBuilder();
+            foreach (ExpressionAndType part in parts)
+            {
+                if (sb.Length != 0) { sb.Append("||"); }
+                if (part.type == typeof(string))
+                {
+                    sb.Append(part.expression);
+                }
+                else
+                {
+                    //integers and friends: must CAST before concatenating
+                    sb.Append("CAST(" + part.expression + " AS varchar)");
+                }
+            }
+            return sb.ToString();
         }
 
         /// <summary>

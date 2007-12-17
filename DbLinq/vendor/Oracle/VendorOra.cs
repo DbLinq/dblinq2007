@@ -1,7 +1,9 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using System.Data.OracleClient;
+using DBLinq.util;
 
 namespace DBLinq.vendor
 {
@@ -10,10 +12,10 @@ namespace DBLinq.vendor
         /// <summary>
         /// Postgres string concatenation, eg 'a||b'
         /// </summary>
-        public static string Concat(List<string> parts)
+        public static string Concat(List<ExpressionAndType> parts)
         {
-            string[] arr = parts.ToArray();
-            return string.Join("||",arr);
+            string[] arr = parts.Select(p => p.expression).ToArray();
+            return string.Join("||", arr);
         }
 
         /// <summary>
@@ -21,7 +23,7 @@ namespace DBLinq.vendor
         /// </summary>
         public static string ParamName(int index)
         {
-            return ":P"+index;
+            return ":P" + index;
         }
 
         /// <summary>

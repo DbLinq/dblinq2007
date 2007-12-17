@@ -72,7 +72,7 @@ namespace DBLinq.Linq.clause
         /// b) insert into our StringBuilder '$c.City'
         /// c) insert into tablesUsed[Customer]='$c' and tablesUsed[Order]='$o'
         /// </summary>
-        public static void AddJoin2(QueryProcessor qp, MemberExpression exprOuter, ParseInputs inputs, ParseResult result)
+        public static void AddJoin2(QueryProcessor qp, MemberExpression exprOuter, ParseResult result)
         {
             string nick1, nick2;
             AttribAndProp attribAndProp1;
