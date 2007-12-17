@@ -48,9 +48,9 @@ namespace DBLinq.vendor
         /// <summary>
         /// Postgres string concatenation, eg 'a||b'
         /// </summary>
-        public static string Concat(List<string> parts)
+        public static string Concat(List<ExpressionAndType> parts)
         {
-            string[] arr = parts.ToArray();
+            string[] arr = parts.Select(p=>p.expression).ToArray();
             return "CONCAT("+string.Join(",",arr)+")";
         }
 

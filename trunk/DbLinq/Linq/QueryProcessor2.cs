@@ -41,9 +41,7 @@ namespace DBLinq.Linq
     {
         void processWhereClause(LambdaExpression lambda)
         {
-            ParseResult result = null;
-            ParseInputs inputs = new ParseInputs(result);
-            result = ExpressionTreeParser.Parse(this, lambda.Body, inputs);
+            ParseResult result = ExpressionTreeParser.Parse(this, lambda.Body);
 
             if (GroupHelper.IsGrouping(lambda.Parameters[0].Type))
             {
@@ -71,9 +69,6 @@ namespace DBLinq.Linq
                 _vars.projectionData = ProjectionData.FromSelectGroupByExpr(selectExpr, _vars.groupByExpr, _vars._sqlParts);
             }
 
-            ParseResult result = null;
-            ParseInputs inputs = new ParseInputs(result);
-            inputs.groupByExpr = _vars.groupByExpr;
             Expression body = selectExpr.Body;
 
             body = body.StripTransparentID(); //only does something in Joins - see LinqToSqlJoin01()
@@ -84,7 +79,7 @@ namespace DBLinq.Linq
             }
             else
             {
-                result = ExpressionTreeParser.Parse(this, body, inputs);
+                ParseResult result = ExpressionTreeParser.Parse(this, body);
                 _vars._sqlParts.AddSelect(result.columns);
                 result.CopyInto(this, _vars._sqlParts); //transfer params and tablesUsed
 
@@ -99,9 +94,7 @@ namespace DBLinq.Linq
 
         void processOrderByClause(LambdaExpression orderByExpr, string orderBy_desc)
         {
-            ParseResult result = null;
-            ParseInputs inputs = new ParseInputs(result);
-            result = ExpressionTreeParser.Parse(this, orderByExpr.Body, inputs);
+            ParseResult result = ExpressionTreeParser.Parse(this, orderByExpr.Body);
             string orderByFields = string.Join(",", result.columns.ToArray());
             _vars._sqlParts.orderByList.Add(orderByFields);
             _vars._sqlParts.orderBy_desc = orderBy_desc; //copy 'DESC' specifier
@@ -109,8 +102,7 @@ namespace DBLinq.Linq
 
         void processJoinClause(MethodCallExpression joinExpr)
         {
-            ParseResult result = null;
-            ParseInputs inputs = new ParseInputs(result);
+            ParseResult result;
 
             if (joinExpr == null || joinExpr.Arguments.Count != 5)
                 throw new ArgumentOutOfRangeException("L112 Currently only handling 5-arg Joins");
@@ -122,12 +114,12 @@ namespace DBLinq.Linq
             string joinField1, joinField2;
             //processSelectClause(arg2.XLambda());
             {
-                result = ExpressionTreeParser.Parse(this, arg2.XLambda().Body, inputs);
+                result = ExpressionTreeParser.Parse(this, arg2.XLambda().Body);
                 joinField1 = result.columns[0]; // "p$.ProductID"
                 result.CopyInto(this, _vars._sqlParts); //transfer params and tablesUsed
             }
             {
-                result = ExpressionTreeParser.Parse(this, arg3.XLambda().Body, inputs);
+                result = ExpressionTreeParser.Parse(this, arg3.XLambda().Body);
                 joinField2 = result.columns[0]; // "p$.ProductID"
                 result.CopyInto(this, _vars._sqlParts); //transfer params and tablesUsed
             }
@@ -154,7 +146,7 @@ namespace DBLinq.Linq
                     {
                         MemberExpression memberExpression = lambda1.Body as MemberExpression;
                         ParameterExpression paramExpression = lambda2.Parameters[1];
-                        ParseResult result = new ParseResult(null);
+                        ParseResult result = new ParseResult();
                         JoinBuilder.AddJoin1(memberExpression, paramExpression, result);
                         result.CopyInto(this, _vars._sqlParts);  //transfer params and tablesUsed
                     }
@@ -261,11 +253,8 @@ namespace DBLinq.Linq
 
         void processGroupByLambda(LambdaExpression groupBy)
         {
-            ParseResult result = null;
-            ParseInputs inputs = new ParseInputs(result);
             _vars.groupByExpr = groupBy;
-            //inputs.groupByExpr = _vars.groupByExpr;
-            result = ExpressionTreeParser.Parse(this, groupBy.Body, inputs);
+            ParseResult result = ExpressionTreeParser.Parse(this, groupBy.Body);
             string groupByFields = string.Join(",", result.columns.ToArray());
             _vars._sqlParts.groupByList.Add(groupByFields);
 
@@ -280,9 +269,7 @@ namespace DBLinq.Linq
 
             if (_vars.groupByNewExpr != null)
             {
-                inputs = new ParseInputs(result);
-                //inputs.groupByExpr = _vars.groupByExpr;
-                result = ExpressionTreeParser.Parse(this, _vars.groupByNewExpr.Body, inputs);
+                result = ExpressionTreeParser.Parse(this, _vars.groupByNewExpr.Body);
                 _vars._sqlParts.AddSelect(result.columns);
                 result.CopyInto(this, _vars._sqlParts); //transfer params and tablesUsed
             }

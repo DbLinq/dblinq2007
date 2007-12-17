@@ -1,3 +1,4 @@
+#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -21,8 +22,10 @@
 // Authors:
 //        Jiri George Moudry
 ////////////////////////////////////////////////////////////////////
+#endregion
 
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Data.SqlClient;
 using System.Collections.Generic;
@@ -38,10 +41,10 @@ namespace DBLinq.vendor
         /// <summary>
         /// Postgres string concatenation, eg 'a||b'
         /// </summary>
-        public static string Concat(List<string> parts)
+        public static string Concat(List<ExpressionAndType> parts)
         {
-            string[] arr = parts.ToArray();
-            return "CONCAT("+string.Join(",",arr)+")";
+            string[] arr = parts.Select(p => p.expression).ToArray();
+            return "CONCAT(" + string.Join(",", arr) + ")";
         }
 
         /// <summary>
@@ -49,7 +52,7 @@ namespace DBLinq.vendor
         /// </summary>
         public static string ParamName(int index)
         {
-            return "@P"+index;
+            return "@P" + index;
         }
 
         /// <summary>
@@ -68,7 +71,7 @@ namespace DBLinq.vendor
             SqlParameter param = new SqlParameter(paramName, dbType);
             return param;
         }
-        
+
         //NOTE: for Oracle, we want to consider 'Array Binding'
         //http://download-west.oracle.com/docs/html/A96160_01/features.htm#1049674
 
@@ -84,10 +87,10 @@ namespace DBLinq.vendor
 
             bulkCopy.DestinationTableName = AttribHelper.GetTableAttrib(typeof(T)).Name;
             //bulkCopy.SqlRowsCopied += new SqlRowsCopiedEventHandler(bulkCopy_SqlRowsCopied);
-            
+
             DataTable dt = new DataTable();
             KeyValuePair<PropertyInfo, ColumnAttribute>[] columns = AttribHelper.GetColumnAttribs2(typeof(T));
-            
+
             foreach (KeyValuePair<PropertyInfo, ColumnAttribute> pair in columns)
             {
                 //if (pair.Value.IsDbGenerated)
@@ -101,7 +104,7 @@ namespace DBLinq.vendor
 
             //TODO: cross-check null values against CanBeNull specifier
             object[] indices = new object[] { };
-            foreach(T row in rows)
+            foreach (T row in rows)
             {
                 DataRow dr = dt.NewRow();
                 //use reflection to retrieve object's fields (TODO: optimize this later)

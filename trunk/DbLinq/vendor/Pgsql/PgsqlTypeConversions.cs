@@ -28,6 +28,13 @@ namespace DBLinq.vendor
         public static NpgsqlDbType ParseType(string typeStr)
         {
             string typeStrL = typeStr.ToLower();
+            int bracket = typeStr.IndexOf('(');
+            if (bracket > -1)
+            {
+                //chop "integer(32,0)" -> "integer"
+                typeStrL = typeStrL.Substring(0, bracket);
+            }
+
             if(!s_typeMap.ContainsKey(typeStrL))
             {
                 switch(typeStrL){

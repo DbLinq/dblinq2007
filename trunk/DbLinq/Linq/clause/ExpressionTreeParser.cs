@@ -37,21 +37,6 @@ using DBLinq.vendor;
 
 namespace DBLinq.Linq.clause
 {
-    public class ParseInputs
-    {
-        #region ParseInputs: couple fields needed during parsing, eg. paramMap
-        public LambdaExpression groupByExpr;
-
-        public ParseInputs(ParseResult prevResult)
-        {
-            if (prevResult == null)
-                return;
-            //this.memberExprNickames = prevResult.memberExprNickames;
-            //this.paramMap = prevResult.paramMap;
-        }
-        #endregion
-    }
-
     /// <summary>
     /// ExpressionTreeParser parses expressions such as 
     /// 'c.Product.ProductID', 'c==x' or 'c.ToString()' into a SQL string.
@@ -70,8 +55,9 @@ namespace DBLinq.Linq.clause
             {"op_LessThanOrEqual", " <= "},
         };
 
+        QueryProcessor _parent;
         ParseResult _result;
-        ParseInputs _inputs;
+        //ParseInputs _inputs;
         bool _isInTransparentIdBlock;
 
 
@@ -81,13 +67,12 @@ namespace DBLinq.Linq.clause
         /// <param name="ex">body of LambdaExpr</param>
         /// <param name="inputs"></param>
         /// <returns></returns>
-        public static ParseResult Parse(QueryProcessor parent, Expression ex, ParseInputs inputs)
+        public static ParseResult Parse(QueryProcessor parent, Expression ex)
         {
             RecurData recur = new RecurData();
-            recur.parent = parent;
             ExpressionTreeParser parser = new ExpressionTreeParser();
-            parser._inputs = inputs;
-            parser._result = new ParseResult(inputs);
+            parser._parent = parent;
+            parser._result = new ParseResult();
 
             parser.AnalyzeExpression(recur, ex); //recursion here
 
@@ -160,7 +145,7 @@ namespace DBLinq.Linq.clause
             {
                 //pass as named parameter:
                 //string paramName = _result.storeParam((string)val);
-                string paramName = recurData.parent.storeParam((string)val);
+                string paramName = _parent.storeParam((string)val);
                 _result.AppendString(paramName);
                 return;
             }
@@ -217,7 +202,7 @@ namespace DBLinq.Linq.clause
                                 {
                                     //eg. {g.Key}
                                     //replace {g.Key} with groupByExpr={o.Customer}
-                                    Expression replaceExpr = _inputs.groupByExpr.Body;
+                                    Expression replaceExpr = _parent._vars.groupByExpr.Body;
                                     AnalyzeExpression(recurData, replaceExpr);
                                 }
                                 else
@@ -227,7 +212,7 @@ namespace DBLinq.Linq.clause
                                 }
                                 continue;
                             }
-                            nick = recurData.parent.NicknameRequest(memberExpr);
+                            nick = _parent.NicknameRequest(memberExpr);
                             nick = VarName.GetSqlName(nick);
                             break;
                         }
@@ -290,7 +275,7 @@ namespace DBLinq.Linq.clause
                                     //eg. {g.Key}
                                     //replace {g.Key} with groupByExpr={o.Customer}
                                     //(Expression replaceExpr = _inputs.groupByExpr.Body; //Too simple!)
-                                    Expression replaceExpr = recurData.parent.SubstitueGroupKeyExpression(memberExpr);
+                                    Expression replaceExpr = _parent.SubstitueGroupKeyExpression(memberExpr);
 
                                     AnalyzeExpression(recurData, replaceExpr);
                                 }
@@ -310,7 +295,7 @@ namespace DBLinq.Linq.clause
                             }
                             else
                             {
-                                nick = recurData.parent.NicknameRequest(memberExpr);
+                                nick = _parent.NicknameRequest(memberExpr);
                             }
                             nick = VarName.GetSqlName(nick);
                             break;
@@ -347,7 +332,7 @@ namespace DBLinq.Linq.clause
             {
                 //don't use remembered var names during self-join
             }
-            else if (recurData.parent.currentVarNames.TryGetValue(expr.Type, out sqlParamName))
+            else if (_parent.currentVarNames.TryGetValue(expr.Type, out sqlParamName))
             {
                 _result.AppendString(sqlParamName); //used from D11_Products_DoubleWhere()
                 return;
@@ -355,7 +340,7 @@ namespace DBLinq.Linq.clause
 
             sqlParamName = VarName.GetSqlName(expr.Name);
             _result.AppendString(sqlParamName); //"e$"
-            recurData.parent.currentVarNames[expr.Type] = sqlParamName;
+            _parent.currentVarNames[expr.Type] = sqlParamName;
         }
 
         /// <summary>
@@ -367,7 +352,7 @@ namespace DBLinq.Linq.clause
             {
                 //eg. {g.Key.Length}
                 //replace {g.Key.Length} with groupByExpr={o.Customer.Length}
-                Expression replaceExpr = _inputs.groupByExpr.Body;
+                Expression replaceExpr = _parent._vars.groupByExpr.Body;
                 if (replaceExpr.NodeType == ExpressionType.MemberInit)
                 {
                     //we are grouping by multiple columns
@@ -415,7 +400,7 @@ namespace DBLinq.Linq.clause
                     if (memberInner != null)
                     {
                         //process 'o.Customer.City'
-                        JoinBuilder.AddJoin2(recurData.parent, expr, _inputs, _result);
+                        JoinBuilder.AddJoin2(_parent, expr, _result);
                         return;
                     }
                 }
@@ -426,7 +411,7 @@ namespace DBLinq.Linq.clause
             if (AttribHelper.IsAssociation(expr, out attribAndProp))
             {
                 //process 'o.Customer'
-                JoinBuilder.AddJoin2(recurData.parent, expr, _inputs, _result);
+                JoinBuilder.AddJoin2(_parent, expr, _result);
                 return;
             }
 
@@ -512,8 +497,8 @@ namespace DBLinq.Linq.clause
                         AnalyzeExpression(recurData, expr.Object);
                         _result.AppendString(" LIKE ");
                         AnalyzeExpression(recurData, expr.Arguments[0]);
-                        string paramName = recurData.parent.lastParamName;
-                        string lastParam = recurData.parent.paramMap[paramName] as string;
+                        string paramName = _parent.lastParamName;
+                        string lastParam = _parent.paramMap[paramName] as string;
                         if (lastParam != null)
                         {
                             //modify parameter from X to X%
@@ -524,7 +509,7 @@ namespace DBLinq.Linq.clause
                                 case "EndWith": modParam = "%" + lastParam; break;
                                 case "Contains": modParam = "%" + lastParam + "%"; break;
                             }
-                            recurData.parent.paramMap[paramName] = modParam;
+                            _parent.paramMap[paramName] = modParam;
                         }
                     }
                     return;
@@ -557,6 +542,7 @@ namespace DBLinq.Linq.clause
                     }
                 case "Concat":
                     {
+#if LINQ_PREVIEW_2006
                         //this path is taken in LinqPreview2006.
                         //In OrcasBeta1, we get operator+
                         List<string> strings = new List<string>();
@@ -576,6 +562,9 @@ namespace DBLinq.Linq.clause
                         string sqlConcatStr = Vendor.Concat(strings);
                         _result.AppendString(sqlConcatStr);
                         return;
+#else
+                        throw new ApplicationException("L581 Discontinued operand: Concat");
+#endif
                     }
                 case "ToLower":
                 case "ToUpper":
@@ -663,12 +652,18 @@ namespace DBLinq.Linq.clause
             _result.AppendString(" " + operatorStr + " ");
         }
 
+        public class NameAndType
+        {
+            public string name;
+            public Type type;
+        }
+
         private void AnalyzeBinary(RecurData recurData, BinaryExpression expr)
         {
             if (expr.NodeType == ExpressionType.Add && expr.Type == typeof(string))
             {
                 //in LinqPreview2006, this used to be MethodCall "Concat"
-                List<string> strings = new List<string>();
+                List<ExpressionAndType> strings = new List<ExpressionAndType>();
                 int posInitial = _result.MarkSbPosition();
                 List<Expression> operands = new List<Expression>() { expr.Left, expr.Right };
                 foreach (Expression concatPart in operands)
@@ -680,7 +675,7 @@ namespace DBLinq.Linq.clause
 
                     AnalyzeExpression(recurData, concatPart2);
                     string substr = _result.Substring(pos2A);
-                    strings.Add(substr);
+                    strings.Add(new ExpressionAndType { expression = substr, type = concatPart2.Type });
                 }
                 _result.Revert(posInitial);
                 string sqlConcatStr = Vendor.Concat(strings);
@@ -731,7 +726,6 @@ namespace DBLinq.Linq.clause
             public int depth;
             public int operatorPrecedence;
             //public bool selectAllFields;
-            public QueryProcessor parent;
         }
     }
 }

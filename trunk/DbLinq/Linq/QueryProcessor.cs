@@ -42,7 +42,7 @@ namespace DBLinq.Linq
     /// </summary>
     public partial class QueryProcessor
     {
-        readonly SessionVarsParsed _vars;
+        internal readonly SessionVarsParsed _vars;
 
         /// <summary>
         /// there can be more than one select
