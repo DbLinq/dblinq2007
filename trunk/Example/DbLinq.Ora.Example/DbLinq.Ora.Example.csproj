@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.20404</ProductVersion>
+    <ProductVersion>9.0.20706</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{2D81DF5B-E974-4131-9A41-519C6B9D0EBC}</ProjectGuid>
     <OutputType>Exe</OutputType>
@@ -48,16 +48,16 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="user\OraTestDB.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="sql\create_LinqTestDB_ora.sql" />
+    <Compile Include="nwind\OraTestDB.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\DbLinq\DbLinq.Oracle.csproj">
       <Project>{42B135DF-562B-48FD-9A63-4301D29321A6}</Project>
       <Name>Oracle.Linq</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="sql\create_Northwind_ora.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

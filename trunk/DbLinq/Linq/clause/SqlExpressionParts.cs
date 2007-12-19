@@ -65,6 +65,7 @@ namespace DBLinq.Linq.clause
         public void AddFrom(string fromTable)
         {
             //Martin Raucher reports a MySql problem with incorrect case
+            //update: to see case-sensitivity, you must be on Linux?!
             //string fromLower = fromTable.ToLower(); 
             string fromLower = fromTable;
 
