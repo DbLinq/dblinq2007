@@ -13,7 +13,7 @@ namespace SqlMetal.schema.oracle
 {
     class Vendor : IDBVendor
     {
-        public string VendorName(){ return "Oracle"; }
+        public string VendorName() { return "Oracle"; }
 
         public DlinqSchema.Database LoadSchema()
         {
@@ -24,12 +24,12 @@ namespace SqlMetal.schema.oracle
             OracleConnection conn = new OracleConnection(connStr);
             conn.Open();
 
-            if(mmConfig.database==null)
+            if (mmConfig.database == null)
                 throw new ArgumentException("Missing database name - used for schema.Name");
 
             DlinqSchema.Database schema = new DlinqSchema.Database();
             schema.Name = mmConfig.database;
-            
+
             //schema.Class = FormatTableName(schema.Name);
             schema.Class = Util.TableNameSingular(schema.Name);
 
@@ -37,13 +37,14 @@ namespace SqlMetal.schema.oracle
             //##################################################################
             //step 1 - load tables
             UserTablesSql utsql = new UserTablesSql();
-            List<UserTablesRow> tables = utsql.getTables(conn,mmConfig.database);
-            if(tables==null || tables.Count==0){
-                Console.WriteLine("No tables found for schema "+mmConfig.database+", exiting");
+            List<UserTablesRow> tables = utsql.getTables(conn, mmConfig.database);
+            if (tables == null || tables.Count == 0)
+            {
+                Console.WriteLine("No tables found for schema " + mmConfig.database + ", exiting");
                 return null;
             }
 
-            foreach(UserTablesRow tblRow in tables)
+            foreach (UserTablesRow tblRow in tables)
             {
                 DlinqSchema.Table tblSchema = new DlinqSchema.Table();
                 tblSchema.Name = tblRow.table_name;
@@ -61,15 +62,15 @@ namespace SqlMetal.schema.oracle
             //##################################################################
             //step 2 - load columns
             User_Tab_Column_Sql csql = new User_Tab_Column_Sql();
-            List<User_Tab_Column> columns = csql.getColumns(conn,mmConfig.database);
-            
-            foreach(User_Tab_Column columnRow in columns)
+            List<User_Tab_Column> columns = csql.getColumns(conn, mmConfig.database);
+
+            foreach (User_Tab_Column columnRow in columns)
             {
                 //find which table this column belongs to
-                DlinqSchema.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.table_name==tblSchema.Name);
-                if(tableSchema==null)
+                DlinqSchema.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.table_name == tblSchema.Name);
+                if (tableSchema == null)
                 {
-                    Console.WriteLine("ERROR L46: Table '"+columnRow.table_name+"' not found for column "+columnRow.column_name);
+                    Console.WriteLine("ERROR L46: Table '" + columnRow.table_name + "' not found for column " + columnRow.column_name);
                     continue;
                 }
                 DlinqSchema.Column colSchema = new DlinqSchema.Column();
@@ -80,15 +81,13 @@ namespace SqlMetal.schema.oracle
                 //colSchema.IsVersion = ???
                 colSchema.CanBeNull = columnRow.isNullable;
                 colSchema.Type = "qqq"; //Mappings.mapSqlTypeToCsType(columnRow.data_type, columnRow.column_type);
-                
+
                 //this will be the c# field name
-                colSchema.Member = CSharp.IsCsharpKeyword(columnRow.column_name) 
-                    ? columnRow.column_name+"_" //avoid keyword conflict - append underscore
-                    : columnRow.column_name;
+                colSchema.Member = Util.Rename(columnRow.column_name);
 
                 colSchema.Type = OraTypeMap.mapSqlTypeToCsType(columnRow.data_type, columnRow.data_precision);
-                if(CSharp.IsValueType(colSchema.Type) && columnRow.isNullable)
-                colSchema.Type += "?";
+                if (CSharp.IsValueType(colSchema.Type) && columnRow.isNullable)
+                    colSchema.Type += "?";
 
                 //tableSchema.Types[0].Columns.Add(colSchema);
                 tableSchema.Type.Columns.Add(colSchema);
@@ -97,33 +96,33 @@ namespace SqlMetal.schema.oracle
             //##################################################################
             //step 3 - load foreign keys etc
             User_Constraints_Sql ksql = new User_Constraints_Sql();
-            List<User_Constraints_Row> constraints = ksql.getConstraints1(conn,mmConfig.database);
+            List<User_Constraints_Row> constraints = ksql.getConstraints1(conn, mmConfig.database);
 
-            
-            foreach(User_Constraints_Row constraint in constraints)
+
+            foreach (User_Constraints_Row constraint in constraints)
             {
                 //find my table:
-                DlinqSchema.Table table = schema.Tables.FirstOrDefault(t => constraint.table_name==t.Name);
-                if(table==null)
+                DlinqSchema.Table table = schema.Tables.FirstOrDefault(t => constraint.table_name == t.Name);
+                if (table == null)
                 {
-                    Console.WriteLine("ERROR L100: Table '"+constraint.table_name+"' not found for column "+constraint.column_name);
+                    Console.WriteLine("ERROR L100: Table '" + constraint.table_name + "' not found for column " + constraint.column_name);
                     continue;
                 }
 
-                if(constraint.constraint_type=="P")
+                if (constraint.constraint_type == "P")
                 {
                     //A) add primary key
                     DlinqSchema.Column pkColumn = table.Type.Columns.Where(c => c.Name == constraint.column_name).First();
                     pkColumn.IsPrimaryKey = true;
-                } 
-                else 
+                }
+                else
                 {
                     //if not PRIMARY, it's a foreign key. (constraint_type=="R")
                     //both parent and child table get an [Association]
-                    User_Constraints_Row referencedConstraint = constraints.FirstOrDefault(c => c.constraint_name==constraint.R_constraint_name);
-                    if(constraint.R_constraint_name==null || referencedConstraint==null)
+                    User_Constraints_Row referencedConstraint = constraints.FirstOrDefault(c => c.constraint_name == constraint.R_constraint_name);
+                    if (constraint.R_constraint_name == null || referencedConstraint == null)
                     {
-                        Console.WriteLine("ERROR L127: given R_contraint_name='"+constraint.R_constraint_name+"', unable to find parent constraint");
+                        Console.WriteLine("ERROR L127: given R_contraint_name='" + constraint.R_constraint_name + "', unable to find parent constraint");
                         continue;
                     }
 
@@ -146,7 +145,7 @@ namespace SqlMetal.schema.oracle
 
                     //assoc2.Columns.Add(new DlinqSchema.ColumnName(constraint.column_name));
 
-                    DlinqSchema.Table parentTable = schema.Tables.FirstOrDefault(t => referencedConstraint.table_name==t.Name);
+                    DlinqSchema.Table parentTable = schema.Tables.FirstOrDefault(t => referencedConstraint.table_name == t.Name);
                     if (parentTable == null)
                     {
                         Console.WriteLine("ERROR 148: parent table not found: " + referencedConstraint.table_name);
@@ -160,7 +159,7 @@ namespace SqlMetal.schema.oracle
                 }
 
             }
-             
+
 
             return schema;
         }

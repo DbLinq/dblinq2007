@@ -1,9 +1,14 @@
-﻿CREATE TABLE Products (
+CREATE TABLE Products (
   ProductID INTEGER NOT NULL,
-  ProductName VARCHAR(45) NOT NULL,
+  ProductName VARCHAR(40) NOT NULL,
   SupplierID INTEGER NOT NULL,
   CategoryID INTEGER NOT NULL,
   QuantityPerUnit VARCHAR(20),
+  UnitPrice DECIMAL NULL,
+  UnitsInStock SMALLINT NULL,
+  UnitsOnOrder SMALLINT NULL,
+  ReorderLevel SMALLINT NULL,
+  Discontinued NUMBER(1) NOT NULL, --'bool' field
   PRIMARY KEY(ProductID)
   );
   
@@ -34,8 +39,9 @@ CREATE SEQUENCE Orders_seq   START WITH  1000 INCREMENT BY 1;
  
 
  
-truncate table Orders; -- must be truncated before Customer
-truncate table Customer;
+-- Orders must be truncated before Customer
+--truncate table Orders; 
+--truncate table Customer;
 
 insert INTO Customer (CustomerID,CompanyName,ContactName,Country,PostalCode,City)
 values (customer_seq.nextval,'airbus','jacques','France','10000','Paris');
@@ -47,13 +53,18 @@ values (customer_seq.nextval,'ATT','bob','USA','10021','New York');
 insert INTO Customer (CustomerID,CompanyName,ContactName,Country,PostalCode,City)
 values (customer_seq.nextval,'MOD','(secret)','U.K.','E14','London');
 
-truncate table Orders; -- must be truncated before Products
-truncate table Products;
+-- Orders must be truncated before Products
+--truncate table Orders; 
+--truncate table Products;
 
-insert INTO Products (ProductId, ProductName,SupplierID,CategoryID,QuantityPerUnit) VALUES (Products_seq.nextval,'Pen',0,0,10);
-insert INTO Products (ProductId, ProductName,SupplierID,CategoryID,QuantityPerUnit) VALUES (Products_seq.nextval,'Bicycle',0,0,1);
-insert INTO Products (ProductId, ProductName,SupplierID,CategoryID,QuantityPerUnit) VALUES (Products_seq.nextval,'Phone',0,0,3);
-insert INTO Products (ProductId, ProductName,SupplierID,CategoryID,QuantityPerUnit) VALUES (Products_seq.nextval,'SAM',0,0,1);
+insert INTO Products (ProductId, ProductName,SupplierID,CategoryID,QuantityPerUnit,Discontinued) 
+VALUES (Products_seq.nextval,'Pen',0,0,10,0);
+insert INTO Products (ProductId, ProductName,SupplierID,CategoryID,QuantityPerUnit,Discontinued) 
+VALUES (Products_seq.nextval,'Bicycle',0,0,1,0);
+insert INTO Products (ProductId, ProductName,SupplierID,CategoryID,QuantityPerUnit,Discontinued) 
+VALUES (Products_seq.nextval,'Phone',0,0,3,1);
+insert INTO Products (ProductId, ProductName,SupplierID,CategoryID,QuantityPerUnit,Discontinued)
+VALUES (Products_seq.nextval,'SAM',0,0,1,0);
 
 truncate table Orders;
 insert INTO Orders (OrderID, CustomerID, ProductID, OrderDate)

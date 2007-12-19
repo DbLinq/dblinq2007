@@ -1,4 +1,4 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -53,9 +53,10 @@
     <Reference Include="System.Security" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Example\DbLinq.Ora.Example\nwind\OraTestDB.cs">
-      <Link>nwind\OraTestDB.cs</Link>
+    <Compile Include="..\..\Example\DbLinq.Ora.Example\nwind\Northwind.cs">
+      <Link>nwind\Northwind.cs</Link>
     </Compile>
+    <Compile Include="Linq_101_Samples\Advanced.cs" />
     <Compile Include="Program3Ora.cs" />
     <Compile Include="ReadTest_Complex.cs" />
     <Compile Include="ReadTest.cs" />

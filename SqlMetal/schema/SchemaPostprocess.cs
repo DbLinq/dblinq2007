@@ -15,6 +15,9 @@ namespace SqlMetal.schema
     {
         public static void PostProcess_DB(DlinqSchema.Database schema)
         {
+            if (schema == null)
+                return;
+
             foreach (var tbl in schema.Tables)
             {
                 PostProcess_Table(tbl);

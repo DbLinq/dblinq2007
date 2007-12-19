@@ -6,6 +6,14 @@
   <Renaming old="QUANTITYPERUNIT" new="QuantityPerUnit" />
   <Renaming old="POSTALCODE" new="PostalCode" />
   <Renaming old="PRODUCTNAME" new="ProductName" />
+  <Renaming old="PRODUCTID" new="ProductID" />
   <Renaming old="ORDERDATE" new="OrderDate" />
+  <Renaming old="ORDERID" new="OrderID" />
+  <Renaming old="CUSTOMERID" new="CustomerID" />
+  <Renaming old="CATEGORYID" new="CategoryID" />
+  <Renaming old="CITY" new="City" />
+  <Renaming old="PHONE" new="Phone" />
+  <Renaming old="UNITPRICE" new="UnitPrice" />
+  <Renaming old="DISCONTINUED" new="Discontinued" />
   <Renaming old="LinqTestDB" new="LinqTestDB" />
 </Renamings>

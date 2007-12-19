@@ -148,7 +148,8 @@ namespace SqlMetal.util
             {
                 //check if the XML file specifies a new name
                 var q = from r in s_renamings.Arr where r.old == name select r.@new;
-                foreach (var @new in q) { return @new; }
+                string newName = q.FirstOrDefault();
+                return newName ?? name;
             }
             return name;
         }
