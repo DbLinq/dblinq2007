@@ -15,7 +15,8 @@ namespace Test_NUnit
         static void Main()
         {
             //new ReadTest_Complex().F1_ProductCount();
-            new ReadTest().A2_ProductsTableHasEntries();
+            //new ReadTest().D04_SelectProducts_OrderByName();
+            new Linq_101_Samples.AdvancedTest().LinqToSqlAdvanced06();
             //new WriteTest().G2_DeleteTest();
             //new WriteTest().G1_InsertProduct();
         }

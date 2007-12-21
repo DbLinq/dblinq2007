@@ -1,3 +1,4 @@
+#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -21,6 +22,7 @@
 // Authors:
 //        Jiri George Moudry
 ////////////////////////////////////////////////////////////////////
+#endregion
 
 using System;
 using System.Collections.Generic;
@@ -57,7 +59,7 @@ namespace DBLinq.Linq.clause
         /// Currently, author is not sure what's the best way to prevent duplicate addition.
         /// </summary>
         public readonly List<string> doneClauses = new List<string>();
-        
+
         /// <summary>
         /// add 'Employee $e' FROM clause
         /// </summary>
@@ -69,7 +71,7 @@ namespace DBLinq.Linq.clause
             //string fromLower = fromTable.ToLower(); 
             string fromLower = fromTable;
 
-            if(fromTableList.Contains(fromLower))
+            if (fromTableList.Contains(fromLower))
                 return; //prevent dupes
             fromTableList.Add(fromLower);
         }
@@ -116,7 +118,7 @@ namespace DBLinq.Linq.clause
         /// <summary>
         /// parameters, eg {'?P0'=>'London'}
         /// </summary>
-        public readonly Dictionary<string,object> paramMap = new Dictionary<string,object>();
+        public readonly Dictionary<string, object> paramMap = new Dictionary<string, object>();
 
         public SqlExpressionParts()
         {
@@ -137,7 +139,7 @@ namespace DBLinq.Linq.clause
             distinctClause = orig.distinctClause;
             limitClause = orig.limitClause;
             offsetClause = orig.offsetClause;
-            paramMap = new Dictionary<string,object>(orig.paramMap);
+            paramMap = new Dictionary<string, object>(orig.paramMap);
         }
 
         public void AddWhere(string sqlExpr)
@@ -158,13 +160,13 @@ namespace DBLinq.Linq.clause
         {
             StringBuilder sb = new StringBuilder(500);
             sb.Append("SELECT ");
-            if(this.distinctClause!=null)
+            if (this.distinctClause != null)
             {
                 //SELECT COUNT(ProductID) FROM ...
                 sb.Append(distinctClause).Append(" ");
             }
 
-            if(this.countClause!=null)
+            if (this.countClause != null)
             {
                 //SELECT COUNT(ProductID) FROM ...
                 sb.Append(countClause).Append("(")
@@ -174,7 +176,7 @@ namespace DBLinq.Linq.clause
             {
                 //normal (non-count) select
                 string opt_comma = "";
-                foreach(string s in selectFieldList)
+                foreach (string s in selectFieldList)
                 {
                     sb.Append(opt_comma).Append(s);
                     opt_comma = ", ";
@@ -188,6 +190,14 @@ namespace DBLinq.Linq.clause
             //for now, we will not be using the JOIN keyword
             List<string> whereAndjoins = new List<string>(joinList);
             whereAndjoins.AddRange(whereList);
+
+            bool isOracle = vendor.Vendor.VENDOR_NAME == "Oracle";
+            if (isOracle && limitClause != null)
+            {
+                //http://dotnet.org.za/thea/archive/2005/02/22/14715.aspx
+                whereAndjoins.Add("ROWNUM <= "+limitClause);
+                limitClause = null; //limit clause has now been handled
+            }
 
             appendCsvList(sb, " WHERE ", whereAndjoins, " AND ");
             appendCsvList(sb, " GROUP BY ", groupByList, ", ");
@@ -229,10 +239,10 @@ namespace DBLinq.Linq.clause
         }
 
         #endregion
-    
+
         public bool IsEmpty()
         {
-            return selectFieldList.Count==0;
+            return selectFieldList.Count == 0;
         }
 
         public SqlExpressionParts Clone()

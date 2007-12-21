@@ -40,6 +40,9 @@ namespace DBLinq.vendor
 {
     public class Vendor
     {
+        public const string VENDOR_NAME = "MySql";
+        public const string SQL_PING_COMMAND = "SELECT 11";
+        
         /// <summary>
         /// Client code needs to specify: 'Vendor.UserBulkInsert[db.Products]=10' to enable bulk insert, 10 rows at a time.
         /// </summary>

@@ -9,6 +9,9 @@ namespace DBLinq.vendor
 {
     public class Vendor
     {
+        public const string VENDOR_NAME = "Oracle";
+        public const string SQL_PING_COMMAND = "SELECT 11 FROM DUAL";
+
         /// <summary>
         /// Postgres string concatenation, eg 'a||b'
         /// </summary>

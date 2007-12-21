@@ -48,9 +48,11 @@ namespace Test_NUnit
         [Test]
         public void A3_ProductsTableHasPen()
         {
+            Northwind db = CreateDB();
             //string sql = @"SELECT count(*) FROM linqtestdb.Products WHERE ProductName='Pen'";
             string sql = @"SELECT count(*) FROM Products WHERE ProductName='Pen'";
-            long iResult = base.ExecuteScalar(sql);
+            long iResult = db.ExecuteCommand(sql);
+            //long iResult = base.ExecuteScalar(sql);
             Assert.AreEqual(iResult, 1L, "Expecting one Pen in Products table, got:" + iResult + " (SQL:" + sql + ")");
         }
 
