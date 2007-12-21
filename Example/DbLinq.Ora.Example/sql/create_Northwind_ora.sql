@@ -33,9 +33,31 @@ CREATE TABLE Orders (
   CONSTRAINT fk_order_product FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
 );
 
-CREATE SEQUENCE Products_seq START WITH  10   INCREMENT BY 1;
+--####################################################################
+CREATE TABLE Employees (
+  EmployeeID INTEGER NOT NULL,
+  LastName VARCHAR(20) NOT NULL,
+  FirstName VARCHAR(10) NOT NULL,
+  Title VARCHAR(30) NULL,
+  BirthDate DATE NULL,
+  HireDate DATE NULL,
+  Address VARCHAR(60) NULL,
+  City VARCHAR(15) NULL,
+  Region VARCHAR(15) NULL,
+  PostalCode VARCHAR(10) NULL,
+  Country VARCHAR(15) NULL,
+  HomePhone VARCHAR(24) NULL,
+  Photo BLOB NULL,
+  Notes VARCHAR(100) NULL,
+  ReportsTo INTEGER NULL,
+  PRIMARY KEY(EmployeeID),
+  FOREIGN KEY (ReportsTo)  REFERENCES Employees (EmployeeID)
+);
+
+CREATE SEQUENCE Products_seq START WITH  1    INCREMENT BY 1;
 CREATE SEQUENCE Customer_seq START WITH  100  INCREMENT BY 1;
 CREATE SEQUENCE Orders_seq   START WITH  1000 INCREMENT BY 1;
+CREATE SEQUENCE Employees_seq START WITH 1    INCREMENT BY 1;
  
 
  
@@ -90,6 +112,16 @@ Values ( orders_seq.nextval
 , (Select CustomerID from Customer Where CompanyName='MOD')
 , (Select ProductID from Products Where ProductName='SAM')
 , sysdate);
+
+insert INTO Employees (EmployeeID, LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
+VALUES (Employees_seq.nextval, 'Fuller','Andrew','Vice President, Sales','01 Jan 1964','01 Jan 1989', '908 W. Capital Way','Tacoma',NULL);
+
+insert INTO Employees (EmployeeID, LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
+VALUES (Employees_seq.nextval, 'Davolio','Nancy','Sales Representative','01 Jan 1964','01 Jan 1994','507 - 20th Ave. E.  Apt. 2A','Seattle',1);
+
+insert INTO Employees (EmployeeID, LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
+VALUES (Employees_seq.nextval, 'Builder','Bob','Handyman','01 Jan 1964','01 Jan 1964','666 dark street','Seattle',2);
+
 
 COMMIT;
 

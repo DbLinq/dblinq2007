@@ -80,7 +80,6 @@ namespace SqlMetal.schema.oracle
                 colSchema.IsDbGenerated = false; //columnRow.extra=="auto_increment";
                 //colSchema.IsVersion = ???
                 colSchema.CanBeNull = columnRow.isNullable;
-                colSchema.Type = "qqq"; //Mappings.mapSqlTypeToCsType(columnRow.data_type, columnRow.column_type);
 
                 //this will be the c# field name
                 colSchema.Member = Util.Rename(columnRow.column_name);
@@ -88,6 +87,14 @@ namespace SqlMetal.schema.oracle
                 colSchema.Type = OraTypeMap.mapSqlTypeToCsType(columnRow.data_type, columnRow.data_precision);
                 if (CSharp.IsValueType(colSchema.Type) && columnRow.isNullable)
                     colSchema.Type += "?";
+
+                bool isPossibleBoolean = columnRow.data_type == "NUMBER(1)"
+                    || columnRow.data_type == "NUMBER";
+                if (isPossibleBoolean && columnRow.column_name == "DISCONTINUED")
+                {
+                    //hack to support Northwind boolean fields out of the box
+                    colSchema.Type = "bool";
+                }
 
                 //tableSchema.Types[0].Columns.Add(colSchema);
                 tableSchema.Type.Columns.Add(colSchema);

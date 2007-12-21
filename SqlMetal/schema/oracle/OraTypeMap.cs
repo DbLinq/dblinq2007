@@ -15,7 +15,10 @@ namespace SqlMetal.schema.oracle
                 case "VARCHAR2":
                     return "string";
                 case "TIMESTAMP":
+                case "DATE":
                     return "DateTime";
+                case "BLOB":
+                    return "byte[]";
                 default:
                     return "UnknownOracleType_20 //(Unprepared for Oracle type "+dbType+") \n";
             }

@@ -35,6 +35,8 @@ namespace DBLinq.vendor
                         return OracleType.Int16;
                     case "int":
                         return OracleType.Int32;
+                    case "varchar2":
+                        return OracleType.VarChar;
                 }
                 string msg = "TODO L24: add parsing of type "+typeStr;
                 Console.WriteLine(msg);

@@ -57,6 +57,7 @@
       <Link>nwind\Northwind.cs</Link>
     </Compile>
     <Compile Include="Linq_101_Samples\Advanced.cs" />
+    <Compile Include="Linq_101_Samples\Null.cs" />
     <Compile Include="Program3Ora.cs" />
     <Compile Include="ReadTest_Complex.cs" />
     <Compile Include="ReadTest.cs" />
