@@ -43,7 +43,7 @@ namespace Test_NUnit
             }
         }
 
-#if POSTGRES
+#if POSTGRES || ORACLE
         //Postgres sorting: A,B,C,X,d
         public const StringComparison stringComparisonType = StringComparison.Ordinal; 
 #else
@@ -65,7 +65,7 @@ namespace Test_NUnit
             using (XSqlCommand cmd = new XSqlCommand(sql, Conn))
             {
                 object oResult = cmd.ExecuteScalar();
-                Assert.IsNotNull("Expecting count of Products, instead got null. (sql=" + sql + ")");
+                Assert.IsNotNull("Expecting result, instead got null. (sql=" + sql + ")");
                 Assert.IsInstanceOfType(typeof(long), oResult, "Expecting 'long' result from query " + sql + ", instead got type " + oResult.GetType());
                 return (long)oResult;
             }

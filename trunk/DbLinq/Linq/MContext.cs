@@ -93,11 +93,15 @@ namespace DBLinq.Linq
         {
             try
             {
-                int result = vendor.Vendor.ExecuteCommand(this, "SELECT 11");
+                //command: "SELECT 11" (Oracle: "SELECT 11 FROM DUAL")
+                string SQL = vendor.Vendor.SQL_PING_COMMAND; 
+                int result = vendor.Vendor.ExecuteCommand(this, SQL);
                 return result == 11;
             }
-            catch
+            catch (Exception ex)
             {
+                if (true)
+                    Trace.WriteLine("DatabaseExists failed:" + ex);
                 return false;
             }
         }
@@ -121,7 +125,7 @@ namespace DBLinq.Linq
         {
             //TODO: perform all queued up operations - INSERT,DELETE,UPDATE
             //TODO: insert order must be: first parent records, then child records
-            foreach(IMTable tbl in _tableList)
+            foreach (IMTable tbl in _tableList)
             {
                 tbl.SaveAll();
             }
@@ -144,7 +148,7 @@ namespace DBLinq.Linq
         /// <returns></returns>
         public string GetQueryText(IQueryable query)
         {
-            if(query==null)
+            if (query == null)
                 return "GetQueryText: null query";
             IQueryText queryText1 = query as IQueryText;
             if (queryText1 != null)

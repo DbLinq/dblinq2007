@@ -30,6 +30,7 @@ namespace nwind
 	
 		//these fields represent tables in database and are
 		//ordered - parent tables first, child tables next. Do not change the order.
+		public MTable<T1> T1s { get { return base.GetTable<T1>("T1s"); } }
 		public MTable<Product> Products { get { return base.GetTable<Product>("Products"); } }
 		public MTable<Customer> Customers { get { return base.GetTable<Customer>("Customers"); } }
 		public MTable<Order> Orders { get { return base.GetTable<Order>("Orders"); } }
@@ -40,50 +41,89 @@ namespace nwind
 	
 	
 	
-	[Table(Name = "PRODUCTS")]
-	public partial class Product : IModified
+	[Table(Name = "T1")]
+	public partial class T1 : IModified
 	{
 		
-		protected int _CATEGORYID;
-		protected int? _UNITSINSTOCK;
-		protected int? _UNITSONORDER;
-		protected string _PRODUCTNAME;
-		protected string _QUANTITYPERUNIT;
-		protected bool _DISCONTINUED;
-		protected int _PRODUCTID;
-		protected int? _UNITPRICE;
-		protected int _SUPPLIERID;
-		protected int? _REORDERLEVEL;
+		protected int? _ID1;
 	
 		
 		#region costructors
-		public Product()
+		public T1()
 		{
 		}
-		public Product(int CategoryID,int? UNITSINSTOCK,int? UNITSONORDER,string ProductName,string QuantityPerUnit,bool Discontinued,int ProductID,int? UnitPrice,int SupplierID,int? REORDERLEVEL)
+		public T1(int? ID1)
 		{
-		    this._CATEGORYID = CategoryID;
-		this._UNITSINSTOCK = UNITSINSTOCK;
-		this._UNITSONORDER = UNITSONORDER;
-		this._PRODUCTNAME = ProductName;
-		this._QUANTITYPERUNIT = QuantityPerUnit;
-		this._DISCONTINUED = Discontinued;
-		this._PRODUCTID = ProductID;
-		this._UNITPRICE = UnitPrice;
-		this._SUPPLIERID = SupplierID;
-		this._REORDERLEVEL = REORDERLEVEL;
+		    this._ID1 = ID1;
 		}
 		#endregion
 		
 	
 		#region properties - accessors
 	
-		[Column(Name = "CATEGORYID", DbType = "NUMBER", CanBeNull = false)]
+		[Column(Name = "ID1", DbType = "NUMBER", CanBeNull = true)]
 		[DebuggerNonUserCode]
-		public int CategoryID
+		public int? ID1
 		{
-		    get { return _CATEGORYID; }
-		    set { _CATEGORYID = value; IsModified = true; }
+		    get { return _ID1; }
+		    set { _ID1 = value; IsModified = true; }
+		}
+		
+	#endregion
+		#warning L189 table T1 has no primary key. Multiple c# objects will refer to the same row.
+
+		
+		
+	
+		public bool IsModified { get; set; }
+	}
+	
+	
+	
+	[Table(Name = "PRODUCTS")]
+	public partial class Product : IModified
+	{
+		
+		protected int? _UNITPRICE;
+		protected int? _UNITSINSTOCK;
+		protected string _QUANTITYPERUNIT;
+		protected int? _UNITSONORDER;
+		protected int? _SUPPLIERID;
+		protected int _PRODUCTID;
+		protected string _PRODUCTNAME;
+		protected int? _REORDERLEVEL;
+		protected bool _DISCONTINUED;
+		protected int? _CATEGORYID;
+	
+		
+		#region costructors
+		public Product()
+		{
+		}
+		public Product(int? UnitPrice,int? UNITSINSTOCK,string QuantityPerUnit,int? UNITSONORDER,int? SupplierID,int ProductID,string ProductName,int? REORDERLEVEL,bool Discontinued,int? CategoryID)
+		{
+		    this._UNITPRICE = UnitPrice;
+		this._UNITSINSTOCK = UNITSINSTOCK;
+		this._QUANTITYPERUNIT = QuantityPerUnit;
+		this._UNITSONORDER = UNITSONORDER;
+		this._SUPPLIERID = SupplierID;
+		this._PRODUCTID = ProductID;
+		this._PRODUCTNAME = ProductName;
+		this._REORDERLEVEL = REORDERLEVEL;
+		this._DISCONTINUED = Discontinued;
+		this._CATEGORYID = CategoryID;
+		}
+		#endregion
+		
+	
+		#region properties - accessors
+	
+		[Column(Name = "UNITPRICE", DbType = "NUMBER", CanBeNull = true)]
+		[DebuggerNonUserCode]
+		public int? UnitPrice
+		{
+		    get { return _UNITPRICE; }
+		    set { _UNITPRICE = value; IsModified = true; }
 		}
 		
 	
@@ -96,24 +136,6 @@ namespace nwind
 		}
 		
 	
-		[Column(Name = "UNITSONORDER", DbType = "NUMBER", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public int? UNITSONORDER
-		{
-		    get { return _UNITSONORDER; }
-		    set { _UNITSONORDER = value; IsModified = true; }
-		}
-		
-	
-		[Column(Name = "PRODUCTNAME", DbType = "VARCHAR2", CanBeNull = false)]
-		[DebuggerNonUserCode]
-		public string ProductName
-		{
-		    get { return _PRODUCTNAME; }
-		    set { _PRODUCTNAME = value; IsModified = true; }
-		}
-		
-	
 		[Column(Name = "QUANTITYPERUNIT", DbType = "VARCHAR2", CanBeNull = true)]
 		[DebuggerNonUserCode]
 		public string QuantityPerUnit
@@ -123,12 +145,21 @@ namespace nwind
 		}
 		
 	
-		[Column(Name = "DISCONTINUED", DbType = "NUMBER", CanBeNull = false)]
+		[Column(Name = "UNITSONORDER", DbType = "NUMBER", CanBeNull = true)]
 		[DebuggerNonUserCode]
-		public bool Discontinued
+		public int? UNITSONORDER
 		{
-		    get { return _DISCONTINUED; }
-		    set { _DISCONTINUED = value; IsModified = true; }
+		    get { return _UNITSONORDER; }
+		    set { _UNITSONORDER = value; IsModified = true; }
+		}
+		
+	
+		[Column(Name = "SUPPLIERID", DbType = "NUMBER", CanBeNull = true)]
+		[DebuggerNonUserCode]
+		public int? SupplierID
+		{
+		    get { return _SUPPLIERID; }
+		    set { _SUPPLIERID = value; IsModified = true; }
 		}
 		
 	
@@ -141,21 +172,12 @@ namespace nwind
 		}
 		
 	
-		[Column(Name = "UNITPRICE", DbType = "NUMBER", CanBeNull = true)]
+		[Column(Name = "PRODUCTNAME", DbType = "VARCHAR2", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public int? UnitPrice
+		public string ProductName
 		{
-		    get { return _UNITPRICE; }
-		    set { _UNITPRICE = value; IsModified = true; }
-		}
-		
-	
-		[Column(Name = "SUPPLIERID", DbType = "NUMBER", CanBeNull = false)]
-		[DebuggerNonUserCode]
-		public int SupplierID
-		{
-		    get { return _SUPPLIERID; }
-		    set { _SUPPLIERID = value; IsModified = true; }
+		    get { return _PRODUCTNAME; }
+		    set { _PRODUCTNAME = value; IsModified = true; }
 		}
 		
 	
@@ -165,6 +187,24 @@ namespace nwind
 		{
 		    get { return _REORDERLEVEL; }
 		    set { _REORDERLEVEL = value; IsModified = true; }
+		}
+		
+	
+		[Column(Name = "DISCONTINUED", DbType = "NUMBER", CanBeNull = false)]
+		[DebuggerNonUserCode]
+		public bool Discontinued
+		{
+		    get { return _DISCONTINUED; }
+		    set { _DISCONTINUED = value; IsModified = true; }
+		}
+		
+	
+		[Column(Name = "CATEGORYID", DbType = "NUMBER", CanBeNull = true)]
+		[DebuggerNonUserCode]
+		public int? CategoryID
+		{
+		    get { return _CATEGORYID; }
+		    set { _CATEGORYID = value; IsModified = true; }
 		}
 		
 	#endregion
@@ -201,40 +241,40 @@ namespace nwind
 	public partial class Customer : IModified
 	{
 		
-		protected string _PHONE;
-		protected string _COUNTRY;
-		protected string _CITY;
-		protected string _COMPANYNAME;
 		protected string _POSTALCODE;
-		protected string _CONTACTNAME;
+		protected string _COUNTRY;
 		protected int _CUSTOMERID;
+		protected string _PHONE;
+		protected string _CITY;
+		protected string _CONTACTNAME;
+		protected string _COMPANYNAME;
 	
 		
 		#region costructors
 		public Customer()
 		{
 		}
-		public Customer(string Phone,string COUNTRY,string City,string CompanyName,string PostalCode,string ContactName,int CustomerID)
+		public Customer(string PostalCode,string COUNTRY,int CustomerID,string Phone,string City,string ContactName,string CompanyName)
 		{
-		    this._PHONE = Phone;
+		    this._POSTALCODE = PostalCode;
 		this._COUNTRY = COUNTRY;
-		this._CITY = City;
-		this._COMPANYNAME = CompanyName;
-		this._POSTALCODE = PostalCode;
-		this._CONTACTNAME = ContactName;
 		this._CUSTOMERID = CustomerID;
+		this._PHONE = Phone;
+		this._CITY = City;
+		this._CONTACTNAME = ContactName;
+		this._COMPANYNAME = CompanyName;
 		}
 		#endregion
 		
 	
 		#region properties - accessors
 	
-		[Column(Name = "PHONE", DbType = "VARCHAR2", CanBeNull = true)]
+		[Column(Name = "POSTALCODE", DbType = "VARCHAR2", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public string Phone
+		public string PostalCode
 		{
-		    get { return _PHONE; }
-		    set { _PHONE = value; IsModified = true; }
+		    get { return _POSTALCODE; }
+		    set { _POSTALCODE = value; IsModified = true; }
 		}
 		
 	
@@ -247,30 +287,30 @@ namespace nwind
 		}
 		
 	
+		[Column(Name = "CUSTOMERID", DbType = "NUMBER", IsPrimaryKey = true)]
+		[DebuggerNonUserCode]
+		public int CustomerID
+		{
+		    get { return _CUSTOMERID; }
+		    set { _CUSTOMERID = value; IsModified = true; }
+		}
+		
+	
+		[Column(Name = "PHONE", DbType = "VARCHAR2", CanBeNull = true)]
+		[DebuggerNonUserCode]
+		public string Phone
+		{
+		    get { return _PHONE; }
+		    set { _PHONE = value; IsModified = true; }
+		}
+		
+	
 		[Column(Name = "CITY", DbType = "VARCHAR2", CanBeNull = false)]
 		[DebuggerNonUserCode]
 		public string City
 		{
 		    get { return _CITY; }
 		    set { _CITY = value; IsModified = true; }
-		}
-		
-	
-		[Column(Name = "COMPANYNAME", DbType = "VARCHAR2", CanBeNull = false)]
-		[DebuggerNonUserCode]
-		public string CompanyName
-		{
-		    get { return _COMPANYNAME; }
-		    set { _COMPANYNAME = value; IsModified = true; }
-		}
-		
-	
-		[Column(Name = "POSTALCODE", DbType = "VARCHAR2", CanBeNull = false)]
-		[DebuggerNonUserCode]
-		public string PostalCode
-		{
-		    get { return _POSTALCODE; }
-		    set { _POSTALCODE = value; IsModified = true; }
 		}
 		
 	
@@ -283,12 +323,12 @@ namespace nwind
 		}
 		
 	
-		[Column(Name = "CUSTOMERID", DbType = "NUMBER", IsPrimaryKey = true)]
+		[Column(Name = "COMPANYNAME", DbType = "VARCHAR2", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public int CustomerID
+		public string CompanyName
 		{
-		    get { return _CUSTOMERID; }
-		    set { _CUSTOMERID = value; IsModified = true; }
+		    get { return _COMPANYNAME; }
+		    set { _COMPANYNAME = value; IsModified = true; }
 		}
 		
 	#endregion
@@ -325,36 +365,27 @@ namespace nwind
 	public partial class Order : IModified
 	{
 		
-		protected int _CUSTOMERID;
 		protected DateTime _ORDERDATE;
-		protected int _ORDERID;
+		protected int _CUSTOMERID;
 		protected int _PRODUCTID;
+		protected int _ORDERID;
 	
 		
 		#region costructors
 		public Order()
 		{
 		}
-		public Order(int CustomerID,DateTime OrderDate,int OrderID,int ProductID)
+		public Order(DateTime OrderDate,int CustomerID,int ProductID,int OrderID)
 		{
-		    this._CUSTOMERID = CustomerID;
-		this._ORDERDATE = OrderDate;
-		this._ORDERID = OrderID;
+		    this._ORDERDATE = OrderDate;
+		this._CUSTOMERID = CustomerID;
 		this._PRODUCTID = ProductID;
+		this._ORDERID = OrderID;
 		}
 		#endregion
 		
 	
 		#region properties - accessors
-	
-		[Column(Name = "CUSTOMERID", DbType = "NUMBER", CanBeNull = false)]
-		[DebuggerNonUserCode]
-		public int CustomerID
-		{
-		    get { return _CUSTOMERID; }
-		    set { _CUSTOMERID = value; IsModified = true; }
-		}
-		
 	
 		[Column(Name = "ORDERDATE", DbType = "TIMESTAMP", CanBeNull = false)]
 		[DebuggerNonUserCode]
@@ -365,12 +396,12 @@ namespace nwind
 		}
 		
 	
-		[Column(Name = "ORDERID", DbType = "NUMBER", IsPrimaryKey = true)]
+		[Column(Name = "CUSTOMERID", DbType = "NUMBER", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public int OrderID
+		public int CustomerID
 		{
-		    get { return _ORDERID; }
-		    set { _ORDERID = value; IsModified = true; }
+		    get { return _CUSTOMERID; }
+		    set { _CUSTOMERID = value; IsModified = true; }
 		}
 		
 	
@@ -380,6 +411,15 @@ namespace nwind
 		{
 		    get { return _PRODUCTID; }
 		    set { _PRODUCTID = value; IsModified = true; }
+		}
+		
+	
+		[Column(Name = "ORDERID", DbType = "NUMBER", IsPrimaryKey = true)]
+		[DebuggerNonUserCode]
+		public int OrderID
+		{
+		    get { return _ORDERID; }
+		    set { _ORDERID = value; IsModified = true; }
 		}
 		
 	#endregion
@@ -428,101 +468,56 @@ namespace nwind
 	public partial class Employee : IModified
 	{
 		
-		protected string _POSTALCODE;
-		protected string _TITLE;
-		protected DateTime? _HIREDATE;
-		protected int? _REPORTSTO;
-		protected string _REGION;
-		protected int _EMPLOYEEID;
-		protected DateTime? _BIRTHDATE;
-		protected string _HOMEPHONE;
-		protected string _NOTES;
 		protected string _LASTNAME;
-		protected string _FIRSTNAME;
-		protected string _COUNTRY;
-		protected byte[] _PHOTO;
+		protected DateTime? _BIRTHDATE;
 		protected string _ADDRESS;
+		protected string _REGION;
+		protected int? _REPORTSTO;
+		protected DateTime? _HIREDATE;
+		protected string _POSTALCODE;
+		protected string _COUNTRY;
+		protected string _HOMEPHONE;
+		protected int _EMPLOYEEID;
+		protected string _FIRSTNAME;
+		protected string _TITLE;
+		protected string _NOTES;
 		protected string _CITY;
+		protected byte[] _PHOTO;
 	
 		
 		#region costructors
 		public Employee()
 		{
 		}
-		public Employee(string PostalCode,string TITLE,DateTime? HIREDATE,int? ReportsTo,string REGION,int EMPLOYEEID,DateTime? BIRTHDATE,string HOMEPHONE,string NOTES,string LastName,string FirstName,string COUNTRY,byte[] PHOTO,string ADDRESS,string City)
+		public Employee(string LastName,DateTime? BIRTHDATE,string ADDRESS,string REGION,int? ReportsTo,DateTime? HIREDATE,string PostalCode,string COUNTRY,string HOMEPHONE,int EMPLOYEEID,string FirstName,string TITLE,string NOTES,string City,byte[] PHOTO)
 		{
-		    this._POSTALCODE = PostalCode;
-		this._TITLE = TITLE;
-		this._HIREDATE = HIREDATE;
-		this._REPORTSTO = ReportsTo;
-		this._REGION = REGION;
-		this._EMPLOYEEID = EMPLOYEEID;
+		    this._LASTNAME = LastName;
 		this._BIRTHDATE = BIRTHDATE;
-		this._HOMEPHONE = HOMEPHONE;
-		this._NOTES = NOTES;
-		this._LASTNAME = LastName;
-		this._FIRSTNAME = FirstName;
-		this._COUNTRY = COUNTRY;
-		this._PHOTO = PHOTO;
 		this._ADDRESS = ADDRESS;
+		this._REGION = REGION;
+		this._REPORTSTO = ReportsTo;
+		this._HIREDATE = HIREDATE;
+		this._POSTALCODE = PostalCode;
+		this._COUNTRY = COUNTRY;
+		this._HOMEPHONE = HOMEPHONE;
+		this._EMPLOYEEID = EMPLOYEEID;
+		this._FIRSTNAME = FirstName;
+		this._TITLE = TITLE;
+		this._NOTES = NOTES;
 		this._CITY = City;
+		this._PHOTO = PHOTO;
 		}
 		#endregion
 		
 	
 		#region properties - accessors
 	
-		[Column(Name = "POSTALCODE", DbType = "VARCHAR2", CanBeNull = true)]
+		[Column(Name = "LASTNAME", DbType = "VARCHAR2", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public string PostalCode
+		public string LastName
 		{
-		    get { return _POSTALCODE; }
-		    set { _POSTALCODE = value; IsModified = true; }
-		}
-		
-	
-		[Column(Name = "TITLE", DbType = "VARCHAR2", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public string TITLE
-		{
-		    get { return _TITLE; }
-		    set { _TITLE = value; IsModified = true; }
-		}
-		
-	
-		[Column(Name = "HIREDATE", DbType = "DATE", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public DateTime? HIREDATE
-		{
-		    get { return _HIREDATE; }
-		    set { _HIREDATE = value; IsModified = true; }
-		}
-		
-	
-		[Column(Name = "REPORTSTO", DbType = "NUMBER", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public int? ReportsTo
-		{
-		    get { return _REPORTSTO; }
-		    set { _REPORTSTO = value; IsModified = true; }
-		}
-		
-	
-		[Column(Name = "REGION", DbType = "VARCHAR2", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public string REGION
-		{
-		    get { return _REGION; }
-		    set { _REGION = value; IsModified = true; }
-		}
-		
-	
-		[Column(Name = "EMPLOYEEID", DbType = "NUMBER", IsPrimaryKey = true)]
-		[DebuggerNonUserCode]
-		public int EMPLOYEEID
-		{
-		    get { return _EMPLOYEEID; }
-		    set { _EMPLOYEEID = value; IsModified = true; }
+		    get { return _LASTNAME; }
+		    set { _LASTNAME = value; IsModified = true; }
 		}
 		
 	
@@ -535,39 +530,48 @@ namespace nwind
 		}
 		
 	
-		[Column(Name = "HOMEPHONE", DbType = "VARCHAR2", CanBeNull = true)]
+		[Column(Name = "ADDRESS", DbType = "VARCHAR2", CanBeNull = true)]
 		[DebuggerNonUserCode]
-		public string HOMEPHONE
+		public string ADDRESS
 		{
-		    get { return _HOMEPHONE; }
-		    set { _HOMEPHONE = value; IsModified = true; }
+		    get { return _ADDRESS; }
+		    set { _ADDRESS = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name = "NOTES", DbType = "VARCHAR2", CanBeNull = true)]
+		[Column(Name = "REGION", DbType = "VARCHAR2", CanBeNull = true)]
 		[DebuggerNonUserCode]
-		public string NOTES
+		public string REGION
 		{
-		    get { return _NOTES; }
-		    set { _NOTES = value; IsModified = true; }
+		    get { return _REGION; }
+		    set { _REGION = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name = "LASTNAME", DbType = "VARCHAR2", CanBeNull = false)]
+		[Column(Name = "REPORTSTO", DbType = "NUMBER", CanBeNull = true)]
 		[DebuggerNonUserCode]
-		public string LastName
+		public int? ReportsTo
 		{
-		    get { return _LASTNAME; }
-		    set { _LASTNAME = value; IsModified = true; }
+		    get { return _REPORTSTO; }
+		    set { _REPORTSTO = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name = "FIRSTNAME", DbType = "VARCHAR2", CanBeNull = false)]
+		[Column(Name = "HIREDATE", DbType = "DATE", CanBeNull = true)]
 		[DebuggerNonUserCode]
-		public string FirstName
+		public DateTime? HIREDATE
 		{
-		    get { return _FIRSTNAME; }
-		    set { _FIRSTNAME = value; IsModified = true; }
+		    get { return _HIREDATE; }
+		    set { _HIREDATE = value; IsModified = true; }
+		}
+		
+	
+		[Column(Name = "POSTALCODE", DbType = "VARCHAR2", CanBeNull = true)]
+		[DebuggerNonUserCode]
+		public string PostalCode
+		{
+		    get { return _POSTALCODE; }
+		    set { _POSTALCODE = value; IsModified = true; }
 		}
 		
 	
@@ -580,21 +584,48 @@ namespace nwind
 		}
 		
 	
-		[Column(Name = "PHOTO", DbType = "BLOB", CanBeNull = true)]
+		[Column(Name = "HOMEPHONE", DbType = "VARCHAR2", CanBeNull = true)]
 		[DebuggerNonUserCode]
-		public byte[] PHOTO
+		public string HOMEPHONE
 		{
-		    get { return _PHOTO; }
-		    set { _PHOTO = value; IsModified = true; }
+		    get { return _HOMEPHONE; }
+		    set { _HOMEPHONE = value; IsModified = true; }
 		}
 		
 	
-		[Column(Name = "ADDRESS", DbType = "VARCHAR2", CanBeNull = true)]
+		[Column(Name = "EMPLOYEEID", DbType = "NUMBER", IsPrimaryKey = true)]
 		[DebuggerNonUserCode]
-		public string ADDRESS
+		public int EMPLOYEEID
 		{
-		    get { return _ADDRESS; }
-		    set { _ADDRESS = value; IsModified = true; }
+		    get { return _EMPLOYEEID; }
+		    set { _EMPLOYEEID = value; IsModified = true; }
+		}
+		
+	
+		[Column(Name = "FIRSTNAME", DbType = "VARCHAR2", CanBeNull = false)]
+		[DebuggerNonUserCode]
+		public string FirstName
+		{
+		    get { return _FIRSTNAME; }
+		    set { _FIRSTNAME = value; IsModified = true; }
+		}
+		
+	
+		[Column(Name = "TITLE", DbType = "VARCHAR2", CanBeNull = true)]
+		[DebuggerNonUserCode]
+		public string TITLE
+		{
+		    get { return _TITLE; }
+		    set { _TITLE = value; IsModified = true; }
+		}
+		
+	
+		[Column(Name = "NOTES", DbType = "VARCHAR2", CanBeNull = true)]
+		[DebuggerNonUserCode]
+		public string NOTES
+		{
+		    get { return _NOTES; }
+		    set { _NOTES = value; IsModified = true; }
 		}
 		
 	
@@ -604,6 +635,15 @@ namespace nwind
 		{
 		    get { return _CITY; }
 		    set { _CITY = value; IsModified = true; }
+		}
+		
+	
+		[Column(Name = "PHOTO", DbType = "BLOB", CanBeNull = true)]
+		[DebuggerNonUserCode]
+		public byte[] PHOTO
+		{
+		    get { return _PHOTO; }
+		    set { _PHOTO = value; IsModified = true; }
 		}
 		
 	#endregion
@@ -624,7 +664,7 @@ namespace nwind
 		#endregion
 	
 		
-		[Association(Storage = "null", OtherKey = "EMPLOYEEID", Name = "SYS_C004254")]
+		[Association(Storage = "null", OtherKey = "EMPLOYEEID", Name = "SYS_C004426")]
 		public EntityMSet<Employee> Employees
 		{
 		    get { return null; } //L212 - child data available only when part of query
@@ -632,7 +672,7 @@ namespace nwind
 		
 		private EntityRef<Employee> _Employee;    
 		
-		[Association(Storage="_Employee", ThisKey="REPORTSTO", Name="SYS_C004254")]
+		[Association(Storage="_Employee", ThisKey="REPORTSTO", Name="SYS_C004426")]
 		[DebuggerNonUserCode]
 		public Employee REPORTSTOEmployee {
 			get { return this._Employee.Entity; }

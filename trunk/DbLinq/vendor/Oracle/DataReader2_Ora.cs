@@ -46,21 +46,21 @@ namespace DBLinq.util
         {
             _rdr = rdr;
         }
-        
+
         /// <summary>
         /// Read added to support groupBy clauses, with more than one row returned at a time
         /// </summary>
-        public bool Read(){ return _rdr.Read(); }
+        public bool Read() { return _rdr.Read(); }
 
         public int FieldCount { get { return _rdr.FieldCount; } }
-        public string GetName(int index){ return _rdr.GetName(index); }
-        public string GetDataTypeName(int index){ return _rdr.GetDataTypeName(index); }
-        public Type GetFieldType(int index){ return _rdr.GetFieldType(index); }
-        public object GetValue(int index){ return _rdr.GetValue(index); }
-        public int GetValues(object[] values){ return _rdr.GetValues(values); }
-        
-        public byte GetByte(int index){ return _rdr.GetByte(index); }
-        public long GetInt64(int index){ return _rdr.GetInt64(index); }
+        public string GetName(int index) { return _rdr.GetName(index); }
+        public string GetDataTypeName(int index) { return _rdr.GetDataTypeName(index); }
+        public Type GetFieldType(int index) { return _rdr.GetFieldType(index); }
+        public object GetValue(int index) { return _rdr.GetValue(index); }
+        public int GetValues(object[] values) { return _rdr.GetValues(values); }
+
+        public byte GetByte(int index) { return _rdr.GetByte(index); }
+        public long GetInt64(int index) { return _rdr.GetInt64(index); }
         public long? GetInt64N(int index)
         {
             try
@@ -77,52 +77,60 @@ namespace DBLinq.util
         }
 
 
-        public bool IsDBNull(int index){ return _rdr.IsDBNull(index); }
+        public bool IsDBNull(int index) { return _rdr.IsDBNull(index); }
 
-        public short GetInt16(int index){ return _rdr.GetInt16(index); }
+        public short GetInt16(int index) { return _rdr.GetInt16(index); }
         public short? GetInt16N(int index)
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if (_rdr.IsDBNull(index))
                     return null;
                 return _rdr.GetInt16(index);
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("GetInt16N failed: "+ex);
+                Console.WriteLine("GetInt16N failed: " + ex);
                 return null;
             }
         }
 
-        public char GetChar(int index){ return _rdr.GetChar(index); }
+        public char GetChar(int index) { return _rdr.GetChar(index); }
         public char? GetCharN(int index)
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if (_rdr.IsDBNull(index))
                     return null;
                 return _rdr.GetChar(index);
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("GetCharN failed: "+ex);
+                Console.WriteLine("GetCharN failed: " + ex);
                 return null;
             }
         }
 
-        public bool GetBoolean(int index){ return _rdr.GetBoolean(index); }
+        public bool GetBoolean(int index)
+        {
+            //Type t = _rdr.GetFieldType(index);
+            //return _rdr.GetBoolean(index); //"Specified method is not supported."
+            decimal dec = _rdr.GetDecimal(index);
+            bool b = dec == 1m;
+            return b;
+        }
+
         public bool? GetBooleanN(int index)
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if (_rdr.IsDBNull(index))
                     return null;
                 return _rdr.GetBoolean(index);
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("GetBooleanN failed: "+ex);
+                Console.WriteLine("GetBooleanN failed: " + ex);
                 return null;
             }
         }
@@ -131,11 +139,13 @@ namespace DBLinq.util
         {
             try
             {
+                if (_rdr.IsDBNull(index))
+                    throw new InvalidOperationException("Cannot read field " + index + " - it's null");
                 return _rdr.GetInt32(index);
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("GetInt32 failed: "+ex);
+                Console.WriteLine("GetInt32 failed: " + ex);
                 return 0;
             }
         }
@@ -162,14 +172,16 @@ namespace DBLinq.util
                 //return _rdr.GetUInt32(index);
                 int i32 = _rdr.GetInt32(index);
                 return (uint)i32;
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("GetUInt32("+index+") failed: "+ex);
-                try {
-                        object obj = _rdr.GetValue(index);
-                        Console.WriteLine("GetUInt32 failed, offending val: "+obj);
-                } catch(Exception){}
+                Console.WriteLine("GetUInt32(" + index + ") failed: " + ex);
+                try
+                {
+                    object obj = _rdr.GetValue(index);
+                    Console.WriteLine("GetUInt32 failed, offending val: " + obj);
+                }
+                catch (Exception) { }
                 return 0;
             }
         }
@@ -178,15 +190,15 @@ namespace DBLinq.util
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if (_rdr.IsDBNull(index))
                     return null;
                 //return _rdr.GetUInt32(index);
                 int i32 = _rdr.GetInt32(index);
                 return (uint)i32;
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("GetUInt32 failed: "+ex);
+                Console.WriteLine("GetUInt32 failed: " + ex);
                 return null;
             }
         }
@@ -196,10 +208,10 @@ namespace DBLinq.util
             try
             {
                 return _rdr.GetFloat(index);
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("GetInt32 failed: "+ex);
+                Console.WriteLine("GetInt32 failed: " + ex);
                 return 0;
             }
         }
@@ -224,10 +236,10 @@ namespace DBLinq.util
             try
             {
                 return _rdr.GetDouble(index);
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("GetInt32 failed: "+ex);
+                Console.WriteLine("GetInt32 failed: " + ex);
                 return 0;
             }
         }
@@ -251,10 +263,10 @@ namespace DBLinq.util
             try
             {
                 return _rdr.GetDecimal(index);
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("GetInt32 failed: "+ex);
+                Console.WriteLine("GetInt32 failed: " + ex);
                 return 0;
             }
         }
@@ -277,10 +289,10 @@ namespace DBLinq.util
             try
             {
                 return _rdr.GetDateTime(index);
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("GetInt32 failed: "+ex);
+                Console.WriteLine("GetInt32 failed: " + ex);
                 return new DateTime();
             }
         }
@@ -288,13 +300,13 @@ namespace DBLinq.util
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if (_rdr.IsDBNull(index))
                     return null;
                 return _rdr.GetDateTime(index);
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("GetInt32 failed: "+ex);
+                Console.WriteLine("GetInt32 failed: " + ex);
                 return new DateTime();
             }
         }
@@ -305,10 +317,10 @@ namespace DBLinq.util
                 if (_rdr.IsDBNull(index))
                     return null;
                 return _rdr.GetString(index);
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("GetString("+index+") failed: "+ex);
+                Console.WriteLine("GetString(" + index + ") failed: " + ex);
                 return null;
             }
         }
@@ -322,23 +334,23 @@ namespace DBLinq.util
                 if (_rdr.IsDBNull(index))
                     return null;
                 object obj = _rdr.GetValue(index);
-                if(obj==null)
+                if (obj == null)
                     return null; //nullable blob?
                 byte[] bytes = obj as byte[];
-                if(bytes!=null)
+                if (bytes != null)
                     return bytes; //works for BLOB field
-                Console.WriteLine("GetBytes: received unexpected type:"+obj);
+                Console.WriteLine("GetBytes: received unexpected type:" + obj);
                 //return _rdr.GetInt32(index);
                 return new byte[0];
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("GetBytes failed: "+ex);
+                Console.WriteLine("GetBytes failed: " + ex);
                 return null;
             }
         }
 
-        public void Dispose(){ _rdr.Dispose(); }
+        public void Dispose() { _rdr.Dispose(); }
 
     }
 }

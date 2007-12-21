@@ -38,6 +38,9 @@ namespace DBLinq.vendor
 {
     public class Vendor
     {
+        public const string VENDOR_NAME = "Microsoft";
+        public const string SQL_PING_COMMAND = "SELECT 11";
+        
         /// <summary>
         /// Postgres string concatenation, eg 'a||b'
         /// </summary>

@@ -1,8 +1,8 @@
 CREATE TABLE Products (
   ProductID INTEGER NOT NULL,
   ProductName VARCHAR(40) NOT NULL,
-  SupplierID INTEGER NOT NULL,
-  CategoryID INTEGER NOT NULL,
+  SupplierID INTEGER NULL,
+  CategoryID INTEGER NULL,
   QuantityPerUnit VARCHAR(20),
   UnitPrice DECIMAL NULL,
   UnitsInStock SMALLINT NULL,
@@ -79,14 +79,22 @@ values (customer_seq.nextval,'MOD','(secret)','U.K.','E14','London');
 --truncate table Orders; 
 --truncate table Products;
 
-insert INTO Products (ProductId, ProductName,SupplierID,CategoryID,QuantityPerUnit,Discontinued) 
-VALUES (Products_seq.nextval,'Pen',0,0,10,0);
-insert INTO Products (ProductId, ProductName,SupplierID,CategoryID,QuantityPerUnit,Discontinued) 
-VALUES (Products_seq.nextval,'Bicycle',0,0,1,0);
-insert INTO Products (ProductId, ProductName,SupplierID,CategoryID,QuantityPerUnit,Discontinued) 
-VALUES (Products_seq.nextval,'Phone',0,0,3,1);
-insert INTO Products (ProductId, ProductName,SupplierID,CategoryID,QuantityPerUnit,Discontinued)
-VALUES (Products_seq.nextval,'SAM',0,0,1,0);
+insert INTO Products (ProductId, ProductName,SupplierID, QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES (Products_seq.nextval, 'Pen',1, 10,     12, 2,  0);
+insert INTO Products (ProductId, ProductName,SupplierID, QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES (Products_seq.nextval, 'Bicycle',1, 1,  6, 0,  0);
+insert INTO Products (ProductId, ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES (Products_seq.nextval, 'Phone',3,    7, 0,  0);
+insert INTO Products (ProductId, ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES (Products_seq.nextval, 'SAM',1,      51, 11, 0);
+insert INTO Products (ProductId, ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES (Products_seq.nextval, 'iPod',0,     11, 0, 0);
+insert INTO Products (ProductId, ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES (Products_seq.nextval, 'Toilet Paper',2,  0, 3, 1);
+insert INTO Products (ProductId, ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES (Products_seq.nextval, 'Fork',5,   111, 0, 0);
+insert INTO Products (ProductId, ProductName,SupplierID, QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES (Products_seq.nextval, 'Linq Book',2, 1, 0, 26, 0);
 
 truncate table Orders;
 insert INTO Orders (OrderID, CustomerID, ProductID, OrderDate)

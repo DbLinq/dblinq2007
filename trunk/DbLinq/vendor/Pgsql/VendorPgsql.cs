@@ -1,3 +1,4 @@
+#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -21,6 +22,7 @@
 // Authors:
 //        Jiri George Moudry
 ////////////////////////////////////////////////////////////////////
+#endregion
 
 using System;
 using System.Linq;
@@ -39,6 +41,9 @@ namespace DBLinq.vendor
     /// </summary>
     public class Vendor
     {
+        public const string VENDOR_NAME = "Postgres";
+        public const string SQL_PING_COMMAND = "SELECT 11";
+        
         /// <summary>
         /// Postgres string concatenation, eg 'a||b'
         /// </summary>
