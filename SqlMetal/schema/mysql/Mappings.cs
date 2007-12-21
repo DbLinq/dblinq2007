@@ -32,7 +32,7 @@ namespace SqlMetal.schema.mysql
                         return "bool";
                     return "char";
                 case "smallint": return "short";
-                case "mediumint": return "short";
+                case "mediumint": return "int";
                 case "bigint": return "long";
 
                 case "datetime": return "DateTime";
@@ -42,6 +42,7 @@ namespace SqlMetal.schema.mysql
                 case "double": return "double";
                 case "decimal": return "decimal";
                 case "blob": return "byte[]";
+                case "longblob": return "byte[]";
                     //TODO: blob,longblob,set, ...
                 default:
                     return "L80_mapCsType_unprepared_for_mysqltype_"+mysqlType;
