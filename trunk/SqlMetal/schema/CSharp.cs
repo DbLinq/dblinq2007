@@ -8,16 +8,21 @@ namespace SqlMetal.schema
     {
         static readonly string[] Keywords = 
         {
-            "int", "uint", "byte", "short", "ushort", "char"
+           "int", "uint", "byte", "short", "ushort", "char"
             ,"decimal", "float", "double"
             ,"string", "DateTime"
+            , "void", "object"
 
             ,"private", "protected", "public", "internal"
             ,"override", "virtual", "abstract", "partial", "static", "sealed", "readonly"
-            ,"class", "struct", "namespace", "enum", "interface", "using"
+            ,"class", "struct", "namespace", "enum", "interface", "using", "const", "enum"
 
             ,"return", "if", "while", "for", "foreach"
             ,"yield", "break", "goto", "switch", "case", "default"
+
+            , "as", "catch", "continue", "default", "delegate", "do"
+            , "else", "false", "true", "fixed", "finally", "in", "is", "lock"
+            , "new", "null", "out", "ref", "sizeof", "stackalloc", "throw", "typeof"
         };
 
         public static bool IsCsharpKeyword(string name)
