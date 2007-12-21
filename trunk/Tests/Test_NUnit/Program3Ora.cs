@@ -15,7 +15,7 @@ namespace Test_NUnit
         static void Main()
         {
             //new ReadTest_Complex().F1_ProductCount();
-            new ReadTest_Complex().F1_ProductCount();
+            new ReadTest().A2_ProductsTableHasEntries();
             //new WriteTest().G2_DeleteTest();
             //new WriteTest().G1_InsertProduct();
         }

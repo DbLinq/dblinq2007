@@ -48,7 +48,14 @@ namespace DBLinq.vendor
             OracleConnection conn = context.SqlConnection;
             using (OracleCommand command = new OracleCommand(sql, conn))
             {
-                return command.ExecuteNonQuery();
+                //int ret = command.ExecuteNonQuery();
+                object obj = command.ExecuteScalar();
+                Type t = obj.GetType();
+                if (t == typeof(int))
+                    return (int)obj;
+                else if (t == typeof(decimal))
+                    return (int)(decimal)obj;
+                return -1;
             }
         }
 

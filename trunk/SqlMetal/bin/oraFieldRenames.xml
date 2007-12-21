@@ -15,5 +15,9 @@
   <Renaming old="PHONE" new="Phone" />
   <Renaming old="UNITPRICE" new="UnitPrice" />
   <Renaming old="DISCONTINUED" new="Discontinued" />
+  <Renaming old="SUPPLIERID" new="SupplierID" />
+  <Renaming old="REPORTSTO" new="ReportsTo" />
+  <Renaming old="FIRSTNAME" new="FirstName" />
+  <Renaming old="LASTNAME" new="LastName" />
   <Renaming old="LinqTestDB" new="LinqTestDB" />
 </Renamings>

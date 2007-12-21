@@ -28,7 +28,7 @@ namespace Test_NUnit
     public abstract class TestBase
     {
 #if ORACLE
-        const string connStr = "server=localhost;user id=system; password=linq2";
+        const string connStr = "server=localhost;user id=Northwind; password=linq2";
 #else //Mysql, Postgres
         public const string connStr = "server=localhost;user id=LinqUser; password=linq2; database=Northwind";
 

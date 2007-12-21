@@ -1,3 +1,4 @@
+#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -21,6 +22,7 @@
 // Authors:
 //        Jiri George Moudry
 ////////////////////////////////////////////////////////////////////
+#endregion
 
 using System;
 using System.Data;
@@ -300,6 +302,8 @@ namespace DBLinq.util
         {
             try
             {
+                if (_rdr.IsDBNull(index))
+                    return null;
                 return _rdr.GetString(index);
             } 
             catch(Exception ex)
@@ -315,6 +319,8 @@ namespace DBLinq.util
             {
                 //System.Data.SqlClient.SqlDataReader rdr2;
                 //rdr2.GetSqlBinary(); //SqlBinary does not seem to exist on MySql
+                if (_rdr.IsDBNull(index))
+                    return null;
                 object obj = _rdr.GetValue(index);
                 if(obj==null)
                     return null; //nullable blob?
