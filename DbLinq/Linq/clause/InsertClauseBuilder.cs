@@ -1,3 +1,4 @@
+#region MIT License
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -21,6 +22,7 @@
 // Authors:
 //        Jiri George Moudry
 ////////////////////////////////////////////////////////////////////
+#endregion
 
 using System;
 using System.Reflection;
@@ -52,6 +54,7 @@ using XSqlCommand = MySql.Data.MySqlClient.MySqlCommand;
 using XSqlParameter = MySql.Data.MySqlClient.MySqlParameter;
 #endif
 using DBLinq.Linq;
+using DBLinq.vendor;
 using DBLinq.util;
 
 namespace DBLinq.Linq.clause
@@ -74,7 +77,9 @@ namespace DBLinq.Linq.clause
 
             StringBuilder sb = new StringBuilder(DBLinq.vendor.Settings.sqlStatementProlog)
                 .Append("INSERT INTO ");
-            StringBuilder sbVals = new StringBuilder("VALUES (");
+            StringBuilder sbValues = new StringBuilder("VALUES (");
+            StringBuilder sbIdentity = new StringBuilder();
+
             sb.Append(projData.tableAttribute.Name).Append(" (");
             List<XSqlParameter> paramList = new List<XSqlParameter>();
 
@@ -84,19 +89,24 @@ namespace DBLinq.Linq.clause
                 ColumnAttribute colAtt = projFld.columnAttribute;
 
                 if (colAtt.IsPrimaryKey) //(colAtt.Id)
+                {
+                    //on Oracle, populate PK field from associated sequence
+                    Vendor.ProcessPkField(projData, colAtt, sb, sbValues, sbIdentity, ref numFieldsAdded);
+
                     continue; //if field is ID , don't send field
+                }
 
                 object paramValue = projFld.GetFieldValue(objectToInsert);
                 if (paramValue == null)
                     continue; //don't set null fields
 
                 //append string, eg. ",Name"
-                if(numFieldsAdded++> 0){ sb.Append(", "); sbVals.Append(", "); }
+                if(numFieldsAdded++> 0){ sb.Append(", "); sbValues.Append(", "); }
                 sb.Append(colAtt.Name);
 
                 //get either ":p0" or "?p0"
                 string paramName = vendor.Vendor.ParamName(numFieldsAdded);
-                sbVals.Append(paramName);
+                sbValues.Append(paramName);
 
                 XSqlParameter param = vendor.Vendor.CreateSqlParameter(colAtt.DbType, paramName);
 
@@ -104,20 +114,11 @@ namespace DBLinq.Linq.clause
                 paramList.Add(param);
             }
             sb.Append(") ");
-            sbVals.Append(") ");
+            sbValues.Append(") ");
             //" FROM Employee e"
-            sb.Append(sbVals.ToString());
-            //sb.Append(";\n");
-            //sb.Append("SELECT @@IDENTITY"); //must be on separate line
+            sb.Append(sbValues.ToString());
 
-#if POSTGRES //Postgres needs 'SELECT currval(sequenceName)'
-            ColumnAttribute[] colAttribs = AttribHelper.GetColumnAttribs(projData.type);
-            //ColumnAttribute idColAttrib = colAttribs.FirstOrDefault(c => c.Id);
-            ColumnAttribute idColAttrib = colAttribs.FirstOrDefault(c => c.IsPrimaryKey);
-            string idColName = idColAttrib == null ? "ERROR_L93_MissingIdCol" : idColAttrib.Name;
-            string sequenceName = projData.tableAttribute.Name+"_"+idColName+"_seq";
-            sb.Append(";SELECT currval('"+sequenceName+"')"); 
-#endif
+            sb.Append(sbIdentity.ToString());
 
             string sql = sb.ToString();
 

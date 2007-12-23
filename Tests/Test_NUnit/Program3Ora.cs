@@ -16,9 +16,9 @@ namespace Test_NUnit
         {
             //new ReadTest_Complex().F1_ProductCount();
             //new ReadTest().D04_SelectProducts_OrderByName();
-            new Linq_101_Samples.AdvancedTest().LinqToSqlAdvanced06();
+            //new Linq_101_Samples.AdvancedTest().LinqToSqlAdvanced06();
             //new WriteTest().G2_DeleteTest();
-            //new WriteTest().G1_InsertProduct();
+            new WriteTest().G1_InsertProduct();
         }
     }
     //class Column { public string table_name; }

@@ -1,9 +1,14 @@
 using System;
-using System.Linq;
+using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Data.Linq;
+using System.Data.Linq.Mapping;
 using System.Data.OracleClient;
 using DBLinq.util;
+using DBLinq.Linq;
 
 namespace DBLinq.vendor
 {
@@ -11,6 +16,25 @@ namespace DBLinq.vendor
     {
         public const string VENDOR_NAME = "Oracle";
         public const string SQL_PING_COMMAND = "SELECT 11 FROM DUAL";
+
+        /// <summary>
+        /// On Oracle, we have to insert a primary key manually.
+        /// On MySql/Pgsql/Mssql, we use the IDENTITY clause to populate it automatically.
+        /// </summary>
+        public static void ProcessPkField(ProjectionData projData, ColumnAttribute colAtt
+            , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
+        {
+            if (numFieldsAdded++ > 0) { sb.Append(", "); sbValues.Append(", "); }
+
+            sb.Append(colAtt.Name);
+            string sequenceName = projData.tableAttribute.Name + "_SEQ.NextVal";
+            sbValues.Append(sequenceName);
+
+            //this semicolon gives error: ORA-00911: invalid character
+            //but Oracle docs imply that you can use semicolon and multiple commands?!
+            //http://www.oracle.com/technology/sample_code/tech/windows/odpnet/howto/anonyblock/index.html
+            sbIdentity.Append(";\r\n SELECT " + sequenceName + ".CurrVal FROM DUAL");
+        }
 
         /// <summary>
         /// Postgres string concatenation, eg 'a||b'

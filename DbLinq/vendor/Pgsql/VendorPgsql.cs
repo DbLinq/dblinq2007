@@ -32,6 +32,7 @@ using System.Collections.Generic;
 using System.Text;
 using DBLinq.Linq.Mapping;
 using DBLinq.util;
+using DBLinq.Linq;
 using Npgsql;
 
 namespace DBLinq.vendor
@@ -43,6 +44,17 @@ namespace DBLinq.vendor
     {
         public const string VENDOR_NAME = "Postgres";
         public const string SQL_PING_COMMAND = "SELECT 11";
+        
+        public static void ProcessPkField(ProjectionData projData, ColumnAttribute colAtt
+            , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
+        {
+            ColumnAttribute[] colAttribs = AttribHelper.GetColumnAttribs(projData.type);
+            //ColumnAttribute idColAttrib = colAttribs.FirstOrDefault(c => c.Id);
+            ColumnAttribute idColAttrib = colAttribs.FirstOrDefault(c => c.IsPrimaryKey);
+            string idColName = idColAttrib == null ? "ERROR_L93_MissingIdCol" : idColAttrib.Name;
+            string sequenceName = projData.tableAttribute.Name+"_"+idColName+"_seq";
+            sbIdentity.Append(";SELECT currval('"+sequenceName+"')"); 
+        }
         
         /// <summary>
         /// Postgres string concatenation, eg 'a||b'

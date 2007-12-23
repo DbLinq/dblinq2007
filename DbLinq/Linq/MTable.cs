@@ -1,3 +1,4 @@
+#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -21,6 +22,7 @@
 // Authors:
 //        Jiri George Moudry
 ////////////////////////////////////////////////////////////////////
+#endregion
 
 using System;
 using System.IO;
@@ -59,7 +61,7 @@ namespace DBLinq.Linq
     /// T may be eg. class Employee or string - the output
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class MTable<T> : 
+    public class MTable<T> :
         IQueryable<T>
         , IOrderedQueryable<T> //this is cheating ... we pretend to be always ordered
         , IMTable
@@ -71,7 +73,7 @@ namespace DBLinq.Linq
         /// </summary>
         MContext _parentDB;
         readonly List<T> _insertList = new List<T>();
-        readonly Dictionary<T,T> _liveObjectMap = new Dictionary<T,T>();
+        readonly Dictionary<T, T> _liveObjectMap = new Dictionary<T, T>();
         readonly List<T> _deleteList = new List<T>();
 
         readonly SessionVars _vars;
@@ -107,15 +109,17 @@ namespace DBLinq.Linq
             }
 
             SessionVars vars = new SessionVars(_vars).Add(expr);
-            
-            if(this is IQueryable<S>)
+
+            if (this is IQueryable<S>)
             {
                 //this occurs if we are not projecting
                 //(meaning that we are selecting entire row object)
                 MTable<T> clonedThis = new MTable<T>(this, vars);
-                IQueryable<S> this_S = (IQueryable<S>)clonedThis; 
+                IQueryable<S> this_S = (IQueryable<S>)clonedThis;
                 return this_S;
-            } else {
+            }
+            else
+            {
                 //if we get here, we are projecting.
                 //(eg. you select only a few fields: "select name from employee")
                 MTable_Projected<S> projectedQ = new MTable_Projected<S>(vars);
@@ -128,7 +132,7 @@ namespace DBLinq.Linq
         /// </summary>
         public S Execute<S>(Expression expression)
         {
-            Log1.Info("MTable.Execute<"+typeof(S)+">: "+expression);
+            Log1.Info("MTable.Execute<" + typeof(S) + ">: " + expression);
             SessionVars vars2 = new SessionVars(_vars).AddScalar(expression); //clone and append Expr
             SessionVarsParsed varsFin = QueryProcessor.ProcessLambdas(vars2, typeof(T)); //parse all
             return new RowScalar<T>(varsFin, this, _liveObjectMap).GetScalar<S>(expression);
@@ -153,12 +157,12 @@ namespace DBLinq.Linq
 
         [Obsolete("NOT IMPLEMENTED YET")]
         public Type ElementType
-        { 
+        {
             get { throw new ApplicationException("Not implemented"); }
         }
 
-        public Expression Expression 
-        { 
+        public Expression Expression
+        {
             //copied from RdfProvider
             get { return Expression.Constant(this); }
         }
@@ -188,14 +192,14 @@ namespace DBLinq.Linq
         public void SaveAll()
         {
             //TODO: process deleteList, insertList, liveObjectList
-            if(_insertList.Count==0 && _liveObjectMap.Count==0 && _deleteList.Count==0)
+            if (_insertList.Count == 0 && _liveObjectMap.Count == 0 && _deleteList.Count == 0)
                 return; //nothing to do
             //object[] indices = new object[0];
             ProjectionData proj = ProjectionData.FromDbType(typeof(T));
             XSqlConnection conn = _parentDB.SqlConnection;
 
 #if MICROSOFT || MYSQL //bulk insert code
-            if(vendor.Vendor.UseBulkInsert.ContainsKey(this))
+            if (vendor.Vendor.UseBulkInsert.ContainsKey(this))
             {
                 vendor.Vendor.DoBulkInsert(this, _insertList, conn);
                 _insertList.Clear();
@@ -204,42 +208,28 @@ namespace DBLinq.Linq
 
             foreach (T obj in _insertList)
             {
-                //INSERT EMPLOYEES (Name, DateStarted) VALUES (?p1,?p2)
-                using(XSqlCommand cmd = InsertClauseBuilder.GetClause(conn,obj,proj))
+                //build command similar to:
+                //INSERT EMPLOYEES (Name, DateStarted) VALUES (?p1,?p2); SELECT @@IDENTITY
+                //INSERT EMPLOYEES (EmpId, Name, DateStarted) VALUES (EmpID_SEQ.NextVal,?p1,?p2); SELECT EmpID_SEQ.CurrVal
+
+                using (XSqlCommand cmd = InsertClauseBuilder.GetClause(conn, obj, proj))
                 {
                     object objID = null;
-#if POSTGRES
                     objID = cmd.ExecuteScalar();
-#else
-                    //Mysql:
-                    cmd.ExecuteNonQuery();
-                    if(proj.autoGenField!=null)
-                    {
-                        try
-                        {
-                            cmd.CommandText = "SELECT @@Identity";
-			                objID = cmd.ExecuteScalar();
-
-                        }
-                        catch(Exception ex)
-                        {
-                            Console.WriteLine("MTable.SaveAll: Failed on retrieving @@ID/assigning ID:"+ex);
-                        }
-                    }
-#endif
                     try
                     {
                         //set the object's ID:
                         FieldUtils.SetObjectIdField(obj, proj.autoGenField, objID);
 
                         IModified imod = obj as IModified;
-                        if(imod!=null){
+                        if (imod != null)
+                        {
                             imod.IsModified = false; //we just saved it - it's not 'dirty'
                         }
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
-                        Console.WriteLine("Failed on SetObjectIdField: "+ex);
+                        Console.WriteLine("L227 Failed on SetObjectIdField: " + ex);
                     }
                     //cmd.CommandText = 
                     //TODO: use reflection to assign the field ID - that way the _isModified flag will not get set
@@ -252,10 +242,10 @@ namespace DBLinq.Linq
             Func<T, string> getObjectID = RowEnumeratorCompiler<T>.CompileIDRetrieval(proj);
 
             //todo: check object is not in two lists
-            foreach(T obj in _liveObjectMap.Values)
+            foreach (T obj in _liveObjectMap.Values)
             {
                 IModified iMod = obj as IModified;
-                if(iMod==null || !iMod.IsModified)
+                if (iMod == null || !iMod.IsModified)
                     continue;
                 Trace.WriteLine("MTable SaveAll: saving modified object");
                 string ID_to_update = getObjectID(obj);
@@ -265,23 +255,23 @@ namespace DBLinq.Linq
                 Trace.WriteLine("MTable SaveAll.Update returned:" + result);
             }
 
-            if(_deleteList.Count>0)
+            if (_deleteList.Count > 0)
             {
                 //Func<T,string> getObjectID = RowEnumeratorCompiler<T>.CompileIDRetrieval(proj);
                 StringBuilder sbDeleteIDs = new StringBuilder();
-                int indx2=0;
-                foreach(T obj in _deleteList)
+                int indx2 = 0;
+                foreach (T obj in _deleteList)
                 {
                     string ID_to_delete = getObjectID(obj);
-                    if(indx2++ >0 ){ sbDeleteIDs.Append(","); }
+                    if (indx2++ > 0) { sbDeleteIDs.Append(","); }
                     sbDeleteIDs.Append(ID_to_delete);
                 }
                 string tableName = proj.tableAttribute.Name;
-                string sql = "DELETE FROM "+tableName+" WHERE "+proj.keyColumnName+" in ("+sbDeleteIDs+")";
-                Trace.WriteLine("MTable SaveAll.Delete: "+sql);
+                string sql = "DELETE FROM " + tableName + " WHERE " + proj.keyColumnName + " in (" + sbDeleteIDs + ")";
+                Trace.WriteLine("MTable SaveAll.Delete: " + sql);
                 XSqlCommand cmd = new XSqlCommand(sql, _parentDB.SqlConnection);
                 int result = cmd.ExecuteNonQuery();
-                Trace.WriteLine("MTable SaveAll.Delete returned:"+result);
+                Trace.WriteLine("MTable SaveAll.Delete returned:" + result);
             }
 
         }

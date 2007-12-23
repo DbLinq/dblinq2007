@@ -22,14 +22,14 @@ namespace Test_NUnit
             //new ReadTest_GroupBy().G01_SimpleGroup_Count();
             //new ReadTest_GroupBy().G05_Group_Into();
             //new ReadTest().C1_SelectProducts();
-            new Join().LinqToSqlJoin10();
+            //new Join().LinqToSqlJoin10();
             //new ReadTest_Complex().F10_DistinctCity();
             //new StoredProcTest().SPB_GetOrderCount_Having();
             //new ReadTest().D08_Products_Take5();
             //new ReadTest_AllTypes().AT1_SelectRow();
             //new ReadTest_Operands().H1_SelectConcat();
             //rc.F11_ConcatString();
-            //new WriteTest().E2_UpdateEnum();
+            new WriteTest().G1_InsertProduct();
             //new WriteTest_BulkInsert().BI01_InsertProducts();
             //new NullTest().NullableT_Value();
             //new Count_Sum_Min_Max_Avg().LiqnToSqlCount02();

@@ -4,9 +4,10 @@ using System.Text;
 using System.Linq;
 
 #if DEBUG
-using System.Data.OracleClient;
-using XSqlCommand = System.Data.OracleClient.OracleCommand;
+//using System.Data.OracleClient;
+//using XSqlCommand = System.Data.OracleClient.OracleCommand;
 #endif
+using Oracle.DataAccess.Client;
 
 namespace nwind
 {
@@ -14,7 +15,10 @@ namespace nwind
     {
         static void Main(string[] args)
         {
-            string connStr = "server=localhost;user=system;password=linq2";
+            string connStr = "server=localhost;user=Northwind;password=linq2";
+            insertTest(connStr);
+            return;
+
             Northwind db = new Northwind(connStr);
             //var q = from at in db.alltypes select at;
             //var q = from p in db.products orderby p.ProductName select p;
@@ -39,6 +43,28 @@ namespace nwind
             foreach(var v in q){
                 Console.WriteLine("OBJ:"+v);
             }        
+        }
+
+        public static void insertTest(string connStr)
+        {
+//            string sql = @"
+//insert INTO t1 (id1) values (t1_seq.NextVal); 
+//select t1_seq.CurrVal FROM DUAL
+//";
+            string sql = @"BEGIN
+SELECT 1 FROM DUAL;
+END";
+            //Oracle provider (check via TNSPING): "User Id=Scott;Password=tiger;Data Source=orcl9i"
+            connStr = "User Id=Northwind;Password=linq2;Data Source=XE";
+            OracleConnection conn = new OracleConnection(connStr);
+            conn.Open();
+            OracleCommand cmd = new OracleCommand(sql, conn);
+            cmd.CommandType = System.Data.CommandType.Text;
+            //int result = cmd.ExecuteNonQuery();
+            //object result = cmd.ExecuteOracleScalar();
+            object result = cmd.ExecuteScalar();
+            Type tt = result.GetType();
+            //result++;
         }
 
         //static void Main()

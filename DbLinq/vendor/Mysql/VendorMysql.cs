@@ -48,6 +48,15 @@ namespace DBLinq.vendor
         /// </summary>
         public static readonly Dictionary<DBLinq.Linq.IMTable, int> UseBulkInsert = new Dictionary<DBLinq.Linq.IMTable, int>();
 
+        public static void ProcessPkField(ProjectionData projData, ColumnAttribute colAtt
+            , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
+        {
+            //on Oracle, this function does something.
+            //on other DBs, primary keys values are handled by AUTO_INCREMENT
+            
+            sbIdentity.Append(";\n SELECT @@IDENTITY");
+        }
+
         /// <summary>
         /// Postgres string concatenation, eg 'a||b'
         /// </summary>
