@@ -42,28 +42,14 @@ namespace DBLinq.Linq.clause
     /// </summary>
     public class ParseResult
     {
-        //public readonly Dictionary<string,object> paramMap; // = new Dictionary<string,object>();
-        //public string lastParamName;
         public List<string> joins = new List<string>();
         readonly StringBuilder sb = new StringBuilder(200);
         public List<string> columns = new List<string>();
 
-        public ParseResult(//ParseInputs input
-            )
+        public ParseResult()
         {
-            //paramMap = input!=null
-            //    ? input.paramMap
-            //    : new Dictionary<string,object>();
         }
 
-        //public string storeParam(string value)
-        //{ 
-        //    int count = paramMap.Count;
-        //    string paramName = Vendor.ParamName(count);
-        //    paramMap[paramName] = value;
-        //    lastParamName = paramName;
-        //    return paramName;
-        //}
         public void addJoin(string joinStr)
         {
             if( ! joins.Contains(joinStr) )
@@ -90,8 +76,6 @@ namespace DBLinq.Linq.clause
                 sb.Length=0;
                 return;
             }
-            //if(columnString.Contains(",")) //OK - e.g. "CONCAT(p$.ProductName,p$.ProductID)"
-            //    throw new Exception("L62 OOOPSW");
             sb.Append(columnString);
         }
 

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Data;
 using System.Linq;
-
 using MySql.Data.MySqlClient;
 
 using nwind;  // contains Northwind context
@@ -26,6 +25,8 @@ namespace DbLinq.MySql.Example
             }
 
             string connStr = String.Format("server={0};user id={1}; password={2}; database={3}", args);
+            insertTest(connStr);
+            return;
 
 #if false
             MySqlCommand cmd = new MySqlCommand("select hello(?s)", new MySqlConnection(connStr));
@@ -126,6 +127,18 @@ namespace DbLinq.MySql.Example
             Console.WriteLine("Press enter to continue.");
             Console.ReadLine();
 
+        }
+
+        public static void insertTest(string connStr)
+        {
+            string sql = "insert into t3 (f1) VALUES (11); select @@IDENTITY";
+            MySqlConnection conn = new MySqlConnection(connStr);
+            conn.Open();
+            MySqlCommand cmd = new MySqlCommand(sql, conn);
+            //int result = cmd.ExecuteNonQuery();
+            object result = cmd.ExecuteScalar();
+            Type tt = result.GetType();
+            //result++;
         }
     }
 }
