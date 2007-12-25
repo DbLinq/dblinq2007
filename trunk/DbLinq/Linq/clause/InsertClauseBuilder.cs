@@ -92,8 +92,10 @@ namespace DBLinq.Linq.clause
                 {
                     //on Oracle, populate PK field from associated sequence
                     Vendor.ProcessPkField(projData, colAtt, sb, sbValues, sbIdentity, ref numFieldsAdded);
-
-                    continue; //if field is ID , don't send field
+                    if (projData.autoGenField!=null)//not every ID is autogen
+                    {
+                        continue; //if field is ID , don't send field
+                    }
                 }
 
                 object paramValue = projFld.GetFieldValue(objectToInsert);

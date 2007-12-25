@@ -1,5 +1,5 @@
 Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual C# Express Codename Orcas
+# Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.MySql", "DbLinq\DbLinq.MySql.csproj", "{42B135DF-562B-48FD-9A63-43B1D30321A6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MysqlMetal", "SqlMetal\MysqlMetal.csproj", "{93E8F1C0-866E-4447-94FC-0C36E5CB9043}"
@@ -28,7 +28,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicrosoftMetal", "SqlMetal\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.Microsoft", "DbLinq\DbLinq.Microsoft.csproj", "{42B135DF-56AB-48FD-9A63-43B1DF2321A6}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{05C5B3A4-2F0B-4330-8106-14D91A73D9F0}"
+	ProjectSection(SolutionItems) = preProject
+		DbLinq.vsmdi = DbLinq.vsmdi
+		LocalTestRun.testrunconfig = LocalTestRun.testrunconfig
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test88", "..\test88\test88\test88.csproj", "{81C69768-20BA-44F4-A82A-E60D5D4C9057}"
+EndProject
 Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = DbLinq.vsmdi
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -89,6 +100,10 @@ Global
 		{42B135DF-56AB-48FD-9A63-43B1DF2321A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42B135DF-56AB-48FD-9A63-43B1DF2321A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{42B135DF-56AB-48FD-9A63-43B1DF2321A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81C69768-20BA-44F4-A82A-E60D5D4C9057}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81C69768-20BA-44F4-A82A-E60D5D4C9057}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81C69768-20BA-44F4-A82A-E60D5D4C9057}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81C69768-20BA-44F4-A82A-E60D5D4C9057}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

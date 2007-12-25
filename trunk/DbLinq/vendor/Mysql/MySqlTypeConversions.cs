@@ -64,8 +64,8 @@ namespace DBLinq.vendor
                     case "char":
                     case "varchar":
                     case "text":
+                    case "longtext":
                         return MySqlDbType.String;
-
                     case "bit":
                         return MySqlDbType.Bit;
                     case "int":
