@@ -32,12 +32,14 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
+using System.Data;
 
 #if ORACLE
 using System.Data.OracleClient;
 using XSqlConnection = System.Data.OracleClient.OracleConnection;
 using XSqlCommand = System.Data.OracleClient.OracleCommand;
 using XSqlParameter = System.Data.OracleClient.OracleParameter;
+using XVendor = DBLinq.vendor.VendorOra;
 #elif POSTGRES
 using XSqlConnection = Npgsql.NpgsqlConnection;
 using XSqlCommand = Npgsql.NpgsqlCommand;
@@ -62,7 +64,9 @@ namespace DBLinq.Linq.clause
     public class InsertClauseBuilder
     {
         //static object[] s_emptyIndices = new object[0];
-        static Dictionary<string,string> s_logOnceMap = new Dictionary<string,string>();
+        static Dictionary<string, string> s_logOnceMap = new Dictionary<string, string>();
+
+        static IVendor s_vendor = VendorFactory.Make();
 
         /// <summary>
         /// given type Employee, return 'INSERT Employee (ID, Name) VALUES (?p1,?p2)'
@@ -70,9 +74,9 @@ namespace DBLinq.Linq.clause
         /// </summary>
         public static XSqlCommand GetClause(XSqlConnection conn, object objectToInsert, ProjectionData projData)
         {
-            if(conn==null || objectToInsert==null || projData==null)
+            if (conn == null || objectToInsert == null || projData == null)
                 throw new ArgumentNullException("InsertClauseBuilder has null args");
-            if(projData.fields.Count<1 || projData.fields[0].columnAttribute==null)
+            if (projData.fields.Count < 1 || projData.fields[0].columnAttribute == null)
                 throw new ApplicationException("InsertClauseBuilder need to receive types that have ColumnAttributes");
 
             StringBuilder sb = new StringBuilder(DBLinq.vendor.Settings.sqlStatementProlog)
@@ -84,18 +88,20 @@ namespace DBLinq.Linq.clause
             List<XSqlParameter> paramList = new List<XSqlParameter>();
 
             int numFieldsAdded = 0;
-            foreach(ProjectionData.ProjectionField projFld in projData.fields)
+            foreach (ProjectionData.ProjectionField projFld in projData.fields)
             {
                 ColumnAttribute colAtt = projFld.columnAttribute;
 
-                if (colAtt.IsPrimaryKey) //(colAtt.Id)
+                if (colAtt.IsPrimaryKey && projData.autoGenField != null)
                 {
+                    //Note: not every ID is autogen
                     //on Oracle, populate PK field from associated sequence
-                    Vendor.ProcessPkField(projData, colAtt, sb, sbValues, sbIdentity, ref numFieldsAdded);
-                    if (projData.autoGenField!=null)//not every ID is autogen
+                    XSqlParameter outParam = s_vendor.ProcessPkField(projData, colAtt, sb, sbValues, sbIdentity, ref numFieldsAdded) as XSqlParameter;
+                    if (outParam != null)
                     {
-                        continue; //if field is ID , don't send field
+                        paramList.Add(outParam); //only Oracle adds an outParam
                     }
+                    continue; //if field is ID , don't send field
                 }
 
                 object paramValue = projFld.GetFieldValue(objectToInsert);
@@ -103,14 +109,14 @@ namespace DBLinq.Linq.clause
                     continue; //don't set null fields
 
                 //append string, eg. ",Name"
-                if(numFieldsAdded++> 0){ sb.Append(", "); sbValues.Append(", "); }
+                if (numFieldsAdded++ > 0) { sb.Append(", "); sbValues.Append(", "); }
                 sb.Append(colAtt.Name);
 
                 //get either ":p0" or "?p0"
-                string paramName = vendor.Vendor.ParamName(numFieldsAdded);
+                string paramName = s_vendor.ParamName(numFieldsAdded);
                 sbValues.Append(paramName);
 
-                XSqlParameter param = vendor.Vendor.CreateSqlParameter(colAtt.DbType, paramName);
+                XSqlParameter param = (XSqlParameter)s_vendor.CreateSqlParameter(colAtt.DbType, paramName);
 
                 param.Value = paramValue;
                 paramList.Add(param);
@@ -124,14 +130,14 @@ namespace DBLinq.Linq.clause
 
             string sql = sb.ToString();
 
-            if(! s_logOnceMap.ContainsKey(sql))
+            if (!s_logOnceMap.ContainsKey(sql))
             {
-                Console.WriteLine("SQL INSERT L60: "+sql);
+                Console.WriteLine("SQL INSERT L60: " + sql);
                 s_logOnceMap[sql] = "unused"; //log once only
             }
 
-            XSqlCommand cmd = new XSqlCommand(sql,conn);
-            foreach(XSqlParameter param in paramList)
+            XSqlCommand cmd = new XSqlCommand(sql, conn);
+            foreach (XSqlParameter param in paramList)
             {
                 cmd.Parameters.Add(param);
             }
@@ -161,7 +167,7 @@ namespace DBLinq.Linq.clause
                 //append string, eg. ",Name"
                 if (numFieldsAdded++ > 0)
                 {
-                    sbNames.Append(", "); 
+                    sbNames.Append(", ");
                 }
                 sbNames.Append(colAtt.Name);
             }
@@ -175,7 +181,7 @@ namespace DBLinq.Linq.clause
         /// In Mysql, called multiple times in a row to do a 'bulk insert'.
         /// </summary>
         public static string InsertRowFields(object objectToInsert, ProjectionData projData
-            ,List<XSqlParameter> paramList, ref int numFieldsAdded)
+            , List<XSqlParameter> paramList, ref int numFieldsAdded)
         {
             StringBuilder sbVals = new StringBuilder("(");
             string separator = "";
@@ -191,11 +197,11 @@ namespace DBLinq.Linq.clause
                 //    continue; //don't set null fields
 
                 //get either ":p0" or "?p0"
-                string paramName = vendor.Vendor.ParamName(numFieldsAdded++);
+                string paramName = s_vendor.ParamName(numFieldsAdded++);
                 sbVals.Append(separator).Append(paramName);
                 separator = ", ";
 
-                XSqlParameter param = vendor.Vendor.CreateSqlParameter(colAtt.DbType, paramName);
+                XSqlParameter param = (XSqlParameter)s_vendor.CreateSqlParameter(colAtt.DbType, paramName);
 
                 param.Value = paramValue;
                 paramList.Add(param);
@@ -208,7 +214,7 @@ namespace DBLinq.Linq.clause
         /// (by examining [Table] and [Column] attribs)
         /// </summary>
         public static XSqlCommand GetUpdateCommand(XSqlConnection conn, object objectToInsert
-            ,ProjectionData projData, string ID_to_update)
+            , ProjectionData projData, string ID_to_update)
         {
             if (conn == null || objectToInsert == null || projData == null)
                 throw new ArgumentNullException("InsertClauseBuilder has null args");
@@ -220,13 +226,13 @@ namespace DBLinq.Linq.clause
             List<XSqlParameter> paramList = new List<XSqlParameter>();
 
             string primaryKeyName = null;
-            int paramIndex=0;
+            int paramIndex = 0;
             string separator = "";
             foreach (ProjectionData.ProjectionField projFld in projData.fields)
             {
                 ColumnAttribute colAtt = projFld.columnAttribute;
 
-                string columnName_safe = vendor.Vendor.FieldName_Safe(colAtt.Name); //turn 'User' into '[User]'
+                string columnName_safe = s_vendor.FieldName_Safe(colAtt.Name); //turn 'User' into '[User]'
 
                 if (colAtt.IsPrimaryKey) //colAtt.Id
                 {
@@ -245,7 +251,7 @@ namespace DBLinq.Linq.clause
                 }
                 else
                 {
-                    paramName = vendor.Vendor.ParamName(paramIndex++);
+                    paramName = s_vendor.ParamName(paramIndex++);
                 }
 
                 //append string, eg. ",Name=:p0"
@@ -253,7 +259,7 @@ namespace DBLinq.Linq.clause
 
                 separator = ", ";
 
-                XSqlParameter param = vendor.Vendor.CreateSqlParameter(colAtt.DbType, paramName);
+                XSqlParameter param = (XSqlParameter)s_vendor.CreateSqlParameter(colAtt.DbType, paramName);
                 param.Value = paramValue;
                 paramList.Add(param);
             }

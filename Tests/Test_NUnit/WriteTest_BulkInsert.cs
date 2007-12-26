@@ -19,7 +19,7 @@ namespace Test_NUnit
             Northwind db = CreateDB();
             initialCount = db.Products.Count();
 
-            DBLinq.vendor.Vendor.UseBulkInsert[db.Products] = 3; //insert three rows at a time
+            DBLinq.vendor.mysql.VendorMysql.UseBulkInsert[db.Products] = 3; //insert three rows at a time
 
             db.Products.Add(new Product(0, "tmp_ProductA", 1, 1, "00", 1M, null, 1, 2, false));
             db.Products.Add(new Product(0, "tmp_ProductB", 1, 1, "11", 1M, null, 1, 2, false));

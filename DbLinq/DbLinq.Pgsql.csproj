@@ -88,10 +88,12 @@
     <Compile Include="util\TypeEnum.cs" />
     <Compile Include="util\VarName.cs" />
     <Compile Include="vendor\IDataReader2.cs" />
+    <Compile Include="vendor\IVendor.cs" />
     <Compile Include="vendor\Pgsql\DataReader2.cs" />
     <Compile Include="vendor\Pgsql\PgsqlTypeConversions.cs" />
     <Compile Include="vendor\Pgsql\VendorPgsql.cs" />
     <Compile Include="vendor\Settings.cs" />
+    <Compile Include="vendor\VendorBase.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

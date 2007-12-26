@@ -19,6 +19,8 @@ namespace SqlMetal.schema.oracle
                     return "DateTime";
                 case "BLOB":
                     return "byte[]";
+                case "FLOAT":
+                    return "double";
                 default:
                     return "UnknownOracleType_20 //(Unprepared for Oracle type "+dbType+") \n";
             }

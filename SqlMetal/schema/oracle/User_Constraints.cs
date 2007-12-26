@@ -12,6 +12,11 @@ namespace SqlMetal.schema.oracle
         public string column_name;
         public string constraint_type;
         public string R_constraint_name;
+
+        public override string ToString()
+        {
+            return "User_Constraint  " + table_name + "." + column_name;
+        }
     }
 
     public class User_Constraints_Sql

@@ -42,6 +42,8 @@ namespace DBLinq.Linq
     /// </summary>
     public partial class QueryProcessor
     {
+        static IVendor s_vendor = VendorFactory.Make();
+
         internal readonly SessionVarsParsed _vars;
 
         /// <summary>
@@ -264,7 +266,7 @@ namespace DBLinq.Linq
         public string storeParam(string value)
         {
             int count = paramMap.Count;
-            string paramName = Vendor.ParamName(count);
+            string paramName = s_vendor.ParamName(count);
             paramMap[paramName] = value;
             lastParamName = paramName;
             return paramName;

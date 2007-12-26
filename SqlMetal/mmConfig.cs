@@ -59,6 +59,11 @@ namespace SqlMetal
         public static bool verboseForeignKeys = false;
 
         /// <summary>
+        /// when true, we will call Singularize()/Pluralize() functions.
+        /// </summary>
+        public static bool useEnglishHeuristics = true;
+
+        /// <summary>
         /// if true, and PostgreSql database contains DOMAINS (typedefs), 
         /// we will generate code DbType='DerivedType'.
         /// if false, generate code DbType='BaseType'.

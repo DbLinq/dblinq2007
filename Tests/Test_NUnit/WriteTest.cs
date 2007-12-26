@@ -30,14 +30,14 @@ namespace Test_NUnit
             var q = from p in db.Products select p;
             Product pen1 = q.First();
             Product pen2 = q.First();
-            string uniqueStr = "Unique"+Environment.TickCount;
+            string uniqueStr = "Unique" + Environment.TickCount;
             pen1.QuantityPerUnit = uniqueStr;
-            bool isSameObject1 = pen2.QuantityPerUnit==uniqueStr;
-            Assert.IsTrue(isSameObject1,"Expected pen1 and pen2 to be the same live object, but their fields are different");
+            bool isSameObject1 = pen2.QuantityPerUnit == uniqueStr;
+            Assert.IsTrue(isSameObject1, "Expected pen1 and pen2 to be the same live object, but their fields are different");
             object oPen1 = pen1;
             object oPen2 = pen2;
-            bool isSameObject2 = oPen1==oPen2;
-            Assert.IsTrue(isSameObject2,"Expected pen1 and pen2 to be the same live object, but their fields are different");
+            bool isSameObject2 = oPen1 == oPen2;
+            Assert.IsTrue(isSameObject2, "Expected pen1 and pen2 to be the same live object, but their fields are different");
         }
 
 #if MYSQL
@@ -68,12 +68,12 @@ namespace Test_NUnit
 
             Product newProd = new Product();
             newProd.CategoryID = 1;
-            newProd.ProductName = "Temp."+Environment.TickCount;
+            newProd.ProductName = "Temp." + Environment.TickCount;
             newProd.QuantityPerUnit = "33 1/2";
             db.Products.Add(newProd);
             db.SubmitChanges();
-            Assert.Greater(newProd.ProductID,0,"After insertion, ProductID should be non-zero");
-            Assert.IsFalse(newProd.IsModified,"After insertion, Product.IsModified should be false");
+            Assert.Greater(newProd.ProductID, 0, "After insertion, ProductID should be non-zero");
+            Assert.IsFalse(newProd.IsModified, "After insertion, Product.IsModified should be false");
             return newProd.ProductID; //this test cab be used from delete tests
         }
 
@@ -87,23 +87,22 @@ namespace Test_NUnit
         public void G2_DeleteTest()
         {
             int insertedID = insertProduct_priv();
-            Assert.Greater(insertedID,0,"DeleteTest cannot operate if row was not inserted");
+            Assert.Greater(insertedID, 0, "DeleteTest cannot operate if row was not inserted");
 
             Northwind db = CreateDB();
 
             var q = from p in db.Products where p.ProductID == insertedID select p;
             List<Product> insertedProducts = q.ToList();
-            foreach(Product insertedProd in insertedProducts)
+            foreach (Product insertedProd in insertedProducts)
             {
                 db.Products.Remove(insertedProd);
             }
             db.SubmitChanges();
 
-            int numLeft = (from p in db.Products where p.ProductID==insertedID select p).Count();
-            Assert.AreEqual(numLeft,0, "After deletion, expected count of Products with ID="+insertedID+" to be zero, instead got "+numLeft);
+            int numLeft = (from p in db.Products where p.ProductID == insertedID select p).Count();
+            Assert.AreEqual(numLeft, 0, "After deletion, expected count of Products with ID=" + insertedID + " to be zero, instead got " + numLeft);
         }
 
         #endregion
-
     }
 }

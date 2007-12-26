@@ -1,4 +1,4 @@
-DROP DATABASE IF EXISTS `Northwind`;
+﻿DROP DATABASE IF EXISTS `Northwind`;
 
 CREATE DATABASE `Northwind`;
 
@@ -161,28 +161,22 @@ CREATE TABLE `Orders` (
   `ShipRegion` VARCHAR(15) NULL,
   `ShipPostalCode` VARCHAR(10) NULL,
   `ShipCountry` VARCHAR(15) NULL,
-  PRIMARY KEY(`OrderID`)
+  PRIMARY KEY(`OrderID`),
+  FOREIGN KEY `FK_orders_cust` (`CustomerID`) REFERENCES `Customers` (`CustomerID`),
+  FOREIGN KEY `FK_orders_emp` (`EmployeeID`) REFERENCES `Employees` (`EmployeeID`)
 )
 ENGINE = InnoDB;
 
-ALTER TABLE `orders` ADD CONSTRAINT `FK_orders_1` FOREIGN KEY `FK_orders_1` (`CustomerID`)
-    REFERENCES `Customers` (`CustomerID`)
-    ON DELETE RESTRICT
-    ON UPDATE RESTRICT;
-
-ALTER TABLE `orders` ADD CONSTRAINT `FK_orders_emp` FOREIGN KEY `FK_orders_emp` (`EmployeeID`)
-    REFERENCES `Employees` (`EmployeeID`)
-    ON DELETE RESTRICT
-    ON UPDATE RESTRICT;
-
 ####################################################################
 CREATE TABLE `Order Details` (
-  `OrderID` INTEGER NOT NULL                 REFERENCES Orders (OrderID),
-  `ProductID` INTEGER NOT NULL               REFERENCES Products (OrderID),
+  `OrderID` INTEGER NOT NULL,
+  `ProductID` INTEGER NOT NULL,
   `UnitPrice` DECIMAL NOT NULL,
   `Quantity` SMALLINT NOT NULL,
   `Discount` FLOAT NOT NULL,
-  PRIMARY KEY(`OrderID`,`ProductID`)
+  PRIMARY KEY(`OrderID`,`ProductID`),
+  FOREIGN KEY `FK_orderDet_ord` (`OrderID`) REFERENCES `Orders` (`OrderID`),
+  FOREIGN KEY `FK_orderDet_prod` (`ProductID`) REFERENCES `Products` (`ProductID`)
 )
 ENGINE = InnoDB;
 

@@ -25,6 +25,7 @@
 #endregion
 
 using System;
+using System.Data;
 using System.Linq;
 using System.Data.Linq.Mapping;
 using System.Reflection;
@@ -35,17 +36,16 @@ using DBLinq.util;
 using DBLinq.Linq;
 using Npgsql;
 
-namespace DBLinq.vendor
+namespace DBLinq.vendor.pgsql
 {
     /// <summary>
     /// PostgreSQL - specific code.
     /// </summary>
-    public class Vendor
+    public class VendorPgsql : VendorBase, IVendor
     {
-        public const string VENDOR_NAME = "Postgres";
-        public const string SQL_PING_COMMAND = "SELECT 11";
+        public string VendorName { get { return VendorFactory.POSTGRESQL; } }
         
-        public static void ProcessPkField(ProjectionData projData, ColumnAttribute colAtt
+        public IDbDataParameter ProcessPkField(ProjectionData projData, ColumnAttribute colAtt
             , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
         {
             ColumnAttribute[] colAttribs = AttribHelper.GetColumnAttribs(projData.type);
@@ -53,13 +53,15 @@ namespace DBLinq.vendor
             ColumnAttribute idColAttrib = colAttribs.FirstOrDefault(c => c.IsPrimaryKey);
             string idColName = idColAttrib == null ? "ERROR_L93_MissingIdCol" : idColAttrib.Name;
             string sequenceName = projData.tableAttribute.Name+"_"+idColName+"_seq";
-            sbIdentity.Append(";SELECT currval('"+sequenceName+"')"); 
+            sbIdentity.Append(";SELECT currval('"+sequenceName+"')");
+
+            return null; //we have not created a param object (only Oracle does)
         }
         
         /// <summary>
         /// Postgres string concatenation, eg 'a||b'
         /// </summary>
-        public static string Concat(List<ExpressionAndType> parts)
+        public override string Concat(List<ExpressionAndType> parts)
         {
             //string[] arr = parts.ToArray();
             //return string.Join("||", arr);
@@ -81,24 +83,16 @@ namespace DBLinq.vendor
         }
 
         /// <summary>
-        /// on Postgres or Oracle, return eg. ':P1', on Mysql, '?P1'
-        /// </summary>
-        public static string ParamName(int index)
-        {
-            return ":P"+index;
-        }
-
-        /// <summary>
         /// given 'User', return '[User]' to prevent a SQL keyword conflict
         /// </summary>
-        public static string FieldName_Safe(string name)
+        public string FieldName_Safe(string name)
         {
             //if (name.ToLower() == "user")
             //    return "[" + name + "]"; //this is wrong for Pgsql, says Andrus
             return name;
         }
 
-        public static NpgsqlParameter CreateSqlParameter(string dbTypeName, string paramName)
+        public IDbDataParameter CreateSqlParameter(string dbTypeName, string paramName)
         {
             //System.Data.SqlDbType dbType = DBLinq.util.SqlTypeConversions.ParseType(dbTypeName);
             //SqlParameter param = new SqlParameter(paramName, dbType);
@@ -111,7 +105,7 @@ namespace DBLinq.vendor
         /// call mysql stored proc or stored function, 
         /// optionally return DataSet, and collect return params.
         /// </summary>
-        public static System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.MContext context, MethodInfo method
+        public System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.MContext context, MethodInfo method
             , params object[] inputValues)
         {
             if (method == null)
@@ -254,7 +248,7 @@ namespace DBLinq.vendor
             return outParamValues;
         }
 
-        public static int ExecuteCommand(DBLinq.Linq.MContext context, string sql, params object[] parameters)
+        public int ExecuteCommand(DBLinq.Linq.MContext context, string sql, params object[] parameters)
         {
             NpgsqlConnection conn = context.SqlConnection;
             using (NpgsqlCommand command = new NpgsqlCommand(sql, conn))

@@ -42,18 +42,18 @@ namespace SqlMetal.codeGen
         //bool _attribAutoGen;
 
 
-        public CodeGenField(string tableClassName, DlinqSchema.Column column, List<DlinqSchema.Association> constraintsOnField )
+        public CodeGenField(string tableClassName, DlinqSchema.Column column, List<DlinqSchema.Association> constraintsOnField)
         {
             _column = column;
             _tableClassName = tableClassName;
 
             //glue together "(Id=true, AutoGen=true,DbType="float")"
             List<string> attribParts = new List<string>();
-            attribParts.Add("Name = \""+column.Name+"\"");
-            
-            attribParts.Add("DbType = \""+column.DbType+"\"");
+            attribParts.Add("Name = \"" + column.Name + "\"");
 
-            if(column.IsPrimaryKey)
+            attribParts.Add("DbType = \"" + column.DbType + "\"");
+
+            if (column.IsPrimaryKey)
             {
                 attribParts.Add("IsPrimaryKey = true");
             }
@@ -85,9 +85,10 @@ protected $type _$name;";
             template = template.Replace("$name", _column.Name);
             template = template.Replace("$attribOpt", _attrib2);
             template = template.Replace("$constraintWarn", _constraintWarn);
-            if(_column.IsDbGenerated){
+            if (_column.IsDbGenerated)
+            {
                 //mark this field - it must be modified on insertion
-                template = "[DBLinq.Linq.Mapping.AutoGenId] "+template;
+                template = "[DBLinq.Linq.Mapping.AutoGenId] " + template;
             }
             return template;
         }

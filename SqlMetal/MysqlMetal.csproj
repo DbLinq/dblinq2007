@@ -72,8 +72,5 @@
     <None Include="App.config" />
     <None Include="bin\run_myMetal.bat" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="schema\oracle\" />
-  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

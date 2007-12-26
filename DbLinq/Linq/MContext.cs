@@ -1,3 +1,4 @@
+#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -21,6 +22,7 @@
 // Authors:
 //        Jiri George Moudry
 ////////////////////////////////////////////////////////////////////
+#endregion
 
 using System;
 using System.Diagnostics;
@@ -28,6 +30,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using DBLinq.vendor;
 
 #if ORACLE
 using System.Data.OracleClient;
@@ -50,6 +53,8 @@ namespace DBLinq.Linq
 {
     public abstract class MContext
     {
+        static IVendor s_vendor = VendorFactory.Make();
+
         //readonly List<MTable> tableList = new List<MTable>();//MTable requires 1 type arg
         readonly List<IMTable> _tableList = new List<IMTable>();
         System.IO.TextWriter _log;
@@ -94,8 +99,8 @@ namespace DBLinq.Linq
             try
             {
                 //command: "SELECT 11" (Oracle: "SELECT 11 FROM DUAL")
-                string SQL = vendor.Vendor.SQL_PING_COMMAND; 
-                int result = vendor.Vendor.ExecuteCommand(this, SQL);
+                string SQL = s_vendor.SqlPingCommand; 
+                int result = s_vendor.ExecuteCommand(this, SQL);
                 return result == 11;
             }
             catch (Exception ex)
@@ -182,7 +187,7 @@ namespace DBLinq.Linq
         /// </summary>
         protected System.Data.Linq.IExecuteResult ExecuteMethodCall(MContext context, System.Reflection.MethodInfo method, params object[] sqlParams)
         {
-            System.Data.Linq.IExecuteResult result = vendor.Vendor.ExecuteMethodCall(context, method, sqlParams);
+            System.Data.Linq.IExecuteResult result = s_vendor.ExecuteMethodCall(context, method, sqlParams);
             return result;
         }
 
@@ -203,7 +208,7 @@ namespace DBLinq.Linq
         /// </summary>
         public int ExecuteCommand(string command, params object[] parameters)
         {
-            return vendor.Vendor.ExecuteCommand(this, command, parameters);
+            return s_vendor.ExecuteCommand(this, command, parameters);
         }
 
         /// <summary>

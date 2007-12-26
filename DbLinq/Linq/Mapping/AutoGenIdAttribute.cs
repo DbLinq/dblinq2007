@@ -32,6 +32,8 @@ namespace DBLinq.Linq.Mapping
     /// MySqlMetal will mark a field such as 'private int productID'
     /// with this attribute.
     /// Linq then knows to populate this field after a sql insert.
+    /// 
+    /// Note: on Oracle, this field is comes from a sequence.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
     public class AutoGenIdAttribute : Attribute

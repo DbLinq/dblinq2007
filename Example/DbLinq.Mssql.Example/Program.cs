@@ -19,7 +19,7 @@ namespace DbLinq.Mssql.Example
             //db.Regions.Add(new Region(-1, "tmp_region1"));
             //db.Regions.Add(new Region(-2, "tmp_region2"));
 
-            Vendor.UseBulkInsert[db.Shippers] = true;
+            DBLinq.vendor.mssql.VendorMssql.UseBulkInsert[db.Shippers] = true;
             db.Shippers.Add(new Shippers(-1, "UPS", "800-800-8888"));
             db.Shippers.Add(new Shippers(-1, "Fedex", "900-900-9999"));
             db.SubmitChanges();

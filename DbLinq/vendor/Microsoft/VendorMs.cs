@@ -33,18 +33,19 @@ using System.Text;
 using System.Data;
 using System.Data.Linq.Mapping;
 using DBLinq.util;
+using DBLinq.Linq;
 
-namespace DBLinq.vendor
+namespace DBLinq.vendor.mssql
 {
-    public class Vendor
+    public class VendorMssql : VendorBase, IVendor
     {
-        public const string VENDOR_NAME = "Microsoft";
-        public const string SQL_PING_COMMAND = "SELECT 11";
-        
+        public string VendorName { get { return VendorFactory.MSSQLSERVER; } }
+        //public const string SQL_PING_COMMAND = "SELECT 11";
+
         /// <summary>
         /// Postgres string concatenation, eg 'a||b'
         /// </summary>
-        public static string Concat(List<ExpressionAndType> parts)
+        public override string Concat(List<ExpressionAndType> parts)
         {
             string[] arr = parts.Select(p => p.expression).ToArray();
             return "CONCAT(" + string.Join(",", arr) + ")";
@@ -53,7 +54,7 @@ namespace DBLinq.vendor
         /// <summary>
         /// on Postgres or Oracle, return eg. ':P1', on Mysql, '?P1', @P1 for Microsoft
         /// </summary>
-        public static string ParamName(int index)
+        public override string ParamName(int index)
         {
             return "@P" + index;
         }
@@ -61,18 +62,25 @@ namespace DBLinq.vendor
         /// <summary>
         /// given 'User', return '[User]' to prevent a SQL keyword conflict
         /// </summary>
-        public static string FieldName_Safe(string name)
+        public string FieldName_Safe(string name)
         {
             if (name.ToLower() == "user")
                 return "[" + name + "]";
             return name;
         }
 
-        public static SqlParameter CreateSqlParameter(string dbTypeName, string paramName)
+        public IDbDataParameter CreateSqlParameter(string dbTypeName, string paramName)
         {
             System.Data.SqlDbType dbType = DBLinq.util.SqlTypeConversions.ParseType(dbTypeName);
             SqlParameter param = new SqlParameter(paramName, dbType);
             return param;
+        }
+
+        public IDbDataParameter ProcessPkField(ProjectionData projData, ColumnAttribute colAtt
+            , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
+        {
+            sbIdentity.Append("; SELECT @@IDENTITY");
+            return null;
         }
 
         //NOTE: for Oracle, we want to consider 'Array Binding'
@@ -125,13 +133,18 @@ namespace DBLinq.vendor
 
         }
 
-        public static int ExecuteCommand(DBLinq.Linq.MContext context, string sql, params object[] parameters)
+        public int ExecuteCommand(DBLinq.Linq.MContext context, string sql, params object[] parameters)
         {
             SqlConnection conn = context.SqlConnection;
             using (SqlCommand command = new SqlCommand(sql, conn))
             {
                 return command.ExecuteNonQuery();
             }
+        }
+
+        public System.Data.Linq.IExecuteResult ExecuteMethodCall(MContext context, System.Reflection.MethodInfo method, params object[] sqlParams)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>

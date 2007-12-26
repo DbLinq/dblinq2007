@@ -55,6 +55,8 @@ namespace DBLinq.Linq.clause
             {"op_LessThanOrEqual", " <= "},
         };
 
+        static IVendor s_vendor = VendorFactory.Make();
+
         QueryProcessor _parent;
         ParseResult _result;
         //ParseInputs _inputs;
@@ -62,11 +64,9 @@ namespace DBLinq.Linq.clause
 
 
         /// <summary>
-        /// pass in bodies of Lambdas, not lambdas themselves
+        /// main entry point for recursive analysis of an expression tree.
         /// </summary>
-        /// <param name="ex">body of LambdaExpr</param>
-        /// <param name="inputs"></param>
-        /// <returns></returns>
+        /// <returns>ParseResult containing params, sql string</returns>
         public static ParseResult Parse(QueryProcessor parent, Expression ex)
         {
             RecurData recur = new RecurData();
@@ -443,7 +443,7 @@ namespace DBLinq.Linq.clause
             ColumnAttribute columnAttrib = expr.Member.GetCustomAttributes(false).OfType<ColumnAttribute>().FirstOrDefault();
             string sqlColumnName = expr.Member.Name;
             if (columnAttrib != null)
-                sqlColumnName = Vendor.FieldName_Safe(columnAttrib.Name);
+                sqlColumnName = s_vendor.FieldName_Safe(columnAttrib.Name);
             _result.AppendString(sqlColumnName);
         }
 
@@ -542,29 +542,8 @@ namespace DBLinq.Linq.clause
                     }
                 case "Concat":
                     {
-#if LINQ_PREVIEW_2006
-                        //this path is taken in LinqPreview2006.
-                        //In OrcasBeta1, we get operator+
-                        List<string> strings = new List<string>();
-                        int posInitial = _result.MarkSbPosition();
-                        foreach (Expression concatPart in expr.Arguments)
-                        {
-                            int pos2A = _result.MarkSbPosition();
-
-                            //strip bogus UnaryExpression containing MemberExpression, if any
-                            Expression concatPart2 = concatPart.XCastOperand() ?? concatPart;
-
-                            AnalyzeExpression(recurData, concatPart2);
-                            string substr = _result.Substring(pos2A);
-                            strings.Add(substr);
-                        }
-                        _result.Revert(posInitial);
-                        string sqlConcatStr = Vendor.Concat(strings);
-                        _result.AppendString(sqlConcatStr);
-                        return;
-#else
+                        //this was discontinued after Linq 20006 preview
                         throw new ApplicationException("L581 Discontinued operand: Concat");
-#endif
                     }
                 case "ToLower":
                 case "ToUpper":
@@ -678,7 +657,7 @@ namespace DBLinq.Linq.clause
                     strings.Add(new ExpressionAndType { expression = substr, type = concatPart2.Type });
                 }
                 _result.Revert(posInitial);
-                string sqlConcatStr = Vendor.Concat(strings);
+                string sqlConcatStr = s_vendor.Concat(strings);
                 _result.AppendString(sqlConcatStr);
                 return;
             }

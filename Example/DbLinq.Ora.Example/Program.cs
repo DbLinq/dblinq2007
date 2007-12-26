@@ -7,7 +7,14 @@ using System.Linq;
 //using System.Data.OracleClient;
 //using XSqlCommand = System.Data.OracleClient.OracleCommand;
 #endif
+
+#if ORACLE_PROVIDER
+//Oracle provider - download from http://www.oracle.com/technology/software/tech/windows/odpnet/utilsoft_11gbeta.html
 using Oracle.DataAccess.Client;
+#else
+using System.Data.OracleClient;
+#endif
+
 
 namespace nwind
 {
@@ -40,26 +47,60 @@ namespace nwind
             //Console.WriteLine("User sees sql:"+queryText);
 
 
-            foreach(var v in q){
-                Console.WriteLine("OBJ:"+v);
-            }        
+            foreach (var v in q)
+            {
+                Console.WriteLine("OBJ:" + v);
+            }
         }
 
         public static void insertTest(string connStr)
         {
-//            string sql = @"
-//insert INTO t1 (id1) values (t1_seq.NextVal); 
-//select t1_seq.CurrVal FROM DUAL
-//";
-            string sql = @"BEGIN
-SELECT 1 FROM DUAL;
-END";
+            //            string sql = @"
+            //
+            //select t1_seq.CurrVal FROM DUAL
+            //";
+            //string sql = @"BEGIN SELECT 12 INTO :1 FROM DUAL; END;";
+            string sql = "BEGIN insert INTO t1 (id1) values (t1_seq.NextVal);\n select t1_seq.CurrVal INTO :1 FROM DUAL; END;";
+#if ORACLE_PROVIDER
+            //Oracle provider - download from http://www.oracle.com/technology/software/tech/windows/odpnet/utilsoft_11gbeta.html
             //Oracle provider (check via TNSPING): "User Id=Scott;Password=tiger;Data Source=orcl9i"
             connStr = "User Id=Northwind;Password=linq2;Data Source=XE";
+#else
+            //Microsoft provider: System.Data.OracleClient
+            //see http://forums.microsoft.com/MSDN/ShowPost.aspx?PostID=1055859&SiteID=1
+#endif
             OracleConnection conn = new OracleConnection(connStr);
             conn.Open();
-            OracleCommand cmd = new OracleCommand(sql, conn);
-            cmd.CommandType = System.Data.CommandType.Text;
+
+            //OracleCommand cmd = new OracleCommand(sql, conn);
+            //cmd.CommandType = System.Data.CommandType.Text;
+            OracleCommand cmd = conn.CreateCommand();
+            OracleParameter p1 = new OracleParameter("1",OracleType.Number);
+            p1.Direction = System.Data.ParameterDirection.Output;
+            cmd.Parameters.Add(p1);
+
+            OracleString os = new OracleString();
+            try
+            {
+                //conn.Open();
+                try
+                {
+                    //cmd.CommandText = "begin dbms_output.enable; end;";
+                    cmd.CommandText = sql;
+                    //cmd.ExecuteOracleNonQuery(out os);
+                    object obj1 = cmd.ExecuteScalar();
+                    Type tt2 = obj1.GetType();
+                }
+                catch (OracleException ex)
+                {
+                    //MessageBox.Show(ex.Message, "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Console.WriteLine("Failed: " + ex);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Failed: " + ex);
+            }
             //int result = cmd.ExecuteNonQuery();
             //object result = cmd.ExecuteOracleScalar();
             object result = cmd.ExecuteScalar();
