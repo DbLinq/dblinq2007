@@ -48,8 +48,8 @@ namespace SqlMetal.schema.oracle
             {
                 DlinqSchema.Table tblSchema = new DlinqSchema.Table();
                 tblSchema.Name = tblRow.table_name;
-                tblSchema.Member = FormatTableName(tblRow.table_name).Pluralize();
-                tblSchema.Type.Name = FormatTableName(tblRow.table_name);
+                tblSchema.Member = Util.FormatTableName(tblRow.table_name, false).Pluralize();
+                tblSchema.Type.Name = Util.FormatTableName(tblRow.table_name, true);
                 schema.Tables.Add(tblSchema);
             }
 
@@ -76,8 +76,8 @@ namespace SqlMetal.schema.oracle
                 DlinqSchema.Column colSchema = new DlinqSchema.Column();
                 colSchema.Name = columnRow.column_name;
                 colSchema.DbType = columnRow.data_type; //.column_type ?
-                colSchema.IsPrimaryKey = false; //columnRow.column_key=="PRI";
-                colSchema.IsDbGenerated = false; //columnRow.extra=="auto_increment";
+                colSchema.IsPrimaryKey = false;
+                colSchema.IsDbGenerated = false;
                 //colSchema.IsVersion = ???
                 colSchema.CanBeNull = columnRow.isNullable;
 
@@ -116,6 +116,9 @@ namespace SqlMetal.schema.oracle
                     continue;
                 }
 
+                //if (table.Name.StartsWith("E"))
+                //    Console.WriteLine("---Dbg");
+
                 if (constraint.constraint_type == "P")
                 {
                     //A) add primary key
@@ -140,14 +143,14 @@ namespace SqlMetal.schema.oracle
                     assoc.Name = constraint.constraint_name;
                     //assoc.Type = keyColRow.referenced_table_name; //see below instead
                     assoc.ThisKey = constraint.column_name;
-                    assoc.Member = FormatTableName(referencedConstraint.table_name);
+                    assoc.Member = Util.FormatTableName(referencedConstraint.table_name, true);
                     table.Type.Associations.Add(assoc);
 
                     //and insert the reverse association:
                     DlinqSchema.Association assoc2 = new DlinqSchema.Association();
                     assoc2.Name = constraint.constraint_name;
                     assoc2.Type = table.Type.Name; //keyColRow.table_name;
-                    assoc2.Member = FormatTableName(constraint.table_name).Pluralize();
+                    assoc2.Member = Util.FormatTableName(constraint.table_name, false).Pluralize();
                     assoc2.OtherKey = referencedConstraint.column_name; // referenced_column_name;
 
                     //assoc2.Columns.Add(new DlinqSchema.ColumnName(constraint.column_name));
@@ -164,27 +167,37 @@ namespace SqlMetal.schema.oracle
                     }
 
                 }
-
             }
 
+            GuessSequencePopulatedFields(schema);
 
             return schema;
         }
 
-        public static string FormatTableName(string table_name)
+        /// <summary>
+        /// guess which fields are populated by sequences.
+        /// Mark them with [AutoGenId].
+        /// </summary>
+        public static void GuessSequencePopulatedFields(DlinqSchema.Database schema)
         {
-            //TODO: allow custom renames via config file - 
-            //- this could solve keyword conflict etc
-            string name1 = table_name;
-            string name2 = mmConfig.forceUcaseTableName
-                ? name1.Capitalize() //Char.ToUpper(name1[0])+name1.Substring(1)
-                : name1;
-
-            //heuristic to convert 'Products' table to class 'Product'
-            //TODO: allow customized tableName-className mappings from an XML file
-            name2 = name2.Singularize();
-
-            return name2;
+            if (schema == null)
+                return;
+            foreach (DlinqSchema.Table tbl in schema.Tables)
+            {
+                var q = from col in tbl.Type.Columns
+                        where col.IsPrimaryKey
+                        select col;
+                List<DlinqSchema.Column> cols = q.ToList();
+                bool canBeFromSequence = cols.Count == 1
+                    && (!cols[0].CanBeNull)
+                    && (cols[0].DbType == "NUMBER" || cols[0].DbType == "INTEGER");
+                if (canBeFromSequence)
+                {
+                    //TODO: query sequences, store sequence name.
+                    //in the meantime, assume naming convention similar to 'Products_seq'
+                    cols[0].IsDbGenerated = true;
+                }
+            }
         }
     }
 }

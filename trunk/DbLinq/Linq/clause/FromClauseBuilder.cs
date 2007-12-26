@@ -31,11 +31,14 @@ using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using DBLinq.util;
+using DBLinq.vendor;
 
 namespace DBLinq.Linq.clause
 {
     class FromClauseBuilder
     {
+        static IVendor s_vendor = VendorFactory.Make();
+
         /// <summary>
         /// given type Employee, select all its fields: 'SELECT e.ID, e.Name,... FROM Employee'
         /// (by examining [Table] and [Column] attribs)
@@ -73,7 +76,7 @@ namespace DBLinq.Linq.clause
 
             foreach(ColumnAttribute colAtt in colAttribs)
             {
-                string safeColumnName = vendor.Vendor.FieldName_Safe(colAtt.Name);
+                string safeColumnName = s_vendor.FieldName_Safe(colAtt.Name);
                 string part = nick + "." + safeColumnName; //eg. '$o.OrderID'
                 selectParts.AddSelect( part );
             }

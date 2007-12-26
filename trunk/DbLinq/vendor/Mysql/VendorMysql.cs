@@ -30,54 +30,55 @@ using System.Collections.Generic;
 using System.Text;
 using System.Data.Linq.Mapping;
 using System.Reflection;
+using System.Data;
 using MySql.Data.MySqlClient;
 using DBLinq.Linq.Mapping;
 using DBLinq.util;
 using DBLinq.Linq;
 using DBLinq.Linq.clause;
 
-namespace DBLinq.vendor
+namespace DBLinq.vendor.mysql
 {
-    public class Vendor
+    public class VendorMysql : VendorBase, IVendor
     {
-        public const string VENDOR_NAME = "MySql";
-        public const string SQL_PING_COMMAND = "SELECT 11";
-        
         /// <summary>
         /// Client code needs to specify: 'Vendor.UserBulkInsert[db.Products]=10' to enable bulk insert, 10 rows at a time.
         /// </summary>
         public static readonly Dictionary<DBLinq.Linq.IMTable, int> UseBulkInsert = new Dictionary<DBLinq.Linq.IMTable, int>();
 
-        public static void ProcessPkField(ProjectionData projData, ColumnAttribute colAtt
+        public string VendorName { get { return VendorFactory.MYSQL; } }
+
+        public IDbDataParameter ProcessPkField(ProjectionData projData, ColumnAttribute colAtt
             , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
         {
             //on Oracle, this function does something.
-            //on other DBs, primary keys values are handled by AUTO_INCREMENT
-            
+            //on other DBs, primary keys values are handled by AUTO_INCREMENT            
             sbIdentity.Append(";\n SELECT @@IDENTITY");
+            return null;
         }
 
-        /// <summary>
-        /// Postgres string concatenation, eg 'a||b'
-        /// </summary>
-        public static string Concat(List<ExpressionAndType> parts)
-        {
-            string[] arr = parts.Select(p=>p.expression).ToArray();
-            return "CONCAT("+string.Join(",",arr)+")";
-        }
 
         /// <summary>
         /// on Postgres or Oracle, return eg. ':P1', on Mysql, '?P1'
         /// </summary>
-        public static string ParamName(int index)
+        public override string ParamName(int index)
         {
             return "?P"+index;
         }
 
         /// <summary>
+        /// Mysql string concatenation
+        /// </summary>
+        public override string Concat(List<ExpressionAndType> parts)
+        {
+            string[] arr = parts.Select(p => p.expression).ToArray();
+            return "CONCAT(" + string.Join(",", arr) + ")";
+        }
+
+        /// <summary>
         /// given 'int', return '`int`' to prevent a SQL keyword conflict
         /// </summary>
-        public static string FieldName_Safe(string name)
+        public string FieldName_Safe(string name)
         {
             string nameL = name.ToLower();
             switch (nameL)
@@ -112,7 +113,7 @@ namespace DBLinq.vendor
             }
         }
 
-        public static MySqlParameter CreateSqlParameter(string dbTypeName, string paramName)
+        public IDbDataParameter CreateSqlParameter(string dbTypeName, string paramName)
         {
             MySqlDbType dbType = MySqlTypeConversions.ParseType(dbTypeName);
             MySqlParameter param = new MySqlParameter(paramName, dbType);
@@ -126,7 +127,7 @@ namespace DBLinq.vendor
         /// </summary>
         public static void DoBulkInsert<T>(DBLinq.Linq.MTable<T> table, List<T> rows, MySqlConnection conn)
         {
-            int pageSize = Vendor.UseBulkInsert[table];
+            int pageSize = VendorMysql.UseBulkInsert[table];
             //ProjectionData projData = ProjectionData.FromReflectedType(typeof(T));
             ProjectionData projData = AttribHelper.GetProjectionData(typeof(T));
             TableAttribute tableAttrib = typeof(T).GetCustomAttributes(false).OfType<TableAttribute>().Single();
@@ -162,7 +163,7 @@ namespace DBLinq.vendor
         /// call mysql stored proc or stored function, 
         /// optionally return DataSet, and collect return params.
         /// </summary>
-        public static System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.MContext context, MethodInfo method
+        public System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.MContext context, MethodInfo method
             , params object[] inputValues)
         {
             if (method == null)
@@ -304,7 +305,7 @@ namespace DBLinq.vendor
             return outParamValues;
         }
 
-        public static int ExecuteCommand(DBLinq.Linq.MContext context, string sql, params object[] parameters)
+        public int ExecuteCommand(DBLinq.Linq.MContext context, string sql, params object[] parameters)
         {
             MySql.Data.MySqlClient.MySqlConnection conn = context.SqlConnection;
             using (MySqlCommand command = new MySqlCommand(sql, conn))

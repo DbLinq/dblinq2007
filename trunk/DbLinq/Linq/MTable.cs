@@ -54,6 +54,7 @@ using XSqlCommand = MySql.Data.MySqlClient.MySqlCommand;
 #endif
 using DBLinq.Linq.clause;
 using DBLinq.util;
+using DBLinq.vendor;
 
 namespace DBLinq.Linq
 {
@@ -68,6 +69,8 @@ namespace DBLinq.Linq
         , IQueryText
         , IQueryProvider //new as of Beta2
     {
+        static IVendor s_vendor = VendorFactory.Make();
+
         /// <summary>
         /// the parent MContext holds our connection etc
         /// </summary>
@@ -198,10 +201,16 @@ namespace DBLinq.Linq
             ProjectionData proj = ProjectionData.FromDbType(typeof(T));
             XSqlConnection conn = _parentDB.SqlConnection;
 
-#if MICROSOFT || MYSQL //bulk insert code
-            if (vendor.Vendor.UseBulkInsert.ContainsKey(this))
+#if MYSQL //bulk insert code
+            if (vendor.mysql.VendorMysql.UseBulkInsert.ContainsKey(this))
             {
-                vendor.Vendor.DoBulkInsert(this, _insertList, conn);
+                vendor.mysql.VendorMysql.DoBulkInsert(this, _insertList, conn);
+                _insertList.Clear();
+            }
+#elif MICROSOFT //bulk insert code
+            if (vendor.mssql.VendorMssql.UseBulkInsert.ContainsKey(this))
+            {
+                vendor.mssql.VendorMssql.DoBulkInsert(this, _insertList, conn);
                 _insertList.Clear();
             }
 #endif
@@ -209,13 +218,14 @@ namespace DBLinq.Linq
             foreach (T obj in _insertList)
             {
                 //build command similar to:
-                //INSERT EMPLOYEES (Name, DateStarted) VALUES (?p1,?p2); SELECT @@IDENTITY
-                //INSERT EMPLOYEES (EmpId, Name, DateStarted) VALUES (EmpID_SEQ.NextVal,?p1,?p2); SELECT EmpID_SEQ.CurrVal
+                //INSERT INTO EMPLOYEES (Name, DateStarted) VALUES (?p1,?p2); SELECT @@IDENTITY
+                //INSERT INTO EMPLOYEES (EmpId, Name, DateStarted) VALUES (EmpID_SEQ.NextVal,?p1,?p2); SELECT EmpID_SEQ.CurrVal
 
                 using (XSqlCommand cmd = InsertClauseBuilder.GetClause(conn, obj, proj))
                 {
                     object objID = null;
                     objID = cmd.ExecuteScalar();
+                    s_vendor.ProcessInsertedId(cmd, ref objID);
                     try
                     {
                         //set the object's ID:

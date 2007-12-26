@@ -92,7 +92,8 @@ FROM USER_TAB_COLUMNS
 WHERE table_name NOT LIKE '%$%' 
 AND table_name NOT LIKE 'LOGMNR%' 
 AND table_name NOT LIKE 'MVIEW%' 
-AND table_name NOT IN ('SQLPLUS_PRODUCT_PROFILE','HELP', 'PRODUCT_PRIVS')";
+AND table_name NOT IN ('SQLPLUS_PRODUCT_PROFILE','HELP', 'PRODUCT_PRIVS')
+ORDER BY table_name, Column_id";
 
             using(OracleCommand cmd = new OracleCommand(sql, conn))
             {

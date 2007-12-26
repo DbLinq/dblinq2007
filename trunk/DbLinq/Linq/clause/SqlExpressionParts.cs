@@ -191,7 +191,7 @@ namespace DBLinq.Linq.clause
             List<string> whereAndjoins = new List<string>(joinList);
             whereAndjoins.AddRange(whereList);
 
-            bool isOracle = vendor.Vendor.VENDOR_NAME == "Oracle";
+            bool isOracle = vendor.VendorFactory.Make().VendorName == "Oracle";
             if (isOracle && limitClause != null)
             {
                 //http://dotnet.org.za/thea/archive/2005/02/22/14715.aspx
