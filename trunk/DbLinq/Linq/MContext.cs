@@ -140,7 +140,8 @@ namespace DBLinq.Linq
             {
                 try
                 {
-                    tbl.SaveAll();
+                    List<Exception> innerExceptions = tbl.SaveAll(failureMode);
+                    exceptions.AddRange(innerExceptions);
                 }
                 catch(Exception ex)
                 {
@@ -247,6 +248,7 @@ namespace DBLinq.Linq
     /// </summary>
     public interface IMTable
     {
+        List<Exception> SaveAll(System.Data.Linq.ConflictMode failureMode);
         void SaveAll();
     }
 

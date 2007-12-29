@@ -194,9 +194,14 @@ namespace DBLinq.Linq
         }
         public void SaveAll()
         {
+            SaveAll(System.Data.Linq.ConflictMode.FailOnFirstConflict);
+        }
+        public List<Exception> SaveAll(System.Data.Linq.ConflictMode failureMode)
+        {
+            List<Exception> excepts = new List<Exception>();
             //TODO: process deleteList, insertList, liveObjectList
             if (_insertList.Count == 0 && _liveObjectMap.Count == 0 && _deleteList.Count == 0)
-                return; //nothing to do
+                return excepts; //nothing to do
             //object[] indices = new object[0];
             ProjectionData proj = ProjectionData.FromDbType(typeof(T));
             XSqlConnection conn = _parentDB.SqlConnection;
@@ -220,31 +225,44 @@ namespace DBLinq.Linq
                 //build command similar to:
                 //INSERT INTO EMPLOYEES (Name, DateStarted) VALUES (?p1,?p2); SELECT @@IDENTITY
                 //INSERT INTO EMPLOYEES (EmpId, Name, DateStarted) VALUES (EmpID_SEQ.NextVal,?p1,?p2); SELECT EmpID_SEQ.CurrVal
-
-                using (XSqlCommand cmd = InsertClauseBuilder.GetClause(conn, obj, proj))
+                try
                 {
-                    object objID = null;
-                    objID = cmd.ExecuteScalar();
-                    s_vendor.ProcessInsertedId(cmd, ref objID);
-                    try
+                    using (XSqlCommand cmd = InsertClauseBuilder.GetClause(conn, obj, proj))
                     {
-                        //set the object's ID:
-                        FieldUtils.SetObjectIdField(obj, proj.autoGenField, objID);
-
-                        IModified imod = obj as IModified;
-                        if (imod != null)
+                        object objID = null;
+                        objID = cmd.ExecuteScalar();
+                        s_vendor.ProcessInsertedId(cmd, ref objID);
+                        try
                         {
-                            imod.IsModified = false; //we just saved it - it's not 'dirty'
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("L227 Failed on SetObjectIdField: " + ex);
-                    }
-                    //cmd.CommandText = 
-                    //TODO: use reflection to assign the field ID - that way the _isModified flag will not get set
+                            //set the object's ID:
+                            FieldUtils.SetObjectIdField(obj, proj.autoGenField, objID);
 
-                    //Console.WriteLine("MTable insert TODO: populate ID field ");
+                            IModified imod = obj as IModified;
+                            if (imod != null)
+                            {
+                                imod.IsModified = false; //we just saved it - it's not 'dirty'
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("L227 Failed on SetObjectIdField: " + ex);
+                        }
+                        //cmd.CommandText = 
+                        //TODO: use reflection to assign the field ID - that way the _isModified flag will not get set
+
+                        //Console.WriteLine("MTable insert TODO: populate ID field ");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    switch (failureMode)
+                    {
+                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                            excepts.Add(ex);
+                            break;
+                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                            throw ex;
+                    }
                 }
 
             }
@@ -254,15 +272,29 @@ namespace DBLinq.Linq
             //todo: check object is not in two lists
             foreach (T obj in _liveObjectMap.Values)
             {
-                IModified iMod = obj as IModified;
-                if (iMod == null || !iMod.IsModified)
-                    continue;
-                Trace.WriteLine("MTable SaveAll: saving modified object");
-                string ID_to_update = getObjectID(obj);
+                try
+                {
+                    IModified iMod = obj as IModified;
+                    if (iMod == null || !iMod.IsModified)
+                        continue;
+                    Trace.WriteLine("MTable SaveAll: saving modified object");
+                    string ID_to_update = getObjectID(obj);
 
-                XSqlCommand cmd = InsertClauseBuilder.GetUpdateCommand(conn, iMod, proj, ID_to_update);
-                int result = cmd.ExecuteNonQuery();
-                Trace.WriteLine("MTable SaveAll.Update returned:" + result);
+                    XSqlCommand cmd = InsertClauseBuilder.GetUpdateCommand(conn, iMod, proj, ID_to_update);
+                    int result = cmd.ExecuteNonQuery();
+                    Trace.WriteLine("MTable SaveAll.Update returned:" + result);
+                }
+                catch (Exception ex)
+                {
+                    switch (failureMode)
+                    {
+                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                            excepts.Add(ex);
+                            break;
+                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                            throw ex;
+                    }
+                }
             }
 
             if (_deleteList.Count > 0)
@@ -272,9 +304,23 @@ namespace DBLinq.Linq
                 int indx2 = 0;
                 foreach (T obj in _deleteList)
                 {
-                    string ID_to_delete = getObjectID(obj);
-                    if (indx2++ > 0) { sbDeleteIDs.Append(","); }
-                    sbDeleteIDs.Append(ID_to_delete);
+                    try
+                    {
+                        string ID_to_delete = getObjectID(obj);
+                        if (indx2++ > 0) { sbDeleteIDs.Append(","); }
+                        sbDeleteIDs.Append(ID_to_delete);
+                    }
+                    catch (Exception ex)
+                    {
+                        switch (failureMode)
+                        {
+                            case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                                excepts.Add(ex);
+                                break;
+                            case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                                throw ex;
+                        }
+                    }
                 }
                 string tableName = proj.tableAttribute.Name;
                 string sql = "DELETE FROM " + tableName + " WHERE " + proj.keyColumnName + " in (" + sbDeleteIDs + ")";
@@ -283,7 +329,7 @@ namespace DBLinq.Linq
                 int result = cmd.ExecuteNonQuery();
                 Trace.WriteLine("MTable SaveAll.Delete returned:" + result);
             }
-
+            return excepts;
         }
 
         public string GetQueryText()
