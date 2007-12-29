@@ -131,13 +131,13 @@ namespace DBLinq.Linq
             SubmitChanges(System.Data.Linq.ConflictMode.FailOnFirstConflict);
         }
 
-        public virtual void SubmitChanges(System.Data.Linq.ConflictMode failureMode)
+        public virtual List<Exception> SubmitChanges(System.Data.Linq.ConflictMode failureMode)
         {
+            List<Exception> exceptions = new List<Exception>();
             //TODO: perform all queued up operations - INSERT,DELETE,UPDATE
             //TODO: insert order must be: first parent records, then child records
             foreach (IMTable tbl in _tableList)
             {
-
                 try
                 {
                     tbl.SaveAll();
@@ -147,15 +147,14 @@ namespace DBLinq.Linq
                     switch (failureMode)
                     {
                         case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                            Debug.WriteLine("SubmitChages - Error(continuing): " + ex.Message);
+                            exceptions.Add(ex);
                             break;
                         case System.Data.Linq.ConflictMode.FailOnFirstConflict:
                             throw ex;
-                            break;
                     }
                 }
             }
-
+            return exceptions;
         }
 
         #region Debugging Support
