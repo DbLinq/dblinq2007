@@ -128,22 +128,34 @@ namespace DBLinq.Linq
 
         public void SubmitChanges()
         {
+            SubmitChanges(System.Data.Linq.ConflictMode.FailOnFirstConflict);
+        }
+
+        public virtual void SubmitChanges(System.Data.Linq.ConflictMode failureMode)
+        {
             //TODO: perform all queued up operations - INSERT,DELETE,UPDATE
             //TODO: insert order must be: first parent records, then child records
             foreach (IMTable tbl in _tableList)
             {
-                tbl.SaveAll();
-            }
-        }
 
-        /// <summary>
-        /// TODO: Not implemented
-        /// </summary>
-        /// <param name="failureMode"></param>
-        [Obsolete("NOT IMPLEMENTED YET")]
-        public virtual void SubmitChanges(System.Data.Linq.ConflictMode failureMode)
-        {
-            throw new NotImplementedException();
+                try
+                {
+                    tbl.SaveAll();
+                }
+                catch(Exception ex)
+                {
+                    switch (failureMode)
+                    {
+                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                            Debug.WriteLine("SubmitChages - Error(continuing): " + ex.Message);
+                            break;
+                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                            throw ex;
+                            break;
+                    }
+                }
+            }
+
         }
 
         #region Debugging Support
