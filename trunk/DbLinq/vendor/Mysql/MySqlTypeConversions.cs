@@ -62,10 +62,11 @@ namespace DBLinq.vendor
                 switch (typeStrL)
                 {
                     case "char":
-                    case "varchar":
                     case "text":
                     case "longtext":
                         return MySqlDbType.String;
+                    case "varchar":
+                        return MySqlDbType.VarChar;
                     case "bit":
                         return MySqlDbType.Bit;
                     case "int":
