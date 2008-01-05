@@ -29,7 +29,7 @@ namespace Test_NUnit
             //new ReadTest_AllTypes().AT1_SelectRow();
             //new ReadTest_Operands().H1_SelectConcat();
             //rc.F11_ConcatString();
-            new WriteTest().G1_InsertProduct();
+            new WriteTest().E2_LiveObjectsAreUnique_Scalar();
             //new WriteTest_BulkInsert().BI01_InsertProducts();
             //new NullTest().NullableT_Value();
             //new Count_Sum_Min_Max_Avg().LiqnToSqlCount02();

@@ -42,7 +42,7 @@ namespace DBLinq.util
         IEnumerable<T> _parentTable;
         Dictionary<T, T> _liveObjectMap;
 
-        public RowScalar(SessionVarsParsed vars, IEnumerable<T> parentTable, Dictionary<T,T> liveObjMap)
+        public RowScalar(SessionVarsParsed vars, IEnumerable<T> parentTable, Dictionary<T, T> liveObjMap)
         {
             //don't modify the parent query with any additional clauses:
             _vars = vars;
@@ -52,23 +52,28 @@ namespace DBLinq.util
 
         public S GetScalar<S>(Expression expression)
         {
-
             MethodCallExpression exprCall = expression as MethodCallExpression;
-            if(exprCall==null)
-                throw new ApplicationException("L35: GetScalar<S> only prepared for MethodCall, not "+expression.NodeType);
-            switch(exprCall.Method.Name)
+            if (exprCall == null)
+                throw new ApplicationException("L35: GetScalar<S> only prepared for MethodCall, not " + expression.NodeType);
+
+            Dictionary<S, S> liveObjectMapS = null;
+            if (typeof(T) == typeof(S))
+            {
+                liveObjectMapS = (Dictionary<S, S>)(object)_liveObjectMap;
+            }
+
+            switch (exprCall.Method.Name)
             {
                 case "First":
-                    if(typeof(S)!=typeof(T))
+                    if (typeof(S) != typeof(T))
                         throw new ApplicationException("L39: Not prepared for double projection");
                     //Microsoft syntax: "SELECT TOP 1 ProductId FROM Products"
                     //MySql syntax:     "SELECT ProductId FROM Products LIMIT 1"
-                    
+
                     //foreach(T t in _parentTable) //call GetEnumerator
-                    Dictionary<S, S> liveObjMapS = (Dictionary<S, S>)(object)_liveObjectMap;
-                    using (RowEnumerator<S> rowEnum = new RowEnumerator<S>(_vars, liveObjMapS))
+                    using (RowEnumerator<S> rowEnum = new RowEnumerator<S>(_vars, liveObjectMapS))
                     {
-                        foreach(S firstS in rowEnum)
+                        foreach (S firstS in rowEnum)
                         {
                             return firstS;
                         }
@@ -81,7 +86,7 @@ namespace DBLinq.util
                 case "Sum":
                     {
                         bool isAlreadyProjected = _parentTable is MTable_Projected<T>;
-                        if(exprCall.Method.Name=="Count"  && typeof(T)!=typeof(S) && !isAlreadyProjected)
+                        if (exprCall.Method.Name == "Count" && typeof(T) != typeof(S) && !isAlreadyProjected)
                         {
                             //Count is very similar to Min/Max/Sum (below),
                             //but unlike those, it may be asked to work on TableRows.
@@ -91,9 +96,10 @@ namespace DBLinq.util
                             string varName = "x$"; //TODO - get it from QueryProcessor
                             FromClauseBuilder.SelectAllFields(_vars, _vars._sqlParts, typeof(T), varName);
 
-                            using(RowEnumerator<S> rowEnum = new RowEnumerator<S>(_vars,null))
+                            using (RowEnumerator<S> rowEnum = new RowEnumerator<S>(_vars, null))
                             {
-                                foreach(S firstS in rowEnum){
+                                foreach (S firstS in rowEnum)
+                                {
                                     return firstS;
                                 }
                                 throw new ApplicationException("RowScalar.COUNT: Unable to advance to first result");
@@ -105,21 +111,21 @@ namespace DBLinq.util
                             .GetEnumerator())
                         {
                             bool hasOne = enumerator.MoveNext();
-                            if(!hasOne)
+                            if (!hasOne)
                                 throw new InvalidOperationException("Max/Count() called on set with zero items");
                             S firstT = enumerator.Current;
                             bool hasTwo = enumerator.MoveNext();
-                            if(hasTwo)
+                            if (hasTwo)
                                 throw new InvalidOperationException("Max/Count() called on set with more than one item");
-                            
+
                             //return (S)(object)firstT; --throws InvalidCastExc?!
 
                             object objT = firstT;
-                            
+
                             //uh this is nasty ...  needs fixing
                             //note: SELECT COUNT(x) in MySql returns type uint
                             //C# would like an int
-                            if(typeof(S)==typeof(int) && typeof(T)==typeof(uint))
+                            if (typeof(S) == typeof(int) && typeof(T) == typeof(uint))
                             {
                                 uint firstU = (uint)objT;
                                 int firstI = (int)firstU; //how can I invoke this cast to int dynamically?
@@ -127,23 +133,23 @@ namespace DBLinq.util
                             }
                             return (S)objT;
                         }
-                    //throw new ArgumentException("L51: Unprepared for Count");
-                    //break;
+                        //throw new ArgumentException("L51: Unprepared for Count");
+                        //break;
                     }
                 case "Last":
                     {
-                    if(typeof(S)!=typeof(T))
-                        throw new ApplicationException("L58: Not prepared for double projection");
-                    //TODO: can I use "LIMIT" to retrieve last row? or use ORDER BY? order by what column?
-                    object lastObj = null;
-                    foreach(T t in _parentTable) //call GetEnumerator
-                    {
-                        lastObj = t;
+                        if (typeof(S) != typeof(T))
+                            throw new ApplicationException("L58: Not prepared for double projection");
+                        //TODO: can I use "LIMIT" to retrieve last row? or use ORDER BY? order by what column?
+                        object lastObj = null;
+                        foreach (T t in _parentTable) //call GetEnumerator
+                        {
+                            lastObj = t;
+                        }
+                        S lastS = (S)lastObj;
+                        return lastS;
                     }
-                    S lastS = (S)lastObj;
-                    return lastS;
-                    }
-        
+
                 case "Single":
                     //QueryProcessor prepared a 'LIMIT 2' query, throw InvalidOperationException occurs
                     {
@@ -151,22 +157,22 @@ namespace DBLinq.util
                         //LambdaExpression lambdaParam = expression.XMethodCall().XParam(1).XLambda();
                         //MTable<T> table2 = _parentTable as MTable<T>;
                         //IEnumerator<T> enumerator;
-                        using (IEnumerator<T> enumerator = new RowEnumerator<T>(_vars, null).GetEnumerator())
+                        using (IEnumerator<T> enumerator = new RowEnumerator<T>(_vars, _liveObjectMap).GetEnumerator())
                         {
                             //_vars.limitClause = "LIMIT 2";
                             bool hasOne = enumerator.MoveNext();
-                            if(!hasOne)
+                            if (!hasOne)
                                 throw new InvalidOperationException("Single() called on set with zero items");
                             T firstT = enumerator.Current;
                             bool hasTwo = enumerator.MoveNext();
-                            if(hasTwo)
+                            if (hasTwo)
                                 throw new InvalidOperationException("Single() called on set with more than one item");
                             return (S)(object)firstT;
                         }
                     }
-                    //break;
+                //break;
             }
-            throw new ApplicationException("L68: GetScalar<S> TODO: methodName="+exprCall.Method.Name);
+            throw new ApplicationException("L68: GetScalar<S> TODO: methodName=" + exprCall.Method.Name);
 
         }
     }

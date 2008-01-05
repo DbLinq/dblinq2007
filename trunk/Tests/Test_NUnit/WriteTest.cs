@@ -23,7 +23,7 @@ namespace Test_NUnit
 
         #region Tests 'E' test live object cache
         [Test]
-        public void E1_LiveObjectsAreUnqiue()
+        public void E1_LiveObjectsAreUnique()
         {
             //grab an object twice, make sure we get the same object each time
             Northwind db = CreateDB();
@@ -40,13 +40,25 @@ namespace Test_NUnit
             Assert.IsTrue(isSameObject2, "Expected pen1 and pen2 to be the same live object, but their fields are different");
         }
 
+        [Test]
+        public void E2_LiveObjectsAreUnique_Scalar()
+        {
+            //grab an object twice, make sure we get the same object each time
+            Northwind db = CreateDB();
+            var q = from p in db.Products select p;
+            Product pen1 = q.First(p => p.ProductName == "Pen");
+            Product pen2 = q.Single(p => p.ProductName == "Pen");
+            bool isSame = object.ReferenceEquals(pen1, pen2);
+            Assert.IsTrue(isSame, "Expected pen1 and pen2 to be the same live object");
+        }
+
 #if MYSQL
         [Test]
-        public void E2_UpdateEnum()
+        public void E3_UpdateEnum()
         {
             Northwind db = CreateDB();
 
-            var q = from at in db.Alltypes where at.int_==1 select at;
+            var q = from at in db.Alltypes where at.int_ == 1 select at;
 
             Alltype row = q.First();
             DbLinq_EnumTest newValue = row.DbLinq_EnumTest == DbLinq_EnumTest.BB
