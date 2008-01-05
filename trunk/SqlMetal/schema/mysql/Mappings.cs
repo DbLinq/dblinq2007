@@ -27,8 +27,9 @@ namespace SqlMetal.schema.mysql
                     return "int";
                 case "bit":
                     return "bool";
-                case "tinyint": 
-                    if(column_type=="tinyint(1)")
+                case "tinyint":
+                    if (    column_type == "tinyint(1)" 
+                        ||  column_type == "tinyint(1) unsigned")
                         return "bool";
                     return "char";
                 case "smallint": return "short";

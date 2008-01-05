@@ -71,6 +71,13 @@ namespace DBLinq.vendor
                         return MySqlDbType.Bit;
                     case "int":
                         return MySqlDbType.Int32;
+
+                    case "int unsigned":
+                        //Laurent Morisseau writes:
+                        //If you map to MySqlDbType.UInt32, you get the following MySql error: 
+                        //"Only byte arrays and strings can be serialized by MySqlBinary"
+                        return MySqlDbType.Int32;
+
                     case "mediumint":
                     case "mediumint unsigned":
                         return MySqlDbType.Int24; //go figure - MEDIUMINT is 3 bytes 
