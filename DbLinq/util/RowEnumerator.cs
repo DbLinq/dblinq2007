@@ -77,16 +77,16 @@ namespace DBLinq.util
 
         //Type _sourceType;
         protected ProjectionData _projectionData;
-        Dictionary<T,T> _rowCache;
+        Dictionary<T,T> _liveObjectMap;
         internal string _sqlString;
 
 
-        public RowEnumerator(SessionVarsParsed vars, Dictionary<T,T> rowCache)
+        public RowEnumerator(SessionVarsParsed vars, Dictionary<T,T> liveObjectMap)
         {
             _vars = vars;
 
             //for [Table] objects only: keep objects (to save them if they get modified)
-            _rowCache = rowCache; 
+            _liveObjectMap = liveObjectMap; 
 
             _conn = vars.context.SqlConnection;
             _projectionData = vars.projectionData;
@@ -184,19 +184,19 @@ namespace DBLinq.util
                     T current = _objFromRow2(rdr2);
 
                     //live object cache:
-                    if(_rowCache!=null && current!=null)
+                    if(_liveObjectMap!=null && current!=null)
                     {
                         //TODO: given object's ID, try to retrieve an existing cached object
                         //_rowCache.Add(_current); //store so we can save if modified
                         T previousObj;
                         //rowCache uses Order.OrderId as key (uses Order.GetHashCode and .Equals)
-                        bool contains = _rowCache.TryGetValue(current,out previousObj);
+                        bool contains = _liveObjectMap.TryGetValue(current,out previousObj);
                         if(contains)
                         {
                             //discard data from DB, return previously loaded instance
                             current = previousObj; 
                         }
-                        _rowCache[current] = current;
+                        _liveObjectMap[current] = current;
                     }
 
                     //Error: Cannot yield a value in the body of a try block with a catch clause
