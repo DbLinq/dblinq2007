@@ -1,3 +1,4 @@
+#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -21,6 +22,7 @@
 // Authors:
 //        Jiri George Moudry
 ////////////////////////////////////////////////////////////////////
+#endregion
 
 using System;
 using System.Collections.Generic;
@@ -30,16 +32,18 @@ using SqlMetal.util;
 
 namespace SqlMetal.codeGen
 {
+    /// <summary>
+    /// generates a public property representing a SQL table column.
+    /// Also generates the backing field.
+    /// </summary>
     public class CodeGenField
     {
         DlinqSchema.Column _column;
-        //string _nameU; //camelcase field name, eg. 'Cat'
         string _propertyName;
         string _attrib2;
         string _constraintWarn;
         string _tableClassName;
         string _columnType;
-        //bool _attribAutoGen;
 
 
         public CodeGenField(string tableClassName, DlinqSchema.Column column, List<DlinqSchema.Association> constraintsOnField)
@@ -49,6 +53,10 @@ namespace SqlMetal.codeGen
 
             //glue together "(Id=true, AutoGen=true,DbType="float")"
             List<string> attribParts = new List<string>();
+
+            if (column.Storage != null && column.Storage!="null")
+                attribParts.Add("Storage = \"" + column.Storage + "\"");
+
             attribParts.Add("Name = \"" + column.Name + "\"");
 
             attribParts.Add("DbType = \"" + column.DbType + "\"");
@@ -80,9 +88,9 @@ namespace SqlMetal.codeGen
         public string generateField()
         {
             string template = @"
-protected $type _$name;";
+protected $type $storage;";
             template = template.Replace("$type", _columnType);
-            template = template.Replace("$name", _column.Name);
+            template = template.Replace("$storage", _column.Storage);
             template = template.Replace("$attribOpt", _attrib2);
             template = template.Replace("$constraintWarn", _constraintWarn);
             if (_column.IsDbGenerated)
@@ -100,19 +108,13 @@ protected $type _$name;";
 [DebuggerNonUserCode]
 public $type $propertyName
 {$constraintWarn
-    get { return _$name; }
-    set { _$name = value; IsModified = true; }
+    get { return $storage; }
+    set { $storage = value; IsModified = true; }
 }
 ";
-            if (_propertyName == _tableClassName)
-            {
-                //_nameU += "_1"; //prevent error CS0542: 'XXX': member names cannot be the same as their enclosing type
-                _propertyName = "Content"; //same as Linq To Sql
-            }
-
             template = template.Replace("$type", _columnType);
             template = template.Replace("$propertyName", _propertyName);
-            template = template.Replace("$name", this._column.Name);
+            template = template.Replace("$storage", _column.Storage);
             template = template.Replace("$attribOpt", _attrib2);
             template = template.Replace("$constraintWarn", _constraintWarn);
             return template;

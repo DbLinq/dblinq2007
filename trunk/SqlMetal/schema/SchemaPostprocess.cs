@@ -18,6 +18,10 @@ namespace SqlMetal.schema
             if (schema == null)
                 return;
 
+            //sort tables, parent tables first
+            SqlMetal.util.TableSorter sorter = new SqlMetal.util.TableSorter(schema.Tables);
+            schema.Tables.Sort(sorter);
+
             foreach (var tbl in schema.Tables)
             {
                 PostProcess_Table(tbl);
@@ -28,11 +32,13 @@ namespace SqlMetal.schema
         {
             foreach (DlinqSchema.Column col in table.Type.Columns)
             {
-                if (CSharp.IsCsharpKeyword(col.Member))
-                    col.Member += "_"; //rename column 'int' -> 'int_'
-
                 if (col.Member == table.Type.Name)
                     col.Member = "Contents"; //rename field Alltypes.Alltypes to Alltypes.Contents
+
+                col.Storage = "_" + col.Member;
+
+                if (CSharp.IsCsharpKeyword(col.Member))
+                    col.Member += "_"; //rename column 'int' -> 'int_'
             }
 
             Dictionary<string, bool> knownAssocs = new Dictionary<string, bool>();

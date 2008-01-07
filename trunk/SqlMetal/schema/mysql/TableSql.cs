@@ -14,44 +14,9 @@ namespace SqlMetal.schema.mysql
         public string table_schema;
         public string table_name;
 
-        /// <summary>
-        /// dependencies are determined by analyzing foreign keys.
-        /// </summary>
-        public readonly List<TableRow> childTables = new List<TableRow>();
-
-        public IEnumerable<TableRow> EnumChildTables(Dictionary<TableRow,bool> visitedMap)
-        {
-            //if (depth > 99)
-            //{
-            //    //prevent infinite recursion, in case of circular dependency
-            //    throw new ApplicationException("L26 Circular dependency suspected");
-            //}
-
-            foreach (TableRow t in childTables)
-            {
-                if (t == this)
-                    continue; //in Northwind database: Employee.ReportsTo points back to Employee - skip that child relationship
-
-                if (visitedMap.ContainsKey(t))
-                    continue; //prevent infinite recursion - don't yield twice 
-
-                visitedMap[t] = true;
-                yield return t;
-
-                foreach (TableRow t2 in t.EnumChildTables(visitedMap))
-                {
-                    if (visitedMap.ContainsKey(t2))
-                        continue; //prevent infinite recursion - don't yield twice 
-
-                    visitedMap[t2] = true;
-                    yield return t2;
-                }
-            }
-        }
-
         public override string ToString()
         {
-            return "TableRow " + table_schema + "." + table_name + "  child:" + childTables.Count;
+            return "TableRow " + table_schema + "." + table_name;
         }
     }
 
