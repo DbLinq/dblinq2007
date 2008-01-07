@@ -65,6 +65,7 @@
     <Compile Include="schema\oracle\OracleVendor.cs" />
     <Compile Include="schema\oracle\UserTablesSql.cs" />
     <Compile Include="schema\SchemaPostprocess.cs" />
+    <Compile Include="util\TableSorter.cs" />
     <Compile Include="util\Util.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -67,9 +67,9 @@
     <Compile Include="schema\pgsql\Mappings.cs" />
     <Compile Include="schema\pgsql\PgsqlVendor.cs" />
     <Compile Include="schema\pgsql\Pg_Proc_Sql.cs" />
-    <Compile Include="schema\pgsql\TableSorter.cs" />
     <Compile Include="schema\pgsql\TableSql.cs" />
     <Compile Include="schema\SchemaPostprocess.cs" />
+    <Compile Include="util\TableSorter.cs" />
     <Compile Include="util\Util.cs" />
   </ItemGroup>
   <ItemGroup>

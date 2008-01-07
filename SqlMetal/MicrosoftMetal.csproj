@@ -62,6 +62,7 @@
     <Compile Include="schema\IDBVendor.cs" />
     <Compile Include="schema\mssql\MssqlVendor.cs" />
     <Compile Include="schema\SchemaPostprocess.cs" />
+    <Compile Include="util\TableSorter.cs" />
     <Compile Include="util\Util.cs" />
   </ItemGroup>
   <ItemGroup>

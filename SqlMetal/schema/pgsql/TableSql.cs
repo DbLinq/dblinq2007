@@ -13,28 +13,6 @@ namespace SqlMetal.schema.pgsql
         public string table_catalog;
         public string table_schema;
         public string table_name;
-
-        /// <summary>
-        /// dependencies are determined by analyzing foreign keys.
-        /// </summary>
-        public readonly List<TableRow> childTables = new List<TableRow>();
-
-        public IEnumerable<TableRow> EnumChildTables(int depth)
-        {
-            if(depth>99){
-                //prevent infinite recursion, in case of circular dependency
-                throw new ApplicationException("Circular dependency suspected");
-            }
-
-            foreach(TableRow t in childTables)
-            {
-                yield return t;
-                foreach(TableRow t2 in t.EnumChildTables(depth+1))
-                {
-                    yield return t2;
-                }
-            }
-        }
     }
 
     /// <summary>

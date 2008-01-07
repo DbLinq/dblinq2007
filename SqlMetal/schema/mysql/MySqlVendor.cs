@@ -137,7 +137,8 @@ namespace SqlMetal.schema.mysql
             KeyColumnUsageSql ksql = new KeyColumnUsageSql();
             List<KeyColumnUsage> constraints = ksql.getConstraints(conn,mmConfig.database);
 
-            TableSorter.Sort(tables, constraints); //sort tables - parents first
+            //sort tables - parents first (this is moving to SchemaPostprocess)
+            //TableSorter.Sort(tables, constraints); 
 
             foreach(KeyColumnUsage keyColRow in constraints)
             {
