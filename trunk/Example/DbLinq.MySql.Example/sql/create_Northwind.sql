@@ -163,7 +163,8 @@ CREATE TABLE `Orders` (
   `ShipCountry` VARCHAR(15) NULL,
   PRIMARY KEY(`OrderID`),
   FOREIGN KEY `FK_orders_cust` (`CustomerID`) REFERENCES `Customers` (`CustomerID`),
-  FOREIGN KEY `FK_orders_emp` (`EmployeeID`) REFERENCES `Employees` (`EmployeeID`)
+  FOREIGN KEY `FK_orders_emp` (`EmployeeID`) REFERENCES `Employees` (`EmployeeID`),
+  FOREIGN KEY `FK_orders_ship` (`ShipVia`) REFERENCES `Shippers` (`ShipperID`)
 )
 ENGINE = InnoDB;
 
