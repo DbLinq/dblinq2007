@@ -35,7 +35,7 @@ namespace SqlMetal.schema
                 if (col.Member == table.Type.Name)
                     col.Member = "Contents"; //rename field Alltypes.Alltypes to Alltypes.Contents
 
-                col.Storage = "_" + col.Member;
+                col.Storage = "_" + col.Name;
 
                 if (CSharp.IsCsharpKeyword(col.Member))
                     col.Member += "_"; //rename column 'int' -> 'int_'
