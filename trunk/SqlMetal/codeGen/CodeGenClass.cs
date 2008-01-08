@@ -130,7 +130,7 @@ public $name($argList)
                 string colType2 = CSharp.FormatType(col.Type, col.CanBeNull);
                 string arg = colType2 + " " + property;
                 ctorArgs.Add(arg);
-                string assign = "this._" + col.Name + " = " + property + ";";
+                string assign = "this." + col.Storage + " = " + property + ";";
                 ctorStatements.Add(assign);
             }
 
