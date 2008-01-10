@@ -48,7 +48,7 @@ namespace SqlMetal.schema.mysql
             mmConfig.forceUcaseFieldName = false;
         }
 
-        public string VendorName(){ return "MySql"; }
+        public string VendorName() { return "MySql"; }
 
         /// <summary>
         /// main entry point to load schema
@@ -68,7 +68,7 @@ namespace SqlMetal.schema.mysql
             //##################################################################
             //step 1 - load tables
             TableSql tsql = new TableSql();
-            List<TableRow> tables = tsql.getTables(conn,mmConfig.database);
+            List<TableRow> tables = tsql.getTables(conn, mmConfig.database);
             if (tables == null || tables.Count == 0)
             {
                 Console.WriteLine("No tables found for schema " + mmConfig.database + ", exiting");
@@ -79,23 +79,26 @@ namespace SqlMetal.schema.mysql
             {
                 DlinqSchema.Table tblSchema = new DlinqSchema.Table();
                 tblSchema.Name = tblRow.table_name;
-                tblSchema.Member = Util.FormatTableName(tblRow.table_name, false).Pluralize();
-                tblSchema.Type.Name = Util.FormatTableName(tblRow.table_name, true);
+
+                //defer Pluralize() until SchemaPostprocess
+                tblSchema.Member = tblRow.table_name;
+                tblSchema.Type.Name = tblRow.table_name;
+
                 schema.Tables.Add(tblSchema);
             }
 
             //##################################################################
             //step 2 - load columns
             ColumnSql csql = new ColumnSql();
-            List<Column> columns = csql.getColumns(conn,mmConfig.database);
-            
-            foreach(Column columnRow in columns)
+            List<Column> columns = csql.getColumns(conn, mmConfig.database);
+
+            foreach (Column columnRow in columns)
             {
                 //find which table this column belongs to
-                DlinqSchema.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.table_name==tblSchema.Name);
-                if(tableSchema==null)
+                DlinqSchema.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.table_name == tblSchema.Name);
+                if (tableSchema == null)
                 {
-                    Console.WriteLine("ERROR L46: Table '"+columnRow.table_name+"' not found for column "+columnRow.column_name);
+                    Console.WriteLine("ERROR L46: Table '" + columnRow.table_name + "' not found for column " + columnRow.column_name);
                     continue;
                 }
                 DlinqSchema.Column colSchema = new DlinqSchema.Column();
@@ -112,8 +115,8 @@ namespace SqlMetal.schema.mysql
                     ;
                 colSchema.DbType = dbType;
 
-                colSchema.IsPrimaryKey = columnRow.column_key=="PRI";
-                colSchema.IsDbGenerated = columnRow.extra=="auto_increment";
+                colSchema.IsPrimaryKey = columnRow.column_key == "PRI";
+                colSchema.IsDbGenerated = columnRow.extra == "auto_increment";
                 colSchema.CanBeNull = columnRow.isNullable;
 
                 //determine the C# type
@@ -122,7 +125,7 @@ namespace SqlMetal.schema.mysql
                     colSchema.Type = "DbLinq_EnumTest"; //hadcoded value - used during enum testing
                 if (CSharp.IsValueType(colSchema.Type) && columnRow.isNullable)
                     colSchema.Type += "?";
-                
+
                 //determine the c# field name - this may be changed in SchemaPostprocess
                 colSchema.Member = mmConfig.forceUcaseFieldName
                     ? Util.Capitalize(columnRow.column_name)
@@ -135,18 +138,18 @@ namespace SqlMetal.schema.mysql
             //##################################################################
             //step 3 - load foreign keys etc
             KeyColumnUsageSql ksql = new KeyColumnUsageSql();
-            List<KeyColumnUsage> constraints = ksql.getConstraints(conn,mmConfig.database);
+            List<KeyColumnUsage> constraints = ksql.getConstraints(conn, mmConfig.database);
 
             //sort tables - parents first (this is moving to SchemaPostprocess)
             //TableSorter.Sort(tables, constraints); 
 
-            foreach(KeyColumnUsage keyColRow in constraints)
+            foreach (KeyColumnUsage keyColRow in constraints)
             {
                 //find my table:
-                DlinqSchema.Table table = schema.Tables.FirstOrDefault(t => keyColRow.table_name==t.Name);
-                if(table==null)
+                DlinqSchema.Table table = schema.Tables.FirstOrDefault(t => keyColRow.table_name == t.Name);
+                if (table == null)
                 {
-                    Console.WriteLine("ERROR L46: Table '"+keyColRow.table_name+"' not found for column "+keyColRow.column_name);
+                    Console.WriteLine("ERROR L46: Table '" + keyColRow.table_name + "' not found for column " + keyColRow.column_name);
                     continue;
                 }
 
@@ -159,21 +162,16 @@ namespace SqlMetal.schema.mysql
                     DlinqSchema.Association assoc = new DlinqSchema.Association();
                     assoc.IsForeignKey = true;
                     assoc.Name = keyColRow.constraint_name;
-                    //assoc.Type = keyColRow.referenced_table_name; //see below instead
+                    assoc.Type = null;
                     assoc.ThisKey = keyColRow.column_name;
-                    assoc.Member = Util.FormatTableName(keyColRow.referenced_table_name, true);
+                    assoc.Member = keyColRow.referenced_table_name;
                     table.Type.Associations.Add(assoc);
 
                     //and insert the reverse association:
                     DlinqSchema.Association assoc2 = new DlinqSchema.Association();
                     assoc2.Name = keyColRow.constraint_name;
-                    assoc2.Type = table.Type.Name; //keyColRow.table_name;
-                    assoc2.Member = Util.FormatTableName(keyColRow.table_name, false).Pluralize();
-                    
-                    //bool isSelfJoin = keyColRow.table_name == keyColRow.referenced_table_name;
-                    //assoc2.OtherKey = isSelfJoin
-                    //    ? keyColRow.column_name //in Employees table - "ReportsTo" appears in both [Association]
-                    //    : keyColRow.referenced_column_name;
+                    assoc2.Type = table.Name;
+                    assoc2.Member = keyColRow.table_name;
                     assoc2.OtherKey = keyColRow.referenced_column_name;
 
                     DlinqSchema.Table parentTable = schema.Tables.FirstOrDefault(t => keyColRow.referenced_table_name == t.Name);
@@ -207,7 +205,7 @@ namespace SqlMetal.schema.mysql
                     func.BodyContainsSelectStatement = proc.body != null
                         && proc.body.IndexOf("select", StringComparison.OrdinalIgnoreCase) > -1;
                     ParseProcParams(proc, func);
-                    
+
                     schema.Functions.Add(func);
                 }
             }
@@ -240,7 +238,7 @@ namespace SqlMetal.schema.mysql
                 }
             }
 
-            if (inputProc.returns != null && inputProc.returns!="")
+            if (inputProc.returns != null && inputProc.returns != "")
             {
                 DlinqSchema.Parameter paramRet = new DlinqSchema.Parameter();
                 paramRet.DbType = inputProc.returns;
@@ -259,7 +257,7 @@ namespace SqlMetal.schema.mysql
         {
             param = param.Trim();
             System.Data.ParameterDirection inOut = System.Data.ParameterDirection.Input;
-            
+
             if (param.StartsWith("IN", StringComparison.CurrentCultureIgnoreCase))
             {
                 inOut = System.Data.ParameterDirection.Input;
@@ -280,8 +278,8 @@ namespace SqlMetal.schema.mysql
             if (indxSpace == -1)
                 return null; //cannot find space between varName and varType
 
-            string varName = param.Substring(0,indxSpace);
-            string varType = param.Substring(indxSpace+1);
+            string varName = param.Substring(0, indxSpace);
+            string varType = param.Substring(indxSpace + 1);
 
             DlinqSchema.Parameter paramObj = new DlinqSchema.Parameter();
             paramObj.InOut = inOut;

@@ -142,17 +142,16 @@ public partial class $dbname : MContext
             {
                 string className = tbl.Type.Name;
 
-                //string tableNamePlural = tbl.Name.Capitalize().Pluralize();
-                string tableNamePlural = Util.TableNamePlural(tbl.Member ?? tbl.Name);
+                //string tableNamePlural = Util.TableNamePlural(tbl.Member ?? tbl.Name);
 
                 //string fldDecl = string.Format("public readonly MTable<{1}> {0};", tableNamePlural, className);
                 string fldDecl = "public MTable<$1> $0 { get { return base.GetTable<$1>(\"$0\"); } }"
-                    .Replace("$0", tableNamePlural)
+                    .Replace("$0", tbl.Member)
                     .Replace("$1", className); //cannot use string.Format() - there are curly brackets
                 dbFieldDecls.Add(fldDecl);
 
                 string fldInit = string.Format("{0} = new MTable<{1}>(this);"
-                    , tableNamePlural, className);
+                    , tbl.Member, className);
                 dbFieldInits.Add(fldInit);
             }
 

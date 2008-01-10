@@ -61,7 +61,7 @@ namespace SqlMetal
         /// <summary>
         /// when true, we will call Singularize()/Pluralize() functions.
         /// </summary>
-        public static bool useEnglishHeuristics = true;
+        public static bool pluralize = true;
 
         /// <summary>
         /// if true, and PostgreSql database contains DOMAINS (typedefs), 
