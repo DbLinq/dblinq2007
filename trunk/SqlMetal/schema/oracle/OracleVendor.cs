@@ -48,8 +48,8 @@ namespace SqlMetal.schema.oracle
             {
                 DlinqSchema.Table tblSchema = new DlinqSchema.Table();
                 tblSchema.Name = tblRow.table_name;
-                tblSchema.Member = Util.FormatTableName(tblRow.table_name, false).Pluralize();
-                tblSchema.Type.Name = Util.FormatTableName(tblRow.table_name, true);
+                tblSchema.Member = tblRow.table_name; // Util.FormatTableName(tblRow.table_name, false).Pluralize();
+                tblSchema.Type.Name = tblRow.table_name; // Util.FormatTableName(tblRow.table_name, true);
                 schema.Tables.Add(tblSchema);
             }
 
@@ -141,7 +141,7 @@ namespace SqlMetal.schema.oracle
                     DlinqSchema.Association assoc = new DlinqSchema.Association();
                     assoc.IsForeignKey = true;
                     assoc.Name = constraint.constraint_name;
-                    //assoc.Type = keyColRow.referenced_table_name; //see below instead
+                    assoc.Type = null;
                     assoc.ThisKey = constraint.column_name;
                     assoc.Member = Util.FormatTableName(referencedConstraint.table_name, true);
                     table.Type.Associations.Add(assoc);
@@ -149,11 +149,9 @@ namespace SqlMetal.schema.oracle
                     //and insert the reverse association:
                     DlinqSchema.Association assoc2 = new DlinqSchema.Association();
                     assoc2.Name = constraint.constraint_name;
-                    assoc2.Type = table.Type.Name; //keyColRow.table_name;
-                    assoc2.Member = Util.FormatTableName(constraint.table_name, false).Pluralize();
+                    assoc2.Type = table.Type.Name;
+                    assoc2.Member = constraint.table_name; // Util.FormatTableName(constraint.table_name, false).Pluralize();
                     assoc2.OtherKey = referencedConstraint.column_name; // referenced_column_name;
-
-                    //assoc2.Columns.Add(new DlinqSchema.ColumnName(constraint.column_name));
 
                     DlinqSchema.Table parentTable = schema.Tables.FirstOrDefault(t => referencedConstraint.table_name == t.Name);
                     if (parentTable == null)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SqlMetal.util;
 
 namespace SqlMetal.schema
 {
@@ -30,6 +31,13 @@ namespace SqlMetal.schema
 
         public static void PostProcess_Table(DlinqSchema.Table table)
         {
+            if (mmConfig.pluralize)
+            {
+                // "-pluralize" flag: apply english-language rules for plural, singular
+                table.Member = Util.FormatTableName(table.Name, false).Pluralize();
+                table.Type.Name = Util.FormatTableName(table.Name, true);
+            }
+
             foreach (DlinqSchema.Column col in table.Type.Columns)
             {
                 if (col.Member == table.Type.Name)
@@ -44,10 +52,28 @@ namespace SqlMetal.schema
             Dictionary<string, bool> knownAssocs = new Dictionary<string, bool>();
             foreach (DlinqSchema.Association assoc in table.Type.Associations)
             {
+                if (mmConfig.pluralize)
+                {
+                    assoc.Type = Util.FormatTableName(assoc.Type, true);
+                    if (assoc.IsForeignKey)
+                    {
+                        //format name of parent propery:
+                        //eg. ""public Employee employees" -> "public Employee Employee"
+                        assoc.Member = Util.FormatTableName(assoc.Member, true);
+                    }
+                    else
+                    {
+                        //	"public EntityMSet<Product> product" edit to:
+                        //  "public EntityMSet<Product> Products"
+                        assoc.Member = Util.FormatTableName(assoc.Member, false).Pluralize();
+                    }
+                }
+
                 if (assoc.Member == table.Type.Name)
                 {
                     string thisKey = assoc.ThisKey ?? "_TODO_L35";
-                    assoc.Member = thisKey + assoc.Member; //rename field Employees.Employees to Employees.RefersToEmployees
+                    //self-join: rename field Employees.Employees to Employees.RefersToEmployees
+                    assoc.Member = thisKey + assoc.Member;
                 }
 
                 if (knownAssocs.ContainsKey(assoc.Member))
