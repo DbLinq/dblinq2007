@@ -267,6 +267,9 @@ namespace DBLinq.Linq
 
             }
 
+            //thanks to Martin Rauscher for spotting that I forgot to clear the list:
+            _insertList.Clear();
+
             Func<T, string> getObjectID = RowEnumeratorCompiler<T>.CompileIDRetrieval(proj);
 
             //todo: check object is not in two lists
@@ -283,6 +286,8 @@ namespace DBLinq.Linq
                     XSqlCommand cmd = InsertClauseBuilder.GetUpdateCommand(conn, iMod, proj, ID_to_update);
                     int result = cmd.ExecuteNonQuery();
                     Trace.WriteLine("MTable SaveAll.Update returned:" + result);
+
+                    iMod.IsModified = false; //mark as saved, thanks to Martin Rauscher
                 }
                 catch (Exception ex)
                 {
@@ -329,6 +334,9 @@ namespace DBLinq.Linq
                 int result = cmd.ExecuteNonQuery();
                 Trace.WriteLine("MTable SaveAll.Delete returned:" + result);
             }
+
+            _deleteList.Clear();
+
             return excepts;
         }
 
