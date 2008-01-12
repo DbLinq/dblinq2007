@@ -115,6 +115,39 @@ namespace Test_NUnit
             Assert.AreEqual(numLeft, 0, "After deletion, expected count of Products with ID=" + insertedID + " to be zero, instead got " + numLeft);
         }
 
+        [Test]
+        public void G3_DeleteTest()
+        {
+            int insertedID = insertProduct_priv();
+            Assert.Greater(insertedID, 0, "DeleteTest cannot operate if row was not inserted");
+
+            Northwind db = CreateDB();
+
+            var q = from p in db.Products where p.ProductID == insertedID select p;
+            List<Product> insertedProducts = q.ToList();
+            foreach (Product insertedProd in insertedProducts)
+            {
+                db.Products.Remove(insertedProd);
+            }
+            db.SubmitChanges();
+
+            int numLeft = (from p in db.Products where p.ProductID == insertedID select p).Count();
+            Assert.AreEqual(numLeft, 0, "After deletion, expected count of Products with ID=" + insertedID + " to be zero, instead got " + numLeft);
+        }
+
+        [Test]
+        public void G4_DuplicateSubmitTest()
+        {
+            Northwind db = CreateDB();
+            int productCount1 = db.Products.Count();
+            Product p_temp = new Product { ProductName = "temp_g4", Discontinued = false };
+            db.Products.Add(p_temp);
+            db.SubmitChanges();
+            db.SubmitChanges();
+            int productCount2 = db.Products.Count();
+            Assert.IsTrue(productCount2 == productCount1 + 1, "Expected product count to grow by one");
+        }
+
         #endregion
     }
 }
