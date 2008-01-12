@@ -87,7 +87,7 @@ namespace SqlMetal.util
         /// given 'order details', return 'OrderDetails'.
         /// given 'dbo.t1', return 'Dbo.T1'.
         /// </summary>
-        public static string FormatTableName(string table_name, bool useSingular)
+        public static string FormatTableName(string table_name, PluralEnum pluralEnum)
         {
             //TODO: allow custom renames via config file - 
             //- this could solve keyword conflict etc
@@ -98,12 +98,19 @@ namespace SqlMetal.util
 
             //heuristic to convert 'Products' table to class 'Product'
             //TODO: allow customized tableName-className mappings from an XML file
-            if (useSingular)
+            if (mmConfig.pluralize && pluralEnum == PluralEnum.Singularize)
             {
+                // "-pluralize" flag: apply english-language rules for plural, singular
                 name2 = name2.Singularize();
             }
 
             name2 = name2.Replace(" ", ""); // "Order Details" -> "OrderDetails"
+
+            if (mmConfig.pluralize && pluralEnum == PluralEnum.Pluralize)
+            {
+                // "-pluralize" flag: apply english-language rules for plural, singular
+                name2 = name2.Pluralize();
+            }
 
             return name2;
         }
@@ -215,6 +222,13 @@ namespace SqlMetal.util
             return false;
         }
 
+    }
+
+    public enum PluralEnum
+    {
+        Pluralize,
+        Unchanged,
+        Singularize
     }
 
     /// <summary>

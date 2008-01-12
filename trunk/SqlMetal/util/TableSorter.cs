@@ -48,10 +48,14 @@ namespace SqlMetal.util
             _typeNameToTableMap = tables.ToDictionary(t => t.Type.Name);
 
             //int indx = 0;
-            //foreach (DlinqSchema.Table t in tables)
-            //{
-            //    _originalOrder[t] = indx++;
-            //}
+            foreach (DlinqSchema.Table t in tables)
+            {
+                //_originalOrder[t] = indx++;
+                foreach (DlinqSchema.Table child in EnumChildTables(t))
+                {
+                    child._isChild = true;
+                }
+            }
         }
 
         #region IComparer<Table> Members
@@ -71,7 +75,10 @@ namespace SqlMetal.util
                 if (x == child_of_y)
                     return +1;
             }
-            return 0;
+
+            //if we get here, x/y are not above or below each other.
+            return x._isChild.CompareTo(y._isChild);
+            //return 0;
         }
         #endregion
 
