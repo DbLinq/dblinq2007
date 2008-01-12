@@ -31,12 +31,8 @@ namespace SqlMetal.schema
 
         public static void PostProcess_Table(DlinqSchema.Table table)
         {
-            if (mmConfig.pluralize)
-            {
-                // "-pluralize" flag: apply english-language rules for plural, singular
-                table.Member = Util.FormatTableName(table.Name, false).Pluralize();
-                table.Type.Name = Util.FormatTableName(table.Name, true);
-            }
+            table.Member = Util.FormatTableName(table.Type.Name, PluralEnum.Pluralize);
+            table.Type.Name = Util.FormatTableName(table.Type.Name, PluralEnum.Singularize);
 
             foreach (DlinqSchema.Column col in table.Type.Columns)
             {
@@ -52,22 +48,15 @@ namespace SqlMetal.schema
             Dictionary<string, bool> knownAssocs = new Dictionary<string, bool>();
             foreach (DlinqSchema.Association assoc in table.Type.Associations)
             {
-                if (mmConfig.pluralize)
-                {
-                    assoc.Type = Util.FormatTableName(assoc.Type, true);
-                    if (assoc.IsForeignKey)
-                    {
-                        //format name of parent propery:
-                        //eg. ""public Employee employees" -> "public Employee Employee"
-                        assoc.Member = Util.FormatTableName(assoc.Member, true);
-                    }
-                    else
-                    {
-                        //	"public EntityMSet<Product> product" edit to:
-                        //  "public EntityMSet<Product> Products"
-                        assoc.Member = Util.FormatTableName(assoc.Member, false).Pluralize();
-                    }
-                }
+                assoc.Type = Util.FormatTableName(assoc.Type, PluralEnum.Singularize);
+
+                PluralEnum pluralEnum = assoc.IsForeignKey
+                    ? PluralEnum.Singularize
+                    : PluralEnum.Pluralize;
+
+                //referring to parent: "public Employee Employee" 
+                //referring to child:  "public EntityMSet<Product> Products"
+                assoc.Member = Util.FormatTableName(assoc.Member, pluralEnum);
 
                 if (assoc.Member == table.Type.Name)
                 {

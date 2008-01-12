@@ -122,6 +122,8 @@ namespace SqlMetal.schema
             [XmlAttribute]
             public string Member;
 
+            internal bool _isChild; //used in TableSorter
+
             public override string ToString()
             {
                 string cols = Type==null 

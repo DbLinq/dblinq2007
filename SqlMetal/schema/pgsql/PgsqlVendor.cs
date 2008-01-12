@@ -173,7 +173,7 @@ namespace SqlMetal.schema.pgsql
                     //and insert the reverse association:
                     DlinqSchema.Association assoc2 = new DlinqSchema.Association();
                     assoc2.Name = keyColRow.constraint_name;
-                    assoc2.Type = table.Type.Name; //keyColRow.table_name;
+                    assoc2.Type = table.Type.Name;
                     assoc2.Member = keyColRow.table_name;
                     assoc2.OtherKey = keyColRow.column_name; //.referenced_column_name;
 

@@ -16,4 +16,5 @@
   <Renaming old="unitsinstock" new="UnitsInStock" />
   <Renaming old="hiredate" new="HireDate" />
   <Renaming old="reportsto" new="ReportsTo" />
+  <Renaming old="territorydescription" new="TerritoryDescription" />
 </Renamings>
