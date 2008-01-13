@@ -144,7 +144,8 @@ namespace SqlMetal
             { 
                 "user", "db", "database", "password"
                 , "namespace", "ns", "server", "renamesFile"
-                , "code", "language", "dbml", "sprocs" 
+                , "code", "language", "dbml", "sprocs"
+                , "pluralize"
             };
 
             bool gotXmlFile = false;
