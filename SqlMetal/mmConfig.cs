@@ -70,6 +70,12 @@ namespace SqlMetal
         /// </summary>
         public static bool useDomainTypes = true;
 
+        /// <summary>
+        /// force a Console.ReadKey at end of program.
+        /// Useful when running from Studio, so the output window does not disappear
+        /// </summary>
+        public static bool readLineAtExit = false;
+
         #region static ctor: populate fields from app.config
         /// <summary>
         /// give preference to commandline options over app.config options

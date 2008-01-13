@@ -35,6 +35,7 @@ using SqlMetal.util;
 namespace SqlMetal.schema.pgsql { } //this namespace is used from other csproj
 namespace SqlMetal.schema.mssql { } //this namespace is used from other csproj
 namespace SqlMetal.schema.oracle { } //this namespace is used from other csproj
+namespace SqlMetal.schema.mysql { } //this namespace is used from other csproj
 
 namespace SqlMetal.schema.sqlite
 {
@@ -83,8 +84,11 @@ namespace SqlMetal.schema.sqlite
             {
                 DlinqSchema.Table tblSchema = new DlinqSchema.Table();
                 tblSchema.Name = tblRow.table_name;
-                tblSchema.Member = Util.FormatTableName(tblRow.table_name, false).Pluralize();
-                tblSchema.Type.Name = Util.FormatTableName(tblRow.table_name, false);
+
+                //defer Pluralize() until SchemaPostprocess
+                tblSchema.Member = tblRow.table_name;
+                tblSchema.Type.Name = tblRow.table_name;
+
                 schema.Tables.Add(tblSchema);
             }
 
@@ -166,16 +170,16 @@ namespace SqlMetal.schema.sqlite
                         DlinqSchema.Association assoc = new DlinqSchema.Association();
                         assoc.IsForeignKey = true;
                         assoc.Name = keyColRow.constraint_name;
-                        //assoc.Type = keyColRow.referenced_table_name; //see below instead
+                        assoc.Type = null;
                         assoc.ThisKey = keyColRow.column_name;
-                        assoc.Member = Util.FormatTableName(keyColRow.referenced_table_name, true);
+                        assoc.Member = keyColRow.referenced_table_name;
                         table.Type.Associations.Add(assoc);
 
                         //and insert the reverse association:
                         DlinqSchema.Association assoc2 = new DlinqSchema.Association();
                         assoc2.Name = keyColRow.constraint_name;
                         assoc2.Type = table.Type.Name; //keyColRow.table_name;
-                        assoc2.Member = Util.FormatTableName(keyColRow.table_name, false).Pluralize();
+                        assoc2.Member = keyColRow.table_name;
 
                         //bool isSelfJoin = keyColRow.table_name == keyColRow.referenced_table_name;
                         //assoc2.OtherKey = isSelfJoin
