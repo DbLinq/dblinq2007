@@ -49,6 +49,11 @@ using System.Data.SqlClient;
 using XSqlConnection = System.Data.SqlClient.SqlConnection;
 using XSqlCommand = System.Data.SqlClient.SqlCommand;
 using XSqlDataReader = System.Data.SqlClient.SqlDataReader;
+#elif SQLITE
+using System.Data.SQLite;
+using XSqlConnection = System.Data.SQLite.SQLiteConnection;
+using XSqlCommand = System.Data.SQLite.SQLiteCommand;
+using XSqlDataReader = System.Data.SQLite.SQLiteDataReader;
 #else
 using MySql.Data.MySqlClient;
 using XSqlCommand = MySql.Data.MySqlClient.MySqlCommand;
@@ -120,6 +125,8 @@ namespace DBLinq.util
                     Console.WriteLine("SQL PARAM: "+paramName+" = "+value);
 #if MICROSOFT
                     cmd.Parameters.AddWithValue(paramName, value);
+#elif SQLITE
+                    cmd.Parameters.AddWithValue(paramName, value);
 #else
                     cmd.Parameters.Add(paramName, value); //warning CS0618: Add is obsolete:
 #endif
@@ -181,6 +188,10 @@ namespace DBLinq.util
                 //_current = default(T);
                 while(rdr2.Read())
                 {
+                	// if not this might crash with SQLite
+                    if (!rdr2.HasRow)
+                        continue;
+
                     T current = _objFromRow2(rdr2);
 
                     //live object cache:

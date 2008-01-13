@@ -47,6 +47,11 @@ using System.Data.SqlClient;
 using XSqlConnection = System.Data.SqlClient.SqlConnection;
 using XSqlCommand = System.Data.SqlClient.SqlCommand;
 using XSqlParameter = System.Data.SqlClient.SqlParameter;
+#elif SQLITE
+using System.Data.SQLite;
+using XSqlConnection = System.Data.SQLite.SQLiteConnection;
+using XSqlCommand = System.Data.SQLite.SQLiteCommand;
+using XSqlParameter = System.Data.SQLite.SQLiteParameter;
 #else
 using MySql.Data.MySqlClient;
 using XSqlConnection = MySql.Data.MySqlClient.MySqlConnection;

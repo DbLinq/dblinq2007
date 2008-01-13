@@ -32,10 +32,17 @@ using System.Text;
 using System.Xml.Serialization;
 using SqlMetal.schema;
 using SqlMetal.codeGen;
+using SqlMetal.schema.sqlite; //in SQLiteMetal, imports class Vendor
 using SqlMetal.schema.mysql; //in MySqlMetal, imports class Vendor
 using SqlMetal.schema.pgsql; //in PgsqlMetal, imports class Vendor
 using SqlMetal.schema.mssql; //in MicrosoftMetal, imports class Vendor
 using SqlMetal.schema.oracle; //in MicrosoftMetal, imports class Vendor
+
+#if SQLITE
+    using xVendor = SqlMetal.schema.sqlite.Vendor;
+#else
+    using xVendor = SqlMetal.schema.mysql.Vendor;
+#endif
 
 namespace SqlMetal
 {
@@ -76,7 +83,7 @@ namespace SqlMetal
                 Console.WriteLine(s1);
 #endif
 
-                Vendor vendor = new Vendor();
+                xVendor vendor = new xVendor();
                 string vendorName = vendor.VendorName(); //"Microsoft" or "Postgres" or ...
 
                 if (mmConfig.schemaXmlFile == null)
@@ -103,15 +110,21 @@ namespace SqlMetal
                 CodeGenAll codeGen = new CodeGenAll();
                 string fileBody = codeGen.generateAll(dbSchema, vendorName);
                 //string fname = mmConfig.database + ".cs";
+
+                if (mmConfig.database.Contains("\""))
+                    mmConfig.database = mmConfig.database.Replace("\"", "");
+
                 string fname = mmConfig.code==null ? mmConfig.database + ".cs"
                     : (mmConfig.code.EndsWith(".cs") ? mmConfig.code : mmConfig.code+".cs");
 
                 File.WriteAllText(fname, fileBody);
                 Console.WriteLine("MysqlMetal: Written file "+fname);
+                Console.ReadKey();
             }
             catch(Exception ex)
             {
                 Console.WriteLine("MysqlMetal failed:"+ex);
+                Console.ReadKey();
             }
         }
 
@@ -173,12 +186,20 @@ namespace SqlMetal
             if (gotXmlFile)
                 return true;
 
-            if(     mmConfig.server==null || mmConfig.database==null 
+#if SQLITE
+            if (mmConfig.database == null)
+            {
+                Console.WriteLine("ERROR - missing server/database/username/password");
+                return false;
+            }
+#else
+            if (mmConfig.server == null || mmConfig.database == null 
                 ||  mmConfig.user==null || mmConfig.password==null)
             {
                 Console.WriteLine("ERROR - missing server/database/username/password");
                 return false;
             }
+#endif
             return true;
             #endregion
         }
