@@ -81,6 +81,8 @@ namespace DBLinq.vendor
 
         public const string MSSQLSERVER = "MsSqlServer";
 
+        public const string SQLITE = "SQLite";
+
 #if ORACLE
         public static VendorOra Make()
         {
@@ -100,6 +102,11 @@ namespace DBLinq.vendor
         public static mssql.VendorMssql Make()
         {
             return new mssql.VendorMssql();
+        }
+#elif SQLITE
+        public static sqlite.VendorSqlite Make()
+        {
+            return new sqlite.VendorSqlite();
         }
 #else
 #endif

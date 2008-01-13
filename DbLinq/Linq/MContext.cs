@@ -43,6 +43,10 @@ using XSqlCommand = Npgsql.NpgsqlCommand;
 using System.Data.SqlClient;
 using XSqlConnection = System.Data.SqlClient.SqlConnection;
 using XSqlCommand = System.Data.SqlClient.SqlCommand;
+#elif SQLITE
+using System.Data.SQLite;
+using XSqlConnection = System.Data.SQLite.SQLiteConnection;
+using XSqlCommand = System.Data.SQLite.SQLiteCommand;
 #else
 using MySql.Data.MySqlClient;
 using XSqlConnection = MySql.Data.MySqlClient.MySqlConnection;
@@ -193,7 +197,7 @@ namespace DBLinq.Linq
 
         #endregion
 
-#if MYSQL || POSTGRES
+#if MYSQL || POSTGRES || SQLITE
         /// <summary>
         /// TODO - allow generated methods to call into stored procedures
         /// </summary>

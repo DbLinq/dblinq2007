@@ -13,6 +13,10 @@ using XSqlCommand = System.Data.OracleClient.OracleCommand;
 using xint = System.Int32;
 using XSqlConnection = Npgsql.NpgsqlConnection;
 using XSqlCommand = Npgsql.NpgsqlCommand;
+#elif SQLITE
+using System.Data.SQLite;
+using XSqlConnection = System.Data.SQLite.SQLiteConnection;
+using XSqlCommand = System.Data.SQLite.SQLiteCommand;
 #else
 using XSqlConnection = MySql.Data.MySqlClient.MySqlConnection;
 using XSqlCommand = MySql.Data.MySqlClient.MySqlCommand;

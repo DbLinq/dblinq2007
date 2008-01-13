@@ -14,6 +14,7 @@ namespace Test_NUnit
         [Test]
         public void BI01_InsertProducts()
         {
+#if !SQLITE
             int initialCount = 0, countAfterBulkInsert = 0;
 
             Northwind db = CreateDB();
@@ -34,6 +35,7 @@ namespace Test_NUnit
 
             //clean up
             base.ExecuteNonQuery("DELETE FROM Products WHERE ProductName LIKE 'tmp_%'");
+#endif
         }
     }
 }

@@ -10,6 +10,8 @@ using nwind;
 using xint = System.Int32;
 #elif POSTGRES
 using xint = System.Int32;
+#elif SQLITE
+using xint = System.Int64;
 #else
 using MySql.Data.MySqlClient;
 using xint = System.UInt32;

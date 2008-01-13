@@ -45,6 +45,11 @@ using System.Data.SqlClient;
 using XSqlConnection = System.Data.SqlClient.SqlConnection;
 using XSqlCommand = System.Data.SqlClient.SqlCommand;
 using XSqlDataReader = System.Data.SqlClient.SqlDataReader;
+#elif SQLITE
+using System.Data.SQLite;
+using XSqlConnection = System.Data.SQLite.SQLiteConnection;
+using XSqlCommand = System.Data.SQLite.SQLiteCommand;
+using XSqlDataReader = System.Data.SQLite.SQLiteDataReader;
 #else
 using MySql.Data.MySqlClient;
 using XSqlCommand = MySql.Data.MySqlClient.MySqlCommand;
