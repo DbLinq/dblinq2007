@@ -35,6 +35,7 @@ using SqlMetal.util;
 namespace SqlMetal.schema.pgsql { } //this namespace is used from other csproj
 namespace SqlMetal.schema.mssql { } //this namespace is used from other csproj
 namespace SqlMetal.schema.oracle { } //this namespace is used from other csproj
+namespace SqlMetal.schema.sqlite { } //this namespace is used from other csproj
 
 namespace SqlMetal.schema.mysql
 {

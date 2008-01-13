@@ -32,17 +32,22 @@ using System.Text;
 using System.Xml.Serialization;
 using SqlMetal.schema;
 using SqlMetal.codeGen;
+
+//OK this is rather primitive and needs fixing:
+//in one of these namespaces, there is a class Vendor.
+//todo: implement VendorFactory, get rid of this garbage.
 using SqlMetal.schema.sqlite; //in SQLiteMetal, imports class Vendor
 using SqlMetal.schema.mysql; //in MySqlMetal, imports class Vendor
 using SqlMetal.schema.pgsql; //in PgsqlMetal, imports class Vendor
 using SqlMetal.schema.mssql; //in MicrosoftMetal, imports class Vendor
 using SqlMetal.schema.oracle; //in MicrosoftMetal, imports class Vendor
 
-#if SQLITE
-    using xVendor = SqlMetal.schema.sqlite.Vendor;
-#else
-    using xVendor = SqlMetal.schema.mysql.Vendor;
-#endif
+//using Vendor = Vendor;
+//#if SQLITE
+//    using Vendor = SqlMetal.schema.sqlite.Vendor;
+//#else
+//    using Vendor = SqlMetal.schema.mysql.Vendor;
+//#endif
 
 namespace SqlMetal
 {
@@ -83,7 +88,7 @@ namespace SqlMetal
                 Console.WriteLine(s1);
 #endif
 
-                xVendor vendor = new xVendor();
+                Vendor vendor = new Vendor();
                 string vendorName = vendor.VendorName(); //"Microsoft" or "Postgres" or ...
 
                 if (mmConfig.schemaXmlFile == null)
@@ -119,11 +124,15 @@ namespace SqlMetal
 
                 File.WriteAllText(fname, fileBody);
                 Console.WriteLine("MysqlMetal: Written file "+fname);
-                Console.ReadKey();
             }
             catch(Exception ex)
             {
                 Console.WriteLine("MysqlMetal failed:"+ex);
+            }
+
+            if (mmConfig.readLineAtExit)
+            {
+                // '-readLineAtExit' flag: useful when running from Visual Studio
                 Console.ReadKey();
             }
         }

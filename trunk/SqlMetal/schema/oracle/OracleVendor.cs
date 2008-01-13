@@ -8,6 +8,7 @@ using SqlMetal.util;
 namespace SqlMetal.schema.mysql { } //namespace only used from other csproj
 namespace SqlMetal.schema.pgsql { } //namespace only used from other csproj
 namespace SqlMetal.schema.mssql { } //namespace only used from other csproj
+namespace SqlMetal.schema.sqlite { } //this namespace is used from other csproj
 
 namespace SqlMetal.schema.oracle
 {
