@@ -76,7 +76,7 @@ namespace SqlMetal
         /// </summary>
         public static bool readLineAtExit = false;
 
-        #region static ctor: populate fields from app.config
+        #region static ctor: populate fields from app.config and commandline
         /// <summary>
         /// give preference to commandline options over app.config options
         /// </summary>
@@ -118,6 +118,9 @@ namespace SqlMetal
                     //               select arg.Substring(minfo.Name.Length+1);
                     //string valueFromCmdline = valuesFromCmdline.First();
                     string valueFromCmdline = null; // = argMap[minfo.Name];
+
+                    //if (minfo.Name == "pluralize")
+                    //    Console.WriteLine("Xxxx");
 
                     if(valueFromAppConfig==null && (!argMap.TryGetValue(minfo.Name,out valueFromCmdline)) )
                         continue; //value not specified for this setting
