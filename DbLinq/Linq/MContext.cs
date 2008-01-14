@@ -55,7 +55,7 @@ using XSqlCommand = MySql.Data.MySqlClient.MySqlCommand;
 
 namespace DBLinq.Linq
 {
-    public abstract class MContext
+    public abstract class MContext : IDisposable
     {
         static IVendor s_vendor = VendorFactory.Make();
 
@@ -103,7 +103,7 @@ namespace DBLinq.Linq
             try
             {
                 //command: "SELECT 11" (Oracle: "SELECT 11 FROM DUAL")
-                string SQL = s_vendor.SqlPingCommand; 
+                string SQL = s_vendor.SqlPingCommand;
                 int result = s_vendor.ExecuteCommand(this, SQL);
                 return result == 11;
             }
@@ -118,11 +118,14 @@ namespace DBLinq.Linq
         public MTable<T> GetTable<T>(string tableName) where T : IModified
         {
             IMTable tableExisting;
-            if (_tableMap.TryGetValue(tableName, out tableExisting))
-                return tableExisting as MTable<T>; //return existing
-            MTable<T> tableNew = new MTable<T>(this); //create new and store it
-            _tableMap[tableName] = tableNew;
-            return tableNew;
+            lock (this)
+            {
+                if (_tableMap.TryGetValue(tableName, out tableExisting))
+                    return tableExisting as MTable<T>; //return existing
+                MTable<T> tableNew = new MTable<T>(this); //create new and store it
+                _tableMap[tableName] = tableNew;
+                return tableNew;
+            }
         }
 
         public void RegisterChild(IMTable table)
@@ -147,7 +150,7 @@ namespace DBLinq.Linq
                     List<Exception> innerExceptions = tbl.SaveAll(failureMode);
                     exceptions.AddRange(innerExceptions);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     switch (failureMode)
                     {
@@ -244,6 +247,22 @@ namespace DBLinq.Linq
         {
             get { throw new NotImplementedException(); }
             set { throw new NotImplementedException(); }
+        }
+
+        public void Dispose()
+        {
+            try
+            {
+                //discussing closing of connections with Andrus ...
+                if (_conn != null && _conn.State != System.Data.ConnectionState.Closed)
+                {
+                    _conn.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine("Dispose failed: " + ex);
+            }
         }
     }
 

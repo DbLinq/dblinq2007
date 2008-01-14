@@ -118,7 +118,8 @@ namespace DBLinq.Linq
 
             SessionVars vars = new SessionVars(_vars).Add(expr);
 
-            if (this is IQueryable<S>)
+            //if (this is IQueryable<S>)
+            if (typeof(S) == typeof(T))
             {
                 //this occurs if we are not projecting
                 //(meaning that we are selecting entire row object)
@@ -236,7 +237,10 @@ namespace DBLinq.Linq
                     {
                         object objID = null;
                         objID = cmd.ExecuteScalar();
+
+                        //Oracle unpacks objID from an out-param:
                         s_vendor.ProcessInsertedId(cmd, ref objID);
+
                         try
                         {
                             //set the object's ID:
@@ -272,9 +276,6 @@ namespace DBLinq.Linq
 
             }
 
-            //thanks to Martin Rauscher for spotting that I forgot to clear the list:
-            _insertList.Clear();
-
             Func<T, string> getObjectID = RowEnumeratorCompiler<T>.CompileIDRetrieval(proj);
 
             //todo: check object is not in two lists
@@ -306,6 +307,14 @@ namespace DBLinq.Linq
                     }
                 }
             }
+
+            foreach (T insertedT in _insertList)
+            {
+                //inserted objects are now live:
+                _liveObjectMap[insertedT] = insertedT;
+            }
+            //thanks to Martin Rauscher for spotting that I forgot to clear the list:
+            _insertList.Clear();
 
             if (_deleteList.Count > 0)
             {

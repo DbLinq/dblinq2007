@@ -21,7 +21,7 @@ namespace Test_NUnit
         {
             //new ReadTest_GroupBy().G01_SimpleGroup_Count();
             //new ReadTest_GroupBy().G05_Group_Into();
-            //new ReadTest().C1_SelectProducts();
+            new ReadTest().C2_SelectPenId();
             //new Join().LinqToSqlJoin10();
             //new ReadTest_Complex().F10_DistinctCity();
             //new StoredProcTest().SPB_GetOrderCount_Having();
@@ -35,7 +35,7 @@ namespace Test_NUnit
             //new Count_Sum_Min_Max_Avg().LiqnToSqlCount02();
             //new Top_Bottom().LinqToSqlTop03_Ex_Andrus();
             //new Object_Identity().LinqToSqlObjectIdentity01();
-            new String_Date_functions().LinqToSqlString01();
+            //new String_Date_functions().LinqToSqlString01();
         }
     }
 

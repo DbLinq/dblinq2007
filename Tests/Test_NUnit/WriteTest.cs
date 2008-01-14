@@ -150,6 +150,26 @@ namespace Test_NUnit
             Assert.IsTrue(productCount2 == productCount1 + 1, "Expected product count to grow by one");
         }
 
+        /// <summary>
+        /// there is a bug in v0.14 where fields cannot be updated to be null.
+        /// </summary>
+        [Test]
+        public void G5_SetFieldToNull()
+        {
+            string productName = "temp_G5_" + Environment.TickCount;
+            Northwind db = CreateDB();
+            Product p1 = new Product { ProductName = productName, Discontinued = false, UnitPrice = 11m };
+            db.Products.Add(p1);
+            db.SubmitChanges();
+
+            p1.UnitPrice = null;
+            db.SubmitChanges();
+
+            Northwind db3 = CreateDB();
+            Product p3 = db3.Products.Single(p => p.ProductName == productName);
+            Assert.IsNull(p3.UnitPrice);
+        }
+
         #endregion
     }
 }
