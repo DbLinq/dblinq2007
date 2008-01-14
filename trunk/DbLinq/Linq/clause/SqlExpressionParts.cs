@@ -162,15 +162,19 @@ namespace DBLinq.Linq.clause
             sb.Append("SELECT ");
             if (this.distinctClause != null)
             {
-                //SELECT COUNT(ProductID) FROM ...
+                //SELECT DISTINCT(ProductID) FROM ...
                 sb.Append(distinctClause).Append(" ");
             }
 
             if (this.countClause != null)
             {
-                //SELECT COUNT(ProductID) FROM ...
-                sb.Append(countClause).Append("(")
-                    .Append(selectFieldList[0]).Append(")");
+                //SELECT COUNT(ProductID) FROM ... <-would count non-null ProductIDs, thanks to Andrus
+                //SELECT COUNT(*) FROM ...         <-count all
+                if (countClause == "COUNT")
+                    sb.Append("COUNT(*)");
+                else
+                    sb.Append(countClause)
+                        .Append("(").Append(selectFieldList[0]).Append(")");
             }
             else
             {

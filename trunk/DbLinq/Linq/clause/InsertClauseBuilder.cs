@@ -162,12 +162,8 @@ namespace DBLinq.Linq.clause
             {
                 ColumnAttribute colAtt = projFld.columnAttribute;
 
-                if (colAtt.IsPrimaryKey) //(colAtt.Id)
-                    continue; //if field is ID , don't send field
-
-                //object paramValue = projFld.GetFieldValue(objectToInsert);
-                //if (paramValue == null)
-                //    continue; //don't set null fields
+                if (colAtt.IsDbGenerated)
+                    continue; //if field is auto-generated ID , don't send field
 
                 //append string, eg. ",Name"
                 if (numFieldsAdded++ > 0)
@@ -194,12 +190,10 @@ namespace DBLinq.Linq.clause
             foreach (ProjectionData.ProjectionField projFld in projData.fields)
             {
                 ColumnAttribute colAtt = projFld.columnAttribute;
-                if (colAtt.IsPrimaryKey) //(colAtt.Id)
-                    continue; //if field is ID , don't send field
+                if (colAtt.IsDbGenerated)
+                    continue; //if field is auto-generated ID , don't send field
 
                 object paramValue = projFld.GetFieldValue(objectToInsert);
-                //if (paramValue == null)
-                //    continue; //don't set null fields
 
                 //get either ":p0" or "?p0"
                 string paramName = s_vendor.ParamName(numFieldsAdded++);
@@ -239,20 +233,17 @@ namespace DBLinq.Linq.clause
 
                 string columnName_safe = s_vendor.FieldName_Safe(colAtt.Name); //turn 'User' into '[User]'
 
-                if (colAtt.IsPrimaryKey) //colAtt.Id
+                if (colAtt.IsPrimaryKey) 
                 {
                     primaryKeyName = columnName_safe;
                     continue; //if field is ID , don't send field
                 }
 
-                //PropertyInfo propInfo = projFld.propInfo;
-                //object paramValue = propInfo.GetValue(objectToInsert, s_emptyIndices);
                 object paramValue = projFld.GetFieldValue(objectToInsert);
                 string paramName;
                 if (paramValue == null)
                 {
                     paramName = "NULL";
-                    continue; //don't set null fields
                 }
                 else
                 {
