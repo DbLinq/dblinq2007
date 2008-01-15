@@ -55,7 +55,7 @@ using XSqlCommand = MySql.Data.MySqlClient.MySqlCommand;
 
 namespace DBLinq.Linq
 {
-    public abstract class MContext : IDisposable
+    public abstract class Context : IDisposable
     {
         static IVendor s_vendor = VendorFactory.Make();
 
@@ -68,14 +68,14 @@ namespace DBLinq.Linq
 
         readonly Dictionary<string, IMTable> _tableMap = new Dictionary<string, IMTable>();
 
-        public MContext(string sqlConnString)
+        public Context(string sqlConnString)
         {
             _sqlConnString = sqlConnString;
             _conn = new XSqlConnection(sqlConnString);
             _conn.Open();
         }
 
-        public MContext(System.Data.IDbConnection dbConnection)
+        public Context(System.Data.IDbConnection dbConnection)
         {
             if (dbConnection == null)
                 throw new ArgumentNullException("Null db connection");
@@ -115,14 +115,14 @@ namespace DBLinq.Linq
             }
         }
 
-        public MTable<T> GetTable<T>(string tableName) where T : IModified
+        public Table<T> GetTable<T>(string tableName) where T : IModified
         {
             IMTable tableExisting;
             lock (this)
             {
                 if (_tableMap.TryGetValue(tableName, out tableExisting))
-                    return tableExisting as MTable<T>; //return existing
-                MTable<T> tableNew = new MTable<T>(this); //create new and store it
+                    return tableExisting as Table<T>; //return existing
+                Table<T> tableNew = new Table<T>(this); //create new and store it
                 _tableMap[tableName] = tableNew;
                 return tableNew;
             }
@@ -204,7 +204,7 @@ namespace DBLinq.Linq
         /// <summary>
         /// TODO - allow generated methods to call into stored procedures
         /// </summary>
-        protected System.Data.Linq.IExecuteResult ExecuteMethodCall(MContext context, System.Reflection.MethodInfo method, params object[] sqlParams)
+        protected System.Data.Linq.IExecuteResult ExecuteMethodCall(Context context, System.Reflection.MethodInfo method, params object[] sqlParams)
         {
             System.Data.Linq.IExecuteResult result = s_vendor.ExecuteMethodCall(context, method, sqlParams);
             return result;
@@ -267,7 +267,7 @@ namespace DBLinq.Linq
     }
 
     /// <summary>
-    /// MTable has a SaveAll() method that MContext needs to call
+    /// Table has a SaveAll() method that Context needs to call
     /// </summary>
     public interface IMTable
     {

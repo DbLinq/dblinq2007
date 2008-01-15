@@ -58,7 +58,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
-using System.Data.Linq;
+//using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using System.Reflection;
 using DBLinq.Linq;
@@ -114,7 +114,7 @@ namespace $ns
 /// <summary>
 /// This class represents $vendor database $dbname.
 /// </summary>
-public partial class $dbname : MContext
+public partial class $dbname : Context
 {
     public $dbname(string connStr) : base(connStr)
     {
@@ -142,15 +142,12 @@ public partial class $dbname : MContext
             {
                 string className = tbl.Type.Name;
 
-                //string tableNamePlural = Util.TableNamePlural(tbl.Member ?? tbl.Name);
-
-                //string fldDecl = string.Format("public readonly MTable<{1}> {0};", tableNamePlural, className);
-                string fldDecl = "public MTable<$1> $0 { get { return base.GetTable<$1>(\"$0\"); } }"
+                string fldDecl = "public Table<$1> $0 { get { return base.GetTable<$1>(\"$0\"); } }"
                     .Replace("$0", tbl.Member)
                     .Replace("$1", className); //cannot use string.Format() - there are curly brackets
                 dbFieldDecls.Add(fldDecl);
 
-                string fldInit = string.Format("{0} = new MTable<{1}>(this);"
+                string fldInit = string.Format("{0} = new Table<{1}>(this);"
                     , tbl.Member, className);
                 dbFieldInits.Add(fldInit);
             }

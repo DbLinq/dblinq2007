@@ -193,7 +193,7 @@ public EntityMSet<$childClassName> $fieldName
         /// You need this one to generate Northwind.cs correctly.
         /// </summary>
         const string childLinkTemplate_simple = @"
-private EntityRef<$parentClassTyp> $fieldName2;    
+private System.Data.Linq.EntityRef<$parentClassTyp> $fieldName2;    
 
 [Association(Storage=""$fieldName1"", ThisKey=""$thisKey"", Name=""$fkName"")]
 [DebuggerNonUserCode]
@@ -209,7 +209,7 @@ public $parentClassTyp $member {
         /// (Note: there is collision avoidance code in SchemaPostprocess.cs)
         /// </summary>
         string childLinkTemplate_verbose = @"
-private EntityRef<$parentClassTyp> _$fkName_$thisKey;
+private System.Data.Linq.EntityRef<$parentClassTyp> _$fkName_$thisKey;
 [Association(Storage=""$fieldName1"", ThisKey=""$thisKey"",Name=""$fkName"")]
 [DebuggerNonUserCode]
 public $parentClassTyp $fkName_$thisKey {

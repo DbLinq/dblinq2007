@@ -219,7 +219,6 @@ namespace DBLinq.Linq
             }
 
             projData.tableAttribute = AttribHelper.GetTableAttrib(t);
-            //List<ColumnAttribute> lst = new List<ColumnAttribute>();
             PropertyInfo[] props = t.GetProperties();
             foreach(PropertyInfo prop in props)
             {

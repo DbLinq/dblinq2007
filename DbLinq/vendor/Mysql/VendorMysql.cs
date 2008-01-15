@@ -125,7 +125,7 @@ namespace DBLinq.vendor.mysql
         /// because it does not fill up the translation log.
         /// This is enabled for tables where Vendor.UserBulkInsert[db.Table] is true.
         /// </summary>
-        public static void DoBulkInsert<T>(DBLinq.Linq.MTable<T> table, List<T> rows, MySqlConnection conn)
+        public static void DoBulkInsert<T>(DBLinq.Linq.Table<T> table, List<T> rows, MySqlConnection conn)
         {
             int pageSize = VendorMysql.UseBulkInsert[table];
             //ProjectionData projData = ProjectionData.FromReflectedType(typeof(T));
@@ -163,7 +163,7 @@ namespace DBLinq.vendor.mysql
         /// call mysql stored proc or stored function, 
         /// optionally return DataSet, and collect return params.
         /// </summary>
-        public System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.MContext context, MethodInfo method
+        public System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.Context context, MethodInfo method
             , params object[] inputValues)
         {
             if (method == null)
@@ -305,7 +305,7 @@ namespace DBLinq.vendor.mysql
             return outParamValues;
         }
 
-        public int ExecuteCommand(DBLinq.Linq.MContext context, string sql, params object[] parameters)
+        public int ExecuteCommand(DBLinq.Linq.Context context, string sql, params object[] parameters)
         {
             MySql.Data.MySqlClient.MySqlConnection conn = context.SqlConnection;
             using (MySqlCommand command = new MySqlCommand(sql, conn))

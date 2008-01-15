@@ -149,8 +149,11 @@ namespace DBLinq.util
             }
 
             projData.tableAttribute = GetTableAttrib(t);
-            //List<ColumnAttribute> lst = new List<ColumnAttribute>();
+
+            //warning - Andrus points out that order of properties is not guaranteed,
+            //and indeed changes after an exception within Studio.
             PropertyInfo[] props = t.GetProperties();
+
             foreach (PropertyInfo prop in props)
             {
                 object[] objs = prop.GetCustomAttributes(typeof(ColumnAttribute), false);
@@ -184,6 +187,7 @@ namespace DBLinq.util
             }
             return projData;
         }
+
 
         /// <summary>
         /// given expression {o.Customer} (type Order.Customer), check whether it has [Association] attribute
