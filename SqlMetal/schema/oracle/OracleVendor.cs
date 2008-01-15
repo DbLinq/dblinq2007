@@ -144,7 +144,7 @@ namespace SqlMetal.schema.oracle
                     assoc.Name = constraint.constraint_name;
                     assoc.Type = null;
                     assoc.ThisKey = constraint.column_name;
-                    assoc.Member = Util.FormatTableName(referencedConstraint.table_name, true);
+                    assoc.Member = constraint.constraint_name; 
                     table.Type.Associations.Add(assoc);
 
                     //and insert the reverse association:

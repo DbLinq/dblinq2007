@@ -127,7 +127,7 @@ namespace DBLinq.vendor.sqlite
         /// because it does not fill up the translation log.
         /// This is enabled for tables where Vendor.UserBulkInsert[db.Table] is true.
         /// </summary>
-        public static void DoBulkInsert<T>(DBLinq.Linq.MTable<T> table, List<T> rows, SQLiteConnection conn)
+        public static void DoBulkInsert<T>(DBLinq.Linq.Table<T> table, List<T> rows, SQLiteConnection conn)
         {
             int pageSize = VendorSqlite.UseBulkInsert[table];
             //ProjectionData projData = ProjectionData.FromReflectedType(typeof(T));
@@ -165,7 +165,7 @@ namespace DBLinq.vendor.sqlite
         /// call SQLite stored proc or stored function, 
         /// optionally return DataSet, and collect return params.
         /// </summary>
-        public System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.MContext context, MethodInfo method
+        public System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.Context context, MethodInfo method
             , params object[] inputValues)
         {
             if (method == null)
@@ -307,7 +307,7 @@ namespace DBLinq.vendor.sqlite
             return outParamValues;
         }
 
-        public int ExecuteCommand(DBLinq.Linq.MContext context, string sql, params object[] parameters)
+        public int ExecuteCommand(DBLinq.Linq.Context context, string sql, params object[] parameters)
         {
             SQLiteConnection conn = context.SqlConnection;
             using (SQLiteCommand command = new SQLiteCommand(sql, conn))

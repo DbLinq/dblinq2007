@@ -16,7 +16,7 @@ using DBLinq.Linq.Mapping;
 /// <summary>
 /// This class represents SQLite database Northwind.
 /// </summary>
-public partial class Northwind : MContext
+public partial class Northwind : Context
 {
 	public Northwind(string connStr) : base(connStr)
 	{
@@ -27,18 +27,18 @@ public partial class Northwind : MContext
 
 	//these fields represent tables in database and are
 	//ordered - parent tables first, child tables next. Do not change the order.
-	public MTable<Region> Regions { get { return base.GetTable<Region>("Regions"); } }
-	public MTable<Products> Products { get { return base.GetTable<Products>("Products"); } }
-	public MTable<Orders> Orders { get { return base.GetTable<Orders>("Orders"); } }
-	public MTable<Territories> Territories { get { return base.GetTable<Territories>("Territories"); } }
-	public MTable<Suppliers> Suppliers { get { return base.GetTable<Suppliers>("Suppliers"); } }
-	public MTable<Shippers> Shippers { get { return base.GetTable<Shippers>("Shippers"); } }
-	public MTable<Customers> Customers { get { return base.GetTable<Customers>("Customers"); } }
-	public MTable<Categories> Categories { get { return base.GetTable<Categories>("Categories"); } }
-	public MTable<Alltypes> Alltypes { get { return base.GetTable<Alltypes>("Alltypes"); } }
-	public MTable<Orderdetails> Orderdetails { get { return base.GetTable<Orderdetails>("Orderdetails"); } }
-	public MTable<Employees> Employees { get { return base.GetTable<Employees>("Employees"); } }
-	public MTable<Employeeterritories> Employeeterritories { get { return base.GetTable<Employeeterritories>("Employeeterritories"); } }
+	public Table<Region> Regions { get { return base.GetTable<Region>("Regions"); } }
+	public Table<Products> Products { get { return base.GetTable<Products>("Products"); } }
+	public Table<Orders> Orders { get { return base.GetTable<Orders>("Orders"); } }
+	public Table<Territories> Territories { get { return base.GetTable<Territories>("Territories"); } }
+	public Table<Suppliers> Suppliers { get { return base.GetTable<Suppliers>("Suppliers"); } }
+	public Table<Shippers> Shippers { get { return base.GetTable<Shippers>("Shippers"); } }
+	public Table<Customers> Customers { get { return base.GetTable<Customers>("Customers"); } }
+	public Table<Categories> Categories { get { return base.GetTable<Categories>("Categories"); } }
+	public Table<Alltypes> Alltypes { get { return base.GetTable<Alltypes>("Alltypes"); } }
+	public Table<Orderdetails> Orderdetails { get { return base.GetTable<Orderdetails>("Orderdetails"); } }
+	public Table<Employees> Employees { get { return base.GetTable<Employees>("Employees"); } }
+	public Table<Employeeterritories> Employeeterritories { get { return base.GetTable<Employeeterritories>("Employeeterritories"); } }
 
 	
 }
