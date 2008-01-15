@@ -40,7 +40,7 @@ namespace SqlMetal.codeGen
 [FunctionEx(Name = ""$procNameSql"", ProcedureOrFunction = ""$procType"")]
 public $retType $procNameCsharp($paramString)
 {
-    IExecuteResult result = base.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod()))$sqlInArgs);
+    System.Data.Linq.IExecuteResult result = base.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod()))$sqlInArgs);
     $assignOutParams
     return $resultValue;
 }

@@ -41,9 +41,9 @@ namespace DBLinq.util
         /// the entry point - routes your call into special cases for Projection and primitive types
         /// </summary>
         /// <returns>compiled func which loads object from SQL reader</returns>
-        public static Func<DataReader2,T> CompileRowDelegate(SessionVarsParsed vars, ref int fieldID)
+        public static Func<DataReader2, T> CompileRowDelegate(SessionVarsParsed vars, ref int fieldID)
         {
-            Func<DataReader2,T> objFromRow = null;
+            Func<DataReader2, T> objFromRow = null;
 
             ProjectionData projData = vars.projectionData;
 
@@ -52,25 +52,25 @@ namespace DBLinq.util
             //B) all fields of a table:                extract table object, which will be 'newed' and then tracked for changes
             //C) several fields defined by projection: extract a projection object, using default ctor and bindings, no tracking needed.
             bool isBuiltinType = CSharp.IsPrimitiveType(typeof(T)) || typeof(T).IsEnum;
-            bool isTableType  = CSharp.IsTableType(typeof(T));
+            bool isTableType = CSharp.IsTableType(typeof(T));
             bool isProjectedType = CSharp.IsProjection(typeof(T));
 
-            if(projData==null && !isBuiltinType)
+            if (projData == null && !isBuiltinType)
             {
                 //for Table types, use attributes to determine fields
                 //for projection types, return projData with only ctor assigned
                 projData = ProjectionData.FromDbType(typeof(T));
             }
 
-            if(isBuiltinType)
+            if (isBuiltinType)
             {
                 objFromRow = RowEnumeratorCompiler<T>.CompilePrimitiveRowDelegate(ref fieldID);
             }
-            else if(isTableType)
+            else if (isTableType)
             {
                 objFromRow = RowEnumeratorCompiler<T>.CompileColumnRowDelegate(projData, ref fieldID);
             }
-            else if(isProjectedType && vars.groupByExpr!=null)
+            else if (isProjectedType && vars.groupByExpr != null)
             {
                 //now we know what the GroupBy object is, 
                 //and what method to use with grouping (eg Count())
@@ -78,13 +78,13 @@ namespace DBLinq.util
                 //and compile the sucker
                 objFromRow = RowEnumeratorCompiler<T>.CompileProjectedRowDelegate(vars, projData2);
             }
-            else if(isProjectedType)
+            else if (isProjectedType)
             {
                 objFromRow = RowEnumeratorCompiler<T>.CompileProjectedRowDelegate(vars, projData);
             }
             else
             {
-                throw new ApplicationException("L124: RowEnumerator can handle basic types or projected types, but not "+typeof(T));
+                throw new ApplicationException("L124: RowEnumerator can handle basic types or projected types, but not " + typeof(T));
             }
             return objFromRow;
         }
@@ -93,8 +93,8 @@ namespace DBLinq.util
         /// given primitive type T (eg. string or int), 
         /// construct and compile a 'reader.GetString(0);' delegate (or similar).
         /// </summary>
-        public static 
-            Func<DataReader2,T> 
+        public static
+            Func<DataReader2, T>
             CompilePrimitiveRowDelegate(ref int fieldID)
         {
             #region CompilePrimitiveRowDelegate
@@ -102,15 +102,15 @@ namespace DBLinq.util
             // a) string GetRow(DataReader rdr){ return rdr.GetString(0); }
             // b) int    GetRow(DataReader rdr){ return rdr.GetInt32(0); }
 
-            ParameterExpression rdr = Expression.Parameter(typeof(DataReader2),"rdr");
+            ParameterExpression rdr = Expression.Parameter(typeof(DataReader2), "rdr");
 
-            MethodCallExpression body = GetFieldMethodCall(typeof(T),rdr,fieldID++);
+            MethodCallExpression body = GetFieldMethodCall(typeof(T), rdr, fieldID++);
 
             List<ParameterExpression> paramListRdr = new List<ParameterExpression>();
             paramListRdr.Add(rdr);
 
-            LambdaExpression lambda = Expression.Lambda<Func<DataReader2,T>>(body,paramListRdr);
-            Func<DataReader2,T> func_t = (Func<DataReader2,T>)lambda.Compile();
+            LambdaExpression lambda = Expression.Lambda<Func<DataReader2, T>>(body, paramListRdr);
+            Func<DataReader2, T> func_t = (Func<DataReader2, T>)lambda.Compile();
 
             //StringBuilder sb = new StringBuilder();
             //lambda.BuildString(sb);
@@ -124,22 +124,28 @@ namespace DBLinq.util
         /// construct and compile a 'new Customer(reader.GetInt32(0),reader.GetString(1));' 
         /// delegate (or similar).
         /// </summary>
-        public static 
-            Func<DataReader2,T> 
+        public static
+            Func<DataReader2, T>
             CompileColumnRowDelegate(ProjectionData projData, ref int fieldID)
         {
             #region CompileColumnRowDelegate
-            if(projData==null || projData.ctor2==null)
+            if (projData == null || projData.ctor2 == null)
                 throw new ArgumentException("CompileColumnRow: need projData with ctor2");
 
-            ParameterExpression rdr = Expression.Parameter(typeof(DataReader2),"rdr");
-            
-            List<Expression> ctorArgs = new List<Expression>();
+            ParameterExpression rdr = Expression.Parameter(typeof(DataReader2), "rdr");
 
-            foreach(ProjectionData.ProjectionField projFld in projData.fields)
+            List<Expression> ctorArgs = new List<Expression>();
+            //Andrus points out that order of projData.fields is not reliable after an exception - switch to ctor params
+            //foreach (ProjectionData.ProjectionField projFld in projData.fields)
+            //{
+            //    Type fieldType = projFld.FieldType;
+            //    MethodCallExpression arg_i = GetFieldMethodCall(fieldType, rdr, fieldID++);
+            //}
+            ParameterInfo[] ctorParameters = projData.ctor2.GetParameters();
+            foreach (ParameterInfo ctorParam in ctorParameters)
             {
-                Type fieldType = projFld.FieldType;
-                MethodCallExpression arg_i = GetFieldMethodCall(fieldType,rdr,fieldID++);
+                Type fieldType = ctorParam.ParameterType;
+                MethodCallExpression arg_i = GetFieldMethodCall(fieldType, rdr, fieldID++);
                 ctorArgs.Add(arg_i);
             }
 
@@ -152,8 +158,8 @@ namespace DBLinq.util
             paramListRdr.Add(rdr);
             StringBuilder sb = new StringBuilder(500);
 
-            LambdaExpression lambda = Expression.Lambda<Func<DataReader2,T>>(newExpr,paramListRdr);
-            Func<DataReader2,T> func_t = (Func<DataReader2,T>)lambda.Compile();
+            LambdaExpression lambda = Expression.Lambda<Func<DataReader2, T>>(newExpr, paramListRdr);
+            Func<DataReader2, T> func_t = (Func<DataReader2, T>)lambda.Compile();
 
             //lambda.BuildString(sb);
             //Console.WriteLine("  RowEnumCompiler(Column): Compiled "+sb);
@@ -166,9 +172,9 @@ namespace DBLinq.util
         /// construct and compile a 'new Customer(reader.GetInt32(0),reader.GetString(1));' 
         /// delegate (or similar).
         /// </summary>
-        public static Func<DataReader2,T> CompileProjectedRowDelegate(SessionVarsParsed vars, ProjectionData projData)
+        public static Func<DataReader2, T> CompileProjectedRowDelegate(SessionVarsParsed vars, ProjectionData projData)
         {
-            ParameterExpression rdr = Expression.Parameter(typeof(DataReader2),"rdr");
+            ParameterExpression rdr = Expression.Parameter(typeof(DataReader2), "rdr");
 
             StringBuilder sb = new StringBuilder(500);
             int fieldID = 0;
@@ -179,7 +185,7 @@ namespace DBLinq.util
             //if(vars.log!=null)
             //    vars.log.WriteLine("  RowEnumCompiler(Projection): Compiling "+sb);
             //error lambda not in scope?!
-            Func<DataReader2,T> func_t = (Func<DataReader2,T>)lambda.Compile();
+            Func<DataReader2, T> func_t = (Func<DataReader2, T>)lambda.Compile();
 
             return func_t;
 
@@ -193,7 +199,7 @@ namespace DBLinq.util
         ///   
         /// On Orcas Beta2, projections are handled using the top scheme.
         /// </summary>
-        public static 
+        public static
             LambdaExpression
             BuildProjectedRowLambda(SessionVarsParsed vars, ProjectionData projData, ParameterExpression rdr, ref int fieldID)
         {
@@ -201,7 +207,7 @@ namespace DBLinq.util
             #region CompileColumnRowDelegate
             bool hasCtor = projData != null && projData.ctor != null;
 
-            if ( ! hasCtor)
+            if (!hasCtor)
             {
                 if (projData.type.IsValueType)
                 {
@@ -221,10 +227,10 @@ namespace DBLinq.util
 
             List<MemberBinding> bindings = new List<MemberBinding>();
             //int i=0;
-            foreach(ProjectionData.ProjectionField projFld in projData.fields)
+            foreach (ProjectionData.ProjectionField projFld in projData.fields)
             {
                 //if( ! projFld.isPrimitiveType)
-                switch(projFld.typeEnum)
+                switch (projFld.typeEnum)
                 {
                     case TypeEnum.Column:
                         {
@@ -242,7 +248,7 @@ namespace DBLinq.util
                             object rowCompiler2 = Activator.CreateInstance(rowEnumCompilerType2);
                             MethodInfo[] mis = rowEnumCompilerType2.GetMethods();
                             MethodInfo mi = rowEnumCompilerType2.GetMethod("BuildProjectedRowLambda");
-                            object[] methodArgs = new object[] { vars, projData2, rdr, fieldID};
+                            object[] methodArgs = new object[] { vars, projData2, rdr, fieldID };
                             //...and call BuildProjectedRowLambda():
                             object objResult = mi.Invoke(rowCompiler2, methodArgs);
                             fieldID = (int)methodArgs[3];
@@ -269,7 +275,7 @@ namespace DBLinq.util
                         {
                             //e.g.: "select new {g.Key,g}" - but g is also a projection
                             //Expression.MemberInit
-                            if(vars.groupByNewExpr==null)
+                            if (vars.groupByNewExpr == null)
                                 throw new ApplicationException("TODO - handle other cases than groupByNewExpr");
 
                             MemberAssignment binding = GroupHelper2<T>.BuildProjFieldBinding(vars, projFld, rdr, ref fieldID);
@@ -278,7 +284,7 @@ namespace DBLinq.util
                         break;
 
                     default:
-                        throw new ApplicationException("TODO - objects other than primitive and entities in CompileProjRow: "+projFld.FieldType);
+                        throw new ApplicationException("TODO - objects other than primitive and entities in CompileProjRow: " + projFld.FieldType);
                 }
 
             }
@@ -287,12 +293,12 @@ namespace DBLinq.util
                 ? Expression.New(projData.ctor) //for classes
                 : Expression.New(projData.type); //for structs
 
-            MemberInitExpression memberInit = Expression.MemberInit(newExpr,bindings);
+            MemberInitExpression memberInit = Expression.MemberInit(newExpr, bindings);
 
             List<ParameterExpression> paramListRdr = new List<ParameterExpression>();
             paramListRdr.Add(rdr);
 
-            LambdaExpression lambda = Expression.Lambda<Func<DataReader2,T>>(memberInit,paramListRdr);
+            LambdaExpression lambda = Expression.Lambda<Func<DataReader2, T>>(memberInit, paramListRdr);
             return lambda;
             //StringBuilder sb = new StringBuilder(500);
             //Func<DataReader2,T> func_t = (Func<DataReader2,T>)lambda.Compile();
@@ -314,7 +320,7 @@ namespace DBLinq.util
             #region CompileColumnRowDelegate
             if (projData == null || projData.ctor == null)
                 throw new ArgumentException("BuildProjectedRowLambda_NoBind: need projData with ctor");
-            if (projData.ctor.GetParameters().Length==0)
+            if (projData.ctor.GetParameters().Length == 0)
                 throw new ArgumentException("BuildProjectedRowLambda_NoBind: need projData with non-default ctor");
 
             List<Expression> argList = new List<Expression>();
@@ -407,17 +413,17 @@ namespace DBLinq.util
         /// return 'reader.GetString(0)' or 'reader.GetInt32(1)'
         /// as an Expression suitable for compilation
         /// </summary>
-        static MethodCallExpression GetFieldMethodCall(Type t2,Expression rdr,int fieldID)
+        static MethodCallExpression GetFieldMethodCall(Type t2, Expression rdr, int fieldID)
         {
             MethodInfo minfo = ChooseFieldRetrievalMethod(t2);
-            if(minfo==null)
+            if (minfo == null)
             {
                 string msg = "GetFieldMethodCall L180: failed to get methodInfo for type " + t2;
                 Console.WriteLine(msg);
                 throw new Exception(msg);
             }
             List<Expression> paramZero = new List<Expression>();
-            paramZero.Add( Expression.Constant(fieldID) ); //that's the zero in GetInt32(0)
+            paramZero.Add(Expression.Constant(fieldID)); //that's the zero in GetInt32(0)
             MethodCallExpression callExpr = Expression.Call(rdr, minfo, paramZero);
             return callExpr;
         }
@@ -436,31 +442,31 @@ namespace DBLinq.util
             #region ChooseFieldRetrievalMethod
             //TODO: handle Nullable<int> as well as int?
             MethodInfo minfo = null;
-            if(t2==typeof(string))
+            if (t2 == typeof(string))
             {
                 minfo = typeof(DataReader2).GetMethod("GetString");
             }
-            else if(t2==typeof(bool))
+            else if (t2 == typeof(bool))
             {
                 minfo = typeof(DataReader2).GetMethod("GetBoolean");
             }
-            else if(t2==typeof(bool?))
+            else if (t2 == typeof(bool?))
             {
                 minfo = typeof(DataReader2).GetMethod("GetBooleanN");
             }
-            else if(t2==typeof(char))
+            else if (t2 == typeof(char))
             {
                 minfo = typeof(DataReader2).GetMethod("GetChar");
             }
-            else if(t2==typeof(char?))
+            else if (t2 == typeof(char?))
             {
                 minfo = typeof(DataReader2).GetMethod("GetCharN");
             }
-            else if(t2==typeof(short))
+            else if (t2 == typeof(short))
             {
                 minfo = typeof(DataReader2).GetMethod("GetInt16");
             }
-            else if(t2==typeof(short?))
+            else if (t2 == typeof(short?))
             {
                 minfo = typeof(DataReader2).GetMethod("GetInt16N");
             }
@@ -476,7 +482,7 @@ namespace DBLinq.util
             {
                 minfo = typeof(DataReader2).GetMethod("GetUInt32");
             }
-            else if(t2==typeof(uint?))
+            else if (t2 == typeof(uint?))
             {
                 minfo = typeof(DataReader2).GetMethod("GetUInt32N");
             }
@@ -504,23 +510,23 @@ namespace DBLinq.util
             {
                 minfo = typeof(DataReader2).GetMethod("GetDecimalN");
             }
-            else if(t2==typeof(DateTime))
+            else if (t2 == typeof(DateTime))
             {
                 minfo = typeof(DataReader2).GetMethod("GetDateTime");
             }
-            else if(t2==typeof(DateTime?))
+            else if (t2 == typeof(DateTime?))
             {
                 minfo = typeof(DataReader2).GetMethod("GetDateTimeN");
             }
-            else if(t2==typeof(long))
+            else if (t2 == typeof(long))
             {
                 minfo = typeof(DataReader2).GetMethod("GetInt64");
             }
-            else if(t2==typeof(long?))
+            else if (t2 == typeof(long?))
             {
                 minfo = typeof(DataReader2).GetMethod("GetInt64N");
             }
-            else if(t2==typeof(byte[]))
+            else if (t2 == typeof(byte[]))
             {
                 minfo = typeof(DataReader2).GetMethod("GetBytes");
             }
@@ -542,7 +548,8 @@ namespace DBLinq.util
                 Console.WriteLine(msg);
                 throw new ApplicationException(msg);
             }
-            if(minfo==null){
+            if (minfo == null)
+            {
                 Console.WriteLine("L298: Reference to invalid function name");
             }
             return minfo;
@@ -553,15 +560,15 @@ namespace DBLinq.util
         /// given Employee 'e', compile a method similar to 'e.ID.ToString()',
         /// which returns the object ID as a string
         /// </summary>
-        public static Func<T,string> CompileIDRetrieval(ProjectionData projData)
+        public static Func<T, string> CompileIDRetrieval(ProjectionData projData)
         {
-            if(projData==null || projData.tableAttribute==null)
+            if (projData == null || projData.tableAttribute == null)
                 throw new ArgumentNullException("CompiledIDRetrieval: needs object with [Table] attribute");
             //find the ID field
             PropertyInfo minfo = null;
-            foreach(ProjectionData.ProjectionField projFld in projData.fields)
+            foreach (ProjectionData.ProjectionField projFld in projData.fields)
             {
-                if(projFld.columnAttribute==null)
+                if (projFld.columnAttribute == null)
                     continue;
 
                 //if (projFld.columnAttribute.Id)
@@ -572,17 +579,17 @@ namespace DBLinq.util
                     break;
                 }
             }
-            if(minfo==null)
+            if (minfo == null)
                 throw new ArgumentNullException("CompiledIDRetrieval: needs object with [Table] attribute and one [Column(Id=true)]");
-            ParameterExpression param = Expression.Parameter(typeof(T),"obj");
-            MemberExpression member = Expression.Property(param,minfo);
+            ParameterExpression param = Expression.Parameter(typeof(T), "obj");
+            MemberExpression member = Expression.Property(param, minfo);
             List<ParameterExpression> lambdaParams = new List<ParameterExpression>();
             lambdaParams.Add(param);
-            MethodInfo minfo3 = minfo.PropertyType.GetMethod("ToString",new Type[0]);
+            MethodInfo minfo3 = minfo.PropertyType.GetMethod("ToString", new Type[0]);
             Expression body = Expression.Call(member, minfo3);
 
-            LambdaExpression lambda = Expression.Lambda<Func<T,string>>(body,lambdaParams);
-            Func<T,string> func_t = (Func<T,string>)lambda.Compile();
+            LambdaExpression lambda = Expression.Lambda<Func<T, string>>(body, lambdaParams);
+            Func<T, string> func_t = (Func<T, string>)lambda.Compile();
             return func_t;
         }
 

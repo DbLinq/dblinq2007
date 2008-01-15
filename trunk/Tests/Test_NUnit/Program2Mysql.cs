@@ -21,7 +21,7 @@ namespace Test_NUnit
         {
             //new ReadTest_GroupBy().G01_SimpleGroup_Count();
             //new ReadTest_GroupBy().G05_Group_Into();
-            new ReadTest().C2_SelectPenId();
+            new ReadTest().C1_SelectProducts();
             //new Join().LinqToSqlJoin10();
             //new ReadTest_Complex().F10_DistinctCity();
             //new StoredProcTest().SPB_GetOrderCount_Having();

@@ -54,9 +54,9 @@ namespace DBLinq.vendor
         /// </summary>
         string FieldName_Safe(string name);
 
-        int ExecuteCommand(DBLinq.Linq.MContext context, string sql, params object[] parameters);
+        int ExecuteCommand(DBLinq.Linq.Context context, string sql, params object[] parameters);
 
-        System.Data.Linq.IExecuteResult ExecuteMethodCall(MContext context, System.Reflection.MethodInfo method, params object[] sqlParams);
+        System.Data.Linq.IExecuteResult ExecuteMethodCall(Context context, System.Reflection.MethodInfo method, params object[] sqlParams);
 
         IDbDataParameter CreateSqlParameter(string dbTypeName, string paramName);
 

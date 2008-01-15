@@ -67,7 +67,7 @@ namespace DBLinq.Linq
     /// T may be eg. class Employee or string - the output
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class MTable<T> :
+    public class Table<T> :
         IQueryable<T>
         , IOrderedQueryable<T> //this is cheating ... we pretend to be always ordered
         , IMTable
@@ -79,14 +79,14 @@ namespace DBLinq.Linq
         /// <summary>
         /// the parent MContext holds our connection etc
         /// </summary>
-        MContext _parentDB;
+        Context _parentDB;
         readonly List<T> _insertList = new List<T>();
         readonly Dictionary<T, T> _liveObjectMap = new Dictionary<T, T>();
         readonly List<T> _deleteList = new List<T>();
 
         readonly SessionVars _vars;
 
-        public MTable(MContext parent)
+        public Table(Context parent)
         {
             _parentDB = parent;
             _parentDB.RegisterChild(this);
@@ -96,7 +96,7 @@ namespace DBLinq.Linq
         /// <summary>
         /// this is used when we call CreateQuery to create a copy of orig table object
         /// </summary>
-        public MTable(MTable<T> parent, SessionVars vars)
+        public Table(Table<T> parent, SessionVars vars)
         {
             _insertList = parent._insertList;
             _liveObjectMap = parent._liveObjectMap;
@@ -123,7 +123,7 @@ namespace DBLinq.Linq
             {
                 //this occurs if we are not projecting
                 //(meaning that we are selecting entire row object)
-                MTable<T> clonedThis = new MTable<T>(this, vars);
+                Table<T> clonedThis = new Table<T>(this, vars);
                 IQueryable<S> this_S = (IQueryable<S>)clonedThis;
                 return this_S;
             }
