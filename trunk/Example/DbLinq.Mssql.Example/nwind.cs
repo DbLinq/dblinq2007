@@ -7,47 +7,47 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
-using System.Data.Linq;
+//using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using DBLinq.Linq;
 
 /// <summary>
 /// This class represents Microsoft database Northwind.
 /// </summary>
-public partial class Northwind : MContext
+public partial class Northwind : Context
 {
     public Northwind(string connStr):base(connStr)
     {
-        Categories = new MTable<Categories>(this);
-		CustomerCustomerDemos = new MTable<CustomerCustomerDemo>(this);
-		CustomerDemographics = new MTable<CustomerDemographics>(this);
-		Customers = new MTable<Customers>(this);
-		Employees = new MTable<Employees>(this);
-		EmployeeTerritories = new MTable<EmployeeTerritories>(this);
-		OrderDetails = new MTable<OrderDetails>(this);
-		Orders = new MTable<Orders>(this);
-		Products = new MTable<Products>(this);
-		Regions = new MTable<Region>(this);
-		Shippers = new MTable<Shippers>(this);
-		Suppliers = new MTable<Suppliers>(this);
-		Territories = new MTable<Territories>(this);
+        Categories = new Table<Categories>(this);
+		CustomerCustomerDemos = new Table<CustomerCustomerDemo>(this);
+		CustomerDemographics = new Table<CustomerDemographics>(this);
+		Customers = new Table<Customers>(this);
+		Employees = new Table<Employees>(this);
+		EmployeeTerritories = new Table<EmployeeTerritories>(this);
+		OrderDetails = new Table<OrderDetails>(this);
+		Orders = new Table<Orders>(this);
+		Products = new Table<Products>(this);
+		Regions = new Table<Region>(this);
+		Shippers = new Table<Shippers>(this);
+		Suppliers = new Table<Suppliers>(this);
+		Territories = new Table<Territories>(this);
     }
 
     //these fields represent tables in database and are
     //ordered - parent tables first, child tables next. Do not change the order.
-    public readonly MTable<Categories> Categories;
-	public readonly MTable<CustomerCustomerDemo> CustomerCustomerDemos;
-	public readonly MTable<CustomerDemographics> CustomerDemographics;
-	public readonly MTable<Customers> Customers;
-	public readonly MTable<Employees> Employees;
-	public readonly MTable<EmployeeTerritories> EmployeeTerritories;
-	public readonly MTable<OrderDetails> OrderDetails;
-	public readonly MTable<Orders> Orders;
-	public readonly MTable<Products> Products;
-	public readonly MTable<Region> Regions;
-	public readonly MTable<Shippers> Shippers;
-	public readonly MTable<Suppliers> Suppliers;
-	public readonly MTable<Territories> Territories;
+    public readonly Table<Categories> Categories;
+	public readonly Table<CustomerCustomerDemo> CustomerCustomerDemos;
+	public readonly Table<CustomerDemographics> CustomerDemographics;
+	public readonly Table<Customers> Customers;
+	public readonly Table<Employees> Employees;
+	public readonly Table<EmployeeTerritories> EmployeeTerritories;
+	public readonly Table<OrderDetails> OrderDetails;
+	public readonly Table<Orders> Orders;
+	public readonly Table<Products> Products;
+	public readonly Table<Region> Regions;
+	public readonly Table<Shippers> Shippers;
+	public readonly Table<Suppliers> Suppliers;
+	public readonly Table<Territories> Territories;
 }
 
 
@@ -217,7 +217,7 @@ public partial class CustomerCustomerDemo : IModified
 
     
     
-	private EntityRef<CustomerDemographics> _CustomerDemographics;    
+	private System.Data.Linq.EntityRef<CustomerDemographics> _CustomerDemographics;    
 	
 	[Association(Storage="_CustomerDemographics", ThisKey="CustomerTypeID", Name="FK_CustomerCustomerDemo")]
 	[DebuggerNonUserCode]
@@ -227,7 +227,7 @@ public partial class CustomerCustomerDemo : IModified
 	}
 	
 	
-	private EntityRef<Customers> _Customers;    
+	private System.Data.Linq.EntityRef<Customers> _Customers;    
 	
 	[Association(Storage="_Customers", ThisKey="CustomerID", Name="FK_CustomerCustomerDemo_Customers")]
 	[DebuggerNonUserCode]
@@ -779,7 +779,7 @@ public partial class Employees : IModified
 	    get { return null; } //TODO L212
 	}
     
-	private EntityRef<Employees> _Employees;    
+	private System.Data.Linq.EntityRef<Employees> _Employees;    
 	
 	[Association(Storage="_Employees", ThisKey="ReportsTo", Name="FK_Employees_Employees")]
 	[DebuggerNonUserCode]
@@ -858,7 +858,7 @@ public partial class EmployeeTerritories : IModified
 
     
     
-	private EntityRef<Employees> _Employees;    
+	private System.Data.Linq.EntityRef<Employees> _Employees;    
 	
 	[Association(Storage="_Employees", ThisKey="EmployeeID", Name="FK_EmployeeTerritories_Employees")]
 	[DebuggerNonUserCode]
@@ -868,7 +868,7 @@ public partial class EmployeeTerritories : IModified
 	}
 	
 	
-	private EntityRef<Territories> _Territories;    
+	private System.Data.Linq.EntityRef<Territories> _Territories;    
 	
 	[Association(Storage="_Territories", ThisKey="TerritoryID", Name="FK_EmployeeTerritories_Territories")]
 	[DebuggerNonUserCode]
@@ -983,7 +983,7 @@ public partial class OrderDetails : IModified
 
     
     
-	private EntityRef<Orders> _Orders;    
+	private System.Data.Linq.EntityRef<Orders> _Orders;    
 	
 	[Association(Storage="_Orders", ThisKey="OrderID", Name="FK_Order_Details_Orders")]
 	[DebuggerNonUserCode]
@@ -993,7 +993,7 @@ public partial class OrderDetails : IModified
 	}
 	
 	
-	private EntityRef<Products> _Products;    
+	private System.Data.Linq.EntityRef<Products> _Products;    
 	
 	[Association(Storage="_Products", ThisKey="ProductID", Name="FK_Order_Details_Products")]
 	[DebuggerNonUserCode]
@@ -1221,7 +1221,7 @@ public partial class Orders : IModified
 	    get { return null; } //TODO L212
 	}
     
-	private EntityRef<Customers> _Customers;    
+	private System.Data.Linq.EntityRef<Customers> _Customers;    
 	
 	[Association(Storage="_Customers", ThisKey="CustomerID", Name="FK_Orders_Customers")]
 	[DebuggerNonUserCode]
@@ -1231,7 +1231,7 @@ public partial class Orders : IModified
 	}
 	
 	
-	private EntityRef<Employees> _Employees;    
+	private System.Data.Linq.EntityRef<Employees> _Employees;    
 	
 	[Association(Storage="_Employees", ThisKey="EmployeeID", Name="FK_Orders_Employees")]
 	[DebuggerNonUserCode]
@@ -1241,7 +1241,7 @@ public partial class Orders : IModified
 	}
 	
 	
-	private EntityRef<Shippers> _Shippers;    
+	private System.Data.Linq.EntityRef<Shippers> _Shippers;    
 	
 	[Association(Storage="_Shippers", ThisKey="ShipVia", Name="FK_Orders_Shippers")]
 	[DebuggerNonUserCode]
@@ -1421,7 +1421,7 @@ public partial class Products : IModified
 	    get { return null; } //TODO L212
 	}
     
-	private EntityRef<Categories> _Categories;    
+	private System.Data.Linq.EntityRef<Categories> _Categories;    
 	
 	[Association(Storage="_Categories", ThisKey="CategoryID", Name="FK_Products_Categories")]
 	[DebuggerNonUserCode]
@@ -1431,7 +1431,7 @@ public partial class Products : IModified
 	}
 	
 	
-	private EntityRef<Suppliers> _Suppliers;    
+	private System.Data.Linq.EntityRef<Suppliers> _Suppliers;    
 	
 	[Association(Storage="_Suppliers", ThisKey="SupplierID", Name="FK_Products_Suppliers")]
 	[DebuggerNonUserCode]
@@ -1884,7 +1884,7 @@ public partial class Territories : IModified
 	    get { return null; } //TODO L212
 	}
     
-	private EntityRef<Region> _Region;    
+	private System.Data.Linq.EntityRef<Region> _Region;    
 	
 	[Association(Storage="_Region", ThisKey="RegionID", Name="FK_Territories_Region")]
 	[DebuggerNonUserCode]

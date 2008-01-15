@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
-using System.Data.Linq;
+//using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using System.Reflection;
 using DBLinq.Linq;
@@ -19,7 +19,7 @@ namespace nwind
 	/// <summary>
 	/// This class represents Oracle database Northwind.
 	/// </summary>
-	public partial class Northwind : MContext
+	public partial class Northwind : Context
 	{
 		public Northwind(string connStr) : base(connStr)
 		{
@@ -30,16 +30,16 @@ namespace nwind
 	
 		//these fields represent tables in database and are
 		//ordered - parent tables first, child tables next. Do not change the order.
-		public MTable<Supplier> Suppliers { get { return base.GetTable<Supplier>("Suppliers"); } }
-		public MTable<Order> Orders { get { return base.GetTable<Order>("Orders"); } }
-		public MTable<Category> Categories { get { return base.GetTable<Category>("Categories"); } }
-		public MTable<Employee> Employees { get { return base.GetTable<Employee>("Employees"); } }
-		public MTable<Employeeterritory> Employeeterritories { get { return base.GetTable<Employeeterritory>("Employeeterritories"); } }
-		public MTable<Customer> Customers { get { return base.GetTable<Customer>("Customers"); } }
-		public MTable<Region> Regions { get { return base.GetTable<Region>("Regions"); } }
-		public MTable<Orderdetail> Orderdetails { get { return base.GetTable<Orderdetail>("Orderdetails"); } }
-		public MTable<Product> Products { get { return base.GetTable<Product>("Products"); } }
-		public MTable<Territory> Territories { get { return base.GetTable<Territory>("Territories"); } }
+		public Table<Supplier> Suppliers { get { return base.GetTable<Supplier>("Suppliers"); } }
+		public Table<Order> Orders { get { return base.GetTable<Order>("Orders"); } }
+		public Table<Category> Categories { get { return base.GetTable<Category>("Categories"); } }
+		public Table<Employee> Employees { get { return base.GetTable<Employee>("Employees"); } }
+		public Table<Employeeterritory> Employeeterritories { get { return base.GetTable<Employeeterritory>("Employeeterritories"); } }
+		public Table<Customer> Customers { get { return base.GetTable<Customer>("Customers"); } }
+		public Table<Region> Regions { get { return base.GetTable<Region>("Regions"); } }
+		public Table<Orderdetail> Orderdetails { get { return base.GetTable<Orderdetail>("Orderdetails"); } }
+		public Table<Product> Products { get { return base.GetTable<Product>("Products"); } }
+		public Table<Territory> Territories { get { return base.GetTable<Territory>("Territories"); } }
 	
 		
 	}
@@ -409,7 +409,7 @@ namespace nwind
 		    get { return null; } //L212 - child data available only when part of query
 		}
 		
-		private EntityRef<Customer> _Customer;    
+		private System.Data.Linq.EntityRef<Customer> _Customer;    
 		
 		[Association(Storage="_Customer", ThisKey="CUSTOMERID", Name="SYS_C005295")]
 		[DebuggerNonUserCode]
@@ -418,7 +418,7 @@ namespace nwind
 			set { this._Customer.Entity = value; }
 		}
 		
-		private EntityRef<Employee> _Employee;    
+		private System.Data.Linq.EntityRef<Employee> _Employee;    
 		
 		[Association(Storage="_Employee", ThisKey="EMPLOYEEID", Name="SYS_C005296")]
 		[DebuggerNonUserCode]
@@ -741,7 +741,7 @@ namespace nwind
 		    get { return null; } //L212 - child data available only when part of query
 		}
 		
-		private EntityRef<Employee> _Employee;    
+		private System.Data.Linq.EntityRef<Employee> _Employee;    
 		
 		[Association(Storage="_Employee", ThisKey="REPORTSTO", Name="SYS_C005287")]
 		[DebuggerNonUserCode]
@@ -813,7 +813,7 @@ namespace nwind
 	
 		
 		
-		private EntityRef<Employee> _Employee;    
+		private System.Data.Linq.EntityRef<Employee> _Employee;    
 		
 		[Association(Storage="_Employee", ThisKey="EMPLOYEEID", Name="SYS_C005291")]
 		[DebuggerNonUserCode]
@@ -822,7 +822,7 @@ namespace nwind
 			set { this._Employee.Entity = value; }
 		}
 		
-		private EntityRef<Territory> _Territory;    
+		private System.Data.Linq.EntityRef<Territory> _Territory;    
 		
 		[Association(Storage="_Territory", ThisKey="TERRITORYID", Name="SYS_C005292")]
 		[DebuggerNonUserCode]
@@ -1164,7 +1164,7 @@ namespace nwind
 	
 		
 		
-		private EntityRef<Order> _Order;    
+		private System.Data.Linq.EntityRef<Order> _Order;    
 		
 		[Association(Storage="_Order", ThisKey="ORDERID", Name="SYS_C005303")]
 		[DebuggerNonUserCode]
@@ -1173,7 +1173,7 @@ namespace nwind
 			set { this._Order.Entity = value; }
 		}
 		
-		private EntityRef<Product> _Product;    
+		private System.Data.Linq.EntityRef<Product> _Product;    
 		
 		[Association(Storage="_Product", ThisKey="PRODUCTID", Name="SYS_C005304")]
 		[DebuggerNonUserCode]
@@ -1338,7 +1338,7 @@ namespace nwind
 		    get { return null; } //L212 - child data available only when part of query
 		}
 		
-		private EntityRef<Category> _Category;    
+		private System.Data.Linq.EntityRef<Category> _Category;    
 		
 		[Association(Storage="_Category", ThisKey="CATEGORYID", Name="SYS_C005278")]
 		[DebuggerNonUserCode]
@@ -1347,7 +1347,7 @@ namespace nwind
 			set { this._Category.Entity = value; }
 		}
 		
-		private EntityRef<Supplier> _Supplier;    
+		private System.Data.Linq.EntityRef<Supplier> _Supplier;    
 		
 		[Association(Storage="_Supplier", ThisKey="SUPPLIERID", Name="SYS_C005279")]
 		[DebuggerNonUserCode]
@@ -1435,7 +1435,7 @@ namespace nwind
 		    get { return null; } //L212 - child data available only when part of query
 		}
 		
-		private EntityRef<Region> _Region;    
+		private System.Data.Linq.EntityRef<Region> _Region;    
 		
 		[Association(Storage="_Region", ThisKey="REGIONID", Name="SYS_C005267")]
 		[DebuggerNonUserCode]
