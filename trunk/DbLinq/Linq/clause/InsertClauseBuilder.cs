@@ -227,6 +227,7 @@ namespace DBLinq.Linq.clause
             string primaryKeyName = null;
             int paramIndex = 0;
             string separator = "";
+            Type pk_type = null;
             foreach (ProjectionData.ProjectionField projFld in projData.fields)
             {
                 ColumnAttribute colAtt = projFld.columnAttribute;
@@ -236,6 +237,7 @@ namespace DBLinq.Linq.clause
                 if (colAtt.IsPrimaryKey) 
                 {
                     primaryKeyName = columnName_safe;
+                    pk_type = projFld.FieldType;
                     continue; //if field is ID , don't send field
                 }
 
@@ -259,8 +261,20 @@ namespace DBLinq.Linq.clause
                 param.Value = paramValue;
                 paramList.Add(param);
             }
+
+            //append WHERE clause in one of two forms:
             // "WHERE myID=11"
-            sb.Append(" WHERE ").Append(primaryKeyName).Append("=").Append(ID_to_update);
+            // "WHERE myID='a'"
+            bool mustQuote = pk_type == typeof(char) || pk_type == typeof(string);
+
+            string ID_to_update__quoted = mustQuote
+                ? "'" + ID_to_update + "'"
+                : ID_to_update;
+
+            sb.Append(" WHERE ")
+                .Append(primaryKeyName)
+                .Append("=")
+                .Append(ID_to_update__quoted);
 
 
             string sql = sb.ToString();

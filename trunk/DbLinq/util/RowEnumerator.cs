@@ -25,6 +25,7 @@
 #endregion
 
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using System.Data;
 using System.Collections.Generic;
@@ -122,7 +123,7 @@ namespace DBLinq.util
             {
                 foreach(string paramName in _vars._sqlParts.paramMap.Keys){
                     object value = _vars._sqlParts.paramMap[paramName];
-                    Console.WriteLine("SQL PARAM: "+paramName+" = "+value);
+                    Trace.WriteLine("SQL PARAM: "+paramName+" = "+value);
 #if MICROSOFT
                     cmd.Parameters.AddWithValue(paramName, value);
 #elif SQLITE
