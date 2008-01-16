@@ -195,7 +195,7 @@ public EntityMSet<$childClassName> $fieldName
         const string childLinkTemplate_simple = @"
 private System.Data.Linq.EntityRef<$parentClassTyp> $fieldName2;    
 
-[Association(Storage=""$fieldName1"", ThisKey=""$thisKey"", Name=""$fkName"")]
+[Association(Storage=""$fieldName2"", ThisKey=""$thisKey"", Name=""$fkName"")]
 [DebuggerNonUserCode]
 public $parentClassTyp $member {
 	get { return this.$fieldName2.Entity; }
@@ -206,11 +206,11 @@ public $parentClassTyp $member {
         /// if you specify Metal.exe -verboseForeignKeys,
         /// you will use this template, for slightly different code, 
         /// where 2 fields are guaranteed not to collide (not to have same name):
-        /// (Note: there is collision avoidance code in SchemaPostprocess.cs)
+        /// (Note: collision avoidance code belongs in SchemaPostprocess.cs)
         /// </summary>
         string childLinkTemplate_verbose = @"
 private System.Data.Linq.EntityRef<$parentClassTyp> _$fkName_$thisKey;
-[Association(Storage=""$fieldName1"", ThisKey=""$thisKey"",Name=""$fkName"")]
+[Association(Storage=""_$fkName_$thisKey"", ThisKey=""$thisKey"",Name=""$fkName"")]
 [DebuggerNonUserCode]
 public $parentClassTyp $fkName_$thisKey {
     get { return this._$fkName_$thisKey.Entity; }
@@ -226,6 +226,7 @@ public $parentClassTyp $fkName_$thisKey {
 
             var ourParents = table.Type.Associations.Where(a => a.ThisKey != null);
 
+            Dictionary<string, bool> usedAssocNames = new Dictionary<string, bool>();
             List<string> linksToChildTables = new List<string>();
             foreach (DlinqSchema.Association assoc in ourParents)
             {
@@ -242,20 +243,19 @@ public $parentClassTyp $fkName_$thisKey {
                 string thisKey = assoc.ThisKey; //.Columns[0].Name; //eg. 'CustomerID'
                 string fkName = assoc.Name; //eg. 'FK_Orders_Customers'
                 string parentClassName = targetTable.Type.Name;
-                string fieldName = "_" + parentClassName;
-                string fieldName2 = fieldName;
+                string fieldName2 = "_" + assoc.Member;
                 if (assoc.Member == thisKey)
                 {
                     assoc.Member = thisKey + parentClassName; //repeat name to prevent collision (same as Linq)
-                    fieldName2 = "_" + assoc.Member;
+                    fieldName2 = "_x_" + assoc.Member;
                 }
+                usedAssocNames[fieldName2] = true;
 
                 //str = str.Replace("$childTableName",    childTableName);
                 str = str.Replace("$thisKey", thisKey);
                 str = str.Replace("$fkName", fkName);
                 str = str.Replace("$parentClassTyp", parentClassName);
                 str = str.Replace("$member", assoc.Member);
-                str = str.Replace("$fieldName1", fieldName);
                 str = str.Replace("$fieldName2", fieldName2);
                 linksToChildTables.Add(str);
             }

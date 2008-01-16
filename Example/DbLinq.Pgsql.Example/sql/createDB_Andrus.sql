@@ -43,6 +43,9 @@ create table tCompositePK
   primary key(f1,f2)
 );
 
+-- there was a bug where this table could not be updated - quotes missing in the UPDATE statement around the PK.
+create table char_pk ( col1 char primary key, val1 int);
+
 COMMIT;
 
 

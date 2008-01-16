@@ -12,6 +12,16 @@ namespace ClientCode2
     {
         static void Main(string[] args)
         {
+            string connStr = "server=localhost;user id=LinqUser; password=linq2; database=Andrus";
+            Andrus db = new Andrus(connStr);
+            db.Log = Console.Out;
+            Char_Pk charpk = db.Char_Pks.Single(c => c.Col1 == "a");
+            charpk.Val1 = 22;
+            db.SubmitChanges();
+        }
+
+        static void Main_(string[] args)
+        {
 
             string connStr = "server=localhost;user id=LinqUser; password=linq2; database=Northwind";
             //NpgsqlConnection conn = new NpgsqlConnection(connStr);
