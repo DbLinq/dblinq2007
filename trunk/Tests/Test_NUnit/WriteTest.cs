@@ -170,6 +170,19 @@ namespace Test_NUnit
             Assert.IsNull(p3.UnitPrice);
         }
 
+        /// <summary>
+        /// there is a bug in v0.14 where table Customers cannot be updated,
+        /// because quotes where missing around the primaryKey in the UPDATE statement.
+        /// </summary>
+        [Test]
+        public void G6_UpdateTableWithStringPK()
+        {
+            Northwind db = CreateDB();
+            Customer BT = db.Customers.Single(c => c.CustomerID == "BT___");
+            BT.Country = "U.K.";
+            db.SubmitChanges();
+        }
+
         #endregion
     }
 }
