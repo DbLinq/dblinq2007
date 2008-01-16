@@ -51,9 +51,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Andrus.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="ProgramPg.cs" />
     <Compile Include="nwind\Northwind.cs" />
   </ItemGroup>
