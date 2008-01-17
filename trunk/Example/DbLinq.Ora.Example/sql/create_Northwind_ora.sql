@@ -1,4 +1,7 @@
---this script was tested on Oracle XE - so it does not contain any 'CREATE DATABASE' statements.
+--####################################################################
+-- Script to create Oracle version of the Northwind test DB
+--
+-- this script was tested on Oracle XE - so it does not contain any 'CREATE DATABASE' statements.
 --####################################################################
 CREATE TABLE Region (
   RegionID INTEGER NOT NULL,
