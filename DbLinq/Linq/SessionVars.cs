@@ -70,6 +70,10 @@ namespace DBLinq.Linq
             expressionChain = new List<MethodCallExpression>(vars.expressionChain);
             scalarExpression = vars.scalarExpression;
         }
+
+        /// <summary>
+        /// there can be many calls to Add()
+        /// </summary>
         public SessionVars Add(Expression expressionToAdd)
         {
             MethodCallExpression exprCall = expressionToAdd as MethodCallExpression;
@@ -78,6 +82,10 @@ namespace DBLinq.Linq
             expressionChain.Add(exprCall);
             return this;
         }
+
+        /// <summary>
+        /// there can be only one call to AddScalar() - occurs eg. during "Count()"
+        /// </summary>
         public SessionVars AddScalar(Expression expression)
         {
             MethodCallExpression exprCall = expression as MethodCallExpression;

@@ -40,14 +40,14 @@ namespace DBLinq.Linq
     /// <summary>
     /// Represents a new-object expression (eg. 'new {ProductId=p.ProductID') from a user's query.
     /// This will be subsequently compiled into another expression - 'new f__anonType(reader.GetInt32())'
+    /// Internally, this class holds ctor and list of fields, 
+    /// which comes from 'Select' query. 
     /// 
-    /// In case of db.Products.ToList(), we use reflection to retrieve all fields of Product.
-    /// 
-    /// Internally, this class holds ctor and list of fields.
-    /// comes from 'Select'. Used to build select statement and sql read method.
-    /// 
-    /// e.g. user code 'select new {ProductId=p.ProductID}' 
+    /// Example: user code 'select new {ProductId=p.ProductID}' 
     /// would create ProjectionData containing one ProjectionField, pointing to ProductId column. 
+    /// 
+    /// In the special case of 'db.Products.ToList()', 
+    /// we use reflection to retrieve all the fields to select - all fields of Product.
     /// </summary>
     public class ProjectionData
     {
@@ -197,7 +197,7 @@ namespace DBLinq.Linq
         }
 
         /// <summary>
-        /// in a group-by clause, we know tha table name, but columns are computed.
+        /// in a group-by clause, we know the table name, but columns are computed.
         /// This is a stripped-down version of FromDbType().
         /// </summary>
         public static ProjectionData FromReflectedType(Type t)

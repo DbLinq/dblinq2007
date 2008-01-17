@@ -25,6 +25,7 @@
 #endregion
 
 using System;
+using System.Reflection;
 using System.IO;
 using System.Diagnostics;
 using System.Collections;
@@ -238,6 +239,9 @@ namespace DBLinq.Linq
                         object objID = null;
                         objID = cmd.ExecuteScalar();
 
+                        if (proj.autoGenField == null)
+                            continue; //ID was already assigned by user, not from a DB sequence.
+
                         //Oracle unpacks objID from an out-param:
                         s_vendor.ProcessInsertedId(cmd, ref objID);
 
@@ -319,6 +323,14 @@ namespace DBLinq.Linq
             if (_deleteList.Count > 0)
             {
                 //Func<T,string> getObjectID = RowEnumeratorCompiler<T>.CompileIDRetrieval(proj);
+
+                KeyValuePair<PropertyInfo, System.Data.Linq.Mapping.ColumnAttribute>[] primaryKeys
+                    = AttribHelper.FindPrimaryKeys(typeof(T));
+                if (primaryKeys.Length != 1)
+                    throw new ApplicationException("L329: Composite PKs are not yet supported");
+                Type primaryKeyType = primaryKeys[0].Key.PropertyType;
+                bool mustQuoteIds = primaryKeyType == typeof(string) || primaryKeyType == typeof(char);
+
                 StringBuilder sbDeleteIDs = new StringBuilder();
                 int indx2 = 0;
                 foreach (T obj in _deleteList)
@@ -327,7 +339,13 @@ namespace DBLinq.Linq
                     {
                         string ID_to_delete = getObjectID(obj);
                         if (indx2++ > 0) { sbDeleteIDs.Append(","); }
-                        sbDeleteIDs.Append(ID_to_delete);
+                        
+                        // turn PK ALFKI into 'ALFKI'
+                        string ID_quoted = mustQuoteIds
+                            ? "'" + ID_to_delete + "'"
+                            : ID_to_delete;
+
+                        sbDeleteIDs.Append(ID_quoted);
                     }
                     catch (Exception ex)
                     {

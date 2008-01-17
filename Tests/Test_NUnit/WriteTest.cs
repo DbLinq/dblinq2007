@@ -183,6 +183,33 @@ namespace Test_NUnit
             db.SubmitChanges();
         }
 
+        [Test]
+        public void G7_InsertTableWithStringPK()
+        {
+            Northwind db = CreateDB();
+            db.ExecuteCommand("DELETE FROM Customers WHERE CustomerID='TEMP_'");
+
+            Customer custTemp = new Customer
+            {
+                CustomerID = "TEMP_",
+                CompanyName = "Magellan",
+                ContactName = "Antonio Pigafetta",
+                City = "Lisboa",
+            };
+            db.Customers.Add(custTemp);
+            db.SubmitChanges();
+        }
+
+        [Test]
+        public void G8_DeleteTableWithStringPK()
+        {
+            Northwind db = CreateDB();
+            Customer cust = (from c in db.Customers
+                             where c.CustomerID == "TEMP_"
+                             select c).Single();
+            db.Customers.Remove(cust);
+            db.SubmitChanges();
+        }
         #endregion
     }
 }

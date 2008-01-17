@@ -106,7 +106,7 @@ namespace DBLinq.util
         }
 
         /// <summary>
-        /// from one column Employee.EmpID, extract its [Column] attrib
+        /// from one column Employee.EmployeeID, extract its [Column] attrib
         /// </summary>
         public static ColumnAttribute GetColumnAttrib(MemberInfo memberInfo)
         {
@@ -120,7 +120,7 @@ namespace DBLinq.util
         }
 
         /// <summary>
-        /// get name of column in SQL table for one C# field.
+        /// get name of column in SQL table, given one C# field (MemberInfo).
         /// </summary>
         public static string GetSQLColumnName(MemberInfo memberInfo)
         {
@@ -129,7 +129,7 @@ namespace DBLinq.util
         }
 
         /// <summary>
-        /// prepate ProjectionData - which holds ctor and field accessors
+        /// prepate ProjectionData - which holds ctor and field accessors.
         /// </summary>
         public static ProjectionData GetProjectionData(Type t)
         {
@@ -257,6 +257,15 @@ namespace DBLinq.util
                 throw new ApplicationException("Failed to find reverse assoc for " + assoc1.Name + " among " + assocs.Length);
             }
             return result;
+        }
+
+        /// <summary>
+        /// given type Customer, return CustomerID.
+        /// </summary>
+        public static KeyValuePair<PropertyInfo, ColumnAttribute>[] FindPrimaryKeys(Type tableType)
+        {
+            KeyValuePair<PropertyInfo, ColumnAttribute>[] columns = GetColumnAttribs2(tableType);
+            return columns.Where(c => c.Value.IsPrimaryKey).ToArray();
         }
 
     }
