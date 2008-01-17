@@ -10,6 +10,7 @@ namespace ClientCode2
 {
     class Program
     {
+#if ANDRUS_TEST_DB
         static void Main(string[] args)
         {
             string connStr = "server=localhost;user id=LinqUser; password=linq2; database=Andrus";
@@ -19,8 +20,9 @@ namespace ClientCode2
             charpk.Val1 = 22;
             db.SubmitChanges();
         }
+#endif
 
-        static void Main_(string[] args)
+        static void Main(string[] args)
         {
 
             string connStr = "server=localhost;user id=LinqUser; password=linq2; database=Northwind";
