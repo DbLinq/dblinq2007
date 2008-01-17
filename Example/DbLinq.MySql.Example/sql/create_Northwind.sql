@@ -1,4 +1,8 @@
-﻿DROP DATABASE IF EXISTS `Northwind`;
+####################################################################
+## script to create MySql version of the Northwind test DB
+####################################################################
+
+DROP DATABASE IF EXISTS `Northwind`;
 
 CREATE DATABASE `Northwind`;
 

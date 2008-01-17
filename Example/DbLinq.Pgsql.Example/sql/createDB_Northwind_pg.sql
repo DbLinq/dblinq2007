@@ -1,3 +1,7 @@
+--####################################################################
+--script to create PostgreSql version of the Northwind test DB
+--####################################################################
+
 --DROP DATABASE IF EXISTS Northwind;
 --CREATE DATABASE Northwind WITH OWNER = "LinqUser";
 --USE Northwind;
