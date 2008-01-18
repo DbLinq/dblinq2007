@@ -339,6 +339,11 @@ namespace DBLinq.util
             }
         }
 
+        public ulong GetUInt64(int index)
+        {
+            return (ulong)GetInt64(index);
+        }
+
         public string GetString(int index)
         {
             try

@@ -75,7 +75,10 @@ namespace DBLinq.util
                 return 0;
             }
         }
-
+        public ulong GetUInt64(int index)
+        {
+            return (ulong)GetInt64(index);
+        }
 
         public bool IsDBNull(int index) { return _rdr.IsDBNull(index); }
 

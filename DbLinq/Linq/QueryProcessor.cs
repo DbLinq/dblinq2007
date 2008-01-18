@@ -37,8 +37,9 @@ using DBLinq.vendor;
 namespace DBLinq.Linq
 {
     /// <summary>
-    /// after all Lambdas are collected, and GetEnumerator() is called:
-    /// QueryProcessor calls ExpressionTreeParser to build SQL expression from parts
+    /// after all Lambdas (queries) are collected, GetEnumerator() is called.
+    /// This results in a call to QueryProcess.ProcessLambdas (below).
+    /// QueryProcessor then calls ExpressionTreeParser to build SQL expression from parts
     /// </summary>
     public partial class QueryProcessor
     {

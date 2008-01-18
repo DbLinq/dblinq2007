@@ -186,44 +186,6 @@ CREATE TABLE `Order Details` (
 ENGINE = InnoDB;
 
 
-####################################################################
-CREATE TABLE `AllTypes` (
-  `int` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
-  `intN` INTEGER UNSIGNED,
-  `double` DOUBLE NOT NULL DEFAULT 0,
-  `doubleN` DOUBLE,
-  `decimal` DECIMAL NOT NULL DEFAULT 0,
-  `decimalN` DECIMAL,
-  `blob` BLOB NOT NULL,
-  `blobN` BLOB,
-  `boolean` BOOLEAN NOT NULL DEFAULT 0,
-  `boolN` BOOLEAN,
-  `byte` TINYINT UNSIGNED NOT NULL DEFAULT 0,
-  `byteN` TINYINT UNSIGNED,
-  `DateTime` DATETIME NOT NULL DEFAULT 0,
-  `DateTimeN` DATETIME,
-  `float` FLOAT NOT NULL DEFAULT 0,
-  `floatN` FLOAT,
-  `char` CHAR NOT NULL DEFAULT '',
-  `charN` CHAR,
-  `text` TEXT NOT NULL,
-  `textN` TEXT,
-  `short` MEDIUMINT UNSIGNED NOT NULL DEFAULT 0,
-  `shortN` MEDIUMINT UNSIGNED,
-  `numeric` NUMERIC NOT NULL DEFAULT 0,
-  `numericN` NUMERIC,
-  `real` REAL NOT NULL DEFAULT 0,
-  `realN` REAL,
-  `smallInt` SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-  `smallIntN` SMALLINT UNSIGNED,
-  `tinyIntU` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
-  `tinyIntUN` TINYINT(1) UNSIGNED NULL DEFAULT 0,
-  `tinyIntS` TINYINT(1) SIGNED DEFAULT 0,
-  `DbLinq_EnumTest` SMALLINT UNSIGNED NOT NULL,
-  PRIMARY KEY(`int`)
-)
-ENGINE = InnoDB
-COMMENT = 'Tests mapping of many MySQL types to CSharp types';
 
 
 ####################################################################
@@ -320,39 +282,6 @@ Values ('BT___', 1, now(), 11.5);
 insert INTO `Orders` (CustomerID, EmployeeID, OrderDate, Freight)
 Values ('UKMOD', 1, now(), 32.5);
 
-####################################################################
-INSERT INTO alltypes (
-               `intN` ,
-  `double` ,   `doubleN` ,
-  `decimal` ,  `decimalN` ,
-  `blob` ,     `blobN` ,
-  `boolean` ,  `boolN` ,
-  `byte` ,     `byteN` ,
-  `DateTime` , `DateTimeN` ,
-  `float` ,    `floatN` ,
-  `char` ,     `charN` ,
-  `text` ,     `textN` ,
-  `short` ,    `shortN` ,
-  `numeric` ,  `numericN` ,
-  `real` ,     `realN` ,
-  `smallInt` , `smallIntN`,
-  `DbLinq_EnumTest`
-)
-VALUES(         null,
-  2,            null, /*double*/
-  3,            null,
-  'aa',         null, /*blob*/
-  true,         null,
-  8,            null, /*byte*/
-  now(),        null,
-  4,            null, /*float*/
-  'c',          null,
-  'text',       null, /*text*/
-  127,          null,
-  999.9,        null, /*numeric*/
-  998.9,        null,
-  16000,        null, /*smallInt*/
-  1);
 
 ####################################################################
 ## create stored procs

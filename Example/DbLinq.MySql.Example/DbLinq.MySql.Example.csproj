@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="nwind\AllTypes.cs" />
     <Compile Include="nwind\DbLinq_EnumTest.cs" />
     <Compile Include="nwind\Northwind.cs" />
     <Compile Include="ObjectDumper.cs" />

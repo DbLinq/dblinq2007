@@ -8,13 +8,13 @@ using nwind;
 
 namespace Test_NUnit
 {
+#if USE_ALLTYPES
     /// <summary>
     /// this test will exercise reading of columns of types such as decimal, decimal?, DateTime?
     /// </summary>
     [TestFixture]
     public class ReadTest_AllTypes : TestBase
     {
-
         [Test]
         public void AT1_SelectRow()
         {
@@ -67,7 +67,6 @@ namespace Test_NUnit
             Assert.IsTrue(enumValue > 0, "Expected enum value>0 in AllTypes, got enumValue=" + enumValue);
         }
 
-
-
     }
+#endif
 }

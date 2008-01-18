@@ -48,6 +48,7 @@ namespace DBLinq.vendor
         int GetInt32(int index);
         long GetInt64(int index);
         uint GetUInt32(int index);
+        ulong GetUInt64(int index);
 
         #endregion
     }
