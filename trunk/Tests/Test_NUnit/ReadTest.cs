@@ -66,6 +66,16 @@ namespace Test_NUnit
             Assert.IsNotNull(cust, "Expected one customer 'airbus'");
         }
 
+        [Test]
+        public void A5_SelectSingleOrDefault()
+        {
+            Northwind db = CreateDB();
+
+            // Query for a specific customer
+            var cust = db.Customers.SingleOrDefault(c => c.CompanyName == "airbus");
+            Assert.IsNotNull(cust, "Expected one customer 'airbus'");
+        }
+
         #endregion
 
         //TODO: group B, which checks AllTypes
