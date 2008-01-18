@@ -17,7 +17,7 @@ namespace DbLinq.SQLite.Example
         static void Main(string[] args)
         {
 #if SQLITE
-            string connStr = "Data Source=nw.db3;FailIfMissing=false;";
+            string connStr = "Data Source=Northwind.db3;FailIfMissing=false;";
             if (args.Length == 1)
             {
                 System.Data.SQLite.SQLiteConnection cnn = new SQLiteConnection(connStr);

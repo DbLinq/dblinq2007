@@ -2,7 +2,7 @@
 --Peter Magnusson provided the script to create SqlLite version of the Northwind test DB - thanks!
 --####################################################################
 
-CREATE TABLE IF NOT EXISTS [Region] (
+CREATE TABLE IF NOT EXISTS [Regions] (
   [RegionID] INTEGER PRIMARY KEY ,
   [RegionDescription] VARCHAR(50) NOT NULL
   
@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS [Region] (
 CREATE TABLE IF NOT EXISTS [Territories] (
   [TerritoryID] VARCHAR(20),
   [TerritoryDescription] VARCHAR(50) NOT NULL,
-  [RegionID] INTEGER NOT NULL,
+  [RegionID] INTEGER NOT NULL REFERENCES Regions(RegionID),
   PRIMARY KEY([TerritoryID])
 );
 
@@ -47,8 +47,8 @@ CREATE TABLE IF NOT EXISTS [Suppliers] (
 --####################################################################
 CREATE TABLE IF NOT EXISTS [Products] (
   [ProductID] INTEGER NOT NULL ,
-  [ProductName] VARCHAR(40) NOT NULL DEFAULT '',
-  [SupplierID] INTEGER NULL,
+  [ProductName] VARCHAR(40) NOT NULL DEFAULT '' COLLATE NOCASE,
+  [SupplierID] INTEGER NULL REFERENCES Suppliers(SupplierID),
   [CategoryID] INTEGER NULL,
   [QuantityPerUnit] VARCHAR(20) NULL,
   [UnitPrice] DECIMAL NULL,
@@ -103,15 +103,15 @@ CREATE TABLE IF NOT EXISTS [Employees] (
   [HomePhone] VARCHAR(24) NULL,
   [Photo] BLOB NULL,
   [Notes] TEXT NULL,
-  [ReportsTo] INTEGER NULL,
+  [ReportsTo] INTEGER NULL REFERENCES Employees(EmployeeID),
   PRIMARY KEY([EmployeeID])
 );
 
 
 --####################################################################
 CREATE TABLE IF NOT EXISTS [EmployeeTerritories] (
-  [EmployeeID] INTEGER NOT NULL,
-  [TerritoryID] VARCHAR(20) NOT NULL,
+  [EmployeeID] INTEGER NOT NULL REFERENCES Employees(EmployeeID),
+  [TerritoryID] VARCHAR(20) NOT NULL REFERENCES Territories(TerritoryID),
   PRIMARY KEY([EmployeeID],[TerritoryID])
 );
 
@@ -120,8 +120,8 @@ CREATE TABLE IF NOT EXISTS [EmployeeTerritories] (
 --####################################################################
 CREATE TABLE IF NOT EXISTS [Orders] (
   [OrderID] INTEGER NOT NULL ,
-  [CustomerID] VARCHAR(5) NULL,
-  [EmployeeID] INTEGER NULL,
+  [CustomerID] VARCHAR(5) NULL CONSTRAINT fk_customer_id REFERENCES Customers(CustomerID),
+  [EmployeeID] INTEGER NULL CONSTRAINT fk_employee_id REFERENCES Employees(EmployeeID),
   [OrderDate] DATETIME NULL,
   [RequiredDate] DATETIME NULL,
   [ShippedDate] DATETIME NULL,
@@ -189,7 +189,7 @@ END;
 --####################################################################
 CREATE TABLE IF NOT EXISTS [Order Details] (
   [OrderID] INTEGER NOT NULL                 REFERENCES Orders (OrderID),
-  [ProductID] INTEGER NOT NULL               REFERENCES Products (OrderID),
+  [ProductID] INTEGER NOT NULL               REFERENCES Products (ProductID),
   [UnitPrice] DECIMAL NOT NULL,
   [Quantity] SMALLINT NOT NULL,
   [Discount] FLOAT NOT NULL,
@@ -245,8 +245,8 @@ Insert INTO [Categories] (CategoryName,Description)
 values     ('Condiments','Sweet and savory sauces, relishes, spreads, and seasonings');
 
 
-INSERT INTO Region (RegionDescription) VALUES ('North America');
-INSERT INTO Region (RegionDescription) VALUES ('Europe');
+INSERT INTO Regions (RegionDescription) VALUES ('North America');
+INSERT INTO Regions (RegionDescription) VALUES ('Europe');
 
 DELETE FROM EmployeeTerritories; -- must be truncated before Territories
 DELETE FROM Territories;
