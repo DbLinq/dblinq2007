@@ -189,7 +189,7 @@ namespace DBLinq.util
                 //_current = default(T);
                 while(rdr2.Read())
                 {
-#if SQLLITE
+#if SQLITE
                 	// if not this might crash with SQLite
                     //(only SqlLite implements HasRow?!)
                     if (!rdr2.HasRow)

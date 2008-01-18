@@ -17,7 +17,18 @@ namespace DbLinq.SQLite.Example
         static void Main(string[] args)
         {
 #if SQLITE
-            string connStr = "Data Source=Northwind.mdb;Version=3;New=False;Compress=True;Pooling=True";
+            string connStr = "Data Source=nw.db3;FailIfMissing=false;";
+            if (args.Length == 1)
+            {
+                System.Data.SQLite.SQLiteConnection cnn = new SQLiteConnection(connStr);
+                System.Data.SQLite.SQLiteCommand cmd = cnn.CreateCommand();
+                cmd.CommandText = System.IO.File.ReadAllText(args[0]);
+                cnn.Open();
+                cmd.ExecuteNonQuery();
+                cnn.Close();
+                cmd.Dispose();
+                cnn.Dispose();
+            }
 #else
             if (args.Length != 4)
             {
