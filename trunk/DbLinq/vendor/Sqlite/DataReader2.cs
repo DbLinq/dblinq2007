@@ -33,7 +33,7 @@ using System.Data.SQLite;
 namespace DBLinq.util
 {
     /// <summary>
-    /// This class wraps MySqlDataReader.
+    /// This class wraps SQLiteDataReader.
     /// It logs exceptions and provides methods to retrieve nullable types.
     /// 
     /// When we have a workaround for FatalExecutionEngineError on nullables, 
@@ -61,6 +61,8 @@ namespace DBLinq.util
         public int GetValues(object[] values){ return _rdr.GetValues(values); }
         
         public byte GetByte(int index){ return _rdr.GetByte(index); }
+        public byte? GetByteN(int index) { if (_rdr.IsDBNull(index)) return null;  return _rdr.GetByte(index); }
+
         public bool IsDBNull(int index){ return _rdr.IsDBNull(index); }
 
         public short GetInt16(int index){ return _rdr.GetInt16(index); }
@@ -332,6 +334,8 @@ namespace DBLinq.util
                 return null;
             }
         }
+
+        
 
         public byte[] GetBytes(int index)
         {

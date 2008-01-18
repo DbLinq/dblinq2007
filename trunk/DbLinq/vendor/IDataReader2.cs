@@ -16,7 +16,7 @@ namespace DBLinq.vendor
         float? GetFloatN(int index);
         DateTime? GetDateTimeN(int index);
         long? GetInt64N(int index);
-
+        //why not a GetByte()?
         /// <summary>
         /// method to read a blob
         /// </summary>

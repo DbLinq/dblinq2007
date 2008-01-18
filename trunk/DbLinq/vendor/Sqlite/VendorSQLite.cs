@@ -69,12 +69,25 @@ namespace DBLinq.vendor.sqlite
         }
 
         /// <summary>
-        /// Postgres string concatenation, eg 'a||b'
+        /// Postgres and Sqlite string concatenation, eg 'a||b'
         /// </summary>
         public override string Concat(List<ExpressionAndType> parts)
         {
-            string[] arr = parts.Select(p => p.expression).ToArray();
-            return "CONCAT(" + string.Join(",", arr) + ")";
+            StringBuilder sb = new StringBuilder();
+            foreach (ExpressionAndType part in parts)
+            {
+                if (sb.Length != 0) { sb.Append("||"); }
+                if (part.type == typeof(string))
+                {
+                    sb.Append(part.expression);
+                }
+                else
+                {
+                    //integers and friends: must CAST before concatenating
+                    sb.Append("CAST(" + part.expression + " AS varchar)");
+                }
+            }
+            return sb.ToString();
         }
         
         /// <summary>

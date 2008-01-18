@@ -33,43 +33,73 @@ namespace SqlMetal.schema.sqlite
     /// </summary>
     class KeyColumnUsageSql
     {
-        KeyColumnUsage fromRow(SQLiteDataReader rdr)
+        enum fk_index
+        {
+            id = 0,
+            seq = 1,
+            table = 2,
+            from = 3,
+            to = 4
+        }
+
+        KeyColumnUsage fromRow(string table, SQLiteDataReader rdr)
         {
             KeyColumnUsage t = new KeyColumnUsage();
-            int field = 0;
-            t.constraint_schema = rdr.GetString(field++);
-            t.constraint_name = rdr.GetString(field++);
-            t.table_schema  = rdr.GetString(field++);
-            t.table_name    = rdr.GetString(field++);
-            t.column_name    = rdr.GetString(field++);
-            t.referenced_table_schema = rdr.GetString(field++);
-            t.referenced_table_name = rdr.GetString(field++);
-            t.referenced_column_name = rdr.GetString(field++);
+            const int K_ID = 0;
+            const int K_SEQ = 1;
+            const int K_TABLE = 2;
+            const int K_FROM = 3;
+            const int K_TO = 4;
+            
+            t.constraint_schema = "main";
+            t.table_schema = "main";
+            t.referenced_table_schema = "main";
+            
+            t.constraint_name = "fk_" + table + "_" + rdr.GetInt32(K_ID).ToString();
+            t.table_name = table;
+            t.column_name = rdr.GetString(K_FROM);
+            
+            t.referenced_table_name = rdr.GetString(K_TABLE);
+            t.referenced_column_name = rdr.GetString(K_TO);
             return t;
+
         }
 
         public List<KeyColumnUsage> getConstraints(SQLiteConnection conn, string db)
         {
-            // No foreign key on SQLite
-//            string sql = @"
-//SELECT constraint_schema,constraint_name,table_schema,table_name
-//    ,column_name,referenced_table_schema,referenced_table_name,referenced_column_name
-//FROM information_schema.`KEY_COLUMN_USAGE`
-//WHERE table_schema=?db";
+            //Could perhaps use conn.GetSchema() instead 
+            //Warning... Sqlite doesnt enforce constraints unless you define some triggers
 
-//            using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
-//            {
-//                cmd.Parameters.Add("?db", db);
-//                using (SQLiteDataReader rdr = cmd.ExecuteReader())
-//                {
-//                    List<KeyColumnUsage> list = new List<KeyColumnUsage>();
-//                    while(rdr.Read())
-//                    {
-//                        list.Add( fromRow(rdr) );
-//                    }
-//                    return list;
-//                }
-//            }
+            string sql = @" SELECT tbl_name FROM sqlite_master WHERE type='table' order by tbl_name";
+
+            using (SQLiteCommand cmd = new SQLiteCommand(sql, conn))
+            {
+                using (SQLiteDataReader rdr = cmd.ExecuteReader())
+                {
+                    List<KeyColumnUsage> list = new List<KeyColumnUsage>();
+                    
+                    while (rdr.Read())
+                    {
+                        string table = rdr.GetString(0);
+                        string sqlPragma = @"PRAGMA foreign_key_list('" + table + "');";
+                        using (SQLiteCommand cmdPragma = new SQLiteCommand(sqlPragma, conn))
+                        {
+                            using (SQLiteDataReader rdrPragma = cmdPragma.ExecuteReader())
+                            {
+
+                                while (rdrPragma.Read())
+                                {
+                                    
+                                    list.Add(fromRow(table, rdrPragma));
+                                }
+
+                            }
+                        }
+                    }
+                    return list;
+                }
+            }
+            
             return null;
         }
     }

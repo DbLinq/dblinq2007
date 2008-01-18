@@ -38,11 +38,14 @@ namespace SqlMetal.schema.sqlite
                 case "bool": 
                 case "boolean": 
                 case "bit":
-                case "tinyint": 
+                    return "bool";
+                case "byte":
+                case "tinyint":
+                case "tinyint signed":
                 case "tinyint unsigned":
                     if (column_type == "tinyint(1)")
                         return "bool";
-                    return "bool";
+                    return "byte";
 
                 case "short":
                 case "smallint unsigned": 

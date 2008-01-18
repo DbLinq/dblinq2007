@@ -90,7 +90,7 @@ namespace SqlMetal
 
                 Vendor vendor = new Vendor();
                 string vendorName = vendor.VendorName(); //"Microsoft" or "Postgres" or ...
-
+             
                 if (mmConfig.schemaXmlFile == null)
                 {
                     string connStr = string.Format("server={0};user id={1}; password={2}; database={3}; pooling=false"
@@ -123,11 +123,11 @@ namespace SqlMetal
                     : (mmConfig.code.EndsWith(".cs") ? mmConfig.code : mmConfig.code+".cs");
 
                 File.WriteAllText(fname, fileBody);
-                Console.WriteLine("MysqlMetal: Written file "+fname);
+                Console.WriteLine(vendorName + "Metal: Written file "+fname);
             }
             catch(Exception ex)
             {
-                Console.WriteLine("MysqlMetal failed:"+ex);
+                Console.WriteLine(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + " failed:"+ex);
             }
 
             if (mmConfig.readLineAtExit)
@@ -216,8 +216,9 @@ namespace SqlMetal
 
         static void errorExit()
         {
-            Console.WriteLine("MysqlMetal usage:");
-            Console.WriteLine("MysqlMetal.exe -server:xx -db:yy -user:zz -password:**");
+            string appName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
+            Console.WriteLine(appName + " usage:");
+            Console.WriteLine(appName + ".exe -server:xx -db:yy -user:zz -password:**");
             Console.WriteLine("Result: produces file yy.cs in local directory");
         }
 

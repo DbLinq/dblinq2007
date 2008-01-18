@@ -540,6 +540,14 @@ namespace DBLinq.util
                 //Console.WriteLine(msg);
                 //throw new ApplicationException(msg);
             }
+            else if (t2 == typeof(byte))
+            {
+                minfo = typeof(DataReader2).GetMethod("GetByte");
+            }
+            else if (t2 == typeof(byte?))
+            {
+                minfo = typeof(DataReader2).GetMethod("GetByteN");
+            }
             else
             {
                 //s_rdr.GetUInt32();
