@@ -12,3 +12,7 @@ FaqPage
 == Notes on C# ==
 
 CsharpNotes
+
+
+== Notes on Sqlite implementation ==
+SqliteImplementation
