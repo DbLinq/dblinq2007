@@ -54,7 +54,7 @@ namespace Test_NUnit
             Assert.IsTrue(isSame, "Expected pen1 and pen2 to be the same live object");
         }
 
-#if MYSQL
+#if MYSQL && USE_ALLTYPES
         [Test]
         public void E3_UpdateEnum()
         {
@@ -158,7 +158,12 @@ namespace Test_NUnit
         {
             string productName = "temp_G5_" + Environment.TickCount;
             Northwind db = CreateDB();
+#if ORACLE
+            //todo fix Oracle
+            Product p1 = new Product { ProductName = productName, Discontinued = false, UnitPrice = 11 };
+#else
             Product p1 = new Product { ProductName = productName, Discontinued = false, UnitPrice = 11m };
+#endif
             db.Products.Add(p1);
             db.SubmitChanges();
 

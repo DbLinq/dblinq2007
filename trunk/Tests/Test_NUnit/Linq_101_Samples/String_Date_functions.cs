@@ -22,12 +22,12 @@ namespace Test_NUnit.Linq_101_Samples
             var q = from c in db.Customers
                     select new { c.CustomerID, Location = c.City + ", " + c.Country };
 
-            bool foundBerlin = false;
+            //bool foundBerlin = false;
             foreach (var v in q)
             {
                 if (v.Location == "Berlin, Germany")
                 {
-                    foundBerlin = true;
+                    //foundBerlin = true;
                     return;
                 }
             }

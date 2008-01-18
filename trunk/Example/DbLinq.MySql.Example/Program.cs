@@ -1,4 +1,5 @@
 ﻿#define USE_STORED_PROCS
+#define USE_AllTypes
 
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ namespace DbLinq.MySql.Example
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main_(string[] args)
         {
             if (args.Length != 4)
             {
@@ -47,14 +48,15 @@ namespace DbLinq.MySql.Example
             string reply1 = db.hello1("Pigafetta");
 #endif
 
-            Console.Clear();
-            Console.WriteLine("from at in db.Alltypes select at;");
-            var q1 = from at in db.Alltypes select at;
-            foreach (var v in q1)
-                ObjectDumper.Write(v);
-            Console.WriteLine("Press enter to continue.");
-            Console.ReadLine();
-
+#if USE_AllTypes
+            //Console.Clear();
+            //Console.WriteLine("from at in db.Alltypes select at;");
+            //var q1 = from at in db.Alltypes select at;
+            //foreach (var v in q1)
+            //    ObjectDumper.Write(v);
+            //Console.WriteLine("Press enter to continue.");
+            //Console.ReadLine();
+#endif
 
             Console.Clear();
             Console.WriteLine("from p in db.Products orderby p.ProductName select p;");
@@ -107,7 +109,7 @@ namespace DbLinq.MySql.Example
             // BUG: This currently will insert 3 rows when it should insert only 2
             // SubmitChanges isn't clearing the client side transaction data
             Console.Clear();
-            Console.WriteLine("db.Orders.Add(new Order { ProductID = 7, CustomerID = 1, OrderDate = DateTime.Now });");            
+            Console.WriteLine("db.Orders.Add(new Order { ProductID = 7, CustomerID = 1, OrderDate = DateTime.Now });");
             db.Orders.Add(new Order { EmployeeID = 1, CustomerID = "ALFKI", OrderDate = DateTime.Now });
             db.SubmitChanges();
             Console.WriteLine("db.Orders.Add(new Order { ProductID = 2, CustomerID = 2, OrderDate = DateTime.Now });");
@@ -140,5 +142,17 @@ namespace DbLinq.MySql.Example
             Type tt = result.GetType();
             //result++;
         }
+
+        static void Main(string[] args)
+        {
+            string connStr = String.Format("server={0};user id={1}; password={2}; database={3}"
+                , "localhost", "LinqUser", "linq2", "AllTypes");
+            allTypes.AllTypes db = new allTypes.AllTypes(connStr);
+            db.Log = Console.Out;
+
+            var list = db.Allinttypes.Where(at=>at.int_>0).ToList();
+            var ct = list.Count;
+        }
+
     }
 }
