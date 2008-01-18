@@ -51,7 +51,7 @@ namespace nwind
 	[Table(Name = "Suppliers")]
 	public partial class Supplier : IModified
 	{
-		
+		[DBLinq.Linq.Mapping.AutoGenId] 
 		protected int _SupplierID;
 		protected string _CompanyName;
 		protected string _ContactName;
@@ -88,7 +88,7 @@ namespace nwind
 	
 		#region properties - accessors
 	
-		[Column(Storage = "_SupplierID", Name = "SupplierID", DbType = "INTEGER", IsPrimaryKey = true)]
+		[Column(Storage = "_SupplierID", Name = "SupplierID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true)]
 		[DebuggerNonUserCode]
 		public int SupplierID
 		{
@@ -219,7 +219,7 @@ namespace nwind
 	[Table(Name = "Employees")]
 	public partial class Employee : IModified
 	{
-		
+		[DBLinq.Linq.Mapping.AutoGenId] 
 		protected int _EmployeeID;
 		protected string _LastName;
 		protected string _FirstName;
@@ -264,7 +264,7 @@ namespace nwind
 	
 		#region properties - accessors
 	
-		[Column(Storage = "_EmployeeID", Name = "EmployeeID", DbType = "INTEGER", IsPrimaryKey = true)]
+		[Column(Storage = "_EmployeeID", Name = "EmployeeID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true)]
 		[DebuggerNonUserCode]
 		public int EmployeeID
 		{
@@ -451,7 +451,7 @@ namespace nwind
 	[Table(Name = "Shippers")]
 	public partial class Shipper : IModified
 	{
-		
+		[DBLinq.Linq.Mapping.AutoGenId] 
 		protected int _ShipperID;
 		protected string _CompanyName;
 		protected string _Phone;
@@ -472,7 +472,7 @@ namespace nwind
 	
 		#region properties - accessors
 	
-		[Column(Storage = "_ShipperID", Name = "ShipperID", DbType = "INTEGER", IsPrimaryKey = true)]
+		[Column(Storage = "_ShipperID", Name = "ShipperID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true)]
 		[DebuggerNonUserCode]
 		public int ShipperID
 		{
@@ -526,7 +526,7 @@ namespace nwind
 	[Table(Name = "Regions")]
 	public partial class Region : IModified
 	{
-		
+		[DBLinq.Linq.Mapping.AutoGenId] 
 		protected int? _RegionID;
 		protected string _RegionDescription;
 	
@@ -545,7 +545,7 @@ namespace nwind
 	
 		#region properties - accessors
 	
-		[Column(Storage = "_RegionID", Name = "RegionID", DbType = "INTEGER", IsPrimaryKey = true)]
+		[Column(Storage = "_RegionID", Name = "RegionID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true)]
 		[DebuggerNonUserCode]
 		public int? RegionID
 		{
@@ -595,7 +595,7 @@ namespace nwind
 	[Table(Name = "Categories")]
 	public partial class Category : IModified
 	{
-		
+		[DBLinq.Linq.Mapping.AutoGenId] 
 		protected int _CategoryID;
 		protected string _CategoryName;
 		protected string _Description;
@@ -618,7 +618,7 @@ namespace nwind
 	
 		#region properties - accessors
 	
-		[Column(Storage = "_CategoryID", Name = "CategoryID", DbType = "INTEGER", IsPrimaryKey = true)]
+		[Column(Storage = "_CategoryID", Name = "CategoryID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true)]
 		[DebuggerNonUserCode]
 		public int CategoryID
 		{
@@ -849,7 +849,7 @@ namespace nwind
 	[Table(Name = "AllTypes")]
 	public partial class Alltype : IModified
 	{
-		
+		[DBLinq.Linq.Mapping.AutoGenId] 
 		protected int? _int;
 		protected int? _intN;
 		protected double _double;
@@ -928,7 +928,7 @@ namespace nwind
 	
 		#region properties - accessors
 	
-		[Column(Storage = "_int", Name = "int", DbType = "INTEGER", IsPrimaryKey = true)]
+		[Column(Storage = "_int", Name = "int", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true)]
 		[DebuggerNonUserCode]
 		public int? int_
 		{
@@ -1331,7 +1331,7 @@ namespace nwind
 	[Table(Name = "Orders")]
 	public partial class Order : IModified
 	{
-		
+		[DBLinq.Linq.Mapping.AutoGenId] 
 		protected int _OrderID;
 		protected string _CustomerID;
 		protected int? _EmployeeID;
@@ -1374,7 +1374,7 @@ namespace nwind
 	
 		#region properties - accessors
 	
-		[Column(Storage = "_OrderID", Name = "OrderID", DbType = "INTEGER", IsPrimaryKey = true)]
+		[Column(Storage = "_OrderID", Name = "OrderID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true)]
 		[DebuggerNonUserCode]
 		public int OrderID
 		{
@@ -1549,7 +1549,7 @@ namespace nwind
 	[Table(Name = "Products")]
 	public partial class Product : IModified
 	{
-		
+		[DBLinq.Linq.Mapping.AutoGenId] 
 		protected int _ProductID;
 		protected string _ProductName;
 		protected int? _SupplierID;
@@ -1584,7 +1584,7 @@ namespace nwind
 	
 		#region properties - accessors
 	
-		[Column(Storage = "_ProductID", Name = "ProductID", DbType = "INTEGER", IsPrimaryKey = true)]
+		[Column(Storage = "_ProductID", Name = "ProductID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true)]
 		[DebuggerNonUserCode]
 		public int ProductID
 		{
@@ -1714,7 +1714,7 @@ namespace nwind
 	[Table(Name = "EmployeeTerritories")]
 	public partial class Employeeterritory : IModified
 	{
-		
+		[DBLinq.Linq.Mapping.AutoGenId] 
 		protected int _EmployeeID;
 		protected string _TerritoryID;
 	
@@ -1733,7 +1733,7 @@ namespace nwind
 	
 		#region properties - accessors
 	
-		[Column(Storage = "_EmployeeID", Name = "EmployeeID", DbType = "INTEGER", IsPrimaryKey = true)]
+		[Column(Storage = "_EmployeeID", Name = "EmployeeID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true)]
 		[DebuggerNonUserCode]
 		public int EmployeeID
 		{
@@ -1795,8 +1795,8 @@ namespace nwind
 	[Table(Name = "Order Details")]
 	public partial class OrderDetail : IModified
 	{
-		
-		protected int _OrderID;
+		[DBLinq.Linq.Mapping.AutoGenId] 
+		protected int _OrderID;[DBLinq.Linq.Mapping.AutoGenId] 
 		protected int _ProductID;
 		protected decimal _UnitPrice;
 		protected short _Quantity;
@@ -1820,7 +1820,7 @@ namespace nwind
 	
 		#region properties - accessors
 	
-		[Column(Storage = "_OrderID", Name = "OrderID", DbType = "INTEGER", IsPrimaryKey = true)]
+		[Column(Storage = "_OrderID", Name = "OrderID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true)]
 		[DebuggerNonUserCode]
 		public int OrderID
 		{
@@ -1829,7 +1829,7 @@ namespace nwind
 		}
 		
 	
-		[Column(Storage = "_ProductID", Name = "ProductID", DbType = "INTEGER", IsPrimaryKey = true)]
+		[Column(Storage = "_ProductID", Name = "ProductID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true)]
 		[DebuggerNonUserCode]
 		public int ProductID
 		{

@@ -122,6 +122,7 @@ namespace SqlMetal.schema.sqlite
 
                 colSchema.IsPrimaryKey = columnRow.column_key=="PRI";
                 colSchema.IsDbGenerated = columnRow.extra=="auto_increment";
+                
                 colSchema.CanBeNull = columnRow.isNullable;
 
                 //determine the C# type
@@ -131,6 +132,11 @@ namespace SqlMetal.schema.sqlite
                 if (CSharp.IsValueType(colSchema.Type) && columnRow.isNullable)
                     colSchema.Type += "?";
                 
+                //SQLite always autoincrement PRimary Key integers
+                if (!colSchema.IsDbGenerated && colSchema.IsPrimaryKey && (colSchema.Type == "int" || colSchema.Type == "int?"))
+                    colSchema.IsDbGenerated = true;
+
+
                 //determine the c# field name - this may be changed in SchemaPostprocess
                 colSchema.Member = mmConfig.forceUcaseFieldName
                     ? Util.Capitalize(columnRow.column_name)
