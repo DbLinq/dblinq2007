@@ -27,7 +27,7 @@ namespace Test_NUnit
     public class StoredProcTest : TestBase
     {
 
-
+#if !SQLITE
         [Test]
         public void SP1_CallHello0()
         {
@@ -92,5 +92,7 @@ namespace Test_NUnit
             }
             Assert.Greater(count, 0);
         }
+#endif
     }
+
 }

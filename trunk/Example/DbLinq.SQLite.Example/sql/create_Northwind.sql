@@ -228,6 +228,9 @@ CREATE TABLE IF NOT EXISTS [AllTypes] (
   [realN] REAL,
   [smallInt] SMALLINT UNSIGNED NOT NULL DEFAULT 0,
   [smallIntN] SMALLINT UNSIGNED,
+  [tinyIntU] TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  [tinyIntUN] TINYINT UNSIGNED NULL DEFAULT 0,
+  [tinyIntS] TINYINT SIGNED DEFAULT 0,
   [DbLinq_EnumTest] SMALLINT UNSIGNED NOT NULL
 );
 
@@ -330,7 +333,8 @@ insert INTO [Orders] (CustomerID, EmployeeID, OrderDate, Freight)
 Values ('UKMOD', 1, '2007-12-17', 32.5);
 
 --####################################################################
-INSERT INTO alltypes (
+DELETE FROM AllTypes;
+INSERT INTO AllTypes (
                [intN] ,
   [double] ,   [doubleN] ,
   [decimal] ,  [decimalN] ,
