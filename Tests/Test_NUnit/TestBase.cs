@@ -33,6 +33,8 @@ namespace Test_NUnit
     {
 #if ORACLE
         const string connStr = "server=localhost;user id=Northwind; password=linq2";
+#elif SQLITE
+        const string connStr = "Data Source=Northwind.db3";
 #else //Mysql, Postgres
         public const string connStr = "server=localhost;user id=LinqUser; password=linq2; database=Northwind";
 
@@ -58,6 +60,9 @@ namespace Test_NUnit
         {
             Northwind db = new Northwind(connStr);
             db.Log = Console.Out;
+#if SQLITE
+            db.ExecuteCommand(System.IO.File.ReadAllText(@"..\..\..\Example\DbLinq.SQLite.Example\sql\create_Northwind.sql"), new object[] { });
+#endif
             return db;
         }
 

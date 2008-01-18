@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-//namespace nwind
-//{
+namespace nwind
+{
     /// <summary>
     /// for testing of enum handling - used from AllTypes mysql table.
     /// </summary>
@@ -12,4 +12,4 @@ using System.Text;
     {
         AA, BB, CC, DD
     }
-//}
+}
