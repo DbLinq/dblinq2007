@@ -131,6 +131,7 @@ namespace DBLinq.Linq
                     break;
                 case "First":
                 case "FirstOrDefault":
+                case "SingleOrDefault":
                     _vars._sqlParts.limitClause = 1;
                     break;
             }

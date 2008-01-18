@@ -170,6 +170,18 @@ namespace DBLinq.util
                             return (S)(object)firstT;
                         }
                     }
+                case "SingleOrDefault":
+                    //QueryProcessor prepared a 'LIMIT 1' query
+                    {
+                        using (IEnumerator<T> enumerator = new RowEnumerator<T>(_vars, _liveObjectMap).GetEnumerator())
+                        {
+                            bool hasOne = enumerator.MoveNext();
+                            if (!hasOne)
+                                return default(S);
+                            T firstT = enumerator.Current;
+                            return (S)(object)firstT;
+                        }
+                    }
                 //break;
             }
             throw new ApplicationException("L68: GetScalar<S> TODO: methodName=" + exprCall.Method.Name);

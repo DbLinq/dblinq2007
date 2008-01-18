@@ -93,11 +93,17 @@ namespace DBLinq.util
                 case ExpressionType.LessThan: return "<";
                 case ExpressionType.LessThanOrEqual: return "<=";
                 case ExpressionType.Equal: return "=";
+
+                case ExpressionType.NotEqual: 
+                    return "<>";  //Thanks to Laurent Morisseau for spotting the omission
+
                 case ExpressionType.AndAlso: return "AND";
                 case ExpressionType.OrElse: return "OR";
+
                 case ExpressionType.Multiply:
                 case ExpressionType.MultiplyChecked:
                     return "*";
+
                 case ExpressionType.Add:
                 case ExpressionType.AddChecked:
                     return "+";
