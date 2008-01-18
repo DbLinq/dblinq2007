@@ -31,6 +31,7 @@ namespace Test_NUnit
     /// </summary>
     public abstract class TestBase
     {
+        static bool doRecreate = true;
 #if ORACLE
         const string connStr = "server=localhost;user id=Northwind; password=linq2";
 #elif SQLITE
@@ -58,10 +59,15 @@ namespace Test_NUnit
 #endif
         public Northwind CreateDB()
         {
+
             Northwind db = new Northwind(connStr);
             db.Log = Console.Out;
 #if SQLITE
-            db.ExecuteCommand(System.IO.File.ReadAllText(@"..\..\..\Example\DbLinq.SQLite.Example\sql\create_Northwind.sql"), new object[] { });
+            if (doRecreate)
+            {
+                db.ExecuteCommand(System.IO.File.ReadAllText(@"..\..\..\Example\DbLinq.SQLite.Example\sql\create_Northwind.sql"), new object[] { });
+                doRecreate = false;
+            }
 #endif
             return db;
         }
