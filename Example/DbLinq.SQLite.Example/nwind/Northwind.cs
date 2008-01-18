@@ -65,7 +65,7 @@ namespace nwind
 		protected string _Fax;
 	
 		
-		#region costructors
+		#region constructors
 		public Supplier()
 		{
 		}
@@ -203,13 +203,17 @@ namespace nwind
 		}
 		#endregion
 	
+		#region childtables
 		
 		[Association(Storage = "null", OtherKey = "SupplierID", Name = "fk_Products_0")]
 		public EntityMSet<Product> Products
 		{
 		    get { return null; } //L212 - child data available only when part of query
 		}
-		
+		#endregion
+		#region parenttables
+		#endregion
+	
 	
 		public bool IsModified { get; set; }
 	}
@@ -237,7 +241,7 @@ namespace nwind
 		protected int? _ReportsTo;
 	
 		
-		#region costructors
+		#region constructors
 		public Employee()
 		{
 		}
@@ -415,6 +419,7 @@ namespace nwind
 		}
 		#endregion
 	
+		#region childtables
 		
 		[Association(Storage = "null", OtherKey = "EmployeeID", Name = "fk_EmployeeTerritories_1")]
 		public EntityMSet<Employeeterritory> EmployeeTerritories
@@ -433,6 +438,8 @@ namespace nwind
 		{
 		    get { return null; } //L212 - child data available only when part of query
 		}
+		#endregion
+		#region parenttables
 		
 		private System.Data.Linq.EntityRef<Employee> _ReportsToEmployee;    
 		
@@ -442,6 +449,8 @@ namespace nwind
 			get { return this._ReportsToEmployee.Entity; }
 			set { this._ReportsToEmployee.Entity = value; }
 		}
+		#endregion
+	
 	
 		public bool IsModified { get; set; }
 	}
@@ -457,7 +466,7 @@ namespace nwind
 		protected string _Phone;
 	
 		
-		#region costructors
+		#region constructors
 		public Shipper()
 		{
 		}
@@ -515,8 +524,11 @@ namespace nwind
 		}
 		#endregion
 	
-		
-		
+		#region childtables
+		#endregion
+		#region parenttables
+		#endregion
+	
 	
 		public bool IsModified { get; set; }
 	}
@@ -531,7 +543,7 @@ namespace nwind
 		protected string _RegionDescription;
 	
 		
-		#region costructors
+		#region constructors
 		public Region()
 		{
 		}
@@ -579,13 +591,17 @@ namespace nwind
 		}
 		#endregion
 	
+		#region childtables
 		
 		[Association(Storage = "null", OtherKey = "RegionID", Name = "fk_Territories_0")]
 		public EntityMSet<Territory> Territories
 		{
 		    get { return null; } //L212 - child data available only when part of query
 		}
-		
+		#endregion
+		#region parenttables
+		#endregion
+	
 	
 		public bool IsModified { get; set; }
 	}
@@ -602,7 +618,7 @@ namespace nwind
 		protected byte[] _Picture;
 	
 		
-		#region costructors
+		#region constructors
 		public Category()
 		{
 		}
@@ -670,8 +686,11 @@ namespace nwind
 		}
 		#endregion
 	
-		
-		
+		#region childtables
+		#endregion
+		#region parenttables
+		#endregion
+	
 	
 		public bool IsModified { get; set; }
 	}
@@ -695,7 +714,7 @@ namespace nwind
 		protected string _Fax;
 	
 		
-		#region costructors
+		#region constructors
 		public Customer()
 		{
 		}
@@ -833,13 +852,17 @@ namespace nwind
 		}
 		#endregion
 	
+		#region childtables
 		
 		[Association(Storage = "null", OtherKey = "CustomerID", Name = "fk_Orders_1")]
 		public EntityMSet<Order> Orders
 		{
 		    get { return null; } //L212 - child data available only when part of query
 		}
-		
+		#endregion
+		#region parenttables
+		#endregion
+	
 	
 		public bool IsModified { get; set; }
 	}
@@ -884,7 +907,7 @@ namespace nwind
 		protected DbLinq_EnumTest _DbLinq_EnumTest;
 	
 		
-		#region costructors
+		#region constructors
 		public Alltype()
 		{
 		}
@@ -1232,8 +1255,11 @@ namespace nwind
 		}
 		#endregion
 	
-		
-		
+		#region childtables
+		#endregion
+		#region parenttables
+		#endregion
+	
 	
 		public bool IsModified { get; set; }
 	}
@@ -1249,7 +1275,7 @@ namespace nwind
 		protected int _RegionID;
 	
 		
-		#region costructors
+		#region constructors
 		public Territory()
 		{
 		}
@@ -1307,12 +1333,15 @@ namespace nwind
 		}
 		#endregion
 	
+		#region childtables
 		
 		[Association(Storage = "null", OtherKey = "TerritoryID", Name = "fk_EmployeeTerritories_0")]
 		public EntityMSet<Employeeterritory> EmployeeTerritories
 		{
 		    get { return null; } //L212 - child data available only when part of query
 		}
+		#endregion
+		#region parenttables
 		
 		private System.Data.Linq.EntityRef<Region> _Region;    
 		
@@ -1322,6 +1351,8 @@ namespace nwind
 			get { return this._Region.Entity; }
 			set { this._Region.Entity = value; }
 		}
+		#endregion
+	
 	
 		public bool IsModified { get; set; }
 	}
@@ -1348,7 +1379,7 @@ namespace nwind
 		protected string _ShipCountry;
 	
 		
-		#region costructors
+		#region constructors
 		public Order()
 		{
 		}
@@ -1516,12 +1547,15 @@ namespace nwind
 		}
 		#endregion
 	
+		#region childtables
 		
 		[Association(Storage = "null", OtherKey = "OrderID", Name = "fk_Order Details_1")]
 		public EntityMSet<OrderDetail> OrderDetails
 		{
 		    get { return null; } //L212 - child data available only when part of query
 		}
+		#endregion
+		#region parenttables
 		
 		private System.Data.Linq.EntityRef<Employee> _Employee;    
 		
@@ -1540,6 +1574,8 @@ namespace nwind
 			get { return this._Customer.Entity; }
 			set { this._Customer.Entity = value; }
 		}
+		#endregion
+	
 	
 		public bool IsModified { get; set; }
 	}
@@ -1562,7 +1598,7 @@ namespace nwind
 		protected bool _Discontinued;
 	
 		
-		#region costructors
+		#region constructors
 		public Product()
 		{
 		}
@@ -1690,12 +1726,15 @@ namespace nwind
 		}
 		#endregion
 	
+		#region childtables
 		
 		[Association(Storage = "null", OtherKey = "ProductID", Name = "fk_Order Details_0")]
 		public EntityMSet<OrderDetail> OrderDetails
 		{
 		    get { return null; } //L212 - child data available only when part of query
 		}
+		#endregion
+		#region parenttables
 		
 		private System.Data.Linq.EntityRef<Supplier> _Supplier;    
 		
@@ -1705,6 +1744,8 @@ namespace nwind
 			get { return this._Supplier.Entity; }
 			set { this._Supplier.Entity = value; }
 		}
+		#endregion
+	
 	
 		public bool IsModified { get; set; }
 	}
@@ -1719,7 +1760,7 @@ namespace nwind
 		protected string _TerritoryID;
 	
 		
-		#region costructors
+		#region constructors
 		public Employeeterritory()
 		{
 		}
@@ -1767,7 +1808,9 @@ namespace nwind
 		}
 		#endregion
 	
-		
+		#region childtables
+		#endregion
+		#region parenttables
 		
 		private System.Data.Linq.EntityRef<Territory> _Territory;    
 		
@@ -1786,6 +1829,8 @@ namespace nwind
 			get { return this._Employee.Entity; }
 			set { this._Employee.Entity = value; }
 		}
+		#endregion
+	
 	
 		public bool IsModified { get; set; }
 	}
@@ -1803,7 +1848,7 @@ namespace nwind
 		protected float _Discount;
 	
 		
-		#region costructors
+		#region constructors
 		public OrderDetail()
 		{
 		}
@@ -1881,7 +1926,9 @@ namespace nwind
 		}
 		#endregion
 	
-		
+		#region childtables
+		#endregion
+		#region parenttables
 		
 		private System.Data.Linq.EntityRef<Product> _Product;    
 		
@@ -1900,6 +1947,8 @@ namespace nwind
 			get { return this._Order.Entity; }
 			set { this._Order.Entity = value; }
 		}
+		#endregion
+	
 	
 		public bool IsModified { get; set; }
 	}

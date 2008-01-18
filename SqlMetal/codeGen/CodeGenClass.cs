@@ -111,7 +111,7 @@ public partial class $name $baseClass
         {
             #region getCtors
             string template = @"
-#region costructors
+#region constructors
 public $name()
 {
 }
@@ -159,6 +159,7 @@ public EntityMSet<$childClassName> $fieldName
             var ourChildren = table.Type.Associations.Where( a=> a.OtherKey!=null );
 
             List<string> linksToChildTables = new List<string>();
+            linksToChildTables.Add("#region childtables");
             foreach(DlinqSchema.Association assoc in ourChildren)
             {
                 DlinqSchema.Table targetTable = schema.Tables.FirstOrDefault(t => t.Type.Name == assoc.Type);
@@ -183,6 +184,7 @@ public EntityMSet<$childClassName> $fieldName
                 str = str.Replace("$fieldName",         fieldName);
                 linksToChildTables.Add(str);
             }
+            linksToChildTables.Add("#endregion");
             string ret = string.Join(NL, linksToChildTables.ToArray());
             ret = ret.Replace(NL, NLT);
             return ret;
@@ -228,6 +230,7 @@ public $parentClassTyp $fkName_$thisKey {
 
             Dictionary<string, bool> usedAssocNames = new Dictionary<string, bool>();
             List<string> linksToChildTables = new List<string>();
+            linksToChildTables.Add("#region parenttables");
             foreach (DlinqSchema.Association assoc in ourParents)
             {
                 DlinqSchema.Table targetTable = schema.Tables.FirstOrDefault(t => t.Type.Name == assoc.Type);
@@ -259,6 +262,7 @@ public $parentClassTyp $fkName_$thisKey {
                 str = str.Replace("$fieldName2", fieldName2);
                 linksToChildTables.Add(str);
             }
+            linksToChildTables.Add("#endregion");
             string ret = string.Join(NL, linksToChildTables.ToArray());
             ret = ret.Replace(NL, NLT);
             return ret;
