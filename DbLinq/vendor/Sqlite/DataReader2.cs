@@ -320,7 +320,11 @@ namespace DBLinq.util
         {
             try
             {
-                return _rdr.GetString(index);
+                object obj = _rdr.GetValue(index);
+                if (obj == null)
+                    return null; //nullable text?
+
+                return obj as string;
             } 
             catch(Exception ex)
             {
@@ -336,12 +340,12 @@ namespace DBLinq.util
                 //System.Data.SqlClient.SqlDataReader rdr2;
                 //rdr2.GetSqlBinary(); //SqlBinary does not seem to exist on MySql
                 object obj = _rdr.GetValue(index);
-                if(obj==null)
+                if(_rdr.IsDBNull(index))
                     return null; //nullable blob?
                 byte[] bytes = obj as byte[];
                 if(bytes!=null)
                     return bytes; //works for BLOB field
-                Console.WriteLine("GetBytes: received unexpected type:"+obj);
+                Console.WriteLine("GetBytes(" + index + "): received unexpected type:"+obj);
                 //return _rdr.GetInt32(index);
                 return new byte[0];
             } 

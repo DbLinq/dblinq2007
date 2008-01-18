@@ -2,14 +2,14 @@
 --Peter Magnusson provided the script to create SqlLite version of the Northwind test DB - thanks!
 --####################################################################
 
-CREATE TABLE [Region] (
+CREATE TABLE IF NOT EXISTS [Region] (
   [RegionID] INTEGER PRIMARY KEY ,
   [RegionDescription] VARCHAR(50) NOT NULL
   
 );
 
 
-CREATE TABLE [Territories] (
+CREATE TABLE IF NOT EXISTS [Territories] (
   [TerritoryID] VARCHAR(20),
   [TerritoryDescription] VARCHAR(50) NOT NULL,
   [RegionID] INTEGER NOT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE [Territories] (
 
 
 --####################################################################
-CREATE TABLE [Categories] (
+CREATE TABLE IF NOT EXISTS [Categories] (
   [CategoryID] INTEGER  NOT NULL ,
   [CategoryName] VARCHAR(15) NOT NULL,
   [Description] TEXT NULL,
@@ -28,7 +28,7 @@ CREATE TABLE [Categories] (
 );
 
 
-CREATE TABLE [Suppliers] (
+CREATE TABLE IF NOT EXISTS [Suppliers] (
   [SupplierID] INTEGER  NOT NULL ,
   [CompanyName] VARCHAR(40) NOT NULL DEFAULT '',
   [ContactName] VARCHAR(30) NULL,
@@ -45,7 +45,7 @@ CREATE TABLE [Suppliers] (
 
 
 --####################################################################
-CREATE TABLE [Products] (
+CREATE TABLE IF NOT EXISTS [Products] (
   [ProductID] INTEGER NOT NULL ,
   [ProductName] VARCHAR(40) NOT NULL DEFAULT '',
   [SupplierID] INTEGER NULL,
@@ -62,7 +62,7 @@ CREATE TABLE [Products] (
 
 
 --####################################################################
-CREATE TABLE [Customers] (
+CREATE TABLE IF NOT EXISTS [Customers] (
   [CustomerID] VARCHAR(5) NOT NULL,
   [CompanyName] VARCHAR(40) NOT NULL DEFAULT '',
   [ContactName] VARCHAR(30) NULL,
@@ -79,7 +79,7 @@ CREATE TABLE [Customers] (
 
 
 --####################################################################
-CREATE TABLE [Shippers] (
+CREATE TABLE IF NOT EXISTS [Shippers] (
   [ShipperID] INTEGER NOT NULL ,
   [CompanyName] VARCHAR(40) NOT NULL,
   [Phone] VARCHAR(24) NULL,
@@ -88,7 +88,7 @@ CREATE TABLE [Shippers] (
 
 
 --####################################################################
-CREATE TABLE [Employees] (
+CREATE TABLE IF NOT EXISTS [Employees] (
   [EmployeeID] INTEGER NOT NULL ,
   [LastName] VARCHAR(20) NOT NULL,
   [FirstName] VARCHAR(10) NOT NULL,
@@ -109,7 +109,7 @@ CREATE TABLE [Employees] (
 
 
 --####################################################################
-CREATE TABLE [EmployeeTerritories] (
+CREATE TABLE IF NOT EXISTS [EmployeeTerritories] (
   [EmployeeID] INTEGER NOT NULL,
   [TerritoryID] VARCHAR(20) NOT NULL,
   PRIMARY KEY([EmployeeID],[TerritoryID])
@@ -118,7 +118,7 @@ CREATE TABLE [EmployeeTerritories] (
 
 
 --####################################################################
-CREATE TABLE [Orders] (
+CREATE TABLE IF NOT EXISTS [Orders] (
   [OrderID] INTEGER NOT NULL ,
   [CustomerID] VARCHAR(5) NULL,
   [EmployeeID] INTEGER NULL,
@@ -140,7 +140,7 @@ CREATE TABLE [Orders] (
 
 
 -- Foreign Key Preventing insert
-CREATE TRIGGER fki_Orders_CustomerID_Customers_CustomerID
+CREATE TRIGGER IF NOT EXISTS fki_Orders_CustomerID_Customers_CustomerID
 BEFORE INSERT ON [Orders]
 FOR EACH ROW BEGIN
   SELECT RAISE(ROLLBACK, 'insert on table "Orders" violates foreign key constraint "fki_Orders_CustomerID_Customers_CustomerID"')
@@ -148,7 +148,7 @@ FOR EACH ROW BEGIN
 END;
 
 -- Foreign key preventing update
-CREATE TRIGGER fku_Orders_CustomerID_Customers_CustomerID
+CREATE TRIGGER IF NOT EXISTS fku_Orders_CustomerID_Customers_CustomerID
 BEFORE UPDATE ON [Orders]
 FOR EACH ROW BEGIN
     SELECT RAISE(ROLLBACK, 'update on table "Orders" violates foreign key constraint "fku_Orders_CustomerID_Customers_CustomerID"')
@@ -156,14 +156,14 @@ FOR EACH ROW BEGIN
 END;
 
 -- Foreign key preventing delete
-CREATE TRIGGER fkd_Orders_CustomerID_Customers_CustomerID
+CREATE TRIGGER IF NOT EXISTS fkd_Orders_CustomerID_Customers_CustomerID
 BEFORE DELETE ON [Customers]
 FOR EACH ROW BEGIN
   SELECT RAISE(ROLLBACK, 'delete on table "[Customers]" violates foreign key constraint "fkd_Orders_CustomerID_Customers_CustomerID"')
   WHERE (SELECT CustomerID FROM Orders WHERE CustomerID = OLD.[CustomerID]) IS NOT NULL;
 END;
 -- Foreign Key Preventing insert
-CREATE TRIGGER fki_Orders_EmployeeID_Employees_EmployeeID
+CREATE TRIGGER IF NOT EXISTS fki_Orders_EmployeeID_Employees_EmployeeID
 BEFORE INSERT ON [Orders]
 FOR EACH ROW BEGIN
   SELECT RAISE(ROLLBACK, 'insert on table "Orders" violates foreign key constraint "fki_Orders_EmployeeID_Employees_EmployeeID"')
@@ -171,7 +171,7 @@ FOR EACH ROW BEGIN
 END;
 
 -- Foreign key preventing update
-CREATE TRIGGER fku_Orders_EmployeeID_Employees_EmployeeID
+CREATE TRIGGER IF NOT EXISTS fku_Orders_EmployeeID_Employees_EmployeeID
 BEFORE UPDATE ON [Orders]
 FOR EACH ROW BEGIN
     SELECT RAISE(ROLLBACK, 'update on table "Orders" violates foreign key constraint "fku_Orders_EmployeeID_Employees_EmployeeID"')
@@ -179,7 +179,7 @@ FOR EACH ROW BEGIN
 END;
 
 -- Foreign key preventing delete
-CREATE TRIGGER fkd_Orders_EmployeeID_Employees_EmployeeID
+CREATE TRIGGER IF NOT EXISTS fkd_Orders_EmployeeID_Employees_EmployeeID
 BEFORE DELETE ON [Employees]
 FOR EACH ROW BEGIN
   SELECT RAISE(ROLLBACK, 'delete on table "[Employees]" violates foreign key constraint "fkd_Orders_EmployeeID_Employees_EmployeeID"')
@@ -187,7 +187,7 @@ FOR EACH ROW BEGIN
 END;
 
 --####################################################################
-CREATE TABLE [Order Details] (
+CREATE TABLE IF NOT EXISTS [Order Details] (
   [OrderID] INTEGER NOT NULL                 REFERENCES Orders (OrderID),
   [ProductID] INTEGER NOT NULL               REFERENCES Products (OrderID),
   [UnitPrice] DECIMAL NOT NULL,
@@ -199,7 +199,7 @@ CREATE TABLE [Order Details] (
 
 
 --####################################################################
-CREATE TABLE [AllTypes] (
+CREATE TABLE IF NOT EXISTS [AllTypes] (
   [int] INTEGER PRIMARY KEY ,
   [intN] INTEGER UNSIGNED,
   [double] DOUBLE NOT NULL DEFAULT 0,
@@ -235,7 +235,7 @@ CREATE TABLE [AllTypes] (
 --####################################################################
 --## populate tables with seed data
 --####################################################################
---truncate table [Categories];
+DELETE FROM [Categories];
 Insert INTO [Categories] (CategoryName,Description)
 values ('Beverages',	'Soft drinks, coffees, teas, beers, and ales');
 Insert INTO [Categories] (CategoryName,Description)
@@ -245,10 +245,12 @@ values     ('Condiments','Sweet and savory sauces, relishes, spreads, and season
 INSERT INTO Region (RegionDescription) VALUES ('North America');
 INSERT INTO Region (RegionDescription) VALUES ('Europe');
 
+DELETE FROM EmployeeTerritories; -- must be truncated before Territories
+DELETE FROM Territories;
 INSERT INTO Territories (TerritoryID,TerritoryDescription, RegionID) VALUES ('US.Northwest', 'Northwest', 1);
 
---truncate table [Orders]; -- must be truncated before Customer
---truncate table [Customers];
+DELETE FROM [Orders]; -- must be truncated before Customer
+DELETE FROM [Customers];
 
 insert INTO [Customers] (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
 values ('AIRBU', 'airbus','jacques','France','10000','Paris');
@@ -269,9 +271,9 @@ values ('BONAP', 'Bon something','Bon Boss','Sales Representative','France','111
 insert INTO [Customers] (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
 values ('WARTH', 'Wartian Herkku','Pirkko Koskitalo','Accounting Manager','Finland','90110','Oulu','981-443655');
 
---truncate table [Orders]; -- must be truncated before Products
---truncate table [Products];
---truncate table [Suppliers];
+DELETE FROM [Orders]; -- must be truncated before Products
+DELETE FROM [Products];
+DELETE FROM [Suppliers];
 
 insert INTO Suppliers (CompanyName, ContactName, ContactTitle, Address, City, Region, Country)
 VALUES ('alles AG', 'Harald Reitmeyer', 'Prof', 'Fischergasse 8', 'Heidelberg', 'B-W', 'Germany');
@@ -299,7 +301,7 @@ VALUES ('Fork',5,   111, 0, 0);
 insert INTO [Products] (ProductName,SupplierID, QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
 VALUES ('Linq Book',2, 1, 0, 26, 0);
 
---truncate table [Employees];
+DELETE FROM [Employees];
 
 insert INTO [Employees] (LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
 VALUES ('Fuller','Andrew','Vice President, Sales','19540101','19890101', '908 W. Capital Way','Tacoma',NULL);
@@ -314,7 +316,7 @@ insert into employeeTerritories (EmployeeID,TerritoryID)
 values (2,'US.Northwest');
 
 --####################################################################
---truncate table [Orders];
+DELETE FROM [Orders];
 insert INTO [Orders] (CustomerID, EmployeeID, OrderDate, Freight)
 Values ('AIRBU', 1, '2007-12-14', 21.3);
 
