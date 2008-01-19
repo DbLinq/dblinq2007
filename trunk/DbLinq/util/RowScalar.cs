@@ -151,6 +151,7 @@ namespace DBLinq.util
                     }
 
                 case "Single":
+                case "SingleOrDefault":
                     //QueryProcessor prepared a 'LIMIT 2' query, throw InvalidOperationException occurs
                     {
                         //there are two types of Sequence.Single(), one passes an extra Lambda
@@ -162,23 +163,17 @@ namespace DBLinq.util
                             //_vars.limitClause = "LIMIT 2";
                             bool hasOne = enumerator.MoveNext();
                             if (!hasOne)
-                                throw new InvalidOperationException("Single() called on set with zero items");
+                            {
+                                //no data? Single() will throw, whereas SingleOrDefault() allows null return
+                                if (exprCall.Method.Name == "SingleOrDefault")
+                                    return default(S); 
+                                else
+                                    throw new InvalidOperationException("Single() called on set with zero items");
+                            }
                             T firstT = enumerator.Current;
                             bool hasTwo = enumerator.MoveNext();
                             if (hasTwo)
                                 throw new InvalidOperationException("Single() called on set with more than one item");
-                            return (S)(object)firstT;
-                        }
-                    }
-                case "SingleOrDefault":
-                    //QueryProcessor prepared a 'LIMIT 1' query
-                    {
-                        using (IEnumerator<T> enumerator = new RowEnumerator<T>(_vars, _liveObjectMap).GetEnumerator())
-                        {
-                            bool hasOne = enumerator.MoveNext();
-                            if (!hasOne)
-                                return default(S);
-                            T firstT = enumerator.Current;
                             return (S)(object)firstT;
                         }
                     }

@@ -127,11 +127,11 @@ namespace DBLinq.Linq
                     _vars._sqlParts.countClause = "AVG";
                     break;
                 case "Single":
+                case "SingleOrDefault":
                     _vars._sqlParts.limitClause = 2;
                     break;
                 case "First":
                 case "FirstOrDefault":
-                case "SingleOrDefault":
                     _vars._sqlParts.limitClause = 1;
                     break;
             }
