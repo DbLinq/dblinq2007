@@ -124,6 +124,23 @@ namespace Test_NUnit
         }
 
         [Test]
+        public void H6_SelectNotEqual()
+        {
+            Northwind db = CreateDB();
+            var q = from p in db.Products
+                    where p.ProductID != 1
+                    select p;
+            int count = 0;
+            foreach (Product p in q)
+            {
+                Assert.IsFalse(p.ProductID == 1, "Failed on ProductID != 1");
+                count++;
+            }
+            Assert.IsTrue(count > 0, "Expected some products with ProductID != 1, got none");
+        }
+
+
+        [Test]
         public void I1_GetQueryText()
         {
             Northwind db = CreateDB();
