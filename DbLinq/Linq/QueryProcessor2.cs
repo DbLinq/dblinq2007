@@ -123,8 +123,37 @@ namespace DBLinq.Linq
                 joinField2 = result.columns[0]; // "p$.ProductID"
                 result.CopyInto(this, _vars._sqlParts); //transfer params and tablesUsed
             }
-            processSelectClause(arg4.XLambda());
+
+            //if '{(m, u) => new <>f__AnonymousType0`2(m = m, u = u)}'
+            bool doPermFields = doesJoinAssignPermanentFields(arg4.XLambda());
+            if (doPermFields)
+            {
+                processSelectClause(arg4.XLambda());
+            }
             _vars._sqlParts.joinList.Add(joinField1 + "=" + joinField2);
+        }
+
+        /// <summary>
+        /// return true for '{(p, o) => new <>f__AnonymousType9`2(ProductName = p.ProductName, CustomerID = o.CustomerID)}'
+        ///  because it assigns user-visible field ProductName.
+        ///  
+        /// return false for '{(m, u) => new <>f__AnonymousType0`2(m = m, u = u)}',
+        ///  because it only works with temp variables m,u.
+        /// </summary>
+        /// <returns></returns>
+        static bool doesJoinAssignPermanentFields(LambdaExpression arg4)
+        {
+            //warning: nasty string handling here
+            string arg4str = arg4.ToString();
+            int indxAnon = arg4str.IndexOf("<>f_AnonymousType");
+            if (indxAnon < 0)
+                return false;
+            int indxBracket = arg4str.IndexOf("(", indxAnon);
+            if (indxBracket < 0)
+                return false;
+            string tail = arg4str.Substring(indxBracket + 1);
+            bool hasDot = tail.Contains(".");
+            return hasDot;
         }
 
         private void processSelectMany(MethodCallExpression exprCall)

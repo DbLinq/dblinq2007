@@ -1,3 +1,4 @@
+#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -21,6 +22,7 @@
 // Authors:
 //        Jiri George Moudry
 ////////////////////////////////////////////////////////////////////
+#endregion
 
 using System;
 using System.IO;
@@ -42,7 +44,7 @@ namespace DBLinq.Linq
     /// </summary>
     /// <typeparam name="T">eg. 'int' in query 'from e in db.Employees select e.ID'</typeparam>
     class MTable_Projected<T> 
-        : IQueryable<T>
+        : IOrderedQueryable<T> //projections and joins can still be ordered
         , IQueryText
         , IQueryProvider //new as of Beta2
     {
