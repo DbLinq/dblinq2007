@@ -64,6 +64,9 @@ namespace SqlMetal.schema
             }
         }
 
+        /// <summary>
+        /// convert ('System.Int32',true) into 'int?'
+        /// </summary>
         public static string FormatType(string csType, bool isNullable)
         {
             string csType2 = TypeNickName(csType);
