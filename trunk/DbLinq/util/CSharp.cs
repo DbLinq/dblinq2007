@@ -114,6 +114,7 @@ namespace DBLinq.util
 
         /// <summary>
         /// is this a type with a [Table] attribute?
+        /// (Alternatively, you could check if it implements IModified)
         /// </summary>
         public static bool IsTableType(Type t)
         {
