@@ -64,11 +64,11 @@ namespace DBLinq.util
 
             if (isBuiltinType)
             {
-                objFromRow = RowEnumeratorCompiler<T>.CompilePrimitiveRowDelegate(ref fieldID);
+                objFromRow = CompilePrimitiveRowDelegate(ref fieldID);
             }
             else if (isTableType)
             {
-                objFromRow = RowEnumeratorCompiler<T>.CompileColumnRowDelegate(projData, ref fieldID);
+                objFromRow = CompileColumnRowDelegate_TableType(projData, ref fieldID);
             }
             else if (isProjectedType && vars.groupByExpr != null)
             {
@@ -76,11 +76,11 @@ namespace DBLinq.util
                 //and what method to use with grouping (eg Count())
                 ProjectionData projData2 = ProjectionData.FromReflectedType(typeof(T));
                 //and compile the sucker
-                objFromRow = RowEnumeratorCompiler<T>.CompileProjectedRowDelegate(vars, projData2);
+                objFromRow = CompileProjectedRowDelegate(vars, projData2);
             }
             else if (isProjectedType)
             {
-                objFromRow = RowEnumeratorCompiler<T>.CompileProjectedRowDelegate(vars, projData);
+                objFromRow = CompileProjectedRowDelegate(vars, projData);
             }
             else
             {
@@ -121,12 +121,15 @@ namespace DBLinq.util
 
         /// <summary>
         /// given column type T (eg. Customer or Order), 
-        /// construct and compile a 'new Customer(reader.GetInt32(0),reader.GetString(1));' 
-        /// delegate (or similar).
+        /// construct and compile a delegate similar to:
+        /// 'new Customer(){_customerID=reader.GetInt32(0),_customerName=reader.GetString(1)),...};' 
+        /// 
+        /// note: this used to use non-default ctor, but after exceptions, 
+        /// order of args got messed up.
         /// </summary>
         public static
             Func<DataReader2, T>
-            CompileColumnRowDelegate(ProjectionData projData, ref int fieldID)
+            CompileColumnRowDelegate_TableType(ProjectionData projData, ref int fieldID)
         {
             #region CompileColumnRowDelegate
             if (projData == null || projData.ctor2 == null)
@@ -136,29 +139,47 @@ namespace DBLinq.util
 
             List<Expression> ctorArgs = new List<Expression>();
             //Andrus points out that order of projData.fields is not reliable after an exception - switch to ctor params
-            //foreach (ProjectionData.ProjectionField projFld in projData.fields)
-            //{
-            //    Type fieldType = projFld.FieldType;
-            //    MethodCallExpression arg_i = GetFieldMethodCall(fieldType, rdr, fieldID++);
-            //}
-            ParameterInfo[] ctorParameters = projData.ctor2.GetParameters();
-            foreach (ParameterInfo ctorParam in ctorParameters)
+
+            //given type Customer, find protected fields: _CustomerID,_CompanyName,...
+            Type t = typeof(T);
+            MemberInfo[] fields1 = t.FindMembers(MemberTypes.Field
+                , BindingFlags.NonPublic | BindingFlags.Instance
+                , null, null);
+
+            Dictionary<string, FieldInfo> fieldNameMap = fields1
+                .OfType<FieldInfo>()
+                .ToDictionary(mi => mi.Name);
+
+            List<MemberAssignment> bindList = new List<MemberAssignment>();
+            foreach (ProjectionData.ProjectionField projFld in projData.fields)
             {
-                Type fieldType = ctorParam.ParameterType;
+                Type fieldType = projFld.FieldType;
                 MethodCallExpression arg_i = GetFieldMethodCall(fieldType, rdr, fieldID++);
-                ctorArgs.Add(arg_i);
+
+                //bake expression: "CustomerID = rdr.GetString(0)"
+                string errorIntro = "Cannot retrieve type " + typeof(T) + " from DB, because [Column";
+                if (projFld.columnAttribute == null)
+                    throw new ApplicationException("L162: " + errorIntro + "] is missing for field " + fieldID);
+                if (projFld.columnAttribute.Storage == null)
+                    throw new ApplicationException("L164: " + errorIntro + " Storage=xx] is missing for col=" + projFld.columnAttribute.Name);
+
+                string storage = projFld.columnAttribute.Storage; //'_customerID'
+                FieldInfo fieldInfo;
+                if (!fieldNameMap.TryGetValue(storage, out fieldInfo))
+                    throw new ApplicationException("L169: " + errorIntro + "Storage=" + storage + "] refers to a non-existent field for col=" + projFld.columnAttribute.Name);
+
+                MemberAssignment bindEx = Expression.Bind(fieldInfo, arg_i);
+                bindList.Add(bindEx);
             }
 
-            //List<Expression> paramZero = new List<Expression>();
-            //paramZero.Add( Expression.Constant(0) ); //that's the zero in GetInt32(0)
-            //MethodCallExpression body = Expression.CallVirtual(minfo,rdr,paramZero);
-            NewExpression newExpr = Expression.New(projData.ctor2, ctorArgs);
-
+            NewExpression newExpr1 = Expression.New(projData.ctor); //2008Jan: changed to default ctor
             List<ParameterExpression> paramListRdr = new List<ParameterExpression>();
             paramListRdr.Add(rdr);
-            StringBuilder sb = new StringBuilder(500);
 
-            LambdaExpression lambda = Expression.Lambda<Func<DataReader2, T>>(newExpr, paramListRdr);
+            Expression newExprInit = Expression.MemberInit(newExpr1, bindList.ToArray());
+
+
+            LambdaExpression lambda = Expression.Lambda<Func<DataReader2, T>>(newExprInit, paramListRdr);
             Func<DataReader2, T> func_t = (Func<DataReader2, T>)lambda.Compile();
 
             //lambda.BuildString(sb);

@@ -61,15 +61,6 @@ namespace DBLinq.util
             List<T> lst = new List<T>();
             PropertyInfo[] infos = t.GetProperties();
 
-#if swap_order_of_properties
-            if (infos.Length > 2)
-            {
-                PropertyInfo p = infos[0];
-                infos[0] = infos[infos.Length - 1];
-                infos[infos.Length - 1] = p;
-            }
-#endif
-
             foreach (PropertyInfo pi in infos)
             {
                 object[] objs = pi.GetCustomAttributes(typeof(T), false);

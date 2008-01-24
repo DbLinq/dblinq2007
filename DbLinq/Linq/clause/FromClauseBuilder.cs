@@ -27,6 +27,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
@@ -52,37 +53,45 @@ namespace DBLinq.Linq.clause
             Type t = AttribHelper.ExtractTypeFromMSet(t1);
             TableAttribute tAttrib = AttribHelper.GetTableAttrib(t);
             string PROJECTED_CLASS_NAME = "<>f__AnonymousType";
-            if (vars!=null && tAttrib == null && t.Name.StartsWith(PROJECTED_CLASS_NAME))
+            if (vars != null && tAttrib == null && t.Name.StartsWith(PROJECTED_CLASS_NAME))
             {
                 //GroupBy: given t=Proj, find our table type
                 //example: GroupBy-proj: {c => new {PostalCode = c.PostalCode, ContactName = c.ContactName}}
-                if(t==vars.groupByNewExpr.Body.Type){
+                if (t == vars.groupByNewExpr.Body.Type)
+                {
                     Type groupByParamT = vars.groupByNewExpr.Parameters[0].Type; //this is 'c' in the example
                     tAttrib = AttribHelper.GetTableAttrib(groupByParamT);
                 }
             }
 
-            if(tAttrib==null)
-                throw new ApplicationException("Class "+t+" is missing [Table] attribute");
+            if (tAttrib == null)
+                throw new ApplicationException("Class " + t + " is missing [Table] attribute");
 
-            if(selectParts.doneClauses.Contains(nick))
+            if (selectParts.doneClauses.Contains(nick))
             {
-                Console.WriteLine("Duplicate GetClause for "+nick+", skipping");
+                Console.WriteLine("Duplicate GetClause for " + nick + ", skipping");
                 return;
             }
             selectParts.doneClauses.Add(nick);
 
-            ColumnAttribute[] colAttribs = AttribHelper.GetColumnAttribs(t);
+            if (vars.projectionData == null)
+            {
+                vars.projectionData = ProjectionData.FromDbType(t);
+            }
 
-            foreach(ColumnAttribute colAtt in colAttribs)
+            ColumnAttribute[] colAttribs2 = vars.projectionData.fields
+                .Select(f => f.columnAttribute)
+                .ToArray();
+
+            foreach (ColumnAttribute colAtt in colAttribs2)
             {
                 string safeColumnName = s_vendor.FieldName_Safe(colAtt.Name);
                 string part = nick + "." + safeColumnName; //eg. '$o.OrderID'
-                selectParts.AddSelect( part );
+                selectParts.AddSelect(part);
             }
 
             string tableName2 = tAttrib.Name + " " + nick;
-            selectParts.AddFrom( tableName2 );
+            selectParts.AddFrom(tableName2);
         }
 
     }
