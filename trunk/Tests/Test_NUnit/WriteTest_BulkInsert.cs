@@ -22,10 +22,10 @@ namespace Test_NUnit
 
             DBLinq.vendor.mysql.VendorMysql.UseBulkInsert[db.Products] = 3; //insert three rows at a time
 
-            db.Products.Add(new Product(0, "tmp_ProductA", 1, 1, "00", 1M, null, 1, 2, false));
-            db.Products.Add(new Product(0, "tmp_ProductB", 1, 1, "11", 1M, null, 1, 2, false));
-            db.Products.Add(new Product(0, "tmp_ProductC", 1, 1, "22", 1M, null, 1, 2, false));
-            db.Products.Add(new Product(0, "tmp_ProductD", 1, 1, "33", 1M, null, 1, 2, false));
+            db.Products.Add(NewProduct("tmp_ProductA"));
+            db.Products.Add(NewProduct("tmp_ProductB"));
+            db.Products.Add(NewProduct("tmp_ProductC"));
+            db.Products.Add(NewProduct("tmp_ProductD"));
             db.SubmitChanges();
 
             //confirm that we indeed inserted four rows:
