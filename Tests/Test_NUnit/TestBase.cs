@@ -97,5 +97,19 @@ namespace Test_NUnit
             }
         }
 
+        public static Product NewProduct(string productName)
+        {
+            Product p = new Product()
+            {
+                ProductName = productName,
+                SupplierID = 1,
+                CategoryID = 1,
+                QuantityPerUnit = "11",
+                UnitPrice = 11m,
+                UnitsInStock = 23,
+                UnitsOnOrder = 0,
+            };
+            return p;
+        }
     }
 }

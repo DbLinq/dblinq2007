@@ -111,36 +111,12 @@ public partial class $name $baseClass
         {
             #region getCtors
             string template = @"
-#region constructors
 public $name()
 {
 }
-public $name($argList)
-{
-    $statements
-}
-#endregion
 ";
-            List<string> ctorArgs = new List<string>();
-            List<string> ctorStatements = new List<string>();
-
-            foreach (DlinqSchema.Column col in table.Type.Columns)
-            {
-                string property = col.Member ?? col.Name;
-                string colType2 = CSharp.FormatType(col.Type, col.CanBeNull);
-                string arg = colType2 + " " + property;
-                ctorArgs.Add(arg);
-                string assign = "this." + col.Storage + " = " + property + ";";
-                ctorStatements.Add(assign);
-            }
-
-            string argsCsv = string.Join(",", ctorArgs.ToArray());
-            string statements = string.Join(NL, ctorStatements.ToArray());
             string className = table.Type.Name; 
-
             template = template.Replace("$name", className);
-            template = template.Replace("$argList", argsCsv);
-            template = template.Replace("$statements", statements);
             template = template.Replace(NL, NLT);
             return template;
             #endregion

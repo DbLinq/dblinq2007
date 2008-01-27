@@ -25,11 +25,11 @@ namespace Test_NUnit
             //new Join().LinqToSqlJoin10();
             //new ReadTest_Complex().F10_DistinctCity();
             //new StoredProcTest().SPB_GetOrderCount_Having();
-            //new ReadTest().D08_Products_Take5();
+            new ReadTest().D04_SelectProducts_OrderByName();
             //new ReadTest_AllTypes().AT1_SelectRow();
             //new ReadTest_Operands().H1_SelectConcat();
             //rc.F11_ConcatString();
-            new WriteTest().G8_DeleteTableWithStringPK();
+            //new WriteTest().G8_DeleteTableWithStringPK();
             //new WriteTest_BulkInsert().BI01_InsertProducts();
             //new NullTest().NullableT_Value();
             //new Count_Sum_Min_Max_Avg().LiqnToSqlCount02();

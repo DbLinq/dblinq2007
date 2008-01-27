@@ -132,8 +132,8 @@ namespace DBLinq.util
             CompileColumnRowDelegate_TableType(ProjectionData projData, ref int fieldID)
         {
             #region CompileColumnRowDelegate
-            if (projData == null || projData.ctor2 == null)
-                throw new ArgumentException("CompileColumnRow: need projData with ctor2");
+            if (projData == null)
+                throw new ArgumentException("CompileColumnRow: need projData");
 
             ParameterExpression rdr = Expression.Parameter(typeof(DataReader2), "rdr");
 
