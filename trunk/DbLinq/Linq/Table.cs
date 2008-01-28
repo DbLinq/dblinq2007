@@ -199,6 +199,23 @@ namespace DBLinq.Linq
             //TODO: queue an object for SQL DELETE
             _deleteList.Add(objectToDelete);
         }
+
+        /// <summary>
+        /// Attaches an entity to a table
+        /// </summary>
+        /// <param name="entity">table row object to attach</param>
+        /// <param name="asModified">true if object will be updated on Submit, false if not</param>
+        public void Attach(T entity) //, bool asModified)
+        {
+            if (_liveObjectMap.ContainsKey(entity))
+                throw new System.Data.Linq.DuplicateKeyException(entity);
+
+            _liveObjectMap[entity] = entity;
+            //todo: add where T: IsModified to class definition and use
+            //entity.IsModified = asModified
+            //(entity as IModified).IsModified = asModified;
+        }
+
         public void SaveAll()
         {
             SaveAll(System.Data.Linq.ConflictMode.FailOnFirstConflict);
@@ -339,7 +356,7 @@ namespace DBLinq.Linq
                     {
                         string ID_to_delete = getObjectID(obj);
                         if (indx2++ > 0) { sbDeleteIDs.Append(","); }
-                        
+
                         // turn PK ALFKI into 'ALFKI'
                         string ID_quoted = mustQuoteIds
                             ? "'" + ID_to_delete + "'"
