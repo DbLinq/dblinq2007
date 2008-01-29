@@ -57,10 +57,33 @@ namespace Test_NUnit
         //Mysql,Oracle sorting: A,B,C,d,X
         public const StringComparison stringComparisonType = StringComparison.InvariantCulture;
 #endif
+
+        //public Northwind CreateDB()
+        //{
+        //    return CreateDB(System.Data.ConnectionState.Closed);
+        //}
+
         public Northwind CreateDB()
         {
-
+            return CreateDB(System.Data.ConnectionState.Closed);
             Northwind db = new Northwind(connStr);
+            db.Log = Console.Out;
+#if SQLITE
+            if (doRecreate)
+            {
+                db.ExecuteCommand(System.IO.File.ReadAllText(@"..\..\..\Example\DbLinq.SQLite.Example\sql\create_Northwind.sql"), new object[] { });
+                doRecreate = false;
+            }
+#endif
+            return db;
+        }
+
+        public Northwind CreateDB(System.Data.ConnectionState state)
+        {
+            XSqlConnection conn = new XSqlConnection(connStr);
+            if (state==System.Data.ConnectionState.Open)
+                conn.Open();
+            Northwind db = new Northwind(conn);
             db.Log = Console.Out;
 #if SQLITE
             if (doRecreate)
@@ -105,7 +128,11 @@ namespace Test_NUnit
                 SupplierID = 1,
                 CategoryID = 1,
                 QuantityPerUnit = "11",
+#if ORACLE
+                UnitPrice = 11, //type "int?"
+#else
                 UnitPrice = 11m,
+#endif
                 UnitsInStock = 23,
                 UnitsOnOrder = 0,
             };

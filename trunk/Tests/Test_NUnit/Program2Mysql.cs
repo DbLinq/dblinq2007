@@ -25,7 +25,7 @@ namespace Test_NUnit
             //new Join().LinqToSqlJoin10();
             //new ReadTest_Complex().F10_DistinctCity();
             //new StoredProcTest().SPB_GetOrderCount_Having();
-            new ReadTest().D04_SelectProducts_OrderByName();
+            new ReadTest().E2_ConnectionClosedTest();
             //new ReadTest_AllTypes().AT1_SelectRow();
             //new ReadTest_Operands().H1_SelectConcat();
             //rc.F11_ConcatString();

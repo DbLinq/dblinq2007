@@ -85,6 +85,7 @@ namespace DBLinq.util
         protected ProjectionData _projectionData;
         Dictionary<T,T> _liveObjectMap;
         internal string _sqlString;
+        readonly bool _mustCloseConnection;
 
 
         public RowEnumerator(SessionVarsParsed vars, Dictionary<T,T> liveObjectMap)
@@ -96,8 +97,21 @@ namespace DBLinq.util
 
             _conn = vars.context.SqlConnection;
             _projectionData = vars.projectionData;
-            if(_conn==null || _conn.State!=ConnectionState.Open)
-                throw new ApplicationException("Connection is not open");
+            if (_conn == null)
+                throw new ApplicationException("Connection is null");
+
+            switch (_conn.State)
+            {
+                case ConnectionState.Open:
+                    _mustCloseConnection = false; 
+                    break;
+                case ConnectionState.Closed:
+                    _mustCloseConnection = true;
+                    _conn.Open();
+                    break;
+                default:
+                    throw new ApplicationException("L109: Can only handle Open or Closed connection states, not " + _conn.State);
+            }
 
             CompileReaderFct();
 
@@ -152,6 +166,10 @@ namespace DBLinq.util
         {
             //Dispose logic moved into the "yield return" loop
             Console.WriteLine("RowEnum.Dispose()");
+
+            if (_mustCloseConnection)
+                _conn.Close();
+
             //if(_rdr!=null){ 
             //    _rdr.Close();
             //    _rdr = null;
@@ -175,14 +193,21 @@ namespace DBLinq.util
                 throw new ApplicationException("Internal error, missing _objFromRow compiled func");
             }
 
+            DataReader2 rdr2;
+
+#if CREATE_NEW_CONNECTION
             //string origConnString = _conn.ConnectionString; //for MySql, cannot retrieve prev ConnStr
             //create a new connection to prevent error "SqlConnection already has SqlDataReader associated with it"
             XSqlConnection newConn = new XSqlConnection(_vars.context.SqlConnString);
             newConn.Open();
             //TODO: use connection pool instead of always opening a new one
 
-            DataReader2 rdr2;
             using( newConn )
+#else
+            //use this if you are not worried about "SqlConnection already has SqlDataReader associated with it"
+            XSqlConnection newConn = _conn; 
+#endif
+
             using( XSqlCommand cmd = ExecuteSqlCommand(newConn, out rdr2) )
             using( rdr2 )
             {
