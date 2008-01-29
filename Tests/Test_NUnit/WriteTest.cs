@@ -19,6 +19,17 @@ using xint = System.UInt32;
 
 namespace Test_NUnit
 {
+    [SetUpFixture]
+    public class WriteTestSetup : TestBase
+    {
+        [SetUp]
+        public void TestSetup()
+        {
+            Northwind db = CreateDB();
+            db.ExecuteCommand("DELETE FROM Products WHERE ProductName like 'temp%'");
+        }
+    }
+
     [TestFixture]
     public class WriteTest : TestBase
     {

@@ -1,4 +1,4 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -61,6 +61,7 @@
     <Compile Include="Linq\Mapping\FunctionExAttribute.cs" />
     <Compile Include="Linq\QueryProcessor.cs" />
     <Compile Include="Linq\QueryProcessor2.cs" />
+    <Compile Include="util\ConnectionManager.cs" />
     <Compile Include="util\CSharp.cs" />
     <Compile Include="util\ExpressionAndType.cs" />
     <Compile Include="util\ExprExtensions.cs" />

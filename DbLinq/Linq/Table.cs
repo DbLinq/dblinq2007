@@ -201,11 +201,12 @@ namespace DBLinq.Linq
         }
 
         /// <summary>
-        /// Attaches an entity to a table
+        /// Attaches an entity from another Context to a table,
+        /// with the intention to perform an update or delete operation
         /// </summary>
         /// <param name="entity">table row object to attach</param>
         /// <param name="asModified">true if object will be updated on Submit, false if not</param>
-        public void Attach(T entity) //, bool asModified)
+        public void Attach(T entity, bool asModified)
         {
             if (_liveObjectMap.ContainsKey(entity))
                 throw new System.Data.Linq.DuplicateKeyException(entity);
@@ -213,22 +214,33 @@ namespace DBLinq.Linq
             _liveObjectMap[entity] = entity;
             //todo: add where T: IsModified to class definition and use
             //entity.IsModified = asModified
-            //(entity as IModified).IsModified = asModified;
+            (entity as IModified).IsModified = asModified;
         }
 
         public void SaveAll()
         {
             SaveAll(System.Data.Linq.ConflictMode.FailOnFirstConflict);
         }
+
         public List<Exception> SaveAll(System.Data.Linq.ConflictMode failureMode)
+        {
+            if (_insertList.Count == 0 && _liveObjectMap.Count == 0 && _deleteList.Count == 0)
+                return new List<Exception>(); //nothing to do
+
+            XSqlConnection conn = _parentDB.SqlConnection;
+
+            using(new ConnectionManager(conn))
+            {
+                return SaveAll_unsafe(conn, failureMode);
+            } //Dispose(): close connection, if it was initally closed
+        }
+
+        private List<Exception> SaveAll_unsafe(XSqlConnection conn, System.Data.Linq.ConflictMode failureMode)
         {
             List<Exception> excepts = new List<Exception>();
             //TODO: process deleteList, insertList, liveObjectList
-            if (_insertList.Count == 0 && _liveObjectMap.Count == 0 && _deleteList.Count == 0)
-                return excepts; //nothing to do
             //object[] indices = new object[0];
             ProjectionData proj = ProjectionData.FromDbType(typeof(T));
-            XSqlConnection conn = _parentDB.SqlConnection;
 
 #if MYSQL //bulk insert code
             if (vendor.mysql.VendorMysql.UseBulkInsert.ContainsKey(this))

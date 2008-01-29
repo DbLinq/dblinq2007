@@ -282,5 +282,21 @@ namespace Test_NUnit
         }
         #endregion
 
+        [Test]
+        public void E1_ConnectionOpenTest()
+        {
+            Northwind db = CreateDB(System.Data.ConnectionState.Open);
+            Product p1 = db.Products.Single(p => p.ProductID == 1);
+            Assert.IsTrue(p1.ProductID == 1);
+        }
+
+        [Test]
+        public void E2_ConnectionClosedTest()
+        {
+            Northwind db = CreateDB(System.Data.ConnectionState.Closed);
+            Product p1 = db.Products.Single(p => p.ProductID == 1);
+            Assert.IsTrue(p1.ProductID == 1);
+        }
+
     }
 }

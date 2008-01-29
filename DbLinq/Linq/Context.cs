@@ -31,6 +31,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using DBLinq.vendor;
+using DBLinq.util;
 
 #if ORACLE
 using System.Data.OracleClient;
@@ -75,19 +76,27 @@ namespace DBLinq.Linq
             _conn.Open();
         }
 
+        /// <summary>
+        /// A DataContext opens and closes a database connection as needed 
+        /// if you provide a closed connection or a connection string. 
+        /// In general, you should never have to call Dispose on a DataContext. 
+        /// If you provide an open connection, the DataContext will not close it
+        /// source: http://msdn2.microsoft.com/en-us/library/bb292288.aspx
+        /// </summary>
+        /// <param name="dbConnection"></param>
         public Context(System.Data.IDbConnection dbConnection)
         {
             if (dbConnection == null)
                 throw new ArgumentNullException("Null db connection");
             _conn = dbConnection as XSqlConnection;
             _sqlConnString = dbConnection.ConnectionString;
-            try
-            {
-                _conn.Open();
-            }
-            catch (Exception)
-            {
-            }
+            //try
+            //{
+            //    _conn.Open();
+            //}
+            //catch (Exception)
+            //{
+            //}
         }
 
         public XSqlConnection SqlConnection
@@ -102,10 +111,13 @@ namespace DBLinq.Linq
         {
             try
             {
-                //command: "SELECT 11" (Oracle: "SELECT 11 FROM DUAL")
-                string SQL = s_vendor.SqlPingCommand;
-                int result = s_vendor.ExecuteCommand(this, SQL);
-                return result == 11;
+                using (new ConnectionManager(_conn))
+                {
+                    //command: "SELECT 11" (Oracle: "SELECT 11 FROM DUAL")
+                    string SQL = s_vendor.SqlPingCommand;
+                    int result = s_vendor.ExecuteCommand(this, SQL);
+                    return result == 11;
+                }
             }
             catch (Exception ex)
             {
@@ -206,8 +218,11 @@ namespace DBLinq.Linq
         /// </summary>
         protected System.Data.Linq.IExecuteResult ExecuteMethodCall(Context context, System.Reflection.MethodInfo method, params object[] sqlParams)
         {
-            System.Data.Linq.IExecuteResult result = s_vendor.ExecuteMethodCall(context, method, sqlParams);
-            return result;
+            using (new ConnectionManager(_conn))
+            {
+                System.Data.Linq.IExecuteResult result = s_vendor.ExecuteMethodCall(context, method, sqlParams);
+                return result;
+            }
         }
 
 #else
@@ -227,7 +242,10 @@ namespace DBLinq.Linq
         /// </summary>
         public int ExecuteCommand(string command, params object[] parameters)
         {
-            return s_vendor.ExecuteCommand(this, command, parameters);
+            using (new ConnectionManager(_conn))
+            {
+                return s_vendor.ExecuteCommand(this, command, parameters);
+            }
         }
 
         /// <summary>
@@ -251,18 +269,8 @@ namespace DBLinq.Linq
 
         public void Dispose()
         {
-            try
-            {
-                //discussing closing of connections with Andrus ...
-                if (_conn != null && _conn.State != System.Data.ConnectionState.Closed)
-                {
-                    _conn.Close();
-                }
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine("Dispose failed: " + ex);
-            }
+            //connection closing should not be done here.
+            //read: http://msdn2.microsoft.com/en-us/library/bb292288.aspx
         }
     }
 
