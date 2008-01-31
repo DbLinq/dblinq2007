@@ -399,8 +399,16 @@ namespace DBLinq.Linq.clause
                     memberInner = memberInner.StripTransparentID() as MemberExpression;
                     if (memberInner != null)
                     {
-                        //process 'o.Customer.City'
-                        JoinBuilder.AddJoin2(_parent, expr, _result);
+                        if (memberInner.Type == typeof(string) || memberInner.Type == typeof(DateTime))
+                        {
+                            //process {p.ProductName.Length}
+                            AnalyzeBuiltinMember(recurData, expr);
+                        }
+                        else
+                        {
+                            //process 'o.Customer.City'
+                            JoinBuilder.AddJoin2(_parent, expr, _result);
+                        }
                         return;
                     }
                 }
@@ -445,6 +453,27 @@ namespace DBLinq.Linq.clause
             if (columnAttrib != null)
                 sqlColumnName = s_vendor.FieldName_Safe(columnAttrib.Name);
             _result.AppendString(sqlColumnName);
+        }
+
+        /// <summary>
+        /// handle 'p.ProductName.Length' etc
+        /// </summary>
+        /// <param name="recurData"></param>
+        /// <param name="memberExpr"></param>
+        void AnalyzeBuiltinMember(RecurData recurData, MemberExpression memberOuter)
+        {
+            MemberExpression memberInner = memberOuter.Expression.XMember();
+            if (memberInner.Type == typeof(string) && memberOuter.Member.Name=="Length")
+            {
+                //process string length function here. 
+                //"LENGTH()" function seems to be available on Oracle,Mysql,PostgreSql
+                //Ha! it's called LEN() on MssqlServer
+                string length_func = s_vendor.String_Length_Function();
+                _result.AppendString(length_func + "(");
+                AnalyzeExpression(recurData, memberInner);
+                _result.AppendString(")");
+            }
+
         }
 
         //Dictionary<string,string> csharpOperatorToSqlMap = new Dictionary<string,string>

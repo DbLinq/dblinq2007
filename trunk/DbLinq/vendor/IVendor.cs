@@ -54,6 +54,11 @@ namespace DBLinq.vendor
         /// </summary>
         string FieldName_Safe(string name);
 
+        /// <summary>
+        /// return 'LENGTH' on Oracle,Mysql,PostgreSql, return 'LEN' on MSSql
+        /// </summary>
+        string String_Length_Function();
+
         int ExecuteCommand(DBLinq.Linq.Context context, string sql, params object[] parameters);
 
         System.Data.Linq.IExecuteResult ExecuteMethodCall(Context context, System.Reflection.MethodInfo method, params object[] sqlParams);
