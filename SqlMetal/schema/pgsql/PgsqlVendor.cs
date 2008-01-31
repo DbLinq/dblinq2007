@@ -46,7 +46,7 @@ namespace SqlMetal.schema.pgsql
     /// </summary>
     class Vendor : IDBVendor
     {
-        public string VendorName(){ return "PostgreSQL"; }
+        public string VendorName() { return "PostgreSQL"; }
 
         /// <summary>
         /// main entry point to load schema
@@ -114,6 +114,11 @@ namespace SqlMetal.schema.pgsql
 
                 colSchema.IsPrimaryKey = primaryKCU != null; //columnRow.column_key=="PRI";
                 colSchema.IsDbGenerated = columnRow.column_default != null && columnRow.column_default.StartsWith("nextval(");
+
+                //parse sequence name from string such as "nextval('suppliers_supplierid_seq'::regclass)"
+                if (colSchema.IsDbGenerated)
+                    colSchema.Expression = columnRow.column_default.Replace("::regclass)", ")");
+
                 //colSchema.IsVersion = ???
                 colSchema.CanBeNull = columnRow.isNullable;
                 colSchema.Type = Mappings.mapSqlTypeToCsType(columnRow.datatype, columnRow.column_type);
@@ -243,7 +248,7 @@ namespace SqlMetal.schema.pgsql
         /// </summary>
         static string[] parseCsvString(string csvString)
         {
-            if (csvString == null || (!csvString.StartsWith("{")) || (!csvString.EndsWith("}")) )
+            if (csvString == null || (!csvString.StartsWith("{")) || (!csvString.EndsWith("}")))
                 return null;
             List<string> list = new List<string>();
             string middle = csvString.Substring(1, csvString.Length - 2);
@@ -281,7 +286,7 @@ namespace SqlMetal.schema.pgsql
 
                 bool doLengthsMatch = (argTypes2.Count != argNames.Length
                     || (argModes != null && argModes.Length != argNames.Length));
-                if(doLengthsMatch)
+                if (doLengthsMatch)
                 {
                     Console.WriteLine("L238 Mistmatch between modesArr, typeArr and nameArr for func " + pg_proc.proname);
                     return null;
@@ -295,7 +300,7 @@ namespace SqlMetal.schema.pgsql
                     dbml_param.DbType = typeOidToName[argTypeOid];
                     dbml_param.Name = argNames[i];
                     dbml_param.Type = Mappings.mapSqlTypeToCsType(dbml_param.DbType, "");
-                    string inOut = argModes==null ? "i" : argModes[i];
+                    string inOut = argModes == null ? "i" : argModes[i];
                     dbml_param.InOut = ParseInOut(inOut);
                     dbml_func.Parameters.Add(dbml_param);
                 }

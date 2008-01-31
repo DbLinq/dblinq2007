@@ -75,6 +75,9 @@ namespace SqlMetal.codeGen
             {
                 attribParts.Add("CanBeNull = " + column.CanBeNull.ToString().ToLower());
             }
+            if (column.Expression != null)
+                attribParts.Add("Expression = \"" + column.Expression + "\"");
+
             _attrib2 = string.Join(", ", attribParts.ToArray());
 
             _constraintWarn = "";
