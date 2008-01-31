@@ -80,6 +80,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="sql\create_AllTypes.sql" />
     <None Include="sql\create_Northwind.sql" />
     <None Include="sql\create_User.sql" />
   </ItemGroup>
