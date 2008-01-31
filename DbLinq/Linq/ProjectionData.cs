@@ -361,7 +361,12 @@ namespace DBLinq.Linq
             }        
         }
 
-
+        /// <summary>
+        /// handle many flavors of NewExpressions.
+        /// eg. {new <>f__AnonymousType16`2(CustomerID = c.CustomerID, Location = ((c.City + ", ") + c.Country))}
+        /// </summary>
+        /// <param name="proj"></param>
+        /// <param name="newExpr"></param>
         private static void LoopOverBindings_OrcasB2(ProjectionData proj, NewExpression newExpr)
         {
             //if (newExpr.Members == null)
@@ -408,9 +413,10 @@ namespace DBLinq.Linq
                     //    //occurs in 'select o.Name.ToLower()'
                     //    break;
 
-                    case ExpressionType.Convert:
-                        //occurs in 'select (CategoryEnum)o.EmployeeCategory'
+                    case ExpressionType.Add: //{new <>f__AnonymousType16`2(CustomerID = c.CustomerID, Location = ((c.City + ", ") + c.Country))}
+                    case ExpressionType.Convert: //'select (CategoryEnum)o.EmployeeCategory'
                         break;
+
                     case ExpressionType.Call:
                         //occurs during 'from c ... group o by o.CustomerID into g ... 
                         //select new { g.Key , OrderCount = g.Count() };
