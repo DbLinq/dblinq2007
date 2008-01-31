@@ -61,6 +61,11 @@ namespace DBLinq.vendor
             //only Oracle does anything
         }
 
+        public virtual string String_Length_Function()
+        {
+            return "LENGTH";
+        }
+
         //public string FieldName_Safe(string name)
         //{
         //    throw new NotImplementedException();
