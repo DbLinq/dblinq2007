@@ -52,11 +52,22 @@ namespace DBLinq.vendor.pgsql
 
             //changing IsPk->IsDbGen after discussion with Andrus:
             //ColumnAttribute idColAttrib = colAttribs.FirstOrDefault(c => c.IsPrimaryKey);
-            ColumnAttribute idColAttrib = colAttribs.FirstOrDefault(c => c.IsDbGenerated); 
+            ColumnAttribute idColAttrib = colAttribs.FirstOrDefault(c => c.IsDbGenerated);
 
             string idColName = idColAttrib == null ? "ERROR_L93_MissingIdCol" : idColAttrib.Name;
-            string sequenceName = projData.tableAttribute.Name + "_" + idColName + "_seq";
-            sbIdentity.Append(";SELECT currval('" + sequenceName + "')");
+            if (idColAttrib!=null && idColAttrib.Expression != null)
+            {
+                //sequence name is known, is stored in Expression
+                string nextvalExpr = idColAttrib.Expression;                     //eg. "nextval('suppliers_supplierid_seq')"
+                string currvalExpr = nextvalExpr.Replace("nextval", "currval");  //eg. "currval('suppliers_supplierid_seq')"
+                sbIdentity.Append(";SELECT " + currvalExpr);
+            }
+            else
+            {
+                //assume standard format of sequence name
+                string sequenceName = projData.tableAttribute.Name + "_" + idColName + "_seq";
+                sbIdentity.Append(";SELECT currval('" + sequenceName + "')");
+            }
 
             return null; //we have not created a param object (only Oracle does)
         }
