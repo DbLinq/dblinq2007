@@ -44,6 +44,8 @@ namespace DBLinq.vendor
                         return NpgsqlDbType.Integer;
                     case "character":
                         return NpgsqlDbType.Char;
+
+                    case "interval": //: //TODO: really add support for the interval type (after it is supported in Npgsql) 
                     case "character varying":
                         return NpgsqlDbType.Varchar;
                 }

@@ -43,6 +43,8 @@ namespace SqlMetal.schema.pgsql
                 case "mediumint": return "short";
                 case "bigint": return "long";
 
+                case "interval":
+                    return "TimeSpan";
                 case "date":
                 case "datetime":
                 case "timestamp":
