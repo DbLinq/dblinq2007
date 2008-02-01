@@ -13,6 +13,8 @@ namespace SqlMetal.schema.oracle
                 case "NUMBER":
                     return "int";
                 case "VARCHAR2":
+                case "CHAR":      //pointed out by Farshid
+                case "NVARCHAR2":
                     return "string";
                 case "TIMESTAMP":
                 case "DATE":
@@ -21,6 +23,8 @@ namespace SqlMetal.schema.oracle
                     return "byte[]";
                 case "FLOAT":
                     return "double";
+                case "LONG":
+                    return "long";
                 default:
                     return "UnknownOracleType_20 //(Unprepared for Oracle type "+dbType+") \n";
             }
