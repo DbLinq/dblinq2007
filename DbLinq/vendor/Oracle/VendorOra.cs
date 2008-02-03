@@ -84,7 +84,7 @@ namespace DBLinq.vendor
             return name;
         }
 
-        public int ExecuteCommand(DBLinq.Linq.Context context, string sql, params object[] parameters)
+        public int ExecuteCommand(DBLinq.Linq.DataContext context, string sql, params object[] parameters)
         {
             OracleConnection conn = context.SqlConnection;
             using (OracleCommand command = new OracleCommand(sql, conn))
@@ -100,7 +100,7 @@ namespace DBLinq.vendor
             }
         }
 
-        public System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.Context context, MethodInfo method
+        public System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.DataContext context, MethodInfo method
             , params object[] inputValues)
         {
             throw new NotImplementedException();

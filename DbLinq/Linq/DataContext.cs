@@ -56,7 +56,7 @@ using XSqlCommand = MySql.Data.MySqlClient.MySqlCommand;
 
 namespace DBLinq.Linq
 {
-    public abstract class Context : IDisposable
+    public abstract class DataContext : IDisposable
     {
         static IVendor s_vendor = VendorFactory.Make();
 
@@ -69,7 +69,7 @@ namespace DBLinq.Linq
 
         readonly Dictionary<string, IMTable> _tableMap = new Dictionary<string, IMTable>();
 
-        public Context(string sqlConnString)
+        public DataContext(string sqlConnString)
         {
             _sqlConnString = sqlConnString;
             _conn = new XSqlConnection(sqlConnString);
@@ -84,7 +84,7 @@ namespace DBLinq.Linq
         /// source: http://msdn2.microsoft.com/en-us/library/bb292288.aspx
         /// </summary>
         /// <param name="dbConnection"></param>
-        public Context(System.Data.IDbConnection dbConnection)
+        public DataContext(System.Data.IDbConnection dbConnection)
         {
             if (dbConnection == null)
                 throw new ArgumentNullException("Null db connection");
@@ -155,24 +155,36 @@ namespace DBLinq.Linq
             List<Exception> exceptions = new List<Exception>();
             //TODO: perform all queued up operations - INSERT,DELETE,UPDATE
             //TODO: insert order must be: first parent records, then child records
-            foreach (IMTable tbl in _tableList)
+
+            using (new ConnectionManager(_conn)) //ConnMgr will close connection for us
+
+            //TranMgr may start transaction /  commit transaction
+            using (TransactionManager transactionMgr = new TransactionManager(_conn, failureMode)) 
             {
-                try
+                foreach (IMTable tbl in _tableList)
                 {
-                    List<Exception> innerExceptions = tbl.SaveAll(failureMode);
-                    exceptions.AddRange(innerExceptions);
-                }
-                catch (Exception ex)
-                {
-                    switch (failureMode)
+                    try
                     {
-                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                            exceptions.Add(ex);
-                            break;
-                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                            throw ex;
+                        List<Exception> innerExceptions = tbl.SaveAll(failureMode);
+                        exceptions.AddRange(innerExceptions);
+                    }
+                    catch (Exception ex)
+                    {
+                        Trace.WriteLine("SubmitChanges failed: " + ex);
+                        switch (failureMode)
+                        {
+                            case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                                exceptions.Add(ex);
+                                break;
+                            case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                                throw ex;
+                        }
                     }
                 }
+                bool doCommit = failureMode == System.Data.Linq.ConflictMode.FailOnFirstConflict 
+                    && exceptions.Count == 0;
+                if(doCommit)
+                    transactionMgr.Commit();
             }
             return exceptions;
         }
@@ -216,7 +228,7 @@ namespace DBLinq.Linq
         /// <summary>
         /// TODO - allow generated methods to call into stored procedures
         /// </summary>
-        protected System.Data.Linq.IExecuteResult ExecuteMethodCall(Context context, System.Reflection.MethodInfo method, params object[] sqlParams)
+        protected System.Data.Linq.IExecuteResult ExecuteMethodCall(DataContext context, System.Reflection.MethodInfo method, params object[] sqlParams)
         {
             using (new ConnectionManager(_conn))
             {
@@ -262,6 +274,13 @@ namespace DBLinq.Linq
         /// </summary>
         [Obsolete("NOT IMPLEMENTED YET")]
         public System.Data.Linq.DataLoadOptions LoadOptions
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
+        [Obsolete("NOT IMPLEMENTED YET")]
+        public System.Data.Common.DbTransaction Transaction
         {
             get { throw new NotImplementedException(); }
             set { throw new NotImplementedException(); }

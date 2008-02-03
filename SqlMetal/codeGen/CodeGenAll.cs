@@ -1,3 +1,4 @@
+#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -21,6 +22,7 @@
 // Authors:
 //        Jiri George Moudry
 ////////////////////////////////////////////////////////////////////
+#endregion
 
 using System;
 using System.Collections.Generic;
@@ -115,7 +117,7 @@ namespace $ns
 /// <summary>
 /// This class represents $vendor database $dbname.
 /// </summary>
-public partial class $dbname : Context
+public partial class $dbname : DataContext
 {
     public $dbname(string connStr) : base(connStr)
     {

@@ -19,7 +19,7 @@ namespace nwind
 	/// <summary>
 	/// This class represents Oracle database Northwind.
 	/// </summary>
-	public partial class Northwind : Context
+	public partial class Northwind : DataContext
 	{
 		public Northwind(string connStr) : base(connStr)
 		{

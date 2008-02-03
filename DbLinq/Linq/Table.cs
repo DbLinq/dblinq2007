@@ -80,14 +80,14 @@ namespace DBLinq.Linq
         /// <summary>
         /// the parent MContext holds our connection etc
         /// </summary>
-        Context _parentDB;
+        DataContext _parentDB;
         readonly List<T> _insertList = new List<T>();
         readonly Dictionary<T, T> _liveObjectMap = new Dictionary<T, T>();
         readonly List<T> _deleteList = new List<T>();
 
         readonly SessionVars _vars;
 
-        public Table(Context parent)
+        public Table(DataContext parent)
         {
             _parentDB = parent;
             _parentDB.RegisterChild(this);

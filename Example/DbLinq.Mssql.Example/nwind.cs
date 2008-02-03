@@ -14,7 +14,7 @@ using DBLinq.Linq;
 /// <summary>
 /// This class represents Microsoft database Northwind.
 /// </summary>
-public partial class Northwind : Context
+public partial class Northwind : DataContext
 {
     public Northwind(string connStr):base(connStr)
     {

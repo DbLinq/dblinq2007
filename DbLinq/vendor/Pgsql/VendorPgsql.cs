@@ -119,7 +119,7 @@ namespace DBLinq.vendor.pgsql
         /// call mysql stored proc or stored function, 
         /// optionally return DataSet, and collect return params.
         /// </summary>
-        public System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.Context context, MethodInfo method
+        public System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.DataContext context, MethodInfo method
             , params object[] inputValues)
         {
             if (method == null)
@@ -262,7 +262,7 @@ namespace DBLinq.vendor.pgsql
             return outParamValues;
         }
 
-        public int ExecuteCommand(DBLinq.Linq.Context context, string sql, params object[] parameters)
+        public int ExecuteCommand(DBLinq.Linq.DataContext context, string sql, params object[] parameters)
         {
             NpgsqlConnection conn = context.SqlConnection;
             using (NpgsqlCommand command = new NpgsqlCommand(sql, conn))
