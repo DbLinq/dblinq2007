@@ -42,7 +42,7 @@ namespace DBLinq.Linq
         static int                      s_serial = 0;
         public readonly int             _serial = s_serial++;
 
-        public readonly Context        context;
+        public readonly DataContext        context;
 
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace DBLinq.Linq
         /// </summary>
         public Expression scalarExpression;
 
-        public SessionVars(Context context)
+        public SessionVars(DataContext context)
         {
             this.context = context;
         }

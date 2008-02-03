@@ -19,7 +19,7 @@ namespace allTypes
 	/// <summary>
 	/// This class represents MySql database AllTypes.
 	/// </summary>
-	public partial class AllTypes : Context
+	public partial class AllTypes : DataContext
 	{
 		public AllTypes(string connStr) : base(connStr)
 		{

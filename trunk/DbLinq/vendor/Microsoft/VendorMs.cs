@@ -133,7 +133,7 @@ namespace DBLinq.vendor.mssql
 
         }
 
-        public int ExecuteCommand(DBLinq.Linq.Context context, string sql, params object[] parameters)
+        public int ExecuteCommand(DBLinq.Linq.DataContext context, string sql, params object[] parameters)
         {
             SqlConnection conn = context.SqlConnection;
             using (SqlCommand command = new SqlCommand(sql, conn))
@@ -142,7 +142,7 @@ namespace DBLinq.vendor.mssql
             }
         }
 
-        public System.Data.Linq.IExecuteResult ExecuteMethodCall(Context context, System.Reflection.MethodInfo method, params object[] sqlParams)
+        public System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.DataContext context, System.Reflection.MethodInfo method, params object[] sqlParams)
         {
             throw new NotImplementedException();
         }

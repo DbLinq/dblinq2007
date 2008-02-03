@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -75,7 +75,7 @@
     <Compile Include="util\RowEnumeratorCompiler.cs" />
     <Compile Include="util\RowEnumerator.cs" />
     <Compile Include="Linq\clause\FromClauseBuilder.cs" />
-    <Compile Include="Linq\Context.cs" />
+    <Compile Include="Linq\DataContext.cs" />
     <Compile Include="Linq\Table.cs" />
     <Compile Include="Linq\Table_Projected.cs" />
     <Compile Include="Linq\ProjectionData.cs" />
@@ -86,6 +86,7 @@
     <Compile Include="util\RowEnumFactory.cs" />
     <Compile Include="util\RowScalar.cs" />
     <Compile Include="Linq\clause\SqlExpressionParts.cs" />
+    <Compile Include="util\TransactionManager.cs" />
     <Compile Include="util\TypeEnum.cs" />
     <Compile Include="util\VarName.cs" />
     <Compile Include="vendor\IDataReader2.cs" />

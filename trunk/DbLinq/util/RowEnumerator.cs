@@ -85,7 +85,7 @@ namespace DBLinq.util
         protected ProjectionData _projectionData;
         Dictionary<T,T> _liveObjectMap;
         internal string _sqlString;
-        readonly bool _mustCloseConnection;
+        ConnectionManager _connectionManager;
 
 
         public RowEnumerator(SessionVarsParsed vars, Dictionary<T,T> liveObjectMap)
@@ -100,18 +100,8 @@ namespace DBLinq.util
             if (_conn == null)
                 throw new ApplicationException("Connection is null");
 
-            switch (_conn.State)
-            {
-                case ConnectionState.Open:
-                    _mustCloseConnection = false; 
-                    break;
-                case ConnectionState.Closed:
-                    _mustCloseConnection = true;
-                    _conn.Open();
-                    break;
-                default:
-                    throw new ApplicationException("L109: Can only handle Open or Closed connection states, not " + _conn.State);
-            }
+            //ConnectionManager remembers whether we need to close connection at the end
+            _connectionManager = new ConnectionManager(_conn);
 
             CompileReaderFct();
 
@@ -167,8 +157,7 @@ namespace DBLinq.util
             //Dispose logic moved into the "yield return" loop
             Console.WriteLine("RowEnum.Dispose()");
 
-            if (_mustCloseConnection)
-                _conn.Close();
+            _connectionManager.Dispose();
 
             //if(_rdr!=null){ 
             //    _rdr.Close();
