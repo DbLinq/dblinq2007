@@ -141,6 +141,14 @@ CREATE TABLE Orders (
   CONSTRAINT fk_order_customer FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID),
   CONSTRAINT fk_order_product FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
 );
+
+CREATE TABLE OrderDetails (
+  OrderID INT NOT NULL              REFERENCES Orders(OrderID),
+  ProductID INT NOT NULL            REFERENCES Products(ProductID),
+  UnitPrice decimal,
+  Discount float,
+  PRIMARY KEY (OrderID,ProductID)
+);
  
 --####################################################################
 --## populate tables with seed data
