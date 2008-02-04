@@ -124,12 +124,17 @@ namespace DBLinq.Linq
                 result.CopyInto(this, _vars._sqlParts); //transfer params and tablesUsed
             }
 
-            //if '{(m, u) => new <>f__AnonymousType0`2(m = m, u = u)}'
             bool doPermFields = doesJoinAssignPermanentFields(arg4.XLambda());
             if (doPermFields)
             {
                 processSelectClause(arg4.XLambda());
             }
+            else
+            {
+                //skip processing - only mentions temp objects
+                //e.g. '{(m, u) => new <>f__AnonymousType0`2(m = m, u = u)}'
+            }
+
             _vars._sqlParts.joinList.Add(joinField1 + "=" + joinField2);
         }
 
