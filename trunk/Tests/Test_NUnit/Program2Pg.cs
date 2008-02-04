@@ -34,7 +34,7 @@ namespace Test_NUnit
             //new ReadTest().D09_Products_LetterP_Take5();
             //new ReadTest().D7_OrdersFromLondon_Alt();
             //new WriteTest().G2_DeleteTest();
-            new WriteTest().G5_SetFieldToNull();
+            new WriteTest().G1_InsertProduct();
         }
     }
     //class Column { public string table_name; }

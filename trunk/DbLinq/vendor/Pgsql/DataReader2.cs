@@ -350,7 +350,11 @@ namespace DBLinq.util
             {
                 if(_rdr.IsDBNull(index))
                     return null;
+              // Allow to ignore trailing spaces
+              if (!vendor.Settings.TrimEnd)
                 return _rdr.GetString(index);
+               else 
+                return _rdr.GetString(index).TrimEnd();
             } 
             catch(Exception ex)
             {
