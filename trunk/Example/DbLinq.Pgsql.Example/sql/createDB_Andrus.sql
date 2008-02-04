@@ -46,6 +46,15 @@ create table tCompositePK
 -- there was a bug where this table could not be updated - quotes missing in the UPDATE statement around the PK.
 create table char_pk ( col1 char primary key, val1 int);
 
+-- this is for testing of vertical Partitioning / Discriminator.
+create table Employee
+(
+  employeeID SERIAL NOT NULL,
+  employeeType int NOT NULL,
+  employeeName varchar(99),
+  PRIMARY KEY(employeeID)
+);
+
 COMMIT;
 
 

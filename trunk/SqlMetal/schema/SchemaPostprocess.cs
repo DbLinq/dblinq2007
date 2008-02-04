@@ -34,6 +34,11 @@ namespace SqlMetal.schema
             table.Member = Util.FormatTableName(table.Type.Name, PluralEnum.Pluralize);
             table.Type.Name = Util.FormatTableName(table.Type.Name, PluralEnum.Singularize);
 
+            if (mmConfig.renamesFile != null)
+            {
+                table.Member = Util.Rename(table.Member);
+            }
+
             foreach (DlinqSchema.Column col in table.Type.Columns)
             {
                 if (col.Member == table.Type.Name)
@@ -73,6 +78,11 @@ namespace SqlMetal.schema
 
                     assoc.Member += "_" + assoc.Name;
 
+                }
+
+                if (mmConfig.renamesFile != null)
+                {
+                    assoc.Member = Util.Rename(assoc.Member);
                 }
 
                 if (assoc.Member == "employeeterritories" || assoc.Member == "Employeeterritories")

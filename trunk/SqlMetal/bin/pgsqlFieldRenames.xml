@@ -17,4 +17,7 @@
   <Renaming old="hiredate" new="HireDate" />
   <Renaming old="reportsto" new="ReportsTo" />
   <Renaming old="territorydescription" new="TerritoryDescription" />
+  <Renaming old="orderdetail" new="OrderDetail" />
+  <Renaming old="orderdetails" new="OrderDetails" />
+  <Renaming old="Orderdetails" new="OrderDetails" />
 </Renamings>

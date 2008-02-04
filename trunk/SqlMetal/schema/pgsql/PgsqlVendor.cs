@@ -130,6 +130,12 @@ namespace SqlMetal.schema.pgsql
                 if (CSharp.IsValueType(colSchema.Type) && columnRow.isNullable)
                     colSchema.Type += "?";
 
+                if (columnRow.column_name == "employeetype" && columnRow.table_name == "employee" && mmConfig.database=="Andrus")
+                {
+                    //Andrus DB - Employee table: hardcoded for testing of vertical Partitioning
+                    colSchema.IsDiscriminator = true;
+                }
+
                 //tableSchema.Types[0].Columns.Add(colSchema);
                 tableSchema.Type.Columns.Add(colSchema);
             }
@@ -243,6 +249,8 @@ namespace SqlMetal.schema.pgsql
             return schema;
         }
 
+        #region function parsing
+
         /// <summary>
         /// parse pg param modes string such as '{i,i,o}'
         /// </summary>
@@ -320,6 +328,7 @@ namespace SqlMetal.schema.pgsql
             }
         }
 
+        #endregion
 
     }
 }
