@@ -115,5 +115,26 @@ namespace Test_NUnit.Linq_101_Samples
             var list = q.ToList();
             Assert.IsTrue(list.Count > 0);
         }
+
+        [Test(Description = "Problem discovered by Laurent")]
+        public void Join_Laurent()
+        {
+            Console.WriteLine("\nJoin_Laurent()");
+            Northwind db = CreateDB();
+
+            var q1 = (from p in db.Products
+                      join o in db.OrderDetails on p.ProductID equals o.ProductID
+                      where p.ProductID>1
+                      select new
+                      {
+                          p.ProductName,
+                          o.OrderID,
+                          o.ProductID,
+                      }
+                      ).ToList();
+
+            Assert.IsTrue(q1.Count > 0);
+        }
+
     }
 }
