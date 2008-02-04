@@ -121,6 +121,15 @@ namespace Test_NUnit
             Assert.AreEqual(count, 1, "Expected one pen, got count=" + count);
         }
 
+        [Test]
+        public void C4_CountWithOrderBy()
+        {
+            Northwind db = CreateDB();
+            var q = (from p in db.Products
+                     orderby p.ProductID
+                     select p).Count();
+            Assert.IsTrue(q > 0);
+        }
         #endregion
 
         #region region D - select first or last - calls IQueryable.Execute instead of GetEnumerator
