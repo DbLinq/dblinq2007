@@ -13,5 +13,11 @@ namespace DBLinq.vendor
         /// 'SET SEARCH_PATH TO public,Company1;'
         /// </summary>
         public static string sqlStatementProlog = "";
+
+        /// <summary>
+        /// True if trailing spaces from retrieved string columns
+        /// are removed.
+        /// </summary>
+        public static bool TrimEnd = false;
     }
 }
