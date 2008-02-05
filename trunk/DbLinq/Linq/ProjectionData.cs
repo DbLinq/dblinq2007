@@ -57,13 +57,10 @@ namespace DBLinq.Linq
         /// default ctor reference. As of Beta2, they seem to have eliminated use of default ctors in "<>f__AnonymousType"
         /// </summary>
         public ConstructorInfo ctor;
-        
-        /// <summary>
-        /// ctor2 with multiple params (non-default)
-        /// </summary>
-        //public ConstructorInfo ctor2;
 
         public TableAttribute tableAttribute;
+
+        public readonly List<InheritanceMappingAttribute> inheritanceAttributes = new List<InheritanceMappingAttribute>();
 
         public List <ProjectionField> fields = new List<ProjectionField>();
 

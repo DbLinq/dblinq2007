@@ -52,8 +52,14 @@ create table Employee
   employeeID SERIAL NOT NULL,
   employeeType int NOT NULL,
   employeeName varchar(99),
+  startDate date NULL,
   PRIMARY KEY(employeeID)
 );
+
+INSERT INTO Employee (employeeType, employeeName) VALUES (0, 'Pavel');
+INSERT INTO Employee (employeeType, employeeName) VALUES (1, 'Piotr');
+INSERT INTO Employee (employeeType, employeeName) VALUES (1, 'Jana');
+INSERT INTO Employee (employeeType, employeeName) VALUES (2, 'Ladislav');
 
 COMMIT;
 

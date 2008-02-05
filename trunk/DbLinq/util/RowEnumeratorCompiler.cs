@@ -135,6 +135,9 @@ namespace DBLinq.util
             if (projData == null)
                 throw new ArgumentException("CompileColumnRow: need projData");
 
+            if (projData.inheritanceAttributes.Count > 0)
+                return CompileColumnRowDelegate_TableType_Inheritance(projData, ref fieldID);
+
             ParameterExpression rdr = Expression.Parameter(typeof(DataReader2), "rdr");
 
             List<Expression> ctorArgs = new List<Expression>();
@@ -186,6 +189,131 @@ namespace DBLinq.util
             //Console.WriteLine("  RowEnumCompiler(Column): Compiled "+sb);
             return func_t;
             #endregion
+        }
+
+        /// <summary>
+        /// given column type T (eg. Employee or Customer or Order), 
+        /// construct and compile a delegate similar to:
+        /// 'reader.GetInt32(0)==0
+        ///    ? new HourlyEmployee(){_employeeID=reader.GetInt32(0)}
+        ///    : new SalariedEmployee(){_employeeID=reader.GetInt32(0)};'
+        /// </summary>
+        public static
+            Func<DataReader2, T>
+            CompileColumnRowDelegate_TableType_Inheritance(ProjectionData projData, ref int fieldID)
+        {
+            #region CompileColumnRowDelegate
+            if (projData == null)
+                throw new ArgumentException("CompileColumnRow: need projData");
+            if (projData.inheritanceAttributes.Count == 0)
+                throw new ArgumentException("CompileColumnRow: need projData with inheritance");
+
+            //1. order (Default derived type comes first)
+            var inheritAtts = (from ia in projData.inheritanceAttributes
+                               orderby ia.IsDefault descending
+                               select ia)
+                     .ToList();
+
+            //2. determine integer colIndex of Discriminator column
+            var discriminatorCol = (from f in projData.fields
+                                    where f.columnAttribute.IsDiscriminator
+                                    select f).Single();
+            int discriminatorColIndex = projData.fields.IndexOf(discriminatorCol);
+
+            ParameterExpression rdr = Expression.Parameter(typeof(DataReader2), "rdr");
+
+            List<Expression> ctorArgs = new List<Expression>();
+            //Andrus points out that order of projData.fields is not reliable after an exception - switch to ctor params
+
+            //given type Customer, find protected fields: _CustomerID,_CompanyName,...
+            Type t = typeof(T);
+            MemberInfo[] fields1 = t.FindMembers(MemberTypes.Field
+                , BindingFlags.NonPublic | BindingFlags.Instance
+                , null, null);
+
+            Dictionary<string, FieldInfo> fieldNameMap = fields1
+                .OfType<FieldInfo>()
+                .ToDictionary(mi => mi.Name);
+
+            System.Data.Linq.Mapping.InheritanceMappingAttribute defaultInheritanceAtt = inheritAtts[0];
+            inheritAtts.RemoveAt(0);
+
+            int discriminatorFieldID = fieldID + discriminatorColIndex;
+
+            //create 'reader.GetInt32(7)'
+            MethodCallExpression readerGetDiscrimExpr = GetFieldMethodCall(discriminatorCol.FieldType, rdr
+                , discriminatorFieldID);
+
+            int fieldID_copy = fieldID;
+            Expression defaultNewExpr = TableRow_NewMemberInit(projData, fieldNameMap, defaultInheritanceAtt.Type, rdr, ref fieldID);
+
+            Expression combinedExpr = defaultNewExpr;
+            while (inheritAtts.Count > 0)
+            {
+                System.Data.Linq.Mapping.InheritanceMappingAttribute inheritanceAtt = inheritAtts[0];
+                inheritAtts.RemoveAt(0);
+
+                int fieldID_temp = fieldID_copy;
+                Expression newExpr = TableRow_NewMemberInit(projData, fieldNameMap, inheritanceAtt.Type, rdr, ref fieldID_temp);
+
+                // 'reader.GetInt32(7)==1'
+                Expression testExpr = Expression.Equal(
+                                            Expression.Constant(inheritanceAtt.Code)
+                                            , readerGetDiscrimExpr);
+
+                Expression iif = Expression.Condition(testExpr, newExpr, combinedExpr);
+                combinedExpr = iif;
+            }
+
+            List<ParameterExpression> paramListRdr = new List<ParameterExpression>();
+            paramListRdr.Add(rdr);
+
+            LambdaExpression lambda = Expression.Lambda<Func<DataReader2, T>>(combinedExpr, paramListRdr);
+            Func<DataReader2, T> func_t = (Func<DataReader2, T>)lambda.Compile();
+
+            //lambda.BuildString(sb);
+            //Console.WriteLine("  RowEnumCompiler(Column): Compiled "+sb);
+            return func_t;
+            #endregion
+        }
+
+        /// <summary>
+        /// bake expression such as 
+        /// 'reader=>new HourlyEmployee(){_employeeID=reader.GetInt32(0)}'
+        /// </summary>
+        static Expression TableRow_NewMemberInit(ProjectionData projData
+            , Dictionary<string, FieldInfo> fieldNameMap
+            , Type derivedType
+            , ParameterExpression rdr, ref int fieldID)
+        {
+            List<MemberAssignment> bindList = new List<MemberAssignment>();
+            foreach (ProjectionData.ProjectionField projFld in projData.fields)
+            {
+                Type fieldType = projFld.FieldType;
+                MethodCallExpression arg_i = GetFieldMethodCall(fieldType, rdr, fieldID++);
+
+                //bake expression: "CustomerID = rdr.GetString(0)"
+                string errorIntro = "Cannot retrieve type " + typeof(T) + " from DB, because [Column";
+                if (projFld.columnAttribute == null)
+                    throw new ApplicationException("L303: " + errorIntro + "] is missing for field " + fieldID);
+                if (projFld.columnAttribute.Storage == null)
+                    throw new ApplicationException("L305: " + errorIntro + " Storage=xx] is missing for col=" + projFld.columnAttribute.Name);
+
+                string storage = projFld.columnAttribute.Storage; //'_customerID'
+                FieldInfo fieldInfo;
+                if (!fieldNameMap.TryGetValue(storage, out fieldInfo))
+                    throw new ApplicationException("L310: " + errorIntro + "Storage=" + storage + "] refers to a non-existent field for col=" + projFld.columnAttribute.Name);
+
+                MemberAssignment bindEx = Expression.Bind(fieldInfo, arg_i);
+                bindList.Add(bindEx);
+            }
+
+            NewExpression newExpr1 = Expression.New(derivedType); //2008Jan: changed to default ctor
+            MemberInitExpression newExprInit = Expression.MemberInit(newExpr1, bindList.ToArray());
+
+            // '(Employee) (new HourlyEmployee(){_employeeID=xxx})'
+            UnaryExpression newExprInit2 = Expression.TypeAs(newExprInit, projData.type);
+            return newExprInit2;
         }
 
         /// <summary>
@@ -434,7 +562,7 @@ namespace DBLinq.util
         /// return 'reader.GetString(0)' or 'reader.GetInt32(1)'
         /// as an Expression suitable for compilation
         /// </summary>
-        static MethodCallExpression GetFieldMethodCall(Type t2, Expression rdr, int fieldID)
+        static MethodCallExpression GetFieldMethodCall(Type t2, ParameterExpression rdr, int fieldID)
         {
             MethodInfo minfo = ChooseFieldRetrievalMethod(t2);
             if (minfo == null)
