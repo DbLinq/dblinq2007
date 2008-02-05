@@ -54,6 +54,19 @@ namespace DBLinq.util
         }
 
         /// <summary>
+        /// given type Employee, find it's InheritanceMapping attribs.
+        /// These list derived classes, such as HourlyEmployee.
+        /// See David Hayden's example:
+        /// http://davidhayden.com/blog/dave/archive/2007/10/26/LINQToSQLInheritanceDiscriminatorColumnExampleInheritanceMappingTutorial.aspx
+        /// </summary>
+        public static List<InheritanceMappingAttribute> GetInheritanceAttribs(Type t)
+        {
+            object[] objs = t.GetCustomAttributes(typeof(InheritanceMappingAttribute), false);
+            List<InheritanceMappingAttribute> list = objs.OfType<InheritanceMappingAttribute>().ToList();
+            return list;
+        }
+
+        /// <summary>
         /// from class Employee, walk all properties, extract their [Column] attribs
         /// </summary>
         public static T[] FindPropertiesWithGivenAttrib<T>(Type t) where T : Attribute
@@ -150,6 +163,7 @@ namespace DBLinq.util
             //}
 
             projData.tableAttribute = GetTableAttrib(t);
+            projData.inheritanceAttributes.AddRange(GetInheritanceAttribs(t));
 
             //warning - Andrus points out that order of properties is not guaranteed,
             //and indeed changes after an exception within Studio.

@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Linq.Expressions;
 using System.Collections.Generic;
 using System.Text;
@@ -8,21 +9,11 @@ using Npgsql;
 
 namespace ClientCode2
 {
+
     class Program
     {
-#if ANDRUS_TEST_DB
-        static void Main(string[] args)
-        {
-            string connStr = "server=localhost;user id=LinqUser; password=linq2; database=Andrus";
-            Andrus db = new Andrus(connStr);
-            db.Log = Console.Out;
-            Char_Pk charpk = db.Char_Pks.Single(c => c.Col1 == "a");
-            charpk.Val1 = 22;
-            db.SubmitChanges();
-        }
-#endif
 
-        static void Main(string[] args)
+        static void Main_(string[] args)
         {
 
             string connStr = "server=localhost;user id=LinqUser; password=linq2; database=Northwind";
@@ -42,8 +33,8 @@ namespace ClientCode2
             //}
 
             //TestContext db = new TestContext(connStr);
-            int[] arr = new int[]{ 2,3,2,5 };
-            var q3 = from a in arr select a.ToString()+"i";
+            int[] arr = new int[] { 2, 3, 2, 5 };
+            var q3 = from a in arr select a.ToString() + "i";
             var bb = q3.ToList();
 
             //arr.
