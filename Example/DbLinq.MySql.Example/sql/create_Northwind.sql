@@ -1,4 +1,4 @@
-####################################################################
+﻿####################################################################
 ## script to create MySql version of the Northwind test DB
 ####################################################################
 
@@ -282,6 +282,8 @@ Values ('BT___', 1, now(), 11.5);
 insert INTO `Orders` (CustomerID, EmployeeID, OrderDate, Freight)
 Values ('UKMOD', 1, now(), 32.5);
 
+INSERT INTO `Order Details` (OrderID, ProductID, UnitPrice, Quantity, Discount)
+VALUES (1,2, 33, 5, 11);
 
 ####################################################################
 ## create stored procs

@@ -97,7 +97,8 @@ namespace DBLinq.Linq.clause
                 TableAttribute tAttrib = AttribHelper.GetTableAttrib(t1.Key);
                 if(tAttrib!=null)
                 {
-                    string fromClause = tAttrib.Name + " " + RemoveTransparentId(t1.Value);
+                    //prepare fragment: "[order details] o$"
+                    string fromClause = QueryProcessor.s_vendor.FieldName_Safe(tAttrib.Name) + " " + RemoveTransparentId(t1.Value);
 
                     sqlParts.AddFrom(fromClause);
                 }

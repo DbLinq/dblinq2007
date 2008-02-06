@@ -330,6 +330,7 @@ namespace DBLinq.Linq
                 }
                 catch (Exception ex)
                 {
+                    Trace.WriteLine("Table.SubmitChanges failed: " + ex);
                     switch (failureMode)
                     {
                         case System.Data.Linq.ConflictMode.ContinueOnConflict:

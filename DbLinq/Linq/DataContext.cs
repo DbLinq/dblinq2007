@@ -170,7 +170,7 @@ namespace DBLinq.Linq
                     }
                     catch (Exception ex)
                     {
-                        Trace.WriteLine("SubmitChanges failed: " + ex);
+                        Trace.WriteLine("Context.SubmitChanges failed: " + ex.Message);
                         switch (failureMode)
                         {
                             case System.Data.Linq.ConflictMode.ContinueOnConflict:

@@ -146,6 +146,7 @@ CREATE TABLE OrderDetails (
   OrderID INT NOT NULL              REFERENCES Orders(OrderID),
   ProductID INT NOT NULL            REFERENCES Products(ProductID),
   UnitPrice decimal,
+  Quantity INT,
   Discount float,
   PRIMARY KEY (OrderID,ProductID)
 );
@@ -237,21 +238,8 @@ Values ('BT___', 1, now(), 11.5);
 insert INTO Orders (CustomerID, EmployeeID, OrderDate, Freight)
 Values ('UKMOD', 1, now(), 32.5);
 
-
--- please match fieldnames and types to MySql AllTypes table 
--- (DbLinq.Mysql.Example\sql\create_LinqTestDB_pg.sql)
-CREATE TABLE AllTypes
-(
-  int SERIAL NOT NULL,
-  intN integer NULL,
-  double float NOT NULL,
-  doubleN float,
-  decimal DECIMAL NOT NULL,
-  decimalN DECIMAL,
-  DateTime TIMESTAMP NOT NULL,
-  DateTimeN TIMESTAMP,
-  PRIMARY KEY(int)
-);
+INSERT INTO OrderDetails (OrderID, ProductID, UnitPrice, Quantity, Discount)
+VALUES (1,2, 33, 5, 11);
 
 
 CREATE FUNCTION hello0() RETURNS text AS $$ 

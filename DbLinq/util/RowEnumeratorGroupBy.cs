@@ -1,3 +1,4 @@
+#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -21,6 +22,7 @@
 // Authors:
 //        Jiri George Moudry
 ////////////////////////////////////////////////////////////////////
+#endregion
 
 using System;
 using System.Reflection;
@@ -66,6 +68,9 @@ namespace DBLinq.util
     /// <summary>
     /// class to read a row of data from MySqlDataReader, and package it into type T.
     /// It creates a SqlCommand and MySqlDataReader.
+    /// 
+    /// Differs from simple RowEnumerator:
+    /// a single call to GetEnumerator reads all rows into a Lookup structure.
     /// </summary>
     /// <typeparam name="Key">the type of the key object</typeparam>
     /// <typeparam name="Grp">the type of the IGrouping object (Lookup)</typeparam>
@@ -78,15 +83,6 @@ namespace DBLinq.util
         public RowEnumeratorGroupBy(SessionVarsParsed vars)
             :base(vars,null)
         {
-            //try
-            //{
-            //    init(vars);
-            //}
-            //catch(Exception ex)
-            //{
-            //    Console.WriteLine("Failed:"+ex);
-            //    throw;
-            //}
         }
 
         protected override void CompileReaderFct()
@@ -117,17 +113,18 @@ namespace DBLinq.util
         {
             //string origConnString = _conn.ConnectionString;
             //create a new connection to prevent error "SqlConnection already has SqlDataReader associated with it"
-            XSqlConnection newConn = new XSqlConnection(_vars.context.SqlConnString);
-            newConn.Open();
+
+            //XSqlConnection newConn = new XSqlConnection(_vars.context.SqlConnString);
+            //newConn.Open();
             //TODO: use connection pool instead of always opening a new one
 
             DataReader2 rdr2;
-            using( newConn )
-            using( XSqlCommand cmd = ExecuteSqlCommand(newConn, out rdr2) )
+            using( new ConnectionManager(_conn) )
+            using( XSqlCommand cmd = ExecuteSqlCommand(_conn, out rdr2) )
             using( rdr2 )
             {
 
-                //rowObjFunc: given current lookup, prouced return obj
+                //rowObjFunc: given current lookup, produce return obj
                 Func<IGrouping<Key,Val> ,T> rowObjFunc = null;
                 if( typeof(T)==typeof(IGrouping<Key,Val>) )
                 {

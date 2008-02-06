@@ -172,6 +172,9 @@ namespace Test_NUnit
             string prevProductName = null;
             foreach (Product p in q)
             {
+                if (prevProductName == p.ProductName && p.ProductName.StartsWith("temp_"))
+                    continue; //skip temp rows
+
                 if (prevProductName != null)
                 {
                     //int compareNames = prevProductName.CompareTo(p.ProductName);

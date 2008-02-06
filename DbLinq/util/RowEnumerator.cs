@@ -86,7 +86,7 @@ namespace DBLinq.util
         Dictionary<T,T> _liveObjectMap;
         internal string _sqlString;
         ConnectionManager _connectionManager;
-
+        XSqlDataReader _rdr;
 
         public RowEnumerator(SessionVarsParsed vars, Dictionary<T,T> liveObjectMap)
         {
@@ -139,7 +139,8 @@ namespace DBLinq.util
             }
 
             //Console.WriteLine("cmd.ExecuteCommand()");
-            XSqlDataReader _rdr = cmd.ExecuteReader();
+            //XSqlDataReader _rdr = cmd.ExecuteReader();
+            _rdr = cmd.ExecuteReader();
             rdr2 = new DataReader2(_rdr);
 
             if (_vars.context.Log != null)
@@ -159,10 +160,12 @@ namespace DBLinq.util
 
             _connectionManager.Dispose();
 
-            //if(_rdr!=null){ 
-            //    _rdr.Close();
-            //    _rdr = null;
-            //}
+            if (_rdr != null)
+            {
+                _rdr.Close();
+                _rdr = null;
+            }
+
             //if(cmd!=null){ 
             //    cmd.Dispose();
             //    cmd = null;
