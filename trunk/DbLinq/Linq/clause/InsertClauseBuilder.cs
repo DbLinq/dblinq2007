@@ -254,12 +254,18 @@ namespace DBLinq.Linq.clause
 
                 //append string, eg. ",Name=:p0"
                 sb.Append(separator).Append(columnName_safe).Append("=").Append(paramName);
-
                 separator = ", ";
 
-                XSqlParameter param = (XSqlParameter)s_vendor.CreateSqlParameter(colAtt.DbType, paramName);
-                param.Value = paramValue;
-                paramList.Add(param);
+                if (paramValue == null)
+                {
+                    //don't create SqlParameter
+                }
+                else
+                {
+                    XSqlParameter param = (XSqlParameter)s_vendor.CreateSqlParameter(colAtt.DbType, paramName);
+                    param.Value = paramValue;
+                    paramList.Add(param);
+                }
             }
 
             //append WHERE clause in one of two forms:

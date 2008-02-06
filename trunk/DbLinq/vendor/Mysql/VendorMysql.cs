@@ -80,6 +80,9 @@ namespace DBLinq.vendor.mysql
         /// </summary>
         public string FieldName_Safe(string name)
         {
+            if (name.Contains(" "))
+                return "`" + name + "`"; // "Order Details" -> "`Order Details`"
+
             string nameL = name.ToLower();
             switch (nameL)
             {

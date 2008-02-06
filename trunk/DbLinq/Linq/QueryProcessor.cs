@@ -43,7 +43,7 @@ namespace DBLinq.Linq
     /// </summary>
     public partial class QueryProcessor
     {
-        static IVendor s_vendor = VendorFactory.Make();
+        public static readonly IVendor s_vendor = VendorFactory.Make();
 
         internal readonly SessionVarsParsed _vars;
 
