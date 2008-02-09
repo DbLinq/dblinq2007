@@ -33,7 +33,7 @@ namespace Test_NUnit
     {
         static bool doRecreate = true;
 #if ORACLE
-        const string connStr = "server=localhost;user id=Northwind; password=linq2";
+        const string connStr = "server=DbLinqServer;user id=Northwind; password=linq2";
 #elif SQLITE
         const string connStr = "Data Source=Northwind.db3";
 #else //Mysql, Postgres

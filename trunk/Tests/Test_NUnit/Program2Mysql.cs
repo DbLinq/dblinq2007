@@ -22,7 +22,7 @@ namespace Test_NUnit
             //new ReadTest_GroupBy().G01_SimpleGroup_Count();
             //new ReadTest_GroupBy().G05_Group_Into();
             //new ReadTest().D04_SelectProducts_OrderByName();
-            new Join().Join_Laurent();
+            //new Join().Join_Laurent();
             //new ReadTest_Complex().F10_DistinctCity();
             //new StoredProcTest().SPB_GetOrderCount_Having();
             //new ReadTest().E2_ConnectionClosedTest();
