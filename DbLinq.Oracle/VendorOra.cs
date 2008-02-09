@@ -90,10 +90,9 @@ namespace DBLinq.vendor
             throw new NotImplementedException();
         }
 
-
         public IDataReader2 CreateDataReader2(IDataReader dataReader)
         {
-            throw new NotImplementedException();
+            return new DataReader2(dataReader);
         }
     }
 }
