@@ -197,13 +197,13 @@ VALUES (Products_seq.nextval, 'Linq Book',2, 1, 0, 26, 0);
 
 --####################################################################
 insert INTO Employees (EmployeeID, LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
-VALUES (Employees_seq.nextval, 'Fuller','Andrew','Vice President, Sales','01 Jan 1964','01 Jan 1989', '908 W. Capital Way','Tacoma',NULL);
+VALUES (Employees_seq.nextval, 'Fuller','Andrew','Vice President, Sales',to_date('01-01-1964','dd-mm-yyyy'),to_date('01-01-1989','dd-mm-yyyy'), '908 W. Capital Way','Tacoma',NULL);
 
 insert INTO Employees (EmployeeID, LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
-VALUES (Employees_seq.nextval, 'Davolio','Nancy','Sales Representative','01 Jan 1964','01 Jan 1994','507 - 20th Ave. E.  Apt. 2A','Seattle',1);
+VALUES (Employees_seq.nextval, 'Davolio','Nancy','Sales Representative',to_date('01-01-1964','dd-mm-yyyy'),to_date('01-01-1994','dd-mm-yyyy'),'507 - 20th Ave. E.  Apt. 2A','Seattle',1);
 
 insert INTO Employees (EmployeeID, LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
-VALUES (Employees_seq.nextval, 'Builder','Bob','Handyman','01 Jan 1964','01 Jan 1964','666 dark street','Seattle',2);
+VALUES (Employees_seq.nextval, 'Builder','Bob','Handyman',to_date('01-01-1964','dd-mm-yyyy'),to_date('01-01-1964','dd-mm-yyyy'),'666 dark street','Seattle',2);
 
 --####################################################################
 --truncate table Orders;
