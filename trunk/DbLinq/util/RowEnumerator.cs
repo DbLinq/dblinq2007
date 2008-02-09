@@ -53,7 +53,7 @@ namespace DBLinq.util
         protected IDbConnection _conn;
 
         //while the FatalExecuteEngineError persists, we use a wrapper class to retrieve data
-        protected Func<DataReader2,T> _objFromRow2;
+        protected Func<IDataReader2,T> _objFromRow2;
 
         //Type _sourceType;
         protected ProjectionData _projectionData;
@@ -90,7 +90,7 @@ namespace DBLinq.util
 
         public string GetQueryText(){ return _sqlString; }
 
-        protected IDbCommand ExecuteSqlCommand(IDbConnection newConn, out DataReader2 rdr2)
+        protected IDbCommand ExecuteSqlCommand(IDbConnection newConn, out IDataReader2 rdr2)
         {
             //prepend user prolog string, if any
             string sqlFull = DBLinq.vendor.Settings.sqlStatementProlog + _sqlString;
@@ -118,7 +118,8 @@ namespace DBLinq.util
             // picrap: right we should remove IDataReader2 (even if this this is hard work :))
             _rdr = cmd.ExecuteReader();
             // picrap: and also this
-            rdr2 = new DataReader2(_rdr);
+            //rdr2 = new DataReader2(_rdr);
+            rdr2 = _vars.context.Vendor.CreateDataReader2(_rdr);
 
             // picrap: need to solve the HasRows mystery
 /*            if (_vars.context.Log != null)
@@ -163,7 +164,7 @@ namespace DBLinq.util
                 throw new ApplicationException("Internal error, missing _objFromRow compiled func");
             }
 
-            DataReader2 rdr2;
+            IDataReader2 rdr2;
 
 #if CREATE_NEW_CONNECTION
             //string origConnString = _conn.ConnectionString; //for MySql, cannot retrieve prev ConnStr

@@ -14,7 +14,7 @@ namespace DBLinq.vendor
     /// I haven't checked, but I assume that bug is fixed - 
     /// but I found it very useful to be able to set breakpoints in  the reader function.
     /// </summary>
-    public interface IDataReader2 
+    public interface IDataReader2: IDisposable
         //: System.Data.IDataReader //causes too many errors: missing NextResult(), Depth, ...
     {
         short? GetInt16N(int index);
@@ -26,6 +26,7 @@ namespace DBLinq.vendor
         float? GetFloatN(int index);
         DateTime? GetDateTimeN(int index);
         long? GetInt64N(int index);
+        decimal? GetDecimalN(int index);
 
         /// <summary>
         /// method to read a blob
@@ -49,6 +50,8 @@ namespace DBLinq.vendor
         long GetInt64(int index);
         uint GetUInt32(int index);
         ulong GetUInt64(int index);
+
+        string GetString(int index);
 
         #endregion
     }

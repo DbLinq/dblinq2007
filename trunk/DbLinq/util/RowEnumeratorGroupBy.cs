@@ -35,6 +35,7 @@ using System.Linq.Expressions;
 using DBLinq.util;
 using DBLinq.Linq;
 using DBLinq.Linq.clause;
+using DBLinq.vendor;
 
 namespace DBLinq.util
 {
@@ -50,8 +51,8 @@ namespace DBLinq.util
     /// <typeparam name="T">the return type, containing an IGrouping</typeparam>
     public class RowEnumeratorGroupBy<T, Key, Val> : RowEnumerator<T>
     {
-        Func<DataReader2,Key> _keyReadFunc = null;
-        Func<DataReader2,Val> _valReadFunc = null;
+        Func<IDataReader2,Key> _keyReadFunc = null;
+        Func<IDataReader2,Val> _valReadFunc = null;
 
         public RowEnumeratorGroupBy(SessionVarsParsed vars)
             :base(vars,null)
@@ -91,7 +92,7 @@ namespace DBLinq.util
             //newConn.Open();
             //TODO: use connection pool instead of always opening a new one
 
-            DataReader2 rdr2;
+            IDataReader2 rdr2;
             using( new ConnectionManager(_conn) )
             using( IDbCommand cmd = ExecuteSqlCommand(_conn, out rdr2) )
             using( rdr2 )

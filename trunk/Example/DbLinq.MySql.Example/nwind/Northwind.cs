@@ -12,6 +12,7 @@ using System.Data.Linq.Mapping;
 using System.Reflection;
 using DBLinq.Linq;
 using DBLinq.Linq.Mapping;
+using DBLinq.vendor.mysql;
 
 namespace nwind
 {
@@ -21,10 +22,10 @@ namespace nwind
 	/// </summary>
 	public partial class Northwind : DataContext
 	{
-		public Northwind(string connStr) : base(new MySql.Data.MySqlClient.MySqlConnection( connStr))
+		public Northwind(string connStr) : base(new MySql.Data.MySqlClient.MySqlConnection( connStr), new VendorMysql())
 		{
 		}
-		public Northwind(System.Data.IDbConnection connection) : base(connection)
+		public Northwind(System.Data.IDbConnection connection) : base(connection, new VendorMysql())
 		{
 		}
 	

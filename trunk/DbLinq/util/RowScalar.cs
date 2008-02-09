@@ -30,6 +30,7 @@ using System.Text;
 using System.Linq.Expressions;
 using DBLinq.Linq;
 using DBLinq.Linq.clause;
+using DBLinq.vendor;
 
 namespace DBLinq.util
 {

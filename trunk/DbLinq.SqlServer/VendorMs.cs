@@ -39,7 +39,9 @@ namespace DBLinq.vendor.mssql
 {
     public class VendorMssql : VendorBase, IVendor
     {
-        public string VendorName { get { return VendorFactory.MSSQLSERVER; } }
+        public readonly Dictionary<DBLinq.Linq.IMTable, int> UseBulkInsert = new Dictionary<DBLinq.Linq.IMTable, int>();
+
+        public string VendorName { get { return "MsSqlServer"; } }
         //public const string SQL_PING_COMMAND = "SELECT 11";
 
         /// <summary>
@@ -91,7 +93,7 @@ namespace DBLinq.vendor.mssql
         /// because it does not fill up the translation log.
         /// This is enabled for tables where Vendor.UserBulkInsert[db.Table] is true.
         /// </summary>
-        public static void DoBulkInsert<T>(DBLinq.Linq.Table<T> table, List<T> rows, IDbConnection conn)
+        public override void DoBulkInsert<T>(DBLinq.Linq.Table<T> table, List<T> rows, IDbConnection conn)
         {
             //use TableLock for speed:
             SqlBulkCopy bulkCopy = new SqlBulkCopy((SqlConnection)conn, SqlBulkCopyOptions.TableLock, null);
@@ -133,7 +135,7 @@ namespace DBLinq.vendor.mssql
 
         }
 
-        public int ExecuteCommand(DBLinq.Linq.DataContext context, string sql, params object[] parameters)
+        public override int ExecuteCommand(DBLinq.Linq.DataContext context, string sql, params object[] parameters)
         {
             IDbConnection conn = context.ConnectionProvider.Connection;
             using (IDbCommand command = conn.CreateCommand())
@@ -151,6 +153,21 @@ namespace DBLinq.vendor.mssql
         /// <summary>
         /// Client code needs to specify: 'Vendor.UserBulkInsert[db.Products]=true' to enable bulk insert.
         /// </summary>
-        public static readonly Dictionary<DBLinq.Linq.IMTable, bool> UseBulkInsert = new Dictionary<DBLinq.Linq.IMTable, bool>();
+        //public static readonly Dictionary<DBLinq.Linq.IMTable, bool> UseBulkInsert = new Dictionary<DBLinq.Linq.IMTable, bool>();
+
+        public IDataReader2 CreateDataReader2(IDataReader dataReader)
+        {
+            return new DataReader2(dataReader);
+        }
+
+        public override bool CanBulkInsert<T>(DBLinq.Linq.Table<T> table)
+        {
+            return UseBulkInsert.ContainsKey(table);
+        }
+
+        public override void SetBulkInsert<T>(DBLinq.Linq.Table<T> table, int pageSize)
+        {
+            UseBulkInsert[table] = pageSize;
+        }
     }
 }

@@ -107,7 +107,7 @@ namespace DBLinq.Linq
         /// <summary>
         /// components of SQL expression (where clause, order, select ...)
         /// </summary>
-        public SqlExpressionParts _sqlParts = new SqlExpressionParts();
+        public SqlExpressionParts _sqlParts;
         
         public LambdaExpression groupByExpr;
         public LambdaExpression groupByNewExpr;
@@ -131,8 +131,7 @@ namespace DBLinq.Linq
         public SessionVarsParsed(SessionVars vars)
             : base(vars)
         {
+            _sqlParts = new SqlExpressionParts(vars.context.Vendor);
         }
-
-
     }
 }

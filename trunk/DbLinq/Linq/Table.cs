@@ -54,8 +54,6 @@ namespace DBLinq.Linq
         , IQueryText
         , IQueryProvider //new as of Beta2
     {
-        static IVendor s_vendor = VendorFactory.Make();
-
         /// <summary>
         /// the parent MContext holds our connection etc
         /// </summary>
@@ -221,19 +219,24 @@ namespace DBLinq.Linq
             //object[] indices = new object[0];
             ProjectionData proj = ProjectionData.FromDbType(typeof(T));
 
-#if MYSQL //bulk insert code
-            if (vendor.mysql.VendorMysql.UseBulkInsert.ContainsKey(this))
+            if (_vars.context.Vendor.CanBulkInsert(this))
             {
-                vendor.mysql.VendorMysql.DoBulkInsert(this, _insertList, conn);
+                _vars.context.Vendor.DoBulkInsert(this, _insertList, conn);
                 _insertList.Clear();
             }
-#elif MICROSOFT //bulk insert code
-            if (vendor.mssql.VendorMssql.UseBulkInsert.ContainsKey(this))
-            {
-                vendor.mssql.VendorMssql.DoBulkInsert(this, _insertList, conn);
-                _insertList.Clear();
-            }
-#endif
+//#if MYSQL //bulk insert code
+//            if (vendor.mysql.VendorMysql.UseBulkInsert.ContainsKey(this))
+//            {
+//                vendor.mysql.VendorMysql.DoBulkInsert(this, _insertList, conn);
+//                _insertList.Clear();
+//            }
+//#elif MICROSOFT //bulk insert code
+//            if (vendor.mssql.VendorMssql.UseBulkInsert.ContainsKey(this))
+//            {
+//                vendor.mssql.VendorMssql.DoBulkInsert(this, _insertList, conn);
+//                _insertList.Clear();
+//            }
+//#endif
 
             foreach (T obj in _insertList)
             {
@@ -242,7 +245,7 @@ namespace DBLinq.Linq
                 //INSERT INTO EMPLOYEES (EmpId, Name, DateStarted) VALUES (EmpID_SEQ.NextVal,?p1,?p2); SELECT EmpID_SEQ.CurrVal
                 try
                 {
-                    using (IDbCommand cmd = InsertClauseBuilder.GetClause(conn, obj, proj))
+                    using (IDbCommand cmd = InsertClauseBuilder.GetClause(_vars.context.Vendor, conn, obj, proj))
                     {
                         object objID = null;
                         objID = cmd.ExecuteScalar();
@@ -251,7 +254,7 @@ namespace DBLinq.Linq
                             continue; //ID was already assigned by user, not from a DB sequence.
 
                         //Oracle unpacks objID from an out-param:
-                        s_vendor.ProcessInsertedId(cmd, ref objID);
+                        _vars.context.Vendor.ProcessInsertedId(cmd, ref objID);
 
                         try
                         {
@@ -301,7 +304,7 @@ namespace DBLinq.Linq
                     Trace.WriteLine("MTable SaveAll: saving modified object");
                     string ID_to_update = getObjectID(obj);
 
-                    IDbCommand cmd = InsertClauseBuilder.GetUpdateCommand(conn, iMod, proj, ID_to_update);
+                    IDbCommand cmd = InsertClauseBuilder.GetUpdateCommand(_vars, iMod, proj, ID_to_update);
                     int result = cmd.ExecuteNonQuery();
                     Trace.WriteLine("MTable SaveAll.Update returned:" + result);
 

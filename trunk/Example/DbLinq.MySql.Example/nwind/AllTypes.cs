@@ -12,6 +12,7 @@ using System.Data.Linq.Mapping;
 using System.Reflection;
 using DBLinq.Linq;
 using DBLinq.Linq.Mapping;
+using DBLinq.vendor.mysql;
 
 namespace allTypes
 {
@@ -21,10 +22,10 @@ namespace allTypes
 	/// </summary>
 	public partial class AllTypes : DataContext
 	{
-		public AllTypes(string connStr) : base(new MySql.Data.MySqlClient.MySqlConnection( connStr))
+		public AllTypes(string connStr) : base(new MySql.Data.MySqlClient.MySqlConnection( connStr), new VendorMysql())
 		{
 		}
-		public AllTypes(System.Data.IDbConnection connection) : base(connection)
+		public AllTypes(System.Data.IDbConnection connection) : base(connection, new VendorMysql())
 		{
 		}
 	

@@ -12,6 +12,7 @@ using System.Data.Linq.Mapping;
 using System.Reflection;
 using DBLinq.Linq;
 using DBLinq.Linq.Mapping;
+using DBLinq.vendor.pgsql;
 
 namespace AndrusDB
 {
@@ -22,11 +23,11 @@ namespace AndrusDB
     public partial class Andrus : DataContext
     {
         public Andrus(string connStr)
-            : base(new Npgsql.NpgsqlConnection( connStr))
+            : base(new Npgsql.NpgsqlConnection( connStr), new VendorPgsql())
         {
         }
         public Andrus(System.Data.IDbConnection connection)
-            : base(connection)
+            : base(connection, new VendorPgsql())
         {
         }
 

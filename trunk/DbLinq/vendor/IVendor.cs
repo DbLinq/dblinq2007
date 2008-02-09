@@ -65,55 +65,10 @@ namespace DBLinq.vendor
 
         IDbDataParameter CreateSqlParameter(string dbTypeName, string paramName);
 
+        IDataReader2 CreateDataReader2(IDataReader dataReader);
 
-    }
-
-    //############################################################################
-
-    /// <summary>
-    /// the only class that instantiates IVendor.
-    /// </summary>
-    public class VendorFactory
-    {
-        /// <summary>
-        /// Name returned by VendorOra - exact spelling.
-        /// </summary>
-        public const string ORACLE = "Oracle";
-
-        public const string MYSQL = "Mysql";
-
-        public const string POSTGRESQL = "PostgreSql";
-
-        public const string MSSQLSERVER = "MsSqlServer";
-
-        public const string SQLITE = "SQLite";
-
-#if ORACLE
-        public static VendorOra Make()
-        {
-            return new VendorOra();
-        }
-#elif MYSQL
-        public static mysql.VendorMysql Make()
-        {
-            return new mysql.VendorMysql();
-        }
-#elif POSTGRES
-        public static pgsql.VendorPgsql Make()
-        {
-            return new pgsql.VendorPgsql();
-        }
-#elif MICROSOFT
-        public static mssql.VendorMssql Make()
-        {
-            return new mssql.VendorMssql();
-        }
-#elif SQLITE
-        public static sqlite.VendorSqlite Make()
-        {
-            return new sqlite.VendorSqlite();
-        }
-#else
-#endif
+        bool CanBulkInsert<T>(DBLinq.Linq.Table<T> table);
+        void SetBulkInsert<T>(DBLinq.Linq.Table<T> table, int pageSize);
+        void DoBulkInsert<T>(DBLinq.Linq.Table<T> table, List<T> rows, IDbConnection conn);
     }
 }

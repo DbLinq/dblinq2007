@@ -25,6 +25,7 @@
 #endregion
 
 using System;
+using System.Data;
 using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
@@ -38,18 +39,20 @@ namespace DBLinq.Linq
 {
     public abstract class DataContext : IDisposable
     {
-        static IVendor s_vendor = VendorFactory.Make();
-
         //readonly List<MTable> tableList = new List<MTable>();//MTable requires 1 type arg
-        readonly List<IMTable> _tableList = new List<IMTable>();
-        System.IO.TextWriter _log;
+        private readonly List<IMTable> _tableList = new List<IMTable>();
+        private System.IO.TextWriter _log;
+        protected IVendor _vendor;
 
         readonly Dictionary<string, IMTable> _tableMap = new Dictionary<string, IMTable>();
 
-        protected IConnectionProvider connectionProvider;
-        public IConnectionProvider ConnectionProvider { get { return connectionProvider; } }
+        protected IConnectionProvider _connectionProvider;
+        public IConnectionProvider ConnectionProvider { get { return _connectionProvider; } }
 
-        // picrap: commented out this feature: we're going to be db independant
+        public IDbConnection Connection { get { return _connectionProvider.Connection; } }
+        public IVendor Vendor { get { return _vendor; } }
+
+            // picrap: commented out this feature: we're going to be db independant
         //public DataContext(string sqlConnString)
         //{
         //    _sqlConnString = sqlConnString;
@@ -65,8 +68,8 @@ namespace DBLinq.Linq
         /// source: http://msdn2.microsoft.com/en-us/library/bb292288.aspx
         /// </summary>
         /// <param name="dbConnection"></param>
-        public DataContext(System.Data.IDbConnection dbConnection)
-            : this(new DefaultConnectionProvider(dbConnection))
+        public DataContext(System.Data.IDbConnection dbConnection, IVendor vendor)
+            : this(new DefaultConnectionProvider(dbConnection), vendor)
         {
             // picrap: removed this, we fall from the most specific cases to the most generic ones (IConnectionProvider)
             //if (dbConnection == null)
@@ -82,11 +85,12 @@ namespace DBLinq.Linq
             //}
         }
 
-        public DataContext(IConnectionProvider connectionProvider)
+        public DataContext(IConnectionProvider connectionProvider, IVendor vendor)
         {
             if (connectionProvider == null)
                 throw new ArgumentNullException("Null connectionProvider");
-            this.connectionProvider = connectionProvider;
+            _connectionProvider = connectionProvider;
+            _vendor = vendor;
         }
 
         //public XSqlConnection SqlConnection
@@ -101,11 +105,11 @@ namespace DBLinq.Linq
         {
             try
             {
-                using (new ConnectionManager(connectionProvider.Connection))
+                using (new ConnectionManager(_connectionProvider.Connection))
                 {
                     //command: "SELECT 11" (Oracle: "SELECT 11 FROM DUAL")
-                    string SQL = s_vendor.SqlPingCommand;
-                    int result = s_vendor.ExecuteCommand(this, SQL);
+                    string SQL = _vendor.SqlPingCommand;
+                    int result = _vendor.ExecuteCommand(this, SQL);
                     return result == 11;
                 }
             }
@@ -146,10 +150,10 @@ namespace DBLinq.Linq
             //TODO: perform all queued up operations - INSERT,DELETE,UPDATE
             //TODO: insert order must be: first parent records, then child records
 
-            using (new ConnectionManager(connectionProvider.Connection)) //ConnMgr will close connection for us
+            using (new ConnectionManager(_connectionProvider.Connection)) //ConnMgr will close connection for us
 
             //TranMgr may start transaction /  commit transaction
-            using (TransactionManager transactionMgr = new TransactionManager(connectionProvider.Connection, failureMode)) 
+            using (TransactionManager transactionMgr = new TransactionManager(_connectionProvider.Connection, failureMode)) 
             {
                 foreach (IMTable tbl in _tableList)
                 {
@@ -220,9 +224,9 @@ namespace DBLinq.Linq
         /// </summary>
         protected System.Data.Linq.IExecuteResult ExecuteMethodCall(DataContext context, System.Reflection.MethodInfo method, params object[] sqlParams)
         {
-            using (new ConnectionManager(connectionProvider.Connection))
+            using (new ConnectionManager(_connectionProvider.Connection))
             {
-                System.Data.Linq.IExecuteResult result = s_vendor.ExecuteMethodCall(context, method, sqlParams);
+                System.Data.Linq.IExecuteResult result = _vendor.ExecuteMethodCall(context, method, sqlParams);
                 return result;
             }
         }
@@ -244,9 +248,9 @@ namespace DBLinq.Linq
         /// </summary>
         public int ExecuteCommand(string command, params object[] parameters)
         {
-            using (new ConnectionManager(connectionProvider.Connection))
+            using (new ConnectionManager(_connectionProvider.Connection))
             {
-                return s_vendor.ExecuteCommand(this, command, parameters);
+                return _vendor.ExecuteCommand(this, command, parameters);
             }
         }
 

@@ -38,8 +38,6 @@ namespace DBLinq.Linq.clause
 {
     class FromClauseBuilder
     {
-        static IVendor s_vendor = VendorFactory.Make();
-
         /// <summary>
         /// given type Employee, select all its fields: 'SELECT e.ID, e.Name,... FROM Employee'
         /// (by examining [Table] and [Column] attribs)
@@ -85,7 +83,7 @@ namespace DBLinq.Linq.clause
 
             foreach (ColumnAttribute colAtt in colAttribs2)
             {
-                string safeColumnName = s_vendor.FieldName_Safe(colAtt.Name);
+                string safeColumnName = vars.context.Vendor.FieldName_Safe(colAtt.Name);
                 string part = nick + "." + safeColumnName; //eg. '$o.OrderID'
                 selectParts.AddSelect(part);
             }
