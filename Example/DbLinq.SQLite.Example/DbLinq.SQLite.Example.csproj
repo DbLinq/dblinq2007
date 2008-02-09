@@ -74,12 +74,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\DbLinq\DbLinq.SQLite.csproj">
-      <Project>{42B135DF-562B-48FD-9A63-43B1D30321A6}</Project>
-      <Name>DbLinq.SQLite</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="sql\create_AllTypes.sql" />
     <None Include="sql\create_Northwind.sql" />
     <None Include="sql\create_User.sql" />
@@ -100,6 +94,12 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\DbLinq\DbLinq.csproj">
+      <Project>{97305421-3071-4175-AA3C-9A432CC28121}</Project>
+      <Name>DbLinq</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
