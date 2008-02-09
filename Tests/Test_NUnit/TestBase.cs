@@ -37,7 +37,7 @@ namespace Test_NUnit
 #elif SQLITE
         const string connStr = "Data Source=Northwind.db3";
 #else //Mysql, Postgres
-        public const string connStr = "server=localhost;user id=LinqUser; password=linq2; database=Northwind";
+        public const string connStr = "server=DbLinqServer;user id=LinqUser; password=linq2; database=Northwind";
 
 #endif
         XSqlConnection _conn;

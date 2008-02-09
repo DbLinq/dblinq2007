@@ -21,7 +21,7 @@ namespace allTypes
 	/// </summary>
 	public partial class AllTypes : DataContext
 	{
-		public AllTypes(string connStr) : base(connStr)
+		public AllTypes(string connStr) : base(new MySql.Data.MySqlClient.MySqlConnection( connStr))
 		{
 		}
 		public AllTypes(System.Data.IDbConnection connection) : base(connection)

@@ -75,5 +75,22 @@ namespace DBLinq.vendor
         //{
         //    throw new NotImplementedException();
         //}
+        public int ExecuteCommand(DBLinq.Linq.DataContext context, string sql, params object[] parameters)
+        {
+            IDbConnection conn = context.ConnectionProvider.Connection;
+            using (IDbCommand command = conn.CreateCommand())
+            {
+                command.CommandText = sql;
+                //return command.ExecuteNonQuery();
+                object objResult = command.ExecuteScalar();
+                if (objResult is int)
+                    return (int)objResult;
+                if (objResult is long)
+                    return (int)(long)objResult;
+                if (objResult is decimal)
+                    return (int)(decimal)objResult;
+                return 0;
+            }
+        }
     }
 }

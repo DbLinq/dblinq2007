@@ -34,32 +34,6 @@ using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using System.Data;
 
-#if ORACLE
-using System.Data.OracleClient;
-using XSqlConnection = System.Data.OracleClient.OracleConnection;
-using XSqlCommand = System.Data.OracleClient.OracleCommand;
-using XSqlParameter = System.Data.OracleClient.OracleParameter;
-using XVendor = DBLinq.vendor.VendorOra;
-#elif POSTGRES
-using XSqlConnection = Npgsql.NpgsqlConnection;
-using XSqlCommand = Npgsql.NpgsqlCommand;
-using XSqlParameter = Npgsql.NpgsqlParameter;
-#elif MICROSOFT
-using System.Data.SqlClient;
-using XSqlConnection = System.Data.SqlClient.SqlConnection;
-using XSqlCommand = System.Data.SqlClient.SqlCommand;
-using XSqlParameter = System.Data.SqlClient.SqlParameter;
-#elif SQLITE
-using System.Data.SQLite;
-using XSqlConnection = System.Data.SQLite.SQLiteConnection;
-using XSqlCommand = System.Data.SQLite.SQLiteCommand;
-using XSqlParameter = System.Data.SQLite.SQLiteParameter;
-#else
-using MySql.Data.MySqlClient;
-using XSqlConnection = MySql.Data.MySqlClient.MySqlConnection;
-using XSqlCommand = MySql.Data.MySqlClient.MySqlCommand;
-using XSqlParameter = MySql.Data.MySqlClient.MySqlParameter;
-#endif
 using DBLinq.Linq;
 using DBLinq.vendor;
 using DBLinq.util;
@@ -77,12 +51,14 @@ namespace DBLinq.Linq.clause
         /// given type Employee, return 'INSERT Employee (ID, Name) VALUES (?p1,?p2)'
         /// (by examining [Table] and [Column] attribs)
         /// </summary>
-        public static XSqlCommand GetClause(XSqlConnection conn, object objectToInsert, ProjectionData projData)
+        public static IDbCommand GetClause(IDbConnection conn, object objectToInsert, ProjectionData projData)
         {
             if (conn == null || objectToInsert == null || projData == null)
                 throw new ArgumentNullException("InsertClauseBuilder has null args");
             if (projData.fields.Count < 1 || projData.fields[0].columnAttribute == null)
                 throw new ApplicationException("InsertClauseBuilder need to receive types that have ColumnAttributes");
+
+            IDbCommand cmd = conn.CreateCommand(); // picrap: moved the command up: it's used by the vendors
 
             StringBuilder sb = new StringBuilder(DBLinq.vendor.Settings.sqlStatementProlog)
                 .Append("INSERT INTO ");
@@ -90,7 +66,7 @@ namespace DBLinq.Linq.clause
             StringBuilder sbIdentity = new StringBuilder();
 
             sb.Append(projData.tableAttribute.Name).Append(" (");
-            List<XSqlParameter> paramList = new List<XSqlParameter>();
+            List<IDbDataParameter> paramList = new List<IDbDataParameter>();
 
             int numFieldsAdded = 0;
             foreach (ProjectionData.ProjectionField projFld in projData.fields)
@@ -101,7 +77,8 @@ namespace DBLinq.Linq.clause
                 {
                     //Note: not every ID is autogen
                     //on Oracle, populate PK field from associated sequence
-                    XSqlParameter outParam = s_vendor.ProcessPkField(projData, colAtt, sb, sbValues, sbIdentity, ref numFieldsAdded) as XSqlParameter;
+                    // picrap TODO: use IDbCommand as IDbDataParemeter provider
+                    IDbDataParameter outParam = s_vendor.ProcessPkField(projData, colAtt, sb, sbValues, sbIdentity, ref numFieldsAdded);
                     if (outParam != null)
                     {
                         paramList.Add(outParam); //only Oracle adds an outParam
@@ -121,7 +98,8 @@ namespace DBLinq.Linq.clause
                 string paramName = s_vendor.ParamName(numFieldsAdded);
                 sbValues.Append(paramName);
 
-                XSqlParameter param = (XSqlParameter)s_vendor.CreateSqlParameter(colAtt.DbType, paramName);
+                // picrap TODO: use IDbCommand as IDbDataParemeter provider
+                IDbDataParameter param = s_vendor.CreateSqlParameter(colAtt.DbType, paramName);
 
                 param.Value = paramValue;
                 paramList.Add(param);
@@ -141,8 +119,8 @@ namespace DBLinq.Linq.clause
                 s_logOnceMap[sql] = "unused"; //log once only
             }
 
-            XSqlCommand cmd = new XSqlCommand(sql, conn);
-            foreach (XSqlParameter param in paramList)
+            cmd.CommandText=sql;
+            foreach (IDbDataParameter param in paramList)
             {
                 cmd.Parameters.Add(param);
             }
@@ -154,7 +132,7 @@ namespace DBLinq.Linq.clause
         /// return string '(ProductName, SupplierID, CategoryID, QuantityPerUnit)'
         /// (suitable for use in INSERT statement)
         /// </summary>
-        public static string InsertRowHeader(XSqlConnection conn, ProjectionData projData)
+        public static string InsertRowHeader(IDbConnection conn, ProjectionData projData)
         {
             StringBuilder sbNames = new StringBuilder("(");
             int numFieldsAdded = 0;
@@ -182,7 +160,7 @@ namespace DBLinq.Linq.clause
         /// In Mysql, called multiple times in a row to do a 'bulk insert'.
         /// </summary>
         public static string InsertRowFields(object objectToInsert, ProjectionData projData
-            , List<XSqlParameter> paramList, ref int numFieldsAdded)
+            , List<IDbDataParameter> paramList, ref int numFieldsAdded)
         {
             StringBuilder sbVals = new StringBuilder("(");
             string separator = "";
@@ -200,7 +178,7 @@ namespace DBLinq.Linq.clause
                 sbVals.Append(separator).Append(paramName);
                 separator = ", ";
 
-                XSqlParameter param = (XSqlParameter)s_vendor.CreateSqlParameter(colAtt.DbType, paramName);
+                IDbDataParameter param = s_vendor.CreateSqlParameter(colAtt.DbType, paramName);
 
                 param.Value = paramValue;
                 paramList.Add(param);
@@ -212,7 +190,7 @@ namespace DBLinq.Linq.clause
         /// given type Employee, return 'INSERT Employee (ID, Name) VALUES (?p1,?p2)'
         /// (by examining [Table] and [Column] attribs)
         /// </summary>
-        public static XSqlCommand GetUpdateCommand(XSqlConnection conn, object objectToInsert
+        public static IDbCommand GetUpdateCommand(IDbConnection conn, object objectToInsert
             , ProjectionData projData, string ID_to_update)
         {
             if (conn == null || objectToInsert == null || projData == null)
@@ -220,9 +198,11 @@ namespace DBLinq.Linq.clause
             if (projData.fields.Count < 1 || projData.fields[0].columnAttribute == null)
                 throw new ApplicationException("InsertClauseBuilder need to receive types that have ColumnAttributes");
 
+            IDbCommand cmd = conn.CreateCommand();
+
             StringBuilder sb = new StringBuilder("UPDATE ");
             sb.Append(projData.tableAttribute.Name).Append(" SET ");
-            List<XSqlParameter> paramList = new List<XSqlParameter>();
+            List<IDbDataParameter> paramList = new List<IDbDataParameter>();
 
             string primaryKeyName = null;
             int paramIndex = 0;
@@ -262,7 +242,7 @@ namespace DBLinq.Linq.clause
                 }
                 else
                 {
-                    XSqlParameter param = (XSqlParameter)s_vendor.CreateSqlParameter(colAtt.DbType, paramName);
+                    IDbDataParameter param = s_vendor.CreateSqlParameter(colAtt.DbType, paramName);
                     param.Value = paramValue;
                     paramList.Add(param);
                 }
@@ -291,8 +271,8 @@ namespace DBLinq.Linq.clause
                 s_logOnceMap[sql] = "unused"; //log once only
             }
 
-            XSqlCommand cmd = new XSqlCommand(sql, conn);
-            foreach (XSqlParameter param in paramList)
+            cmd.CommandText=sql;
+            foreach (IDbDataParameter param in paramList)
             {
                 cmd.Parameters.Add(param);
             }
