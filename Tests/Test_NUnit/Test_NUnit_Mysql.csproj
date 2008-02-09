@@ -1,8 +1,8 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.20706</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{858BAFF7-542F-4DBB-9C9B-57FCDE4DB7CE}</ProjectGuid>
     <OutputType>WinExe</OutputType>
@@ -82,13 +82,17 @@
     <Compile Include="WriteTest_BulkInsert.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\DbLinq\DbLinq.MySql.csproj">
-      <Project>{42B135DF-562B-48FD-9A63-43B1D30321A6}</Project>
-      <Name>DbLinq.MySql</Name>
-    </ProjectReference>
+    <None Include="Linq_101_Samples\101_readme.htm" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Linq_101_Samples\101_readme.htm" />
+    <ProjectReference Include="..\..\DbLinq.MySql\DbLinq.MySql.csproj">
+      <Project>{FA8D1068-3341-4956-BF94-54C6A816BD9E}</Project>
+      <Name>DbLinq.MySql</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\DbLinq\DbLinq.csproj">
+      <Project>{97305421-3071-4175-AA3C-9A432CC28121}</Project>
+      <Name>DbLinq</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

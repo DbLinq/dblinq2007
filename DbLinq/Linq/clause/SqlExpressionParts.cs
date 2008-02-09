@@ -27,6 +27,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using DBLinq.vendor;
 
 namespace DBLinq.Linq.clause
 {
@@ -36,8 +37,11 @@ namespace DBLinq.Linq.clause
     /// </summary>
     public class SqlExpressionParts //: ICloneable
     {
+        // picrap: a good pattern is to avoid static members (there may be thread problems)
         static int s_serial = 0;
         int _serial;
+
+        private IVendor _vendor;
 
         /// <summary>
         /// eg. {'Customers $c','Orders $o'}
@@ -120,13 +124,16 @@ namespace DBLinq.Linq.clause
         /// </summary>
         public readonly Dictionary<string, object> paramMap = new Dictionary<string, object>();
 
-        public SqlExpressionParts()
+        public SqlExpressionParts(IVendor vendor)
         {
             _serial = s_serial++;
+            _vendor = vendor;
         }
         public SqlExpressionParts(SqlExpressionParts orig)
         {
             _serial = s_serial++;
+            _vendor = orig._vendor;
+
             fromTableList = new List<string>(orig.fromTableList);
             selectFieldList = new List<string>(orig.selectFieldList);
             joinList = new List<string>(orig.joinList);
@@ -195,7 +202,7 @@ namespace DBLinq.Linq.clause
             List<string> whereAndjoins = new List<string>(joinList);
             whereAndjoins.AddRange(whereList);
 
-            bool isOracle = vendor.VendorFactory.Make().VendorName == "Oracle";
+            bool isOracle = _vendor.VendorName == "Oracle";
             if (isOracle && limitClause != null)
             {
                 //http://dotnet.org.za/thea/archive/2005/02/22/14715.aspx

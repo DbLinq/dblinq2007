@@ -46,8 +46,11 @@ namespace DBLinq.Linq.clause
         readonly StringBuilder sb = new StringBuilder(200);
         public List<string> columns = new List<string>();
 
-        public ParseResult()
+        private IVendor _vendor;
+
+        public ParseResult(IVendor vendor)
         {
+            _vendor = vendor;
         }
 
         public void addJoin(string joinStr)
@@ -98,7 +101,7 @@ namespace DBLinq.Linq.clause
                 if(tAttrib!=null)
                 {
                     //prepare fragment: "[order details] o$"
-                    string fromClause = QueryProcessor.s_vendor.FieldName_Safe(tAttrib.Name) + " " + RemoveTransparentId(t1.Value);
+                    string fromClause = _vendor.FieldName_Safe(tAttrib.Name) + " " + RemoveTransparentId(t1.Value);
 
                     sqlParts.AddFrom(fromClause);
                 }

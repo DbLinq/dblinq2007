@@ -1,5 +1,6 @@
 using System;
 using System.Data;
+using System.Data.OracleClient;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
@@ -7,7 +8,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
-using System.Data.OracleClient;
 using DBLinq.util;
 using DBLinq.Linq;
 
@@ -15,7 +15,7 @@ namespace DBLinq.vendor
 {
     public class VendorOra : VendorBase, IVendor
     {
-        public string VendorName { get { return VendorFactory.ORACLE; } }
+        public string VendorName { get { return "Oracle"; } }
 
         //public const string SQL_PING_COMMAND = "SELECT 11 FROM DUAL";
 
@@ -90,5 +90,10 @@ namespace DBLinq.vendor
             throw new NotImplementedException();
         }
 
+
+        public IDataReader2 CreateDataReader2(IDataReader dataReader)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

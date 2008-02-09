@@ -45,7 +45,7 @@ namespace DBLinq.Linq.clause
     /// </summary>
     public class ExpressionTreeParser
     {
-        static Dictionary<string, string> s_csharpOperatorToSqlMap = new Dictionary<string, string>()
+        static readonly Dictionary<string, string> s_csharpOperatorToSqlMap = new Dictionary<string, string>()
         {
             {"op_Equality", " = "},
             {"op_Inequality", " != "},
@@ -54,8 +54,6 @@ namespace DBLinq.Linq.clause
             {"op_LessThan", " > "},
             {"op_LessThanOrEqual", " <= "},
         };
-
-        static IVendor s_vendor = VendorFactory.Make();
 
         QueryProcessor _parent;
         ParseResult _result;
@@ -67,12 +65,12 @@ namespace DBLinq.Linq.clause
         /// main entry point for recursive analysis of an expression tree.
         /// </summary>
         /// <returns>ParseResult containing params, sql string</returns>
-        public static ParseResult Parse(QueryProcessor parent, Expression ex)
+        public static ParseResult Parse(IVendor vendor, QueryProcessor parent, Expression ex)
         {
             RecurData recur = new RecurData();
             ExpressionTreeParser parser = new ExpressionTreeParser();
             parser._parent = parent;
-            parser._result = new ParseResult();
+            parser._result = new ParseResult(vendor);
 
             parser.AnalyzeExpression(recur, ex); //recursion here
 
@@ -451,7 +449,7 @@ namespace DBLinq.Linq.clause
             ColumnAttribute columnAttrib = expr.Member.GetCustomAttributes(false).OfType<ColumnAttribute>().FirstOrDefault();
             string sqlColumnName = expr.Member.Name;
             if (columnAttrib != null)
-                sqlColumnName = s_vendor.FieldName_Safe(columnAttrib.Name);
+                sqlColumnName = _parent._vars.context.Vendor.FieldName_Safe(columnAttrib.Name);
             _result.AppendString(sqlColumnName);
         }
 
@@ -468,7 +466,7 @@ namespace DBLinq.Linq.clause
                 //process string length function here. 
                 //"LENGTH()" function seems to be available on Oracle,Mysql,PostgreSql
                 //Ha! it's called LEN() on MssqlServer
-                string length_func = s_vendor.String_Length_Function();
+                string length_func = _parent._vars.context.Vendor.String_Length_Function();
                 _result.AppendString(length_func + "(");
                 AnalyzeExpression(recurData, memberInner);
                 _result.AppendString(")");
@@ -686,7 +684,7 @@ namespace DBLinq.Linq.clause
                     strings.Add(new ExpressionAndType { expression = substr, type = concatPart2.Type });
                 }
                 _result.Revert(posInitial);
-                string sqlConcatStr = s_vendor.Concat(strings);
+                string sqlConcatStr = _parent._vars.context.Vendor.Concat(strings);
                 _result.AppendString(sqlConcatStr);
                 return;
             }

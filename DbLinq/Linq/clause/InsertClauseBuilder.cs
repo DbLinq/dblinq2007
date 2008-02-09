@@ -45,15 +45,13 @@ namespace DBLinq.Linq.clause
         //static object[] s_emptyIndices = new object[0];
         static Dictionary<string, string> s_logOnceMap = new Dictionary<string, string>();
 
-        static IVendor s_vendor = VendorFactory.Make();
-
         /// <summary>
         /// given type Employee, return 'INSERT Employee (ID, Name) VALUES (?p1,?p2)'
         /// (by examining [Table] and [Column] attribs)
         /// </summary>
-        public static IDbCommand GetClause(IDbConnection conn, object objectToInsert, ProjectionData projData)
+        public static IDbCommand GetClause(IVendor vendor, IDbConnection conn, object objectToInsert, ProjectionData projData)
         {
-            if (conn == null || objectToInsert == null || projData == null)
+            if (vendor == null || conn == null || objectToInsert == null || projData == null)
                 throw new ArgumentNullException("InsertClauseBuilder has null args");
             if (projData.fields.Count < 1 || projData.fields[0].columnAttribute == null)
                 throw new ApplicationException("InsertClauseBuilder need to receive types that have ColumnAttributes");
@@ -78,7 +76,7 @@ namespace DBLinq.Linq.clause
                     //Note: not every ID is autogen
                     //on Oracle, populate PK field from associated sequence
                     // picrap TODO: use IDbCommand as IDbDataParemeter provider
-                    IDbDataParameter outParam = s_vendor.ProcessPkField(projData, colAtt, sb, sbValues, sbIdentity, ref numFieldsAdded);
+                    IDbDataParameter outParam = vendor.ProcessPkField(projData, colAtt, sb, sbValues, sbIdentity, ref numFieldsAdded);
                     if (outParam != null)
                     {
                         paramList.Add(outParam); //only Oracle adds an outParam
@@ -95,11 +93,11 @@ namespace DBLinq.Linq.clause
                 sb.Append(colAtt.Name);
 
                 //get either ":p0" or "?p0"
-                string paramName = s_vendor.ParamName(numFieldsAdded);
+                string paramName = vendor.ParamName(numFieldsAdded);
                 sbValues.Append(paramName);
 
                 // picrap TODO: use IDbCommand as IDbDataParemeter provider
-                IDbDataParameter param = s_vendor.CreateSqlParameter(colAtt.DbType, paramName);
+                IDbDataParameter param = vendor.CreateSqlParameter(colAtt.DbType, paramName);
 
                 param.Value = paramValue;
                 paramList.Add(param);
@@ -159,7 +157,7 @@ namespace DBLinq.Linq.clause
         /// 
         /// In Mysql, called multiple times in a row to do a 'bulk insert'.
         /// </summary>
-        public static string InsertRowFields(object objectToInsert, ProjectionData projData
+        public static string InsertRowFields(IVendor vendor, object objectToInsert, ProjectionData projData
             , List<IDbDataParameter> paramList, ref int numFieldsAdded)
         {
             StringBuilder sbVals = new StringBuilder("(");
@@ -174,11 +172,11 @@ namespace DBLinq.Linq.clause
                 object paramValue = projFld.GetFieldValue(objectToInsert);
 
                 //get either ":p0" or "?p0"
-                string paramName = s_vendor.ParamName(numFieldsAdded++);
+                string paramName = vendor.ParamName(numFieldsAdded++);
                 sbVals.Append(separator).Append(paramName);
                 separator = ", ";
 
-                IDbDataParameter param = s_vendor.CreateSqlParameter(colAtt.DbType, paramName);
+                IDbDataParameter param = vendor.CreateSqlParameter(colAtt.DbType, paramName);
 
                 param.Value = paramValue;
                 paramList.Add(param);
@@ -190,15 +188,15 @@ namespace DBLinq.Linq.clause
         /// given type Employee, return 'INSERT Employee (ID, Name) VALUES (?p1,?p2)'
         /// (by examining [Table] and [Column] attribs)
         /// </summary>
-        public static IDbCommand GetUpdateCommand(IDbConnection conn, object objectToInsert
+        public static IDbCommand GetUpdateCommand(SessionVars vars, object objectToInsert
             , ProjectionData projData, string ID_to_update)
         {
-            if (conn == null || objectToInsert == null || projData == null)
+            if (vars == null || objectToInsert == null || projData == null)
                 throw new ArgumentNullException("InsertClauseBuilder has null args");
             if (projData.fields.Count < 1 || projData.fields[0].columnAttribute == null)
                 throw new ApplicationException("InsertClauseBuilder need to receive types that have ColumnAttributes");
 
-            IDbCommand cmd = conn.CreateCommand();
+            IDbCommand cmd = vars.context.Connection.CreateCommand();
 
             StringBuilder sb = new StringBuilder("UPDATE ");
             sb.Append(projData.tableAttribute.Name).Append(" SET ");
@@ -212,7 +210,7 @@ namespace DBLinq.Linq.clause
             {
                 ColumnAttribute colAtt = projFld.columnAttribute;
 
-                string columnName_safe = s_vendor.FieldName_Safe(colAtt.Name); //turn 'User' into '[User]'
+                string columnName_safe = vars.context.Vendor.FieldName_Safe(colAtt.Name); //turn 'User' into '[User]'
 
                 if (colAtt.IsPrimaryKey) 
                 {
@@ -229,7 +227,7 @@ namespace DBLinq.Linq.clause
                 }
                 else
                 {
-                    paramName = s_vendor.ParamName(paramIndex++);
+                    paramName = vars.context.Vendor.ParamName(paramIndex++);
                 }
 
                 //append string, eg. ",Name=:p0"
@@ -242,7 +240,7 @@ namespace DBLinq.Linq.clause
                 }
                 else
                 {
-                    IDbDataParameter param = s_vendor.CreateSqlParameter(colAtt.DbType, paramName);
+                    IDbDataParameter param = vars.context.Vendor.CreateSqlParameter(colAtt.DbType, paramName);
                     param.Value = paramValue;
                     paramList.Add(param);
                 }

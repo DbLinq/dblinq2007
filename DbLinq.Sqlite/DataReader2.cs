@@ -42,9 +42,9 @@ namespace DBLinq.util
     public class DataReader2 : IDisposable, DBLinq.vendor.IDataReader2 //, IDataRecord
     {
         SQLiteDataReader _rdr;
-        public DataReader2(SQLiteDataReader rdr)
+        public DataReader2(IDataReader rdr)
         {
-            _rdr = rdr;
+            _rdr = (SQLiteDataReader)rdr;
         }
         
         /// <summary>

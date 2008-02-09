@@ -41,7 +41,7 @@ namespace DBLinq.Linq
     {
         void processWhereClause(LambdaExpression lambda)
         {
-            ParseResult result = ExpressionTreeParser.Parse(this, lambda.Body);
+            ParseResult result = ExpressionTreeParser.Parse(_vars.context.Vendor, this, lambda.Body);
 
             if (GroupHelper.IsGrouping(lambda.Parameters[0].Type))
             {
@@ -79,7 +79,7 @@ namespace DBLinq.Linq
             }
             else
             {
-                ParseResult result = ExpressionTreeParser.Parse(this, body);
+                ParseResult result = ExpressionTreeParser.Parse(_vars.context.Vendor, this, body);
                 _vars._sqlParts.AddSelect(result.columns);
                 result.CopyInto(this, _vars._sqlParts); //transfer params and tablesUsed
 
@@ -94,7 +94,7 @@ namespace DBLinq.Linq
 
         void processOrderByClause(LambdaExpression orderByExpr, string orderBy_desc)
         {
-            ParseResult result = ExpressionTreeParser.Parse(this, orderByExpr.Body);
+            ParseResult result = ExpressionTreeParser.Parse(_vars.context.Vendor, this, orderByExpr.Body);
             string orderByFields = string.Join(",", result.columns.ToArray());
             _vars._sqlParts.orderByList.Add(orderByFields);
             _vars._sqlParts.orderBy_desc = orderBy_desc; //copy 'DESC' specifier
@@ -114,12 +114,12 @@ namespace DBLinq.Linq
             string joinField1, joinField2;
             //processSelectClause(arg2.XLambda());
             {
-                result = ExpressionTreeParser.Parse(this, arg2.XLambda().Body);
+                result = ExpressionTreeParser.Parse(_vars.context.Vendor, this, arg2.XLambda().Body);
                 joinField1 = result.columns[0]; // "p$.ProductID"
                 result.CopyInto(this, _vars._sqlParts); //transfer params and tablesUsed
             }
             {
-                result = ExpressionTreeParser.Parse(this, arg3.XLambda().Body);
+                result = ExpressionTreeParser.Parse(_vars.context.Vendor, this, arg3.XLambda().Body);
                 joinField2 = result.columns[0]; // "p$.ProductID"
                 result.CopyInto(this, _vars._sqlParts); //transfer params and tablesUsed
             }
@@ -180,7 +180,7 @@ namespace DBLinq.Linq
                     {
                         MemberExpression memberExpression = lambda1.Body as MemberExpression;
                         ParameterExpression paramExpression = lambda2.Parameters[1];
-                        ParseResult result = new ParseResult();
+                        ParseResult result = new ParseResult(_vars.context.Vendor);
                         JoinBuilder.AddJoin1(memberExpression, paramExpression, result);
                         result.CopyInto(this, _vars._sqlParts);  //transfer params and tablesUsed
                     }
@@ -288,7 +288,7 @@ namespace DBLinq.Linq
         void processGroupByLambda(LambdaExpression groupBy)
         {
             _vars.groupByExpr = groupBy;
-            ParseResult result = ExpressionTreeParser.Parse(this, groupBy.Body);
+            ParseResult result = ExpressionTreeParser.Parse(_vars.context.Vendor, this, groupBy.Body);
             string groupByFields = string.Join(",", result.columns.ToArray());
             _vars._sqlParts.groupByList.Add(groupByFields);
 
@@ -303,7 +303,7 @@ namespace DBLinq.Linq
 
             if (_vars.groupByNewExpr != null)
             {
-                result = ExpressionTreeParser.Parse(this, _vars.groupByNewExpr.Body);
+                result = ExpressionTreeParser.Parse(_vars.context.Vendor, this, _vars.groupByNewExpr.Body);
                 _vars._sqlParts.AddSelect(result.columns);
                 result.CopyInto(this, _vars._sqlParts); //transfer params and tablesUsed
             }

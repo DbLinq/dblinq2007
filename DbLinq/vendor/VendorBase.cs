@@ -75,7 +75,7 @@ namespace DBLinq.vendor
         //{
         //    throw new NotImplementedException();
         //}
-        public int ExecuteCommand(DBLinq.Linq.DataContext context, string sql, params object[] parameters)
+        public virtual int ExecuteCommand(DBLinq.Linq.DataContext context, string sql, params object[] parameters)
         {
             IDbConnection conn = context.ConnectionProvider.Connection;
             using (IDbCommand command = conn.CreateCommand())
@@ -91,6 +91,20 @@ namespace DBLinq.vendor
                     return (int)(decimal)objResult;
                 return 0;
             }
+        }
+
+        public virtual bool CanBulkInsert<T>(DBLinq.Linq.Table<T> table)
+        {
+            return false;
+        }
+
+        public virtual void SetBulkInsert<T>(DBLinq.Linq.Table<T> table, int pageSize)
+        {
+        }
+
+        public virtual void DoBulkInsert<T>(DBLinq.Linq.Table<T> table, List<T> rows, IDbConnection conn)
+        {
+            throw new NotImplementedException();
         }
     }
 }

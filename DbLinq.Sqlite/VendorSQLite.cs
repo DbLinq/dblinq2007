@@ -44,7 +44,7 @@ namespace DBLinq.vendor.sqlite
     /// </summary>
     public class VendorSqlite : VendorBase, IVendor
     {
-        public string VendorName { get { return VendorFactory.SQLITE; } }
+        public string VendorName { get { return "SQLite"; } }
 
         /// <summary>
         /// Client code needs to specify: 'Vendor.UserBulkInsert[db.Products]=10' to enable bulk insert, 10 rows at a time.
@@ -135,14 +135,29 @@ namespace DBLinq.vendor.sqlite
             return param;
         }
 
+        public IDataReader2 CreateDataReader2(IDataReader dataReader)
+        {
+            return new DataReader2(dataReader);
+        }
+
+        public override bool CanBulkInsert<T>(DBLinq.Linq.Table<T> table)
+        {
+            return UseBulkInsert.ContainsKey(table);
+        }
+
+        public override void SetBulkInsert<T>(DBLinq.Linq.Table<T> table, int pageSize)
+        {
+            UseBulkInsert[table] = pageSize;
+        }
+
         /// <summary>
         /// for large number of rows, we want to use BULK INSERT, 
         /// because it does not fill up the translation log.
         /// This is enabled for tables where Vendor.UserBulkInsert[db.Table] is true.
         /// </summary>
-        public static void DoBulkInsert<T>(DBLinq.Linq.Table<T> table, List<T> rows, SQLiteConnection conn)
+        public virtual void DoBulkInsert<T>(DBLinq.Linq.Table<T> table, List<T> rows, IDbConnection conn)
         {
-            int pageSize = VendorSqlite.UseBulkInsert[table];
+            int pageSize = UseBulkInsert[table];
             //ProjectionData projData = ProjectionData.FromReflectedType(typeof(T));
             ProjectionData projData = AttribHelper.GetProjectionData(typeof(T));
             TableAttribute tableAttrib = typeof(T).GetCustomAttributes(false).OfType<TableAttribute>().Single();
@@ -154,20 +169,21 @@ namespace DBLinq.vendor.sqlite
             {
                 int numFieldsAdded = 0;
                 StringBuilder sbValues = new StringBuilder(" VALUES ");
-                List<SQLiteParameter> paramList = new List<SQLiteParameter>();
+                List<IDbDataParameter> paramList = new List<IDbDataParameter>();
 
                 //package up all fields in N rows:
                 string separator = "";
                 foreach (T row in page)
                 {
                     //prepare values = "(?P1, ?P2, ?P3, ?P4)"
-                    string values = InsertClauseBuilder.InsertRowFields(row, projData, paramList, ref numFieldsAdded);
+                    string values = InsertClauseBuilder.InsertRowFields(this, row, projData, paramList, ref numFieldsAdded);
                     sbValues.Append(separator).Append(values);
                     separator = ", ";
                 }
 
                 string sql = header + sbValues; //'INSET t1 (field1) VALUES (11),(12)'
-                SQLiteCommand cmd = new SQLiteCommand(sql, conn);
+                IDbCommand cmd = conn.CreateCommand();
+                cmd.CommandText = sql;
                 paramList.ForEach(param => cmd.Parameters.Add(param));
 
                 int result = cmd.ExecuteNonQuery();
@@ -194,13 +210,14 @@ namespace DBLinq.vendor.sqlite
             //if (numRequiredParams != inputValues.Length)
             //    throw new ArgumentException("L161 Argument count mismatch");
 
-            SQLiteConnection conn = context.SqlConnection;
+            IDbConnection conn = context.ConnectionProvider.Connection;
             //conn.Open();
 
             string sp_name = functionAttrib.Name;
 
-            using (SQLiteCommand command = new SQLiteCommand(sp_name, conn))
+            using (SQLiteCommand command = (SQLiteCommand)conn.CreateCommand())
             {
+                command.CommandText = sp_name;
                 //SQLiteCommand command = new SQLiteCommand("select hello0()");
                 int currInputIndex = 0;
 
@@ -318,21 +335,6 @@ namespace DBLinq.vendor.sqlite
                 }
             }
             return outParamValues;
-        }
-
-        public int ExecuteCommand(DBLinq.Linq.DataContext context, string sql, params object[] parameters)
-        {
-            SQLiteConnection conn = context.SqlConnection;
-            using (SQLiteCommand command = new SQLiteCommand(sql, conn))
-            {
-                //return command.ExecuteNonQuery();
-                object objResult = command.ExecuteScalar();
-                if (objResult is int)
-                    return (int)objResult;
-                if (objResult is long)
-                    return (int)(long)objResult;
-                return 0;
-            }
         }
     }
 

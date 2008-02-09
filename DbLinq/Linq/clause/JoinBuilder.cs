@@ -30,6 +30,7 @@ using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using DBLinq.util;
+using DBLinq.vendor;
 
 namespace DBLinq.Linq.clause
 {
@@ -149,7 +150,7 @@ namespace DBLinq.Linq.clause
                         nick2 = VarName.GetSqlName(Char.ToLower(parentTypeName[0]) + "94"); 
                         nick1 = VarName.GetSqlName(paramExpr.Name);
                         type2 = exprOuter.Type;
-                        SqlExpressionParts sqlParts = new SqlExpressionParts();
+                        SqlExpressionParts sqlParts = new SqlExpressionParts(qp._vars.context.Vendor);
                         FromClauseBuilder.SelectAllFields(null, sqlParts,type2, nick2);
                         result.AppendString(sqlParts.GetSelect());
                         break;
