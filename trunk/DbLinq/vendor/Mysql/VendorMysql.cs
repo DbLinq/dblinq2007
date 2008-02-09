@@ -128,7 +128,7 @@ namespace DBLinq.vendor.mysql
         /// because it does not fill up the translation log.
         /// This is enabled for tables where Vendor.UserBulkInsert[db.Table] is true.
         /// </summary>
-        public static void DoBulkInsert<T>(DBLinq.Linq.Table<T> table, List<T> rows, MySqlConnection conn)
+        public static void DoBulkInsert<T>(DBLinq.Linq.Table<T> table, List<T> rows, IDbConnection conn)
         {
             int pageSize = VendorMysql.UseBulkInsert[table];
             //ProjectionData projData = ProjectionData.FromReflectedType(typeof(T));
@@ -142,7 +142,7 @@ namespace DBLinq.vendor.mysql
             {
                 int numFieldsAdded = 0;
                 StringBuilder sbValues = new StringBuilder(" VALUES ");
-                List<MySqlParameter> paramList = new List<MySqlParameter>();
+                List<IDbDataParameter> paramList = new List<IDbDataParameter>();
 
                 //package up all fields in N rows:
                 string separator = "";
@@ -155,7 +155,8 @@ namespace DBLinq.vendor.mysql
                 }
 
                 string sql = header + sbValues; //'INSET t1 (field1) VALUES (11),(12)'
-                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                IDbCommand cmd=conn.CreateCommand();
+                cmd.CommandText = sql;
                 paramList.ForEach(param => cmd.Parameters.Add(param));
 
                 int result = cmd.ExecuteNonQuery();
@@ -182,13 +183,15 @@ namespace DBLinq.vendor.mysql
             //if (numRequiredParams != inputValues.Length)
             //    throw new ArgumentException("L161 Argument count mismatch");
 
-            MySql.Data.MySqlClient.MySqlConnection conn = context.SqlConnection;
+            IDbConnection conn = context.ConnectionProvider.Connection;;
             //conn.Open();
 
             string sp_name = functionAttrib.Name;
 
-            using (MySqlCommand command = new MySqlCommand(sp_name, conn))
+            // picrap: is there any way to abstract some part of this?
+            using (MySqlCommand command = (MySqlCommand)conn.CreateCommand())
             {
+                command.CommandText = sp_name;
                 //MySqlCommand command = new MySqlCommand("select hello0()");
                 int currInputIndex = 0;
 
@@ -306,21 +309,6 @@ namespace DBLinq.vendor.mysql
                 }
             }
             return outParamValues;
-        }
-
-        public int ExecuteCommand(DBLinq.Linq.DataContext context, string sql, params object[] parameters)
-        {
-            MySql.Data.MySqlClient.MySqlConnection conn = context.SqlConnection;
-            using (MySqlCommand command = new MySqlCommand(sql, conn))
-            {
-                //return command.ExecuteNonQuery();
-                object objResult = command.ExecuteScalar();
-                if (objResult is int)
-                    return (int)objResult;
-                if (objResult is long)
-                    return (int)(long)objResult;
-                return 0;
-            }
         }
     }
 

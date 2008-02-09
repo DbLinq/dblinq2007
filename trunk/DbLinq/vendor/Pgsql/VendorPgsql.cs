@@ -135,13 +135,15 @@ namespace DBLinq.vendor.pgsql
             //if (numRequiredParams != inputValues.Length)
             //    throw new ArgumentException("L161 Argument count mismatch");
 
-            NpgsqlConnection conn = context.SqlConnection;
+            IDbConnection conn = context.ConnectionProvider.Connection;
             //conn.Open();
 
             string sp_name = functionAttrib.Name;
 
-            using (NpgsqlCommand command = new NpgsqlCommand(sp_name, conn))
+            // picrap: FIXme
+            using (NpgsqlCommand command = (NpgsqlCommand) conn.CreateCommand())
             {
+                command.CommandText = sp_name;
                 //MySqlCommand command = new MySqlCommand("select hello0()");
                 int currInputIndex = 0;
 
@@ -260,21 +262,6 @@ namespace DBLinq.vendor.pgsql
                 }
             }
             return outParamValues;
-        }
-
-        public int ExecuteCommand(DBLinq.Linq.DataContext context, string sql, params object[] parameters)
-        {
-            NpgsqlConnection conn = context.SqlConnection;
-            using (NpgsqlCommand command = new NpgsqlCommand(sql, conn))
-            {
-                //return command.ExecuteNonQuery();
-                object objResult = command.ExecuteScalar();
-                if (objResult is int)
-                    return (int)objResult;
-                if (objResult is long)
-                    return (int)(long)objResult;
-                return 0;
-            }
         }
 
     }

@@ -41,8 +41,8 @@ namespace DBLinq.util
     /// </summary>
     public class DataReader2 : IDisposable, DBLinq.vendor.IDataReader2 //, IDataRecord
     {
-        OracleDataReader _rdr;
-        public DataReader2(OracleDataReader rdr)
+        IDataReader _rdr;
+        public DataReader2(IDataReader rdr)
         {
             _rdr = rdr;
         }

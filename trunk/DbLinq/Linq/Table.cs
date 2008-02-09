@@ -25,6 +25,7 @@
 #endregion
 
 using System;
+using System.Data;
 using System.Reflection;
 using System.IO;
 using System.Diagnostics;
@@ -36,28 +37,6 @@ using System.Linq.Expressions;
 
 //using System.Data.DLinq;
 
-#if ORACLE
-using System.Data.OracleClient;
-using XSqlConnection = System.Data.OracleClient.OracleConnection;
-using XSqlCommand = System.Data.OracleClient.OracleCommand;
-#elif POSTGRES
-using XSqlConnection = Npgsql.NpgsqlConnection;
-using XSqlCommand = Npgsql.NpgsqlCommand;
-#elif MICROSOFT
-using System.Data.SqlClient;
-using XSqlConnection = System.Data.SqlClient.SqlConnection;
-using XSqlCommand = System.Data.SqlClient.SqlCommand;
-using XSqlParameter = System.Data.SqlClient.SqlParameter;
-#elif SQLITE
-using System.Data.SQLite;
-using XSqlConnection = System.Data.SQLite.SQLiteConnection;
-using XSqlCommand = System.Data.SQLite.SQLiteCommand;
-using XSqlParameter = System.Data.SQLite.SQLiteParameter;
-#else
-using MySql.Data.MySqlClient;
-using XSqlConnection = MySql.Data.MySqlClient.MySqlConnection;
-using XSqlCommand = MySql.Data.MySqlClient.MySqlCommand;
-#endif
 using DBLinq.Linq.clause;
 using DBLinq.util;
 using DBLinq.vendor;
@@ -227,7 +206,7 @@ namespace DBLinq.Linq
             if (_insertList.Count == 0 && _liveObjectMap.Count == 0 && _deleteList.Count == 0)
                 return new List<Exception>(); //nothing to do
 
-            XSqlConnection conn = _parentDB.SqlConnection;
+            IDbConnection conn = _parentDB.ConnectionProvider.Connection;
 
             using(new ConnectionManager(conn))
             {
@@ -235,7 +214,7 @@ namespace DBLinq.Linq
             } //Dispose(): close connection, if it was initally closed
         }
 
-        private List<Exception> SaveAll_unsafe(XSqlConnection conn, System.Data.Linq.ConflictMode failureMode)
+        private List<Exception> SaveAll_unsafe(IDbConnection conn, System.Data.Linq.ConflictMode failureMode)
         {
             List<Exception> excepts = new List<Exception>();
             //TODO: process deleteList, insertList, liveObjectList
@@ -263,7 +242,7 @@ namespace DBLinq.Linq
                 //INSERT INTO EMPLOYEES (EmpId, Name, DateStarted) VALUES (EmpID_SEQ.NextVal,?p1,?p2); SELECT EmpID_SEQ.CurrVal
                 try
                 {
-                    using (XSqlCommand cmd = InsertClauseBuilder.GetClause(conn, obj, proj))
+                    using (IDbCommand cmd = InsertClauseBuilder.GetClause(conn, obj, proj))
                     {
                         object objID = null;
                         objID = cmd.ExecuteScalar();
@@ -322,7 +301,7 @@ namespace DBLinq.Linq
                     Trace.WriteLine("MTable SaveAll: saving modified object");
                     string ID_to_update = getObjectID(obj);
 
-                    XSqlCommand cmd = InsertClauseBuilder.GetUpdateCommand(conn, iMod, proj, ID_to_update);
+                    IDbCommand cmd = InsertClauseBuilder.GetUpdateCommand(conn, iMod, proj, ID_to_update);
                     int result = cmd.ExecuteNonQuery();
                     Trace.WriteLine("MTable SaveAll.Update returned:" + result);
 
@@ -392,7 +371,8 @@ namespace DBLinq.Linq
                 string tableName = proj.tableAttribute.Name;
                 string sql = "DELETE FROM " + tableName + " WHERE " + proj.keyColumnName + " in (" + sbDeleteIDs + ")";
                 Trace.WriteLine("MTable SaveAll.Delete: " + sql);
-                XSqlCommand cmd = new XSqlCommand(sql, _parentDB.SqlConnection);
+                IDbCommand cmd = _parentDB.ConnectionProvider.Connection.CreateCommand();
+                cmd.CommandText = sql;
                 int result = cmd.ExecuteNonQuery();
                 Trace.WriteLine("MTable SaveAll.Delete returned:" + result);
             }

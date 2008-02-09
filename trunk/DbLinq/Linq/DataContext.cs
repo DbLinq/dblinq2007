@@ -30,29 +30,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using DBLinq.Linq.Connection;
 using DBLinq.vendor;
 using DBLinq.util;
-
-#if ORACLE
-using System.Data.OracleClient;
-using XSqlConnection = System.Data.OracleClient.OracleConnection;
-using XSqlCommand = System.Data.OracleClient.OracleCommand;
-#elif POSTGRES
-using XSqlConnection = Npgsql.NpgsqlConnection;
-using XSqlCommand = Npgsql.NpgsqlCommand;
-#elif MICROSOFT
-using System.Data.SqlClient;
-using XSqlConnection = System.Data.SqlClient.SqlConnection;
-using XSqlCommand = System.Data.SqlClient.SqlCommand;
-#elif SQLITE
-using System.Data.SQLite;
-using XSqlConnection = System.Data.SQLite.SQLiteConnection;
-using XSqlCommand = System.Data.SQLite.SQLiteCommand;
-#else
-using MySql.Data.MySqlClient;
-using XSqlConnection = MySql.Data.MySqlClient.MySqlConnection;
-using XSqlCommand = MySql.Data.MySqlClient.MySqlCommand;
-#endif
 
 namespace DBLinq.Linq
 {
@@ -64,17 +44,18 @@ namespace DBLinq.Linq
         readonly List<IMTable> _tableList = new List<IMTable>();
         System.IO.TextWriter _log;
 
-        readonly string _sqlConnString;
-        XSqlConnection _conn;
-
         readonly Dictionary<string, IMTable> _tableMap = new Dictionary<string, IMTable>();
 
-        public DataContext(string sqlConnString)
-        {
-            _sqlConnString = sqlConnString;
-            _conn = new XSqlConnection(sqlConnString);
-            _conn.Open();
-        }
+        protected IConnectionProvider connectionProvider;
+        public IConnectionProvider ConnectionProvider { get { return connectionProvider; } }
+
+        // picrap: commented out this feature: we're going to be db independant
+        //public DataContext(string sqlConnString)
+        //{
+        //    _sqlConnString = sqlConnString;
+        //    _conn = new XSqlConnection(sqlConnString);
+        //    _conn.Open();
+        //}
 
         /// <summary>
         /// A DataContext opens and closes a database connection as needed 
@@ -85,11 +66,13 @@ namespace DBLinq.Linq
         /// </summary>
         /// <param name="dbConnection"></param>
         public DataContext(System.Data.IDbConnection dbConnection)
+            : this(new DefaultConnectionProvider(dbConnection))
         {
-            if (dbConnection == null)
-                throw new ArgumentNullException("Null db connection");
-            _conn = dbConnection as XSqlConnection;
-            _sqlConnString = dbConnection.ConnectionString;
+            // picrap: removed this, we fall from the most specific cases to the most generic ones (IConnectionProvider)
+            //if (dbConnection == null)
+            //    throw new ArgumentNullException("Null db connection");
+            //_conn = dbConnection as XSqlConnection;
+            //_sqlConnString = dbConnection.ConnectionString;
             //try
             //{
             //    _conn.Open();
@@ -99,19 +82,26 @@ namespace DBLinq.Linq
             //}
         }
 
-        public XSqlConnection SqlConnection
+        public DataContext(IConnectionProvider connectionProvider)
         {
-            [DebuggerStepThrough]
-            get { return _conn; }
+            if (connectionProvider == null)
+                throw new ArgumentNullException("Null connectionProvider");
+            this.connectionProvider = connectionProvider;
         }
 
-        public string SqlConnString { get { return _sqlConnString; } }
+        //public XSqlConnection SqlConnection
+        //{
+        //    [DebuggerStepThrough]
+        //    get { return _conn; }
+        //}
+
+        //public string SqlConnString { get { return _sqlConnString; } }
 
         public bool DatabaseExists()
         {
             try
             {
-                using (new ConnectionManager(_conn))
+                using (new ConnectionManager(connectionProvider.Connection))
                 {
                     //command: "SELECT 11" (Oracle: "SELECT 11 FROM DUAL")
                     string SQL = s_vendor.SqlPingCommand;
@@ -156,10 +146,10 @@ namespace DBLinq.Linq
             //TODO: perform all queued up operations - INSERT,DELETE,UPDATE
             //TODO: insert order must be: first parent records, then child records
 
-            using (new ConnectionManager(_conn)) //ConnMgr will close connection for us
+            using (new ConnectionManager(connectionProvider.Connection)) //ConnMgr will close connection for us
 
             //TranMgr may start transaction /  commit transaction
-            using (TransactionManager transactionMgr = new TransactionManager(_conn, failureMode)) 
+            using (TransactionManager transactionMgr = new TransactionManager(connectionProvider.Connection, failureMode)) 
             {
                 foreach (IMTable tbl in _tableList)
                 {
@@ -230,7 +220,7 @@ namespace DBLinq.Linq
         /// </summary>
         protected System.Data.Linq.IExecuteResult ExecuteMethodCall(DataContext context, System.Reflection.MethodInfo method, params object[] sqlParams)
         {
-            using (new ConnectionManager(_conn))
+            using (new ConnectionManager(connectionProvider.Connection))
             {
                 System.Data.Linq.IExecuteResult result = s_vendor.ExecuteMethodCall(context, method, sqlParams);
                 return result;
@@ -254,7 +244,7 @@ namespace DBLinq.Linq
         /// </summary>
         public int ExecuteCommand(string command, params object[] parameters)
         {
-            using (new ConnectionManager(_conn))
+            using (new ConnectionManager(connectionProvider.Connection))
             {
                 return s_vendor.ExecuteCommand(this, command, parameters);
             }

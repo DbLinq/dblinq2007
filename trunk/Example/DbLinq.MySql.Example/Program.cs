@@ -1,5 +1,5 @@
-﻿#define USE_STORED_PROCS
-#define USE_AllTypes
+﻿//#define USE_STORED_PROCS
+//#define USE_AllTypes
 
 using System;
 using System.Collections.Generic;
@@ -14,9 +14,9 @@ namespace DbLinq.MySql.Example
 {
     class Program
     {
-        static void Main_(string[] args)
+        static void Main(string[] args)
         {
-            if (args.Length != 4)
+/*            if (args.Length != 4)
             {
                 Console.WriteLine("Usage: DbLinq.MySql.Example.exe server user password database");
                 Console.WriteLine("Debug arguments can be set on project properties in visual studio.");
@@ -28,7 +28,7 @@ namespace DbLinq.MySql.Example
             string connStr = String.Format("server={0};user id={1}; password={2}; database={3}", args);
             insertTest(connStr);
             return;
-
+*/
 #if false
             MySqlCommand cmd = new MySqlCommand("select hello(?s)", new MySqlConnection(connStr));
             //cmd.CommandType = CommandType.StoredProcedure;
@@ -39,6 +39,9 @@ namespace DbLinq.MySql.Example
             object obj = cmd.ExecuteScalar();
 #endif
             // BUG: contexts must to be disposable
+            string connStr = String.Format("server={0};user id={1}; password={2}; database={3}"
+                , "DbLinqServer", "LinqUser", "linq2", "Northwind");
+
             Northwind db = new Northwind(connStr);
 
 #if USE_STORED_PROCS
@@ -143,7 +146,7 @@ namespace DbLinq.MySql.Example
             //result++;
         }
 
-        static void Main(string[] args)
+        static void Main2(string[] args)
         {
             string connStr = String.Format("server={0};user id={1}; password={2}; database={3}"
                 , "localhost", "LinqUser", "linq2", "AllTypes");

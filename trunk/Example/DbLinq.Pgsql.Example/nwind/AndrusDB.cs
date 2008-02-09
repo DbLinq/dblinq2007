@@ -22,7 +22,7 @@ namespace AndrusDB
     public partial class Andrus : DataContext
     {
         public Andrus(string connStr)
-            : base(connStr)
+            : base(new Npgsql.NpgsqlConnection( connStr))
         {
         }
         public Andrus(System.Data.IDbConnection connection)

@@ -21,7 +21,7 @@ namespace nwind
 	/// </summary>
 	public partial class Northwind : DataContext
 	{
-		public Northwind(string connStr) : base(connStr)
+		public Northwind(string connStr) : base(new System.Data.OracleClient.OracleConnection(connStr))
 		{
 		}
 		public Northwind(System.Data.IDbConnection connection) : base(connection)

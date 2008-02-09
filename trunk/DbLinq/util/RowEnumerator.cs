@@ -34,36 +34,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
-
-#if ORACLE
-using System.Data.OracleClient;
-using XSqlCommand = System.Data.OracleClient.OracleCommand;
-using XSqlDataReader = System.Data.OracleClient.OracleDataReader;
-using XSqlConnection = System.Data.OracleClient.OracleConnection;
-#elif POSTGRES
-using Npgsql;
-using XSqlCommand = Npgsql.NpgsqlCommand;
-using XSqlDataReader = Npgsql.NpgsqlDataReader;
-using XSqlConnection = Npgsql.NpgsqlConnection;
-#elif MICROSOFT
-using System.Data.SqlClient;
-using XSqlConnection = System.Data.SqlClient.SqlConnection;
-using XSqlCommand = System.Data.SqlClient.SqlCommand;
-using XSqlDataReader = System.Data.SqlClient.SqlDataReader;
-#elif SQLITE
-using System.Data.SQLite;
-using XSqlConnection = System.Data.SQLite.SQLiteConnection;
-using XSqlCommand = System.Data.SQLite.SQLiteCommand;
-using XSqlDataReader = System.Data.SQLite.SQLiteDataReader;
-#else
-using MySql.Data.MySqlClient;
-using XSqlCommand = MySql.Data.MySqlClient.MySqlCommand;
-using XSqlDataReader = MySql.Data.MySqlClient.MySqlDataReader;
-using XSqlConnection = MySql.Data.MySqlClient.MySqlConnection;
-#endif
 using DBLinq.util;
 using DBLinq.Linq;
 using DBLinq.Linq.clause;
+using DBLinq.vendor;
 
 namespace DBLinq.util
 {
@@ -76,7 +50,7 @@ namespace DBLinq.util
         , IQueryText
     {
         protected SessionVarsParsed _vars;
-        protected XSqlConnection _conn;
+        protected IDbConnection _conn;
 
         //while the FatalExecuteEngineError persists, we use a wrapper class to retrieve data
         protected Func<DataReader2,T> _objFromRow2;
@@ -86,7 +60,7 @@ namespace DBLinq.util
         Dictionary<T,T> _liveObjectMap;
         internal string _sqlString;
         ConnectionManager _connectionManager;
-        XSqlDataReader _rdr;
+        IDataReader _rdr;
 
         public RowEnumerator(SessionVarsParsed vars, Dictionary<T,T> liveObjectMap)
         {
@@ -95,7 +69,7 @@ namespace DBLinq.util
             //for [Table] objects only: keep objects (to save them if they get modified)
             _liveObjectMap = liveObjectMap; 
 
-            _conn = vars.context.SqlConnection;
+            _conn = vars.context.ConnectionProvider.Connection;
             _projectionData = vars.projectionData;
             if (_conn == null)
                 throw new ApplicationException("Connection is null");
@@ -116,39 +90,43 @@ namespace DBLinq.util
 
         public string GetQueryText(){ return _sqlString; }
 
-        protected XSqlCommand ExecuteSqlCommand(XSqlConnection newConn, out DataReader2 rdr2)
+        protected IDbCommand ExecuteSqlCommand(IDbConnection newConn, out DataReader2 rdr2)
         {
             //prepend user prolog string, if any
             string sqlFull = DBLinq.vendor.Settings.sqlStatementProlog + _sqlString;
 
-            XSqlCommand cmd = new XSqlCommand(sqlFull, newConn);
+
+            IDbCommand cmd = newConn.CreateCommand();
+            cmd.CommandText = sqlFull;
 
             if(_vars._sqlParts!=null)
             {
                 foreach(string paramName in _vars._sqlParts.paramMap.Keys){
                     object value = _vars._sqlParts.paramMap[paramName];
                     Trace.WriteLine("SQL PARAM: "+paramName+" = "+value);
-#if MICROSOFT
-                    cmd.Parameters.AddWithValue(paramName, value);
-#elif SQLITE
-                    cmd.Parameters.AddWithValue(paramName, value);
-#else
-                    cmd.Parameters.Add(paramName, value); //warning CS0618: Add is obsolete:
-#endif
+
+                    IDbDataParameter parameter = cmd.CreateParameter();
+                    parameter.ParameterName = paramName;
+                    parameter.Value = value;
+
+                    cmd.Parameters.Add(parameter);
                 }
             }
 
             //Console.WriteLine("cmd.ExecuteCommand()");
             //XSqlDataReader _rdr = cmd.ExecuteReader();
+            // picrap: right we should remove IDataReader2 (even if this this is hard work :))
             _rdr = cmd.ExecuteReader();
+            // picrap: and also this
             rdr2 = new DataReader2(_rdr);
 
-            if (_vars.context.Log != null)
+            // picrap: need to solve the HasRows mystery
+/*            if (_vars.context.Log != null)
             {
                 int fields = _rdr.FieldCount;
                 string hasRows = _rdr.HasRows ? "rows: yes" : "rows: no";
                 _vars.context.Log.WriteLine("ExecuteSqlCommand numFields=" + fields + " " + hasRows);
-            }
+            }*/
             return cmd;
         }
 
@@ -162,7 +140,7 @@ namespace DBLinq.util
 
             if (_rdr != null)
             {
-                _rdr.Close();
+                _rdr.Dispose();
                 _rdr = null;
             }
 
@@ -197,10 +175,10 @@ namespace DBLinq.util
             using( newConn )
 #else
             //use this if you are not worried about "SqlConnection already has SqlDataReader associated with it"
-            XSqlConnection newConn = _conn; 
+            IDbConnection newConn = _conn; 
 #endif
 
-            using( XSqlCommand cmd = ExecuteSqlCommand(newConn, out rdr2) )
+            using( IDbCommand cmd = ExecuteSqlCommand(newConn, out rdr2) )
             using( rdr2 )
             {
                 //_current = default(T);

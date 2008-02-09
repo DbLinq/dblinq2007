@@ -32,33 +32,6 @@ using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
 
-#if ORACLE
-using System.Data.OracleClient;
-using XSqlCommand = System.Data.OracleClient.OracleCommand;
-using XSqlDataReader = System.Data.OracleClient.OracleDataReader;
-using XSqlConnection = System.Data.OracleClient.OracleConnection;
-#elif POSTGRES
-using Npgsql;
-using XSqlCommand = Npgsql.NpgsqlCommand;
-using XSqlDataReader = Npgsql.NpgsqlDataReader;
-using XSqlConnection = Npgsql.NpgsqlConnection;
-#elif MICROSOFT
-using System.Data.SqlClient;
-using XSqlConnection = System.Data.SqlClient.SqlConnection;
-using XSqlCommand = System.Data.SqlClient.SqlCommand;
-using XSqlDataReader = System.Data.SqlClient.SqlDataReader;
-#elif SQLITE
-using System.Data.SQLite;
-using XSqlConnection = System.Data.SQLite.SQLiteConnection;
-using XSqlCommand = System.Data.SQLite.SQLiteCommand;
-using XSqlDataReader = System.Data.SQLite.SQLiteDataReader;
-#else
-using MySql.Data.MySqlClient;
-using XSqlCommand = MySql.Data.MySqlClient.MySqlCommand;
-using XSqlDataReader = MySql.Data.MySqlClient.MySqlDataReader;
-using XSqlConnection = MySql.Data.MySqlClient.MySqlConnection;
-#endif
-
 using DBLinq.util;
 using DBLinq.Linq;
 using DBLinq.Linq.clause;
@@ -120,7 +93,7 @@ namespace DBLinq.util
 
             DataReader2 rdr2;
             using( new ConnectionManager(_conn) )
-            using( XSqlCommand cmd = ExecuteSqlCommand(_conn, out rdr2) )
+            using( IDbCommand cmd = ExecuteSqlCommand(_conn, out rdr2) )
             using( rdr2 )
             {
 

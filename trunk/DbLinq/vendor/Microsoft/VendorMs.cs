@@ -91,10 +91,10 @@ namespace DBLinq.vendor.mssql
         /// because it does not fill up the translation log.
         /// This is enabled for tables where Vendor.UserBulkInsert[db.Table] is true.
         /// </summary>
-        public static void DoBulkInsert<T>(DBLinq.Linq.Table<T> table, List<T> rows, SqlConnection conn)
+        public static void DoBulkInsert<T>(DBLinq.Linq.Table<T> table, List<T> rows, IDbConnection conn)
         {
             //use TableLock for speed:
-            SqlBulkCopy bulkCopy = new SqlBulkCopy(conn, SqlBulkCopyOptions.TableLock, null);
+            SqlBulkCopy bulkCopy = new SqlBulkCopy((SqlConnection)conn, SqlBulkCopyOptions.TableLock, null);
 
             bulkCopy.DestinationTableName = AttribHelper.GetTableAttrib(typeof(T)).Name;
             //bulkCopy.SqlRowsCopied += new SqlRowsCopiedEventHandler(bulkCopy_SqlRowsCopied);
@@ -135,9 +135,10 @@ namespace DBLinq.vendor.mssql
 
         public int ExecuteCommand(DBLinq.Linq.DataContext context, string sql, params object[] parameters)
         {
-            SqlConnection conn = context.SqlConnection;
-            using (SqlCommand command = new SqlCommand(sql, conn))
+            IDbConnection conn = context.ConnectionProvider.Connection;
+            using (IDbCommand command = conn.CreateCommand())
             {
+                command.CommandText = sql;
                 return command.ExecuteNonQuery();
             }
         }
