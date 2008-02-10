@@ -23,10 +23,10 @@ namespace DBLinq.util
             switch (conn.State)
             {
                 case System.Data.ConnectionState.Open:
-                    _mustCloseConnection = true;
+                    _mustCloseConnection = false;
                     break;
                 case System.Data.ConnectionState.Closed:
-                    _mustCloseConnection = false;
+                    _mustCloseConnection = true;
                     conn.Open();
                     break;
                 default:
