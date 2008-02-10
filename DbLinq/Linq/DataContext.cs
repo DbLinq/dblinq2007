@@ -218,7 +218,6 @@ namespace DBLinq.Linq
 
         #endregion
 
-#if MYSQL || POSTGRES || SQLITE
         /// <summary>
         /// TODO - allow generated methods to call into stored procedures
         /// </summary>
@@ -231,9 +230,6 @@ namespace DBLinq.Linq
             }
         }
 
-#else
-        //ExecuteMethodCall for Postgres, Oracle: coming later
-#endif
         /// <summary>
         /// TODO: conflict detection is not implemented!
         /// </summary>
