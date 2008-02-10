@@ -28,7 +28,9 @@ using System;
 using System.Data;
 using System.Collections.Generic;
 using System.Text;
+#if NOMORE
 using System.Data.OracleClient;
+#endif
 using DBLinq.vendor;
 
 namespace DBLinq.util
