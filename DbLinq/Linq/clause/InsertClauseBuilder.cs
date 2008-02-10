@@ -75,8 +75,7 @@ namespace DBLinq.Linq.clause
                 {
                     //Note: not every ID is autogen
                     //on Oracle, populate PK field from associated sequence
-                    // picrap TODO: use IDbCommand as IDbDataParemeter provider
-                    IDbDataParameter outParam = vendor.ProcessPkField(projData, colAtt, sb, sbValues, sbIdentity, ref numFieldsAdded);
+                    IDbDataParameter outParam = vendor.ProcessPkField(cmd, projData, colAtt, sb, sbValues, sbIdentity, ref numFieldsAdded);
                     if (outParam != null)
                     {
                         paramList.Add(outParam); //only Oracle adds an outParam
@@ -96,7 +95,7 @@ namespace DBLinq.Linq.clause
                 string paramName = vendor.ParamName(numFieldsAdded);
                 sbValues.Append(paramName);
 
-                IDbDataParameter param = vendor.CreateSqlParameter(colAtt.DbType, paramName);
+                IDbDataParameter param = vendor.CreateSqlParameter(cmd, colAtt.DbType, paramName);
 
                 param.Value = paramValue;
                 paramList.Add(param);
@@ -156,7 +155,7 @@ namespace DBLinq.Linq.clause
         /// 
         /// In Mysql, called multiple times in a row to do a 'bulk insert'.
         /// </summary>
-        public static string InsertRowFields(IVendor vendor, object objectToInsert, ProjectionData projData
+        public static string InsertRowFields(IVendor vendor, IDbCommand cmd, object objectToInsert, ProjectionData projData
             , List<IDbDataParameter> paramList, ref int numFieldsAdded)
         {
             StringBuilder sbVals = new StringBuilder("(");
@@ -175,7 +174,7 @@ namespace DBLinq.Linq.clause
                 sbVals.Append(separator).Append(paramName);
                 separator = ", ";
 
-                IDbDataParameter param = vendor.CreateSqlParameter(colAtt.DbType, paramName);
+                IDbDataParameter param = vendor.CreateSqlParameter(cmd, colAtt.DbType, paramName);
 
                 param.Value = paramValue;
                 paramList.Add(param);
@@ -239,7 +238,7 @@ namespace DBLinq.Linq.clause
                 }
                 else
                 {
-                    IDbDataParameter param = vars.context.Vendor.CreateSqlParameter(colAtt.DbType, paramName);
+                    IDbDataParameter param = vars.context.Vendor.CreateSqlParameter(cmd, colAtt.DbType, paramName);
                     param.Value = paramValue;
                     paramList.Add(param);
                 }

@@ -38,9 +38,10 @@ namespace DbLinq.MySql.Example
             //MySqlDataReader dr = cmd.ExecuteReader();
             object obj = cmd.ExecuteScalar();
 #endif
+            string dbServer = Environment.GetEnvironmentVariable("DbLinqServer") ?? "localhost";
             // BUG: contexts must to be disposable
             string connStr = String.Format("server={0};user id={1}; password={2}; database={3}"
-                , "DbLinqServer", "LinqUser", "linq2", "Northwind");
+                , dbServer, "LinqUser", "linq2", "Northwind");
 
             Northwind db = new Northwind(connStr);
 

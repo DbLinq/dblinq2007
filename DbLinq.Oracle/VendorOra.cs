@@ -24,10 +24,13 @@ namespace DBLinq.vendor
             get { return "SELECT 11 FROM DUAL"; }
         }
 
-        public IDbDataParameter CreateSqlParameter(string dbTypeName, string paramName)
+        public IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
         {
             OracleType dbType = OracleTypeConversions.ParseType(dbTypeName);
             OracleParameter param = new OracleParameter(paramName, dbType);
+            //IDbDataParameter param = cmd.CreateParameter();
+            //param.ParameterName = paramName;
+            //param.DbType=
             return param;
         }
 
@@ -35,7 +38,7 @@ namespace DBLinq.vendor
         /// On Oracle, we have to insert a primary key manually.
         /// On MySql/Pgsql/Mssql, we use the IDENTITY clause to populate it automatically.
         /// </summary>
-        public IDbDataParameter ProcessPkField(ProjectionData projData, ColumnAttribute colAtt
+        public IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
             , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
         {
             if (numFieldsAdded++ > 0) { sb.Append(", "); sbValues.Append(", "); }
@@ -46,7 +49,10 @@ namespace DBLinq.vendor
             sbValues.AppendFormat("{0}.NextVal", sequenceName);
 
             string outParamName = this.ParamName(numFieldsAdded);
-            OracleParameter outParam = new OracleParameter(outParamName, OracleType.Number);
+            IDbDataParameter outParam = cmd.CreateParameter();
+            outParam.ParameterName = outParamName;
+            outParam.DbType = DbType.Decimal;
+            //OracleParameter outParam = new OracleParameter(outParamName, OracleType.Number);
             outParam.Direction = ParameterDirection.Output;
 
             string nextvalStr = string.Format(";\n SELECT {0}.CurrVal INTO {1} FROM DUAL; END;"
@@ -59,11 +65,10 @@ namespace DBLinq.vendor
             return outParam;
         }
 
-        public void ProcessInsertedId(IDbCommand cmd1, ref object returnedId)
+        public void ProcessInsertedId(IDbCommand cmd, ref object returnedId)
         {
-            OracleCommand cmd = (OracleCommand)cmd1;
             //OracleParameter outParam = cmd.Parameters.Where();
-            foreach (OracleParameter parm in cmd.Parameters)
+            foreach (IDbDataParameter parm in cmd.Parameters)
             {
                 if (parm.Direction == ParameterDirection.Output)
                 {

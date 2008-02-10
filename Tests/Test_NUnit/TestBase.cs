@@ -32,12 +32,32 @@ namespace Test_NUnit
     public abstract class TestBase
     {
         static bool doRecreate = true;
+
+        public string DbServer
+        {
+            get 
+            {
+                return Environment.GetEnvironmentVariable("DbLinqServer") ?? "localhost";
+            }
+        }
 #if ORACLE
-        const string connStr = "server=DbLinqServer;user id=Northwind; password=linq2";
+        public string connStr
+        {
+            get
+            {
+                return string.Format("server={0};user id=Northwind; password=linq2", DbServer);
+            }
+        }
 #elif SQLITE
         const string connStr = "Data Source=Northwind.db3";
 #else //Mysql, Postgres
-        public const string connStr = "server=DbLinqServer;user id=LinqUser; password=linq2; database=Northwind";
+        public string connStr
+        {
+            get
+            {
+                return string.Format("server={0};user id=LinqUser; password=linq2; database=Northwind", DbServer);
+            }
+        }
 
 #endif
         XSqlConnection _conn;
