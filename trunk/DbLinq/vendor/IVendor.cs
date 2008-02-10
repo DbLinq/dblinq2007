@@ -34,7 +34,7 @@ namespace DBLinq.vendor
         /// On Oracle, we have to insert a primary key manually.
         /// On MySql/Pgsql/Mssql, we use the IDENTITY clause to populate it automatically.
         /// </summary>
-        IDbDataParameter ProcessPkField(ProjectionData projData, ColumnAttribute colAtt
+        IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
             , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded);
 
         void ProcessInsertedId(IDbCommand cmd1, ref object returnedId);
@@ -63,7 +63,7 @@ namespace DBLinq.vendor
 
         System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.DataContext context, System.Reflection.MethodInfo method, params object[] sqlParams);
 
-        IDbDataParameter CreateSqlParameter(string dbTypeName, string paramName);
+        IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName);
 
         IDataReader2 CreateDataReader2(IDataReader dataReader);
 

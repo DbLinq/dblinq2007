@@ -52,7 +52,7 @@ namespace DBLinq.vendor.sqlite
         public static readonly Dictionary<DBLinq.Linq.IMTable, int> UseBulkInsert = new Dictionary<DBLinq.Linq.IMTable, int>();
 
 
-        public IDbDataParameter ProcessPkField(ProjectionData projData, ColumnAttribute colAtt
+        public IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
             , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
         {
             //on Oracle, this function does something.
@@ -128,7 +128,7 @@ namespace DBLinq.vendor.sqlite
             }
         }
 
-        public IDbDataParameter CreateSqlParameter(string dbTypeName, string paramName)
+        public IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
         {
             System.Data.DbType dbType = SQLiteTypeConversions.ParseType(dbTypeName);
             SQLiteParameter param = new SQLiteParameter(paramName, dbType);
@@ -171,18 +171,19 @@ namespace DBLinq.vendor.sqlite
                 StringBuilder sbValues = new StringBuilder(" VALUES ");
                 List<IDbDataParameter> paramList = new List<IDbDataParameter>();
 
+                IDbCommand cmd = conn.CreateCommand();
+
                 //package up all fields in N rows:
                 string separator = "";
                 foreach (T row in page)
                 {
                     //prepare values = "(?P1, ?P2, ?P3, ?P4)"
-                    string values = InsertClauseBuilder.InsertRowFields(this, row, projData, paramList, ref numFieldsAdded);
+                    string values = InsertClauseBuilder.InsertRowFields(this, cmd, row, projData, paramList, ref numFieldsAdded);
                     sbValues.Append(separator).Append(values);
                     separator = ", ";
                 }
 
                 string sql = header + sbValues; //'INSET t1 (field1) VALUES (11),(12)'
-                IDbCommand cmd = conn.CreateCommand();
                 cmd.CommandText = sql;
                 paramList.ForEach(param => cmd.Parameters.Add(param));
 

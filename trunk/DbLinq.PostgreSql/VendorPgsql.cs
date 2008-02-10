@@ -45,7 +45,7 @@ namespace DBLinq.vendor.pgsql
     {
         public string VendorName { get { return "PostgreSql"; } }
 
-        public IDbDataParameter ProcessPkField(ProjectionData projData, ColumnAttribute colAtt
+        public IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
             , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
         {
             ColumnAttribute[] colAttribs = AttribHelper.GetColumnAttribs(projData.type);
@@ -106,7 +106,7 @@ namespace DBLinq.vendor.pgsql
             return name;
         }
 
-        public IDbDataParameter CreateSqlParameter(string dbTypeName, string paramName)
+        public IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
         {
             //System.Data.SqlDbType dbType = DBLinq.util.SqlTypeConversions.ParseType(dbTypeName);
             //SqlParameter param = new SqlParameter(paramName, dbType);

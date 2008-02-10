@@ -47,6 +47,8 @@ namespace DBLinq.util
         {
         }
 
+#if UNNEEDED
+
         public override long? GetInt64N(int index)
         {
             try
@@ -330,5 +332,6 @@ namespace DBLinq.util
                 return null;
             }
         }
+#endif
     }
 }
