@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 //using MySql.Data.MySqlClient;
+#if NOMORE
 using System.Data.OracleClient;
+#endif
 
 namespace DBLinq.vendor
 {
@@ -12,6 +14,7 @@ namespace DBLinq.vendor
     /// </summary>
     public static class OracleTypeConversions
     {
+#if NOMORE
         static Dictionary<string,OracleType> s_typeMap = new Dictionary<string,OracleType>();
 
         static OracleTypeConversions()
@@ -44,5 +47,6 @@ namespace DBLinq.vendor
             }
             return s_typeMap[typeStrL];
         }
+#endif
     }
 }

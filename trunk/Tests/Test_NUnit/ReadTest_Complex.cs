@@ -70,6 +70,8 @@ namespace Test_NUnit
             Assert.Greater(minID, 0, "Expected non-zero product count");
         }
 
+#if !ORACLE // picrap: this test causes an internal buffer overflow when marshaling with oracle win32 driver
+
         [Test]
         public void F5_AvgProductId()
         {
@@ -77,7 +79,8 @@ namespace Test_NUnit
             double avg = q.Average();
             Assert.Greater(avg, 0, "Expected non-zero productID average");
         }
-
+        
+#endif
 
         [Test]
         public void F7_ExplicitJoin()

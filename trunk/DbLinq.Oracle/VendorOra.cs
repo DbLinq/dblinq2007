@@ -1,6 +1,5 @@
 using System;
 using System.Data;
-using System.Data.OracleClient;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
@@ -24,13 +23,22 @@ namespace DBLinq.vendor
             get { return "SELECT 11 FROM DUAL"; }
         }
 
+        private IDictionary<string, DbType> extraTypes = new Dictionary<string, DbType>();
+
+        public VendorOra()
+        {
+            extraTypes["tinyint"] = DbType.Int16;
+            extraTypes["int"] = DbType.Int32;
+            extraTypes["varchar2"] = DbType.AnsiString;
+        }
+
         public IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
         {
-            OracleType dbType = OracleTypeConversions.ParseType(dbTypeName);
-            OracleParameter param = new OracleParameter(paramName, dbType);
-            //IDbDataParameter param = cmd.CreateParameter();
-            //param.ParameterName = paramName;
-            //param.DbType=
+            //OracleType dbType = OracleTypeConversions.ParseType(dbTypeName);
+            //OracleParameter param = new OracleParameter(paramName, dbType);
+            IDbDataParameter param = cmd.CreateParameter();
+            param.ParameterName = paramName;
+            SetDataParameterType(param, "OracleType", dbTypeName, extraTypes);
             return param;
         }
 

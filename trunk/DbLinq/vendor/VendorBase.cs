@@ -106,5 +106,43 @@ namespace DBLinq.vendor
         {
             throw new NotImplementedException();
         }
+
+        protected IDictionary<string, IDictionary<string, Enum>> typeMapsByProperty = new Dictionary<string, IDictionary<string, Enum>>();
+
+        public void SetDataParameterType(IDbDataParameter parameter, string propertyName, string dbTypeName, IDictionary<string, DbType> extraTypes)
+        {
+            PropertyInfo propertyInfo = parameter.GetType().GetProperty(propertyName);
+            IDictionary<string, Enum> typeMaps = GetTypeMaps(propertyInfo);
+            string dbTypeKey = dbTypeName.ToLower();
+            if (typeMaps.ContainsKey(dbTypeKey))
+            {
+                propertyInfo.GetSetMethod().Invoke(parameter, new object[] {typeMaps[dbTypeKey]});
+            }
+            else if (extraTypes.ContainsKey(dbTypeKey))
+            {
+                parameter.DbType = extraTypes[dbTypeKey];
+            }
+        }
+
+        private IDictionary<string, Enum> GetTypeMaps(PropertyInfo propertyInfo)
+        {
+            IDictionary<string, Enum> typeMaps;
+            if (typeMapsByProperty.ContainsKey(propertyInfo.Name))
+                typeMaps = typeMapsByProperty[propertyInfo.Name];
+            else
+            {
+                typeMaps = new Dictionary<string, Enum>();
+                typeMapsByProperty[propertyInfo.Name] = typeMaps;
+                // now, we use reflection to enumerate the type possible values
+                if (propertyInfo.PropertyType.IsEnum)
+                {
+                    foreach (Enum value in Enum.GetValues(propertyInfo.PropertyType))
+                    {
+                        typeMaps[value.ToString().ToLower()] = value;
+                    }
+                }
+            }
+            return typeMaps;
+        }
     }
 }
