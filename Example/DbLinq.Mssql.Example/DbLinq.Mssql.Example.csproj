@@ -53,9 +53,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\DbLinq\DbLinq.Microsoft.csproj">
-      <Project>{42B135DF-56AB-48FD-9A63-43B1DF2321A6}</Project>
-      <Name>DbLinq.Microsoft</Name>
+    <ProjectReference Include="..\..\DbLinq.SqlServer\DbLinq.SqlServer.csproj">
+      <Project>{EA47FE75-0E41-4ABF-B355-9667E78072E9}</Project>
+      <Name>DbLinq.SqlServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\DbLinq\DbLinq.csproj">
+      <Project>{97305421-3071-4175-AA3C-9A432CC28121}</Project>
+      <Name>DbLinq</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
