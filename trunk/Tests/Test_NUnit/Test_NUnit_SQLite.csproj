@@ -84,5 +84,15 @@
   <ItemGroup>
     <None Include="Linq_101_Samples\101_readme.htm" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\DbLinq.Sqlite\DbLinq.Sqlite.csproj">
+      <Project>{60B9AFA1-99B4-4DE6-80E1-80BBED1AC755}</Project>
+      <Name>DbLinq.Sqlite</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\DbLinq\DbLinq.csproj">
+      <Project>{97305421-3071-4175-AA3C-9A432CC28121}</Project>
+      <Name>DbLinq</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
