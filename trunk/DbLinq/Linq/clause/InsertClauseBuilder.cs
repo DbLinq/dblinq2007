@@ -96,7 +96,6 @@ namespace DBLinq.Linq.clause
                 string paramName = vendor.ParamName(numFieldsAdded);
                 sbValues.Append(paramName);
 
-                // picrap TODO: use IDbCommand as IDbDataParemeter provider
                 IDbDataParameter param = vendor.CreateSqlParameter(colAtt.DbType, paramName);
 
                 param.Value = paramValue;
