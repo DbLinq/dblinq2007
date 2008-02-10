@@ -10,13 +10,15 @@ using System.Linq;
 //using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using DBLinq.Linq;
+using DBLinq.vendor.mssql;
 
 /// <summary>
 /// This class represents Microsoft database Northwind.
 /// </summary>
 public partial class Northwind : DataContext
 {
-    public Northwind(string connStr):base(connStr)
+    public Northwind(string connStr)
+        :base(new System.Data.SqlClient.SqlConnection(connStr), new VendorMssql())
     {
         Categories = new Table<Categories>(this);
 		CustomerCustomerDemos = new Table<CustomerCustomerDemo>(this);
