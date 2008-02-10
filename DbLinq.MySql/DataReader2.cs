@@ -28,6 +28,7 @@ using System;
 using System.Data;
 using System.Collections.Generic;
 using System.Text;
+using DBLinq.vendor;
 using MySql.Data.MySqlClient;
 
 namespace DBLinq.util
@@ -39,31 +40,18 @@ namespace DBLinq.util
     /// When we have a workaround for FatalExecutionEngineError on nullables, 
     /// this can go away.
     /// </summary>
-    public class DataReader2 : IDisposable, DBLinq.vendor.IDataReader2 //, IDataRecord
+    public class DataReader2 : DataReader2Base //, IDataRecord
     {
-        MySqlDataReader _rdr;
+        protected MySqlDataReader Reader { get { return _rdr as MySqlDataReader; } }
+
         public DataReader2(IDataReader rdr)
+        : base(rdr)
         {
-            _rdr = (MySqlDataReader)rdr;
+            if (Reader == null)
+                throw new ArgumentException("rdr");
         }
-        
-        /// <summary>
-        /// Read added to support groupBy clauses, with more than one row returned at a time
-        /// </summary>
-        public bool Read(){ return _rdr.Read(); }
 
-        public int FieldCount { get { return _rdr.FieldCount; } }
-        public string GetName(int index){ return _rdr.GetName(index); }
-        public string GetDataTypeName(int index){ return _rdr.GetDataTypeName(index); }
-        public Type GetFieldType(int index){ return _rdr.GetFieldType(index); }
-        public object GetValue(int index){ return _rdr.GetValue(index); }
-        public int GetValues(object[] values){ return _rdr.GetValues(values); }
-        
-        public byte GetByte(int index){ return _rdr.GetByte(index); }
-        public bool IsDBNull(int index){ return _rdr.IsDBNull(index); }
-
-        public short GetInt16(int index){ return _rdr.GetInt16(index); }
-        public short? GetInt16N(int index)
+        public override short? GetInt16N(int index)
         {
             try
             {
@@ -78,8 +66,7 @@ namespace DBLinq.util
             }
         }
 
-        public char GetChar(int index){ return _rdr.GetChar(index); }
-        public char? GetCharN(int index)
+        public override char? GetCharN(int index)
         {
             try
             {
@@ -94,16 +81,17 @@ namespace DBLinq.util
             }
         }
 
-        public bool GetBoolean(int index)
+        public override bool GetBoolean(int index)
         {
             //support for 'Product.Discontinued' field in Northwind DB - it's nullable, but MS samples map it to plain bool
+            // picrap: shall we support this?
             if (_rdr.IsDBNull(index))
                 return false; 
 
             return _rdr.GetBoolean(index); 
         }
 
-        public bool? GetBooleanN(int index)
+        public override bool? GetBooleanN(int index)
         {
             try
             {
@@ -118,7 +106,7 @@ namespace DBLinq.util
             }
         }
 
-        public int GetInt32(int index)
+        public override int GetInt32(int index)
         {
             try
             {
@@ -130,7 +118,7 @@ namespace DBLinq.util
                 return 0;
             }
         }
-        public int? GetInt32N(int index)
+        public override int? GetInt32N(int index)
         {
             try
             {
@@ -146,11 +134,11 @@ namespace DBLinq.util
         }
 
 
-        public uint GetUInt32(int index)
+        public override uint GetUInt32(int index)
         {
             try
             {
-                return _rdr.GetUInt32(index);
+                return Reader.GetUInt32(index);
             } 
             catch(Exception ex)
             {
@@ -163,13 +151,13 @@ namespace DBLinq.util
             }
         }
 
-        public uint? GetUInt32N(int index)
+        public override uint? GetUInt32N(int index)
         {
             try
             {
                 if(_rdr.IsDBNull(index))
                     return null;
-                return _rdr.GetUInt32(index);
+                return Reader.GetUInt32(index);
             } 
             catch(Exception ex)
             {
@@ -178,7 +166,7 @@ namespace DBLinq.util
             }
         }
 
-        public float GetFloat(int index)
+        public override float GetFloat(int index)
         {
             try
             {
@@ -191,7 +179,7 @@ namespace DBLinq.util
             }
         }
 
-        public float? GetFloatN(int index)
+        public override float? GetFloatN(int index)
         {
             try
             {
@@ -206,7 +194,7 @@ namespace DBLinq.util
             }
         }
 
-        public double GetDouble(int index)
+        public override double GetDouble(int index)
         {
             try
             {
@@ -218,7 +206,7 @@ namespace DBLinq.util
                 return 0;
             }
         }
-        public double? GetDoubleN(int index)
+        public override double? GetDoubleN(int index)
         {
             try
             {
@@ -233,7 +221,7 @@ namespace DBLinq.util
             }
         }
 
-        public decimal GetDecimal(int index)
+        public override decimal GetDecimal(int index)
         {
             try
             {
@@ -245,7 +233,7 @@ namespace DBLinq.util
                 return 0;
             }
         }
-        public decimal? GetDecimalN(int index)
+        public override decimal? GetDecimalN(int index)
         {
             try
             {
@@ -259,7 +247,7 @@ namespace DBLinq.util
                 return 0;
             }
         }
-        public DateTime GetDateTime(int index)
+        public override DateTime GetDateTime(int index)
         {
             try
             {
@@ -271,7 +259,7 @@ namespace DBLinq.util
                 return new DateTime();
             }
         }
-        public DateTime? GetDateTimeN(int index)
+        public override DateTime? GetDateTimeN(int index)
         {
             try
             {
@@ -286,7 +274,7 @@ namespace DBLinq.util
             }
         }
 
-        public long GetInt64(int index)
+        public override long GetInt64(int index)
         {
             try
             {
@@ -300,7 +288,7 @@ namespace DBLinq.util
                 return 0;
             }
         }
-        public long? GetInt64N(int index)
+        public override long? GetInt64N(int index)
         {
             try
             {
@@ -314,7 +302,7 @@ namespace DBLinq.util
                 return null;
             }
         }
-        public ulong GetUInt64(int index)
+        public override ulong GetUInt64(int index)
         {
             return (ulong)GetInt64(index);
         }
@@ -332,7 +320,7 @@ namespace DBLinq.util
             }
         }
 
-        public byte[] GetBytes(int index)
+        public override byte[] GetBytes(int index)
         {
             try
             {
@@ -374,7 +362,5 @@ namespace DBLinq.util
                 return new T2();
             }
         }
-
-        public void Dispose(){ _rdr.Close(); }
     }
 }

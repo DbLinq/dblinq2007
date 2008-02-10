@@ -90,6 +90,7 @@
     <Compile Include="util\TypeEnum.cs" />
     <Compile Include="util\Util.cs" />
     <Compile Include="util\VarName.cs" />
+    <Compile Include="vendor\DataReader2Base.cs" />
     <Compile Include="vendor\IDataReader2.cs" />
     <Compile Include="vendor\IVendor.cs" />
     <Compile Include="vendor\Settings.cs" />
