@@ -185,12 +185,14 @@ namespace DBLinq.util
                 //_current = default(T);
                 while(rdr2.Read())
                 {
-#if SQLITE
-                	// if not this might crash with SQLite
-                    //(only SqlLite implements HasRow?!)
-                    if (!rdr2.HasRow)
+                    if (rdr2.FieldCount == 0) // note to the below code author: could you check this modification validity?
                         continue;
-#endif
+//#if SQLITE
+//                    // if not this might crash with SQLite
+//                    //(only SqlLite implements HasRow?!)
+//                    if (!rdr2.HasRow)
+//                        continue;
+//#endif
 
                     T current = _objFromRow2(rdr2);
 
