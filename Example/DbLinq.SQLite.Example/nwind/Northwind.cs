@@ -10,8 +10,10 @@ using System.Linq;
 //using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using System.Reflection;
+using System.Data.SQLite;
 using DBLinq.Linq;
 using DBLinq.Linq.Mapping;
+using DBLinq.vendor.sqlite;
 
 namespace nwind
 {
@@ -21,10 +23,12 @@ namespace nwind
 	/// </summary>
 	public partial class Northwind : DataContext
 	{
-		public Northwind(string connStr) : base(connStr)
+        public Northwind(string connStr)
+            : base(new System.Data.SQLite.SQLiteConnection(connStr), new VendorSqlite())
 		{
 		}
-		public Northwind(System.Data.IDbConnection connection) : base(connection)
+		public Northwind(System.Data.IDbConnection connection) 
+            : base(connection, new VendorSqlite())
 		{
 		}
 	
