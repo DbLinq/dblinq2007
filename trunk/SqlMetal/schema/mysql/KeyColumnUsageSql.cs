@@ -42,9 +42,9 @@ namespace SqlMetal.schema.mysql
             t.table_schema  = rdr.GetString(field++);
             t.table_name    = rdr.GetString(field++);
             t.column_name    = rdr.GetString(field++);
-            t.referenced_table_schema = rdr.GetString(field++);
-            t.referenced_table_name = rdr.GetString(field++);
-            t.referenced_column_name = rdr.GetString(field++);
+            t.referenced_table_schema = rdr.GetStringN(field++);
+            t.referenced_table_name = rdr.GetStringN(field++);
+            t.referenced_column_name = rdr.GetStringN(field++);
             return t;
         }
 

@@ -29,9 +29,9 @@ namespace SqlMetal.schema.mysql
         {
             TableRow t = new TableRow();
             int field = 0;
-            t.table_catalog = rdr.GetString(field++);
-            t.table_schema  = rdr.GetString(field++);
-            t.table_name    = rdr.GetString(field++);
+            t.table_catalog = rdr.GetStringN(field++);
+            t.table_schema  = rdr.GetStringN(field++);
+            t.table_name    = rdr.GetStringN(field++);
             return t;
         }
 
@@ -56,6 +56,16 @@ WHERE table_schema=?db";
                 }
             }
 
+        }
+    }
+
+    static class MySqlDataReaderExtensions
+    {
+        public static string GetStringN(this MySqlDataReader rdr, int field)
+        {
+            return rdr.IsDBNull(field)
+                ? null
+                : rdr.GetString(field);
         }
     }
 }

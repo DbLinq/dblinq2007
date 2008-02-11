@@ -50,6 +50,8 @@ namespace SqlMetal.schema.mysql
         }
 
         public string VendorName() { return "MySql"; }
+        public string DataContextName() { return "DBLinq.vendor.mysql.MysqlDataContext"; }
+        public string ProviderClassName() { return "VendorMySql"; }
 
         /// <summary>
         /// main entry point to load schema
