@@ -6,9 +6,15 @@ using NUnit.Framework;
 using nwind;
 
 #if ORACLE
+#if ODP
+using xint = System.Int32;
+using XSqlConnection = Oracle.DataAccess.Client.OracleConnection;
+using XSqlCommand = Oracle.DataAccess.Client.OracleCommand;
+#else
 using xint = System.Int32;
 using XSqlConnection = System.Data.OracleClient.OracleConnection;
 using XSqlCommand = System.Data.OracleClient.OracleCommand;
+#endif
 #elif POSTGRES
 using xint = System.Int32;
 using XSqlConnection = Npgsql.NpgsqlConnection;
@@ -45,7 +51,7 @@ namespace Test_NUnit
         {
             get
             {
-                return string.Format("server={0};user id=Northwind; password=linq2", DbServer);
+                return string.Format("data source={0};user id=Northwind; password=linq2", DbServer);
             }
         }
 #elif SQLITE

@@ -5,14 +5,6 @@ using System.Linq;
 using NUnit.Framework;
 using nwind;
 
-#if ORACLE
-using xint = System.Int32;
-#elif POSTGRES
-using xint = System.Int32;
-#else
-using xint = System.UInt32;
-#endif
-
 namespace Test_NUnit
 {
     [TestFixture]
