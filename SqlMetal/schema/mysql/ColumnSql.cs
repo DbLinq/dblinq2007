@@ -53,7 +53,7 @@ namespace SqlMetal.schema.mysql
         {
             Column t = new Column();
             int field = 0;
-            t.table_catalog = rdr.GetString(field++);
+            t.table_catalog = rdr.GetStringN(field++);
             t.table_schema  = rdr.GetString(field++);
             t.table_name    = rdr.GetString(field++);
             t.column_name   = rdr.GetString(field++);

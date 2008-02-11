@@ -16,37 +16,43 @@ namespace SqlMetal.schema.mysql
             #region map "varchar" to "string"
             switch (mysqlType)
             {
-                case "varchar": return "string";
-                case "longtext": return "string";
-                case "text": return "string";
-                case "char": return "string";
+                case "varchar":
+                case "longtext":
+                case "text":
+                case "char":
+                    return "string";
 
-                case "int": 
-                    if(column_type.Contains("unsigned"))
+                case "int":
+                    if (column_type.Contains("unsigned"))
                         return "uint";
                     return "int";
                 case "bit":
                     return "bool";
                 case "tinyint":
-                    if (    column_type == "tinyint(1)" 
-                        ||  column_type == "tinyint(1) unsigned")
+                    if (column_type == "tinyint(1)"
+                        || column_type == "tinyint(1) unsigned")
                         return "bool";
                     return "char";
                 case "smallint": return "short";
                 case "mediumint": return "int";
                 case "bigint": return "long";
 
-                case "datetime": return "DateTime";
-                case "timestamp": return "DateTime";
+                case "date":
+                case "datetime":
+                case "timestamp":
+                    return "DateTime";
+
                 case "enum": return "Enum";
                 case "float": return "float";
                 case "double": return "double";
                 case "decimal": return "decimal";
-                case "blob": return "byte[]";
-                case "longblob": return "byte[]";
-                    //TODO: blob,longblob,set, ...
+
+                case "blob":
+                case "longblob":
+                    return "byte[]";
+                //TODO: blob,longblob,set, ...
                 default:
-                    return "L80_mapCsType_unprepared_for_mysqltype_"+mysqlType;
+                    return "L80_mapCsType_unprepared_for_mysqltype_" + mysqlType;
             }
             #endregion
         }
