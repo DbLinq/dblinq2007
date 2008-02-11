@@ -18,7 +18,8 @@ namespace Test_NUnit
             //new ReadTest().D04_SelectProducts_OrderByName();
             //new Linq_101_Samples.AdvancedTest().LinqToSqlAdvanced06();
             //new WriteTest().G2_DeleteTest();
-            new WriteTest().G1_InsertProduct();
+            //new WriteTest().G1_InsertProduct();
+            new ReadTest().C1_SelectProducts();
         }
     }
     //class Column { public string table_name; }

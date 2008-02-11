@@ -22,7 +22,13 @@ namespace nwind
 	/// </summary>
 	public partial class Northwind : DataContext
 	{
-		public Northwind(string connStr) : base(new System.Data.OracleClient.OracleConnection(connStr), new VendorOra())
+		public Northwind(string connStr) : base(
+#if ODP
+            new Oracle.DataAccess.Client.OracleConnection(connStr), 
+#else
+            new System.Data.OracleClient.OracleConnection(connStr), 
+#endif
+ new VendorOra())
 		{
 		}
 		public Northwind(System.Data.IDbConnection connection) : base(connection, new VendorOra())
