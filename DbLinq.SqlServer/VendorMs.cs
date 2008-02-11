@@ -137,7 +137,7 @@ namespace DBLinq.vendor.mssql
 
         public override int ExecuteCommand(DBLinq.Linq.DataContext context, string sql, params object[] parameters)
         {
-            IDbConnection conn = context.ConnectionProvider.Connection;
+            IDbConnection conn = context.Connection;
             using (IDbCommand command = conn.CreateCommand())
             {
                 command.CommandText = sql;

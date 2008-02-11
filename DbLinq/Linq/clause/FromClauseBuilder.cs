@@ -83,7 +83,7 @@ namespace DBLinq.Linq.clause
 
             foreach (ColumnAttribute colAtt in colAttribs2)
             {
-                string safeColumnName = vars.context.Vendor.FieldName_Safe(colAtt.Name);
+                string safeColumnName = vars.Context.Vendor.FieldName_Safe(colAtt.Name);
                 string part = nick + "." + safeColumnName; //eg. '$o.OrderID'
                 selectParts.AddSelect(part);
             }

@@ -42,25 +42,12 @@ namespace DBLinq.Linq
         //readonly List<MTable> tableList = new List<MTable>();//MTable requires 1 type arg
         private readonly List<IMTable> _tableList = new List<IMTable>();
         private System.IO.TextWriter _log;
-        protected IVendor _vendor;
 
         readonly Dictionary<string, IMTable> _tableMap = new Dictionary<string, IMTable>();
 
-        protected IConnectionProvider _connectionProvider;
-        public IConnectionProvider ConnectionProvider { get { return _connectionProvider; } }
-
-        public IDbConnection Connection { get { return _connectionProvider.Connection; } }
-        public IVendor Vendor { get { return _vendor; } }
-
+        public IDbConnection Connection { get; private set; }
+        public IVendor Vendor { get; private set; }
         public IDataMapper DataMapper { get; set; }
-
-            // picrap: commented out this feature: we're going to be db independant
-        //public DataContext(string sqlConnString)
-        //{
-        //    _sqlConnString = sqlConnString;
-        //    _conn = new XSqlConnection(sqlConnString);
-        //    _conn.Open();
-        //}
 
         /// <summary>
         /// A DataContext opens and closes a database connection as needed 
@@ -70,30 +57,13 @@ namespace DBLinq.Linq
         /// source: http://msdn2.microsoft.com/en-us/library/bb292288.aspx
         /// </summary>
         /// <param name="dbConnection"></param>
-        public DataContext(System.Data.IDbConnection dbConnection, IVendor vendor)
-            : this(new DefaultConnectionProvider(dbConnection), vendor)
+        public DataContext(IDbConnection dbConnection, IVendor vendor)
         {
-            // picrap: removed this, we fall from the most specific cases to the most generic ones (IConnectionProvider)
-            //if (dbConnection == null)
-            //    throw new ArgumentNullException("Null db connection");
-            //_conn = dbConnection as XSqlConnection;
-            //_sqlConnString = dbConnection.ConnectionString;
-            //try
-            //{
-            //    _conn.Open();
-            //}
-            //catch (Exception)
-            //{
-            //}
-        }
-
-        public DataContext(IConnectionProvider connectionProvider, IVendor vendor)
-        {
-            if (connectionProvider == null)
-                throw new ArgumentNullException("Null connectionProvider");
-            _connectionProvider = connectionProvider;
-            _vendor = vendor;
+            if (dbConnection == null || vendor == null)
+                throw new ArgumentNullException("Null arguments");
+            Vendor = vendor;
             DataMapper = new DataMapper();
+            Connection = dbConnection;
         }
 
         //public XSqlConnection SqlConnection
@@ -108,11 +78,11 @@ namespace DBLinq.Linq
         {
             try
             {
-                using (new ConnectionManager(_connectionProvider.Connection))
+                using (new ConnectionManager(Connection))
                 {
                     //command: "SELECT 11" (Oracle: "SELECT 11 FROM DUAL")
-                    string SQL = _vendor.SqlPingCommand;
-                    int result = _vendor.ExecuteCommand(this, SQL);
+                    string SQL = Vendor.SqlPingCommand;
+                    int result = Vendor.ExecuteCommand(this, SQL);
                     return result == 11;
                 }
             }
@@ -153,10 +123,10 @@ namespace DBLinq.Linq
             //TODO: perform all queued up operations - INSERT,DELETE,UPDATE
             //TODO: insert order must be: first parent records, then child records
 
-            using (new ConnectionManager(_connectionProvider.Connection)) //ConnMgr will close connection for us
+            using (new ConnectionManager(Connection)) //ConnMgr will close connection for us
 
             //TranMgr may start transaction /  commit transaction
-            using (TransactionManager transactionMgr = new TransactionManager(_connectionProvider.Connection, failureMode)) 
+            using (TransactionManager transactionMgr = new TransactionManager(Connection, failureMode)) 
             {
                 foreach (IMTable tbl in _tableList)
                 {
@@ -226,9 +196,9 @@ namespace DBLinq.Linq
         /// </summary>
         protected System.Data.Linq.IExecuteResult ExecuteMethodCall(DataContext context, System.Reflection.MethodInfo method, params object[] sqlParams)
         {
-            using (new ConnectionManager(_connectionProvider.Connection))
+            using (new ConnectionManager(Connection))
             {
-                System.Data.Linq.IExecuteResult result = _vendor.ExecuteMethodCall(context, method, sqlParams);
+                System.Data.Linq.IExecuteResult result = Vendor.ExecuteMethodCall(context, method, sqlParams);
                 return result;
             }
         }
@@ -247,9 +217,9 @@ namespace DBLinq.Linq
         /// </summary>
         public int ExecuteCommand(string command, params object[] parameters)
         {
-            using (new ConnectionManager(_connectionProvider.Connection))
+            using (new ConnectionManager(Connection))
             {
-                return _vendor.ExecuteCommand(this, command, parameters);
+                return Vendor.ExecuteCommand(this, command, parameters);
             }
         }
 
