@@ -32,12 +32,13 @@ using System.Collections.Generic;
 using System.Text;
 using System.Data;
 using System.Data.Linq.Mapping;
-using DBLinq.util;
+using DBLinq.Util;
 using DBLinq.Linq;
+using DBLinq.Vendor;
 
-namespace DBLinq.vendor.mssql
+namespace DbLinq.SqlServer
 {
-    public class VendorMssql : VendorBase, IVendor
+    public class SqlServerVendor : Vendor, IVendor
     {
         public readonly Dictionary<DBLinq.Linq.IMTable, int> UseBulkInsert = new Dictionary<DBLinq.Linq.IMTable, int>();
 
@@ -73,13 +74,13 @@ namespace DBLinq.vendor.mssql
 
         public IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
         {
-            System.Data.SqlDbType dbType = DBLinq.util.SqlTypeConversions.ParseType(dbTypeName);
+            System.Data.SqlDbType dbType = SqlServerTypeConversions.ParseType(dbTypeName);
             SqlParameter param = new SqlParameter(paramName, dbType);
             return param;
         }
 
         public IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
-            , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
+                                               , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
         {
             sbIdentity.Append("; SELECT @@IDENTITY");
             return null;
@@ -157,7 +158,7 @@ namespace DBLinq.vendor.mssql
 
         public IDataReader2 CreateDataReader2(IDataReader dataReader)
         {
-            return new DataReader2(dataReader);
+            return new SqlServerDataReader2(dataReader);
         }
 
         public override bool CanBulkInsert<T>(DBLinq.Linq.Table<T> table)

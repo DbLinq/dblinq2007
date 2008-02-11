@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace DBLinq.util
+namespace DBLinq.Util
 {
     /// <summary>
     /// holds result of a stored proc call.

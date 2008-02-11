@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DBLinq.util
+namespace DBLinq.Util
 {
     public class Log1
     {

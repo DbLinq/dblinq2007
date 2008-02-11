@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Text;
 using MySql.Data.MySqlClient;
 
-namespace DBLinq.vendor
+namespace DbLinq.MySql
 {
     /// <summary>
     /// helper class which help to convert MySql's types to MySqlClient .NET types,

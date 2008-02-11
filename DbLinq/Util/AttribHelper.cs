@@ -35,7 +35,7 @@ using System.Data.Linq.Mapping;
 using DBLinq.Linq;
 using DBLinq.Linq.Mapping;
 
-namespace DBLinq.util
+namespace DBLinq.Util
 {
     /// <summary>
     /// Helper class which does the walking over Types to analyze attributes

@@ -8,16 +8,15 @@ using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
 //using System.Data.OracleClient;
-using DBLinq.util;
 using DBLinq.Linq;
 
-namespace DBLinq.vendor
+namespace DBLinq.Vendor
 {
     /// <summary>
     /// some IVendor functionality is the same for many vendors,
     /// implemented here as virtual functions.
     /// </summary>
-    public abstract class VendorBase //: IVendor
+    public abstract class Vendor //: IVendor
     {
         //public abstract string VendorName { get; }
         //{
@@ -41,7 +40,7 @@ namespace DBLinq.vendor
         /// </summary>
         /// <param name="parts"></param>
         /// <returns></returns>
-        public virtual string Concat(List<DBLinq.util.ExpressionAndType> parts)
+        public virtual string Concat(List<DBLinq.Util.ExpressionAndType> parts)
         {
             string[] arr = parts.Select(p => p.expression).ToArray();
             return string.Join("||", arr);

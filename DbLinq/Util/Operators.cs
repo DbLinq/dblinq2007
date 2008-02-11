@@ -29,7 +29,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq.Expressions;
 
-namespace DBLinq.util
+namespace DBLinq.Util
 {
     public static class Operators
     {

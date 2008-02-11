@@ -25,159 +25,96 @@
 #endregion
 
 using System;
+using System.Data;
 using System.Linq;
-using System.Collections.Generic;
-using System.Text;
 using System.Data.Linq.Mapping;
 using System.Reflection;
-using System.Data;
-using MySql.Data.MySqlClient;
+using System.Collections.Generic;
+using System.Text;
 using DBLinq.Linq.Mapping;
-using DBLinq.util;
+using DbLinq.PostgreSql;
+using DBLinq.Util;
 using DBLinq.Linq;
-using DBLinq.Linq.clause;
+using DBLinq.Vendor;
+using Npgsql;
 
-namespace DBLinq.vendor.mysql
+namespace DbLinq.PostgreSql
 {
-    public class VendorMysql : VendorBase, IVendor
+    /// <summary>
+    /// PostgreSQL - specific code.
+    /// </summary>
+    public class PgsqlVendor : Vendor, IVendor
     {
-        /// <summary>
-        /// Client code needs to specify: 'Vendor.UserBulkInsert[db.Products]=10' to enable bulk insert, 10 rows at a time.
-        /// </summary>
-        public readonly Dictionary<DBLinq.Linq.IMTable, int> UseBulkInsert = new Dictionary<DBLinq.Linq.IMTable, int>();
-
-        public string VendorName { get { return "Mysql"; } }
+        public string VendorName { get { return "PostgreSql"; } }
 
         public IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
-            , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
+                                               , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
         {
-            //on Oracle, this function does something.
-            //on other DBs, primary keys values are handled by AUTO_INCREMENT            
-            sbIdentity.Append(";\n SELECT @@IDENTITY");
-            return null;
+            ColumnAttribute[] colAttribs = AttribHelper.GetColumnAttribs(projData.type);
+
+            //changing IsPk->IsDbGen after discussion with Andrus:
+            //ColumnAttribute idColAttrib = colAttribs.FirstOrDefault(c => c.IsPrimaryKey);
+            ColumnAttribute idColAttrib = colAttribs.FirstOrDefault(c => c.IsDbGenerated);
+
+            string idColName = idColAttrib == null ? "ERROR_L93_MissingIdCol" : idColAttrib.Name;
+            if (idColAttrib!=null && idColAttrib.Expression != null)
+            {
+                //sequence name is known, is stored in Expression
+                string nextvalExpr = idColAttrib.Expression;                     //eg. "nextval('suppliers_supplierid_seq')"
+                string currvalExpr = nextvalExpr.Replace("nextval", "currval");  //eg. "currval('suppliers_supplierid_seq')"
+                sbIdentity.Append(";SELECT " + currvalExpr);
+            }
+            else
+            {
+                //assume standard format of sequence name
+                string sequenceName = projData.tableAttribute.Name + "_" + idColName + "_seq";
+                sbIdentity.Append(";SELECT currval('" + sequenceName + "')");
+            }
+
+            return null; //we have not created a param object (only Oracle does)
         }
 
-
         /// <summary>
-        /// on Postgres or Oracle, return eg. ':P1', on Mysql, '?P1'
-        /// </summary>
-        public override string ParamName(int index)
-        {
-            return "?P"+index;
-        }
-
-        /// <summary>
-        /// Mysql string concatenation
+        /// Postgres string concatenation, eg 'a||b'
         /// </summary>
         public override string Concat(List<ExpressionAndType> parts)
         {
-            string[] arr = parts.Select(p => p.expression).ToArray();
-            return "CONCAT(" + string.Join(",", arr) + ")";
+            //string[] arr = parts.ToArray();
+            //return string.Join("||", arr);
+            StringBuilder sb = new StringBuilder();
+            foreach (ExpressionAndType part in parts)
+            {
+                if (sb.Length != 0) { sb.Append("||"); }
+                if (part.type == typeof(string))
+                {
+                    sb.Append(part.expression);
+                }
+                else
+                {
+                    //integers and friends: must CAST before concatenating
+                    sb.Append("CAST(" + part.expression + " AS varchar)");
+                }
+            }
+            return sb.ToString();
         }
 
         /// <summary>
-        /// given 'int', return '`int`' to prevent a SQL keyword conflict
+        /// given 'User', return '[User]' to prevent a SQL keyword conflict
         /// </summary>
         public string FieldName_Safe(string name)
         {
-            if (name.Contains(" "))
-                return "`" + name + "`"; // "Order Details" -> "`Order Details`"
-
-            string nameL = name.ToLower();
-            switch (nameL)
-            {
-                case "user":
-                case "bit":
-                case "int":
-                case "smallint":
-                case "tinyint":
-                case "mediumint":
-
-                case "float":
-                case "double":
-                case "real":
-                case "decimal":
-                case "numeric":
-
-                case "blob":
-                case "text":
-                case "char":
-                case "varchar":
-
-                case "date":
-                case "time":
-                case "datetime":
-                case "timestamp":
-                case "year":
-
-                    return "`" + name + "`";
-                default:
-                    return name;
-            }
+            //if (name.ToLower() == "user")
+            //    return "[" + name + "]"; //this is wrong for Pgsql, says Andrus
+            return name;
         }
 
         public IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
         {
-            MySqlDbType dbType = MySqlTypeConversions.ParseType(dbTypeName);
-            MySqlParameter param = new MySqlParameter(paramName, dbType);
+            //System.Data.SqlDbType dbType = DBLinq.util.SqlTypeConversions.ParseType(dbTypeName);
+            //SqlParameter param = new SqlParameter(paramName, dbType);
+            NpgsqlTypes.NpgsqlDbType dbType = PgsqlTypeConversions.ParseType(dbTypeName);
+            NpgsqlParameter param = new NpgsqlParameter(paramName, dbType);
             return param;
-        }
-
-        public IDataReader2 CreateDataReader2(IDataReader dataReader)
-        {
-            return new DataReader2(dataReader);
-        }
-
-        public override bool CanBulkInsert<T>(DBLinq.Linq.Table<T> table)
-        {
-            return UseBulkInsert.ContainsKey(table);
-        }
-
-        public override void SetBulkInsert<T>(DBLinq.Linq.Table<T> table, int pageSize)
-        {
-            UseBulkInsert[table] = pageSize;
-        }
-
-        /// <summary>
-        /// for large number of rows, we want to use BULK INSERT, 
-        /// because it does not fill up the translation log.
-        /// This is enabled for tables where Vendor.UserBulkInsert[db.Table] is true.
-        /// </summary>
-        public override void DoBulkInsert<T>(DBLinq.Linq.Table<T> table, List<T> rows, IDbConnection conn)
-        {
-            int pageSize = UseBulkInsert[table];
-            //ProjectionData projData = ProjectionData.FromReflectedType(typeof(T));
-            ProjectionData projData = AttribHelper.GetProjectionData(typeof(T));
-            TableAttribute tableAttrib = typeof(T).GetCustomAttributes(false).OfType<TableAttribute>().Single();
-
-            //build "INSERT INTO products (ProductName, SupplierID, CategoryID, QuantityPerUnit)"
-            string header = "INSERT INTO " + tableAttrib.Name + " " + InsertClauseBuilder.InsertRowHeader(conn, projData);
-
-            foreach (List<T> page in Util.Paginate(rows, pageSize))
-            {
-                int numFieldsAdded = 0;
-                StringBuilder sbValues = new StringBuilder(" VALUES ");
-                List<IDbDataParameter> paramList = new List<IDbDataParameter>();
-
-                IDbCommand cmd = conn.CreateCommand();
-
-                //package up all fields in N rows:
-                string separator = "";
-                foreach (T row in page)
-                {
-                    //prepare values = "(?P1, ?P2, ?P3, ?P4)"
-                    string values =
-                        InsertClauseBuilder.InsertRowFields(this, cmd, row, projData, paramList, ref numFieldsAdded);
-                    sbValues.Append(separator).Append(values);
-                    separator = ", ";
-                }
-
-                string sql = header + sbValues; //'INSET t1 (field1) VALUES (11),(12)'
-                cmd.CommandText = sql;
-                paramList.ForEach(param => cmd.Parameters.Add(param));
-
-                int result = cmd.ExecuteNonQuery();
-            }
         }
 
         /// <summary>
@@ -185,7 +122,7 @@ namespace DBLinq.vendor.mysql
         /// optionally return DataSet, and collect return params.
         /// </summary>
         public System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.DataContext context, MethodInfo method
-            , params object[] inputValues)
+                                                                 , params object[] inputValues)
         {
             if (method == null)
                 throw new ArgumentNullException("L56 Null 'method' parameter");
@@ -205,8 +142,8 @@ namespace DBLinq.vendor.mysql
 
             string sp_name = functionAttrib.Name;
 
-            // picrap: is there any way to abstract some part of this?
-            using (MySqlCommand command = (MySqlCommand)conn.CreateCommand())
+            // picrap: FIXme
+            using (NpgsqlCommand command = (NpgsqlCommand) conn.CreateCommand())
             {
                 command.CommandText = sp_name;
                 //MySqlCommand command = new MySqlCommand("select hello0()");
@@ -220,21 +157,22 @@ namespace DBLinq.vendor.mysql
                     //TODO: check to make sure there is exactly one [Parameter]?
                     ParameterAttribute paramAttrib = paramInfo.GetCustomAttributes(false).OfType<ParameterAttribute>().Single();
 
-                    string paramName = "?" + paramAttrib.Name; //eg. '?param1'
+                    //string paramName = "?" + paramAttrib.Name; //eg. '?param1' MYSQL
+                    string paramName = ":" + paramAttrib.Name; //eg. '?param1' PostgreSQL
                     paramNames.Add(paramName);
 
                     System.Data.ParameterDirection direction = GetDirection(paramInfo, paramAttrib);
                     //MySqlDbType dbType = MySqlTypeConversions.ParseType(paramAttrib.DbType);
-                    MySqlParameter cmdParam = null;
+                    NpgsqlParameter cmdParam = null;
                     //cmdParam.Direction = System.Data.ParameterDirection.Input;
                     if (direction == System.Data.ParameterDirection.Input || direction == System.Data.ParameterDirection.InputOutput)
                     {
                         object inputValue = inputValues[currInputIndex++];
-                        cmdParam = new MySqlParameter(paramName, inputValue);
+                        cmdParam = new NpgsqlParameter(paramName, inputValue);
                     }
                     else
                     {
-                        cmdParam = new MySqlParameter(paramName, null);
+                        cmdParam = new NpgsqlParameter(paramName, null);
                     }
                     cmdParam.Direction = direction;
                     command.Parameters.Add(cmdParam);
@@ -257,7 +195,7 @@ namespace DBLinq.vendor.mysql
                 {
                     //unknown shape of resultset:
                     System.Data.DataSet dataSet = new System.Data.DataSet();
-                    MySqlDataAdapter adapter = new MySqlDataAdapter();
+                    NpgsqlDataAdapter adapter = new NpgsqlDataAdapter();
                     adapter.SelectCommand = command;
                     adapter.Fill(dataSet);
                     List<object> outParamValues = CopyOutParams(paramInfos, command.Parameters);
@@ -277,7 +215,7 @@ namespace DBLinq.vendor.mysql
             //strange hack to determine what's a ref, out parameter:
             //http://lists.ximian.com/pipermain/mono-list/2003-March/012751.html
             bool hasAmpersand = paramInfo.ParameterType.FullName.Contains('&');
-            if(paramInfo.IsOut)
+            if (paramInfo.IsOut)
                 return System.Data.ParameterDirection.Output;
             if (hasAmpersand)
                 return System.Data.ParameterDirection.InputOutput;
@@ -287,12 +225,12 @@ namespace DBLinq.vendor.mysql
         /// <summary>
         /// Collect all Out or InOut param values, casting them to the correct .net type.
         /// </summary>
-        static List<object> CopyOutParams(ParameterInfo[] paramInfos, MySqlParameterCollection paramSet)
+        static List<object> CopyOutParams(ParameterInfo[] paramInfos, NpgsqlParameterCollection paramSet)
         {
             List<object> outParamValues = new List<object>();
             //Type type_t = typeof(T);
-            int i=-1;
-            foreach (MySqlParameter param in paramSet)
+            int i = -1;
+            foreach (NpgsqlParameter param in paramSet)
             {
                 i++;
                 if (param.Direction == System.Data.ParameterDirection.Input)
@@ -309,14 +247,14 @@ namespace DBLinq.vendor.mysql
                     //for ref and out parameters, we need to tweak ref types, e.g.
                     // "System.Int32&, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
                     string fullName1 = desired_type.AssemblyQualifiedName;
-                    string fullName2 = fullName1.Replace("&", ""); 
+                    string fullName2 = fullName1.Replace("&", "");
                     desired_type = Type.GetType(fullName2);
                 }
                 try
                 {
                     //fi.SetValue(t, val); //fails with 'System.Decimal cannot be converted to Int32'
                     //DBLinq.util.FieldUtils.SetObjectIdField(t, fi, val);
-                    object val2 = DBLinq.util.FieldUtils.CastValue(val, desired_type);
+                    object val2 = DBLinq.Util.FieldUtils.CastValue(val, desired_type);
                     outParamValues.Add(val2);
                 }
                 catch (Exception ex)
@@ -327,6 +265,10 @@ namespace DBLinq.vendor.mysql
             }
             return outParamValues;
         }
-    }
 
+        public IDataReader2 CreateDataReader2(IDataReader dataReader)
+        {
+            return new PgsqlDataReader2(dataReader);
+        }
+    }
 }

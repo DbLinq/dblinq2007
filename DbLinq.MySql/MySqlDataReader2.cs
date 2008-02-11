@@ -28,29 +28,29 @@ using System;
 using System.Data;
 using System.Collections.Generic;
 using System.Text;
-using DBLinq.vendor;
-using Npgsql;
+using DBLinq.Vendor;
+using MySql.Data.MySqlClient;
 
-namespace DBLinq.util
+namespace DbLinq.MySql
 {
     /// <summary>
-    /// This class wraps NpgsqlDataReader.
+    /// This class wraps MySqlDataReader.
     /// It logs exceptions and provides methods to retrieve nullable types.
     /// 
     /// When we have a workaround for FatalExecutionEngineError on nullables, 
     /// this can go away.
     /// </summary>
-    public class DataReader2 : DataReader2Base
+    public class MySqlDataReader2 : DataReader2 //, IDataRecord
     {
-        protected NpgsqlDataReader Reader { get { return _rdr as NpgsqlDataReader; } }
+        protected MySqlDataReader Reader { get { return _rdr as MySqlDataReader; } }
 
-        public DataReader2(IDataReader rdr)
-        : base(rdr)
+        public MySqlDataReader2(IDataReader rdr)
+            : base(rdr)
         {
             if (Reader == null)
                 throw new ArgumentException("rdr");
         }
-        
+
         public override short? GetInt16N(int index)
         {
             try
@@ -81,6 +81,16 @@ namespace DBLinq.util
             }
         }
 
+        public override bool GetBoolean(int index)
+        {
+            //support for 'Product.Discontinued' field in Northwind DB - it's nullable, but MS samples map it to plain bool
+            // picrap: shall we support this?
+            if (_rdr.IsDBNull(index))
+                return false; 
+
+            return _rdr.GetBoolean(index); 
+        }
+
         public override bool? GetBooleanN(int index)
         {
             try
@@ -100,40 +110,14 @@ namespace DBLinq.util
         {
             try
             {
-                DbType dbType1 = Reader.GetFieldDbType(index);
-                NpgsqlTypes.NpgsqlDbType dbType2 = Reader.GetFieldNpgsqlDbType(index);
-                if(dbType2==NpgsqlTypes.NpgsqlDbType.Bigint)
-                {
-                    return (int)_rdr.GetInt64(index);
-                }
-                else if(dbType2==NpgsqlTypes.NpgsqlDbType.Integer)
-                {
-                    //ok
-                }
-                else
-                {
-                    //there is a problem (we're getting text)
-                    Console.WriteLine("DataReader2.GetInt32: got unexpected type:"+dbType2);
-                    object val = _rdr.GetValue(index);
-                    Console.WriteLine("DataReader2.GetInt32: got unexpected type:"+dbType2+"  val="+val);
-                }
-
-                //PgSql seems to give us Int64
-                return (int)_rdr.GetInt32(index);
+                return _rdr.GetInt32(index);
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetInt32 failed: "+ex);
-                try {
-                    object obj = _rdr.GetValue(index);
-                    Console.WriteLine("GetInt32 failed, offending val: "+obj);
-                } catch(Exception)
-                {
-                }
+                Console.WriteLine("GetInt32("+index+") failed: "+ex);
                 return 0;
             }
         }
-
         public override int? GetInt32N(int index)
         {
             try
@@ -149,18 +133,19 @@ namespace DBLinq.util
             }
         }
 
+
         public override uint GetUInt32(int index)
         {
             try
             {
-                return (uint)_rdr.GetInt32(index);
+                return Reader.GetUInt32(index);
             } 
             catch(Exception ex)
             {
                 Console.WriteLine("GetUInt32("+index+") failed: "+ex);
                 try {
-                        object obj = _rdr.GetValue(index);
-                        Console.WriteLine("GetUInt32 failed, offending val: "+obj);
+                    object obj = _rdr.GetValue(index);
+                    Console.WriteLine("GetUInt32 failed, offending val: "+obj);
                 } catch(Exception){}
                 return 0;
             }
@@ -172,7 +157,7 @@ namespace DBLinq.util
             {
                 if(_rdr.IsDBNull(index))
                     return null;
-                return (uint)_rdr.GetInt32(index);
+                return Reader.GetUInt32(index);
             } 
             catch(Exception ex)
             {
@@ -213,21 +198,14 @@ namespace DBLinq.util
         {
             try
             {
-                if (_rdr.GetFieldType(index) == typeof(decimal))
-                {
-                    //occurs in: "SELECT AVG(ProductID) FROM Products"
-                    return (double)_rdr.GetDecimal(index);
-                }
-
                 return _rdr.GetDouble(index);
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetDouble failed: "+ex);
+                Console.WriteLine("GetInt32 failed: "+ex);
                 return 0;
             }
         }
-
         public override double? GetDoubleN(int index)
         {
             try
@@ -292,7 +270,7 @@ namespace DBLinq.util
             catch(Exception ex)
             {
                 Console.WriteLine("GetInt32 failed: "+ex);
-                return new DateTime();
+                return null;
             }
         }
 
@@ -321,21 +299,19 @@ namespace DBLinq.util
             catch(Exception ex)
             {
                 Console.WriteLine("GetInt64N failed: "+ex);
-                return 0;
+                return null;
             }
         }
+        public override ulong GetUInt64(int index)
+        {
+            return (ulong)GetInt64(index);
+        }
 
-        public override string GetString(int index)
+        public string GetString(int index)
         {
             try
             {
-                if(_rdr.IsDBNull(index))
-                    return null;
-              // Allow to ignore trailing spaces
-              if (!vendor.Settings.TrimEnd)
                 return _rdr.GetString(index);
-               else 
-                return _rdr.GetString(index).TrimEnd();
             } 
             catch(Exception ex)
             {
@@ -349,7 +325,7 @@ namespace DBLinq.util
             try
             {
                 //System.Data.SqlClient.SqlDataReader rdr2;
-                //rdr2.GetSqlBinary(); //SqlBinary does not seem to exist on Npgsql
+                //rdr2.GetSqlBinary(); //SqlBinary does not seem to exist on MySql
                 object obj = _rdr.GetValue(index);
                 if(obj==null)
                     return null; //nullable blob?
@@ -364,6 +340,26 @@ namespace DBLinq.util
             {
                 Console.WriteLine("GetBytes failed: "+ex);
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// helper method for reading an integer, and casting it to enum
+        /// </summary>
+        public T2 GetEnum<T2>(int index)
+            where T2 : new()
+        {
+            try
+            {
+                int value = (_rdr.IsDBNull(index))
+                                ? 0
+                                : _rdr.GetInt32(index);
+                return (T2)Enum.ToObject(typeof(T2), value);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("GetEnum failed: " + ex);
+                return new T2();
             }
         }
     }

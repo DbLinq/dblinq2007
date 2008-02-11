@@ -34,12 +34,12 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
-using DBLinq.util;
+using DBLinq.Util;
 using DBLinq.Linq;
-using DBLinq.Linq.clause;
-using DBLinq.vendor;
+using DBLinq.Linq.Clause;
+using DBLinq.Vendor;
 
-namespace DBLinq.util
+namespace DBLinq.Util
 {
     /// <summary>
     /// class to read a row of data from MySqlDataReader, and package it into type T.
@@ -92,7 +92,7 @@ namespace DBLinq.util
         protected IDbCommand ExecuteSqlCommand(IDbConnection newConn, out IDataReader2 rdr2)
         {
             //prepend user prolog string, if any
-            string sqlFull = DBLinq.vendor.Settings.sqlStatementProlog + _sqlString;
+            string sqlFull = DBLinq.Vendor.Settings.sqlStatementProlog + _sqlString;
 
 
             IDbCommand cmd = newConn.CreateCommand();

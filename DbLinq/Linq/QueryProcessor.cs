@@ -30,9 +30,9 @@ using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Data.Linq.Mapping;
-using DBLinq.Linq.clause;
-using DBLinq.util;
-using DBLinq.vendor;
+using DBLinq.Linq.Clause;
+using DBLinq.Util;
+using DBLinq.Vendor;
 
 namespace DBLinq.Linq
 {

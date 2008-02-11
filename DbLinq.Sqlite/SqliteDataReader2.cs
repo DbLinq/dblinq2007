@@ -29,9 +29,9 @@ using System.Data;
 using System.Collections.Generic;
 using System.Text;
 using System.Data.SQLite;
-using DBLinq.vendor;
+using DBLinq.Vendor;
 
-namespace DBLinq.util
+namespace DbLinq.Sqlite
 {
     /// <summary>
     /// This class wraps SQLiteDataReader.
@@ -40,9 +40,9 @@ namespace DBLinq.util
     /// When we have a workaround for FatalExecutionEngineError on nullables, 
     /// this can go away.
     /// </summary>
-    public class DataReader2 : DataReader2Base
+    public class SqliteDataReader2 : DataReader2
     {
-        public DataReader2(IDataReader rdr)
+        public SqliteDataReader2(IDataReader rdr)
             : base(rdr)
         {
         }
@@ -354,8 +354,8 @@ namespace DBLinq.util
             try
             {
                 int value = (_rdr.IsDBNull(index))
-                    ? 0
-                    : _rdr.GetInt32(index);
+                                ? 0
+                                : _rdr.GetInt32(index);
                 return (T2)Enum.ToObject(typeof(T2), value);
             }
             catch (Exception ex)

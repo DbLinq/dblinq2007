@@ -33,16 +33,18 @@ using System.Data.Linq.Mapping;
 using System.Reflection;
 using System.Data.SQLite;
 using DBLinq.Linq.Mapping;
-using DBLinq.util;
+using DbLinq.Sqlite;
+using DBLinq.Util;
 using DBLinq.Linq;
-using DBLinq.Linq.clause;
+using DBLinq.Linq.Clause;
+using DBLinq.Vendor;
 
-namespace DBLinq.vendor.sqlite
+namespace DbLinq.Sqlite
 {
     /// <summary>
     /// SQLite - specific code.
     /// </summary>
-    public class VendorSqlite : VendorBase, IVendor
+    public class SqliteVendor : Vendor, IVendor
     {
         public string VendorName { get { return "SQLite"; } }
 
@@ -53,7 +55,7 @@ namespace DBLinq.vendor.sqlite
 
 
         public IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
-            , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
+                                               , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
         {
             //on Oracle, this function does something.
             //on other DBs, primary keys values are handled by AUTO_INCREMENT            
@@ -130,14 +132,14 @@ namespace DBLinq.vendor.sqlite
 
         public IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
         {
-            System.Data.DbType dbType = SQLiteTypeConversions.ParseType(dbTypeName);
+            System.Data.DbType dbType = SqliteTypeConversions.ParseType(dbTypeName);
             SQLiteParameter param = new SQLiteParameter(paramName, dbType);
             return param;
         }
 
         public IDataReader2 CreateDataReader2(IDataReader dataReader)
         {
-            return new DataReader2(dataReader);
+            return new SqliteDataReader2(dataReader);
         }
 
         public override bool CanBulkInsert<T>(DBLinq.Linq.Table<T> table)
@@ -165,7 +167,7 @@ namespace DBLinq.vendor.sqlite
             //build "INSERT INTO products (ProductName, SupplierID, CategoryID, QuantityPerUnit)"
             string header = "INSERT INTO " + tableAttrib.Name + " " + InsertClauseBuilder.InsertRowHeader(conn, projData);
 
-            foreach (List<T> page in Util.Paginate(rows, pageSize))
+            foreach (List<T> page in Page.Paginate(rows, pageSize))
             {
                 int numFieldsAdded = 0;
                 StringBuilder sbValues = new StringBuilder(" VALUES ");
@@ -196,7 +198,7 @@ namespace DBLinq.vendor.sqlite
         /// optionally return DataSet, and collect return params.
         /// </summary>
         public System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.DataContext context, MethodInfo method
-            , params object[] inputValues)
+                                                                 , params object[] inputValues)
         {
             if (method == null)
                 throw new ArgumentNullException("L56 Null 'method' parameter");
@@ -326,7 +328,7 @@ namespace DBLinq.vendor.sqlite
                 {
                     //fi.SetValue(t, val); //fails with 'System.Decimal cannot be converted to Int32'
                     //DBLinq.util.FieldUtils.SetObjectIdField(t, fi, val);
-                    object val2 = DBLinq.util.FieldUtils.CastValue(val, desired_type);
+                    object val2 = DBLinq.Util.FieldUtils.CastValue(val, desired_type);
                     outParamValues.Add(val2);
                 }
                 catch (Exception ex)
@@ -338,5 +340,4 @@ namespace DBLinq.vendor.sqlite
             return outParamValues;
         }
     }
-
 }
