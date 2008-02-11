@@ -84,8 +84,7 @@ namespace DBLinq.util
 
         protected virtual void CompileReaderFct()
         {
-            int fieldID = 0;
-            _objFromRow2 = RowEnumeratorCompiler<T>.CompileRowDelegate(_vars, ref fieldID);
+            _objFromRow2 = _vars.context.DataMapper.GetMapper<T>(_vars);
         }
 
         public string GetQueryText(){ return _sqlString; }

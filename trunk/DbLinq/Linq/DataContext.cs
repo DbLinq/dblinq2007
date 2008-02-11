@@ -52,6 +52,8 @@ namespace DBLinq.Linq
         public IDbConnection Connection { get { return _connectionProvider.Connection; } }
         public IVendor Vendor { get { return _vendor; } }
 
+        public IDataMapper DataMapper { get; set; }
+
             // picrap: commented out this feature: we're going to be db independant
         //public DataContext(string sqlConnString)
         //{
@@ -91,6 +93,7 @@ namespace DBLinq.Linq
                 throw new ArgumentNullException("Null connectionProvider");
             _connectionProvider = connectionProvider;
             _vendor = vendor;
+            DataMapper = new DataMapper();
         }
 
         //public XSqlConnection SqlConnection
