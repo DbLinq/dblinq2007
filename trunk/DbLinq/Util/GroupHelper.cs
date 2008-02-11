@@ -29,7 +29,7 @@ using System.Text;
 using System.Linq.Expressions;
 using DBLinq.Linq;
 
-namespace DBLinq.util
+namespace DBLinq.Util
 {
     static class GroupHelper
     {

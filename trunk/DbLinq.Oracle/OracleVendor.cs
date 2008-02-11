@@ -7,12 +7,13 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
-using DBLinq.util;
+using DbLinq.Oracle;
 using DBLinq.Linq;
+using DBLinq.Vendor;
 
-namespace DBLinq.vendor
+namespace DbLinq.Oracle
 {
-    public class VendorOra : VendorBase, IVendor
+    public class OracleVendor : Vendor, IVendor
     {
         public string VendorName { get { return "Oracle"; } }
 
@@ -25,7 +26,7 @@ namespace DBLinq.vendor
 
         private IDictionary<string, DbType> extraTypes = new Dictionary<string, DbType>();
 
-        public VendorOra()
+        public OracleVendor()
         {
             extraTypes["tinyint"] = DbType.Int16;
             extraTypes["int"] = DbType.Int32;
@@ -47,7 +48,7 @@ namespace DBLinq.vendor
         /// On MySql/Pgsql/Mssql, we use the IDENTITY clause to populate it automatically.
         /// </summary>
         public IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
-            , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
+                                               , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
         {
             if (numFieldsAdded++ > 0) { sb.Append(", "); sbValues.Append(", "); }
 
@@ -64,7 +65,7 @@ namespace DBLinq.vendor
             outParam.Direction = ParameterDirection.Output;
 
             string nextvalStr = string.Format(";\n SELECT {0}.CurrVal INTO {1} FROM DUAL; END;"
-                , sequenceName, outParamName);
+                                              , sequenceName, outParamName);
             //this semicolon gives error: ORA-00911: invalid character
             //but Oracle docs imply that you can use semicolon and multiple commands?!
             //http://www.oracle.com/technology/sample_code/tech/windows/odpnet/howto/anonyblock/index.html
@@ -98,14 +99,14 @@ namespace DBLinq.vendor
         }
 
         public System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.DataContext context, MethodInfo method
-            , params object[] inputValues)
+                                                                 , params object[] inputValues)
         {
             throw new NotImplementedException();
         }
 
         public IDataReader2 CreateDataReader2(IDataReader dataReader)
         {
-            return new DataReader2(dataReader);
+            return new OracleDataReader2(dataReader);
         }
     }
 }

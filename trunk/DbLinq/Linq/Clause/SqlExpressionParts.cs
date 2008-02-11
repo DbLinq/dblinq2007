@@ -27,9 +27,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using DBLinq.vendor;
+using DBLinq.Vendor;
 
-namespace DBLinq.Linq.clause
+namespace DBLinq.Linq.Clause
 {
     /// <summary>
     /// Object which holds the pieces of a SELECT as it's being put together.

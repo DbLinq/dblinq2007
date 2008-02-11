@@ -29,7 +29,7 @@ using System.Linq;
 using System.Linq.Expressions;
 
 
-namespace DBLinq.util
+namespace DBLinq.Util
 {
     /// <summary>
     /// Lookup: 2nd implementation of IGrouping, as needed in group-by queries.

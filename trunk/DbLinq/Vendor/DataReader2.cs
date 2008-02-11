@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Data;
 
-namespace DBLinq.vendor
+namespace DBLinq.Vendor
 {
-    public class DataReader2Base : IDataReader2
+    public class DataReader2 : IDataReader2
     {
         protected IDataReader _rdr;
 
-        public DataReader2Base(IDataReader rdr)
+        public DataReader2(IDataReader rdr)
         {
             _rdr = rdr;
         }

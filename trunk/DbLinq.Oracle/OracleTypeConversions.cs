@@ -6,7 +6,7 @@ using System.Text;
 using System.Data.OracleClient;
 #endif
 
-namespace DBLinq.vendor
+namespace DbLinq.Oracle
 {
     /// <summary>
     /// helper class which help to convert MySql's types to MySqlClient .NET types,

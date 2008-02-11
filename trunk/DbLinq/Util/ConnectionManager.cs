@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace DBLinq.util
+namespace DBLinq.Util
 {
     /// <summary>
     /// if a connection is initially closed, ConnectionManager closes it in Dispose().

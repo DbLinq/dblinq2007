@@ -32,8 +32,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using DBLinq.Linq.Connection;
-using DBLinq.vendor;
-using DBLinq.util;
+using DBLinq.Vendor;
+using DBLinq.Util;
 
 namespace DBLinq.Linq
 {

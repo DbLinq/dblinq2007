@@ -12,7 +12,7 @@ using System.Data.Linq.Mapping;
 using System.Reflection;
 using DBLinq.Linq;
 using DBLinq.Linq.Mapping;
-using DBLinq.vendor;
+using DbLinq.Oracle;
 
 namespace nwind
 {
@@ -28,10 +28,10 @@ namespace nwind
 #else
             new System.Data.OracleClient.OracleConnection(connStr), 
 #endif
- new VendorOra())
+ new OracleVendor())
 		{
 		}
-		public Northwind(System.Data.IDbConnection connection) : base(connection, new VendorOra())
+		public Northwind(System.Data.IDbConnection connection) : base(connection, new OracleVendor())
 		{
 		}
 	

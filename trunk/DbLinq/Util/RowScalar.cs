@@ -29,10 +29,10 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq.Expressions;
 using DBLinq.Linq;
-using DBLinq.Linq.clause;
-using DBLinq.vendor;
+using DBLinq.Linq.Clause;
+using DBLinq.Vendor;
 
-namespace DBLinq.util
+namespace DBLinq.Util
 {
     /// <summary>
     /// handles scalar calls: query.First, query.Last, and query.Count

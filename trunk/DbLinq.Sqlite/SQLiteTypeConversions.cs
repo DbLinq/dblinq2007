@@ -27,17 +27,17 @@ using System.Collections.Generic;
 using System.Text;
 using System.Data.SQLite;
 
-namespace DBLinq.vendor
+namespace DbLinq.Sqlite
 {
     /// <summary>
     /// helper class which help to convert SQLite's types to SQLiteClient .NET types,
     /// eg. 'tinyint' to SqlDbType.Int16.
     /// </summary>
-    public static class SQLiteTypeConversions
+    public static class SqliteTypeConversions
     {
         static Dictionary<string, System.Data.DbType> s_typeMap = new Dictionary<string, System.Data.DbType>();
 
-        static SQLiteTypeConversions()
+        static SqliteTypeConversions()
         {
             foreach (System.Data.DbType dbType in Enum.GetValues(typeof(System.Data.DbType)))
             {

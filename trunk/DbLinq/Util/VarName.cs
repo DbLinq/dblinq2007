@@ -28,7 +28,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DBLinq.util
+namespace DBLinq.Util
 {
     /// <summary>
     /// central place to convert C# variable names ('c') into SQL variable names ('c$').

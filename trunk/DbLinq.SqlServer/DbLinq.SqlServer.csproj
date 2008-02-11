@@ -48,10 +48,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataReader2.cs" />
-    <Compile Include="MsSqlTypeConversions.cs" />
+    <Compile Include="SqlServerDataReader2.cs" />
+    <Compile Include="SqlServerTypeConversions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="VendorMs.cs" />
+    <Compile Include="SqlServerVendor.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DbLinq\DbLinq.csproj">

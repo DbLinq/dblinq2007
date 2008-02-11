@@ -32,8 +32,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
-using DBLinq.util;
-using DBLinq.Linq.clause;
+using DBLinq.Util;
+using DBLinq.Linq.Clause;
 
 namespace DBLinq.Linq
 {

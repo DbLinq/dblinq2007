@@ -29,10 +29,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
-using DBLinq.util;
-using DBLinq.vendor;
+using DBLinq.Util;
+using DBLinq.Vendor;
 
-namespace DBLinq.Linq.clause
+namespace DBLinq.Linq.Clause
 {
     public class JoinBuilder
     {

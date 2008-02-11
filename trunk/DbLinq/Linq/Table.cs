@@ -37,9 +37,9 @@ using System.Linq.Expressions;
 
 //using System.Data.DLinq;
 
-using DBLinq.Linq.clause;
-using DBLinq.util;
-using DBLinq.vendor;
+using DBLinq.Linq.Clause;
+using DBLinq.Util;
+using DBLinq.Vendor;
 
 namespace DBLinq.Linq
 {

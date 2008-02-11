@@ -28,8 +28,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using DBLinq.util;
-using DBLinq.vendor;
+using DBLinq.Util;
+using DBLinq.Vendor;
 
 namespace DBLinq.Linq
 {

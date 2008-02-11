@@ -26,7 +26,7 @@
 
 using System;
 
-namespace DBLinq.vendor
+namespace DBLinq.Vendor
 {
     /// <summary>
     /// This interface lists all the functions required on top of regular IDataReader.

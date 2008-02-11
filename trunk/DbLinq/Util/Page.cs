@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace DBLinq.util
+namespace DBLinq.Util
 {
-    public class Util
+    public class Page
     {
         /// <summary>
         /// break a bigList into pages of size N.

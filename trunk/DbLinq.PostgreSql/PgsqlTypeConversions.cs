@@ -4,7 +4,7 @@ using System.Text;
 using Npgsql;
 using NpgsqlTypes;
 
-namespace DBLinq.vendor
+namespace DbLinq.PostgreSql
 {
     /// <summary>
     /// helper class which help to convert MySql's types to MySqlClient .NET types,

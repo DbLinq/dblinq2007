@@ -8,10 +8,10 @@ using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
 //using System.Data.OracleClient;
-using DBLinq.util;
+using DBLinq.Util;
 using DBLinq.Linq;
 
-namespace DBLinq.vendor
+namespace DBLinq.Vendor
 {
     /// <summary>
     /// Vendor - specific part of DBLinq.

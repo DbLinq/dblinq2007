@@ -52,10 +52,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataReader2.cs" />
+    <Compile Include="MySqlDataReader2.cs" />
     <Compile Include="MySqlTypeConversions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="VendorMysql.cs" />
+    <Compile Include="MySqlVendor.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DbLinq\DbLinq.csproj">

@@ -32,9 +32,9 @@ using System.Linq;
 using System.Linq.Expressions;
 
 using DBLinq.Linq;
-using DBLinq.vendor;
+using DBLinq.Vendor;
 
-namespace DBLinq.util
+namespace DBLinq.Util
 {
     public class RowEnumeratorCompiler<T>
     {

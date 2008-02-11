@@ -52,10 +52,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataReader2.cs" />
+    <Compile Include="PgsqlDataReader2.cs" />
     <Compile Include="PgsqlTypeConversions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="VendorPgsql.cs" />
+    <Compile Include="PgsqlVendor.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DbLinq\DbLinq.csproj">

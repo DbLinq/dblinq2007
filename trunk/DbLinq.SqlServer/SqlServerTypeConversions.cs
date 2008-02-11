@@ -28,17 +28,17 @@ using System.Text;
 using System.Data.SqlClient;
 using System.Data;
 
-namespace DBLinq.util
+namespace DbLinq.SqlServer
 {
     /// <summary>
     /// helper class which help to convert Microsoft Sql's types to SqlClient .NET types,
     /// eg. 'smalldatetime' to SqlDbType.Date.
     /// </summary>
-    public static class SqlTypeConversions
+    public static class SqlServerTypeConversions
     {
         static Dictionary<string, SqlDbType> s_typeMap = new Dictionary<string, SqlDbType>();
 
-        static SqlTypeConversions()
+        static SqlServerTypeConversions()
         {
             foreach (SqlDbType dbType in Enum.GetValues(typeof(SqlDbType)))
             {

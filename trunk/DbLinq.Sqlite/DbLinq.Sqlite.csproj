@@ -52,10 +52,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataReader2.cs" />
+    <Compile Include="SqliteDataReader2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SQLiteTypeConversions.cs" />
-    <Compile Include="VendorSQLite.cs" />
+    <Compile Include="SqliteTypeConversions.cs" />
+    <Compile Include="SqliteVendor.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DbLinq\DbLinq.csproj">
