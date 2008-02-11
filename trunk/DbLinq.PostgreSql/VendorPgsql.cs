@@ -135,7 +135,7 @@ namespace DBLinq.vendor.pgsql
             //if (numRequiredParams != inputValues.Length)
             //    throw new ArgumentException("L161 Argument count mismatch");
 
-            IDbConnection conn = context.ConnectionProvider.Connection;
+            IDbConnection conn = context.Connection;
             //conn.Open();
 
             string sp_name = functionAttrib.Name;

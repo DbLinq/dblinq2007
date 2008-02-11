@@ -25,12 +25,8 @@
 #endregion
 
 using System;
-using System.Linq;
-using System.Linq.Expressions;
 using System.Collections.Generic;
-using System.Text;
-using DBLinq.Linq.clause;
-using DBLinq.util;
+using System.Linq.Expressions;
 
 namespace DBLinq.Linq
 {
@@ -39,26 +35,26 @@ namespace DBLinq.Linq
     /// </summary>
     public class SessionVars
     {
-        static int                      s_serial = 0;
+        private static int                      s_serial = 0;
         public readonly int             _serial = s_serial++;
 
-        public readonly DataContext        context;
-
+        public DataContext Context { get; private set; }
 
         /// <summary>
         /// chain of expressions processed so far. 
         /// for db.Employees.Where(...).Select(...), we would hold 2 expressions.
         /// </summary>
-        public readonly List<MethodCallExpression> expressionChain = new List<MethodCallExpression>();
+        public List<MethodCallExpression> ExpressionChain { get { return expressionChain; } }
+        private readonly List<MethodCallExpression> expressionChain = new List<MethodCallExpression>();
         
         /// <summary>
         /// optional scalar expression, terminating the chain
         /// </summary>
-        public Expression scalarExpression;
+        public Expression ScalarExpression { get; set; }
 
         public SessionVars(DataContext context)
         {
-            this.context = context;
+            Context = context;
         }
 
         /// <summary>
@@ -66,9 +62,9 @@ namespace DBLinq.Linq
         /// </summary>
         public SessionVars(SessionVars vars)
         { 
-            context = vars.context;
-            expressionChain = new List<MethodCallExpression>(vars.expressionChain);
-            scalarExpression = vars.scalarExpression;
+            Context = vars.Context;
+            expressionChain = new List<MethodCallExpression>(vars.ExpressionChain);
+            ScalarExpression = vars.ScalarExpression;
         }
 
         /// <summary>
@@ -79,7 +75,7 @@ namespace DBLinq.Linq
             MethodCallExpression exprCall = expressionToAdd as MethodCallExpression;
             if (exprCall == null)
                 throw new ArgumentException("L77 Expression must be a MethodCall");
-            expressionChain.Add(exprCall);
+            ExpressionChain.Add(exprCall);
             return this;
         }
 
@@ -91,47 +87,9 @@ namespace DBLinq.Linq
             MethodCallExpression exprCall = expression as MethodCallExpression;
             if (exprCall == null)
                 throw new ArgumentException("L85 Expression must be a MethodCall");
-            scalarExpression = expression;
+            ScalarExpression = expression;
             return this;
         }
     }
 
-    /// <summary>
-    /// the 'finalized' SessionVars.
-    /// (meaning expressions have been parsed, after enumeration has started).
-    /// 
-    /// You create an instance via QueryProcessor.ProcessLambdas()
-    /// </summary>
-    public sealed class SessionVarsParsed : SessionVars
-    {
-        /// <summary>
-        /// components of SQL expression (where clause, order, select ...)
-        /// </summary>
-        public SqlExpressionParts _sqlParts;
-        
-        public LambdaExpression groupByExpr;
-        public LambdaExpression groupByNewExpr;
-
-        /// <summary>
-        /// list of reflected fields - this will be used to compile a row reader method
-        /// </summary>
-        public ProjectionData   projectionData;
-
-        /// <summary>
-        /// in SelectMany, there is mapping c.Orders => o
-        /// </summary>
-        //public Dictionary<MemberExpression,string> memberExprNickames = new Dictionary<MemberExpression,string>();
-
-        /// <summary>
-        /// created by post-processing in QueryProcessor.build_SQL_string(), used in RowEnumerator
-        /// </summary>
-        public string sqlString;
-
-
-        public SessionVarsParsed(SessionVars vars)
-            : base(vars)
-        {
-            _sqlParts = new SqlExpressionParts(vars.context.Vendor);
-        }
-    }
 }

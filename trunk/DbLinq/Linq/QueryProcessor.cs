@@ -88,7 +88,7 @@ namespace DBLinq.Linq
             SessionVarsParsed varsFin = new SessionVarsParsed(vars);
             QueryProcessor qp = new QueryProcessor(varsFin); //TODO
 
-            foreach (MethodCallExpression expr in vars.expressionChain)
+            foreach (MethodCallExpression expr in vars.ExpressionChain)
             {
                 qp.processQuery(expr);
             }
@@ -105,10 +105,10 @@ namespace DBLinq.Linq
 
         void processScalarExpression()
         {
-            if (_vars.scalarExpression == null)
+            if (_vars.ScalarExpression == null)
                 return;
 
-            Expression expr = _vars.scalarExpression;
+            Expression expr = _vars.ScalarExpression;
 
             MethodCallExpression exprCall = expr.XMethodCall();
             string methodName = exprCall != null ? exprCall.Method.Name : "Unknown_71";
@@ -139,7 +139,7 @@ namespace DBLinq.Linq
             LambdaExpression lambdaParam = exprCall.XParam(1).XLambda();
             if (lambdaParam != null)
             {
-                processWhereClause(lambdaParam);
+                ProcessWhereClause(lambdaParam);
             }
 
         }
@@ -162,8 +162,8 @@ namespace DBLinq.Linq
 
             string sql = _vars._sqlParts.ToString();
 
-            if (_vars.context.Log!=null)
-                _vars.context.Log.WriteLine("SQL: " + sql);
+            if (_vars.Context.Log!=null)
+                _vars.Context.Log.WriteLine("SQL: " + sql);
 
             _vars.sqlString = sql;
             return sql;
@@ -187,29 +187,29 @@ namespace DBLinq.Linq
             switch (methodName)
             {
                 case "Where":
-                    processWhereClause(lambda);
+                    ProcessWhereClause(lambda);
                     return;
                 case "GroupBy":
-                    processGroupByCall(exprCall);
+                    ProcessGroupByCall(exprCall);
                     return;
                 case "GroupJoin": //occurs in LinqToSqlJoin10()
-                    processGroupJoin(exprCall);
+                    ProcessGroupJoin(exprCall);
                     return;
                 case "Select":
-                    processSelectClause(lambda);
+                    ProcessSelectClause(lambda);
                     return;
                 case "SelectMany":
-                    processSelectMany(exprCall);
+                    ProcessSelectMany(exprCall);
                     return;
                 case "OrderBy":
                 case "ThenBy":
-                    processOrderByClause(lambda, null); 
+                    ProcessOrderByClause(lambda, null); 
                     return;
                 case "OrderByDescending":
-                    processOrderByClause(lambda, "DESC"); 
+                    ProcessOrderByClause(lambda, "DESC"); 
                     return;
                 case "Join":
-                    processJoinClause(exprCall); 
+                    ProcessJoinClause(exprCall); 
                     return;
                 case "Take":
                 case "Skip":
@@ -266,7 +266,7 @@ namespace DBLinq.Linq
         public string storeParam(string value)
         {
             int count = paramMap.Count;
-            string paramName = _vars.context.Vendor.ParamName(count);
+            string paramName = _vars.Context.Vendor.ParamName(count);
             paramMap[paramName] = value;
             lastParamName = paramName;
             return paramName;

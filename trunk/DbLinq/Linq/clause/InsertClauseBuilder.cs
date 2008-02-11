@@ -194,7 +194,7 @@ namespace DBLinq.Linq.clause
             if (projData.fields.Count < 1 || projData.fields[0].columnAttribute == null)
                 throw new ApplicationException("InsertClauseBuilder need to receive types that have ColumnAttributes");
 
-            IDbCommand cmd = vars.context.Connection.CreateCommand();
+            IDbCommand cmd = vars.Context.Connection.CreateCommand();
 
             StringBuilder sb = new StringBuilder("UPDATE ");
             sb.Append(projData.tableAttribute.Name).Append(" SET ");
@@ -208,7 +208,7 @@ namespace DBLinq.Linq.clause
             {
                 ColumnAttribute colAtt = projFld.columnAttribute;
 
-                string columnName_safe = vars.context.Vendor.FieldName_Safe(colAtt.Name); //turn 'User' into '[User]'
+                string columnName_safe = vars.Context.Vendor.FieldName_Safe(colAtt.Name); //turn 'User' into '[User]'
 
                 if (colAtt.IsPrimaryKey) 
                 {
@@ -225,7 +225,7 @@ namespace DBLinq.Linq.clause
                 }
                 else
                 {
-                    paramName = vars.context.Vendor.ParamName(paramIndex++);
+                    paramName = vars.Context.Vendor.ParamName(paramIndex++);
                 }
 
                 //append string, eg. ",Name=:p0"
@@ -238,7 +238,7 @@ namespace DBLinq.Linq.clause
                 }
                 else
                 {
-                    IDbDataParameter param = vars.context.Vendor.CreateSqlParameter(cmd, colAtt.DbType, paramName);
+                    IDbDataParameter param = vars.Context.Vendor.CreateSqlParameter(cmd, colAtt.DbType, paramName);
                     param.Value = paramValue;
                     paramList.Add(param);
                 }

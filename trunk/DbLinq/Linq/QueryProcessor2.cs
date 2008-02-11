@@ -39,9 +39,9 @@ namespace DBLinq.Linq
     /// </summary>
     partial class QueryProcessor
     {
-        void processWhereClause(LambdaExpression lambda)
+        void ProcessWhereClause(LambdaExpression lambda)
         {
-            ParseResult result = ExpressionTreeParser.Parse(_vars.context.Vendor, this, lambda.Body);
+            ParseResult result = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, lambda.Body);
 
             if (GroupHelper.IsGrouping(lambda.Parameters[0].Type))
             {
@@ -55,7 +55,7 @@ namespace DBLinq.Linq
             result.CopyInto(this, _vars._sqlParts); //transfer params and tablesUsed
         }
 
-        void processSelectClause(LambdaExpression selectExpr)
+        void ProcessSelectClause(LambdaExpression selectExpr)
         {
             this.selectExpr = selectExpr; //store for GroupBy & friends
 
@@ -79,7 +79,7 @@ namespace DBLinq.Linq
             }
             else
             {
-                ParseResult result = ExpressionTreeParser.Parse(_vars.context.Vendor, this, body);
+                ParseResult result = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, body);
                 _vars._sqlParts.AddSelect(result.columns);
                 result.CopyInto(this, _vars._sqlParts); //transfer params and tablesUsed
 
@@ -92,15 +92,15 @@ namespace DBLinq.Linq
             }
         }
 
-        void processOrderByClause(LambdaExpression orderByExpr, string orderBy_desc)
+        void ProcessOrderByClause(LambdaExpression orderByExpr, string orderBy_desc)
         {
-            ParseResult result = ExpressionTreeParser.Parse(_vars.context.Vendor, this, orderByExpr.Body);
+            ParseResult result = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, orderByExpr.Body);
             string orderByFields = string.Join(",", result.columns.ToArray());
             _vars._sqlParts.orderByList.Add(orderByFields);
             _vars._sqlParts.orderBy_desc = orderBy_desc; //copy 'DESC' specifier
         }
 
-        void processJoinClause(MethodCallExpression joinExpr)
+        void ProcessJoinClause(MethodCallExpression joinExpr)
         {
             ParseResult result;
 
@@ -114,20 +114,20 @@ namespace DBLinq.Linq
             string joinField1, joinField2;
             //processSelectClause(arg2.XLambda());
             {
-                result = ExpressionTreeParser.Parse(_vars.context.Vendor, this, arg2.XLambda().Body);
+                result = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, arg2.XLambda().Body);
                 joinField1 = result.columns[0]; // "p$.ProductID"
                 result.CopyInto(this, _vars._sqlParts); //transfer params and tablesUsed
             }
             {
-                result = ExpressionTreeParser.Parse(_vars.context.Vendor, this, arg3.XLambda().Body);
+                result = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, arg3.XLambda().Body);
                 joinField2 = result.columns[0]; // "p$.ProductID"
                 result.CopyInto(this, _vars._sqlParts); //transfer params and tablesUsed
             }
 
-            bool doPermFields = doesJoinAssignPermanentFields(arg4.XLambda());
+            bool doPermFields = DoesJoinAssignPermanentFields(arg4.XLambda());
             if (doPermFields)
             {
-                processSelectClause(arg4.XLambda());
+                ProcessSelectClause(arg4.XLambda());
             }
             else
             {
@@ -146,7 +146,7 @@ namespace DBLinq.Linq
         ///  because it only works with temp variables m,u.
         /// </summary>
         /// <returns></returns>
-        static bool doesJoinAssignPermanentFields(LambdaExpression arg4)
+        static bool DoesJoinAssignPermanentFields(LambdaExpression arg4)
         {
             //warning: nasty string handling here
             string arg4str = arg4.ToString();
@@ -161,14 +161,14 @@ namespace DBLinq.Linq
             return hasDot;
         }
 
-        private void processSelectMany(MethodCallExpression exprCall)
+        private void ProcessSelectMany(MethodCallExpression exprCall)
         {
             //see ReadTest.D07_OrdersFromLondon_Alt(), or Join.LinqToSqlJoin01() for example
             //special case: SelectMany can come with 2 or 3 params
             switch (exprCall.Arguments.Count)
             {
                 case 2: //???
-                    processSelectManyLambda_simple(exprCall.Arguments[1].XLambda());
+                    ProcessSelectManyLambdaSimple(exprCall.Arguments[1].XLambda());
                     return;
                 case 3: //'from c in db.Customers from o in c.Orders where c.City == "London" select new { c, o }'
                     //arg[0]: MTable<> - type info, ignore
@@ -180,7 +180,7 @@ namespace DBLinq.Linq
                     {
                         MemberExpression memberExpression = lambda1.Body as MemberExpression;
                         ParameterExpression paramExpression = lambda2.Parameters[1];
-                        ParseResult result = new ParseResult(_vars.context.Vendor);
+                        ParseResult result = new ParseResult(_vars.Context.Vendor);
                         JoinBuilder.AddJoin1(memberExpression, paramExpression, result);
                         result.CopyInto(this, _vars._sqlParts);  //transfer params and tablesUsed
                     }
@@ -192,7 +192,7 @@ namespace DBLinq.Linq
             }
         }
 
-        private void processSelectManyLambda_simple(LambdaExpression selectExpr)
+        private void ProcessSelectManyLambdaSimple(LambdaExpression selectExpr)
         {
             //there is an inner Where and inner Select
             Expression exInner = selectExpr.Body.XCastOperand();
@@ -268,16 +268,16 @@ namespace DBLinq.Linq
             }
         }
 
-        void processGroupByCall(MethodCallExpression exprCall)
+        private void ProcessGroupByCall(MethodCallExpression exprCall)
         {
             //special case: GroupBy can come with 2 or 3 params
             switch (exprCall.Arguments.Count)
             {
                 case 2: //'group o by o.CustomerID into g'
-                    processGroupByLambda(exprCall.Arguments[1].XLambda());
+                    ProcessGroupByLambda(exprCall.Arguments[1].XLambda());
                     return;
                 case 3: //'group new {c.PostalCode, c.ContactName} by c.City into g'
-                    processGroupByLambda(exprCall.Arguments[1].XLambda());
+                    ProcessGroupByLambda(exprCall.Arguments[1].XLambda());
                     _vars.groupByNewExpr = exprCall.Arguments[2].XLambda();
                     return;
                 default:
@@ -285,10 +285,10 @@ namespace DBLinq.Linq
             }
         }
 
-        void processGroupByLambda(LambdaExpression groupBy)
+        private void ProcessGroupByLambda(LambdaExpression groupBy)
         {
             _vars.groupByExpr = groupBy;
-            ParseResult result = ExpressionTreeParser.Parse(_vars.context.Vendor, this, groupBy.Body);
+            ParseResult result = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, groupBy.Body);
             string groupByFields = string.Join(",", result.columns.ToArray());
             _vars._sqlParts.groupByList.Add(groupByFields);
 
@@ -303,13 +303,13 @@ namespace DBLinq.Linq
 
             if (_vars.groupByNewExpr != null)
             {
-                result = ExpressionTreeParser.Parse(_vars.context.Vendor, this, _vars.groupByNewExpr.Body);
+                result = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, _vars.groupByNewExpr.Body);
                 _vars._sqlParts.AddSelect(result.columns);
                 result.CopyInto(this, _vars._sqlParts); //transfer params and tablesUsed
             }
         }
 
-        void processGroupJoin(MethodCallExpression exprCall)
+        void ProcessGroupJoin(MethodCallExpression exprCall)
         {
             //occurs in LinqToSqlJoin10()
             switch (exprCall.Arguments.Count)
@@ -317,7 +317,7 @@ namespace DBLinq.Linq
                 case 5:
                     LambdaExpression l1 = exprCall.Arguments[1].XLambda();
                     LambdaExpression l2 = exprCall.Arguments[2].XLambda();
-                    processJoinClause(exprCall);
+                    ProcessJoinClause(exprCall);
                     break;
                 default:
                     throw new ApplicationException("processGroupJoin: Prepared only for 5 param GroupBys");

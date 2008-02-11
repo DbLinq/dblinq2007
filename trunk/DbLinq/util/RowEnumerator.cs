@@ -69,7 +69,7 @@ namespace DBLinq.util
             //for [Table] objects only: keep objects (to save them if they get modified)
             _liveObjectMap = liveObjectMap; 
 
-            _conn = vars.context.ConnectionProvider.Connection;
+            _conn = vars.Context.Connection;
             _projectionData = vars.projectionData;
             if (_conn == null)
                 throw new ApplicationException("Connection is null");
@@ -84,7 +84,7 @@ namespace DBLinq.util
 
         protected virtual void CompileReaderFct()
         {
-            _objFromRow2 = _vars.context.DataMapper.GetMapper<T>(_vars);
+            _objFromRow2 = _vars.Context.DataMapper.GetMapper<T>(_vars);
         }
 
         public string GetQueryText(){ return _sqlString; }
@@ -118,7 +118,7 @@ namespace DBLinq.util
             _rdr = cmd.ExecuteReader();
             // picrap: and also this
             //rdr2 = new DataReader2(_rdr);
-            rdr2 = _vars.context.Vendor.CreateDataReader2(_rdr);
+            rdr2 = _vars.Context.Vendor.CreateDataReader2(_rdr);
 
             // picrap: need to solve the HasRows mystery
 /*            if (_vars.context.Log != null)

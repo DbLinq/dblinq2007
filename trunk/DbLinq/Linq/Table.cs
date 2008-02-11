@@ -204,7 +204,7 @@ namespace DBLinq.Linq
             if (_insertList.Count == 0 && _liveObjectMap.Count == 0 && _deleteList.Count == 0)
                 return new List<Exception>(); //nothing to do
 
-            IDbConnection conn = _parentDB.ConnectionProvider.Connection;
+            IDbConnection conn = _parentDB.Connection;
 
             using(new ConnectionManager(conn))
             {
@@ -219,9 +219,9 @@ namespace DBLinq.Linq
             //object[] indices = new object[0];
             ProjectionData proj = ProjectionData.FromDbType(typeof(T));
 
-            if (_vars.context.Vendor.CanBulkInsert(this))
+            if (_vars.Context.Vendor.CanBulkInsert(this))
             {
-                _vars.context.Vendor.DoBulkInsert(this, _insertList, conn);
+                _vars.Context.Vendor.DoBulkInsert(this, _insertList, conn);
                 _insertList.Clear();
             }
 //#if MYSQL //bulk insert code
@@ -245,7 +245,7 @@ namespace DBLinq.Linq
                 //INSERT INTO EMPLOYEES (EmpId, Name, DateStarted) VALUES (EmpID_SEQ.NextVal,?p1,?p2); SELECT EmpID_SEQ.CurrVal
                 try
                 {
-                    using (IDbCommand cmd = InsertClauseBuilder.GetClause(_vars.context.Vendor, conn, obj, proj))
+                    using (IDbCommand cmd = InsertClauseBuilder.GetClause(_vars.Context.Vendor, conn, obj, proj))
                     {
                         object objID = null;
                         objID = cmd.ExecuteScalar();
@@ -254,7 +254,7 @@ namespace DBLinq.Linq
                             continue; //ID was already assigned by user, not from a DB sequence.
 
                         //Oracle unpacks objID from an out-param:
-                        _vars.context.Vendor.ProcessInsertedId(cmd, ref objID);
+                        _vars.Context.Vendor.ProcessInsertedId(cmd, ref objID);
 
                         try
                         {
@@ -374,7 +374,7 @@ namespace DBLinq.Linq
                 string tableName = proj.tableAttribute.Name;
                 string sql = "DELETE FROM " + tableName + " WHERE " + proj.keyColumnName + " in (" + sbDeleteIDs + ")";
                 Trace.WriteLine("MTable SaveAll.Delete: " + sql);
-                IDbCommand cmd = _parentDB.ConnectionProvider.Connection.CreateCommand();
+                IDbCommand cmd = _parentDB.Connection.CreateCommand();
                 cmd.CommandText = sql;
                 int result = cmd.ExecuteNonQuery();
                 Trace.WriteLine("MTable SaveAll.Delete returned:" + result);

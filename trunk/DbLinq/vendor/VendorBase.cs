@@ -77,7 +77,7 @@ namespace DBLinq.vendor
         //}
         public virtual int ExecuteCommand(DBLinq.Linq.DataContext context, string sql, params object[] parameters)
         {
-            IDbConnection conn = context.ConnectionProvider.Connection;
+            IDbConnection conn = context.Connection;
             using (IDbCommand command = conn.CreateCommand())
             {
                 command.CommandText = sql;

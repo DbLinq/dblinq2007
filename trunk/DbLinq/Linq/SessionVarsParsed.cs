@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -24,27 +24,47 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Linq.Expressions;
+using DBLinq.Linq.clause;
 
 namespace DBLinq.Linq
 {
     /// <summary>
-    /// Simple interface, which allows to query which business objects have been modified.
-    /// Only objects with primary keys implement this interface.
+    /// the 'finalized' SessionVars.
+    /// (meaning expressions have been parsed, after enumeration has started).
+    /// 
+    /// You create an instance via QueryProcessor.ProcessLambdas()
     /// </summary>
-    public interface IModified
+    public sealed class SessionVarsParsed : SessionVars
     {
         /// <summary>
-        /// after object is saved to database, 
-        /// Linq sets it's IsModified status to false.
+        /// components of SQL expression (where clause, order, select ...)
         /// </summary>
-        bool IsModified { get; set; }
+        public SqlExpressionParts _sqlParts;
+
+        public LambdaExpression groupByExpr;
+        public LambdaExpression groupByNewExpr;
 
         /// <summary>
-        /// if an object was modifed, Linq updates the row specified by this Primary Key.
+        /// list of reflected fields - this will be used to compile a row reader method
         /// </summary>
-        //object PrimaryKeyValue { get; }
+        public ProjectionData projectionData;
+
+        /// <summary>
+        /// in SelectMany, there is mapping c.Orders => o
+        /// </summary>
+        //public Dictionary<MemberExpression,string> memberExprNickames = new Dictionary<MemberExpression,string>();
+
+        /// <summary>
+        /// created by post-processing in QueryProcessor.build_SQL_string(), used in RowEnumerator
+        /// </summary>
+        public string sqlString;
+
+
+        public SessionVarsParsed(SessionVars vars)
+            : base(vars)
+        {
+            _sqlParts = new SqlExpressionParts(vars.Context.Vendor);
+        }
     }
 }

@@ -63,6 +63,7 @@
     <Compile Include="Linq\Mapping\FunctionExAttribute.cs" />
     <Compile Include="Linq\QueryProcessor.cs" />
     <Compile Include="Linq\QueryProcessor2.cs" />
+    <Compile Include="Linq\SessionVarsParsed.cs" />
     <Compile Include="util\ConnectionManager.cs" />
     <Compile Include="util\CSharp.cs" />
     <Compile Include="util\ExpressionAndType.cs" />

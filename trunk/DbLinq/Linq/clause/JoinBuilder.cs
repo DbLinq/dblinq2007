@@ -150,7 +150,7 @@ namespace DBLinq.Linq.clause
                         nick2 = VarName.GetSqlName(Char.ToLower(parentTypeName[0]) + "94"); 
                         nick1 = VarName.GetSqlName(paramExpr.Name);
                         type2 = exprOuter.Type;
-                        SqlExpressionParts sqlParts = new SqlExpressionParts(qp._vars.context.Vendor);
+                        SqlExpressionParts sqlParts = new SqlExpressionParts(qp._vars.Context.Vendor);
                         FromClauseBuilder.SelectAllFields(null, sqlParts,type2, nick2);
                         result.AppendString(sqlParts.GetSelect());
                         break;
