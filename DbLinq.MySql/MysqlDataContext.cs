@@ -5,17 +5,17 @@ using System.Text;
 using System.Data;
 using MySql.Data.MySqlClient;
 
-namespace DBLinq.vendor.mysql
+namespace DbLinq.MySql
 {
     public class MysqlDataContext : DBLinq.Linq.DataContext
     {
         public MysqlDataContext(string connStr)
-            : base(new MySqlConnection(connStr), new VendorMysql())
+            : base(new MySqlConnection(connStr), new MySqlVendor())
         {
         }
 
         public MysqlDataContext(IDbConnection conn)
-            : base((MySqlConnection)conn, new VendorMysql())
+            : base((MySqlConnection)conn, new MySqlVendor())
         {
         }
 
