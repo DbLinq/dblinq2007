@@ -65,21 +65,13 @@ namespace DBLinq.Vendor
             return "LENGTH";
         }
 
-        //public string FieldName_Safe(string name)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public int ExecuteCommand(DBLinq.Linq.MContext context, string sql, params object[] parameters)
-        //{
-        //    throw new NotImplementedException();
-        //}
         public virtual int ExecuteCommand(DBLinq.Linq.DataContext context, string sql, params object[] parameters)
         {
             IDbConnection conn = context.Connection;
             using (IDbCommand command = conn.CreateCommand())
             {
-                command.CommandText = sql;
+                string sql2 = ExecuteCommand_PrepareParams(command, sql, parameters);
+                command.CommandText = sql2;
                 //return command.ExecuteNonQuery();
                 object objResult = command.ExecuteScalar();
                 if (objResult is int)
@@ -90,6 +82,28 @@ namespace DBLinq.Vendor
                     return (int)(decimal)objResult;
                 return 0;
             }
+        }
+
+        private string ExecuteCommand_PrepareParams(IDbCommand command, string sql, object[] parameters)
+        {
+            if (parameters.Length == 0)
+                return sql; //nothing to do
+
+            int iParam = 0;
+            List<string> paramNames = new List<string>();
+            foreach (object paramValue in parameters)
+            {
+                string paramName = ParamName(iParam++);
+                IDbDataParameter sqlParam = command.CreateParameter();
+                sqlParam.ParameterName = paramName;
+                sqlParam.Value = paramValue;
+                command.Parameters.Add(sqlParam);
+                paramNames.Add(paramName);
+            }
+
+            //replace "SET ProductName={0}" -> "SET ProductName=:P0"
+            string sql2 = string.Format(sql, paramNames.ToArray());
+            return sql2;
         }
 
         public virtual bool CanBulkInsert<T>(DBLinq.Linq.Table<T> table)
