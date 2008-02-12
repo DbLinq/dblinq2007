@@ -50,6 +50,8 @@ namespace SqlMetal.schema.sqlite
         }
 
         public string VendorName() { return "SQLite"; }
+        public string DataContextName() { return "DbLinq.Sqlite.SqliteDataContext"; }
+        public string ProviderClassName() { return "SqliteVendor"; }
 
         /// <summary>
         /// main entry point to load schema

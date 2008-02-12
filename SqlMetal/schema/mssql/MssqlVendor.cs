@@ -17,6 +17,8 @@ namespace SqlMetal.schema.mssql
     class Vendor : IDBVendor
     {
         public string VendorName(){ return "Microsoft"; }
+        public string DataContextName() { return "DbLinq.SqlServer.SqlServerDataContext"; }
+        public string ProviderClassName() { return "SqlServerVendor"; }
 
         /// <summary>
         /// main entry point to load schema

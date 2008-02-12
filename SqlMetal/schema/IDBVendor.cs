@@ -17,5 +17,15 @@ namespace SqlMetal.schema
         /// </summary>
         string VendorName();
 
+        /// <summary>
+        /// name of class with one-parameter ctor, derived from DBLinq.Linq.DataContext.
+        /// eg. 'DBLinq.vendor.mysql.MysqlDataContext'
+        /// </summary>
+        string DataContextName();
+
+        /// <summary>
+        /// eg. 'VendorMysql'
+        /// </summary>
+        string ProviderClassName();
     }
 }
