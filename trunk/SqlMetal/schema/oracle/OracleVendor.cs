@@ -15,6 +15,8 @@ namespace SqlMetal.schema.oracle
     class Vendor : IDBVendor
     {
         public string VendorName() { return "Oracle"; }
+        public string DataContextName() { return "DBLinq.Oracle.OracleDataContext"; }
+        public string ProviderClassName() { return "OracleVendor"; }
 
         public DlinqSchema.Database LoadSchema()
         {

@@ -47,6 +47,8 @@ namespace SqlMetal.schema.pgsql
     class Vendor : IDBVendor
     {
         public string VendorName() { return "PostgreSQL"; }
+        public string DataContextName() { return "DbLinq.PostgreSql.PgsqlDataContext"; }
+        public string ProviderClassName() { return "PgsqlVendor"; }
 
         /// <summary>
         /// main entry point to load schema

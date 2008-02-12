@@ -55,16 +55,16 @@ namespace SqlMetal
     {
         static void Main(string[] args)
         {
-            if( ! parseArgs(args) )
+            if (!parseArgs(args))
             {
-                errorExit(); 
+                errorExit();
                 return;
             }
 
-            try 
+            try
             {
                 SqlMetal.util.Util.InitRenames();
-                
+
                 DlinqSchema.Database dbSchema = null;
 
 #if SERIALIZATION_TEST
@@ -90,7 +90,7 @@ namespace SqlMetal
 
                 Vendor vendor = new Vendor();
                 string vendorName = vendor.VendorName(); //"Microsoft" or "Postgres" or ...
-             
+
                 if (mmConfig.schemaXmlFile == null)
                 {
                     string connStr = string.Format("server={0};user id={1}; password={2}; database={3}; pooling=false"
@@ -113,21 +113,22 @@ namespace SqlMetal
                 }
 
                 CodeGenAll codeGen = new CodeGenAll();
-                string fileBody = codeGen.generateAll(dbSchema, vendorName);
+                string fileBody = codeGen.generateAll(dbSchema, vendor);
                 //string fname = mmConfig.database + ".cs";
 
                 if (mmConfig.database.Contains("\""))
                     mmConfig.database = mmConfig.database.Replace("\"", "");
 
-                string fname = mmConfig.code==null ? mmConfig.database + ".cs"
-                    : (mmConfig.code.EndsWith(".cs") ? mmConfig.code : mmConfig.code+".cs");
+                string fname = mmConfig.code == null ? mmConfig.database + ".cs"
+                    : (mmConfig.code.EndsWith(".cs") ? mmConfig.code : mmConfig.code + ".cs");
 
                 File.WriteAllText(fname, fileBody);
-                Console.WriteLine(vendorName + "Metal: Written file "+fname);
+                Console.WriteLine(vendorName + "Metal: Written file " + fname);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Console.WriteLine(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + " failed:"+ex);
+                string assyName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
+                Console.WriteLine(assyName + " failed:" + ex);
             }
 
             if (mmConfig.readLineAtExit)
@@ -151,30 +152,30 @@ namespace SqlMetal
             bool gotXmlFile = false;
             foreach (string sArg in args)
             {
-                bool isFileName = (!sArg.Contains(":")) 
-                    &&  (sArg.ToLower().EndsWith(".xml") || sArg.ToLower().EndsWith(".dbml"));
-                if ( isFileName )
+                bool isFileName = (!sArg.Contains(":"))
+                    && (sArg.ToLower().EndsWith(".xml") || sArg.ToLower().EndsWith(".dbml"));
+                if (isFileName)
                 {
                     mmConfig.schemaXmlFile = sArg;
                     gotXmlFile = true;
                     continue; //ok
                 }
                 int colon = sArg.IndexOf(":");
-                if(colon==-1)
+                if (colon == -1)
                 {
                     //Console.WriteLine("ERROR - Unknown arg:"+sArg);
                     //return false;
                     continue; //boolean flag, e.g. '-sprocs'
                 }
 
-                string argName = sArg.Substring(1,colon-1);
-                if( knownArgs.Contains(argName))
+                string argName = sArg.Substring(1, colon - 1);
+                if (knownArgs.Contains(argName))
                 {
                     //ok, value stored in mmConfig.cctor
                 }
                 else
                 {
-                    Console.WriteLine("ERROR - Unknown arg:"+sArg);
+                    Console.WriteLine("ERROR - Unknown arg:" + sArg);
                     return false;
                 }
 
@@ -203,8 +204,8 @@ namespace SqlMetal
                 return false;
             }
 #else
-            if (mmConfig.server == null || mmConfig.database == null 
-                ||  mmConfig.user==null || mmConfig.password==null)
+            if (mmConfig.server == null || mmConfig.database == null
+                || mmConfig.user == null || mmConfig.password == null)
             {
                 Console.WriteLine("ERROR - missing server/database/username/password");
                 return false;
@@ -225,7 +226,7 @@ namespace SqlMetal
         static string parse(string arg)
         {
             int colon = arg.IndexOf(':');
-            string tail = arg.Substring(colon+1);
+            string tail = arg.Substring(colon + 1);
             return tail;
         }
     }

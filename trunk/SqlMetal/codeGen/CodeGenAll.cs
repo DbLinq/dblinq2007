@@ -43,8 +43,10 @@ namespace SqlMetal.codeGen
 
         CodeGenClass codeGenClass = new CodeGenClass();
 
-        public string generateAll(DlinqSchema.Database dbSchema, string vendorName)
+        public string generateAll(DlinqSchema.Database dbSchema, IDBVendor vendor)
         {
+            string vendorName = vendor.VendorName();
+
             if (dbSchema == null || dbSchema.Tables == null)
             {
                 Console.WriteLine("CodeGenAll ERROR: incomplete dbSchema, cannot start generating code");
@@ -65,7 +67,10 @@ using System.Data.Linq.Mapping;
 using System.Reflection;
 using DBLinq.Linq;
 using DBLinq.Linq.Mapping;
+using DataContext = $dataContext;
+
 ";
+            prolog = prolog.Replace("$dataContext", vendor.DataContextName());
 
             List<string> classBodies = new List<string>();
 
@@ -119,10 +124,12 @@ namespace $ns
 /// </summary>
 public partial class $dbname : DataContext
 {
-    public $dbname(string connStr) : base(connStr)
+    public $dbname(string connStr) 
+        : base(connStr)
     {
     }
-    public $dbname(System.Data.IDbConnection connection) : base(connection)
+    public $dbname(System.Data.IDbConnection connection) 
+        : base(connection)
     {
     }
 
