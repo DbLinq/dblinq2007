@@ -27,15 +27,6 @@ namespace Test_NUnit
         }
 
 
-        [Test]
-        public void A2_ProductsTableHasEntries()
-        {
-            Northwind db = CreateDB();
-            //string sql = "SELECT count(*) FROM Northwind.Products";
-            int result = db.ExecuteCommand("SELECT count(*) FROM Products");
-            //long iResult = base.ExecuteScalar(sql);
-            Assert.Greater(result, 0, "Expecting some rows in Products table, got:" + result);
-        }
 
         [Test]
         public void A3_ProductsTableHasPen()
