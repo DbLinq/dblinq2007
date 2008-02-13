@@ -80,5 +80,7 @@ namespace DBLinq.Vendor
 
         #endregion
 
+        bool IsDBNull(int index);
+        object GetValue(int index);
     }
 }

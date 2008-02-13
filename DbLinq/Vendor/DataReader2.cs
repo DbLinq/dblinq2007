@@ -104,5 +104,46 @@ namespace DBLinq.Vendor
                             : _rdr.GetInt32(index);
             return (T2) Enum.ToObject(typeof (T2), value);
         }
+
+        public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
+        {
+            return _rdr.GetBytes(i, fieldOffset, buffer, bufferoffset, length);
+        }
+
+        public long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length)
+        {
+            return _rdr.GetChars(i, fieldoffset, buffer, bufferoffset, length);
+        }
+
+        public IDataReader GetData(int i)
+        {
+            return _rdr.GetData(i);
+        }
+
+        public Guid GetGuid(int i)
+        {
+            return _rdr.GetGuid(i);
+        }
+
+        public int GetOrdinal(string name)
+        {
+            return _rdr.GetOrdinal(name);
+        }
+
+        public object this[string name]
+        {
+            get
+            {
+                return _rdr[name];
+            }
+        }
+
+        public object this[int i]
+        {
+            get
+            {
+                return _rdr[i];
+            }
+        }
     }
 }
