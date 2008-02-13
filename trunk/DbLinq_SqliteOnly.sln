@@ -1,8 +1,8 @@
 Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual C# Express 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLiteMetal", "SqlMetal\SQLiteMetal.csproj", "{93E8F1C0-866E-4447-94FC-0C36E5CB9043}"
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLiteMetal", "SqlMetal\SQLiteMetal.csproj", "{E47A1118-B0BF-4FF5-B65C-1704A7DEEEB3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_NUnit_SQLite", "Tests\Test_NUnit\Test_NUnit_SQLite.csproj", "{858BAFF7-542F-4DBB-9C9B-57FCDE4DB7CE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_NUnit_SQLite", "Tests\Test_NUnit\Test_NUnit_SQLite.csproj", "{3B13F240-D5E3-4BD4-BA4B-8CBDEE18207A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.SQLite.Example", "Example\DbLinq.Sqlite.Example\DbLinq.SQLite.Example.csproj", "{B8E7590F-1EA8-49AE-9808-A36C8A67E322}"
 EndProject
@@ -23,14 +23,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{93E8F1C0-866E-4447-94FC-0C36E5CB9043}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{93E8F1C0-866E-4447-94FC-0C36E5CB9043}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{93E8F1C0-866E-4447-94FC-0C36E5CB9043}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{93E8F1C0-866E-4447-94FC-0C36E5CB9043}.Release|Any CPU.Build.0 = Release|Any CPU
-		{858BAFF7-542F-4DBB-9C9B-57FCDE4DB7CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{858BAFF7-542F-4DBB-9C9B-57FCDE4DB7CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{858BAFF7-542F-4DBB-9C9B-57FCDE4DB7CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{858BAFF7-542F-4DBB-9C9B-57FCDE4DB7CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E47A1118-B0BF-4FF5-B65C-1704A7DEEEB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E47A1118-B0BF-4FF5-B65C-1704A7DEEEB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E47A1118-B0BF-4FF5-B65C-1704A7DEEEB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E47A1118-B0BF-4FF5-B65C-1704A7DEEEB3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B13F240-D5E3-4BD4-BA4B-8CBDEE18207A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B13F240-D5E3-4BD4-BA4B-8CBDEE18207A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B13F240-D5E3-4BD4-BA4B-8CBDEE18207A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B13F240-D5E3-4BD4-BA4B-8CBDEE18207A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B8E7590F-1EA8-49AE-9808-A36C8A67E322}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B8E7590F-1EA8-49AE-9808-A36C8A67E322}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B8E7590F-1EA8-49AE-9808-A36C8A67E322}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -46,8 +46,5 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(TestCaseManagementSettings) = postSolution
-		CategoryFile = DbLinq_SqliteOnly.vsmdi
 	EndGlobalSection
 EndGlobal
