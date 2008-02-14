@@ -236,7 +236,7 @@ namespace nwind
 		protected string _SHIPNAME;
 		protected string _SHIPADDRESS;
 		protected string _SHIPCITY;
-		protected string _SHIPREGION;
+		protected string _ShipRegion;
 		protected string _SHIPPOSTALCODE;
 		protected string _SHIPCOUNTRY;
 	
@@ -245,7 +245,7 @@ namespace nwind
 		public Order()
 		{
 		}
-		public Order(int OrderID,string CustomerID,int? EmployeeID,DateTime? OrderDate,DateTime? RequiredDate,DateTime? ShippedDate,int? ShipVia,int? Freight,string SHIPNAME,string SHIPADDRESS,string SHIPCITY,string SHIPREGION,string SHIPPOSTALCODE,string SHIPCOUNTRY)
+		public Order(int OrderID,string CustomerID,int? EmployeeID,DateTime? OrderDate,DateTime? RequiredDate,DateTime? ShippedDate,int? ShipVia,int? Freight,string SHIPNAME,string SHIPADDRESS,string SHIPCITY,string ShipRegion,string SHIPPOSTALCODE,string SHIPCOUNTRY)
 		{
 		    this._ORDERID = OrderID;
 		this._CUSTOMERID = CustomerID;
@@ -258,7 +258,7 @@ namespace nwind
 		this._SHIPNAME = SHIPNAME;
 		this._SHIPADDRESS = SHIPADDRESS;
 		this._SHIPCITY = SHIPCITY;
-		this._SHIPREGION = SHIPREGION;
+		this._ShipRegion = ShipRegion;
 		this._SHIPPOSTALCODE = SHIPPOSTALCODE;
 		this._SHIPCOUNTRY = SHIPCOUNTRY;
 		}
@@ -359,19 +359,19 @@ namespace nwind
 	
 		[Column(Storage = "_SHIPCITY", Name = "SHIPCITY", DbType = "VARCHAR2", CanBeNull = true)]
 		[DebuggerNonUserCode]
-		public string SHIPCITY
+		public string ShipCity
 		{
 		    get { return _SHIPCITY; }
 		    set { _SHIPCITY = value; IsModified = true; }
 		}
 		
 	
-		[Column(Storage = "_SHIPREGION", Name = "SHIPREGION", DbType = "VARCHAR2", CanBeNull = true)]
+		[Column(Storage = "_ShipRegion", Name = "ShipRegion", DbType = "VARCHAR2", CanBeNull = true)]
 		[DebuggerNonUserCode]
-		public string SHIPREGION
+		public string ShipRegion
 		{
-		    get { return _SHIPREGION; }
-		    set { _SHIPREGION = value; IsModified = true; }
+		    get { return _ShipRegion; }
+		    set { _ShipRegion = value; IsModified = true; }
 		}
 		
 	

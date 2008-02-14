@@ -38,5 +38,7 @@
   <Renaming old="REGION" new="Region" />
   <Renaming old="EMPLOYEETERRITORY" new="EmployeeTerritory" />
   <Renaming old="TERRITORYDESCRIPTION" new="TerritoryDescription" />
+  <Renaming old="SHIPCITY" new="ShipCity" />
+  <Renaming old="SHIPREGION" new="ShipRegion" />
   <Renaming old="LinqTestDB" new="LinqTestDB" />
 </Renamings>

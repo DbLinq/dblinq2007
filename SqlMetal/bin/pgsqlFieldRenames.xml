@@ -20,4 +20,6 @@
   <Renaming old="orderdetail" new="OrderDetail" />
   <Renaming old="orderdetails" new="OrderDetails" />
   <Renaming old="Orderdetails" new="OrderDetails" />
+  <Renaming old="Shipcity" new="ShipCity" />
+  <Renaming old="Shipregion" new="ShipRegion" />
 </Renamings>
