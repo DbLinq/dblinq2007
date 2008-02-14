@@ -13,7 +13,7 @@ namespace Test_NUnit
         public void G9_UpdateTableWithCompositePK()
         {
             Northwind db = CreateDB();
-            var orderDetail = new Orderdetail
+            var orderDetail = new OrderDetail
             {
                 OrderID = 3,
                 ProductID = 2,
@@ -43,7 +43,7 @@ namespace Test_NUnit
         {
             Northwind db = CreateDB();
 
-            var orderDetail = new Orderdetail { OrderID = 3, ProductID = 2 };
+            var orderDetail = new OrderDetail { OrderID = 3, ProductID = 2 };
             db.OrderDetails.Add(orderDetail);
             db.SubmitChanges();
 
@@ -58,7 +58,7 @@ namespace Test_NUnit
         public void G11_UnchangedColumnShouldNotUpdated()
         {
             Northwind db = CreateDB();
-            var orderDetail = new Orderdetail { OrderID = 1, ProductID = 2 };
+            var orderDetail = new OrderDetail { OrderID = 1, ProductID = 2 };
             db.OrderDetails.Attach(orderDetail, false);
             orderDetail.Discount = 15;
             db.SubmitChanges();
