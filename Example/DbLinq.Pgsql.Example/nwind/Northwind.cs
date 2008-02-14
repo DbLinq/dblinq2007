@@ -39,7 +39,7 @@ namespace nwind
 		public Table<Region> Regions { get { return base.GetTable<Region>("Regions"); } }
 		public Table<Supplier> Suppliers { get { return base.GetTable<Supplier>("Suppliers"); } }
 		public Table<Product> Products { get { return base.GetTable<Product>("Products"); } }
-		public Table<Orderdetail> OrderDetails { get { return base.GetTable<Orderdetail>("OrderDetails"); } }
+		public Table<OrderDetail> OrderDetails { get { return base.GetTable<OrderDetail>("OrderDetails"); } }
 		public Table<Order> Orders { get { return base.GetTable<Order>("Orders"); } }
 		public Table<Territory> Territories { get { return base.GetTable<Territory>("Territories"); } }
 		public Table<Employeeterritory> Employeeterritories { get { return base.GetTable<Employeeterritory>("Employeeterritories"); } }
@@ -1084,7 +1084,7 @@ namespace nwind
 		#region childtables
 		
 		[Association(Storage = "null", OtherKey = "productid", Name = "orderdetails_productid_fkey")]
-		public EntityMSet<Orderdetail> OrderDetails
+		public EntityMSet<OrderDetail> OrderDetails
 		{
 		    get { return null; } //L212 - child data available only when part of query
 		}
@@ -1116,7 +1116,7 @@ namespace nwind
 	
 	
 	[Table(Name = "public.orderdetails")]
-	public partial class Orderdetail : IModified
+	public partial class OrderDetail : IModified
 	{
 		
 		protected int _orderid;
@@ -1125,7 +1125,7 @@ namespace nwind
 		protected double? _discount;
 	
 		
-		public Orderdetail()
+		public OrderDetail()
 		{
 		}
 		
@@ -1177,7 +1177,7 @@ namespace nwind
 		}
 		public override bool Equals(object obj)
 		{
-			Orderdetail o2 = obj as Orderdetail;
+			OrderDetail o2 = obj as OrderDetail;
 			if(o2==null)
 				return false;
 			return _orderid == o2._orderid && _productid == o2._productid;
@@ -1384,7 +1384,7 @@ namespace nwind
 		#region childtables
 		
 		[Association(Storage = "null", OtherKey = "orderid", Name = "orderdetails_orderid_fkey")]
-		public EntityMSet<Orderdetail> OrderDetails
+		public EntityMSet<OrderDetail> OrderDetails
 		{
 		    get { return null; } //L212 - child data available only when part of query
 		}
