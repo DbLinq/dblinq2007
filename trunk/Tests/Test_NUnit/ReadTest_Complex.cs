@@ -20,7 +20,7 @@ namespace Test_NUnit
     public class ReadTest_Complex : TestBase
     {
         Northwind db;
-        
+
         public ReadTest_Complex()
         {
             db = CreateDB();
@@ -34,7 +34,7 @@ namespace Test_NUnit
         {
             var q = from p in db.Products select p;
             int productCount = q.Count();
-            Assert.Greater(productCount,0,"Expected non-zero product count");
+            Assert.Greater(productCount, 0, "Expected non-zero product count");
         }
 
         [Test]
@@ -42,7 +42,7 @@ namespace Test_NUnit
         {
             var q = from p in db.Products select p.ProductID;
             int productCount = q.Count();
-            Assert.Greater(productCount,0,"Expected non-zero product count");
+            Assert.Greater(productCount, 0, "Expected non-zero product count");
             Console.WriteLine();
         }
         [Test]
@@ -51,7 +51,7 @@ namespace Test_NUnit
             var q = from p in db.Products select p.ProductID;
             int productCount = q.Count(i => i < 3);
             Assert.Greater(productCount, 0, "Expected non-zero product count");
-            Assert.IsTrue(productCount<4, "Expected product count < 3");
+            Assert.IsTrue(productCount < 4, "Expected product count < 3");
         }
 
         [Test]
@@ -59,7 +59,7 @@ namespace Test_NUnit
         {
             var q = from p in db.Products select p.ProductID;
             int maxID = q.Max();
-            Assert.Greater(maxID,0,"Expected non-zero product count");
+            Assert.Greater(maxID, 0, "Expected non-zero product count");
         }
 
         [Test]
@@ -79,7 +79,7 @@ namespace Test_NUnit
             double avg = q.Average();
             Assert.Greater(avg, 0, "Expected non-zero productID average");
         }
-        
+
 #endif
 
         [Test]
@@ -151,26 +151,26 @@ namespace Test_NUnit
         {
             var q1 = from c in db.Customers select c.City;
             var q2 = q1.Distinct();
-            
+
             int numLondon = 0;
-            foreach(string city in q2)
+            foreach (string city in q2)
             {
-                if(city=="London"){ numLondon++; }
+                if (city == "London") { numLondon++; }
             }
-            Assert.AreEqual( 1, numLondon, "Expected to see London once");
+            Assert.AreEqual(1, numLondon, "Expected to see London once");
         }
 
         [Test]
         public void F11_ConcatString()
         {
-            var q4 = from p in db.Products select p.ProductName+p.ProductID;
+            var q4 = from p in db.Products select p.ProductName + p.ProductID;
             //var q4 = from p in db.Products select p.ProductID;
             var q5 = q4.ToList();
-            Assert.Greater( q5.Count, 2, "Expected to see some concat strings");
-            foreach(string s0 in q5)
+            Assert.Greater(q5.Count, 2, "Expected to see some concat strings");
+            foreach (string s0 in q5)
             {
                 bool startWithLetter = Char.IsLetter(s0[0]);
-                bool endsWithDigit = Char.IsDigit(s0[s0.Length-1]);
+                bool endsWithDigit = Char.IsDigit(s0[s0.Length - 1]);
                 Assert.IsTrue(startWithLetter && endsWithDigit, "String must start with letter and end with digit");
             }
         }
@@ -178,10 +178,10 @@ namespace Test_NUnit
         [Test]
         public void F12_ConcatString_2()
         {
-            var q4 = from p in db.Products 
-                     where (p.ProductName+p.ProductID).Contains("e")
+            var q4 = from p in db.Products
+                     where (p.ProductName + p.ProductID).Contains("e")
                      select p.ProductName;
-                     //select p.ProductName+p.ProductID;
+            //select p.ProductName+p.ProductID;
             //var q4 = from p in db.Products select p.ProductID;
             var q5 = q4.ToList();
             //Assert.Greater( q5.Count, 2, "Expected to see some concat strings");
@@ -191,6 +191,40 @@ namespace Test_NUnit
             //    bool endsWithDigit = Char.IsDigit(s0[s0.Length-1]);
             //    Assert.IsTrue(startWithLetter && endsWithDigit, "String must start with letter and end with digit");
             //}
+        }
+
+        /// <summary>
+        /// the following three tests are from Jahmani's page
+        /// LinqToSQL: Comprehensive Support for SQLite, MS Access, SQServer2000/2005
+        /// http://www.codeproject.com/KB/linq/linqToSql_7.aspx?msg=2428251#xx2428251xx
+        /// </summary>
+        [Test(Description = "list of customers who have place orders that have all been shipped to the customers city.")]
+        public void O1_OperatorAll()
+        {
+            var q = from c in db.Customers
+                    where (from o in c.Orders
+                           select o).All(o => o.ShipCity == c.City)
+                    select new { c.CustomerID, c.ContactName };
+            var list = q.ToList();
+        }
+
+        [Test(Description = "list of customers who have placed no orders")]
+        public void O2_OperatorAny()
+        {
+            var q = from customer in db.Customers
+                    where !customer.Orders.Any()
+                    select new { customer.CustomerID, customer.ContactName };
+            var list = q.ToList();
+        }
+
+        [Test(Description="provide a list of customers and employees who live in London.")]
+        public void O3_OperatorUnion()
+        {
+            var q = (from c in db.Customers.Where(d => d.City == "London")
+                     select new { ContactName = c.ContactName })
+              .Union(from e in db.Employees.Where(f => f.City == "London")
+                     select new { ContactName = e.LastName });
+            var list = q.ToList();
         }
 
 

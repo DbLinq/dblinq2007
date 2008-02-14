@@ -1331,7 +1331,7 @@ namespace nwind
 	
 		[Column(Storage = "_shipcity", Name = "shipcity", DbType = "character varying(15)", CanBeNull = true)]
 		[DebuggerNonUserCode]
-		public string Shipcity
+		public string ShipCity
 		{
 		    get { return _shipcity; }
 		    set { _shipcity = value; IsModified = true; }
@@ -1340,7 +1340,7 @@ namespace nwind
 	
 		[Column(Storage = "_shipregion", Name = "shipregion", DbType = "character varying(15)", CanBeNull = true)]
 		[DebuggerNonUserCode]
-		public string Shipregion
+		public string ShipRegion
 		{
 		    get { return _shipregion; }
 		    set { _shipregion = value; IsModified = true; }

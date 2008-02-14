@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.20706</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{489BB60F-3A23-4E78-AB8A-31752CE33051}</ProjectGuid>
     <OutputType>Exe</OutputType>
@@ -75,6 +75,9 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="bin\run_pgMetal.bat" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="bin\pgsqlFieldRenames.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
