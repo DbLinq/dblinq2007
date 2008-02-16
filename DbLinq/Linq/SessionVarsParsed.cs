@@ -25,7 +25,6 @@
 #endregion
 
 using System.Linq.Expressions;
-using DBLinq.Linq.Clause;
 
 namespace DBLinq.Linq
 {

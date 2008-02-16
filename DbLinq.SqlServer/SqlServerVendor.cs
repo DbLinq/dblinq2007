@@ -38,11 +38,11 @@ using DBLinq.Vendor;
 
 namespace DbLinq.SqlServer
 {
-    public class SqlServerVendor : Vendor, IVendor
+    public class SqlServerVendor : Vendor
     {
         public readonly Dictionary<DBLinq.Linq.IMTable, int> UseBulkInsert = new Dictionary<DBLinq.Linq.IMTable, int>();
 
-        public string VendorName { get { return "MsSqlServer"; } }
+        public override string VendorName { get { return "MsSqlServer"; } }
         //public const string SQL_PING_COMMAND = "SELECT 11";
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace DbLinq.SqlServer
         /// <summary>
         /// on Postgres or Oracle, return eg. ':P1', on Mysql, '?P1', @P1 for Microsoft
         /// </summary>
-        public override string ParamName(int index)
+        public override string GetParameterName(int index)
         {
             return "@P" + index;
         }
@@ -65,21 +65,21 @@ namespace DbLinq.SqlServer
         /// <summary>
         /// given 'User', return '[User]' to prevent a SQL keyword conflict
         /// </summary>
-        public string FieldName_Safe(string name)
+        public override string GetFieldSafeName(string name)
         {
             if (name.ToLower() == "user")
                 return "[" + name + "]";
             return name;
         }
 
-        public IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
+        public override IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
         {
             System.Data.SqlDbType dbType = SqlServerTypeConversions.ParseType(dbTypeName);
             SqlParameter param = new SqlParameter(paramName, dbType);
             return param;
         }
 
-        public IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
+        public override IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
                                                , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
         {
             sbIdentity.Append("; SELECT @@IDENTITY");
@@ -94,10 +94,10 @@ namespace DbLinq.SqlServer
         /// because it does not fill up the translation log.
         /// This is enabled for tables where Vendor.UserBulkInsert[db.Table] is true.
         /// </summary>
-        public override void DoBulkInsert<T>(DBLinq.Linq.Table<T> table, List<T> rows, IDbConnection conn)
+        public override void DoBulkInsert<T>(DBLinq.Linq.Table<T> table, List<T> rows, IDbConnection connection)
         {
             //use TableLock for speed:
-            SqlBulkCopy bulkCopy = new SqlBulkCopy((SqlConnection)conn, SqlBulkCopyOptions.TableLock, null);
+            SqlBulkCopy bulkCopy = new SqlBulkCopy((SqlConnection)connection, SqlBulkCopyOptions.TableLock, null);
 
             bulkCopy.DestinationTableName = AttribHelper.GetTableAttrib(typeof(T)).Name;
             //bulkCopy.SqlRowsCopied += new SqlRowsCopiedEventHandler(bulkCopy_SqlRowsCopied);
@@ -146,7 +146,7 @@ namespace DbLinq.SqlServer
             }
         }
 
-        public System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.DataContext context, System.Reflection.MethodInfo method, params object[] sqlParams)
+        public override System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.DataContext context, System.Reflection.MethodInfo method, params object[] sqlParams)
         {
             throw new NotImplementedException();
         }
@@ -156,7 +156,7 @@ namespace DbLinq.SqlServer
         /// </summary>
         //public static readonly Dictionary<DBLinq.Linq.IMTable, bool> UseBulkInsert = new Dictionary<DBLinq.Linq.IMTable, bool>();
 
-        public IDataReader2 CreateDataReader2(IDataReader dataReader)
+        public override IDataReader2 CreateDataReader(IDataReader dataReader)
         {
             return new SqlServerDataReader2(dataReader);
         }

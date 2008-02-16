@@ -92,7 +92,7 @@ namespace DBLinq.Util
                             //Count is very similar to Min/Max/Sum (below),
                             //but unlike those, it may be asked to work on TableRows.
                             //in that case, we need to project to an int.
-                            _vars._sqlParts.countClause = "COUNT"; //Count or Max
+                            _vars._sqlParts.CountClause = "COUNT"; //Count or Max
                             //string varName = _vars.GetDefaultVarName(); //'$x'
                             string varName = "x$"; //TODO - get it from QueryProcessor
                             FromClauseBuilder.SelectAllFields(_vars, _vars._sqlParts, typeof(T), varName);
@@ -161,7 +161,7 @@ namespace DBLinq.Util
                         //IEnumerator<T> enumerator;
                         using (IEnumerator<T> enumerator = new RowEnumerator<T>(_vars, _liveObjectMap).GetEnumerator())
                         {
-                            //_vars.limitClause = "LIMIT 2";
+                            //_vars.LimitClause = "LIMIT 2";
                             bool hasOne = enumerator.MoveNext();
                             if (!hasOne)
                             {

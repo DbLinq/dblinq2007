@@ -62,7 +62,7 @@ namespace DBLinq.Linq
         public readonly Dictionary<MemberExpression, string> memberExprNickames = new Dictionary<MemberExpression, string>();
 
         /// <summary>
-        /// holds SQL parameters as they are being assigned, eg. paramMap['P0'] = 'London'
+        /// holds SQL parameters as they are being assigned, eg. ParametersMap['P0'] = 'London'
         /// </summary>
         public readonly Dictionary<string, object> paramMap = new Dictionary<string, object>();
 
@@ -119,18 +119,18 @@ namespace DBLinq.Linq
                 case "Max":
                 case "Min":
                 case "Sum":
-                    _vars._sqlParts.countClause = methodName.ToUpper();
+                    _vars._sqlParts.CountClause = methodName.ToUpper();
                     break;
                 case "Average":
-                    _vars._sqlParts.countClause = "AVG";
+                    _vars._sqlParts.CountClause = "AVG";
                     break;
                 case "Single":
                 case "SingleOrDefault":
-                    _vars._sqlParts.limitClause = 2;
+                    _vars._sqlParts.LimitClause = 2;
                     break;
                 case "First":
                 case "FirstOrDefault":
-                    _vars._sqlParts.limitClause = 1;
+                    _vars._sqlParts.LimitClause = 1;
                     break;
             }
 
@@ -160,7 +160,8 @@ namespace DBLinq.Linq
                 //PS. Should _sqlParts not be empty here? Debug Clone() and AnalyzeLambda()
             }
 
-            string sql = _vars._sqlParts.ToString();
+            //string sql = _vars._sqlParts.ToString();
+            string sql = _vars.Context.Vendor.BuildSqlString(_vars._sqlParts);
 
             if (_vars.Context.Log!=null)
                 _vars.Context.Log.WriteLine("SQL: " + sql);
@@ -206,7 +207,7 @@ namespace DBLinq.Linq
                     ProcessOrderByClause(lambda, null); 
                     return;
                 case "OrderByDescending":
-                    ProcessOrderByClause(lambda, "DESC"); 
+                    ProcessOrderByClause(lambda, "DESC"); // TODO --> IVendor
                     return;
                 case "Join":
                     ProcessJoinClause(exprCall); 
@@ -218,13 +219,13 @@ namespace DBLinq.Linq
                         if (howMany == null)
                             throw new ArgumentException("Take(),Skip() must come with ConstExpr");
                         if (methodName == "Skip")
-                            _vars._sqlParts.offsetClause = (int)howMany.Value;
+                            _vars._sqlParts.OffsetClause = (int)howMany.Value;
                         else
-                            _vars._sqlParts.limitClause = (int)howMany.Value;
+                            _vars._sqlParts.LimitClause = (int)howMany.Value;
                     }
                     return;
                 case "Distinct":
-                    _vars._sqlParts.distinctClause = "DISTINCT";
+                    _vars._sqlParts.DistinctClause = "DISTINCT"; // TODO --> IVendor
                     return;
                 default:
                     Console.WriteLine("################# L308 TODO " + methodName);
@@ -266,7 +267,7 @@ namespace DBLinq.Linq
         public string storeParam(string value)
         {
             int count = paramMap.Count;
-            string paramName = _vars.Context.Vendor.ParamName(count);
+            string paramName = _vars.Context.Vendor.GetParameterName(count);
             paramMap[paramName] = value;
             lastParamName = paramName;
             return paramName;

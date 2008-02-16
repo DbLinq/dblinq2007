@@ -91,8 +91,8 @@ namespace DBLinq.Linq.Clause
             //sqlParts.whereList.Add( this.sb.ToString());
             foreach(string key in qp.paramMap.Keys)
             {
-                //sqlParts.paramMap.Add(key, this.paramMap[key]);
-                sqlParts.paramMap[key] = qp.paramMap[key];
+                //sqlParts.ParametersMap.Add(key, this.ParametersMap[key]);
+                sqlParts.ParametersMap[key] = qp.paramMap[key];
             }
 
             foreach (var t1 in tablesUsed)
@@ -101,14 +101,14 @@ namespace DBLinq.Linq.Clause
                 if(tAttrib!=null)
                 {
                     //prepare fragment: "[order details] o$"
-                    string fromClause = _vendor.FieldName_Safe(tAttrib.Name) + " " + RemoveTransparentId(t1.Value);
+                    string fromClause = _vendor.GetFieldSafeName(tAttrib.Name) + " " + RemoveTransparentId(t1.Value);
 
                     sqlParts.AddFrom(fromClause);
                 }
             }
             foreach(string joinStr in joins)
             {
-                sqlParts.joinList.Add(joinStr);
+                sqlParts.JoinList.Add(joinStr);
             }
         }
 

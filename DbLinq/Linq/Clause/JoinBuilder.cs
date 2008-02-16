@@ -165,7 +165,7 @@ namespace DBLinq.Linq.Clause
             //string joinString = "$c.CustomerID=$o.CustomerID"
             string joinString = nick1+"."+assoc1.ThisKey+"="+nick2+"."+assoc2.OtherKey;
 
-            //_parts.joinList.Add(joinString);
+            //_parts.JoinList.Add(joinString);
             result.addJoin(joinString);
             result.tablesUsed[type2] = nick2;    //tablesUsed[Order] = $o
             result.tablesUsed[type1] = nick1;    //tablesUsed[Customer] = $join

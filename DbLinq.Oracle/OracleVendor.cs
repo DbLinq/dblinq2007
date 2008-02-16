@@ -13,9 +13,9 @@ using DBLinq.Vendor;
 
 namespace DbLinq.Oracle
 {
-    public class OracleVendor : Vendor, IVendor
+    public class OracleVendor : Vendor
     {
-        public string VendorName { get { return "Oracle"; } }
+        public override string VendorName { get { return "Oracle"; } }
 
         //public const string SQL_PING_COMMAND = "SELECT 11 FROM DUAL";
 
@@ -33,7 +33,7 @@ namespace DbLinq.Oracle
             extraTypes["varchar2"] = DbType.AnsiString;
         }
 
-        public IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
+        public override IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
         {
             //OracleType dbType = OracleTypeConversions.ParseType(dbTypeName);
             //OracleParameter param = new OracleParameter(paramName, dbType);
@@ -47,7 +47,7 @@ namespace DbLinq.Oracle
         /// On Oracle, we have to insert a primary key manually.
         /// On MySql/Pgsql/Mssql, we use the IDENTITY clause to populate it automatically.
         /// </summary>
-        public IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
+        public override IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
                                                , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
         {
             if (numFieldsAdded++ > 0) { sb.Append(", "); sbValues.Append(", "); }
@@ -57,7 +57,7 @@ namespace DbLinq.Oracle
             string sequenceName = projData.tableAttribute.Name + "_SEQ";
             sbValues.AppendFormat("{0}.NextVal", sequenceName);
 
-            string outParamName = this.ParamName(numFieldsAdded);
+            string outParamName = this.GetParameterName(numFieldsAdded);
             IDbDataParameter outParam = cmd.CreateParameter();
             outParam.ParameterName = outParamName;
             outParam.DbType = DbType.Decimal;
@@ -74,7 +74,7 @@ namespace DbLinq.Oracle
             return outParam;
         }
 
-        public void ProcessInsertedId(IDbCommand cmd, ref object returnedId)
+        public override void ProcessInsertedId(IDbCommand cmd, ref object returnedId)
         {
             //OracleParameter outParam = cmd.Parameters.Where();
             foreach (IDbDataParameter parm in cmd.Parameters)
@@ -91,22 +91,39 @@ namespace DbLinq.Oracle
         /// <summary>
         /// given 'User', return '[User]' to prevent a SQL keyword conflict
         /// </summary>
-        public string FieldName_Safe(string name)
+        public override string GetFieldSafeName(string name)
         {
             if (name.ToLower() == "user")
                 return "[" + name + "]";
             return name;
         }
 
-        public System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.DataContext context, MethodInfo method
+        public override IExecuteResult ExecuteMethodCall(DBLinq.Linq.DataContext context, MethodInfo method
                                                                  , params object[] inputValues)
         {
             throw new NotImplementedException();
         }
 
-        public IDataReader2 CreateDataReader2(IDataReader dataReader)
+        public override IDataReader2 CreateDataReader(IDataReader dataReader)
         {
             return new OracleDataReader2(dataReader);
+        }
+
+        protected override void AddEarlyLimits(SqlExpressionParts parts, List<string> whereAndjoins)
+        {
+            // TODO: this doesn't work
+            // I think the correct syntax is something like
+            // SELECT *,_ROWNUM FROM (SELECT xxx, ROWNUM AS _ROWNUM yyy) WHERE _ROWNUM >= start AND _ROWNUM <= limit
+            if (parts.LimitClause != null)
+            {
+                //http://dotnet.org.za/thea/archive/2005/02/22/14715.aspx
+                whereAndjoins.Add("ROWNUM <= " + parts.LimitClause);
+                parts.LimitClause = null; //limit clause has now been handled
+            }
+        }
+
+        protected override void AddLateLimits(StringBuilder sql, SqlExpressionParts parts)
+        {
         }
     }
 }

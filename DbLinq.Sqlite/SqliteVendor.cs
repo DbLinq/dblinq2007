@@ -44,9 +44,9 @@ namespace DbLinq.Sqlite
     /// <summary>
     /// SQLite - specific code.
     /// </summary>
-    public class SqliteVendor : Vendor, IVendor
+    public class SqliteVendor : Vendor
     {
-        public string VendorName { get { return "SQLite"; } }
+        public override string VendorName { get { return "SQLite"; } }
 
         /// <summary>
         /// Client code needs to specify: 'Vendor.UserBulkInsert[db.Products]=10' to enable bulk insert, 10 rows at a time.
@@ -54,7 +54,7 @@ namespace DbLinq.Sqlite
         public static readonly Dictionary<DBLinq.Linq.IMTable, int> UseBulkInsert = new Dictionary<DBLinq.Linq.IMTable, int>();
 
 
-        public IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
+        public override IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
                                                , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
         {
             //on Oracle, this function does something.
@@ -65,7 +65,7 @@ namespace DbLinq.Sqlite
         /// <summary>
         /// on Postgres or Oracle, return eg. ':P1', on Mysql, '?P1', on SQLite, '@P1'
         /// </summary>
-        public override string ParamName(int index)
+        public override string GetParameterName(int index)
         {
             return "@P"+index;
         }
@@ -95,7 +95,7 @@ namespace DbLinq.Sqlite
         /// <summary>
         /// given 'int', return '`int`' to prevent a SQL keyword conflict
         /// </summary>
-        public string FieldName_Safe(string name)
+        public override string GetFieldSafeName(string name)
         {
             string nameL = name.ToLower();
             switch (nameL)
@@ -130,14 +130,14 @@ namespace DbLinq.Sqlite
             }
         }
 
-        public IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
+        public override IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
         {
             System.Data.DbType dbType = SqliteTypeConversions.ParseType(dbTypeName);
             SQLiteParameter param = new SQLiteParameter(paramName, dbType);
             return param;
         }
 
-        public IDataReader2 CreateDataReader2(IDataReader dataReader)
+        public override IDataReader2 CreateDataReader(IDataReader dataReader)
         {
             return new SqliteDataReader2(dataReader);
         }
@@ -157,7 +157,7 @@ namespace DbLinq.Sqlite
         /// because it does not fill up the translation log.
         /// This is enabled for tables where Vendor.UserBulkInsert[db.Table] is true.
         /// </summary>
-        public virtual void DoBulkInsert<T>(DBLinq.Linq.Table<T> table, List<T> rows, IDbConnection conn)
+        public virtual void DoBulkInsert<T>(DBLinq.Linq.Table<T> table, List<T> rows, IDbConnection connection)
         {
             int pageSize = UseBulkInsert[table];
             //ProjectionData projData = ProjectionData.FromReflectedType(typeof(T));
@@ -165,7 +165,7 @@ namespace DbLinq.Sqlite
             TableAttribute tableAttrib = typeof(T).GetCustomAttributes(false).OfType<TableAttribute>().Single();
 
             //build "INSERT INTO products (ProductName, SupplierID, CategoryID, QuantityPerUnit)"
-            string header = "INSERT INTO " + tableAttrib.Name + " " + InsertClauseBuilder.InsertRowHeader(conn, projData);
+            string header = "INSERT INTO " + tableAttrib.Name + " " + InsertClauseBuilder.InsertRowHeader(connection, projData);
 
             foreach (List<T> page in Page.Paginate(rows, pageSize))
             {
@@ -173,7 +173,7 @@ namespace DbLinq.Sqlite
                 StringBuilder sbValues = new StringBuilder(" VALUES ");
                 List<IDbDataParameter> paramList = new List<IDbDataParameter>();
 
-                IDbCommand cmd = conn.CreateCommand();
+                IDbCommand cmd = connection.CreateCommand();
 
                 //package up all fields in N rows:
                 string separator = "";
@@ -197,7 +197,7 @@ namespace DbLinq.Sqlite
         /// call SQLite stored proc or stored function, 
         /// optionally return DataSet, and collect return params.
         /// </summary>
-        public System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.DataContext context, MethodInfo method
+        public override System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.DataContext context, MethodInfo method
                                                                  , params object[] inputValues)
         {
             if (method == null)

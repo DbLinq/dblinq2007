@@ -92,12 +92,12 @@ namespace DBLinq.Linq
             }
         }
 
-        void ProcessOrderByClause(LambdaExpression orderByExpr, string orderBy_desc)
+        void ProcessOrderByClause(LambdaExpression orderByExpr, string orderDirection)
         {
             ParseResult result = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, orderByExpr.Body);
             string orderByFields = string.Join(",", result.columns.ToArray());
-            _vars._sqlParts.orderByList.Add(orderByFields);
-            _vars._sqlParts.orderBy_desc = orderBy_desc; //copy 'DESC' specifier
+            _vars._sqlParts.OrderByList.Add(orderByFields);
+            _vars._sqlParts.OrderDirection = orderDirection; //copy 'DESC' specifier
         }
 
         void ProcessJoinClause(MethodCallExpression joinExpr)
@@ -135,7 +135,7 @@ namespace DBLinq.Linq
                 //e.g. '{(m, u) => new <>f__AnonymousType0`2(m = m, u = u)}'
             }
 
-            _vars._sqlParts.joinList.Add(joinField1 + "=" + joinField2);
+            _vars._sqlParts.JoinList.Add(joinField1 + "=" + joinField2);
         }
 
         /// <summary>
@@ -290,7 +290,7 @@ namespace DBLinq.Linq
             _vars.groupByExpr = groupBy;
             ParseResult result = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, groupBy.Body);
             string groupByFields = string.Join(",", result.columns.ToArray());
-            _vars._sqlParts.groupByList.Add(groupByFields);
+            _vars._sqlParts.GroupByList.Add(groupByFields);
 
             if (selectExpr == null //&& _vars.groupByNewExpr==null
                 )

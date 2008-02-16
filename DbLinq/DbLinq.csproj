@@ -88,7 +88,7 @@
     <Compile Include="Util\RowEnumeratorGroupBy.cs" />
     <Compile Include="Util\RowEnumFactory.cs" />
     <Compile Include="Util\RowScalar.cs" />
-    <Compile Include="Linq\Clause\SqlExpressionParts.cs" />
+    <Compile Include="Linq\SqlExpressionParts.cs" />
     <Compile Include="Util\TransactionManager.cs" />
     <Compile Include="Util\TypeEnum.cs" />
     <Compile Include="Util\Page.cs" />
