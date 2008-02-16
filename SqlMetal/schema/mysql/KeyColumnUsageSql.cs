@@ -37,9 +37,9 @@ namespace SqlMetal.schema.mysql
         {
             KeyColumnUsage t = new KeyColumnUsage();
             int field = 0;
-            t.constraint_schema = rdr.GetString(field++);
+            t.constraint_schema = rdr.GetStringN(field++);
             t.constraint_name = rdr.GetString(field++);
-            t.table_schema  = rdr.GetString(field++);
+            t.table_schema  = rdr.GetStringN(field++);
             t.table_name    = rdr.GetString(field++);
             t.column_name    = rdr.GetString(field++);
             t.referenced_table_schema = rdr.GetStringN(field++);
