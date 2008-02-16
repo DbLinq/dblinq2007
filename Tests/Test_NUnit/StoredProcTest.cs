@@ -5,22 +5,6 @@ using System.Linq;
 using NUnit.Framework;
 using nwind;
 
-#if ORACLE
-using xint = System.Int32;
-#elif POSTGRES
-using xint = System.Int32;
-using XSqlConnection = Npgsql.NpgsqlConnection;
-using XSqlCommand = Npgsql.NpgsqlCommand;
-#elif SQLITE
-using xint = System.Int64;
-using XSqlConnection = System.Data.SQLite.SQLiteConnection;
-using XSqlCommand = System.Data.SQLite.SQLiteCommand;
-#else
-using XSqlConnection = MySql.Data.MySqlClient.MySqlConnection;
-using XSqlCommand = MySql.Data.MySqlClient.MySqlCommand;
-using xint = System.UInt32;
-#endif
-
 namespace Test_NUnit
 {
     [TestFixture]
