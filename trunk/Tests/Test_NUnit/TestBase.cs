@@ -23,6 +23,10 @@ using XSqlCommand = Npgsql.NpgsqlCommand;
 using System.Data.SQLite;
 using XSqlConnection = System.Data.SQLite.SQLiteConnection;
 using XSqlCommand = System.Data.SQLite.SQLiteCommand;
+#elif MSSQL
+using XSqlConnection = System.Data.SqlClient.SqlConnection;
+using XSqlCommand = System.Data.SqlClient.SqlCommand;
+using xint = System.UInt32;
 #else
 using XSqlConnection = MySql.Data.MySqlClient.MySqlConnection;
 using XSqlCommand = MySql.Data.MySqlClient.MySqlCommand;
@@ -56,6 +60,8 @@ namespace Test_NUnit
         }
 #elif SQLITE
         const string connStr = "Data Source=Northwind.db3";
+#elif MSSQL
+        const string connStr = "Data Source=.\\SQLExpress;Integrated Security=True;Initial Catalog=Northwind";
 #else //Mysql, Postgres
         public string connStr
         {
