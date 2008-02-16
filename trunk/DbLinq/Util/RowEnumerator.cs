@@ -100,8 +100,8 @@ namespace DBLinq.Util
 
             if(_vars._sqlParts!=null)
             {
-                foreach(string paramName in _vars._sqlParts.paramMap.Keys){
-                    object value = _vars._sqlParts.paramMap[paramName];
+                foreach(string paramName in _vars._sqlParts.ParametersMap.Keys){
+                    object value = _vars._sqlParts.ParametersMap[paramName];
                     Trace.WriteLine("SQL PARAM: "+paramName+" = "+value);
 
                     IDbDataParameter parameter = cmd.CreateParameter();
@@ -118,7 +118,7 @@ namespace DBLinq.Util
             _rdr = cmd.ExecuteReader();
             // picrap: and also this
             //rdr2 = new DataReader2(_rdr);
-            rdr2 = _vars.Context.Vendor.CreateDataReader2(_rdr);
+            rdr2 = _vars.Context.Vendor.CreateDataReader(_rdr);
 
             // picrap: need to solve the HasRows mystery
 /*            if (_vars.context.Log != null)

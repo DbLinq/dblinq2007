@@ -65,12 +65,12 @@ namespace DBLinq.Linq.Clause
             if (tAttrib == null)
                 throw new ApplicationException("Class " + t + " is missing [Table] attribute");
 
-            if (selectParts.doneClauses.Contains(nick))
+            if (selectParts.DoneClauses.Contains(nick))
             {
                 Console.WriteLine("Duplicate GetClause for " + nick + ", skipping");
                 return;
             }
-            selectParts.doneClauses.Add(nick);
+            selectParts.DoneClauses.Add(nick);
 
             if (vars.projectionData == null)
             {
@@ -83,7 +83,7 @@ namespace DBLinq.Linq.Clause
 
             foreach (ColumnAttribute colAtt in colAttribs2)
             {
-                string safeColumnName = vars.Context.Vendor.FieldName_Safe(colAtt.Name);
+                string safeColumnName = vars.Context.Vendor.GetFieldSafeName(colAtt.Name);
                 string part = nick + "." + safeColumnName; //eg. '$o.OrderID'
                 selectParts.AddSelect(part);
             }

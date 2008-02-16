@@ -45,30 +45,32 @@ namespace DBLinq.Vendor
         string Concat(List<ExpressionAndType> parts);
 
         /// <summary>
-        /// ParamName: on Postgres or Oracle, return ':P1', on Mysql, return '?P1'
+        /// GetParameterName: on Postgres or Oracle, return ':P1', on Mysql, return '?P1'
         /// </summary>
-        string ParamName(int index);
+        string GetParameterName(int index);
 
         /// <summary>
         /// given 'User', return '[User]' to prevent a SQL keyword conflict
         /// </summary>
-        string FieldName_Safe(string name);
+        string GetFieldSafeName(string name);
 
         /// <summary>
         /// return 'LENGTH' on Oracle,Mysql,PostgreSql, return 'LEN' on MSSql
         /// </summary>
-        string String_Length_Function();
+        string GetStringLengthFunction();
 
         int ExecuteCommand(DBLinq.Linq.DataContext context, string sql, params object[] parameters);
 
-        System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.DataContext context, System.Reflection.MethodInfo method, params object[] sqlParams);
+        IExecuteResult ExecuteMethodCall(DBLinq.Linq.DataContext context, MethodInfo method, params object[] sqlParams);
 
         IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName);
 
-        IDataReader2 CreateDataReader2(IDataReader dataReader);
+        IDataReader2 CreateDataReader(IDataReader dataReader);
 
         bool CanBulkInsert<T>(DBLinq.Linq.Table<T> table);
         void SetBulkInsert<T>(DBLinq.Linq.Table<T> table, int pageSize);
-        void DoBulkInsert<T>(DBLinq.Linq.Table<T> table, List<T> rows, IDbConnection conn);
+        void DoBulkInsert<T>(DBLinq.Linq.Table<T> table, List<T> rows, IDbConnection connection);
+
+        string BuildSqlString(SqlExpressionParts parts);
     }
 }

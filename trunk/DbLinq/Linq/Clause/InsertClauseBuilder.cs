@@ -92,7 +92,7 @@ namespace DBLinq.Linq.Clause
                 sb.Append(colAtt.Name);
 
                 //get either ":p0" or "?p0"
-                string paramName = vendor.ParamName(numFieldsAdded);
+                string paramName = vendor.GetParameterName(numFieldsAdded);
                 sbValues.Append(paramName);
 
                 IDbDataParameter param = vendor.CreateSqlParameter(cmd, colAtt.DbType, paramName);
@@ -170,7 +170,7 @@ namespace DBLinq.Linq.Clause
                 object paramValue = projFld.GetFieldValue(objectToInsert);
 
                 //get either ":p0" or "?p0"
-                string paramName = vendor.ParamName(numFieldsAdded++);
+                string paramName = vendor.GetParameterName(numFieldsAdded++);
                 sbVals.Append(separator).Append(paramName);
                 separator = ", ";
 
@@ -208,7 +208,7 @@ namespace DBLinq.Linq.Clause
             {
                 ColumnAttribute colAtt = projFld.columnAttribute;
 
-                string columnName_safe = vars.Context.Vendor.FieldName_Safe(colAtt.Name); //turn 'User' into '[User]'
+                string columnName_safe = vars.Context.Vendor.GetFieldSafeName(colAtt.Name); //turn 'User' into '[User]'
 
                 if (colAtt.IsPrimaryKey) 
                 {
@@ -225,7 +225,7 @@ namespace DBLinq.Linq.Clause
                 }
                 else
                 {
-                    paramName = vars.Context.Vendor.ParamName(paramIndex++);
+                    paramName = vars.Context.Vendor.GetParameterName(paramIndex++);
                 }
 
                 //append string, eg. ",Name=:p0"

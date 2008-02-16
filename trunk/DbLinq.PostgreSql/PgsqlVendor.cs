@@ -43,11 +43,11 @@ namespace DbLinq.PostgreSql
     /// <summary>
     /// PostgreSQL - specific code.
     /// </summary>
-    public class PgsqlVendor : Vendor, IVendor
+    public class PgsqlVendor : Vendor
     {
-        public string VendorName { get { return "PostgreSql"; } }
+        public override string VendorName { get { return "PostgreSql"; } }
 
-        public IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
+        public override IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
                                                , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
         {
             ColumnAttribute[] colAttribs = AttribHelper.GetColumnAttribs(projData.type);
@@ -101,14 +101,14 @@ namespace DbLinq.PostgreSql
         /// <summary>
         /// given 'User', return '[User]' to prevent a SQL keyword conflict
         /// </summary>
-        public string FieldName_Safe(string name)
+        public override string GetFieldSafeName(string name)
         {
             //if (name.ToLower() == "user")
             //    return "[" + name + "]"; //this is wrong for Pgsql, says Andrus
             return name;
         }
 
-        public IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
+        public override IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
         {
             //System.Data.SqlDbType dbType = DBLinq.util.SqlTypeConversions.ParseType(dbTypeName);
             //SqlParameter param = new SqlParameter(paramName, dbType);
@@ -121,7 +121,7 @@ namespace DbLinq.PostgreSql
         /// call mysql stored proc or stored function, 
         /// optionally return DataSet, and collect return params.
         /// </summary>
-        public System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.DataContext context, MethodInfo method
+        public override System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.DataContext context, MethodInfo method
                                                                  , params object[] inputValues)
         {
             if (method == null)
@@ -266,7 +266,7 @@ namespace DbLinq.PostgreSql
             return outParamValues;
         }
 
-        public IDataReader2 CreateDataReader2(IDataReader dataReader)
+        public override IDataReader2 CreateDataReader(IDataReader dataReader)
         {
             return new PgsqlDataReader2(dataReader);
         }

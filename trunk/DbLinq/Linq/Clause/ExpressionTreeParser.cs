@@ -449,7 +449,7 @@ namespace DBLinq.Linq.Clause
             ColumnAttribute columnAttrib = expr.Member.GetCustomAttributes(false).OfType<ColumnAttribute>().FirstOrDefault();
             string sqlColumnName = expr.Member.Name;
             if (columnAttrib != null)
-                sqlColumnName = _parent._vars.Context.Vendor.FieldName_Safe(columnAttrib.Name);
+                sqlColumnName = _parent._vars.Context.Vendor.GetFieldSafeName(columnAttrib.Name);
             _result.AppendString(sqlColumnName);
         }
 
@@ -466,7 +466,7 @@ namespace DBLinq.Linq.Clause
                 //process string length function here. 
                 //"LENGTH()" function seems to be available on Oracle,Mysql,PostgreSql
                 //Ha! it's called LEN() on MssqlServer
-                string length_func = _parent._vars.Context.Vendor.String_Length_Function();
+                string length_func = _parent._vars.Context.Vendor.GetStringLengthFunction();
                 _result.AppendString(length_func + "(");
                 AnalyzeExpression(recurData, memberInner);
                 _result.AppendString(")");

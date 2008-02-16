@@ -33,7 +33,6 @@ using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using DBLinq.Util;
-using DBLinq.Linq.Clause;
 
 namespace DBLinq.Linq
 {
@@ -325,7 +324,7 @@ namespace DBLinq.Linq
                         //if(projField.expr1.Member.Name=="Key")
                         //{
                         //    projField.expr1 = groupByExpr.Body as MemberExpression;
-                        //    sqlParts.selectFieldList.Add(projField.expr1.Member.Name);
+                        //    sqlParts.SelectFieldList.Add(projField.expr1.Member.Name);
                         //}
                         break;
                     case ExpressionType.Parameter:
@@ -397,7 +396,7 @@ namespace DBLinq.Linq
                         //if(projField.expr1.Member.Name=="Key")
                         //{
                         //    projField.expr1 = groupByExpr.Body as MemberExpression;
-                        //    sqlParts.selectFieldList.Add(projField.expr1.Member.Name);
+                        //    sqlParts.SelectFieldList.Add(projField.expr1.Member.Name);
                         //}
                         break;
                     case ExpressionType.Parameter:
