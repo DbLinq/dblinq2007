@@ -30,13 +30,13 @@ using System.Text;
 using DbLinq.Linq;
 using SqlMetal.Util;
 
-namespace SqlMetal.CodeGen
+namespace SqlMetal.CSharpGenerator
 {
     /// <summary>
     /// generates a public property representing a SQL table column.
     /// Also generates the backing field.
     /// </summary>
-    public class CodeGenField
+    public class PropertyField
     {
         DlinqSchema.Column _column;
         string _propertyName;
@@ -45,8 +45,7 @@ namespace SqlMetal.CodeGen
         string _tableClassName;
         string _columnType;
 
-
-        public CodeGenField(string tableClassName, DlinqSchema.Column column, List<DlinqSchema.Association> constraintsOnField, Parameters mmConfig)
+        internal PropertyField(string tableClassName, DlinqSchema.Column column, List<DlinqSchema.Association> constraintsOnField)
         {
             _column = column;
             _tableClassName = tableClassName;
@@ -54,7 +53,7 @@ namespace SqlMetal.CodeGen
             //glue together "(Id=true, AutoGen=true,DbType="float")"
             List<string> attribParts = new List<string>();
 
-            if (column.Storage != null && column.Storage!="null")
+            if (column.Storage != null && column.Storage != "null")
                 attribParts.Add("Storage = \"" + column.Storage + "\"");
 
             attribParts.Add("Name = \"" + column.Name + "\"");
@@ -96,25 +95,30 @@ namespace SqlMetal.CodeGen
             _columnType = column.Type;
         }
 
-        public string generateField(Parameters mmConfig)
+        public string Field
         {
-            string template = @"
-protected $type $storage;";
-            template = template.Replace("$type", _columnType);
-            template = template.Replace("$storage", _column.Storage);
-            template = template.Replace("$attribOpt", _attrib2);
-            template = template.Replace("$constraintWarn", _constraintWarn);
-            if (_column.IsDbGenerated)
+            get
             {
-                //mark this field - it must be modified on insertion
-                template = "[DbLinq.Linq.Mapping.AutoGenId] " + template;
+                string template = @"
+protected $type $storage;";
+                template = template.Replace("$type", _columnType);
+                template = template.Replace("$storage", _column.Storage);
+                template = template.Replace("$attribOpt", _attrib2);
+                template = template.Replace("$constraintWarn", _constraintWarn);
+                if (_column.IsDbGenerated)
+                {
+                    //mark this field - it must be modified on insertion
+                    template = "[DbLinq.Linq.Mapping.AutoGenId] " + template;
+                }
+                return template;
             }
-            return template;
         }
 
-        public string generateProperty(Parameters mmConfig)
+        public string Property
         {
-            string template = @"
+            get
+            {
+                string template = @"
 [Column($attribOpt)]
 [DebuggerNonUserCode]
 public $type $propertyName
@@ -123,14 +127,21 @@ public $type $propertyName
     set { $storage = value; IsModified = true; }
 }
 ";
-            template = template.Replace("$type", _columnType);
-            template = template.Replace("$propertyName", _propertyName);
-            template = template.Replace("$storage", _column.Storage);
-            template = template.Replace("$attribOpt", _attrib2);
-            template = template.Replace("$constraintWarn", _constraintWarn);
-            return template;
+                template = template.Replace("$type", _columnType);
+                template = template.Replace("$propertyName", _propertyName);
+                template = template.Replace("$storage", _column.Storage);
+                template = template.Replace("$attribOpt", _attrib2);
+                template = template.Replace("$constraintWarn", _constraintWarn);
+                return template;
+            }
         }
+    }
 
-
+    public class PropertyFieldGenerator
+    {
+        public PropertyField CreatePropertyField(string tableClassName, DlinqSchema.Column column, List<DlinqSchema.Association> constraintsOnField)
+        {
+            return new PropertyField(tableClassName, column, constraintsOnField);
+        }
     }
 }

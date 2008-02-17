@@ -26,7 +26,7 @@ namespace DbLinq.Util
             Case = Case.PascalCase;
         }
 
-        public virtual string Format(string oldName, Case newCase, bool singularize)
+        public virtual string Format(string oldName, Case newCase, bool? singularPlural)
         {
             StringBuilder result = new StringBuilder();
             IList<string> parts = Words.GetWords(oldName);
@@ -37,7 +37,7 @@ namespace DbLinq.Util
                     position |= Position.First;
                 if (partIndex == parts.Count - 1)
                     position |= Position.Last;
-                result.Append(AdjustPart(parts[partIndex], position, newCase, singularize));
+                result.Append(AdjustPart(parts[partIndex], position, newCase, singularPlural));
             }
             return result.ToString();
         }
@@ -53,10 +53,15 @@ namespace DbLinq.Util
             return part;
         }
 
-        protected virtual string AdjustPart(string part, Position position, Case newCase, bool singularize)
+        protected virtual string AdjustPart(string part, Position position, Case newCase, bool? singularPlural)
         {
-            if (singularize && (position & Position.Last) != 0)
-                part = Words.Singularize(part);
+            if (singularPlural.HasValue && (position & Position.Last) != 0)
+            {
+                if (singularPlural.Value)
+                    part = Words.Singularize(part);
+                else
+                    part = Words.Pluralize(part);
+            }
             if ((position & Position.First) != 0 && newCase == Case.camelCase)
                 part = ToCamelCase(part);
             else if (newCase != Case.Leave)
@@ -71,17 +76,29 @@ namespace DbLinq.Util
 
         public virtual string AdjustColumnName(string columnName)
         {
-            return Format(columnName, Case, false);
+            return Format(columnName, Case, null);
         }
 
         public virtual string AdjustColumnFieldName(string columnName)
         {
-            return Format(columnName, Case.camelCase, false);
+            return Format(columnName, Case.camelCase, null);
         }
 
         public virtual string AdjustMethodName(string methodName)
         {
-            return Format(methodName, Case, false);
+            return Format(methodName, Case, null);
+        }
+
+        public virtual string AdjustOneToManyColumnName(string referencedTableName)
+        {
+            return Format(referencedTableName, Case, null);
+        }
+
+        public virtual string AdjustManyToOneColumnName(string referencedTableName, string thisTableName)
+        {
+            if (referencedTableName == thisTableName)
+                return Format("Parent" + referencedTableName, Case, true);
+            return Format(referencedTableName, Case, true);
         }
     }
 }

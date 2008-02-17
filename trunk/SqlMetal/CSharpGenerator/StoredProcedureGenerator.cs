@@ -28,9 +28,9 @@ using System.Text;
 using DbLinq.Linq;
 using SqlMetal.Util;
 
-namespace SqlMetal.CodeGen
+namespace SqlMetal.CSharpGenerator
 {
-    public class CodeGenStoredProc
+    public class StoredProcedureGenerator
     {
         const string NL = "\r\n";
         const string NLNL = "\r\n\r\n";
@@ -46,32 +46,32 @@ public $retType $procNameCsharp($paramString)
 }
 ";
 
-        public static string FormatProc(DlinqSchema.Function storedProc, Parameters mmConfig)
+        public string GetProcedureCall(DlinqSchema.Function storedProcedure)
         {
-            if (storedProc == null || storedProc.Name == null)
+            if (storedProcedure == null || storedProcedure.Name == null)
             {
-                Console.WriteLine("CodeGenStoredProc: Error L33 Invalid storedProc object");
-                return "//error L33 Invalid storedProc object";
+                Console.WriteLine("CodeGenStoredProc: Error L33 Invalid storedProcedure object");
+                return "//error L33 Invalid storedProcedure object";
             }
 
             string text = SP_BODY_TEMPLATE.Replace(NL, "\t" + NL);
-            text = text.Replace("$procNameCsharp", storedProc.Method ?? storedProc.Name);
-            text = text.Replace("$procNameSql", storedProc.Name);
-            text = text.Replace("$procType", storedProc.ProcedureOrFunction);
+            text = text.Replace("$procNameCsharp", storedProcedure.Method ?? storedProcedure.Name);
+            text = text.Replace("$procNameSql", storedProcedure.Name);
+            text = text.Replace("$procType", storedProcedure.ProcedureOrFunction);
 
             List<string> paramStringsList = new List<string>();
             List<string> sqlInArgList = new List<string>();
             List<string> outParamLineList = new List<string>();
             int paramIndex = -1;
-            foreach (DlinqSchema.Parameter param in storedProc.Parameters)
+            foreach (DlinqSchema.Parameter param in storedProcedure.Parameters)
             {
                 paramIndex++;
-                string paramStr = FormatProcParam(param, mmConfig);
+                string paramStr = FormatProcParam(param);
                 paramStringsList.Add(paramStr);
 
                 if (param.InOut == System.Data.ParameterDirection.Input || param.InOut == System.Data.ParameterDirection.InputOutput)
                 {
-                    sqlInArgList.Add(FormatInnerArg(param, mmConfig));
+                    sqlInArgList.Add(FormatInnerArg(param));
                 }
 
                 if (param.InOut == System.Data.ParameterDirection.Output || param.InOut == System.Data.ParameterDirection.InputOutput)
@@ -87,15 +87,15 @@ public $retType $procNameCsharp($paramString)
 
             string retType = "void";
             string resultValue = "";
-            if (storedProc.Return.Count > 0)
+            if (storedProcedure.Return.Count > 0)
             {
-                retType = storedProc.Return[0].Type;
+                retType = storedProcedure.Return[0].Type;
                 resultValue = "($retType)result.ReturnValue"; //for functions, e.g. (int)result.RetValue
             }
 
-            bool isDataShapeUnknown = storedProc.ElementType == null
-                && storedProc.BodyContainsSelectStatement
-                && storedProc.ProcedureOrFunction == "PROCEDURE";
+            bool isDataShapeUnknown = storedProcedure.ElementType == null
+                                      && storedProcedure.BodyContainsSelectStatement
+                                      && storedProcedure.ProcedureOrFunction == "PROCEDURE";
             if (isDataShapeUnknown)
             {
                 //if we don't know the shape of results, and the proc body contains some selects,
@@ -125,30 +125,30 @@ public $retType $procNameCsharp($paramString)
         const string ARG_TEMPLATE = @"$inOut $name";
         const string PARAM_TEMPLATE = @"[Parameter(Name = ""$dbName"", DbType = ""$dbType"")] $inOut $type $name";
 
-        private static string FormatInnerArg(DlinqSchema.Parameter param, Parameters mmConfig)
+        private static string FormatInnerArg(DlinqSchema.Parameter param)
         {
             string text = ARG_TEMPLATE;
             text = text.Replace("$name", param.Name);
-            text = text.Replace("$inOut ", formatInOut(param.InOut, mmConfig));
+            text = text.Replace("$inOut ", FormatInOut(param.InOut));
             return text;
         }
 
-        private static string FormatProcParam(DlinqSchema.Parameter param, Parameters mmConfig)
+        private static string FormatProcParam(DlinqSchema.Parameter param)
         {
             string text = PARAM_TEMPLATE;
             text = text.Replace("$dbName", param.Name);
             text = text.Replace("$name", param.Name);
             text = text.Replace("$dbType", param.DbType);
             text = text.Replace("$type", param.Type);
-            text = text.Replace(" $inOut", formatInOut(param.InOut, mmConfig));
+            text = text.Replace(" $inOut", FormatInOut(param.InOut));
             return text;
         }
 
-        static string formatInOut(System.Data.ParameterDirection inOut, Parameters mmConfig)
+        private static string FormatInOut(System.Data.ParameterDirection inOut)
         {
             switch (inOut)
             {
-                //case System.Data.ParameterDirection.Input: return "";
+                    //case System.Data.ParameterDirection.Input: return "";
                 case System.Data.ParameterDirection.Output: return "out ";
                 case System.Data.ParameterDirection.InputOutput: return "ref ";
                 default: return "";

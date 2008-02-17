@@ -57,10 +57,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CodeGen\CodeGenClass.cs" />
-    <Compile Include="CodeGen\CodeGenField.cs" />
-    <Compile Include="CodeGen\CodeGenAll.cs" />
-    <Compile Include="CodeGen\CodeGenStoredProc.cs" />
+    <Compile Include="CSharpGenerator\ClassGenerator.cs" />
+    <Compile Include="CSharpGenerator\PropertyFieldGenerator.cs" />
+    <Compile Include="CSharpGenerator\Generator.cs" />
+    <Compile Include="CSharpGenerator\StoredProcedureGenerator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Parameters.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -96,6 +96,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="bin\" />
     <Folder Include="schema\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

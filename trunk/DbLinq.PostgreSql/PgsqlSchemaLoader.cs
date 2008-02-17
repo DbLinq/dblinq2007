@@ -138,7 +138,7 @@ namespace DbLinq.PostgreSql
                     assoc.Name = keyColRow.constraint_name;
                     assoc.Type = null;
                     assoc.ThisKey = keyColRow.column_name;
-                    assoc.Member = GetTableName(foreignKey.table_name_Parent, tableAliases);
+                    assoc.Member = GetManyToOneColumnName(foreignKey.table_name_Parent, keyColRow.table_name);
                     assoc.Storage = GetColumnFieldName(keyColRow.constraint_name);
                     table.Type.Associations.Add(assoc);
 
@@ -146,7 +146,7 @@ namespace DbLinq.PostgreSql
                     DlinqSchema.Association assoc2 = new DlinqSchema.Association();
                     assoc2.Name = keyColRow.constraint_name;
                     assoc2.Type = table.Type.Name;
-                    assoc2.Member = GetColumnName(keyColRow.table_name);
+                    assoc2.Member = GetOneToManyColumnName(keyColRow.table_name);
                     assoc2.OtherKey = keyColRow.column_name; //.referenced_column_name;
 
                     //DlinqSchema.Table parentTable = schema0.Tables.FirstOrDefault(t => keyColRow.referenced_table_name==t.Name);

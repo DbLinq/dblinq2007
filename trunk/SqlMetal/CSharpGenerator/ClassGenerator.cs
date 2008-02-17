@@ -30,40 +30,45 @@ using System.Text;
 using System.Linq;
 using DbLinq.Linq;
 using DbLinq.Util;
+using SqlMetal.CSharpGenerator;
 
-namespace SqlMetal.CodeGen
+namespace SqlMetal.CSharpGenerator
 {
     /// <summary>
     /// Generates a c# class representing table.
     /// Calls into CodeGenField.
     /// </summary>
-    public class CodeGenClass
+    public class ClassGenerator
     {
         const string NL = "\r\n";
         const string NLNL = "\r\n\r\n";
         const string NLT = "\r\n\t";
 
-        public string generateClass(DlinqSchema.Database schema, DlinqSchema.Table table, SqlMetalParameters mmConfig)
+        public PropertyFieldGenerator PropertyFieldGenerator { get; set; }
+
+        public ClassGenerator()
+        {
+            PropertyFieldGenerator = new PropertyFieldGenerator();
+        }
+
+        public string GetClass(DlinqSchema.Database schema, DlinqSchema.Table table, SqlMetalParameters mmConfig)
         {
             string template = @"
 [Table(Name = ""$tableName"")]
 public partial class $name $baseClass
 {
     $fields
-
     $ctors
-
     $properies
     $equals_GetHashCode
     $linksToChildTables
     $linksToParentTables
 
     public bool IsModified { get; set; }
-}
-";
+}";
             List<string> fieldBodies = new List<string>();
             List<string> properties = new List<string>();
-            properties.Add("#region properties - accessors");
+            properties.Add("#region Properties - accessors");
             string className = table.Type.Name; //CSharp.FormatTableClassName(table.Class ?? table.Name);
 
             //foreach(DlinqSchema.Column col in table.Types[0].Columns)
@@ -72,24 +77,24 @@ public partial class $name $baseClass
                 List<DlinqSchema.Association> constraintsOnField
                     = table.Type.Associations.FindAll(a => a.Name == col.Name);
 
-                CodeGenField codeGenField = new CodeGenField(className, col, constraintsOnField, mmConfig);
-                string fld = codeGenField.generateField(mmConfig);
-                string prop = codeGenField.generateProperty(mmConfig);
+                PropertyField codeGenField = PropertyFieldGenerator.CreatePropertyField(className, col, constraintsOnField);
+                string fld = codeGenField.Field;
+                string prop = codeGenField.Property;
                 fld = fld.Replace(NL, NL + "\t");
                 prop = prop.Replace(NL, NL + "\t");
                 fieldBodies.Add(fld);
                 properties.Add(prop);
             }
-            properties.Add("#endregion");
+            properties.Add("\t#endregion");
 
-            string ctor = genCtors(table, mmConfig);
+            string ctor = GenCtors(table, mmConfig);
 
             string fieldsConcat = string.Join("", fieldBodies.ToArray());
             string propsConcat = string.Join(NL, properties.ToArray());
             string equals = GenerateEqualsAndHash(table, mmConfig);
             string baseClass = (mmConfig.EntityBase == null || mmConfig.EntityBase == "")
-                ? ""
-                : ": " + mmConfig.EntityBase;
+                                   ? ""
+                                   : ": " + mmConfig.EntityBase;
             string childTables = GetLinksToChildTables(schema, table, mmConfig);
             string parentTables = GetLinksToParentTables(schema, table, mmConfig);
 
@@ -108,9 +113,9 @@ public partial class $name $baseClass
             return template;
         }
 
-        public string genCtors(DlinqSchema.Table table, Parameters mmConfig)
+        private string GenCtors(DlinqSchema.Table table, Parameters mmConfig)
         {
-            #region getCtors
+#if OneCTORisUseless
             string template = @"
 public $name()
 {
@@ -120,32 +125,40 @@ public $name()
             template = template.Replace("$name", className);
             template = template.Replace(NL, NLT);
             return template;
-            #endregion
+#else
+            return string.Empty;
+#endif
         }
 
-        string GetLinksToChildTables(DlinqSchema.Database schema, DlinqSchema.Table table, Parameters mmConfig)
+        private string GetLinksToChildTables(DlinqSchema.Database schema, DlinqSchema.Table table, Parameters mmConfig)
         {
-            string childLinkTemplate = @"
+            //child table contains a ManyToOneParent Association, pointing to parent
+            //parent table contains a ManyToOneChild.
+            var ourChildren = table.Type.Associations.Where( a=> a.OtherKey!=null );
+
+            const string childLinkTemplate = @"
 [Association(Storage = ""null"", OtherKey = ""$childColName"", Name = ""$fkName"")]
 public EntityMSet<$childClassName> $fieldName
 {
     get { return null; } //L212 - child data available only when part of query
 }";
-            //child table contains a ManyToOneParent Association, pointing to parent
-            //parent table contains a ManyToOneChild.
-            var ourChildren = table.Type.Associations.Where( a=> a.OtherKey!=null );
 
             List<string> linksToChildTables = new List<string>();
-            linksToChildTables.Add("#region childtables");
+            linksToChildTables.Add("#region Children");
+
+            int childrenCount = 0;
+
             foreach(DlinqSchema.Association assoc in ourChildren)
             {
                 DlinqSchema.Table targetTable = schema.Tables.FirstOrDefault(t => t.Type.Name == assoc.Type);
-                if(targetTable==null)
+                if (targetTable == null)
                 {
                     Console.WriteLine("ERROR L143 target table class not found:" + assoc.Type);
                     continue;
                 }
 
+
+                childrenCount++;
 
                 string str = childLinkTemplate;
 
@@ -161,6 +174,10 @@ public EntityMSet<$childClassName> $fieldName
                 str = str.Replace("$fieldName",         fieldName);
                 linksToChildTables.Add(str);
             }
+
+            if (childrenCount == 0)
+                return string.Empty;
+
             linksToChildTables.Add("#endregion");
             string ret = string.Join(NL, linksToChildTables.ToArray());
             ret = ret.Replace(NL, NLT);
@@ -171,7 +188,7 @@ public EntityMSet<$childClassName> $fieldName
         /// this template is compatible with Microsoft standard.
         /// You need this one to generate Northwind.cs correctly.
         /// </summary>
-        const string childLinkTemplate_simple = @"
+        private const string childLinkTemplate_simple = @"
 private System.Data.Linq.EntityRef<$parentClassTyp> $fieldName2;    
 
 [Association(Storage=""$fieldName2"", ThisKey=""$thisKey"", Name=""$fkName"")]
@@ -187,7 +204,7 @@ public $parentClassTyp $member {
         /// where 2 fields are guaranteed not to collide (not to have same name):
         /// (Note: collision avoidance code belongs in SchemaPostprocess.cs)
         /// </summary>
-        string childLinkTemplate_verbose = @"
+        private const string childLinkTemplate_verbose = @"
 private System.Data.Linq.EntityRef<$parentClassTyp> _$fkName_$thisKey;
 [Association(Storage=""_$fkName_$thisKey"", ThisKey=""$thisKey"",Name=""$fkName"")]
 [DebuggerNonUserCode]
@@ -196,18 +213,20 @@ public $parentClassTyp $fkName_$thisKey {
     set { this._$fkName_$thisKey.Entity = value; }
 }";
 
-        string GetLinksToParentTables(DlinqSchema.Database schema, DlinqSchema.Table table, SqlMetalParameters mmConfig)
+        private string GetLinksToParentTables(DlinqSchema.Database schema, DlinqSchema.Table table, SqlMetalParameters mmConfig)
         {
-            #region GetLinksToParentTables()
-            string childLinkTemplate = mmConfig.VerboseForeignKeys
-                ? childLinkTemplate_verbose
-                : childLinkTemplate_simple;
-
             var ourParents = table.Type.Associations.Where(a => a.ThisKey != null);
+
+            string childLinkTemplate = mmConfig.VerboseForeignKeys
+                                           ? childLinkTemplate_verbose
+                                           : childLinkTemplate_simple;
 
             Dictionary<string, bool> usedAssocNames = new Dictionary<string, bool>();
             List<string> linksToChildTables = new List<string>();
-            linksToChildTables.Add("#region parenttables");
+            linksToChildTables.Add("#region Parent");
+
+            int parentsCount = 0;
+
             foreach (DlinqSchema.Association assoc in ourParents)
             {
                 DlinqSchema.Table targetTable = schema.Tables.FirstOrDefault(t => t.Type.Name == assoc.Type);
@@ -216,6 +235,8 @@ public $parentClassTyp $fkName_$thisKey {
                     Console.WriteLine("ERROR L191 target table type not found: " + assoc.Type + "  (processing " + assoc.Name + ")");
                     continue;
                 }
+
+                parentsCount++;
 
                 string str = childLinkTemplate;
 
@@ -239,18 +260,21 @@ public $parentClassTyp $fkName_$thisKey {
                 str = str.Replace("$fieldName2", fieldName2);
                 linksToChildTables.Add(str);
             }
+
+            if (parentsCount == 0)
+                return string.Empty;
+
             linksToChildTables.Add("#endregion");
             string ret = string.Join(NL, linksToChildTables.ToArray());
             ret = ret.Replace(NL, NLT);
             return ret;
-            #endregion
         }
 
         /// <summary>
         /// associations are created in pairs (one in parent, one in child table)
         /// This method find the other one in the pair
         /// </summary>
-        DlinqSchema.Association findReverseAssoc(DlinqSchema.Database schema, DlinqSchema.Association assoc, Parameters mmConfig)
+        private DlinqSchema.Association findReverseAssoc(DlinqSchema.Database schema, DlinqSchema.Association assoc, Parameters mmConfig)
         {
             //first, find target table
             DlinqSchema.Table targetTable 
@@ -272,12 +296,11 @@ public $parentClassTyp $fkName_$thisKey {
             return reverseAssoc;
         }
 
-
-        public string GenerateEqualsAndHash(DlinqSchema.Table table, Parameters mmConfig)
+        private string GenerateEqualsAndHash(DlinqSchema.Table table, Parameters mmConfig)
         {
             string template = @"
-    #region GetHashCode(),Equals() - uses column $fieldID to look up objects in liveObjectMap
-    //TODO: move this logic our of user code, into a generated class
+    #region GetHashCode(), Equals() - uses column $fieldID to look up objects in liveObjectMap
+
     public override int GetHashCode()
     {
         return $GetHashCode_list;
@@ -289,6 +312,7 @@ public $parentClassTyp $fkName_$thisKey {
             return false;
         return $Equals_list;
     }
+
     #endregion
 ";
 
@@ -301,20 +325,21 @@ public $parentClassTyp $fkName_$thisKey {
 
             List<string> getHash_list = new List<string>();
             List<string> equals_list = new List<string>();
+            List<string> fieldId = new List<string>();
 
             foreach (DlinqSchema.Column primaryKey in primaryKeys)
             {
-                string fieldName = /*"_" +*/ primaryKey.Name; // picrap: removed the _: it doesn't always match the real backing field
-                                                                    // so we stick to the property
+                string fieldName = primaryKey.Member;
+                fieldId.Add(fieldName);
                 string getHash = CSharp.IsValueType(primaryKey.Type)
-                    ? fieldName+".GetHashCode()"
-                    : "("+fieldName+" == null ? 0 : "+fieldName+".GetHashCode())";
+                                     ? fieldName+".GetHashCode()"
+                                     : "("+fieldName+" == null ? 0 : "+fieldName+".GetHashCode())";
                 getHash_list.Add(getHash);
 
                 // "return $fieldID.Equals(o2.$fieldID);"
                 string equals = CSharp.IsValueType(primaryKey.Type)
-                    ? fieldName + " == o2." + fieldName
-                    : "object.Equals(" + fieldName + ", o2." + fieldName + ")";
+                                    ? fieldName + " == o2." + fieldName
+                                    : "object.Equals(" + fieldName + ", o2." + fieldName + ")";
                 equals_list.Add(equals);
             }
 
@@ -326,6 +351,7 @@ public $parentClassTyp $fkName_$thisKey {
             result = result.Replace("$GetHashCode_list", getHash_str);
             result = result.Replace("$Equals_list", equals_str);
             result = result.Replace("$className", table.Type.Name);
+            result = result.Replace("$fieldID", string.Join(", ", fieldId.ToArray()));
             return result;
         }
     }
