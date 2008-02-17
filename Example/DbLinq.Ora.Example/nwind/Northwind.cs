@@ -10,8 +10,8 @@ using System.Linq;
 //using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using System.Reflection;
-using DBLinq.Linq;
-using DBLinq.Linq.Mapping;
+using DbLinq.Linq;
+using DbLinq.Linq.Mapping;
 using DbLinq.Oracle;
 
 namespace nwind
@@ -56,7 +56,7 @@ namespace nwind
 	[Table(Name = "SUPPLIERS")]
 	public partial class Supplier : IModified
 	{
-		[DBLinq.Linq.Mapping.AutoGenId] 
+		[DbLinq.Linq.Mapping.AutoGenId] 
 		protected int _SUPPLIERID;
 		protected string _COMPANYNAME;
 		protected string _CONTACTNAME;
@@ -224,7 +224,7 @@ namespace nwind
 	[Table(Name = "ORDERS")]
 	public partial class Order : IModified
 	{
-		[DBLinq.Linq.Mapping.AutoGenId] 
+		[DbLinq.Linq.Mapping.AutoGenId] 
 		protected int _ORDERID;
 		protected string _CUSTOMERID;
 		protected int? _EMPLOYEEID;
@@ -442,7 +442,7 @@ namespace nwind
 	[Table(Name = "CATEGORIES")]
 	public partial class Category : IModified
 	{
-		[DBLinq.Linq.Mapping.AutoGenId] 
+		[DbLinq.Linq.Mapping.AutoGenId] 
 		protected int _CATEGORYID;
 		protected string _CATEGORYNAME;
 		protected string _DESCRIPTION;
@@ -533,7 +533,7 @@ namespace nwind
 	[Table(Name = "EMPLOYEES")]
 	public partial class Employee : IModified
 	{
-		[DBLinq.Linq.Mapping.AutoGenId] 
+		[DbLinq.Linq.Mapping.AutoGenId] 
 		protected int _EMPLOYEEID;
 		protected string _LASTNAME;
 		protected string _FIRSTNAME;
@@ -1014,7 +1014,7 @@ namespace nwind
 	[Table(Name = "REGION")]
 	public partial class Region : IModified
 	{
-		[DBLinq.Linq.Mapping.AutoGenId] 
+		[DbLinq.Linq.Mapping.AutoGenId] 
 		protected int _REGIONID;
 		protected string _REGIONDESCRIPTION;
 	
@@ -1197,7 +1197,7 @@ namespace nwind
 	[Table(Name = "PRODUCTS")]
 	public partial class Product : IModified
 	{
-		[DBLinq.Linq.Mapping.AutoGenId] 
+		[DbLinq.Linq.Mapping.AutoGenId] 
 		protected int _PRODUCTID;
 		protected string _PRODUCTNAME;
 		protected int? _SUPPLIERID;

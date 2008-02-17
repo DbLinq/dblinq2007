@@ -31,7 +31,7 @@ using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace DBLinq.Linq
+namespace DbLinq.Linq
 {
     public class EntityMSet<T> : IQueryable<T>
         , IQueryProvider //new as of Beta2

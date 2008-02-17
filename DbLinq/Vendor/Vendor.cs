@@ -8,9 +8,9 @@ using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
 //using System.Data.OracleClient;
-using DBLinq.Linq;
+using DbLinq.Linq;
 
-namespace DBLinq.Vendor
+namespace DbLinq.Vendor
 {
     /// <summary>
     /// some IVendor functionality is the same for many vendors,
@@ -28,7 +28,7 @@ namespace DBLinq.Vendor
             get { return "SELECT 11"; }
         }
 
-        //public void ProcessPkField(DBLinq.Linq.ProjectionData projData, System.Data.Linq.Mapping.ColumnAttribute colAtt, StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
+        //public void ProcessPkField(DbLinq.Linq.ProjectionData projData, System.Data.Linq.Mapping.ColumnAttribute colAtt, StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
         //{
         //    throw new NotImplementedException();
         //}
@@ -40,7 +40,7 @@ namespace DBLinq.Vendor
         /// </summary>
         /// <param name="parts"></param>
         /// <returns></returns>
-        public virtual string Concat(List<DBLinq.Util.ExpressionAndType> parts)
+        public virtual string Concat(List<DbLinq.Util.ExpressionAndType> parts)
         {
             string[] arr = parts.Select(p => p.expression).ToArray();
             return string.Join("||", arr);
@@ -65,7 +65,7 @@ namespace DBLinq.Vendor
             return "LENGTH";
         }
 
-        public virtual int ExecuteCommand(DBLinq.Linq.DataContext context, string sql, params object[] parameters)
+        public virtual int ExecuteCommand(DbLinq.Linq.DataContext context, string sql, params object[] parameters)
         {
             IDbConnection conn = context.Connection;
             using (IDbCommand command = conn.CreateCommand())
@@ -106,16 +106,16 @@ namespace DBLinq.Vendor
             return sql2;
         }
 
-        public virtual bool CanBulkInsert<T>(DBLinq.Linq.Table<T> table)
+        public virtual bool CanBulkInsert<T>(DbLinq.Linq.Table<T> table)
         {
             return false;
         }
 
-        public virtual void SetBulkInsert<T>(DBLinq.Linq.Table<T> table, int pageSize)
+        public virtual void SetBulkInsert<T>(DbLinq.Linq.Table<T> table, int pageSize)
         {
         }
 
-        public virtual void DoBulkInsert<T>(DBLinq.Linq.Table<T> table, List<T> rows, IDbConnection conn)
+        public virtual void DoBulkInsert<T>(DbLinq.Linq.Table<T> table, List<T> rows, IDbConnection conn)
         {
             throw new NotImplementedException();
         }
@@ -250,7 +250,7 @@ namespace DBLinq.Vendor
         public abstract string VendorName { get; }
         public abstract IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt, StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded);
         public abstract string GetFieldSafeName(string name);
-        public abstract IExecuteResult ExecuteMethodCall(DBLinq.Linq.DataContext context, MethodInfo method, params object[] sqlParams);
+        public abstract IExecuteResult ExecuteMethodCall(DbLinq.Linq.DataContext context, MethodInfo method, params object[] sqlParams);
         public abstract IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName);
         public abstract IDataReader2 CreateDataReader(IDataReader dataReader);
     }

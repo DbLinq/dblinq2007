@@ -31,11 +31,12 @@ using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
 
-using DBLinq.Linq;
-using DBLinq.Vendor;
+using DbLinq.Linq;
+using DbLinq.Util;
+using DbLinq.Vendor;
 using System.Data;
 
-namespace DBLinq.Util
+namespace DbLinq.Util
 {
     public class RowEnumeratorCompiler<T>
     {

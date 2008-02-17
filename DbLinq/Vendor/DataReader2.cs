@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
 
-namespace DBLinq.Vendor
+namespace DbLinq.Vendor
 {
     public class DataReader2 : IDataReader2
     {

@@ -10,8 +10,8 @@ using System.Linq;
 //using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using System.Reflection;
-using DBLinq.Linq;
-using DBLinq.Linq.Mapping;
+using DbLinq.Linq;
+using DbLinq.Linq.Mapping;
 using DbLinq.PostgreSql;
 
 namespace AndrusDB
@@ -50,7 +50,7 @@ namespace AndrusDB
     [Table(Name = "public.t3")]
     public partial class T3 : IModified
     {
-        [DBLinq.Linq.Mapping.AutoGenId]
+        [DbLinq.Linq.Mapping.AutoGenId]
         protected int _id1;
         protected int? _f1;
 
@@ -170,7 +170,7 @@ namespace AndrusDB
         Type = typeof(CommissionedEmployee))]
     public partial class Employee : IModified
     {
-        [DBLinq.Linq.Mapping.AutoGenId]
+        [DbLinq.Linq.Mapping.AutoGenId]
         protected int _employeeid;
         protected int _employeetype;
         protected string _employeename;
@@ -298,7 +298,7 @@ namespace AndrusDB
     [Table(Name = "public.t5")]
     public partial class T5 : IModified
     {
-        [DBLinq.Linq.Mapping.AutoGenId]
+        [DbLinq.Linq.Mapping.AutoGenId]
         protected int _myid;
         protected int? _myval;
 

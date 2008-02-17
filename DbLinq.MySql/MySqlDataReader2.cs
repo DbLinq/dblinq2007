@@ -28,7 +28,7 @@ using System;
 using System.Data;
 using System.Collections.Generic;
 using System.Text;
-using DBLinq.Vendor;
+using DbLinq.Vendor;
 using MySql.Data.MySqlClient;
 
 namespace DbLinq.MySql
@@ -307,7 +307,7 @@ namespace DbLinq.MySql
             return (ulong)GetInt64(index);
         }
 
-        public string GetString(int index)
+        public override string GetString(int index)
         {
             try
             {
@@ -346,8 +346,7 @@ namespace DbLinq.MySql
         /// <summary>
         /// helper method for reading an integer, and casting it to enum
         /// </summary>
-        public T2 GetEnum<T2>(int index)
-            where T2 : new()
+        public override T2 GetEnum<T2>(int index)
         {
             try
             {

@@ -28,7 +28,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DBLinq.Util
+namespace DbLinq.Util
 {
     public class FieldUtils
     {

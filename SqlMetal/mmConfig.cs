@@ -7,85 +7,91 @@ using System.Text;
 
 namespace SqlMetal
 {
-    static class mmConfig
+    public class mmConfig
     {
         //set fields to 'null' to prevent compile warnings.
-        public static string user = null;
-        public static string password = null;
-        public static string server = null;
-        public static string database = null;
+        public string user = null;
+        public string password = null;
+        public string server = null;
+        public string database = null;
 
         /// <summary>
         /// the namespace to put our classes into
         /// </summary>
-        public static string @namespace = null;
+        public string @namespace = null;
 
         /// <summary>
         /// If present, write out C# code
         /// </summary>
-        public static string code = null;
+        public string code = null;
 
         /// <summary>
         /// If present, write out DBML XML representing the DB
         /// </summary>
-        public static string dbml = null;
+        public string dbml = null;
 
         /// <summary>
         /// convert table name 'products' to class 'Products'
         /// </summary>
-        public static bool forceUcaseTableName = true;
+        public bool forceUcaseTableName = true;
 
         /// <summary>
         /// for mysql, we want to keep case as specified in DB.
         /// </summary>
-        public static bool forceUcaseFieldName = false;
+        public bool forceUcaseFieldName = false;
 
         /// <summary>
         /// rename object 'productid' to 'productID'?
         /// </summary>
-        public static bool forceUcaseID = true;
+        public bool forceUcaseID = true;
 
         /// <summary>
         /// load object renamings from an xml file?
         /// </summary>
-        public static string renamesFile = null;
+        public string renamesFile = null;
 
-        public static string schemaXmlFile = null;
+        public string schemaXmlFile = null;
 
-        public static string baseClass = "IModified";
+        public string baseClass = "IModified";
 
-        public static bool sprocs = false;
+        public bool sprocs = false;
 
-        public static bool verboseForeignKeys = false;
+        public bool verboseForeignKeys = false;
 
         /// <summary>
         /// when true, we will call Singularize()/Pluralize() functions.
         /// </summary>
-        public static bool pluralize = true;
+        public bool pluralize = true;
 
         /// <summary>
         /// if true, and PostgreSql database contains DOMAINS (typedefs), 
         /// we will generate code DbType='DerivedType'.
         /// if false, generate code DbType='BaseType'.
         /// </summary>
-        public static bool useDomainTypes = true;
+        public bool useDomainTypes = true;
 
         /// <summary>
         /// force a Console.ReadKey at end of program.
         /// Useful when running from Studio, so the output window does not disappear
         /// </summary>
-        public static bool readLineAtExit = false;
+        public bool readLineAtExit = false;
 
-        #region static ctor: populate fields from app.config and commandline
+        public string connectionString = null;
+
+        public string dbLinqSchemaLoaderType = null;
+
+        public string databaseConnectionType = null;
+
+        public string dbType = null;
+
         /// <summary>
         /// give preference to commandline options over app.config options
         /// </summary>
-        static mmConfig()
+        public mmConfig(string [] args)
         {
             try
             {
-                Type t = typeof(mmConfig);
-                string[] args = Environment.CommandLine.Split(new char[]{' '}, StringSplitOptions.RemoveEmptyEntries);
+                Type t = GetType();
                 Dictionary<string,string> argMap = new Dictionary<string,string>();
                 foreach(string arg in args)
                 {
@@ -104,7 +110,7 @@ namespace SqlMetal
                     }
                 }
 
-                MemberInfo[] minfos = t.FindMembers(MemberTypes.Field,BindingFlags.Static|BindingFlags.Public, null, null);
+                MemberInfo[] minfos = t.FindMembers(MemberTypes.Field,BindingFlags.Instance|BindingFlags.Public, null, null);
                 foreach(MemberInfo minfo in minfos)
                 {
                     FieldInfo finfo = minfo as FieldInfo;
@@ -130,13 +136,16 @@ namespace SqlMetal
 
                     if(sval==null)
                         continue;
+
+                    sval = sval.Trim('\"');
+
                     if(finfo.FieldType==typeof(string)){
-                        finfo.SetValue(t,sval);
+                        finfo.SetValue(this,sval);
                     } else if(finfo.FieldType==typeof(bool)){
                         bool bval = sval == ""
                             ? true //eg. '-sprocs'
                             : bool.Parse(sval);
-                        finfo.SetValue(t,bval);
+                        finfo.SetValue(this,bval);
                     } else {
                         Console.WriteLine("mmConfig.cctor L39 unprepared for type:"+minfo.ReflectedType);
                     }
@@ -147,7 +156,5 @@ namespace SqlMetal
                 Console.WriteLine("mmConfig.cctor L37 failed:"+ex);
             }
         }
-        #endregion
-
     }
 }

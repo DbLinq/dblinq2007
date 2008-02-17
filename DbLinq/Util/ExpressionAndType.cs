@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace DBLinq.Util
+namespace DbLinq.Util
 {
     /// <summary>
     /// used in Concat function - we are concatenating a list of expressions,

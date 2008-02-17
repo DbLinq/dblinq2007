@@ -32,10 +32,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
-using DBLinq.Linq;
-using DBLinq.Linq.Mapping;
+using DbLinq.Linq;
+using DbLinq.Linq.Mapping;
 
-namespace DBLinq.Util
+namespace DbLinq.Util
 {
     /// <summary>
     /// Helper class which does the walking over Types to analyze attributes

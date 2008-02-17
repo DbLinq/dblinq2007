@@ -32,9 +32,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
-using DBLinq.Util;
+using DbLinq.Util;
 
-namespace DBLinq.Linq
+namespace DbLinq.Linq
 {
     /// <summary>
     /// Represents a new-object expression (eg. 'new {ProductId=p.ProductID') from a user's query.

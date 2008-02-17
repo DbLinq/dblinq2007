@@ -34,11 +34,11 @@ using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using System.Data;
 
-using DBLinq.Linq;
-using DBLinq.Vendor;
-using DBLinq.Util;
+using DbLinq.Linq;
+using DbLinq.Vendor;
+using DbLinq.Util;
 
-namespace DBLinq.Linq.Clause
+namespace DbLinq.Linq.Clause
 {
     public class InsertClauseBuilder
     {
@@ -58,7 +58,7 @@ namespace DBLinq.Linq.Clause
 
             IDbCommand cmd = conn.CreateCommand(); // picrap: moved the command up: it's used by the vendors
 
-            StringBuilder sb = new StringBuilder(DBLinq.Vendor.Settings.sqlStatementProlog)
+            StringBuilder sb = new StringBuilder(DbLinq.Vendor.Settings.sqlStatementProlog)
                 .Append("INSERT INTO ");
             StringBuilder sbValues = new StringBuilder("VALUES (");
             StringBuilder sbIdentity = new StringBuilder();

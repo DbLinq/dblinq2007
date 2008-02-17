@@ -31,21 +31,21 @@ using System.Text;
 using System.Data.Linq.Mapping;
 using System.Reflection;
 using System.Data;
-using DBLinq.Vendor;
+using DbLinq.Linq;
+using DbLinq.Linq.Clause;
+using DbLinq.Linq.Mapping;
+using DbLinq.Util;
+using DbLinq.Vendor;
 using MySql.Data.MySqlClient;
-using DBLinq.Linq.Mapping;
-using DBLinq.Util;
-using DBLinq.Linq;
-using DBLinq.Linq.Clause;
 
 namespace DbLinq.MySql
 {
-    public class MySqlVendor : Vendor
+    public class MySqlVendor : DbLinq.Vendor.Vendor
     {
         /// <summary>
         /// Client code needs to specify: 'Vendor.UserBulkInsert[db.Products]=10' to enable bulk insert, 10 rows at a time.
         /// </summary>
-        public readonly Dictionary<DBLinq.Linq.IMTable, int> UseBulkInsert = new Dictionary<DBLinq.Linq.IMTable, int>();
+        public readonly Dictionary<IMTable, int> UseBulkInsert = new Dictionary<IMTable, int>();
 
         public override string VendorName { get { return "Mysql"; } }
 
@@ -129,12 +129,12 @@ namespace DbLinq.MySql
             return new MySqlDataReader2(dataReader);
         }
 
-        public override bool CanBulkInsert<T>(DBLinq.Linq.Table<T> table)
+        public override bool CanBulkInsert<T>(Table<T> table)
         {
             return UseBulkInsert.ContainsKey(table);
         }
 
-        public override void SetBulkInsert<T>(DBLinq.Linq.Table<T> table, int pageSize)
+        public override void SetBulkInsert<T>(Table<T> table, int pageSize)
         {
             UseBulkInsert[table] = pageSize;
         }
@@ -144,7 +144,7 @@ namespace DbLinq.MySql
         /// because it does not fill up the translation log.
         /// This is enabled for tables where Vendor.UserBulkInsert[db.Table] is true.
         /// </summary>
-        public override void DoBulkInsert<T>(DBLinq.Linq.Table<T> table, List<T> rows, IDbConnection connection)
+        public override void DoBulkInsert<T>(Table<T> table, List<T> rows, IDbConnection connection)
         {
             int pageSize = UseBulkInsert[table];
             //ProjectionData projData = ProjectionData.FromReflectedType(typeof(T));
@@ -185,7 +185,7 @@ namespace DbLinq.MySql
         /// call mysql stored proc or stored function, 
         /// optionally return DataSet, and collect return params.
         /// </summary>
-        public override System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.DataContext context, MethodInfo method
+        public override System.Data.Linq.IExecuteResult ExecuteMethodCall(DataContext context, MethodInfo method
                                                                  , params object[] inputValues)
         {
             if (method == null)
@@ -316,8 +316,8 @@ namespace DbLinq.MySql
                 try
                 {
                     //fi.SetValue(t, val); //fails with 'System.Decimal cannot be converted to Int32'
-                    //DBLinq.util.FieldUtils.SetObjectIdField(t, fi, val);
-                    object val2 = DBLinq.Util.FieldUtils.CastValue(val, desired_type);
+                    //DbLinq.util.FieldUtils.SetObjectIdField(t, fi, val);
+                    object val2 = FieldUtils.CastValue(val, desired_type);
                     outParamValues.Add(val2);
                 }
                 catch (Exception ex)

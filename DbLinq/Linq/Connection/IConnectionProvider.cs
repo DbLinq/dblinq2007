@@ -26,7 +26,7 @@
 
 using System.Data;
 
-namespace DBLinq.Linq.Connection
+namespace DbLinq.Linq.Connection
 {
     public interface IConnectionProvider
     {

@@ -26,7 +26,7 @@
 
 using System.Linq.Expressions;
 
-namespace DBLinq.Linq
+namespace DbLinq.Linq
 {
     /// <summary>
     /// the 'finalized' SessionVars.

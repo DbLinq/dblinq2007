@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.20706</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{60B9AFA1-99B4-4DE6-80E1-80BBED1AC755}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -52,6 +52,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Schema\ColumnSql.cs" />
+    <Compile Include="Schema\DataCommand.cs" />
+    <Compile Include="Schema\KeyColumnUsageSql.cs" />
+    <Compile Include="Schema\Mappings.cs" />
+    <Compile Include="Schema\SQLite_Proc.cs" />
+    <Compile Include="Schema\TableSorter.cs" />
+    <Compile Include="Schema\TableSql.cs" />
+    <Compile Include="SqliteSchemaLoader.cs" />
     <Compile Include="SqliteDataContext.cs" />
     <Compile Include="SqliteDataReader2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

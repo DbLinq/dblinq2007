@@ -29,7 +29,7 @@ using System.Data;
 using System.Collections.Generic;
 using System.Text;
 using System.Data.SQLite;
-using DBLinq.Vendor;
+using DbLinq.Vendor;
 
 namespace DbLinq.Sqlite
 {

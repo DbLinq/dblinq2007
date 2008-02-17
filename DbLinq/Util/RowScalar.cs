@@ -28,11 +28,11 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq.Expressions;
-using DBLinq.Linq;
-using DBLinq.Linq.Clause;
-using DBLinq.Vendor;
+using DbLinq.Linq;
+using DbLinq.Linq.Clause;
+using DbLinq.Vendor;
 
-namespace DBLinq.Util
+namespace DbLinq.Util
 {
     /// <summary>
     /// handles scalar calls: query.First, query.Last, and query.Count

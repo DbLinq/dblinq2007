@@ -32,10 +32,10 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
-using DBLinq.Linq.Clause;
-using DBLinq.Util;
+using DbLinq.Linq.Clause;
+using DbLinq.Util;
 
-namespace DBLinq.Linq
+namespace DbLinq.Linq
 {
     /// <summary>
     /// Used in queries where we project from a row type into a new type.

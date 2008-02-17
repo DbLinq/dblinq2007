@@ -27,9 +27,9 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq.Expressions;
-using DBLinq.Linq;
+using DbLinq.Linq;
 
-namespace DBLinq.Util
+namespace DbLinq.Util
 {
     static class GroupHelper
     {

@@ -7,7 +7,7 @@
     <ProjectGuid>{97305421-3071-4175-AA3C-9A432CC28121}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DBLinq</RootNamespace>
+    <RootNamespace>DbLinq</RootNamespace>
     <AssemblyName>DbLinq</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -49,6 +49,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Linq\DlinqSchema.cs" />
     <Compile Include="Linq\Clause\ExpressionTreeParser.cs" />
     <Compile Include="Linq\Clause\InsertClauseBuilder.cs" />
     <Compile Include="Linq\Clause\JoinBuilder.cs" />
@@ -66,12 +67,15 @@
     <Compile Include="Linq\SessionVarsParsed.cs" />
     <Compile Include="Util\ConnectionManager.cs" />
     <Compile Include="Util\CSharp.cs" />
+    <Compile Include="Util\DataCommand.cs" />
     <Compile Include="Util\ExpressionAndType.cs" />
     <Compile Include="Util\ExpressionExtensions.cs" />
     <Compile Include="Util\FieldUtils.cs" />
     <Compile Include="Util\GroupHelper.cs" />
+    <Compile Include="Util\INameFormatter.cs" />
     <Compile Include="Util\Log1.cs" />
     <Compile Include="Util\Lookup.cs" />
+    <Compile Include="Util\NameFormatter.cs" />
     <Compile Include="Util\Operators.cs" />
     <Compile Include="Util\ProcResult.cs" />
     <Compile Include="Util\ReverseAssociationParts.cs" />
@@ -92,15 +96,22 @@
     <Compile Include="Util\TransactionManager.cs" />
     <Compile Include="Util\TypeEnum.cs" />
     <Compile Include="Util\Page.cs" />
+    <Compile Include="Util\Name.cs" />
     <Compile Include="Util\VarName.cs" />
+    <Compile Include="Util\Words.cs" />
     <Compile Include="Vendor\DataReader2.cs" />
     <Compile Include="Vendor\IDataReader2.cs" />
+    <Compile Include="Vendor\ISchemaLoader.cs" />
     <Compile Include="Vendor\IVendor.cs" />
+    <Compile Include="Vendor\SchemaLoader.cs" />
     <Compile Include="Vendor\Settings.cs" />
     <Compile Include="Vendor\Vendor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram1.cd" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Util\EnglishWords.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

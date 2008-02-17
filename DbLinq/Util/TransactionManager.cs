@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace DBLinq.Util
+namespace DbLinq.Util
 {
     /// <summary>
     /// helps us to automatically commit/reject transaction at end of SubmitChanges().

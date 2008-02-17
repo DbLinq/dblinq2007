@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DbLinq.Linq;
+using DbLinq.Util;
 using SqlMetal.util;
 
 namespace SqlMetal.schema
@@ -31,8 +33,8 @@ namespace SqlMetal.schema
 
         public static void PostProcess_Table(DlinqSchema.Table table)
         {
-            table.Member = Util.FormatTableName(table.Type.Name, PluralEnum.Pluralize);
-            table.Type.Name = Util.FormatTableName(table.Type.Name, PluralEnum.Singularize);
+            table.Member = Util.FormatTableName(table.Type.Name, util.PluralEnum.Pluralize);
+            table.Type.Name = Util.FormatTableName(table.Type.Name, util.PluralEnum.Singularize);
 
             if (mmConfig.renamesFile != null)
             {
@@ -53,11 +55,11 @@ namespace SqlMetal.schema
             Dictionary<string, bool> knownAssocs = new Dictionary<string, bool>();
             foreach (DlinqSchema.Association assoc in table.Type.Associations)
             {
-                assoc.Type = Util.FormatTableName(assoc.Type, PluralEnum.Singularize);
+                assoc.Type = Util.FormatTableName(assoc.Type, util.PluralEnum.Singularize);
 
-                PluralEnum pluralEnum = assoc.IsForeignKey
-                    ? PluralEnum.Singularize
-                    : PluralEnum.Pluralize;
+                util.PluralEnum pluralEnum = assoc.IsForeignKey
+                    ? util.PluralEnum.Singularize
+                    : util.PluralEnum.Pluralize;
 
                 //referring to parent: "public Employee Employee" 
                 //referring to child:  "public EntityMSet<Product> Products"

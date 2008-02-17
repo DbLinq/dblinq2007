@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using DBLinq.Vendor;
+using DbLinq.Vendor;
 
-namespace DBLinq.Linq
+namespace DbLinq.Linq
 {
     public interface IDataMapper
     {

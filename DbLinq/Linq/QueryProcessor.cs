@@ -30,11 +30,11 @@ using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Data.Linq.Mapping;
-using DBLinq.Linq.Clause;
-using DBLinq.Util;
-using DBLinq.Vendor;
+using DbLinq.Linq.Clause;
+using DbLinq.Util;
+using DbLinq.Vendor;
 
-namespace DBLinq.Linq
+namespace DbLinq.Linq
 {
     /// <summary>
     /// after all Lambdas (queries) are collected, GetEnumerator() is called.

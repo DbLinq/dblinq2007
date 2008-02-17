@@ -27,9 +27,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using DBLinq.Vendor;
+using DbLinq.Vendor;
 
-namespace DBLinq.Linq
+namespace DbLinq.Linq
 {
     /// <summary>
     /// Object which holds the pieces of a SELECT as it's being put together.
@@ -176,7 +176,6 @@ namespace DBLinq.Linq
 
         #region ToString() produces a full SQL statement from parts
 
-        [Obsolete("We will remove this attribute the day we will be sure ToString() is not used")]
         public override string ToString()
         {
             return _vendor.BuildSqlString(this);

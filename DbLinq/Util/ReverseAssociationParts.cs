@@ -29,7 +29,7 @@ using System.Text;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
 
-namespace DBLinq.Util
+namespace DbLinq.Util
 {
     /// <summary>
     /// data needed to find reverse association attribute 
