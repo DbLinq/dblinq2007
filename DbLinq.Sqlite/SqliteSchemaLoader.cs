@@ -130,15 +130,15 @@ namespace DbLinq.Sqlite
                         assoc.Name = keyColRow.constraint_name;
                         assoc.Type = null;
                         assoc.ThisKey = GetColumnName(keyColRow.column_name);
-                        assoc.Member = GetTableName(keyColRow.referenced_table_name, tableAliases);
-                        assoc.Storage = GetColumnFieldName(keyColRow.column_name);
+                        assoc.Member = GetManyToOneColumnName(keyColRow.referenced_table_name, keyColRow.table_name);
+                        assoc.Storage = GetColumnFieldName(keyColRow.constraint_name);
                         table.Type.Associations.Add(assoc);
 
                         //and insert the reverse association:
                         DlinqSchema.Association assoc2 = new DlinqSchema.Association();
                         assoc2.Name = keyColRow.constraint_name;
                         assoc2.Type = table.Type.Name; //keyColRow.table_name;
-                        assoc2.Member = GetTableName(keyColRow.table_name, tableAliases);
+                        assoc2.Member = GetOneToManyColumnName(keyColRow.table_name);
                         assoc2.OtherKey = GetColumnName(keyColRow.referenced_column_name);
                         //assoc2.Member = keyColRow.table_name;
 

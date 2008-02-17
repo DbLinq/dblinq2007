@@ -16,5 +16,7 @@ namespace DbLinq.Util
         string AdjustColumnName(string columnName);
         string AdjustColumnFieldName(string columnName);
         string AdjustMethodName(string methodName);
+        string AdjustOneToManyColumnName(string referencedTableName);
+        string AdjustManyToOneColumnName(string referencedTableName, string thisTableName);
     }
 }

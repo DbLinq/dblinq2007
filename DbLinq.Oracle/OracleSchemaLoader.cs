@@ -136,15 +136,18 @@ namespace DbLinq.Oracle
                     assoc.Name = constraint.constraint_name;
                     assoc.Type = null;
                     assoc.ThisKey = constraint.column_name;
-                    assoc.Member = GetTableName(constraint.table_name, tableAliases);
-                    assoc.Storage = GetColumnFieldName(constraint.column_name);
+                    //assoc.Member = GetTableName(constraint.table_name, tableAliases);
+                    //assoc.Storage = GetColumnFieldName(constraint.column_name);
+                    assoc.Member = GetManyToOneColumnName(referencedConstraint.table_name, constraint.table_name);
+                    assoc.Storage = GetColumnFieldName(constraint.constraint_name);
                     table.Type.Associations.Add(assoc);
 
                     //and insert the reverse association:
                     DlinqSchema.Association assoc2 = new DlinqSchema.Association();
                     assoc2.Name = constraint.constraint_name;
                     assoc2.Type = table.Type.Name;
-                    assoc2.Member = GetColumnName(constraint.table_name); // Util.FormatTableName(constraint.table_name, false).Pluralize();
+                    //assoc2.Member = GetColumnName(constraint.table_name); // Util.FormatTableName(constraint.table_name, false).Pluralize();
+                    assoc2.Member = GetOneToManyColumnName(constraint.table_name);
                     assoc2.OtherKey = referencedConstraint.column_name; // referenced_column_name;
 
                     DlinqSchema.Table parentTable = schema.Tables.FirstOrDefault(t => referencedConstraint.table_name == t.Name);

@@ -32,7 +32,7 @@ using System.Text;
 using System.Xml.Serialization;
 using DbLinq.Linq;
 using DbLinq.Vendor;
-using SqlMetal.CodeGen;
+using SqlMetal.CSharpGenerator;
 
 //OK this is rather primitive and needs fixing:
 //in one of these namespaces, there is a class Vendor.
@@ -123,8 +123,8 @@ namespace SqlMetal
                     return;
                 }
 
-                CodeGenAll codeGen = new CodeGenAll();
-                string fileBody = codeGen.generateAll(dbSchema, loader, mmConfig);
+                Generator codeGen = new Generator();
+                string fileBody = codeGen.GetAll(dbSchema, loader, mmConfig);
                 //string fname = mmConfig.Database + ".cs";
 
                 if (mmConfig.Database.Contains("\""))

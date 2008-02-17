@@ -15,8 +15,6 @@ namespace DbLinq.Vendor
         public INameFormatter NameFormatter { get; set; }
         public abstract DlinqSchema.Database Load(string databaseName, IDictionary<string, string> tableAliases, bool loadStoredProcedures);
 
-        public Words Words { get; private set; }
-
         public SchemaLoader()
         {
             NameFormatter = new NameFormatter();
@@ -42,6 +40,18 @@ namespace DbLinq.Vendor
         protected string GetMethodName(string name)
         {
             return NameFormatter.AdjustMethodName(name);
+        }
+
+        public virtual string GetManyToOneColumnName(string referencedTableName, string thisTableName)
+        {
+            // TODO: handle aliases?
+            return NameFormatter.AdjustManyToOneColumnName(referencedTableName, thisTableName);
+        }
+
+        public virtual string GetOneToManyColumnName(string referencedTableName)
+        {
+            // TODO: handle aliases?
+            return NameFormatter.AdjustOneToManyColumnName(referencedTableName);
         }
     }
 }
