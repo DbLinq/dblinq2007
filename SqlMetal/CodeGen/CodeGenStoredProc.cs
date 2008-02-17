@@ -26,9 +26,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using DbLinq.Linq;
-using SqlMetal.util;
+using SqlMetal.Util;
 
-namespace SqlMetal.codeGen
+namespace SqlMetal.CodeGen
 {
     public class CodeGenStoredProc
     {
@@ -46,7 +46,7 @@ public $retType $procNameCsharp($paramString)
 }
 ";
 
-        public static string FormatProc(DlinqSchema.Function storedProc, mmConfig mmConfig)
+        public static string FormatProc(DlinqSchema.Function storedProc, Parameters mmConfig)
         {
             if (storedProc == null || storedProc.Name == null)
             {
@@ -125,7 +125,7 @@ public $retType $procNameCsharp($paramString)
         const string ARG_TEMPLATE = @"$inOut $name";
         const string PARAM_TEMPLATE = @"[Parameter(Name = ""$dbName"", DbType = ""$dbType"")] $inOut $type $name";
 
-        private static string FormatInnerArg(DlinqSchema.Parameter param, mmConfig mmConfig)
+        private static string FormatInnerArg(DlinqSchema.Parameter param, Parameters mmConfig)
         {
             string text = ARG_TEMPLATE;
             text = text.Replace("$name", param.Name);
@@ -133,7 +133,7 @@ public $retType $procNameCsharp($paramString)
             return text;
         }
 
-        private static string FormatProcParam(DlinqSchema.Parameter param, mmConfig mmConfig)
+        private static string FormatProcParam(DlinqSchema.Parameter param, Parameters mmConfig)
         {
             string text = PARAM_TEMPLATE;
             text = text.Replace("$dbName", param.Name);
@@ -144,7 +144,7 @@ public $retType $procNameCsharp($paramString)
             return text;
         }
 
-        static string formatInOut(System.Data.ParameterDirection inOut, mmConfig mmConfig)
+        static string formatInOut(System.Data.ParameterDirection inOut, Parameters mmConfig)
         {
             switch (inOut)
             {

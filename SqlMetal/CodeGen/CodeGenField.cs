@@ -28,9 +28,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using DbLinq.Linq;
-using SqlMetal.util;
+using SqlMetal.Util;
 
-namespace SqlMetal.codeGen
+namespace SqlMetal.CodeGen
 {
     /// <summary>
     /// generates a public property representing a SQL table column.
@@ -46,7 +46,7 @@ namespace SqlMetal.codeGen
         string _columnType;
 
 
-        public CodeGenField(string tableClassName, DlinqSchema.Column column, List<DlinqSchema.Association> constraintsOnField, mmConfig mmConfig)
+        public CodeGenField(string tableClassName, DlinqSchema.Column column, List<DlinqSchema.Association> constraintsOnField, Parameters mmConfig)
         {
             _column = column;
             _tableClassName = tableClassName;
@@ -96,7 +96,7 @@ namespace SqlMetal.codeGen
             _columnType = column.Type;
         }
 
-        public string generateField(mmConfig mmConfig)
+        public string generateField(Parameters mmConfig)
         {
             string template = @"
 protected $type $storage;";
@@ -112,7 +112,7 @@ protected $type $storage;";
             return template;
         }
 
-        public string generateProperty(mmConfig mmConfig)
+        public string generateProperty(Parameters mmConfig)
         {
             string template = @"
 [Column($attribOpt)]

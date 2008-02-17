@@ -130,7 +130,10 @@ namespace DbLinq.Util
         private static SingularPlural[] SingularsPlurals =
         {
             new SingularPlural { Singular="ss", Plural="sses" },
+            new SingularPlural { Singular="ch", Plural="ches" },
+            new SingularPlural { Singular="sh", Plural="shes" },
             new SingularPlural { Singular="zz", Plural="zzes" },
+            new SingularPlural { Singular="x", Plural="xes" },
             new SingularPlural { Singular="y", Plural="ies" },
             new SingularPlural { Singular="", Plural="s" },
         };

@@ -45,32 +45,33 @@ namespace SqlMetal
             return null;
         }
 
-        protected string GetConnectionString(mmConfig mmConfig)
+        protected string GetConnectionString(SqlMetalParameters mmConfig)
         {
-            if (mmConfig.connectionString != null)
-                return mmConfig.connectionString;
+            if (mmConfig.Conn != null)
+                return mmConfig.Conn;
             string connectionString = string.Format("server={0};user id={1}; password={2}; database={3}; pooling=false",
-                                                    mmConfig.server, mmConfig.user, mmConfig.password, mmConfig.database);
+                                                    mmConfig.Server, mmConfig.User, mmConfig.Password, mmConfig.Database);
             return connectionString;
         }
 
-        protected void GetLoaderAndConnection(out string dbLinqSchemaLoaderType, out string databaseConnectionType, mmConfig mmConfig)
+        protected void GetLoaderAndConnection(out string dbLinqSchemaLoaderType, out string databaseConnectionType, SqlMetalParameters mmConfig)
         {
-            if (mmConfig.dbType != null)
+            if (mmConfig.Provider != null)
             {
-                string dbTypeAlias = ConfigurationManager.AppSettings[mmConfig.dbType];
-                string[] types = dbTypeAlias.Split('/');
-                dbLinqSchemaLoaderType = types[0].Trim();
-                databaseConnectionType = types[1].Trim();
+                ProvidersSection configuration = (ProvidersSection)ConfigurationManager.GetSection("providers");
+                ProvidersSection.ProviderElement element = configuration.Providers.GetProvider(mmConfig.Provider);
+                //databaseConnectionType = types[1].Trim();
+                dbLinqSchemaLoaderType = element.DbLinqSchemaLoader;
+                databaseConnectionType = element.DatabaseConnection;
             }
             else
             {
-                dbLinqSchemaLoaderType = mmConfig.dbLinqSchemaLoaderType;
-                databaseConnectionType = mmConfig.databaseConnectionType;
+                dbLinqSchemaLoaderType = mmConfig.DbLinqSchemaLoaderProvider;
+                databaseConnectionType = mmConfig.DatabaseConnectionProvider;
             }
         }
 
-        public ISchemaLoader Load(mmConfig mmConfig)
+        public ISchemaLoader Load(SqlMetalParameters mmConfig)
         {
             string dbLinqSchemaLoaderType;
             string databaseConnectionType;

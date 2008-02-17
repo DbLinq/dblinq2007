@@ -32,7 +32,7 @@ using System.Text;
 using System.Xml.Serialization;
 using DbLinq.Linq;
 using DbLinq.Vendor;
-using SqlMetal.codeGen;
+using SqlMetal.CodeGen;
 
 //OK this is rather primitive and needs fixing:
 //in one of these namespaces, there is a class Vendor.
@@ -57,9 +57,14 @@ namespace SqlMetal
     {
         static void Main(string[] args)
         {
-            mmConfig mmConfig = parseArgs(args);
-            if (mmConfig == null)
+            SqlMetalParameters mmConfig;
+            try
             {
+                mmConfig = new SqlMetalParameters(args);
+            }
+            catch (ArgumentException e)
+            {
+                Console.WriteLine(e.Message);
                 errorExit();
                 return;
             }
@@ -99,34 +104,34 @@ namespace SqlMetal
 
                 IDictionary<string, string> tableAliases = TableAlias.Load(mmConfig);
 
-                if (mmConfig.schemaXmlFile == null)
+                if (mmConfig.SchemaXmlFile == null)
                 {
                     //dbSchema = vendor.LoadSchema();
-                    dbSchema = loader.Load(mmConfig.database, tableAliases, mmConfig.sprocs);
+                    dbSchema = loader.Load(mmConfig.Database, tableAliases, mmConfig.SProcs);
                     //SchemaPostprocess.PostProcess_DB(dbSchema);
                 }
                 else
                 {
-                    dbSchema = DlinqSchema.Database.LoadFromFile(mmConfig.schemaXmlFile);
+                    dbSchema = DlinqSchema.Database.LoadFromFile(mmConfig.SchemaXmlFile);
                 }
 
-                if (mmConfig.dbml != null)
+                if (mmConfig.Dbml != null)
                 {
                     //we are supposed to write out a DBML file and exit
-                    DlinqSchema.Database.SaveDbmlFile(mmConfig.dbml, dbSchema);
-                    Console.WriteLine("Written file " + mmConfig.dbml);
+                    DlinqSchema.Database.SaveDbmlFile(mmConfig.Dbml, dbSchema);
+                    Console.WriteLine("Written file " + mmConfig.Dbml);
                     return;
                 }
 
                 CodeGenAll codeGen = new CodeGenAll();
                 string fileBody = codeGen.generateAll(dbSchema, loader, mmConfig);
-                //string fname = mmConfig.database + ".cs";
+                //string fname = mmConfig.Database + ".cs";
 
-                if (mmConfig.database.Contains("\""))
-                    mmConfig.database = mmConfig.database.Replace("\"", "");
+                if (mmConfig.Database.Contains("\""))
+                    mmConfig.Database = mmConfig.Database.Replace("\"", "");
 
-                string fname = mmConfig.code == null ? mmConfig.database + ".cs"
-                    : (mmConfig.code.EndsWith(".cs") ? mmConfig.code : mmConfig.code + ".cs");
+                string fname = mmConfig.Code == null ? mmConfig.Database + ".cs"
+                    : (mmConfig.Code.EndsWith(".cs") ? mmConfig.Code : mmConfig.Code + ".cs");
 
                 File.WriteAllText(fname, fileBody);
                 //Console.WriteLine(vendorName + "Metal: Written file " + fname);
@@ -137,92 +142,11 @@ namespace SqlMetal
                 Console.WriteLine(assyName + " failed:" + ex);
             }
 
-            if (mmConfig.readLineAtExit)
+            if (mmConfig.ReadLineAtExit)
             {
                 // '-readLineAtExit' flag: useful when running from Visual Studio
                 Console.ReadKey();
             }
-        }
-
-        static mmConfig parseArgs(string[] args)
-        {
-            mmConfig mmConfig = new mmConfig(args);
-
-            #region parseArgs
-            string[] knownArgs = 
-            { 
-                "user", "db", "database", "password"
-                , "namespace", "ns", "server", "renamesFile"
-                , "code", "language", "dbml", "sprocs"
-                , "pluralize",
-      "connectionString","dbLinqSchemaLoaderType","databaseConnectionType","dbType"            };
-
-            bool gotXmlFile = false;
-            foreach (string sArg in args)
-            {
-                bool isFileName = (!sArg.Contains(":"))
-                    && (sArg.ToLower().EndsWith(".xml") || sArg.ToLower().EndsWith(".dbml"));
-                if (isFileName)
-                {
-                    mmConfig.schemaXmlFile = sArg;
-                    gotXmlFile = true;
-                    continue; //ok
-                }
-                int colon = sArg.IndexOf(":");
-                if (colon == -1)
-                {
-                    //Console.WriteLine("ERROR - Unknown arg:"+sArg);
-                    //return false;
-                    continue; //boolean flag, e.g. '-sprocs'
-                }
-
-                string argName = sArg.Substring(1, colon - 1);
-                if (knownArgs.Contains(argName))
-                {
-                    //ok, value stored in mmConfig.cctor
-                }
-                else
-                {
-                    Console.WriteLine("ERROR - Unknown arg:" + sArg);
-                    return null;
-                }
-
-                //if(arg.StartsWith("-user:"))
-                //    mmConfig.username = parse(arg);
-                //else if(arg.StartsWith("-db:"))
-                //    mmConfig.database = parse(arg);
-                //else if(arg.StartsWith("-server:"))
-                //    mmConfig.server = parse(arg);
-                //else if(arg.StartsWith("-password:"))
-                //    mmConfig.password = parse(arg);
-                //else if(arg.StartsWith("-ns:"))
-                //    mmConfig.@namespace = parse(arg);
-                //else  {
-                //    return false;
-                //}
-            }
-
-            if (gotXmlFile)
-                return mmConfig;
-            /*
-#if SQLITE
-            if (mmConfig.database == null)
-            {
-                Console.WriteLine("ERROR - missing server/database/username/password");
-                return false;
-            }
-#else
-            if (mmConfig.server == null || mmConfig.database == null
-                || mmConfig.user == null || mmConfig.password == null
-                || mmConfig.connectionString == null)
-            {
-                Console.WriteLine("ERROR - missing server/database/username/password");
-                return null;
-            }
-#endif
-             */
-            return mmConfig;
-            #endregion
         }
 
         static void errorExit()
@@ -231,13 +155,6 @@ namespace SqlMetal
             Console.WriteLine(appName + " usage:");
             Console.WriteLine(appName + ".exe -server:xx -db:yy -user:zz -password:**");
             Console.WriteLine("Result: produces file yy.cs in local directory");
-        }
-
-        static string parse(string arg)
-        {
-            int colon = arg.IndexOf(':');
-            string tail = arg.Substring(colon + 1);
-            return tail;
         }
     }
 }

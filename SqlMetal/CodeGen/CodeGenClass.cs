@@ -31,7 +31,7 @@ using System.Linq;
 using DbLinq.Linq;
 using DbLinq.Util;
 
-namespace SqlMetal.codeGen
+namespace SqlMetal.CodeGen
 {
     /// <summary>
     /// Generates a c# class representing table.
@@ -43,7 +43,7 @@ namespace SqlMetal.codeGen
         const string NLNL = "\r\n\r\n";
         const string NLT = "\r\n\t";
 
-        public string generateClass(DlinqSchema.Database schema, DlinqSchema.Table table, mmConfig mmConfig)
+        public string generateClass(DlinqSchema.Database schema, DlinqSchema.Table table, SqlMetalParameters mmConfig)
         {
             string template = @"
 [Table(Name = ""$tableName"")]
@@ -87,9 +87,9 @@ public partial class $name $baseClass
             string fieldsConcat = string.Join("", fieldBodies.ToArray());
             string propsConcat = string.Join(NL, properties.ToArray());
             string equals = GenerateEqualsAndHash(table, mmConfig);
-            string baseClass = (mmConfig.baseClass == null || mmConfig.baseClass == "")
+            string baseClass = (mmConfig.EntityBase == null || mmConfig.EntityBase == "")
                 ? ""
-                : ": " + mmConfig.baseClass;
+                : ": " + mmConfig.EntityBase;
             string childTables = GetLinksToChildTables(schema, table, mmConfig);
             string parentTables = GetLinksToParentTables(schema, table, mmConfig);
 
@@ -108,7 +108,7 @@ public partial class $name $baseClass
             return template;
         }
 
-        public string genCtors(DlinqSchema.Table table, mmConfig mmConfig)
+        public string genCtors(DlinqSchema.Table table, Parameters mmConfig)
         {
             #region getCtors
             string template = @"
@@ -123,7 +123,7 @@ public $name()
             #endregion
         }
 
-        string GetLinksToChildTables(DlinqSchema.Database schema, DlinqSchema.Table table, mmConfig mmConfig)
+        string GetLinksToChildTables(DlinqSchema.Database schema, DlinqSchema.Table table, Parameters mmConfig)
         {
             string childLinkTemplate = @"
 [Association(Storage = ""null"", OtherKey = ""$childColName"", Name = ""$fkName"")]
@@ -182,7 +182,7 @@ public $parentClassTyp $member {
 }";
 
         /// <summary>
-        /// if you specify Metal.exe -verboseForeignKeys,
+        /// if you specify Metal.exe -VerboseForeignKeys,
         /// you will use this template, for slightly different code, 
         /// where 2 fields are guaranteed not to collide (not to have same name):
         /// (Note: collision avoidance code belongs in SchemaPostprocess.cs)
@@ -196,10 +196,10 @@ public $parentClassTyp $fkName_$thisKey {
     set { this._$fkName_$thisKey.Entity = value; }
 }";
 
-        string GetLinksToParentTables(DlinqSchema.Database schema, DlinqSchema.Table table, mmConfig mmConfig)
+        string GetLinksToParentTables(DlinqSchema.Database schema, DlinqSchema.Table table, SqlMetalParameters mmConfig)
         {
             #region GetLinksToParentTables()
-            string childLinkTemplate = mmConfig.verboseForeignKeys
+            string childLinkTemplate = mmConfig.VerboseForeignKeys
                 ? childLinkTemplate_verbose
                 : childLinkTemplate_simple;
 
@@ -250,7 +250,7 @@ public $parentClassTyp $fkName_$thisKey {
         /// associations are created in pairs (one in parent, one in child table)
         /// This method find the other one in the pair
         /// </summary>
-        DlinqSchema.Association findReverseAssoc(DlinqSchema.Database schema, DlinqSchema.Association assoc, mmConfig mmConfig)
+        DlinqSchema.Association findReverseAssoc(DlinqSchema.Database schema, DlinqSchema.Association assoc, Parameters mmConfig)
         {
             //first, find target table
             DlinqSchema.Table targetTable 
@@ -273,7 +273,7 @@ public $parentClassTyp $fkName_$thisKey {
         }
 
 
-        public string GenerateEqualsAndHash(DlinqSchema.Table table, mmConfig mmConfig)
+        public string GenerateEqualsAndHash(DlinqSchema.Table table, Parameters mmConfig)
         {
             string template = @"
     #region GetHashCode(),Equals() - uses column $fieldID to look up objects in liveObjectMap
