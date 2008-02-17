@@ -57,15 +57,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="codeGen\CodeGenClass.cs" />
-    <Compile Include="codeGen\CodeGenField.cs" />
-    <Compile Include="codeGen\CodeGenAll.cs" />
-    <Compile Include="codeGen\CodeGenStoredProc.cs" />
+    <Compile Include="CodeGen\CodeGenClass.cs" />
+    <Compile Include="CodeGen\CodeGenField.cs" />
+    <Compile Include="CodeGen\CodeGenAll.cs" />
+    <Compile Include="CodeGen\CodeGenStoredProc.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="mmConfig.cs" />
+    <Compile Include="Parameters.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ProvidersSection.cs" />
+    <Compile Include="SqlMetalParameters.cs" />
     <Compile Include="TableAlias.cs" />
-    <Compile Include="util\TableSorter.cs" />
+    <Compile Include="Util\TableSorter.cs" />
     <Compile Include="LoaderFactory.cs" />
   </ItemGroup>
   <ItemGroup>

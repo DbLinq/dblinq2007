@@ -31,7 +31,7 @@ using System.Linq;
 using System.Text;
 using DbLinq.Linq;
 
-namespace SqlMetal.util
+namespace SqlMetal.Util
 {
     /// <summary>
     /// sort tables - parent tables first, child tables next.

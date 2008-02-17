@@ -29,9 +29,9 @@ using System.Collections.Generic;
 using System.Text;
 using DbLinq.Linq;
 using DbLinq.Vendor;
-using SqlMetal.util;
+using SqlMetal.Util;
 
-namespace SqlMetal.codeGen
+namespace SqlMetal.CodeGen
 {
     /// <summary>
     /// generates a c# class representing database.
@@ -44,7 +44,7 @@ namespace SqlMetal.codeGen
 
         CodeGenClass codeGenClass = new CodeGenClass();
 
-        public string generateAll(DlinqSchema.Database dbSchema, ISchemaLoader loader, mmConfig mmConfig)
+        public string generateAll(DlinqSchema.Database dbSchema, ISchemaLoader loader, SqlMetalParameters mmConfig)
         {
             if (dbSchema == null || dbSchema.Tables == null)
             {
@@ -88,20 +88,20 @@ namespace $ns
 ";
             string prolog1 = prolog.Replace("$date", DateTime.Now.ToString("yyyy-MMM-dd"));
             prolog1 = prolog1.Replace("$vendor", loader.VendorName);
-            string source = mmConfig.server != null ? "server " + mmConfig.server : "file " + mmConfig.schemaXmlFile;
-            //prolog1 = prolog1.Replace("$db", mmConfig.server);
+            string source = mmConfig.Server != null ? "server " + mmConfig.Server : "file " + mmConfig.SchemaXmlFile;
+            //prolog1 = prolog1.Replace("$db", mmConfig.Server);
             prolog1 = prolog1.Replace("$db", source);
             string classesConcat = string.Join(NLNL, classBodies.ToArray());
             classesConcat = generateDbClass(dbSchema, loader, mmConfig) + NLNL + classesConcat;
             string fileBody;
-            if (mmConfig.@namespace == null || mmConfig.@namespace == "")
+            if (mmConfig.Namespace == null || mmConfig.Namespace == "")
             {
                 fileBody = prolog1 + classesConcat;
             }
             else
             {
                 string body1 = opt_namespace;
-                body1 = body1.Replace("$ns", mmConfig.@namespace);
+                body1 = body1.Replace("$ns", mmConfig.Namespace);
                 classesConcat = classesConcat.Replace(NL, NL + "\t"); //move text one tab to the right
                 body1 = body1.Replace("$classes", classesConcat);
                 fileBody = prolog1 + body1;
@@ -109,7 +109,7 @@ namespace $ns
             return fileBody;
         }
 
-        string generateDbClass(DlinqSchema.Database dbSchema, ISchemaLoader loader, mmConfig mmConfig)
+        string generateDbClass(DlinqSchema.Database dbSchema, ISchemaLoader loader, Parameters mmConfig)
         {
             #region generateDbClass()
             //if (tables.Count==0)
