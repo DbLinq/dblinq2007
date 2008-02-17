@@ -27,7 +27,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using SqlMetal.schema;
+using DbLinq.Linq;
 using SqlMetal.util;
 
 namespace SqlMetal.codeGen
@@ -46,7 +46,7 @@ namespace SqlMetal.codeGen
         string _columnType;
 
 
-        public CodeGenField(string tableClassName, DlinqSchema.Column column, List<DlinqSchema.Association> constraintsOnField)
+        public CodeGenField(string tableClassName, DlinqSchema.Column column, List<DlinqSchema.Association> constraintsOnField, mmConfig mmConfig)
         {
             _column = column;
             _tableClassName = tableClassName;
@@ -96,7 +96,7 @@ namespace SqlMetal.codeGen
             _columnType = column.Type;
         }
 
-        public string generateField()
+        public string generateField(mmConfig mmConfig)
         {
             string template = @"
 protected $type $storage;";
@@ -107,12 +107,12 @@ protected $type $storage;";
             if (_column.IsDbGenerated)
             {
                 //mark this field - it must be modified on insertion
-                template = "[DBLinq.Linq.Mapping.AutoGenId] " + template;
+                template = "[DbLinq.Linq.Mapping.AutoGenId] " + template;
             }
             return template;
         }
 
-        public string generateProperty()
+        public string generateProperty(mmConfig mmConfig)
         {
             string template = @"
 [Column($attribOpt)]

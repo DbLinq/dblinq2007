@@ -31,10 +31,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
-using DBLinq.Vendor;
-using DBLinq.Util;
+using DbLinq.Vendor;
+using DbLinq.Util;
 
-namespace DBLinq.Linq.Clause
+namespace DbLinq.Linq.Clause
 {
     /// <summary>
     /// holds strings parsed out of an expression tree.

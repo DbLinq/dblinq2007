@@ -10,8 +10,8 @@ using System.Linq;
 //using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using System.Reflection;
-using DBLinq.Linq;
-using DBLinq.Linq.Mapping;
+using DbLinq.Linq;
+using DbLinq.Linq.Mapping;
 using DbLinq.PostgreSql;
 
 namespace nwind
@@ -91,7 +91,7 @@ namespace nwind
 	[Table(Name = "public.categories")]
 	public partial class Category : IModified
 	{
-		[DBLinq.Linq.Mapping.AutoGenId] 
+		[DbLinq.Linq.Mapping.AutoGenId] 
 		protected int _categoryid;
 		protected string _categoryname;
 		protected string _description;
@@ -176,7 +176,7 @@ namespace nwind
 	[Table(Name = "public.employees")]
 	public partial class Employee : IModified
 	{
-		[DBLinq.Linq.Mapping.AutoGenId] 
+		[DbLinq.Linq.Mapping.AutoGenId] 
 		protected int _employeeid;
 		protected string _lastname;
 		protected string _firstname;
@@ -392,7 +392,7 @@ namespace nwind
 	[Table(Name = "public.alltypes")]
 	public partial class Alltype : IModified
 	{
-		[DBLinq.Linq.Mapping.AutoGenId] 
+		[DbLinq.Linq.Mapping.AutoGenId] 
 		protected int _int;
 		protected int? _intn;
 		protected double _double;
@@ -666,7 +666,7 @@ namespace nwind
 	[Table(Name = "public.shippers")]
 	public partial class Shipper : IModified
 	{
-		[DBLinq.Linq.Mapping.AutoGenId] 
+		[DbLinq.Linq.Mapping.AutoGenId] 
 		protected int _shipperid;
 		protected string _companyname;
 		protected string _phone;
@@ -735,7 +735,7 @@ namespace nwind
 	[Table(Name = "public.region")]
 	public partial class Region : IModified
 	{
-		[DBLinq.Linq.Mapping.AutoGenId] 
+		[DbLinq.Linq.Mapping.AutoGenId] 
 		protected int _regionid;
 		protected string _regiondescription;
 	
@@ -800,7 +800,7 @@ namespace nwind
 	[Table(Name = "public.suppliers")]
 	public partial class Supplier : IModified
 	{
-		[DBLinq.Linq.Mapping.AutoGenId] 
+		[DbLinq.Linq.Mapping.AutoGenId] 
 		protected int _supplierid;
 		protected string _companyname;
 		protected string _contactname;
@@ -955,7 +955,7 @@ namespace nwind
 	[Table(Name = "public.products")]
 	public partial class Product : IModified
 	{
-		[DBLinq.Linq.Mapping.AutoGenId] 
+		[DbLinq.Linq.Mapping.AutoGenId] 
 		protected int _productid;
 		protected string _productname;
 		protected int? _supplierid;
@@ -1215,7 +1215,7 @@ namespace nwind
 	[Table(Name = "public.orders")]
 	public partial class Order : IModified
 	{
-		[DBLinq.Linq.Mapping.AutoGenId] 
+		[DbLinq.Linq.Mapping.AutoGenId] 
 		protected int _orderid;
 		protected string _customerid;
 		protected int? _employeeid;

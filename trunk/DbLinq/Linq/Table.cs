@@ -37,11 +37,11 @@ using System.Linq.Expressions;
 
 //using System.Data.DLinq;
 
-using DBLinq.Linq.Clause;
-using DBLinq.Util;
-using DBLinq.Vendor;
+using DbLinq.Linq.Clause;
+using DbLinq.Util;
+using DbLinq.Vendor;
 
-namespace DBLinq.Linq
+namespace DbLinq.Linq
 {
     /// <summary>
     /// T may be eg. class Employee or string - the output

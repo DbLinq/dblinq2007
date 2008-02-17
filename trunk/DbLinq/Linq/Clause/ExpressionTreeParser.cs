@@ -31,11 +31,11 @@ using System.Text;
 using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
-using DBLinq.Util;
-using DBLinq.Linq.Mapping;
-using DBLinq.Vendor;
+using DbLinq.Util;
+using DbLinq.Linq.Mapping;
+using DbLinq.Vendor;
 
-namespace DBLinq.Linq.Clause
+namespace DbLinq.Linq.Clause
 {
     /// <summary>
     /// ExpressionTreeParser parses expressions such as 

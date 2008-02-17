@@ -8,13 +8,13 @@ using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
 //using System.Data.OracleClient;
-using DBLinq.Util;
-using DBLinq.Linq;
+using DbLinq.Util;
+using DbLinq.Linq;
 
-namespace DBLinq.Vendor
+namespace DbLinq.Vendor
 {
     /// <summary>
-    /// Vendor - specific part of DBLinq.
+    /// Vendor - specific part of DbLinq.
     /// </summary>
     public interface IVendor
     {
@@ -59,17 +59,17 @@ namespace DBLinq.Vendor
         /// </summary>
         string GetStringLengthFunction();
 
-        int ExecuteCommand(DBLinq.Linq.DataContext context, string sql, params object[] parameters);
+        int ExecuteCommand(DbLinq.Linq.DataContext context, string sql, params object[] parameters);
 
-        IExecuteResult ExecuteMethodCall(DBLinq.Linq.DataContext context, MethodInfo method, params object[] sqlParams);
+        IExecuteResult ExecuteMethodCall(DbLinq.Linq.DataContext context, MethodInfo method, params object[] sqlParams);
 
         IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName);
 
         IDataReader2 CreateDataReader(IDataReader dataReader);
 
-        bool CanBulkInsert<T>(DBLinq.Linq.Table<T> table);
-        void SetBulkInsert<T>(DBLinq.Linq.Table<T> table, int pageSize);
-        void DoBulkInsert<T>(DBLinq.Linq.Table<T> table, List<T> rows, IDbConnection connection);
+        bool CanBulkInsert<T>(DbLinq.Linq.Table<T> table);
+        void SetBulkInsert<T>(DbLinq.Linq.Table<T> table, int pageSize);
+        void DoBulkInsert<T>(DbLinq.Linq.Table<T> table, List<T> rows, IDbConnection connection);
 
         string BuildSqlString(SqlExpressionParts parts);
     }

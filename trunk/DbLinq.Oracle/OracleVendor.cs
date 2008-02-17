@@ -8,12 +8,12 @@ using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using DbLinq.Oracle;
-using DBLinq.Linq;
-using DBLinq.Vendor;
+using DbLinq.Linq;
+using DbLinq.Vendor;
 
 namespace DbLinq.Oracle
 {
-    public class OracleVendor : Vendor
+    public class OracleVendor : DbLinq.Vendor.Vendor
     {
         public override string VendorName { get { return "Oracle"; } }
 
@@ -98,7 +98,7 @@ namespace DbLinq.Oracle
             return name;
         }
 
-        public override IExecuteResult ExecuteMethodCall(DBLinq.Linq.DataContext context, MethodInfo method
+        public override IExecuteResult ExecuteMethodCall(DbLinq.Linq.DataContext context, MethodInfo method
                                                                  , params object[] inputValues)
         {
             throw new NotImplementedException();

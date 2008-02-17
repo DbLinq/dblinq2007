@@ -7,7 +7,7 @@ using System.Data.SQLite;
 
 namespace DbLinq.Sqlite
 {
-    public class SqliteDataContext : DBLinq.Linq.DataContext
+    public class SqliteDataContext : DbLinq.Linq.DataContext
     {
         public SqliteDataContext(string connStr)
             : base(new SQLiteConnection(connStr), new SqliteVendor())

@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DBLinq.Linq.Mapping
+namespace DbLinq.Linq.Mapping
 {
     /// <summary>
     /// MySqlMetal will mark a field such as 'private int productID'

@@ -27,7 +27,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using SqlMetal.schema;
+using DbLinq.Linq;
+using DbLinq.Vendor;
 using SqlMetal.util;
 
 namespace SqlMetal.codeGen
@@ -43,10 +44,8 @@ namespace SqlMetal.codeGen
 
         CodeGenClass codeGenClass = new CodeGenClass();
 
-        public string generateAll(DlinqSchema.Database dbSchema, IDBVendor vendor)
+        public string generateAll(DlinqSchema.Database dbSchema, ISchemaLoader loader, mmConfig mmConfig)
         {
-            string vendorName = vendor.VendorName();
-
             if (dbSchema == null || dbSchema.Tables == null)
             {
                 Console.WriteLine("CodeGenAll ERROR: incomplete dbSchema, cannot start generating code");
@@ -65,19 +64,19 @@ using System.Linq;
 //using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using System.Reflection;
-using DBLinq.Linq;
-using DBLinq.Linq.Mapping;
-using DataContext = $dataContext;
+using DbLinq.Linq;
+using DbLinq.Linq.Mapping;
+//using DataContext = $dataContext;
 
 ";
-            prolog = prolog.Replace("$dataContext", vendor.DataContextName());
+            //prolog = prolog.Replace("$dataContext", vendor.DataContextName());
 
             List<string> classBodies = new List<string>();
 
 
             foreach (DlinqSchema.Table tbl in dbSchema.Tables)
             {
-                string classBody = codeGenClass.generateClass(dbSchema, tbl);
+                string classBody = codeGenClass.generateClass(dbSchema, tbl, mmConfig);
                 classBodies.Add(classBody);
             }
 
@@ -88,12 +87,12 @@ namespace $ns
 }
 ";
             string prolog1 = prolog.Replace("$date", DateTime.Now.ToString("yyyy-MMM-dd"));
-            prolog1 = prolog1.Replace("$vendor", vendorName);
+            prolog1 = prolog1.Replace("$vendor", loader.VendorName);
             string source = mmConfig.server != null ? "server " + mmConfig.server : "file " + mmConfig.schemaXmlFile;
             //prolog1 = prolog1.Replace("$db", mmConfig.server);
             prolog1 = prolog1.Replace("$db", source);
             string classesConcat = string.Join(NLNL, classBodies.ToArray());
-            classesConcat = generateDbClass(dbSchema, vendorName) + NLNL + classesConcat;
+            classesConcat = generateDbClass(dbSchema, loader, mmConfig) + NLNL + classesConcat;
             string fileBody;
             if (mmConfig.@namespace == null || mmConfig.@namespace == "")
             {
@@ -110,7 +109,7 @@ namespace $ns
             return fileBody;
         }
 
-        string generateDbClass(DlinqSchema.Database dbSchema, string vendorName)
+        string generateDbClass(DlinqSchema.Database dbSchema, ISchemaLoader loader, mmConfig mmConfig)
         {
             #region generateDbClass()
             //if (tables.Count==0)
@@ -122,7 +121,7 @@ namespace $ns
 /// <summary>
 /// This class represents $vendor database $dbname.
 /// </summary>
-public partial class $dbname : DataContext
+public partial class $dbname : $dataContext
 {
     public $dbname(string connStr) 
         : base(connStr)
@@ -150,15 +149,12 @@ public partial class $dbname : DataContext
             List<string> dbFieldInits = new List<string>();
             foreach (DlinqSchema.Table tbl in dbSchema.Tables)
             {
-                string className = tbl.Type.Name;
-
-                string fldDecl = "public Table<$1> $0 { get { return base.GetTable<$1>(\"$0\"); } }"
-                    .Replace("$0", tbl.Member)
-                    .Replace("$1", className); //cannot use string.Format() - there are curly brackets
+                string fldDecl = string.Format("public Table<{1}> {0} {{ get {{ return base.GetTable<{1}>(\"{2}\"); }} }}",
+                    tbl.Member, tbl.Type.Name, tbl.Name);
                 dbFieldDecls.Add(fldDecl);
 
-                string fldInit = string.Format("{0} = new Table<{1}>(this);"
-                    , tbl.Member, className);
+                string fldInit = string.Format("{0} = new Table<{1}>(this);",
+                    tbl.Member, tbl.Type.Name);
                 dbFieldInits.Add(fldInit);
             }
 
@@ -169,7 +165,7 @@ public partial class $dbname : DataContext
             List<string> storedProcList = new List<string>();
             foreach (DlinqSchema.Function storedProc in dbSchema.Functions)
             {
-                string s = CodeGenStoredProc.FormatProc(storedProc);
+                string s = CodeGenStoredProc.FormatProc(storedProc, mmConfig);
                 storedProcList.Add(s);
             }
             
@@ -183,7 +179,8 @@ public partial class $dbname : DataContext
 
             string dbs = dbClassStr;
             dbs = dbs.Replace("    ", "\t"); //for spaces mean a tab
-            dbs = dbs.Replace("$vendor", vendorName);
+            dbs = dbs.Replace("$vendor", loader.VendorName);
+            dbs = dbs.Replace("$dataContext", loader.DataContextType.FullName);
             dbs = dbs.Replace("$dbname", dbName);
             //dbs = dbs.Replace("$fieldInit", dbFieldInitStr); //no more tables as fields
             dbs = dbs.Replace("$fieldDecl", dbFieldDeclStr);

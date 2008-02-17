@@ -31,11 +31,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
-using DBLinq.Linq.Connection;
-using DBLinq.Vendor;
-using DBLinq.Util;
+using DbLinq.Linq.Connection;
+using DbLinq.Vendor;
+using DbLinq.Util;
 
-namespace DBLinq.Linq
+namespace DbLinq.Linq
 {
     public abstract class DataContext : IDisposable
     {

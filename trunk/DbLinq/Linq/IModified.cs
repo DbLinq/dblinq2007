@@ -28,7 +28,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DBLinq.Linq
+namespace DbLinq.Linq
 {
     /// <summary>
     /// Simple interface, which allows to query which business objects have been modified.

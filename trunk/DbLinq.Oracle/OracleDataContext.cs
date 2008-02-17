@@ -11,7 +11,7 @@ using Oracle.Data.OracleClient;
 
 namespace DbLinq.Oracle
 {
-    public class OracleDataContext : DBLinq.Linq.DataContext
+    public class OracleDataContext : DbLinq.Linq.DataContext
     {
 #if ORACLE_IS_REFERENCED
         public OracleDataContext(string connStr)

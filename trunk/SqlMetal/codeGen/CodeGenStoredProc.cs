@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using SqlMetal.schema;
+using DbLinq.Linq;
 using SqlMetal.util;
 
 namespace SqlMetal.codeGen
@@ -46,7 +46,7 @@ public $retType $procNameCsharp($paramString)
 }
 ";
 
-        public static string FormatProc(DlinqSchema.Function storedProc)
+        public static string FormatProc(DlinqSchema.Function storedProc, mmConfig mmConfig)
         {
             if (storedProc == null || storedProc.Name == null)
             {
@@ -66,12 +66,12 @@ public $retType $procNameCsharp($paramString)
             foreach (DlinqSchema.Parameter param in storedProc.Parameters)
             {
                 paramIndex++;
-                string paramStr = FormatProcParam(param);
+                string paramStr = FormatProcParam(param, mmConfig);
                 paramStringsList.Add(paramStr);
 
                 if (param.InOut == System.Data.ParameterDirection.Input || param.InOut == System.Data.ParameterDirection.InputOutput)
                 {
-                    sqlInArgList.Add(FormatInnerArg(param));
+                    sqlInArgList.Add(FormatInnerArg(param, mmConfig));
                 }
 
                 if (param.InOut == System.Data.ParameterDirection.Output || param.InOut == System.Data.ParameterDirection.InputOutput)
@@ -125,26 +125,26 @@ public $retType $procNameCsharp($paramString)
         const string ARG_TEMPLATE = @"$inOut $name";
         const string PARAM_TEMPLATE = @"[Parameter(Name = ""$dbName"", DbType = ""$dbType"")] $inOut $type $name";
 
-        private static string FormatInnerArg(DlinqSchema.Parameter param)
+        private static string FormatInnerArg(DlinqSchema.Parameter param, mmConfig mmConfig)
         {
             string text = ARG_TEMPLATE;
             text = text.Replace("$name", param.Name);
-            text = text.Replace("$inOut ", formatInOut(param.InOut));
+            text = text.Replace("$inOut ", formatInOut(param.InOut, mmConfig));
             return text;
         }
 
-        private static string FormatProcParam(DlinqSchema.Parameter param)
+        private static string FormatProcParam(DlinqSchema.Parameter param, mmConfig mmConfig)
         {
             string text = PARAM_TEMPLATE;
             text = text.Replace("$dbName", param.Name);
             text = text.Replace("$name", param.Name);
             text = text.Replace("$dbType", param.DbType);
             text = text.Replace("$type", param.Type);
-            text = text.Replace(" $inOut", formatInOut(param.InOut));
+            text = text.Replace(" $inOut", formatInOut(param.InOut, mmConfig));
             return text;
         }
 
-        static string formatInOut(System.Data.ParameterDirection inOut)
+        static string formatInOut(System.Data.ParameterDirection inOut, mmConfig mmConfig)
         {
             switch (inOut)
             {

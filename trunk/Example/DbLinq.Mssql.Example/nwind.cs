@@ -9,7 +9,7 @@ using System.Text;
 using System.Linq;
 //using System.Data.Linq;
 using System.Data.Linq.Mapping;
-using DBLinq.Linq;
+using DbLinq.Linq;
 using DbLinq.SqlServer;
 
 namespace nwind
@@ -67,7 +67,7 @@ namespace nwind
             set { _isModified_ = value; }
         }
 
-        [DBLinq.Linq.Mapping.AutoGenId]
+        [DbLinq.Linq.Mapping.AutoGenId]
         protected int _CategoryID;
 
         protected string _CategoryName;
@@ -521,7 +521,7 @@ namespace nwind
             set { _isModified_ = value; }
         }
 
-        [DBLinq.Linq.Mapping.AutoGenId]
+        [DbLinq.Linq.Mapping.AutoGenId]
         protected int _EmployeeID;
 
         protected string _LastName;
@@ -1028,7 +1028,7 @@ namespace nwind
             set { _isModified_ = value; }
         }
 
-        [DBLinq.Linq.Mapping.AutoGenId]
+        [DbLinq.Linq.Mapping.AutoGenId]
         protected int _OrderID;
 
         protected string _CustomerID;
@@ -1279,7 +1279,7 @@ namespace nwind
             set { _isModified_ = value; }
         }
 
-        [DBLinq.Linq.Mapping.AutoGenId]
+        [DbLinq.Linq.Mapping.AutoGenId]
         protected int _ProductID;
 
         protected string _ProductName;
@@ -1546,7 +1546,7 @@ namespace nwind
             set { _isModified_ = value; }
         }
 
-        [DBLinq.Linq.Mapping.AutoGenId]
+        [DbLinq.Linq.Mapping.AutoGenId]
         protected int _ShipperID;
 
         protected string _CompanyName;
@@ -1633,7 +1633,7 @@ namespace nwind
             set { _isModified_ = value; }
         }
 
-        [DBLinq.Linq.Mapping.AutoGenId]
+        [DbLinq.Linq.Mapping.AutoGenId]
         protected int _SupplierID;
 
         protected string _CompanyName;

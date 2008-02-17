@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DBLinq.Util
+namespace DbLinq.Util
 {
     /// <summary>
     /// TypeEnum: is a type a primitive type, a DB column, or a projection?

@@ -30,17 +30,19 @@ using System.IO;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml.Serialization;
-using SqlMetal.schema;
+using DbLinq.Linq;
+using DbLinq.Vendor;
 using SqlMetal.codeGen;
 
 //OK this is rather primitive and needs fixing:
 //in one of these namespaces, there is a class Vendor.
 //todo: implement VendorFactory, get rid of this garbage.
-using SqlMetal.schema.sqlite; //in SQLiteMetal, imports class Vendor
-using SqlMetal.schema.mysql; //in MySqlMetal, imports class Vendor
-using SqlMetal.schema.pgsql; //in PgsqlMetal, imports class Vendor
-using SqlMetal.schema.mssql; //in MicrosoftMetal, imports class Vendor
-using SqlMetal.schema.oracle; //in MicrosoftMetal, imports class Vendor
+    //in SQLiteMetal, imports class Vendor
+    //in MySqlMetal, imports class Vendor
+    //in PgsqlMetal, imports class Vendor
+    //in MicrosoftMetal, imports class Vendor
+
+//in MicrosoftMetal, imports class Vendor
 
 //using Vendor = Vendor;
 //#if SQLITE
@@ -55,7 +57,8 @@ namespace SqlMetal
     {
         static void Main(string[] args)
         {
-            if (!parseArgs(args))
+            mmConfig mmConfig = parseArgs(args);
+            if (mmConfig == null)
             {
                 errorExit();
                 return;
@@ -63,7 +66,7 @@ namespace SqlMetal
 
             try
             {
-                SqlMetal.util.Util.InitRenames();
+                //SqlMetal.util.Util.InitRenames();
 
                 DlinqSchema.Database dbSchema = null;
 
@@ -88,16 +91,19 @@ namespace SqlMetal
                 Console.WriteLine(s1);
 #endif
 
-                Vendor vendor = new Vendor();
-                string vendorName = vendor.VendorName(); //"Microsoft" or "Postgres" or ...
+                //Vendor vendor = new Vendor();
+                //string vendorName = vendor.VendorName(); //"Microsoft" or "Postgres" or ...
+                // we always need a factory, even if generating from a DBML file, because we need a namespace
+                LoaderFactory loaderFactory = new LoaderFactory();
+                ISchemaLoader loader = loaderFactory.Load(mmConfig);
+
+                IDictionary<string, string> tableAliases = TableAlias.Load(mmConfig);
 
                 if (mmConfig.schemaXmlFile == null)
                 {
-                    string connStr = string.Format("server={0};user id={1}; password={2}; database={3}; pooling=false"
-                        , mmConfig.server, mmConfig.user, mmConfig.password, mmConfig.database);
-
-                    dbSchema = vendor.LoadSchema();
-                    SchemaPostprocess.PostProcess_DB(dbSchema);
+                    //dbSchema = vendor.LoadSchema();
+                    dbSchema = loader.Load(mmConfig.database, tableAliases, mmConfig.sprocs);
+                    //SchemaPostprocess.PostProcess_DB(dbSchema);
                 }
                 else
                 {
@@ -113,7 +119,7 @@ namespace SqlMetal
                 }
 
                 CodeGenAll codeGen = new CodeGenAll();
-                string fileBody = codeGen.generateAll(dbSchema, vendor);
+                string fileBody = codeGen.generateAll(dbSchema, loader, mmConfig);
                 //string fname = mmConfig.database + ".cs";
 
                 if (mmConfig.database.Contains("\""))
@@ -123,7 +129,7 @@ namespace SqlMetal
                     : (mmConfig.code.EndsWith(".cs") ? mmConfig.code : mmConfig.code + ".cs");
 
                 File.WriteAllText(fname, fileBody);
-                Console.WriteLine(vendorName + "Metal: Written file " + fname);
+                //Console.WriteLine(vendorName + "Metal: Written file " + fname);
             }
             catch (Exception ex)
             {
@@ -138,16 +144,18 @@ namespace SqlMetal
             }
         }
 
-        static bool parseArgs(string[] args)
+        static mmConfig parseArgs(string[] args)
         {
+            mmConfig mmConfig = new mmConfig(args);
+
             #region parseArgs
             string[] knownArgs = 
             { 
                 "user", "db", "database", "password"
                 , "namespace", "ns", "server", "renamesFile"
                 , "code", "language", "dbml", "sprocs"
-                , "pluralize"
-            };
+                , "pluralize",
+      "connectionString","dbLinqSchemaLoaderType","databaseConnectionType","dbType"            };
 
             bool gotXmlFile = false;
             foreach (string sArg in args)
@@ -176,7 +184,7 @@ namespace SqlMetal
                 else
                 {
                     Console.WriteLine("ERROR - Unknown arg:" + sArg);
-                    return false;
+                    return null;
                 }
 
                 //if(arg.StartsWith("-user:"))
@@ -195,8 +203,8 @@ namespace SqlMetal
             }
 
             if (gotXmlFile)
-                return true;
-
+                return mmConfig;
+            /*
 #if SQLITE
             if (mmConfig.database == null)
             {
@@ -205,13 +213,15 @@ namespace SqlMetal
             }
 #else
             if (mmConfig.server == null || mmConfig.database == null
-                || mmConfig.user == null || mmConfig.password == null)
+                || mmConfig.user == null || mmConfig.password == null
+                || mmConfig.connectionString == null)
             {
                 Console.WriteLine("ERROR - missing server/database/username/password");
-                return false;
+                return null;
             }
 #endif
-            return true;
+             */
+            return mmConfig;
             #endregion
         }
 

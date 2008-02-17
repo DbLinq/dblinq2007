@@ -32,12 +32,12 @@ using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
 
-using DBLinq.Util;
-using DBLinq.Linq;
-using DBLinq.Linq.Clause;
-using DBLinq.Vendor;
+using DbLinq.Util;
+using DbLinq.Linq;
+using DbLinq.Linq.Clause;
+using DbLinq.Vendor;
 
-namespace DBLinq.Util
+namespace DbLinq.Util
 {
     /// <summary>
     /// class to read a row of data from MySqlDataReader, and package it into type T.

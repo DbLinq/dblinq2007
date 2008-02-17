@@ -31,11 +31,11 @@ using System.Data.Linq.Mapping;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
-using DBLinq.Linq.Mapping;
+using DbLinq.Linq.Mapping;
 using DbLinq.PostgreSql;
-using DBLinq.Util;
-using DBLinq.Linq;
-using DBLinq.Vendor;
+using DbLinq.Util;
+using DbLinq.Linq;
+using DbLinq.Vendor;
 using Npgsql;
 
 namespace DbLinq.PostgreSql
@@ -43,7 +43,7 @@ namespace DbLinq.PostgreSql
     /// <summary>
     /// PostgreSQL - specific code.
     /// </summary>
-    public class PgsqlVendor : Vendor
+    public class PgsqlVendor : DbLinq.Vendor.Vendor
     {
         public override string VendorName { get { return "PostgreSql"; } }
 
@@ -110,7 +110,7 @@ namespace DbLinq.PostgreSql
 
         public override IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
         {
-            //System.Data.SqlDbType dbType = DBLinq.util.SqlTypeConversions.ParseType(dbTypeName);
+            //System.Data.SqlDbType dbType = DbLinq.util.SqlTypeConversions.ParseType(dbTypeName);
             //SqlParameter param = new SqlParameter(paramName, dbType);
             NpgsqlTypes.NpgsqlDbType dbType = PgsqlTypeConversions.ParseType(dbTypeName);
             NpgsqlParameter param = new NpgsqlParameter(paramName, dbType);
@@ -121,7 +121,7 @@ namespace DbLinq.PostgreSql
         /// call mysql stored proc or stored function, 
         /// optionally return DataSet, and collect return params.
         /// </summary>
-        public override System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.DataContext context, MethodInfo method
+        public override System.Data.Linq.IExecuteResult ExecuteMethodCall(DbLinq.Linq.DataContext context, MethodInfo method
                                                                  , params object[] inputValues)
         {
             if (method == null)
@@ -253,8 +253,8 @@ namespace DbLinq.PostgreSql
                 try
                 {
                     //fi.SetValue(t, val); //fails with 'System.Decimal cannot be converted to Int32'
-                    //DBLinq.util.FieldUtils.SetObjectIdField(t, fi, val);
-                    object val2 = DBLinq.Util.FieldUtils.CastValue(val, desired_type);
+                    //DbLinq.util.FieldUtils.SetObjectIdField(t, fi, val);
+                    object val2 = DbLinq.Util.FieldUtils.CastValue(val, desired_type);
                     outParamValues.Add(val2);
                 }
                 catch (Exception ex)

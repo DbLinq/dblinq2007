@@ -28,10 +28,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq.Expressions;
-using DBLinq.Linq.Clause;
-using DBLinq.Util;
+using DbLinq.Linq.Clause;
+using DbLinq.Util;
 
-namespace DBLinq.Linq
+namespace DbLinq.Linq
 {
     /// <summary>
     /// after all Lambdas are collected, and GetEnumerator() is called:

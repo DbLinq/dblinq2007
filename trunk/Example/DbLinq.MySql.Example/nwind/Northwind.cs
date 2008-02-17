@@ -10,8 +10,8 @@ using System.Linq;
 //using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using System.Reflection;
-using DBLinq.Linq;
-using DBLinq.Linq.Mapping;
+using DbLinq.Linq;
+using DbLinq.Linq.Mapping;
 using DbLinq.MySql;
 
 namespace nwind
@@ -111,7 +111,7 @@ namespace nwind
 	[Table(Name = "region")]
 	public partial class Region : IModified
 	{
-		[DBLinq.Linq.Mapping.AutoGenId] 
+		[DbLinq.Linq.Mapping.AutoGenId] 
 		protected int _RegionID;
 		protected string _RegionDescription;
 	
@@ -176,7 +176,7 @@ namespace nwind
 	[Table(Name = "suppliers")]
 	public partial class Supplier : IModified
 	{
-		[DBLinq.Linq.Mapping.AutoGenId] 
+		[DbLinq.Linq.Mapping.AutoGenId] 
 		protected int _SupplierID;
 		protected string _CompanyName;
 		protected string _ContactName;
@@ -331,7 +331,7 @@ namespace nwind
 	[Table(Name = "shippers")]
 	public partial class Shipper : IModified
 	{
-		[DBLinq.Linq.Mapping.AutoGenId] 
+		[DbLinq.Linq.Mapping.AutoGenId] 
 		protected int _ShipperID;
 		protected string _CompanyName;
 		protected string _Phone;
@@ -406,7 +406,7 @@ namespace nwind
 	[Table(Name = "categories")]
 	public partial class Category : IModified
 	{
-		[DBLinq.Linq.Mapping.AutoGenId] 
+		[DbLinq.Linq.Mapping.AutoGenId] 
 		protected int _CategoryID;
 		protected string _CategoryName;
 		protected string _Description;
@@ -646,7 +646,7 @@ namespace nwind
 	[Table(Name = "employees")]
 	public partial class Employee : IModified
 	{
-		[DBLinq.Linq.Mapping.AutoGenId] 
+		[DbLinq.Linq.Mapping.AutoGenId] 
 		protected int _EmployeeID;
 		protected string _LastName;
 		protected string _FirstName;
@@ -1023,7 +1023,7 @@ namespace nwind
 	[Table(Name = "orders")]
 	public partial class Order : IModified
 	{
-		[DBLinq.Linq.Mapping.AutoGenId] 
+		[DbLinq.Linq.Mapping.AutoGenId] 
 		protected int _OrderID;
 		protected string _CustomerID;
 		protected int? _EmployeeID;
@@ -1235,7 +1235,7 @@ namespace nwind
 	[Table(Name = "products")]
 	public partial class Product : IModified
 	{
-		[DBLinq.Linq.Mapping.AutoGenId] 
+		[DbLinq.Linq.Mapping.AutoGenId] 
 		protected int _ProductID;
 		protected string _ProductName;
 		protected int? _SupplierID;

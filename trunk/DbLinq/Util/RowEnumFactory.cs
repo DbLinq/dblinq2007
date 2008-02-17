@@ -26,9 +26,9 @@ using System;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
-using DBLinq.Linq;
+using DbLinq.Linq;
 
-namespace DBLinq.Util
+namespace DbLinq.Util
 {
     static class RowEnumFactory<T>
     {

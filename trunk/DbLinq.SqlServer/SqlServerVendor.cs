@@ -32,15 +32,15 @@ using System.Collections.Generic;
 using System.Text;
 using System.Data;
 using System.Data.Linq.Mapping;
-using DBLinq.Util;
-using DBLinq.Linq;
-using DBLinq.Vendor;
+using DbLinq.Util;
+using DbLinq.Linq;
+using DbLinq.Vendor;
 
 namespace DbLinq.SqlServer
 {
-    public class SqlServerVendor : Vendor
+    public class SqlServerVendor : DbLinq.Vendor.Vendor
     {
-        public readonly Dictionary<DBLinq.Linq.IMTable, int> UseBulkInsert = new Dictionary<DBLinq.Linq.IMTable, int>();
+        public readonly Dictionary<DbLinq.Linq.IMTable, int> UseBulkInsert = new Dictionary<DbLinq.Linq.IMTable, int>();
 
         public override string VendorName { get { return "MsSqlServer"; } }
         //public const string SQL_PING_COMMAND = "SELECT 11";
@@ -94,7 +94,7 @@ namespace DbLinq.SqlServer
         /// because it does not fill up the translation log.
         /// This is enabled for tables where Vendor.UserBulkInsert[db.Table] is true.
         /// </summary>
-        public override void DoBulkInsert<T>(DBLinq.Linq.Table<T> table, List<T> rows, IDbConnection connection)
+        public override void DoBulkInsert<T>(DbLinq.Linq.Table<T> table, List<T> rows, IDbConnection connection)
         {
             //use TableLock for speed:
             SqlBulkCopy bulkCopy = new SqlBulkCopy((SqlConnection)connection, SqlBulkCopyOptions.TableLock, null);
@@ -136,7 +136,7 @@ namespace DbLinq.SqlServer
 
         }
 
-        public override int ExecuteCommand(DBLinq.Linq.DataContext context, string sql, params object[] parameters)
+        public override int ExecuteCommand(DbLinq.Linq.DataContext context, string sql, params object[] parameters)
         {
             IDbConnection conn = context.Connection;
             using (IDbCommand command = conn.CreateCommand())
@@ -146,7 +146,7 @@ namespace DbLinq.SqlServer
             }
         }
 
-        public override System.Data.Linq.IExecuteResult ExecuteMethodCall(DBLinq.Linq.DataContext context, System.Reflection.MethodInfo method, params object[] sqlParams)
+        public override System.Data.Linq.IExecuteResult ExecuteMethodCall(DbLinq.Linq.DataContext context, System.Reflection.MethodInfo method, params object[] sqlParams)
         {
             throw new NotImplementedException();
         }
@@ -154,19 +154,19 @@ namespace DbLinq.SqlServer
         /// <summary>
         /// Client code needs to specify: 'Vendor.UserBulkInsert[db.Products]=true' to enable bulk insert.
         /// </summary>
-        //public static readonly Dictionary<DBLinq.Linq.IMTable, bool> UseBulkInsert = new Dictionary<DBLinq.Linq.IMTable, bool>();
+        //public static readonly Dictionary<DbLinq.Linq.IMTable, bool> UseBulkInsert = new Dictionary<DbLinq.Linq.IMTable, bool>();
 
         public override IDataReader2 CreateDataReader(IDataReader dataReader)
         {
             return new SqlServerDataReader2(dataReader);
         }
 
-        public override bool CanBulkInsert<T>(DBLinq.Linq.Table<T> table)
+        public override bool CanBulkInsert<T>(DbLinq.Linq.Table<T> table)
         {
             return UseBulkInsert.ContainsKey(table);
         }
 
-        public override void SetBulkInsert<T>(DBLinq.Linq.Table<T> table, int pageSize)
+        public override void SetBulkInsert<T>(DbLinq.Linq.Table<T> table, int pageSize)
         {
             UseBulkInsert[table] = pageSize;
         }

@@ -28,7 +28,7 @@ using System;
 using System.Data;
 using System.Collections.Generic;
 using System.Text;
-using DBLinq.Vendor;
+using DbLinq.Vendor;
 using Npgsql;
 
 namespace DbLinq.PostgreSql
@@ -332,7 +332,7 @@ namespace DbLinq.PostgreSql
                 if(_rdr.IsDBNull(index))
                     return null;
                 // Allow to ignore trailing spaces
-                if (!DBLinq.Vendor.Settings.TrimEnd)
+                if (!DbLinq.Vendor.Settings.TrimEnd)
                     return _rdr.GetString(index);
                 else 
                     return _rdr.GetString(index).TrimEnd();

@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace DBLinq.Linq.Mapping
+namespace DbLinq.Linq.Mapping
 {
     /// <summary>
     /// This is an 'extension' of Microsoft's [Linq.Mapping.Function] attribute.

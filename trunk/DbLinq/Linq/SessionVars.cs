@@ -28,7 +28,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-namespace DBLinq.Linq
+namespace DbLinq.Linq
 {
     /// <summary>
     /// holds queries as they are passed in via MTable.CreateQuery() and MTable.Execute()

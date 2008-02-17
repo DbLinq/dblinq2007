@@ -10,8 +10,8 @@ using System.Linq;
 //using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using System.Reflection;
-using DBLinq.Linq;
-using DBLinq.Linq.Mapping;
+using DbLinq.Linq;
+using DbLinq.Linq.Mapping;
 using DbLinq.MySql;
 
 namespace allTypes
@@ -43,7 +43,7 @@ namespace allTypes
 	[Table(Name = "othertypes")]
 	public partial class Othertype : IModified
 	{
-		[DBLinq.Linq.Mapping.AutoGenId] 
+		[DbLinq.Linq.Mapping.AutoGenId] 
 		protected int _id1;
 		protected byte[] _blob;
 		protected byte[] _blobN;
@@ -186,7 +186,7 @@ namespace allTypes
 	[Table(Name = "floattypes")]
 	public partial class Floattype : IModified
 	{
-		[DBLinq.Linq.Mapping.AutoGenId] 
+		[DbLinq.Linq.Mapping.AutoGenId] 
 		protected int _id1;
 		protected double _double;
 		protected double? _doubleN;
@@ -351,7 +351,7 @@ namespace allTypes
 	[Table(Name = "allinttypes")]
 	public partial class Allinttype : IModified
 	{
-		[DBLinq.Linq.Mapping.AutoGenId] 
+		[DbLinq.Linq.Mapping.AutoGenId] 
 		protected uint _int;
 		protected uint? _intN;
 		protected bool _boolean;

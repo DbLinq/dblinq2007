@@ -7,7 +7,7 @@ using System.Data.SqlClient;
 
 namespace DbLinq.SqlServer
 {
-    public class SqlServerDataContext : DBLinq.Linq.DataContext
+    public class SqlServerDataContext : DbLinq.Linq.DataContext
     {
         public SqlServerDataContext(string connStr)
             : base(new SqlConnection(connStr), new SqlServerVendor())

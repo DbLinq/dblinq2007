@@ -30,7 +30,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq.Expressions;
 
-namespace DBLinq.Util
+namespace DbLinq.Util
 {
     /// <summary>
     /// extension methods for Expressions.
