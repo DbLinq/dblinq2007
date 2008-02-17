@@ -55,16 +55,16 @@ namespace DbLinq.Linq.Clause
 
         public void addJoin(string joinStr)
         {
-            if( ! joins.Contains(joinStr) )
+            if (!joins.Contains(joinStr))
                 joins.Add(joinStr);
         }
-        public readonly Dictionary<Type,string> tablesUsed = new Dictionary<Type,string>();
-        public int MarkSbPosition(){ return sb.Length; }
+        public readonly Dictionary<Type, string> tablesUsed = new Dictionary<Type, string>();
+        public int MarkSbPosition() { return sb.Length; }
         public string Substring(int markedPos)
-        { 
-            string full=sb.ToString(); return full.Substring(markedPos,full.Length-markedPos); 
+        {
+            string full = sb.ToString(); return full.Substring(markedPos, full.Length - markedPos);
         }
-        public void Revert(int markedPos){ sb.Length=markedPos; }
+        public void Revert(int markedPos) { sb.Length = markedPos; }
 
         /// <summary>
         /// during building, append to our internal StringBuilder
@@ -72,11 +72,11 @@ namespace DbLinq.Linq.Clause
         /// <param name="expr"></param>
         public void AppendString(string columnString)
         {
-            if(columnString==",")
+            if (columnString == ",")
             {
                 //end of prev columnString - user should really call EndField()
                 columns.Add(sb.ToString());
-                sb.Length=0;
+                sb.Length = 0;
                 return;
             }
             sb.Append(columnString);
@@ -89,7 +89,7 @@ namespace DbLinq.Linq.Clause
         public void CopyInto(QueryProcessor qp, SqlExpressionParts sqlParts)
         {
             //sqlParts.whereList.Add( this.sb.ToString());
-            foreach(string key in qp.paramMap.Keys)
+            foreach (string key in qp.paramMap.Keys)
             {
                 //sqlParts.ParametersMap.Add(key, this.ParametersMap[key]);
                 sqlParts.ParametersMap[key] = qp.paramMap[key];
@@ -98,7 +98,7 @@ namespace DbLinq.Linq.Clause
             foreach (var t1 in tablesUsed)
             {
                 TableAttribute tAttrib = AttribHelper.GetTableAttrib(t1.Key);
-                if(tAttrib!=null)
+                if (tAttrib != null)
                 {
                     //prepare fragment: "[order details] o$"
                     string fromClause = _vendor.GetFieldSafeName(tAttrib.Name) + " " + RemoveTransparentId(t1.Value);
@@ -106,7 +106,7 @@ namespace DbLinq.Linq.Clause
                     sqlParts.AddFrom(fromClause);
                 }
             }
-            foreach(string joinStr in joins)
+            foreach (string joinStr in joins)
             {
                 sqlParts.JoinList.Add(joinStr);
             }
@@ -130,7 +130,7 @@ namespace DbLinq.Linq.Clause
 
         public void EndField()
         {
-            if(this.sb.Length>0)
+            if (this.sb.Length > 0)
             {
                 columns.Add(sb.ToString());
                 sb.Length = 0;
