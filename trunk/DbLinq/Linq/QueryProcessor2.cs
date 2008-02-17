@@ -150,7 +150,7 @@ namespace DbLinq.Linq
         {
             //warning: nasty string handling here
             string arg4str = arg4.ToString();
-            int indxAnon = arg4str.IndexOf("<>f_AnonymousType");
+            int indxAnon = arg4str.IndexOf("<>f__AnonymousType");
             if (indxAnon < 0)
                 return false;
             int indxBracket = arg4str.IndexOf("(", indxAnon);
