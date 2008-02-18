@@ -600,7 +600,7 @@ namespace DbLinq.Util
             #region ChooseFieldRetrievalMethod
             //TODO: handle Nullable<int> as well as int?
             MethodInfo minfo = null;
-            BindingFlags flags = BindingFlags.FlattenHierarchy|BindingFlags.Instance|BindingFlags.Public|BindingFlags.InvokeMethod;
+            BindingFlags flags = BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public | BindingFlags.InvokeMethod;
             if (t2 == typeof(string))
             {
                 minfo = typeof(IDataReader2).GetMethod("GetString", flags);
@@ -793,7 +793,7 @@ namespace DbLinq.Util
 
         private static object GetAsEnum(IDataReader2 dataRecord, Type enumType, int index)
         {
-            int enumAsInt = GetAsNumeric<int>(dataRecord,index);
+            int enumAsInt = GetAsNumeric<int>(dataRecord, index);
             return enumAsInt;
         }
 
@@ -916,38 +916,41 @@ namespace DbLinq.Util
 
         /// <summary>
         /// given Employee 'e', compile a method similar to 'e.ID.ToString()',
-        /// which returns the object ID as a string
+        /// which returns the object ID as a string[].
+        /// 
+        /// Composite PK objects return array with multiple entries.
+        /// For OrderDetails sample table, we return: 
+        ///   'new string[]{OrderID.ToString(),ProductID.ToString()}'
         /// </summary>
-        public static Func<T, string> CompileIDRetrieval(ProjectionData projData)
+        public static Func<T, string[]> CompileIDRetrieval(ProjectionData projData)
         {
             if (projData == null || projData.tableAttribute == null)
                 throw new ArgumentNullException("CompiledIDRetrieval: needs object with [Table] attribute");
-            //find the ID field
-            PropertyInfo minfo = null;
-            foreach (ProjectionData.ProjectionField projFld in projData.fields)
-            {
-                if (projFld.columnAttribute == null)
-                    continue;
 
-                //if (projFld.columnAttribute.Id)
-                if (projFld.columnAttribute.IsPrimaryKey)
-                {
-                    //found the ID column
-                    minfo = projFld.MemberInfo as PropertyInfo;
-                    break;
-                }
-            }
-            if (minfo == null)
+            //find the ID fields
+            List<MemberInfo> minfos = (from f in projData.fields
+                                       where f.columnAttribute != null && f.columnAttribute.IsPrimaryKey
+                                       select f.MemberInfo).ToList();
+            if (minfos.Count == 0)
                 throw new ArgumentNullException("CompiledIDRetrieval: needs object with [Table] attribute and one [Column(Id=true)]");
+
             ParameterExpression param = Expression.Parameter(typeof(T), "obj");
-            MemberExpression member = Expression.Property(param, minfo);
             List<ParameterExpression> lambdaParams = new List<ParameterExpression>();
             lambdaParams.Add(param);
-            MethodInfo minfo3 = minfo.PropertyType.GetMethod("ToString", new Type[0]);
-            Expression body = Expression.Call(member, minfo3);
 
-            LambdaExpression lambda = Expression.Lambda<Func<T, string>>(body, lambdaParams);
-            Func<T, string> func_t = (Func<T, string>)lambda.Compile();
+            List<Expression> toStringCalls = new List<Expression>();
+            foreach (PropertyInfo minfo in minfos)
+            {
+                MemberExpression member = Expression.Property(param, minfo);
+                MethodInfo minfo3 = minfo.PropertyType.GetMethod("ToString", new Type[0]);
+                Expression body = Expression.Call(member, minfo3);
+                toStringCalls.Add(body);
+            }
+
+            Expression newStringArr = Expression.NewArrayInit(typeof(string), toStringCalls.ToArray());
+
+            LambdaExpression lambda = Expression.Lambda<Func<T, string[]>>(newStringArr, lambdaParams);
+            Func<T, string[]> func_t = (Func<T, string[]>)lambda.Compile();
             return func_t;
         }
 

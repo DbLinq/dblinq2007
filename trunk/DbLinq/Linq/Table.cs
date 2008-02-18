@@ -206,7 +206,7 @@ namespace DbLinq.Linq
 
             IDbConnection conn = _parentDB.Connection;
 
-            using(new ConnectionManager(conn))
+            using (new ConnectionManager(conn))
             {
                 return SaveAll_unsafe(conn, failureMode);
             } //Dispose(): close connection, if it was initally closed
@@ -224,19 +224,6 @@ namespace DbLinq.Linq
                 _vars.Context.Vendor.DoBulkInsert(this, _insertList, conn);
                 _insertList.Clear();
             }
-//#if MYSQL //bulk insert code
-//            if (vendor.mysql.VendorMysql.UseBulkInsert.ContainsKey(this))
-//            {
-//                vendor.mysql.VendorMysql.DoBulkInsert(this, _insertList, conn);
-//                _insertList.Clear();
-//            }
-//#elif MICROSOFT //bulk insert code
-//            if (vendor.mssql.VendorMssql.UseBulkInsert.ContainsKey(this))
-//            {
-//                vendor.mssql.VendorMssql.DoBulkInsert(this, _insertList, conn);
-//                _insertList.Clear();
-//            }
-//#endif
 
             foreach (T obj in _insertList)
             {
@@ -291,7 +278,7 @@ namespace DbLinq.Linq
 
             }
 
-            Func<T, string> getObjectID = RowEnumeratorCompiler<T>.CompileIDRetrieval(proj);
+            Func<T, string[]> getObjectID = RowEnumeratorCompiler<T>.CompileIDRetrieval(proj);
 
             //todo: check object is not in two lists
             foreach (T obj in _liveObjectMap.Values)
@@ -302,7 +289,7 @@ namespace DbLinq.Linq
                     if (iMod == null || !iMod.IsModified)
                         continue;
                     Trace.WriteLine("MTable SaveAll: saving modified object");
-                    string ID_to_update = getObjectID(obj);
+                    string[] ID_to_update = getObjectID(obj);
 
                     IDbCommand cmd = InsertClauseBuilder.GetUpdateCommand(_vars, iMod, proj, ID_to_update);
                     int result = cmd.ExecuteNonQuery();
@@ -338,26 +325,21 @@ namespace DbLinq.Linq
 
                 KeyValuePair<PropertyInfo, System.Data.Linq.Mapping.ColumnAttribute>[] primaryKeys
                     = AttribHelper.FindPrimaryKeys(typeof(T));
-                if (primaryKeys.Length != 1)
-                    throw new ApplicationException("L329: Composite PKs are not yet supported");
-                Type primaryKeyType = primaryKeys[0].Key.PropertyType;
-                bool mustQuoteIds = primaryKeyType == typeof(string) || primaryKeyType == typeof(char);
 
-                StringBuilder sbDeleteIDs = new StringBuilder();
+                //Type primaryKeyType = primaryKeys[0].Key.PropertyType;
+                //bool mustQuoteIds = primaryKeyType == typeof(string) || primaryKeyType == typeof(char);
+
+                List<string> idsToDelete = new List<string>();
                 int indx2 = 0;
                 foreach (T obj in _deleteList)
                 {
                     try
                     {
-                        string ID_to_delete = getObjectID(obj);
-                        if (indx2++ > 0) { sbDeleteIDs.Append(","); }
+                        string[] ID_to_delete = getObjectID(obj);
 
-                        // turn PK ALFKI into 'ALFKI'
-                        string ID_quoted = mustQuoteIds
-                            ? "'" + ID_to_delete + "'"
-                            : ID_to_delete;
+                        string whereClause = InsertClauseBuilder.GetPrimaryKeyWhereClause(_vars, obj, proj, ID_to_delete);
 
-                        sbDeleteIDs.Append(ID_quoted);
+                        idsToDelete.Add(whereClause);
                     }
                     catch (Exception ex)
                     {
@@ -371,8 +353,14 @@ namespace DbLinq.Linq
                         }
                     }
                 }
-                string tableName = proj.tableAttribute.Name;
-                string sql = "DELETE FROM " + tableName + " WHERE " + proj.keyColumnName + " in (" + sbDeleteIDs + ")";
+                string tableName = _vars.Context.Vendor.GetFieldSafeName(proj.tableAttribute.Name);
+
+                //this does not work with CompositePKs:
+                //string sql = "DELETE FROM " + tableName + " WHERE " + proj.keyColumnName + " in (" + sbDeleteIDs + ")";
+
+                //this should work with CompositePKs:
+                string sql = "DELETE FROM " + tableName + " WHERE " + string.Join(" OR ", idsToDelete.ToArray());
+
                 Trace.WriteLine("MTable SaveAll.Delete: " + sql);
                 IDbCommand cmd = _parentDB.Connection.CreateCommand();
                 cmd.CommandText = sql;

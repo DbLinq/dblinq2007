@@ -88,7 +88,8 @@ namespace DbLinq.Linq.Clause
                 selectParts.AddSelect(part);
             }
 
-            string tableName2 = tAttrib.Name + " " + nick;
+            //build string '[Order Details] o$'
+            string tableName2 = vars.Context.Vendor.GetFieldSafeName(tAttrib.Name) + " " + nick;
             selectParts.AddFrom(tableName2);
         }
 
