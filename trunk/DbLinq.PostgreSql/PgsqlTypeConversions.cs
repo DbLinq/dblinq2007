@@ -48,6 +48,12 @@ namespace DbLinq.PostgreSql
                     case "interval": //: //TODO: really add support for the interval type (after it is supported in Npgsql) 
                     case "character varying":
                         return NpgsqlDbType.Varchar;
+
+                    case "double precision":
+                        return NpgsqlDbType.Double;
+                    case "time without time zone":
+                        return NpgsqlDbType.Timestamp;
+
                 }
                 string msg = "TODO L24: add parsing of type "+typeStr;
                 Console.WriteLine(msg);
