@@ -1,21 +1,20 @@
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLiteMetal", "SqlMetal\SQLiteMetal.csproj", "{E47A1118-B0BF-4FF5-B65C-1704A7DEEEB3}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_NUnit_SQLite", "Tests\Test_NUnit\Test_NUnit_SQLite.csproj", "{3B13F240-D5E3-4BD4-BA4B-8CBDEE18207A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.SQLite.Example", "Example\DbLinq.Sqlite.Example\DbLinq.SQLite.Example.csproj", "{B8E7590F-1EA8-49AE-9808-A36C8A67E322}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{86C0698A-D54C-416B-A2C2-28068C18CF08}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{05C5B3A4-2F0B-4330-8106-14D91A73D9F0}"
 	ProjectSection(SolutionItems) = preProject
-		DbLinq_SqliteOnly.vsmdi = DbLinq_SqliteOnly.vsmdi
+		DbLinq.vsmdi = DbLinq.vsmdi
 		LocalTestRun.testrunconfig = LocalTestRun.testrunconfig
-		readme.txt = readme.txt
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq", "DbLinq\DbLinq.csproj", "{97305421-3071-4175-AA3C-9A432CC28121}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.Sqlite", "DbLinq.Sqlite\DbLinq.Sqlite.csproj", "{60B9AFA1-99B4-4DE6-80E1-80BBED1AC755}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_NUnit_SQLite", "Tests\Test_NUnit\Test_NUnit_SQLite.csproj", "{3B13F240-D5E3-4BD4-BA4B-8CBDEE18207A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.SQLite.Example", "Example\DbLinq.SQLite.Example\DbLinq.SQLite.Example.csproj", "{DB89A450-3A57-420E-B784-911B83BEA99B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlMetal", "SqlMetal\SqlMetal.csproj", "{363FF43D-C870-4423-BE50-DAED7793A6D1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,18 +22,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E47A1118-B0BF-4FF5-B65C-1704A7DEEEB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E47A1118-B0BF-4FF5-B65C-1704A7DEEEB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E47A1118-B0BF-4FF5-B65C-1704A7DEEEB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E47A1118-B0BF-4FF5-B65C-1704A7DEEEB3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3B13F240-D5E3-4BD4-BA4B-8CBDEE18207A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3B13F240-D5E3-4BD4-BA4B-8CBDEE18207A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3B13F240-D5E3-4BD4-BA4B-8CBDEE18207A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3B13F240-D5E3-4BD4-BA4B-8CBDEE18207A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B8E7590F-1EA8-49AE-9808-A36C8A67E322}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B8E7590F-1EA8-49AE-9808-A36C8A67E322}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B8E7590F-1EA8-49AE-9808-A36C8A67E322}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B8E7590F-1EA8-49AE-9808-A36C8A67E322}.Release|Any CPU.Build.0 = Release|Any CPU
 		{97305421-3071-4175-AA3C-9A432CC28121}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{97305421-3071-4175-AA3C-9A432CC28121}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{97305421-3071-4175-AA3C-9A432CC28121}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -43,6 +30,18 @@ Global
 		{60B9AFA1-99B4-4DE6-80E1-80BBED1AC755}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60B9AFA1-99B4-4DE6-80E1-80BBED1AC755}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{60B9AFA1-99B4-4DE6-80E1-80BBED1AC755}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B13F240-D5E3-4BD4-BA4B-8CBDEE18207A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B13F240-D5E3-4BD4-BA4B-8CBDEE18207A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B13F240-D5E3-4BD4-BA4B-8CBDEE18207A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B13F240-D5E3-4BD4-BA4B-8CBDEE18207A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB89A450-3A57-420E-B784-911B83BEA99B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB89A450-3A57-420E-B784-911B83BEA99B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB89A450-3A57-420E-B784-911B83BEA99B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB89A450-3A57-420E-B784-911B83BEA99B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{363FF43D-C870-4423-BE50-DAED7793A6D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{363FF43D-C870-4423-BE50-DAED7793A6D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{363FF43D-C870-4423-BE50-DAED7793A6D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{363FF43D-C870-4423-BE50-DAED7793A6D1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
