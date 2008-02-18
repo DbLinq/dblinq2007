@@ -63,7 +63,8 @@ namespace DbLinq.Linq.Clause
             StringBuilder sbValues = new StringBuilder("VALUES (");
             StringBuilder sbIdentity = new StringBuilder();
 
-            sb.Append(projData.tableAttribute.Name).Append(" (");
+            string tableName_safe = vendor.GetFieldSafeName(projData.tableAttribute.Name); //eg. "[Order Details]"
+            sb.Append(tableName_safe).Append(" (");
             List<IDbDataParameter> paramList = new List<IDbDataParameter>();
 
             int numFieldsAdded = 0;
@@ -115,7 +116,7 @@ namespace DbLinq.Linq.Clause
                 s_logOnceMap[sql] = "unused"; //log once only
             }
 
-            cmd.CommandText=sql;
+            cmd.CommandText = sql;
             foreach (IDbDataParameter param in paramList)
             {
                 cmd.Parameters.Add(param);
@@ -183,81 +184,73 @@ namespace DbLinq.Linq.Clause
         }
 
         /// <summary>
-        /// given type Employee, return 'INSERT Employee (ID, Name) VALUES (?p1,?p2)'
+        /// given type Employee, return 'UPDATE Employee (Name) VALUES (?p1) WHERE ID='ALFKI' '
         /// (by examining [Table] and [Column] attribs)
         /// </summary>
-        public static IDbCommand GetUpdateCommand(SessionVars vars, object objectToInsert
-            , ProjectionData projData, string ID_to_update)
+        public static IDbCommand GetUpdateCommand(SessionVars vars, object objectToUpdate
+            , ProjectionData projData, string[] IDs_to_update)
         {
-            if (vars == null || objectToInsert == null || projData == null)
+            if (vars == null || objectToUpdate == null || projData == null)
                 throw new ArgumentNullException("InsertClauseBuilder has null args");
             if (projData.fields.Count < 1 || projData.fields[0].columnAttribute == null)
                 throw new ApplicationException("InsertClauseBuilder need to receive types that have ColumnAttributes");
 
             IDbCommand cmd = vars.Context.Connection.CreateCommand();
 
+            string tableName_safe = vars.Context.Vendor.GetFieldSafeName(projData.tableAttribute.Name); //eg. "[Order Details]"
+
             StringBuilder sb = new StringBuilder("UPDATE ");
-            sb.Append(projData.tableAttribute.Name).Append(" SET ");
+            sb.Append(tableName_safe).Append(" SET ");
+
             List<IDbDataParameter> paramList = new List<IDbDataParameter>();
 
-            string primaryKeyName = null;
             int paramIndex = 0;
             string separator = "";
-            Type pk_type = null;
+
+            string whereClause = GetPrimaryKeyWhereClause(vars, objectToUpdate, projData, IDs_to_update);
+
             foreach (ProjectionData.ProjectionField projFld in projData.fields)
             {
                 ColumnAttribute colAtt = projFld.columnAttribute;
 
                 string columnName_safe = vars.Context.Vendor.GetFieldSafeName(colAtt.Name); //turn 'User' into '[User]'
 
-                if (colAtt.IsPrimaryKey) 
+                if (colAtt.IsPrimaryKey)
                 {
-                    primaryKeyName = columnName_safe;
-                    pk_type = projFld.FieldType;
-                    continue; //if field is ID , don't send field
-                }
-
-                object paramValue = projFld.GetFieldValue(objectToInsert);
-                string paramName;
-                if (paramValue == null)
-                {
-                    paramName = "NULL";
+                    //Primary Key field: skip, WHERE clause is already prepared
                 }
                 else
                 {
-                    paramName = vars.Context.Vendor.GetParameterName(paramIndex++);
-                }
+                    //non-primary key field: "Payload"
+                    object paramValue = projFld.GetFieldValue(objectToUpdate);
+                    string paramName;
+                    if (paramValue == null)
+                    {
+                        paramName = "NULL";
+                    }
+                    else
+                    {
+                        paramName = vars.Context.Vendor.GetParameterName(paramIndex++);
+                    }
 
-                //append string, eg. ",Name=:p0"
-                sb.Append(separator).Append(columnName_safe).Append("=").Append(paramName);
-                separator = ", ";
+                    //append string, eg. ",Name=:p0"
+                    sb.Append(separator).Append(columnName_safe).Append("=").Append(paramName);
+                    separator = ", ";
 
-                if (paramValue == null)
-                {
-                    //don't create SqlParameter
-                }
-                else
-                {
-                    IDbDataParameter param = vars.Context.Vendor.CreateSqlParameter(cmd, colAtt.DbType, paramName);
-                    param.Value = paramValue;
-                    paramList.Add(param);
+                    if (paramValue == null)
+                    {
+                        //don't create SqlParameter
+                    }
+                    else
+                    {
+                        IDbDataParameter param = vars.Context.Vendor.CreateSqlParameter(cmd, colAtt.DbType, paramName);
+                        param.Value = paramValue;
+                        paramList.Add(param);
+                    }
                 }
             }
 
-            //append WHERE clause in one of two forms:
-            // "WHERE myID=11"
-            // "WHERE myID='a'"
-            bool mustQuote = pk_type == typeof(char) || pk_type == typeof(string);
-
-            string ID_to_update__quoted = mustQuote
-                ? "'" + ID_to_update + "'"
-                : ID_to_update;
-
-            sb.Append(" WHERE ")
-                .Append(primaryKeyName)
-                .Append("=")
-                .Append(ID_to_update__quoted);
-
+            sb.Append(" WHERE ").Append(whereClause);
 
             string sql = sb.ToString();
 
@@ -267,13 +260,65 @@ namespace DbLinq.Linq.Clause
                 s_logOnceMap[sql] = "unused"; //log once only
             }
 
-            cmd.CommandText=sql;
+            cmd.CommandText = sql;
             foreach (IDbDataParameter param in paramList)
             {
                 cmd.Parameters.Add(param);
             }
             return cmd;
         }
+
+        /// <summary>
+        /// given object of type OrderDetails, return WHERE clause which uniquely identifies the object:
+        /// ' (OrderID=1 AND ProductID=3) '
+        /// (by examining [Table] and [Column] attribs)
+        /// </summary>
+        public static string GetPrimaryKeyWhereClause(SessionVars vars, object objectToUpdate
+            , ProjectionData projData, string[] IDs_to_update)
+        {
+            if (vars == null || objectToUpdate == null || projData == null)
+                throw new ArgumentNullException("InsertClauseBuilder has null args");
+            if (projData.fields.Count < 1 || projData.fields[0].columnAttribute == null)
+                throw new ApplicationException("InsertClauseBuilder need to receive types that have ColumnAttributes");
+
+            //string separator = "";
+            string pkSeparator = " ("; //first WHERE, afterwards AND
+            StringBuilder sbPrimaryKeys = new StringBuilder();
+            int indexOfIdToUpdate = 0;
+
+            foreach (ProjectionData.ProjectionField projFld in projData.fields)
+            {
+                ColumnAttribute colAtt = projFld.columnAttribute;
+
+                if (colAtt.IsPrimaryKey)
+                {
+                    string columnName_safe = vars.Context.Vendor.GetFieldSafeName(colAtt.Name); //turn 'User' into '[User]'
+
+                    //Primary Key field: build WHERE clause
+                    string primaryKeyName = columnName_safe;
+                    Type pk_type = projFld.FieldType;
+                    bool mustQuote = pk_type == typeof(char) || pk_type == typeof(string);
+
+                    string ID_to_update = IDs_to_update[indexOfIdToUpdate++];
+                    //append WHERE clause in one of two forms:
+                    // "WHERE myID=11"
+                    // "WHERE myID='a'"
+                    string ID_to_update__quoted = mustQuote
+                        ? "'" + ID_to_update + "'"
+                        : ID_to_update;
+
+                    sbPrimaryKeys.Append(pkSeparator) //WHERE or AND
+                        .Append(primaryKeyName)
+                        .Append("=")
+                        .Append(ID_to_update__quoted);
+
+                    pkSeparator = " AND ";
+                }
+            }
+            sbPrimaryKeys.Append(")");
+            return sbPrimaryKeys.ToString();
+        }
+
 
 
     }
