@@ -7,6 +7,7 @@ using nwind;
 
 namespace Test_NUnit
 {
+    [TestFixture]
     public class ExecuteCommand_Test : TestBase
     {
         [Test]

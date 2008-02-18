@@ -192,11 +192,12 @@ namespace Test_NUnit
             //    Assert.IsTrue(startWithLetter && endsWithDigit, "String must start with letter and end with digit");
             //}
         }
+        #endregion
 
         /// <summary>
         /// the following three tests are from Jahmani's page
         /// LinqToSQL: Comprehensive Support for SQLite, MS Access, SQServer2000/2005
-        /// http://www.codeproject.com/KB/linq/linqToSql_7.aspx?msg=2428251#xx2428251xx
+        /// http://www.codeproject.com/KB/linq/linqToSql_7.aspx?msg=2428251
         /// </summary>
         [Test(Description = "list of customers who have place orders that have all been shipped to the customers city.")]
         public void O1_OperatorAll()
@@ -214,10 +215,13 @@ namespace Test_NUnit
             var q = from customer in db.Customers
                     where !customer.Orders.Any()
                     select new { customer.CustomerID, customer.ContactName };
+            //var q = from customer in db.Customers
+            //        where customer.Orders.Count() == 0
+            //        select new { customer.CustomerID, customer.ContactName };
             var list = q.ToList();
         }
 
-        [Test(Description="provide a list of customers and employees who live in London.")]
+        [Test(Description = "provide a list of customers and employees who live in London.")]
         public void O3_OperatorUnion()
         {
             var q = (from c in db.Customers.Where(d => d.City == "London")
@@ -227,7 +231,5 @@ namespace Test_NUnit
             var list = q.ToList();
         }
 
-
-        #endregion
     }
 }
