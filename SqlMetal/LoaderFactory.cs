@@ -76,6 +76,8 @@ namespace SqlMetal
             string dbLinqSchemaLoaderType;
             string databaseConnectionType;
             GetLoaderAndConnection(out dbLinqSchemaLoaderType, out databaseConnectionType, mmConfig);
+            if (dbLinqSchemaLoaderType == null)
+                throw new ApplicationException("Please provide -Provider=MySql (or Oracle, OracleODP, PostgreSql, Sqlite - see app.config for provider listing)");
             return Load(GetConnectionString(mmConfig), dbLinqSchemaLoaderType, databaseConnectionType);
         }
     }
