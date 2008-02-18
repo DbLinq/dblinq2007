@@ -48,7 +48,9 @@ namespace DbLinq.PostgreSql.Schema
                 case "date":
                 case "datetime":
                 case "timestamp":
-                case "timestamp without time zone": 
+                case "timestamp without time zone":
+                case "time without time zone": //reported by twain_bu...@msn.com,
+                case "time with time zone":
                     return "DateTime";
 
                 case "enum": 
