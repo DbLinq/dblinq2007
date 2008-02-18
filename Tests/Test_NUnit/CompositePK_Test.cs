@@ -7,12 +7,21 @@ using nwind;
 
 namespace Test_NUnit
 {
+    [TestFixture]
     public class CompositePK_Test : TestBase
     {
         [Test]
         public void G9_UpdateTableWithCompositePK()
         {
             Northwind db = CreateDB();
+            try
+            {
+                db.ExecuteCommand("DELETE FROM `order details` WHERE OrderID=3 AND ProductID=2");
+            }
+            catch (Exception)
+            {
+            }
+
             var orderDetail = new OrderDetail
             {
                 OrderID = 3,
@@ -26,13 +35,15 @@ namespace Test_NUnit
             orderDetail.UnitPrice = 40;
             db.SubmitChanges();
 
-            orderDetail = (from c in db.OrderDetails
-                           where c.UnitPrice == 40
-                           select c).Single();
+            OrderDetail orderDetail2 = (from c in db.OrderDetails
+                                        where c.UnitPrice == 40
+                                        select c).Single();
 
-            Assert.AreEqual(3, orderDetail.OrderID);
-            Assert.AreEqual(2, orderDetail.ProductID);
-            Assert.AreEqual(40, orderDetail.UnitPrice);
+            Assert.IsTrue(object.ReferenceEquals(orderDetail, orderDetail2), "Must be same object");
+
+            Assert.AreEqual(3, orderDetail2.OrderID);
+            Assert.AreEqual(2, orderDetail2.ProductID);
+            Assert.AreEqual(40, orderDetail2.UnitPrice);
 
             db.OrderDetails.Remove(orderDetail);
             db.SubmitChanges();
@@ -57,12 +68,18 @@ namespace Test_NUnit
         [Test]
         public void G11_UnchangedColumnShouldNotUpdated()
         {
+            Random rand = new Random();
+
             Northwind db = CreateDB();
             var orderDetail = new OrderDetail { OrderID = 1, ProductID = 2 };
             db.OrderDetails.Attach(orderDetail, false);
-            orderDetail.Discount = 15;
+
+            float newDiscount = 15 + (float)rand.NextDouble();
+            orderDetail.Discount = newDiscount;
             db.SubmitChanges();
-            Assert.AreEqual(db.OrderDetails.Single().UnitPrice, 33);
+
+            var orderDetail2 = db.OrderDetails.Single();
+            Assert.AreEqual(orderDetail2.Discount, newDiscount);
         }
     }
 }
