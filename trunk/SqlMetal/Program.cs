@@ -33,6 +33,7 @@ using System.Xml.Serialization;
 using DbLinq.Linq;
 using DbLinq.Vendor;
 using SqlMetal.CSharpGenerator;
+using SqlMetal.schema;
 
 //OK this is rather primitive and needs fixing:
 //in one of these namespaces, there is a class Vendor.
@@ -108,7 +109,7 @@ namespace SqlMetal
                 {
                     //dbSchema = vendor.LoadSchema();
                     dbSchema = loader.Load(mmConfig.Database, tableAliases, mmConfig.SProcs);
-                    //SchemaPostprocess.PostProcess_DB(dbSchema);
+                    SchemaPostprocess.PostProcess_DB(dbSchema);
                 }
                 else
                 {
