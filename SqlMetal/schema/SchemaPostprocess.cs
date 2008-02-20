@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using DbLinq.Linq;
 using DbLinq.Util;
-using SqlMetal.util;
+using SqlMetal.Util;
 
 namespace SqlMetal.schema
 {
@@ -22,7 +22,7 @@ namespace SqlMetal.schema
                 return;
 
             //sort tables, parent tables first
-            SqlMetal.util.TableSorter sorter = new SqlMetal.util.TableSorter(schema.Tables);
+            TableSorter sorter = new TableSorter(schema.Tables);
             schema.Tables.Sort(sorter);
 
             foreach (var tbl in schema.Tables)
@@ -33,20 +33,25 @@ namespace SqlMetal.schema
 
         public static void PostProcess_Table(DlinqSchema.Table table)
         {
-            table.Member = Util.FormatTableName(table.Type.Name, util.PluralEnum.Pluralize);
-            table.Type.Name = Util.FormatTableName(table.Type.Name, util.PluralEnum.Singularize);
+            // picrap: this is processed earlier
+            //table.Member = Util.FormatTableName(table.Type.Name, util.PluralEnum.Pluralize);
+            //table.Type.Name = Util.FormatTableName(table.Type.Name, util.PluralEnum.Singularize);
 
-            if (mmConfig.renamesFile != null)
-            {
-                table.Member = Util.Rename(table.Member);
-            }
+            //if (mmConfig.renamesFile != null)
+            //{
+            //    table.Member = Util.Rename(table.Member);
+            //}
 
             foreach (DlinqSchema.Column col in table.Type.Columns)
             {
                 if (col.Member == table.Type.Name)
                     col.Member = "Contents"; //rename field Alltypes.Alltypes to Alltypes.Contents
 
-                col.Storage = "_" + col.Name;
+                // picrap processed earlier
+                //col.Storage = "_" + col.Name;
+
+                if (CSharp.IsCsharpKeyword(col.Storage))
+                    col.Storage += "_"; //rename column 'int' -> 'int_'
 
                 if (CSharp.IsCsharpKeyword(col.Member))
                     col.Member += "_"; //rename column 'int' -> 'int_'
@@ -55,15 +60,16 @@ namespace SqlMetal.schema
             Dictionary<string, bool> knownAssocs = new Dictionary<string, bool>();
             foreach (DlinqSchema.Association assoc in table.Type.Associations)
             {
-                assoc.Type = Util.FormatTableName(assoc.Type, util.PluralEnum.Singularize);
+                // picrap: processed earlier
+                //assoc.Type = Util.FormatTableName(assoc.Type, util.PluralEnum.Singularize);
 
-                util.PluralEnum pluralEnum = assoc.IsForeignKey
-                    ? util.PluralEnum.Singularize
-                    : util.PluralEnum.Pluralize;
+                //util.PluralEnum pluralEnum = assoc.IsForeignKey
+                //    ? util.PluralEnum.Singularize
+                //    : util.PluralEnum.Pluralize;
 
                 //referring to parent: "public Employee Employee" 
                 //referring to child:  "public EntityMSet<Product> Products"
-                assoc.Member = Util.FormatTableName(assoc.Member, pluralEnum);
+                //assoc.Member = Util.FormatTableName(assoc.Member, pluralEnum);
 
                 if (assoc.Member == table.Type.Name)
                 {
@@ -82,13 +88,14 @@ namespace SqlMetal.schema
 
                 }
 
-                if (mmConfig.renamesFile != null)
-                {
-                    assoc.Member = Util.Rename(assoc.Member);
-                }
+                // picrap: handled previously
+                //if (mmConfig.renamesFile != null)
+                //{
+                //    assoc.Member = Util.Rename(assoc.Member);
+                //}
 
-                if (assoc.Member == "employeeterritories" || assoc.Member == "Employeeterritories")
-                    assoc.Member = "EmployeeTerritories"; //hack to help with Northwind
+                //if (assoc.Member == "employeeterritories" || assoc.Member == "Employeeterritories")
+                //    assoc.Member = "EmployeeTerritories"; //hack to help with Northwind
 
                 knownAssocs[assoc.Member] = true;
             }
