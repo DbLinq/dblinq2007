@@ -134,7 +134,7 @@ public $name()
         {
             //child table contains a ManyToOneParent Association, pointing to parent
             //parent table contains a ManyToOneChild.
-            var ourChildren = table.Type.Associations.Where( a=> a.OtherKey!=null );
+            var ourChildren = table.Type.Associations.Where( a=> a.OtherKey!=null ).ToList();
 
             const string childLinkTemplate = @"
 [Association(Storage = ""null"", OtherKey = ""$childColName"", Name = ""$fkName"")]
