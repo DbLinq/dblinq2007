@@ -16,7 +16,9 @@ namespace Test_NUnit
             Northwind db = CreateDB();
             try
             {
-                db.ExecuteCommand("DELETE FROM `order details` WHERE OrderID=3 AND ProductID=2");
+                string tableName = db.Vendor.GetFieldSafeName("order details"); //eg. "[Order Details]"
+                string sql = string.Format("DELETE FROM {0} WHERE OrderID=3 AND ProductID=2", tableName);
+                db.ExecuteCommand(sql);
             }
             catch (Exception)
             {
