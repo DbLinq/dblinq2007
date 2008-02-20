@@ -23,7 +23,7 @@ namespace SqlMetal
         public ISchemaLoader Load(string connectionString, string dbLinqSchemaLoaderType, string databaseConnectionType)
         {
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
-            ISchemaLoader loader= Load(connectionString, Type.GetType(dbLinqSchemaLoaderType), Type.GetType(databaseConnectionType));
+            ISchemaLoader loader = Load(connectionString, Type.GetType(dbLinqSchemaLoaderType), Type.GetType(databaseConnectionType));
             AppDomain.CurrentDomain.AssemblyResolve -= CurrentDomain_AssemblyResolve;
             return loader;
         }
