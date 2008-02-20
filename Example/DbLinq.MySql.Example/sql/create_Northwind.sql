@@ -13,14 +13,13 @@ USE `Northwind`;
 /*DROP USER 'LinqUser'@'%';*/
 
 
-/* create user LinqUser, password: 'linq2'
-CREATE USER 'LinqUser'@'%'
-  IDENTIFIED BY PASSWORD '*247E8BFCE2F07F00D7FD773390A282540001077B';
+## create user LinqUser, password: 'linq2'
+##CREATE USER 'LinqUser'@'%'
+##  IDENTIFIED BY PASSWORD '*247E8BFCE2F07F00D7FD773390A282540001077B';
 
-/* give our new user full permissions on new database:
-GRANT ALL ON linqtestdb.*  TO 'LinqUser'@'%';
+## give our new user full permissions on new database:
+GRANT ALL ON Northwind.*  TO 'LinqUser'@'%';
 FLUSH PRIVILEGES;
-*/
 
 
 ####################################################################
