@@ -147,6 +147,10 @@ namespace DbLinq.Linq
             [DefaultValue(typeof(AccessEnum2), "public")]
             public AccessEnum2 Access;
 
+            /// <summary>
+            /// if this code is matched in Discriminator column, we make this derived type instead of parent type.
+            /// (eg. select returns HourlyEmployee instead of Employee, because EmployeeType column had our InheritanceCode)
+            /// </summary>
             [XmlAttribute]
             public string InheritanceCode;
 
@@ -160,10 +164,17 @@ namespace DbLinq.Linq
             [XmlElement("Association")]
             public readonly List<Association> Associations = new List<Association>();
 
+            /// <summary>
+            /// eg. Employee base class contains HourlyEmployee and SalariedEmployee.
+            /// </summary>
+            [XmlElement("Type")]
+            public readonly List<Type> DerivedTypes = new List<Type>();
+
             public override string ToString()
             {
                 return "Type " + Name + " cols=" + Columns.Count + " assoc="+Associations.Count;
             }
+
         }
 
         public enum UpdateCheckEnum { Always, Never, WhenChanged }
