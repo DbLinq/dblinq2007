@@ -1,8 +1,11 @@
-﻿using System;
+﻿//#define BEGIN_TRANSACTION
+
+using System;
 using System.Data;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 
 namespace DbLinq.Util
 {
@@ -25,6 +28,7 @@ namespace DbLinq.Util
 
             //the transactions, as they are written below, currently fail on PostgreSql and Oracle.
 #if BEGIN_TRANSACTION
+            Trace.WriteLine("TranMgr.BeginTransation");
             IDbTransaction transaction1 = _conn.BeginTransaction();
             _transaction = transaction1 as System.Data.Common.DbTransaction;
 #endif
@@ -34,6 +38,7 @@ namespace DbLinq.Util
         {
 #if BEGIN_TRANSACTION
             _didCommit = true;
+            Trace.WriteLine("TranMgr.Commit");
             _transaction.Commit(); //on PostgreSql, gives "No transaction in progress"
 #endif
         }
@@ -43,8 +48,10 @@ namespace DbLinq.Util
 #if BEGIN_TRANSACTION
             if (!_didCommit)
             {
+                Trace.WriteLine("TranMgr.Rollback");
                 _transaction.Rollback();
             }
+            Trace.WriteLine("TranMgr.Dispose");
             _transaction.Dispose();
 #endif
         }
