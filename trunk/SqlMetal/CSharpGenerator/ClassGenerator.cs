@@ -54,7 +54,7 @@ namespace SqlMetal.CSharpGenerator
         public string GetClass(DlinqSchema.Database schema, DlinqSchema.Table table, SqlMetalParameters mmConfig)
         {
             string template = @"
-[Table(Name = ""$tableName"")]
+[Table(Name = ""$tableName"")]$inheritanceMappings
 public partial class $name $baseClass
 {
     $fields
@@ -71,7 +71,6 @@ public partial class $name $baseClass
             properties.Add("#region Properties - accessors");
             string className = table.Type.Name; //CSharp.FormatTableClassName(table.Class ?? table.Name);
 
-            //foreach(DlinqSchema.Column col in table.Types[0].Columns)
             foreach (DlinqSchema.Column col in table.Type.Columns)
             {
                 List<DlinqSchema.Association> constraintsOnField
@@ -86,6 +85,22 @@ public partial class $name $baseClass
                 properties.Add(prop);
             }
             properties.Add("\t#endregion");
+
+            StringBuilder sbInheritance = new StringBuilder();
+            if (table.Type.InheritanceCode != null)
+            {
+                var baseAndDerivedTypes = new List<DlinqSchema.Type>();
+                baseAndDerivedTypes.Add(table.Type);
+                baseAndDerivedTypes.AddRange(table.Type.DerivedTypes);
+
+                foreach (DlinqSchema.Type derivedType in baseAndDerivedTypes)
+                {
+                    string inheritanceFmt = @"[InheritanceMapping(Code=""$typCode"", Type=typeof($derivedType))]";
+                    string inheritance = string.Format(inheritanceFmt, derivedType.InheritanceCode, derivedType.Name);
+                    sbInheritance.Append("\r\n").Append(inheritance);
+                }
+                sbInheritance.Append("\r\n");
+            }
 
             string ctor = GenCtors(table, mmConfig);
 
@@ -109,12 +124,15 @@ public partial class $name $baseClass
             template = template.Replace("$linksToChildTables", childTables);
             template = template.Replace("$linksToParentTables", parentTables);
             template = template.Replace("$equals_GetHashCode", equals);
+            template = template.Replace("$inheritanceMappings", sbInheritance.ToString());
 
             return template;
         }
 
         private string GenCtors(DlinqSchema.Table table, Parameters mmConfig)
         {
+            //jiri: I disagree with Pascal's claim that one ctor is useless.
+            //it allows you to set a breakpoint, useful when debugging class hierarchy.
 #if OneCTORisUseless
             string template = @"
 public $name()
@@ -134,7 +152,7 @@ public $name()
         {
             //child table contains a ManyToOneParent Association, pointing to parent
             //parent table contains a ManyToOneChild.
-            var ourChildren = table.Type.Associations.Where( a=> a.OtherKey!=null ).ToList();
+            var ourChildren = table.Type.Associations.Where(a => a.OtherKey != null).ToList();
 
             const string childLinkTemplate = @"
 [Association(Storage = ""null"", OtherKey = ""$childColName"", Name = ""$fkName"")]
@@ -148,7 +166,7 @@ public EntityMSet<$childClassName> $fieldName
 
             int childrenCount = 0;
 
-            foreach(DlinqSchema.Association assoc in ourChildren)
+            foreach (DlinqSchema.Association assoc in ourChildren)
             {
                 DlinqSchema.Table targetTable = schema.Tables.FirstOrDefault(t => t.Type.Name == assoc.Type);
                 if (targetTable == null)
@@ -163,15 +181,15 @@ public EntityMSet<$childClassName> $fieldName
                 string str = childLinkTemplate;
 
                 string childTableName = assoc.Type;
-                string childColName     = assoc.OtherKey; //.Columns[0].Name; //eg. 'CustomerID'
-                string fkName           = assoc.Name; //eg. 'FK_Orders_Customers'
+                string childColName = assoc.OtherKey; //.Columns[0].Name; //eg. 'CustomerID'
+                string fkName = assoc.Name; //eg. 'FK_Orders_Customers'
                 string childClassName = assoc.Type;
                 string fieldName = assoc.Member;
-                str = str.Replace("$childTableName",    childTableName);
-                str = str.Replace("$childColName",      childColName);
-                str = str.Replace("$fkName",            fkName);
-                str = str.Replace("$childClassName",    childClassName);
-                str = str.Replace("$fieldName",         fieldName);
+                str = str.Replace("$childTableName", childTableName);
+                str = str.Replace("$childColName", childColName);
+                str = str.Replace("$fkName", fkName);
+                str = str.Replace("$childClassName", childClassName);
+                str = str.Replace("$fieldName", fieldName);
                 linksToChildTables.Add(str);
             }
 
@@ -277,9 +295,9 @@ public $parentClassTyp $fkName_$thisKey {
         private DlinqSchema.Association findReverseAssoc(DlinqSchema.Database schema, DlinqSchema.Association assoc, Parameters mmConfig)
         {
             //first, find target table
-            DlinqSchema.Table targetTable 
-                = schema.Tables.FirstOrDefault( t => t.Name==assoc.Type );
-            if(targetTable==null)
+            DlinqSchema.Table targetTable
+                = schema.Tables.FirstOrDefault(t => t.Name == assoc.Type);
+            if (targetTable == null)
             {
                 Console.WriteLine("findReverseAssoc: ERROR L158 target table not found: " + assoc.Type);
                 return null;
@@ -287,10 +305,10 @@ public $parentClassTyp $fkName_$thisKey {
 
             //next, find reverse association (has the same name)
             DlinqSchema.Association reverseAssoc
-                = targetTable.Type.Associations.FirstOrDefault( a2 => a2.Name==assoc.Name );
-            if(reverseAssoc==null)
+                = targetTable.Type.Associations.FirstOrDefault(a2 => a2.Name == assoc.Name);
+            if (reverseAssoc == null)
             {
-                Console.WriteLine("findReverseAssoc: ERROR L167 reverse assoc not found: "+assoc.Name);
+                Console.WriteLine("findReverseAssoc: ERROR L167 reverse assoc not found: " + assoc.Name);
                 return null;
             }
             return reverseAssoc;
@@ -318,9 +336,9 @@ public $parentClassTyp $fkName_$thisKey {
 
             string tableName = table.Name;
             List<DlinqSchema.Column> primaryKeys = table.Type.Columns.Where(c => c.IsPrimaryKey).ToList();
-            if(primaryKeys.Count==0)
+            if (primaryKeys.Count == 0)
             {
-                return "#warning L189 table "+tableName+" has no primary key. Multiple c# objects will refer to the same row.\n";
+                return "#warning L189 table " + tableName + " has no primary key. Multiple c# objects will refer to the same row.\n";
             }
 
             List<string> getHash_list = new List<string>();
@@ -332,8 +350,8 @@ public $parentClassTyp $fkName_$thisKey {
                 string fieldName = primaryKey.Member;
                 fieldId.Add(fieldName);
                 string getHash = CSharp.IsValueType(primaryKey.Type)
-                                     ? fieldName+".GetHashCode()"
-                                     : "("+fieldName+" == null ? 0 : "+fieldName+".GetHashCode())";
+                                     ? fieldName + ".GetHashCode()"
+                                     : "(" + fieldName + " == null ? 0 : " + fieldName + ".GetHashCode())";
                 getHash_list.Add(getHash);
 
                 // "return $fieldID.Equals(o2.$fieldID);"
