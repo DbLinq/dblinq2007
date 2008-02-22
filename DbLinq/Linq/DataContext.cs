@@ -94,7 +94,7 @@ namespace DbLinq.Linq
             }
         }
 
-        public Table<T> GetTable<T>(string tableName) where T : IModified
+        public Table<T> GetTable<T>(string tableName)
         {
             IMTable tableExisting;
             lock (this)
@@ -105,6 +105,11 @@ namespace DbLinq.Linq
                 _tableMap[tableName] = tableNew;
                 return tableNew;
             }
+        }
+
+        public Table<T> GetTable<T>()
+        {
+            return GetTable<T>(typeof(T).FullName);
         }
 
         public void RegisterChild(IMTable table)
