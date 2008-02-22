@@ -57,12 +57,14 @@ namespace DbLinq.Linq
         /// <summary>
         /// the parent MContext holds our connection etc
         /// </summary>
-        DataContext _parentDB;
-        readonly List<T> _insertList = new List<T>();
-        readonly Dictionary<T, T> _liveObjectMap = new Dictionary<T, T>();
-        readonly List<T> _deleteList = new List<T>();
+        private DataContext _parentDB;
+        private readonly List<T> _insertList = new List<T>();
+        private readonly Dictionary<T, T> _liveObjectMap = new Dictionary<T, T>();
+        private readonly List<T> _deleteList = new List<T>();
 
-        readonly SessionVars _vars;
+        private readonly SessionVars _vars;
+
+        private readonly ModificationHandler _modificationHandler = new ModificationHandler();
 
         public Table(DataContext parent)
         {
@@ -190,8 +192,11 @@ namespace DbLinq.Linq
 
             _liveObjectMap[entity] = entity;
             //todo: add where T: IsModified to class definition and use
-            //entity.IsModified = asModified
-            (entity as IModified).IsModified = asModified;
+            // todo: discuss about this:IModified must not be mandatory (even if it is useful).
+            if (asModified)
+                _modificationHandler.Dirty(entity);
+            else
+                _modificationHandler.Clean(entity);
         }
 
         public void SaveAll()
@@ -248,11 +253,7 @@ namespace DbLinq.Linq
                             //set the object's ID:
                             FieldUtils.SetObjectIdField(obj, proj.autoGenField, objID);
 
-                            IModified imod = obj as IModified;
-                            if (imod != null)
-                            {
-                                imod.IsModified = false; //we just saved it - it's not 'dirty'
-                            }
+                            _modificationHandler.Clean(obj); //we just saved it - it's not 'dirty'
                         }
                         catch (Exception ex)
                         {
@@ -285,28 +286,28 @@ namespace DbLinq.Linq
             {
                 try
                 {
-                    IModified iMod = obj as IModified;
-                    if (iMod == null || !iMod.IsModified)
+                    if (!_modificationHandler.IsModified(obj))
                         continue;
+
                     Trace.WriteLine("MTable SaveAll: saving modified object");
                     string[] ID_to_update = getObjectID(obj);
 
-                    IDbCommand cmd = InsertClauseBuilder.GetUpdateCommand(_vars, iMod, proj, ID_to_update);
+                    IDbCommand cmd = InsertClauseBuilder.GetUpdateCommand(_vars, obj, proj, ID_to_update);
                     int result = cmd.ExecuteNonQuery();
                     Trace.WriteLine("MTable SaveAll.Update returned:" + result);
 
-                    iMod.IsModified = false; //mark as saved, thanks to Martin Rauscher
+                    _modificationHandler.Clean(obj); //mark as saved, thanks to Martin Rauscher
                 }
                 catch (Exception ex)
                 {
                     Trace.WriteLine("Table.SubmitChanges failed: " + ex);
                     switch (failureMode)
                     {
-                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                            excepts.Add(ex);
-                            break;
-                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                            throw ex;
+                    case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                        excepts.Add(ex);
+                        break;
+                    case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                        throw ex;
                     }
                 }
             }

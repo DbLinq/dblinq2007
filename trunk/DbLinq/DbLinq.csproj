@@ -62,6 +62,7 @@
     <Compile Include="Linq\IModified.cs" />
     <Compile Include="Linq\Mapping\AutoGenIdAttribute.cs" />
     <Compile Include="Linq\Mapping\FunctionExAttribute.cs" />
+    <Compile Include="Linq\ModificationHandler.cs" />
     <Compile Include="Linq\QueryProcessor.cs" />
     <Compile Include="Linq\QueryProcessor2.cs" />
     <Compile Include="Linq\SessionVarsParsed.cs" />
