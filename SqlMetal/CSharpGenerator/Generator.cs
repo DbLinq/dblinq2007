@@ -182,8 +182,10 @@ public partial class $dbname : $dataContext
             List<string> dbFieldInits = new List<string>();
             foreach (DlinqSchema.Table tbl in dbSchema.Tables)
             {
-                string fldDecl = string.Format("public Table<{1}> {0} {{ get {{ return base.GetTable<{1}>(\"{2}\"); }} }}",
-                                               tbl.Member, tbl.Type.Name, tbl.Name);
+                //string fldDecl = string.Format("public Table<{1}> {0} {{ get {{ return base.GetTable<{1}>(\"{2}\"); }} }}",
+                //                               tbl.Member, tbl.Type.Name, tbl.Name);
+                string fldDecl = string.Format("public Table<{1}> {0} {{ get {{ return base.GetTable<{1}>(); }} }}",
+                                               tbl.Member, tbl.Type.Name);
                 dbFieldDecls.Add(fldDecl);
 
                 string fldInit = string.Format("{0} = new Table<{1}>(this);",

@@ -140,6 +140,9 @@ namespace DbLinq.Linq
 
         public class Type
         {
+            /// <summary>
+            /// This is the class name, representing the type mapped on the table
+            /// </summary>
             [XmlAttribute]
             public string Name;
 

@@ -124,7 +124,7 @@ namespace DbLinq.MySql
                     //and insert the reverse association:
                     DlinqSchema.Association assoc2 = new DlinqSchema.Association();
                     assoc2.Name = keyColRow.constraint_name;
-                    assoc2.Type = table.Name;
+                    assoc2.Type = table.Type.Name;
                     assoc2.Member = GetOneToManyColumnName(keyColRow.table_name);
                     assoc2.OtherKey = GetColumnName(keyColRow.referenced_column_name);
 
