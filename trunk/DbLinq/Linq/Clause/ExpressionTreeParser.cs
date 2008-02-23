@@ -461,7 +461,7 @@ namespace DbLinq.Linq.Clause
         void AnalyzeBuiltinMember(RecurData recurData, MemberExpression memberOuter)
         {
             MemberExpression memberInner = memberOuter.Expression.XMember();
-            if (memberInner.Type == typeof(string) && memberOuter.Member.Name=="Length")
+            if (memberInner.Type == typeof(string) && memberOuter.Member.Name == "Length")
             {
                 //process string length function here. 
                 //"LENGTH()" function seems to be available on Oracle,Mysql,PostgreSql
@@ -496,25 +496,36 @@ namespace DbLinq.Linq.Clause
                 return;
             }
 
+            if (expr.Method.DeclaringType == typeof(System.Linq.Enumerable) && expr.Method.Name == "Contains")
+            {
+                AnalyzeExpression(recurData, expr.Arguments[1]); //p.ProductID
+                _result.AppendString(" IN ( ");
+                //AnalyzeExpression(recurData, expr.Arguments[0]); //{value(<>c__DisplayClass2).ids}
+                MemberExpression array1 = expr.Arguments[0].XMember();
+                ConstantExpression const1 = array1.Expression.XConstant();
+                object valueStruct = const1.Value;
+                System.Reflection.FieldInfo memberInfo = array1.Member as System.Reflection.FieldInfo;
+                object valueObj = memberInfo.GetValue(valueStruct);
+                //TODO instead of casting to array, process directly as IEnumerable
+                Array valueArray = (Array)valueObj;
+
+                string separator = "";
+                foreach (object obj in valueArray)
+                {
+                    string objString = (obj == null || obj is string)
+                        ? (obj as string).QuoteString_Safe()
+                        : obj.ToString();
+
+                    _result.AppendString(separator + objString);
+                    separator = ",";
+                }
+                _result.AppendString(" ) ");
+                return;
+            }
+
             //special handling
             switch (expr.Method.Name)
             {
-                //case "op_Equality":
-                //    AnalyzeExpression(recurData, expr.Parameters[0]);
-                //    _result.AppendString(" = ");
-                //    AnalyzeExpression(recurData, expr.Parameters[1]);
-                //    return;
-                //case "op_Inequality":
-                //    AnalyzeExpression(recurData, expr.Parameters[0]);
-                //    _result.AppendString(" != ");
-                //    AnalyzeExpression(recurData, expr.Parameters[1]);
-                //    return;
-                //case "op_GreaterThan":
-                //    AnalyzeExpression(recurData, expr.Parameters[0]);
-                //    _result.AppendString(" > ");
-                //    AnalyzeExpression(recurData, expr.Parameters[1]);
-                //    return;
-
                 case "StartsWith":
                 case "EndWith":
                 case "Contains":

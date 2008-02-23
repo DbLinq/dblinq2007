@@ -231,5 +231,21 @@ namespace Test_NUnit
             var list = q.ToList();
         }
 
+        [Test]
+        public void O4_OperatorContains()
+        {
+            int[] ids = new int[] { 1, 2, 3 };
+            Northwind db = CreateDB();
+
+            //var q = from p in db.Products select p.ProductID;
+            //int productCount = q.Count();
+
+            var products = from p in db.Products
+                           where ids.Contains(p.ProductID)
+                           select p;
+
+            Assert.AreEqual(3, products.Count());
+
+        } 
     }
 }

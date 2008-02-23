@@ -30,7 +30,7 @@ using System.Text;
 
 namespace DbLinq.Util
 {
-    public class FieldUtils
+    public static class FieldUtils
     {
         /// <summary>
         /// assign 'ID' to a field, handles int/uint/long conversions.
@@ -122,7 +122,7 @@ namespace DbLinq.Util
             System.Reflection.PropertyInfo propInfo = field as System.Reflection.PropertyInfo;
             if (propInfo != null)
             {
-                object obj = propInfo.GetValue(parentObj,emptyIndices); //retrieve 'myID' from wrapper class
+                object obj = propInfo.GetValue(parentObj, emptyIndices); //retrieve 'myID' from wrapper class
                 return obj;
             }
             else
@@ -137,6 +137,21 @@ namespace DbLinq.Util
                 object obj = fieldInfo.GetValue(parentObj);
                 return obj;
             }
+        }
+
+        /// <summary>
+        /// replace existing single-quotes with repated single quotes 
+        /// to prevent SQL injection attack.
+        /// then surround string with single quotes.
+        /// Return 'NULL' if param is null.
+        /// </summary>
+        /// <returns></returns>
+        public static string QuoteString_Safe(this string value)
+        {
+            if (value == null)
+                return "NULL";
+            string newValue = "'" + value.Replace("'", "''") + "'";
+            return newValue;
         }
     }
 }
