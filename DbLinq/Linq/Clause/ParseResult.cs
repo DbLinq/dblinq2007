@@ -70,16 +70,17 @@ namespace DbLinq.Linq.Clause
         /// during building, append to our internal StringBuilder
         /// </summary>
         /// <param name="expr"></param>
-        public void AppendString(string columnString)
+        public ParseResult AppendString(string columnString)
         {
             if (columnString == ",")
             {
                 //end of prev columnString - user should really call EndField()
                 columns.Add(sb.ToString());
                 sb.Length = 0;
-                return;
+                return this;
             }
             sb.Append(columnString);
+            return this;
         }
 
         /// <summary>
