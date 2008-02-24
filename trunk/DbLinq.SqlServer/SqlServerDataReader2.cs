@@ -29,7 +29,7 @@ using System.Data;
 using System.Collections.Generic;
 using System.Text;
 using System.Data.SqlClient;
-using DbLinq.Vendor;
+using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.SqlServer
 {

@@ -6,7 +6,7 @@ using System.Linq;
 using DbLinq.Linq;
 using DbLinq.Oracle.Schema;
 using DbLinq.Util;
-using DbLinq.Vendor;
+using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.Oracle
 {

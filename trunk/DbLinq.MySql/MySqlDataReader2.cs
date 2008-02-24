@@ -28,7 +28,7 @@ using System;
 using System.Data;
 using System.Collections.Generic;
 using System.Text;
-using DbLinq.Vendor;
+using DbLinq.Vendor.Implementation;
 using MySql.Data.MySqlClient;
 
 namespace DbLinq.MySql

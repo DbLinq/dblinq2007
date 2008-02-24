@@ -43,7 +43,7 @@ namespace DbLinq.PostgreSql
     /// <summary>
     /// PostgreSQL - specific code.
     /// </summary>
-    public class PgsqlVendor : DbLinq.Vendor.Vendor
+    public class PgsqlVendor : Vendor.Implementation.Vendor
     {
         public override string VendorName { get { return "PostgreSql"; } }
 

@@ -24,21 +24,21 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
-using System.Data;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using DbLinq.Util;
+using DbLinq.Vendor;
 
-namespace DbLinq.Linq.Connection
+namespace DbLinq.Linq.Implementation
 {
-    public class DefaultConnectionProvider: IConnectionProvider
+    public class DataMapper: IDataMapper
     {
-        private IDbConnection connection;
-        public IDbConnection Connection
+        public Func<IDataReader2, T> GetMapper<T>(SessionVarsParsed vars)
         {
-            get { return connection; }
-        }
-
-        public DefaultConnectionProvider(IDbConnection connection)
-        {
-            this.connection = connection;
+            int fieldID = 0;
+            return RowEnumeratorCompiler<T>.CompileRowDelegate(vars, ref fieldID);
         }
     }
 }

@@ -31,7 +31,7 @@ using System.Text;
 #if NOMORE
 using System.Data.OracleClient;
 #endif
-using DbLinq.Vendor;
+using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.Oracle
 {

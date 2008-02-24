@@ -38,6 +38,7 @@ using System.Linq.Expressions;
 //using System.Data.DLinq;
 
 using DbLinq.Linq.Clause;
+using DbLinq.Linq.Implementation;
 using DbLinq.Util;
 using DbLinq.Vendor;
 
@@ -64,9 +65,9 @@ namespace DbLinq.Linq
 
         private readonly SessionVars _vars;
 
-        private readonly ModificationHandler _modificationHandler = new ModificationHandler();
+        private IModificationHandler _modificationHandler { get { return _parentDB.ModificationHandler; } }
 
-        public Table(DataContext parent)
+            public Table(DataContext parent)
         {
             _parentDB = parent;
             _parentDB.RegisterChild(this);

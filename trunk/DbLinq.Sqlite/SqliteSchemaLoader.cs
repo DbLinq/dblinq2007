@@ -8,7 +8,7 @@ using DbLinq.Linq;
 using DbLinq.Sqlite;
 using DbLinq.Sqlite.Schema;
 using DbLinq.Util;
-using DbLinq.Vendor;
+using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.Sqlite
 {

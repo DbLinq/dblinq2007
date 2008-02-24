@@ -38,7 +38,7 @@ using DbLinq.Vendor;
 
 namespace DbLinq.SqlServer
 {
-    public class SqlServerVendor : DbLinq.Vendor.Vendor
+    public class SqlServerVendor : Vendor.Implementation.Vendor
     {
         public readonly Dictionary<DbLinq.Linq.IMTable, int> UseBulkInsert = new Dictionary<DbLinq.Linq.IMTable, int>();
 

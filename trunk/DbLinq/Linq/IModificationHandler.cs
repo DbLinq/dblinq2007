@@ -24,21 +24,33 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using DbLinq.Util;
-using DbLinq.Vendor;
-
 namespace DbLinq.Linq
 {
-    public class DataMapper: IDataMapper
+    public interface IModificationHandler
     {
-        public Func<IDataReader2, T> GetMapper<T>(SessionVarsParsed vars)
-        {
-            int fieldID = 0;
-            return RowEnumeratorCompiler<T>.CompileRowDelegate(vars, ref fieldID);
-        }
+        /// <summary>
+        /// Start to watch an entity. From here, changes will make IsModified() return true
+        /// </summary>
+        /// <param name="entity"></param>
+        void Register(object entity);
+
+        /// <summary>
+        /// Returns if the entity was modified since it has been Register()ed for the first time
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        bool IsModified(object entity);
+
+        /// <summary>
+        /// Marks the entity as not dirty.
+        /// </summary>
+        /// <param name="entity"></param>
+        void Clean(object entity);
+
+        /// <summary>
+        /// Marks the entity as dirty (apparently unused)
+        /// </summary>
+        /// <param name="entity"></param>
+        void Dirty(object entity);
     }
 }

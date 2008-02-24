@@ -13,7 +13,7 @@ using DbLinq.Vendor;
 
 namespace DbLinq.Oracle
 {
-    public class OracleVendor : DbLinq.Vendor.Vendor
+    public class OracleVendor : Vendor.Implementation.Vendor
     {
         public override string VendorName { get { return "Oracle"; } }
 
