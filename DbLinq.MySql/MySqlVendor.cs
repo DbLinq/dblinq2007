@@ -40,7 +40,7 @@ using MySql.Data.MySqlClient;
 
 namespace DbLinq.MySql
 {
-    public class MySqlVendor : DbLinq.Vendor.Vendor
+    public class MySqlVendor : Vendor.Implementation.Vendor
     {
         /// <summary>
         /// Client code needs to specify: 'Vendor.UserBulkInsert[db.Products]=10' to enable bulk insert, 10 rows at a time.

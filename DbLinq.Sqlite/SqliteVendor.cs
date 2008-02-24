@@ -44,7 +44,7 @@ namespace DbLinq.Sqlite
     /// <summary>
     /// SQLite - specific code.
     /// </summary>
-    public class SqliteVendor : DbLinq.Vendor.Vendor
+    public class SqliteVendor : Vendor.Implementation.Vendor
     {
         public override string VendorName { get { return "SQLite"; } }
 

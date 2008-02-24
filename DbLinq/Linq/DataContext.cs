@@ -31,7 +31,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
-using DbLinq.Linq.Connection;
+using DbLinq.Linq.Implementation;
 using DbLinq.Vendor;
 using DbLinq.Util;
 
@@ -48,6 +48,7 @@ namespace DbLinq.Linq
         public IDbConnection Connection { get; private set; }
         public IVendor Vendor { get; private set; }
         public IDataMapper DataMapper { get; set; }
+        public IModificationHandler ModificationHandler { get; set; }
 
         /// <summary>
         /// A DataContext opens and closes a database connection as needed 
@@ -61,9 +62,12 @@ namespace DbLinq.Linq
         {
             if (dbConnection == null || vendor == null)
                 throw new ArgumentNullException("Null arguments");
-            Vendor = vendor;
-            DataMapper = new DataMapper();
+
             Connection = dbConnection;
+            Vendor = vendor;
+
+            DataMapper = new DataMapper();
+            ModificationHandler = new ModificationHandler();
         }
 
         //public XSqlConnection SqlConnection
