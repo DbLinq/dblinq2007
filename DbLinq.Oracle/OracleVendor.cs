@@ -35,8 +35,6 @@ namespace DbLinq.Oracle
 
         public override IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
         {
-            //OracleType dbType = OracleTypeConversions.ParseType(dbTypeName);
-            //OracleParameter param = new OracleParameter(paramName, dbType);
             IDbDataParameter param = cmd.CreateParameter();
             param.ParameterName = paramName;
             SetDataParameterType(param, "OracleType", dbTypeName, extraTypes);

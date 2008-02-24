@@ -122,6 +122,14 @@ namespace DbLinq.Vendor
 
         protected IDictionary<string, IDictionary<string, Enum>> typeMapsByProperty = new Dictionary<string, IDictionary<string, Enum>>();
 
+        /// <summary>
+        /// Sets the database property specific type by reflection, if we have a match
+        /// If not, sets the database generic type
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <param name="propertyName"></param>
+        /// <param name="dbTypeName"></param>
+        /// <param name="extraTypes"></param>
         public void SetDataParameterType(IDbDataParameter parameter, string propertyName, string dbTypeName, IDictionary<string, DbType> extraTypes)
         {
             PropertyInfo propertyInfo = parameter.GetType().GetProperty(propertyName);
@@ -129,14 +137,22 @@ namespace DbLinq.Vendor
             string dbTypeKey = dbTypeName.ToLower();
             if (typeMaps.ContainsKey(dbTypeKey))
             {
+                // specific type (called from inherited CreateSqlParameter)
                 propertyInfo.GetSetMethod().Invoke(parameter, new object[] {typeMaps[dbTypeKey]});
             }
             else if (extraTypes.ContainsKey(dbTypeKey))
             {
+                // generic type
                 parameter.DbType = extraTypes[dbTypeKey];
             }
         }
 
+        /// <summary>
+        /// Returns a dictionary of literal to database specific type enum
+        /// this is used to set a parameter type with specific database type (as an enum value)
+        /// </summary>
+        /// <param name="propertyInfo"></param>
+        /// <returns></returns>
         private IDictionary<string, Enum> GetTypeMaps(PropertyInfo propertyInfo)
         {
             IDictionary<string, Enum> typeMaps;
