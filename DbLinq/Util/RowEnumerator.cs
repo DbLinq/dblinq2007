@@ -216,6 +216,10 @@ namespace DbLinq.Util
                     yield return current;
                 }
             }
+
+            //when doing Take(5), end of this loop means calling hidden Dispose().
+            //thus we must call our Dispose manually.
+            this.Dispose();
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
