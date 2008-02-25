@@ -42,7 +42,7 @@ namespace DbLinq.SqlServer
     /// </summary>
     public class SqlServerDataReader2 : DataReader2
     {
-        protected SqlDataReader Reader { get { return _rdr as SqlDataReader; } }
+        protected SqlDataReader Reader { get { return _reader as SqlDataReader; } }
 
         public SqlServerDataReader2(IDataReader rdr)
             : base(rdr)
@@ -53,18 +53,18 @@ namespace DbLinq.SqlServer
 
         public override short GetInt16(int index)
         {
-            if (_rdr.IsDBNull(index))
+            if (_reader.IsDBNull(index))
                 return 0; //hack - why 
-            return _rdr.GetInt16(index); 
+            return _reader.GetInt16(index); 
         }
 
         public override short? GetInt16N(int index)
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if(_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetInt16(index);
+                return _reader.GetInt16(index);
             } 
             catch(Exception ex)
             {
@@ -77,9 +77,9 @@ namespace DbLinq.SqlServer
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if(_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetChar(index);
+                return _reader.GetChar(index);
             } 
             catch(Exception ex)
             {
@@ -92,9 +92,9 @@ namespace DbLinq.SqlServer
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if(_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetBoolean(index);
+                return _reader.GetBoolean(index);
             } 
             catch(Exception ex)
             {
@@ -107,12 +107,12 @@ namespace DbLinq.SqlServer
         {
             try
             {
-                return _rdr.GetInt32(index);
+                return _reader.GetInt32(index);
             } 
             catch(Exception ex)
             {
-                bool isWithinBounds = (index > 0 && index < _rdr.FieldCount);
-                string ftype = isWithinBounds ? _rdr.GetDataTypeName(index) : "L106.OutOfBounds";
+                bool isWithinBounds = (index > 0 && index < _reader.FieldCount);
+                string ftype = isWithinBounds ? _reader.GetDataTypeName(index) : "L106.OutOfBounds";
                 Console.WriteLine("GetInt32("+index+") failed ("+ftype+"): "+ex);
                 return 0;
             }
@@ -122,9 +122,9 @@ namespace DbLinq.SqlServer
         {
             try
             {
-                if (_rdr.IsDBNull(index))
+                if (_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetInt32(index);
+                return _reader.GetInt32(index);
             }
             catch (Exception ex)
             {
@@ -137,13 +137,13 @@ namespace DbLinq.SqlServer
         {
             try
             {
-                return (uint)_rdr.GetInt32(index);
+                return (uint)_reader.GetInt32(index);
             } 
             catch(Exception ex)
             {
                 Console.WriteLine("GetUInt32("+index+") failed: "+ex);
                 try {
-                    object obj = _rdr.GetValue(index);
+                    object obj = _reader.GetValue(index);
                     Console.WriteLine("GetUInt32 failed, offending val: "+obj);
                 } catch(Exception){}
                 return 0;
@@ -154,7 +154,7 @@ namespace DbLinq.SqlServer
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if(_reader.IsDBNull(index))
                     return null;
                 int i = (int)Reader.GetSqlInt32(index); // picrap: why this cast?
                 return (uint)i;
@@ -170,7 +170,7 @@ namespace DbLinq.SqlServer
         {
             try
             {
-                return _rdr.GetFloat(index);
+                return _reader.GetFloat(index);
             } 
             catch(Exception ex)
             {
@@ -183,9 +183,9 @@ namespace DbLinq.SqlServer
         {
             try
             {
-                if (_rdr.IsDBNull(index))
+                if (_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetFloat(index);
+                return _reader.GetFloat(index);
             }
             catch (Exception ex)
             {
@@ -198,7 +198,7 @@ namespace DbLinq.SqlServer
         {
             try
             {
-                return _rdr.GetDouble(index);
+                return _reader.GetDouble(index);
             } 
             catch(Exception ex)
             {
@@ -210,9 +210,9 @@ namespace DbLinq.SqlServer
         {
             try
             {
-                if (_rdr.IsDBNull(index))
+                if (_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetDouble(index);
+                return _reader.GetDouble(index);
             }
             catch (Exception ex)
             {
@@ -224,7 +224,7 @@ namespace DbLinq.SqlServer
         {
             try
             {
-                return _rdr.GetDecimal(index);
+                return _reader.GetDecimal(index);
             } 
             catch(Exception ex)
             {
@@ -236,9 +236,9 @@ namespace DbLinq.SqlServer
         {
             try
             {
-                if (_rdr.IsDBNull(index))
+                if (_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetDecimal(index);
+                return _reader.GetDecimal(index);
             }
             catch (Exception ex)
             {
@@ -250,7 +250,7 @@ namespace DbLinq.SqlServer
         {
             try
             {
-                return _rdr.GetDateTime(index);
+                return _reader.GetDateTime(index);
             } 
             catch(Exception ex)
             {
@@ -262,9 +262,9 @@ namespace DbLinq.SqlServer
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if(_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetDateTime(index);
+                return _reader.GetDateTime(index);
             } 
             catch(Exception ex)
             {
@@ -277,9 +277,9 @@ namespace DbLinq.SqlServer
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if(_reader.IsDBNull(index))
                     return -1;
-                return _rdr.GetInt64(index);
+                return _reader.GetInt64(index);
             } 
             catch(Exception ex)
             {
@@ -291,9 +291,9 @@ namespace DbLinq.SqlServer
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if(_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetInt64(index);
+                return _reader.GetInt64(index);
             } 
             catch(Exception ex)
             {
@@ -306,9 +306,9 @@ namespace DbLinq.SqlServer
         {
             try
             {
-                if (_rdr.IsDBNull(index))
+                if (_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetString(index);
+                return _reader.GetString(index);
             } 
             catch(Exception ex)
             {
@@ -323,7 +323,7 @@ namespace DbLinq.SqlServer
             {
                 //System.Data.SqlClient.SqlDataReader rdr2;
                 //rdr2.GetSqlBinary(); //SqlBinary does not seem to exist on MySql
-                object obj = _rdr.GetValue(index);
+                object obj = _reader.GetValue(index);
                 if(obj==null)
                     return null; //nullable blob?
                 byte[] bytes = obj as byte[];

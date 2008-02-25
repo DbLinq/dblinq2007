@@ -44,9 +44,9 @@ namespace DbLinq.Util
         /// the entry point - routes your call into special cases for Projection and primitive types
         /// </summary>
         /// <returns>compiled func which loads object from SQL reader</returns>
-        public static Func<IDataReader2, T> CompileRowDelegate(SessionVarsParsed vars, ref int fieldID)
+        public static Func<IDataRecord, T> CompileRowDelegate(SessionVarsParsed vars, ref int fieldID)
         {
-            Func<IDataReader2, T> objFromRow = null;
+            Func<IDataRecord, T> objFromRow = null;
 
             ProjectionData projData = vars.projectionData;
 
@@ -97,7 +97,7 @@ namespace DbLinq.Util
         /// construct and compile a 'reader.GetString(0);' delegate (or similar).
         /// </summary>
         public static
-            Func<IDataReader2, T>
+            Func<IDataRecord, T>
             CompilePrimitiveRowDelegate(ref int fieldID)
         {
             #region CompilePrimitiveRowDelegate
@@ -105,15 +105,15 @@ namespace DbLinq.Util
             // a) string GetRow(DataReader rdr){ return rdr.GetString(0); }
             // b) int    GetRow(DataReader rdr){ return rdr.GetInt32(0); }
 
-            ParameterExpression rdr = Expression.Parameter(typeof(IDataReader2), "rdr");
+            ParameterExpression rdr = Expression.Parameter(typeof(IDataRecord), "rdr");
 
             Expression body = GetFieldMethodCall(typeof(T), rdr, fieldID++);
 
             List<ParameterExpression> paramListRdr = new List<ParameterExpression>();
             paramListRdr.Add(rdr);
 
-            LambdaExpression lambda = Expression.Lambda<Func<IDataReader2, T>>(body, paramListRdr);
-            Func<IDataReader2, T> func_t = (Func<IDataReader2, T>)lambda.Compile();
+            LambdaExpression lambda = Expression.Lambda<Func<IDataRecord, T>>(body, paramListRdr);
+            Func<IDataRecord, T> func_t = (Func<IDataRecord, T>)lambda.Compile();
 
             //StringBuilder sb = new StringBuilder();
             //lambda.BuildString(sb);
@@ -131,7 +131,7 @@ namespace DbLinq.Util
         /// order of args got messed up.
         /// </summary>
         public static
-            Func<IDataReader2, T>
+            Func<IDataRecord, T>
             CompileColumnRowDelegate_TableType(ProjectionData projData, ref int fieldID)
         {
             #region CompileColumnRowDelegate
@@ -141,7 +141,7 @@ namespace DbLinq.Util
             if (projData.inheritanceAttributes.Count > 0)
                 return CompileColumnRowDelegate_TableType_Inheritance(projData, ref fieldID);
 
-            ParameterExpression rdr = Expression.Parameter(typeof(IDataReader2), "rdr");
+            ParameterExpression rdr = Expression.Parameter(typeof(IDataRecord), "rdr");
 
             List<Expression> ctorArgs = new List<Expression>();
             //Andrus points out that order of projData.fields is not reliable after an exception - switch to ctor params
@@ -185,8 +185,8 @@ namespace DbLinq.Util
             Expression newExprInit = Expression.MemberInit(newExpr1, bindList.ToArray());
 
 
-            LambdaExpression lambda = Expression.Lambda<Func<IDataReader2, T>>(newExprInit, paramListRdr);
-            Func<IDataReader2, T> func_t = (Func<IDataReader2, T>)lambda.Compile();
+            LambdaExpression lambda = Expression.Lambda<Func<IDataRecord, T>>(newExprInit, paramListRdr);
+            Func<IDataRecord, T> func_t = (Func<IDataRecord, T>)lambda.Compile();
 
             //lambda.BuildString(sb);
             //Console.WriteLine("  RowEnumCompiler(Column): Compiled "+sb);
@@ -202,7 +202,7 @@ namespace DbLinq.Util
         ///    : new SalariedEmployee(){_employeeID=reader.GetInt32(0)};'
         /// </summary>
         public static
-            Func<IDataReader2, T>
+            Func<IDataRecord, T>
             CompileColumnRowDelegate_TableType_Inheritance(ProjectionData projData, ref int fieldID)
         {
             #region CompileColumnRowDelegate
@@ -223,7 +223,7 @@ namespace DbLinq.Util
                                     select f).Single();
             int discriminatorColIndex = projData.fields.IndexOf(discriminatorCol);
 
-            ParameterExpression rdr = Expression.Parameter(typeof(IDataReader2), "rdr");
+            ParameterExpression rdr = Expression.Parameter(typeof(IDataRecord), "rdr");
 
             List<Expression> ctorArgs = new List<Expression>();
             //Andrus points out that order of projData.fields is not reliable after an exception - switch to ctor params
@@ -271,8 +271,8 @@ namespace DbLinq.Util
             List<ParameterExpression> paramListRdr = new List<ParameterExpression>();
             paramListRdr.Add(rdr);
 
-            LambdaExpression lambda = Expression.Lambda<Func<IDataReader2, T>>(combinedExpr, paramListRdr);
-            Func<IDataReader2, T> func_t = (Func<IDataReader2, T>)lambda.Compile();
+            LambdaExpression lambda = Expression.Lambda<Func<IDataRecord, T>>(combinedExpr, paramListRdr);
+            Func<IDataRecord, T> func_t = (Func<IDataRecord, T>)lambda.Compile();
 
             //lambda.BuildString(sb);
             //Console.WriteLine("  RowEnumCompiler(Column): Compiled "+sb);
@@ -324,9 +324,9 @@ namespace DbLinq.Util
         /// construct and compile a 'new Customer(reader.GetInt32(0),reader.GetString(1));' 
         /// delegate (or similar).
         /// </summary>
-        public static Func<IDataReader2, T> CompileProjectedRowDelegate(SessionVarsParsed vars, ProjectionData projData)
+        public static Func<IDataRecord, T> CompileProjectedRowDelegate(SessionVarsParsed vars, ProjectionData projData)
         {
-            ParameterExpression rdr = Expression.Parameter(typeof(IDataReader2), "rdr");
+            ParameterExpression rdr = Expression.Parameter(typeof(IDataRecord), "rdr");
 
             StringBuilder sb = new StringBuilder(500);
             int fieldID = 0;
@@ -337,7 +337,7 @@ namespace DbLinq.Util
             //if(vars.log!=null)
             //    vars.log.WriteLine("  RowEnumCompiler(Projection): Compiling "+sb);
             //error lambda not in scope?!
-            Func<IDataReader2, T> func_t = (Func<IDataReader2, T>)lambda.Compile();
+            Func<IDataRecord, T> func_t = (Func<IDataRecord, T>)lambda.Compile();
 
             return func_t;
 
@@ -450,7 +450,7 @@ namespace DbLinq.Util
             List<ParameterExpression> paramListRdr = new List<ParameterExpression>();
             paramListRdr.Add(rdr);
 
-            LambdaExpression lambda = Expression.Lambda<Func<IDataReader2, T>>(memberInit, paramListRdr);
+            LambdaExpression lambda = Expression.Lambda<Func<IDataRecord, T>>(memberInit, paramListRdr);
             return lambda;
             //StringBuilder sb = new StringBuilder(500);
             //Func<DataReader2,T> func_t = (Func<DataReader2,T>)lambda.Compile();
@@ -551,7 +551,7 @@ namespace DbLinq.Util
             paramListRdr.Add(rdr);
 
             //LambdaExpression lambda = Expression.Lambda<Func<DataReader2, T>>(memberInit, paramListRdr);
-            LambdaExpression lambda = Expression.Lambda<Func<IDataReader2, T>>(newExpr, paramListRdr);
+            LambdaExpression lambda = Expression.Lambda<Func<IDataRecord, T>>(newExpr, paramListRdr);
             return lambda;
             //StringBuilder sb = new StringBuilder(500);
             //Func<DataReader2,T> func_t = (Func<DataReader2,T>)lambda.Compile();
@@ -571,164 +571,12 @@ namespace DbLinq.Util
             return callExpr;
         }
 
-        private static Expression GetFieldMethodCall0(Type t2, ParameterExpression rdr, int fieldID)
-        {
-            MethodInfo minfo = ChooseFieldRetrievalMethod(t2);
-            if (minfo == null)
-            {
-                string msg = "GetFieldMethodCall L180: failed to get methodInfo for type " + t2;
-                Console.WriteLine(msg);
-                throw new Exception(msg);
-            }
-            List<Expression> paramZero = new List<Expression>();
-            paramZero.Add(Expression.Constant(fieldID)); //that's the zero in GetInt32(0)
-            MethodCallExpression callExpr = Expression.Call(rdr, minfo, paramZero);
-            return callExpr;
-        }
-
-        /// <summary>
-        /// return 'reader.GetString(0)' or 'reader.GetInt32(1)'
-        /// as an Expression suitable for compilation.
-        /// 
-        /// Note: In C# 2006MayCTP, the compiled expression 
-        /// 'reader.IsDbNull(0)?null:reader.GetInt32(0)'
-        /// crashes the virtual machine.
-        /// Instead of using MySqlDataReader, call into a wrapper class 'DataReader2' which handles nullable types for us
-        /// </summary>
-        static MethodInfo ChooseFieldRetrievalMethod(Type t2)
-        {
-            #region ChooseFieldRetrievalMethod
-            //TODO: handle Nullable<int> as well as int?
-            MethodInfo minfo = null;
-            BindingFlags flags = BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public | BindingFlags.InvokeMethod;
-            if (t2 == typeof(string))
-            {
-                minfo = typeof(IDataReader2).GetMethod("GetString", flags);
-            }
-            else if (t2 == typeof(bool))
-            {
-                minfo = typeof(IDataReader2).GetMethod("GetBoolean", flags);
-            }
-            else if (t2 == typeof(bool?))
-            {
-                minfo = typeof(IDataReader2).GetMethod("GetBooleanN", flags);
-            }
-            else if (t2 == typeof(char))
-            {
-                minfo = typeof(IDataReader2).GetMethod("GetChar", flags);
-            }
-            else if (t2 == typeof(char?))
-            {
-                minfo = typeof(IDataReader2).GetMethod("GetCharN", flags);
-            }
-            else if (t2 == typeof(short))
-            {
-                minfo = typeof(IDataReader2).GetMethod("GetInt16", flags);
-            }
-            else if (t2 == typeof(short?))
-            {
-                minfo = typeof(IDataReader2).GetMethod("GetInt16N", flags);
-            }
-            else if (t2 == typeof(int))
-            {
-                minfo = typeof(IDataReader2).GetMethod("GetInt32", flags);
-            }
-            else if (t2 == typeof(int?))
-            {
-                minfo = typeof(IDataReader2).GetMethod("GetInt32N", flags);
-            }
-            else if (t2 == typeof(uint))
-            {
-                minfo = typeof(IDataReader2).GetMethod("GetUInt32", flags);
-            }
-            else if (t2 == typeof(uint?))
-            {
-                minfo = typeof(IDataReader2).GetMethod("GetUInt32N", flags);
-            }
-            else if (t2 == typeof(float))
-            {
-                minfo = typeof(IDataReader2).GetMethod("GetFloat", flags);
-            }
-            else if (t2 == typeof(float?))
-            {
-                minfo = typeof(IDataReader2).GetMethod("GetFloatN", flags);
-            }
-            else if (t2 == typeof(double))
-            {
-                minfo = typeof(IDataReader2).GetMethod("GetDouble", flags);
-            }
-            else if (t2 == typeof(double?))
-            {
-                minfo = typeof(IDataReader2).GetMethod("GetDoubleN", flags);
-            }
-            else if (t2 == typeof(decimal))
-            {
-                minfo = typeof(IDataReader2).GetMethod("GetDecimal", flags);
-            }
-            else if (t2 == typeof(decimal?))
-            {
-                minfo = typeof(IDataReader2).GetMethod("GetDecimalN", flags);
-            }
-            else if (t2 == typeof(DateTime))
-            {
-                minfo = typeof(IDataReader2).GetMethod("GetDateTime", flags);
-            }
-            else if (t2 == typeof(DateTime?))
-            {
-                minfo = typeof(IDataReader2).GetMethod("GetDateTimeN", flags);
-            }
-            else if (t2 == typeof(long))
-            {
-                minfo = typeof(IDataReader2).GetMethod("GetInt64", flags);
-            }
-            else if (t2 == typeof(long?))
-            {
-                minfo = typeof(IDataReader2).GetMethod("GetInt64N", flags);
-            }
-            else if (t2 == typeof(byte[]))
-            {
-                minfo = typeof(IDataReader2).GetMethod("GetBytes", flags);
-            }
-            else if (t2.IsEnum)
-            {
-                //minfo = typeof(DataReader2).GetMethod("GetInt32");
-                MethodInfo genericMInfo = typeof(IDataReader2).GetMethod("GetEnum", flags);
-                minfo = genericMInfo.MakeGenericMethod(t2);
-                //if(minfo.isg
-                //string msg = "RowEnum TODO L377: compile casting from int to enum " + t2;
-                //Console.WriteLine(msg);
-                //throw new ApplicationException(msg);
-            }
-            else if (t2 == typeof(byte))
-            {
-                minfo = typeof(IDataReader2).GetMethod("GetByte", flags);
-            }
-            else if (t2 == typeof(byte?))
-            {
-                minfo = typeof(IDataReader2).GetMethod("GetByteN", flags);
-            }
-            else
-            {
-                //s_rdr.GetUInt32();
-                //s_rdr.GetFloat();
-                string msg = "RowEnum TODO L381: add support for type " + t2;
-                Console.WriteLine(msg);
-                throw new ApplicationException(msg);
-            }
-            if (minfo == null)
-            {
-                Console.WriteLine("L298: Reference to invalid function name");
-            }
-            return minfo;
-            #endregion
-        }
-
         #region GetAs*
 
         // please note that sometimes (depending on driver), GetValue() returns DBNull instead of null
         // so at this level, we handle both
 
-        private static string GetAsString(IDataReader2 dataRecord, int index)
+        private static string GetAsString(IDataRecord dataRecord, int index)
         {
             object o = dataRecord.GetValue(index);
             if (o == null || o is DBNull)
@@ -736,7 +584,7 @@ namespace DbLinq.Util
             return o.ToString();
         }
 
-        private static bool GetAsBool(IDataReader2 dataRecord, int index)
+        private static bool GetAsBool(IDataRecord dataRecord, int index)
         {
             object b = dataRecord.GetValue(index);
             // first check: this may be a boolean
@@ -757,7 +605,7 @@ namespace DbLinq.Util
             return GetAsNumeric<int>(dataRecord, index) != 0;
         }
 
-        private static char GetAsChar(IDataReader2 dataRecord, int index)
+        private static char GetAsChar(IDataRecord dataRecord, int index)
         {
             object c = dataRecord.GetValue(index);
             if (c is char)
@@ -773,7 +621,7 @@ namespace DbLinq.Util
             throw new InvalidCastException(string.Format("Can't convert type {0} in GetAsChar()", c.GetType().Name));
         }
 
-        private static U GetAsNumeric<U>(IDataReader2 dataRecord, int index)
+        private static U GetAsNumeric<U>(IDataRecord dataRecord, int index)
         {
             return GetAsNumeric<U>(dataRecord.GetValue(index));
         }
@@ -791,10 +639,23 @@ namespace DbLinq.Util
             throw new InvalidCastException(string.Format("Can't convert type {0} in Convert.{1}()", o.GetType().Name, methodName));
         }
 
-        private static object GetAsEnum(IDataReader2 dataRecord, Type enumType, int index)
+        private static object GetAsEnum(IDataRecord dataRecord, Type enumType, int index)
         {
             int enumAsInt = GetAsNumeric<int>(dataRecord, index);
             return enumAsInt;
+        }
+
+        private static byte[] GetAsBytes(IDataRecord dataRecord, int index)
+        {
+            object obj = dataRecord.GetValue(index);
+            if (obj == null)
+                return null; //nullable blob?
+            byte[] bytes = obj as byte[];
+            if (bytes != null)
+                return bytes; //works for BLOB field
+            Console.WriteLine("GetBytes: received unexpected type:" + obj);
+            //return _rdr.GetInt32(index);
+            return new byte[0];
         }
 
         #endregion
@@ -804,71 +665,71 @@ namespace DbLinq.Util
             Expression propertyReader;
             if (returnType == typeof(string))
             {
-                propertyReader = (Expression<Func<IDataReader2, string>>)((IDataReader2 dataReader) => GetAsString(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, string>>)((IDataRecord dataReader) => GetAsString(dataReader, valueIndex));
             }
             else if (returnType == typeof(bool))
             {
-                propertyReader = (Expression<Func<IDataReader2, bool>>)((IDataReader2 dataReader) => GetAsBool(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, bool>>)((IDataRecord dataReader) => GetAsBool(dataReader, valueIndex));
             }
             else if (returnType == typeof(char))
             {
-                propertyReader = (Expression<Func<IDataReader2, char>>)((IDataReader2 dataReader) => GetAsChar(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, char>>)((IDataRecord dataReader) => GetAsChar(dataReader, valueIndex));
             }
             else if (returnType == typeof(byte))
             {
-                propertyReader = (Expression<Func<IDataReader2, byte>>)((IDataReader2 dataReader) => GetAsNumeric<byte>(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, byte>>)((IDataRecord dataReader) => GetAsNumeric<byte>(dataReader, valueIndex));
             }
             else if (returnType == typeof(sbyte))
             {
-                propertyReader = (Expression<Func<IDataReader2, sbyte>>)((IDataReader2 dataReader) => GetAsNumeric<sbyte>(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, sbyte>>)((IDataRecord dataReader) => GetAsNumeric<sbyte>(dataReader, valueIndex));
             }
             else if (returnType == typeof(short))
             {
-                propertyReader = (Expression<Func<IDataReader2, short>>)((IDataReader2 dataReader) => GetAsNumeric<short>(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, short>>)((IDataRecord dataReader) => GetAsNumeric<short>(dataReader, valueIndex));
             }
             else if (returnType == typeof(ushort))
             {
-                propertyReader = (Expression<Func<IDataReader2, ushort>>)((IDataReader2 dataReader) => GetAsNumeric<ushort>(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, ushort>>)((IDataRecord dataReader) => GetAsNumeric<ushort>(dataReader, valueIndex));
             }
             else if (returnType == typeof(int))
             {
-                propertyReader = (Expression<Func<IDataReader2, int>>)((IDataReader2 dataReader) => GetAsNumeric<int>(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, int>>)((IDataRecord dataReader) => GetAsNumeric<int>(dataReader, valueIndex));
             }
             else if (returnType == typeof(uint))
             {
-                propertyReader = (Expression<Func<IDataReader2, uint>>)((IDataReader2 dataReader) => GetAsNumeric<uint>(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, uint>>)((IDataRecord dataReader) => GetAsNumeric<uint>(dataReader, valueIndex));
             }
             else if (returnType == typeof(long))
             {
-                propertyReader = (Expression<Func<IDataReader2, long>>)((IDataReader2 dataReader) => GetAsNumeric<long>(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, long>>)((IDataRecord dataReader) => GetAsNumeric<long>(dataReader, valueIndex));
             }
             else if (returnType == typeof(ulong))
             {
-                propertyReader = (Expression<Func<IDataReader2, ulong>>)((IDataReader2 dataReader) => GetAsNumeric<ulong>(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, ulong>>)((IDataRecord dataReader) => GetAsNumeric<ulong>(dataReader, valueIndex));
             }
             else if (returnType == typeof(float))
             {
-                propertyReader = (Expression<Func<IDataReader2, float>>)((IDataReader2 dataReader) => GetAsNumeric<float>(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, float>>)((IDataRecord dataReader) => GetAsNumeric<float>(dataReader, valueIndex));
             }
             else if (returnType == typeof(double))
             {
-                propertyReader = (Expression<Func<IDataReader2, double>>)((IDataReader2 dataReader) => GetAsNumeric<double>(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, double>>)((IDataRecord dataReader) => GetAsNumeric<double>(dataReader, valueIndex));
             }
             else if (returnType == typeof(decimal))
             {
-                propertyReader = (Expression<Func<IDataReader2, decimal>>)((IDataReader2 dataReader) => GetAsNumeric<decimal>(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, decimal>>)((IDataRecord dataReader) => GetAsNumeric<decimal>(dataReader, valueIndex));
             }
             else if (returnType == typeof(DateTime))
             {
-                propertyReader = (Expression<Func<IDataReader2, DateTime>>)((IDataReader2 dataReader) => dataReader.GetDateTime(valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, DateTime>>)((IDataRecord dataReader) => dataReader.GetDateTime(valueIndex));
             }
             else if (returnType == typeof(byte[]))
             {
-                propertyReader = (Expression<Func<IDataReader2, byte[]>>)((IDataReader2 dataReader) => dataReader.GetBytes(valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, byte[]>>)((IDataRecord dataReader) => GetAsBytes(dataReader, valueIndex));
             }
             else if (returnType.IsEnum)
             {
-                propertyReader = Expression.Convert((Expression<Func<IDataReader2, int>>)((IDataReader2 dataReader) => GetAsNumeric<int>(dataReader, valueIndex)), returnType);
+                propertyReader = Expression.Convert((Expression<Func<IDataRecord, int>>)((IDataRecord dataReader) => GetAsNumeric<int>(dataReader, valueIndex)), returnType);
             }
             else
             {
@@ -904,7 +765,7 @@ namespace DbLinq.Util
                 Expression simplePropertyReader = Expression.Convert(Expression.Invoke(GetSimplePropertyReader(nullableValueType, valueIndex), reader), returnType);
                 Expression zero = Expression.Constant(null, returnType);
                 propertyReader = Expression.Condition(
-                    Expression.Invoke((Expression<Func<IDataReader2, bool>>)((IDataReader2 dataReader) => dataReader.IsDBNull(valueIndex)), reader),
+                    Expression.Invoke((Expression<Func<IDataRecord, bool>>)((IDataRecord dataReader) => dataReader.IsDBNull(valueIndex)), reader),
                     zero, simplePropertyReader);
             }
             else
@@ -957,7 +818,7 @@ namespace DbLinq.Util
         /// <summary>
         /// helper method for reading in an int from SqlDataReader, and casting it to enum
         /// </summary>
-        public static T2 GetEnum<T2>(IDataReader2 reader, int field)
+        public static T2 GetEnum<T2>(IDataRecord reader, int field)
         {
             int i = reader.GetInt32(field);
             return (T2)Enum.ToObject(typeof(T2), i);

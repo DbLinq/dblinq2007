@@ -25,6 +25,7 @@
 #endregion
 
 using System;
+using System.Data;
 
 namespace DbLinq.Vendor
 {
@@ -37,8 +38,7 @@ namespace DbLinq.Vendor
     /// I haven't checked, but I assume that bug is fixed - 
     /// but I found it very useful to be able to set breakpoints in  the reader function.
     /// </summary>
-    public interface IDataReader2: IDisposable
-        //: System.Data.IDataReader //causes too many errors: missing NextResult(), Depth, ...
+    public interface IDataReader2: IDataReader
     {
         short? GetInt16N(int index);
         char? GetCharN(int index);
@@ -58,29 +58,29 @@ namespace DbLinq.Vendor
         /// </summary>
         byte[] GetBytes(int index);
 
-        #region regular IDataReader functions that we used in compiled code
+        //#region regular IDataReader functions that we used in compiled code
 
-        bool Read();
-        int FieldCount { get; }
+        //bool Read();
+        //int FieldCount { get; }
 
-        bool GetBoolean(int index);
-        byte GetByte(int index);
-        char GetChar(int index);
-        DateTime GetDateTime(int index);
-        decimal GetDecimal(int index);
-        double GetDouble(int index);
-        float GetFloat(int index);
-        short GetInt16(int index);
-        int GetInt32(int index);
-        long GetInt64(int index);
-        uint GetUInt32(int index);
-        ulong GetUInt64(int index);
+        //bool GetBoolean(int index);
+        //byte GetByte(int index);
+        //char GetChar(int index);
+        //DateTime GetDateTime(int index);
+        //decimal GetDecimal(int index);
+        //double GetDouble(int index);
+        //float GetFloat(int index);
+        //short GetInt16(int index);
+        //int GetInt32(int index);
+        //long GetInt64(int index);
+        //uint GetUInt32(int index);
+        //ulong GetUInt64(int index);
 
-        string GetString(int index);
+        //string GetString(int index);
 
-        #endregion
+        //#endregion
 
-        bool IsDBNull(int index);
-        object GetValue(int index);
+        //bool IsDBNull(int index);
+        //object GetValue(int index);
     }
 }
