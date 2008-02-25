@@ -42,7 +42,7 @@ namespace DbLinq.MySql
     /// </summary>
     public class MySqlDataReader2 : DataReader2 //, IDataRecord
     {
-        protected MySqlDataReader Reader { get { return _rdr as MySqlDataReader; } }
+        protected MySqlDataReader Reader { get { return _reader as MySqlDataReader; } }
 
         public MySqlDataReader2(IDataReader rdr)
             : base(rdr)
@@ -55,9 +55,9 @@ namespace DbLinq.MySql
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if(_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetInt16(index);
+                return _reader.GetInt16(index);
             } 
             catch(Exception ex)
             {
@@ -70,9 +70,9 @@ namespace DbLinq.MySql
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if(_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetChar(index);
+                return _reader.GetChar(index);
             } 
             catch(Exception ex)
             {
@@ -85,19 +85,19 @@ namespace DbLinq.MySql
         {
             //support for 'Product.Discontinued' field in Northwind DB - it's nullable, but MS samples map it to plain bool
             // picrap: shall we support this?
-            if (_rdr.IsDBNull(index))
+            if (_reader.IsDBNull(index))
                 return false; 
 
-            return _rdr.GetBoolean(index); 
+            return _reader.GetBoolean(index); 
         }
 
         public override bool? GetBooleanN(int index)
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if(_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetBoolean(index);
+                return _reader.GetBoolean(index);
             } 
             catch(Exception ex)
             {
@@ -110,7 +110,7 @@ namespace DbLinq.MySql
         {
             try
             {
-                return _rdr.GetInt32(index);
+                return _reader.GetInt32(index);
             } 
             catch(Exception ex)
             {
@@ -122,9 +122,9 @@ namespace DbLinq.MySql
         {
             try
             {
-                if (_rdr.IsDBNull(index))
+                if (_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetInt32(index);
+                return _reader.GetInt32(index);
             }
             catch (Exception ex)
             {
@@ -144,7 +144,7 @@ namespace DbLinq.MySql
             {
                 Console.WriteLine("GetUInt32("+index+") failed: "+ex);
                 try {
-                    object obj = _rdr.GetValue(index);
+                    object obj = _reader.GetValue(index);
                     Console.WriteLine("GetUInt32 failed, offending val: "+obj);
                 } catch(Exception){}
                 return 0;
@@ -155,7 +155,7 @@ namespace DbLinq.MySql
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if(_reader.IsDBNull(index))
                     return null;
                 return Reader.GetUInt32(index);
             } 
@@ -170,7 +170,7 @@ namespace DbLinq.MySql
         {
             try
             {
-                return _rdr.GetFloat(index);
+                return _reader.GetFloat(index);
             } 
             catch(Exception ex)
             {
@@ -183,9 +183,9 @@ namespace DbLinq.MySql
         {
             try
             {
-                if (_rdr.IsDBNull(index))
+                if (_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetFloat(index);
+                return _reader.GetFloat(index);
             }
             catch (Exception ex)
             {
@@ -198,7 +198,7 @@ namespace DbLinq.MySql
         {
             try
             {
-                return _rdr.GetDouble(index);
+                return _reader.GetDouble(index);
             } 
             catch(Exception ex)
             {
@@ -210,9 +210,9 @@ namespace DbLinq.MySql
         {
             try
             {
-                if (_rdr.IsDBNull(index))
+                if (_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetDouble(index);
+                return _reader.GetDouble(index);
             }
             catch (Exception ex)
             {
@@ -225,7 +225,7 @@ namespace DbLinq.MySql
         {
             try
             {
-                return _rdr.GetDecimal(index);
+                return _reader.GetDecimal(index);
             } 
             catch(Exception ex)
             {
@@ -237,9 +237,9 @@ namespace DbLinq.MySql
         {
             try
             {
-                if (_rdr.IsDBNull(index))
+                if (_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetDecimal(index);
+                return _reader.GetDecimal(index);
             }
             catch (Exception ex)
             {
@@ -251,7 +251,7 @@ namespace DbLinq.MySql
         {
             try
             {
-                return _rdr.GetDateTime(index);
+                return _reader.GetDateTime(index);
             } 
             catch(Exception ex)
             {
@@ -263,9 +263,9 @@ namespace DbLinq.MySql
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if(_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetDateTime(index);
+                return _reader.GetDateTime(index);
             } 
             catch(Exception ex)
             {
@@ -278,9 +278,9 @@ namespace DbLinq.MySql
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if(_reader.IsDBNull(index))
                     return -1;
-                return _rdr.GetInt64(index);
+                return _reader.GetInt64(index);
             } 
             catch(Exception ex)
             {
@@ -292,9 +292,9 @@ namespace DbLinq.MySql
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if(_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetInt64(index);
+                return _reader.GetInt64(index);
             } 
             catch(Exception ex)
             {
@@ -311,7 +311,7 @@ namespace DbLinq.MySql
         {
             try
             {
-                return _rdr.GetString(index);
+                return _reader.GetString(index);
             } 
             catch(Exception ex)
             {
@@ -326,7 +326,7 @@ namespace DbLinq.MySql
             {
                 //System.Data.SqlClient.SqlDataReader rdr2;
                 //rdr2.GetSqlBinary(); //SqlBinary does not seem to exist on MySql
-                object obj = _rdr.GetValue(index);
+                object obj = _reader.GetValue(index);
                 if(obj==null)
                     return null; //nullable blob?
                 byte[] bytes = obj as byte[];
@@ -350,9 +350,9 @@ namespace DbLinq.MySql
         {
             try
             {
-                int value = (_rdr.IsDBNull(index))
+                int value = (_reader.IsDBNull(index))
                                 ? 0
-                                : _rdr.GetInt32(index);
+                                : _reader.GetInt32(index);
                 return (T2)Enum.ToObject(typeof(T2), value);
             }
             catch (Exception ex)

@@ -51,8 +51,8 @@ namespace DbLinq.Util
     /// <typeparam name="T">the return type, containing an IGrouping</typeparam>
     public class RowEnumeratorGroupBy<T, Key, Val> : RowEnumerator<T>
     {
-        Func<IDataReader2,Key> _keyReadFunc = null;
-        Func<IDataReader2,Val> _valReadFunc = null;
+        Func<IDataRecord,Key> _keyReadFunc = null;
+        Func<IDataRecord,Val> _valReadFunc = null;
 
         public RowEnumeratorGroupBy(SessionVarsParsed vars)
             :base(vars,null)
@@ -92,7 +92,7 @@ namespace DbLinq.Util
             //newConn.Open();
             //TODO: use connection pool instead of always opening a new one
 
-            IDataReader2 rdr2;
+            IDataReader rdr2;
             using( new ConnectionManager(_conn) )
             using( IDbCommand cmd = ExecuteSqlCommand(_conn, out rdr2) )
             using( rdr2 )

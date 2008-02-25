@@ -42,7 +42,7 @@ namespace DbLinq.PostgreSql
     /// </summary>
     public class PgsqlDataReader2 : DataReader2
     {
-        protected NpgsqlDataReader Reader { get { return _rdr as NpgsqlDataReader; } }
+        protected NpgsqlDataReader Reader { get { return _reader as NpgsqlDataReader; } }
 
         public PgsqlDataReader2(IDataReader rdr)
             : base(rdr)
@@ -55,9 +55,9 @@ namespace DbLinq.PostgreSql
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if(_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetInt16(index);
+                return _reader.GetInt16(index);
             } 
             catch(Exception ex)
             {
@@ -70,9 +70,9 @@ namespace DbLinq.PostgreSql
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if(_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetChar(index);
+                return _reader.GetChar(index);
             } 
             catch(Exception ex)
             {
@@ -85,9 +85,9 @@ namespace DbLinq.PostgreSql
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if(_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetBoolean(index);
+                return _reader.GetBoolean(index);
             } 
             catch(Exception ex)
             {
@@ -104,7 +104,7 @@ namespace DbLinq.PostgreSql
                 NpgsqlTypes.NpgsqlDbType dbType2 = Reader.GetFieldNpgsqlDbType(index);
                 if(dbType2==NpgsqlTypes.NpgsqlDbType.Bigint)
                 {
-                    return (int)_rdr.GetInt64(index);
+                    return (int)_reader.GetInt64(index);
                 }
                 else if(dbType2==NpgsqlTypes.NpgsqlDbType.Integer)
                 {
@@ -114,18 +114,18 @@ namespace DbLinq.PostgreSql
                 {
                     //there is a problem (we're getting text)
                     Console.WriteLine("DataReader2.GetInt32: got unexpected type:"+dbType2);
-                    object val = _rdr.GetValue(index);
+                    object val = _reader.GetValue(index);
                     Console.WriteLine("DataReader2.GetInt32: got unexpected type:"+dbType2+"  val="+val);
                 }
 
                 //PgSql seems to give us Int64
-                return (int)_rdr.GetInt32(index);
+                return (int)_reader.GetInt32(index);
             } 
             catch(Exception ex)
             {
                 Console.WriteLine("GetInt32 failed: "+ex);
                 try {
-                    object obj = _rdr.GetValue(index);
+                    object obj = _reader.GetValue(index);
                     Console.WriteLine("GetInt32 failed, offending val: "+obj);
                 } catch(Exception)
                 {
@@ -138,9 +138,9 @@ namespace DbLinq.PostgreSql
         {
             try
             {
-                if (_rdr.IsDBNull(index))
+                if (_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetInt32(index);
+                return _reader.GetInt32(index);
             }
             catch (Exception ex)
             {
@@ -153,13 +153,13 @@ namespace DbLinq.PostgreSql
         {
             try
             {
-                return (uint)_rdr.GetInt32(index);
+                return (uint)_reader.GetInt32(index);
             } 
             catch(Exception ex)
             {
                 Console.WriteLine("GetUInt32("+index+") failed: "+ex);
                 try {
-                    object obj = _rdr.GetValue(index);
+                    object obj = _reader.GetValue(index);
                     Console.WriteLine("GetUInt32 failed, offending val: "+obj);
                 } catch(Exception){}
                 return 0;
@@ -170,9 +170,9 @@ namespace DbLinq.PostgreSql
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if(_reader.IsDBNull(index))
                     return null;
-                return (uint)_rdr.GetInt32(index);
+                return (uint)_reader.GetInt32(index);
             } 
             catch(Exception ex)
             {
@@ -185,7 +185,7 @@ namespace DbLinq.PostgreSql
         {
             try
             {
-                return _rdr.GetFloat(index);
+                return _reader.GetFloat(index);
             } 
             catch(Exception ex)
             {
@@ -198,9 +198,9 @@ namespace DbLinq.PostgreSql
         {
             try
             {
-                if (_rdr.IsDBNull(index))
+                if (_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetFloat(index);
+                return _reader.GetFloat(index);
             }
             catch (Exception ex)
             {
@@ -213,13 +213,13 @@ namespace DbLinq.PostgreSql
         {
             try
             {
-                if (_rdr.GetFieldType(index) == typeof(decimal))
+                if (_reader.GetFieldType(index) == typeof(decimal))
                 {
                     //occurs in: "SELECT AVG(ProductID) FROM Products"
-                    return (double)_rdr.GetDecimal(index);
+                    return (double)_reader.GetDecimal(index);
                 }
 
-                return _rdr.GetDouble(index);
+                return _reader.GetDouble(index);
             } 
             catch(Exception ex)
             {
@@ -232,9 +232,9 @@ namespace DbLinq.PostgreSql
         {
             try
             {
-                if (_rdr.IsDBNull(index))
+                if (_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetDouble(index);
+                return _reader.GetDouble(index);
             }
             catch (Exception ex)
             {
@@ -247,7 +247,7 @@ namespace DbLinq.PostgreSql
         {
             try
             {
-                return _rdr.GetDecimal(index);
+                return _reader.GetDecimal(index);
             } 
             catch(Exception ex)
             {
@@ -259,9 +259,9 @@ namespace DbLinq.PostgreSql
         {
             try
             {
-                if (_rdr.IsDBNull(index))
+                if (_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetDecimal(index);
+                return _reader.GetDecimal(index);
             }
             catch (Exception ex)
             {
@@ -273,7 +273,7 @@ namespace DbLinq.PostgreSql
         {
             try
             {
-                return _rdr.GetDateTime(index);
+                return _reader.GetDateTime(index);
             } 
             catch(Exception ex)
             {
@@ -285,9 +285,9 @@ namespace DbLinq.PostgreSql
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if(_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetDateTime(index);
+                return _reader.GetDateTime(index);
             } 
             catch(Exception ex)
             {
@@ -300,9 +300,9 @@ namespace DbLinq.PostgreSql
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if(_reader.IsDBNull(index))
                     return -1;
-                return _rdr.GetInt64(index);
+                return _reader.GetInt64(index);
             } 
             catch(Exception ex)
             {
@@ -314,9 +314,9 @@ namespace DbLinq.PostgreSql
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if(_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetInt64(index);
+                return _reader.GetInt64(index);
             } 
             catch(Exception ex)
             {
@@ -329,13 +329,13 @@ namespace DbLinq.PostgreSql
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if(_reader.IsDBNull(index))
                     return null;
                 // Allow to ignore trailing spaces
                 if (!DbLinq.Vendor.Settings.TrimEnd)
-                    return _rdr.GetString(index);
+                    return _reader.GetString(index);
                 else 
-                    return _rdr.GetString(index).TrimEnd();
+                    return _reader.GetString(index).TrimEnd();
             } 
             catch(Exception ex)
             {
@@ -350,7 +350,7 @@ namespace DbLinq.PostgreSql
             {
                 //System.Data.SqlClient.SqlDataReader rdr2;
                 //rdr2.GetSqlBinary(); //SqlBinary does not seem to exist on Npgsql
-                object obj = _rdr.GetValue(index);
+                object obj = _reader.GetValue(index);
                 if(obj==null)
                     return null; //nullable blob?
                 byte[] bytes = obj as byte[];

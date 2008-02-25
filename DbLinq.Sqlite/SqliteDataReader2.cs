@@ -51,9 +51,9 @@ namespace DbLinq.Sqlite
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if(_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetInt16(index);
+                return _reader.GetInt16(index);
             } 
             catch(Exception ex)
             {
@@ -66,9 +66,9 @@ namespace DbLinq.Sqlite
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if(_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetChar(index);
+                return _reader.GetChar(index);
             } 
             catch(Exception ex)
             {
@@ -80,19 +80,19 @@ namespace DbLinq.Sqlite
         public override bool GetBoolean(int index)
         {
             //support for 'Product.Discontinued' field in Northwind DB - it's nullable, but MS samples map it to plain bool
-            if (_rdr.IsDBNull(index))
+            if (_reader.IsDBNull(index))
                 return false; 
 
-            return _rdr.GetBoolean(index); 
+            return _reader.GetBoolean(index); 
         }
 
         public override bool? GetBooleanN(int index)
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if(_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetBoolean(index);
+                return _reader.GetBoolean(index);
             } 
             catch(Exception ex)
             {
@@ -105,7 +105,7 @@ namespace DbLinq.Sqlite
         {
             try
             {
-                return _rdr.GetInt32(index);
+                return _reader.GetInt32(index);
             } 
             catch(Exception ex)
             {
@@ -117,9 +117,9 @@ namespace DbLinq.Sqlite
         {
             try
             {
-                if (_rdr.IsDBNull(index))
+                if (_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetInt32(index);
+                return _reader.GetInt32(index);
             }
             catch (Exception ex)
             {
@@ -167,7 +167,7 @@ namespace DbLinq.Sqlite
         {
             try
             {
-                return _rdr.GetFloat(index);
+                return _reader.GetFloat(index);
             } 
             catch(Exception ex)
             {
@@ -180,9 +180,9 @@ namespace DbLinq.Sqlite
         {
             try
             {
-                if (_rdr.IsDBNull(index))
+                if (_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetFloat(index);
+                return _reader.GetFloat(index);
             }
             catch (Exception ex)
             {
@@ -195,7 +195,7 @@ namespace DbLinq.Sqlite
         {
             try
             {
-                return _rdr.GetDouble(index);
+                return _reader.GetDouble(index);
             } 
             catch(Exception ex)
             {
@@ -207,9 +207,9 @@ namespace DbLinq.Sqlite
         {
             try
             {
-                if (_rdr.IsDBNull(index))
+                if (_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetDouble(index);
+                return _reader.GetDouble(index);
             }
             catch (Exception ex)
             {
@@ -222,7 +222,7 @@ namespace DbLinq.Sqlite
         {
             try
             {
-                return _rdr.GetDecimal(index);
+                return _reader.GetDecimal(index);
             } 
             catch(Exception ex)
             {
@@ -234,9 +234,9 @@ namespace DbLinq.Sqlite
         {
             try
             {
-                if (_rdr.IsDBNull(index))
+                if (_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetDecimal(index);
+                return _reader.GetDecimal(index);
             }
             catch (Exception ex)
             {
@@ -248,7 +248,7 @@ namespace DbLinq.Sqlite
         {
             try
             {
-                return _rdr.GetDateTime(index);
+                return _reader.GetDateTime(index);
             } 
             catch(Exception ex)
             {
@@ -260,9 +260,9 @@ namespace DbLinq.Sqlite
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if(_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetDateTime(index);
+                return _reader.GetDateTime(index);
             } 
             catch(Exception ex)
             {
@@ -275,9 +275,9 @@ namespace DbLinq.Sqlite
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if(_reader.IsDBNull(index))
                     return -1;
-                return _rdr.GetInt64(index);
+                return _reader.GetInt64(index);
             } 
             catch(Exception ex)
             {
@@ -289,9 +289,9 @@ namespace DbLinq.Sqlite
         {
             try
             {
-                if(_rdr.IsDBNull(index))
+                if(_reader.IsDBNull(index))
                     return null;
-                return _rdr.GetInt64(index);
+                return _reader.GetInt64(index);
             } 
             catch(Exception ex)
             {
@@ -308,7 +308,7 @@ namespace DbLinq.Sqlite
         {
             try
             {
-                object obj = _rdr.GetValue(index);
+                object obj = _reader.GetValue(index);
                 if (obj == null)
                     return null; //nullable text?
 
@@ -329,8 +329,8 @@ namespace DbLinq.Sqlite
             {
                 //System.Data.SqlClient.SqlDataReader rdr2;
                 //rdr2.GetSqlBinary(); //SqlBinary does not seem to exist on MySql
-                object obj = _rdr.GetValue(index);
-                if(_rdr.IsDBNull(index))
+                object obj = _reader.GetValue(index);
+                if(_reader.IsDBNull(index))
                     return null; //nullable blob?
                 byte[] bytes = obj as byte[];
                 if(bytes!=null)
@@ -353,9 +353,9 @@ namespace DbLinq.Sqlite
         {
             try
             {
-                int value = (_rdr.IsDBNull(index))
+                int value = (_reader.IsDBNull(index))
                                 ? 0
-                                : _rdr.GetInt32(index);
+                                : _reader.GetInt32(index);
                 return (T2)Enum.ToObject(typeof(T2), value);
             }
             catch (Exception ex)

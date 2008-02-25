@@ -53,7 +53,7 @@ namespace DbLinq.Util
         protected IDbConnection _conn;
 
         //while the FatalExecuteEngineError persists, we use a wrapper class to retrieve data
-        protected Func<IDataReader2,T> _objFromRow2;
+        protected Func<IDataRecord,T> _objFromRow2;
 
         //Type _sourceType;
         protected ProjectionData _projectionData;
@@ -89,7 +89,7 @@ namespace DbLinq.Util
 
         public string GetQueryText(){ return _sqlString; }
 
-        protected IDbCommand ExecuteSqlCommand(IDbConnection newConn, out IDataReader2 rdr2)
+        protected IDbCommand ExecuteSqlCommand(IDbConnection newConn, out IDataReader rdr2)
         {
             //prepend user prolog string, if any
             string sqlFull = DbLinq.Vendor.Settings.sqlStatementProlog + _sqlString;
@@ -98,11 +98,12 @@ namespace DbLinq.Util
             IDbCommand cmd = newConn.CreateCommand();
             cmd.CommandText = sqlFull;
 
-            if(_vars._sqlParts!=null)
+            if (_vars._sqlParts != null)
             {
-                foreach(string paramName in _vars._sqlParts.ParametersMap.Keys){
+                foreach (string paramName in _vars._sqlParts.ParametersMap.Keys)
+                {
                     object value = _vars._sqlParts.ParametersMap[paramName];
-                    Trace.WriteLine("SQL PARAM: "+paramName+" = "+value);
+                    Trace.WriteLine("SQL PARAM: " + paramName + " = " + value);
 
                     IDbDataParameter parameter = cmd.CreateParameter();
                     parameter.ParameterName = paramName;
@@ -121,12 +122,12 @@ namespace DbLinq.Util
             rdr2 = _vars.Context.Vendor.CreateDataReader(_rdr);
 
             // picrap: need to solve the HasRows mystery
-/*            if (_vars.context.Log != null)
-            {
-                int fields = _rdr.FieldCount;
-                string hasRows = _rdr.HasRows ? "rows: yes" : "rows: no";
-                _vars.context.Log.WriteLine("ExecuteSqlCommand numFields=" + fields + " " + hasRows);
-            }*/
+            /*            if (_vars.context.Log != null)
+                        {
+                            int fields = _rdr.FieldCount;
+                            string hasRows = _rdr.HasRows ? "rows: yes" : "rows: no";
+                            _vars.context.Log.WriteLine("ExecuteSqlCommand numFields=" + fields + " " + hasRows);
+                        }*/
             return cmd;
         }
 
@@ -163,7 +164,7 @@ namespace DbLinq.Util
                 throw new ApplicationException("Internal error, missing _objFromRow compiled func");
             }
 
-            IDataReader2 rdr2;
+            IDataReader rdr2;
 
 #if CREATE_NEW_CONNECTION
             //string origConnString = _conn.ConnectionString; //for MySql, cannot retrieve prev ConnStr
