@@ -507,7 +507,7 @@ namespace DbLinq.Linq.Clause
                 System.Reflection.FieldInfo memberInfo = array1.Member as System.Reflection.FieldInfo;
                 object valueObj = memberInfo.GetValue(valueStruct);
                 //TODO instead of casting to array, process directly as IEnumerable
-                Array valueArray = (Array)valueObj;
+                System.Collections.IEnumerable valueArray = (System.Collections.IEnumerable)valueObj;
 
                 string separator = "";
                 foreach (object obj in valueArray)
