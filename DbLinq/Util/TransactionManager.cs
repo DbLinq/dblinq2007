@@ -1,4 +1,4 @@
-﻿//#define BEGIN_TRANSACTION
+﻿#define BEGIN_TRANSACTION
 
 using System;
 using System.Data;
