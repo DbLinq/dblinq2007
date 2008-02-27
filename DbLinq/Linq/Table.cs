@@ -67,7 +67,7 @@ namespace DbLinq.Linq
 
         private IModificationHandler _modificationHandler { get { return _parentDB.ModificationHandler; } }
 
-            public Table(DataContext parent)
+        public Table(DataContext parent)
         {
             _parentDB = parent;
             _parentDB.RegisterChild(this);
@@ -158,10 +158,37 @@ namespace DbLinq.Linq
         }
 
 
-        [Obsolete("NOT IMPLEMENTED YET - Use CreateQuery<S>")]
+        [Obsolete("COMPLETELY UNTESTED - Use CreateQuery<S>")]
         public IQueryable CreateQuery(Expression expression)
         {
-            throw new ApplicationException("Not implemented");
+            if (_parentDB.Log != null)
+            {
+                _parentDB.Log.WriteLine("MTable.CreateQuery: " + expression);
+            }
+
+            Type S = expression.Type;
+            SessionVars vars = new SessionVars(_vars).Add(expression);
+
+            //if (this is IQueryable<S>)
+            if (S == typeof(T))
+            {
+                //this occurs if we are not projecting
+                //(meaning that we are selecting entire row object)
+                Table<T> clonedThis = new Table<T>(this, vars);
+                //IQueryable<S> this_S = (IQueryable<S>)clonedThis;
+                IQueryable this_S = (IQueryable)clonedThis;
+                return this_S;
+            }
+            else
+            {
+                //if we get here, we are projecting.
+                //(eg. you select only a few fields: "select name from employee")
+                //MTable_Projected<S> projectedQ = new MTable_Projected<S>(vars);
+                Type TArg2 = S;
+                Type mtableProjectedType2 = typeof(MTable_Projected<>).MakeGenericType(TArg2);
+                object projectedQ = Activator.CreateInstance(mtableProjectedType2);
+                return projectedQ as IQueryable;
+            }
         }
 
         [Obsolete("NOT IMPLEMENTED YET - Use Execute<S>")]
@@ -304,11 +331,11 @@ namespace DbLinq.Linq
                     Trace.WriteLine("Table.SubmitChanges failed: " + ex);
                     switch (failureMode)
                     {
-                    case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                        excepts.Add(ex);
-                        break;
-                    case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                        throw ex;
+                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                            excepts.Add(ex);
+                            break;
+                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                            throw ex;
                     }
                 }
             }
