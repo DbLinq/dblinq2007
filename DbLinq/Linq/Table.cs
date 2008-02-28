@@ -148,7 +148,8 @@ namespace DbLinq.Linq
         [Obsolete("NOT IMPLEMENTED YET")]
         public Type ElementType
         {
-            get { throw new ApplicationException("Not implemented"); }
+            //we have no clue what to return here ...
+            get { return typeof(T); }
         }
 
         public Expression Expression
@@ -186,7 +187,7 @@ namespace DbLinq.Linq
                 //MTable_Projected<S> projectedQ = new MTable_Projected<S>(vars);
                 Type TArg2 = S;
                 Type mtableProjectedType2 = typeof(MTable_Projected<>).MakeGenericType(TArg2);
-                object projectedQ = Activator.CreateInstance(mtableProjectedType2);
+                object projectedQ = Activator.CreateInstance(mtableProjectedType2, vars);
                 return projectedQ as IQueryable;
             }
         }
