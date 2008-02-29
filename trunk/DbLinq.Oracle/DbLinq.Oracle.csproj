@@ -50,8 +50,6 @@
   <ItemGroup>
     <Compile Include="OracleSchemaLoader.cs" />
     <Compile Include="OracleDataContext.cs" />
-    <Compile Include="OracleDataReader2.cs" />
-    <Compile Include="OracleTypeConversions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="OracleVendor.cs" />
     <Compile Include="Schema\OraExtensions.cs" />
