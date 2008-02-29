@@ -144,7 +144,8 @@ namespace DbLinq.Vendor.Implementation
             throw new NotImplementedException();
         }
 
-        protected IDictionary<string, IDictionary<string, Enum>> typeMapsByProperty = new Dictionary<string, IDictionary<string, Enum>>();
+        private IDictionary<string, IDictionary<string, Enum>> typeMapsByProperty = new Dictionary<string, IDictionary<string, Enum>>();
+        private IDictionary<string, DbType> extraVendorTypes = new Dictionary<string, DbType>();
 
         /// <summary>
         /// Sets the database property specific type by reflection, if we have a match
@@ -169,6 +170,11 @@ namespace DbLinq.Vendor.Implementation
                 // generic type
                 parameter.DbType = extraTypes[dbTypeKey];
             }
+        }
+
+        protected void RegisterExtraVendorType(string vendorLiteral, DbType generic)
+        {
+            extraVendorTypes[vendorLiteral] = generic;
         }
 
         /// <summary>
@@ -292,7 +298,18 @@ namespace DbLinq.Vendor.Implementation
         public abstract IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt, StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded);
         public abstract string GetFieldSafeName(string name);
         public abstract IExecuteResult ExecuteMethodCall(DbLinq.Linq.DataContext context, MethodInfo method, params object[] sqlParams);
-        public abstract IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName);
-        public abstract IDataReader2 CreateDataReader(IDataReader dataReader);
+
+        public virtual IDataReader2 CreateDataReader(IDataReader dataReader)
+        {
+            return new DataReader2(dataReader);
+        }
+
+        public virtual IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
+        {
+            IDbDataParameter param = cmd.CreateParameter();
+            param.ParameterName = paramName;
+            SetDataParameterType(param, "OracleType", dbTypeName, extraVendorTypes);
+            return param;
+        }
     }
 }

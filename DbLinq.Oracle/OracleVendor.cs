@@ -2,14 +2,36 @@ using System;
 using System.Data;
 using System.Reflection;
 using System.Collections.Generic;
+#region MIT license
+////////////////////////////////////////////////////////////////////
+// MIT license:
+// Permission is hereby granted, free of charge, to any person obtaining
+// a copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to
+// permit persons to whom the Software is furnished to do so, subject to
+// the following conditions:
+//
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+//
+// Authors:
+//        Jiri George Moudry
+////////////////////////////////////////////////////////////////////
+#endregion
+
 using System.Text;
-using System.Linq;
-using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
-using DbLinq.Oracle;
 using DbLinq.Linq;
-using DbLinq.Vendor;
 
 namespace DbLinq.Oracle
 {
@@ -17,28 +39,16 @@ namespace DbLinq.Oracle
     {
         public override string VendorName { get { return "Oracle"; } }
 
-        //public const string SQL_PING_COMMAND = "SELECT 11 FROM DUAL";
-
         public override string SqlPingCommand
         {
             get { return "SELECT 11 FROM DUAL"; }
         }
 
-        private IDictionary<string, DbType> extraTypes = new Dictionary<string, DbType>();
-
         public OracleVendor()
         {
-            extraTypes["tinyint"] = DbType.Int16;
-            extraTypes["int"] = DbType.Int32;
-            extraTypes["varchar2"] = DbType.AnsiString;
-        }
-
-        public override IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
-        {
-            IDbDataParameter param = cmd.CreateParameter();
-            param.ParameterName = paramName;
-            SetDataParameterType(param, "OracleType", dbTypeName, extraTypes);
-            return param;
+            RegisterExtraVendorType("tinyint", DbType.Int16);
+            RegisterExtraVendorType("int", DbType.Int32);
+            RegisterExtraVendorType("varchar2", DbType.AnsiString);
         }
 
         /// <summary>
@@ -100,11 +110,6 @@ namespace DbLinq.Oracle
                                                                  , params object[] inputValues)
         {
             throw new NotImplementedException();
-        }
-
-        public override IDataReader2 CreateDataReader(IDataReader dataReader)
-        {
-            return new OracleDataReader2(dataReader);
         }
 
         protected override void AddEarlyLimits(SqlExpressionParts parts, List<string> whereAndjoins)
