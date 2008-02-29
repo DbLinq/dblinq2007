@@ -25,44 +25,31 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
+using System.Linq.Expressions;
 
-namespace DbLinq.Util
+namespace DbLinq.Linq.Implementation
 {
-    public static class DataCommand
+    public class QueryGenerator: IQueryGenerator
     {
-        public delegate T ReadDelegate<T>(IDataReader reader);
-
-        public static List<T> Find<T>(IDbConnection conn, string sql, string dbParameterName, string db, ReadDelegate<T> readDelegate)
+        public SessionVarsParsed GenerateQuery(SessionVars vars, Type T)
         {
-            using (IDbCommand command = conn.CreateCommand())
+            SessionVarsParsed sessionVarsParsed = new SessionVarsParsed(vars);
+            vars.Context.OnQuerying(sessionVarsParsed);
+            QueryProcessor queryProcessor = new QueryProcessor(sessionVarsParsed); //TODO
+
+            foreach (MethodCallExpression expr in vars.ExpressionChain)
             {
-                command.CommandText = sql;
-                if (dbParameterName != null)
-                {
-                    IDbDataParameter parameter = command.CreateParameter();
-                    parameter.ParameterName = dbParameterName;
-                    parameter.Value = db;
-                    command.Parameters.Add(parameter);
-                }
-                using (IDataReader rdr = command.ExecuteReader())
-                {
-                    List<T> list = new List<T>();
-                    while (rdr.Read())
-                    {
-                        list.Add(readDelegate(rdr));
-                    }
-                    return list;
-                }
+                queryProcessor.ProcessQuery(expr);
             }
-        }
 
-        public static List<T> Find<T>(IDbConnection conn, string sql, ReadDelegate<T> readDelegate)
-        {
-            return Find<T>(conn, sql, null, null, readDelegate);
+            if (queryProcessor.LastQueryName == "GroupBy")
+                throw new InvalidOperationException("L98 GroupBy must by followed by an aggregate expression, such as Count or Max");
+
+            queryProcessor.ProcessScalarExpression();
+
+            queryProcessor.BuildSqlString(T);
+
+            return sessionVarsParsed;
         }
     }
 }

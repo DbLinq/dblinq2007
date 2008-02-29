@@ -38,7 +38,7 @@ namespace DbLinq.Linq
 {
     /// <summary>
     /// after all Lambdas (queries) are collected, GetEnumerator() is called.
-    /// This results in a call to QueryProcess.ProcessLambdas (below).
+    /// This results in a call to QueryProcess.GenerateQuery (below).
     /// QueryProcessor then calls ExpressionTreeParser to build SQL expression from parts
     /// </summary>
     public partial class QueryProcessor
@@ -71,9 +71,9 @@ namespace DbLinq.Linq
         /// <summary>
         /// eg. 'Select' or Join
         /// </summary>
-        public string lastQueryName;
+        public string LastQueryName;
 
-        private QueryProcessor(SessionVarsParsed vars)
+        internal QueryProcessor(SessionVarsParsed vars)
         {
             _vars = vars;
         }
@@ -83,27 +83,27 @@ namespace DbLinq.Linq
         /// main method, which processes expressions, compiles, and puts together our SQL string.
         /// </summary>
         /// <param name="vars"></param>
-        public static SessionVarsParsed ProcessLambdas(SessionVars vars, Type T)
-        {
-            SessionVarsParsed varsFin = new SessionVarsParsed(vars);
-            QueryProcessor qp = new QueryProcessor(varsFin); //TODO
+        //public static SessionVarsParsed GenerateQuery(SessionVars vars, Type T)
+        //{
+        //    SessionVarsParsed varsFin = new SessionVarsParsed(vars);
+        //    QueryProcessor qp = new QueryProcessor(varsFin); //TODO
 
-            foreach (MethodCallExpression expr in vars.ExpressionChain)
-            {
-                qp.processQuery(expr);
-            }
+        //    foreach (MethodCallExpression expr in vars.ExpressionChain)
+        //    {
+        //        qp.ProcessQuery(expr);
+        //    }
 
-            if (qp.lastQueryName == "GroupBy")
-                throw new InvalidOperationException("L98 GroupBy must by followed by an aggregate expression, such as Count or Max");
+        //    if (qp.LastQueryName == "GroupBy")
+        //        throw new InvalidOperationException("L98 GroupBy must by followed by an aggregate expression, such as Count or Max");
 
-            qp.processScalarExpression();
+        //    qp.ProcessScalarExpression();
 
-            qp.build_SQL_string(T);
+        //    qp.BuildSqlString(T);
 
-            return varsFin;
-        }
+        //    return varsFin;
+        //}
 
-        void processScalarExpression()
+        public void ProcessScalarExpression()
         {
             if (_vars.ScalarExpression == null)
                 return;
@@ -119,18 +119,18 @@ namespace DbLinq.Linq
                 case "Max":
                 case "Min":
                 case "Sum":
-                    _vars._sqlParts.CountClause = methodName.ToUpper();
+                    _vars.SqlParts.CountClause = methodName.ToUpper();
                     break;
                 case "Average":
-                    _vars._sqlParts.CountClause = "AVG";
+                    _vars.SqlParts.CountClause = "AVG";
                     break;
                 case "Single":
                 case "SingleOrDefault":
-                    _vars._sqlParts.LimitClause = 2;
+                    _vars.SqlParts.LimitClause = 2;
                     break;
                 case "First":
                 case "FirstOrDefault":
-                    _vars._sqlParts.LimitClause = 1;
+                    _vars.SqlParts.LimitClause = 1;
                     break;
             }
 
@@ -148,25 +148,25 @@ namespace DbLinq.Linq
         /// <summary>
         /// Post-process and build SQL string.
         /// </summary>
-        string build_SQL_string(Type T)
+        public string BuildSqlString(Type T)
         {
             //eg. '$p' for user query "from p in db.products"
-            if (_vars._sqlParts.IsEmpty())
+            if (_vars.SqlParts.IsEmpty())
             {
                 //occurs when there no Where or Select expression, eg. 'from p in Products select p'
                 //select all fields of target type:
                 string varName = GetDefaultVarName(T); //'$x'
-                FromClauseBuilder.SelectAllFields(_vars, _vars._sqlParts, T, varName);
-                //PS. Should _sqlParts not be empty here? Debug Clone() and AnalyzeLambda()
+                FromClauseBuilder.SelectAllFields(_vars, _vars.SqlParts, T, varName);
+                //PS. Should SqlParts not be empty here? Debug Clone() and AnalyzeLambda()
             }
 
-            //string sql = _vars._sqlParts.ToString();
-            string sql = _vars.Context.Vendor.BuildSqlString(_vars._sqlParts);
+            //string sql = _vars.SqlParts.ToString();
+            string sql = _vars.Context.Vendor.BuildSqlString(_vars.SqlParts);
 
             if (_vars.Context.Log!=null)
                 _vars.Context.Log.WriteLine("SQL: " + sql);
 
-            _vars.sqlString = sql;
+            _vars.SqlString = sql;
             return sql;
         }
 
@@ -174,7 +174,7 @@ namespace DbLinq.Linq
         /// traverse expression and extract various selectExpr, orderByExpr, sqlParts, etc
         /// </summary>
         /// <param name="expr"></param>
-        public void processQuery(MethodCallExpression exprCall)
+        public void ProcessQuery(MethodCallExpression exprCall)
         {
             string methodName = exprCall.Method.Name;
 
@@ -183,7 +183,7 @@ namespace DbLinq.Linq
                 ? exprCall.Arguments[1].XLambda()
                 : null; //for Distinct(), we have no lambda (see F10_DistinctCity)
             
-            lastQueryName = methodName;
+            LastQueryName = methodName;
 
             switch (methodName)
             {
@@ -219,13 +219,13 @@ namespace DbLinq.Linq
                         if (howMany == null)
                             throw new ArgumentException("Take(),Skip() must come with ConstExpr");
                         if (methodName == "Skip")
-                            _vars._sqlParts.OffsetClause = (int)howMany.Value;
+                            _vars.SqlParts.OffsetClause = (int)howMany.Value;
                         else
-                            _vars._sqlParts.LimitClause = (int)howMany.Value;
+                            _vars.SqlParts.LimitClause = (int)howMany.Value;
                     }
                     return;
                 case "Distinct":
-                    _vars._sqlParts.DistinctClause = "DISTINCT"; // TODO --> IVendor
+                    _vars.SqlParts.DistinctClause = "DISTINCT"; // TODO --> IVendor
                     return;
                 default:
                     Console.WriteLine("################# L308 TODO " + methodName);
@@ -274,8 +274,8 @@ namespace DbLinq.Linq
         }
 
         /// <summary>
-        /// replace {g.Key} with groupByExpr={o.CustomerID} --if key was not composite
-        /// replace {g.Key.CustomerID} with groupByExpr={o.CustomerID} --if key had multiple fields
+        /// replace {g.Key} with GroupByExpression={o.CustomerID} --if key was not composite
+        /// replace {g.Key.CustomerID} with GroupByExpression={o.CustomerID} --if key had multiple fields
         /// </summary>
         /// <returns></returns>
         public Expression SubstitueGroupKeyExpression(MemberExpression memberExpr)
@@ -283,7 +283,7 @@ namespace DbLinq.Linq
             if (memberExpr.Expression.NodeType == ExpressionType.MemberAccess)
             {
                 //handle case {g.Key.CustomerID} - test case G03_DoubleKey()
-                NewExpression newEx = _vars.groupByExpr.Body.XNew(); //{new <>f__AnonymousTypef`2(CustomerID = o.CustomerID, EmployeeID = o.EmployeeID)}
+                NewExpression newEx = _vars.GroupByExpression.Body.XNew(); //{new <>f__AnonymousTypef`2(CustomerID = o.CustomerID, EmployeeID = o.EmployeeID)}
                 foreach (Expression ex1 in newEx.Arguments)
                 {
                     if(ex1.NodeType!=ExpressionType.MemberAccess) 
@@ -295,14 +295,14 @@ namespace DbLinq.Linq
                         return ex1Member;
                 }
                 throw new ApplicationException("L294 Cannot find Member " + memberExpr.Member + " in groupBy clause");
-                //ParameterExpression paramexpr = _vars.groupByExpr.Body.XNew().XMember().XParam(); //{o}
+                //ParameterExpression paramexpr = _vars.GroupByExpression.Body.XNew().XMember().XParam(); //{o}
                 //MemberExpression memberExpr2 = Expression.MakeMemberAccess(paramexpr, memberExpr.Member);
                 //return memberExpr2; //return part of composite key {o.CustomerID}
             }
             else
             {
                 //handle case {g.Key}
-                return _vars.groupByExpr.Body; //return non composite key {o.CustomerID}
+                return _vars.GroupByExpression.Body; //return non composite key {o.CustomerID}
             }
         }
 

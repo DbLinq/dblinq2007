@@ -32,22 +32,22 @@ namespace DbLinq.Linq
     /// the 'finalized' SessionVars.
     /// (meaning expressions have been parsed, after enumeration has started).
     /// 
-    /// You create an instance via QueryProcessor.ProcessLambdas()
+    /// You create an instance via QueryProcessor.GenerateQuery()
     /// </summary>
     public sealed class SessionVarsParsed : SessionVars
     {
         /// <summary>
         /// components of SQL expression (where clause, order, select ...)
         /// </summary>
-        public SqlExpressionParts _sqlParts;
+        public SqlExpressionParts SqlParts;
 
-        public LambdaExpression groupByExpr;
-        public LambdaExpression groupByNewExpr;
+        public LambdaExpression GroupByExpression;
+        public LambdaExpression GroupByNewExpression;
 
         /// <summary>
         /// list of reflected fields - this will be used to compile a row reader method
         /// </summary>
-        public ProjectionData projectionData;
+        public ProjectionData ProjectionData;
 
         /// <summary>
         /// in SelectMany, there is mapping c.Orders => o
@@ -55,15 +55,16 @@ namespace DbLinq.Linq
         //public Dictionary<MemberExpression,string> memberExprNickames = new Dictionary<MemberExpression,string>();
 
         /// <summary>
-        /// created by post-processing in QueryProcessor.build_SQL_string(), used in RowEnumerator
+        /// created by post-processing in QueryProcessor.BuildSqlString(), used in RowEnumerator
         /// </summary>
-        public string sqlString;
+        public string SqlString;
 
+        public string sqlProlog = string.Empty;
 
         public SessionVarsParsed(SessionVars vars)
             : base(vars)
         {
-            _sqlParts = new SqlExpressionParts(vars.Context.Vendor);
+            SqlParts = new SqlExpressionParts(vars.Context.Vendor);
         }
     }
 }

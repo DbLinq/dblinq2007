@@ -25,16 +25,14 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using DbLinq.Vendor;
 
 namespace DbLinq.Linq
 {
-    public interface IDataMapper
+    /// <summary>
+    /// Generates the full SQL query, starting from SessionVars and Type
+    /// </summary>
+    public interface IQueryGenerator
     {
-        Func<IDataRecord, T> GetMapper<T>(SessionVarsParsed vars);
+        SessionVarsParsed GenerateQuery(SessionVars vars, Type T);
     }
 }

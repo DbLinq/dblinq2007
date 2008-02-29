@@ -55,9 +55,9 @@ namespace DbLinq.Linq.Clause
             {
                 //GroupBy: given t=Proj, find our table type
                 //example: GroupBy-proj: {c => new {PostalCode = c.PostalCode, ContactName = c.ContactName}}
-                if (t == vars.groupByNewExpr.Body.Type)
+                if (t == vars.GroupByNewExpression.Body.Type)
                 {
-                    Type groupByParamT = vars.groupByNewExpr.Parameters[0].Type; //this is 'c' in the example
+                    Type groupByParamT = vars.GroupByNewExpression.Parameters[0].Type; //this is 'c' in the example
                     tAttrib = AttribHelper.GetTableAttrib(groupByParamT);
                 }
             }
@@ -72,12 +72,12 @@ namespace DbLinq.Linq.Clause
             }
             selectParts.DoneClauses.Add(nick);
 
-            if (vars.projectionData == null)
+            if (vars.ProjectionData == null)
             {
-                vars.projectionData = ProjectionData.FromDbType(t);
+                vars.ProjectionData = ProjectionData.FromDbType(t);
             }
 
-            ColumnAttribute[] colAttribs2 = vars.projectionData.fields
+            ColumnAttribute[] colAttribs2 = vars.ProjectionData.fields
                 .Select(f => f.columnAttribute)
                 .ToArray();
 

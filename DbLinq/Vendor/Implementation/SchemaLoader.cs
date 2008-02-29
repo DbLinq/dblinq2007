@@ -28,7 +28,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using DbLinq.Linq;
-using DbLinq.Util;
+using DbLinq.Linq.Implementation;
 
 namespace DbLinq.Vendor.Implementation
 {

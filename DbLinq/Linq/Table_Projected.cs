@@ -93,7 +93,7 @@ namespace DbLinq.Linq
                 _vars.Context.Log.WriteLine("MTable_Proj.Execute<" + typeof(S) + ">: " + expression);
 
             SessionVars vars = new SessionVars(_vars).AddScalar(expression); //clone and append Expr
-            SessionVarsParsed varsFin = QueryProcessor.ProcessLambdas(vars, null); //parse all
+            SessionVarsParsed varsFin =  _vars.Context.QueryGenerator.GenerateQuery(vars, null); //parse all
             //SessionVars vars = _vars.Clone();
             return new RowScalar<T>(varsFin, this, null).GetScalar<S>(expression);
         }
@@ -108,7 +108,7 @@ namespace DbLinq.Linq
                 _vars.Context.Log.WriteLine("MTable_Proj.GetEnumerator <"+typeof(T)+">");
 
             //SessionVars vars = _vars.Clone();
-            SessionVarsParsed varsFin = QueryProcessor.ProcessLambdas(_vars, typeof(T)); //for test D7, already done in MTable.CreateQ?
+            SessionVarsParsed varsFin = _vars.Context.QueryGenerator.GenerateQuery(_vars, typeof(T)); //for test D7, already done in MTable.CreateQ?
 
             RowEnumerator<T> rowEnumerator = RowEnumFactory<T>.Create(varsFin, null);
 
@@ -144,8 +144,8 @@ namespace DbLinq.Linq
 
         public string GetQueryText()
         {
-            SessionVarsParsed varsFin = QueryProcessor.ProcessLambdas(_vars, typeof(T));
-            return varsFin.sqlString;
+            SessionVarsParsed varsFin = _vars.Context.QueryGenerator.GenerateQuery(_vars, typeof(T));
+            return varsFin.SqlString;
         }
 
         public void Dispose()

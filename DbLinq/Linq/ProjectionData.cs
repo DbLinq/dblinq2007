@@ -291,7 +291,7 @@ namespace DbLinq.Linq
             MemberInitExpression memberInit = selectExpr.Body as MemberInitExpression;
             if (memberInit == null && groupByExpr.Body.NodeType == ExpressionType.MemberInit)
             {
-                //use groupByExpr rather than selectExpr
+                //use GroupByExpression rather than selectExpr
                 memberInit = groupByExpr.Body as MemberInitExpression;
             }
             if (memberInit == null)
@@ -385,7 +385,7 @@ namespace DbLinq.Linq
                         ////TODO: for GroupBy selects, replace 'g.Key' with 'o.CustomerID':
                         //if(projField.expr1.Member.Name=="Key")
                         //{
-                        //    projField.expr1 = groupByExpr.Body as MemberExpression;
+                        //    projField.expr1 = GroupByExpression.Body as MemberExpression;
                         //    sqlParts.SelectFieldList.Add(projField.expr1.Member.Name);
                         //}
                         break;

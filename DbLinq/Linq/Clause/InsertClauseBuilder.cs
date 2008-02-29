@@ -56,9 +56,9 @@ namespace DbLinq.Linq.Clause
             if (projData.fields.Count < 1 || projData.fields[0].columnAttribute == null)
                 throw new ApplicationException("InsertClauseBuilder need to receive types that have ColumnAttributes");
 
-            IDbCommand cmd = conn.CreateCommand(); // picrap: moved the command up: it's used by the vendors
+            IDbCommand cmd = conn.CreateCommand();
 
-            StringBuilder sb = new StringBuilder(DbLinq.Vendor.Settings.sqlStatementProlog)
+            StringBuilder sb = new StringBuilder(/*DbLinq.Vendor.Settings.sqlStatementProlog*/)
                 .Append("INSERT INTO ");
             StringBuilder sbValues = new StringBuilder("VALUES (");
             StringBuilder sbIdentity = new StringBuilder();

@@ -58,19 +58,19 @@ namespace DbLinq.Linq
         /// <summary>
         /// the parent MContext holds our connection etc
         /// </summary>
-        private DataContext _parentDB;
+        public DataContext DataContext { get; private set; }
         private readonly List<T> _insertList = new List<T>();
         private readonly Dictionary<T, T> _liveObjectMap = new Dictionary<T, T>();
         private readonly List<T> _deleteList = new List<T>();
 
         private readonly SessionVars _vars;
 
-        private IModificationHandler _modificationHandler { get { return _parentDB.ModificationHandler; } }
+        private IModificationHandler _modificationHandler { get { return DataContext.ModificationHandler; } }
 
         public Table(DataContext parent)
         {
-            _parentDB = parent;
-            _parentDB.RegisterChild(this);
+            DataContext = parent;
+            DataContext.RegisterChild(this);
             _vars = new SessionVars(parent);
         }
 
@@ -82,7 +82,7 @@ namespace DbLinq.Linq
             _insertList = parent._insertList;
             _liveObjectMap = parent._liveObjectMap;
             _deleteList = parent._deleteList;
-            _parentDB = parent._parentDB;
+            DataContext = parent.DataContext;
             _vars = vars;
         }
 
@@ -92,9 +92,9 @@ namespace DbLinq.Linq
         /// </summary>
         public IQueryable<S> CreateQuery<S>(Expression expr)
         {
-            if (_parentDB.Log != null)
+            if (DataContext.Log != null)
             {
-                _parentDB.Log.WriteLine("MTable.CreateQuery: " + expr);
+                DataContext.Log.WriteLine("MTable.CreateQuery: " + expr);
             }
 
             SessionVars vars = new SessionVars(_vars).Add(expr);
@@ -123,9 +123,9 @@ namespace DbLinq.Linq
         [Obsolete("COMPLETELY UNTESTED - Use CreateQuery<S>")]
         public IQueryable CreateQuery(Expression expression)
         {
-            if (_parentDB.Log != null)
+            if (DataContext.Log != null)
             {
-                _parentDB.Log.WriteLine("MTable.CreateQuery: " + expression);
+                DataContext.Log.WriteLine("MTable.CreateQuery: " + expression);
             }
 
             Type S = expression.Type;
@@ -160,7 +160,7 @@ namespace DbLinq.Linq
         {
             Log1.Info("MTable.Execute<" + typeof(S) + ">: " + expression);
             SessionVars vars2 = new SessionVars(_vars).AddScalar(expression); //clone and append Expr
-            SessionVarsParsed varsFin = QueryProcessor.ProcessLambdas(vars2, typeof(T)); //parse all
+            SessionVarsParsed varsFin = _vars.Context.QueryGenerator.GenerateQuery(vars2, typeof(T)); //parse all
             return new RowScalar<T>(varsFin, this, _liveObjectMap).GetScalar<S>(expression);
         }
 
@@ -169,7 +169,7 @@ namespace DbLinq.Linq
         /// </summary>
         public IEnumerator<T> GetEnumerator()
         {
-            SessionVarsParsed varsFin = QueryProcessor.ProcessLambdas(_vars, typeof(T));
+            SessionVarsParsed varsFin = _vars.Context.QueryGenerator.GenerateQuery(_vars, typeof(T));
             RowEnumerator<T> rowEnumerator = new RowEnumerator<T>(varsFin, _liveObjectMap);
             return rowEnumerator.GetEnumerator();
         }
@@ -240,7 +240,7 @@ namespace DbLinq.Linq
             if (_insertList.Count == 0 && _liveObjectMap.Count == 0 && _deleteList.Count == 0)
                 return new List<Exception>(); //nothing to do
 
-            IDbConnection conn = _parentDB.Connection;
+            IDbConnection conn = DataContext.Connection;
 
             using (new ConnectionManager(conn))
             {
@@ -394,7 +394,7 @@ namespace DbLinq.Linq
                 string sql = "DELETE FROM " + tableName + " WHERE " + string.Join(" OR ", idsToDelete.ToArray());
 
                 Trace.WriteLine("MTable SaveAll.Delete: " + sql);
-                IDbCommand cmd = _parentDB.Connection.CreateCommand();
+                IDbCommand cmd = DataContext.Connection.CreateCommand();
                 cmd.CommandText = sql;
                 int result = cmd.ExecuteNonQuery();
                 Trace.WriteLine("MTable SaveAll.Delete returned:" + result);
@@ -407,8 +407,8 @@ namespace DbLinq.Linq
 
         public string GetQueryText()
         {
-            SessionVarsParsed varsFin = QueryProcessor.ProcessLambdas(_vars, typeof(T));
-            return varsFin.sqlString;
+            SessionVarsParsed varsFin = _vars.Context.QueryGenerator.GenerateQuery(_vars, typeof(T));
+            return varsFin.SqlString;
         }
 
         //New as of Orcas Beta2 - what does it do?

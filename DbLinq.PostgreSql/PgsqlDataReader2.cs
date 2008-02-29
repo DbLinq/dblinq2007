@@ -331,11 +331,7 @@ namespace DbLinq.PostgreSql
             {
                 if(_reader.IsDBNull(index))
                     return null;
-                // Allow to ignore trailing spaces
-                if (!DbLinq.Vendor.Settings.TrimEnd)
-                    return _reader.GetString(index);
-                else 
-                    return _reader.GetString(index).TrimEnd();
+                return _reader.GetString(index);
             } 
             catch(Exception ex)
             {

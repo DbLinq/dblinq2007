@@ -24,26 +24,24 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace DbLinq.Vendor
+namespace DbLinq.Linq
 {
-    public class Settings
+    public enum Case
     {
-        /// <summary>
-        /// allows you to pre-pend custom SQL string before any SELECT or INSERT statement.
-        /// e.g. in PostgreSQL, you can use it to choose a schema within database:
-        /// 'SET SEARCH_PATH TO public,Company1;'
-        /// </summary>
-        public static string sqlStatementProlog = "";
+        Leave,
+        camelCase,
+        PascalCase
+    }
 
-        /// <summary>
-        /// True if trailing spaces from retrieved string columns
-        /// are removed.
-        /// </summary>
-        public static bool TrimEnd = false;
+    public interface INameFormatter
+    {
+        bool Singularize { get; set; }
+        Case Case { get; set; }
+        string AdjustTableName(string tableName);
+        string AdjustColumnName(string columnName);
+        string AdjustColumnFieldName(string columnName);
+        string AdjustMethodName(string methodName);
+        string AdjustOneToManyColumnName(string referencedTableName);
+        string AdjustManyToOneColumnName(string referencedTableName, string thisTableName);
     }
 }

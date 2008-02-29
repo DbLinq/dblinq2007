@@ -1,3 +1,4 @@
+#region MIT License
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -21,6 +22,7 @@
 // Authors:
 //        Jiri George Moudry
 ////////////////////////////////////////////////////////////////////
+#endregion
 
 using System;
 using System.Reflection;
@@ -68,11 +70,11 @@ namespace DbLinq.Util
 
         public static bool IsOrHasGroupField(SessionVarsParsed vars, out Type groupType)
         {
-            //## don't judge based on presence of groupByExpr - 
+            //## don't judge based on presence of GroupByExpression - 
             //## in case of GroupBy(City).Select(new{g.Key,g.Count}) the user never sees the GroupBy
             //## so it behaves like a regular select
             groupType = null;
-            //if(vars.groupByExpr==null)
+            //if(vars.GroupByExpression==null)
             //{
             //    return false; 
             //}

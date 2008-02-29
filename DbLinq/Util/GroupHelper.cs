@@ -1,3 +1,4 @@
+#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -21,6 +22,7 @@
 // Authors:
 //        Jiri George Moudry
 ////////////////////////////////////////////////////////////////////
+#endregion
 
 using System;
 using System.Reflection;
@@ -76,8 +78,8 @@ namespace DbLinq.Util
         {
             PropertyInfo[] igroupies = projFld.FieldType.GetProperties();
             ConstructorInfo[] ictos = projFld.FieldType.GetConstructors();
-            ProjectionData projInner = ProjectionData.FromSelectGroupByExpr(vars.groupByNewExpr,vars.groupByExpr,vars._sqlParts);
-            //ProjectionData projInner = ProjectionData.FromSelectGroupByExpr(vars.groupByNewExpr,vars.groupByExpr,vars._sqlParts);
+            ProjectionData projInner = ProjectionData.FromSelectGroupByExpr(vars.GroupByNewExpression,vars.GroupByExpression,vars.SqlParts);
+            //ProjectionData projInner = ProjectionData.FromSelectGroupByExpr(vars.groupByNewExpr,vars.GroupByExpression,vars.SqlParts);
             LambdaExpression innerLambda = RowEnumeratorCompiler<T>.BuildProjectedRowLambda(vars, projInner, rdr, ref fieldID);
             MemberAssignment binding = projFld.BuildMemberAssignment(innerLambda.Body);
             
