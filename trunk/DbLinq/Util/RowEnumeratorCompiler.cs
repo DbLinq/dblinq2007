@@ -165,7 +165,7 @@ namespace DbLinq.Util
                 //bake expression: "CustomerID = rdr.GetString(0)"
                 string errorIntro = "Cannot retrieve type " + typeof(T) + " from DB, because [Column";
                 if (projFld.columnAttribute == null)
-                    throw new ApplicationException("L162: " + errorIntro + "] is missing for field " + fieldID);
+                    throw new ApplicationException("L162: " + errorIntro + "] is missing for field " + fieldID+": "+projFld.MemberInfo.Name);
                 if (projFld.columnAttribute.Storage == null)
                     throw new ApplicationException("L164: " + errorIntro + " Storage=xx] is missing for col=" + projFld.columnAttribute.Name);
 
