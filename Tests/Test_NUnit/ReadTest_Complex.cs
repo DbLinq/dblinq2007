@@ -194,6 +194,19 @@ namespace Test_NUnit
         }
         #endregion
 
+        [Test]
+        public void F13_NewCustomer()
+        {
+            Northwind db = CreateDB();
+            IQueryable<Customer> q = (from c in db.Customers
+                                      select
+                                      new Customer
+                                      {
+                                          CustomerID = c.CustomerID
+                                      });
+            Assert.Greater(q.ToList().Count(), 0, "Expected list");
+        }
+
         /// <summary>
         /// the following three tests are from Jahmani's page
         /// LinqToSQL: Comprehensive Support for SQLite, MS Access, SQServer2000/2005
