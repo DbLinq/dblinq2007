@@ -115,16 +115,18 @@ namespace DbLinq.Linq
             return rowEnumerator.GetEnumerator();
         }
 
-        [Obsolete("NOT IMPLEMENTED")]
+        [Obsolete("COMPLETELY UNTESTED")]
         IEnumerator IEnumerable.GetEnumerator()
         {
-            throw new ApplicationException("Not implemented");
+            IEnumerator<T> enumT = GetEnumerator();
+            return enumT;
         }
 
-        [Obsolete("NOT IMPLEMENTED")]
+        [Obsolete("COMPLETELY UNTESTED")]
         public Type ElementType 
         {
-            get { throw new ApplicationException("Not implemented"); }
+            //this is a wild guess
+            get { return typeof(T); }
         }
 
         public Expression Expression 
