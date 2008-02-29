@@ -118,7 +118,8 @@ namespace DbLinq.Util
             _rdr = cmd.ExecuteReader();
             // picrap: and also this
             //rdr2 = new DataReader2(_rdr);
-            rdr2 = _vars.Context.Vendor.CreateDataReader(_rdr);
+            //rdr2 = _vars.Context.Vendor.CreateDataReader(_rdr);
+            rdr2 = _rdr;
 
             // picrap: need to solve the HasRows mystery
             /*            if (_vars.context.Log != null)
