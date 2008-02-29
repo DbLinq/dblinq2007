@@ -59,6 +59,9 @@
     <Compile Include="Linq\EntityMSet.cs" />
     <Compile Include="Linq\IDataMapper.cs" />
     <Compile Include="Linq\IModified.cs" />
+    <Compile Include="Linq\Implementation\QueryGenerator.cs" />
+    <Compile Include="Linq\IQueryGenerator.cs" />
+    <Compile Include="Linq\LinqEventArgs.cs" />
     <Compile Include="Linq\Mapping\AutoGenIdAttribute.cs" />
     <Compile Include="Linq\Mapping\FunctionExAttribute.cs" />
     <Compile Include="Linq\Implementation\ModificationHandler.cs" />
@@ -72,10 +75,10 @@
     <Compile Include="Util\ExpressionExtensions.cs" />
     <Compile Include="Util\FieldUtils.cs" />
     <Compile Include="Util\GroupHelper.cs" />
-    <Compile Include="Util\INameFormatter.cs" />
+    <Compile Include="Linq\INameFormatter.cs" />
     <Compile Include="Util\Log1.cs" />
     <Compile Include="Util\Lookup.cs" />
-    <Compile Include="Util\NameFormatter.cs" />
+    <Compile Include="Linq\Implementation\NameFormatter.cs" />
     <Compile Include="Util\Operators.cs" />
     <Compile Include="Util\ProcResult.cs" />
     <Compile Include="Util\ReverseAssociationParts.cs" />
@@ -104,7 +107,6 @@
     <Compile Include="Vendor\ISchemaLoader.cs" />
     <Compile Include="Vendor\IVendor.cs" />
     <Compile Include="Vendor\Implementation\SchemaLoader.cs" />
-    <Compile Include="Vendor\Settings.cs" />
     <Compile Include="Vendor\Implementation\Vendor.cs" />
   </ItemGroup>
   <ItemGroup>

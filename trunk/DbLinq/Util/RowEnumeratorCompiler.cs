@@ -48,7 +48,7 @@ namespace DbLinq.Util
         {
             Func<IDataRecord, T> objFromRow = null;
 
-            ProjectionData projData = vars.projectionData;
+            ProjectionData projData = vars.ProjectionData;
 
             //which fields are we selecting? we have three categories to handle:
             //A) one field ('builtin type'):           extract object of primitive / builtin type (eg. string or int or DateTime?)
@@ -73,7 +73,7 @@ namespace DbLinq.Util
             {
                 objFromRow = CompileColumnRowDelegate_TableType(projData, ref fieldID);
             }
-            else if (isProjectedType && vars.groupByExpr != null)
+            else if (isProjectedType && vars.GroupByExpression != null)
             {
                 //now we know what the GroupBy object is, 
                 //and what method to use with grouping (eg Count())
@@ -427,7 +427,7 @@ namespace DbLinq.Util
                         {
                             //e.g.: "select new {g.Key,g}" - but g is also a projection
                             //Expression.MemberInit
-                            if (vars.groupByNewExpr == null)
+                            if (vars.GroupByNewExpression == null)
                                 throw new ApplicationException("TODO - handle other cases than groupByNewExpr");
 
                             MemberAssignment binding = GroupHelper2<T>.BuildProjFieldBinding(vars, projFld, rdr, ref fieldID);
@@ -527,7 +527,7 @@ namespace DbLinq.Util
                         {
                             //e.g.: "select new {g.Key,g}" - but g is also a projection
                             //Expression.MemberInit
-                            if (vars.groupByNewExpr == null)
+                            if (vars.GroupByNewExpression == null)
                                 throw new ApplicationException("TODO - handle other cases than groupByNewExpr");
 
                             //MemberAssignment binding = GroupHelper2<T>.BuildProjFieldBinding(vars, projFld, rdr, ref fieldID);

@@ -29,6 +29,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Linq;
 using DbLinq.Linq.Implementation;
@@ -39,14 +40,12 @@ namespace DbLinq.Linq
 {
     public abstract class DataContext : IDisposable
     {
-        //readonly List<MTable> tableList = new List<MTable>();//MTable requires 1 type arg
         private readonly List<IMTable> _tableList = new List<IMTable>();
-        private System.IO.TextWriter _log;
-
-        readonly Dictionary<string, IMTable> _tableMap = new Dictionary<string, IMTable>();
+        private readonly Dictionary<string, IMTable> _tableMap = new Dictionary<string, IMTable>();
 
         public IDbConnection Connection { get; private set; }
-        public IVendor Vendor { get; private set; }
+        public IVendor Vendor { get; set; }
+        public IQueryGenerator QueryGenerator { get; set; }
         public IDataMapper DataMapper { get; set; }
         public IModificationHandler ModificationHandler { get; set; }
 
@@ -68,15 +67,8 @@ namespace DbLinq.Linq
 
             DataMapper = new DataMapper();
             ModificationHandler = new ModificationHandler();
+            QueryGenerator = new QueryGenerator();
         }
-
-        //public XSqlConnection SqlConnection
-        //{
-        //    [DebuggerStepThrough]
-        //    get { return _conn; }
-        //}
-
-        //public string SqlConnString { get { return _sqlConnString; } }
 
         public bool DatabaseExists()
         {
@@ -100,9 +92,9 @@ namespace DbLinq.Linq
 
         public Table<T> GetTable<T>(string tableName)
         {
-            IMTable tableExisting;
             lock (this)
             {
+                IMTable tableExisting;
                 if (_tableMap.TryGetValue(tableName, out tableExisting))
                     return tableExisting as Table<T>; //return existing
                 Table<T> tableNew = new Table<T>(this); //create new and store it
@@ -192,11 +184,7 @@ namespace DbLinq.Linq
         /// <summary>
         /// debugging output
         /// </summary>
-        public System.IO.TextWriter Log
-        {
-            get { return _log; }
-            set { _log = value; }
-        }
+        public TextWriter Log { get; set; }
 
         #endregion
 
@@ -263,6 +251,20 @@ namespace DbLinq.Linq
             //connection closing should not be done here.
             //read: http://msdn2.microsoft.com/en-us/library/bb292288.aspx
         }
+
+        #region Events
+
+        public delegate void LinqEventHandler(object sender, LinqEventArgs e);
+
+        public event LinqEventHandler Querying;
+
+        public void OnQuerying(SessionVarsParsed vars)
+        {
+            if (Querying != null)
+                Querying(this, new LinqEventArgs {SessionVarsParsed = vars});
+        }
+
+        #endregion
     }
 
     /// <summary>

@@ -70,7 +70,7 @@ namespace DbLinq.Util
             _liveObjectMap = liveObjectMap; 
 
             _conn = vars.Context.Connection;
-            _projectionData = vars.projectionData;
+            _projectionData = vars.ProjectionData;
             if (_conn == null)
                 throw new ApplicationException("Connection is null");
 
@@ -79,7 +79,7 @@ namespace DbLinq.Util
 
             CompileReaderFct();
 
-            _sqlString = vars.sqlString;
+            _sqlString = vars.SqlString;
         }
 
         protected virtual void CompileReaderFct()
@@ -92,17 +92,16 @@ namespace DbLinq.Util
         protected IDbCommand ExecuteSqlCommand(IDbConnection newConn, out IDataReader rdr2)
         {
             //prepend user prolog string, if any
-            string sqlFull = DbLinq.Vendor.Settings.sqlStatementProlog + _sqlString;
-
+            string sqlFull = _vars.sqlProlog + _sqlString;
 
             IDbCommand cmd = newConn.CreateCommand();
             cmd.CommandText = sqlFull;
 
-            if (_vars._sqlParts != null)
+            if (_vars.SqlParts != null)
             {
-                foreach (string paramName in _vars._sqlParts.ParametersMap.Keys)
+                foreach (string paramName in _vars.SqlParts.ParametersMap.Keys)
                 {
-                    object value = _vars._sqlParts.ParametersMap[paramName];
+                    object value = _vars.SqlParts.ParametersMap[paramName];
                     Trace.WriteLine("SQL PARAM: " + paramName + " = " + value);
 
                     IDbDataParameter parameter = cmd.CreateParameter();

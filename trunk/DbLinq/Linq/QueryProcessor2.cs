@@ -45,14 +45,14 @@ namespace DbLinq.Linq
 
             if (GroupHelper.IsGrouping(lambda.Parameters[0].Type))
             {
-                _vars._sqlParts.AddHaving(result.columns);
+                _vars.SqlParts.AddHaving(result.columns);
             }
             else
             {
-                _vars._sqlParts.AddWhere(result.columns);
+                _vars.SqlParts.AddWhere(result.columns);
             }
 
-            result.CopyInto(this, _vars._sqlParts); //transfer params and tablesUsed
+            result.CopyInto(this, _vars.SqlParts); //transfer params and tablesUsed
         }
 
         void ProcessSelectClause(LambdaExpression selectExpr)
@@ -60,13 +60,13 @@ namespace DbLinq.Linq
             this.selectExpr = selectExpr; //store for GroupBy & friends
 
             //necesary for projections?
-            if (_vars.groupByExpr == null)
+            if (_vars.GroupByExpression == null)
             {
-                _vars.projectionData = ProjectionData.FromSelectExpr(selectExpr);
+                _vars.ProjectionData = ProjectionData.FromSelectExpr(selectExpr);
             }
             else
             {
-                _vars.projectionData = ProjectionData.FromSelectGroupByExpr(selectExpr, _vars.groupByExpr, _vars._sqlParts);
+                _vars.ProjectionData = ProjectionData.FromSelectGroupByExpr(selectExpr, _vars.GroupByExpression, _vars.SqlParts);
             }
 
             Expression body = selectExpr.Body;
@@ -80,8 +80,8 @@ namespace DbLinq.Linq
             else
             {
                 ParseResult result = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, body);
-                _vars._sqlParts.AddSelect(result.columns);
-                result.CopyInto(this, _vars._sqlParts); //transfer params and tablesUsed
+                _vars.SqlParts.AddSelect(result.columns);
+                result.CopyInto(this, _vars.SqlParts); //transfer params and tablesUsed
 
                 //support for subsequent Count() - see F2_ProductCount_Clause
                 if (result.columns.Count > 0)
@@ -96,8 +96,8 @@ namespace DbLinq.Linq
         {
             ParseResult result = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, orderByExpr.Body);
             string orderByFields = string.Join(",", result.columns.ToArray());
-            _vars._sqlParts.OrderByList.Add(orderByFields);
-            _vars._sqlParts.OrderDirection = orderDirection; //copy 'DESC' specifier
+            _vars.SqlParts.OrderByList.Add(orderByFields);
+            _vars.SqlParts.OrderDirection = orderDirection; //copy 'DESC' specifier
         }
 
         void ProcessJoinClause(MethodCallExpression joinExpr)
@@ -116,12 +116,12 @@ namespace DbLinq.Linq
             {
                 result = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, arg2.XLambda().Body);
                 joinField1 = result.columns[0]; // "p$.ProductID"
-                result.CopyInto(this, _vars._sqlParts); //transfer params and tablesUsed
+                result.CopyInto(this, _vars.SqlParts); //transfer params and tablesUsed
             }
             {
                 result = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, arg3.XLambda().Body);
                 joinField2 = result.columns[0]; // "p$.ProductID"
-                result.CopyInto(this, _vars._sqlParts); //transfer params and tablesUsed
+                result.CopyInto(this, _vars.SqlParts); //transfer params and tablesUsed
             }
 
             bool doPermFields = DoesJoinAssignPermanentFields(arg4.XLambda());
@@ -135,7 +135,7 @@ namespace DbLinq.Linq
                 //e.g. '{(m, u) => new <>f__AnonymousType0`2(m = m, u = u)}'
             }
 
-            _vars._sqlParts.JoinList.Add(joinField1 + "=" + joinField2);
+            _vars.SqlParts.JoinList.Add(joinField1 + "=" + joinField2);
         }
 
         /// <summary>
@@ -182,7 +182,7 @@ namespace DbLinq.Linq
                         ParameterExpression paramExpression = lambda2.Parameters[1];
                         ParseResult result = new ParseResult(_vars.Context.Vendor);
                         JoinBuilder.AddJoin1(memberExpression, paramExpression, result);
-                        result.CopyInto(this, _vars._sqlParts);  //transfer params and tablesUsed
+                        result.CopyInto(this, _vars.SqlParts);  //transfer params and tablesUsed
                     }
 
                     //processSelectClause(lambda2);
@@ -212,7 +212,7 @@ namespace DbLinq.Linq
                 {
                     //eg. '{c.Orders.Where(o => op_Equality(c.City, "London"))}'
                     MethodCallExpression whereCall = innerLambda.XMethodCall();
-                    processQuery(whereCall);
+                    ProcessQuery(whereCall);
 #if OBSO
                     string methodName2 = whereCall.Method.Name;
 
@@ -278,7 +278,7 @@ namespace DbLinq.Linq
                     return;
                 case 3: //'group new {c.PostalCode, c.ContactName} by c.City into g'
                     ProcessGroupByLambda(exprCall.Arguments[1].XLambda());
-                    _vars.groupByNewExpr = exprCall.Arguments[2].XLambda();
+                    _vars.GroupByNewExpression = exprCall.Arguments[2].XLambda();
                     return;
                 default:
                     throw new ApplicationException("processGroupBy: Prepared only for 2 or 3 param GroupBys");
@@ -287,25 +287,25 @@ namespace DbLinq.Linq
 
         private void ProcessGroupByLambda(LambdaExpression groupBy)
         {
-            _vars.groupByExpr = groupBy;
+            _vars.GroupByExpression = groupBy;
             ParseResult result = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, groupBy.Body);
             string groupByFields = string.Join(",", result.columns.ToArray());
-            _vars._sqlParts.GroupByList.Add(groupByFields);
+            _vars.SqlParts.GroupByList.Add(groupByFields);
 
             if (selectExpr == null //&& _vars.groupByNewExpr==null
                 )
             {
                 //manually add "SELECT c.City"
-                //_vars._sqlParts.AddSelect(result.columns);
+                //_vars.SqlParts.AddSelect(result.columns);
 
-                result.CopyInto(this, _vars._sqlParts); //transfer params and tablesUsed
+                result.CopyInto(this, _vars.SqlParts); //transfer params and tablesUsed
             }
 
-            if (_vars.groupByNewExpr != null)
+            if (_vars.GroupByNewExpression != null)
             {
-                result = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, _vars.groupByNewExpr.Body);
-                _vars._sqlParts.AddSelect(result.columns);
-                result.CopyInto(this, _vars._sqlParts); //transfer params and tablesUsed
+                result = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, _vars.GroupByNewExpression.Body);
+                _vars.SqlParts.AddSelect(result.columns);
+                result.CopyInto(this, _vars.SqlParts); //transfer params and tablesUsed
             }
         }
 

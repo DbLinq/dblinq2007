@@ -199,8 +199,8 @@ namespace DbLinq.Linq.Clause
                                 if (GroupHelper.IsGrouping(memberExpr))
                                 {
                                     //eg. {g.Key}
-                                    //replace {g.Key} with groupByExpr={o.Customer}
-                                    Expression replaceExpr = _parent._vars.groupByExpr.Body;
+                                    //replace {g.Key} with GroupByExpression={o.Customer}
+                                    Expression replaceExpr = _parent._vars.GroupByExpression.Body;
                                     AnalyzeExpression(recurData, replaceExpr);
                                 }
                                 else
@@ -271,8 +271,8 @@ namespace DbLinq.Linq.Clause
                                 if (GroupHelper.IsGrouping(memberExpr))
                                 {
                                     //eg. {g.Key}
-                                    //replace {g.Key} with groupByExpr={o.Customer}
-                                    //(Expression replaceExpr = _inputs.groupByExpr.Body; //Too simple!)
+                                    //replace {g.Key} with GroupByExpression={o.Customer}
+                                    //(Expression replaceExpr = _inputs.GroupByExpression.Body; //Too simple!)
                                     Expression replaceExpr = _parent.SubstitueGroupKeyExpression(memberExpr);
 
                                     AnalyzeExpression(recurData, replaceExpr);
@@ -349,8 +349,8 @@ namespace DbLinq.Linq.Clause
             if (GroupHelper.IsGrouping(expr))
             {
                 //eg. {g.Key.Length}
-                //replace {g.Key.Length} with groupByExpr={o.Customer.Length}
-                Expression replaceExpr = _parent._vars.groupByExpr.Body;
+                //replace {g.Key.Length} with GroupByExpression={o.Customer.Length}
+                Expression replaceExpr = _parent._vars.GroupByExpression.Body;
                 if (replaceExpr.NodeType == ExpressionType.MemberInit)
                 {
                     //we are grouping by multiple columns
