@@ -58,8 +58,8 @@ namespace DbLinq.Linq
         public IQueryable<S> CreateQuery<S>(Expression expression)
         {
             //this occurs in GroupBy followed by Where, eg. F6B_OrdersByCity()
-            string msg1 = "MTable_Proj.CreateQuery: T=<"+typeof(T)+"> -> S=<"+typeof(S)+">";
-            string msg2 = "MTable_Proj.CreateQuery: "+expression;
+            //string msg1 = "MTable_Proj.CreateQuery: T=<"+typeof(T)+"> -> S=<"+typeof(S)+">";
+            //string msg2 = "MTable_Proj.CreateQuery: "+expression;
             //Log1.Info(msg1);
             //Log1.Info(msg2);
             if (_vars.Context.Log != null)
@@ -71,6 +71,21 @@ namespace DbLinq.Linq
             return projectedQ2;
             //throw new ApplicationException("L61: Not prepared for double projection");
         }
+
+        /// <summary>
+        /// this is only called during Dynamic Linq
+        /// </summary>
+        [Obsolete("COMPLETELY UNTESTED")]
+        public IQueryable CreateQuery(Expression expression)
+        {
+            SessionVars vars2 = new SessionVars(_vars).Add(expression);
+            Type S = expression.Type;
+            //MTable_Projected<S> projectedQ2 = new MTable_Projected<S>(vars2);
+            Type mtableProjectedType2 = typeof(MTable_Projected<>).MakeGenericType(S);
+            object projectedQ = Activator.CreateInstance(mtableProjectedType2, vars2);
+            return projectedQ as IQueryable;
+        }
+
 
         public S Execute<S>(Expression expression)
         {
@@ -118,12 +133,6 @@ namespace DbLinq.Linq
             get { return Expression.Constant(this); }
         }
 
-
-        [Obsolete("NOT IMPLEMENTED")]
-        public IQueryable CreateQuery(Expression expression)
-        {
-            throw new ApplicationException("Not implemented");
-        }
 
         [Obsolete("NOT IMPLEMENTED")]
         public object Execute(Expression expression)
