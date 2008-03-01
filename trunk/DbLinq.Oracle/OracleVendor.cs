@@ -44,13 +44,6 @@ namespace DbLinq.Oracle
             get { return "SELECT 11 FROM DUAL"; }
         }
 
-        public OracleVendor()
-        {
-            RegisterExtraVendorType("tinyint", DbType.Int16);
-            RegisterExtraVendorType("int", DbType.Int32);
-            RegisterExtraVendorType("varchar2", DbType.AnsiString);
-        }
-
         /// <summary>
         /// On Oracle, we have to insert a primary key manually.
         /// On MySql/Pgsql/Mssql, we use the IDENTITY clause to populate it automatically.

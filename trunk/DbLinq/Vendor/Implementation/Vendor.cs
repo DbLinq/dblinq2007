@@ -144,66 +144,6 @@ namespace DbLinq.Vendor.Implementation
             throw new NotImplementedException();
         }
 
-        private IDictionary<string, IDictionary<string, Enum>> typeMapsByProperty = new Dictionary<string, IDictionary<string, Enum>>();
-        private IDictionary<string, DbType> extraVendorTypes = new Dictionary<string, DbType>();
-
-        /// <summary>
-        /// Sets the database property specific type by reflection, if we have a match
-        /// If not, sets the database generic type
-        /// </summary>
-        /// <param name="parameter"></param>
-        /// <param name="propertyName"></param>
-        /// <param name="dbTypeName"></param>
-        /// <param name="extraTypes"></param>
-        public void SetDataParameterType(IDbDataParameter parameter, string propertyName, string dbTypeName, IDictionary<string, DbType> extraTypes)
-        {
-            PropertyInfo propertyInfo = parameter.GetType().GetProperty(propertyName);
-            IDictionary<string, Enum> typeMaps = GetTypeMaps(propertyInfo);
-            string dbTypeKey = dbTypeName.ToLower();
-            if (typeMaps.ContainsKey(dbTypeKey))
-            {
-                // specific type (called from inherited CreateSqlParameter)
-                propertyInfo.GetSetMethod().Invoke(parameter, new object[] {typeMaps[dbTypeKey]});
-            }
-            else if (extraTypes.ContainsKey(dbTypeKey))
-            {
-                // generic type
-                parameter.DbType = extraTypes[dbTypeKey];
-            }
-        }
-
-        protected void RegisterExtraVendorType(string vendorLiteral, DbType generic)
-        {
-            extraVendorTypes[vendorLiteral] = generic;
-        }
-
-        /// <summary>
-        /// Returns a dictionary of literal to database specific type enum
-        /// this is used to set a parameter type with specific database type (as an enum value)
-        /// </summary>
-        /// <param name="propertyInfo"></param>
-        /// <returns></returns>
-        private IDictionary<string, Enum> GetTypeMaps(PropertyInfo propertyInfo)
-        {
-            IDictionary<string, Enum> typeMaps;
-            if (typeMapsByProperty.ContainsKey(propertyInfo.Name))
-                typeMaps = typeMapsByProperty[propertyInfo.Name];
-            else
-            {
-                typeMaps = new Dictionary<string, Enum>();
-                typeMapsByProperty[propertyInfo.Name] = typeMaps;
-                // now, we use reflection to enumerate the type possible values
-                if (propertyInfo.PropertyType.IsEnum)
-                {
-                    foreach (Enum value in Enum.GetValues(propertyInfo.PropertyType))
-                    {
-                        typeMaps[value.ToString().ToLower()] = value;
-                    }
-                }
-            }
-            return typeMaps;
-        }
-
         // TODO: we may split this big function is several parts, so we can override them in specific vendors
         public string BuildSqlString(SqlExpressionParts parts)
         {
@@ -308,7 +248,6 @@ namespace DbLinq.Vendor.Implementation
         {
             IDbDataParameter param = cmd.CreateParameter();
             param.ParameterName = paramName;
-            SetDataParameterType(param, "OracleType", dbTypeName, extraVendorTypes);
             return param;
         }
     }

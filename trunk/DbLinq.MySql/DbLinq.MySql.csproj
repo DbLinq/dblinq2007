@@ -52,10 +52,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MySqlDataReader2.cs" />
     <Compile Include="MysqlDataContext.cs" />
     <Compile Include="MySqlSchemaLoader.cs" />
-    <Compile Include="MySqlTypeConversions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MySqlVendor.cs" />
     <Compile Include="Schema\ColumnSql.cs">
