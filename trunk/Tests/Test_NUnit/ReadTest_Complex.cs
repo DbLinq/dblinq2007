@@ -8,7 +8,7 @@ using nwind;
 using Test_NUnit;
 
 #if MYSQL
-    namespace Test_NUnit_MySql
+namespace Test_NUnit_MySql
 #elif ORACLE
     namespace Test_NUnit_Oracle
 #elif POSTGRES
@@ -16,7 +16,7 @@ using Test_NUnit;
 #elif SQLITE
     namespace Test_NUnit_Sqlite
 #else
-    #error unknown target
+#error unknown target
 #endif
 {
     [TestFixture]
@@ -207,7 +207,26 @@ using Test_NUnit;
                                       {
                                           CustomerID = c.CustomerID
                                       });
-            Assert.Greater(q.ToList().Count(), 0, "Expected list");
+            var list = q.ToList();
+            Assert.Greater(list.Count(), 0, "Expected list"); 
+            //Assert.Greater(list.Count(), 0, "Expected list");
+        }
+
+        [Test]
+        public void F14_NewCustomer_Order()
+        {
+            Northwind db = CreateDB();
+            IQueryable<Customer> q = (from c in db.Customers
+                                      select
+                                      new Customer
+                                      {
+                                          CustomerID = c.CustomerID
+                                      });
+            //this OrderBy clause messes up the SQL statement
+            var q2 = q.OrderBy(c => c.CustomerID);
+            var list = q2.ToList();
+            Assert.Greater(list.Count(), 0, "Expected list");
+            //Assert.Greater(list.Count(), 0, "Expected list");
         }
 
         /// <summary>
@@ -262,6 +281,6 @@ using Test_NUnit;
 
             Assert.AreEqual(3, products.Count());
 
-        } 
+        }
     }
 }
