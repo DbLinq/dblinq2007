@@ -11,6 +11,8 @@
     <AssemblyName>DbLinq</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\DbLinq.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -49,6 +51,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\DbLinq.ProductInfo.cs">
+      <Link>Properties\DbLinq.ProductInfo.cs</Link>
+    </Compile>
     <Compile Include="Linq\DlinqSchema.cs" />
     <Compile Include="Linq\Clause\ExpressionTreeParser.cs" />
     <Compile Include="Linq\Clause\InsertClauseBuilder.cs" />
@@ -110,6 +115,9 @@
     <Compile Include="Vendor\Implementation\Vendor.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\DbLinq.snk">
+      <Link>Properties\DbLinq.snk</Link>
+    </None>
     <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <ItemGroup>

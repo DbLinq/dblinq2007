@@ -12,6 +12,8 @@
     <AssemblyName>DbLinq.PostgreSql</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\DbLinq.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -52,6 +54,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\DbLinq.ProductInfo.cs">
+      <Link>Properties\DbLinq.ProductInfo.cs</Link>
+    </Compile>
     <Compile Include="PgsqlSchemaLoader.cs" />
     <Compile Include="PgsqlDataContext.cs" />
     <Compile Include="PgsqlDataReader2.cs" />
@@ -70,6 +75,11 @@
       <Project>{97305421-3071-4175-AA3C-9A432CC28121}</Project>
       <Name>DbLinq</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\DbLinq.snk">
+      <Link>Properties\DbLinq.snk</Link>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
