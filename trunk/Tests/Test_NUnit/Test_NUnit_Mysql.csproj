@@ -2,12 +2,12 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.20706</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{858BAFF7-542F-4DBB-9C9B-57FCDE4DB7CE}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Test_NUnit_Mysql</RootNamespace>
+    <RootNamespace>Test_NUnit</RootNamespace>
     <AssemblyName>Test_NUnit_Mysql</AssemblyName>
     <StartupObject>
     </StartupObject>

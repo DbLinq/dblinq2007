@@ -7,7 +7,7 @@
     <ProjectGuid>{3B13F240-D5E3-4BD4-BA4B-8CBDEE18207A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Test_NUnit_SQLite</RootNamespace>
+    <RootNamespace>Test_NUnit</RootNamespace>
     <AssemblyName>Test_NUnit_SQLite</AssemblyName>
     <StartupObject>
     </StartupObject>

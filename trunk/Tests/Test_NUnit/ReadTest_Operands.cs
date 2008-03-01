@@ -5,14 +5,19 @@ using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
 using nwind;
+using Test_NUnit;
 
-#if POSTGRES
-using xint = System.Int32;
+#if MYSQL
+    namespace Test_NUnit_MySql
+#elif ORACLE
+    namespace Test_NUnit_Oracle
+#elif POSTGRES
+    namespace Test_NUnit_PostgreSql
+#elif SQLITE
+    namespace Test_NUnit_Sqlite
 #else
-using xint = System.UInt32;
+    #error unknown target
 #endif
-
-namespace Test_NUnit
 {
     /// <summary>
     /// this test class will exercise various operands, such as 'a&&b', 'a>=b', ""+a, etc.
