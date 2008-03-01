@@ -5,21 +5,19 @@ using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
 using nwind;
+using Test_NUnit;
 
-#if ORACLE
-using xint = System.Int32;
+#if MYSQL
+    namespace Test_NUnit_MySql
+#elif ORACLE
+    namespace Test_NUnit_Oracle
 #elif POSTGRES
-using xint = System.Int32;
+    namespace Test_NUnit_PostgreSql
 #elif SQLITE
-using xint = System.Int64;
-#elif MSSQL
-using xint = System.Int32;
+    namespace Test_NUnit_Sqlite
 #else
-using MySql.Data.MySqlClient;
-using xint = System.UInt32;
+#error unknown target
 #endif
-
-namespace Test_NUnit
 {
     [SetUpFixture]
     public class WriteTestSetup : TestBase

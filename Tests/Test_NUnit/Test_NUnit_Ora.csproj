@@ -7,7 +7,7 @@
     <ProjectGuid>{858BAFF7-533F-4DBB-9C9B-57FCDE4DB7CE}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Test_NUnit_Ora</RootNamespace>
+    <RootNamespace>Test_NUnit</RootNamespace>
     <AssemblyName>Test_NUnit_Ora</AssemblyName>
     <StartupObject>
     </StartupObject>

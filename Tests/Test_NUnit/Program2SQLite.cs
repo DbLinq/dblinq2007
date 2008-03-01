@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Data.Linq;
-using Test_NUnit.Linq_101_Samples;
+using Test_NUnit_Sqlite;
 #endregion
 
 namespace Test_NUnit

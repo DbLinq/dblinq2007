@@ -5,8 +5,19 @@ using System.Linq.Expressions;
 using System.Text;
 using NUnit.Framework;
 using nwind;
+using Test_NUnit;
 
-namespace Test_NUnit.Linq_101_Samples
+#if MYSQL
+    namespace Test_NUnit_MySql.Linq_101_Samples
+#elif ORACLE
+    namespace Test_NUnit_Oracle.Linq_101_Samples
+#elif POSTGRES
+    namespace Test_NUnit_PostgreSql.Linq_101_Samples
+#elif SQLITE
+    namespace Test_NUnit_Sqlite.Linq_101_Samples
+#else
+    #error unknown target
+#endif
 {
     /// <summary>
     /// Source:  http://msdn2.microsoft.com/en-us/vbasic/bb737920.aspx

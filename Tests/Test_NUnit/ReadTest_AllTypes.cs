@@ -6,7 +6,17 @@ using NUnit.Framework;
 using nwind;
 
 
-namespace Test_NUnit
+#if MYSQL
+    namespace Test_NUnit_MySql
+#elif ORACLE
+    namespace Test_NUnit_Oracle
+#elif POSTGRES
+    namespace Test_NUnit_PostgreSql
+#elif SQLITE
+    namespace Test_NUnit_Sqlite
+#else
+    #error unknown target
+#endif
 {
 #if USE_ALLTYPES
     /// <summary>
