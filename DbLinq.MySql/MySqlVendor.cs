@@ -25,6 +25,7 @@
 #endregion
 
 using System;
+using System.Data.Common;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text;
@@ -35,7 +36,6 @@ using DbLinq.Linq;
 using DbLinq.Linq.Clause;
 using DbLinq.Linq.Mapping;
 using DbLinq.Util;
-using DbLinq.Vendor;
 using MySql.Data.MySqlClient;
 
 namespace DbLinq.MySql
@@ -117,18 +117,6 @@ namespace DbLinq.MySql
             }
         }
 
-        public override IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
-        {
-            MySqlDbType dbType = MySqlTypeConversions.ParseType(dbTypeName);
-            MySqlParameter param = new MySqlParameter(paramName, dbType);
-            return param;
-        }
-
-        public override IDataReader2 CreateDataReader(IDataReader dataReader)
-        {
-            return new MySqlDataReader2(dataReader);
-        }
-
         public override bool CanBulkInsert<T>(Table<T> table)
         {
             return UseBulkInsert.ContainsKey(table);
@@ -207,7 +195,7 @@ namespace DbLinq.MySql
             string sp_name = functionAttrib.Name;
 
             // picrap: is there any way to abstract some part of this?
-            using (MySqlCommand command = (MySqlCommand)conn.CreateCommand())
+            using (IDbCommand command = conn.CreateCommand())
             {
                 command.CommandText = sp_name;
                 //MySqlCommand command = new MySqlCommand("select hello0()");
@@ -226,16 +214,17 @@ namespace DbLinq.MySql
 
                     System.Data.ParameterDirection direction = GetDirection(paramInfo, paramAttrib);
                     //MySqlDbType dbType = MySqlTypeConversions.ParseType(paramAttrib.DbType);
-                    MySqlParameter cmdParam = null;
+                    IDbDataParameter cmdParam = command.CreateParameter();
+                    cmdParam.ParameterName = paramName;
                     //cmdParam.Direction = System.Data.ParameterDirection.Input;
                     if (direction == System.Data.ParameterDirection.Input || direction == System.Data.ParameterDirection.InputOutput)
                     {
                         object inputValue = inputValues[currInputIndex++];
-                        cmdParam = new MySqlParameter(paramName, inputValue);
+                        cmdParam.Value = inputValue;
                     }
                     else
                     {
-                        cmdParam = new MySqlParameter(paramName, null);
+                        cmdParam.Value = null;
                     }
                     cmdParam.Direction = direction;
                     command.Parameters.Add(cmdParam);
@@ -254,12 +243,11 @@ namespace DbLinq.MySql
                     command.CommandText = cmdText;
                 }
 
-                if (method.ReturnType == typeof(System.Data.DataSet))
+                if (method.ReturnType == typeof(DataSet))
                 {
                     //unknown shape of resultset:
-                    System.Data.DataSet dataSet = new System.Data.DataSet();
-                    MySqlDataAdapter adapter = new MySqlDataAdapter();
-                    adapter.SelectCommand = command;
+                    System.Data.DataSet dataSet = new DataSet();
+                    IDataAdapter adapter = new MySqlDataAdapter((MySqlCommand)command);
                     adapter.Fill(dataSet);
                     List<object> outParamValues = CopyOutParams(paramInfos, command.Parameters);
                     return new ProcResult(dataSet, outParamValues.ToArray());
@@ -288,12 +276,12 @@ namespace DbLinq.MySql
         /// <summary>
         /// Collect all Out or InOut param values, casting them to the correct .net type.
         /// </summary>
-        static List<object> CopyOutParams(ParameterInfo[] paramInfos, MySqlParameterCollection paramSet)
+        static List<object> CopyOutParams(ParameterInfo[] paramInfos, IDataParameterCollection paramSet)
         {
             List<object> outParamValues = new List<object>();
             //Type type_t = typeof(T);
             int i=-1;
-            foreach (MySqlParameter param in paramSet)
+            foreach (IDbDataParameter param in paramSet)
             {
                 i++;
                 if (param.Direction == System.Data.ParameterDirection.Input)
