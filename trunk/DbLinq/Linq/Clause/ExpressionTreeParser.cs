@@ -607,8 +607,7 @@ namespace DbLinq.Linq.Clause
             }
 
             //check if the function is a stored proc:
-            object[] oCustomAttribs = expr.Method.GetCustomAttributes(false);
-            FunctionExAttribute functionAttrib = oCustomAttribs.OfType<FunctionExAttribute>().FirstOrDefault();
+            FunctionAttribute functionAttrib = AttribHelper.GetFunctionAttribute(expr.Method);
             if (functionAttrib != null)
             {
                 //it's a stored proc in the database

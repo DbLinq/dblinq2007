@@ -33,6 +33,7 @@ using System.Data;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using DbLinq.Linq;
+using DbLinq.Util;
 
 namespace DbLinq.Vendor.Implementation
 {
@@ -249,6 +250,11 @@ namespace DbLinq.Vendor.Implementation
             IDbDataParameter param = cmd.CreateParameter();
             param.ParameterName = paramName;
             return param;
+        }
+
+        protected FunctionAttribute GetFunctionAttribute(MethodInfo methodInfo)
+        {
+            return AttribHelper.GetFunctionAttribute(methodInfo);
         }
     }
 }

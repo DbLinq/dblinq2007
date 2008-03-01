@@ -283,6 +283,17 @@ namespace DbLinq.Util
             return columns.Where(c => c.Value.IsPrimaryKey).ToArray();
         }
 
+        public static FunctionAttribute GetFunctionAttribute(MethodInfo methodInfo)
+        {
+            object[] customerAttributes = methodInfo.GetCustomAttributes(false);
+#pragma warning disable 612,618
+            var functionExAttribute = customerAttributes.OfType<FunctionExAttribute>().FirstOrDefault();
+#pragma warning restore 612,618
+            if (functionExAttribute != null)
+                return functionExAttribute.FunctionAttribute;
+            FunctionAttribute functionAttribute = customerAttributes.OfType<FunctionAttribute>().FirstOrDefault();
+            return functionAttribute;
+        }
     }
 
     public class AttribAndProp
