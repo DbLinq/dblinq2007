@@ -226,6 +226,31 @@ using Test_NUnit;
             db.Customers.Remove(cust);
             db.SubmitChanges();
         }
+
+        [Test]
+        public void G9_UpdateOnlyChangedProperty()
+        {
+            Northwind db = CreateDB();
+            var cust = (from c in db.Customers
+                        select
+                        new Customer
+                        {
+                            CustomerID = c.CustomerID,
+                            City = c.City
+
+                        }).First();
+
+            var old = cust.City;
+            cust.City = "Tallinn";
+            db.SubmitChanges();
+
+            //exposes bug:
+            //Npgsql.NpgsqlException was unhandled
+            //Message="ERROR: 23502: null value in column \"companyname\" violates not-null constraint" 
+            cust.City = old;
+            db.SubmitChanges();
+
+        } 
         #endregion
     }
 }
