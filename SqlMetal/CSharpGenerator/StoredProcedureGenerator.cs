@@ -37,7 +37,7 @@ namespace SqlMetal.CSharpGenerator
         const string NLT = "\r\n\t";
 
         const string SP_BODY_TEMPLATE = @"
-[FunctionEx(Name = ""$procNameSql"", ProcedureOrFunction = ""$procType"")]
+[Function(Name = ""$procNameSql"", IsComposable = $isComposable)]
 public $retType $procNameCsharp($paramString)
 {
     System.Data.Linq.IExecuteResult result = base.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod()))$sqlInArgs);
@@ -57,7 +57,7 @@ public $retType $procNameCsharp($paramString)
             string text = SP_BODY_TEMPLATE.Replace(NL, "\t" + NL);
             text = text.Replace("$procNameCsharp", storedProcedure.Method ?? storedProcedure.Name);
             text = text.Replace("$procNameSql", storedProcedure.Name);
-            text = text.Replace("$procType", storedProcedure.ProcedureOrFunction);
+            text = text.Replace("$isComposable", (storedProcedure.ProcedureOrFunction != "PROCEDURE") ? "true" : "false");
 
             List<string> paramStringsList = new List<string>();
             List<string> sqlInArgList = new List<string>();

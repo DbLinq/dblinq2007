@@ -179,10 +179,8 @@ namespace DbLinq.MySql
             if (method == null)
                 throw new ArgumentNullException("L56 Null 'method' parameter");
 
-            object[] attribs1 = method.GetCustomAttributes(false);
-
             //check to make sure there is exactly one [FunctionEx]? that's below.
-            FunctionExAttribute functionAttrib = attribs1.OfType<FunctionExAttribute>().Single();
+            FunctionAttribute functionAttrib = GetFunctionAttribute(method);
 
             ParameterInfo[] paramInfos = method.GetParameters();
             //int numRequiredParams = paramInfos.Count(p => p.IsIn || p.IsRetval);
@@ -230,7 +228,7 @@ namespace DbLinq.MySql
                     command.Parameters.Add(cmdParam);
                 }
 
-                if (functionAttrib.ProcedureOrFunction == "PROCEDURE")
+                if (!functionAttrib.IsComposable) // IsCompsable is false when we have a procedure
                 {
                     //procedures: under the hood, this seems to prepend 'CALL '
                     command.CommandType = System.Data.CommandType.StoredProcedure;

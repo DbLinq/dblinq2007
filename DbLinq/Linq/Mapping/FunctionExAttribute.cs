@@ -1,4 +1,5 @@
-﻿////////////////////////////////////////////////////////////////////
+﻿#region MIT license
+////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -21,11 +22,10 @@
 // Authors:
 //        Jiri George Moudry
 ////////////////////////////////////////////////////////////////////
+#endregion
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Data.Linq.Mapping;
 
 namespace DbLinq.Linq.Mapping
 {
@@ -34,6 +34,7 @@ namespace DbLinq.Linq.Mapping
     /// We need one extra field to indicate type of code - ProcOrFunction.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+    [Obsolete("Please use FunctionAttribute instead")]
     public class FunctionExAttribute : Attribute
     {
         public string Name { get; set; }
@@ -42,6 +43,13 @@ namespace DbLinq.Linq.Mapping
         /// needed because MySql semantics of invoking a func are different from a proc.
         /// </summary>
         public string ProcedureOrFunction { get; set; }
-    }
 
+        internal FunctionAttribute FunctionAttribute
+        {
+            get
+            {
+                return new FunctionAttribute { Name = Name, IsComposable = ProcedureOrFunction != "PROCEDURE" };
+            }
+        }
+    }
 }
