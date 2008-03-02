@@ -99,13 +99,9 @@ namespace DbLinq.PostgreSql
             return sb.ToString();
         }
 
-        /// <summary>
-        /// given 'User', return '[User]' to prevent a SQL keyword conflict
-        /// </summary>
-        public override string GetFieldSafeName(string name)
+        public override string MakeFieldSafeName(string name)
         {
-            //if (name.ToLower() == "user")
-            //    return "[" + name + "]"; //this is wrong for Pgsql, says Andrus
+            // --> how is a special field escaped?
             return name;
         }
 
@@ -124,6 +120,7 @@ namespace DbLinq.PostgreSql
         {
             IDbDataParameter param = cmd.CreateParameter();
             param.ParameterName = paramName;
+            // TODO: remove this hack when a decision is made with bool/bit case
             if (dbTypeName.StartsWith("bit"))
                 SetParameterType(param, "Bit");
             return param;

@@ -62,14 +62,9 @@ namespace DbLinq.SqlServer
             return "@P" + index;
         }
 
-        /// <summary>
-        /// given 'User', return '[User]' to prevent a SQL keyword conflict
-        /// </summary>
-        public override string GetFieldSafeName(string name)
+        public override string MakeFieldSafeName(string name)
         {
-            if (name.ToLower() == "user")
-                return "[" + name + "]";
-            return name;
+            return "[" + name + "]";
         }
 
         public override IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)

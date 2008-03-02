@@ -94,7 +94,7 @@ namespace DbLinq.Sqlite
         /// <summary>
         /// given 'int', return '`int`' to prevent a SQL keyword conflict
         /// </summary>
-        public override string GetFieldSafeName(string name)
+        public override bool IsFieldNameSafe(string name)
         {
             string nameL = name.ToLower();
             switch (nameL)
@@ -123,11 +123,17 @@ namespace DbLinq.Sqlite
                 case "timestamp":
                 case "year":
 
-                    return "`" + name + "`";
+                    return false;
                 default:
-                    return name;
+                    return base.IsFieldNameSafe(name);
             }
         }
+
+        public override string MakeFieldSafeName(string name)
+        {
+            return "`" + name + "`";
+        }
+
 /*
         public override IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
         {

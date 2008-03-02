@@ -41,7 +41,7 @@ namespace DbLinq.Vendor.Implementation
     /// some IVendor functionality is the same for many vendors,
     /// implemented here as virtual functions.
     /// </summary>
-    public abstract class Vendor: IVendor
+    public abstract class Vendor : IVendor
     {
         //public abstract string VendorName { get; }
         //{
@@ -235,9 +235,28 @@ namespace DbLinq.Vendor.Implementation
         }
 
         public abstract string VendorName { get; }
+
+        public virtual string GetFieldSafeName(string name)
+        {
+            if (IsFieldNameSafe(name))
+                return name;
+            return MakeFieldSafeName(name);
+        }
+
+        public virtual bool IsFieldNameSafe(string name)
+        {
+            switch (name.ToLower())
+            {
+            case "user":
+                return false;
+            default:
+                return !name.Contains(' ');
+            }
+        }
+
+        public abstract string MakeFieldSafeName(string name);
         public abstract IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt, StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded);
-        public abstract string GetFieldSafeName(string name);
-        public abstract IExecuteResult ExecuteMethodCall(DbLinq.Linq.DataContext context, MethodInfo method, params object[] sqlParams);
+        public abstract IExecuteResult ExecuteMethodCall(Linq.DataContext context, MethodInfo method, params object[] sqlParams);
 
         public virtual IDataReader2 CreateDataReader(IDataReader dataReader)
         {
