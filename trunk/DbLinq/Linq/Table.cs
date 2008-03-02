@@ -270,6 +270,8 @@ namespace DbLinq.Linq
                 {
                     using (IDbCommand cmd = InsertClauseBuilder.GetClause(_vars.Context.Vendor, conn, obj, proj))
                     {
+                        TransactionManager.CheckCommandTransaction(cmd);
+
                         object objID = null;
                         objID = cmd.ExecuteScalar();
 
@@ -323,9 +325,12 @@ namespace DbLinq.Linq
                     Trace.WriteLine("MTable SaveAll: saving modified object");
                     string[] ID_to_update = getObjectID(obj);
 
-                    IDbCommand cmd = InsertClauseBuilder.GetUpdateCommand(_vars, obj, proj, ID_to_update);
-                    int result = cmd.ExecuteNonQuery();
-                    Trace.WriteLine("MTable SaveAll.Update returned:" + result);
+                    using (IDbCommand cmd = InsertClauseBuilder.GetUpdateCommand(_vars, obj, proj, ID_to_update))
+                    {
+                        TransactionManager.CheckCommandTransaction(cmd);
+                        int result = cmd.ExecuteNonQuery();
+                        Trace.WriteLine("MTable SaveAll.Update returned:" + result);
+                    }
 
                     _modificationHandler.Clean(obj); //mark as saved, thanks to Martin Rauscher
                 }
@@ -394,10 +399,13 @@ namespace DbLinq.Linq
                 string sql = "DELETE FROM " + tableName + " WHERE " + string.Join(" OR ", idsToDelete.ToArray());
 
                 Trace.WriteLine("MTable SaveAll.Delete: " + sql);
-                IDbCommand cmd = DataContext.Connection.CreateCommand();
-                cmd.CommandText = sql;
-                int result = cmd.ExecuteNonQuery();
-                Trace.WriteLine("MTable SaveAll.Delete returned:" + result);
+                using (IDbCommand cmd = DataContext.Connection.CreateCommand())
+                {
+                    cmd.CommandText = sql;
+                    TransactionManager.CheckCommandTransaction(cmd);
+                    int result = cmd.ExecuteNonQuery();
+                    Trace.WriteLine("MTable SaveAll.Delete returned:" + result);
+                }
             }
 
             _deleteList.Clear();
