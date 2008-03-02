@@ -31,8 +31,6 @@ using System.Text;
 using System.Data;
 using System.Data.Linq.Mapping;
 using System.Reflection;
-using System.Data.SQLite;
-using DbLinq.Linq.Mapping;
 using DbLinq.Sqlite;
 using DbLinq.Util;
 using DbLinq.Linq;
@@ -130,14 +128,14 @@ namespace DbLinq.Sqlite
                     return name;
             }
         }
-
+/*
         public override IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
         {
             System.Data.DbType dbType = SqliteTypeConversions.ParseType(dbTypeName);
             SQLiteParameter param = new SQLiteParameter(paramName, dbType);
             return param;
         }
-
+*/
         public override IDataReader2 CreateDataReader(IDataReader dataReader)
         {
             return new SqliteDataReader2(dataReader);
@@ -214,7 +212,7 @@ namespace DbLinq.Sqlite
 
             string sp_name = functionAttrib.Name;
 
-            using (SQLiteCommand command = (SQLiteCommand)context.DatabaseContext.CreateCommand(sp_name))
+            using (IDbCommand command = context.DatabaseContext.CreateCommand(sp_name))
             {
                 //SQLiteCommand command = new SQLiteCommand("select hello0()");
                 int currInputIndex = 0;
@@ -232,16 +230,17 @@ namespace DbLinq.Sqlite
 
                     System.Data.ParameterDirection direction = GetDirection(paramInfo, paramAttrib);
                     //SQLiteDbType dbType = SQLiteTypeConversions.ParseType(paramAttrib.DbType);
-                    SQLiteParameter cmdParam = null;
+                    IDataParameter cmdParam = command.CreateParameter();
+                    cmdParam.ParameterName = paramName;
                     //cmdParam.Direction = System.Data.ParameterDirection.Input;
-                    if (direction == System.Data.ParameterDirection.Input || direction == System.Data.ParameterDirection.InputOutput)
+                    if (direction == ParameterDirection.Input || direction == ParameterDirection.InputOutput)
                     {
                         object inputValue = inputValues[currInputIndex++];
-                        cmdParam = new SQLiteParameter(paramName, inputValue);
+                        cmdParam.Value = inputValue;
                     }
                     else
                     {
-                        cmdParam = new SQLiteParameter(paramName, null);
+                        cmdParam.Value = null;
                     }
                     cmdParam.Direction = direction;
                     command.Parameters.Add(cmdParam);
@@ -260,11 +259,11 @@ namespace DbLinq.Sqlite
                     command.CommandText = cmdText;
                 }
 
-                if (method.ReturnType == typeof(System.Data.DataSet))
+                if (method.ReturnType == typeof(DataSet))
                 {
                     //unknown shape of resultset:
-                    System.Data.DataSet dataSet = new System.Data.DataSet();
-                    SQLiteDataAdapter adapter = new SQLiteDataAdapter();
+                    System.Data.DataSet dataSet = new DataSet();
+                    IDbDataAdapter adapter = context.DatabaseContext.CreateDataAdapter();
                     adapter.SelectCommand = command;
                     adapter.Fill(dataSet);
                     List<object> outParamValues = CopyOutParams(paramInfos, command.Parameters);
@@ -294,12 +293,12 @@ namespace DbLinq.Sqlite
         /// <summary>
         /// Collect all Out or InOut param values, casting them to the correct .net type.
         /// </summary>
-        static List<object> CopyOutParams(ParameterInfo[] paramInfos, SQLiteParameterCollection paramSet)
+        static List<object> CopyOutParams(ParameterInfo[] paramInfos, IDataParameterCollection paramSet)
         {
             List<object> outParamValues = new List<object>();
             //Type type_t = typeof(T);
             int i=-1;
-            foreach (SQLiteParameter param in paramSet)
+            foreach (IDataParameter param in paramSet)
             {
                 i++;
                 if (param.Direction == System.Data.ParameterDirection.Input)

@@ -24,6 +24,8 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
+// picrap: excluded from build (but kept in SVN)
+
 using System;
 using System.Data;
 using System.Collections.Generic;

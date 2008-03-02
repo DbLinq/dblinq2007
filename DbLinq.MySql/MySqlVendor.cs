@@ -37,7 +37,6 @@ using DbLinq.Linq.Clause;
 using DbLinq.Linq.Mapping;
 using DbLinq.Util;
 using DbLinq.Linq.Database;
-using MySql.Data.MySqlClient;
 
 namespace DbLinq.MySql
 {
@@ -242,7 +241,9 @@ namespace DbLinq.MySql
                 {
                     //unknown shape of resultset:
                     System.Data.DataSet dataSet = new DataSet();
-                    IDataAdapter adapter = new MySqlDataAdapter((MySqlCommand)command);
+                    //IDataAdapter adapter = new MySqlDataAdapter((MySqlCommand)command);
+                    IDbDataAdapter adapter = context.DatabaseContext.CreateDataAdapter();
+                    adapter.SelectCommand = command;
                     adapter.Fill(dataSet);
                     List<object> outParamValues = CopyOutParams(paramInfos, command.Parameters);
                     return new ProcResult(dataSet, outParamValues.ToArray());

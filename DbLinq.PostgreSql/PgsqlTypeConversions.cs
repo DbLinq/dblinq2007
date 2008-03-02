@@ -1,3 +1,5 @@
+// picrap: excluded from build (but kept in SVN)
+
 using System;
 using System.Collections.Generic;
 using System.Text;

@@ -118,7 +118,6 @@ namespace $ns
 
         private string GenerateDbClass(DlinqSchema.Database dbSchema, ISchemaLoader loader, Parameters mmConfig)
         {
-            #region GenerateDbClass()
             //if (tables.Count==0)
             //    return "//L69 no tables found";
             if (dbSchema.Tables.Count == 0)
@@ -195,7 +194,6 @@ public partial class $dbname : $dataContext
             dbs = dbs.Replace("$fieldDecl", dbFieldDeclStr);
             dbs = dbs.Replace("$storedProcs", storedProcsStr);
             return dbs;
-            #endregion
         }
 
     }
