@@ -92,8 +92,7 @@ namespace DbLinq.Vendor.Implementation
 
         public virtual int ExecuteCommand(DbLinq.Linq.DataContext context, string sql, params object[] parameters)
         {
-            IDbConnection conn = context.Connection;
-            using (IDbCommand command = conn.CreateCommand())
+            using (IDbCommand command = context.DatabaseContext.CreateCommand())
             {
                 string sql2 = ExecuteCommand_PrepareParams(command, sql, parameters);
                 command.CommandText = sql2;

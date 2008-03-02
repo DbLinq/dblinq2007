@@ -93,8 +93,8 @@ namespace DbLinq.Util
             //TODO: use connection pool instead of always opening a new one
 
             IDataReader rdr2;
-            using( new ConnectionManager(_conn) )
-            using( IDbCommand cmd = ExecuteSqlCommand(_conn, out rdr2) )
+            using( _vars.Context.DatabaseContext.OpenConnection() )
+            using( IDbCommand cmd = ExecuteSqlCommand(out rdr2) )
             using( rdr2 )
             {
 

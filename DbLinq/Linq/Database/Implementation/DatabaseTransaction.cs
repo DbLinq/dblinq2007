@@ -26,48 +26,56 @@
 
 using System;
 using System.Data;
-using System.Data.SqlClient;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace DbLinq.Util
+namespace DbLinq.Linq.Database.Implementation
 {
-    /// <summary>
-    /// if a connection is initially closed, ConnectionManager closes it in Dispose().
-    /// if a connection is initially open, ConnectionManager does nothing.
-    /// </summary>
-    [Obsolete("Use IDatabaseContext")]
-    public class ConnectionManager : IDisposable
+    public class DatabaseTransaction: IDatabaseTransaction
     {
-        readonly IDbConnection _conn;
-        readonly bool _mustCloseConnection;
+        [ThreadStatic]
+        private static DatabaseTransaction _currentTransaction;
 
-        public ConnectionManager(IDbConnection conn)
+        private IDbTransaction _transaction;
+
+        public static IDbTransaction CurrentDbTransaction
         {
-            _conn = conn;
-
-            switch (conn.State)
+            get 
             {
-                case System.Data.ConnectionState.Open:
-                    _mustCloseConnection = false;
-                    break;
-                case System.Data.ConnectionState.Closed:
-                    _mustCloseConnection = true;
-                    conn.Open();
-                    break;
-                default:
-                    throw new ApplicationException("L33: Can only handle Open or Closed connection states, not " + conn.State);
+                if (_currentTransaction != null)
+                    return _currentTransaction._transaction;
+                return null;
+            }
+        }
+
+        public DatabaseTransaction(IDbConnection connection)
+        {
+            if (_currentTransaction != null)
+                return;
+
+            _transaction = connection.BeginTransaction();
+            _currentTransaction = this;
+        }
+
+        public void Commit()
+        {
+            if (_transaction != null)
+            {
+                _transaction.Commit();
+                // once the transaction committed, dispose it
+                _transaction.Dispose();
+                _transaction = null;
             }
         }
 
         public void Dispose()
         {
-            if (_mustCloseConnection)
+            if (_transaction != null)
             {
-                try { _conn.Close(); }
-                catch { }
+                // if we are here, the Commit() was not called
+                _transaction.Rollback();
+                _transaction.Dispose();
             }
+            if (_currentTransaction == this)
+                _currentTransaction = null;
         }
     }
 }

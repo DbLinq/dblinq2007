@@ -35,6 +35,7 @@ using System.Data.Linq.Mapping;
 using System.Data;
 
 using DbLinq.Linq;
+using DbLinq.Linq.Database;
 using DbLinq.Vendor;
 using DbLinq.Util;
 
@@ -49,14 +50,14 @@ namespace DbLinq.Linq.Clause
         /// given type Employee, return 'INSERT Employee (ID, Name) VALUES (?p1,?p2)'
         /// (by examining [Table] and [Column] attribs)
         /// </summary>
-        public static IDbCommand GetClause(IVendor vendor, IDbConnection conn, object objectToInsert, ProjectionData projData)
+        public static IDbCommand GetClause(IVendor vendor, IDatabaseContext context, object objectToInsert, ProjectionData projData)
         {
-            if (vendor == null || conn == null || objectToInsert == null || projData == null)
+            if (vendor == null || context == null || objectToInsert == null || projData == null)
                 throw new ArgumentNullException("InsertClauseBuilder has null args");
             if (projData.fields.Count < 1 || projData.fields[0].columnAttribute == null)
                 throw new ApplicationException("InsertClauseBuilder need to receive types that have ColumnAttributes");
 
-            IDbCommand cmd = conn.CreateCommand();
+            IDbCommand cmd = context.CreateCommand();
 
             StringBuilder sb = new StringBuilder(/*DbLinq.Vendor.Settings.sqlStatementProlog*/)
                 .Append("INSERT INTO ");
@@ -129,7 +130,7 @@ namespace DbLinq.Linq.Clause
         /// return string '(ProductName, SupplierID, CategoryID, QuantityPerUnit)'
         /// (suitable for use in INSERT statement)
         /// </summary>
-        public static string InsertRowHeader(IDbConnection conn, ProjectionData projData)
+        public static string InsertRowHeader(ProjectionData projData)
         {
             StringBuilder sbNames = new StringBuilder("(");
             int numFieldsAdded = 0;
@@ -195,7 +196,7 @@ namespace DbLinq.Linq.Clause
             if (projData.fields.Count < 1 || projData.fields[0].columnAttribute == null)
                 throw new ApplicationException("InsertClauseBuilder need to receive types that have ColumnAttributes");
 
-            IDbCommand cmd = vars.Context.Connection.CreateCommand();
+            IDbCommand cmd = vars.Context.DatabaseContext.CreateCommand();
 
             string tableName_safe = vars.Context.Vendor.GetFieldSafeName(projData.tableAttribute.Name); //eg. "[Order Details]"
 

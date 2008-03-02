@@ -36,6 +36,7 @@ using DbLinq.Linq;
 using DbLinq.Linq.Clause;
 using DbLinq.Linq.Mapping;
 using DbLinq.Util;
+using DbLinq.Linq.Database;
 using MySql.Data.MySqlClient;
 
 namespace DbLinq.MySql
@@ -140,7 +141,7 @@ namespace DbLinq.MySql
             TableAttribute tableAttrib = typeof(T).GetCustomAttributes(false).OfType<TableAttribute>().Single();
 
             //build "INSERT INTO products (ProductName, SupplierID, CategoryID, QuantityPerUnit)"
-            string header = "INSERT INTO " + tableAttrib.Name + " " + InsertClauseBuilder.InsertRowHeader(connection, projData);
+            string header = "INSERT INTO " + tableAttrib.Name + " " + InsertClauseBuilder.InsertRowHeader(projData);
 
             foreach (List<T> page in Page.Paginate(rows, pageSize))
             {
@@ -187,15 +188,11 @@ namespace DbLinq.MySql
             //if (numRequiredParams != inputValues.Length)
             //    throw new ArgumentException("L161 Argument count mismatch");
 
-            IDbConnection conn = context.Connection;
-            //conn.Open();
-
             string sp_name = functionAttrib.Name;
 
             // picrap: is there any way to abstract some part of this?
-            using (IDbCommand command = conn.CreateCommand())
+            using (IDbCommand command = context.DatabaseContext.CreateCommand(sp_name))
             {
-                command.CommandText = sp_name;
                 //MySqlCommand command = new MySqlCommand("select hello0()");
                 int currInputIndex = 0;
 

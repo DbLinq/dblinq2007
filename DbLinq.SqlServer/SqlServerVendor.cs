@@ -136,16 +136,6 @@ namespace DbLinq.SqlServer
 
         }
 
-        public override int ExecuteCommand(DbLinq.Linq.DataContext context, string sql, params object[] parameters)
-        {
-            IDbConnection conn = context.Connection;
-            using (IDbCommand command = conn.CreateCommand())
-            {
-                command.CommandText = sql;
-                return command.ExecuteNonQuery();
-            }
-        }
-
         public override System.Data.Linq.IExecuteResult ExecuteMethodCall(DbLinq.Linq.DataContext context, System.Reflection.MethodInfo method, params object[] sqlParams)
         {
             throw new NotImplementedException();

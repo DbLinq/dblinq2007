@@ -32,6 +32,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Linq;
+using DbLinq.Linq.Database;
+using DbLinq.Linq.Database.Implementation;
 using DbLinq.Linq.Implementation;
 using DbLinq.Vendor;
 using DbLinq.Util;
@@ -43,11 +45,12 @@ namespace DbLinq.Linq
         private readonly List<IMTable> _tableList = new List<IMTable>();
         private readonly Dictionary<string, IMTable> _tableMap = new Dictionary<string, IMTable>();
 
-        public IDbConnection Connection { get; private set; }
+        //public IDbConnection Connection { get; private set; }
         public IVendor Vendor { get; set; }
         public IQueryGenerator QueryGenerator { get; set; }
         public IResultMapper ResultMapper { get; set; }
         public IModificationHandler ModificationHandler { get; set; }
+        public IDatabaseContext DatabaseContext { get; private set; }
 
         /// <summary>
         /// A DataContext opens and closes a database connection as needed 
@@ -56,13 +59,12 @@ namespace DbLinq.Linq
         /// If you provide an open connection, the DataContext will not close it
         /// source: http://msdn2.microsoft.com/en-us/library/bb292288.aspx
         /// </summary>
-        /// <param name="dbConnection"></param>
-        public DataContext(IDbConnection dbConnection, IVendor vendor)
+        public DataContext(IDatabaseContext databaseContext, IVendor vendor)
         {
-            if (dbConnection == null || vendor == null)
+            if (databaseContext == null || vendor == null)
                 throw new ArgumentNullException("Null arguments");
 
-            Connection = dbConnection;
+            DatabaseContext = databaseContext;
             Vendor = vendor;
 
             ResultMapper = new ResultMapper();
@@ -70,11 +72,16 @@ namespace DbLinq.Linq
             QueryGenerator = new QueryGenerator();
         }
 
+        public DataContext(IDbConnection dbConnection, IVendor vendor)
+            : this(new DatabaseContext(dbConnection), vendor)
+        {
+        }
+
         public bool DatabaseExists()
         {
             try
             {
-                using (new ConnectionManager(Connection))
+                using (DatabaseContext.OpenConnection())
                 {
                     //command: "SELECT 11" (Oracle: "SELECT 11 FROM DUAL")
                     string SQL = Vendor.SqlPingCommand;
@@ -124,10 +131,10 @@ namespace DbLinq.Linq
             //TODO: perform all queued up operations - INSERT,DELETE,UPDATE
             //TODO: insert order must be: first parent records, then child records
 
-            using (new ConnectionManager(Connection)) //ConnMgr will close connection for us
+            using (DatabaseContext.OpenConnection()) //ConnMgr will close connection for us
 
             //TranMgr may start transaction /  commit transaction
-            using (TransactionManager transactionMgr = new TransactionManager(Connection, failureMode)) 
+            using (IDatabaseTransaction transactionMgr = DatabaseContext.Transaction()) 
             {
                 foreach (IMTable tbl in _tableList)
                 {
@@ -193,7 +200,7 @@ namespace DbLinq.Linq
         /// </summary>
         protected System.Data.Linq.IExecuteResult ExecuteMethodCall(DataContext context, System.Reflection.MethodInfo method, params object[] sqlParams)
         {
-            using (new ConnectionManager(Connection))
+            using (DatabaseContext.OpenConnection())
             {
                 System.Data.Linq.IExecuteResult result = Vendor.ExecuteMethodCall(context, method, sqlParams);
                 return result;
@@ -214,7 +221,7 @@ namespace DbLinq.Linq
         /// </summary>
         public int ExecuteCommand(string command, params object[] parameters)
         {
-            using (new ConnectionManager(Connection))
+            using (DatabaseContext.OpenConnection())
             {
                 return Vendor.ExecuteCommand(this, command, parameters);
             }
