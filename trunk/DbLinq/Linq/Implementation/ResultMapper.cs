@@ -29,12 +29,17 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using DbLinq.Util;
 using DbLinq.Vendor;
 
-namespace DbLinq.Linq
+namespace DbLinq.Linq.Implementation
 {
-    public interface IDataMapper
+    public class ResultMapper: IResultMapper
     {
-        Func<IDataRecord, T> GetMapper<T>(SessionVarsParsed vars);
+        public Func<IDataRecord, T> GetMapper<T>(SessionVarsParsed vars)
+        {
+            int fieldID = 0;
+            return RowEnumeratorCompiler<T>.CompileRowDelegate(vars, ref fieldID);
+        }
     }
 }

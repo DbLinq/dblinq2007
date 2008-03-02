@@ -84,7 +84,7 @@ namespace DbLinq.Util
 
         protected virtual void CompileReaderFct()
         {
-            _objFromRow2 = _vars.Context.DataMapper.GetMapper<T>(_vars);
+            _objFromRow2 = _vars.Context.ResultMapper.GetMapper<T>(_vars);
         }
 
         public string GetQueryText(){ return _sqlString; }
