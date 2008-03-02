@@ -38,7 +38,24 @@ using System.Data;
 
 namespace DbLinq.Util
 {
-    public class RowEnumeratorCompiler<T>
+  public class RowEnumeratorCompiler {
+
+    /// <summary>
+    /// Converts column value to string 
+    /// Sample:
+    /// DbLinq.Util.RowEnumeratorCompiler.GetString +=
+    /// (value, type, datarecord, index)=> value.ToString().TrimEnd();
+    /// </summary>
+    public static event Func<object, Type, IDataRecord, int, string> GetString;
+
+   internal static string OnGetString(object src, Type t, IDataRecord dr, int index) {
+    if (GetString == null)
+       return src.ToString();
+    return GetString(src, t, dr, index);
+      }
+  }
+
+  public class RowEnumeratorCompiler<T> : RowEnumeratorCompiler
     {
         /// <summary>
         /// the entry point - routes your call into special cases for Projection and primitive types
@@ -581,7 +598,8 @@ namespace DbLinq.Util
             object o = dataRecord.GetValue(index);
             if (o == null || o is DBNull)
                 return null;
-            return o.ToString();
+          return OnGetString(o, typeof(T), dataRecord, index);
+            //return o.ToString();
         }
 
         private static bool GetAsBool(IDataRecord dataRecord, int index)
@@ -827,4 +845,15 @@ namespace DbLinq.Util
 
 
     }
+
+    //public static class RowConverter {
+
+    //  internal static string OnGetString(object src, Type t, IDataRecord dr,
+    //      int index) {
+    //    if (GetString == null)
+    //      return src.ToString();
+    //    return GetString(src, t, dr, index);
+    //  }
+    //}
+
 }
