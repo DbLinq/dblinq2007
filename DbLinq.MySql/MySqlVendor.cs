@@ -58,13 +58,12 @@ namespace DbLinq.MySql
             return null;
         }
 
-
         /// <summary>
         /// on Postgres or Oracle, return eg. ':P1', on Mysql, '?P1'
         /// </summary>
         public override string GetParameterName(int index)
         {
-            return "?P"+index;
+            return "?P" + index;
         }
 
         /// <summary>
@@ -79,42 +78,44 @@ namespace DbLinq.MySql
         /// <summary>
         /// given 'int', return '`int`' to prevent a SQL keyword conflict
         /// </summary>
-        public override string GetFieldSafeName(string name)
+        public override bool IsFieldNameSafe(string name)
         {
-            if (name.Contains(" "))
-                return "`" + name + "`"; // "Order Details" -> "`Order Details`"
-
             string nameL = name.ToLower();
             switch (nameL)
             {
-                case "user":
-                case "bit":
-                case "int":
-                case "smallint":
-                case "tinyint":
-                case "mediumint":
+            case "user":
+            case "bit":
+            case "int":
+            case "smallint":
+            case "tinyint":
+            case "mediumint":
 
-                case "float":
-                case "double":
-                case "real":
-                case "decimal":
-                case "numeric":
+            case "float":
+            case "double":
+            case "real":
+            case "decimal":
+            case "numeric":
 
-                case "blob":
-                case "text":
-                case "char":
-                case "varchar":
+            case "blob":
+            case "text":
+            case "char":
+            case "varchar":
 
-                case "date":
-                case "time":
-                case "datetime":
-                case "timestamp":
-                case "year":
+            case "date":
+            case "time":
+            case "datetime":
+            case "timestamp":
+            case "year":
 
-                    return "`" + name + "`";
-                default:
-                    return name;
+                return false;
+            default:
+                return base.IsFieldNameSafe(name);
             }
+        }
+
+        public override string MakeFieldSafeName(string name)
+        {
+            return "`" + name + "`";
         }
 
         public override bool CanBulkInsert<T>(Table<T> table)
@@ -262,7 +263,7 @@ namespace DbLinq.MySql
             //strange hack to determine what's a ref, out parameter:
             //http://lists.ximian.com/pipermain/mono-list/2003-March/012751.html
             bool hasAmpersand = paramInfo.ParameterType.FullName.Contains('&');
-            if(paramInfo.IsOut)
+            if (paramInfo.IsOut)
                 return System.Data.ParameterDirection.Output;
             if (hasAmpersand)
                 return System.Data.ParameterDirection.InputOutput;
@@ -276,7 +277,7 @@ namespace DbLinq.MySql
         {
             List<object> outParamValues = new List<object>();
             //Type type_t = typeof(T);
-            int i=-1;
+            int i = -1;
             foreach (IDbDataParameter param in paramSet)
             {
                 i++;
@@ -294,7 +295,7 @@ namespace DbLinq.MySql
                     //for ref and out parameters, we need to tweak ref types, e.g.
                     // "System.Int32&, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
                     string fullName1 = desired_type.AssemblyQualifiedName;
-                    string fullName2 = fullName1.Replace("&", ""); 
+                    string fullName2 = fullName1.Replace("&", "");
                     desired_type = Type.GetType(fullName2);
                 }
                 try
