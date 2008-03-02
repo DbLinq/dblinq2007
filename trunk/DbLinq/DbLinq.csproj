@@ -54,11 +54,17 @@
     <Compile Include="..\DbLinq.ProductInfo.cs">
       <Link>Properties\DbLinq.ProductInfo.cs</Link>
     </Compile>
+    <Compile Include="Linq\Database\DatabaseContextExtensions.cs" />
+    <Compile Include="Linq\Database\IDatabaseTransaction.cs" />
+    <Compile Include="Linq\Database\Implementation\DatabaseContext.cs" />
+    <Compile Include="Linq\Database\Implementation\DatabaseConnection.cs" />
+    <Compile Include="Linq\Database\Implementation\DatabaseTransaction.cs" />
     <Compile Include="Linq\DlinqSchema.cs" />
     <Compile Include="Linq\Clause\ExpressionTreeParser.cs" />
     <Compile Include="Linq\Clause\InsertClauseBuilder.cs" />
     <Compile Include="Linq\Clause\JoinBuilder.cs" />
     <Compile Include="Linq\Clause\ParseResult.cs" />
+    <Compile Include="Linq\Database\IDatabaseContext.cs" />
     <Compile Include="Linq\IModificationHandler.cs" />
     <Compile Include="Linq\Implementation\ResultMapper.cs" />
     <Compile Include="Linq\EntityMSet.cs" />

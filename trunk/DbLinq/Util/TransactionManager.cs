@@ -35,6 +35,7 @@ namespace DbLinq.Util
     /// <summary>
     /// helps us to automatically commit/reject transaction at end of SubmitChanges().
     /// </summary>
+    [Obsolete("Use IDatabaseContext")]
     public class TransactionManager : IDisposable
     {
         private IDbConnection _conn;

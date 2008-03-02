@@ -26,48 +26,36 @@
 
 using System;
 using System.Data;
-using System.Data.SqlClient;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace DbLinq.Util
+namespace DbLinq.Linq.Database.Implementation
 {
-    /// <summary>
-    /// if a connection is initially closed, ConnectionManager closes it in Dispose().
-    /// if a connection is initially open, ConnectionManager does nothing.
-    /// </summary>
-    [Obsolete("Use IDatabaseContext")]
-    public class ConnectionManager : IDisposable
+    internal class DatabaseConnection: IDisposable
     {
-        readonly IDbConnection _conn;
-        readonly bool _mustCloseConnection;
+        private IDbConnection _connection;
+        private bool _mustClose;
 
-        public ConnectionManager(IDbConnection conn)
+        public DatabaseConnection(IDbConnection connection)
         {
-            _conn = conn;
-
-            switch (conn.State)
+            _connection = connection;
+            switch (_connection.State)
             {
-                case System.Data.ConnectionState.Open:
-                    _mustCloseConnection = false;
-                    break;
-                case System.Data.ConnectionState.Closed:
-                    _mustCloseConnection = true;
-                    conn.Open();
-                    break;
-                default:
-                    throw new ApplicationException("L33: Can only handle Open or Closed connection states, not " + conn.State);
+            case System.Data.ConnectionState.Open:
+                _mustClose = false;
+                break;
+            case System.Data.ConnectionState.Closed:
+                _mustClose = true;
+                break;
+            default:
+                throw new ApplicationException("L33: Can only handle Open or Closed connection states, not " + _connection.State);
             }
+            if (_mustClose)
+                _connection.Open();
         }
 
         public void Dispose()
         {
-            if (_mustCloseConnection)
-            {
-                try { _conn.Close(); }
-                catch { }
-            }
+            if (_mustClose)
+                _connection.Close();
         }
     }
 }

@@ -36,6 +36,7 @@ using DbLinq.PostgreSql;
 using DbLinq.Util;
 using DbLinq.Linq;
 using DbLinq.Vendor;
+using DbLinq.Linq.Database;
 using Npgsql;
 
 namespace DbLinq.PostgreSql
@@ -135,15 +136,11 @@ namespace DbLinq.PostgreSql
             //if (numRequiredParams != inputValues.Length)
             //    throw new ArgumentException("L161 Argument count mismatch");
 
-            IDbConnection conn = context.Connection;
-            //conn.Open();
-
             string sp_name = functionAttrib.Name;
 
             // picrap: FIXme
-            using (NpgsqlCommand command = (NpgsqlCommand) conn.CreateCommand())
+            using (NpgsqlCommand command = (NpgsqlCommand) context.DatabaseContext.CreateCommand(sp_name))
             {
-                command.CommandText = sp_name;
                 //MySqlCommand command = new MySqlCommand("select hello0()");
                 int currInputIndex = 0;
 

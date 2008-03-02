@@ -240,15 +240,13 @@ namespace DbLinq.Linq
             if (_insertList.Count == 0 && _liveObjectMap.Count == 0 && _deleteList.Count == 0)
                 return new List<Exception>(); //nothing to do
 
-            IDbConnection conn = DataContext.Connection;
-
-            using (new ConnectionManager(conn))
+            using (DataContext.DatabaseContext.OpenConnection())
             {
-                return SaveAll_unsafe(conn, failureMode);
+                return SaveAll_unsafe(failureMode);
             } //Dispose(): close connection, if it was initally closed
         }
 
-        private List<Exception> SaveAll_unsafe(IDbConnection conn, System.Data.Linq.ConflictMode failureMode)
+        private List<Exception> SaveAll_unsafe(System.Data.Linq.ConflictMode failureMode)
         {
             List<Exception> excepts = new List<Exception>();
             //TODO: process deleteList, insertList, liveObjectList
@@ -257,7 +255,7 @@ namespace DbLinq.Linq
 
             if (_vars.Context.Vendor.CanBulkInsert(this))
             {
-                _vars.Context.Vendor.DoBulkInsert(this, _insertList, conn);
+                _vars.Context.Vendor.DoBulkInsert(this, _insertList, _vars.Context.DatabaseContext.Connection);
                 _insertList.Clear();
             }
 
@@ -268,10 +266,8 @@ namespace DbLinq.Linq
                 //INSERT INTO EMPLOYEES (EmpId, Name, DateStarted) VALUES (EmpID_SEQ.NextVal,?p1,?p2); SELECT EmpID_SEQ.CurrVal
                 try
                 {
-                    using (IDbCommand cmd = InsertClauseBuilder.GetClause(_vars.Context.Vendor, conn, obj, proj))
+                    using (IDbCommand cmd = InsertClauseBuilder.GetClause(_vars.Context.Vendor, _vars.Context.DatabaseContext, obj, proj))
                     {
-                        TransactionManager.CheckCommandTransaction(cmd);
-
                         object objID = null;
                         objID = cmd.ExecuteScalar();
 
@@ -327,7 +323,6 @@ namespace DbLinq.Linq
 
                     using (IDbCommand cmd = InsertClauseBuilder.GetUpdateCommand(_vars, obj, proj, ID_to_update))
                     {
-                        TransactionManager.CheckCommandTransaction(cmd);
                         int result = cmd.ExecuteNonQuery();
                         Trace.WriteLine("MTable SaveAll.Update returned:" + result);
                     }
@@ -399,10 +394,9 @@ namespace DbLinq.Linq
                 string sql = "DELETE FROM " + tableName + " WHERE " + string.Join(" OR ", idsToDelete.ToArray());
 
                 Trace.WriteLine("MTable SaveAll.Delete: " + sql);
-                using (IDbCommand cmd = DataContext.Connection.CreateCommand())
+                using (IDbCommand cmd = DataContext.DatabaseContext.CreateCommand())
                 {
                     cmd.CommandText = sql;
-                    TransactionManager.CheckCommandTransaction(cmd);
                     int result = cmd.ExecuteNonQuery();
                     Trace.WriteLine("MTable SaveAll.Delete returned:" + result);
                 }

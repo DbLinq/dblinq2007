@@ -34,6 +34,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
+using DbLinq.Linq.Database;
 using DbLinq.Util;
 using DbLinq.Linq;
 using DbLinq.Linq.Clause;
@@ -50,7 +51,7 @@ namespace DbLinq.Util
         , IQueryText
     {
         protected SessionVarsParsed _vars;
-        protected IDbConnection _conn;
+        protected IDatabaseContext _databaseContext;
 
         //while the FatalExecuteEngineError persists, we use a wrapper class to retrieve data
         protected Func<IDataRecord,T> _objFromRow2;
@@ -59,7 +60,7 @@ namespace DbLinq.Util
         protected ProjectionData _projectionData;
         Dictionary<T,T> _liveObjectMap;
         internal string _sqlString;
-        ConnectionManager _connectionManager;
+        IDisposable _connectionManager;
         IDataReader _rdr;
 
         public RowEnumerator(SessionVarsParsed vars, Dictionary<T,T> liveObjectMap)
@@ -69,13 +70,10 @@ namespace DbLinq.Util
             //for [Table] objects only: keep objects (to save them if they get modified)
             _liveObjectMap = liveObjectMap; 
 
-            _conn = vars.Context.Connection;
             _projectionData = vars.ProjectionData;
-            if (_conn == null)
-                throw new ApplicationException("Connection is null");
 
             //ConnectionManager remembers whether we need to close connection at the end
-            _connectionManager = new ConnectionManager(_conn);
+            _connectionManager = _vars.Context.DatabaseContext.OpenConnection();
 
             CompileReaderFct();
 
@@ -89,12 +87,12 @@ namespace DbLinq.Util
 
         public string GetQueryText(){ return _sqlString; }
 
-        protected IDbCommand ExecuteSqlCommand(IDbConnection newConn, out IDataReader rdr2)
+        protected IDbCommand ExecuteSqlCommand(out IDataReader rdr2)
         {
             //prepend user prolog string, if any
             string sqlFull = _vars.sqlProlog + _sqlString;
 
-            IDbCommand cmd = newConn.CreateCommand();
+            IDbCommand cmd = _vars.Context.DatabaseContext.CreateCommand();
             cmd.CommandText = sqlFull;
 
             if (_vars.SqlParts != null)
@@ -166,20 +164,7 @@ namespace DbLinq.Util
 
             IDataReader rdr2;
 
-#if CREATE_NEW_CONNECTION
-            //string origConnString = _conn.ConnectionString; //for MySql, cannot retrieve prev ConnStr
-            //create a new connection to prevent error "SqlConnection already has SqlDataReader associated with it"
-            XSqlConnection newConn = new XSqlConnection(_vars.context.SqlConnString);
-            newConn.Open();
-            //TODO: use connection pool instead of always opening a new one
-
-            using( newConn )
-#else
-            //use this if you are not worried about "SqlConnection already has SqlDataReader associated with it"
-            IDbConnection newConn = _conn; 
-#endif
-
-            using( IDbCommand cmd = ExecuteSqlCommand(newConn, out rdr2) )
+            using( IDbCommand cmd = ExecuteSqlCommand(out rdr2) )
             using( rdr2 )
             {
                 //_current = default(T);
