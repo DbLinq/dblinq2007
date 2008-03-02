@@ -26,6 +26,7 @@
 
 using System;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Data.Linq.Mapping;
 using System.Reflection;
@@ -37,7 +38,6 @@ using DbLinq.Util;
 using DbLinq.Linq;
 using DbLinq.Vendor;
 using DbLinq.Linq.Database;
-using Npgsql;
 
 namespace DbLinq.PostgreSql
 {
@@ -109,15 +109,36 @@ namespace DbLinq.PostgreSql
             return name;
         }
 
+        protected void SetParameterType(IDbDataParameter parameter, PropertyInfo property, string literal)
+        {
+            object dbType= Enum.Parse(property.PropertyType, literal);
+            property.GetSetMethod().Invoke(parameter, new object[] { dbType });
+        }
+
+        protected void SetParameterType(IDbDataParameter parameter, string literal)
+        {
+            SetParameterType(parameter, parameter.GetType().GetProperty("NpgsqlDbType"), literal);
+        }
+
         public override IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
         {
-            //System.Data.SqlDbType dbType = DbLinq.util.SqlTypeConversions.ParseType(dbTypeName);
-            //SqlParameter param = new SqlParameter(paramName, dbType);
-            NpgsqlTypes.NpgsqlDbType dbType = PgsqlTypeConversions.ParseType(dbTypeName);
-            NpgsqlParameter param = new NpgsqlParameter(paramName, dbType);
+            IDbDataParameter param = cmd.CreateParameter();
+            param.ParameterName = paramName;
+            if (dbTypeName.StartsWith("bit"))
+                SetParameterType(param, "Bit");
             return param;
         }
 
+        /*
+                public override IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
+                {
+                    //System.Data.SqlDbType dbType = DbLinq.util.SqlTypeConversions.ParseType(dbTypeName);
+                    //SqlParameter param = new SqlParameter(paramName, dbType);
+                    NpgsqlTypes.NpgsqlDbType dbType = PgsqlTypeConversions.ParseType(dbTypeName);
+                    NpgsqlParameter param = new NpgsqlParameter(paramName, dbType);
+                    return param;
+                }
+        */
         /// <summary>
         /// call mysql stored proc or stored function, 
         /// optionally return DataSet, and collect return params.
@@ -138,8 +159,7 @@ namespace DbLinq.PostgreSql
 
             string sp_name = functionAttrib.Name;
 
-            // picrap: FIXme
-            using (NpgsqlCommand command = (NpgsqlCommand) context.DatabaseContext.CreateCommand(sp_name))
+            using (IDbCommand command = context.DatabaseContext.CreateCommand(sp_name))
             {
                 //MySqlCommand command = new MySqlCommand("select hello0()");
                 int currInputIndex = 0;
@@ -158,16 +178,17 @@ namespace DbLinq.PostgreSql
 
                     System.Data.ParameterDirection direction = GetDirection(paramInfo, paramAttrib);
                     //MySqlDbType dbType = MySqlTypeConversions.ParseType(paramAttrib.DbType);
-                    NpgsqlParameter cmdParam = null;
+                    IDbDataParameter cmdParam = command.CreateParameter();
+                    cmdParam.ParameterName = paramName;
                     //cmdParam.Direction = System.Data.ParameterDirection.Input;
-                    if (direction == System.Data.ParameterDirection.Input || direction == System.Data.ParameterDirection.InputOutput)
+                    if (direction == ParameterDirection.Input || direction == ParameterDirection.InputOutput)
                     {
                         object inputValue = inputValues[currInputIndex++];
-                        cmdParam = new NpgsqlParameter(paramName, inputValue);
+                        cmdParam.Value = inputValue;
                     }
                     else
                     {
-                        cmdParam = new NpgsqlParameter(paramName, null);
+                        cmdParam.Value = null;
                     }
                     cmdParam.Direction = direction;
                     command.Parameters.Add(cmdParam);
@@ -186,11 +207,11 @@ namespace DbLinq.PostgreSql
                     command.CommandText = cmdText;
                 }
 
-                if (method.ReturnType == typeof(System.Data.DataSet))
+                if (method.ReturnType == typeof(DataSet))
                 {
                     //unknown shape of resultset:
-                    System.Data.DataSet dataSet = new System.Data.DataSet();
-                    NpgsqlDataAdapter adapter = new NpgsqlDataAdapter();
+                    System.Data.DataSet dataSet = new DataSet();
+                    IDbDataAdapter adapter = context.DatabaseContext.CreateDataAdapter();
                     adapter.SelectCommand = command;
                     adapter.Fill(dataSet);
                     List<object> outParamValues = CopyOutParams(paramInfos, command.Parameters);
@@ -205,30 +226,30 @@ namespace DbLinq.PostgreSql
             }
         }
 
-        static System.Data.ParameterDirection GetDirection(ParameterInfo paramInfo, ParameterAttribute paramAttrib)
+        static ParameterDirection GetDirection(ParameterInfo paramInfo, ParameterAttribute paramAttrib)
         {
             //strange hack to determine what's a ref, out parameter:
             //http://lists.ximian.com/pipermain/mono-list/2003-March/012751.html
             bool hasAmpersand = paramInfo.ParameterType.FullName.Contains('&');
             if (paramInfo.IsOut)
-                return System.Data.ParameterDirection.Output;
+                return ParameterDirection.Output;
             if (hasAmpersand)
-                return System.Data.ParameterDirection.InputOutput;
-            return System.Data.ParameterDirection.Input;
+                return ParameterDirection.InputOutput;
+            return ParameterDirection.Input;
         }
 
         /// <summary>
         /// Collect all Out or InOut param values, casting them to the correct .net type.
         /// </summary>
-        static List<object> CopyOutParams(ParameterInfo[] paramInfos, NpgsqlParameterCollection paramSet)
+        static List<object> CopyOutParams(ParameterInfo[] paramInfos, IDataParameterCollection paramSet)
         {
             List<object> outParamValues = new List<object>();
             //Type type_t = typeof(T);
             int i = -1;
-            foreach (NpgsqlParameter param in paramSet)
+            foreach (IDbDataParameter param in paramSet)
             {
                 i++;
-                if (param.Direction == System.Data.ParameterDirection.Input)
+                if (param.Direction == ParameterDirection.Input)
                 {
                     outParamValues.Add("unused");
                     continue;
@@ -260,10 +281,10 @@ namespace DbLinq.PostgreSql
             }
             return outParamValues;
         }
-
+/*
         public override IDataReader2 CreateDataReader(IDataReader dataReader)
         {
             return new PgsqlDataReader2(dataReader);
-        }
+        }*/
     }
 }

@@ -10,6 +10,34 @@ using System.Data.SQLite;
 
 //using nwind;  // contains Northwind context
 
+#if ORACLE
+#if ODP
+using xint = System.Int32;
+using XSqlConnection = Oracle.DataAccess.Client.OracleConnection;
+using XSqlCommand = Oracle.DataAccess.Client.OracleCommand;
+#else
+using xint = System.Int32;
+using XSqlConnection = System.Data.OracleClient.OracleConnection;
+using XSqlCommand = System.Data.OracleClient.OracleCommand;
+#endif
+#elif POSTGRES
+using xint = System.Int32;
+using XSqlConnection = Npgsql.NpgsqlConnection;
+using XSqlCommand = Npgsql.NpgsqlCommand;
+#elif SQLITE
+using System.Data.SQLite;
+using XSqlConnection = System.Data.SQLite.SQLiteConnection;
+using XSqlCommand = System.Data.SQLite.SQLiteCommand;
+#elif MSSQL
+using XSqlConnection = System.Data.SqlClient.SqlConnection;
+using XSqlCommand = System.Data.SqlClient.SqlCommand;
+using xint = System.UInt32;
+#else
+using XSqlConnection = MySql.Data.MySqlClient.MySqlConnection;
+using XSqlCommand = MySql.Data.MySqlClient.MySqlCommand;
+using xint = System.UInt32;
+#endif
+
 namespace DbLinq.SQLite.Example
 {
     class Program
@@ -54,7 +82,7 @@ namespace DbLinq.SQLite.Example
             object obj = cmd.ExecuteScalar();
 #endif
             // BUG: contexts must to be disposable
-            Northwind db = new Northwind(connStr);
+            Northwind db = new Northwind(new XSqlConnection(connStr));
 
 #if !SQLITE && USE_STORED_PROCS
             int is2;

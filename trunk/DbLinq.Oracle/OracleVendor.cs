@@ -1,7 +1,3 @@
-using System;
-using System.Data;
-using System.Reflection;
-using System.Collections.Generic;
 #region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
@@ -28,6 +24,10 @@ using System.Collections.Generic;
 ////////////////////////////////////////////////////////////////////
 #endregion
 
+using System;
+using System.Data;
+using System.Reflection;
+using System.Collections.Generic;
 using System.Text;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;

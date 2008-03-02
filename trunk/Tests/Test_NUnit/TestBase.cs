@@ -98,7 +98,7 @@ namespace Test_NUnit
         public Northwind CreateDB()
         {
             return CreateDB(System.Data.ConnectionState.Closed);
-            Northwind db = new Northwind(connStr);
+            Northwind db = new Northwind(new XSqlConnection(connStr));
             db.Log = Console.Out;
 #if SQLITE
             if (doRecreate)
