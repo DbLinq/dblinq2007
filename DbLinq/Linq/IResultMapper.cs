@@ -25,21 +25,12 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using DbLinq.Util;
-using DbLinq.Vendor;
 
-namespace DbLinq.Linq.Implementation
+namespace DbLinq.Linq
 {
-    public class DataMapper: IDataMapper
+    public interface IResultMapper
     {
-        public Func<IDataRecord, T> GetMapper<T>(SessionVarsParsed vars)
-        {
-            int fieldID = 0;
-            return RowEnumeratorCompiler<T>.CompileRowDelegate(vars, ref fieldID);
-        }
+        Func<IDataRecord, T> GetMapper<T>(SessionVarsParsed vars);
     }
 }

@@ -60,9 +60,9 @@
     <Compile Include="Linq\Clause\JoinBuilder.cs" />
     <Compile Include="Linq\Clause\ParseResult.cs" />
     <Compile Include="Linq\IModificationHandler.cs" />
-    <Compile Include="Linq\Implementation\DataMapper.cs" />
+    <Compile Include="Linq\Implementation\ResultMapper.cs" />
     <Compile Include="Linq\EntityMSet.cs" />
-    <Compile Include="Linq\IDataMapper.cs" />
+    <Compile Include="Linq\IResultMapper.cs" />
     <Compile Include="Linq\IModified.cs" />
     <Compile Include="Linq\Implementation\QueryGenerator.cs" />
     <Compile Include="Linq\IQueryGenerator.cs" />

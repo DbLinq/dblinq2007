@@ -46,7 +46,7 @@ namespace DbLinq.Linq
         public IDbConnection Connection { get; private set; }
         public IVendor Vendor { get; set; }
         public IQueryGenerator QueryGenerator { get; set; }
-        public IDataMapper DataMapper { get; set; }
+        public IResultMapper ResultMapper { get; set; }
         public IModificationHandler ModificationHandler { get; set; }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace DbLinq.Linq
             Connection = dbConnection;
             Vendor = vendor;
 
-            DataMapper = new DataMapper();
+            ResultMapper = new ResultMapper();
             ModificationHandler = new ModificationHandler();
             QueryGenerator = new QueryGenerator();
         }
