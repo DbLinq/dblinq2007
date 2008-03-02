@@ -27,10 +27,11 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Reflection;
 
 namespace DbLinq.Linq.Database.Implementation
 {
-    public class DatabaseContext: IDatabaseContext
+    public class DatabaseContext : IDatabaseContext
     {
         private bool _connectionOwner;
         private IDbConnection _connection;
@@ -43,7 +44,7 @@ namespace DbLinq.Linq.Database.Implementation
         private DbProviderFactory _providerFactory;
         protected DbProviderFactory ProviderFactory
         {
-            get 
+            get
             {
                 if (_providerFactory == null)
                     throw new Exception("In order to use this method, a DbProviderFactory must be provided");
@@ -53,9 +54,12 @@ namespace DbLinq.Linq.Database.Implementation
 
         public void Connect(string connectionString)
         {
-            IDbConnection connection = ProviderFactory.CreateConnection();
+            IDbConnection connection = null;
             if (connectionString != null)
+            {
+                connection = ProviderFactory.CreateConnection();
                 connection.ConnectionString = connectionString;
+            }
             ChangeConnection(connection, true);
         }
 
@@ -120,6 +124,29 @@ namespace DbLinq.Linq.Database.Implementation
             SetConnection(connection, owner);
         }
 
+        protected DbProviderFactory FindFactory(IDbConnection connection)
+        {
+            Assembly connectionAssembly = connection.GetType().Assembly;
+            foreach (Type testType in connectionAssembly.GetExportedTypes())
+            {
+                if (typeof(DbProviderFactory).IsAssignableFrom(testType))
+                {
+                    var bindingFlags = BindingFlags.Static | BindingFlags.Public;
+                    FieldInfo instanceFieldInfo = testType.GetField("Instance", bindingFlags);
+                    if (instanceFieldInfo != null)
+                    {
+                        return (DbProviderFactory)instanceFieldInfo.GetValue(null);
+                    }
+                    PropertyInfo instancePropertyInfo = testType.GetProperty("Instance", bindingFlags);
+                    if (instancePropertyInfo != null)
+                    {
+                        return (DbProviderFactory)instancePropertyInfo.GetGetMethod().Invoke(null, new object[0]);
+                    }
+                }
+            }
+            return null;
+        }
+
         public DatabaseContext(DbProviderFactory providerFactory)
             : this(providerFactory, null)
         {
@@ -133,6 +160,7 @@ namespace DbLinq.Linq.Database.Implementation
 
         public DatabaseContext(IDbConnection connection)
         {
+            _providerFactory = FindFactory(connection);
             Connection = connection;
         }
     }
