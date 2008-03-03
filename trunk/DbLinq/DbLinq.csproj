@@ -84,6 +84,7 @@
     <Compile Include="Util\DataCommand.cs" />
     <Compile Include="Util\ExpressionAndType.cs" />
     <Compile Include="Util\ExpressionExtensions.cs" />
+    <Compile Include="Util\ExpressionVisitor.cs" />
     <Compile Include="Util\FieldUtils.cs" />
     <Compile Include="Util\GroupHelper.cs" />
     <Compile Include="Linq\INameFormatter.cs" />

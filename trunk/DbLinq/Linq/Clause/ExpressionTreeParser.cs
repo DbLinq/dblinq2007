@@ -445,7 +445,7 @@ namespace DbLinq.Linq.Clause
             _result.tablesUsed[expr.Expression.Type] = varName;
             _result.AppendString(".");
 
-            //TODO: this appends "Alltypes.int_" whereas int should append "Alltypes.`int`"
+            //TODO: this appends "Alltypes.int_" whereas it should append "Alltypes.`int`"
             ColumnAttribute columnAttrib = expr.Member.GetCustomAttributes(false).OfType<ColumnAttribute>().FirstOrDefault();
             string sqlColumnName = expr.Member.Name;
             if (columnAttrib != null)

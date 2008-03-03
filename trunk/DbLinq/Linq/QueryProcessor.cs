@@ -79,30 +79,6 @@ namespace DbLinq.Linq
         }
 
 
-        /// <summary>
-        /// main method, which processes expressions, compiles, and puts together our SQL string.
-        /// </summary>
-        /// <param name="vars"></param>
-        //public static SessionVarsParsed GenerateQuery(SessionVars vars, Type T)
-        //{
-        //    SessionVarsParsed varsFin = new SessionVarsParsed(vars);
-        //    QueryProcessor qp = new QueryProcessor(varsFin); //TODO
-
-        //    foreach (MethodCallExpression expr in vars.ExpressionChain)
-        //    {
-        //        qp.ProcessQuery(expr);
-        //    }
-
-        //    if (qp.LastQueryName == "GroupBy")
-        //        throw new InvalidOperationException("L98 GroupBy must by followed by an aggregate expression, such as Count or Max");
-
-        //    qp.ProcessScalarExpression();
-
-        //    qp.BuildSqlString(T);
-
-        //    return varsFin;
-        //}
-
         public void ProcessScalarExpression()
         {
             if (_vars.ScalarExpression == null)
@@ -112,6 +88,7 @@ namespace DbLinq.Linq
 
             MethodCallExpression exprCall = expr.XMethodCall();
             string methodName = exprCall != null ? exprCall.Method.Name : "Unknown_71";
+            LambdaExpression lambdaParam = exprCall.XParam(1).XLambda();
             
             switch (methodName)
             {
@@ -119,6 +96,14 @@ namespace DbLinq.Linq
                 case "Max":
                 case "Min":
                 case "Sum":
+                    if (lambdaParam != null)
+                    {
+                        MethodCallExpression precedingSelectCall = _vars.ExpressionChain[_vars.ExpressionChain.Count - 1];
+                        LambdaExpression precedingSelect = precedingSelectCall.Arguments[1].XLambda();
+                        //change 'i=>2' into 'p=>ProductID>2'
+                        lambdaParam = new CountExpressionModifier(precedingSelect).Modify(lambdaParam).XLambda();
+                    }
+
                     _vars.SqlParts.CountClause = methodName.ToUpper();
                     break;
                 case "Average":
@@ -136,12 +121,42 @@ namespace DbLinq.Linq
 
             //there are two forms of Single, one passes in a Where clause
             //same applies to Count, Max etc:
-            LambdaExpression lambdaParam = exprCall.XParam(1).XLambda();
             if (lambdaParam != null)
             {
                 ProcessWhereClause(lambdaParam);
             }
 
+        }
+
+        /// <summary>
+        /// when the user calls 'Count(i =&gt; 2)', we lost the information about what 'i' was referring to.
+        /// That info lives in the preceding Select.
+        /// This helper class edits our expression to put the info back in:
+        /// Given 'i=>2', we return 'p=>ProductID>2'
+        /// </summary>
+        public class CountExpressionModifier : ExpressionVisitor
+        {
+            #region CountExpressionModifier
+            LambdaExpression _substituteExpr;
+            public CountExpressionModifier(LambdaExpression substituteExpr)
+            {
+                _substituteExpr = substituteExpr;
+            }
+            public Expression Modify(Expression expression)
+            {
+                return Visit(expression);
+            }
+            protected override Expression VisitLambda(LambdaExpression lambda)
+            {
+                Expression body2 = base.Visit(lambda.Body);
+                Expression lambda2 = Expression.Lambda(body2, _substituteExpr.Parameters[0]);
+                return lambda2;
+            }
+            protected override Expression VisitParameter(ParameterExpression p)
+            {
+                return _substituteExpr.Body;
+            }
+            #endregion
         }
 
 
