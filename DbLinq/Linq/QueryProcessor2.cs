@@ -82,13 +82,6 @@ namespace DbLinq.Linq
                 ParseResult result = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, body);
                 _vars.SqlParts.AddSelect(result.columns);
                 result.CopyInto(this, _vars.SqlParts); //transfer params and tablesUsed
-
-                //support for subsequent Count() - see F2_ProductCount_Clause
-                if (result.columns.Count > 0)
-                {
-                    // currentVarNames[int] = "p$.ProductID";
-                    this.currentVarNames[body.Type] = result.columns[0];
-                }
             }
         }
 
