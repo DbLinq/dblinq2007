@@ -132,7 +132,8 @@ namespace DbLinq.Linq
             SessionVars vars = new SessionVars(_vars).Add(expression);
 
             //if (this is IQueryable<S>)
-            if (S == typeof(T))
+            bool sameType = (S == typeof(IQueryable<T>)) || (S == typeof(IOrderedQueryable<T>));
+            if (sameType)
             {
                 //this occurs if we are not projecting
                 //(meaning that we are selecting entire row object)
