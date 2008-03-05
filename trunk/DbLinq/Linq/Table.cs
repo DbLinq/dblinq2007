@@ -216,19 +216,13 @@ namespace DbLinq.Linq
         /// with the intention to perform an update or delete operation
         /// </summary>
         /// <param name="entity">table row object to attach</param>
-        /// <param name="asModified">true if object will be updated on Submit, false if not</param>
-        public void Attach(T entity, bool asModified)
+        public void Attach(T entity)
         {
             if (_liveObjectMap.ContainsKey(entity))
                 throw new System.Data.Linq.DuplicateKeyException(entity);
 
             _liveObjectMap[entity] = entity;
-            //todo: add where T: IsModified to class definition and use
-            // todo: discuss about this:IModified must not be mandatory (even if it is useful).
-            if (asModified)
-                _modificationHandler.Dirty(entity);
-            else
-                _modificationHandler.Clean(entity);
+            _modificationHandler.ClearModified(entity);
         }
 
         public void SaveAll()
@@ -283,7 +277,7 @@ namespace DbLinq.Linq
                             //set the object's ID:
                             FieldUtils.SetObjectIdField(obj, proj.autoGenField, objID);
 
-                            _modificationHandler.Clean(obj); //we just saved it - it's not 'dirty'
+                            _modificationHandler.ClearModified(obj); //we just saved it - it's not 'dirty'
                         }
                         catch (Exception ex)
                         {
@@ -322,13 +316,15 @@ namespace DbLinq.Linq
                     Trace.WriteLine("MTable SaveAll: saving modified object");
                     string[] ID_to_update = getObjectID(obj);
 
-                    using (IDbCommand cmd = InsertClauseBuilder.GetUpdateCommand(_vars, obj, proj, ID_to_update))
+                    IList<PropertyInfo> modifiedProperties = _modificationHandler.GetModifiedProperties(obj);
+
+                    using (IDbCommand cmd = InsertClauseBuilder.GetUpdateCommand(_vars, obj, proj, ID_to_update, modifiedProperties))
                     {
                         int result = cmd.ExecuteNonQuery();
                         Trace.WriteLine("MTable SaveAll.Update returned:" + result);
                     }
 
-                    _modificationHandler.Clean(obj); //mark as saved, thanks to Martin Rauscher
+                    _modificationHandler.ClearModified(obj); //mark as saved, thanks to Martin Rauscher
                 }
                 catch (Exception ex)
                 {

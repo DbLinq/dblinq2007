@@ -39,10 +39,22 @@ namespace DbLinq.Linq.Implementation
     /// 1. if entity implements IModifed, uses the interface and its IsModifed flag property
     /// 2. otherwise, the handler keeps a dictionary of raw data per entity
     /// </summary>
-    public class ModificationHandler: IModificationHandler
+    public class ModificationHandler : IModificationHandler
     {
         private readonly IDictionary<object, IDictionary<string, object>> rawDataEntities = new Dictionary<object, IDictionary<string, object>>();
-        private readonly HashSet<object> modifiedEntities = new HashSet<object>();
+        private readonly IDictionary<object, IDictionary<string, PropertyInfo>> modifiedProperties = new Dictionary<object, IDictionary<string, PropertyInfo>>();
+
+        protected IEnumerable<PropertyInfo> GetColumnProperties(object entity)
+        {
+            foreach (PropertyInfo propertyInfo in entity.GetType().GetProperties())
+            {
+                // we consider only properties marked as [Column] since these are the only ones going to DB
+                if (propertyInfo.GetCustomAttributes(typeof(ColumnAttribute), true).Length > 0)
+                {
+                    yield return propertyInfo;
+                }
+            }
+        }
 
         /// <summary>
         /// Adds simple (value) properties of an object to a given dictionary
@@ -53,21 +65,17 @@ namespace DbLinq.Linq.Implementation
         /// <param name="prefix"></param>
         protected void AddRawData(object entity, IDictionary<string, object> rawData, string prefix)
         {
-            foreach (PropertyInfo propertyInfo in entity.GetType().GetProperties())
+            foreach (PropertyInfo propertyInfo in GetColumnProperties(entity))
             {
-                // we consider only properties marked as [Column] since these are the only ones going to DB
-                if (propertyInfo.GetCustomAttributes(typeof (ColumnAttribute), true).Length > 0)
+                object propertyValue = propertyInfo.GetGetMethod().Invoke(entity, null);
+                // if it is a value, it can be stored directly
+                if (propertyInfo.PropertyType.IsValueType)
                 {
-                    object propertyValue = propertyInfo.GetGetMethod().Invoke(entity, null);
-                    // if it is a value, it can be stored directly
-                    if (propertyInfo.PropertyType.IsValueType)
-                    {
-                        rawData[prefix + propertyInfo.Name] = propertyValue;
-                    }
-                    else // otherwise, we recurse, and prefix the current property name to sub properties to avoid conflicts
-                    {
-                        AddRawData(propertyValue, rawData, propertyInfo.Name + ".");
-                    }
+                    rawData[prefix + propertyInfo.Name] = propertyValue;
+                }
+                else // otherwise, we recurse, and prefix the current property name to sub properties to avoid conflicts
+                {
+                    AddRawData(propertyValue, rawData, propertyInfo.Name + ".");
                 }
             }
         }
@@ -91,6 +99,7 @@ namespace DbLinq.Linq.Implementation
         /// <returns></returns>
         private bool IsSelfDeclaring(object entity)
         {
+            //return false;
             return entity is IModified;
         }
 
@@ -116,12 +125,12 @@ namespace DbLinq.Linq.Implementation
             {
                 return;
             }
-                // notifying, we need to wait for changes
+            // notifying, we need to wait for changes
             else if (IsNotifying(entity))
             {
                 RegisterNotification(entity);
             }
-                // raw data, we keep a snapshot of the current state
+            // raw data, we keep a snapshot of the current state
             else
             {
                 if (!rawDataEntities.ContainsKey(entity))
@@ -131,16 +140,17 @@ namespace DbLinq.Linq.Implementation
 
         private void RegisterNotification(object entity)
         {
+            modifiedProperties[entity] = new Dictionary<string, PropertyInfo>();
             if (entity is INotifyPropertyChanging)
             {
-                ((INotifyPropertyChanging) entity).PropertyChanging += delegate(object sender, PropertyChangingEventArgs e)
+                ((INotifyPropertyChanging)entity).PropertyChanging += delegate(object sender, PropertyChangingEventArgs e)
                                                                            {
                                                                                SetPropertyChanged(sender, e.PropertyName);
                                                                            };
             }
             else if (entity is INotifyPropertyChanged)
             {
-                ((INotifyPropertyChanged) entity).PropertyChanged += delegate(object sender, PropertyChangedEventArgs e)
+                ((INotifyPropertyChanged)entity).PropertyChanged += delegate(object sender, PropertyChangedEventArgs e)
                                                                          {
                                                                              SetPropertyChanged(sender, e.PropertyName);
                                                                          };
@@ -155,8 +165,7 @@ namespace DbLinq.Linq.Implementation
         /// <param name="propertyName"></param>
         private void SetPropertyChanged(object entity, string propertyName)
         {
-            if (!modifiedEntities.Contains(entity))
-                modifiedEntities.Add(entity);
+            modifiedProperties[entity][propertyName] = GetProperty(entity, propertyName);
         }
 
         /// <summary>
@@ -190,7 +199,12 @@ namespace DbLinq.Linq.Implementation
 
         private bool IsNotifyingModified(object entity)
         {
-            return modifiedEntities.Contains(entity);
+            return !modifiedProperties.ContainsKey(entity) || modifiedProperties[entity].Count > 0;
+        }
+
+        private bool IsPropertyModified(object p1, object p2)
+        {
+            return !p1.Equals(p2);
         }
 
         private bool IsRawModified(object entity)
@@ -206,73 +220,103 @@ namespace DbLinq.Linq.Implementation
             {
                 object originalValue = originalData[key];
                 object currentValue = currentData[key];
-                if (!originalValue.Equals(currentValue))
+                if (IsPropertyModified(originalValue, currentValue))
                     return true;
             }
 
             return false;
         }
 
-        public void SetModified(object entity, bool setModified)
+        /// <summary>
+        /// Returns a list of all modified properties since last Register/ClearModified
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public IList<PropertyInfo> GetModifiedProperties(object entity)
         {
             if (IsSelfDeclaring(entity))
-                SetSelfDeclaringDirty(entity, setModified);
-            else if (IsNotifyingModified(entity))
-                SetNotifyingModified(entity, setModified);
-            else
-                SetRawModified(entity, setModified);
+                return GetSelfDeclaringModifiedProperties(entity);
+
+            if (IsNotifying(entity))
+                return GetNotifyingModifiedProperties(entity);
+
+            return GetRawModifiedProperties(entity);
         }
 
-        private void SetSelfDeclaringDirty(object entity, bool setModified)
+        protected IList<PropertyInfo> GetAllColumnProperties(object entity)
+        {
+            IList<PropertyInfo> properties = new List<PropertyInfo>(GetColumnProperties(entity));
+            return properties;
+        }
+
+        protected IList<PropertyInfo> GetSelfDeclaringModifiedProperties(object entity)
+        {
+            return GetAllColumnProperties(entity);
+        }
+
+        protected IList<PropertyInfo> GetNotifyingModifiedProperties(object entity)
+        {
+            IDictionary<string,PropertyInfo> properties;
+            // if we don't have it, it is fully dirty
+            if (!modifiedProperties.TryGetValue(entity, out properties))
+                return GetAllColumnProperties(entity);
+            return new List<PropertyInfo>(properties.Values);
+        }
+
+        protected IList<PropertyInfo> GetRawModifiedProperties(object entity)
+        {
+            IList<PropertyInfo> properties = new List<PropertyInfo>();
+
+            IDictionary<string, object> originalData;
+            if (!rawDataEntities.TryGetValue(entity, out originalData))
+                return GetAllColumnProperties(entity);
+            IDictionary<string, object> currentData = GetEntityRawData(entity);
+
+            foreach (string key in currentData.Keys)
+            {
+                object currentValue = currentData[key];
+                object originalValue = originalData[key];
+                if (IsPropertyModified(originalValue, currentValue))
+                    properties.Add(GetProperty(entity, key));
+            }
+
+            return properties;
+        }
+
+        public void ClearModified(object entity)
+        {
+            if (IsSelfDeclaring(entity))
+                ClearSelfDeclaringModified(entity);
+            else if (IsNotifying(entity))
+                ClearNotifyingModified(entity);
+            else
+                ClearRawModified(entity);
+        }
+
+        private void ClearSelfDeclaringModified(object entity)
         {
             var modified = entity as IModified;
             if (modified != null)
             {
-                modified.IsModified = setModified;
+                modified.IsModified = false;
                 return;
             }
             throw new ArgumentException("object does not implement a known self declaring interface");
         }
 
-        private void SetNotifyingModified(object entity, bool setModified)
+        private void ClearNotifyingModified(object entity)
         {
-            // simple here: insert in "dirty table" or remove it
-            if (setModified)
-            {
-                if (!modifiedEntities.Contains(entity))
-                    modifiedEntities.Add(entity);
-            }
-            else
-            {
-                if (modifiedEntities.Contains(entity))
-                    modifiedEntities.Remove(entity);
-            }
+            modifiedProperties[entity] = new Dictionary<string, PropertyInfo>();
         }
 
-        private void SetRawModified(object entity, bool setModified)
+        private void ClearRawModified(object entity)
         {
-            if (setModified) // the object is considered as dirty if we don't find a copy in the cache
-                rawDataEntities.Remove(entity);
-            else // the mark it clean, just record the current values
-                rawDataEntities[entity] = GetEntityRawData(entity);
+            rawDataEntities[entity] = GetEntityRawData(entity);
         }
 
-        /// <summary>
-        /// Marks the entity as not dirty.
-        /// </summary>
-        /// <param name="entity"></param>
-        public void Clean(object entity)
+        private PropertyInfo GetProperty(object entity, string propertyName)
         {
-            SetModified(entity, false);
-        }
-
-        /// <summary>
-        /// Marks the entity as dirty (apparently unused)
-        /// </summary>
-        /// <param name="entity"></param>
-        public void Dirty(object entity)
-        {
-            SetModified(entity, true);
+            return entity.GetType().GetProperty(propertyName);
         }
     }
 }

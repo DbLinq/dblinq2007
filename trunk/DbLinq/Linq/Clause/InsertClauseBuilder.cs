@@ -189,7 +189,7 @@ namespace DbLinq.Linq.Clause
         /// (by examining [Table] and [Column] attribs)
         /// </summary>
         public static IDbCommand GetUpdateCommand(SessionVars vars, object objectToUpdate
-            , ProjectionData projData, string[] IDs_to_update)
+            , ProjectionData projData, string[] IDs_to_update, IList<PropertyInfo> modifiedProperties)
         {
             if (vars == null || objectToUpdate == null || projData == null)
                 throw new ArgumentNullException("InsertClauseBuilder has null args");
@@ -212,6 +212,10 @@ namespace DbLinq.Linq.Clause
 
             foreach (ProjectionData.ProjectionField projFld in projData.fields)
             {
+                // check here if the property was modified
+                if (modifiedProperties.FirstOrDefault(modifiedProperty => modifiedProperty.Name == projFld.MemberInfo.Name) == null)
+                    continue;
+
                 ColumnAttribute colAtt = projFld.columnAttribute;
 
                 string columnName_safe = vars.Context.Vendor.GetFieldSafeName(colAtt.Name); //turn 'User' into '[User]'
