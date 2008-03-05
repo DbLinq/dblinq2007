@@ -85,7 +85,7 @@ using Test_NUnit;
 
             Northwind db = CreateDB();
             var orderDetail = new OrderDetail { OrderID = 1, ProductID = 2 };
-            db.OrderDetails.Attach(orderDetail, false);
+            db.OrderDetails.Attach(orderDetail);
 
             float newDiscount = 15 + (float)rand.NextDouble();
             orderDetail.Discount = newDiscount;

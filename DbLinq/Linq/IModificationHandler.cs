@@ -24,6 +24,9 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
+using System.Collections.Generic;
+using System.Reflection;
+
 namespace DbLinq.Linq
 {
     public interface IModificationHandler
@@ -45,12 +48,13 @@ namespace DbLinq.Linq
         /// Marks the entity as not dirty.
         /// </summary>
         /// <param name="entity"></param>
-        void Clean(object entity);
+        void ClearModified(object entity);
 
         /// <summary>
-        /// Marks the entity as dirty (apparently unused)
+        /// Returns a list of all modified properties since last Register/ClearModified
         /// </summary>
         /// <param name="entity"></param>
-        void Dirty(object entity);
+        /// <returns></returns>
+        IList<PropertyInfo> GetModifiedProperties(object entity);
     }
 }
