@@ -25,32 +25,13 @@
 #endregion
 
 using System;
-using System.Linq;
 using System.IO;
 using System.Collections.Generic;
-using System.Text;
-using System.Xml.Serialization;
+
 using DbLinq.Linq;
 using DbLinq.Vendor;
 using SqlMetal.CSharpGenerator;
-using SqlMetal.schema;
-
-//OK this is rather primitive and needs fixing:
-//in one of these namespaces, there is a class Vendor.
-//todo: implement VendorFactory, get rid of this garbage.
-    //in SQLiteMetal, imports class Vendor
-    //in MySqlMetal, imports class Vendor
-    //in PgsqlMetal, imports class Vendor
-    //in MicrosoftMetal, imports class Vendor
-
-//in MicrosoftMetal, imports class Vendor
-
-//using Vendor = Vendor;
-//#if SQLITE
-//    using Vendor = SqlMetal.schema.sqlite.Vendor;
-//#else
-//    using Vendor = SqlMetal.schema.mysql.Vendor;
-//#endif
+using SqlMetal.Schema;
 
 namespace SqlMetal
 {
