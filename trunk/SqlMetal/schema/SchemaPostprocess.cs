@@ -6,7 +6,7 @@ using DbLinq.Linq;
 using DbLinq.Util;
 using SqlMetal.Util;
 
-namespace SqlMetal.schema
+namespace SqlMetal.Schema
 {
     /// <summary>
     /// this class contains functionality common to all vendors -
