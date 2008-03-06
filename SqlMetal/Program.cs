@@ -58,84 +58,54 @@ namespace SqlMetal
     {
         static void Main(string[] args)
         {
-            SqlMetalParameters mmConfig;
+            SqlMetalParameters parameters;
             try
             {
-                mmConfig = new SqlMetalParameters(args);
+                parameters = new SqlMetalParameters(args);
             }
             catch (ArgumentException e)
             {
                 Console.WriteLine(e.Message);
-                errorExit();
+                PrintUsage();
                 return;
             }
 
             try
             {
-                //SqlMetal.util.Util.InitRenames();
-
                 DlinqSchema.Database dbSchema = null;
 
-#if SERIALIZATION_TEST
-                dbSchema = new DlinqSchema.Database();
-                dbSchema.Name = "XX";
-                DlinqSchema.ColumnSpecifier primKey = new DlinqSchema.ColumnSpecifier();
-                primKey.Name = "PRIM_KEY";
-                DlinqSchema.Table tbl = new DlinqSchema.Table();
-                tbl.Name = "Aggr";
-                tbl.PrimaryKey.Add(primKey);
-                DlinqSchema.Schema sch = new DlinqSchema.Schema();
-                sch.Name = "dbo";
-                sch.Property = "dbo";
-                sch.Tables.Add(tbl);
-                dbSchema.Schemas.Add(sch);
-                XmlSerializer xser = new XmlSerializer(typeof(DlinqSchema.Database));
-                System.IO.StringWriter writer = new StringWriter();
-                xser.Serialize(writer,dbSchema);
-                string s1 = writer.ToString();
-                s1 = s1.Replace("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"", "");
-                Console.WriteLine(s1);
-#endif
-
-                //Vendor vendor = new Vendor();
-                //string vendorName = vendor.VendorName(); //"Microsoft" or "Postgres" or ...
                 // we always need a factory, even if generating from a DBML file, because we need a namespace
                 LoaderFactory loaderFactory = new LoaderFactory();
-                ISchemaLoader loader = loaderFactory.Load(mmConfig);
+                ISchemaLoader loader = loaderFactory.Load(parameters);
 
-                IDictionary<string, string> tableAliases = TableAlias.Load(mmConfig);
+                IDictionary<string, string> tableAliases = TableAlias.Load(parameters);
 
-                if (mmConfig.SchemaXmlFile == null)
+                if (parameters.SchemaXmlFile == null)
                 {
-                    //dbSchema = vendor.LoadSchema();
-                    dbSchema = loader.Load(mmConfig.Database, tableAliases, mmConfig.SProcs);
+                    dbSchema = loader.Load(parameters.Database, tableAliases, parameters.SProcs);
                     SchemaPostprocess.PostProcess_DB(dbSchema);
                 }
                 else
-                {
-                    dbSchema = DlinqSchema.Database.LoadFromFile(mmConfig.SchemaXmlFile);
-                }
+                    dbSchema = DlinqSchema.Database.LoadFromFile(parameters.SchemaXmlFile);
 
-                if (mmConfig.Dbml != null)
+                if (parameters.Dbml != null)
                 {
                     //we are supposed to write out a DBML file and exit
-                    DlinqSchema.Database.SaveDbmlFile(mmConfig.Dbml, dbSchema);
-                    Console.WriteLine("Written file " + mmConfig.Dbml);
+                    DlinqSchema.Database.SaveDbmlFile(parameters.Dbml, dbSchema);
+                    Console.WriteLine("Written file " + parameters.Dbml);
                     return;
                 }
 
                 Generator codeGen = new Generator();
-                string fileBody = codeGen.GetAll(dbSchema, loader, mmConfig);
-                //string fname = mmConfig.Database + ".cs";
+                string fileBody = codeGen.GetAll(dbSchema, loader, parameters);
 
-                if (mmConfig.Database.Contains("\""))
-                    mmConfig.Database = mmConfig.Database.Replace("\"", "");
+                if (parameters.Database.Contains("\""))
+                    parameters.Database = parameters.Database.Replace("\"", "");
 
-                string fname = mmConfig.Code == null ? mmConfig.Database + ".cs"
-                    : (mmConfig.Code.EndsWith(".cs") ? mmConfig.Code : mmConfig.Code + ".cs");
+                string fname = parameters.Code == null ? parameters.Database + ".cs"
+                    : (parameters.Code.EndsWith(".cs") ? parameters.Code : parameters.Code + ".cs");
 
                 File.WriteAllText(fname, fileBody);
-                //Console.WriteLine(vendorName + "Metal: Written file " + fname);
             }
             catch (Exception ex)
             {
@@ -143,18 +113,18 @@ namespace SqlMetal
                 Console.WriteLine(assyName + " failed:" + ex);
             }
 
-            if (mmConfig.ReadLineAtExit)
+            if (parameters.ReadLineAtExit)
             {
                 // '-readLineAtExit' flag: useful when running from Visual Studio
                 Console.ReadKey();
             }
         }
 
-        static void errorExit()
+        static void PrintUsage()
         {
             string appName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
             Console.WriteLine(appName + " usage:");
-            Console.WriteLine(appName + ".exe -server:xx -db:yy -user:zz -password:**");
+            Console.WriteLine(appName + ".exe -Server:xx -Database:yy -User:zz -Password:** -Provider=[MySql|Oracle|OracleODP|PostgreSql|Sqlite]");
             Console.WriteLine("Result: produces file yy.cs in local directory");
         }
     }
