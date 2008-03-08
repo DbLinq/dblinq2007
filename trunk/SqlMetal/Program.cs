@@ -30,7 +30,8 @@ using System.Collections.Generic;
 
 using DbLinq.Linq;
 using DbLinq.Vendor;
-using SqlMetal.CSharpGenerator;
+using SqlMetal.Generator;
+using SqlMetal.Generator.Implementation;
 using SqlMetal.Schema;
 
 namespace SqlMetal
@@ -53,17 +54,17 @@ namespace SqlMetal
 
             try
             {
-                DlinqSchema.Database dbSchema = null;
+                DlinqSchema.Database dbSchema;
 
                 // we always need a factory, even if generating from a DBML file, because we need a namespace
                 LoaderFactory loaderFactory = new LoaderFactory();
-                ISchemaLoader loader = loaderFactory.Load(parameters);
+                ISchemaLoader schemaLoader = loaderFactory.Load(parameters);
 
                 IDictionary<string, string> tableAliases = TableAlias.Load(parameters);
 
                 if (parameters.SchemaXmlFile == null)
                 {
-                    dbSchema = loader.Load(parameters.Database, tableAliases, parameters.SProcs);
+                    dbSchema = schemaLoader.Load(parameters.Database, tableAliases, parameters.SProcs);
                     SchemaPostprocess.PostProcess_DB(dbSchema);
                 }
                 else
@@ -74,19 +75,20 @@ namespace SqlMetal
                     //we are supposed to write out a DBML file and exit
                     DlinqSchema.Database.SaveDbmlFile(parameters.Dbml, dbSchema);
                     Console.WriteLine("Written file " + parameters.Dbml);
-                    return;
                 }
+                else
+                {
+                    ICodeGenerator codeGen = new CSharpCodeGenerator();
 
-                Generator codeGen = new Generator();
-                string fileBody = codeGen.GetAll(dbSchema, loader, parameters);
+                    string filename = parameters.Code ?? parameters.Database.Replace("\"", "");
+                    if (string.IsNullOrEmpty(Path.GetExtension(filename)))
+                        filename += codeGen.Extension;
 
-                if (parameters.Database.Contains("\""))
-                    parameters.Database = parameters.Database.Replace("\"", "");
-
-                string fname = parameters.Code == null ? parameters.Database + ".cs"
-                    : (parameters.Code.EndsWith(".cs") ? parameters.Code : parameters.Code + ".cs");
-
-                File.WriteAllText(fname, fileBody);
+                    using (StreamWriter streamWriter = new StreamWriter(filename))
+                    {
+                        codeGen.Write(streamWriter, dbSchema, parameters, schemaLoader.DataContextType.FullName);
+                    }
+                }
             }
             catch (Exception ex)
             {
