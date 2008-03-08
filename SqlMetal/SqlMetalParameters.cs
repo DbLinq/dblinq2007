@@ -98,7 +98,19 @@ namespace SqlMetal
         /// base class from which all generated entities will inherit
         /// SQLMetal compatible
         /// </summary>
-        public string EntityBase = "IModified";
+        public string EntityBase;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string EntityInterfaces = "IModified";//"INotifyPropertyChanging,INotifyPropertyChanged";
+        public IList<string> Interfaces
+        {
+            get 
+            {
+                return new List<string>(from entityInterface in EntityInterfaces.Split(',') select entityInterface.Trim());
+            }
+        }
 
         /// <summary>
         /// export stored procedures

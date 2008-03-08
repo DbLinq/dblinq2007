@@ -30,32 +30,36 @@ using System.Text;
 using System.Linq;
 using DbLinq.Linq;
 using DbLinq.Util;
-using SqlMetal.CSharpGenerator;
+using SqlMetal.Generator.Implementation;
 
-namespace SqlMetal.CSharpGenerator
+namespace SqlMetal.Generator.Implementation
 {
     /// <summary>
     /// Generates a c# class representing table.
     /// Calls into CodeGenField.
     /// </summary>
-    public class ClassGenerator
+    public class CSharpClassGenerator
     {
         const string NL = "\r\n";
         const string NLNL = "\r\n\r\n";
         const string NLT = "\r\n\t";
 
-        public PropertyFieldGenerator PropertyFieldGenerator { get; set; }
+        private const string IModifiedName = "IModified";
+        private const string INotifyPropertyChangingName = "INotifyPropertyChanging";
+        private const string INotifyPropertyChangedName = "INotifyPropertyChanged";
 
-        public ClassGenerator()
+        public CSharpPropertyFieldGenerator PropertyFieldGenerator { get; set; }
+
+        public CSharpClassGenerator()
         {
-            PropertyFieldGenerator = new PropertyFieldGenerator();
+            PropertyFieldGenerator = new CSharpPropertyFieldGenerator();
         }
 
-        public string GetClass(DlinqSchema.Database schema, DlinqSchema.Table table, SqlMetalParameters mmConfig)
+        public string GetClass(DlinqSchema.Database schema, DlinqSchema.Table table, SqlMetalParameters parameters)
         {
             string template = @"
 [Table(Name = ""$tableName"")]$inheritanceMappings
-public partial class $name $baseClass
+public partial class $name$baseTypes
 {
     $fields
     $ctors
@@ -102,16 +106,23 @@ public partial class $name $baseClass
                 sbInheritance.Append("\r\n");
             }
 
-            string ctor = GenCtors(table, mmConfig);
+            string ctor = GenCtors(table, parameters);
 
             string fieldsConcat = string.Join("", fieldBodies.ToArray());
             string propsConcat = string.Join(NL, properties.ToArray());
-            string equals = GenerateEqualsAndHash(table, mmConfig);
-            string baseClass = (mmConfig.EntityBase == null || mmConfig.EntityBase == "")
-                                   ? ""
-                                   : ": " + mmConfig.EntityBase;
-            string childTables = GetLinksToChildTables(schema, table, mmConfig);
-            string parentTables = GetLinksToParentTables(schema, table, mmConfig);
+            string equals = GenerateEqualsAndHash(table, parameters);
+            string baseClass = parameters.EntityBase ?? string.Empty;
+            string baseTypes = baseClass;
+            foreach (string baseInterface in parameters.Interfaces)
+            {
+                if (!string.IsNullOrEmpty(baseTypes))
+                    baseTypes += ", ";
+                baseTypes += baseInterface;
+            }
+            if (!string.IsNullOrEmpty(baseTypes))
+                baseTypes = ": " + baseTypes;
+            string childTables = GetLinksToChildTables(schema, table, parameters);
+            string parentTables = GetLinksToParentTables(schema, table, parameters);
 
 
             template = template.Replace("    ", "\t");
@@ -121,6 +132,7 @@ public partial class $name $baseClass
             template = template.Replace("$fields", fieldsConcat);
             template = template.Replace("$properies", propsConcat);
             template = template.Replace("$baseClass", baseClass);
+            template = template.Replace("$baseTypes", baseTypes);
             template = template.Replace("$linksToChildTables", childTables);
             template = template.Replace("$linksToParentTables", parentTables);
             template = template.Replace("$equals_GetHashCode", equals);
@@ -133,6 +145,7 @@ public partial class $name $baseClass
         {
             //jiri: I disagree with Pascal's claim that one ctor is useless.
             //it allows you to set a breakpoint, useful when debugging class hierarchy.
+            //pascal: OK, I don't have any stock options on any constructor ;)
 #if OneCTORisUseless
             string template = @"
 public $name()
@@ -211,7 +224,8 @@ private System.Data.Linq.EntityRef<$parentClassTyp> $fieldName2;
 
 [Association(Storage=""$fieldName2"", ThisKey=""$thisKey"", Name=""$fkName"")]
 [DebuggerNonUserCode]
-public $parentClassTyp $member {
+public $parentClassTyp $member 
+{
 	get { return this.$fieldName2.Entity; }
 	set { this.$fieldName2.Entity = value; }
 }";
@@ -226,7 +240,8 @@ public $parentClassTyp $member {
 private System.Data.Linq.EntityRef<$parentClassTyp> _$fkName_$thisKey;
 [Association(Storage=""_$fkName_$thisKey"", ThisKey=""$thisKey"",Name=""$fkName"")]
 [DebuggerNonUserCode]
-public $parentClassTyp $fkName_$thisKey {
+public $parentClassTyp $fkName_$thisKey 
+{
     get { return this._$fkName_$thisKey.Entity; }
     set { this._$fkName_$thisKey.Entity = value; }
 }";

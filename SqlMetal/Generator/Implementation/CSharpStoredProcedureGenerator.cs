@@ -28,9 +28,9 @@ using System.Text;
 using DbLinq.Linq;
 using SqlMetal.Util;
 
-namespace SqlMetal.CSharpGenerator
+namespace SqlMetal.Generator.Implementation
 {
-    public class StoredProcedureGenerator
+    public class CSharpStoredProcedureGenerator
     {
         const string NL = "\r\n";
         const string NLNL = "\r\n\r\n";

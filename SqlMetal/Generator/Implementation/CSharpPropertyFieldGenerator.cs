@@ -30,7 +30,7 @@ using System.Text;
 using DbLinq.Linq;
 using SqlMetal.Util;
 
-namespace SqlMetal.CSharpGenerator
+namespace SqlMetal.Generator.Implementation
 {
     /// <summary>
     /// generates a public property representing a SQL table column.
@@ -137,7 +137,7 @@ public $type $propertyName
         }
     }
 
-    public class PropertyFieldGenerator
+    public class CSharpPropertyFieldGenerator
     {
         public PropertyField CreatePropertyField(string tableClassName, DlinqSchema.Column column, List<DlinqSchema.Association> constraintsOnField)
         {

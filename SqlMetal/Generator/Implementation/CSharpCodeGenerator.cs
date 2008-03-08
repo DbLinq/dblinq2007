@@ -26,33 +26,49 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using DbLinq.Linq;
 using DbLinq.Vendor;
-using SqlMetal.CSharpGenerator;
+using SqlMetal.Generator;
+using SqlMetal.Generator.Implementation;
 using SqlMetal.Util;
 
-namespace SqlMetal.CSharpGenerator
+namespace SqlMetal.Generator.Implementation
 {
     /// <summary>
     /// generates a c# class representing database.
     /// calls into CodeGenClass and CodeGenField.
     /// </summary>
-    public class Generator
+    public class CSharpCodeGenerator: ICodeGenerator
     {
         const string NL = "\r\n";
         const string NLNL = "\r\n\r\n";
 
-        public ClassGenerator ClassGenerator { get; set; }
-        public StoredProcedureGenerator StoredProcedureGenerator { get; set; }
+        public CSharpClassGenerator ClassGenerator { get; set; }
+        public CSharpStoredProcedureGenerator StoredProcedureGenerator { get; set; }
 
-        public Generator()
+        public CSharpCodeGenerator()
         {
-            ClassGenerator = new ClassGenerator();
-            StoredProcedureGenerator = new StoredProcedureGenerator();
+            ClassGenerator = new CSharpClassGenerator();
+            StoredProcedureGenerator = new CSharpStoredProcedureGenerator();
         }
 
-        public string GetAll(DlinqSchema.Database dbSchema, ISchemaLoader loader, SqlMetalParameters mmConfig)
+        public string Extension
+        {
+            get { return ".cs"; }
+        }
+
+        public void Write(TextWriter textWriter, DlinqSchema.Database dbSchema, SqlMetalParameters parameters, string dataContextBaseType)
+        {
+            using (var codeWriter = new CodeWriter(textWriter))
+            {
+                string code = GetAll(dbSchema, parameters, dataContextBaseType);
+                codeWriter.Write(code);
+            }
+        }
+
+        public string GetAll(DlinqSchema.Database dbSchema, SqlMetalParameters parameters, string dataContextBaseType)
         {
             if (dbSchema == null || dbSchema.Tables == null)
             {
@@ -66,6 +82,7 @@ namespace SqlMetal.CSharpGenerator
 //#########################################################################
 
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
@@ -83,7 +100,7 @@ using DbLinq.Linq.Mapping;
 
             foreach (DlinqSchema.Table tbl in dbSchema.Tables)
             {
-                string classBody = ClassGenerator.GetClass(dbSchema, tbl, mmConfig);
+                string classBody = ClassGenerator.GetClass(dbSchema, tbl, parameters);
                 classBodies.Add(classBody);
             }
 
@@ -94,21 +111,20 @@ namespace $ns
 }
 ";
             string prolog1 = prolog.Replace("$date", DateTime.Now.ToString("yyyy-MMM-dd"));
-            prolog1 = prolog1.Replace("$vendor", loader.VendorName);
-            string source = mmConfig.Server != null ? "server " + mmConfig.Server : "file " + mmConfig.SchemaXmlFile;
-            //prolog1 = prolog1.Replace("$db", mmConfig.Server);
+            string source = parameters.Server != null ? "server " + parameters.Server : "file " + parameters.SchemaXmlFile;
+            //prolog1 = prolog1.Replace("$db", parameters.Server);
             prolog1 = prolog1.Replace("$db", source);
             string classesConcat = string.Join(NLNL, classBodies.ToArray());
-            classesConcat = GenerateDbClass(dbSchema, loader, mmConfig) + NLNL + classesConcat;
+            classesConcat = GenerateDbClass(dbSchema, dataContextBaseType) + NLNL + classesConcat;
             string fileBody;
-            if (mmConfig.Namespace == null || mmConfig.Namespace == "")
+            if (parameters.Namespace == null || parameters.Namespace == "")
             {
                 fileBody = prolog1 + classesConcat;
             }
             else
             {
                 string body1 = opt_namespace;
-                body1 = body1.Replace("$ns", mmConfig.Namespace);
+                body1 = body1.Replace("$ns", parameters.Namespace);
                 classesConcat = classesConcat.Replace(NL, NL + "\t"); //move text one tab to the right
                 body1 = body1.Replace("$classes", classesConcat);
                 fileBody = prolog1 + body1;
@@ -116,7 +132,7 @@ namespace $ns
             return fileBody;
         }
 
-        private string GenerateDbClass(DlinqSchema.Database dbSchema, ISchemaLoader loader, Parameters mmConfig)
+        private string GenerateDbClass(DlinqSchema.Database dbSchema, string dataContextBaseType)
         {
             //if (tables.Count==0)
             //    return "//L69 no tables found";
@@ -187,8 +203,7 @@ public partial class $dbname : $dataContext
 
             string dbs = dbClassStr;
             dbs = dbs.Replace("    ", "\t"); //for spaces mean a tab
-            dbs = dbs.Replace("$vendor", loader.VendorName);
-            dbs = dbs.Replace("$dataContext", loader.DataContextType.FullName);
+            dbs = dbs.Replace("$dataContext", dataContextBaseType);
             dbs = dbs.Replace("$dbname", dbName);
             //dbs = dbs.Replace("$fieldInit", dbFieldInitStr); //no more tables as fields
             dbs = dbs.Replace("$fieldDecl", dbFieldDeclStr);
