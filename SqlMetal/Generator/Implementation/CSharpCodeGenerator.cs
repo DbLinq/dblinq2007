@@ -59,11 +59,11 @@ namespace SqlMetal.Generator.Implementation
             get { return ".cs"; }
         }
 
-        public void Write(TextWriter textWriter, DlinqSchema.Database dbSchema, SqlMetalParameters parameters, string dataContextBaseType)
+        public void Write(TextWriter textWriter, DlinqSchema.Database dbSchema, GenerationContext context)
         {
-            using (var codeWriter = new CodeWriter(textWriter))
+            using (var codeWriter = new CSCodeWriter(textWriter))
             {
-                string code = GetAll(dbSchema, parameters, dataContextBaseType);
+                string code = GetAll(dbSchema, context.Parameters, context.SchemaLoader.DataContextType.FullName);
                 codeWriter.Write(code);
             }
         }

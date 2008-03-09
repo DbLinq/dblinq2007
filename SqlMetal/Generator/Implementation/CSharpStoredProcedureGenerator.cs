@@ -57,7 +57,7 @@ public $retType $procNameCsharp($paramString)
             string text = SP_BODY_TEMPLATE.Replace(NL, "\t" + NL);
             text = text.Replace("$procNameCsharp", storedProcedure.Method ?? storedProcedure.Name);
             text = text.Replace("$procNameSql", storedProcedure.Name);
-            text = text.Replace("$isComposable", (storedProcedure.ProcedureOrFunction != "PROCEDURE") ? "true" : "false");
+            text = text.Replace("$isComposable", storedProcedure.IsComposable ? "true" : "false");
 
             List<string> paramStringsList = new List<string>();
             List<string> sqlInArgList = new List<string>();
@@ -69,14 +69,14 @@ public $retType $procNameCsharp($paramString)
                 string paramStr = FormatProcParam(param);
                 paramStringsList.Add(paramStr);
 
-                if (param.InOut == System.Data.ParameterDirection.Input || param.InOut == System.Data.ParameterDirection.InputOutput)
+                if (param.Direction == DlinqSchema.ParameterDirection.In || param.Direction == DlinqSchema.ParameterDirection.InOut)
                 {
                     sqlInArgList.Add(FormatInnerArg(param));
                 }
 
-                if (param.InOut == System.Data.ParameterDirection.Output || param.InOut == System.Data.ParameterDirection.InputOutput)
+                if (param.Direction == DlinqSchema.ParameterDirection.Out || param.Direction == DlinqSchema.ParameterDirection.InOut)
                 {
-                    string outParamLine = "\t" + param.Name + " = ("+param.Type+") result.GetParameterValue(" + paramIndex + ");";
+                    string outParamLine = "\t" + param.Name + " = (" + param.Type + ") result.GetParameterValue(" + paramIndex + ");";
                     outParamLineList.Add(outParamLine);
                 }
             }
@@ -87,15 +87,15 @@ public $retType $procNameCsharp($paramString)
 
             string retType = "void";
             string resultValue = "";
-            if (storedProcedure.Return.Count > 0)
+            if (storedProcedure.Return != null)
             {
-                retType = storedProcedure.Return[0].Type;
+                retType = storedProcedure.Return.Type;
                 resultValue = "($retType)result.ReturnValue"; //for functions, e.g. (int)result.RetValue
             }
 
             bool isDataShapeUnknown = storedProcedure.ElementType == null
                                       && storedProcedure.BodyContainsSelectStatement
-                                      && storedProcedure.ProcedureOrFunction == "PROCEDURE";
+                                      && !storedProcedure.IsComposable;
             if (isDataShapeUnknown)
             {
                 //if we don't know the shape of results, and the proc body contains some selects,
@@ -110,8 +110,8 @@ public $retType $procNameCsharp($paramString)
             text = text.Replace("$resultValue", resultValue);
             text = text.Replace("$paramString", paramString);
             text = text.Replace("$retType", retType);
-            if (sqlInArgs.Length > 0) 
-            { 
+            if (sqlInArgs.Length > 0)
+            {
                 sqlInArgs = ", " + sqlInArgs; //pre-pend comma, if there are some args
             }
             text = text.Replace("$sqlInArgs", sqlInArgs);
@@ -129,7 +129,7 @@ public $retType $procNameCsharp($paramString)
         {
             string text = ARG_TEMPLATE;
             text = text.Replace("$name", param.Name);
-            text = text.Replace("$inOut ", FormatInOut(param.InOut));
+            text = text.Replace("$inOut ", FormatInOut(param.Direction));
             return text;
         }
 
@@ -140,18 +140,18 @@ public $retType $procNameCsharp($paramString)
             text = text.Replace("$name", param.Name);
             text = text.Replace("$dbType", param.DbType);
             text = text.Replace("$type", param.Type);
-            text = text.Replace(" $inOut", FormatInOut(param.InOut));
+            text = text.Replace(" $inOut", FormatInOut(param.Direction));
             return text;
         }
 
-        private static string FormatInOut(System.Data.ParameterDirection inOut)
+        private static string FormatInOut(DlinqSchema.ParameterDirection inOut)
         {
             switch (inOut)
             {
-                    //case System.Data.ParameterDirection.Input: return "";
-                case System.Data.ParameterDirection.Output: return "out ";
-                case System.Data.ParameterDirection.InputOutput: return "ref ";
-                default: return "";
+            //case System.Data.ParameterDirection.Input: return "";
+            case DlinqSchema.ParameterDirection.Out: return "out ";
+            case DlinqSchema.ParameterDirection.InOut: return "ref ";
+            default: return "";
             }
         }
 

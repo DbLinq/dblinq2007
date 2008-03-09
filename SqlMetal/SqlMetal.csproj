@@ -77,12 +77,21 @@
     <Compile Include="..\DbLinq.ProductInfo.cs">
       <Link>Properties\DbLinq.ProductInfo.cs</Link>
     </Compile>
+    <Compile Include="Generator\AttributeDefinition.cs" />
+    <Compile Include="Generator\GenerationContext.cs" />
     <Compile Include="Generator\ICodeGenerator.cs" />
+    <Compile Include="Generator\Implementation\CodeGenerator.cs" />
+    <Compile Include="Generator\Implementation\CodeGenerator.Procedure.cs" />
+    <Compile Include="Generator\Implementation\CSCodeGenerator.cs" />
     <Compile Include="Generator\Implementation\CSharpClassGenerator.cs" />
+    <Compile Include="Generator\Implementation\CSCodeWriter.cs" />
     <Compile Include="Generator\Implementation\CSharpPropertyFieldGenerator.cs" />
     <Compile Include="Generator\Implementation\CSharpCodeGenerator.cs" />
     <Compile Include="Generator\Implementation\CSharpStoredProcedureGenerator.cs" />
     <Compile Include="Generator\CodeWriter.cs" />
+    <Compile Include="Generator\Specifications.cs" />
+    <Compile Include="Generator\ParameterDefinition.cs" />
+    <Compile Include="Generator\VariablesExtension.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Parameters.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

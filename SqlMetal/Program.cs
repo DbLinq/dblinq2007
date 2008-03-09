@@ -86,7 +86,8 @@ namespace SqlMetal
 
                     using (StreamWriter streamWriter = new StreamWriter(filename))
                     {
-                        codeGen.Write(streamWriter, dbSchema, parameters, schemaLoader.DataContextType.FullName);
+                        var generationContext = new GenerationContext(parameters, schemaLoader);
+                        codeGen.Write(streamWriter, dbSchema, generationContext);
                     }
                 }
             }

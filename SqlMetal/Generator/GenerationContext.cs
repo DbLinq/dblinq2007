@@ -24,15 +24,45 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
-using System.IO;
-using DbLinq.Linq;
+using System.Collections.Generic;
 using DbLinq.Vendor;
 
 namespace SqlMetal.Generator
 {
-    public interface ICodeGenerator
+    public class GenerationContext
     {
-        string Extension { get; }
-        void Write(TextWriter textWriter, DlinqSchema.Database dbSchema, GenerationContext context);
+        public SqlMetalParameters Parameters;
+        public IDictionary<string, string> Variables;
+        public ISchemaLoader SchemaLoader;
+
+        public string this[string key]
+        {
+            get { return Variables[key]; }
+            set { Variables[key] = value; }
+        }
+
+        public GenerationContext(SqlMetalParameters parameters, ISchemaLoader schemaLoader)
+        {
+            Parameters = parameters;
+            Variables = new Dictionary<string,string>();
+            SchemaLoader = schemaLoader;
+        }
+
+        private GenerationContext(GenerationContext original)
+        {
+            Parameters = original.Parameters;
+            Variables = new Dictionary<string, string>(original.Variables);
+            SchemaLoader = original.SchemaLoader;
+        }
+
+        public GenerationContext CopyContext()
+        {
+            return new GenerationContext(this);
+        }
+
+        public string Evaluate(string format)
+        {
+            return Variables.Evaluate(format);
+        }
     }
 }

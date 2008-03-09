@@ -1,4 +1,4 @@
-﻿#region MIT License
+﻿#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -24,15 +24,15 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
-using System.IO;
-using DbLinq.Linq;
-using DbLinq.Vendor;
+using System;
 
 namespace SqlMetal.Generator
 {
-    public interface ICodeGenerator
+    public class ParameterDefinition
     {
-        string Extension { get; }
-        void Write(TextWriter textWriter, DlinqSchema.Database dbSchema, GenerationContext context);
+        public AttributeDefinition Attribute;
+        public string Name { get; set; }
+        public Type Type { get; set; }
+        public Specifications Specifications;
     }
 }

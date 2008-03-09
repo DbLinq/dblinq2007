@@ -65,13 +65,18 @@ namespace DbLinq.Linq
         [XmlRoot(Namespace = "http://schemas.microsoft.com/linqtosql/dbml/2007", IsNullable = false)]
         public class Database
         {
-            [XmlAttribute] public string Name;
+            [XmlAttribute]
+            public string Name;
+
+            [XmlAttribute]
+            public string Provider { get; set; } // we will find our provider from here (DbLinq.MySQL for example)
 
             [XmlAttribute]
             [DefaultValue(typeof(AccessEnum1), "public")]
-            public AccessEnum1 Access;
-  
-            [XmlAttribute] public string Class;
+            public AccessEnum1 Access; // NONSTANDARD
+
+            [XmlAttribute]
+            public string Class; // NONSTANDARD
 
             [XmlElement("Table")]
             public readonly List<Table> Tables = new List<Table>();
@@ -86,7 +91,7 @@ namespace DbLinq.Linq
             public static Database LoadFromFile(string fname)
             {
                 XmlSerializer xser = new XmlSerializer(typeof(Database));
-                using(System.IO.TextReader rdr = System.IO.File.OpenText(fname))
+                using (System.IO.TextReader rdr = System.IO.File.OpenText(fname))
                 {
                     object obj = xser.Deserialize(rdr);
                     Database obj2 = (Database)obj;
@@ -110,7 +115,7 @@ namespace DbLinq.Linq
 
         public enum AccessEnum1 { @public, @internal };
         public enum AccessEnum2 { @public, @private, @internal, @protected };
-        public enum UpdateCheck{ @public, @private, @internal, @protected };
+        public enum UpdateCheck { @public, @private, @internal, @protected };
 
 
         /// <summary>
@@ -126,10 +131,11 @@ namespace DbLinq.Linq
 
             // TODO: see if we can get this field internal again, or remove it...
             public bool _isChild; //used in TableSorter
+            // NONSTANDARD (of course it is not)
 
             public override string ToString()
             {
-                string cols = Type==null 
+                string cols = Type == null
                                   ? "null Type "
                                   : (Type.Columns.Count > 0 ? " columns=" + Type.Columns.Count : "");
                 return "Dblinq.Table nom=" + Name + cols; // +prim;
@@ -148,7 +154,7 @@ namespace DbLinq.Linq
 
             [XmlAttribute]
             [DefaultValue(typeof(AccessEnum2), "public")]
-            public AccessEnum2 Access;
+            public AccessEnum2 Access; // NONSTANDARD
 
             /// <summary>
             /// if this code is matched in Discriminator column, we make this derived type instead of parent type.
@@ -175,7 +181,7 @@ namespace DbLinq.Linq
 
             public override string ToString()
             {
-                return "Type " + Name + " cols=" + Columns.Count + " assoc="+Associations.Count;
+                return "Type " + Name + " cols=" + Columns.Count + " assoc=" + Associations.Count;
             }
 
         }
@@ -201,7 +207,7 @@ namespace DbLinq.Linq
             /// CLR type, eg. 'System.Int32'
             /// </summary>
             [XmlAttribute]
-            public string Type;
+            public string Type; // NONSTANDARD
 
             [XmlAttribute]
             public string DbType;
@@ -267,7 +273,7 @@ namespace DbLinq.Linq
             /// eg. for Table 'Category', we have Assoc.Type='Products'
             /// </summary>
             [XmlAttribute]
-            public string Type;
+            public string Type; // NONSTANDARD
 
 
             [XmlAttribute]
@@ -313,24 +319,22 @@ namespace DbLinq.Linq
             public string Method;
 
             /// <summary>
-            /// this is an extension - not present in Microsoft's implementation.
-            /// Required, because we call MySql fcts differently than procs.
+            /// True is the Function is a function, False if it is a procedure
             /// </summary>
             [XmlAttribute]
-            public string ProcedureOrFunction;
+            public bool IsComposable;
 
             /// <summary>
             /// if a stored proc contains a select statement, we need to check if it returns a resultset.
             /// </summary>
             [XmlAttribute]
             [DefaultValue(false)]
-            public bool BodyContainsSelectStatement;
+            public bool BodyContainsSelectStatement; // NONSTANDARD
 
             [XmlElement("Parameter")]
             public readonly List<Parameter> Parameters = new List<Parameter>();
 
-            [XmlElement("Return")]
-            public readonly List<Parameter> Return = new List<Parameter>();
+            public Return Return;
 
             /// <summary>
             /// describes columns of resultset returned from proc.
@@ -344,6 +348,18 @@ namespace DbLinq.Linq
         }
 
         /// <summary>
+        /// Stored procedure return value
+        /// </summary>
+        public class Return
+        {
+            [XmlAttribute]
+            public string Type; // NONSTANDARD
+
+            [XmlAttribute]
+            public string DbType;
+        }
+
+        /// <summary>
         /// represents a stored proc parameter
         /// </summary>
         public class Parameter
@@ -352,17 +368,41 @@ namespace DbLinq.Linq
             public string Name;
 
             [XmlAttribute("Parameter")]
-            public string parameter;
+            public string parameter; // WTF? why lowercase?
 
             [XmlAttribute]
-            public string Type;
+            public string Type; // NONSTANDARD
 
             [XmlAttribute]
             public string DbType;
 
             [XmlAttribute]
-            [DefaultValue(typeof(System.Data.ParameterDirection), "Input")]
-            public System.Data.ParameterDirection InOut = System.Data.ParameterDirection.Input;
+            public ParameterDirection Direction = ParameterDirection.In;
+
+            [XmlIgnore]
+            public bool DirectionIn { get { return IsIn(Direction); } }
+            [XmlIgnore]
+            public bool DirectionOut { get { return IsOut(Direction); } }
+        }
+
+        /// <summary>
+        /// represents a stored procedure parameter direction
+        /// </summary>
+        public enum ParameterDirection
+        {
+            In,
+            Out,
+            InOut,
+        }
+
+        public static bool IsIn(ParameterDirection direction)
+        {
+            return direction == ParameterDirection.In || direction== ParameterDirection.InOut;
+        }
+
+        public static bool IsOut(ParameterDirection direction)
+        {
+            return direction == ParameterDirection.Out || direction== ParameterDirection.InOut;
         }
 
         /// <summary>

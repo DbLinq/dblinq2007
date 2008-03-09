@@ -232,10 +232,10 @@ namespace DbLinq.PostgreSql
 
             if (pg_proc.formatted_prorettype != null)
             {
-                DlinqSchema.Parameter dbml_param = new DlinqSchema.Parameter();
+                var dbml_param = new DlinqSchema.Return();
                 dbml_param.DbType = pg_proc.formatted_prorettype;
                 dbml_param.Type = Mappings.mapSqlTypeToCsType(pg_proc.formatted_prorettype, "");
-                dbml_func.Return.Add(dbml_param);
+                dbml_func.Return = dbml_param;
             }
 
             if (pg_proc.proallargtypes != null)
@@ -269,7 +269,7 @@ namespace DbLinq.PostgreSql
                     dbml_param.Name = argNames[i];
                     dbml_param.Type = Mappings.mapSqlTypeToCsType(dbml_param.DbType, "");
                     string inOut = argModes == null ? "i" : argModes[i];
-                    dbml_param.InOut = ParseInOut(inOut);
+                    dbml_param.Direction = ParseInOut(inOut);
                     dbml_func.Parameters.Add(dbml_param);
                 }
             }
@@ -277,14 +277,14 @@ namespace DbLinq.PostgreSql
             return dbml_func;
         }
 
-        static System.Data.ParameterDirection ParseInOut(string inOut)
+        static DlinqSchema.ParameterDirection ParseInOut(string inOut)
         {
             switch (inOut)
             {
-            case "i": return System.Data.ParameterDirection.Input;
-            case "o": return System.Data.ParameterDirection.Output;
-            case "b": return System.Data.ParameterDirection.InputOutput;
-            default: return System.Data.ParameterDirection.InputOutput;
+            case "i": return DlinqSchema.ParameterDirection.In;
+            case "o": return DlinqSchema.ParameterDirection.Out;
+            case "b": return DlinqSchema.ParameterDirection.InOut;
+            default: return DlinqSchema.ParameterDirection.InOut;
             }
         }
 
