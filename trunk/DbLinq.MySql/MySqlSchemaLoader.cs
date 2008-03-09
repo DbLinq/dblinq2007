@@ -181,7 +181,7 @@ namespace DbLinq.MySql
                     DlinqSchema.Function func = new DlinqSchema.Function();
                     func.Name = proc.specific_name;
                     func.Method = GetMethodName(proc.specific_name);
-                    func.ProcedureOrFunction = proc.type;
+                    func.IsComposable = string.Compare(proc.type, "FUNCTION") == 0;
                     func.BodyContainsSelectStatement = proc.body != null
                         && proc.body.IndexOf("select", StringComparison.OrdinalIgnoreCase) > -1;
                     ParseProcParams(proc, func);
@@ -216,11 +216,10 @@ namespace DbLinq.MySql
 
             if (inputProc.returns != null && inputProc.returns != "")
             {
-                DlinqSchema.Parameter paramRet = new DlinqSchema.Parameter();
+                var paramRet = new DlinqSchema.Return();
                 paramRet.DbType = inputProc.returns;
                 paramRet.Type = ParseDbType(inputProc.returns);
-                paramRet.InOut = System.Data.ParameterDirection.ReturnValue;
-                outputFunc.Return.Add(paramRet);
+                outputFunc.Return = paramRet;
             }
         }
 
@@ -232,21 +231,21 @@ namespace DbLinq.MySql
         static DlinqSchema.Parameter ParseParameterString(string param)
         {
             param = param.Trim();
-            System.Data.ParameterDirection inOut = System.Data.ParameterDirection.Input;
+            var inOut = DlinqSchema.ParameterDirection.In;
 
             if (param.StartsWith("IN", StringComparison.CurrentCultureIgnoreCase))
             {
-                inOut = System.Data.ParameterDirection.Input;
+                inOut = DlinqSchema.ParameterDirection.In;
                 param = param.Substring(2).Trim();
             }
             if (param.StartsWith("INOUT", StringComparison.CurrentCultureIgnoreCase))
             {
-                inOut = System.Data.ParameterDirection.InputOutput;
+                inOut = DlinqSchema.ParameterDirection.InOut;
                 param = param.Substring(5).Trim();
             }
             if (param.StartsWith("OUT", StringComparison.CurrentCultureIgnoreCase))
             {
-                inOut = System.Data.ParameterDirection.Output;
+                inOut = DlinqSchema.ParameterDirection.Out;
                 param = param.Substring(3).Trim();
             }
 
@@ -258,7 +257,7 @@ namespace DbLinq.MySql
             string varType = param.Substring(indxSpace + 1);
 
             DlinqSchema.Parameter paramObj = new DlinqSchema.Parameter();
-            paramObj.InOut = inOut;
+            paramObj.Direction = inOut;
             paramObj.Name = varName;
             paramObj.DbType = varType;
             paramObj.Type = ParseDbType(varType);

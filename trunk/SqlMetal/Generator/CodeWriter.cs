@@ -24,12 +24,14 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
 namespace SqlMetal.Generator
 {
-    public class CodeWriter : TextWriter
+    public abstract class CodeWriter : TextWriter
     {
         public override Encoding Encoding
         {
@@ -39,8 +41,6 @@ namespace SqlMetal.Generator
             }
         }
 
-        public string Indent { get; set; }
-        public string Unindent { get; set; }
         public string IndentationPattern { get; set; }
 
         private readonly StringBuilder buffer = new StringBuilder(10 << 10);
@@ -48,10 +48,8 @@ namespace SqlMetal.Generator
 
         protected TextWriter TextWriter;
 
-        public CodeWriter(TextWriter textWriter)
+        protected CodeWriter(TextWriter textWriter)
         {
-            Indent = "{";
-            Unindent = "}";
             IndentationPattern = "\t";
             TextWriter = textWriter;
         }
@@ -76,15 +74,8 @@ namespace SqlMetal.Generator
             return line;
         }
 
-        protected virtual bool MustIndent(string line)
-        {
-            return line.StartsWith(Indent);
-        }
-
-        protected virtual bool MustUnindent(string line)
-        {
-            return line.StartsWith(Unindent);
-        }
+        protected abstract bool MustIndent(string line);
+        protected abstract bool MustUnindent(string line);
 
         /// <summary>
         /// In the end, all output comes to this
@@ -96,7 +87,7 @@ namespace SqlMetal.Generator
             if (IsFullLine())
             {
                 string line = GetLine();
-                string rawLine = line.Trim();
+                string rawLine = Trim(line);
                 // unindent before...
                 if (MustUnindent(rawLine))
                     currentindentation--;
@@ -105,6 +96,11 @@ namespace SqlMetal.Generator
                 if (MustIndent(rawLine))
                     currentindentation++;
             }
+        }
+
+        protected virtual string Trim(string line)
+        {
+            return line.Trim();
         }
 
         protected virtual void WriteLine(string rawLine, int indentation)
@@ -118,5 +114,98 @@ namespace SqlMetal.Generator
             }
             TextWriter.WriteLine(rawLine);
         }
+
+        #region Code generation
+
+        protected class NestedInstruction : IDisposable
+        {
+            private readonly Action endAction;
+
+            public NestedInstruction(Action end)
+            {
+                endAction = end;
+            }
+
+            public void Dispose()
+            {
+                endAction();
+            }
+        }
+
+        protected IDisposable EndAction(Action end)
+        {
+            return new NestedInstruction(end);
+        }
+
+        public abstract void WriteComment(string line);
+        public virtual void WriteComments(string comments)
+        {
+            string[] commentLines = comments.Split('\n');
+            foreach (string commentLine in commentLines)
+            {
+                WriteComment(commentLine.TrimEnd());
+            }
+        }
+
+        public abstract void WriteUsingNamespace(string name);
+        public abstract IDisposable WriteNamespace(string name);
+        public abstract IDisposable WriteClass(Specifications specifications, string name,
+                                            string baseClass, params string[] interfaces);
+
+        public abstract IDisposable WriteRegion(string name);
+        public virtual IDisposable Attribute(string name, IDictionary<string, object> members)
+        {
+            if (!string.IsNullOrEmpty(name))
+                return WriteAttribute(new AttributeDefinition(name, members));
+            return null;
+        }
+        public abstract IDisposable WriteAttribute(AttributeDefinition attributeDefinition);
+
+        public abstract IDisposable WriteMethod(Specifications specifications, string name, Type returnType,
+                                           params ParameterDefinition[] parameters);
+
+        public abstract string GetGenericName(string baseName, Type type);
+
+        public abstract IDisposable WriteProperty(Specifications specifications, string name, Type propertyType);
+        public abstract IDisposable WritePropertyGet();
+        public abstract IDisposable WritePropertySet();
+
+        public abstract string GetCast(string value, Type castType, bool hardCast);
+
+        public virtual string GetLiteralValue(object value)
+        {
+            if (value is string)
+                return string.Format("\"{0}\"", value);
+            return value.ToString();
+        }
+
+        public virtual string GetMember(string obj, string member)
+        {
+            return string.Format("{0}.{1}", obj, member);
+        }
+
+        public virtual string GetReturnStatement(string expression)
+        {
+            return GetStatement(string.Format("return {0}", expression));
+        }
+
+        public virtual string GetAssignment(string variable, string expression)
+        {
+            return string.Format("{0} = {1}", variable, expression);
+        }
+
+        public abstract string GetArray(string array, string literalIndex);
+
+        public virtual string GetMethodCall(string method, params string [] literalParameters)
+        {
+            return string.Format("{0}({1})", method, string.Join(", ", literalParameters));
+        }
+
+        public virtual string GetStatement(string statement)
+        {
+            return statement;
+        }
+
+        #endregion
     }
 }
