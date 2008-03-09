@@ -101,14 +101,14 @@ namespace SqlMetal
         public string EntityBase;
 
         /// <summary>
-        /// 
+        /// Interfaces to be implemented
         /// </summary>
         public string EntityInterfaces = "IModified";//"INotifyPropertyChanging,INotifyPropertyChanged";
-        public IList<string> Interfaces
+        public string[] Interfaces
         {
             get 
             {
-                return new List<string>(from entityInterface in EntityInterfaces.Split(',') select entityInterface.Trim());
+                return new List<string>(from entityInterface in EntityInterfaces.Split(',') select entityInterface.Trim()).ToArray();
             }
         }
 

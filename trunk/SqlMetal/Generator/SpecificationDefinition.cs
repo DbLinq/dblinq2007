@@ -1,4 +1,4 @@
-﻿#region MIT license
+﻿#region MIT License
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -28,11 +28,28 @@ using System;
 
 namespace SqlMetal.Generator
 {
-    public class ParameterDefinition
+    [Flags]
+    public enum SpecificationDefinition
     {
-        public AttributeDefinition Attribute;
-        public string Name { get; set; }
-        public Type Type { get; set; }
-        public SpecificationDefinition SpecificationDefinition;
+        ProtectionClass     = 0x00000F,
+        Public              = 0x000000,
+        Protected           = 0x000001,
+        Private             = 0x000002,
+        Internal            = 0x000004,
+
+        InheritanceClass    = 0x00FF00,
+        Abstract            = 0x000100,
+        Virtual             = 0x000200,
+        Override            = 0x000400,
+        Static              = 0x000800,
+        Sealed              = 0x001000,
+
+        DomainClass         = 0x0F0000,
+        Partial             = 0x010000,
+
+        DirectionClass      = 0x0000F0,
+        In                  = 0x000010,
+        Out                 = 0x000020,
+        Ref                 = 0x000030,
     }
 }

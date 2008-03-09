@@ -39,15 +39,16 @@ namespace SqlMetal.Generator.Implementation
 
         public void Write(TextWriter textWriter, DlinqSchema.Database dbSchema, GenerationContext context)
         {
-            context["dataContextBase"] = context.SchemaLoader.DataContextType.FullName;
-            context["namespace"] = context.Parameters.Namespace;
-            context["database"] = dbSchema.Name;
-
             if (dbSchema == null || dbSchema.Tables == null)
             {
                 Console.WriteLine("CodeGenAll ERROR: incomplete dbSchema, cannot start generating code");
                 return;
             }
+
+            context["dataContextBase"] = context.SchemaLoader.DataContextType.FullName;
+            context["namespace"] = context.Parameters.Namespace;
+            context["database"] = dbSchema.Name;
+            context["generationTime"] = DateTime.Now.ToString("u");
 
             using (var codeWriter = CreateCodeWriter(textWriter))
             {
@@ -63,11 +64,11 @@ namespace SqlMetal.Generator.Implementation
 
         private void WriteBanner(CodeWriter writer, GenerationContext context)
         {
-            using (writer.WriteRegion("Header"))
+            using (writer.WriteRegion(context.Evaluate("Auto-generated classes for ${database} database on ${generationTime}")))
             {
                 // http://www.network-science.de/ascii/
                 // http://www.network-science.de/ascii/ascii.php?TEXT=MetalSequel&x=14&y=14&FONT=_all+fonts+with+your+text_&RICH=no&FORM=left&STRE=no&WIDT=80 
-                writer.WriteComments(
+                writer.WriteCommentLines(
                     @"
              _        _ __                       _ 
   /\/\   ___| |_ __ _| / _\ ___  __ _ _   _  ___| |
@@ -75,22 +76,22 @@ namespace SqlMetal.Generator.Implementation
 / /\/\ \  __/ || (_| | |\ \  __/ (_| | |_| |  __/ |
 \/    \/\___|\__\__,_|_\__/\___|\__, |\__,_|\___|_|
                                    |_|");
-                writer.WriteComments(string.Format("Auto-generated from {0} on {1:u}", context.Parameters.Database, DateTime.Now));
-                writer.WriteComments("Please visit http://linq.to/db for more information");
+                writer.WriteCommentLines(context.Evaluate("Auto-generated from ${database} on ${generationTime}"));
+                writer.WriteCommentLines("Please visit http://linq.to/db for more information");
             }
         }
 
         private void WriteUsings(CodeWriter writer, GenerationContext context)
         {
             writer.WriteUsingNamespace("System");
-            writer.WriteUsingNamespace("System.ComponentModel");
-            writer.WriteUsingNamespace("System.Diagnostics");
             writer.WriteUsingNamespace("System.Collections.Generic");
-            writer.WriteUsingNamespace("System.Text");
-            writer.WriteUsingNamespace("System.Linq");
+            writer.WriteUsingNamespace("System.ComponentModel");
             writer.WriteUsingNamespace("System.Data");
             writer.WriteUsingNamespace("System.Data.Linq.Mapping");
+            writer.WriteUsingNamespace("System.Diagnostics");
+            writer.WriteUsingNamespace("System.Linq");
             writer.WriteUsingNamespace("System.Reflection");
+            writer.WriteUsingNamespace("System.Text");
             writer.WriteUsingNamespace("DbLinq.Linq");
             writer.WriteUsingNamespace("DbLinq.Linq.Mapping");
             writer.WriteLine();
@@ -107,10 +108,10 @@ namespace SqlMetal.Generator.Implementation
         {
             if (schema.Tables.Count == 0)
             {
-                writer.WriteComment("L69 no tables found");
+                writer.WriteCommentLine("L69 no tables found");
                 return;
             }
-            using (writer.WriteClass(Specifications.Partial, schema.Name, context.SchemaLoader.DataContextType.FullName))
+            using (writer.WriteClass(SpecificationDefinition.Partial, schema.Name, context.SchemaLoader.DataContextType.FullName))
             {
                 WriteDataContextCtors(writer, schema, context);
                 WriteDataContextTables(writer, schema, context);
@@ -123,18 +124,32 @@ namespace SqlMetal.Generator.Implementation
         private void WriteDataContextTables(CodeWriter writer, DlinqSchema.Database schema, GenerationContext context)
         {
             foreach (var table in schema.Tables)
-                WriteDataContextTables(writer, table);
+                WriteDataContextTable(writer, table);
             writer.WriteLine();
         }
 
-        protected abstract void WriteDataContextTables(CodeWriter writer, DlinqSchema.Table table);
-
-        private void WriteClasses(CodeWriter writer, DlinqSchema.Database schema, GenerationContext context)
-        {
-        }
+        protected abstract void WriteDataContextTable(CodeWriter writer, DlinqSchema.Table table);
 
         // this method will be removed when we won't use literal types in dbml
         protected virtual Type GetType(string literalType)
+        {
+            bool isNullable = literalType.EndsWith("?");
+            if (isNullable)
+                literalType = literalType.Substring(0, literalType.Length - 1);
+            bool isArray = literalType.EndsWith("[]");
+            if (isArray)
+                literalType = literalType.Substring(0, literalType.Length - 2);
+            Type type = GetSimpleType(literalType);
+            if (type == null)
+                return type;
+            if (isArray)
+                type = type.MakeArrayType();
+            if (isNullable)
+                type = typeof(Nullable<>).MakeGenericType(type);
+            return type;
+        }
+
+        private Type GetSimpleType(string literalType)
         {
             switch (literalType)
             {
@@ -150,13 +165,37 @@ namespace SqlMetal.Generator.Implementation
                 return typeof(char);
             case "byte":
                 return typeof(byte);
+            case "float":
+                return typeof(float);
             case "double":
                 return typeof(double);
             case "decimal":
                 return typeof(decimal);
+            case "bool":
+                return typeof(bool);
+            case "DateTime":
+                return typeof(DateTime);
+            case "object":
+                return typeof(object);
             default:
                 return Type.GetType(literalType);
             }
+        }
+
+        protected string GetAttributeShortName<T>()
+            where T : Attribute
+        {
+            string literalAttribute = typeof(T).Name;
+            string end = "Attribute";
+            if (literalAttribute.EndsWith(end))
+                literalAttribute = literalAttribute.Substring(0, literalAttribute.Length - end.Length);
+            return literalAttribute;
+        }
+
+        protected AttributeDefinition NewAttributeDefinition<T>()
+            where T : Attribute
+        {
+            return new AttributeDefinition(GetAttributeShortName<T>());
         }
     }
 }

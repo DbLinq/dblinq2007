@@ -77,9 +77,14 @@
     <Compile Include="..\DbLinq.ProductInfo.cs">
       <Link>Properties\DbLinq.ProductInfo.cs</Link>
     </Compile>
+    <Compile Include="bin\NorthwindMySql3.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Generator\AttributeDefinition.cs" />
     <Compile Include="Generator\GenerationContext.cs" />
     <Compile Include="Generator\ICodeGenerator.cs" />
+    <Compile Include="Generator\Implementation\ClassInterface.cs" />
+    <Compile Include="Generator\Implementation\CodeGenerator.Class.cs" />
     <Compile Include="Generator\Implementation\CodeGenerator.cs" />
     <Compile Include="Generator\Implementation\CodeGenerator.Procedure.cs" />
     <Compile Include="Generator\Implementation\CSCodeGenerator.cs" />
@@ -89,7 +94,9 @@
     <Compile Include="Generator\Implementation\CSharpCodeGenerator.cs" />
     <Compile Include="Generator\Implementation\CSharpStoredProcedureGenerator.cs" />
     <Compile Include="Generator\CodeWriter.cs" />
-    <Compile Include="Generator\Specifications.cs" />
+    <Compile Include="Generator\IClassInterface.cs" />
+    <Compile Include="Generator\Implementation\IModifiedClassInterface.cs" />
+    <Compile Include="Generator\SpecificationDefinition.cs" />
     <Compile Include="Generator\ParameterDefinition.cs" />
     <Compile Include="Generator\VariablesExtension.cs" />
     <Compile Include="Program.cs" />
@@ -151,9 +158,6 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="bin\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -61,7 +61,7 @@ namespace SqlMetal.Generator.Implementation
 "));
         }
 
-        protected override void WriteDataContextTables(CodeWriter writer, DlinqSchema.Table table)
+        protected override void WriteDataContextTable(CodeWriter writer, DlinqSchema.Table table)
         {
             writer.WriteLine("public Table<{1}> {0} {{ get {{ return GetTable<{1}>(); }} }}",
                                            table.Member, table.Type.Name);
@@ -71,7 +71,6 @@ namespace SqlMetal.Generator.Implementation
         {
             // picrap: there may be some more elegant ways to invoke a stored procedure, because ExecuteMethodCall is 
             //         for internal use only
-            //System.Data.Linq.IExecuteResult result = base.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), s);
             string result = "result";
             var parametersBuilder = new StringBuilder();
             foreach (var parameter in procedure.Parameters)
@@ -79,7 +78,7 @@ namespace SqlMetal.Generator.Implementation
                 if (parameter.DirectionIn)
                     parametersBuilder.AppendFormat(", {0}", parameter.Name);
             }
-            writer.WriteLine(string.Format("var {0} = ExecuteMethodCall(this, (MethodInfo)MethodInfo.GetCurrentMethod(){1});",
+            writer.WriteLine(string.Format("var {0} = ExecuteMethodCall(this, (MethodInfo)MethodBase.GetCurrentMethod(){1});",
                 result, parametersBuilder));
             return result;
         }
