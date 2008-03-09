@@ -221,9 +221,10 @@ namespace DbLinq.Util
             case "System.Byte": return "byte";
             case "System.Double": return "double";
             case "System.Decimal": return "decimal";
+            case "System.Boolean": return "bool";
+            case "System.Object": return "object";
             default: return csType;
             }
         }
-
     }
 }

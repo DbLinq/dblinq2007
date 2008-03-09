@@ -70,73 +70,9 @@ namespace SqlMetal.Generator.Implementation
             return line.TrimEnd();
         }
 
-        #region Code generation
+        #region Code generation - Language write
 
-        protected bool HasSpecification(Specifications specifications, Specifications test)
-        {
-            return (specifications & test) != 0;
-        }
-
-        protected virtual string GetSpecifications(Specifications specifications)
-        {
-            var literalSpecifications = new List<string>();
-            if (HasSpecification(specifications, Specifications.Internal))
-                literalSpecifications.Add("internal");
-            if (HasSpecification(specifications, Specifications.Private))
-                literalSpecifications.Add("private");
-            if (HasSpecification(specifications, Specifications.Protected))
-                literalSpecifications.Add("protected");
-
-            if (HasSpecification(specifications, Specifications.Abstract))
-                literalSpecifications.Add("abstract");
-            if (HasSpecification(specifications, Specifications.Virtual))
-                literalSpecifications.Add("virtual");
-            if (HasSpecification(specifications, Specifications.Override))
-                literalSpecifications.Add("override");
-            if (HasSpecification(specifications, Specifications.Static))
-                literalSpecifications.Add("static");
-
-            if (HasSpecification(specifications, Specifications.Partial))
-                literalSpecifications.Add("partial");
-
-            if (HasSpecification(specifications, Specifications.Out))
-            {
-                if (HasSpecification(specifications, Specifications.In))
-                    literalSpecifications.Add("ref");
-                else
-                    literalSpecifications.Add("out");
-            }
-
-            string result = string.Join(" ", literalSpecifications.ToArray());
-            if (!string.IsNullOrEmpty(result))
-                result += " ";
-            return result;
-        }
-
-        protected virtual string GetProtectionSpecifications(Specifications specifications)
-        {
-            string literalSpecifications = GetSpecifications(specifications & Specifications.ProtectionClass);
-            if (string.IsNullOrEmpty(literalSpecifications))
-                literalSpecifications = "public ";
-            return literalSpecifications;
-        }
-
-        protected virtual string GetInheritanceSpecifications(Specifications specifications)
-        {
-            return GetSpecifications(specifications & Specifications.InheritanceClass);
-        }
-
-        protected virtual string GetDomainSpecifications(Specifications specifications)
-        {
-            return GetSpecifications(specifications & Specifications.DomainClass);
-        }
-
-        protected virtual string GetDirectionSpecifications(Specifications specifications)
-        {
-            return GetSpecifications(specifications & Specifications.DirectionClass);
-        }
-
-        public override void WriteComment(string line)
+        public override void WriteCommentLine(string line)
         {
             WriteLine("// {0}", line);
         }
@@ -158,22 +94,23 @@ namespace SqlMetal.Generator.Implementation
             return WriteBrackets();
         }
 
-        public override IDisposable WriteClass(Specifications specifications, string name, string baseClass, params string[] interfaces)
+        public override IDisposable WriteClass(SpecificationDefinition specificationDefinition, string name, string baseClass, params string[] interfaces)
         {
             var classLineBuilder = new StringBuilder(1024);
 
-            classLineBuilder.Append(GetProtectionSpecifications(specifications));
-            classLineBuilder.Append(GetDomainSpecifications(specifications));
-            classLineBuilder.Append(GetInheritanceSpecifications(specifications));
+            classLineBuilder.Append(GetProtectionSpecifications(specificationDefinition));
+            classLineBuilder.Append(GetDomainSpecifications(specificationDefinition));
+            classLineBuilder.Append(GetInheritanceSpecifications(specificationDefinition));
 
             var bases = new List<string>();
             if (!string.IsNullOrEmpty(baseClass))
                 bases.Add(baseClass);
+            bases.AddRange(interfaces);
 
             classLineBuilder.AppendFormat("class {0}", name);
             if (bases.Count > 0)
             {
-                classLineBuilder.Append(": ");
+                classLineBuilder.Append(" : ");
                 classLineBuilder.Append(string.Join(", ", bases.ToArray()));
             }
             WriteLine(classLineBuilder.ToString());
@@ -186,6 +123,155 @@ namespace SqlMetal.Generator.Implementation
             WriteLine("#region {0}", name);
             WriteLine();
             return EndAction(delegate { WriteLine(); WriteLine("#endregion"); WriteLine(); });
+        }
+
+        public override IDisposable WriteAttribute(AttributeDefinition attributeDefinition)
+        {
+            if (attributeDefinition != null)
+                WriteLine(GetAttribute(attributeDefinition));
+            return null;
+        }
+
+        public override IDisposable WriteMethod(SpecificationDefinition specificationDefinition, string name, Type returnType,
+                                    params ParameterDefinition[] parameters)
+        {
+            var methodLineBuilder = new StringBuilder(1024);
+
+            methodLineBuilder.Append(GetProtectionSpecifications(specificationDefinition));
+            methodLineBuilder.Append(GetDomainSpecifications(specificationDefinition));
+            methodLineBuilder.Append(GetInheritanceSpecifications(specificationDefinition));
+
+            methodLineBuilder.AppendFormat("{0} {1}(", GetLiteralType(returnType) ?? "void", name);
+            var literalParameters = new List<string>();
+            foreach (var parameter in parameters)
+            {
+                string literalParameter = string.Format("{0}{3}{1} {2}",
+                    parameter.Attribute != null ? GetAttribute(parameter.Attribute) + " " : string.Empty,
+                    GetLiteralType(parameter.Type), parameter.Name,
+                    GetDirectionSpecifications(parameter.SpecificationDefinition));
+                literalParameters.Add(literalParameter);
+            }
+            methodLineBuilder.AppendFormat("{0})", string.Join(", ", literalParameters.ToArray()));
+            WriteLine(methodLineBuilder.ToString());
+            return WriteBrackets();
+        }
+
+        protected void WriteFieldOrProperty(SpecificationDefinition specificationDefinition, string name, string memberType)
+        {
+            var methodLineBuilder = new StringBuilder(1024);
+
+            methodLineBuilder.Append(GetProtectionSpecifications(specificationDefinition));
+            methodLineBuilder.Append(GetDomainSpecifications(specificationDefinition));
+            methodLineBuilder.Append(GetInheritanceSpecifications(specificationDefinition));
+
+            methodLineBuilder.AppendFormat("{0} {1}", memberType, name);
+
+            Write(methodLineBuilder.ToString());
+        }
+
+        public override IDisposable WriteProperty(SpecificationDefinition specificationDefinition, string name, string propertyType)
+        {
+            WriteFieldOrProperty(specificationDefinition, name, propertyType);
+            WriteLine();
+            return WriteBrackets();
+        }
+
+        public override IDisposable WritePropertyGet()
+        {
+            WriteLine("get");
+            return WriteBrackets();
+        }
+
+        public override IDisposable WritePropertySet()
+        {
+            WriteLine("set");
+            return WriteBrackets();
+        }
+
+        public override void WriteField(SpecificationDefinition specificationDefinition, string name, string fieldType)
+        {
+            WriteFieldOrProperty(specificationDefinition, name, fieldType);
+            WriteLine(";");
+        }
+
+        public override void WritePropertyWithBackingField(SpecificationDefinition specificationDefinition, string name, string propertyType, bool privateSetter)
+        {
+            WriteFieldOrProperty(specificationDefinition, name, propertyType);
+            WriteLine("{{ get; {0}set; }}", privateSetter ? "private " : string.Empty);
+        }
+
+        public override IDisposable WriteIf(string expression)
+        {
+            WriteLine("if({0})", expression);
+            return WriteBrackets();
+        }
+
+        #endregion
+
+        #region Code generation - Language construction
+
+        protected bool HasSpecification(SpecificationDefinition specificationDefinition, SpecificationDefinition test)
+        {
+            return (specificationDefinition & test) != 0;
+        }
+
+        protected virtual string GetSpecifications(SpecificationDefinition specificationDefinition)
+        {
+            var literalSpecifications = new List<string>();
+            if (HasSpecification(specificationDefinition, SpecificationDefinition.Internal))
+                literalSpecifications.Add("internal");
+            if (HasSpecification(specificationDefinition, SpecificationDefinition.Private))
+                literalSpecifications.Add("private");
+            if (HasSpecification(specificationDefinition, SpecificationDefinition.Protected))
+                literalSpecifications.Add("protected");
+
+            if (HasSpecification(specificationDefinition, SpecificationDefinition.Abstract))
+                literalSpecifications.Add("abstract");
+            if (HasSpecification(specificationDefinition, SpecificationDefinition.Virtual))
+                literalSpecifications.Add("virtual");
+            if (HasSpecification(specificationDefinition, SpecificationDefinition.Override))
+                literalSpecifications.Add("override");
+            if (HasSpecification(specificationDefinition, SpecificationDefinition.Static))
+                literalSpecifications.Add("static");
+
+            if (HasSpecification(specificationDefinition, SpecificationDefinition.Partial))
+                literalSpecifications.Add("partial");
+
+            if (HasSpecification(specificationDefinition, SpecificationDefinition.Out))
+            {
+                if (HasSpecification(specificationDefinition, SpecificationDefinition.In))
+                    literalSpecifications.Add("ref");
+                else
+                    literalSpecifications.Add("out");
+            }
+
+            string result = string.Join(" ", literalSpecifications.ToArray());
+            if (!string.IsNullOrEmpty(result))
+                result += " ";
+            return result;
+        }
+
+        protected virtual string GetProtectionSpecifications(SpecificationDefinition specificationDefinition)
+        {
+            string literalSpecifications = GetSpecifications(specificationDefinition & SpecificationDefinition.ProtectionClass);
+            if (string.IsNullOrEmpty(literalSpecifications))
+                literalSpecifications = "public ";
+            return literalSpecifications;
+        }
+
+        protected virtual string GetInheritanceSpecifications(SpecificationDefinition specificationDefinition)
+        {
+            return GetSpecifications(specificationDefinition & SpecificationDefinition.InheritanceClass);
+        }
+
+        protected virtual string GetDomainSpecifications(SpecificationDefinition specificationDefinition)
+        {
+            return GetSpecifications(specificationDefinition & SpecificationDefinition.DomainClass);
+        }
+
+        protected virtual string GetDirectionSpecifications(SpecificationDefinition specificationDefinition)
+        {
+            return GetSpecifications(specificationDefinition & SpecificationDefinition.DirectionClass);
         }
 
         protected virtual string GetAttribute(AttributeDefinition attributeDefinition)
@@ -204,81 +290,15 @@ namespace SqlMetal.Generator.Implementation
             return attributeLineBuilder.ToString();
         }
 
-        public override IDisposable WriteAttribute(AttributeDefinition attributeDefinition)
+        public override string GetGenericName(string baseName, string type)
         {
-            WriteLine(GetAttribute(attributeDefinition));
-            return null;
+            return string.Format("{0}<{1}>", baseName, type);
         }
 
-        public string GetLiteralType(Type type)
-        {
-            if (type == null)
-                return null;
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
-            {
-                return CSharp.FormatType(type.GetGenericArguments()[0].FullName, true);
-            }
-            return CSharp.FormatType(type.FullName, false);
-        }
-
-        public override IDisposable WriteMethod(Specifications specifications, string name, Type returnType,
-                                    params ParameterDefinition[] parameters)
-        {
-            var methodLineBuilder = new StringBuilder(1024);
-
-            methodLineBuilder.Append(GetProtectionSpecifications(specifications));
-            methodLineBuilder.Append(GetDomainSpecifications(specifications));
-            methodLineBuilder.Append(GetInheritanceSpecifications(specifications));
-
-            methodLineBuilder.AppendFormat("{0} {1}(", GetLiteralType(returnType) ?? "void", name);
-            var literalParameters = new List<string>();
-            foreach (var parameter in parameters)
-            {
-                string literalParameter = string.Format("{0}{3}{1} {2}",
-                    parameter.Attribute != null ? GetAttribute(parameter.Attribute) + " " : string.Empty,
-                    GetLiteralType(parameter.Type), parameter.Name,
-                    GetDirectionSpecifications(parameter.Specifications));
-                literalParameters.Add(literalParameter);
-            }
-            methodLineBuilder.AppendFormat("{0})", string.Join(", ", literalParameters.ToArray()));
-            WriteLine(methodLineBuilder.ToString());
-            return WriteBrackets();
-        }
-
-        public override string GetGenericName(string baseName, Type type)
-        {
-            return string.Format("{0}<{1}>", baseName, GetLiteralType(type));
-        }
-
-        public override IDisposable WriteProperty(Specifications specifications, string name, Type propertyType)
-        {
-            var methodLineBuilder = new StringBuilder(1024);
-
-            methodLineBuilder.Append(GetProtectionSpecifications(specifications));
-            methodLineBuilder.Append(GetDomainSpecifications(specifications));
-            methodLineBuilder.Append(GetInheritanceSpecifications(specifications));
-
-            methodLineBuilder.AppendFormat("{0} {1}", GetLiteralType(propertyType), name);
-
-            return WriteBrackets();
-        }
-
-        public override IDisposable WritePropertyGet()
-        {
-            WriteLine("get");
-            return WriteBrackets();
-        }
-
-        public override IDisposable WritePropertySet()
-        {
-            WriteLine("set");
-            return WriteBrackets();
-        }
-
-        public override string GetCast(string value, Type castType, bool hardCast)
+        public override string GetCastExpression(string value, string castType, bool hardCast)
         {
             string format = hardCast ? "({1}){0}" : "{0} as {1}";
-            string literalCast = string.Format(format, value, GetLiteralType(castType));
+            string literalCast = string.Format(format, value, castType);
             return literalCast;
         }
 
@@ -289,14 +309,55 @@ namespace SqlMetal.Generator.Implementation
             return base.GetLiteralValue(value);
         }
 
+        public override string GetLiteralType(Type type)
+        {
+            if (type == null)
+                return null;
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                return CSharp.FormatType(type.GetGenericArguments()[0].FullName, true);
+            }
+            return CSharp.FormatType(type.FullName, false);
+        }
+
         public override string GetArray(string array, string literalIndex)
         {
             return string.Format("{0}[{1}]", array, literalIndex);
         }
 
-        public override string GetStatement(string statement)
+        public override string GetStatement(string expression)
         {
-            return statement + ";";
+            return expression + ";";
+        }
+
+        public override string GetXOrExpression(string a, string b)
+        {
+            return string.Format("{0} ^ {1}", a, b);
+        }
+
+        public override string GetAndExpression(string a, string b)
+        {
+            return string.Format("{0} && {1}", a, b);
+        }
+
+        public override string GetPropertySetValueExpression()
+        {
+            return "value";
+        }
+
+        public override string GetNullExpression()
+        {
+            return "null";
+        }
+
+        public override string GetDifferentExpression(string a, string b)
+        {
+            return string.Format("{0} != {1}", a, b);
+        }
+
+        public override string GetEqualExpression(string a, string b)
+        {
+            return string.Format("{0} == {1}", a, b);
         }
 
         #endregion

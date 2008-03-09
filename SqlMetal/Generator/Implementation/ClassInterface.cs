@@ -24,15 +24,24 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
-using System;
+using DbLinq.Linq;
 
-namespace SqlMetal.Generator
+namespace SqlMetal.Generator.Implementation
 {
-    public class ParameterDefinition
+    public abstract class ClassInterface : IClassInterface
     {
-        public AttributeDefinition Attribute;
-        public string Name { get; set; }
-        public Type Type { get; set; }
-        public SpecificationDefinition SpecificationDefinition;
+        public abstract string InterfaceName { get; }
+
+        public virtual void WriteHeader(CodeWriter writer, DlinqSchema.Table table, GenerationContext context)
+        {
+        }
+
+        public virtual void WritePropertyBeforeSet(CodeWriter writer, DlinqSchema.Column property, GenerationContext context)
+        {
+        }
+
+        public virtual void WritePropertyAfterSet(CodeWriter writer, DlinqSchema.Column property, GenerationContext context)
+        {
+        }
     }
 }

@@ -28,6 +28,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using DbLinq.Util;
 
 namespace SqlMetal.Generator
 {
@@ -137,19 +138,23 @@ namespace SqlMetal.Generator
             return new NestedInstruction(end);
         }
 
-        public abstract void WriteComment(string line);
-        public virtual void WriteComments(string comments)
+        #endregion
+
+        #region Code generation - Language write
+
+        public abstract void WriteCommentLine(string line);
+        public virtual void WriteCommentLines(string comments)
         {
             string[] commentLines = comments.Split('\n');
             foreach (string commentLine in commentLines)
             {
-                WriteComment(commentLine.TrimEnd());
+                WriteCommentLine(commentLine.TrimEnd());
             }
         }
 
         public abstract void WriteUsingNamespace(string name);
         public abstract IDisposable WriteNamespace(string name);
-        public abstract IDisposable WriteClass(Specifications specifications, string name,
+        public abstract IDisposable WriteClass(SpecificationDefinition specificationDefinition, string name,
                                             string baseClass, params string[] interfaces);
 
         public abstract IDisposable WriteRegion(string name);
@@ -161,16 +166,30 @@ namespace SqlMetal.Generator
         }
         public abstract IDisposable WriteAttribute(AttributeDefinition attributeDefinition);
 
-        public abstract IDisposable WriteMethod(Specifications specifications, string name, Type returnType,
+        public abstract IDisposable WriteMethod(SpecificationDefinition specificationDefinition, string name, Type returnType,
                                            params ParameterDefinition[] parameters);
 
-        public abstract string GetGenericName(string baseName, Type type);
+        public abstract string GetGenericName(string baseName, string type);
 
-        public abstract IDisposable WriteProperty(Specifications specifications, string name, Type propertyType);
+        public abstract IDisposable WriteProperty(SpecificationDefinition specificationDefinition, string name, string propertyType);
         public abstract IDisposable WritePropertyGet();
         public abstract IDisposable WritePropertySet();
 
-        public abstract string GetCast(string value, Type castType, bool hardCast);
+        public abstract void WritePropertyWithBackingField(SpecificationDefinition specificationDefinition, string name, string propertyType, bool privateSetter);
+        public virtual void WritePropertyWithBackingField(SpecificationDefinition specificationDefinition, string name, string propertyType)
+        {
+            WritePropertyWithBackingField(specificationDefinition, name, propertyType, false);
+        }
+
+        public abstract void WriteField(SpecificationDefinition specificationDefinition, string name, string fieldType);
+
+        public abstract IDisposable WriteIf(string expression);
+
+        #endregion
+
+        #region Code generation - Language construction
+
+        public abstract string GetCastExpression(string value, string castType, bool hardCast);
 
         public virtual string GetLiteralValue(object value)
         {
@@ -179,33 +198,56 @@ namespace SqlMetal.Generator
             return value.ToString();
         }
 
-        public virtual string GetMember(string obj, string member)
+        public virtual string GetLiteralType(Type type)
+        {
+            return type.FullName;
+        }
+
+        public virtual string GetMemberExpression(string obj, string member)
         {
             return string.Format("{0}.{1}", obj, member);
         }
 
         public virtual string GetReturnStatement(string expression)
         {
+            if (expression == null)
+                return GetStatement("return");
             return GetStatement(string.Format("return {0}", expression));
         }
 
-        public virtual string GetAssignment(string variable, string expression)
+        public virtual string GetDeclarationExpression(string variable, string type)
+        {
+            return string.Format("{0} {1}", type, variable);
+        }
+
+        public virtual string GetAssignmentExpression(string variable, string expression)
         {
             return string.Format("{0} = {1}", variable, expression);
         }
 
         public abstract string GetArray(string array, string literalIndex);
 
-        public virtual string GetMethodCall(string method, params string [] literalParameters)
+        public virtual string GetMethodCallExpression(string method, params string [] literalParameters)
         {
             return string.Format("{0}({1})", method, string.Join(", ", literalParameters));
         }
 
-        public virtual string GetStatement(string statement)
+        public virtual string GetStatement(string expression)
         {
-            return statement;
+            return expression;
         }
 
+        public abstract string GetPropertySetValueExpression();
+
+        public abstract string GetNullExpression();
+
+        public abstract string GetDifferentExpression(string a, string b);
+        public abstract string GetEqualExpression(string a, string b);
+
+        public abstract string GetXOrExpression(string a, string b);
+        public abstract string GetAndExpression(string a, string b);
+
         #endregion
+
     }
 }

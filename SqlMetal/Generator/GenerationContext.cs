@@ -24,8 +24,11 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using DbLinq.Vendor;
+using SqlMetal.Generator.Implementation;
 
 namespace SqlMetal.Generator
 {
@@ -34,6 +37,8 @@ namespace SqlMetal.Generator
         public SqlMetalParameters Parameters;
         public IDictionary<string, string> Variables;
         public ISchemaLoader SchemaLoader;
+
+        public List<IClassInterface> KnownClassInterfaces =new List<IClassInterface>();
 
         public string this[string key]
         {
@@ -44,8 +49,9 @@ namespace SqlMetal.Generator
         public GenerationContext(SqlMetalParameters parameters, ISchemaLoader schemaLoader)
         {
             Parameters = parameters;
-            Variables = new Dictionary<string,string>();
+            Variables = new Dictionary<string, string>();
             SchemaLoader = schemaLoader;
+            KnownClassInterfaces.Add(new IModifiedClassInterface());
         }
 
         private GenerationContext(GenerationContext original)
@@ -53,6 +59,7 @@ namespace SqlMetal.Generator
             Parameters = original.Parameters;
             Variables = new Dictionary<string, string>(original.Variables);
             SchemaLoader = original.SchemaLoader;
+            KnownClassInterfaces = new List<IClassInterface>(original.KnownClassInterfaces);
         }
 
         public GenerationContext CopyContext()
@@ -63,6 +70,19 @@ namespace SqlMetal.Generator
         public string Evaluate(string format)
         {
             return Variables.Evaluate(format);
+        }
+
+        /// <summary>
+        /// Returns all known interface handler that apply to our current interfaces
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<IClassInterface> ClassInterfaces()
+        {
+            foreach (IClassInterface classInterface in KnownClassInterfaces)
+            {
+                if (Array.Exists(Parameters.Interfaces, interfaceName => classInterface.InterfaceName == interfaceName))
+                    yield return classInterface;
+            }
         }
     }
 }

@@ -27,6 +27,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Linq.Mapping;
 using DbLinq.Linq;
 
 namespace SqlMetal.Generator.Implementation
@@ -46,16 +47,16 @@ namespace SqlMetal.Generator.Implementation
             if (procedure == null || procedure.Name == null)
             {
                 Console.WriteLine("CodeGenStoredProc: Error L33 Invalid storedProcedure object");
-                writer.WriteComment("error L33 Invalid storedProcedure object");
+                writer.WriteCommentLine("error L33 Invalid storedProcedure object");
                 return;
             }
 
-            var functionAttribute = new AttributeDefinition("Function");
+            var functionAttribute = NewAttributeDefinition<FunctionAttribute>();
             functionAttribute["Name"] = procedure.Name;
             functionAttribute["IsComposable"] = procedure.IsComposable;
 
             using (writer.WriteAttribute(functionAttribute))
-            using (writer.WriteMethod(Specifications.Public, GetProcedureName(procedure),
+            using (writer.WriteMethod(SpecificationDefinition.Public, GetProcedureName(procedure),
                 GetProcedureType(procedure), GetProcedureParameters(procedure)))
             {
                 string result = WriteProcedureBodyMethodCall(writer, procedure, context);
@@ -69,7 +70,7 @@ namespace SqlMetal.Generator.Implementation
         {
             Type returnType = GetProcedureType(procedure);
             if (returnType != null)
-                writer.WriteLine(writer.GetReturnStatement(writer.GetCast(writer.GetMember(result, "ReturnValue"), returnType, true)));
+                writer.WriteLine(writer.GetReturnStatement(writer.GetCastExpression(writer.GetMemberExpression(result, "ReturnValue"), writer.GetLiteralType(returnType), true)));
         }
 
         protected virtual void WriteProcedureBodyOutParameters(CodeWriter writer, DlinqSchema.Function procedure, string result, GenerationContext context)
@@ -86,9 +87,9 @@ namespace SqlMetal.Generator.Implementation
 
         protected virtual void WriteProcedureBodyOutParameter(CodeWriter writer, DlinqSchema.Parameter parameter, string result, int parameterIndex, GenerationContext context)
         {
-            string p = writer.GetMethodCall(writer.GetMember(result, "GetParameterValue"), parameterIndex.ToString());
-            string cp = writer.GetCast(p, GetType(parameter.Type), true);
-            writer.WriteLine(writer.GetStatement(writer.GetAssignment(parameter.Name, cp)));
+            string p = writer.GetMethodCallExpression(writer.GetMemberExpression(result, "GetParameterValue"), parameterIndex.ToString());
+            string cp = writer.GetCastExpression(p, parameter.Type, true);
+            writer.WriteLine(writer.GetStatement(writer.GetAssignmentExpression(parameter.Name, cp)));
         }
 
         protected abstract string WriteProcedureBodyMethodCall(CodeWriter writer, DlinqSchema.Function procedure, GenerationContext context);
@@ -137,18 +138,18 @@ namespace SqlMetal.Generator.Implementation
             switch (parameter.Direction)
             {
             case DlinqSchema.ParameterDirection.In:
-                parameterDefinition.Specifications |= Specifications.In;
+                parameterDefinition.SpecificationDefinition |= SpecificationDefinition.In;
                 break;
             case DlinqSchema.ParameterDirection.Out:
-                parameterDefinition.Specifications |= Specifications.Out;
+                parameterDefinition.SpecificationDefinition |= SpecificationDefinition.Out;
                 break;
             case DlinqSchema.ParameterDirection.InOut:
-                parameterDefinition.Specifications |= Specifications.Ref;
+                parameterDefinition.SpecificationDefinition |= SpecificationDefinition.Ref;
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
             }
-            parameterDefinition.Attribute = new AttributeDefinition("Parameter");
+            parameterDefinition.Attribute = NewAttributeDefinition<ParameterAttribute>();
             parameterDefinition.Attribute["Name"] = parameter.Name;
             parameterDefinition.Attribute["DbType"] = parameter.DbType;
             return parameterDefinition;
