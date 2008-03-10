@@ -1,4 +1,4 @@
-﻿#region MIT license
+﻿#region MIT License
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -26,22 +26,13 @@
 
 using DbLinq.Linq;
 
-namespace SqlMetal.Generator.Implementation
+namespace SqlMetal.Generator.EntityInterface
 {
-    public abstract class ClassInterface : IClassInterface
+    public interface IImplementation
     {
-        public abstract string InterfaceName { get; }
-
-        public virtual void WriteHeader(CodeWriter writer, DlinqSchema.Table table, GenerationContext context)
-        {
-        }
-
-        public virtual void WritePropertyBeforeSet(CodeWriter writer, DlinqSchema.Column property, GenerationContext context)
-        {
-        }
-
-        public virtual void WritePropertyAfterSet(CodeWriter writer, DlinqSchema.Column property, GenerationContext context)
-        {
-        }
+        string InterfaceName { get; }
+        void WriteHeader(CodeWriter writer, DlinqSchema.Table table, GenerationContext context);
+        void WritePropertyBeforeSet(CodeWriter writer, DlinqSchema.Column property, GenerationContext context);
+        void WritePropertyAfterSet(CodeWriter writer, DlinqSchema.Column property, GenerationContext context);
     }
 }

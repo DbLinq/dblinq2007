@@ -28,7 +28,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DbLinq.Vendor;
-using SqlMetal.Generator.Implementation;
+using SqlMetal.Generator.EntityInterface;
+using SqlMetal.Generator.EntityInterface.Implementation;
 
 namespace SqlMetal.Generator
 {
@@ -38,7 +39,7 @@ namespace SqlMetal.Generator
         public IDictionary<string, string> Variables;
         public ISchemaLoader SchemaLoader;
 
-        public List<IClassInterface> KnownClassInterfaces =new List<IClassInterface>();
+        public List<IImplementation> AllImplementations =new List<IImplementation>();
 
         public string this[string key]
         {
@@ -51,7 +52,8 @@ namespace SqlMetal.Generator
             Parameters = parameters;
             Variables = new Dictionary<string, string>();
             SchemaLoader = schemaLoader;
-            KnownClassInterfaces.Add(new IModifiedClassInterface());
+            AllImplementations.Add(new IModifiedImplementation());
+            AllImplementations.Add(new INotifyPropertyChangingImplementation());
         }
 
         private GenerationContext(GenerationContext original)
@@ -59,7 +61,7 @@ namespace SqlMetal.Generator
             Parameters = original.Parameters;
             Variables = new Dictionary<string, string>(original.Variables);
             SchemaLoader = original.SchemaLoader;
-            KnownClassInterfaces = new List<IClassInterface>(original.KnownClassInterfaces);
+            AllImplementations = new List<IImplementation>(original.AllImplementations);
         }
 
         public GenerationContext CopyContext()
@@ -76,12 +78,12 @@ namespace SqlMetal.Generator
         /// Returns all known interface handler that apply to our current interfaces
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<IClassInterface> ClassInterfaces()
+        public IEnumerable<IImplementation> Implementations()
         {
-            foreach (IClassInterface classInterface in KnownClassInterfaces)
+            foreach (IImplementation implementation in AllImplementations)
             {
-                if (Array.Exists(Parameters.Interfaces, interfaceName => classInterface.InterfaceName == interfaceName))
-                    yield return classInterface;
+                if (Array.Exists(Parameters.Interfaces, interfaceName => implementation.InterfaceName == interfaceName))
+                    yield return implementation;
             }
         }
     }
