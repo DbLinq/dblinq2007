@@ -51,5 +51,7 @@ namespace SqlMetal.Generator
         In                  = 0x000010,
         Out                 = 0x000020,
         Ref                 = 0x000030,
+
+        Event               = 0x100000,
     }
 }

@@ -163,6 +163,7 @@ namespace SqlMetal.Generator.Implementation
             methodLineBuilder.Append(GetProtectionSpecifications(specificationDefinition));
             methodLineBuilder.Append(GetDomainSpecifications(specificationDefinition));
             methodLineBuilder.Append(GetInheritanceSpecifications(specificationDefinition));
+            methodLineBuilder.Append(GetSpecifications(specificationDefinition & SpecificationDefinition.Event));
 
             methodLineBuilder.AppendFormat("{0} {1}", memberType, name);
 
@@ -198,6 +199,12 @@ namespace SqlMetal.Generator.Implementation
         {
             WriteFieldOrProperty(specificationDefinition, name, propertyType);
             WriteLine("{{ get; {0}set; }}", privateSetter ? "private " : string.Empty);
+        }
+
+        public override void WriteEvent(SpecificationDefinition specificationDefinition, string name, string eventDelegate)
+        {
+            WriteFieldOrProperty(specificationDefinition | SpecificationDefinition.Event, name, eventDelegate);
+            WriteLine(";");
         }
 
         public override IDisposable WriteIf(string expression)
@@ -244,6 +251,9 @@ namespace SqlMetal.Generator.Implementation
                 else
                     literalSpecifications.Add("out");
             }
+
+            if (HasSpecification(specificationDefinition, SpecificationDefinition.Event))
+                literalSpecifications.Add("event");
 
             string result = string.Join(" ", literalSpecifications.ToArray());
             if (!string.IsNullOrEmpty(result))

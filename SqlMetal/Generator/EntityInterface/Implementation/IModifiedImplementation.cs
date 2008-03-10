@@ -1,4 +1,4 @@
-﻿#region MIT License
+﻿#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -24,15 +24,27 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
-using DbLinq.Linq;
-
-namespace SqlMetal.Generator
+namespace SqlMetal.Generator.EntityInterface.Implementation
 {
-    public interface IClassInterface
+    public class IModifiedImplementation : InterfaceImplementation
     {
-        string InterfaceName { get; }
-        void WriteHeader(CodeWriter writer, DlinqSchema.Table table, GenerationContext context);
-        void WritePropertyBeforeSet(CodeWriter writer, DlinqSchema.Column property, GenerationContext context);
-        void WritePropertyAfterSet(CodeWriter writer, DlinqSchema.Column property, GenerationContext context);
+        public override string InterfaceName
+        {
+            get { return "IModified"; }
+        }
+
+        private const string ModifiedName = "IsModified"; // mandatory value, since the IModified interface requires this member
+
+        public override void WriteHeader(CodeWriter writer, DbLinq.Linq.DlinqSchema.Table table, GenerationContext context)
+        {
+            writer.WriteCommentLine("IModified backing field");
+            writer.WritePropertyWithBackingField(SpecificationDefinition.Public, ModifiedName, writer.GetLiteralType(typeof(bool)));
+            writer.WriteLine();
+        }
+
+        public override void WritePropertyAfterSet(CodeWriter writer, DbLinq.Linq.DlinqSchema.Column property, GenerationContext context)
+        {
+            writer.WriteLine(writer.GetStatement(writer.GetAssignmentExpression(ModifiedName, writer.GetLiteralValue(true))));
+        }
     }
 }

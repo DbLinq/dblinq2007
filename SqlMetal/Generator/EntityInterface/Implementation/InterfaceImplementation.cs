@@ -24,27 +24,25 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
-namespace SqlMetal.Generator.Implementation
+using DbLinq.Linq;
+using SqlMetal.Generator.EntityInterface;
+
+namespace SqlMetal.Generator.EntityInterface.Implementation
 {
-    public class IModifiedClassInterface : ClassInterface
+    public abstract class InterfaceImplementation : IImplementation
     {
-        public override string InterfaceName
+        public abstract string InterfaceName { get; }
+
+        public virtual void WriteHeader(CodeWriter writer, DlinqSchema.Table table, GenerationContext context)
         {
-            get { return "IModified"; }
         }
 
-        private const string ModifiedName = "IsModified"; // mandatory value, since the IModified interface requires this member
-
-        public override void WriteHeader(CodeWriter writer, DbLinq.Linq.DlinqSchema.Table table, GenerationContext context)
+        public virtual void WritePropertyBeforeSet(CodeWriter writer, DlinqSchema.Column property, GenerationContext context)
         {
-            writer.WriteCommentLine("IModified backing field");
-            writer.WritePropertyWithBackingField(SpecificationDefinition.Public, ModifiedName, writer.GetLiteralType(typeof(bool)));
-            writer.WriteLine();
         }
 
-        public override void WritePropertyAfterSet(CodeWriter writer, DbLinq.Linq.DlinqSchema.Column property, GenerationContext context)
+        public virtual void WritePropertyAfterSet(CodeWriter writer, DlinqSchema.Column property, GenerationContext context)
         {
-            writer.WriteLine(writer.GetStatement(writer.GetAssignmentExpression(ModifiedName, writer.GetLiteralValue(true))));
         }
     }
 }

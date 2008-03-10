@@ -183,6 +183,8 @@ namespace SqlMetal.Generator
 
         public abstract void WriteField(SpecificationDefinition specificationDefinition, string name, string fieldType);
 
+        public abstract void WriteEvent(SpecificationDefinition specificationDefinition, string name, string eventDelegate);
+
         public abstract IDisposable WriteIf(string expression);
 
         #endregion
@@ -213,6 +215,16 @@ namespace SqlMetal.Generator
             if (expression == null)
                 return GetStatement("return");
             return GetStatement(string.Format("return {0}", expression));
+        }
+
+        public virtual string GetNewExpression(string ctor)
+        {
+            return string.Format("new {0}", ctor);
+        }
+
+        public virtual string GetThisExpression()
+        {
+            return "this";
         }
 
         public virtual string GetDeclarationExpression(string variable, string type)

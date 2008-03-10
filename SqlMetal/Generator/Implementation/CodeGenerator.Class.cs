@@ -33,6 +33,7 @@ using System.Linq;
 using System.Text;
 using DbLinq.Linq;
 using DbLinq.Linq.Mapping;
+using SqlMetal.Generator.EntityInterface;
 
 namespace SqlMetal.Generator.Implementation
 {
@@ -122,8 +123,8 @@ namespace SqlMetal.Generator.Implementation
 
         private void WriteClassHeader(CodeWriter writer, DlinqSchema.Table table, GenerationContext context)
         {
-            foreach (IClassInterface classInterface in context.ClassInterfaces())
-                classInterface.WriteHeader(writer, table, context);
+            foreach (IImplementation implementation in context.Implementations())
+                implementation.WriteHeader(writer, table, context);
         }
 
         protected virtual void WriteClassProperties(CodeWriter writer, DlinqSchema.Table table, GenerationContext context)
@@ -175,11 +176,11 @@ namespace SqlMetal.Generator.Implementation
                 {
                     using (writer.WriteIf(writer.GetDifferentExpression(writer.GetPropertySetValueExpression(), property.Storage)))
                     {
-                        foreach (IClassInterface classInterface in context.ClassInterfaces())
-                            classInterface.WritePropertyBeforeSet(writer, property, context);
+                        foreach (IImplementation implementation in context.Implementations())
+                            implementation.WritePropertyBeforeSet(writer, property, context);
                         writer.WriteLine(writer.GetStatement(writer.GetAssignmentExpression(property.Storage, writer.GetPropertySetValueExpression())));
-                        foreach (IClassInterface classInterface in context.ClassInterfaces())
-                            classInterface.WritePropertyAfterSet(writer, property, context);
+                        foreach (IImplementation implementation in context.Implementations())
+                            implementation.WritePropertyAfterSet(writer, property, context);
                     }
                 }
             }
