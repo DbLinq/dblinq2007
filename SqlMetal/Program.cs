@@ -78,7 +78,8 @@ namespace SqlMetal
                 }
                 else
                 {
-                    ICodeGenerator codeGen = new CSharpCodeGenerator();
+                    // picrap: if CSCodeGenerator causes problem, use CSharpCodeGenerator
+                    ICodeGenerator codeGen = new CSCodeGenerator();
 
                     string filename = parameters.Code ?? parameters.Database.Replace("\"", "");
                     if (string.IsNullOrEmpty(Path.GetExtension(filename)))

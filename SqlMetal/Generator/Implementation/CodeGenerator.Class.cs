@@ -254,19 +254,27 @@ namespace SqlMetal.Generator.Implementation
                 return;
             }
 
-            writer.WriteField(SpecificationDefinition.Private, parent.Storage,
+            string member = parent.Member;
+            string storageField = parent.Storage;
+            if (member == parent.ThisKey)
+            {
+                member = parent.ThisKey + targetTable.Type.Name; //repeat name to prevent collision (same as Linq)
+                storageField = "_x_" + parent.Member;
+            }
+
+            writer.WriteField(SpecificationDefinition.Private, storageField,
                         writer.GetGenericName(typeof(EntityRef<>).FullName.Split('`')[0], targetTable.Type.Name));
 
             var storageAttribute = NewAttributeDefinition<AssociationAttribute>();
-            storageAttribute["Storage"] = parent.Storage;
+            storageAttribute["Storage"] = storageField;
             storageAttribute["ThisKey"] = parent.ThisKey;
             storageAttribute["Name"] = parent.Name;
 
             using (writer.WriteAttribute(storageAttribute))
             using (writer.WriteAttribute(NewAttributeDefinition<DebuggerNonUserCodeAttribute>()))
-            using (writer.WriteProperty(SpecificationDefinition.Public, parent.Member, targetTable.Type.Name))
+            using (writer.WriteProperty(SpecificationDefinition.Public, member, targetTable.Type.Name))
             {
-                string storage=writer.GetMemberExpression(parent.Storage, "Entity");
+                string storage = writer.GetMemberExpression(storageField, "Entity");
                 using (writer.WritePropertyGet())
                 {
                     writer.WriteLine(writer.GetReturnStatement(storage));
