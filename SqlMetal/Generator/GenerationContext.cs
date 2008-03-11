@@ -54,6 +54,7 @@ namespace SqlMetal.Generator
             SchemaLoader = schemaLoader;
             AllImplementations.Add(new IModifiedImplementation());
             AllImplementations.Add(new INotifyPropertyChangingImplementation());
+            AllImplementations.Add(new INotifyPropertyChangedImplementation());
         }
 
         private GenerationContext(GenerationContext original)

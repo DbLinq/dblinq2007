@@ -29,46 +29,44 @@ using DbLinq.Linq;
 
 namespace SqlMetal.Generator.EntityInterface.Implementation
 {
-    public class INotifyPropertyChangingImplementation : InterfaceImplementation
+    public class INotifyPropertyChangedImplementation : InterfaceImplementation
     {
         public override string InterfaceName
         {
-            get { return typeof(INotifyPropertyChanging).Name; }
+            get { return typeof(INotifyPropertyChanged).Name; }
         }
 
-        private const string sendPropertyChangingMethod = "OnPropertyChanging";
+        private const string sendPropertyChangedMethod = "OnPropertyChanged";
 
         public override void WriteHeader(CodeWriter writer, DlinqSchema.Table table, GenerationContext context)
         {
-            using (writer.WriteRegion(string.Format("{0} handling", typeof(INotifyPropertyChanging).Name)))
+            using (writer.WriteRegion(string.Format("{0} handling", typeof(INotifyPropertyChanged).Name)))
             {
-                const string eventName = "PropertyChanging"; // do not change, part of INotifyPropertyChanging
-                const string emptyArgs = "emptyChangingEventArgs";
+                const string eventName = "PropertyChanged"; // do not change, part of INotifyPropertyChanged
+                const string propertyNameName = "propertyName";
 
                 // event
-                writer.WriteEvent(SpecificationDefinition.Public, eventName, typeof(PropertyChangingEventHandler).Name);
+                writer.WriteEvent(SpecificationDefinition.Public, eventName, typeof(PropertyChangedEventHandler).Name);
                 writer.WriteLine();
-                // empty event arg
-                writer.WriteField(SpecificationDefinition.Private | SpecificationDefinition.Static,
-                    writer.GetAssignmentExpression(emptyArgs, writer.GetNewExpression(
-                                            writer.GetMethodCallExpression(typeof(PropertyChangingEventArgs).Name, "\"\""))),
-                                            typeof(PropertyChangingEventArgs).Name);
                 // method
                 using (writer.WriteMethod(SpecificationDefinition.Protected | SpecificationDefinition.Virtual,
-                             sendPropertyChangingMethod, null))
+                             sendPropertyChangedMethod, null, new ParameterDefinition { Name = propertyNameName, Type = typeof(string) }))
                 {
                     using (writer.WriteIf(writer.GetDifferentExpression(eventName, writer.GetNullExpression())))
                     {
                         writer.WriteLine(writer.GetStatement(writer.GetMethodCallExpression(eventName,
-                            writer.GetThisExpression(), emptyArgs)));
+                            writer.GetThisExpression(),
+                            writer.GetNewExpression(writer.GetMethodCallExpression(typeof(PropertyChangedEventArgs).Name,
+                                                                                   propertyNameName)))));
                     }
                 }
             }
         }
 
-        public override void WritePropertyBeforeSet(CodeWriter writer, DlinqSchema.Column property, GenerationContext context)
+        public override void WritePropertyAfterSet(CodeWriter writer, DlinqSchema.Column property, GenerationContext context)
         {
-            writer.WriteLine(writer.GetStatement(writer.GetMethodCallExpression(sendPropertyChangingMethod)));
+            writer.WriteLine(writer.GetStatement(writer.GetMethodCallExpression(sendPropertyChangedMethod,
+                writer.GetLiteralValue(property.Name))));
         }
     }
 }
