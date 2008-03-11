@@ -209,7 +209,7 @@ namespace SqlMetal.Generator.Implementation
 
         public override IDisposable WriteIf(string expression)
         {
-            WriteLine("if({0})", expression);
+            WriteLine("if ({0})", expression);
             return WriteBrackets();
         }
 
