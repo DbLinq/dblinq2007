@@ -75,6 +75,7 @@
     <Compile Include="Linq_101_Samples\Object_Identity.cs" />
     <Compile Include="Linq_101_Samples\String_Date_functions.cs" />
     <Compile Include="Linq_101_Samples\Top_Bottom.cs" />
+    <Compile Include="MetalTest.cs" />
     <Compile Include="Program2Mysql.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadTest.cs" />

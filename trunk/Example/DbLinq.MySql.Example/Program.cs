@@ -43,7 +43,7 @@ namespace DbLinq.MySql.Example
             string connStr = String.Format("server={0};user id={1}; password={2}; database={3}"
                 , dbServer, "LinqUser", "linq2", "Northwind");
 
-            Northwind db = new Northwind(connStr);
+            Northwind db = new Northwind(new MySqlConnection(connStr));
 
 #if USE_STORED_PROCS
             int is2;

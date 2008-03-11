@@ -130,6 +130,7 @@ namespace DbLinq.Linq
             public string Member;
 
             // TODO: see if we can get this field internal again, or remove it...
+            [XmlIgnore]
             public bool _isChild; //used in TableSorter
             // NONSTANDARD (of course it is not)
 
