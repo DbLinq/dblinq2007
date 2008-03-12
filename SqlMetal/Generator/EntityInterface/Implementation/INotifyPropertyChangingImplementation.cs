@@ -25,7 +25,7 @@
 #endregion
 
 using System.ComponentModel;
-using DbLinq.Linq;
+using DbLinq.Schema;
 
 namespace SqlMetal.Generator.EntityInterface.Implementation
 {
@@ -38,7 +38,7 @@ namespace SqlMetal.Generator.EntityInterface.Implementation
 
         private const string sendPropertyChangingMethod = "OnPropertyChanging";
 
-        public override void WriteHeader(CodeWriter writer, DlinqSchema.Table table, GenerationContext context)
+        public override void WriteHeader(CodeWriter writer, DbLinq.Schema.Dbml.Table table, GenerationContext context)
         {
             using (writer.WriteRegion(string.Format("{0} handling", typeof(INotifyPropertyChanging).Name)))
             {
@@ -66,7 +66,7 @@ namespace SqlMetal.Generator.EntityInterface.Implementation
             }
         }
 
-        public override void WritePropertyBeforeSet(CodeWriter writer, DlinqSchema.Column property, GenerationContext context)
+        public override void WritePropertyBeforeSet(CodeWriter writer, DbLinq.Schema.Dbml.Column property, GenerationContext context)
         {
             writer.WriteLine(writer.GetStatement(writer.GetMethodCallExpression(sendPropertyChangingMethod)));
         }

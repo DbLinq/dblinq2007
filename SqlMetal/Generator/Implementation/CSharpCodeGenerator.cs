@@ -28,7 +28,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using DbLinq.Linq;
+using DbLinq.Schema;
 using DbLinq.Vendor;
 using SqlMetal.Generator;
 using SqlMetal.Generator.Implementation;
@@ -59,7 +59,7 @@ namespace SqlMetal.Generator.Implementation
             get { return ".cs"; }
         }
 
-        public void Write(TextWriter textWriter, DlinqSchema.Database dbSchema, GenerationContext context)
+        public void Write(TextWriter textWriter, DbLinq.Schema.Dbml.Database dbSchema, GenerationContext context)
         {
             using (var codeWriter = new CSCodeWriter(textWriter))
             {
@@ -68,7 +68,7 @@ namespace SqlMetal.Generator.Implementation
             }
         }
 
-        public string GetAll(DlinqSchema.Database dbSchema, SqlMetalParameters parameters, string dataContextBaseType)
+        public string GetAll(DbLinq.Schema.Dbml.Database dbSchema, SqlMetalParameters parameters, string dataContextBaseType)
         {
             if (dbSchema == null || dbSchema.Tables == null)
             {
@@ -98,7 +98,7 @@ using DbLinq.Linq.Mapping;
             List<string> classBodies = new List<string>();
 
 
-            foreach (DlinqSchema.Table tbl in dbSchema.Tables)
+            foreach (DbLinq.Schema.Dbml.Table tbl in dbSchema.Tables)
             {
                 string classBody = ClassGenerator.GetClass(dbSchema, tbl, parameters);
                 classBodies.Add(classBody);
@@ -132,7 +132,7 @@ namespace $ns
             return fileBody;
         }
 
-        private string GenerateDbClass(DlinqSchema.Database dbSchema, string dataContextBaseType)
+        private string GenerateDbClass(DbLinq.Schema.Dbml.Database dbSchema, string dataContextBaseType)
         {
             //if (tables.Count==0)
             //    return "//L69 no tables found";
@@ -169,7 +169,7 @@ public partial class $dbname : $dataContext
 
             List<string> dbFieldDecls = new List<string>();
             List<string> dbFieldInits = new List<string>();
-            foreach (DlinqSchema.Table tbl in dbSchema.Tables)
+            foreach (DbLinq.Schema.Dbml.Table tbl in dbSchema.Tables)
             {
                 //string fldDecl = string.Format("public Table<{1}> {0} {{ get {{ return base.GetTable<{1}>(\"{2}\"); }} }}",
                 //                               tbl.Member, tbl.Type.Name, tbl.Name);
@@ -187,7 +187,7 @@ public partial class $dbname : $dataContext
             string dbFieldDeclStr = string.Join(NL + "\t", dbFieldDecls.ToArray());
 
             List<string> storedProcList = new List<string>();
-            foreach (DlinqSchema.Function storedProcedure in dbSchema.Functions)
+            foreach (DbLinq.Schema.Dbml.Function storedProcedure in dbSchema.Functions)
             {
                 string s = StoredProcedureGenerator.GetProcedureCall(storedProcedure);
                 storedProcList.Add(s);

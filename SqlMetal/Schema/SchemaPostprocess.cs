@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using DbLinq.Linq;
+using DbLinq.Schema;
 using DbLinq.Util;
 using SqlMetal.Util;
 
@@ -16,7 +16,7 @@ namespace SqlMetal.Schema
     /// </summary>
     public class SchemaPostprocess
     {
-        public static void PostProcess_DB(DlinqSchema.Database schema)
+        public static void PostProcess_DB(DbLinq.Schema.Dbml.Database schema)
         {
             if (schema == null)
                 return;
@@ -31,7 +31,7 @@ namespace SqlMetal.Schema
             }
         }
 
-        public static void PostProcess_Table(DlinqSchema.Table table)
+        public static void PostProcess_Table(DbLinq.Schema.Dbml.Table table)
         {
             // picrap: this is processed earlier
             //table.Member = Util.FormatTableName(table.Type.Name, util.PluralEnum.Pluralize);
@@ -42,7 +42,7 @@ namespace SqlMetal.Schema
             //    table.Member = Util.Rename(table.Member);
             //}
 
-            foreach (DlinqSchema.Column col in table.Type.Columns)
+            foreach (DbLinq.Schema.Dbml.Column col in table.Type.Columns)
             {
                 if (col.Member == table.Type.Name)
                     col.Member = "Contents"; //rename field Alltypes.Alltypes to Alltypes.Contents
@@ -58,7 +58,7 @@ namespace SqlMetal.Schema
             }
 
             Dictionary<string, bool> knownAssocs = new Dictionary<string, bool>();
-            foreach (DlinqSchema.Association assoc in table.Type.Associations)
+            foreach (DbLinq.Schema.Dbml.Association assoc in table.Type.Associations)
             {
                 // picrap: processed earlier
                 //assoc.Type = Util.FormatTableName(assoc.Type, util.PluralEnum.Singularize);

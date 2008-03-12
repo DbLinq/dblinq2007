@@ -24,7 +24,7 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
-using DbLinq.Linq;
+using DbLinq.Schema;
 using SqlMetal.Generator.EntityInterface;
 
 namespace SqlMetal.Generator.EntityInterface.Implementation
@@ -33,15 +33,15 @@ namespace SqlMetal.Generator.EntityInterface.Implementation
     {
         public abstract string InterfaceName { get; }
 
-        public virtual void WriteHeader(CodeWriter writer, DlinqSchema.Table table, GenerationContext context)
+        public virtual void WriteHeader(CodeWriter writer, DbLinq.Schema.Dbml.Table table, GenerationContext context)
         {
         }
 
-        public virtual void WritePropertyBeforeSet(CodeWriter writer, DlinqSchema.Column property, GenerationContext context)
+        public virtual void WritePropertyBeforeSet(CodeWriter writer, DbLinq.Schema.Dbml.Column property, GenerationContext context)
         {
         }
 
-        public virtual void WritePropertyAfterSet(CodeWriter writer, DlinqSchema.Column property, GenerationContext context)
+        public virtual void WritePropertyAfterSet(CodeWriter writer, DbLinq.Schema.Dbml.Column property, GenerationContext context)
         {
         }
     }

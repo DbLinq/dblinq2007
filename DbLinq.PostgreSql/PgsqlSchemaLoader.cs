@@ -3,8 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using DbLinq.Linq;
 using DbLinq.PostgreSql.Schema;
+using DbLinq.Schema;
 using DbLinq.Util;
 using DbLinq.Vendor.Implementation;
 
@@ -14,13 +14,13 @@ namespace DbLinq.PostgreSql
     {
         public override string VendorName { get { return "PostgreSQL"; } }
         public override Type DataContextType { get { return typeof(PgsqlDataContext); } }
-        public override DlinqSchema.Database Load(string databaseName, IDictionary<string, string> tableAliases, 
+        public override DbLinq.Schema.Dbml.Database Load(string databaseName, IDictionary<string, string> tableAliases, 
                                                   bool loadStoredProcedures)
         {
             IDbConnection conn = Connection;
             conn.Open();
 
-            DlinqSchema.Database schema = new DlinqSchema.Database();
+            DbLinq.Schema.Dbml.Database schema = new DbLinq.Schema.Dbml.Database();
             schema.Name = databaseName;
             schema.Class = databaseName;
 
@@ -36,7 +36,7 @@ namespace DbLinq.PostgreSql
 
             foreach (TableRow tblRow in tables)
             {
-                DlinqSchema.Table tblSchema = new DlinqSchema.Table();
+                DbLinq.Schema.Dbml.Table tblSchema = new DbLinq.Schema.Dbml.Table();
                 tblSchema.Name = tblRow.table_schema + "." + tblRow.table_name;
                 tblSchema.Member = GetColumnName(tblRow.table_name);
                 tblSchema.Type.Name = GetTableName(tblRow.table_name, tableAliases);
@@ -60,13 +60,13 @@ namespace DbLinq.PostgreSql
             foreach (Column columnRow in columns)
             {
                 //find which table this column belongs to
-                DlinqSchema.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.TableNameWithSchema == tblSchema.Name);
+                DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.TableNameWithSchema == tblSchema.Name);
                 if (tableSchema == null)
                 {
                     Console.WriteLine("ERROR L46: Table '" + columnRow.table_name + "' not found for column " + columnRow.column_name);
                     continue;
                 }
-                DlinqSchema.Column colSchema = new DlinqSchema.Column();
+                DbLinq.Schema.Dbml.Column colSchema = new DbLinq.Schema.Dbml.Column();
                 colSchema.Name = columnRow.column_name;
                 colSchema.Member = GetColumnName(columnRow.column_name);
                 colSchema.Storage = GetColumnFieldName(columnRow.column_name);
@@ -107,7 +107,7 @@ namespace DbLinq.PostgreSql
             foreach (KeyColumnUsage keyColRow in constraints)
             {
                 //find my table:
-                DlinqSchema.Table table = schema.Tables.FirstOrDefault(t => keyColRow.TableNameWithSchema == t.Name);
+                DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => keyColRow.TableNameWithSchema == t.Name);
                 if (table == null)
                 {
                     Console.WriteLine("ERROR L138: Table '" + keyColRow.table_name + "' not found for column " + keyColRow.column_name);
@@ -117,7 +117,7 @@ namespace DbLinq.PostgreSql
                 if (keyColRow.constraint_name.EndsWith("_pkey")) //MYSQL reads 'PRIMARY'
                 {
                     //A) add primary key
-                    DlinqSchema.Column primaryKeyCol = table.Type.Columns.First(c => c.Name == keyColRow.column_name);
+                    DbLinq.Schema.Dbml.Column primaryKeyCol = table.Type.Columns.First(c => c.Name == keyColRow.column_name);
                     primaryKeyCol.IsPrimaryKey = true;
                 }
                 else
@@ -133,7 +133,7 @@ namespace DbLinq.PostgreSql
 
                     //if not PRIMARY, it's a foreign key.
                     //both parent and child table get an [Association]
-                    DlinqSchema.Association assoc = new DlinqSchema.Association();
+                    DbLinq.Schema.Dbml.Association assoc = new DbLinq.Schema.Dbml.Association();
                     assoc.IsForeignKey = true;
                     assoc.Name = keyColRow.constraint_name;
                     assoc.Type = null;
@@ -143,14 +143,14 @@ namespace DbLinq.PostgreSql
                     table.Type.Associations.Add(assoc);
 
                     //and insert the reverse association:
-                    DlinqSchema.Association assoc2 = new DlinqSchema.Association();
+                    DbLinq.Schema.Dbml.Association assoc2 = new DbLinq.Schema.Dbml.Association();
                     assoc2.Name = keyColRow.constraint_name;
                     assoc2.Type = table.Type.Name;
                     assoc2.Member = GetOneToManyColumnName(keyColRow.table_name);
                     assoc2.OtherKey = keyColRow.column_name; //.referenced_column_name;
 
-                    //DlinqSchema.Table parentTable = schema0.Tables.FirstOrDefault(t => keyColRow.referenced_table_name==t.Name);
-                    DlinqSchema.Table parentTable = schema.Tables.FirstOrDefault(t => foreignKey.TableNameWithSchema_Parent == t.Name);
+                    //Dbml.Table parentTable = schema0.Tables.FirstOrDefault(t => keyColRow.referenced_table_name==t.Name);
+                    DbLinq.Schema.Dbml.Table parentTable = schema.Tables.FirstOrDefault(t => foreignKey.TableNameWithSchema_Parent == t.Name);
                     if (parentTable == null)
                         Console.WriteLine("ERROR L151: parent table not found: " + foreignKey.table_name_Parent);
                     else
@@ -201,7 +201,7 @@ namespace DbLinq.PostgreSql
                 //4c. generate dbml objects
                 foreach (Pg_Proc proc in procs)
                 {
-                    DlinqSchema.Function dbml_fct = ParseFunction(proc, typeOidToName);
+                    DbLinq.Schema.Dbml.Function dbml_fct = ParseFunction(proc, typeOidToName);
                     schema.Functions.Add(dbml_fct);
                 }
 
@@ -224,15 +224,15 @@ namespace DbLinq.PostgreSql
             return parts;
         }
 
-        DlinqSchema.Function ParseFunction(Pg_Proc pg_proc, Dictionary<long, string> typeOidToName)
+        DbLinq.Schema.Dbml.Function ParseFunction(Pg_Proc pg_proc, Dictionary<long, string> typeOidToName)
         {
-            DlinqSchema.Function dbml_func = new DlinqSchema.Function();
+            DbLinq.Schema.Dbml.Function dbml_func = new DbLinq.Schema.Dbml.Function();
             dbml_func.Name = pg_proc.proname;
             dbml_func.Method = GetMethodName(pg_proc.proname); //getproductcount -> getProductCount
 
             if (pg_proc.formatted_prorettype != null)
             {
-                var dbml_param = new DlinqSchema.Return();
+                var dbml_param = new DbLinq.Schema.Dbml.Return();
                 dbml_param.DbType = pg_proc.formatted_prorettype;
                 dbml_param.Type = Mappings.mapSqlTypeToCsType(pg_proc.formatted_prorettype, "");
                 dbml_func.Return = dbml_param;
@@ -260,10 +260,10 @@ namespace DbLinq.PostgreSql
                     return null;
                 }
 
-                List<DlinqSchema.Parameter> paramList = new List<DlinqSchema.Parameter>();
+                List<DbLinq.Schema.Dbml.Parameter> paramList = new List<DbLinq.Schema.Dbml.Parameter>();
                 for (int i = 0; i < argNames.Length; i++)
                 {
-                    DlinqSchema.Parameter dbml_param = new DlinqSchema.Parameter();
+                    DbLinq.Schema.Dbml.Parameter dbml_param = new DbLinq.Schema.Dbml.Parameter();
                     long argTypeOid = argTypes2[i];
                     dbml_param.DbType = typeOidToName[argTypeOid];
                     dbml_param.Name = argNames[i];
@@ -277,14 +277,14 @@ namespace DbLinq.PostgreSql
             return dbml_func;
         }
 
-        static DlinqSchema.ParameterDirection ParseInOut(string inOut)
+        static DbLinq.Schema.Dbml.ParameterDirection ParseInOut(string inOut)
         {
             switch (inOut)
             {
-            case "i": return DlinqSchema.ParameterDirection.In;
-            case "o": return DlinqSchema.ParameterDirection.Out;
-            case "b": return DlinqSchema.ParameterDirection.InOut;
-            default: return DlinqSchema.ParameterDirection.InOut;
+            case "i": return DbLinq.Schema.Dbml.ParameterDirection.In;
+            case "o": return DbLinq.Schema.Dbml.ParameterDirection.Out;
+            case "b": return DbLinq.Schema.Dbml.ParameterDirection.InOut;
+            default: return DbLinq.Schema.Dbml.ParameterDirection.InOut;
             }
         }
 

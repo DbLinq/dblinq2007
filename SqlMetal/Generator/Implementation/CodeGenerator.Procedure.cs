@@ -28,13 +28,13 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Linq.Mapping;
-using DbLinq.Linq;
+using DbLinq.Schema;
 
 namespace SqlMetal.Generator.Implementation
 {
     public partial class CodeGenerator
     {
-        protected virtual void WriteDataContextProcedures(CodeWriter writer, DlinqSchema.Database schema, GenerationContext context)
+        protected virtual void WriteDataContextProcedures(CodeWriter writer, DbLinq.Schema.Dbml.Database schema, GenerationContext context)
         {
             foreach (var procedure in schema.Functions)
             {
@@ -42,7 +42,7 @@ namespace SqlMetal.Generator.Implementation
             }
         }
 
-        private void WriteDataContextProcedure(CodeWriter writer, DlinqSchema.Function procedure, GenerationContext context)
+        private void WriteDataContextProcedure(CodeWriter writer, DbLinq.Schema.Dbml.Function procedure, GenerationContext context)
         {
             if (procedure == null || procedure.Name == null)
             {
@@ -66,14 +66,14 @@ namespace SqlMetal.Generator.Implementation
             writer.WriteLine();
         }
 
-        protected virtual void WriteProcedureBodyReturnValue(CodeWriter writer, DlinqSchema.Function procedure, string result, GenerationContext context)
+        protected virtual void WriteProcedureBodyReturnValue(CodeWriter writer, DbLinq.Schema.Dbml.Function procedure, string result, GenerationContext context)
         {
             Type returnType = GetProcedureType(procedure);
             if (returnType != null)
                 writer.WriteLine(writer.GetReturnStatement(writer.GetCastExpression(writer.GetMemberExpression(result, "ReturnValue"), writer.GetLiteralType(returnType), true)));
         }
 
-        protected virtual void WriteProcedureBodyOutParameters(CodeWriter writer, DlinqSchema.Function procedure, string result, GenerationContext context)
+        protected virtual void WriteProcedureBodyOutParameters(CodeWriter writer, DbLinq.Schema.Dbml.Function procedure, string result, GenerationContext context)
         {
             int parameterIndex = 0;
             foreach (var parameter in procedure.Parameters)
@@ -85,21 +85,21 @@ namespace SqlMetal.Generator.Implementation
             }
         }
 
-        protected virtual void WriteProcedureBodyOutParameter(CodeWriter writer, DlinqSchema.Parameter parameter, string result, int parameterIndex, GenerationContext context)
+        protected virtual void WriteProcedureBodyOutParameter(CodeWriter writer, DbLinq.Schema.Dbml.Parameter parameter, string result, int parameterIndex, GenerationContext context)
         {
             string p = writer.GetMethodCallExpression(writer.GetMemberExpression(result, "GetParameterValue"), parameterIndex.ToString());
             string cp = writer.GetCastExpression(p, parameter.Type, true);
             writer.WriteLine(writer.GetStatement(writer.GetAssignmentExpression(parameter.Name, cp)));
         }
 
-        protected abstract string WriteProcedureBodyMethodCall(CodeWriter writer, DlinqSchema.Function procedure, GenerationContext context);
+        protected abstract string WriteProcedureBodyMethodCall(CodeWriter writer, DbLinq.Schema.Dbml.Function procedure, GenerationContext context);
 
-        protected virtual string GetProcedureName(DlinqSchema.Function procedure)
+        protected virtual string GetProcedureName(DbLinq.Schema.Dbml.Function procedure)
         {
             return procedure.Method ?? procedure.Name;
         }
 
-        protected virtual Type GetProcedureType(DlinqSchema.Function procedure)
+        protected virtual Type GetProcedureType(DbLinq.Schema.Dbml.Function procedure)
         {
             Type type = null;
             if (procedure.Return != null)
@@ -122,7 +122,7 @@ namespace SqlMetal.Generator.Implementation
             return type;
         }
 
-        protected virtual ParameterDefinition[] GetProcedureParameters(DlinqSchema.Function procedure)
+        protected virtual ParameterDefinition[] GetProcedureParameters(DbLinq.Schema.Dbml.Function procedure)
         {
             var parameters = new List<ParameterDefinition>();
             foreach (var parameter in procedure.Parameters)
@@ -130,20 +130,20 @@ namespace SqlMetal.Generator.Implementation
             return parameters.ToArray();
         }
 
-        protected virtual ParameterDefinition GetProcedureParameter(DlinqSchema.Parameter parameter)
+        protected virtual ParameterDefinition GetProcedureParameter(DbLinq.Schema.Dbml.Parameter parameter)
         {
             var parameterDefinition = new ParameterDefinition();
             parameterDefinition.Name = parameter.Name;
             parameterDefinition.Type = GetType(parameter.Type);
             switch (parameter.Direction)
             {
-            case DlinqSchema.ParameterDirection.In:
+            case DbLinq.Schema.Dbml.ParameterDirection.In:
                 parameterDefinition.SpecificationDefinition |= SpecificationDefinition.In;
                 break;
-            case DlinqSchema.ParameterDirection.Out:
+            case DbLinq.Schema.Dbml.ParameterDirection.Out:
                 parameterDefinition.SpecificationDefinition |= SpecificationDefinition.Out;
                 break;
-            case DlinqSchema.ParameterDirection.InOut:
+            case DbLinq.Schema.Dbml.ParameterDirection.InOut:
                 parameterDefinition.SpecificationDefinition |= SpecificationDefinition.Ref;
                 break;
             default:

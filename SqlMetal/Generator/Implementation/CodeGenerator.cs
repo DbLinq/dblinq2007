@@ -27,7 +27,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using DbLinq.Linq;
+using DbLinq.Schema;
 
 namespace SqlMetal.Generator.Implementation
 {
@@ -37,7 +37,7 @@ namespace SqlMetal.Generator.Implementation
 
         protected abstract CodeWriter CreateCodeWriter(TextWriter textWriter);
 
-        public void Write(TextWriter textWriter, DlinqSchema.Database dbSchema, GenerationContext context)
+        public void Write(TextWriter textWriter, DbLinq.Schema.Dbml.Database dbSchema, GenerationContext context)
         {
             if (dbSchema == null || dbSchema.Tables == null)
             {
@@ -104,7 +104,7 @@ namespace SqlMetal.Generator.Implementation
             return null;
         }
 
-        private void WriteDataContext(CodeWriter writer, DlinqSchema.Database schema, GenerationContext context)
+        private void WriteDataContext(CodeWriter writer, DbLinq.Schema.Dbml.Database schema, GenerationContext context)
         {
             if (schema.Tables.Count == 0)
             {
@@ -119,16 +119,16 @@ namespace SqlMetal.Generator.Implementation
             }
         }
 
-        protected abstract void WriteDataContextCtors(CodeWriter writer, DlinqSchema.Database schema, GenerationContext context);
+        protected abstract void WriteDataContextCtors(CodeWriter writer, DbLinq.Schema.Dbml.Database schema, GenerationContext context);
 
-        private void WriteDataContextTables(CodeWriter writer, DlinqSchema.Database schema, GenerationContext context)
+        private void WriteDataContextTables(CodeWriter writer, DbLinq.Schema.Dbml.Database schema, GenerationContext context)
         {
             foreach (var table in schema.Tables)
                 WriteDataContextTable(writer, table);
             writer.WriteLine();
         }
 
-        protected abstract void WriteDataContextTable(CodeWriter writer, DlinqSchema.Table table);
+        protected abstract void WriteDataContextTable(CodeWriter writer, DbLinq.Schema.Dbml.Table table);
 
         // this method will be removed when we won't use literal types in dbml
         protected virtual Type GetType(string literalType)

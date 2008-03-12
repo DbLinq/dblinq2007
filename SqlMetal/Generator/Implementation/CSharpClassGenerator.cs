@@ -28,7 +28,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
-using DbLinq.Linq;
+using DbLinq.Schema;
 using DbLinq.Util;
 using SqlMetal.Generator.Implementation;
 
@@ -55,7 +55,7 @@ namespace SqlMetal.Generator.Implementation
             PropertyFieldGenerator = new CSharpPropertyFieldGenerator();
         }
 
-        public string GetClass(DlinqSchema.Database schema, DlinqSchema.Table table, SqlMetalParameters parameters)
+        public string GetClass(DbLinq.Schema.Dbml.Database schema, DbLinq.Schema.Dbml.Table table, SqlMetalParameters parameters)
         {
             string template = @"
 [Table(Name = ""$tableName"")]$inheritanceMappings
@@ -75,9 +75,9 @@ public partial class $name$baseTypes
             properties.Add("#region Properties - accessors");
             string className = table.Type.Name; //CSharp.FormatTableClassName(table.Class ?? table.Name);
 
-            foreach (DlinqSchema.Column col in table.Type.Columns)
+            foreach (DbLinq.Schema.Dbml.Column col in table.Type.Columns)
             {
-                List<DlinqSchema.Association> constraintsOnField
+                List<DbLinq.Schema.Dbml.Association> constraintsOnField
                     = table.Type.Associations.FindAll(a => a.Name == col.Name);
 
                 PropertyField codeGenField = PropertyFieldGenerator.CreatePropertyField(className, col, constraintsOnField);
@@ -93,11 +93,11 @@ public partial class $name$baseTypes
             StringBuilder sbInheritance = new StringBuilder();
             if (table.Type.InheritanceCode != null)
             {
-                var baseAndDerivedTypes = new List<DlinqSchema.Type>();
+                var baseAndDerivedTypes = new List<DbLinq.Schema.Dbml.Type>();
                 baseAndDerivedTypes.Add(table.Type);
                 baseAndDerivedTypes.AddRange(table.Type.DerivedTypes);
 
-                foreach (DlinqSchema.Type derivedType in baseAndDerivedTypes)
+                foreach (DbLinq.Schema.Dbml.Type derivedType in baseAndDerivedTypes)
                 {
                     string inheritanceFmt = @"[InheritanceMapping(Code=""$typCode"", Type=typeof($derivedType))]";
                     string inheritance = string.Format(inheritanceFmt, derivedType.InheritanceCode, derivedType.Name);
@@ -141,7 +141,7 @@ public partial class $name$baseTypes
             return template;
         }
 
-        private string GenCtors(DlinqSchema.Table table, Parameters mmConfig)
+        private string GenCtors(DbLinq.Schema.Dbml.Table table, Parameters mmConfig)
         {
             //jiri: I disagree with Pascal's claim that one ctor is useless.
             //it allows you to set a breakpoint, useful when debugging class hierarchy.
@@ -161,7 +161,7 @@ public $name()
 #endif
         }
 
-        private string GetLinksToChildTables(DlinqSchema.Database schema, DlinqSchema.Table table, Parameters mmConfig)
+        private string GetLinksToChildTables(DbLinq.Schema.Dbml.Database schema, DbLinq.Schema.Dbml.Table table, Parameters mmConfig)
         {
             //child table contains a ManyToOneParent Association, pointing to parent
             //parent table contains a ManyToOneChild.
@@ -179,9 +179,9 @@ public EntityMSet<$childClassName> $fieldName
 
             int childrenCount = 0;
 
-            foreach (DlinqSchema.Association assoc in ourChildren)
+            foreach (DbLinq.Schema.Dbml.Association assoc in ourChildren)
             {
-                DlinqSchema.Table targetTable = schema.Tables.FirstOrDefault(t => t.Type.Name == assoc.Type);
+                DbLinq.Schema.Dbml.Table targetTable = schema.Tables.FirstOrDefault(t => t.Type.Name == assoc.Type);
                 if (targetTable == null)
                 {
                     Console.WriteLine("ERROR L143 target table class not found:" + assoc.Type);
@@ -246,7 +246,7 @@ public $parentClassTyp $fkName_$thisKey
     set { this._$fkName_$thisKey.Entity = value; }
 }";
 
-        private string GetLinksToParentTables(DlinqSchema.Database schema, DlinqSchema.Table table, SqlMetalParameters mmConfig)
+        private string GetLinksToParentTables(DbLinq.Schema.Dbml.Database schema, DbLinq.Schema.Dbml.Table table, SqlMetalParameters mmConfig)
         {
             var ourParents = table.Type.Associations.Where(a => a.ThisKey != null);
 
@@ -260,9 +260,9 @@ public $parentClassTyp $fkName_$thisKey
 
             int parentsCount = 0;
 
-            foreach (DlinqSchema.Association assoc in ourParents)
+            foreach (DbLinq.Schema.Dbml.Association assoc in ourParents)
             {
-                DlinqSchema.Table targetTable = schema.Tables.FirstOrDefault(t => t.Type.Name == assoc.Type);
+                DbLinq.Schema.Dbml.Table targetTable = schema.Tables.FirstOrDefault(t => t.Type.Name == assoc.Type);
                 if (targetTable == null)
                 {
                     Console.WriteLine("ERROR L191 target table type not found: " + assoc.Type + "  (processing " + assoc.Name + ")");
@@ -307,10 +307,10 @@ public $parentClassTyp $fkName_$thisKey
         /// associations are created in pairs (one in parent, one in child table)
         /// This method find the other one in the pair
         /// </summary>
-        private DlinqSchema.Association findReverseAssoc(DlinqSchema.Database schema, DlinqSchema.Association assoc, Parameters mmConfig)
+        private DbLinq.Schema.Dbml.Association findReverseAssoc(DbLinq.Schema.Dbml.Database schema, DbLinq.Schema.Dbml.Association assoc, Parameters mmConfig)
         {
             //first, find target table
-            DlinqSchema.Table targetTable
+            DbLinq.Schema.Dbml.Table targetTable
                 = schema.Tables.FirstOrDefault(t => t.Name == assoc.Type);
             if (targetTable == null)
             {
@@ -319,7 +319,7 @@ public $parentClassTyp $fkName_$thisKey
             }
 
             //next, find reverse association (has the same name)
-            DlinqSchema.Association reverseAssoc
+            DbLinq.Schema.Dbml.Association reverseAssoc
                 = targetTable.Type.Associations.FirstOrDefault(a2 => a2.Name == assoc.Name);
             if (reverseAssoc == null)
             {
@@ -329,7 +329,7 @@ public $parentClassTyp $fkName_$thisKey
             return reverseAssoc;
         }
 
-        private string GenerateEqualsAndHash(DlinqSchema.Table table, Parameters mmConfig)
+        private string GenerateEqualsAndHash(DbLinq.Schema.Dbml.Table table, Parameters mmConfig)
         {
             string template = @"
     #region GetHashCode(), Equals() - uses column $fieldID to look up objects in liveObjectMap
@@ -350,7 +350,7 @@ public $parentClassTyp $fkName_$thisKey
 ";
 
             string tableName = table.Name;
-            List<DlinqSchema.Column> primaryKeys = table.Type.Columns.Where(c => c.IsPrimaryKey).ToList();
+            List<DbLinq.Schema.Dbml.Column> primaryKeys = table.Type.Columns.Where(c => c.IsPrimaryKey).ToList();
             if (primaryKeys.Count == 0)
             {
                 return "#warning L189 table " + tableName + " has no primary key. Multiple c# objects will refer to the same row.\n";
@@ -360,7 +360,7 @@ public $parentClassTyp $fkName_$thisKey
             List<string> equals_list = new List<string>();
             List<string> fieldId = new List<string>();
 
-            foreach (DlinqSchema.Column primaryKey in primaryKeys)
+            foreach (DbLinq.Schema.Dbml.Column primaryKey in primaryKeys)
             {
                 string fieldName = primaryKey.Member;
                 fieldId.Add(fieldName);

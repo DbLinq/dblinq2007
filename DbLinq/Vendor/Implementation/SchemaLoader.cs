@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.Data;
 using DbLinq.Linq;
 using DbLinq.Linq.Implementation;
+using DbLinq.Schema;
 
 namespace DbLinq.Vendor.Implementation
 {
@@ -38,7 +39,7 @@ namespace DbLinq.Vendor.Implementation
         public abstract Type DataContextType { get; }
         public IDbConnection Connection { get; set; }
         public INameFormatter NameFormatter { get; set; }
-        public abstract DlinqSchema.Database Load(string databaseName, IDictionary<string, string> tableAliases, bool loadStoredProcedures);
+        public abstract DbLinq.Schema.Dbml.Database Load(string databaseName, IDictionary<string, string> tableAliases, bool loadStoredProcedures);
 
         public SchemaLoader()
         {
