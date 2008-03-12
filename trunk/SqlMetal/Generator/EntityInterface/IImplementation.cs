@@ -24,15 +24,15 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
-using DbLinq.Linq;
+using DbLinq.Schema;
 
 namespace SqlMetal.Generator.EntityInterface
 {
     public interface IImplementation
     {
         string InterfaceName { get; }
-        void WriteHeader(CodeWriter writer, DlinqSchema.Table table, GenerationContext context);
-        void WritePropertyBeforeSet(CodeWriter writer, DlinqSchema.Column property, GenerationContext context);
-        void WritePropertyAfterSet(CodeWriter writer, DlinqSchema.Column property, GenerationContext context);
+        void WriteHeader(CodeWriter writer, DbLinq.Schema.Dbml.Table table, GenerationContext context);
+        void WritePropertyBeforeSet(CodeWriter writer, DbLinq.Schema.Dbml.Column property, GenerationContext context);
+        void WritePropertyAfterSet(CodeWriter writer, DbLinq.Schema.Dbml.Column property, GenerationContext context);
     }
 }

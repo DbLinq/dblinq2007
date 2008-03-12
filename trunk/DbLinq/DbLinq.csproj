@@ -59,7 +59,10 @@
     <Compile Include="Linq\Database\Implementation\DatabaseContext.cs" />
     <Compile Include="Linq\Database\Implementation\DatabaseConnection.cs" />
     <Compile Include="Linq\Database\Implementation\DatabaseTransaction.cs" />
-    <Compile Include="Linq\DlinqSchema.cs" />
+    <Compile Include="Schema\Dbml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Schema\DbmlSerializer.cs" />
     <Compile Include="Linq\Clause\ExpressionTreeParser.cs" />
     <Compile Include="Linq\Clause\InsertClauseBuilder.cs" />
     <Compile Include="Linq\Clause\JoinBuilder.cs" />
@@ -126,6 +129,7 @@
       <Link>Properties\DbLinq.snk</Link>
     </None>
     <None Include="ClassDiagram1.cd" />
+    <EmbeddedResource Include="Schema\DbmlSchema.xsd" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Util\EnglishWords.txt" />

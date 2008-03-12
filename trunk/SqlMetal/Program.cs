@@ -27,8 +27,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-
-using DbLinq.Linq;
+using DbLinq.Schema;
 using DbLinq.Vendor;
 using SqlMetal.Generator;
 using SqlMetal.Generator.Implementation;
@@ -54,13 +53,14 @@ namespace SqlMetal
 
             try
             {
-                DlinqSchema.Database dbSchema;
+                DbLinq.Schema.Dbml.Database dbSchema;
 
                 // we always need a factory, even if generating from a DBML file, because we need a namespace
-                LoaderFactory loaderFactory = new LoaderFactory();
-                ISchemaLoader schemaLoader = loaderFactory.Load(parameters);
+                var loaderFactory = new LoaderFactory();
+                var schemaLoader = loaderFactory.Load(parameters);
 
-                IDictionary<string, string> tableAliases = TableAlias.Load(parameters);
+                var tableAliases = TableAlias.Load(parameters);
+                var dbmlSerializer = new DbmlSerializer();
 
                 if (parameters.SchemaXmlFile == null)
                 {
@@ -68,12 +68,16 @@ namespace SqlMetal
                     SchemaPostprocess.PostProcess_DB(dbSchema);
                 }
                 else
-                    dbSchema = DlinqSchema.Database.LoadFromFile(parameters.SchemaXmlFile);
+                {
+                    using (Stream dbmlFile = File.OpenRead(parameters.SchemaXmlFile))
+                        dbSchema = dbmlSerializer.Read(dbmlFile);
+                }
 
                 if (parameters.Dbml != null)
                 {
                     //we are supposed to write out a DBML file and exit
-                    DlinqSchema.Database.SaveDbmlFile(parameters.Dbml, dbSchema);
+                    using (Stream dbmlFile = File.OpenWrite(parameters.Dbml))
+                        dbmlSerializer.Write(dbmlFile, dbSchema);
                     Console.WriteLine("Written file " + parameters.Dbml);
                 }
                 else

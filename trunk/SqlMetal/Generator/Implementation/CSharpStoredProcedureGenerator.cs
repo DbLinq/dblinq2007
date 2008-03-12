@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using DbLinq.Linq;
+using DbLinq.Schema;
 using SqlMetal.Util;
 
 namespace SqlMetal.Generator.Implementation
@@ -46,7 +46,7 @@ public $retType $procNameCsharp($paramString)
 }
 ";
 
-        public string GetProcedureCall(DlinqSchema.Function storedProcedure)
+        public string GetProcedureCall(DbLinq.Schema.Dbml.Function storedProcedure)
         {
             if (storedProcedure == null || storedProcedure.Name == null)
             {
@@ -63,18 +63,18 @@ public $retType $procNameCsharp($paramString)
             List<string> sqlInArgList = new List<string>();
             List<string> outParamLineList = new List<string>();
             int paramIndex = -1;
-            foreach (DlinqSchema.Parameter param in storedProcedure.Parameters)
+            foreach (DbLinq.Schema.Dbml.Parameter param in storedProcedure.Parameters)
             {
                 paramIndex++;
                 string paramStr = FormatProcParam(param);
                 paramStringsList.Add(paramStr);
 
-                if (param.Direction == DlinqSchema.ParameterDirection.In || param.Direction == DlinqSchema.ParameterDirection.InOut)
+                if (param.Direction == DbLinq.Schema.Dbml.ParameterDirection.In || param.Direction == DbLinq.Schema.Dbml.ParameterDirection.InOut)
                 {
                     sqlInArgList.Add(FormatInnerArg(param));
                 }
 
-                if (param.Direction == DlinqSchema.ParameterDirection.Out || param.Direction == DlinqSchema.ParameterDirection.InOut)
+                if (param.Direction == DbLinq.Schema.Dbml.ParameterDirection.Out || param.Direction == DbLinq.Schema.Dbml.ParameterDirection.InOut)
                 {
                     string outParamLine = "\t" + param.Name + " = (" + param.Type + ") result.GetParameterValue(" + paramIndex + ");";
                     outParamLineList.Add(outParamLine);
@@ -125,7 +125,7 @@ public $retType $procNameCsharp($paramString)
         const string ARG_TEMPLATE = @"$inOut $name";
         const string PARAM_TEMPLATE = @"[Parameter(Name = ""$dbName"", DbType = ""$dbType"")] $inOut $type $name";
 
-        private static string FormatInnerArg(DlinqSchema.Parameter param)
+        private static string FormatInnerArg(DbLinq.Schema.Dbml.Parameter param)
         {
             string text = ARG_TEMPLATE;
             text = text.Replace("$name", param.Name);
@@ -133,7 +133,7 @@ public $retType $procNameCsharp($paramString)
             return text;
         }
 
-        private static string FormatProcParam(DlinqSchema.Parameter param)
+        private static string FormatProcParam(DbLinq.Schema.Dbml.Parameter param)
         {
             string text = PARAM_TEMPLATE;
             text = text.Replace("$dbName", param.Name);
@@ -144,13 +144,13 @@ public $retType $procNameCsharp($paramString)
             return text;
         }
 
-        private static string FormatInOut(DlinqSchema.ParameterDirection inOut)
+        private static string FormatInOut(DbLinq.Schema.Dbml.ParameterDirection inOut)
         {
             switch (inOut)
             {
             //case System.Data.ParameterDirection.Input: return "";
-            case DlinqSchema.ParameterDirection.Out: return "out ";
-            case DlinqSchema.ParameterDirection.InOut: return "ref ";
+            case DbLinq.Schema.Dbml.ParameterDirection.Out: return "out ";
+            case DbLinq.Schema.Dbml.ParameterDirection.InOut: return "ref ";
             default: return "";
             }
         }

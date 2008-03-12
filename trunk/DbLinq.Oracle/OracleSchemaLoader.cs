@@ -3,8 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using DbLinq.Linq;
 using DbLinq.Oracle.Schema;
+using DbLinq.Schema;
 using DbLinq.Util;
 using DbLinq.Vendor.Implementation;
 
@@ -14,13 +14,13 @@ namespace DbLinq.Oracle
     {
         public override string VendorName { get { return "Oracle"; } }
         public override Type DataContextType { get { return typeof(OracleDataContext); } }
-        public override DlinqSchema.Database Load(string databaseName, IDictionary<string, string> tableAliases, 
+        public override DbLinq.Schema.Dbml.Database Load(string databaseName, IDictionary<string, string> tableAliases, 
                                                   bool loadStoredProcedures)
         {
             IDbConnection conn = Connection;
             conn.Open();
 
-            DlinqSchema.Database schema = new DlinqSchema.Database();
+            DbLinq.Schema.Dbml.Database schema = new DbLinq.Schema.Dbml.Database();
             schema.Name = databaseName;
 
             //schema.Class = FormatTableName(schema.Name);
@@ -39,7 +39,7 @@ namespace DbLinq.Oracle
 
             foreach (UserTablesRow tblRow in tables)
             {
-                DlinqSchema.Table tblSchema = new DlinqSchema.Table();
+                DbLinq.Schema.Dbml.Table tblSchema = new DbLinq.Schema.Dbml.Table();
                 tblSchema.Name = tblRow.table_name;
                 tblSchema.Member = GetColumnName(tblRow.table_name);
                 tblSchema.Type.Name = GetTableName(tblRow.table_name, tableAliases);
@@ -47,9 +47,9 @@ namespace DbLinq.Oracle
             }
 
             //ensure all table schemas contain one type:
-            //foreach(DlinqSchema.Table tblSchema in schema0.Tables)
+            //foreach(DbLinq.Schema.Dbml.Table tblSchema in schema0.Tables)
             //{
-            //    tblSchema.Types.Add( new DlinqSchema.Type());
+            //    tblSchema.Types.Add( new DbLinq.Schema.Dbml.Type());
             //}
 
             //##################################################################
@@ -60,13 +60,13 @@ namespace DbLinq.Oracle
             foreach (User_Tab_Column columnRow in columns)
             {
                 //find which table this column belongs to
-                DlinqSchema.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.table_name == tblSchema.Name);
+                DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.table_name == tblSchema.Name);
                 if (tableSchema == null)
                 {
                     Console.WriteLine("ERROR L46: Table '" + columnRow.table_name + "' not found for column " + columnRow.column_name);
                     continue;
                 }
-                DlinqSchema.Column colSchema = new DlinqSchema.Column();
+                DbLinq.Schema.Dbml.Column colSchema = new DbLinq.Schema.Dbml.Column();
                 colSchema.Name = columnRow.column_name;
                 colSchema.Member = GetColumnName(columnRow.column_name);
                 colSchema.Storage = GetColumnFieldName(columnRow.column_name);
@@ -102,7 +102,7 @@ namespace DbLinq.Oracle
             foreach (User_Constraints_Row constraint in constraints)
             {
                 //find my table:
-                DlinqSchema.Table table = schema.Tables.FirstOrDefault(t => constraint.table_name == t.Name);
+                DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => constraint.table_name == t.Name);
                 if (table == null)
                 {
                     Console.WriteLine("ERROR L100: Table '" + constraint.table_name + "' not found for column " + constraint.column_name);
@@ -115,7 +115,7 @@ namespace DbLinq.Oracle
                 if (constraint.constraint_type == "P")
                 {
                     //A) add primary key
-                    DlinqSchema.Column pkColumn = table.Type.Columns.Where(c => c.Name == constraint.column_name).First();
+                    DbLinq.Schema.Dbml.Column pkColumn = table.Type.Columns.Where(c => c.Name == constraint.column_name).First();
                     pkColumn.IsPrimaryKey = true;
                 }
                 else
@@ -131,7 +131,7 @@ namespace DbLinq.Oracle
 
                     //if not PRIMARY, it's a foreign key.
                     //both parent and child table get an [Association]
-                    DlinqSchema.Association assoc = new DlinqSchema.Association();
+                    DbLinq.Schema.Dbml.Association assoc = new DbLinq.Schema.Dbml.Association();
                     assoc.IsForeignKey = true;
                     assoc.Name = constraint.constraint_name;
                     assoc.Type = null;
@@ -143,14 +143,14 @@ namespace DbLinq.Oracle
                     table.Type.Associations.Add(assoc);
 
                     //and insert the reverse association:
-                    DlinqSchema.Association assoc2 = new DlinqSchema.Association();
+                    DbLinq.Schema.Dbml.Association assoc2 = new DbLinq.Schema.Dbml.Association();
                     assoc2.Name = constraint.constraint_name;
                     assoc2.Type = table.Type.Name;
                     //assoc2.Member = GetColumnName(constraint.table_name); // Util.FormatTableName(constraint.table_name, false).Pluralize();
                     assoc2.Member = GetOneToManyColumnName(constraint.table_name);
                     assoc2.OtherKey = referencedConstraint.column_name; // referenced_column_name;
 
-                    DlinqSchema.Table parentTable = schema.Tables.FirstOrDefault(t => referencedConstraint.table_name == t.Name);
+                    DbLinq.Schema.Dbml.Table parentTable = schema.Tables.FirstOrDefault(t => referencedConstraint.table_name == t.Name);
                     if (parentTable == null)
                     {
                         Console.WriteLine("ERROR 148: parent table not found: " + referencedConstraint.table_name);
@@ -173,16 +173,16 @@ namespace DbLinq.Oracle
         /// guess which fields are populated by sequences.
         /// Mark them with [AutoGenId].
         /// </summary>
-        public static void GuessSequencePopulatedFields(DlinqSchema.Database schema)
+        public static void GuessSequencePopulatedFields(DbLinq.Schema.Dbml.Database schema)
         {
             if (schema == null)
                 return;
-            foreach (DlinqSchema.Table tbl in schema.Tables)
+            foreach (DbLinq.Schema.Dbml.Table tbl in schema.Tables)
             {
                 var q = from col in tbl.Type.Columns
                         where col.IsPrimaryKey
                         select col;
-                List<DlinqSchema.Column> cols = q.ToList();
+                List<DbLinq.Schema.Dbml.Column> cols = q.ToList();
                 bool canBeFromSequence = cols.Count == 1
                     && (!cols[0].CanBeNull)
                     && (cols[0].DbType == "NUMBER" || cols[0].DbType == "INTEGER");

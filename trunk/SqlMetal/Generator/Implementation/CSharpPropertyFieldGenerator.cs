@@ -27,7 +27,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using DbLinq.Linq;
+using DbLinq.Schema;
 using SqlMetal.Util;
 
 namespace SqlMetal.Generator.Implementation
@@ -38,14 +38,14 @@ namespace SqlMetal.Generator.Implementation
     /// </summary>
     public class PropertyField
     {
-        DlinqSchema.Column _column;
+        DbLinq.Schema.Dbml.Column _column;
         string _propertyName;
         string _attrib2;
         string _constraintWarn;
         string _tableClassName;
         string _columnType;
 
-        internal PropertyField(string tableClassName, DlinqSchema.Column column, List<DlinqSchema.Association> constraintsOnField)
+        internal PropertyField(string tableClassName, DbLinq.Schema.Dbml.Column column, List<DbLinq.Schema.Dbml.Association> constraintsOnField)
         {
             _column = column;
             _tableClassName = tableClassName;
@@ -139,7 +139,7 @@ public $type $propertyName
 
     public class CSharpPropertyFieldGenerator
     {
-        public PropertyField CreatePropertyField(string tableClassName, DlinqSchema.Column column, List<DlinqSchema.Association> constraintsOnField)
+        public PropertyField CreatePropertyField(string tableClassName, DbLinq.Schema.Dbml.Column column, List<DbLinq.Schema.Dbml.Association> constraintsOnField)
         {
             return new PropertyField(tableClassName, column, constraintsOnField);
         }

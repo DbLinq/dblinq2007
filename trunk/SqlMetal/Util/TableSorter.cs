@@ -29,29 +29,29 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using DbLinq.Linq;
+using DbLinq.Schema;
 
 namespace SqlMetal.Util
 {
     /// <summary>
     /// sort tables - parent tables first, child tables next.
     /// </summary>
-    public class TableSorter : IComparer<DlinqSchema.Table>
+    public class TableSorter : IComparer<DbLinq.Schema.Dbml.Table>
     {
-        List<DlinqSchema.Table> _tables;
-        Dictionary<string, DlinqSchema.Table> _typeNameToTableMap; // = tables.ToDictionary(t => t.Name);
-        //Dictionary<DlinqSchema.Table, int> _originalOrder = new Dictionary<DlinqSchema.Table, int>();
+        List<DbLinq.Schema.Dbml.Table> _tables;
+        Dictionary<string, DbLinq.Schema.Dbml.Table> _typeNameToTableMap; // = tables.ToDictionary(t => t.Name);
+        //Dictionary<DbLinq.Schema.Dbml.Table, int> _originalOrder = new Dictionary<DbLinq.Schema.Dbml.Table, int>();
 
-        public TableSorter(List<DlinqSchema.Table> tables)
+        public TableSorter(List<DbLinq.Schema.Dbml.Table> tables)
         {
             _tables = tables;
             _typeNameToTableMap = tables.ToDictionary(t => t.Type.Name);
 
             //int indx = 0;
-            foreach (DlinqSchema.Table t in tables)
+            foreach (DbLinq.Schema.Dbml.Table t in tables)
             {
                 //_originalOrder[t] = indx++;
-                foreach (DlinqSchema.Table child in EnumChildTables(t))
+                foreach (DbLinq.Schema.Dbml.Table child in EnumChildTables(t))
                 {
                     child._isChild = true;
                 }
@@ -60,17 +60,17 @@ namespace SqlMetal.Util
 
         #region IComparer<Table> Members
 
-        public int Compare(DlinqSchema.Table x, DlinqSchema.Table y)
+        public int Compare(DbLinq.Schema.Dbml.Table x, DbLinq.Schema.Dbml.Table y)
         {
             if (x == y)
                 return 0; //crappy sort implementation in .NET framework?!
 
-            foreach (DlinqSchema.Table child_of_x in EnumChildTables(x))
+            foreach (DbLinq.Schema.Dbml.Table child_of_x in EnumChildTables(x))
             {
                 if (y == child_of_x)
                     return -1;
             }
-            foreach (DlinqSchema.Table child_of_y in EnumChildTables(y))
+            foreach (DbLinq.Schema.Dbml.Table child_of_y in EnumChildTables(y))
             {
                 if (x == child_of_y)
                     return +1;
@@ -83,9 +83,9 @@ namespace SqlMetal.Util
         #endregion
 
         #region recursive walk through child table hierarchy
-        private IEnumerable<DlinqSchema.Table> EnumChildTables(DlinqSchema.Table parent)
+        private IEnumerable<DbLinq.Schema.Dbml.Table> EnumChildTables(DbLinq.Schema.Dbml.Table parent)
         {
-            Dictionary<DlinqSchema.Table, bool> visitedMap = new Dictionary<DlinqSchema.Table, bool>();
+            Dictionary<DbLinq.Schema.Dbml.Table, bool> visitedMap = new Dictionary<DbLinq.Schema.Dbml.Table, bool>();
             return EnumChildTables_(parent, visitedMap);
         }
 
@@ -93,7 +93,7 @@ namespace SqlMetal.Util
         /// recursively list all child tables.
         /// We use visitedMap to prevent duplicates.
         /// </summary>
-        private IEnumerable<DlinqSchema.Table> EnumChildTables_(DlinqSchema.Table parent, Dictionary<DlinqSchema.Table, bool> visitedMap)
+        private IEnumerable<DbLinq.Schema.Dbml.Table> EnumChildTables_(DbLinq.Schema.Dbml.Table parent, Dictionary<DbLinq.Schema.Dbml.Table, bool> visitedMap)
         {
             //In Northwind DB, Employee.ReportsTo points back to itself, 
             //mark as visited to prevent recursion
@@ -107,7 +107,7 @@ namespace SqlMetal.Util
             //loop through direct child tables ...
             foreach (var assoc in q)
             {
-                DlinqSchema.Table child = _typeNameToTableMap[assoc.Type];
+                DbLinq.Schema.Dbml.Table child = _typeNameToTableMap[assoc.Type];
                 if (visitedMap.ContainsKey(child))
                     continue;
 
@@ -115,7 +115,7 @@ namespace SqlMetal.Util
                 yield return child;
 
                 //... and recurse into children of children:
-                foreach (DlinqSchema.Table child2 in EnumChildTables_(child, visitedMap))
+                foreach (DbLinq.Schema.Dbml.Table child2 in EnumChildTables_(child, visitedMap))
                 {
                     yield return child2;
                 }

@@ -29,7 +29,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using DbLinq.Linq;
+using DbLinq.Schema;
 
 namespace SqlMetal.Generator.Implementation
 {
@@ -45,7 +45,7 @@ namespace SqlMetal.Generator.Implementation
             return new CSCodeWriter(textWriter, false);
         }
 
-        protected override void WriteDataContextCtors(CodeWriter writer, DlinqSchema.Database schema, GenerationContext context)
+        protected override void WriteDataContextCtors(CodeWriter writer, DbLinq.Schema.Dbml.Database schema, GenerationContext context)
         {
             writer.WriteLine(context.Evaluate(
 @"//public ${database}(string connectionString) 
@@ -61,13 +61,13 @@ namespace SqlMetal.Generator.Implementation
 "));
         }
 
-        protected override void WriteDataContextTable(CodeWriter writer, DlinqSchema.Table table)
+        protected override void WriteDataContextTable(CodeWriter writer, DbLinq.Schema.Dbml.Table table)
         {
             writer.WriteLine("public Table<{1}> {0} {{ get {{ return GetTable<{1}>(); }} }}",
                                            table.Member, table.Type.Name);
         }
 
-        protected override string WriteProcedureBodyMethodCall(CodeWriter writer, DlinqSchema.Function procedure, GenerationContext context)
+        protected override string WriteProcedureBodyMethodCall(CodeWriter writer, DbLinq.Schema.Dbml.Function procedure, GenerationContext context)
         {
             // picrap: there may be some more elegant ways to invoke a stored procedure, because ExecuteMethodCall is 
             //         for internal use only

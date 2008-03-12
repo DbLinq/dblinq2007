@@ -25,7 +25,7 @@
 #endregion
 
 using System.IO;
-using DbLinq.Linq;
+using DbLinq.Schema;
 using DbLinq.Vendor;
 
 namespace SqlMetal.Generator
@@ -33,6 +33,6 @@ namespace SqlMetal.Generator
     public interface ICodeGenerator
     {
         string Extension { get; }
-        void Write(TextWriter textWriter, DlinqSchema.Database dbSchema, GenerationContext context);
+        void Write(TextWriter textWriter, DbLinq.Schema.Dbml.Database dbSchema, GenerationContext context);
     }
 }

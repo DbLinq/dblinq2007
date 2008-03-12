@@ -33,19 +33,20 @@ using System.Linq;
 using System.Text;
 using DbLinq.Linq;
 using DbLinq.Linq.Mapping;
+using DbLinq.Schema;
 using SqlMetal.Generator.EntityInterface;
 
 namespace SqlMetal.Generator.Implementation
 {
     public partial class CodeGenerator
     {
-        protected virtual void WriteClasses(CodeWriter writer, DlinqSchema.Database schema, GenerationContext context)
+        protected virtual void WriteClasses(CodeWriter writer, DbLinq.Schema.Dbml.Database schema, GenerationContext context)
         {
             foreach (var table in schema.Tables)
                 WriteClass(writer, table, schema, context);
         }
 
-        protected virtual void WriteClass(CodeWriter writer, DlinqSchema.Table table, DlinqSchema.Database schema, GenerationContext context)
+        protected virtual void WriteClass(CodeWriter writer, DbLinq.Schema.Dbml.Table table, DbLinq.Schema.Dbml.Database schema, GenerationContext context)
         {
             writer.WriteLine();
 
@@ -63,9 +64,9 @@ namespace SqlMetal.Generator.Implementation
             }
         }
 
-        protected virtual void WriteClassComparer(CodeWriter writer, DlinqSchema.Table table, GenerationContext context)
+        protected virtual void WriteClassComparer(CodeWriter writer, DbLinq.Schema.Dbml.Table table, GenerationContext context)
         {
-            List<DlinqSchema.Column> primaryKeys = table.Type.Columns.Where(c => c.IsPrimaryKey).ToList();
+            List<DbLinq.Schema.Dbml.Column> primaryKeys = table.Type.Columns.Where(c => c.IsPrimaryKey).ToList();
             if (primaryKeys.Count == 0)
             {
                 writer.WriteLine("#warning L189 table {0} has no primary key. Multiple C# objects will refer to the same row.",
@@ -121,19 +122,19 @@ namespace SqlMetal.Generator.Implementation
             }
         }
 
-        private void WriteClassHeader(CodeWriter writer, DlinqSchema.Table table, GenerationContext context)
+        private void WriteClassHeader(CodeWriter writer, DbLinq.Schema.Dbml.Table table, GenerationContext context)
         {
             foreach (IImplementation implementation in context.Implementations())
                 implementation.WriteHeader(writer, table, context);
         }
 
-        protected virtual void WriteClassProperties(CodeWriter writer, DlinqSchema.Table table, GenerationContext context)
+        protected virtual void WriteClassProperties(CodeWriter writer, DbLinq.Schema.Dbml.Table table, GenerationContext context)
         {
             foreach (var property in table.Type.Columns)
                 WriteClassProperty(writer, property, context);
         }
 
-        protected virtual void WriteClassProperty(CodeWriter writer, DlinqSchema.Column property, GenerationContext context)
+        protected virtual void WriteClassProperty(CodeWriter writer, DbLinq.Schema.Dbml.Column property, GenerationContext context)
         {
             using (writer.WriteRegion(string.Format("{0} {1}", writer.GetLiteralType(GetType(property.Type)), property.Name)))
             {
@@ -142,7 +143,7 @@ namespace SqlMetal.Generator.Implementation
             }
         }
 
-        protected virtual void WriteClassPropertyBackingField(CodeWriter writer, DlinqSchema.Column property, GenerationContext context)
+        protected virtual void WriteClassPropertyBackingField(CodeWriter writer, DbLinq.Schema.Dbml.Column property, GenerationContext context)
         {
             AttributeDefinition autoGenAttribute = null;
             if (property.IsDbGenerated)
@@ -151,7 +152,7 @@ namespace SqlMetal.Generator.Implementation
                 writer.WriteField(SpecificationDefinition.Private, property.Storage, property.Type);
         }
 
-        protected virtual void WriteClassPropertyAccessors(CodeWriter writer, DlinqSchema.Column property, GenerationContext context)
+        protected virtual void WriteClassPropertyAccessors(CodeWriter writer, DbLinq.Schema.Dbml.Column property, GenerationContext context)
         {
             var column = NewAttributeDefinition<ColumnAttribute>();
             column["Storage"] = property.Storage;
@@ -186,7 +187,7 @@ namespace SqlMetal.Generator.Implementation
             }
         }
 
-        protected virtual void WriteClassChildren(CodeWriter writer, DlinqSchema.Table table, DlinqSchema.Database schema, GenerationContext context)
+        protected virtual void WriteClassChildren(CodeWriter writer, DbLinq.Schema.Dbml.Table table, DbLinq.Schema.Dbml.Database schema, GenerationContext context)
         {
             var children = table.Type.Associations.Where(a => a.OtherKey != null).ToList();
             if (children.Count > 0)
@@ -201,10 +202,10 @@ namespace SqlMetal.Generator.Implementation
             }
         }
 
-        private void WriteClassChild(CodeWriter writer, DlinqSchema.Association child, DlinqSchema.Database schema, GenerationContext context)
+        private void WriteClassChild(CodeWriter writer, DbLinq.Schema.Dbml.Association child, DbLinq.Schema.Dbml.Database schema, GenerationContext context)
         {
             // the following is apparently useless
-            DlinqSchema.Table targetTable = schema.Tables.FirstOrDefault(t => t.Type.Name == child.Type);
+            DbLinq.Schema.Dbml.Table targetTable = schema.Tables.FirstOrDefault(t => t.Type.Name == child.Type);
             if (targetTable == null)
             {
                 Console.WriteLine("ERROR L143 target table class not found:" + child.Type);
@@ -230,7 +231,7 @@ namespace SqlMetal.Generator.Implementation
             writer.WriteLine();
         }
 
-        protected virtual void WriteClassParents(CodeWriter writer, DlinqSchema.Table table, DlinqSchema.Database schema, GenerationContext context)
+        protected virtual void WriteClassParents(CodeWriter writer, DbLinq.Schema.Dbml.Table table, DbLinq.Schema.Dbml.Database schema, GenerationContext context)
         {
             var parents = table.Type.Associations.Where(a => a.ThisKey != null).ToList();
             if (parents.Count > 0)
@@ -245,10 +246,10 @@ namespace SqlMetal.Generator.Implementation
             }
         }
 
-        protected virtual void WriteClassParent(CodeWriter writer, DlinqSchema.Association parent, DlinqSchema.Database schema, GenerationContext context)
+        protected virtual void WriteClassParent(CodeWriter writer, DbLinq.Schema.Dbml.Association parent, DbLinq.Schema.Dbml.Database schema, GenerationContext context)
         {
             // the following is apparently useless
-            DlinqSchema.Table targetTable = schema.Tables.FirstOrDefault(t => t.Type.Name == parent.Type);
+            DbLinq.Schema.Dbml.Table targetTable = schema.Tables.FirstOrDefault(t => t.Type.Name == parent.Type);
             if (targetTable == null)
             {
                 Console.WriteLine("ERROR L191 target table type not found: " + parent.Type + "  (processing " + parent.Name + ")");

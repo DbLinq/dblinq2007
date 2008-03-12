@@ -28,8 +28,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using DbLinq.Linq;
 using DbLinq.MySql.Schema;
+using DbLinq.Schema;
 using DbLinq.Util;
 using DbLinq.Vendor.Implementation;
 
@@ -39,13 +39,13 @@ namespace DbLinq.MySql
     {
         public override string VendorName { get { return "MySQL"; } }
         public override Type DataContextType { get { return typeof(MySqlDataContext); } }
-        public override DlinqSchema.Database Load(string databaseName, IDictionary<string, string> tableAliases, 
+        public override DbLinq.Schema.Dbml.Database Load(string databaseName, IDictionary<string, string> tableAliases, 
                                                     bool loadStoredProcedures)
         {
             IDbConnection conn = Connection;
             conn.Open();
 
-            DlinqSchema.Database schema = new DlinqSchema.Database();
+            DbLinq.Schema.Dbml.Database schema = new DbLinq.Schema.Dbml.Database();
             schema.Name = databaseName;
             schema.Class = databaseName; // FormatTableName(schema.Name);
 
@@ -61,7 +61,7 @@ namespace DbLinq.MySql
 
             foreach (TableRow tblRow in tables)
             {
-                DlinqSchema.Table tblSchema = new DlinqSchema.Table();
+                DbLinq.Schema.Dbml.Table tblSchema = new DbLinq.Schema.Dbml.Table();
                 tblSchema.Name = tblRow.table_name;
                 tblSchema.Member = GetColumnName(tblRow.table_name);
                 tblSchema.Type.Name = GetTableName(tblRow.table_name, tableAliases);
@@ -76,13 +76,13 @@ namespace DbLinq.MySql
             foreach (Column columnRow in columns)
             {
                 //find which table this column belongs to
-                DlinqSchema.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.table_name == tblSchema.Name);
+                DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.table_name == tblSchema.Name);
                 if (tableSchema == null)
                 {
                     Console.WriteLine("ERROR L46: Table '" + columnRow.table_name + "' not found for column " + columnRow.column_name);
                     continue;
                 }
-                DlinqSchema.Column colSchema = new DlinqSchema.Column();
+                DbLinq.Schema.Dbml.Column colSchema = new DbLinq.Schema.Dbml.Column();
                 colSchema.Name = columnRow.column_name;
                 colSchema.Member = GetColumnName(columnRow.column_name);
                 colSchema.Storage = GetColumnFieldName(columnRow.column_name);
@@ -124,7 +124,7 @@ namespace DbLinq.MySql
             foreach (KeyColumnUsage keyColRow in constraints)
             {
                 //find my table:
-                DlinqSchema.Table table = schema.Tables.FirstOrDefault(t => keyColRow.table_name == t.Name);
+                DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => keyColRow.table_name == t.Name);
                 if (table == null)
                 {
                     Console.WriteLine("ERROR L46: Table '" + keyColRow.table_name + "' not found for column " + keyColRow.column_name);
@@ -137,7 +137,7 @@ namespace DbLinq.MySql
                 if (isForeignKey)
                 {
                     //both parent and child table get an [Association]
-                    DlinqSchema.Association assoc = new DlinqSchema.Association();
+                    DbLinq.Schema.Dbml.Association assoc = new DbLinq.Schema.Dbml.Association();
                     assoc.IsForeignKey = true;
                     assoc.Name = keyColRow.constraint_name;
                     assoc.Type = null;
@@ -147,13 +147,13 @@ namespace DbLinq.MySql
                     table.Type.Associations.Add(assoc);
 
                     //and insert the reverse association:
-                    DlinqSchema.Association assoc2 = new DlinqSchema.Association();
+                    DbLinq.Schema.Dbml.Association assoc2 = new DbLinq.Schema.Dbml.Association();
                     assoc2.Name = keyColRow.constraint_name;
                     assoc2.Type = table.Type.Name;
                     assoc2.Member = GetOneToManyColumnName(keyColRow.table_name);
                     assoc2.OtherKey = GetColumnName(keyColRow.referenced_column_name);
 
-                    DlinqSchema.Table parentTable = schema.Tables.FirstOrDefault(t => keyColRow.referenced_table_name == t.Name);
+                    DbLinq.Schema.Dbml.Table parentTable = schema.Tables.FirstOrDefault(t => keyColRow.referenced_table_name == t.Name);
                     if (parentTable == null)
                     {
                         Console.WriteLine("ERROR 148: parent table not found: " + keyColRow.referenced_table_name);
@@ -178,7 +178,7 @@ namespace DbLinq.MySql
 
                 foreach (ProcRow proc in procs)
                 {
-                    DlinqSchema.Function func = new DlinqSchema.Function();
+                    DbLinq.Schema.Dbml.Function func = new DbLinq.Schema.Dbml.Function();
                     func.Name = proc.specific_name;
                     func.Method = GetMethodName(proc.specific_name);
                     func.IsComposable = string.Compare(proc.type, "FUNCTION") == 0;
@@ -193,7 +193,7 @@ namespace DbLinq.MySql
             return schema;
         }
 
-        static void ParseProcParams(ProcRow inputProc, DlinqSchema.Function outputFunc)
+        static void ParseProcParams(ProcRow inputProc, DbLinq.Schema.Dbml.Function outputFunc)
         {
             string paramString = inputProc.param_list;
             if (paramString == null || paramString == "")
@@ -208,7 +208,7 @@ namespace DbLinq.MySql
 
                 foreach (string part in parts) //part='OUT param1 int'
                 {
-                    DlinqSchema.Parameter paramObj = ParseParameterString(part);
+                    DbLinq.Schema.Dbml.Parameter paramObj = ParseParameterString(part);
                     if (paramObj != null)
                         outputFunc.Parameters.Add(paramObj);
                 }
@@ -216,7 +216,7 @@ namespace DbLinq.MySql
 
             if (inputProc.returns != null && inputProc.returns != "")
             {
-                var paramRet = new DlinqSchema.Return();
+                var paramRet = new DbLinq.Schema.Dbml.Return();
                 paramRet.DbType = inputProc.returns;
                 paramRet.Type = ParseDbType(inputProc.returns);
                 outputFunc.Return = paramRet;
@@ -228,24 +228,24 @@ namespace DbLinq.MySql
         /// </summary>
         /// <param name="paramStr"></param>
         /// <returns></returns>
-        static DlinqSchema.Parameter ParseParameterString(string param)
+        static DbLinq.Schema.Dbml.Parameter ParseParameterString(string param)
         {
             param = param.Trim();
-            var inOut = DlinqSchema.ParameterDirection.In;
+            var inOut = DbLinq.Schema.Dbml.ParameterDirection.In;
 
             if (param.StartsWith("IN", StringComparison.CurrentCultureIgnoreCase))
             {
-                inOut = DlinqSchema.ParameterDirection.In;
+                inOut = DbLinq.Schema.Dbml.ParameterDirection.In;
                 param = param.Substring(2).Trim();
             }
             if (param.StartsWith("INOUT", StringComparison.CurrentCultureIgnoreCase))
             {
-                inOut = DlinqSchema.ParameterDirection.InOut;
+                inOut = DbLinq.Schema.Dbml.ParameterDirection.InOut;
                 param = param.Substring(5).Trim();
             }
             if (param.StartsWith("OUT", StringComparison.CurrentCultureIgnoreCase))
             {
-                inOut = DlinqSchema.ParameterDirection.Out;
+                inOut = DbLinq.Schema.Dbml.ParameterDirection.Out;
                 param = param.Substring(3).Trim();
             }
 
@@ -256,7 +256,7 @@ namespace DbLinq.MySql
             string varName = param.Substring(0, indxSpace);
             string varType = param.Substring(indxSpace + 1);
 
-            DlinqSchema.Parameter paramObj = new DlinqSchema.Parameter();
+            DbLinq.Schema.Dbml.Parameter paramObj = new DbLinq.Schema.Dbml.Parameter();
             paramObj.Direction = inOut;
             paramObj.Name = varName;
             paramObj.DbType = varType;

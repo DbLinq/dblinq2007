@@ -27,7 +27,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using DbLinq.Linq;
+using DbLinq.Schema;
 
 namespace DbLinq.Vendor
 {
@@ -36,6 +36,6 @@ namespace DbLinq.Vendor
         string VendorName { get; }
         Type DataContextType { get; }
         IDbConnection Connection { get; set; }
-        DlinqSchema.Database Load(string databaseName, IDictionary<string, string> tableAliases, bool loadStoredProcedures);
+        DbLinq.Schema.Dbml.Database Load(string databaseName, IDictionary<string, string> tableAliases, bool loadStoredProcedures);
     }
 }
