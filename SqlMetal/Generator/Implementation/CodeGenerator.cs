@@ -70,12 +70,12 @@ namespace SqlMetal.Generator.Implementation
                 // http://www.network-science.de/ascii/ascii.php?TEXT=MetalSequel&x=14&y=14&FONT=_all+fonts+with+your+text_&RICH=no&FORM=left&STRE=no&WIDT=80 
                 writer.WriteCommentLines(
                     @"
-             _        _ __                       _ 
-  /\/\   ___| |_ __ _| / _\ ___  __ _ _   _  ___| |
- /    \ / _ \ __/ _` | \ \ / _ \/ _` | | | |/ _ \ |
-/ /\/\ \  __/ || (_| | |\ \  __/ (_| | |_| |  __/ |
-\/    \/\___|\__\__,_|_\__/\___|\__, |\__,_|\___|_|
-                                   |_|");
+ ____  _     __  __      _        _ 
+|  _ \| |__ |  \/  | ___| |_ __ _| |
+| | | | '_ \| |\/| |/ _ \ __/ _` | |
+| |_| | |_) | |  | |  __/ || (_| | |
+|____/|_.__/|_|  |_|\___|\__\__,_|_|
+");
                 writer.WriteCommentLines(context.Evaluate("Auto-generated from ${database} on ${generationTime}"));
                 writer.WriteCommentLines("Please visit http://linq.to/db for more information");
             }
