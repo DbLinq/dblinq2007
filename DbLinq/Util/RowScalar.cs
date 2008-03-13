@@ -108,8 +108,8 @@ namespace DbLinq.Util
                         }
 
                         //during Average(), typeof(T)=int, typeof(S)=double.
-                        using (IEnumerator<S> enumerator = new RowEnumerator<S>(_vars, null)
-                            .GetEnumerator())
+                        using (RowEnumerator<S> rowEnumerator = new RowEnumerator<S>(_vars, null))
+                        using(IEnumerator<S> enumerator = rowEnumerator.GetEnumerator())
                         {
                             bool hasOne = enumerator.MoveNext();
                             if (!hasOne)

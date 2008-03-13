@@ -242,6 +242,10 @@ namespace DbLinq.Linq
                 case "Distinct":
                     _vars.SqlParts.DistinctClause = "DISTINCT"; // TODO --> IVendor
                     return;
+                case "Union":
+                    string ss = exprCall.ToString();
+                    ProcessUnionClause(null);
+                    return;
                 default:
                     Console.WriteLine("################# L308 TODO " + methodName);
                     Console.WriteLine("################# L308 TODO " + methodName);

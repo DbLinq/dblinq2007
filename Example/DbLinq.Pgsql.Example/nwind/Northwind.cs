@@ -48,7 +48,7 @@ namespace nwind
 	
 		
 		[FunctionEx(Name = "hello0", ProcedureOrFunction = "")]	
-		public string hello0()	
+		public string Hello0()	
 		{	
 			System.Data.Linq.IExecuteResult result = base.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())));	
 			return (string)result.ReturnValue;	
@@ -57,7 +57,7 @@ namespace nwind
 	
 		
 		[FunctionEx(Name = "hello1", ProcedureOrFunction = "")]	
-		public string hello1([Parameter(Name = "name", DbType = "text")] string name)	
+		public string Hello1([Parameter(Name = "name", DbType = "text")] string name)	
 		{	
 			System.Data.Linq.IExecuteResult result = base.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), name);	
 			return (string)result.ReturnValue;	
@@ -76,7 +76,7 @@ namespace nwind
 	
 		
 		[FunctionEx(Name = "getordercount", ProcedureOrFunction = "")]	
-		public int getOrderCount([Parameter(Name = "custid", DbType = "character varying")] string custid)	
+		public int GetOrderCount([Parameter(Name = "custid", DbType = "character varying")] string custid)	
 		{	
 			System.Data.Linq.IExecuteResult result = base.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), custid);	
 			return (int)result.ReturnValue;	
