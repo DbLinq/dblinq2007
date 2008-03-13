@@ -318,5 +318,12 @@ namespace DbLinq.Linq
             Console.WriteLine("TODO L299 Support GroupJoin()");
         }
 
+        void ProcessUnionClause(LambdaExpression unionExpr)
+        {
+            Console.WriteLine("Union");
+            //ParseResult result = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, orderByExpr.Body);
+        }
+
+
     }
 }
