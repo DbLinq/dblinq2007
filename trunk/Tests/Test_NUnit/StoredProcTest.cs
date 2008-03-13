@@ -27,7 +27,7 @@ using Test_NUnit;
         public void SP1_CallHello0()
         {
             Northwind db = base.CreateDB();
-            string result = db.hello0();
+            string result = db.Hello0();
             Assert.IsNotNull(result);
         }
 
@@ -35,7 +35,7 @@ using Test_NUnit;
         public void SP2_CallHello1()
         {
             Northwind db = base.CreateDB();
-            string result = db.hello1("xx");
+            string result = db.Hello1("xx");
             Assert.IsTrue(result!=null && result.Contains("xx"));
         }
 
@@ -44,7 +44,7 @@ using Test_NUnit;
         {
             Northwind db = base.CreateDB();
             var q = from c in db.Customers 
-                    select new { c.CustomerID, OrderCount = db.getOrderCount(c.CustomerID) };
+                    select new { c.CustomerID, OrderCount = db.GetOrderCount(c.CustomerID) };
 
             int count = 0;
             foreach (var c in q)
@@ -61,7 +61,7 @@ using Test_NUnit;
         {
             Northwind db = base.CreateDB();
             var q = from c in db.Customers 
-                    select new {c, OrderCount=db.getOrderCount(c.CustomerID)};
+                    select new {c, OrderCount=db.GetOrderCount(c.CustomerID)};
 
             int count = 0;
             foreach (var v in q)
@@ -77,7 +77,7 @@ using Test_NUnit;
         public void SPB_GetOrderCount_Having()
         {
             Northwind db = base.CreateDB();
-            var q = from c in db.Customers where db.getOrderCount(c.CustomerID) > 1 select c;
+            var q = from c in db.Customers where db.GetOrderCount(c.CustomerID) > 1 select c;
 
             int count = 0;
             foreach (var c in q)
