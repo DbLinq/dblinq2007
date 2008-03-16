@@ -110,8 +110,8 @@ namespace SqlMetal.Generator.Implementation
                     string andExpression = null;
                     foreach (var primaryKey in primaryKeys)
                     {
-                        string primaryKeyTest = writer.GetMethodCallExpression(writer.GetMemberExpression(primaryKey.Name, "Equals"),
-                            writer.GetMemberExpression(other, primaryKey.Name));
+                        string primaryKeyTest = writer.GetMethodCallExpression(writer.GetMemberExpression(primaryKey.Member, "Equals"),
+                            writer.GetMemberExpression(other, primaryKey.Member));
                         if (string.IsNullOrEmpty(andExpression))
                             andExpression = primaryKeyTest;
                         else
@@ -136,7 +136,7 @@ namespace SqlMetal.Generator.Implementation
 
         protected virtual void WriteClassProperty(CodeWriter writer, DbLinq.Schema.Dbml.Column property, GenerationContext context)
         {
-            using (writer.WriteRegion(string.Format("{0} {1}", writer.GetLiteralType(GetType(property.Type)), property.Name)))
+            using (writer.WriteRegion(string.Format("{0} {1}", writer.GetLiteralType(GetType(property.Type)), property.Member)))
             {
                 WriteClassPropertyBackingField(writer, property, context);
                 WriteClassPropertyAccessors(writer, property, context);
@@ -169,7 +169,7 @@ namespace SqlMetal.Generator.Implementation
 
             using (writer.WriteAttribute(column))
             using (writer.WriteAttribute(NewAttributeDefinition<DebuggerNonUserCodeAttribute>()))
-            using (writer.WriteProperty(SpecificationDefinition.Public, property.Name, property.Type))
+            using (writer.WriteProperty(SpecificationDefinition.Public, property.Member, property.Type))
             {
                 using (writer.WritePropertyGet())
                 {
