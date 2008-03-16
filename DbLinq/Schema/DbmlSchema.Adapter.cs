@@ -395,6 +395,7 @@ namespace DbLinq.Schema.Dbml
     {
         public Table()
         {
+            Type = new Type();
             SpecifiedHelper.Register(this);
         }
     }
