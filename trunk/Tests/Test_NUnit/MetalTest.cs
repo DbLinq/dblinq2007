@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 
-namespace Test_NUnit
+namespace Test_NUnit_Mysql
 {
     [TestFixture]
     public class MetalTest
