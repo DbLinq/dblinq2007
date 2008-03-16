@@ -7,7 +7,7 @@ using nwind;
 using Test_NUnit;
 
 #if MYSQL
-    namespace Test_NUnit_MySql
+namespace Test_NUnit_MySql
 #elif ORACLE
     namespace Test_NUnit_Oracle
 #elif POSTGRES
@@ -15,7 +15,7 @@ using Test_NUnit;
 #elif SQLITE
     namespace Test_NUnit_Sqlite
 #else
-    #error unknown target
+#error unknown target
 #endif
 {
     [TestFixture]
@@ -285,6 +285,33 @@ using Test_NUnit;
             Northwind db = CreateDB();
             var q1 = db.Products.Where(p => p.ProductID > 1).Where(q => q.ProductID < 10);
             int count1 = q1.Count();
+        }
+
+        [Test]
+        public void D12_SelectChildCustomer()
+        {
+
+            Northwind dbo = CreateDB();
+            Northwind1 db = new Northwind1(dbo.DatabaseContext.Connection);
+
+            var childCustomer = (from c in db.ChildCustomers
+                                 where c.City == "London"
+                                 select c).First();
+            Assert.AreSame(childCustomer.City, "London");
+        }
+
+        public class Northwind1 : Northwind
+        {
+            public Northwind1(System.Data.IDbConnection connection)
+                : base(connection)
+            { }
+
+            public class ChildCustomer : Customer { }
+
+            public DbLinq.Linq.Table<ChildCustomer> ChildCustomers
+            {
+                get { return base.GetTable<ChildCustomer>(); }
+            }
         }
         #endregion
 
