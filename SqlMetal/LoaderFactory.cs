@@ -70,29 +70,29 @@ namespace SqlMetal
             return null;
         }
 
-        protected string GetConnectionString(SqlMetalParameters mmConfig)
+        protected string GetConnectionString(SqlMetalParameters parameters)
         {
-            if (mmConfig.Conn != null)
-                return mmConfig.Conn;
+            if (parameters.Conn != null)
+                return parameters.Conn;
             string connectionString = string.Format("server={0};user id={1}; password={2}; database={3}; pooling=false",
-                                                    mmConfig.Server, mmConfig.User, mmConfig.Password, mmConfig.Database);
+                                                    parameters.Server, parameters.User, parameters.Password, parameters.Database);
             return connectionString;
         }
 
-        protected void GetLoaderAndConnection(out string dbLinqSchemaLoaderType, out string databaseConnectionType, SqlMetalParameters mmConfig)
+        protected void GetLoaderAndConnection(out string dbLinqSchemaLoaderType, out string databaseConnectionType, SqlMetalParameters parameters)
         {
-            if (mmConfig.Provider != null)
+            if (parameters.Provider != null)
             {
                 ProvidersSection configuration = (ProvidersSection)ConfigurationManager.GetSection("providers");
-                ProvidersSection.ProviderElement element = configuration.Providers.GetProvider(mmConfig.Provider);
+                ProvidersSection.ProviderElement element = configuration.Providers.GetProvider(parameters.Provider);
                 //databaseConnectionType = types[1].Trim();
                 dbLinqSchemaLoaderType = element.DbLinqSchemaLoader;
                 databaseConnectionType = element.DatabaseConnection;
             }
             else
             {
-                dbLinqSchemaLoaderType = mmConfig.DbLinqSchemaLoaderProvider;
-                databaseConnectionType = mmConfig.DatabaseConnectionProvider;
+                dbLinqSchemaLoaderType = parameters.DbLinqSchemaLoaderProvider;
+                databaseConnectionType = parameters.DatabaseConnectionProvider;
             }
         }
 

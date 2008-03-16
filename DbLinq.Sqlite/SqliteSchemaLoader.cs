@@ -78,8 +78,10 @@ namespace DbLinq.Sqlite
                     ;
                 colSchema.DbType = dbType;
 
-                colSchema.IsPrimaryKey = columnRow.column_key == "PRI";
-                colSchema.IsDbGenerated = columnRow.extra == "auto_increment";
+                if (columnRow.column_key == "PRI")
+                    colSchema.IsPrimaryKey = true;
+                if (columnRow.extra == "auto_increment")
+                    colSchema.IsDbGenerated = true;
 
                 colSchema.CanBeNull = columnRow.isNullable;
 

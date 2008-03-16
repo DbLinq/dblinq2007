@@ -35,11 +35,11 @@ using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.MySql
 {
-    class MySqlSchemaLoader: SchemaLoader
+    class MySqlSchemaLoader : SchemaLoader
     {
         public override string VendorName { get { return "MySQL"; } }
         public override Type DataContextType { get { return typeof(MySqlDataContext); } }
-        public override DbLinq.Schema.Dbml.Database Load(string databaseName, IDictionary<string, string> tableAliases, 
+        public override DbLinq.Schema.Dbml.Database Load(string databaseName, IDictionary<string, string> tableAliases,
                                                     bool loadStoredProcedures)
         {
             IDbConnection conn = Connection;
@@ -64,6 +64,7 @@ namespace DbLinq.MySql
                 DbLinq.Schema.Dbml.Table tblSchema = new DbLinq.Schema.Dbml.Table();
                 tblSchema.Name = tblRow.table_name;
                 tblSchema.Member = GetColumnName(tblRow.table_name);
+                tblSchema.Type = new DbLinq.Schema.Dbml.Type();
                 tblSchema.Type.Name = GetTableName(tblRow.table_name, tableAliases);
                 schema.Tables.Add(tblSchema);
             }
@@ -98,8 +99,10 @@ namespace DbLinq.MySql
                     ;
                 colSchema.DbType = dbType;
 
-                colSchema.IsPrimaryKey = columnRow.column_key == "PRI";
-                colSchema.IsDbGenerated = columnRow.extra == "auto_increment";
+                if (columnRow.column_key == "PRI")
+                    colSchema.IsPrimaryKey = true;
+                if (columnRow.extra == "auto_increment")
+                    colSchema.IsDbGenerated = true;
                 colSchema.CanBeNull = columnRow.isNullable;
 
                 //determine the C# type

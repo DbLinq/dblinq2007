@@ -38,13 +38,11 @@ namespace SqlMetal.Util
     /// </summary>
     public class TableSorter : IComparer<DbLinq.Schema.Dbml.Table>
     {
-        List<DbLinq.Schema.Dbml.Table> _tables;
         Dictionary<string, DbLinq.Schema.Dbml.Table> _typeNameToTableMap; // = tables.ToDictionary(t => t.Name);
         //Dictionary<DbLinq.Schema.Dbml.Table, int> _originalOrder = new Dictionary<DbLinq.Schema.Dbml.Table, int>();
 
-        public TableSorter(List<DbLinq.Schema.Dbml.Table> tables)
+        public TableSorter(IEnumerable<DbLinq.Schema.Dbml.Table> tables)
         {
-            _tables = tables;
             _typeNameToTableMap = tables.ToDictionary(t => t.Type.Name);
 
             //int indx = 0;

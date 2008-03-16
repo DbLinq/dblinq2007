@@ -158,12 +158,14 @@ namespace SqlMetal.Generator.Implementation
             column["Storage"] = property.Storage;
             column["Name"] = property.Name;
             column["DbType"] = property.DbType;
-            if (property.IsPrimaryKey)
-                column["IsPrimaryKey"] = true;
-            if (property.IsDbGenerated)
-                column["IsDbGenerated"] = true;
-            if (property.CanBeNull)
-                column["CanBeNull"] = true;
+            // be smart: we only write attributes when they differ from the default values
+            var columnAttribute = new ColumnAttribute();
+            if (property.IsPrimaryKey != columnAttribute.IsPrimaryKey)
+                column["IsPrimaryKey"] = property.IsPrimaryKey;
+            if (property.IsDbGenerated != columnAttribute.IsDbGenerated)
+                column["IsDbGenerated"] = property.IsDbGenerated;
+            if (property.CanBeNull != columnAttribute.CanBeNull)
+                column["CanBeNull"] = property.CanBeNull;
 
             using (writer.WriteAttribute(column))
             using (writer.WriteAttribute(NewAttributeDefinition<DebuggerNonUserCodeAttribute>()))
