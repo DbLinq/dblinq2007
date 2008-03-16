@@ -95,7 +95,8 @@ public partial class $name$baseTypes
             {
                 var baseAndDerivedTypes = new List<DbLinq.Schema.Dbml.Type>();
                 baseAndDerivedTypes.Add(table.Type);
-                baseAndDerivedTypes.AddRange(table.Type.DerivedTypes);
+                // picrap: the DerivedTypes appears to be unusued
+                //baseAndDerivedTypes.AddRange(table.Type.DerivedTypes);
 
                 foreach (DbLinq.Schema.Dbml.Type derivedType in baseAndDerivedTypes)
                 {

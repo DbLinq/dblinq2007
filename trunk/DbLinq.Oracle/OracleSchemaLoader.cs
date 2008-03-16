@@ -72,8 +72,8 @@ namespace DbLinq.Oracle
                 colSchema.Storage = GetColumnFieldName(columnRow.column_name);
 
                 colSchema.DbType = columnRow.data_type; //.column_type ?
-                colSchema.IsPrimaryKey = false;
-                colSchema.IsDbGenerated = false;
+                //colSchema.IsPrimaryKey = false;
+                //colSchema.IsDbGenerated = false;
                 //colSchema.IsVersion = ???
                 colSchema.CanBeNull = columnRow.isNullable;
 

@@ -65,19 +65,24 @@ namespace SqlMetal
                 if (parameters.SchemaXmlFile == null)
                 {
                     dbSchema = schemaLoader.Load(parameters.Database, tableAliases, parameters.SProcs);
+                    dbSchema.Provider = parameters.Provider;
                     SchemaPostprocess.PostProcess_DB(dbSchema);
                 }
                 else
                 {
                     using (Stream dbmlFile = File.OpenRead(parameters.SchemaXmlFile))
+                    {
                         dbSchema = dbmlSerializer.Read(dbmlFile);
+                    }
                 }
 
                 if (parameters.Dbml != null)
                 {
                     //we are supposed to write out a DBML file and exit
                     using (Stream dbmlFile = File.OpenWrite(parameters.Dbml))
+                    {
                         dbmlSerializer.Write(dbmlFile, dbSchema);
+                    }
                     Console.WriteLine("Written file " + parameters.Dbml);
                 }
                 else

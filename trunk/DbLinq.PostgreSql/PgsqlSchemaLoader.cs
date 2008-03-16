@@ -10,11 +10,11 @@ using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.PostgreSql
 {
-    class PgsqlSchemaLoader: SchemaLoader
+    class PgsqlSchemaLoader : SchemaLoader
     {
         public override string VendorName { get { return "PostgreSQL"; } }
         public override Type DataContextType { get { return typeof(PgsqlDataContext); } }
-        public override DbLinq.Schema.Dbml.Database Load(string databaseName, IDictionary<string, string> tableAliases, 
+        public override DbLinq.Schema.Dbml.Database Load(string databaseName, IDictionary<string, string> tableAliases,
                                                   bool loadStoredProcedures)
         {
             IDbConnection conn = Connection;
@@ -74,8 +74,10 @@ namespace DbLinq.PostgreSql
                 KeyColumnUsage primaryKCU = constraints.FirstOrDefault(c => c.column_name == columnRow.column_name
                     && c.table_name == columnRow.table_name && c.constraint_name.EndsWith("_pkey"));
 
-                colSchema.IsPrimaryKey = primaryKCU != null; //columnRow.column_key=="PRI";
-                colSchema.IsDbGenerated = columnRow.column_default != null && columnRow.column_default.StartsWith("nextval(");
+                if (primaryKCU != null) //columnRow.column_key=="PRI";
+                    colSchema.IsPrimaryKey = true;
+                if (columnRow.column_default != null && columnRow.column_default.StartsWith("nextval("))
+                    colSchema.IsDbGenerated = true;
 
                 //parse sequence name from string such as "nextval('suppliers_supplierid_seq'::regclass)"
                 if (colSchema.IsDbGenerated)
