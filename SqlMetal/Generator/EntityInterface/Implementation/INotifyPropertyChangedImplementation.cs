@@ -66,7 +66,7 @@ namespace SqlMetal.Generator.EntityInterface.Implementation
         public override void WritePropertyAfterSet(CodeWriter writer, DbLinq.Schema.Dbml.Column property, GenerationContext context)
         {
             writer.WriteLine(writer.GetStatement(writer.GetMethodCallExpression(sendPropertyChangedMethod,
-                writer.GetLiteralValue(property.Name))));
+                writer.GetLiteralValue(property.Member))));
         }
     }
 }
