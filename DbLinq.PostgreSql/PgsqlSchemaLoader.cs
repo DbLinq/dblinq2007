@@ -204,7 +204,8 @@ namespace DbLinq.PostgreSql
                 foreach (Pg_Proc proc in procs)
                 {
                     DbLinq.Schema.Dbml.Function dbml_fct = ParseFunction(proc, typeOidToName);
-                    schema.Functions.Add(dbml_fct);
+                    if (!SkipProc(dbml_fct.Name))
+                        schema.Functions.Add(dbml_fct);
                 }
 
             }
@@ -283,13 +284,27 @@ namespace DbLinq.PostgreSql
         {
             switch (inOut)
             {
-            case "i": return DbLinq.Schema.Dbml.ParameterDirection.In;
-            case "o": return DbLinq.Schema.Dbml.ParameterDirection.Out;
-            case "b": return DbLinq.Schema.Dbml.ParameterDirection.InOut;
-            default: return DbLinq.Schema.Dbml.ParameterDirection.InOut;
+                case "i": return DbLinq.Schema.Dbml.ParameterDirection.In;
+                case "o": return DbLinq.Schema.Dbml.ParameterDirection.Out;
+                case "b": return DbLinq.Schema.Dbml.ParameterDirection.InOut;
+                default: return DbLinq.Schema.Dbml.ParameterDirection.InOut;
             }
         }
 
         #endregion
+
+
+        private bool SkipProc(string name)
+        {
+            string[] prefixes = System.Configuration.ConfigurationManager.AppSettings["postgresqlSkipProcPrefixes"].Split(',');
+            
+            foreach (string s in prefixes)
+            {
+                if (name.StartsWith(s))
+                    return true;
+            }
+            return false;
+        }
+
     }
 }
