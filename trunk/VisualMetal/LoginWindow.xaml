@@ -1,0 +1,43 @@
+﻿<v:Dialog x:Class="VisualMetal.LoginWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:v="clr-namespace:VisualMetal"
+    Title="Login To Database"
+    >
+	<StackPanel>
+		<Grid>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition />
+				<ColumnDefinition />
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition />
+				<RowDefinition />
+				<RowDefinition />
+				<RowDefinition />
+				<RowDefinition />
+				<RowDefinition />
+			</Grid.RowDefinitions>
+
+			<Label Grid.Row="0" HorizontalAlignment="Right">Server:</Label>
+			<TextBox Grid.Row="0" Grid.Column="1" Width="200" Margin="5" Text="{Binding Path=Server}" />
+			
+			<Label Grid.Row="1" HorizontalAlignment="Right">User:</Label>
+			<TextBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Width="140" Margin="5" Text="{Binding Path=User}" />
+
+			<Label Grid.Row="2" HorizontalAlignment="Right">Password:</Label>
+			<PasswordBox Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" Width="140" Margin="5" x:Name="PasswordInput" />
+
+			<Label Grid.Row="3" HorizontalAlignment="Right">Database:</Label>
+			<TextBox Grid.Row="3" Grid.Column="1" HorizontalAlignment="Left" Width="140" Margin="5" Text="{Binding Path=Database}" />
+
+			<Label Grid.Row="4" HorizontalAlignment="Right">Provider:</Label>
+			<TextBox Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" Width="140" Margin="5" Text="{Binding Path=Provider}" />
+
+			<TextBlock x:Name="LoginErrorMessage" Grid.Row="2" Grid.ColumnSpan="2" Foreground="Red" FontWeight="Bold" HorizontalAlignment="Center" Visibility="Collapsed" />
+		</Grid>
+		<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+			<Button IsDefault="True" Click="Login_Click" Margin="0,8,0,0" Width="120" Content="Login" />
+		</StackPanel>
+	</StackPanel>
+</v:Dialog>

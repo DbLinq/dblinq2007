@@ -85,6 +85,10 @@ namespace SqlMetal
             }
         }
 
+        public Parameters()
+		{
+		}
+
         public Parameters(string[] args)
         {
             NameValueCollection configurationParameters = (NameValueCollection)ConfigurationManager.GetSection("parameters");

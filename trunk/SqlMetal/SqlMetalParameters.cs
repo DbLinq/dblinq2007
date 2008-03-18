@@ -5,168 +5,238 @@ using System.Text;
 
 namespace SqlMetal
 {
-    public class SqlMetalParameters: Parameters
-    {
-        /// <summary>
-        /// user name for database access
-        /// SQLMetal compatible
-        /// </summary>
-        public string User;
-        /// <summary>
-        /// user password for database access
-        /// SQLMetal compatible
-        /// </summary>
-        public string Password;
-        /// <summary>
-        /// server host name
-        /// SQLMetal compatible
-        /// </summary>
-        public string Server;
-        /// <summary>
-        /// database name
-        /// SQLMetal compatible
-        /// </summary>
-        public string Database;
+	public class SqlMetalParameters : Parameters
+	{
+		string user;
 
-        /// <summary>
-        /// This connection string if present overrides User, Password, Server.
-        /// Database is always used to generate the specific DataContext name
-        /// SQLMetal compatible
-        /// </summary>
-        public string Conn;
+		/// <summary>
+		/// user name for database access
+		/// SQLMetal compatible
+		/// </summary>
+		public string User
+		{
+			get { return user; }
+			set { user = value; }
+		}
 
-        /// <summary>
-        /// the namespace to put our classes into
-        /// SQLMetal compatible
-        /// </summary>
-        public string Namespace;
+		string password;
 
-        /// <summary>
-        /// If present, write out C# code
-        /// SQLMetal compatible
-        /// </summary>
-        public string Code;
+		/// <summary>
+		/// user password for database access
+		/// SQLMetal compatible
+		/// </summary>
+		public string Password
+		{
+			get { return password; }
+			set { password = value; }
+		}
 
-        /// <summary>
-        /// If present, write out DBML XML representing the DB
-        /// SQLMetal compatible
-        /// </summary>
-        public string Dbml;
+		string server = "localhost";
 
-        #region Capitalization commands - obsolete
+		/// <summary>
+		/// server host name
+		/// SQLMetal compatible
+		/// </summary>
+		public string Server
+		{
+			get { return server; }
+			set { server = value; }
+		}
 
-        /// <summary>
-        /// convert table name 'products' to class 'Products'
-        /// DbLinq specific
-        /// </summary>
-        public bool ForceUcaseTableName;
+		string database;
 
-        /// <summary>
-        /// for mysql, we want to keep case as specified in DB.
-        /// DbLinq specific
-        /// </summary>
-        public bool ForceUcaseFieldName;
+		/// <summary>
+		/// database name
+		/// SQLMetal compatible
+		/// </summary>
+		public string Database
+		{
+			get { return database; }
+			set { database = value; }
+		}
 
-        /// <summary>
-        /// rename object 'productid' to 'productID'?
-        /// DbLinq specific
-        /// </summary>
-        public bool ForceUcaseID = true;
+		string conn;
 
-        /// <summary>
-        /// load object renamings from an xml file?
-        /// picrap: since we setup a word recognition engine, this may no longer be useful for common cases
-        ///         however, it must be kept for fine-tuning
-        /// DbLinq specific
-        /// </summary>
-        public string RenamesFile;
+		/// <summary>
+		/// This connection string if present overrides User, Password, Server.
+		/// Database is always used to generate the specific DataContext name
+		/// SQLMetal compatible
+		/// </summary>
+		public string Conn
+		{
+			get { return conn; }
+			set { conn = value; }
+		}
 
-        #endregion
+		string _namespace;
 
-        /// <summary>
-        /// this is the "input file" parameter
-        /// </summary>
-        public string SchemaXmlFile
-        {
-            get 
-            {
-                return Extra.Count > 0 ? Extra[0] : null;
-            }
-        }
+		/// <summary>
+		/// the namespace to put our classes into
+		/// SQLMetal compatible
+		/// </summary>
+		public string Namespace
+		{
+			get { return _namespace; }
+			set { _namespace = value; }
+		}
 
-        /// <summary>
-        /// base class from which all generated entities will inherit
-        /// SQLMetal compatible
-        /// </summary>
-        public string EntityBase;
+		string code;
 
-        /// <summary>
-        /// Interfaces to be implemented
-        /// </summary>
-        public string EntityInterfaces = "IModified";//"INotifyPropertyChanging,INotifyPropertyChanged";
-        public string[] Interfaces
-        {
-            get 
-            {
-                return new List<string>(from entityInterface in EntityInterfaces.Split(',') select entityInterface.Trim()).ToArray();
-            }
-        }
+		/// <summary>
+		/// If present, write out C# code
+		/// SQLMetal compatible
+		/// </summary>
+		public string Code
+		{
+			get { return code; }
+			set { code = value; }
+		}
 
-        /// <summary>
-        /// export stored procedures
-        /// SQLMetal compatible
-        /// </summary>
-        public bool SProcs;
+		string dbml;
 
-        /// <summary>
-        /// ??
-        /// DbLinq specific
-        /// </summary>
-        public bool VerboseForeignKeys;
+		/// <summary>
+		/// If present, write out DBML XML representing the DB
+		/// SQLMetal compatible
+		/// </summary>
+		public string Dbml
+		{
+			get { return dbml; }
+			set { dbml = value; }
+		}
 
-        /// <summary>
-        /// when true, we will call Singularize()/Pluralize() functions.
-        /// SQLMetal compatible
-        /// </summary>
-        public bool Pluralize = true;
+		//#region Capitalization commands - obsolete
+		///// <summary>
+		///// convert table name 'products' to class 'Products'
+		///// DbLinq specific
+		///// </summary>
+		//public bool ForceUcaseTableName;
 
-        /// <summary>
-        /// if true, and PostgreSql database contains DOMAINS (typedefs), 
-        /// we will generate code DbType='DerivedType'.
-        /// if false, generate code DbType='BaseType'.
-        /// DbLinq specific
-        /// </summary>
-        public bool UseDomainTypes = true;
+		///// <summary>
+		///// for mysql, we want to keep case as specified in DB.
+		///// DbLinq specific
+		///// </summary>
+		//public bool ForceUcaseFieldName;
 
-        /// <summary>
-        /// force a Console.ReadKey at end of program.
-        /// Useful when running from Studio, so the output window does not disappear
-        /// picrap comment: you may use the tool to write output to Visual Studio output window instead of a console window
-        /// DbLinq specific
-        /// </summary>
-        public bool ReadLineAtExit;
+		///// <summary>
+		///// rename object 'productid' to 'productID'?
+		///// DbLinq specific
+		///// </summary>
+		//public bool ForceUcaseID = true;
+		//#endregion
 
-        /// <summary>
-        /// specifies a provider (which here is a pair or ISchemaLoader and IDbConnection implementors)
-        /// SQLMetal compatible
-        /// </summary>
-        public string Provider;
+		/// <summary>
+		/// Load object renamings from an xml file
+		/// DbLinq specific
+		/// </summary>
+		public string RenamesFile { get; set; }
 
-        /// <summary>
-        /// For fine tuning, we allow to specifiy an ISchemaLoader
-        /// DbLinq specific
-        /// </summary>
-        public string DbLinqSchemaLoaderProvider;
+		/// <summary>
+		/// this is the "input file" parameter
+		/// </summary>
+		public string SchemaXmlFile
+		{
+			get
+			{
+				return Extra.Count > 0 ? Extra[0] : null;
+			}
+		}
 
-        /// <summary>
-        /// For fine tuning, we allow to specifiy an IDbConnection
-        /// DbLinq specific
-        /// </summary>
-        public string DatabaseConnectionProvider;
+		/// <summary>
+		/// base class from which all generated entities will inherit
+		/// SQLMetal compatible
+		/// </summary>
+		public string EntityBase { get; set; }
 
-        public SqlMetalParameters(string[] args)
-            : base(args)
-        {
-        }
-    }
+		/// <summary>
+		/// Interfaces to be implemented
+		/// </summary>
+		public string EntityInterfaces = "IModified";//"INotifyPropertyChanging,INotifyPropertyChanged";
+		public string[] Interfaces
+		{
+			get
+			{
+				return new List<string>(from entityInterface in EntityInterfaces.Split(',') select entityInterface.Trim()).ToArray();
+			}
+		}
+
+		/// <summary>
+		/// export stored procedures
+		/// SQLMetal compatible
+		/// </summary>
+		public bool SProcs { get; set; }
+
+		/// <summary>
+		/// ??
+		/// DbLinq specific
+		/// </summary>
+		public bool VerboseForeignKeys { get; set; }
+
+
+		bool pluralize = true;
+
+		/// <summary>
+		/// when true, we will call Singularize()/Pluralize() functions.
+		/// SQLMetal compatible
+		/// </summary>
+		public bool Pluralize
+		{
+			get { return pluralize; }
+			set { pluralize = value; }
+		}
+
+		bool useDomainTypes = true;
+
+		/// <summary>
+		/// if true, and PostgreSql database contains DOMAINS (typedefs), 
+		/// we will generate code DbType='DerivedType'.
+		/// if false, generate code DbType='BaseType'.
+		/// DbLinq specific
+		/// </summary>
+		public bool UseDomainTypes
+		{
+			get { return useDomainTypes; }
+			set { useDomainTypes = value; }
+		}
+
+		/// <summary>
+		/// force a Console.ReadKey at end of program.
+		/// Useful when running from Studio, so the output window does not disappear
+		/// picrap comment: you may use the tool to write output to Visual Studio output window instead of a console window
+		/// DbLinq specific
+		/// </summary>
+		public bool ReadLineAtExit { get; set; }
+
+		string provider = "MySql";
+
+		/// <summary>
+		/// specifies a provider (which here is a pair or ISchemaLoader and IDbConnection implementors)
+		/// SQLMetal compatible
+		/// </summary>
+		public string Provider
+		{
+			get { return provider; }
+			set { provider = value; }
+		}
+
+		/// <summary>
+		/// For fine tuning, we allow to specifiy an ISchemaLoader
+		/// DbLinq specific
+		/// </summary>
+		public string DbLinqSchemaLoaderProvider { get; set; }
+
+		/// <summary>
+		/// For fine tuning, we allow to specifiy an IDbConnection
+		/// DbLinq specific
+		/// </summary>
+		public string DatabaseConnectionProvider { get; set; }
+
+		public SqlMetalParameters()
+		{
+		}
+
+		public SqlMetalParameters(string[] args)
+			: base(args)
+		{
+		}
+	}
 }

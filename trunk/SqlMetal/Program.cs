@@ -35,7 +35,7 @@ using SqlMetal.Schema;
 
 namespace SqlMetal
 {
-    class Program
+    public class SqlMetalProgram
     {
         static void Main(string[] args)
         {
@@ -56,32 +56,16 @@ namespace SqlMetal
                 DbLinq.Schema.Dbml.Database dbSchema;
 
                 // we always need a factory, even if generating from a DBML file, because we need a namespace
-                var loaderFactory = new LoaderFactory();
-                var schemaLoader = loaderFactory.Load(parameters);
+                var schemaLoader = new LoaderFactory().Load(parameters);
 
-                var tableAliases = TableAlias.Load(parameters);
-                var dbmlSerializer = new DbmlSerializer();
-
-                if (parameters.SchemaXmlFile == null)
-                {
-                    dbSchema = schemaLoader.Load(parameters.Database, tableAliases, parameters.SProcs);
-                    dbSchema.Provider = parameters.Provider;
-                    SchemaPostprocess.PostProcess_DB(dbSchema);
-                }
-                else
-                {
-                    using (Stream dbmlFile = File.OpenRead(parameters.SchemaXmlFile))
-                    {
-                        dbSchema = dbmlSerializer.Read(dbmlFile);
-                    }
-                }
+				dbSchema = LoadSchema(parameters, schemaLoader);
 
                 if (parameters.Dbml != null)
                 {
                     //we are supposed to write out a DBML file and exit
                     using (Stream dbmlFile = File.OpenWrite(parameters.Dbml))
                     {
-                        dbmlSerializer.Write(dbmlFile, dbSchema);
+                        DbmlSerializer.Write(dbmlFile, dbSchema);
                     }
                     Console.WriteLine("Written file " + parameters.Dbml);
                 }
@@ -113,6 +97,26 @@ namespace SqlMetal
                 Console.ReadKey();
             }
         }
+
+		public static DbLinq.Schema.Dbml.Database LoadSchema(SqlMetalParameters parameters, ISchemaLoader schemaLoader)
+		{
+			DbLinq.Schema.Dbml.Database dbSchema;
+			var tableAliases = TableAlias.Load(parameters);
+			if (parameters.SchemaXmlFile == null)
+			{
+				dbSchema = schemaLoader.Load(parameters.Database, tableAliases, parameters.SProcs);
+				dbSchema.Provider = parameters.Provider;
+				SchemaPostprocess.PostProcess_DB(dbSchema);
+			}
+			else
+			{
+				using (Stream dbmlFile = File.OpenRead(parameters.SchemaXmlFile))
+				{
+					dbSchema = DbmlSerializer.Read(dbmlFile);
+				}
+			}
+			return dbSchema;
+		}
 
         static void PrintUsage()
         {
