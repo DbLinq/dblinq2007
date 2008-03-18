@@ -34,7 +34,7 @@ using System.Xml.Serialization;
 
 namespace DbLinq.Schema
 {
-    public class DbmlSerializer
+    public static class DbmlSerializer
     {
         private class ValidationException : XmlSchemaValidationException
         {
@@ -44,7 +44,7 @@ namespace DbLinq.Schema
             }
         }
 
-        protected XmlReader OpenXml(Stream xmlStream, Stream xsdStream, IList<string> validationErrors)
+        private static XmlReader OpenXml(Stream xmlStream, Stream xsdStream, IList<string> validationErrors)
         {
             validationErrors.Clear();
 
@@ -59,12 +59,12 @@ namespace DbLinq.Schema
             return xmlValidator;
         }
 
-        protected Stream OpenXsd()
+        private static Stream OpenXsd()
         {
-            return Assembly.GetExecutingAssembly().GetManifestResourceStream(GetType(), "DbmlSchema.xsd");
+            return Assembly.GetExecutingAssembly().GetManifestResourceStream(typeof(DbmlSerializer), "DbmlSchema.xsd");
         }
 
-        protected void CheckValidation(IList<string> validationErrors)
+        private static void CheckValidation(IList<string> validationErrors)
         {
             if (validationErrors.Count > 0)
             {
@@ -72,7 +72,7 @@ namespace DbLinq.Schema
             }
         }
 
-        public Dbml.Database Read(Stream xmlStream, IList<string> validationErrors)
+        public static Dbml.Database Read(Stream xmlStream, IList<string> validationErrors)
         {
             using (Stream xsdStream = OpenXsd())
             using (XmlReader xmlReader = OpenXml(xmlStream, xsdStream, validationErrors))
@@ -83,7 +83,7 @@ namespace DbLinq.Schema
             }
         }
 
-        public Dbml.Database Read(Stream xmlStream)
+        public static Dbml.Database Read(Stream xmlStream)
         {
             var validationErrors = new List<string>();
             var dbml = Read(xmlStream, validationErrors);
@@ -91,7 +91,7 @@ namespace DbLinq.Schema
             return dbml;
         }
 
-        public void Write(Stream xmlStream, Dbml.Database dbml)
+        public static void Write(Stream xmlStream, Dbml.Database dbml)
         {
             var xmlSerializer = new XmlSerializer(dbml.GetType());
             xmlSerializer.Serialize(xmlStream, dbml);
