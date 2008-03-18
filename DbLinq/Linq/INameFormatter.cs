@@ -24,6 +24,9 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
+using DbLinq.Linq.Implementation;
+using DbLinq.Schema;
+
 namespace DbLinq.Linq
 {
     public enum Case
@@ -33,10 +36,29 @@ namespace DbLinq.Linq
         PascalCase
     }
 
+    public enum WordsExtraction
+    {
+        FromCase,
+        FromDictionary,
+    }
+
+    public enum Singularization
+    {
+        DontChange,
+        Singular,
+        Plural,
+    }
+
     public interface INameFormatter
     {
-        bool Singularize { get; set; }
+        bool Pluralize { get; set; }
         Case Case { get; set; }
+
+        ProcedureName GetProcedureName(string dbName, WordsExtraction extraction);
+        TableName GetTableName(string dbName, WordsExtraction extraction);
+        ColumnName GetColumnName(string dbName, WordsExtraction extraction);
+        AssociationName GetAssociationName(string dbManyName, string dbOneName, string dbConstraintName, WordsExtraction extraction);
+
         string AdjustTableName(string tableName);
         string AdjustColumnName(string columnName);
         string AdjustColumnFieldName(string columnName);

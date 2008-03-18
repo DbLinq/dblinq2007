@@ -7,7 +7,7 @@ using System.Text;
 
 namespace DbLinq.Util
 {
-    public class Words
+    public class EnglishWords
     {
         private readonly HashSet<string> words = new HashSet<string>();
 
@@ -17,7 +17,7 @@ namespace DbLinq.Util
             public string Plural;
         }
 
-        public Words()
+        public EnglishWords()
         {
             Load("EnglishWords.txt");
         }
@@ -78,7 +78,7 @@ namespace DbLinq.Util
                     return newWord;
             }
 
-            throw new Exception("picrap is a jerk since this exception should never been throwed");
+            return word;
         }
 
         public string Try(string word, string ending, string newEnding)

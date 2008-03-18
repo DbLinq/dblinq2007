@@ -27,13 +27,15 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
+using DbLinq.Schema;
 using DbLinq.Util;
 
 namespace DbLinq.Linq.Implementation
 {
     public class NameFormatter : INameFormatter
     {
-        public bool Singularize { get; set; }
+        public bool Pluralize { get; set; }
         public Case Case { get; set; }
 
         [Flags]
@@ -43,27 +45,31 @@ namespace DbLinq.Linq.Implementation
             Last = 0x02,
         }
 
-        public Words Words { get; set; }
+        public EnglishWords EnglishWords { get; set; }
 
         public NameFormatter()
         {
-            Words = new Words();
-            Singularize = true;
+            EnglishWords = new EnglishWords();
             Case = Case.PascalCase;
         }
 
-        public virtual string Format(string oldName, Case newCase, bool? singularPlural)
+        public virtual string Format(string oldName, Case newCase, Singularization singularization)
         {
-            StringBuilder result = new StringBuilder();
-            IList<string> parts = Words.GetWords(oldName);
-            for (int partIndex = 0; partIndex < parts.Count; partIndex++)
+            var parts = EnglishWords.GetWords(oldName);
+            return Format(parts, newCase, singularization);
+        }
+
+        private string Format(IList<string> words, Case newCase, Singularization singularization)
+        {
+            var result = new StringBuilder();
+            for (int partIndex = 0; partIndex < words.Count; partIndex++)
             {
                 Position position = 0;
                 if (partIndex == 0)
                     position |= Position.First;
-                if (partIndex == parts.Count - 1)
+                if (partIndex == words.Count - 1)
                     position |= Position.Last;
-                result.Append(AdjustPart(parts[partIndex], position, newCase, singularPlural));
+                result.Append(AdjustPart(words[partIndex], position, newCase, singularization));
             }
             return result.ToString();
         }
@@ -79,14 +85,14 @@ namespace DbLinq.Linq.Implementation
             return part;
         }
 
-        protected virtual string AdjustPart(string part, Position position, Case newCase, bool? singularPlural)
+        protected virtual string AdjustPart(string part, Position position, Case newCase, Singularization singularization)
         {
-            if (singularPlural.HasValue && (position & Position.Last) != 0)
+            if (singularization != Singularization.DontChange && (position & Position.Last) != 0)
             {
-                if (singularPlural.Value)
-                    part = Words.Singularize(part);
+                if (singularization == Singularization.Singular)
+                    part = EnglishWords.Singularize(part);
                 else
-                    part = Words.Pluralize(part);
+                    part = EnglishWords.Pluralize(part);
             }
             if ((position & Position.First) != 0 && newCase == Case.camelCase)
                 part = ToCamelCase(part);
@@ -97,34 +103,142 @@ namespace DbLinq.Linq.Implementation
 
         public virtual string AdjustTableName(string tableName)
         {
-            return Format(tableName, Case, Singularize);
+            return Format(tableName, Case, Pluralize ? Singularization.Singular : Singularization.DontChange);
         }
 
         public virtual string AdjustColumnName(string columnName)
         {
-            return Format(columnName, Case, null);
+            return Format(columnName, Case, Singularization.DontChange);
         }
 
         public virtual string AdjustColumnFieldName(string columnName)
         {
-            return Format(columnName, Case.camelCase, null);
+            return Format(columnName, Case.camelCase, Singularization.DontChange);
         }
 
         public virtual string AdjustMethodName(string methodName)
         {
-            return Format(methodName, Case, null);
+            return Format(methodName, Case, Singularization.DontChange);
         }
 
         public virtual string AdjustOneToManyColumnName(string referencedTableName)
         {
-            return Format(referencedTableName, Case, null);
+            return Format(referencedTableName, Case, Singularization.DontChange);
         }
 
         public virtual string AdjustManyToOneColumnName(string referencedTableName, string thisTableName)
         {
             if (referencedTableName == thisTableName)
-                return Format("Parent" + referencedTableName, Case, true);
-            return Format(referencedTableName, Case, true);
+                return Format("Parent" + referencedTableName, Case, Pluralize ? Singularization.Singular : Singularization.DontChange);
+            return Format(referencedTableName, Case, Pluralize ? Singularization.Singular : Singularization.DontChange);
+        }
+
+        private void PushWord(IList<string> words, StringBuilder currentWord)
+        {
+            if (currentWord.Length > 0)
+            {
+                words.Add(currentWord.ToString());
+                currentWord.Remove(0, currentWord.Length);
+            }
+        }
+
+        /// <summary>
+        /// Extracts words from uppercase and _
+        /// A word can also be composed of several uppercase letters
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        protected virtual IList<string> GetWordsByCase(string name)
+        {
+            List<string> words = new List<string>();
+            bool currentLowerCase = true;
+            StringBuilder currentWord = new StringBuilder();
+            for (int charIndex = 0; charIndex < name.Length; charIndex++)
+            {
+                char currentChar = name[charIndex];
+                bool isLower = char.IsLower(currentChar);
+                // we switched to uppercase
+                if (!isLower && currentLowerCase)
+                {
+                    PushWord(words, currentWord);
+                }
+                else if (isLower && !currentLowerCase)
+                {
+                    // if the current word has several uppercase letters, it is one unique word
+                    if (currentWord.Length > 1)
+                        PushWord(words, currentWord);
+                }
+                if (char.IsLetterOrDigit(currentChar))
+                    currentWord.Append(currentChar);
+                currentLowerCase = isLower;
+            }
+            PushWord(words, currentWord);
+
+            return words;
+        }
+
+        protected virtual void ExtractWords(Schema.Name dbName, WordsExtraction extraction)
+        {
+            switch (extraction)
+            {
+            case WordsExtraction.FromCase:
+                dbName.NameWords = GetWordsByCase(dbName.DbName);
+                break;
+            case WordsExtraction.FromDictionary:
+                dbName.NameWords = EnglishWords.GetWords(dbName.DbName);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException("extraction");
+            }
+        }
+
+        protected virtual Singularization GetSingularization(Singularization singularization)
+        {
+            if (!Pluralize)
+                return Singularization.DontChange;
+            return singularization;
+        }
+
+        public ProcedureName GetProcedureName(string dbName, WordsExtraction extraction)
+        {
+            var procedureName = new ProcedureName { DbName = dbName };
+            ExtractWords(procedureName, extraction);
+            procedureName.MethodName = Format(procedureName.NameWords, Case, Singularization.DontChange);
+            return procedureName;
+        }
+
+        public TableName GetTableName(string dbName, WordsExtraction extraction)
+        {
+            var tableName = new TableName { DbName = dbName };
+            ExtractWords(tableName, extraction);
+            tableName.ClassName = Format(tableName.NameWords, Case, GetSingularization(Singularization.Singular));
+            tableName.MemberName = Format(tableName.NameWords, Case, GetSingularization(Singularization.Plural));
+            return tableName;
+        }
+
+        public ColumnName GetColumnName(string dbName, WordsExtraction extraction)
+        {
+            var columnName = new ColumnName { DbName = dbName };
+            ExtractWords(columnName, extraction);
+            columnName.PropertyName = Format(columnName.NameWords, Case, Singularization.DontChange);
+            columnName.StorageFieldName = Format(columnName.NameWords, Case.camelCase, Singularization.DontChange);
+            if (columnName.StorageFieldName == columnName.PropertyName)
+                columnName.StorageFieldName = columnName.StorageFieldName + "Field";
+            return columnName;
+        }
+
+        public AssociationName GetAssociationName(string dbManyName, string dbOneName, string dbConstraintName, WordsExtraction extraction)
+        {
+            var associationName = new AssociationName { DbName = dbManyName };
+            ExtractWords(associationName, extraction);
+            associationName.ManyToOneMemberName = Format(dbOneName, Case, GetSingularization(Singularization.Singular));
+            // TODO: this works only for PascalCase
+            if (dbManyName == dbOneName)
+                associationName.ManyToOneMemberName = "Parent" + associationName.ManyToOneMemberName;
+            // TODO: support new extraction
+            associationName.OneToManyMemberName = Format(dbManyName, Case, GetSingularization(Singularization.Plural));
+            associationName.ForeignKeyStorageFieldName = Format(dbConstraintName, Case.camelCase, Singularization.DontChange);
+            return associationName;
         }
     }
 }

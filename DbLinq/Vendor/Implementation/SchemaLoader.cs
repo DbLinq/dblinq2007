@@ -24,26 +24,76 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.Data;
 using DbLinq.Linq;
 using DbLinq.Linq.Implementation;
 using DbLinq.Schema;
+using DbLinq.Schema.Dbml;
 
 namespace DbLinq.Vendor.Implementation
 {
-    public abstract class SchemaLoader: ISchemaLoader
+    public abstract class SchemaLoader : ISchemaLoader
     {
-        public abstract string VendorName { get; }
-        public abstract Type DataContextType { get; }
+        public virtual string VendorName { get { return Vendor.VendorName; } }
+        protected abstract IVendor Vendor { get; }
+        public abstract System.Type DataContextType { get; }
         public IDbConnection Connection { get; set; }
         public INameFormatter NameFormatter { get; set; }
-        public abstract DbLinq.Schema.Dbml.Database Load(string databaseName, IDictionary<string, string> tableAliases, bool loadStoredProcedures);
+        public abstract Database Load(string databaseName, IDictionary<string, string> tableAliases, bool pluralize, bool loadStoredProcedures);
 
-        public SchemaLoader()
+        protected SchemaLoader()
         {
             NameFormatter = new NameFormatter();
+        }
+
+        protected virtual WordsExtraction GetExtraction(string dbColumnName)
+        {
+            return Vendor.IsCaseSensitiveName(dbColumnName) ? WordsExtraction.FromCase : WordsExtraction.FromDictionary;
+        }
+
+        protected virtual TableName CreateTableName(string dbTableName, IDictionary<string, string> tableAliases)
+        {
+            WordsExtraction extraction = GetExtraction(dbTableName);
+            // if we have an alias, use it, and don't try to analyze it (a human probably already did the job)
+            if (tableAliases != null && tableAliases.ContainsKey(dbTableName))
+            {
+                extraction = WordsExtraction.FromCase;
+                dbTableName = tableAliases[dbTableName];
+            }
+            return NameFormatter.GetTableName(dbTableName, extraction);
+        }
+
+        protected virtual ColumnName CreateColumnName(string dbColumnName)
+        {
+            return NameFormatter.GetColumnName(dbColumnName, GetExtraction(dbColumnName));
+        }
+
+        protected virtual ProcedureName CreateProcedureName(string dbProcedureName)
+        {
+            return NameFormatter.GetProcedureName(dbProcedureName, GetExtraction(dbProcedureName));
+        }
+
+        protected virtual AssociationName CreateAssociationName(string dbManyName, string dbOneName, string dbConstraintName)
+        {
+            return NameFormatter.GetAssociationName(dbManyName, dbOneName, dbConstraintName, GetExtraction(dbManyName));
+        }
+
+        protected class Names
+        {
+            public IDictionary<string, TableName> TablesNames = new Dictionary<string, TableName>();
+            public IDictionary<string, IDictionary<string, ColumnName>> ColumnsNames = new Dictionary<string, IDictionary<string, ColumnName>>();
+
+            public void AddColumn(string dbTableName, ColumnName columnName)
+            {
+                IDictionary<string, ColumnName> columns;
+                if (!ColumnsNames.TryGetValue(dbTableName, out columns))
+                {
+                    columns = new Dictionary<string, ColumnName>();
+                    ColumnsNames[dbTableName] = columns;
+                }
+                columns[columnName.DbName] = columnName;
+            }
         }
 
         protected string GetTableName(string name, IDictionary<string,string> tableAliases)

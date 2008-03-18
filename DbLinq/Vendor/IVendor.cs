@@ -72,5 +72,7 @@ namespace DbLinq.Vendor
         void DoBulkInsert<T>(DbLinq.Linq.Table<T> table, List<T> rows, IDbConnection connection);
 
         string BuildSqlString(SqlExpressionParts parts);
+
+        bool IsCaseSensitiveName(string dbName);
     }
 }

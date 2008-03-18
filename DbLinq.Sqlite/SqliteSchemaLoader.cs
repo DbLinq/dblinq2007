@@ -5,19 +5,22 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using DbLinq.Schema;
+using DbLinq.Schema.Dbml;
 using DbLinq.Sqlite;
 using DbLinq.Sqlite.Schema;
 using DbLinq.Util;
+using DbLinq.Vendor;
 using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.Sqlite
 {
     class SqliteSchemaLoader : SchemaLoader
     {
-        public override string VendorName { get { return "Sqlite"; } }
-        public override Type DataContextType { get { return typeof(SqliteDataContext); } }
-        public override DbLinq.Schema.Dbml.Database Load(string databaseName, IDictionary<string, string> tableAliases,
-                                                  bool loadStoredProcedures)
+        private readonly IVendor vendor = new SqliteVendor();
+        protected override IVendor Vendor { get { return vendor; } }
+
+        public override System.Type DataContextType { get { return typeof(SqliteDataContext); } }
+        public override Database Load(string databaseName, IDictionary<string, string> tableAliases, bool pluralize, bool loadStoredProcedures)
         {
             IDbConnection conn = Connection;
             conn.Open();
@@ -51,9 +54,9 @@ namespace DbLinq.Sqlite
             //##################################################################
             //step 2 - load columns
             ColumnSql csql = new ColumnSql();
-            List<Column> columns = csql.getColumns(conn, database);
+            List<Schema.Column> columns = csql.getColumns(conn, database);
 
-            foreach (Column columnRow in columns)
+            foreach (Schema.Column columnRow in columns)
             {
                 //find which table this column belongs to
                 DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.table_name == tblSchema.Name);

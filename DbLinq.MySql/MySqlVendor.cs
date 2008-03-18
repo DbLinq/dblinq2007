@@ -47,7 +47,7 @@ namespace DbLinq.MySql
         /// </summary>
         public readonly Dictionary<IMTable, int> UseBulkInsert = new Dictionary<IMTable, int>();
 
-        public override string VendorName { get { return "Mysql"; } }
+        public override string VendorName { get { return "MySQL"; } }
 
         public override IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
                                                , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
@@ -312,6 +312,17 @@ namespace DbLinq.MySql
                 }
             }
             return outParamValues;
+        }
+
+        /// <summary>
+        /// MySQL is case insensitive, and names always specify a case (there is no default casing)
+        /// However, tables appear to be full lowercase
+        /// </summary>
+        /// <param name="dbName"></param>
+        /// <returns></returns>
+        public override bool IsCaseSensitiveName(string dbName)
+        {
+            return true;
         }
     }
 }

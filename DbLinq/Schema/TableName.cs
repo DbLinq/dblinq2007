@@ -24,18 +24,18 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
-using System.Collections.Generic;
-using System.Data;
-using DbLinq.Schema;
-using DbLinq.Schema.Dbml;
-
-namespace DbLinq.Vendor
+namespace DbLinq.Schema
 {
-    public interface ISchemaLoader
+    public class TableName: Name
     {
-        string VendorName { get; }
-        System.Type DataContextType { get; }
-        IDbConnection Connection { get; set; }
-        Database Load(string databaseName, IDictionary<string, string> tableAliases, bool pluralize, bool loadStoredProcedures);
+        /// <summary>
+        /// Name of the class representing the table
+        /// </summary>
+        public string ClassName { get; set; }
+
+        /// <summary>
+        /// Used to name the table accessor from the data context
+        /// </summary>
+        public string MemberName { get; set; }
     }
 }

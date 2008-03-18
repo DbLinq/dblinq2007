@@ -287,5 +287,15 @@ namespace DbLinq.PostgreSql
         {
             return new PgsqlDataReader2(dataReader);
         }*/
+
+        /// <summary>
+        /// In PostgreSQL an insensitive name is lowercase
+        /// </summary>
+        /// <param name="dbName"></param>
+        /// <returns></returns>
+        public virtual bool IsCaseSensitiveName(string dbName)
+        {
+            return dbName != dbName.ToLower();
+        }
     }
 }

@@ -25,6 +25,21 @@ namespace SqlMetal
                     parameterName = nameValue.Substring(0, separator);
                     parameterValue = nameValue.Substring(separator + 1).Trim('\"');
                 }
+                else if (nameValue.EndsWith("+"))
+                {
+                    parameterName = nameValue.Substring(0, nameValue.Length - 1);
+                    parameterValue = "+";
+                }
+                else if (nameValue.EndsWith("-"))
+                {
+                    parameterName = nameValue.Substring(0, nameValue.Length - 1);
+                    parameterValue = "-";
+                }
+                else if (nameValue.StartsWith("no-"))
+                {
+                    parameterName = nameValue.Substring(3);
+                    parameterValue = "-";
+                }
                 else
                 {
                     parameterName = nameValue;
@@ -37,7 +52,7 @@ namespace SqlMetal
                 parameterName = null;
                 parameterValue = null;
             }
-            return isParameter; 
+            return isParameter;
         }
 
         protected bool IsParameter(string arg, out string parameterName, out string parameterValue)
@@ -49,7 +64,7 @@ namespace SqlMetal
 
         protected delegate void InjectorDelegate(object typedValue);
 
-        protected void InjectValue(InjectorDelegate injector, string value, Type targetType)
+        protected object GetValue(string value, Type targetType)
         {
             object typedValue;
             if (typeof(bool).IsAssignableFrom(targetType))
@@ -65,21 +80,21 @@ namespace SqlMetal
             {
                 typedValue = Convert.ChangeType(value, targetType);
             }
-            injector(typedValue);
+            return typedValue;
         }
 
         protected void SetParameter(string name, string value)
         {
-            Type thisType=GetType();
-            BindingFlags flags=BindingFlags.IgnoreCase|BindingFlags.FlattenHierarchy|BindingFlags.Instance|BindingFlags.Public;
+            Type thisType = GetType();
+            BindingFlags flags = BindingFlags.IgnoreCase | BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public;
             FieldInfo fieldInfo = thisType.GetField(name, flags);
             if (fieldInfo != null)
-                InjectValue(delegate(object typedValue) { fieldInfo.SetValue(this, typedValue); }, value, fieldInfo.FieldType); 
+                fieldInfo.SetValue(this, GetValue(value, fieldInfo.FieldType));
             else
             {
                 PropertyInfo propertyInfo = thisType.GetProperty(name, flags);
                 if (propertyInfo != null)
-                    InjectValue(delegate(object typedValue) { propertyInfo.GetSetMethod().Invoke(this, new object[] { typedValue }); }, value, propertyInfo.PropertyType);
+                    propertyInfo.GetSetMethod().Invoke(this, new[] { GetValue(value, propertyInfo.PropertyType) });
                 else
                     throw new ArgumentException(string.Format("Parameter {0} does not exist", name));
             }

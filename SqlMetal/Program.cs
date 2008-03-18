@@ -58,7 +58,7 @@ namespace SqlMetal
                 // we always need a factory, even if generating from a DBML file, because we need a namespace
                 var schemaLoader = new LoaderFactory().Load(parameters);
 
-				dbSchema = LoadSchema(parameters, schemaLoader);
+                dbSchema = LoadSchema(parameters, schemaLoader);
 
                 if (parameters.Dbml != null)
                 {
@@ -98,25 +98,25 @@ namespace SqlMetal
             }
         }
 
-		public static DbLinq.Schema.Dbml.Database LoadSchema(SqlMetalParameters parameters, ISchemaLoader schemaLoader)
-		{
-			DbLinq.Schema.Dbml.Database dbSchema;
-			var tableAliases = TableAlias.Load(parameters);
-			if (parameters.SchemaXmlFile == null)
-			{
-				dbSchema = schemaLoader.Load(parameters.Database, tableAliases, parameters.SProcs);
-				dbSchema.Provider = parameters.Provider;
-				SchemaPostprocess.PostProcess_DB(dbSchema);
-			}
-			else
-			{
-				using (Stream dbmlFile = File.OpenRead(parameters.SchemaXmlFile))
-				{
-					dbSchema = DbmlSerializer.Read(dbmlFile);
-				}
-			}
-			return dbSchema;
-		}
+        public static DbLinq.Schema.Dbml.Database LoadSchema(SqlMetalParameters parameters, ISchemaLoader schemaLoader)
+        {
+            DbLinq.Schema.Dbml.Database dbSchema;
+            var tableAliases = TableAlias.Load(parameters);
+            if (parameters.SchemaXmlFile == null)
+            {
+                dbSchema = schemaLoader.Load(parameters.Database, tableAliases, parameters.Pluralize, parameters.SProcs);
+                dbSchema.Provider = parameters.Provider;
+                SchemaPostprocess.PostProcess_DB(dbSchema);
+            }
+            else
+            {
+                using (Stream dbmlFile = File.OpenRead(parameters.SchemaXmlFile))
+                {
+                    dbSchema = DbmlSerializer.Read(dbmlFile);
+                }
+            }
+            return dbSchema;
+        }
 
         static void PrintUsage()
         {

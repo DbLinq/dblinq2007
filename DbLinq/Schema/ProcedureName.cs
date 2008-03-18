@@ -24,18 +24,13 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
-using System.Collections.Generic;
-using System.Data;
-using DbLinq.Schema;
-using DbLinq.Schema.Dbml;
-
-namespace DbLinq.Vendor
+namespace DbLinq.Schema
 {
-    public interface ISchemaLoader
+    public class ProcedureName: Name
     {
-        string VendorName { get; }
-        System.Type DataContextType { get; }
-        IDbConnection Connection { get; set; }
-        Database Load(string databaseName, IDictionary<string, string> tableAliases, bool pluralize, bool loadStoredProcedures);
+        /// <summary>
+        /// Name to be used from a .NET call
+        /// </summary>
+        public string MethodName { get; set; }
     }
 }
