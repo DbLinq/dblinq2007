@@ -20,19 +20,19 @@
 			</Grid.RowDefinitions>
 
 			<Label Grid.Row="0" HorizontalAlignment="Right">Server:</Label>
-			<TextBox Grid.Row="0" Grid.Column="1" Width="200" Margin="5" Text="{Binding Path=Server}" />
+			<TextBox Grid.Row="0" Grid.Column="1" Width="200" Margin="5" Text="{Binding Path=Server, UpdateSourceTrigger=PropertyChanged}" />
 			
 			<Label Grid.Row="1" HorizontalAlignment="Right">User:</Label>
-			<TextBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Width="140" Margin="5" Text="{Binding Path=User}" />
+			<TextBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Width="140" Margin="5" Text="{Binding Path=User, UpdateSourceTrigger=PropertyChanged}" />
 
 			<Label Grid.Row="2" HorizontalAlignment="Right">Password:</Label>
 			<PasswordBox Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" Width="140" Margin="5" x:Name="PasswordInput" />
 
 			<Label Grid.Row="3" HorizontalAlignment="Right">Database:</Label>
-			<TextBox Grid.Row="3" Grid.Column="1" HorizontalAlignment="Left" Width="140" Margin="5" Text="{Binding Path=Database}" />
+			<TextBox Grid.Row="3" Grid.Column="1" HorizontalAlignment="Left" Width="140" Margin="5" Text="{Binding Path=Database, UpdateSourceTrigger=PropertyChanged}" />
 
 			<Label Grid.Row="4" HorizontalAlignment="Right">Provider:</Label>
-			<TextBox Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" Width="140" Margin="5" Text="{Binding Path=Provider}" />
+			<TextBox Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" Width="140" Margin="5" Text="{Binding Path=Provider, UpdateSourceTrigger=PropertyChanged}" />
 
 			<TextBlock x:Name="LoginErrorMessage" Grid.Row="2" Grid.ColumnSpan="2" Foreground="Red" FontWeight="Bold" HorizontalAlignment="Center" Visibility="Collapsed" />
 		</Grid>
