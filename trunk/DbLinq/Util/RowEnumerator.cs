@@ -34,6 +34,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
+using System.Text.RegularExpressions;
 using DbLinq.Linq.Database;
 using DbLinq.Util;
 using DbLinq.Linq;
@@ -109,6 +110,10 @@ namespace DbLinq.Util
                     cmd.Parameters.Add(parameter);
                 }
             }
+
+            //toncho11: http://code.google.com/p/dblinq2007/issues/detail?id=24
+            if (cmd.ToString().StartsWith("Npgsql"))
+                cmd.CommandText = Regex.Replace(cmd.CommandText, "\\.[^\\s,\\n]*", AddQuotes);
 
             //Console.WriteLine("cmd.ExecuteCommand()");
             //XSqlDataReader _rdr = cmd.ExecuteReader();
@@ -210,6 +215,18 @@ namespace DbLinq.Util
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        static string AddQuotes(Match m)
+        {
+            // Get the matched string.
+            string x = m.ToString();
+
+            // If it is NOT lower case
+            if (x != x.ToLower())
+                x = ".\"" + x.Substring(1) + "\"";
+
+            return x;
         }
 
         #region IsBuiltinType(), IsColumnType(), IsProjection()
