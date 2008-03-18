@@ -17,30 +17,26 @@ namespace VisualMetal
 {
 	public partial class LoginWindow
 	{
-		SqlMetalParameters parameters = new SqlMetalParameters();
+		MainWindow main;
 
-		public LoginWindow()
+		public LoginWindow(MainWindow window)
 		{
+			main = window;
+
 			InitializeComponent();
 
-			DataContext = parameters;
+			DataContext = main.Parameters;
+			SavePasswordCheckBox.DataContext = Properties.Settings.Default;
+
+			PasswordInput.Password = main.Parameters.Password; // can't bind to password for security reasons
 		}
 
 		private void Login_Click(object sender, RoutedEventArgs e)
 		{
-			parameters.Password = PasswordInput.Password; // can't bind to password for security reasons
+			main.Parameters.Password = PasswordInput.Password; // can't bind to password for security reasons
 
-			try
-			{
-				var loader = new LoaderFactory().Load(parameters);
-				var database = SqlMetalProgram.LoadSchema(parameters, loader);
-
-				MessageBox.Show("Schema loaded.");
-			}
-			catch (Exception exception)
-			{
-				MessageBox.Show(exception.ToString());
-			}
+			if (main.LoadSchema())
+				Close();
 		}
 	}
 }
