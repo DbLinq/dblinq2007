@@ -71,9 +71,7 @@ namespace DbLinq.PostgreSql
                 string sequenceName = projData.tableAttribute.Name + "_" + idColName + "_seq";
                 if (idColName != idColName.ToLower())//toncho11: quotes are added due to issue http://code.google.com/p/dblinq2007/issues/detail?id=27}
                 {
-                    //TODO: handles only if the colums is mixed case, does not handle if the schema or table is mixed case
-                    sequenceName = sequenceName.Replace(".", ".\"") + "\"";
-
+                    sequenceName = "\"" + sequenceName.Replace(".", "\".\"") + "\"";
                 }
                 sbIdentity.Append(";SELECT currval('" + sequenceName + "')");
             }
