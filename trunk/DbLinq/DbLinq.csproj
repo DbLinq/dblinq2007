@@ -62,6 +62,8 @@
     <Compile Include="Linq\Database\Implementation\DatabaseContext.cs" />
     <Compile Include="Linq\Database\Implementation\DatabaseConnection.cs" />
     <Compile Include="Linq\Database\Implementation\DatabaseTransaction.cs" />
+    <Compile Include="Schema\AssociationName.cs" />
+    <Compile Include="Schema\ColumnName.cs" />
     <Compile Include="Schema\DbmlSchema.Adapter.cs" />
     <Compile Include="Schema\DbmlSchema.cs">
       <DependentUpon>DbmlSchema.xsd</DependentUpon>
@@ -86,6 +88,9 @@
     <Compile Include="Linq\QueryProcessor.cs" />
     <Compile Include="Linq\QueryProcessor2.cs" />
     <Compile Include="Linq\SessionVarsParsed.cs" />
+    <Compile Include="Schema\ProcedureName.cs" />
+    <Compile Include="Schema\Name.cs" />
+    <Compile Include="Schema\TableName.cs" />
     <Compile Include="Util\ConnectionManager.cs" />
     <Compile Include="Util\CSharp.cs" />
     <Compile Include="Util\DataCommand.cs" />
@@ -120,7 +125,7 @@
     <Compile Include="Util\Page.cs" />
     <Compile Include="Util\Name.cs" />
     <Compile Include="Util\VarName.cs" />
-    <Compile Include="Util\Words.cs" />
+    <Compile Include="Util\EnglishWords.cs" />
     <Compile Include="Vendor\Implementation\DataReader2.cs" />
     <Compile Include="Vendor\IDataReader2.cs" />
     <Compile Include="Vendor\ISchemaLoader.cs" />
@@ -139,6 +144,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Util\EnglishWords.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Schema\Implementation\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

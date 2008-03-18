@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using DbLinq.PostgreSql.Schema;
 using DbLinq.Schema;
+using DbLinq.Schema.Dbml;
 using DbLinq.Util;
 using DbLinq.Vendor.Implementation;
 
@@ -12,10 +13,11 @@ namespace DbLinq.PostgreSql
 {
     class PgsqlSchemaLoader : SchemaLoader
     {
-        public override string VendorName { get { return "PostgreSQL"; } }
-        public override Type DataContextType { get { return typeof(PgsqlDataContext); } }
-        public override DbLinq.Schema.Dbml.Database Load(string databaseName, IDictionary<string, string> tableAliases,
-                                                  bool loadStoredProcedures)
+        private readonly Vendor.IVendor vendor = new PgsqlVendor();
+        protected override Vendor.IVendor Vendor { get { return vendor; } }
+
+        public override System.Type DataContextType { get { return typeof(PgsqlDataContext); } }
+        public override Database Load(string databaseName, IDictionary<string, string> tableAliases, bool pluralize, bool loadStoredProcedures)
         {
             IDbConnection conn = Connection;
             conn.Open();
@@ -46,7 +48,7 @@ namespace DbLinq.PostgreSql
             //##################################################################
             //step 2 - load columns
             ColumnSql csql = new ColumnSql();
-            List<Column> columns = csql.getColumns(conn, databaseName);
+            List<Schema.Column> columns = csql.getColumns(conn, databaseName);
 
             KeyColumnUsageSql ksql = new KeyColumnUsageSql();
             List<KeyColumnUsage> constraints = ksql.getConstraints(conn, databaseName);
@@ -57,7 +59,7 @@ namespace DbLinq.PostgreSql
             List<ForeignKeyCrossRef> primaryKeys = allKeys2.Where(k => k.constraint_type == "PRIMARY KEY").ToList();
 
 
-            foreach (Column columnRow in columns)
+            foreach (Schema.Column columnRow in columns)
             {
                 //find which table this column belongs to
                 DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.TableNameWithSchema == tblSchema.Name);

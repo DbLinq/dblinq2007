@@ -104,12 +104,11 @@ namespace SqlMetal
 			set { dbml = value; }
 		}
 
-		//#region Capitalization commands - obsolete
-		///// <summary>
-		///// convert table name 'products' to class 'Products'
-		///// DbLinq specific
-		///// </summary>
-		//public bool ForceUcaseTableName;
+        /// <summary>
+        /// when true, we will call Singularize()/Pluralize() functions.
+        /// SQLMetal compatible
+        /// </summary>
+        public bool Pluralize { get; set; }
 
 		///// <summary>
 		///// for mysql, we want to keep case as specified in DB.
@@ -170,19 +169,6 @@ namespace SqlMetal
 		/// DbLinq specific
 		/// </summary>
 		public bool VerboseForeignKeys { get; set; }
-
-
-		bool pluralize = true;
-
-		/// <summary>
-		/// when true, we will call Singularize()/Pluralize() functions.
-		/// SQLMetal compatible
-		/// </summary>
-		public bool Pluralize
-		{
-			get { return pluralize; }
-			set { pluralize = value; }
-		}
 
 		bool useDomainTypes = true;
 

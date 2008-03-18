@@ -5,17 +5,20 @@ using System.Data;
 using System.Linq;
 using DbLinq.Oracle.Schema;
 using DbLinq.Schema;
+using DbLinq.Schema.Dbml;
 using DbLinq.Util;
+using DbLinq.Vendor;
 using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.Oracle
 {
     class OracleSchemaLoader: SchemaLoader
     {
-        public override string VendorName { get { return "Oracle"; } }
-        public override Type DataContextType { get { return typeof(OracleDataContext); } }
-        public override DbLinq.Schema.Dbml.Database Load(string databaseName, IDictionary<string, string> tableAliases, 
-                                                  bool loadStoredProcedures)
+        private readonly Vendor.IVendor vendor = new OracleVendor();
+        protected override IVendor Vendor { get { return vendor; } }
+
+        public override System.Type DataContextType { get { return typeof(OracleDataContext); } }
+        public override Database Load(string databaseName, IDictionary<string, string> tableAliases, bool pluralize, bool loadStoredProcedures)
         {
             IDbConnection conn = Connection;
             conn.Open();

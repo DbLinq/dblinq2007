@@ -274,5 +274,15 @@ namespace DbLinq.Vendor.Implementation
         {
             return AttribHelper.GetFunctionAttribute(methodInfo);
         }
+
+        /// <summary>
+        /// By default, the name is case sensitive if not in full uppercase
+        /// </summary>
+        /// <param name="dbName"></param>
+        /// <returns></returns>
+        public virtual bool IsCaseSensitiveName(string dbName)
+        {
+            return dbName != dbName.ToUpper();
+        }
     }
 }
