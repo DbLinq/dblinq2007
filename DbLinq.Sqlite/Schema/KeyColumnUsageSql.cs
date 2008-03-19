@@ -47,7 +47,7 @@ namespace DbLinq.Sqlite.Schema
         {
             KeyColumnUsage t = new KeyColumnUsage();
             const int K_ID = 0;
-            const int K_SEQ = 1;
+            //const int K_SEQ = 1;
             const int K_TABLE = 2;
             const int K_FROM = 3;
             const int K_TO = 4;

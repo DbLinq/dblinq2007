@@ -551,7 +551,7 @@ namespace DbLinq.Util
                             //bindings.Add(binding);
                             throw new Exception("TODO L351 - when compiling, handle type" + projFld.typeEnum);
                         }
-                        break;
+                        //break;
 
                     default:
                         throw new ApplicationException("TODO - objects other than primitive and entities in CompileProjRow: " + projFld.FieldType);

@@ -162,7 +162,7 @@ namespace DbLinq.Sqlite
         /// because it does not fill up the translation log.
         /// This is enabled for tables where Vendor.UserBulkInsert[db.Table] is true.
         /// </summary>
-        public virtual void DoBulkInsert<T>(DbLinq.Linq.Table<T> table, List<T> rows, IDbConnection connection)
+        public override void DoBulkInsert<T>(Table<T> table, List<T> rows, IDbConnection connection)
         {
             int pageSize = UseBulkInsert[table];
             //ProjectionData projData = ProjectionData.FromReflectedType(typeof(T));
