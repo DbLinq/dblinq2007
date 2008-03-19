@@ -34,7 +34,6 @@ namespace VisualMetal
 		private void Login_Click(object sender, RoutedEventArgs e)
 		{
 			main.Parameters.Password = PasswordInput.Password; // can't bind to password for security reasons
-            //main.Parameters.Provider = Convert.ToString(comboProvider.SelectedValue);
 
 			if (main.LoadSchema())
 				Close();
