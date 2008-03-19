@@ -222,8 +222,8 @@ namespace DbLinq.Util
             // Get the matched string.
             string x = m.ToString();
 
-            // If it is NOT lower case
-            if (x != x.ToLower())
+            // If it is NOT lower case and quotes are no already there
+            if (x != x.ToLower() && !x.StartsWith("\""))
                 x = ".\"" + x.Substring(1) + "\"";
 
             return x;
