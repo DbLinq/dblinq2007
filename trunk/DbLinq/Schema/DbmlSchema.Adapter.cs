@@ -51,7 +51,6 @@ namespace DbLinq.Schema.Dbml
 		private object owner;
 		private FieldInfo fieldInfo;
 		private PropertyInfo propertyInfo;
-		private Action update;
 
 		protected IEnumerable GetValue()
 		{
@@ -109,8 +108,6 @@ namespace DbLinq.Schema.Dbml
 				array.SetValue(list[listIndex], others.Count + listIndex);
 			}
 			SetValue(array);
-			if (update != null)
-				update();
 		}
 
 		public ArrayHelper(object o, string fieldName)
@@ -332,7 +329,6 @@ namespace DbLinq.Schema.Dbml
 		[XmlIgnore]
 		public bool BodyContainsSelectStatement;
 
-		private ArrayHelper<Parameter> parameters;
 		[XmlIgnore]
 		public ISimpleList<Parameter> Parameters;
 		[XmlIgnore]

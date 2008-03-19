@@ -293,7 +293,7 @@ namespace DbLinq.PostgreSql
         /// </summary>
         /// <param name="dbName"></param>
         /// <returns></returns>
-        public virtual bool IsCaseSensitiveName(string dbName)
+        public override bool IsCaseSensitiveName(string dbName)
         {
             return dbName != dbName.ToLower();
         }

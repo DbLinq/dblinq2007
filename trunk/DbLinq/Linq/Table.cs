@@ -359,7 +359,6 @@ namespace DbLinq.Linq
                 //bool mustQuoteIds = primaryKeyType == typeof(string) || primaryKeyType == typeof(char);
 
                 List<string> idsToDelete = new List<string>();
-                int indx2 = 0;
                 foreach (T obj in _deleteList)
                 {
                     try
