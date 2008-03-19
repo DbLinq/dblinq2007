@@ -33,12 +33,17 @@
 			<TextBox Grid.Row="3" Grid.Column="1" HorizontalAlignment="Left" Width="200" Margin="5" Text="{Binding Path=Database, UpdateSourceTrigger=PropertyChanged}" />
 
 			<Label Grid.Row="4" HorizontalAlignment="Right">Provider:</Label>
-			<TextBox Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" Width="200" Margin="5" Text="{Binding Path=Provider, UpdateSourceTrigger=PropertyChanged}" />
-			
-			<CheckBox Grid.Row="5" Grid.Column="0" HorizontalAlignment="Right" Margin="5" IsChecked="{Binding Path=SavePassword}" x:Name="SavePasswordCheckBox" />
+            <CheckBox Grid.Row="5" Grid.Column="0" HorizontalAlignment="Right" Margin="5" IsChecked="{Binding Path=SavePassword}" x:Name="SavePasswordCheckBox" />
 			<Label Grid.Row="5" Grid.Column="1" HorizontalAlignment="Left">Save Password (insecure)</Label>
 			
 			<TextBlock x:Name="LoginErrorMessage" Grid.Row="2" Grid.ColumnSpan="2" Foreground="Red" FontWeight="Bold" HorizontalAlignment="Center" Visibility="Collapsed" />
+            
+            <ComboBox Grid.Column="1" Grid.Row="4" Margin="5,2,5,0" Name="comboProvider" Text="{Binding Path=Provider, UpdateSourceTrigger=PropertyChanged}">
+                <ComboBoxItem IsSelected="True">MySql</ComboBoxItem>
+                <ComboBoxItem>PostgreSQL</ComboBoxItem>
+                <ComboBoxItem>OracleODP</ComboBoxItem>
+                <ComboBoxItem>Oracle</ComboBoxItem>
+            </ComboBox>
 		</Grid>
 		<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
 			<Button IsDefault="True" Click="Login_Click" Margin="0,8,0,0" Width="120" Content="Login" />
