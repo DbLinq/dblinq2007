@@ -80,7 +80,7 @@ namespace AndrusDB
         }
 
         #endregion
-#warning L189 table public.t3 has no primary key. Multiple c# objects will refer to the same row.
+//#warning L189 table public.t3 has no primary key. Multiple c# objects will refer to the same row.
 
         #region childtables
         #endregion
@@ -328,7 +328,7 @@ namespace AndrusDB
         }
 
         #endregion
-#warning L189 table public.t5 has no primary key. Multiple c# objects will refer to the same row.
+//#warning L189 table public.t5 has no primary key. Multiple c# objects will refer to the same row.
 
         #region childtables
         #endregion
@@ -373,7 +373,7 @@ namespace AndrusDB
         }
 
         #endregion
-#warning L189 table public.t4 has no primary key. Multiple c# objects will refer to the same row.
+//#warning L189 table public.t4 has no primary key. Multiple c# objects will refer to the same row.
 
         #region childtables
         #endregion
@@ -479,7 +479,7 @@ namespace AndrusDB
         }
 
         #endregion
-#warning L189 table public.t2 has no primary key. Multiple c# objects will refer to the same row.
+//#warning L189 table public.t2 has no primary key. Multiple c# objects will refer to the same row.
 
         #region childtables
         #endregion
