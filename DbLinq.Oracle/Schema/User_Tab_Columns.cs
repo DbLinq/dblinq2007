@@ -21,7 +21,7 @@ namespace DbLinq.Oracle.Schema
         /// </summary>
         public string data_type;
         public string data_type_mod;
-        
+
         /// <summary>
         /// eg. null or 4000 for default string?
         /// </summary>
@@ -59,27 +59,28 @@ namespace DbLinq.Oracle.Schema
             int field = 0;
             //t.table_catalog = rdr.GetString(field++);
             //t.table_schema  = rdr.GetString(field++);
-            t.table_name    = rdr.GetString(field++);
-            t.column_name   = rdr.GetString(field++);
+            t.table_name = rdr.GetString(field++);
+            t.column_name = rdr.GetString(field++);
 
-            t.data_type      = rdr.GetString(field++);
-            if(t.data_type=="TIMESTAMP(6)"){
+            t.data_type = rdr.GetString(field++);
+            if (t.data_type == "TIMESTAMP(6)")
+            {
                 t.data_type = "TIMESTAMP"; //clip the '(6)' - don't know the meaning
             }
 
             //we use OraExtensions.GetNString():
-            t.data_type_mod  = rdr.GetNString(field++); //todo: null
-            t.data_length  = rdr.GetNInt(field++);
+            t.data_type_mod = rdr.GetNString(field++); //todo: null
+            t.data_length = rdr.GetNInt(field++);
 
             //Nicholas (.f1@free.fr) reports an error - data_precision being decimal
             //t.data_precision = rdr.GetNString(field++); //null
             t.data_precision = rdr.GetNDecimal(field++); //null //
-            
-            t.data_scale  = rdr.GetNDecimal(field++); //null
+
+            t.data_scale = rdr.GetNDecimal(field++); //null
 
             string nullableStr = rdr.GetString(field++);
-            t.isNullable    = nullableStr=="Y";
-            t.column_id         = rdr.GetInt32(field++);
+            t.isNullable = nullableStr == "Y";
+            t.column_id = Convert.ToInt32(rdr.GetValue(field++));
             return t;
         }
 
