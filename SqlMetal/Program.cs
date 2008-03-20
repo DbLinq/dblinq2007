@@ -28,6 +28,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using DbLinq.Schema;
+using DbLinq.Util;
 using DbLinq.Vendor;
 using SqlMetal.Generator;
 using SqlMetal.Generator.Implementation;
@@ -111,6 +112,10 @@ namespace SqlMetal
             {
                 dbSchema = schemaLoader.Load(parameters.Database, tableAliases, parameters.Pluralize, parameters.SProcs);
                 dbSchema.Provider = parameters.Provider;
+                dbSchema.Tables.Sort(new LambdaComparer<DbLinq.Schema.Dbml.Table>((x, y) => (x.Type.Name.CompareTo(y.Type.Name))));
+                foreach (var table in dbSchema.Tables)
+                    table.Type.Columns.Sort(new LambdaComparer<DbLinq.Schema.Dbml.Column>((x, y) => (x.Member.CompareTo(y.Member))));
+                dbSchema.Functions.Sort(new LambdaComparer<DbLinq.Schema.Dbml.Function>((x, y) => (x.Method.CompareTo(y.Method))));
                 SchemaPostprocess.PostProcess_DB(dbSchema);
             }
             else

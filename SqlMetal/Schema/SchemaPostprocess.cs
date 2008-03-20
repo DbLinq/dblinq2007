@@ -22,8 +22,9 @@ namespace SqlMetal.Schema
                 return;
 
             //sort tables, parent tables first
-            TableSorter sorter = new TableSorter(schema.Tables);
-            schema.Tables.Sort(sorter);
+            // picrap: how useful was this?
+            //TableSorter sorter = new TableSorter(schema.Tables);
+            //schema.Tables.Sort(sorter);
 
             foreach (var tbl in schema.Tables)
             {

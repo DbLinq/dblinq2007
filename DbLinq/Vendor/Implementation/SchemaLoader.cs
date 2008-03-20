@@ -24,6 +24,7 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Data;
 using DbLinq.Linq;
@@ -96,6 +97,7 @@ namespace DbLinq.Vendor.Implementation
             }
         }
 
+        [Obsolete("Use CreateTableName instead")]
         protected string GetTableName(string name, IDictionary<string,string> tableAliases)
         {
             if (tableAliases.ContainsKey(name))
@@ -103,27 +105,32 @@ namespace DbLinq.Vendor.Implementation
             return NameFormatter.AdjustTableName(name);
         }
 
+        [Obsolete("Use CreateColumnName instead")]
         protected string GetColumnName(string name)
         {
             return NameFormatter.AdjustColumnName(name);
         }
 
+        [Obsolete("Use CreateColumnName instead")]
         protected string GetColumnFieldName(string name)
         {
             return NameFormatter.AdjustColumnFieldName(name);
         }
 
+        [Obsolete("Use CreateTableName instead")]
         protected string GetMethodName(string name)
         {
             return NameFormatter.AdjustMethodName(name);
         }
 
+        [Obsolete("Use CreateAssociationName instead")]
         public virtual string GetManyToOneColumnName(string referencedTableName, string thisTableName)
         {
             // TODO: handle aliases?
             return NameFormatter.AdjustManyToOneColumnName(referencedTableName, thisTableName);
         }
 
+        [Obsolete("Use CreateAssociationName instead")]
         public virtual string GetOneToManyColumnName(string referencedTableName)
         {
             // TODO: handle aliases?

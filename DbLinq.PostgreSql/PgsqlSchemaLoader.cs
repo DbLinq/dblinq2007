@@ -19,8 +19,12 @@ namespace DbLinq.PostgreSql
         public override System.Type DataContextType { get { return typeof(PgsqlDataContext); } }
         public override Database Load(string databaseName, IDictionary<string, string> tableAliases, bool pluralize, bool loadStoredProcedures)
         {
+            NameFormatter.Pluralize = pluralize; // TODO: this could go in a context (instead of service class)
+
             IDbConnection conn = Connection;
             conn.Open();
+
+            var names = new Names();
 
             DbLinq.Schema.Dbml.Database schema = new DbLinq.Schema.Dbml.Database();
             schema.Name = databaseName;
@@ -38,10 +42,13 @@ namespace DbLinq.PostgreSql
 
             foreach (TableRow tblRow in tables)
             {
-                DbLinq.Schema.Dbml.Table tblSchema = new DbLinq.Schema.Dbml.Table();
-                tblSchema.Name = tblRow.table_schema + "." + tblRow.table_name;
-                tblSchema.Member = GetColumnName(tblRow.table_name);
-                tblSchema.Type.Name = GetTableName(tblRow.table_name, tableAliases);
+                var tableName = CreateTableName(tblRow.table_name, tableAliases);
+                names.TablesNames[tableName.DbName] = tableName;
+
+                var tblSchema = new DbLinq.Schema.Dbml.Table();
+                tblSchema.Name = tblRow.table_schema + "." + tableName.DbName;
+                tblSchema.Member = tableName.MemberName;
+                tblSchema.Type.Name = tableName.ClassName;
                 schema.Tables.Add(tblSchema);
             }
 
@@ -61,6 +68,9 @@ namespace DbLinq.PostgreSql
 
             foreach (Schema.Column columnRow in columns)
             {
+                var columnName = CreateColumnName(columnRow.column_name);
+                names.AddColumn(columnRow.table_name, columnName);
+
                 //find which table this column belongs to
                 DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.TableNameWithSchema == tblSchema.Name);
                 if (tableSchema == null)
@@ -68,14 +78,14 @@ namespace DbLinq.PostgreSql
                     Console.WriteLine("ERROR L46: Table '" + columnRow.table_name + "' not found for column " + columnRow.column_name);
                     continue;
                 }
-                DbLinq.Schema.Dbml.Column colSchema = new DbLinq.Schema.Dbml.Column();
-                colSchema.Name = columnRow.column_name;
-                colSchema.Member = GetColumnName(columnRow.column_name);
-                colSchema.Storage = GetColumnFieldName(columnRow.column_name);
+                var colSchema = new DbLinq.Schema.Dbml.Column();
+                colSchema.Name = columnName.DbName;
+                colSchema.Member = columnName.PropertyName;
+                colSchema.Storage = columnName.StorageFieldName;
                 colSchema.DbType = columnRow.DataTypeWithWidth; //columnRow.datatype;
+
                 KeyColumnUsage primaryKCU = constraints.FirstOrDefault(c => c.column_name == columnRow.column_name
                     && c.table_name == columnRow.table_name && c.constraint_name.EndsWith("_pkey"));
-
                 if (primaryKCU != null) //columnRow.column_key=="PRI";
                     colSchema.IsPrimaryKey = true;
                 if (columnRow.column_default != null && columnRow.column_default.StartsWith("nextval("))
@@ -122,7 +132,8 @@ namespace DbLinq.PostgreSql
                 {
                     //A) add primary key
                     DbLinq.Schema.Dbml.Column primaryKeyCol = table.Type.Columns.First(c => c.Name == keyColRow.column_name);
-                    primaryKeyCol.IsPrimaryKey = true;
+                    if (!primaryKeyCol.IsPrimaryKey) // picrap: just to check if the case happens
+                        primaryKeyCol.IsPrimaryKey = true;
                 }
                 else
                 {
@@ -135,23 +146,25 @@ namespace DbLinq.PostgreSql
                         continue; //as per Andrus, do not throw. //putting together an Adnrus_DB test case.
                     }
 
+                    var associationName = CreateAssociationName(keyColRow.table_name, foreignKey.table_name_Parent, keyColRow.constraint_name);
+
                     //if not PRIMARY, it's a foreign key.
                     //both parent and child table get an [Association]
                     DbLinq.Schema.Dbml.Association assoc = new DbLinq.Schema.Dbml.Association();
                     assoc.IsForeignKey = true;
                     assoc.Name = keyColRow.constraint_name;
                     assoc.Type = null;
-                    assoc.ThisKey = keyColRow.column_name;
-                    assoc.Member = GetManyToOneColumnName(foreignKey.table_name_Parent, keyColRow.table_name);
-                    assoc.Storage = GetColumnFieldName(keyColRow.constraint_name);
+                    assoc.ThisKey = names.ColumnsNames[keyColRow.table_name][keyColRow.column_name].PropertyName; 
+                    assoc.Member = associationName.ManyToOneMemberName;
+                    assoc.Storage = associationName.ForeignKeyStorageFieldName; 
                     table.Type.Associations.Add(assoc);
 
                     //and insert the reverse association:
                     DbLinq.Schema.Dbml.Association assoc2 = new DbLinq.Schema.Dbml.Association();
                     assoc2.Name = keyColRow.constraint_name;
                     assoc2.Type = table.Type.Name;
-                    assoc2.Member = GetOneToManyColumnName(keyColRow.table_name);
-                    assoc2.OtherKey = keyColRow.column_name; //.referenced_column_name;
+                    assoc2.Member = associationName.OneToManyMemberName;
+                    assoc2.OtherKey = names.ColumnsNames[foreignKey.table_name_Parent][foreignKey.column_name].PropertyName; // GetColumnName(keyColRow.referenced_column_name);
 
                     //Dbml.Table parentTable = schema0.Tables.FirstOrDefault(t => keyColRow.referenced_table_name==t.Name);
                     DbLinq.Schema.Dbml.Table parentTable = schema.Tables.FirstOrDefault(t => foreignKey.TableNameWithSchema_Parent == t.Name);
@@ -231,9 +244,11 @@ namespace DbLinq.PostgreSql
 
         DbLinq.Schema.Dbml.Function ParseFunction(Pg_Proc pg_proc, Dictionary<long, string> typeOidToName)
         {
+            var procedureName = CreateProcedureName(pg_proc.proname);
+
             DbLinq.Schema.Dbml.Function dbml_func = new DbLinq.Schema.Dbml.Function();
-            dbml_func.Name = pg_proc.proname;
-            dbml_func.Method = GetMethodName(pg_proc.proname); //getproductcount -> getProductCount
+            dbml_func.Name = procedureName.DbName;
+            dbml_func.Method = procedureName.MethodName;
 
             if (pg_proc.formatted_prorettype != null)
             {
@@ -286,10 +301,10 @@ namespace DbLinq.PostgreSql
         {
             switch (inOut)
             {
-                case "i": return DbLinq.Schema.Dbml.ParameterDirection.In;
-                case "o": return DbLinq.Schema.Dbml.ParameterDirection.Out;
-                case "b": return DbLinq.Schema.Dbml.ParameterDirection.InOut;
-                default: return DbLinq.Schema.Dbml.ParameterDirection.InOut;
+            case "i": return DbLinq.Schema.Dbml.ParameterDirection.In;
+            case "o": return DbLinq.Schema.Dbml.ParameterDirection.Out;
+            case "b": return DbLinq.Schema.Dbml.ParameterDirection.InOut;
+            default: return DbLinq.Schema.Dbml.ParameterDirection.InOut;
             }
         }
 
@@ -299,7 +314,7 @@ namespace DbLinq.PostgreSql
         private bool SkipProc(string name)
         {
             string[] prefixes = System.Configuration.ConfigurationManager.AppSettings["postgresqlSkipProcPrefixes"].Split(',');
-            
+
             foreach (string s in prefixes)
             {
                 if (name.StartsWith(s))
