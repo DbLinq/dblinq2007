@@ -34,6 +34,7 @@ using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using DbLinq.Linq;
 using DbLinq.Util;
+using System.ComponentModel;
 
 namespace DbLinq.Vendor.Implementation
 {
@@ -129,6 +130,72 @@ namespace DbLinq.Vendor.Implementation
             string sql2 = string.Format(sql, paramNames.ToArray());
             return sql2;
         }
+
+    /// <summary>
+    /// Executes query and converts result to object properties.
+    /// Used Marc Gravell implementation published in microsoft.public.dotnet.languages.csharp newsgroup
+    /// </summary>
+    /// <typeparam name="TResult">Entity having public properties</typeparam>
+    /// <param name="context">database to use</param>
+    /// <param name="sql">server query returning table</param>
+    /// <param name="parameters">query parameters</param>
+    /// <returns>entities with matching properties filled</returns>
+        public virtual IEnumerable<TResult> ExecuteQuery<TResult>(DbLinq.Linq.DataContext context, string sql, params object[] parameters)
+                                                                where TResult : new() {
+          using (IDbCommand command = context.DatabaseContext.CreateCommand()) {
+            string sql2 = ExecuteCommand_PrepareParams(command, sql, parameters);
+            command.CommandText = sql2;
+            command.Connection.Open();
+            using (IDataReader reader = command.ExecuteReader(
+                     CommandBehavior.CloseConnection | CommandBehavior.SingleResult)) {
+              if (reader.Read()) {
+                // prepare a buffer and look at the properties
+                object[] values = new object[reader.FieldCount];
+                PropertyDescriptor[] props = new PropertyDescriptor[values.Length];
+#if HyperDescriptor
+            // Using Marc Gravell HyperDescriptor gets significantly better reflection performance (~100 x faster)
+            // http://www.codeproject.com/KB/cs/HyperPropertyDescriptor.aspx
+            PropertyDescriptorCollection allProps = PropertyHelper<TResult>.GetProperties();
+#else
+                PropertyDescriptorCollection allProps = TypeDescriptor.GetProperties(typeof(TResult));
+#endif
+                for (int i = 0; i < props.Length; i++) {
+                  string name = reader.GetName(i);
+                  props[i] = allProps.Find(name, true);
+                }
+                  do { // walk the data
+                    reader.GetValues(values);
+                    TResult t = new TResult();
+                    for (int i = 0; i < props.Length; i++) {
+                      // TODO: use char type conversion delegate.
+                      if (props[i] != null) props[i].SetValue(t, values[i]);
+                    }
+                    yield return t;
+                  } while (reader.Read());
+                }
+                while (reader.NextResult()) { } // ensure any trailing errors caught
+              }
+            }
+          }
+        
+#if HyperDescriptor
+    static class PropertyHelper<T> {
+      static readonly PropertyDescriptorCollection properties;
+      public static PropertyDescriptorCollection GetProperties() {
+        return properties;
+      }
+ 
+      static PropertyHelper() {
+        // add HyperDescriptor (optional) and get the properties
+        HyperTypeDescriptionProvider.Add(typeof(T));
+        properties = TypeDescriptor.GetProperties(typeof(T));
+        // ensure we have a readonly collection
+        PropertyDescriptor[] propArray = new PropertyDescriptor[properties.Count];
+        properties.CopyTo(propArray, 0);
+        properties = new PropertyDescriptorCollection(propArray, true);
+      }
+    }
+#endif
 
         public virtual bool CanBulkInsert<T>(DbLinq.Linq.Table<T> table)
         {
