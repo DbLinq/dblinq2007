@@ -58,9 +58,18 @@ SELECT table_name, tablespace_name
 FROM user_tables 
 WHERE table_name NOT LIKE '%$%' 
 AND table_name NOT LIKE 'LOGMNR%' 
-AND table_name NOT IN ('SQLPLUS_PRODUCT_PROFILE','HELP')";
+AND table_name NOT IN ('SQLPLUS_PRODUCT_PROFILE','HELP')
 
-            return DataCommand.Find<UserTablesRow>(conn, sql, fromRow);
+union
+
+SELECT table_name, tablespace_name 
+FROM all_tables 
+WHERE table_name NOT LIKE '%$%' 
+AND table_name NOT LIKE 'LOGMNR%' 
+AND table_name NOT IN ('SQLPLUS_PRODUCT_PROFILE','HELP')
+AND owner = :owner";
+
+            return DataCommand.Find<UserTablesRow>(conn, sql, ":owner", db, fromRow);
         }
     }
 }
