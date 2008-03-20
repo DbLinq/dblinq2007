@@ -91,6 +91,7 @@
     <Compile Include="Schema\ProcedureName.cs" />
     <Compile Include="Schema\Name.cs" />
     <Compile Include="Schema\TableName.cs" />
+    <Compile Include="Util\LambdaComparer.cs" />
     <Compile Include="Util\ConnectionManager.cs" />
     <Compile Include="Util\CSharp.cs" />
     <Compile Include="Util\DataCommand.cs" />
