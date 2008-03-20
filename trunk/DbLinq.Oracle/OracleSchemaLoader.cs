@@ -20,8 +20,12 @@ namespace DbLinq.Oracle
         public override System.Type DataContextType { get { return typeof(OracleDataContext); } }
         public override Database Load(string databaseName, IDictionary<string, string> tableAliases, bool pluralize, bool loadStoredProcedures)
         {
+            NameFormatter.Pluralize = pluralize; // TODO: this could go in a context (instead of service class)
+
             IDbConnection conn = Connection;
             conn.Open();
+
+            var names = new Names();
 
             DbLinq.Schema.Dbml.Database schema = new DbLinq.Schema.Dbml.Database();
             schema.Name = databaseName;
@@ -42,10 +46,13 @@ namespace DbLinq.Oracle
 
             foreach (UserTablesRow tblRow in tables)
             {
-                DbLinq.Schema.Dbml.Table tblSchema = new DbLinq.Schema.Dbml.Table();
-                tblSchema.Name = tblRow.table_name;
-                tblSchema.Member = GetColumnName(tblRow.table_name);
-                tblSchema.Type.Name = GetTableName(tblRow.table_name, tableAliases);
+                var tableName = CreateTableName(tblRow.table_name, tableAliases);
+                names.TablesNames[tableName.DbName] = tableName;
+
+                var tblSchema = new DbLinq.Schema.Dbml.Table();
+                tblSchema.Name = tableName.DbName;
+                tblSchema.Member = tableName.MemberName;
+                tblSchema.Type.Name = tableName.ClassName;
                 schema.Tables.Add(tblSchema);
             }
 
@@ -62,6 +69,9 @@ namespace DbLinq.Oracle
 
             foreach (User_Tab_Column columnRow in columns)
             {
+                var columnName = CreateColumnName(columnRow.column_name);
+                names.AddColumn(columnRow.table_name, columnName);
+
                 //find which table this column belongs to
                 DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.table_name == tblSchema.Name);
                 if (tableSchema == null)
@@ -70,9 +80,9 @@ namespace DbLinq.Oracle
                     continue;
                 }
                 DbLinq.Schema.Dbml.Column colSchema = new DbLinq.Schema.Dbml.Column();
-                colSchema.Name = columnRow.column_name;
-                colSchema.Member = GetColumnName(columnRow.column_name);
-                colSchema.Storage = GetColumnFieldName(columnRow.column_name);
+                colSchema.Name = columnName.DbName;
+                colSchema.Member = columnName.PropertyName;
+                colSchema.Storage = columnName.StorageFieldName;
 
                 colSchema.DbType = columnRow.data_type; //.column_type ?
                 //colSchema.IsPrimaryKey = false;
@@ -132,26 +142,25 @@ namespace DbLinq.Oracle
                         continue;
                     }
 
+                    var associationName = CreateAssociationName(constraint.table_name, referencedConstraint.table_name, constraint.constraint_name);
+
                     //if not PRIMARY, it's a foreign key.
                     //both parent and child table get an [Association]
                     DbLinq.Schema.Dbml.Association assoc = new DbLinq.Schema.Dbml.Association();
                     assoc.IsForeignKey = true;
                     assoc.Name = constraint.constraint_name;
                     assoc.Type = null;
-                    assoc.ThisKey = constraint.column_name;
-                    //assoc.Member = GetTableName(constraint.table_name, tableAliases);
-                    //assoc.Storage = GetColumnFieldName(constraint.column_name);
-                    assoc.Member = GetManyToOneColumnName(referencedConstraint.table_name, constraint.table_name);
-                    assoc.Storage = GetColumnFieldName(constraint.constraint_name);
+                    assoc.ThisKey = names.ColumnsNames[constraint.table_name][constraint.column_name].PropertyName; 
+                    assoc.Member = associationName.ManyToOneMemberName;
+                    assoc.Storage = associationName.ForeignKeyStorageFieldName; 
                     table.Type.Associations.Add(assoc);
 
                     //and insert the reverse association:
                     DbLinq.Schema.Dbml.Association assoc2 = new DbLinq.Schema.Dbml.Association();
                     assoc2.Name = constraint.constraint_name;
                     assoc2.Type = table.Type.Name;
-                    //assoc2.Member = GetColumnName(constraint.table_name); // Util.FormatTableName(constraint.table_name, false).Pluralize();
-                    assoc2.Member = GetOneToManyColumnName(constraint.table_name);
-                    assoc2.OtherKey = referencedConstraint.column_name; // referenced_column_name;
+                    assoc2.Member = associationName.OneToManyMemberName;
+                    assoc2.OtherKey = names.ColumnsNames[referencedConstraint.table_name][referencedConstraint.column_name].PropertyName;
 
                     DbLinq.Schema.Dbml.Table parentTable = schema.Tables.FirstOrDefault(t => referencedConstraint.table_name == t.Name);
                     if (parentTable == null)

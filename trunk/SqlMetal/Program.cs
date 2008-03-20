@@ -57,7 +57,8 @@ namespace SqlMetal
                 DbLinq.Schema.Dbml.Database dbSchema;
 
                 // we always need a factory, even if generating from a DBML file, because we need a namespace
-                var schemaLoader = new LoaderFactory().Load(parameters);
+                var loaderFactory = new LoaderFactory();
+                var schemaLoader = loaderFactory.Load(parameters);
 
                 dbSchema = LoadSchema(parameters, schemaLoader);
 

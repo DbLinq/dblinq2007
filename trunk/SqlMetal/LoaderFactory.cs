@@ -55,18 +55,61 @@ namespace SqlMetal
 
         private Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
+            // try to load from within the current AppDomain
             IList<Assembly> assemblies = AppDomain.CurrentDomain.GetAssemblies();
             foreach (Assembly assembly in assemblies)
             {
                 if (assembly.GetName().Name == args.Name)
                     return assembly;
             }
+            // try to load the files
             string fileName = args.Name + ".dll";
             if (File.Exists(fileName))
                 return Assembly.LoadFile(fileName);
             fileName = args.Name + ".exe";
             if (File.Exists(fileName))
                 return Assembly.LoadFile(fileName);
+            // try to load from the GAC
+            var gacAssembly = GacLoad(args.Name);
+            if (gacAssembly != null)
+                return gacAssembly;
+            return null;
+        }
+
+        /// <summary>
+        /// This is dirty, and must not be used in production environment
+        /// </summary>
+        /// <param name="shortName"></param>
+        /// <returns></returns>
+        private Assembly GacLoad(string shortName)
+        {
+            string assemblyDirectory = Path.Combine(Environment.GetEnvironmentVariable("SystemRoot"), "Assembly");
+            return GacLoad(shortName, Path.Combine(assemblyDirectory, "GAC"));
+        }
+
+        private Assembly GacLoad(string shortName, string directory)
+        {
+            string assemblyDirectory = Path.Combine(directory, shortName);
+            if (Directory.Exists(assemblyDirectory))
+            {
+                Version latestVersion = null;
+                string latestVersionDirectory = null;
+                foreach (string versionDirectory in Directory.GetDirectories(assemblyDirectory))
+                {
+                    var testVersion = new Version(Path.GetFileName(versionDirectory).Split('_')[0]);
+                    if (latestVersion == null || testVersion.CompareTo(latestVersion) > 0)
+                    {
+                        latestVersion = testVersion;
+                        latestVersionDirectory = versionDirectory;
+                    }
+                }
+                if (latestVersionDirectory != null)
+                {
+                    string assemblyPath = Path.Combine(latestVersionDirectory, shortName + ".dll");
+                    if (File.Exists(assemblyPath))
+                        return Assembly.LoadFile(assemblyPath);
+                }
+            }
             return null;
         }
 
