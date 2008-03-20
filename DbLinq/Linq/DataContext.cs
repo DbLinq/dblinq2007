@@ -230,10 +230,14 @@ namespace DbLinq.Linq
         /// <summary>
         /// Execute raw SQL query and return object
         /// </summary>
-        [Obsolete("NOT IMPLEMENTED YET")]
-        public System.Collections.Generic.IEnumerable<TResult> ExecuteQuery<TResult>(string command, params object[] parameters)
+        public IEnumerable<TResult> ExecuteQuery<TResult>(string command,
+          params object[] parameters) where TResult: new()
         {
-            throw new NotImplementedException();
+
+          using (DatabaseContext.OpenConnection()) {
+            IEnumerable<TResult> res = Vendor.ExecuteQuery<TResult>(this, command, parameters);
+            return res;
+          }
         }
 
         /// <summary>

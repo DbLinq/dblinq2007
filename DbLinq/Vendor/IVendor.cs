@@ -74,5 +74,16 @@ namespace DbLinq.Vendor
         string BuildSqlString(SqlExpressionParts parts);
 
         bool IsCaseSensitiveName(string dbName);
+
+      /// <summary>
+      /// Executes query and returns result in object properties.
+      /// </summary>
+      /// <typeparam name="TResult"></typeparam>
+      /// <param name="dataContext"></param>
+      /// <param name="command"></param>
+      /// <param name="parameters"></param>
+      /// <returns></returns>
+      IEnumerable<TResult> ExecuteQuery<TResult>(DbLinq.Linq.DataContext dataContext, string command, object[] parameters) 
+        where TResult: new();
     }
 }
