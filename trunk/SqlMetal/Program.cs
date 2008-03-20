@@ -71,18 +71,8 @@ namespace SqlMetal
                 }
                 else
                 {
-                    // picrap: if CSCodeGenerator causes problem, use CSharpCodeGenerator
-                    ICodeGenerator codeGen = new CSCodeGenerator();
-
                     string filename = parameters.Code ?? parameters.Database.Replace("\"", "");
-                    if (string.IsNullOrEmpty(Path.GetExtension(filename)))
-                        filename += codeGen.Extension;
-
-                    using (StreamWriter streamWriter = new StreamWriter(filename))
-                    {
-                        var generationContext = new GenerationContext(parameters, schemaLoader);
-                        codeGen.Write(streamWriter, dbSchema, generationContext);
-                    }
+					GenerateCSharp(parameters, dbSchema, schemaLoader, filename);
                 }
             }
             catch (Exception ex)
@@ -97,6 +87,21 @@ namespace SqlMetal
                 Console.ReadKey();
             }
         }
+
+		public static void GenerateCSharp(SqlMetalParameters parameters, DbLinq.Schema.Dbml.Database dbSchema, ISchemaLoader schemaLoader, string filename)
+		{
+			// picrap: if CSCodeGenerator causes problem, use CSharpCodeGenerator
+			ICodeGenerator codeGen = new CSCodeGenerator();
+
+			if (String.IsNullOrEmpty(Path.GetExtension(filename)))
+				filename += codeGen.Extension;
+
+			using (StreamWriter streamWriter = new StreamWriter(filename))
+			{
+				var generationContext = new GenerationContext(parameters, schemaLoader);
+				codeGen.Write(streamWriter, dbSchema, generationContext);
+			}
+		}
 
         public static DbLinq.Schema.Dbml.Database LoadSchema(SqlMetalParameters parameters, ISchemaLoader schemaLoader)
         {

@@ -35,10 +35,10 @@ namespace VisualMetal
 		{
 			main.Parameters.Password = PasswordInput.Password; // can't bind to password for security reasons
 
+			Cursor = Cursors.Wait;
 			if (main.LoadSchema())
 				Close();
+			Cursor = Cursors.Arrow;
 		}
-
-       
 	}
 }

@@ -31,8 +31,8 @@ namespace VisualMetal
 			InitializeComponent();
 
 			if (!String.IsNullOrEmpty(Properties.Settings.Default.Params))
-				using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(Properties.Settings.Default.Params)))
-					Parameters = (SqlMetalParameters)XamlReader.Load(stream);
+			    using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(Properties.Settings.Default.Params)))
+			        Parameters = (SqlMetalParameters)XamlReader.Load(stream);
 		}
 
 		protected override void OnClosed(EventArgs e)
@@ -81,6 +81,37 @@ namespace VisualMetal
 				DbLinq.Schema.Dbml.Table selected = (DbLinq.Schema.Dbml.Table)e.AddedItems[0];
 				ColumnList.ItemsSource = selected.Type.Items;
 			}
+		}
+
+		private void GenerateCSharp_Click(object sender, RoutedEventArgs e)
+		{
+			if (Database == null)
+			{
+				MessageBox.Show("No database schema loaded.");
+				return;
+			}
+
+			var dialog = new System.Windows.Forms.SaveFileDialog();
+			dialog.Filter = "C# source files (*.cs)|*.cs|All files (*.*)|*.*";
+			dialog.FileName = Parameters.Database;
+			if (dialog.ShowDialog() != System.Windows.Forms.DialogResult.Cancel)
+				SqlMetalProgram.GenerateCSharp(Parameters, Database, Loader, dialog.FileName);
+		}
+
+		private void SaveDbml_Click(object sender, RoutedEventArgs e)
+		{
+			if (Database == null)
+			{
+				MessageBox.Show("No database schema loaded.");
+				return;
+			}
+
+			var dialog = new System.Windows.Forms.SaveFileDialog();
+			dialog.Filter = "Database markup files (*.dbml)|*.dbml|All files (*.*)|*.*";
+			dialog.FileName = Parameters.Database;
+			if (dialog.ShowDialog() != System.Windows.Forms.DialogResult.Cancel)
+				using (Stream dbmlFile = File.OpenWrite(dialog.FileName))
+					DbLinq.Schema.DbmlSerializer.Write(dbmlFile, Database);
 		}
 	}
 }
