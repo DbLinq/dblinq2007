@@ -113,7 +113,7 @@ namespace DbLinq.Util
 
             //toncho11: http://code.google.com/p/dblinq2007/issues/detail?id=24
             if (cmd.ToString().StartsWith("Npgsql"))
-                cmd.CommandText = Regex.Replace(cmd.CommandText, "\\.[^\\s,\\n]*", AddQuotes);
+                QuotesHelper.AddQuotesToQuery(cmd);
 
             //Console.WriteLine("cmd.ExecuteCommand()");
             //XSqlDataReader _rdr = cmd.ExecuteReader();
@@ -217,17 +217,7 @@ namespace DbLinq.Util
             return GetEnumerator();
         }
 
-        static string AddQuotes(Match m)
-        {
-            // Get the matched string.
-            string x = m.ToString();
-
-            // If it is NOT lower case and quotes are no already there
-            if (x != x.ToLower() && !x.StartsWith("\""))
-                x = ".\"" + x.Substring(1) + "\"";
-
-            return x;
-        }
+       
 
         #region IsBuiltinType(), IsColumnType(), IsProjection()
 

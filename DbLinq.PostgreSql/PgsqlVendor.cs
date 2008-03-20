@@ -69,10 +69,8 @@ namespace DbLinq.PostgreSql
             {
                 //assume standard format of sequence name
                 string sequenceName = projData.tableAttribute.Name + "_" + idColName + "_seq";
-                if (idColName != idColName.ToLower() && !sequenceName.StartsWith("\""))//toncho11: quotes are added due to issue http://code.google.com/p/dblinq2007/issues/detail?id=27}
-                {
-                    sequenceName = "\"" + sequenceName.Replace(".", "\".\"") + "\"";
-                }
+                sequenceName = QuotesHelper.AddQuotesToSequence(idColName, sequenceName);//toncho11: quotes are added due to issue http://code.google.com/p/dblinq2007/issues/detail?id=27}
+                
                 sbIdentity.Append(";SELECT currval('" + sequenceName + "')");
             }
 

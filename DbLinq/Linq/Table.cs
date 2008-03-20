@@ -320,6 +320,7 @@ namespace DbLinq.Linq
 
                     using (IDbCommand cmd = InsertClauseBuilder.GetUpdateCommand(_vars, obj, proj, ID_to_update, modifiedProperties))
                     {
+                        QuotesHelper.AddQuotesToQuery(cmd);
                         int result = cmd.ExecuteNonQuery();
                         Trace.WriteLine("MTable SaveAll.Update returned:" + result);
                     }
