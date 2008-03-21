@@ -21,15 +21,16 @@ namespace DbLinq.Oracle.Schema
 
         public IEnumerable<UserTablesRow> EnumChildTables(int depth)
         {
-            if(depth>99){
+            if (depth > 99)
+            {
                 //prevent infinite recursion, in case of circular dependency
                 throw new ApplicationException("Circular dependency suspected");
             }
 
-            foreach(UserTablesRow t in childTables)
+            foreach (UserTablesRow t in childTables)
             {
                 yield return t;
-                foreach(UserTablesRow t2 in t.EnumChildTables(depth+1))
+                foreach (UserTablesRow t2 in t.EnumChildTables(depth + 1))
                 {
                     yield return t2;
                 }
@@ -46,8 +47,8 @@ namespace DbLinq.Oracle.Schema
         {
             UserTablesRow t = new UserTablesRow();
             int field = 0;
-            t.table_name    = rdr.GetString(field++);
-            t.tablespace_name    = rdr.GetString(field++);
+            t.table_name = rdr.GetString(field++);
+            t.tablespace_name = rdr.GetString(field++);
             return t;
         }
 
@@ -55,21 +56,13 @@ namespace DbLinq.Oracle.Schema
         {
             string sql = @"
 SELECT table_name, tablespace_name 
-FROM user_tables 
-WHERE table_name NOT LIKE '%$%' 
-AND table_name NOT LIKE 'LOGMNR%' 
-AND table_name NOT IN ('SQLPLUS_PRODUCT_PROFILE','HELP')
-
-union
-
-SELECT table_name, tablespace_name 
 FROM all_tables 
 WHERE table_name NOT LIKE '%$%' 
 AND table_name NOT LIKE 'LOGMNR%' 
 AND table_name NOT IN ('SQLPLUS_PRODUCT_PROFILE','HELP')
-AND owner = :owner";
+and lower(owner) = :owner";
 
-            return DataCommand.Find<UserTablesRow>(conn, sql, ":owner", db, fromRow);
+            return DataCommand.Find<UserTablesRow>(conn, sql, ":owner", db.ToLower(), fromRow);
         }
     }
 }

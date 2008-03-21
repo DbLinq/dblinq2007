@@ -90,26 +90,16 @@ namespace DbLinq.Oracle.Schema
             string sql = @"
 SELECT 
 table_name, column_name, data_type, data_type_mod, data_length, data_precision, data_scale, nullable, column_id
-FROM USER_TAB_COLUMNS
-WHERE table_name NOT LIKE '%$%' 
-AND table_name NOT LIKE 'LOGMNR%' 
-AND table_name NOT LIKE 'MVIEW%' 
-AND table_name NOT IN ('SQLPLUS_PRODUCT_PROFILE','HELP', 'PRODUCT_PRIVS')
-
-UNION
-
-SELECT 
-table_name, column_name, data_type, data_type_mod, data_length, data_precision, data_scale, nullable, column_id
 FROM ALL_TAB_COLUMNS
 WHERE table_name NOT LIKE '%$%' 
 AND table_name NOT LIKE 'LOGMNR%' 
 AND table_name NOT LIKE 'MVIEW%' 
 AND table_name NOT IN ('SQLPLUS_PRODUCT_PROFILE','HELP', 'PRODUCT_PRIVS')
-AND owner = :owner
+and lower(owner) = :owner
 
 ORDER BY table_name, Column_id";
 
-            return DataCommand.Find<User_Tab_Column>(conn, sql, ":owner", db, fromRow);
+            return DataCommand.Find<User_Tab_Column>(conn, sql, ":owner", db.ToLower(), fromRow);
         }
 
     }

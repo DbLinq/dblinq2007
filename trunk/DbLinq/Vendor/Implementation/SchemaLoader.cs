@@ -80,6 +80,17 @@ namespace DbLinq.Vendor.Implementation
             return NameFormatter.GetAssociationName(dbManyName, dbOneName, dbConstraintName, GetExtraction(dbManyName));
         }
 
+        protected virtual SchemaName CreateSchemaName(string databaseName, IDbConnection connection)
+        {
+            if (string.IsNullOrEmpty(databaseName))
+            {
+                databaseName = connection.Database;
+                if (string.IsNullOrEmpty(databaseName))
+                    throw new ArgumentException("Could not deduce database name from connection string. Please specify /database=<databaseName>");
+            }
+            return NameFormatter.GetSchemaName(databaseName, GetExtraction(databaseName));
+        }
+
         protected class Names
         {
             public IDictionary<string, TableName> TablesNames = new Dictionary<string, TableName>();
@@ -98,7 +109,7 @@ namespace DbLinq.Vendor.Implementation
         }
 
         [Obsolete("Use CreateTableName instead")]
-        protected string GetTableName(string name, IDictionary<string,string> tableAliases)
+        protected string GetTableName(string name, IDictionary<string, string> tableAliases)
         {
             if (tableAliases.ContainsKey(name))
                 return tableAliases[name];

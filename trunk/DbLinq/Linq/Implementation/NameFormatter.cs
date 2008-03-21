@@ -199,6 +199,14 @@ namespace DbLinq.Linq.Implementation
             return singularization;
         }
 
+        public SchemaName GetSchemaName(string dbName, WordsExtraction extraction)
+        {
+            var schemaName = new SchemaName { DbName = dbName };
+            ExtractWords(schemaName, extraction);
+            schemaName.ClassName = Format(schemaName.NameWords, Case, Singularization.DontChange);
+            return schemaName;
+        }
+
         public ProcedureName GetProcedureName(string dbName, WordsExtraction extraction)
         {
             var procedureName = new ProcedureName { DbName = dbName };
