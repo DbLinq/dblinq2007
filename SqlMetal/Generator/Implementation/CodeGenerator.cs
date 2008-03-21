@@ -111,7 +111,7 @@ namespace SqlMetal.Generator.Implementation
                 writer.WriteCommentLine("L69 no tables found");
                 return;
             }
-            using (writer.WriteClass(SpecificationDefinition.Partial, schema.Name, context.SchemaLoader.DataContextType.FullName))
+            using (writer.WriteClass(SpecificationDefinition.Partial, schema.Class, context.SchemaLoader.DataContextType.FullName))
             {
                 WriteDataContextCtors(writer, schema, context);
                 WriteDataContextTables(writer, schema, context);

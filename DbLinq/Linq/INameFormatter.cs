@@ -54,6 +54,7 @@ namespace DbLinq.Linq
         bool Pluralize { get; set; }
         Case Case { get; set; }
 
+        SchemaName GetSchemaName(string dbName, WordsExtraction extraction);
         ProcedureName GetProcedureName(string dbName, WordsExtraction extraction);
         TableName GetTableName(string dbName, WordsExtraction extraction);
         ColumnName GetColumnName(string dbName, WordsExtraction extraction);

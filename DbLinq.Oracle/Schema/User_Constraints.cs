@@ -37,16 +37,17 @@ namespace DbLinq.Oracle.Schema
         public List<User_Constraints_Row> getConstraints1(IDbConnection conn, string db)
         {
             string sql = @"
-SELECT UCC.constraint_name, UCC.table_name, UCC.column_name, UC.constraint_type, UC.R_constraint_name 
-FROM user_cons_columns UCC, user_constraints UC
+SELECT UCC.constraint_name, UCC.table_name, UCC.column_name, UC.constraint_type, UC.R_constraint_name
+FROM all_cons_columns UCC, all_constraints UC
 WHERE UCC.constraint_name=UC.constraint_name
 AND UCC.table_name=UC.table_name
 AND UCC.TABLE_NAME NOT LIKE '%$%' AND UCC.TABLE_NAME NOT LIKE 'LOGMNR%' AND UCC.TABLE_NAME NOT IN ('HELP','SQLPLUS_PRODUCT_PROFILE')
-AND UC.CONSTRAINT_TYPE!='C'";
+AND UC.CONSTRAINT_TYPE!='C'
+and lower(UCC.owner) = :owner";
 
-            return DataCommand.Find<User_Constraints_Row>(conn, sql, fromRow);
+            return DataCommand.Find<User_Constraints_Row>(conn, sql, ":owner", db.ToLower(), fromRow);
         }
-
+#if UNUSED
         public List<User_Constraints_Row> getConstraints2(IDbConnection conn, string db)
         {
             string sql = @"
@@ -58,5 +59,6 @@ AND UCC.TABLE_NAME NOT LIKE '%$%' AND UCC.TABLE_NAME NOT LIKE 'LOGMNR%'";
 
             return DataCommand.Find<User_Constraints_Row>(conn, sql, fromRow);
         }
+#endif
     }
 }

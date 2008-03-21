@@ -27,11 +27,12 @@ namespace DbLinq.Oracle
 
             var names = new Names();
 
-            DbLinq.Schema.Dbml.Database schema = new DbLinq.Schema.Dbml.Database();
-            schema.Name = databaseName;
+            var schema = new Database();
 
-            //schema.Class = FormatTableName(schema.Name);
-            schema.Class = databaseName;
+            var schemaName = CreateSchemaName(databaseName, conn);
+
+            schema.Name = schemaName.DbName;
+            schema.Class = schemaName.ClassName;
 
 
             //##################################################################

@@ -92,6 +92,7 @@
     <Compile Include="Linq\SessionVarsParsed.cs" />
     <Compile Include="Schema\ProcedureName.cs" />
     <Compile Include="Schema\Name.cs" />
+    <Compile Include="Schema\SchemaName.cs" />
     <Compile Include="Schema\TableName.cs" />
     <Compile Include="Util\LambdaComparer.cs" />
     <Compile Include="Util\ConnectionManager.cs" />
