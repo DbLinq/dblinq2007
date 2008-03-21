@@ -14,8 +14,11 @@ namespace DbLinq.Util
     {
         public static void AddQuotesToQuery(IDbCommand cmd)
         {
-            cmd.CommandText = Regex.Replace(cmd.CommandText, "\\.[^\\s,\\n]*", AddQuotes1);//select columns
-            cmd.CommandText = Regex.Replace(cmd.CommandText, "\\([^=]*=[^(]+\\)", AddQuotes2);//in the where clauses
+            if (cmd.ToString().StartsWith("Npgsql"))
+            {
+                cmd.CommandText = Regex.Replace(cmd.CommandText, "\\.[^\\s,\\n]*", AddQuotes1); //select columns
+                cmd.CommandText = Regex.Replace(cmd.CommandText, "\\([^=]*=[^(]+\\)", AddQuotes2); //in the where clauses
+            }
         }
 
         public static string AddQuotesToSequence(string idColName, string sequenceName)
