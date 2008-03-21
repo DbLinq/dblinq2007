@@ -112,8 +112,7 @@ namespace DbLinq.Util
             }
 
             //toncho11: http://code.google.com/p/dblinq2007/issues/detail?id=24
-            if (cmd.ToString().StartsWith("Npgsql"))
-                QuotesHelper.AddQuotesToQuery(cmd);
+            QuotesHelper.AddQuotesToQuery(cmd);
 
             //Console.WriteLine("cmd.ExecuteCommand()");
             //XSqlDataReader _rdr = cmd.ExecuteReader();
