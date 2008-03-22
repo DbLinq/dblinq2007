@@ -48,6 +48,7 @@ namespace DbLinq.Util
 
         public RowScalar(SessionVarsParsed vars, IEnumerable<T> parentTable, Dictionary<T, T> liveObjMap)
         {
+            Logger = LoggerInstance.Default;
             //don't modify the parent query with any additional clauses:
             _vars = vars;
             _parentTable = parentTable;

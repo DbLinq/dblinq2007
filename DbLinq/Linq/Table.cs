@@ -83,6 +83,7 @@ namespace DbLinq.Linq
         /// </summary>
         public Table(Table<T> parent, SessionVars vars)
         {
+            Logger = parent.Logger;
             _insertList = parent._insertList;
             _liveObjectMap = parent._liveObjectMap;
             _deleteList = parent._deleteList;
