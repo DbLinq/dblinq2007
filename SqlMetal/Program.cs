@@ -40,10 +40,16 @@ namespace SqlMetal
     {
         static void Main(string[] args)
         {
-            SqlMetalParameters parameters;
+            bool readLineAtExit = false;
+
             try
             {
-                parameters = new SqlMetalParameters(args);
+                foreach (var parameters in SqlMetalParameters.GetBatch(args))
+                {
+                    ProcessSchema(parameters);
+                    if (parameters.ReadLineAtExit)
+                        readLineAtExit = true;
+                }
             }
             catch (ArgumentException e)
             {
@@ -52,6 +58,16 @@ namespace SqlMetal
                 return;
             }
 
+
+            if (readLineAtExit)
+            {
+                // '-readLineAtExit' flag: useful when running from Visual Studio
+                Console.ReadKey();
+            }
+        }
+
+        private static void ProcessSchema(SqlMetalParameters parameters)
+        {
             try
             {
                 DbLinq.Schema.Dbml.Database dbSchema;
@@ -74,7 +90,7 @@ namespace SqlMetal
                 else
                 {
                     string filename = parameters.Code ?? parameters.Database.Replace("\"", "");
-					GenerateCSharp(parameters, dbSchema, schemaLoader, filename);
+                    GenerateCSharp(parameters, dbSchema, schemaLoader, filename);
                 }
             }
             catch (Exception ex)
@@ -82,28 +98,22 @@ namespace SqlMetal
                 string assyName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
                 Console.WriteLine(assyName + " failed:" + ex);
             }
-
-            if (parameters.ReadLineAtExit)
-            {
-                // '-readLineAtExit' flag: useful when running from Visual Studio
-                Console.ReadKey();
-            }
         }
 
-		public static void GenerateCSharp(SqlMetalParameters parameters, DbLinq.Schema.Dbml.Database dbSchema, ISchemaLoader schemaLoader, string filename)
-		{
-			// picrap: if CSCodeGenerator causes problem, use CSharpCodeGenerator
-			ICodeGenerator codeGen = new CSCodeGenerator();
+        public static void GenerateCSharp(SqlMetalParameters parameters, DbLinq.Schema.Dbml.Database dbSchema, ISchemaLoader schemaLoader, string filename)
+        {
+            // picrap: if CSCodeGenerator causes problem, use CSharpCodeGenerator
+            ICodeGenerator codeGen = new CSCodeGenerator();
 
-			if (String.IsNullOrEmpty(Path.GetExtension(filename)))
-				filename += codeGen.Extension;
+            if (String.IsNullOrEmpty(Path.GetExtension(filename)))
+                filename += codeGen.Extension;
 
-			using (StreamWriter streamWriter = new StreamWriter(filename))
-			{
-				var generationContext = new GenerationContext(parameters, schemaLoader);
-				codeGen.Write(streamWriter, dbSchema, generationContext);
-			}
-		}
+            using (StreamWriter streamWriter = new StreamWriter(filename))
+            {
+                var generationContext = new GenerationContext(parameters, schemaLoader);
+                codeGen.Write(streamWriter, dbSchema, generationContext);
+            }
+        }
 
         public static DbLinq.Schema.Dbml.Database LoadSchema(SqlMetalParameters parameters, ISchemaLoader schemaLoader)
         {
