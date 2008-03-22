@@ -38,7 +38,7 @@ namespace DbLinq.Util
     /// <summary>
     /// handles scalar calls: query.First, query.Last, and query.Count
     /// </summary>
-    class RowScalar<T>
+    public class RowScalar<T>
     {
         SessionVarsParsed _vars;
         IEnumerable<T> _parentTable;
@@ -69,125 +69,123 @@ namespace DbLinq.Util
 
             switch (exprCall.Method.Name)
             {
-                case "First":
+            case "First":
+                {
                     if (typeof(S) != typeof(T))
                         throw new ApplicationException("L39: Not prepared for double projection");
                     //Microsoft syntax: "SELECT TOP 1 ProductId FROM Products"
                     //MySql syntax:     "SELECT ProductId FROM Products LIMIT 1"
 
                     //foreach(T t in _parentTable) //call GetEnumerator
-                    using (RowEnumerator<S> rowEnum = new RowEnumerator<S>(_vars, liveObjectMapS))
+                    var rowEnum = new RowEnumerator<S>(_vars, liveObjectMapS);
+                    rowEnum.Logger = Logger;
+                    foreach (S firstS in rowEnum)
                     {
+                        return firstS;
+                    }
+                    throw new ApplicationException("First() failed, enumeration has no entries");
+                }
+            case "Count":
+            case "Max":
+            case "Min":
+            case "Average":
+            case "Sum":
+                {
+                    bool isAlreadyProjected = _parentTable is MTable_Projected<T>;
+                    if (exprCall.Method.Name == "Count" && typeof(T) != typeof(S) && !isAlreadyProjected)
+                    {
+                        //Count is very similar to Min/Max/Sum (below),
+                        //but unlike those, it may be asked to work on TableRows.
+                        //in that case, we need to project to an int.
+                        _vars.SqlParts.CountClause = "COUNT"; //Count or Max
+                        //string varName = _vars.GetDefaultVarName(); //'$x'
+                        string varName = "x$"; //TODO - get it from QueryProcessor
+                        FromClauseBuilder.SelectAllFields(_vars, _vars.SqlParts, typeof(T), varName);
+
+                        var rowEnum = new RowEnumerator<S>(_vars, null);
                         rowEnum.Logger = Logger;
                         foreach (S firstS in rowEnum)
                         {
                             return firstS;
                         }
-                        throw new ApplicationException("First() failed, enumeration has no entries");
+                        throw new ApplicationException("RowScalar.COUNT: Unable to advance to first result");
                     }
-                case "Count":
-                case "Max":
-                case "Min":
-                case "Average":
-                case "Sum":
+
+                    //during Average(), typeof(T)=int, typeof(S)=double.
+                    var rowEnumerator = new RowEnumerator<S>(_vars, null);
+                    using (IEnumerator<S> enumerator = rowEnumerator.GetEnumerator())
                     {
-                        bool isAlreadyProjected = _parentTable is MTable_Projected<T>;
-                        if (exprCall.Method.Name == "Count" && typeof(T) != typeof(S) && !isAlreadyProjected)
+                        rowEnumerator.Logger = Logger;
+                        bool hasOne = enumerator.MoveNext();
+                        if (!hasOne)
+                            throw new InvalidOperationException("Max/Count() called on set with zero items");
+                        S firstT = enumerator.Current;
+                        bool hasTwo = enumerator.MoveNext();
+                        if (hasTwo)
+                            throw new InvalidOperationException("Max/Count() called on set with more than one item");
+
+                        //return (S)(object)firstT; --throws InvalidCastExc?!
+
+                        object objT = firstT;
+
+                        //uh this is nasty ...  needs fixing
+                        //note: SELECT COUNT(x) in MySql returns type uint
+                        //C# would like an int
+                        if (typeof(S) == typeof(int) && typeof(T) == typeof(uint))
                         {
-                            //Count is very similar to Min/Max/Sum (below),
-                            //but unlike those, it may be asked to work on TableRows.
-                            //in that case, we need to project to an int.
-                            _vars.SqlParts.CountClause = "COUNT"; //Count or Max
-                            //string varName = _vars.GetDefaultVarName(); //'$x'
-                            string varName = "x$"; //TODO - get it from QueryProcessor
-                            FromClauseBuilder.SelectAllFields(_vars, _vars.SqlParts, typeof(T), varName);
-
-                            using (RowEnumerator<S> rowEnum = new RowEnumerator<S>(_vars, null))
-                            {
-                                rowEnum.Logger = Logger;
-                                foreach (S firstS in rowEnum)
-                                {
-                                    return firstS;
-                                }
-                                throw new ApplicationException("RowScalar.COUNT: Unable to advance to first result");
-                            }
+                            uint firstU = (uint)objT;
+                            int firstI = (int)firstU; //how can I invoke this cast to int dynamically?
+                            objT = firstI;
                         }
-
-                        //during Average(), typeof(T)=int, typeof(S)=double.
-                        using (RowEnumerator<S> rowEnumerator = new RowEnumerator<S>(_vars, null))
-                        using(IEnumerator<S> enumerator = rowEnumerator.GetEnumerator())
-                        {
-                            rowEnumerator.Logger = Logger;
-                            bool hasOne = enumerator.MoveNext();
-                            if (!hasOne)
-                                throw new InvalidOperationException("Max/Count() called on set with zero items");
-                            S firstT = enumerator.Current;
-                            bool hasTwo = enumerator.MoveNext();
-                            if (hasTwo)
-                                throw new InvalidOperationException("Max/Count() called on set with more than one item");
-
-                            //return (S)(object)firstT; --throws InvalidCastExc?!
-
-                            object objT = firstT;
-
-                            //uh this is nasty ...  needs fixing
-                            //note: SELECT COUNT(x) in MySql returns type uint
-                            //C# would like an int
-                            if (typeof(S) == typeof(int) && typeof(T) == typeof(uint))
-                            {
-                                uint firstU = (uint)objT;
-                                int firstI = (int)firstU; //how can I invoke this cast to int dynamically?
-                                objT = firstI;
-                            }
-                            return (S)objT;
-                        }
-                        //throw new ArgumentException("L51: Unprepared for Count");
-                        //break;
+                        return (S)objT;
                     }
-                case "Last":
+                    //throw new ArgumentException("L51: Unprepared for Count");
+                    //break;
+                }
+            case "Last":
+                {
+                    if (typeof(S) != typeof(T))
+                        throw new ApplicationException("L58: Not prepared for double projection");
+                    //TODO: can I use "LIMIT" to retrieve last row? or use ORDER BY? order by what column?
+                    object lastObj = null;
+                    foreach (T t in _parentTable) //call GetEnumerator
                     {
-                        if (typeof(S) != typeof(T))
-                            throw new ApplicationException("L58: Not prepared for double projection");
-                        //TODO: can I use "LIMIT" to retrieve last row? or use ORDER BY? order by what column?
-                        object lastObj = null;
-                        foreach (T t in _parentTable) //call GetEnumerator
-                        {
-                            lastObj = t;
-                        }
-                        S lastS = (S)lastObj;
-                        return lastS;
+                        lastObj = t;
                     }
+                    S lastS = (S)lastObj;
+                    return lastS;
+                }
 
-                case "Single":
-                case "SingleOrDefault":
-                    //QueryProcessor prepared a 'LIMIT 2' query, throw InvalidOperationException occurs
+            case "Single":
+            case "SingleOrDefault":
+                //QueryProcessor prepared a 'LIMIT 2' query, throw InvalidOperationException occurs
+                {
+                    //there are two types of Sequence.Single(), one passes an extra Lambda
+                    //LambdaExpression lambdaParam = expression.XMethodCall().XParam(1).XLambda();
+                    //MTable<T> table2 = _parentTable as MTable<T>;
+                    //IEnumerator<T> enumerator;
+                    var rowEnumerator = new RowEnumerator<T>(_vars, _liveObjectMap);
+                    using (IEnumerator<T> enumerator = rowEnumerator.GetEnumerator())
                     {
-                        //there are two types of Sequence.Single(), one passes an extra Lambda
-                        //LambdaExpression lambdaParam = expression.XMethodCall().XParam(1).XLambda();
-                        //MTable<T> table2 = _parentTable as MTable<T>;
-                        //IEnumerator<T> enumerator;
-                        using(var rowEnumerator = new RowEnumerator<T>(_vars, _liveObjectMap))
-                        using (IEnumerator<T> enumerator = rowEnumerator.GetEnumerator())
+                        rowEnumerator.Logger = Logger;
+                        //_vars.LimitClause = "LIMIT 2";
+                        bool hasOne = enumerator.MoveNext();
+                        if (!hasOne)
                         {
-                            rowEnumerator.Logger = Logger;
-                            //_vars.LimitClause = "LIMIT 2";
-                            bool hasOne = enumerator.MoveNext();
-                            if (!hasOne)
-                            {
-                                //no data? Single() will throw, whereas SingleOrDefault() allows null return
-                                if (exprCall.Method.Name == "SingleOrDefault")
-                                    return default(S); 
-                                else
-                                    throw new InvalidOperationException("Single() called on set with zero items");
-                            }
-                            T firstT = enumerator.Current;
-                            bool hasTwo = enumerator.MoveNext();
-                            if (hasTwo)
-                                throw new InvalidOperationException("Single() called on set with more than one item");
-                            return (S)(object)firstT;
+                            //no data? Single() will throw, whereas SingleOrDefault() allows null return
+                            if (exprCall.Method.Name == "SingleOrDefault")
+                                return default(S);
+                            else
+                                throw new InvalidOperationException("Single() called on set with zero items");
                         }
+                        T firstT = enumerator.Current;
+                        bool hasTwo = enumerator.MoveNext();
+                        if (hasTwo)
+                            throw new InvalidOperationException("Single() called on set with more than one item");
+                        return (S)(object)firstT;
                     }
-                //break;
+                }
+            //break;
             }
             throw new ApplicationException("L68: GetScalar<S> TODO: methodName=" + exprCall.Method.Name);
 

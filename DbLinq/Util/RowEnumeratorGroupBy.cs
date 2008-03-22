@@ -25,17 +25,12 @@
 #endregion
 
 using System;
-using System.Reflection;
 using System.Data;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
-using System.Linq.Expressions;
-
+using DbLinq.Logging;
 using DbLinq.Util;
 using DbLinq.Linq;
-using DbLinq.Linq.Clause;
-using DbLinq.Vendor;
 
 namespace DbLinq.Util
 {
@@ -51,11 +46,11 @@ namespace DbLinq.Util
     /// <typeparam name="T">the return type, containing an IGrouping</typeparam>
     public class RowEnumeratorGroupBy<T, Key, Val> : RowEnumerator<T>
     {
-        Func<IDataRecord,Key> _keyReadFunc = null;
-        Func<IDataRecord,Val> _valReadFunc = null;
+        Func<IDataRecord, Key> _keyReadFunc = null;
+        Func<IDataRecord, Val> _valReadFunc = null;
 
         public RowEnumeratorGroupBy(SessionVarsParsed vars)
-            :base(vars,null)
+            : base(vars, null)
         {
         }
 
@@ -72,9 +67,9 @@ namespace DbLinq.Util
                 _keyReadFunc = RowEnumeratorCompiler<Key>.CompilePrimitiveRowDelegate(ref fieldID);
                 _valReadFunc = RowEnumeratorCompiler<Val>.CompileRowDelegate(_vars, ref fieldID);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Console.WriteLine("CompileRowDelegate failed: "+ex);
+                Logger.Write(Level.Error, "CompileRowDelegate failed: " + ex);
                 throw;
             }
         }
@@ -92,58 +87,61 @@ namespace DbLinq.Util
             //newConn.Open();
             //TODO: use connection pool instead of always opening a new one
 
-            IDataReader rdr2;
-            using( _vars.Context.DatabaseContext.OpenConnection() )
-            using( IDbCommand cmd = ExecuteSqlCommand(out rdr2) )
-            using( rdr2 )
+            IDataReader dataReader;
+            using (_vars.Context.DatabaseContext.OpenConnection())
+            using (IDbCommand cmd = ExecuteSqlCommand(out dataReader))
+            using (dataReader)
             {
 
                 //rowObjFunc: given current lookup, produce return obj
-                Func<IGrouping<Key,Val> ,T> rowObjFunc = null;
-                if( typeof(T)==typeof(IGrouping<Key,Val>) )
+                Func<IGrouping<Key, Val>, T> rowObjFunc = null;
+                if (typeof(T) == typeof(IGrouping<Key, Val>))
                 {
                     //rowObjFunc = l => l; //for simplest GroupBy, just return the Lookup obj.
-                    Func<IGrouping<Key,Val>,IGrouping<Key,Val>> rowFuncXXX = l => l;
+                    Func<IGrouping<Key, Val>, IGrouping<Key, Val>> rowFuncXXX = l => l;
                     object objXXX = rowFuncXXX;
-                    rowObjFunc = (Func<IGrouping<Key,Val> ,T>)objXXX;
+                    rowObjFunc = (Func<IGrouping<Key, Val>, T>)objXXX;
                 }
 
                 //assumption: there is no Read() loop around this code
 
                 Key prevKey = default(Key); //keyReadFunc(rdr);
-                Lookup<Key,Val> lookup = null;
+                Lookup<Key, Val> lookup = null;
 
-                while(rdr2.Read())
+                while (dataReader.Read())
                 {
-                    if(lookup==null)
+                    if (lookup == null)
                     {
-                        prevKey = _keyReadFunc(rdr2);
-                        Val firstVal = _valReadFunc(rdr2); // valueReadFunc(rdr2);
-                        lookup=new Lookup<Key,Val>(prevKey, firstVal);
+                        prevKey = _keyReadFunc(dataReader);
+                        Val firstVal = _valReadFunc(dataReader); // valueReadFunc(rdr2);
+                        lookup = new Lookup<Key, Val>(prevKey, firstVal);
                         continue;
                     }
 
-                    Key currKey = _keyReadFunc(rdr2);
-                    Val currVal = _valReadFunc(rdr2);
-                    if(currKey.Equals(prevKey)){
+                    Key currKey = _keyReadFunc(dataReader);
+                    Val currVal = _valReadFunc(dataReader);
+                    if (currKey.Equals(prevKey))
+                    {
                         lookup._elements.Add(currVal);
-                    } else {
+                    }
+                    else
+                    {
                         yield return rowObjFunc(lookup);
-                        lookup = new Lookup<Key,Val>(currKey,currVal);
+                        lookup = new Lookup<Key, Val>(currKey, currVal);
                     }
                 }
 
-                if(lookup!=null){
+                if (lookup != null)
+                {
                     yield return rowObjFunc(lookup);
                     //yield return lookup;
                 }
 
             } //Dispose reader, sqlCommand
-
         }
 
         //IsGroupBy: base class returns false, derived class returns true
-        public override bool IsGroupBy(){ return true; }
+        public override bool IsGroupBy() { return true; }
 
     }
 }

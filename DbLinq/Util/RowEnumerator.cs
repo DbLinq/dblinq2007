@@ -26,21 +26,11 @@
 
 using System;
 using System.Diagnostics;
-using System.Reflection;
 using System.Data;
 using System.Collections.Generic;
-using System.Text;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Data.Linq;
-using System.Data.Linq.Mapping;
-using System.Text.RegularExpressions;
-using DbLinq.Linq.Database;
 using DbLinq.Logging;
 using DbLinq.Util;
 using DbLinq.Linq;
-using DbLinq.Linq.Clause;
-using DbLinq.Vendor;
 
 namespace DbLinq.Util
 {
@@ -49,23 +39,17 @@ namespace DbLinq.Util
     /// It creates a SqlCommand and MySqlDataReader.
     /// </summary>
     /// <typeparam name="T">the type of the row object</typeparam>
-    public class RowEnumerator<T> : IEnumerable<T>, IDisposable //IEnumerator<T>
-        , IQueryText
+    public class RowEnumerator<T> : IEnumerable<T>, IQueryText
     {
         public ILogger Logger { get; set; }
 
         protected SessionVarsParsed _vars;
-        protected IDatabaseContext _databaseContext;
 
         //while the FatalExecuteEngineError persists, we use a wrapper class to retrieve data
         protected Func<IDataRecord, T> _objFromRow2;
 
-        //Type _sourceType;
-        protected ProjectionData _projectionData;
-        Dictionary<T, T> _liveObjectMap;
-        internal string _sqlString;
-        IDisposable _connectionManager;
-        IDataReader _rdr;
+        private Dictionary<T, T> _liveObjectMap;
+        private string _sqlString;
 
         public RowEnumerator(SessionVarsParsed vars, Dictionary<T, T> liveObjectMap)
         {
@@ -75,11 +59,6 @@ namespace DbLinq.Util
 
             //for [Table] objects only: keep objects (to save them if they get modified)
             _liveObjectMap = liveObjectMap;
-
-            _projectionData = vars.ProjectionData;
-
-            //ConnectionManager remembers whether we need to close connection at the end
-            _connectionManager = _vars.Context.DatabaseContext.OpenConnection();
 
             CompileReaderFct();
 
@@ -93,7 +72,7 @@ namespace DbLinq.Util
 
         public string GetQueryText() { return _sqlString; }
 
-        protected IDbCommand ExecuteSqlCommand(out IDataReader rdr2)
+        protected IDbCommand ExecuteSqlCommand(out IDataReader dataReader)
         {
             //prepend user prolog string, if any
             string sqlFull = _vars.sqlProlog + _sqlString;
@@ -119,47 +98,10 @@ namespace DbLinq.Util
             //toncho11: http://code.google.com/p/dblinq2007/issues/detail?id=24
             QuotesHelper.AddQuotesToQuery(cmd);
 
-            //Logger.Write("cmd.ExecuteCommand()");
-            //XSqlDataReader _rdr = cmd.ExecuteReader();
-            // picrap: right we should remove IDataReader2 (even if this this is hard work :))
-            _rdr = cmd.ExecuteReader();
-            // picrap: and also this
-            //rdr2 = new DataReader2(_rdr);
-            //rdr2 = _vars.Context.Vendor.CreateDataReader(_rdr);
-            rdr2 = _rdr;
+            dataReader = cmd.ExecuteReader();
 
-            // picrap: need to solve the HasRows mystery
-            /*            if (_vars.context.Log != null)
-                        {
-                            int fields = _rdr.FieldCount;
-                            string hasRows = _rdr.HasRows ? "rows: yes" : "rows: no";
-                            _vars.context.Log.WriteLine("ExecuteSqlCommand numFields=" + fields + " " + hasRows);
-                        }*/
             return cmd;
         }
-
-        #region Dispose()
-        public void Dispose()
-        {
-            //Dispose logic moved into the "yield return" loop
-            Logger.Write(Level.Debug, "RowEnum.Dispose()");
-
-            _connectionManager.Dispose();
-
-            if (_rdr != null)
-            {
-                _rdr.Dispose();
-                _rdr = null;
-            }
-
-            //if(cmd!=null){ 
-            //    cmd.Dispose();
-            //    cmd = null;
-            //}
-        }
-        #endregion
-
-
 
         /// <summary>
         /// this is called during foreach
@@ -171,15 +113,17 @@ namespace DbLinq.Util
                 throw new ApplicationException("Internal error, missing _objFromRow compiled func");
             }
 
-            IDataReader rdr2;
+            IDataReader dataReader;
+            using (_vars.Context.DatabaseContext.OpenConnection())
 
-            using (IDbCommand cmd = ExecuteSqlCommand(out rdr2))
-            using (rdr2)
+            using (IDbCommand cmd = ExecuteSqlCommand(out dataReader))
+            using (dataReader)
             {
                 //_current = default(T);
-                while (rdr2.Read())
+                while (dataReader.Read())
                 {
-                    if (rdr2.FieldCount == 0) // note to the below code author: could you check this modification validity?
+                    if (dataReader.FieldCount == 0)
+                        // note to the below code author: could you check this modification validity?
                         continue;
                     //#if SQLITE
                     //                    // if not this might crash with SQLite
@@ -188,7 +132,7 @@ namespace DbLinq.Util
                     //                        continue;
                     //#endif
 
-                    T current = _objFromRow2(rdr2);
+                    T current = _objFromRow2(dataReader);
 
                     //live object cache:
                     if (_liveObjectMap != null && current != null)
@@ -210,18 +154,12 @@ namespace DbLinq.Util
                     yield return current;
                 }
             }
-
-            //when doing Take(5), end of this loop means calling hidden Dispose().
-            //thus we must call our Dispose manually.
-            this.Dispose();
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
         }
-
-
 
         #region IsBuiltinType(), IsColumnType(), IsProjection()
 
