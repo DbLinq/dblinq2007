@@ -86,11 +86,7 @@
     <Compile Include="Generator\Implementation\CodeGenerator.cs" />
     <Compile Include="Generator\Implementation\CodeGenerator.Procedure.cs" />
     <Compile Include="Generator\Implementation\CSCodeGenerator.cs" />
-    <Compile Include="Generator\Implementation\CSharpClassGenerator.cs" />
     <Compile Include="Generator\Implementation\CSCodeWriter.cs" />
-    <Compile Include="Generator\Implementation\CSharpPropertyFieldGenerator.cs" />
-    <Compile Include="Generator\Implementation\CSharpCodeGenerator.cs" />
-    <Compile Include="Generator\Implementation\CSharpStoredProcedureGenerator.cs" />
     <Compile Include="Generator\CodeWriter.cs" />
     <Compile Include="Generator\EntityInterface\IImplementation.cs" />
     <Compile Include="Generator\EntityInterface\Implementation\IModifiedImplementation.cs" />
@@ -107,6 +103,7 @@
     <Compile Include="TableAlias.cs" />
     <Compile Include="Util\TableSorter.cs" />
     <Compile Include="LoaderFactory.cs" />
+    <Compile Include="Util\EnvironmentExtension.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\DbLinq.snk">
@@ -160,6 +157,10 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="DB all to C♯.txt" />
+    <Content Include="DB to C♯.txt" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="bin\" />

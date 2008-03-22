@@ -1,0 +1,2 @@
+﻿# SqlMetal "@Db to C#.txt"
+-database:Northwind -namespace:nwind -sprocs -entityInterfaces=INotifyPropertyChanged "@DB all to C♯.txt" /pluralize

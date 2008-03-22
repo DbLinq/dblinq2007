@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
 namespace SqlMetal
 {
+    [DebuggerDisplay("Parameters from {Provider}, server={Server}")]
     public class SqlMetalParameters : Parameters
     {
         string user;
@@ -31,7 +33,7 @@ namespace SqlMetal
             set { password = value; }
         }
 
-        string server = "localhost";
+        string server; // picrap: emptied this to use string.Empty as default value
 
         /// <summary>
         /// server host name
@@ -149,7 +151,7 @@ namespace SqlMetal
         /// <summary>
         /// Interfaces to be implemented
         /// </summary>
-        public string EntityInterfaces = "IModified";//"INotifyPropertyChanging,INotifyPropertyChanged";
+        public string EntityInterfaces = "INotifyPropertyChanged";//INotifyPropertyChanging INotifyPropertyChanged IModified
         public string[] Interfaces
         {
             get
@@ -192,8 +194,8 @@ namespace SqlMetal
         /// </summary>
         public bool ReadLineAtExit { get; set; }
 
-        string provider = "MySql";
-
+        string provider; // no default provider
+       
         /// <summary>
         /// specifies a provider (which here is a pair or ISchemaLoader and IDbConnection implementors)
         /// SQLMetal compatible
