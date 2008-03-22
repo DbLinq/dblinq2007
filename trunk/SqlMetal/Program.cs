@@ -33,6 +33,7 @@ using DbLinq.Vendor;
 using SqlMetal.Generator;
 using SqlMetal.Generator.Implementation;
 using SqlMetal.Schema;
+using SqlMetal.Util;
 
 namespace SqlMetal
 {
@@ -102,7 +103,6 @@ namespace SqlMetal
 
         public static void GenerateCSharp(SqlMetalParameters parameters, DbLinq.Schema.Dbml.Database dbSchema, ISchemaLoader schemaLoader, string filename)
         {
-            // picrap: if CSCodeGenerator causes problem, use CSharpCodeGenerator
             ICodeGenerator codeGen = new CSCodeGenerator();
 
             if (String.IsNullOrEmpty(Path.GetExtension(filename)))
@@ -119,7 +119,7 @@ namespace SqlMetal
         {
             DbLinq.Schema.Dbml.Database dbSchema;
             var tableAliases = TableAlias.Load(parameters);
-            if (parameters.SchemaXmlFile == null)
+            if (parameters.SchemaXmlFile == null) // read schema from DB
             {
                 dbSchema = schemaLoader.Load(parameters.Database, tableAliases, parameters.Pluralize, parameters.SProcs);
                 dbSchema.Provider = parameters.Provider;
@@ -129,7 +129,7 @@ namespace SqlMetal
                 dbSchema.Functions.Sort(new LambdaComparer<DbLinq.Schema.Dbml.Function>((x, y) => (x.Method.CompareTo(y.Method))));
                 SchemaPostprocess.PostProcess_DB(dbSchema);
             }
-            else
+            else // load DBML
             {
                 using (Stream dbmlFile = File.OpenRead(parameters.SchemaXmlFile))
                 {

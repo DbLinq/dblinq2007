@@ -7,6 +7,7 @@ using System.Configuration;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
+using SqlMetal.Util;
 
 namespace SqlMetal
 {
@@ -87,7 +88,11 @@ namespace SqlMetal
 
         protected void SetParameter(string name, string value)
         {
+            // cleanup and evaluate
             name = name.Trim();
+            // evaluate
+            value = value.EvaluateEnvironment();
+
             Type thisType = GetType();
             BindingFlags flags = BindingFlags.IgnoreCase | BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public;
             FieldInfo fieldInfo = thisType.GetField(name, flags);
@@ -105,6 +110,7 @@ namespace SqlMetal
 
         public void Load(IList<string> args)
         {
+            // picrap: default values are unsafe, we should try something else here instead of conf.
             var configurationParameters = (NameValueCollection)ConfigurationManager.GetSection("parameters");
             foreach (string key in configurationParameters.AllKeys)
             {
@@ -226,6 +232,8 @@ namespace SqlMetal
                 while (!textReader.EndOfStream)
                 {
                     string line = textReader.ReadLine();
+                    if (line.StartsWith("#"))
+                        continue;
                     IList<string> args = GetArguments(line);
                     List<string> allArgs = new List<string>(baseArgs);
                     allArgs.AddRange(args);

@@ -30,6 +30,7 @@ using System.Configuration;
 using System.Data;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using DbLinq.Vendor;
 
 namespace SqlMetal
@@ -117,9 +118,16 @@ namespace SqlMetal
         {
             if (parameters.Conn != null)
                 return parameters.Conn;
-            string connectionString = string.Format("server={0};user id={1}; password={2}; database={3}; pooling=false",
-                                                    parameters.Server, parameters.User, parameters.Password, parameters.Database);
-            return connectionString;
+            var connectionString = new StringBuilder();
+            if (!string.IsNullOrEmpty(parameters.Server))
+                connectionString.AppendFormat("server={0};", parameters.Server);
+            if (!string.IsNullOrEmpty(parameters.User))
+                connectionString.AppendFormat("user id={0};", parameters.User);
+            if (!string.IsNullOrEmpty(parameters.Password))
+                connectionString.AppendFormat("password={0};", parameters.Password);
+            if (!string.IsNullOrEmpty(parameters.Database))
+                connectionString.AppendFormat("database={0};", parameters.Database);
+            return connectionString.ToString();
         }
 
         protected void GetLoaderAndConnection(out string dbLinqSchemaLoaderType, out string databaseConnectionType, SqlMetalParameters parameters)
