@@ -1,4 +1,29 @@
-﻿
+﻿#region MIT license
+////////////////////////////////////////////////////////////////////
+// MIT license:
+// Permission is hereby granted, free of charge, to any person obtaining
+// a copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to
+// permit persons to whom the Software is furnished to do so, subject to
+// the following conditions:
+//
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+//
+// Authors:
+//        Jiri George Moudry
+////////////////////////////////////////////////////////////////////
+#endregion
+
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -23,15 +48,20 @@ namespace DbLinq.Sqlite
         public override System.Type DataContextType { get { return typeof(SqliteDataContext); } }
         public override Database Load(string databaseName, IDictionary<string, string> tableAliases, bool pluralize, bool loadStoredProcedures)
         {
+            NameFormatter.Pluralize = pluralize; // TODO: this could go in a context (instead of service class)
+
             IDbConnection conn = Connection;
             conn.Open();
 
-            DbLinq.Schema.Dbml.Database schema = new DbLinq.Schema.Dbml.Database();
+            var names = new Names();
+
+            var schema = new Database();
 
             string database = Path.GetFileNameWithoutExtension(databaseName);
 
-            schema.Name = database;
-            schema.Class = database; // FormatTableName(schema.Name);
+            var schemaName = CreateSchemaName(database, conn);
+            schema.Name = schemaName.DbName;
+            schema.Class = schemaName.ClassName;
 
             //##################################################################
             //step 1 - load tables
@@ -45,10 +75,13 @@ namespace DbLinq.Sqlite
 
             foreach (TableRow tblRow in tables)
             {
+                var tableName = CreateTableName(tblRow.table_name, tableAliases);
+                names.TablesNames[tableName.DbName] = tableName;
+
                 DbLinq.Schema.Dbml.Table tblSchema = new DbLinq.Schema.Dbml.Table();
-                tblSchema.Name = tblRow.table_name;
-                tblSchema.Member = GetColumnName(tblRow.table_name);
-                tblSchema.Type.Name = GetTableName(tblRow.table_name, tableAliases);
+                tblSchema.Name = tableName.DbName;
+                tblSchema.Member = tableName.MemberName;
+                tblSchema.Type.Name = tableName.ClassName;
                 schema.Tables.Add(tblSchema);
             }
 
@@ -59,6 +92,9 @@ namespace DbLinq.Sqlite
 
             foreach (Schema.Column columnRow in columns)
             {
+                var columnName = CreateColumnName(columnRow.column_name);
+                names.AddColumn(columnRow.table_name, columnName);
+
                 //find which table this column belongs to
                 DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.table_name == tblSchema.Name);
                 if (tableSchema == null)
@@ -67,9 +103,9 @@ namespace DbLinq.Sqlite
                     continue;
                 }
                 DbLinq.Schema.Dbml.Column colSchema = new DbLinq.Schema.Dbml.Column();
-                colSchema.Name = columnRow.column_name;
-                colSchema.Member = GetColumnName(columnRow.column_name);
-                colSchema.Storage = GetColumnFieldName(columnRow.column_name);
+                colSchema.Name = columnName.DbName;
+                colSchema.Member = columnName.PropertyName;
+                colSchema.Storage = columnName.StorageFieldName;
 
                 //sample input: columnRow.column_type="varchar(15)", coloumRow.datatype="varchar"
                 //colSchema.DbType = columnRow.datatype;
@@ -130,22 +166,24 @@ namespace DbLinq.Sqlite
 
                     if (isForeignKey)
                     {
+                        var associationName = CreateAssociationName(keyColRow.table_name, keyColRow.referenced_table_name, keyColRow.constraint_name);
+
                         //both parent and child table get an [Association]
                         DbLinq.Schema.Dbml.Association assoc = new DbLinq.Schema.Dbml.Association();
                         assoc.IsForeignKey = true;
                         assoc.Name = keyColRow.constraint_name;
                         assoc.Type = null;
-                        assoc.ThisKey = GetColumnName(keyColRow.column_name);
-                        assoc.Member = GetManyToOneColumnName(keyColRow.referenced_table_name, keyColRow.table_name);
-                        assoc.Storage = GetColumnFieldName(keyColRow.constraint_name);
+                        assoc.ThisKey = names.ColumnsNames[keyColRow.table_name][keyColRow.column_name].PropertyName;
+                        assoc.Member = associationName.ManyToOneMemberName;
+                        assoc.Storage = associationName.ForeignKeyStorageFieldName;
                         table.Type.Associations.Add(assoc);
 
                         //and insert the reverse association:
                         DbLinq.Schema.Dbml.Association assoc2 = new DbLinq.Schema.Dbml.Association();
                         assoc2.Name = keyColRow.constraint_name;
                         assoc2.Type = table.Type.Name; //keyColRow.table_name;
-                        assoc2.Member = GetOneToManyColumnName(keyColRow.table_name);
-                        assoc2.OtherKey = GetColumnName(keyColRow.referenced_column_name);
+                        assoc2.Member = associationName.OneToManyMemberName;
+                        assoc2.OtherKey = names.ColumnsNames[keyColRow.referenced_table_name][keyColRow.referenced_column_name].PropertyName; // GetColumnName(keyColRow.referenced_column_name);
                         //assoc2.Member = keyColRow.table_name;
 
                         //bool isSelfJoin = keyColRow.table_name == keyColRow.referenced_table_name;
@@ -180,9 +218,11 @@ namespace DbLinq.Sqlite
 
                 foreach (ProcRow proc in procs)
                 {
+                    var procedureName = CreateProcedureName(proc.specific_name);
+
                     DbLinq.Schema.Dbml.Function func = new DbLinq.Schema.Dbml.Function();
                     func.Name = proc.specific_name;
-                    func.Method = GetMethodName(proc.specific_name);
+                    func.Method = procedureName.MethodName;
                     func.IsComposable = string.Compare(proc.type, "FUNCTION") == 0;
                     func.BodyContainsSelectStatement = proc.body != null
                                                        && proc.body.IndexOf("select", StringComparison.OrdinalIgnoreCase) > -1;

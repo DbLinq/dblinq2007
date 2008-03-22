@@ -112,6 +112,8 @@ namespace DbLinq.Vendor.Implementation
             }
         }
 
+#if OBSOLETE
+
         [Obsolete("Use CreateTableName instead")]
         protected string GetTableName(string name, IDictionary<string, string> tableAliases)
         {
@@ -151,5 +153,7 @@ namespace DbLinq.Vendor.Implementation
             // TODO: handle aliases?
             return NameFormatter.AdjustOneToManyColumnName(referencedTableName);
         }
+
+#endif
     }
 }
