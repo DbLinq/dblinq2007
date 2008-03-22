@@ -24,42 +24,12 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
-using System;
-using System.Linq.Expressions;
-using DbLinq.Logging;
+using DbLinq.Logging.Implementation;
 
-namespace DbLinq.Linq.Implementation
+namespace DbLinq.Logging
 {
-    public class QueryGenerator: IQueryGenerator
+    public static class LoggerInstance
     {
-        public ILogger Logger { get; set; }
-
-        public QueryGenerator()
-        {
-            Logger = LoggerInstance.Default;
-        }
-
-        public SessionVarsParsed GenerateQuery(SessionVars vars, Type T)
-        {
-
-            SessionVarsParsed sessionVarsParsed = new SessionVarsParsed(vars);
-            vars.Context.OnQuerying(sessionVarsParsed);
-            QueryProcessor queryProcessor = new QueryProcessor(sessionVarsParsed); //TODO
-            queryProcessor.Logger = Logger;
-
-            foreach (MethodCallExpression expr in vars.ExpressionChain)
-            {
-                queryProcessor.ProcessQuery(expr);
-            }
-
-            if (queryProcessor.LastQueryName == "GroupBy")
-                throw new InvalidOperationException("L98 GroupBy must by followed by an aggregate expression, such as Count or Max");
-
-            queryProcessor.ProcessScalarExpression();
-
-            queryProcessor.BuildSqlString(T);
-
-            return sessionVarsParsed;
-        }
+        public static ILogger Default = new ConsoleDebugLogger();
     }
 }

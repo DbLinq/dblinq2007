@@ -27,6 +27,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using DbLinq.Logging;
 using DbLinq.Schema;
 
 namespace SqlMetal.Generator.Implementation
@@ -41,7 +42,7 @@ namespace SqlMetal.Generator.Implementation
         {
             if (dbSchema == null || dbSchema.Tables == null)
             {
-                Console.WriteLine("CodeGenAll ERROR: incomplete dbSchema, cannot start generating code");
+                Logger.Write(Level.Error, "CodeGenAll ERROR: incomplete dbSchema, cannot start generating code");
                 return;
             }
 

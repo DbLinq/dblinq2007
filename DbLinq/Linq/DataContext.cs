@@ -35,6 +35,7 @@ using System.Linq;
 using DbLinq.Linq.Database;
 using DbLinq.Linq.Database.Implementation;
 using DbLinq.Linq.Implementation;
+using DbLinq.Logging;
 using DbLinq.Vendor;
 using DbLinq.Util;
 
@@ -51,6 +52,7 @@ namespace DbLinq.Linq
         public IResultMapper ResultMapper { get; set; }
         public IModificationHandler ModificationHandler { get; set; }
         public IDatabaseContext DatabaseContext { get; private set; }
+        public ILogger Logger { get; set; }
 
         /// <summary>
         /// A DataContext opens and closes a database connection as needed 
@@ -64,12 +66,14 @@ namespace DbLinq.Linq
             if (databaseContext == null || vendor == null)
                 throw new ArgumentNullException("Null arguments");
 
+            Logger = LoggerInstance.Default;
+
             DatabaseContext = databaseContext;
             Vendor = vendor;
 
             ResultMapper = new ResultMapper();
             ModificationHandler = new ModificationHandler();
-            QueryGenerator = new QueryGenerator();
+            QueryGenerator = new QueryGenerator { Logger = Logger };
         }
 
         public DataContext(IDbConnection dbConnection, IVendor vendor)

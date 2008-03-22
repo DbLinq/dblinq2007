@@ -30,6 +30,7 @@ using System.Text;
 using System.Linq.Expressions;
 using DbLinq.Linq;
 using DbLinq.Linq.Clause;
+using DbLinq.Logging;
 using DbLinq.Vendor;
 
 namespace DbLinq.Util
@@ -42,6 +43,8 @@ namespace DbLinq.Util
         SessionVarsParsed _vars;
         IEnumerable<T> _parentTable;
         Dictionary<T, T> _liveObjectMap;
+
+        public ILogger Logger { get; set; }
 
         public RowScalar(SessionVarsParsed vars, IEnumerable<T> parentTable, Dictionary<T, T> liveObjMap)
         {
@@ -74,6 +77,7 @@ namespace DbLinq.Util
                     //foreach(T t in _parentTable) //call GetEnumerator
                     using (RowEnumerator<S> rowEnum = new RowEnumerator<S>(_vars, liveObjectMapS))
                     {
+                        rowEnum.Logger = Logger;
                         foreach (S firstS in rowEnum)
                         {
                             return firstS;
@@ -99,6 +103,7 @@ namespace DbLinq.Util
 
                             using (RowEnumerator<S> rowEnum = new RowEnumerator<S>(_vars, null))
                             {
+                                rowEnum.Logger = Logger;
                                 foreach (S firstS in rowEnum)
                                 {
                                     return firstS;
@@ -111,6 +116,7 @@ namespace DbLinq.Util
                         using (RowEnumerator<S> rowEnumerator = new RowEnumerator<S>(_vars, null))
                         using(IEnumerator<S> enumerator = rowEnumerator.GetEnumerator())
                         {
+                            rowEnumerator.Logger = Logger;
                             bool hasOne = enumerator.MoveNext();
                             if (!hasOne)
                                 throw new InvalidOperationException("Max/Count() called on set with zero items");
@@ -159,8 +165,10 @@ namespace DbLinq.Util
                         //LambdaExpression lambdaParam = expression.XMethodCall().XParam(1).XLambda();
                         //MTable<T> table2 = _parentTable as MTable<T>;
                         //IEnumerator<T> enumerator;
-                        using (IEnumerator<T> enumerator = new RowEnumerator<T>(_vars, _liveObjectMap).GetEnumerator())
+                        using(var rowEnumerator = new RowEnumerator<T>(_vars, _liveObjectMap))
+                        using (IEnumerator<T> enumerator = rowEnumerator.GetEnumerator())
                         {
+                            rowEnumerator.Logger = Logger;
                             //_vars.LimitClause = "LIMIT 2";
                             bool hasOne = enumerator.MoveNext();
                             if (!hasOne)

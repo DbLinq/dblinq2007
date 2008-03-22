@@ -39,6 +39,7 @@ using System.Linq.Expressions;
 
 using DbLinq.Linq.Clause;
 using DbLinq.Linq.Implementation;
+using DbLinq.Logging;
 using DbLinq.Util;
 using DbLinq.Vendor;
 
@@ -65,10 +66,13 @@ namespace DbLinq.Linq
 
         private readonly SessionVars _vars;
 
+        public ILogger Logger { get; set;}
+
         private IModificationHandler _modificationHandler { get { return DataContext.ModificationHandler; } }
 
         public Table(DataContext parent)
         {
+            Logger = parent.Logger;
             DataContext = parent;
             DataContext.RegisterChild(this);
             _vars = new SessionVars(parent);
@@ -172,6 +176,7 @@ namespace DbLinq.Linq
         {
             SessionVarsParsed varsFin = _vars.Context.QueryGenerator.GenerateQuery(_vars, typeof(T));
             RowEnumerator<T> rowEnumerator = new RowEnumerator<T>(varsFin, _liveObjectMap);
+            rowEnumerator.Logger = Logger;
             return rowEnumerator.GetEnumerator();
         }
 
@@ -281,12 +286,12 @@ namespace DbLinq.Linq
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine("L227 Failed on SetObjectIdField: " + ex);
+                            Logger.Write(Level.Error,"L227 Failed on SetObjectIdField: " + ex);
                         }
                         //cmd.CommandText = 
                         //TODO: use reflection to assign the field ID - that way the _isModified flag will not get set
 
-                        //Console.WriteLine("MTable insert TODO: populate ID field ");
+                        //Logger.Write("MTable insert TODO: populate ID field ");
                     }
                 }
                 catch (Exception ex)

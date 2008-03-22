@@ -25,41 +25,33 @@
 #endregion
 
 using System;
-using System.Linq.Expressions;
-using DbLinq.Logging;
+using System.Diagnostics;
 
-namespace DbLinq.Linq.Implementation
+namespace DbLinq.Logging.Implementation
 {
-    public class QueryGenerator: IQueryGenerator
+    class ConsoleDebugLogger : Logger
     {
-        public ILogger Logger { get; set; }
-
-        public QueryGenerator()
+        public override void Write(Level level, string text)
         {
-            Logger = LoggerInstance.Default;
-        }
-
-        public SessionVarsParsed GenerateQuery(SessionVars vars, Type T)
-        {
-
-            SessionVarsParsed sessionVarsParsed = new SessionVarsParsed(vars);
-            vars.Context.OnQuerying(sessionVarsParsed);
-            QueryProcessor queryProcessor = new QueryProcessor(sessionVarsParsed); //TODO
-            queryProcessor.Logger = Logger;
-
-            foreach (MethodCallExpression expr in vars.ExpressionChain)
+            switch (level)
             {
-                queryProcessor.ProcessQuery(expr);
+            case Level.Debug:
+                Console.ForegroundColor = ConsoleColor.Blue;
+                break;
+            case Level.Information:
+                Console.ResetColor();
+                break;
+            case Level.Warning:
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                break;
+            case Level.Error:
+                Console.ForegroundColor = ConsoleColor.Red;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException("level");
             }
-
-            if (queryProcessor.LastQueryName == "GroupBy")
-                throw new InvalidOperationException("L98 GroupBy must by followed by an aggregate expression, such as Count or Max");
-
-            queryProcessor.ProcessScalarExpression();
-
-            queryProcessor.BuildSqlString(T);
-
-            return sessionVarsParsed;
+            Console.WriteLine(text);
+            Debug.WriteLine(string.Format("{0:u} {1}", DateTime.Now, text));
         }
     }
 }

@@ -27,6 +27,8 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using DbLinq.Logging;
+using DbLinq.Logging.Implementation;
 using DbLinq.Schema;
 using DbLinq.Util;
 using DbLinq.Vendor;
@@ -41,6 +43,19 @@ namespace SqlMetal
     {
         static void Main(string[] args)
         {
+            SqlMetalProgram program = new SqlMetalProgram();
+            program.Process(args);
+        }
+
+        public ILogger Logger { get; set; }
+
+        public SqlMetalProgram()
+        {
+            Logger = LoggerInstance.Default;
+        }
+
+        public void Process(string[] args)
+        {
             bool readLineAtExit = false;
 
             try
@@ -54,7 +69,7 @@ namespace SqlMetal
             }
             catch (ArgumentException e)
             {
-                Console.WriteLine(e.Message);
+                Logger.Write(Level.Error, e.Message);
                 PrintUsage();
                 return;
             }
@@ -67,7 +82,7 @@ namespace SqlMetal
             }
         }
 
-        private static void ProcessSchema(SqlMetalParameters parameters)
+        private void ProcessSchema(SqlMetalParameters parameters)
         {
             try
             {
@@ -82,26 +97,28 @@ namespace SqlMetal
                 if (parameters.Dbml != null)
                 {
                     //we are supposed to write out a DBML file and exit
+                    Logger.Write(Level.Information, "<<< Writing file '{0}'", parameters.Dbml);
                     using (Stream dbmlFile = File.OpenWrite(parameters.Dbml))
                     {
                         DbmlSerializer.Write(dbmlFile, dbSchema);
                     }
-                    Console.WriteLine("Written file " + parameters.Dbml);
                 }
                 else
                 {
                     string filename = parameters.Code ?? parameters.Database.Replace("\"", "");
+                    Logger.Write(Level.Information, "<<< writing C# classes in file '{0}'", filename);
                     GenerateCSharp(parameters, dbSchema, schemaLoader, filename);
+
                 }
             }
             catch (Exception ex)
             {
                 string assyName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
-                Console.WriteLine(assyName + " failed:" + ex);
+                Logger.Write(Level.Error, assyName + " failed:" + ex);
             }
         }
 
-        public static void GenerateCSharp(SqlMetalParameters parameters, DbLinq.Schema.Dbml.Database dbSchema, ISchemaLoader schemaLoader, string filename)
+        public void GenerateCSharp(SqlMetalParameters parameters, DbLinq.Schema.Dbml.Database dbSchema, ISchemaLoader schemaLoader, string filename)
         {
             ICodeGenerator codeGen = new CSCodeGenerator();
 
@@ -115,12 +132,13 @@ namespace SqlMetal
             }
         }
 
-        public static DbLinq.Schema.Dbml.Database LoadSchema(SqlMetalParameters parameters, ISchemaLoader schemaLoader)
+        public DbLinq.Schema.Dbml.Database LoadSchema(SqlMetalParameters parameters, ISchemaLoader schemaLoader)
         {
             DbLinq.Schema.Dbml.Database dbSchema;
             var tableAliases = TableAlias.Load(parameters);
             if (parameters.SchemaXmlFile == null) // read schema from DB
             {
+                Logger.Write(Level.Information, ">>> Reading schema from {0} database", schemaLoader.VendorName);
                 dbSchema = schemaLoader.Load(parameters.Database, tableAliases, parameters.Pluralize, parameters.SProcs);
                 dbSchema.Provider = parameters.Provider;
                 dbSchema.Tables.Sort(new LambdaComparer<DbLinq.Schema.Dbml.Table>((x, y) => (x.Type.Name.CompareTo(y.Type.Name))));
@@ -131,6 +149,7 @@ namespace SqlMetal
             }
             else // load DBML
             {
+                Logger.Write(Level.Information, ">>> Reading schema from DBML file '{0}'", parameters.SchemaXmlFile);
                 using (Stream dbmlFile = File.OpenRead(parameters.SchemaXmlFile))
                 {
                     dbSchema = DbmlSerializer.Read(dbmlFile);
@@ -139,7 +158,7 @@ namespace SqlMetal
             return dbSchema;
         }
 
-        static void PrintUsage()
+        private void PrintUsage()
         {
             string appName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
             Console.WriteLine(appName + " usage:");

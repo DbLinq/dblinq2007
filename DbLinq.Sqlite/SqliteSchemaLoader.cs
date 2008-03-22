@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using DbLinq.Logging;
 using DbLinq.Schema;
 using DbLinq.Schema.Dbml;
 using DbLinq.Sqlite;
@@ -38,7 +39,7 @@ namespace DbLinq.Sqlite
             List<TableRow> tables = tsql.getTables(conn, database);
             if (tables == null || tables.Count == 0)
             {
-                Console.WriteLine("No tables found for schema " + database + ", exiting");
+                Logger.Write(Level.Warning, "No tables found for schema " + database + ", exiting");
                 return null;
             }
 
@@ -62,7 +63,7 @@ namespace DbLinq.Sqlite
                 DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.table_name == tblSchema.Name);
                 if (tableSchema == null)
                 {
-                    Console.WriteLine("ERROR L46: Table '" + columnRow.table_name + "' not found for column " + columnRow.column_name);
+                    Logger.Write(Level.Error, "ERROR L46: Table '" + columnRow.table_name + "' not found for column " + columnRow.column_name);
                     continue;
                 }
                 DbLinq.Schema.Dbml.Column colSchema = new DbLinq.Schema.Dbml.Column();
@@ -120,7 +121,7 @@ namespace DbLinq.Sqlite
                     DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => keyColRow.table_name == t.Name);
                     if (table == null)
                     {
-                        Console.WriteLine("ERROR L46: Table '" + keyColRow.table_name + "' not found for column " + keyColRow.column_name);
+                        Logger.Write(Level.Error, "ERROR L46: Table '" + keyColRow.table_name + "' not found for column " + keyColRow.column_name);
                         continue;
                     }
 
@@ -156,7 +157,7 @@ namespace DbLinq.Sqlite
                         DbLinq.Schema.Dbml.Table parentTable = schema.Tables.FirstOrDefault(t => keyColRow.referenced_table_name == t.Name);
                         if (parentTable == null)
                         {
-                            Console.WriteLine("ERROR 148: parent table not found: " + keyColRow.referenced_table_name);
+                            Logger.Write(Level.Error, "ERROR 148: parent table not found: " + keyColRow.referenced_table_name);
                         }
                         else
                         {

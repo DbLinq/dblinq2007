@@ -26,6 +26,7 @@
 
 using System;
 using System.Data;
+using DbLinq.Logging;
 
 namespace DbLinq.Vendor.Implementation
 {
@@ -33,9 +34,12 @@ namespace DbLinq.Vendor.Implementation
     {
         protected IDataReader _reader;
 
-        public DataReader2(IDataReader reader)
+        public ILogger Logger { get; set; }
+
+        public DataReader2(IDataReader reader, ILogger logger)
         {
             _reader = reader;
+            Logger = logger;
         }
 
         /// <summary>
@@ -121,7 +125,7 @@ namespace DbLinq.Vendor.Implementation
             byte[] bytes = obj as byte[];
             if (bytes != null)
                 return bytes; //works for BLOB field
-            Console.WriteLine("GetBytes: received unexpected type:" + obj);
+            Logger.Write(Level.Error,"GetBytes: received unexpected type:" + obj);
             //return _rdr.GetInt32(index);
             return new byte[0];
         }

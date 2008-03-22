@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using DbLinq.Logging;
 using DbLinq.Oracle.Schema;
 using DbLinq.Schema;
 using DbLinq.Schema.Dbml;
@@ -41,7 +42,7 @@ namespace DbLinq.Oracle
             List<UserTablesRow> tables = utsql.getTables(conn, databaseName);
             if (tables == null || tables.Count == 0)
             {
-                Console.WriteLine("No tables found for schema " + databaseName + ", exiting");
+                Logger.Write(Level.Warning, "No tables found for schema " + databaseName + ", exiting");
                 return null;
             }
 
@@ -77,7 +78,7 @@ namespace DbLinq.Oracle
                 DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.table_name == tblSchema.Name);
                 if (tableSchema == null)
                 {
-                    Console.WriteLine("ERROR L46: Table '" + columnRow.table_name + "' not found for column " + columnRow.column_name);
+                    Logger.Write(Level.Error, "ERROR L46: Table '" + columnRow.table_name + "' not found for column " + columnRow.column_name);
                     continue;
                 }
                 DbLinq.Schema.Dbml.Column colSchema = new DbLinq.Schema.Dbml.Column();
@@ -119,12 +120,12 @@ namespace DbLinq.Oracle
                 DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => constraint.table_name == t.Name);
                 if (table == null)
                 {
-                    Console.WriteLine("ERROR L100: Table '" + constraint.table_name + "' not found for column " + constraint.column_name);
+                    Logger.Write(Level.Error, "ERROR L100: Table '" + constraint.table_name + "' not found for column " + constraint.column_name);
                     continue;
                 }
 
                 //if (table.Name.StartsWith("E"))
-                //    Console.WriteLine("---Dbg");
+                //    Logger.Write("---Dbg");
 
                 if (constraint.constraint_type == "P")
                 {
@@ -139,7 +140,7 @@ namespace DbLinq.Oracle
                     User_Constraints_Row referencedConstraint = constraints.FirstOrDefault(c => c.constraint_name == constraint.R_constraint_name);
                     if (constraint.R_constraint_name == null || referencedConstraint == null)
                     {
-                        Console.WriteLine("ERROR L127: given R_contraint_name='" + constraint.R_constraint_name + "', unable to find parent constraint");
+                        Logger.Write(Level.Error, "ERROR L127: given R_contraint_name='" + constraint.R_constraint_name + "', unable to find parent constraint");
                         continue;
                     }
 
@@ -166,7 +167,7 @@ namespace DbLinq.Oracle
                     DbLinq.Schema.Dbml.Table parentTable = schema.Tables.FirstOrDefault(t => referencedConstraint.table_name == t.Name);
                     if (parentTable == null)
                     {
-                        Console.WriteLine("ERROR 148: parent table not found: " + referencedConstraint.table_name);
+                        Logger.Write(Level.Error, "ERROR 148: parent table not found: " + referencedConstraint.table_name);
                     }
                     else
                     {

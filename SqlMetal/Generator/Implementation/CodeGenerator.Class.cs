@@ -33,6 +33,7 @@ using System.Linq;
 using System.Text;
 using DbLinq.Linq;
 using DbLinq.Linq.Mapping;
+using DbLinq.Logging;
 using DbLinq.Schema;
 using SqlMetal.Generator.EntityInterface;
 
@@ -40,6 +41,13 @@ namespace SqlMetal.Generator.Implementation
 {
     public partial class CodeGenerator
     {
+        public ILogger Logger { get; set; }
+
+        public CodeGenerator()
+        {
+            Logger = LoggerInstance.Default;
+        }
+
         protected virtual void WriteClasses(CodeWriter writer, DbLinq.Schema.Dbml.Database schema, GenerationContext context)
         {
             foreach (var table in schema.Tables)
@@ -210,7 +218,7 @@ namespace SqlMetal.Generator.Implementation
             DbLinq.Schema.Dbml.Table targetTable = schema.Tables.FirstOrDefault(t => t.Type.Name == child.Type);
             if (targetTable == null)
             {
-                Console.WriteLine("ERROR L143 target table class not found:" + child.Type);
+                Logger.Write(Level.Error, "ERROR L143 target table class not found:" + child.Type);
                 return;
             }
 
@@ -254,7 +262,7 @@ namespace SqlMetal.Generator.Implementation
             DbLinq.Schema.Dbml.Table targetTable = schema.Tables.FirstOrDefault(t => t.Type.Name == parent.Type);
             if (targetTable == null)
             {
-                Console.WriteLine("ERROR L191 target table type not found: " + parent.Type + "  (processing " + parent.Name + ")");
+                Logger.Write(Level.Error, "ERROR L191 target table type not found: " + parent.Type + "  (processing " + parent.Name + ")");
                 return;
             }
 

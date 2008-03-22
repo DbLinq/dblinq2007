@@ -33,6 +33,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
 using DbLinq.Linq.Mapping;
+using DbLinq.Logging;
 using DbLinq.PostgreSql;
 using DbLinq.Util;
 using DbLinq.Linq;
@@ -240,7 +241,7 @@ namespace DbLinq.PostgreSql
         /// <summary>
         /// Collect all Out or InOut param values, casting them to the correct .net type.
         /// </summary>
-        static List<object> CopyOutParams(ParameterInfo[] paramInfos, IDataParameterCollection paramSet)
+        private List<object> CopyOutParams(ParameterInfo[] paramInfos, IDataParameterCollection paramSet)
         {
             List<object> outParamValues = new List<object>();
             //Type type_t = typeof(T);
@@ -275,7 +276,7 @@ namespace DbLinq.PostgreSql
                 catch (Exception ex)
                 {
                     //fails with 'System.Decimal cannot be converted to Int32'
-                    Console.WriteLine("CopyOutParams ERROR L245: failed on CastValue(): " + ex.Message);
+                    Logger.Write(Level.Error, "CopyOutParams ERROR L245: failed on CastValue(): " + ex.Message);
                 }
             }
             return outParamValues;

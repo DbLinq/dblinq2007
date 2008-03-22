@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.Data;
 using DbLinq.Linq;
 using DbLinq.Linq.Implementation;
+using DbLinq.Logging;
 using DbLinq.Schema;
 using DbLinq.Schema.Dbml;
 
@@ -41,11 +42,14 @@ namespace DbLinq.Vendor.Implementation
         public abstract System.Type DataContextType { get; }
         public IDbConnection Connection { get; set; }
         public INameFormatter NameFormatter { get; set; }
+        public ILogger Logger { get; set; }
+
         public abstract Database Load(string databaseName, IDictionary<string, string> tableAliases, bool pluralize, bool loadStoredProcedures);
 
         protected SchemaLoader()
         {
             NameFormatter = new NameFormatter();
+            Logger = LoggerInstance.Default;
         }
 
         protected virtual WordsExtraction GetExtraction(string dbColumnName)

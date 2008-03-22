@@ -28,6 +28,7 @@ using System;
 using System.Data;
 using System.Collections.Generic;
 using System.Text;
+using DbLinq.Logging;
 using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.Sqlite
@@ -41,22 +42,22 @@ namespace DbLinq.Sqlite
     /// </summary>
     public class SqliteDataReader2 : DataReader2
     {
-        public SqliteDataReader2(IDataReader rdr)
-            : base(rdr)
+        public SqliteDataReader2(IDataReader rdr, ILogger logger)
+            : base(rdr, logger)
         {
         }
-        
+
         public override short? GetInt16N(int index)
         {
             try
             {
-                if(_reader.IsDBNull(index))
+                if (_reader.IsDBNull(index))
                     return null;
                 return _reader.GetInt16(index);
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("GetInt16N failed: "+ex);
+                Logger.Write(Level.Error,"GetInt16N failed: " + ex);
                 return null;
             }
         }
@@ -65,13 +66,13 @@ namespace DbLinq.Sqlite
         {
             try
             {
-                if(_reader.IsDBNull(index))
+                if (_reader.IsDBNull(index))
                     return null;
                 return _reader.GetChar(index);
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("GetCharN failed: "+ex);
+                Console.WriteLine("GetCharN failed: " + ex);
                 return null;
             }
         }
@@ -80,22 +81,22 @@ namespace DbLinq.Sqlite
         {
             //support for 'Product.Discontinued' field in Northwind DB - it's nullable, but MS samples map it to plain bool
             if (_reader.IsDBNull(index))
-                return false; 
+                return false;
 
-            return _reader.GetBoolean(index); 
+            return _reader.GetBoolean(index);
         }
 
         public override bool? GetBooleanN(int index)
         {
             try
             {
-                if(_reader.IsDBNull(index))
+                if (_reader.IsDBNull(index))
                     return null;
                 return _reader.GetBoolean(index);
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("GetBooleanN failed: "+ex);
+                Console.WriteLine("GetBooleanN failed: " + ex);
                 return null;
             }
         }
@@ -105,10 +106,10 @@ namespace DbLinq.Sqlite
             try
             {
                 return _reader.GetInt32(index);
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("GetInt32("+index+") failed: "+ex);
+                Console.WriteLine("GetInt32(" + index + ") failed: " + ex);
                 return 0;
             }
         }
@@ -127,7 +128,7 @@ namespace DbLinq.Sqlite
             }
         }
 
-        
+
         public override uint GetUInt32(int index)
         {
             // picrap: ???
@@ -161,16 +162,16 @@ namespace DbLinq.Sqlite
             //    return null;
             //}
         }
-        
+
         public override float GetFloat(int index)
         {
             try
             {
                 return _reader.GetFloat(index);
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("GetInt32 failed: "+ex);
+                Console.WriteLine("GetInt32 failed: " + ex);
                 return 0;
             }
         }
@@ -195,10 +196,10 @@ namespace DbLinq.Sqlite
             try
             {
                 return _reader.GetDouble(index);
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("GetInt32 failed: "+ex);
+                Console.WriteLine("GetInt32 failed: " + ex);
                 return 0;
             }
         }
@@ -222,10 +223,10 @@ namespace DbLinq.Sqlite
             try
             {
                 return _reader.GetDecimal(index);
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("GetInt32 failed: "+ex);
+                Console.WriteLine("GetInt32 failed: " + ex);
                 return 0;
             }
         }
@@ -248,10 +249,10 @@ namespace DbLinq.Sqlite
             try
             {
                 return _reader.GetDateTime(index);
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("GetInt32 failed: "+ex);
+                Console.WriteLine("GetInt32 failed: " + ex);
                 return new DateTime();
             }
         }
@@ -259,13 +260,13 @@ namespace DbLinq.Sqlite
         {
             try
             {
-                if(_reader.IsDBNull(index))
+                if (_reader.IsDBNull(index))
                     return null;
                 return _reader.GetDateTime(index);
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("GetInt32 failed: "+ex);
+                Console.WriteLine("GetInt32 failed: " + ex);
                 return null;
             }
         }
@@ -274,13 +275,13 @@ namespace DbLinq.Sqlite
         {
             try
             {
-                if(_reader.IsDBNull(index))
+                if (_reader.IsDBNull(index))
                     return -1;
                 return _reader.GetInt64(index);
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("GetInt64N failed: "+ex);
+                Console.WriteLine("GetInt64N failed: " + ex);
                 return 0;
             }
         }
@@ -288,13 +289,13 @@ namespace DbLinq.Sqlite
         {
             try
             {
-                if(_reader.IsDBNull(index))
+                if (_reader.IsDBNull(index))
                     return null;
                 return _reader.GetInt64(index);
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("GetInt64N failed: "+ex);
+                Console.WriteLine("GetInt64N failed: " + ex);
                 return null;
             }
         }
@@ -312,15 +313,15 @@ namespace DbLinq.Sqlite
                     return null; //nullable text?
 
                 return obj as string;
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("GetString("+index+") failed: "+ex);
+                Console.WriteLine("GetString(" + index + ") failed: " + ex);
                 return null;
             }
         }
 
-        
+
 
         public override byte[] GetBytes(int index)
         {
@@ -329,18 +330,18 @@ namespace DbLinq.Sqlite
                 //System.Data.SqlClient.SqlDataReader rdr2;
                 //rdr2.GetSqlBinary(); //SqlBinary does not seem to exist on MySql
                 object obj = _reader.GetValue(index);
-                if(_reader.IsDBNull(index))
+                if (_reader.IsDBNull(index))
                     return null; //nullable blob?
                 byte[] bytes = obj as byte[];
-                if(bytes!=null)
+                if (bytes != null)
                     return bytes; //works for BLOB field
-                Console.WriteLine("GetBytes(" + index + "): received unexpected type:"+obj);
+                Console.WriteLine("GetBytes(" + index + "): received unexpected type:" + obj);
                 //return _rdr.GetInt32(index);
                 return new byte[0];
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine("GetBytes failed: "+ex);
+                Console.WriteLine("GetBytes failed: " + ex);
                 return null;
             }
         }

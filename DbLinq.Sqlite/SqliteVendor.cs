@@ -31,6 +31,7 @@ using System.Text;
 using System.Data;
 using System.Data.Linq.Mapping;
 using System.Reflection;
+using DbLinq.Logging;
 using DbLinq.Sqlite;
 using DbLinq.Util;
 using DbLinq.Linq;
@@ -144,7 +145,7 @@ namespace DbLinq.Sqlite
 */
         public override IDataReader2 CreateDataReader(IDataReader dataReader)
         {
-            return new SqliteDataReader2(dataReader);
+            return new SqliteDataReader2(dataReader, Logger);
         }
 
         public override bool CanBulkInsert<T>(DbLinq.Linq.Table<T> table)
@@ -299,7 +300,7 @@ namespace DbLinq.Sqlite
         /// <summary>
         /// Collect all Out or InOut param values, casting them to the correct .net type.
         /// </summary>
-        static List<object> CopyOutParams(ParameterInfo[] paramInfos, IDataParameterCollection paramSet)
+        private List<object> CopyOutParams(ParameterInfo[] paramInfos, IDataParameterCollection paramSet)
         {
             List<object> outParamValues = new List<object>();
             //Type type_t = typeof(T);
@@ -334,7 +335,7 @@ namespace DbLinq.Sqlite
                 catch (Exception ex)
                 {
                     //fails with 'System.Decimal cannot be converted to Int32'
-                    Console.WriteLine("CopyOutParams ERROR L245: failed on CastValue(): " + ex.Message);
+                    Logger.Write(Level.Error, "CopyOutParams ERROR L245: failed on CastValue(): " + ex.Message);
                 }
             }
             return outParamValues;
