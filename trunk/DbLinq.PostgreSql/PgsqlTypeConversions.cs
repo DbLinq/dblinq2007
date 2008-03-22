@@ -30,14 +30,17 @@ namespace DbLinq.PostgreSql
         public static NpgsqlDbType ParseType(string typeStr)
         {
             string typeStrL = typeStr.ToLower();
+
+            #region chop "integer(32,0)" -> "integer"
             int bracket = typeStr.IndexOf('(');
             if (bracket > -1)
             {
-                //chop "integer(32,0)" -> "integer"
                 typeStrL = typeStrL.Substring(0, bracket);
             }
+            #endregion
 
-            if(!s_typeMap.ContainsKey(typeStrL))
+
+            if (!s_typeMap.ContainsKey(typeStrL))
             {
                 switch(typeStrL){
                     case "tinyint":
