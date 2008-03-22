@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
 using System.Configuration;
 using System.Reflection;
@@ -85,6 +87,7 @@ namespace SqlMetal
 
         protected void SetParameter(string name, string value)
         {
+            name = name.Trim();
             Type thisType = GetType();
             BindingFlags flags = BindingFlags.IgnoreCase | BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public;
             FieldInfo fieldInfo = thisType.GetField(name, flags);
@@ -100,13 +103,9 @@ namespace SqlMetal
             }
         }
 
-        public Parameters()
-		{
-		}
-
-        public Parameters(string[] args)
+        public void Load(IList<string> args)
         {
-            NameValueCollection configurationParameters = (NameValueCollection)ConfigurationManager.GetSection("parameters");
+            var configurationParameters = (NameValueCollection)ConfigurationManager.GetSection("parameters");
             foreach (string key in configurationParameters.AllKeys)
             {
                 SetParameter(key, configurationParameters[key]);
@@ -119,6 +118,121 @@ namespace SqlMetal
                 else
                     Extra.Add(arg);
             }
+        }
+
+        public Parameters()
+        {
+        }
+
+        public Parameters(IList<string> args)
+        {
+            Load(args);
+        }
+
+        public static IList<string> GetArguments(string commandLine, char[] quotes)
+        {
+            var arg = new StringBuilder();
+            var args = new List<string>();
+            const char zero = '\0';
+            char quote = zero;
+            foreach (char c in commandLine)
+            {
+                if (quote == zero)
+                {
+                    if (quotes.Contains(c))
+                        quote = c;
+                    else if (char.IsSeparator(c) && quote == zero)
+                    {
+                        if (arg.Length > 0)
+                        {
+                            args.Add(arg.ToString());
+                            arg = new StringBuilder();
+                        }
+                    }
+                    else
+                        arg.Append(c);
+                }
+                else
+                {
+                    if (c == quote)
+                        quote = zero;
+                    else
+                        arg.Append(c);
+                }
+            }
+            if (arg.Length > 0)
+                args.Add(arg.ToString());
+            return args;
+        }
+
+        private static char[] Quotes = new[] { '\'', '\"' };
+        public static IList<string> GetArguments(string commandLine)
+        {
+            return GetArguments(commandLine, Quotes);
+        }
+
+        /// <summary>
+        /// Processes different "lines" of parameters:
+        /// 1. the original input parameter must be starting with @
+        /// 2. all other parameters are kept as a common part
+        /// </summary>
+        /// <typeparam name="P"></typeparam>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static IList<P> GetParameterBatch<P>(IList<string> args)
+            where P : Parameters, new()
+        {
+            return GetParameterBatch<P>(args, ".");
+        }
+
+        public static IList<P> GetParameterBatch<P>(IList<string> args, string argsFileDirectory)
+            where P : Parameters, new()
+        {
+            var parameters = new List<P>();
+            var commonArgs = new List<string>();
+            var argsFiles = new List<string>();
+            foreach (var arg in args)
+            {
+                if (arg.StartsWith("@"))
+                    argsFiles.Add(arg.Substring(1));
+                else
+                    commonArgs.Add(arg);
+            }
+            // if we specify files, we must recurse
+            if (argsFiles.Count > 0)
+            {
+                foreach (var argsFile in argsFiles)
+                {
+                    parameters.AddRange(GetParameterBatchFile<P>(commonArgs, Path.Combine(argsFileDirectory, argsFile)));
+                }
+            }
+            // if we don't, just use the args
+            else if (commonArgs.Count > 0)
+            {
+                var p = new P();
+                p.Load(commonArgs);
+                parameters.Add(p);
+            }
+            return parameters;
+        }
+
+        private static IList<P> GetParameterBatchFile<P>(IList<string> baseArgs, string argsList)
+            where P : Parameters, new()
+        {
+            var parameters = new List<P>();
+            string argsFileDirectory = Path.GetDirectoryName(argsList);
+            using (var textReader = File.OpenText(argsList))
+            {
+                while (!textReader.EndOfStream)
+                {
+                    string line = textReader.ReadLine();
+                    IList<string> args = GetArguments(line);
+                    List<string> allArgs = new List<string>(baseArgs);
+                    allArgs.AddRange(args);
+                    parameters.AddRange(GetParameterBatch<P>(allArgs, argsFileDirectory));
+                }
+            }
+            return parameters;
         }
     }
 }
