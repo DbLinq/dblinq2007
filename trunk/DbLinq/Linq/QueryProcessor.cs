@@ -31,6 +31,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Data.Linq.Mapping;
 using DbLinq.Linq.Clause;
+using DbLinq.Logging;
 using DbLinq.Util;
 using DbLinq.Vendor;
 
@@ -73,8 +74,11 @@ namespace DbLinq.Linq
         /// </summary>
         public string LastQueryName;
 
+        public ILogger Logger { get; set; }
+
         internal QueryProcessor(SessionVarsParsed vars)
         {
+            Logger = LoggerInstance.Default;
             _vars = vars;
         }
 
@@ -247,8 +251,7 @@ namespace DbLinq.Linq
                     ProcessUnionClause(null);
                     return;
                 default:
-                    Console.WriteLine("################# L308 TODO " + methodName);
-                    Console.WriteLine("################# L308 TODO " + methodName);
+                    Logger.Write(Level.Error,"################# L308 TODO " + methodName);
                     throw new InvalidOperationException("L311 Unprepared for Method "+methodName);
             }
         }

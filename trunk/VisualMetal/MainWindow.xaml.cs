@@ -22,6 +22,7 @@ namespace VisualMetal
 {
 	public partial class MainWindow : Window
 	{
+        public SqlMetalProgram Program = new SqlMetalProgram();
 		public SqlMetalParameters Parameters = new SqlMetalParameters();
 		public ISchemaLoader Loader;
 		public Database Database;
@@ -55,7 +56,7 @@ namespace VisualMetal
 			try
 			{
 				Loader = new LoaderFactory().Load(Parameters);
-				Database = SqlMetalProgram.LoadSchema(Parameters, Loader);
+				Database = Program.LoadSchema(Parameters, Loader);
 
 				TableList.ItemsSource = Database.Table;
 			}
@@ -95,7 +96,7 @@ namespace VisualMetal
 			dialog.Filter = "C# source files (*.cs)|*.cs|All files (*.*)|*.*";
 			dialog.FileName = Parameters.Database;
 			if (dialog.ShowDialog() != System.Windows.Forms.DialogResult.Cancel)
-				SqlMetalProgram.GenerateCSharp(Parameters, Database, Loader, dialog.FileName);
+				Program.GenerateCSharp(Parameters, Database, Loader, dialog.FileName);
 		}
 
 		private void SaveDbml_Click(object sender, RoutedEventArgs e)

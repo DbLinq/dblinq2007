@@ -33,6 +33,7 @@ using System.Data;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using DbLinq.Linq;
+using DbLinq.Logging;
 using DbLinq.Util;
 using System.ComponentModel;
 
@@ -44,20 +45,17 @@ namespace DbLinq.Vendor.Implementation
     /// </summary>
     public abstract class Vendor : IVendor
     {
-        //public abstract string VendorName { get; }
-        //{
-        //    get { throw new NotImplementedException(); }
-        //}
+        public ILogger Logger { get; set; }
+
+        public Vendor()
+        {
+            Logger = LoggerInstance.Default;
+        }
 
         public virtual string SqlPingCommand
         {
             get { return "SELECT 11"; }
         }
-
-        //public void ProcessPkField(DbLinq.Linq.ProjectionData projData, System.Data.Linq.Mapping.ColumnAttribute colAtt, StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
-        //{
-        //    throw new NotImplementedException();
-        //}
 
         /// <summary>
         /// string concatenation, eg 'a||b' on Oracle.
@@ -327,7 +325,7 @@ namespace DbLinq.Vendor.Implementation
 
         public virtual IDataReader2 CreateDataReader(IDataReader dataReader)
         {
-            return new DataReader2(dataReader);
+            return new DataReader2(dataReader, Logger);
         }
 
         public virtual IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)

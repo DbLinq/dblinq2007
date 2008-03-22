@@ -29,6 +29,7 @@ using System.Data;
 using System.Collections.Generic;
 using System.Text;
 using System.Data.SqlClient;
+using DbLinq.Logging;
 using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.SqlServer
@@ -44,8 +45,8 @@ namespace DbLinq.SqlServer
     {
         protected SqlDataReader Reader { get { return _reader as SqlDataReader; } }
 
-        public SqlServerDataReader2(IDataReader rdr)
-            : base(rdr)
+        public SqlServerDataReader2(IDataReader rdr, ILogger logger)
+            : base(rdr, logger)
         {
             if (Reader == null)
                 throw new ArgumentException("rdr");
@@ -68,7 +69,7 @@ namespace DbLinq.SqlServer
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetInt16N failed: "+ex);
+                Logger.Write(Level.Error, "GetInt16N failed: "+ex);
                 return null;
             }
         }
@@ -83,7 +84,7 @@ namespace DbLinq.SqlServer
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetCharN failed: "+ex);
+                Logger.Write(Level.Error, "GetCharN failed: " + ex);
                 return null;
             }
         }
@@ -98,7 +99,7 @@ namespace DbLinq.SqlServer
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetBooleanN failed: "+ex);
+                Logger.Write(Level.Error, "GetBooleanN failed: " + ex);
                 return null;
             }
         }
@@ -113,7 +114,7 @@ namespace DbLinq.SqlServer
             {
                 bool isWithinBounds = (index > 0 && index < _reader.FieldCount);
                 string ftype = isWithinBounds ? _reader.GetDataTypeName(index) : "L106.OutOfBounds";
-                Console.WriteLine("GetInt32("+index+") failed ("+ftype+"): "+ex);
+                Logger.Write(Level.Error, "GetInt32(" + index + ") failed (" + ftype + "): " + ex);
                 return 0;
             }
         }
@@ -128,7 +129,7 @@ namespace DbLinq.SqlServer
             }
             catch (Exception ex)
             {
-                Console.WriteLine("GetInt32N(" + index + ") failed: " + ex);
+                Logger.Write(Level.Error, "GetInt32N(" + index + ") failed: " + ex);
                 return 0;
             }
         }
@@ -141,10 +142,10 @@ namespace DbLinq.SqlServer
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetUInt32("+index+") failed: "+ex);
+                Logger.Write(Level.Error, "GetUInt32(" + index + ") failed: " + ex);
                 try {
                     object obj = _reader.GetValue(index);
-                    Console.WriteLine("GetUInt32 failed, offending val: "+obj);
+                    Logger.Write(Level.Error, "GetUInt32 failed, offending val: " + obj);
                 } catch(Exception){}
                 return 0;
             }
@@ -161,7 +162,7 @@ namespace DbLinq.SqlServer
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetUInt32 failed: "+ex);
+                Logger.Write(Level.Error, "GetUInt32 failed: " + ex);
                 return null;
             }
         }
@@ -174,7 +175,7 @@ namespace DbLinq.SqlServer
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetInt32 failed: "+ex);
+                Logger.Write(Level.Error, "GetInt32 failed: " + ex);
                 return 0;
             }
         }
@@ -189,7 +190,7 @@ namespace DbLinq.SqlServer
             }
             catch (Exception ex)
             {
-                Console.WriteLine("GetFloatN failed: " + ex);
+                Logger.Write(Level.Error, "GetFloatN failed: " + ex);
                 return 0;
             }
         }
@@ -202,7 +203,7 @@ namespace DbLinq.SqlServer
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetInt32 failed: "+ex);
+                Logger.Write(Level.Error, "GetInt32 failed: " + ex);
                 return 0;
             }
         }
@@ -216,7 +217,7 @@ namespace DbLinq.SqlServer
             }
             catch (Exception ex)
             {
-                Console.WriteLine("GetInt32 failed: " + ex);
+                Logger.Write(Level.Error, "GetInt32 failed: " + ex);
                 return 0;
             }
         }
@@ -228,7 +229,7 @@ namespace DbLinq.SqlServer
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetInt32 failed: "+ex);
+                Logger.Write(Level.Error, "GetInt32 failed: "+ex);
                 return 0;
             }
         }
@@ -242,7 +243,7 @@ namespace DbLinq.SqlServer
             }
             catch (Exception ex)
             {
-                Console.WriteLine("GetDecimal(" + index + ") failed: " + ex);
+                Logger.Write(Level.Error, "GetDecimal(" + index + ") failed: " + ex);
                 return 0;
             }
         }
@@ -254,7 +255,7 @@ namespace DbLinq.SqlServer
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetInt32 failed: "+ex);
+                Logger.Write(Level.Error, "GetInt32 failed: "+ex);
                 return new DateTime();
             }
         }
@@ -268,7 +269,7 @@ namespace DbLinq.SqlServer
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetInt32 failed: "+ex);
+                Logger.Write(Level.Error, "GetInt32 failed: "+ex);
                 return new DateTime();
             }
         }
@@ -283,7 +284,7 @@ namespace DbLinq.SqlServer
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetInt64 failed: "+ex);
+                Logger.Write(Level.Error, "GetInt64 failed: "+ex);
                 return 0;
             }
         }
@@ -297,7 +298,7 @@ namespace DbLinq.SqlServer
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetInt64N failed: "+ex);
+                Logger.Write(Level.Error, "GetInt64N failed: "+ex);
                 return 0;
             }
         }
@@ -312,7 +313,7 @@ namespace DbLinq.SqlServer
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetString("+index+") failed: "+ex);
+                Logger.Write(Level.Error, "GetString("+index+") failed: "+ex);
                 return null;
             }
         }
@@ -329,13 +330,13 @@ namespace DbLinq.SqlServer
                 byte[] bytes = obj as byte[];
                 if(bytes!=null)
                     return bytes; //works for BLOB field
-                Console.WriteLine("GetBytes: received unexpected type:"+obj);
+                Logger.Write(Level.Error, "GetBytes: received unexpected type:"+obj);
                 //return _rdr.GetInt32(index);
                 return new byte[0];
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetBytes failed: "+ex);
+                Logger.Write(Level.Error, "GetBytes failed: "+ex);
                 return null;
             }
         }

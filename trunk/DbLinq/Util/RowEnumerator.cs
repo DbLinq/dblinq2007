@@ -36,6 +36,7 @@ using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using System.Text.RegularExpressions;
 using DbLinq.Linq.Database;
+using DbLinq.Logging;
 using DbLinq.Util;
 using DbLinq.Linq;
 using DbLinq.Linq.Clause;
@@ -51,25 +52,29 @@ namespace DbLinq.Util
     public class RowEnumerator<T> : IEnumerable<T>, IDisposable //IEnumerator<T>
         , IQueryText
     {
+        public ILogger Logger { get; set; }
+
         protected SessionVarsParsed _vars;
         protected IDatabaseContext _databaseContext;
 
         //while the FatalExecuteEngineError persists, we use a wrapper class to retrieve data
-        protected Func<IDataRecord,T> _objFromRow2;
+        protected Func<IDataRecord, T> _objFromRow2;
 
         //Type _sourceType;
         protected ProjectionData _projectionData;
-        Dictionary<T,T> _liveObjectMap;
+        Dictionary<T, T> _liveObjectMap;
         internal string _sqlString;
         IDisposable _connectionManager;
         IDataReader _rdr;
 
-        public RowEnumerator(SessionVarsParsed vars, Dictionary<T,T> liveObjectMap)
+        public RowEnumerator(SessionVarsParsed vars, Dictionary<T, T> liveObjectMap)
         {
+            Logger = LoggerInstance.Default;
+
             _vars = vars;
 
             //for [Table] objects only: keep objects (to save them if they get modified)
-            _liveObjectMap = liveObjectMap; 
+            _liveObjectMap = liveObjectMap;
 
             _projectionData = vars.ProjectionData;
 
@@ -86,7 +91,7 @@ namespace DbLinq.Util
             _objFromRow2 = _vars.Context.ResultMapper.GetMapper<T>(_vars);
         }
 
-        public string GetQueryText(){ return _sqlString; }
+        public string GetQueryText() { return _sqlString; }
 
         protected IDbCommand ExecuteSqlCommand(out IDataReader rdr2)
         {
@@ -114,7 +119,7 @@ namespace DbLinq.Util
             //toncho11: http://code.google.com/p/dblinq2007/issues/detail?id=24
             QuotesHelper.AddQuotesToQuery(cmd);
 
-            //Console.WriteLine("cmd.ExecuteCommand()");
+            //Logger.Write("cmd.ExecuteCommand()");
             //XSqlDataReader _rdr = cmd.ExecuteReader();
             // picrap: right we should remove IDataReader2 (even if this this is hard work :))
             _rdr = cmd.ExecuteReader();
@@ -137,7 +142,7 @@ namespace DbLinq.Util
         public void Dispose()
         {
             //Dispose logic moved into the "yield return" loop
-            Console.WriteLine("RowEnum.Dispose()");
+            Logger.Write(Level.Debug, "RowEnum.Dispose()");
 
             _connectionManager.Dispose();
 
@@ -161,42 +166,42 @@ namespace DbLinq.Util
         /// </summary>
         public virtual IEnumerator<T> GetEnumerator()
         {
-            if(_objFromRow2==null)
+            if (_objFromRow2 == null)
             {
                 throw new ApplicationException("Internal error, missing _objFromRow compiled func");
             }
 
             IDataReader rdr2;
 
-            using( IDbCommand cmd = ExecuteSqlCommand(out rdr2) )
-            using( rdr2 )
+            using (IDbCommand cmd = ExecuteSqlCommand(out rdr2))
+            using (rdr2)
             {
                 //_current = default(T);
-                while(rdr2.Read())
+                while (rdr2.Read())
                 {
                     if (rdr2.FieldCount == 0) // note to the below code author: could you check this modification validity?
                         continue;
-//#if SQLITE
-//                    // if not this might crash with SQLite
-//                    //(only SqlLite implements HasRow?!)
-//                    if (!rdr2.HasRow)
-//                        continue;
-//#endif
+                    //#if SQLITE
+                    //                    // if not this might crash with SQLite
+                    //                    //(only SqlLite implements HasRow?!)
+                    //                    if (!rdr2.HasRow)
+                    //                        continue;
+                    //#endif
 
                     T current = _objFromRow2(rdr2);
 
                     //live object cache:
-                    if(_liveObjectMap!=null && current!=null)
+                    if (_liveObjectMap != null && current != null)
                     {
                         //TODO: given object's ID, try to retrieve an existing cached object
                         //_rowCache.Add(_current); //store so we can save if modified
                         T previousObj;
                         //rowCache uses Order.OrderId as key (uses Order.GetHashCode and .Equals)
-                        bool contains = _liveObjectMap.TryGetValue(current,out previousObj);
-                        if(contains)
+                        bool contains = _liveObjectMap.TryGetValue(current, out previousObj);
+                        if (contains)
                         {
                             //discard data from DB, return previously loaded instance
-                            current = previousObj; 
+                            current = previousObj;
                         }
                         _liveObjectMap[current] = current;
                     }
@@ -216,12 +221,12 @@ namespace DbLinq.Util
             return GetEnumerator();
         }
 
-       
+
 
         #region IsBuiltinType(), IsColumnType(), IsProjection()
 
         //IsGroupBy: derived class returns true
-        public virtual bool IsGroupBy(){ return false; }
+        public virtual bool IsGroupBy() { return false; }
 
         #endregion
     }

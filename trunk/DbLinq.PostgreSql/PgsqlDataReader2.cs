@@ -63,7 +63,7 @@ namespace DbLinq.PostgreSql
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetInt16N failed: "+ex);
+                Logger.Write("GetInt16N failed: "+ex);
                 return null;
             }
         }
@@ -78,7 +78,7 @@ namespace DbLinq.PostgreSql
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetCharN failed: "+ex);
+                Logger.Write("GetCharN failed: "+ex);
                 return null;
             }
         }
@@ -93,7 +93,7 @@ namespace DbLinq.PostgreSql
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetBooleanN failed: "+ex);
+                Logger.Write("GetBooleanN failed: "+ex);
                 return null;
             }
         }
@@ -115,9 +115,9 @@ namespace DbLinq.PostgreSql
                 else
                 {
                     //there is a problem (we're getting text)
-                    Console.WriteLine("DataReader2.GetInt32: got unexpected type:"+dbType2);
+                    Logger.Write("DataReader2.GetInt32: got unexpected type:"+dbType2);
                     object val = _reader.GetValue(index);
-                    Console.WriteLine("DataReader2.GetInt32: got unexpected type:"+dbType2+"  val="+val);
+                    Logger.Write("DataReader2.GetInt32: got unexpected type:"+dbType2+"  val="+val);
                 }
 
                 //PgSql seems to give us Int64
@@ -125,10 +125,10 @@ namespace DbLinq.PostgreSql
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetInt32 failed: "+ex);
+                Logger.Write("GetInt32 failed: "+ex);
                 try {
                     object obj = _reader.GetValue(index);
-                    Console.WriteLine("GetInt32 failed, offending val: "+obj);
+                    Logger.Write("GetInt32 failed, offending val: "+obj);
                 } catch(Exception)
                 {
                 }
@@ -146,7 +146,7 @@ namespace DbLinq.PostgreSql
             }
             catch (Exception ex)
             {
-                Console.WriteLine("GetInt32N(" + index + ") failed: " + ex);
+                Logger.Write("GetInt32N(" + index + ") failed: " + ex);
                 return 0;
             }
         }
@@ -159,10 +159,10 @@ namespace DbLinq.PostgreSql
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetUInt32("+index+") failed: "+ex);
+                Logger.Write("GetUInt32("+index+") failed: "+ex);
                 try {
                     object obj = _reader.GetValue(index);
-                    Console.WriteLine("GetUInt32 failed, offending val: "+obj);
+                    Logger.Write("GetUInt32 failed, offending val: "+obj);
                 } catch(Exception){}
                 return 0;
             }
@@ -178,7 +178,7 @@ namespace DbLinq.PostgreSql
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetUInt32 failed: "+ex);
+                Logger.Write("GetUInt32 failed: "+ex);
                 return null;
             }
         }
@@ -191,7 +191,7 @@ namespace DbLinq.PostgreSql
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetInt32 failed: "+ex);
+                Logger.Write("GetInt32 failed: "+ex);
                 return 0;
             }
         }
@@ -206,7 +206,7 @@ namespace DbLinq.PostgreSql
             }
             catch (Exception ex)
             {
-                Console.WriteLine("GetFloatN failed: " + ex);
+                Logger.Write("GetFloatN failed: " + ex);
                 return 0;
             }
         }
@@ -225,7 +225,7 @@ namespace DbLinq.PostgreSql
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetDouble failed: "+ex);
+                Logger.Write("GetDouble failed: "+ex);
                 return 0;
             }
         }
@@ -240,7 +240,7 @@ namespace DbLinq.PostgreSql
             }
             catch (Exception ex)
             {
-                Console.WriteLine("GetInt32 failed: " + ex);
+                Logger.Write("GetInt32 failed: " + ex);
                 return 0;
             }
         }
@@ -253,7 +253,7 @@ namespace DbLinq.PostgreSql
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetInt32 failed: "+ex);
+                Logger.Write("GetInt32 failed: "+ex);
                 return 0;
             }
         }
@@ -267,7 +267,7 @@ namespace DbLinq.PostgreSql
             }
             catch (Exception ex)
             {
-                Console.WriteLine("GetDecimal(" + index + ") failed: " + ex);
+                Logger.Write("GetDecimal(" + index + ") failed: " + ex);
                 return 0;
             }
         }
@@ -279,7 +279,7 @@ namespace DbLinq.PostgreSql
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetInt32 failed: "+ex);
+                Logger.Write("GetInt32 failed: "+ex);
                 return new DateTime();
             }
         }
@@ -293,7 +293,7 @@ namespace DbLinq.PostgreSql
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetInt32 failed: "+ex);
+                Logger.Write("GetInt32 failed: "+ex);
                 return new DateTime();
             }
         }
@@ -308,7 +308,7 @@ namespace DbLinq.PostgreSql
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetInt64N failed: "+ex);
+                Logger.Write("GetInt64N failed: "+ex);
                 return 0;
             }
         }
@@ -322,7 +322,7 @@ namespace DbLinq.PostgreSql
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetInt64N failed: "+ex);
+                Logger.Write("GetInt64N failed: "+ex);
                 return 0;
             }
         }
@@ -337,7 +337,7 @@ namespace DbLinq.PostgreSql
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetString("+index+") failed: "+ex);
+                Logger.Write("GetString("+index+") failed: "+ex);
                 return null;
             }
         }
@@ -354,13 +354,13 @@ namespace DbLinq.PostgreSql
                 byte[] bytes = obj as byte[];
                 if(bytes!=null)
                     return bytes; //works for BLOB field
-                Console.WriteLine("GetBytes: received unexpected type:"+obj);
+                Logger.Write("GetBytes: received unexpected type:"+obj);
                 //return _rdr.GetInt32(index);
                 return new byte[0];
             } 
             catch(Exception ex)
             {
-                Console.WriteLine("GetBytes failed: "+ex);
+                Logger.Write("GetBytes failed: "+ex);
                 return null;
             }
         }

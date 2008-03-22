@@ -28,6 +28,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Linq.Mapping;
+using DbLinq.Logging;
 using DbLinq.Schema;
 
 namespace SqlMetal.Generator.Implementation
@@ -46,7 +47,7 @@ namespace SqlMetal.Generator.Implementation
         {
             if (procedure == null || procedure.Name == null)
             {
-                Console.WriteLine("CodeGenStoredProc: Error L33 Invalid storedProcedure object");
+                Logger.Write(Level.Error, "CodeGenStoredProc: Error L33 Invalid storedProcedure object");
                 writer.WriteCommentLine("error L33 Invalid storedProcedure object");
                 return;
             }

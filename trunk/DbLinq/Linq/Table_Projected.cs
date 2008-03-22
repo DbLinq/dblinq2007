@@ -150,7 +150,7 @@ namespace DbLinq.Linq
 
         public void Dispose()
         {
-            //Console.WriteLine("Dispose2");
+            //Logger.Write("Dispose2");
         }
 
         //New as of Orcas Beta2 - what does it do?

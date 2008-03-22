@@ -8,6 +8,7 @@ using DbLinq.Schema;
 using DbLinq.Schema.Dbml;
 using DbLinq.Util;
 using DbLinq.Vendor.Implementation;
+using DbLinq.Logging;
 
 namespace DbLinq.PostgreSql
 {
@@ -36,7 +37,7 @@ namespace DbLinq.PostgreSql
             List<TableRow> tables = tsql.getTables(conn, databaseName);
             if (tables == null || tables.Count == 0)
             {
-                Console.WriteLine("No tables found for schema " + databaseName + ", exiting");
+                Logger.Write(Level.Warning, "No tables found for schema " + databaseName + ", exiting");
                 return null;
             }
 
@@ -75,7 +76,7 @@ namespace DbLinq.PostgreSql
                 DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.TableNameWithSchema == tblSchema.Name);
                 if (tableSchema == null)
                 {
-                    Console.WriteLine("ERROR L46: Table '" + columnRow.table_name + "' not found for column " + columnRow.column_name);
+                    Logger.Write(Level.Error,"ERROR L46: Table '" + columnRow.table_name + "' not found for column " + columnRow.column_name);
                     continue;
                 }
                 var colSchema = new DbLinq.Schema.Dbml.Column();
@@ -124,7 +125,7 @@ namespace DbLinq.PostgreSql
                 DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => keyColRow.TableNameWithSchema == t.Name);
                 if (table == null)
                 {
-                    Console.WriteLine("ERROR L138: Table '" + keyColRow.table_name + "' not found for column " + keyColRow.column_name);
+                    Logger.Write(Level.Error, "ERROR L138: Table '" + keyColRow.table_name + "' not found for column " + keyColRow.column_name);
                     continue;
                 }
 
@@ -141,7 +142,7 @@ namespace DbLinq.PostgreSql
                     if (foreignKey == null)
                     {
                         string msg = "Missing data from 'constraint_column_usage' for foreign key " + keyColRow.constraint_name;
-                        Console.WriteLine(msg);
+                        Logger.Write(Level.Error, msg);
                         //throw new ApplicationException(msg);
                         continue; //as per Andrus, do not throw. //putting together an Adnrus_DB test case.
                     }
@@ -169,7 +170,7 @@ namespace DbLinq.PostgreSql
                     //Dbml.Table parentTable = schema0.Tables.FirstOrDefault(t => keyColRow.referenced_table_name==t.Name);
                     DbLinq.Schema.Dbml.Table parentTable = schema.Tables.FirstOrDefault(t => foreignKey.TableNameWithSchema_Parent == t.Name);
                     if (parentTable == null)
-                        Console.WriteLine("ERROR L151: parent table not found: " + foreignKey.table_name_Parent);
+                        Logger.Write(Level.Error, "ERROR L151: parent table not found: " + foreignKey.table_name_Parent);
                     else
                     {
                         parentTable.Type.Associations.Add(assoc2);
@@ -276,7 +277,7 @@ namespace DbLinq.PostgreSql
                     || (argModes != null && argModes.Length != argNames.Length));
                 if (doLengthsMatch)
                 {
-                    Console.WriteLine("L238 Mistmatch between modesArr, typeArr and nameArr for func " + pg_proc.proname);
+                    Logger.Write(Level.Error, "L238 Mistmatch between modesArr, typeArr and nameArr for func " + pg_proc.proname);
                     return null;
                 }
 

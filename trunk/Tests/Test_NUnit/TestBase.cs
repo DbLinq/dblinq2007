@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using DbLinq.Logging;
 using NUnit.Framework;
 using nwind;
 
@@ -41,7 +42,14 @@ namespace Test_NUnit
     /// </summary>
     public abstract class TestBase
     {
+        public ILogger Logger { get; set; }
+
         static bool doRecreate = true;
+
+        public TestBase()
+        {
+            Logger = LoggerInstance.Default;
+        }
 
         public string DbServer
         {

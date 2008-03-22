@@ -35,6 +35,7 @@ using System.Data;
 using DbLinq.Linq;
 using DbLinq.Linq.Clause;
 using DbLinq.Linq.Mapping;
+using DbLinq.Logging;
 using DbLinq.Util;
 using DbLinq.Linq.Database;
 
@@ -273,7 +274,7 @@ namespace DbLinq.MySql
         /// <summary>
         /// Collect all Out or InOut param values, casting them to the correct .net type.
         /// </summary>
-        static List<object> CopyOutParams(ParameterInfo[] paramInfos, IDataParameterCollection paramSet)
+        private List<object> CopyOutParams(ParameterInfo[] paramInfos, IDataParameterCollection paramSet)
         {
             List<object> outParamValues = new List<object>();
             //Type type_t = typeof(T);
@@ -308,7 +309,7 @@ namespace DbLinq.MySql
                 catch (Exception ex)
                 {
                     //fails with 'System.Decimal cannot be converted to Int32'
-                    Console.WriteLine("CopyOutParams ERROR L245: failed on CastValue(): " + ex.Message);
+                    Logger.Write(Level.Error, "CopyOutParams ERROR L245: failed on CastValue(): " + ex.Message);
                 }
             }
             return outParamValues;

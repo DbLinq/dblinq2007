@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DbLinq.Logging;
 using NUnit.Framework;
 using nwind;
 using Test_NUnit;
@@ -70,7 +71,7 @@ using Test_NUnit;
         [Test(Description = "This sample uses foreign key navigation in the from clause to filter for employees in Seattle, and also list their territories")]
         public void LinqToSqlJoin03()
         {
-            //Console.WriteLine("\nLinq.Join03()");
+            //Logger.Write(Level.Information, "\nLinq.Join03()");
             Northwind db = CreateDB();
 
             var q = from e in db.Employees
@@ -85,7 +86,7 @@ using Test_NUnit;
         [Test(Description = "SelectMany - Self-Join.  filter for pairs of employees where one employee reports to the other and where both employees are from the same City")]
         public void LinqToSqlJoin04()
         {
-            //Console.WriteLine("\nLinq.Join04()");
+            //Logger.Write(Level.Information, "\nLinq.Join04()");
             Northwind db = CreateDB();
 
             var q = from e1 in db.Employees
@@ -115,7 +116,7 @@ using Test_NUnit;
         [Test(Description = "GroupJoin - Nullable\\Nonnullable Key Relationship")]
         public void LinqToSqlJoin10()
         {
-            Console.WriteLine("\nLinq.Join10()");
+            Logger.Write(Level.Information, "\nLinq.Join10()");
             Northwind db = CreateDB();
 
             var q = from o in db.Orders
@@ -131,7 +132,7 @@ using Test_NUnit;
         [Test(Description = "Problem discovered by Laurent")]
         public void Join_Laurent()
         {
-            Console.WriteLine("\nJoin_Laurent()");
+            Logger.Write(Level.Information, "\nJoin_Laurent()");
             Northwind db = CreateDB();
 
             var q1 = (from p in db.Products

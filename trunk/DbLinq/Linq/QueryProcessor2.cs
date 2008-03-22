@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq.Expressions;
 using DbLinq.Linq.Clause;
+using DbLinq.Logging;
 using DbLinq.Util;
 
 namespace DbLinq.Linq
@@ -315,12 +316,12 @@ namespace DbLinq.Linq
                 default:
                     throw new ApplicationException("processGroupJoin: Prepared only for 5 param GroupBys");
             }
-            Console.WriteLine("TODO L299 Support GroupJoin()");
+            Logger.Write(Level.Error, "TODO L299 Support GroupJoin()");
         }
 
         void ProcessUnionClause(LambdaExpression unionExpr)
         {
-            Console.WriteLine("Union");
+            Logger.Write(Level.Error,"Union");
             //ParseResult result = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, orderByExpr.Body);
         }
 
