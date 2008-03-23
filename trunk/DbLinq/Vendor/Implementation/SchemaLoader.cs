@@ -27,6 +27,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using DbLinq.Factory;
 using DbLinq.Linq;
 using DbLinq.Linq.Implementation;
 using DbLinq.Logging;
@@ -48,8 +49,8 @@ namespace DbLinq.Vendor.Implementation
 
         protected SchemaLoader()
         {
-            NameFormatter = new NameFormatter();
-            Logger = LoggerInstance.Default;
+            Logger = ObjectFactory.Get<ILogger>();
+            NameFormatter = ObjectFactory.Create<INameFormatter>(); // the Pluralize property is set dynamically, so no singleton
         }
 
         protected virtual WordsExtraction GetExtraction(string dbColumnName)

@@ -4,6 +4,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DbLinq.Factory;
 using DbLinq.Logging;
 using NUnit.Framework;
 
@@ -16,7 +17,7 @@ namespace Test_NUnit_Mysql
 
         public MetalTest()
         {
-            Logger = LoggerInstance.Default;
+            Logger = ObjectFactory.Get<ILogger>();
         }
 
         static string GetSqlMetalPath()

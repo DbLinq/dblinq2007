@@ -23,36 +23,23 @@ namespace nwind
         public Northwind(string connStr)
             : base(new System.Data.SqlClient.SqlConnection(connStr), new SqlServerVendor())
         {
-            Categories = new Table<Categories>(this);
-            CustomerCustomerDemos = new Table<CustomerCustomerDemo>(this);
-            CustomerDemographics = new Table<CustomerDemographics>(this);
-            Customers = new Table<Customers>(this);
-            Employees = new Table<Employees>(this);
-            EmployeeTerritories = new Table<EmployeeTerritories>(this);
-            OrderDetails = new Table<OrderDetails>(this);
-            Orders = new Table<Orders>(this);
-            Products = new Table<Products>(this);
-            Regions = new Table<Region>(this);
-            Shippers = new Table<Shippers>(this);
-            Suppliers = new Table<Suppliers>(this);
-            Territories = new Table<Territories>(this);
         }
 
         //these fields represent tables in database and are
         //ordered - parent tables first, child tables next. Do not change the order.
-        public readonly Table<Categories> Categories;
-        public readonly Table<CustomerCustomerDemo> CustomerCustomerDemos;
-        public readonly Table<CustomerDemographics> CustomerDemographics;
-        public readonly Table<Customers> Customers;
-        public readonly Table<Employees> Employees;
-        public readonly Table<EmployeeTerritories> EmployeeTerritories;
-        public readonly Table<OrderDetails> OrderDetails;
-        public readonly Table<Orders> Orders;
-        public readonly Table<Products> Products;
-        public readonly Table<Region> Regions;
-        public readonly Table<Shippers> Shippers;
-        public readonly Table<Suppliers> Suppliers;
-        public readonly Table<Territories> Territories;
+        public Table<Categories> Categories { get { return GetTable<Categories>(); } }
+        public Table<CustomerCustomerDemo> CustomerCustomerDemos { get { return GetTable<CustomerCustomerDemo>(); } }
+        public Table<CustomerDemographics> CustomerDemographics { get { return GetTable<CustomerDemographics>(); } }
+        public Table<Customers> Customers { get { return GetTable<Customers>(); } }
+        public Table<Employees> Employees { get { return GetTable<Employees>(); } }
+        public Table<EmployeeTerritories> EmployeeTerritories { get { return GetTable<EmployeeTerritories>(); } }
+        public Table<OrderDetails> OrderDetails { get { return GetTable<OrderDetails>(); } }
+        public Table<Orders> Orders { get { return GetTable<Orders>(); } }
+        public Table<Products> Products { get { return GetTable<Products>(); } }
+        public Table<Region> Regions { get { return GetTable<Region>(); } }
+        public Table<Shippers> Shippers { get { return GetTable<Shippers>(); } }
+        public Table<Suppliers> Suppliers { get { return GetTable<Suppliers>(); } }
+        public Table<Territories> Territories { get { return GetTable<Territories>(); } }
     }
 
 

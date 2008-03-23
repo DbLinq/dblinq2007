@@ -32,6 +32,7 @@ using System.Linq;
 using System.Data;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
+using DbLinq.Factory;
 using DbLinq.Linq;
 using DbLinq.Logging;
 using DbLinq.Util;
@@ -49,7 +50,7 @@ namespace DbLinq.Vendor.Implementation
 
         public Vendor()
         {
-            Logger = LoggerInstance.Default;
+            Logger = ObjectFactory.Get<ILogger>();
         }
 
         public virtual string SqlPingCommand
@@ -325,7 +326,7 @@ namespace DbLinq.Vendor.Implementation
 
         public virtual IDataReader2 CreateDataReader(IDataReader dataReader)
         {
-            return new DataReader2(dataReader, Logger);
+            return new DataReader2(dataReader);
         }
 
         public virtual IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)

@@ -28,6 +28,7 @@ using System;
 using System.Diagnostics;
 using System.Data;
 using System.Collections.Generic;
+using DbLinq.Factory;
 using DbLinq.Logging;
 using DbLinq.Util;
 using DbLinq.Linq;
@@ -53,7 +54,7 @@ namespace DbLinq.Util
 
         public RowEnumerator(SessionVarsParsed vars, Dictionary<T, T> liveObjectMap)
         {
-            Logger = LoggerInstance.Default;
+            Logger = ObjectFactory.Get<ILogger>();
 
             _vars = vars;
 

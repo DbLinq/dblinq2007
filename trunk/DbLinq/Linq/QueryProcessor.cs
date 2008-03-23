@@ -30,6 +30,7 @@ using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Data.Linq.Mapping;
+using DbLinq.Factory;
 using DbLinq.Linq.Clause;
 using DbLinq.Logging;
 using DbLinq.Util;
@@ -78,7 +79,7 @@ namespace DbLinq.Linq
 
         internal QueryProcessor(SessionVarsParsed vars)
         {
-            Logger = LoggerInstance.Default;
+            Logger = ObjectFactory.Get<ILogger>();
             _vars = vars;
         }
 
@@ -93,34 +94,34 @@ namespace DbLinq.Linq
             MethodCallExpression exprCall = expr.XMethodCall();
             string methodName = exprCall != null ? exprCall.Method.Name : "Unknown_71";
             LambdaExpression lambdaParam = exprCall.XParam(1).XLambda();
-            
+
             switch (methodName)
             {
-                case "Count":
-                case "Max":
-                case "Min":
-                case "Sum":
-                    if (lambdaParam != null)
-                    {
-                        MethodCallExpression precedingSelectCall = _vars.ExpressionChain[_vars.ExpressionChain.Count - 1];
-                        LambdaExpression precedingSelect = precedingSelectCall.Arguments[1].XLambda();
-                        //change 'i=>2' into 'p=>ProductID>2'
-                        lambdaParam = new CountExpressionModifier(precedingSelect).Modify(lambdaParam).XLambda();
-                    }
+            case "Count":
+            case "Max":
+            case "Min":
+            case "Sum":
+                if (lambdaParam != null)
+                {
+                    MethodCallExpression precedingSelectCall = _vars.ExpressionChain[_vars.ExpressionChain.Count - 1];
+                    LambdaExpression precedingSelect = precedingSelectCall.Arguments[1].XLambda();
+                    //change 'i=>2' into 'p=>ProductID>2'
+                    lambdaParam = new CountExpressionModifier(precedingSelect).Modify(lambdaParam).XLambda();
+                }
 
-                    _vars.SqlParts.CountClause = methodName.ToUpper();
-                    break;
-                case "Average":
-                    _vars.SqlParts.CountClause = "AVG";
-                    break;
-                case "Single":
-                case "SingleOrDefault":
-                    _vars.SqlParts.LimitClause = 2;
-                    break;
-                case "First":
-                case "FirstOrDefault":
-                    _vars.SqlParts.LimitClause = 1;
-                    break;
+                _vars.SqlParts.CountClause = methodName.ToUpper();
+                break;
+            case "Average":
+                _vars.SqlParts.CountClause = "AVG";
+                break;
+            case "Single":
+            case "SingleOrDefault":
+                _vars.SqlParts.LimitClause = 2;
+                break;
+            case "First":
+            case "FirstOrDefault":
+                _vars.SqlParts.LimitClause = 1;
+                break;
             }
 
             //there are two forms of Single, one passes in a Where clause
@@ -182,7 +183,7 @@ namespace DbLinq.Linq
             //string sql = _vars.SqlParts.ToString();
             string sql = _vars.Context.Vendor.BuildSqlString(_vars.SqlParts);
 
-            if (_vars.Context.Log!=null)
+            if (_vars.Context.Log != null)
                 _vars.Context.Log.WriteLine("SQL: " + sql);
 
             _vars.SqlString = sql;
@@ -201,58 +202,58 @@ namespace DbLinq.Linq
             LambdaExpression lambda = exprCall.Arguments.Count > 1
                 ? exprCall.Arguments[1].XLambda()
                 : null; //for Distinct(), we have no lambda (see F10_DistinctCity)
-            
+
             LastQueryName = methodName;
 
             switch (methodName)
             {
-                case "Where":
-                    ProcessWhereClause(lambda);
-                    return;
-                case "GroupBy":
-                    ProcessGroupByCall(exprCall);
-                    return;
-                case "GroupJoin": //occurs in LinqToSqlJoin10()
-                    ProcessGroupJoin(exprCall);
-                    return;
-                case "Select":
-                    ProcessSelectClause(lambda);
-                    return;
-                case "SelectMany":
-                    ProcessSelectMany(exprCall);
-                    return;
-                case "OrderBy":
-                case "ThenBy":
-                    ProcessOrderByClause(lambda, null); 
-                    return;
-                case "OrderByDescending":
-                    ProcessOrderByClause(lambda, "DESC"); // TODO --> IVendor
-                    return;
-                case "Join":
-                    ProcessJoinClause(exprCall); 
-                    return;
-                case "Take":
-                case "Skip":
-                    {
-                        ConstantExpression howMany = exprCall.XParam(1).XConstant();
-                        if (howMany == null)
-                            throw new ArgumentException("Take(),Skip() must come with ConstExpr");
-                        if (methodName == "Skip")
-                            _vars.SqlParts.OffsetClause = (int)howMany.Value;
-                        else
-                            _vars.SqlParts.LimitClause = (int)howMany.Value;
-                    }
-                    return;
-                case "Distinct":
-                    _vars.SqlParts.DistinctClause = "DISTINCT"; // TODO --> IVendor
-                    return;
-                case "Union":
-                    string ss = exprCall.ToString();
-                    ProcessUnionClause(null);
-                    return;
-                default:
-                    Logger.Write(Level.Error,"################# L308 TODO " + methodName);
-                    throw new InvalidOperationException("L311 Unprepared for Method "+methodName);
+            case "Where":
+                ProcessWhereClause(lambda);
+                return;
+            case "GroupBy":
+                ProcessGroupByCall(exprCall);
+                return;
+            case "GroupJoin": //occurs in LinqToSqlJoin10()
+                ProcessGroupJoin(exprCall);
+                return;
+            case "Select":
+                ProcessSelectClause(lambda);
+                return;
+            case "SelectMany":
+                ProcessSelectMany(exprCall);
+                return;
+            case "OrderBy":
+            case "ThenBy":
+                ProcessOrderByClause(lambda, null);
+                return;
+            case "OrderByDescending":
+                ProcessOrderByClause(lambda, "DESC"); // TODO --> IVendor
+                return;
+            case "Join":
+                ProcessJoinClause(exprCall);
+                return;
+            case "Take":
+            case "Skip":
+                {
+                    ConstantExpression howMany = exprCall.XParam(1).XConstant();
+                    if (howMany == null)
+                        throw new ArgumentException("Take(),Skip() must come with ConstExpr");
+                    if (methodName == "Skip")
+                        _vars.SqlParts.OffsetClause = (int)howMany.Value;
+                    else
+                        _vars.SqlParts.LimitClause = (int)howMany.Value;
+                }
+                return;
+            case "Distinct":
+                _vars.SqlParts.DistinctClause = "DISTINCT"; // TODO --> IVendor
+                return;
+            case "Union":
+                string ss = exprCall.ToString();
+                ProcessUnionClause(null);
+                return;
+            default:
+                Logger.Write(Level.Error, "################# L308 TODO " + methodName);
+                throw new InvalidOperationException("L311 Unprepared for Method " + methodName);
             }
         }
 
@@ -308,7 +309,7 @@ namespace DbLinq.Linq
                 NewExpression newEx = _vars.GroupByExpression.Body.XNew(); //{new <>f__AnonymousTypef`2(CustomerID = o.CustomerID, EmployeeID = o.EmployeeID)}
                 foreach (Expression ex1 in newEx.Arguments)
                 {
-                    if(ex1.NodeType!=ExpressionType.MemberAccess) 
+                    if (ex1.NodeType != ExpressionType.MemberAccess)
                         continue;
                     MemberExpression ex1Member = ex1.XMember();
                     //if (ex1Member.Member == memberExpr.Member)

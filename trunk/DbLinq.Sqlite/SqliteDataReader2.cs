@@ -42,8 +42,8 @@ namespace DbLinq.Sqlite
     /// </summary>
     public class SqliteDataReader2 : DataReader2
     {
-        public SqliteDataReader2(IDataReader rdr, ILogger logger)
-            : base(rdr, logger)
+        public SqliteDataReader2(IDataReader rdr)
+            : base(rdr)
         {
         }
 

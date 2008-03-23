@@ -24,12 +24,22 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
-using DbLinq.Logging.Implementation;
-
-namespace DbLinq.Logging
+namespace DbLinq.Factory
 {
-    public static class LoggerInstance
+    public interface IObjectFactory
     {
-        public static ILogger Default = new ConsoleDebugLogger();
+        /// <summary>
+        /// Returns an instance of a stateless class (may be a singleton)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        T Get<T>();
+
+        /// <summary>
+        /// Returns a new instance of the specified class (can not be a singleton)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        T Create<T>();
     }
 }

@@ -25,41 +25,27 @@
 #endregion
 
 using System;
-using System.Linq.Expressions;
-using DbLinq.Factory;
-using DbLinq.Logging;
+using System.Collections.Generic;
+using System.Reflection;
 
-namespace DbLinq.Linq.Implementation
+namespace DbLinq.Factory
 {
-    public class QueryGenerator: IQueryGenerator
+    /// <summary>
+    /// Object factory. Main objects (most of them are stateless) are created with this class
+    /// This may allow later to inject dependencies with a third party injector (I'm a Spring.NET big fan)
+    /// </summary>
+    public static class ObjectFactory
     {
-        public ILogger Logger { get; set; }
+        public static IObjectFactory Current = new Implementation.ReflectionObjectFactory();
 
-        public QueryGenerator()
+        public static T Get<T>()
         {
-            Logger = ObjectFactory.Get<ILogger>();
+            return Current.Get<T>();
         }
 
-        public SessionVarsParsed GenerateQuery(SessionVars vars, Type T)
+        public static T Create<T>()
         {
-
-            SessionVarsParsed sessionVarsParsed = new SessionVarsParsed(vars);
-            vars.Context.OnQuerying(sessionVarsParsed);
-            QueryProcessor queryProcessor = new QueryProcessor(sessionVarsParsed); //TODO
-
-            foreach (MethodCallExpression expr in vars.ExpressionChain)
-            {
-                queryProcessor.ProcessQuery(expr);
-            }
-
-            if (queryProcessor.LastQueryName == "GroupBy")
-                throw new InvalidOperationException("L98 GroupBy must by followed by an aggregate expression, such as Count or Max");
-
-            queryProcessor.ProcessScalarExpression();
-
-            queryProcessor.BuildSqlString(T);
-
-            return sessionVarsParsed;
+            return Current.Create<T>();
         }
     }
 }
