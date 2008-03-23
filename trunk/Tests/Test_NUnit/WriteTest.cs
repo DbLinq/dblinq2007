@@ -243,6 +243,7 @@ using Test_NUnit;
             var old = cust.City;
             cust.City = "Tallinn";
             db.SubmitChanges();
+            db.SubmitChanges(); // A second call does not update anything
 
             //exposes bug:
             //Npgsql.NpgsqlException was unhandled

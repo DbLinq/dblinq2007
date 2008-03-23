@@ -44,9 +44,9 @@ namespace DbLinq.Linq.Implementation
         private readonly IDictionary<object, IDictionary<string, object>> rawDataEntities = new Dictionary<object, IDictionary<string, object>>();
         private readonly IDictionary<object, IDictionary<string, PropertyInfo>> modifiedProperties = new Dictionary<object, IDictionary<string, PropertyInfo>>();
 
-        protected IEnumerable<PropertyInfo> GetColumnProperties(object entity)
+        protected IEnumerable<PropertyInfo> GetColumnProperties(Type entityType)
         {
-            foreach (PropertyInfo propertyInfo in entity.GetType().GetProperties())
+            foreach (PropertyInfo propertyInfo in entityType.GetProperties())
             {
                 // we consider only properties marked as [Column] since these are the only ones going to DB
                 if (propertyInfo.GetCustomAttributes(typeof(ColumnAttribute), true).Length > 0)
@@ -54,6 +54,15 @@ namespace DbLinq.Linq.Implementation
                     yield return propertyInfo;
                 }
             }
+        }
+
+        protected bool IsPrimitiveType(Type t)
+        {
+            if (t.IsValueType)
+                return true;
+            if (t == typeof(string))
+                return true;
+            return false;
         }
 
         /// <summary>
@@ -65,11 +74,13 @@ namespace DbLinq.Linq.Implementation
         /// <param name="prefix"></param>
         protected void AddRawData(object entity, IDictionary<string, object> rawData, string prefix)
         {
-            foreach (PropertyInfo propertyInfo in GetColumnProperties(entity))
+            if (entity == null)
+                return;
+            foreach (PropertyInfo propertyInfo in GetColumnProperties(entity.GetType()))
             {
                 object propertyValue = propertyInfo.GetGetMethod().Invoke(entity, null);
                 // if it is a value, it can be stored directly
-                if (propertyInfo.PropertyType.IsValueType)
+                if (IsPrimitiveType(propertyInfo.PropertyType))
                 {
                     rawData[prefix + propertyInfo.Name] = propertyValue;
                 }
@@ -204,7 +215,7 @@ namespace DbLinq.Linq.Implementation
 
         private bool IsPropertyModified(object p1, object p2)
         {
-            return !p1.Equals(p2);
+            return !object.Equals(p1, p2);
         }
 
         private bool IsRawModified(object entity)
@@ -245,7 +256,9 @@ namespace DbLinq.Linq.Implementation
 
         protected IList<PropertyInfo> GetAllColumnProperties(object entity)
         {
-            IList<PropertyInfo> properties = new List<PropertyInfo>(GetColumnProperties(entity));
+            if (entity == null)
+                throw new ArgumentNullException("GetAllColumnProperties(): entity must not be null");
+            IList<PropertyInfo> properties = new List<PropertyInfo>(GetColumnProperties(entity.GetType()));
             return properties;
         }
 
@@ -256,7 +269,7 @@ namespace DbLinq.Linq.Implementation
 
         protected IList<PropertyInfo> GetNotifyingModifiedProperties(object entity)
         {
-            IDictionary<string,PropertyInfo> properties;
+            IDictionary<string, PropertyInfo> properties;
             // if we don't have it, it is fully dirty
             if (!modifiedProperties.TryGetValue(entity, out properties))
                 return GetAllColumnProperties(entity);
