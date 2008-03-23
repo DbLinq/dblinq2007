@@ -148,6 +148,7 @@ namespace DbLinq.Util
                             //discard data from DB, return previously loaded instance
                             current = previousObj;
                         }
+                        _vars.Table.CheckAttachment(current); // registers the object to be watched for updates
                         _liveObjectMap[current] = current;
                     }
 

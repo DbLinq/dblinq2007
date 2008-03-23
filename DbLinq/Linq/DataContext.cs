@@ -288,6 +288,7 @@ namespace DbLinq.Linq
     /// </summary>
     public interface IMTable
     {
+        void CheckAttachment(object entity);
         List<Exception> SaveAll(System.Data.Linq.ConflictMode failureMode);
         void SaveAll();
     }

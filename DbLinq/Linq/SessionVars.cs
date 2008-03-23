@@ -39,6 +39,7 @@ namespace DbLinq.Linq
         public readonly int             _serial = s_serial++;
 
         public DataContext Context { get; private set; }
+        public IMTable Table { get; private set; }
 
         /// <summary>
         /// chain of expressions processed so far. 
@@ -52,9 +53,10 @@ namespace DbLinq.Linq
         /// </summary>
         public Expression ScalarExpression { get; set; }
 
-        public SessionVars(DataContext context)
+        public SessionVars(DataContext context, IMTable table)
         {
             Context = context;
+            Table = table;
         }
 
         /// <summary>
@@ -63,6 +65,7 @@ namespace DbLinq.Linq
         public SessionVars(SessionVars vars)
         { 
             Context = vars.Context;
+            Table = vars.Table;
             expressionChain = new List<MethodCallExpression>(vars.ExpressionChain);
             ScalarExpression = vars.ScalarExpression;
         }

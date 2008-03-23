@@ -509,7 +509,7 @@ namespace nwind
 	
 	
 	[Table(Name = "public.customers")]
-	public partial class Customer : IModified
+	public partial class Customer //: IModified
 	{
 		
 		protected string _customerid;

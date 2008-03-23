@@ -66,7 +66,7 @@ namespace DbLinq.Linq
 
         private readonly SessionVars _vars;
 
-        public ILogger Logger { get; set;}
+        public ILogger Logger { get; set; }
 
         private IModificationHandler _modificationHandler { get { return DataContext.ModificationHandler; } }
 
@@ -74,7 +74,7 @@ namespace DbLinq.Linq
         {
             DataContext = parent;
             DataContext.RegisterChild(this);
-            _vars = new SessionVars(parent);
+            _vars = new SessionVars(parent, this);
         }
 
         /// <summary>
@@ -225,7 +225,15 @@ namespace DbLinq.Linq
                 throw new System.Data.Linq.DuplicateKeyException(entity);
 
             _liveObjectMap[entity] = entity;
-            _modificationHandler.ClearModified(entity);
+            _modificationHandler.Register(entity);
+        }
+
+        public void CheckAttachment(object entity)
+        {
+            var typedEntity = (T)entity;
+            if (_liveObjectMap.ContainsKey(typedEntity))
+                return;
+            Attach(typedEntity);
         }
 
         public void SaveAll()
@@ -284,7 +292,7 @@ namespace DbLinq.Linq
                         }
                         catch (Exception ex)
                         {
-                            Logger.Write(Level.Error,"L227 Failed on SetObjectIdField: " + ex);
+                            Logger.Write(Level.Error, "L227 Failed on SetObjectIdField: " + ex);
                         }
                         //cmd.CommandText = 
                         //TODO: use reflection to assign the field ID - that way the _isModified flag will not get set
@@ -296,11 +304,11 @@ namespace DbLinq.Linq
                 {
                     switch (failureMode)
                     {
-                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                            excepts.Add(ex);
-                            break;
-                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                            throw ex;
+                    case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                        excepts.Add(ex);
+                        break;
+                    case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                        throw ex;
                     }
                 }
 
@@ -335,11 +343,11 @@ namespace DbLinq.Linq
                     Trace.WriteLine("Table.SubmitChanges failed: " + ex);
                     switch (failureMode)
                     {
-                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                            excepts.Add(ex);
-                            break;
-                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                            throw ex;
+                    case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                        excepts.Add(ex);
+                        break;
+                    case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                        throw ex;
                     }
                 }
             }
@@ -377,11 +385,11 @@ namespace DbLinq.Linq
                     {
                         switch (failureMode)
                         {
-                            case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                                excepts.Add(ex);
-                                break;
-                            case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                                throw ex;
+                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                            excepts.Add(ex);
+                            break;
+                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                            throw ex;
                         }
                     }
                 }
