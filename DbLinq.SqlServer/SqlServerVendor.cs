@@ -143,7 +143,7 @@ namespace DbLinq.SqlServer
 
         public override IDataReader2 CreateDataReader(IDataReader dataReader)
         {
-            return new SqlServerDataReader2(dataReader, Logger);
+            return new SqlServerDataReader2(dataReader);
         }
 
         public override bool CanBulkInsert<T>(DbLinq.Linq.Table<T> table)

@@ -31,6 +31,7 @@ using System.Data.Linq.Mapping;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using DbLinq.Factory;
 using DbLinq.Linq;
 using DbLinq.Linq.Mapping;
 using DbLinq.Logging;
@@ -45,7 +46,7 @@ namespace SqlMetal.Generator.Implementation
 
         public CodeGenerator()
         {
-            Logger = LoggerInstance.Default;
+            Logger = ObjectFactory.Get<ILogger>();
         }
 
         protected virtual void WriteClasses(CodeWriter writer, DbLinq.Schema.Dbml.Database schema, GenerationContext context)

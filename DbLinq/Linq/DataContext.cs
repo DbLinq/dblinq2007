@@ -32,6 +32,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Linq;
+using DbLinq.Factory;
 using DbLinq.Linq.Database;
 using DbLinq.Linq.Database.Implementation;
 using DbLinq.Linq.Implementation;
@@ -46,7 +47,6 @@ namespace DbLinq.Linq
         private readonly List<IMTable> _tableList = new List<IMTable>();
         private readonly Dictionary<string, IMTable> _tableMap = new Dictionary<string, IMTable>();
 
-        //public IDbConnection Connection { get; private set; }
         public IVendor Vendor { get; set; }
         public IQueryGenerator QueryGenerator { get; set; }
         public IResultMapper ResultMapper { get; set; }
@@ -66,14 +66,14 @@ namespace DbLinq.Linq
             if (databaseContext == null || vendor == null)
                 throw new ArgumentNullException("Null arguments");
 
-            Logger = LoggerInstance.Default;
+            Logger = ObjectFactory.Get<ILogger>();
 
             DatabaseContext = databaseContext;
             Vendor = vendor;
 
-            ResultMapper = new ResultMapper();
-            ModificationHandler = new ModificationHandler();
-            QueryGenerator = new QueryGenerator { Logger = Logger };
+            ResultMapper = ObjectFactory.Get<IResultMapper>();
+            ModificationHandler = ObjectFactory.Create<IModificationHandler>(); // not a singleton: object is stateful
+            QueryGenerator = ObjectFactory.Get<IQueryGenerator>();
         }
 
         public DataContext(IDbConnection dbConnection, IVendor vendor)
@@ -138,7 +138,7 @@ namespace DbLinq.Linq
             using (DatabaseContext.OpenConnection()) //ConnMgr will close connection for us
 
             //TranMgr may start transaction /  commit transaction
-            using (IDatabaseTransaction transactionMgr = DatabaseContext.Transaction()) 
+            using (IDatabaseTransaction transactionMgr = DatabaseContext.Transaction())
             {
                 foreach (IMTable tbl in _tableList)
                 {
@@ -152,17 +152,17 @@ namespace DbLinq.Linq
                         Trace.WriteLine("Context.SubmitChanges failed: " + ex.Message);
                         switch (failureMode)
                         {
-                            case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                                exceptions.Add(ex);
-                                break;
-                            case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                                throw ex;
+                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                            exceptions.Add(ex);
+                            break;
+                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                            throw ex;
                         }
                     }
                 }
-                bool doCommit = failureMode == System.Data.Linq.ConflictMode.FailOnFirstConflict 
+                bool doCommit = failureMode == System.Data.Linq.ConflictMode.FailOnFirstConflict
                     && exceptions.Count == 0;
-                if(doCommit)
+                if (doCommit)
                     transactionMgr.Commit();
             }
             return exceptions;
@@ -235,13 +235,14 @@ namespace DbLinq.Linq
         /// Execute raw SQL query and return object
         /// </summary>
         public IEnumerable<TResult> ExecuteQuery<TResult>(string command,
-          params object[] parameters) where TResult: new()
+          params object[] parameters) where TResult : new()
         {
 
-          using (DatabaseContext.OpenConnection()) {
-            IEnumerable<TResult> res = Vendor.ExecuteQuery<TResult>(this, command, parameters);
-            return res;
-          }
+            using (DatabaseContext.OpenConnection())
+            {
+                IEnumerable<TResult> res = Vendor.ExecuteQuery<TResult>(this, command, parameters);
+                return res;
+            }
         }
 
         /// <summary>
@@ -276,7 +277,7 @@ namespace DbLinq.Linq
         public void OnQuerying(SessionVarsParsed vars)
         {
             if (Querying != null)
-                Querying(this, new LinqEventArgs {SessionVarsParsed = vars});
+                Querying(this, new LinqEventArgs { SessionVarsParsed = vars });
         }
 
         #endregion

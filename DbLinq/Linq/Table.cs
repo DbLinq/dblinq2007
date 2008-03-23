@@ -72,7 +72,6 @@ namespace DbLinq.Linq
 
         public Table(DataContext parent)
         {
-            Logger = parent.Logger;
             DataContext = parent;
             DataContext.RegisterChild(this);
             _vars = new SessionVars(parent);
@@ -83,7 +82,6 @@ namespace DbLinq.Linq
         /// </summary>
         public Table(Table<T> parent, SessionVars vars)
         {
-            Logger = parent.Logger;
             _insertList = parent._insertList;
             _liveObjectMap = parent._liveObjectMap;
             _deleteList = parent._deleteList;
@@ -177,7 +175,6 @@ namespace DbLinq.Linq
         {
             SessionVarsParsed varsFin = _vars.Context.QueryGenerator.GenerateQuery(_vars, typeof(T));
             RowEnumerator<T> rowEnumerator = new RowEnumerator<T>(varsFin, _liveObjectMap);
-            rowEnumerator.Logger = Logger;
             return rowEnumerator.GetEnumerator();
         }
 

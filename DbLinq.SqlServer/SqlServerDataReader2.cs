@@ -45,8 +45,8 @@ namespace DbLinq.SqlServer
     {
         protected SqlDataReader Reader { get { return _reader as SqlDataReader; } }
 
-        public SqlServerDataReader2(IDataReader rdr, ILogger logger)
-            : base(rdr, logger)
+        public SqlServerDataReader2(IDataReader rdr)
+            : base(rdr)
         {
             if (Reader == null)
                 throw new ArgumentException("rdr");

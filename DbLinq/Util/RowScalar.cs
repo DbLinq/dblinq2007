@@ -28,6 +28,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq.Expressions;
+using DbLinq.Factory;
 using DbLinq.Linq;
 using DbLinq.Linq.Clause;
 using DbLinq.Logging;
@@ -48,7 +49,7 @@ namespace DbLinq.Util
 
         public RowScalar(SessionVarsParsed vars, IEnumerable<T> parentTable, Dictionary<T, T> liveObjMap)
         {
-            Logger = LoggerInstance.Default;
+            Logger = ObjectFactory.Get<ILogger>();
             //don't modify the parent query with any additional clauses:
             _vars = vars;
             _parentTable = parentTable;
@@ -78,7 +79,6 @@ namespace DbLinq.Util
 
                     //foreach(T t in _parentTable) //call GetEnumerator
                     var rowEnum = new RowEnumerator<S>(_vars, liveObjectMapS);
-                    rowEnum.Logger = Logger;
                     foreach (S firstS in rowEnum)
                     {
                         return firstS;
@@ -103,7 +103,6 @@ namespace DbLinq.Util
                         FromClauseBuilder.SelectAllFields(_vars, _vars.SqlParts, typeof(T), varName);
 
                         var rowEnum = new RowEnumerator<S>(_vars, null);
-                        rowEnum.Logger = Logger;
                         foreach (S firstS in rowEnum)
                         {
                             return firstS;
@@ -115,7 +114,6 @@ namespace DbLinq.Util
                     var rowEnumerator = new RowEnumerator<S>(_vars, null);
                     using (IEnumerator<S> enumerator = rowEnumerator.GetEnumerator())
                     {
-                        rowEnumerator.Logger = Logger;
                         bool hasOne = enumerator.MoveNext();
                         if (!hasOne)
                             throw new InvalidOperationException("Max/Count() called on set with zero items");
@@ -167,7 +165,6 @@ namespace DbLinq.Util
                     var rowEnumerator = new RowEnumerator<T>(_vars, _liveObjectMap);
                     using (IEnumerator<T> enumerator = rowEnumerator.GetEnumerator())
                     {
-                        rowEnumerator.Logger = Logger;
                         //_vars.LimitClause = "LIMIT 2";
                         bool hasOne = enumerator.MoveNext();
                         if (!hasOne)

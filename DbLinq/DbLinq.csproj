@@ -59,6 +59,9 @@
     <Compile Include="..\DbLinq.ProductInfo.cs">
       <Link>Properties\DbLinq.ProductInfo.cs</Link>
     </Compile>
+    <Compile Include="Factory\Implementation\ReflectionObjectFactory.cs" />
+    <Compile Include="Factory\IObjectFactory.cs" />
+    <Compile Include="Factory\ObjectFactory.cs" />
     <Compile Include="Linq\Database\DatabaseContextExtensions.cs" />
     <Compile Include="Linq\Database\IDatabaseTransaction.cs" />
     <Compile Include="Linq\Database\Implementation\DatabaseContext.cs" />
@@ -68,7 +71,6 @@
     <Compile Include="Logging\Implementation\ConsoleDebugLogger.cs" />
     <Compile Include="Logging\Implementation\Logger.cs" />
     <Compile Include="Logging\Level.cs" />
-    <Compile Include="Logging\LoggerInstance.cs" />
     <Compile Include="Schema\AssociationName.cs" />
     <Compile Include="Schema\ColumnName.cs" />
     <Compile Include="Schema\DbmlSchema.Adapter.cs" />

@@ -36,10 +36,9 @@ namespace DbLinq.Vendor.Implementation
 
         public ILogger Logger { get; set; }
 
-        public DataReader2(IDataReader reader, ILogger logger)
+        public DataReader2(IDataReader reader)
         {
             _reader = reader;
-            Logger = logger;
         }
 
         /// <summary>

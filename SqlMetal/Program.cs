@@ -27,6 +27,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using DbLinq.Factory;
 using DbLinq.Logging;
 using DbLinq.Logging.Implementation;
 using DbLinq.Schema;
@@ -51,7 +52,7 @@ namespace SqlMetal
 
         public SqlMetalProgram()
         {
-            Logger = LoggerInstance.Default;
+            Logger = ObjectFactory.Get<ILogger>();
         }
 
         public void Process(string[] args)
