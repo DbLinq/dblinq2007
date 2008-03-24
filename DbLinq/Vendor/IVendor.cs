@@ -83,7 +83,6 @@ namespace DbLinq.Vendor
       /// <param name="command"></param>
       /// <param name="parameters"></param>
       /// <returns></returns>
-      IEnumerable<TResult> ExecuteQuery<TResult>(DbLinq.Linq.DataContext dataContext, string command, object[] parameters) 
-        where TResult: new();
+      IEnumerable<TResult> ExecuteQuery<TResult>(DbLinq.Linq.DataContext dataContext, string command, object[] parameters); 
     }
 }

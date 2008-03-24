@@ -85,6 +85,12 @@ namespace DbLinq.Util
         /// </summary>
         public static object CastValue(object dbValue, Type desiredType)
         {
+
+             if (desiredType == typeof(string)) {
+                 return dbValue.ToString();
+               }
+
+
             if (dbValue is long)
             {
                 //prevent exception {"Object of type 'System.Int64' cannot be converted to type 'System.UInt32'."}
