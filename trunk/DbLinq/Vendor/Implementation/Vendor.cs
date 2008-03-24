@@ -37,6 +37,7 @@ using DbLinq.Linq;
 using DbLinq.Logging;
 using DbLinq.Util;
 using System.ComponentModel;
+using System.Linq.Expressions;
 
 namespace DbLinq.Vendor.Implementation
 {
@@ -131,32 +132,125 @@ namespace DbLinq.Vendor.Implementation
         }
 
     /// <summary>
-    /// Executes query and converts result to object properties.
-    /// Used Marc Gravell implementation published in microsoft.public.dotnet.languages.csharp newsgroup
+    /// Executes query. Stores matching columns in instance properties and fields.
+    /// Based on Marc Gravell code published in microsoft.public.dotnet.languages.csharp newsgroup
     /// </summary>
-    /// <typeparam name="TResult">Entity having public properties</typeparam>
-    /// <param name="context">database to use</param>
-    /// <param name="sql">server query returning table</param>
+    /// <typeparam name="TResult">Entity type whose instances are returned</typeparam>
+    /// <param name="context">Database to use</param>
+    /// <param name="sql">Server query returning table</param>
     /// <param name="parameters">query parameters</param>
-    /// <returns>entities with matching properties filled</returns>
-        public virtual IEnumerable<TResult> ExecuteQuery<TResult>(DbLinq.Linq.DataContext context, string sql, params object[] parameters)
-                                                                where TResult : new() {
-          using (IDbCommand command = context.DatabaseContext.CreateCommand()) {
-            string sql2 = ExecuteCommand_PrepareParams(command, sql, parameters);
+    /// <returns>Entity with matching properties and fields filled</returns>
+    // TODO: make this and RowEnumeratorCompiler to use same code. This
+    // enabled to use object tracking and property mapping attributes.
+    // TODO: consider nulls, perhaps return TResult? as a fully intialized TResult
+    public virtual IEnumerable<TResult> ExecuteQuery<TResult>(DbLinq.Linq.DataContext context, string sql, params object[] parameters) {
+      using (IDbCommand command = context.DatabaseContext.CreateCommand()) {
+        command.CommandText = ExecuteCommand_PrepareParams(command, sql, parameters);
+        command.Connection.Open();
+        using (IDataReader reader = command.ExecuteReader(
+            CommandBehavior.CloseConnection | CommandBehavior.SingleResult)) {
+          if (reader.Read())   {
+            Func<IDataReader, TResult> objInit = CreateInitializer<TResult>(reader);
+            do
+              { // walk the data
+               yield return objInit(reader);
+              } while (reader.Read());
+            }
+          while (reader.NextResult()) { } // ensure any trailing errors caught
+          }
+        }
+    }
+          
+      /// <summary>
+      /// Compiles function which creates and initializes entity.
+      /// </summary>
+      /// <typeparam name="T">Entity to create</typeparam>
+      /// <param name="template">returned columns from database</param>
+      /// <returns>Pointer to compiled code</returns>
+    static Func<IDataReader, T> CreateInitializer<T>(IDataReader template)
+    {
+        if (template == null) throw new ArgumentNullException("template");
+        var readerParam = Expression.Parameter(typeof(IDataReader), "reader");
+        Type entityType = typeof(T), readerType = typeof(IDataRecord);
+        List<MemberBinding> bindings = new List<MemberBinding>();
+
+        Type[] byOrdinal = {typeof(int)};
+        MethodInfo defaultMethod = readerType.GetMethod("GetValue", byOrdinal);
+        NewExpression ctor = Expression.New(entityType); // try this first...
+        for (int ordinal = 0; ordinal < template.FieldCount; ordinal++)
+        {
+            string name = template.GetName(ordinal);
+            // TODO: apply mapping here via attribute
+
+            // get the lhs of a binding
+            const BindingFlags FLAGS = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.IgnoreCase ;
+            MemberInfo member = (MemberInfo) entityType.GetProperty(name, FLAGS) ??
+                (MemberInfo)entityType.GetField(name, FLAGS);
+            if (member == null) continue; // doesn't exist
+            Type valueType;
+            switch (member.MemberType) {
+                case MemberTypes.Field:
+                    valueType = ((FieldInfo)member).FieldType;
+                    break;
+                case MemberTypes.Property:
+                    if (!((PropertyInfo)member).CanWrite) continue; // read only
+                    valueType = ((PropertyInfo)member).PropertyType;
+                    break;
+                default:
+                    throw new NotSupportedException(string.Format("Unexpected member-type: {0}",
+                        member.MemberType));
+            }
+
+            // get the rhs of a binding
+            MethodInfo method = readerType.GetMethod("Get" + valueType.Name, byOrdinal);
+            Expression rhs;
+            // TODO: add invoking conversion event for CHAR columns
+            if (method != null && method.ReturnType == valueType)
+            {
+                rhs = Expression.Call(readerParam, method,
+                      Expression.Constant(ordinal, typeof(int)));
+            }
+            else
+            {
+                rhs = Expression.Convert(Expression.Call(readerParam,
+defaultMethod, Expression.Constant(ordinal, typeof(int))), valueType);
+            }
+            bindings.Add(Expression.Bind(member, rhs));
+        }
+        return Expression.Lambda<Func<IDataReader, T>>(
+            Expression.MemberInit(ctor, bindings), readerParam).Compile();
+    }
+     
+#if ExecuteQueryNET2Version
+// Alternate implementation which works in MONO and .NET 2. Uses optional HyperDescriptor for speed.
+public virtual IEnumerable<TResult> 
+ExecuteQuery<TResult>(DbLinq.Linq.DataContext context, string sql, params 
+object[] parameters)
+                                                                where 
+TResult : new() {
+          using (IDbCommand command = 
+context.DatabaseContext.CreateCommand()) {
+            string sql2 = ExecuteCommand_PrepareParams(command, sql, 
+parameters);
             command.CommandText = sql2;
             command.Connection.Open();
             using (IDataReader reader = command.ExecuteReader(
-                     CommandBehavior.CloseConnection | CommandBehavior.SingleResult)) {
+                     CommandBehavior.CloseConnection | 
+CommandBehavior.SingleResult)) {
               if (reader.Read()) {
                 // prepare a buffer and look at the properties
                 object[] values = new object[reader.FieldCount];
-                PropertyDescriptor[] props = new PropertyDescriptor[values.Length];
+                PropertyDescriptor[] props = new 
+PropertyDescriptor[values.Length];
 #if HyperDescriptor
-            // Using Marc Gravell HyperDescriptor gets significantly better reflection performance (~100 x faster)
+            // Using Marc Gravell HyperDescriptor gets significantly better 
+reflection performance (~100 x faster)
             // http://www.codeproject.com/KB/cs/HyperPropertyDescriptor.aspx
-            PropertyDescriptorCollection allProps = PropertyHelper<TResult>.GetProperties();
+            PropertyDescriptorCollection allProps = 
+PropertyHelper<TResult>.GetProperties();
 #else
-                PropertyDescriptorCollection allProps = TypeDescriptor.GetProperties(typeof(TResult));
+                PropertyDescriptorCollection allProps = 
+TypeDescriptor.GetProperties(typeof(TResult));
 #endif
                 for (int i = 0; i < props.Length; i++) {
                   string name = reader.GetName(i);
@@ -172,31 +266,39 @@ namespace DbLinq.Vendor.Implementation
                     yield return t;
                   } while (reader.Read());
                 }
-                while (reader.NextResult()) { } // ensure any trailing errors caught
+                while (reader.NextResult()) { } // ensure any trailing 
+errors caught
               }
             }
           }
-        
+
 #if HyperDescriptor
-    static class PropertyHelper<T> {
-      static readonly PropertyDescriptorCollection properties;
-      public static PropertyDescriptorCollection GetProperties() {
-        return properties;
-      }
- 
-      static PropertyHelper() {
-        // add HyperDescriptor (optional) and get the properties
-        HyperTypeDescriptionProvider.Add(typeof(T));
-        properties = TypeDescriptor.GetProperties(typeof(T));
-        // ensure we have a readonly collection
-        PropertyDescriptor[] propArray = new PropertyDescriptor[properties.Count];
-        properties.CopyTo(propArray, 0);
-        properties = new PropertyDescriptorCollection(propArray, true);
-      }
+         static class PropertyHelper<T>
+    {
+        private static readonly PropertyDescriptorCollection
+properties;
+        public static PropertyDescriptorCollection GetProperties()
+        {
+            return properties;
+        }
+        static PropertyHelper()
+        {
+            // add HyperDescriptor (optional) and get the properties
+            HyperTypeDescriptionProvider.Add(typeof(T));
+            properties = TypeDescriptor.GetProperties(typeof(T));
+            // ensure we have a readonly collection
+            PropertyDescriptor[] propArray = new
+PropertyDescriptor[properties.Count];
+            properties.CopyTo(propArray, 0);
+            properties = new PropertyDescriptorCollection(propArray,
+true);
+        }
     }
 #endif
 
-        public virtual bool CanBulkInsert<T>(DbLinq.Linq.Table<T> table)
+#endif
+
+    public virtual bool CanBulkInsert<T>(DbLinq.Linq.Table<T> table)
         {
             return false;
         }

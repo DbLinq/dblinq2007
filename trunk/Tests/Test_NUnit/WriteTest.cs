@@ -251,7 +251,138 @@ using Test_NUnit;
             cust.City = old;
             db.SubmitChanges();
 
-        } 
+        }
+
+
+#if POSTGRES
+        public class Northwind1 : Northwind {
+          public Northwind1(System.Data.IDbConnection connection)
+            : base(connection) { }
+
+          [System.Data.Linq.Mapping.Table(Name = "Cust1")]
+          public class Cust1 {
+            [DbLinq.Linq.Mapping.AutoGenId]
+            string _customerid;
+
+            [System.Data.Linq.Mapping.Column(Storage = "_customerid",
+            Name = "customerid", IsPrimaryKey = true,
+            DbType = "char(10)",
+            IsDbGenerated = true,
+            Expression = "nextval('seq8')")]
+            public string CustomerId {
+              get { return _customerid; }
+              set { _customerid = value; }
+            }
+
+            // Dummy property is required only as workaround over empty insert list bug
+            // If this bug is fixed this may be removed
+            string _dummy;
+            [System.Data.Linq.Mapping.Column(Storage = "_dummy",
+            DbType = "text", Name = "dummy")]
+            public string Dummy {
+              get;
+              set;
+            }
+
+          }
+
+          public DbLinq.Linq.Table<Cust1> Cust1s {
+
+            get {
+              return base.GetTable<Cust1>();
+            }
+          }
+        }
+
+        [Test]
+        public void G10_InsertCharSerialPrimaryKey() {
+          Northwind dbo = CreateDB();
+          Northwind1 db = new Northwind1(dbo.DatabaseContext.Connection);
+          db.ExecuteCommand(@"create sequence seq8;
+create temp table cust1 ( CustomerID char(10) DEFAULT nextval('seq8'),
+dummy text
+);
+");
+
+          DbLinq.Linq.Table<Northwind1.Cust1> Cust1s =
+             db.GetTable<Northwind1.Cust1>();
+
+          var Cust1 = new Northwind1.Cust1();
+          Cust1.Dummy = "";
+          db.Cust1s.Add(Cust1);
+          db.SubmitChanges();
+          db.ExecuteCommand("drop table cust1; drop sequence seq8;");
+          Assert.IsNotNull(Cust1.CustomerId);
+        }
+#endif 
+
+
+#if POSTGRES
+        public class NorthwindG11 : Northwind {
+          public NorthwindG11(System.Data.IDbConnection connection)
+            : base(connection) { }
+
+	[System.Data.Linq.Mapping.Table(Name = "rid")]
+	public  class Rid :DbLinq.Linq.IModified {
+
+    
+          [DbLinq.Linq.Mapping.AutoGenId]
+          protected int _id;
+          [DbLinq.Linq.Mapping.AutoGenId]
+          protected int _reanr;
+
+          [System.Data.Linq.Mapping.Column(Storage = "_id", Name = "id", DbType = "integer(32,0)", IsPrimaryKey = true, IsDbGenerated = true, Expression = "nextval('rid_id1_seq')")]
+          public int Id {
+            get { return _id; }
+            set { _id = value; IsModified = true; }
+          }
+
+
+          [System.Data.Linq.Mapping.Column(Storage = "_reanr", Name = "reanr", DbType = "integer(32,0)", IsDbGenerated = true, CanBeNull = false, Expression = "nextval('rid_reanr_seq')")]
+          public int Reanr {
+            get { return _reanr; }
+            set { _reanr = value; IsModified = true; }
+          }
+          public bool IsModified { get; set; }
+
+  }
+
+          public DbLinq.Linq.Table<Rid> Rids {
+            get {
+              return base.GetTable<Rid>();
+            }
+          }
+        }
+
+        [Test]
+        public void G11_TwoSequencesInTable() {
+          Northwind dbo = CreateDB();
+          NorthwindG11 db = new NorthwindG11(dbo.DatabaseContext.Connection);
+          db.ExecuteCommand(@"create sequence rid_id1_seq;
+create sequence rid_reanr_seq;
+create temp table Rid ( id int primary key DEFAULT nextval('rid_id1_seq'),
+reanr int DEFAULT nextval('rid_reanr_seq'));
+");
+
+          DbLinq.Linq.Table<NorthwindG11.Rid> Rids =
+          db.GetTable<NorthwindG11.Rid>();
+
+          var Rid = new NorthwindG11.Rid();
+          Rid.Reanr = 22;
+          db.Rids.Add(Rid);
+
+          Rid = new NorthwindG11.Rid();
+          Rid.Reanr = 23;
+          db.Rids.Add(Rid);
+          db.SubmitChanges();
+
+          db.ExecuteCommand("drop table rid; drop sequence rid_reanr_seq;drop sequence rid_id1_seq;");
+          Assert.AreEqual(Rid.Id,2);
+          Assert.AreEqual(Rid.Reanr, 23);
+        }
+#endif
+
+
         #endregion
     }
 }
