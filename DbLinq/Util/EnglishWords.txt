@@ -75111,8 +75111,18 @@ zymology
 zymotic
 zymurgy
 
+# common words in database names (the fact of specifying them more than once adds weight, each + also adds 1 weight point)
+
 sp
-sel
-upd
-logo
-sys
++sel
++upd
++logo
++sys
+++fk
+unit
+units
+date
+point
++in
++per
+stock
