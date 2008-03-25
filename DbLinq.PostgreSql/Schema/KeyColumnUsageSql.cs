@@ -43,14 +43,6 @@ namespace DbLinq.PostgreSql.Schema
         public string table_name;
         public string column_name;
 
-        /// <summary>
-        /// return table name eg. 'public.customer'
-        /// </summary>
-        public string TableNameWithSchema
-        {
-            get { return table_schema + "." + table_name; }
-        }
-
         public override string ToString()
         {
             return "KeyColUsage "+constraint_name+":  "+table_name+"."+column_name;

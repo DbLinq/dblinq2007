@@ -48,7 +48,7 @@ namespace DbLinq.Oracle
 
             foreach (UserTablesRow tblRow in tables)
             {
-                var tableName = CreateTableName(tblRow.table_name, tableAliases);
+                var tableName = CreateTableName(tblRow.table_name, tblRow.table_schema, tableAliases);
                 names.TablesNames[tableName.DbName] = tableName;
 
                 var tblSchema = new DbLinq.Schema.Dbml.Table();
@@ -75,7 +75,8 @@ namespace DbLinq.Oracle
                 names.AddColumn(columnRow.table_name, columnName);
 
                 //find which table this column belongs to
-                DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.table_name == tblSchema.Name);
+                string columnFullDbName = GetFullDbName(columnRow.table_name, columnRow.table_schema);
+                DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnFullDbName == tblSchema.Name);
                 if (tableSchema == null)
                 {
                     Logger.Write(Level.Error, "ERROR L46: Table '" + columnRow.table_name + "' not found for column " + columnRow.column_name);
@@ -117,7 +118,8 @@ namespace DbLinq.Oracle
             foreach (User_Constraints_Row constraint in constraints)
             {
                 //find my table:
-                DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => constraint.table_name == t.Name);
+                string constraintFullDbName = GetFullDbName(constraint.table_name, constraint.table_schema);
+                DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => constraintFullDbName == t.Name);
                 if (table == null)
                 {
                     Logger.Write(Level.Error, "ERROR L100: Table '" + constraint.table_name + "' not found for column " + constraint.column_name);
@@ -144,7 +146,8 @@ namespace DbLinq.Oracle
                         continue;
                     }
 
-                    var associationName = CreateAssociationName(constraint.table_name, referencedConstraint.table_name, constraint.constraint_name);
+                    var associationName = CreateAssociationName(constraint.table_name, constraint.table_schema, 
+                        referencedConstraint.table_name, referencedConstraint.table_schema, constraint.constraint_name);
 
                     //if not PRIMARY, it's a foreign key.
                     //both parent and child table get an [Association]
@@ -164,7 +167,8 @@ namespace DbLinq.Oracle
                     assoc2.Member = associationName.OneToManyMemberName;
                     assoc2.OtherKey = names.ColumnsNames[referencedConstraint.table_name][referencedConstraint.column_name].PropertyName;
 
-                    DbLinq.Schema.Dbml.Table parentTable = schema.Tables.FirstOrDefault(t => referencedConstraint.table_name == t.Name);
+                    string referencedFullDbName = GetFullDbName(referencedConstraint.table_name, referencedConstraint.table_schema);
+                    DbLinq.Schema.Dbml.Table parentTable = schema.Tables.FirstOrDefault(t => referencedFullDbName == t.Name);
                     if (parentTable == null)
                     {
                         Logger.Write(Level.Error, "ERROR 148: parent table not found: " + referencedConstraint.table_name);

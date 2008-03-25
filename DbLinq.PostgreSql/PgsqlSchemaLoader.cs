@@ -43,11 +43,11 @@ namespace DbLinq.PostgreSql
 
             foreach (TableRow tblRow in tables)
             {
-                var tableName = CreateTableName(tblRow.table_name, tableAliases);
+                var tableName = CreateTableName(tblRow.table_name, tblRow.table_schema, tableAliases);
                 names.TablesNames[tableName.DbName] = tableName;
 
                 var tblSchema = new DbLinq.Schema.Dbml.Table();
-                tblSchema.Name = tblRow.table_schema + "." + tableName.DbName;
+                tblSchema.Name = tableName.DbName;
                 tblSchema.Member = tableName.MemberName;
                 tblSchema.Type.Name = tableName.ClassName;
                 schema.Tables.Add(tblSchema);
@@ -73,10 +73,11 @@ namespace DbLinq.PostgreSql
                 names.AddColumn(columnRow.table_name, columnName);
 
                 //find which table this column belongs to
-                DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.TableNameWithSchema == tblSchema.Name);
+                string columnFullDbName = GetFullDbName(columnRow.table_name, columnRow.table_schema);
+                DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnFullDbName == tblSchema.Name);
                 if (tableSchema == null)
                 {
-                    Logger.Write(Level.Error,"ERROR L46: Table '" + columnRow.table_name + "' not found for column " + columnRow.column_name);
+                    Logger.Write(Level.Error, "ERROR L46: Table '" + columnRow.table_name + "' not found for column " + columnRow.column_name);
                     continue;
                 }
                 var colSchema = new DbLinq.Schema.Dbml.Column();
@@ -122,7 +123,8 @@ namespace DbLinq.PostgreSql
             foreach (KeyColumnUsage keyColRow in constraints)
             {
                 //find my table:
-                DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => keyColRow.TableNameWithSchema == t.Name);
+                string constraintFullDbName = GetFullDbName(keyColRow.table_name, keyColRow.table_schema);
+                DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => constraintFullDbName == t.Name);
                 if (table == null)
                 {
                     Logger.Write(Level.Error, "ERROR L138: Table '" + keyColRow.table_name + "' not found for column " + keyColRow.column_name);
@@ -147,7 +149,7 @@ namespace DbLinq.PostgreSql
                         continue; //as per Andrus, do not throw. //putting together an Adnrus_DB test case.
                     }
 
-                    var associationName = CreateAssociationName(keyColRow.table_name, foreignKey.table_name_Parent, keyColRow.constraint_name);
+                    var associationName = CreateAssociationName(keyColRow.table_name, keyColRow.table_schema, foreignKey.table_name_Parent, foreignKey.table_schema_Parent, keyColRow.constraint_name);
 
                     //if not PRIMARY, it's a foreign key.
                     //both parent and child table get an [Association]
@@ -155,9 +157,9 @@ namespace DbLinq.PostgreSql
                     assoc.IsForeignKey = true;
                     assoc.Name = keyColRow.constraint_name;
                     assoc.Type = null;
-                    assoc.ThisKey = names.ColumnsNames[keyColRow.table_name][keyColRow.column_name].PropertyName; 
+                    assoc.ThisKey = names.ColumnsNames[keyColRow.table_name][keyColRow.column_name].PropertyName;
                     assoc.Member = associationName.ManyToOneMemberName;
-                    assoc.Storage = associationName.ForeignKeyStorageFieldName; 
+                    assoc.Storage = associationName.ForeignKeyStorageFieldName;
                     table.Type.Associations.Add(assoc);
 
                     //and insert the reverse association:
@@ -167,8 +169,8 @@ namespace DbLinq.PostgreSql
                     assoc2.Member = associationName.OneToManyMemberName;
                     assoc2.OtherKey = names.ColumnsNames[foreignKey.table_name_Parent][foreignKey.column_name].PropertyName; // GetColumnName(keyColRow.referenced_column_name);
 
-                    //Dbml.Table parentTable = schema0.Tables.FirstOrDefault(t => keyColRow.referenced_table_name==t.Name);
-                    DbLinq.Schema.Dbml.Table parentTable = schema.Tables.FirstOrDefault(t => foreignKey.TableNameWithSchema_Parent == t.Name);
+                    string parentFullDbName = GetFullDbName(foreignKey.table_name_Parent, foreignKey.table_schema_Parent);
+                    DbLinq.Schema.Dbml.Table parentTable = schema.Tables.FirstOrDefault(t => parentFullDbName == t.Name);
                     if (parentTable == null)
                         Logger.Write(Level.Error, "ERROR L151: parent table not found: " + foreignKey.table_name_Parent);
                     else
@@ -245,7 +247,7 @@ namespace DbLinq.PostgreSql
 
         DbLinq.Schema.Dbml.Function ParseFunction(Pg_Proc pg_proc, Dictionary<long, string> typeOidToName)
         {
-            var procedureName = CreateProcedureName(pg_proc.proname);
+            var procedureName = CreateProcedureName(pg_proc.proname, null);
 
             DbLinq.Schema.Dbml.Function dbml_func = new DbLinq.Schema.Dbml.Function();
             dbml_func.Name = procedureName.DbName;

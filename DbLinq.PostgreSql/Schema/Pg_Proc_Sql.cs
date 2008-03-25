@@ -12,6 +12,7 @@ namespace DbLinq.PostgreSql.Schema
     /// </summary>
     public class Pg_Proc
     {
+        public string proowner;
         public string proname;
         public bool proretset;
         public long prorettype;
@@ -49,6 +50,7 @@ namespace DbLinq.PostgreSql.Schema
         {
             Pg_Proc t = new Pg_Proc();
             int field = 0;
+            t.proowner = rdr.GetString(field++);
             t.proname = rdr.GetString(field++);
             t.proretset = rdr.GetBoolean(field++);
             t.prorettype = rdr.GetInt64(field++);
@@ -71,7 +73,7 @@ namespace DbLinq.PostgreSql.Schema
         public List<Pg_Proc> getProcs(IDbConnection conn, string db)
         {
             string sql = @"
-SELECT pr.proname, pr.proretset, pr.prorettype, pg_catalog.format_type(pr.prorettype, NULL) 
+SELECT pr.proowner, pr.proname, pr.proretset, pr.prorettype, pg_catalog.format_type(pr.prorettype, NULL) 
   ,pr.proargtypes, pr.proallargtypes, pr.proargnames, pr.proargmodes
 FROM pg_proc pr, pg_type tp 
 WHERE tp.oid = pr.prorettype AND pr.proisagg = FALSE 

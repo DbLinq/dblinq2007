@@ -75,10 +75,10 @@ namespace DbLinq.Sqlite
 
             foreach (TableRow tblRow in tables)
             {
-                var tableName = CreateTableName(tblRow.table_name, tableAliases);
+                var tableName = CreateTableName(tblRow.table_name, tblRow.table_schema, tableAliases);
                 names.TablesNames[tableName.DbName] = tableName;
 
-                DbLinq.Schema.Dbml.Table tblSchema = new DbLinq.Schema.Dbml.Table();
+                var tblSchema = new Table();
                 tblSchema.Name = tableName.DbName;
                 tblSchema.Member = tableName.MemberName;
                 tblSchema.Type.Name = tableName.ClassName;
@@ -96,7 +96,8 @@ namespace DbLinq.Sqlite
                 names.AddColumn(columnRow.table_name, columnName);
 
                 //find which table this column belongs to
-                DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.table_name == tblSchema.Name);
+                string columnFullDbName = GetFullDbName(columnRow.table_name, columnRow.table_schema);
+                DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnFullDbName == tblSchema.Name);
                 if (tableSchema == null)
                 {
                     Logger.Write(Level.Error, "ERROR L46: Table '" + columnRow.table_name + "' not found for column " + columnRow.column_name);
@@ -154,7 +155,8 @@ namespace DbLinq.Sqlite
                 foreach (KeyColumnUsage keyColRow in constraints)
                 {
                     //find my table:
-                    DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => keyColRow.table_name == t.Name);
+                    string tableFullDbName = GetFullDbName(keyColRow.table_name, keyColRow.table_schema);
+                    DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => tableFullDbName == t.Name);
                     if (table == null)
                     {
                         Logger.Write(Level.Error, "ERROR L46: Table '" + keyColRow.table_name + "' not found for column " + keyColRow.column_name);
@@ -166,7 +168,9 @@ namespace DbLinq.Sqlite
 
                     if (isForeignKey)
                     {
-                        var associationName = CreateAssociationName(keyColRow.table_name, keyColRow.referenced_table_name, keyColRow.constraint_name);
+                        var associationName = CreateAssociationName(keyColRow.table_name, keyColRow.table_schema,
+                            keyColRow.referenced_table_name, keyColRow.referenced_table_schema,
+                            keyColRow.constraint_name);
 
                         //both parent and child table get an [Association]
                         DbLinq.Schema.Dbml.Association assoc = new DbLinq.Schema.Dbml.Association();
@@ -192,7 +196,8 @@ namespace DbLinq.Sqlite
                         //    : keyColRow.referenced_column_name;
                         //assoc2.OtherKey = keyColRow.referenced_column_name;
 
-                        DbLinq.Schema.Dbml.Table parentTable = schema.Tables.FirstOrDefault(t => keyColRow.referenced_table_name == t.Name);
+                        string parentFullDbName = GetFullDbName(keyColRow.referenced_table_name, keyColRow.referenced_table_schema);
+                        DbLinq.Schema.Dbml.Table parentTable = schema.Tables.FirstOrDefault(t => parentFullDbName == t.Name);
                         if (parentTable == null)
                         {
                             Logger.Write(Level.Error, "ERROR 148: parent table not found: " + keyColRow.referenced_table_name);
@@ -218,7 +223,7 @@ namespace DbLinq.Sqlite
 
                 foreach (ProcRow proc in procs)
                 {
-                    var procedureName = CreateProcedureName(proc.specific_name);
+                    var procedureName = CreateProcedureName(proc.specific_name, proc.db);
 
                     DbLinq.Schema.Dbml.Function func = new DbLinq.Schema.Dbml.Function();
                     func.Name = proc.specific_name;

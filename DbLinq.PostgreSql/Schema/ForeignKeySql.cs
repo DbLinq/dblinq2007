@@ -44,14 +44,6 @@ namespace DbLinq.PostgreSql.Schema
         public string table_name_Parent;
         public string column_name;
 
-        /// <summary>
-        /// return parent table name eg. 'public.customer'
-        /// </summary>
-        public string TableNameWithSchema_Parent
-        {
-            get { return table_schema_Parent + "." + table_name_Parent; }
-        }
-
         public override string ToString()
         {
             return "ForKeyXR "+constraint_name+": "+constraint_type+"  "+table_name_Child+"->"+table_name_Parent;

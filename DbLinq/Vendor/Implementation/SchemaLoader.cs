@@ -58,7 +58,12 @@ namespace DbLinq.Vendor.Implementation
             return Vendor.IsCaseSensitiveName(dbColumnName) ? WordsExtraction.FromCase : WordsExtraction.FromDictionary;
         }
 
-        protected virtual TableName CreateTableName(string dbTableName, IDictionary<string, string> tableAliases)
+        protected virtual string GetFullDbName(string dbName, string dbSchema)
+        {
+            return NameFormatter.GetFullDbName(dbName, dbSchema);
+        }
+
+        protected virtual TableName CreateTableName(string dbTableName, string dbSchema, IDictionary<string, string> tableAliases)
         {
             WordsExtraction extraction = GetExtraction(dbTableName);
             // if we have an alias, use it, and don't try to analyze it (a human probably already did the job)
@@ -67,7 +72,7 @@ namespace DbLinq.Vendor.Implementation
                 extraction = WordsExtraction.FromCase;
                 dbTableName = tableAliases[dbTableName];
             }
-            return NameFormatter.GetTableName(dbTableName, extraction);
+            return NameFormatter.GetTableName(dbTableName, dbSchema, extraction);
         }
 
         protected virtual ColumnName CreateColumnName(string dbColumnName)
@@ -75,14 +80,16 @@ namespace DbLinq.Vendor.Implementation
             return NameFormatter.GetColumnName(dbColumnName, GetExtraction(dbColumnName));
         }
 
-        protected virtual ProcedureName CreateProcedureName(string dbProcedureName)
+        protected virtual ProcedureName CreateProcedureName(string dbProcedureName, string dbSchema)
         {
-            return NameFormatter.GetProcedureName(dbProcedureName, GetExtraction(dbProcedureName));
+            return NameFormatter.GetProcedureName(dbProcedureName, dbSchema, GetExtraction(dbProcedureName));
         }
 
-        protected virtual AssociationName CreateAssociationName(string dbManyName, string dbOneName, string dbConstraintName)
+        protected virtual AssociationName CreateAssociationName(string dbManyName, string dbManySchema,
+            string dbOneName, string dbOneSchema, string dbConstraintName)
         {
-            return NameFormatter.GetAssociationName(dbManyName, dbOneName, dbConstraintName, GetExtraction(dbManyName));
+            return NameFormatter.GetAssociationName(dbManyName, dbManySchema, dbOneName, dbOneSchema,
+                dbConstraintName, GetExtraction(dbManyName));
         }
 
         protected virtual SchemaName CreateSchemaName(string databaseName, IDbConnection connection)

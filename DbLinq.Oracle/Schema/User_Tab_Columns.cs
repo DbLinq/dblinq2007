@@ -12,7 +12,7 @@ namespace DbLinq.Oracle.Schema
     public class User_Tab_Column
     {
         //public string table_catalog;
-        //public string table_schema;
+        public string table_schema;
         public string table_name;
         public string column_name;
 
@@ -58,7 +58,7 @@ namespace DbLinq.Oracle.Schema
             User_Tab_Column t = new User_Tab_Column();
             int field = 0;
             //t.table_catalog = rdr.GetString(field++);
-            //t.table_schema  = rdr.GetString(field++);
+            t.table_schema  = rdr.GetString(field++);
             t.table_name = rdr.GetString(field++);
             t.column_name = rdr.GetString(field++);
 
@@ -89,7 +89,7 @@ namespace DbLinq.Oracle.Schema
         {
             string sql = @"
 SELECT 
-table_name, column_name, data_type, data_type_mod, data_length, data_precision, data_scale, nullable, column_id
+owner, table_name, column_name, data_type, data_type_mod, data_length, data_precision, data_scale, nullable, column_id
 FROM ALL_TAB_COLUMNS
 WHERE table_name NOT LIKE '%$%' 
 AND table_name NOT LIKE 'LOGMNR%' 
