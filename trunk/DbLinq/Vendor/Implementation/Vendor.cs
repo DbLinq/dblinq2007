@@ -38,6 +38,7 @@ using DbLinq.Logging;
 using DbLinq.Util;
 using System.ComponentModel;
 using System.Linq.Expressions;
+using System.Diagnostics;
 
 namespace DbLinq.Vendor.Implementation
 {
@@ -133,62 +134,140 @@ namespace DbLinq.Vendor.Implementation
 
     /// <summary>
     /// Executes query. Stores matching columns in instance properties and fields.
-    /// Based on Marc Gravell code published in microsoft.public.dotnet.languages.csharp newsgroup
+    /// * does 2-pass (case sensitive/insensitive) match 
+    /// * handles null reference-type values (string, byte[])
+    /// * handles null Nullable<T> value-type values (int? etc)
+    /// * handles (for entity TResult) class, struct and Nullable<struct>
+    /// * caches and re-uses compiled delegates (thread-safe)
     /// </summary>
     /// <typeparam name="TResult">Entity type whose instances are returned</typeparam>
     /// <param name="context">Database to use</param>
     /// <param name="sql">Server query returning table</param>
     /// <param name="parameters">query parameters</param>
     /// <returns>Entity with matching properties and fields filled</returns>
-    // TODO: make this and RowEnumeratorCompiler to use same code. This
-    // enabled to use object tracking and property mapping attributes.
-    // TODO: consider nulls, perhaps return TResult? as a fully intialized TResult
+    // Based on Marc Gravell code published in microsoft.public.dotnet.languages.csharp newsgroup
+    // TODO: merge this with RowEnumeratorCompiler code. This allows
+    // use char conversion delegate, object tracking and property mapping attributes.
     public virtual IEnumerable<TResult> ExecuteQuery<TResult>(DbLinq.Linq.DataContext context, string sql, params object[] parameters) {
       using (IDbCommand command = context.DatabaseContext.CreateCommand()) {
         command.CommandText = ExecuteCommand_PrepareParams(command, sql, parameters);
         command.Connection.Open();
         using (IDataReader reader = command.ExecuteReader(
             CommandBehavior.CloseConnection | CommandBehavior.SingleResult)) {
-          if (reader.Read())   {
-            Func<IDataReader, TResult> objInit = CreateInitializer<TResult>(reader);
-            do
+          if (reader.Read())
+                {
+             string[] names = new string[reader.FieldCount];
+             for(int i = 0 ; i < names.Length ; i++) {
+                        names[i] = reader.GetName(i);
+             }
+            Func<IDataReader, TResult> objInit = InitializerCache<TResult>.GetInitializer(names);
+             do
               { // walk the data
-               yield return objInit(reader);
-              } while (reader.Read());
-            }
+                 yield return objInit(reader);
+               } while (reader.Read());
+           }
           while (reader.NextResult()) { } // ensure any trailing errors caught
           }
         }
     }
           
-      /// <summary>
-      /// Compiles function which creates and initializes entity.
-      /// </summary>
-      /// <typeparam name="T">Entity to create</typeparam>
-      /// <param name="template">returned columns from database</param>
-      /// <returns>Pointer to compiled code</returns>
-    static Func<IDataReader, T> CreateInitializer<T>(IDataReader template)
+
+  /// <summary>
+  /// Compares arrays of objects using the supplied comparer (or default is none supplied)
+  /// </summary>
+class ArrayComparer<T> : IEqualityComparer<T[]> {
+    private readonly IEqualityComparer<T> comparer;
+    public ArrayComparer() : this(null) { }
+    public ArrayComparer(IEqualityComparer<T> comparer)
     {
-        if (template == null) throw new ArgumentNullException("template");
+        this.comparer = comparer ?? EqualityComparer<T>.Default;
+    }
+    public int GetHashCode(T[] values)
+    {
+        if (values == null) return 0;
+        int hashCode = 1;
+        for (int i = 0; i < values.Length; i++)
+        {
+            hashCode = (hashCode * 13) + comparer.GetHashCode(values[i]);
+        }
+        return hashCode;
+    }
+    public bool Equals(T[] lhs, T[] rhs)
+    {
+        if (ReferenceEquals(lhs, rhs)) return true;
+        if (lhs == null || rhs == null || lhs.Length != rhs.Length) 
+          return false;
+        for (int i = 0; i < lhs.Length; i++)
+        {
+            if (!comparer.Equals(lhs[i], rhs[i])) return false;
+        }
+        return true;
+    }
+}
+
+/// <summary>
+/// Responsible for creating and caching reader-delegates for compatible
+/// column sets; thread safe.
+/// </summary>
+static class InitializerCache<T>
+{
+    static readonly Dictionary<string[], Func<IDataReader, T>> readers
+        = new Dictionary<string[], Func<IDataReader, T>>(
+            new ArrayComparer<string>(StringComparer.InvariantCulture));
+
+    public static Func<IDataReader, T> GetInitializer(string[] names)
+    {
+        if (names == null) throw new ArgumentNullException();
+        Func<IDataReader, T> initializer;
+        lock (readers)
+        {
+            if (!readers.TryGetValue(names, out initializer))
+            {
+                initializer = CreateInitializer(names);
+                readers.Add((string[])names.Clone(), initializer);
+            }
+        }
+        return initializer;
+    }
+
+ /// <summary>
+ /// Compiles function which creates and initializes entity.
+ /// </summary>
+ /// <typeparam name="T">Entity to create</typeparam>
+ /// <param name="names">returned columns from database</param>
+ /// <returns>Pointer to compiled code</returns>
+ static Func<IDataReader, T> CreateInitializer(string[] names)
+    {
+        Trace.WriteLine("ExecuteQuery<>: Creating initializer for: " + typeof(T).Name);
+        if (names == null) throw new ArgumentNullException("names");
+
         var readerParam = Expression.Parameter(typeof(IDataReader), "reader");
-        Type entityType = typeof(T), readerType = typeof(IDataRecord);
+        Type entityType = typeof(T),
+            underlyingEntityType = Nullable.GetUnderlyingType(entityType) ?? entityType,
+            readerType = typeof(IDataRecord);
         List<MemberBinding> bindings = new List<MemberBinding>();
 
-        Type[] byOrdinal = {typeof(int)};
-        MethodInfo defaultMethod = readerType.GetMethod("GetValue", byOrdinal);
-        NewExpression ctor = Expression.New(entityType); // try this first...
-        for (int ordinal = 0; ordinal < template.FieldCount; ordinal++)
+        Type[] byOrdinal = { typeof(int) };
+        MethodInfo defaultMethod = readerType.GetMethod("GetValue", byOrdinal),
+            isNullMethod = readerType.GetMethod("IsDBNull", byOrdinal);
+        NewExpression ctor = Expression.New(underlyingEntityType); // try this first...
+        for (int ordinal = 0; ordinal < names.Length; ordinal++)
         {
-            string name = template.GetName(ordinal);
-            // TODO: apply mapping here via attribute
+            string name = names[ordinal];
+            // TODO: apply mapping here (via attribute?)
 
             // get the lhs of a binding
-            const BindingFlags FLAGS = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.IgnoreCase ;
-            MemberInfo member = (MemberInfo) entityType.GetProperty(name, FLAGS) ??
-                (MemberInfo)entityType.GetField(name, FLAGS);
+            const BindingFlags FLAGS = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+            MemberInfo member =
+                (MemberInfo)underlyingEntityType.GetProperty(name, FLAGS) ??
+                (MemberInfo)underlyingEntityType.GetField(name, FLAGS) ??
+                (MemberInfo)underlyingEntityType.GetProperty(name, FLAGS | BindingFlags.IgnoreCase) ??
+                (MemberInfo)underlyingEntityType.GetField(name, FLAGS | BindingFlags.IgnoreCase);
+
             if (member == null) continue; // doesn't exist
             Type valueType;
-            switch (member.MemberType) {
+            switch (member.MemberType)
+            {
                 case MemberTypes.Field:
                     valueType = ((FieldInfo)member).FieldType;
                     break;
@@ -197,30 +276,47 @@ namespace DbLinq.Vendor.Implementation
                     valueType = ((PropertyInfo)member).PropertyType;
                     break;
                 default:
-                    throw new NotSupportedException(string.Format("Unexpected member-type: {0}",
-                        member.MemberType));
+                    throw new NotSupportedException(string.Format("Unexpected member-type: {0}", member.MemberType));
             }
+            Type underlyingType = Nullable.GetUnderlyingType(valueType) ?? valueType;
 
             // get the rhs of a binding
-            MethodInfo method = readerType.GetMethod("Get" + valueType.Name, byOrdinal);
+            MethodInfo method = readerType.GetMethod("Get" + underlyingType.Name, byOrdinal);
             Expression rhs;
-            // TODO: add invoking conversion event for CHAR columns
-            if (method != null && method.ReturnType == valueType)
+            if (method != null && method.ReturnType == underlyingType)
             {
-                rhs = Expression.Call(readerParam, method,
-                      Expression.Constant(ordinal, typeof(int)));
+                rhs = Expression.Call(readerParam, method, Expression.Constant(ordinal, typeof(int)));
             }
             else
             {
-                rhs = Expression.Convert(Expression.Call(readerParam,
-defaultMethod, Expression.Constant(ordinal, typeof(int))), valueType);
+                rhs = Expression.Convert(Expression.Call(readerParam, 
+defaultMethod, Expression.Constant(ordinal, typeof(int))), underlyingType);
+            }
+
+            if (underlyingType != valueType)
+            {   // Nullable<T>; convert underlying T to T?
+                rhs = Expression.Convert(rhs, valueType);
+            }
+
+            if (underlyingType.IsClass || underlyingType != valueType)
+            {   // reference-type of Nullable<T>; check for null
+                // (conditional ternary operator)
+                rhs = Expression.Condition(
+                    Expression.Call(readerParam, isNullMethod, 
+Expression.Constant(ordinal, typeof(int))),
+                    Expression.Constant(null, valueType), rhs);
             }
             bindings.Add(Expression.Bind(member, rhs));
         }
-        return Expression.Lambda<Func<IDataReader, T>>(
-            Expression.MemberInit(ctor, bindings), readerParam).Compile();
+        Expression body = Expression.MemberInit(ctor, bindings);
+        if (entityType != underlyingEntityType)
+        { // entity itself was T? - so convert
+            body = Expression.Convert(body, entityType);
+        }
+        return Expression.Lambda<Func<IDataReader, T>>(body, readerParam).Compile();
     }
-     
+}
+    
 #if ExecuteQueryNET2Version
 // Alternate implementation which works in MONO and .NET 2. Uses optional HyperDescriptor for speed.
 public virtual IEnumerable<TResult> 
