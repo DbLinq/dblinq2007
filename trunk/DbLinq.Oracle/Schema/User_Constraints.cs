@@ -8,6 +8,7 @@ namespace DbLinq.Oracle.Schema
 {
     public class User_Constraints_Row
     {
+        public string table_schema;
         public string constraint_name;
         public string table_name;
         public string column_name;
@@ -26,6 +27,7 @@ namespace DbLinq.Oracle.Schema
         {
             User_Constraints_Row t = new User_Constraints_Row();
             int field = 0;
+            t.table_schema = rdr.GetString(field++);
             t.constraint_name  = rdr.GetString(field++);
             t.table_name    = rdr.GetString(field++);
             t.column_name   = rdr.GetString(field++);
@@ -37,7 +39,7 @@ namespace DbLinq.Oracle.Schema
         public List<User_Constraints_Row> getConstraints1(IDbConnection conn, string db)
         {
             string sql = @"
-SELECT UCC.constraint_name, UCC.table_name, UCC.column_name, UC.constraint_type, UC.R_constraint_name
+SELECT UCC.owner, UCC.constraint_name, UCC.table_name, UCC.column_name, UC.constraint_type, UC.R_constraint_name
 FROM all_cons_columns UCC, all_constraints UC
 WHERE UCC.constraint_name=UC.constraint_name
 AND UCC.table_name=UC.table_name

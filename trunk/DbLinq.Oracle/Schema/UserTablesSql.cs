@@ -11,6 +11,7 @@ namespace DbLinq.Oracle.Schema
     /// </summary>
     public class UserTablesRow
     {
+        public string table_schema;
         public string table_name;
         public string tablespace_name;
 
@@ -47,6 +48,7 @@ namespace DbLinq.Oracle.Schema
         {
             UserTablesRow t = new UserTablesRow();
             int field = 0;
+            t.table_schema = rdr.GetString(field++);
             t.table_name = rdr.GetString(field++);
             t.tablespace_name = rdr.GetString(field++);
             return t;
@@ -55,7 +57,7 @@ namespace DbLinq.Oracle.Schema
         public List<UserTablesRow> getTables(IDbConnection conn, string db)
         {
             string sql = @"
-SELECT table_name, tablespace_name 
+SELECT owner, table_name, tablespace_name 
 FROM all_tables 
 WHERE table_name NOT LIKE '%$%' 
 AND table_name NOT LIKE 'LOGMNR%' 

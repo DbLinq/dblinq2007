@@ -46,7 +46,7 @@ namespace DbLinq.MySql
 
         public override System.Type DataContextType { get { return typeof(MySqlDataContext); } }
 
-        protected override TableName CreateTableName(string dbTableName, IDictionary<string, string> tableAliases)
+        protected override TableName CreateTableName(string dbTableName, string dbSchema, IDictionary<string, string> tableAliases)
         {
             WordsExtraction extraction = WordsExtraction.FromDictionary;
             if (tableAliases != null && tableAliases.ContainsKey(dbTableName))
@@ -54,7 +54,7 @@ namespace DbLinq.MySql
                 extraction = WordsExtraction.FromCase;
                 dbTableName = tableAliases[dbTableName];
             }
-            return NameFormatter.GetTableName(dbTableName, extraction);
+            return NameFormatter.GetTableName(dbTableName, dbSchema, extraction);
         }
 
         public override Database Load(string databaseName, IDictionary<string, string> tableAliases, bool pluralize, bool loadStoredProcedures)
@@ -66,9 +66,11 @@ namespace DbLinq.MySql
 
             var names = new Names();
 
-            DbLinq.Schema.Dbml.Database schema = new DbLinq.Schema.Dbml.Database();
-            schema.Name = databaseName;
-            schema.Class = databaseName; // FormatTableName(schema.Name);
+            var schema = new Database();
+
+            var schemaName = CreateSchemaName(databaseName, conn);
+            schema.Name = schemaName.DbName;
+            schema.Class = schemaName.ClassName;
 
             //##################################################################
             //step 1 - load tables
@@ -82,10 +84,10 @@ namespace DbLinq.MySql
 
             foreach (TableRow tblRow in tables)
             {
-                var tableName = CreateTableName(tblRow.table_name, tableAliases);
+                var tableName = CreateTableName(tblRow.table_name, tblRow.table_schema, tableAliases);
                 names.TablesNames[tableName.DbName] = tableName;
 
-                DbLinq.Schema.Dbml.Table tblSchema = new DbLinq.Schema.Dbml.Table();
+                var tblSchema = new Table();
                 tblSchema.Name = tableName.DbName;
                 tblSchema.Member = tableName.MemberName;
                 tblSchema.Type.Name = tableName.ClassName;
@@ -103,7 +105,8 @@ namespace DbLinq.MySql
                 names.AddColumn(columnRow.table_name, columnName);
 
                 //find which table this column belongs to
-                DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.table_name == tblSchema.Name);
+                string fullColumnDbName = GetFullDbName(columnRow.table_name, columnRow.table_schema);
+                DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => fullColumnDbName == tblSchema.Name);
                 if (tableSchema == null)
                 {
                     Logger.Write(Level.Error, "ERROR L46: Table '" + columnRow.table_name + "' not found for column " + columnRow.column_name);
@@ -153,10 +156,11 @@ namespace DbLinq.MySql
             foreach (KeyColumnUsage keyColRow in constraints)
             {
                 //find my table:
-                DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => keyColRow.table_name == t.Name);
+                string fullKeyDbName = GetFullDbName(keyColRow.table_name, keyColRow.table_schema);
+                DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => fullKeyDbName == t.Name);
                 if (table == null)
                 {
-                    Logger.Write(Level.Error,"ERROR L46: Table '" + keyColRow.table_name + "' not found for column " + keyColRow.column_name);
+                    Logger.Write(Level.Error, "ERROR L46: Table '" + keyColRow.table_name + "' not found for column " + keyColRow.column_name);
                     continue;
                 }
 
@@ -165,7 +169,9 @@ namespace DbLinq.MySql
 
                 if (isForeignKey)
                 {
-                    var associationName = CreateAssociationName(keyColRow.table_name, keyColRow.referenced_table_name, keyColRow.constraint_name);
+                    var associationName = CreateAssociationName(keyColRow.table_name, keyColRow.table_schema,
+                        keyColRow.referenced_table_name, keyColRow.referenced_table_schema,
+                        keyColRow.constraint_name);
 
                     //both parent and child table get an [Association]
                     DbLinq.Schema.Dbml.Association assoc = new DbLinq.Schema.Dbml.Association();
@@ -184,10 +190,11 @@ namespace DbLinq.MySql
                     assoc2.Member = associationName.OneToManyMemberName;
                     assoc2.OtherKey = names.ColumnsNames[keyColRow.referenced_table_name][keyColRow.referenced_column_name].PropertyName; // GetColumnName(keyColRow.referenced_column_name);
 
-                    DbLinq.Schema.Dbml.Table parentTable = schema.Tables.FirstOrDefault(t => keyColRow.referenced_table_name == t.Name);
+                    string referencedTableFullDbName = GetFullDbName(keyColRow.referenced_table_name, keyColRow.referenced_table_schema);
+                    DbLinq.Schema.Dbml.Table parentTable = schema.Tables.FirstOrDefault(t => referencedTableFullDbName == t.Name);
                     if (parentTable == null)
                     {
-                        Logger.Write(Level.Error,"ERROR 148: parent table not found: " + keyColRow.referenced_table_name);
+                        Logger.Write(Level.Error, "ERROR 148: parent table not found: " + keyColRow.referenced_table_name);
                     }
                     else
                     {
@@ -209,7 +216,7 @@ namespace DbLinq.MySql
 
                 foreach (ProcRow proc in procs)
                 {
-                    var procedureName = CreateProcedureName(proc.specific_name);
+                    var procedureName = CreateProcedureName(proc.specific_name, proc.db);
 
                     DbLinq.Schema.Dbml.Function func = new DbLinq.Schema.Dbml.Function();
                     func.Name = procedureName.DbName;

@@ -177,16 +177,14 @@ namespace DbLinq.Linq.Implementation
             return words;
         }
 
-        protected virtual void ExtractWords(Schema.Name dbName, WordsExtraction extraction)
+        protected virtual IList<string> ExtractWords(string dbName, WordsExtraction extraction)
         {
             switch (extraction)
             {
             case WordsExtraction.FromCase:
-                dbName.NameWords = GetWordsByCase(dbName.DbName);
-                break;
+                return GetWordsByCase(dbName);
             case WordsExtraction.FromDictionary:
-                dbName.NameWords = EnglishWords.GetWords(dbName.DbName);
-                break;
+                return EnglishWords.GetWords(dbName);
             default:
                 throw new ArgumentOutOfRangeException("extraction");
             }
@@ -199,26 +197,33 @@ namespace DbLinq.Linq.Implementation
             return singularization;
         }
 
+        public virtual string GetFullDbName(string name, string schema)
+        {
+            if (string.IsNullOrEmpty(schema))
+                return name;
+            return string.Format("{0}.{1}", schema, name);
+        }
+
         public SchemaName GetSchemaName(string dbName, WordsExtraction extraction)
         {
             var schemaName = new SchemaName { DbName = dbName };
-            ExtractWords(schemaName, extraction);
+            schemaName.NameWords = ExtractWords(dbName, extraction);
             schemaName.ClassName = Format(schemaName.NameWords, Case, Singularization.DontChange);
             return schemaName;
         }
 
-        public ProcedureName GetProcedureName(string dbName, WordsExtraction extraction)
+        public ProcedureName GetProcedureName(string dbName, string dbSchema, WordsExtraction extraction)
         {
-            var procedureName = new ProcedureName { DbName = dbName };
-            ExtractWords(procedureName, extraction);
+            var procedureName = new ProcedureName { DbName = GetFullDbName(dbName, dbSchema) };
+            procedureName.NameWords = ExtractWords(dbName, extraction);
             procedureName.MethodName = Format(procedureName.NameWords, Case, Singularization.DontChange);
             return procedureName;
         }
 
-        public TableName GetTableName(string dbName, WordsExtraction extraction)
+        public TableName GetTableName(string dbName, string dbSchema, WordsExtraction extraction)
         {
-            var tableName = new TableName { DbName = dbName };
-            ExtractWords(tableName, extraction);
+            var tableName = new TableName { DbName = GetFullDbName(dbName, dbSchema) };
+            tableName.NameWords = ExtractWords(dbName, extraction);
             tableName.ClassName = Format(tableName.NameWords, Case, GetSingularization(Singularization.Singular));
             tableName.MemberName = Format(tableName.NameWords, Case, GetSingularization(Singularization.Plural));
             return tableName;
@@ -227,7 +232,7 @@ namespace DbLinq.Linq.Implementation
         public ColumnName GetColumnName(string dbName, WordsExtraction extraction)
         {
             var columnName = new ColumnName { DbName = dbName };
-            ExtractWords(columnName, extraction);
+            columnName.NameWords = ExtractWords(dbName, extraction);
             columnName.PropertyName = Format(columnName.NameWords, Case, Singularization.DontChange);
             columnName.StorageFieldName = Format(columnName.NameWords, Case.camelCase, Singularization.DontChange);
             if (columnName.StorageFieldName == columnName.PropertyName)
@@ -235,10 +240,10 @@ namespace DbLinq.Linq.Implementation
             return columnName;
         }
 
-        public AssociationName GetAssociationName(string dbManyName, string dbOneName, string dbConstraintName, WordsExtraction extraction)
+        public AssociationName GetAssociationName(string dbManyName, string dbManySchema, string dbOneName, string dbOneSchema, string dbConstraintName, WordsExtraction extraction)
         {
-            var associationName = new AssociationName { DbName = dbManyName };
-            ExtractWords(associationName, extraction);
+            var associationName = new AssociationName { DbName = GetFullDbName(dbManyName, dbManySchema) };
+            associationName.NameWords = ExtractWords(dbManyName, extraction);
             associationName.ManyToOneMemberName = Format(dbOneName, Case, GetSingularization(Singularization.Singular));
             // TODO: this works only for PascalCase
             if (dbManyName == dbOneName)
