@@ -16,7 +16,7 @@ namespace ClientCode2
         static void Main_(string[] args)
         {
 
-            string connStr = "server=localhost;user id=LinqUser; password=linq2; database=Northwind";
+            string connStr = "server=localhost;user id=LinqUser; password=linq2; database=northwind";
             //NpgsqlConnection conn = new NpgsqlConnection(connStr);
             //conn.Open();
             ////string sql = "INSERT City (Name) VALUES ('B'); SELECT @@IDENTITY";
@@ -43,12 +43,15 @@ namespace ClientCode2
             Northwind db = new Northwind(connStr);
             //var q = from at in db.alltypes select at;
             //var q = from p in db.products orderby p.ProductName select p;
-            //var q = from c in db.customers from o in c.Orders 
-            //        where c.City == "London" select new { c, o };
+            var q = from c in db.Customers
+                    from o in c.Orders
+                    where c.City == "London"
+                    select new { c, o };
 
-            //foreach(var v in q){
-            //    Console.WriteLine("OBJ:"+v);
-            //}
+            foreach (var v in q)
+            {
+                Console.WriteLine("OBJ:" + v.c.ContactName);
+            }
             //db.SaveChanges();
         }
 

@@ -2,6 +2,13 @@
 -- this database contains pathological cases discovered by Andrus (Tallinn, Estonia)
 
 --####################################################################
+--## create database
+--####################################################################
+DROP DATABASE IF EXISTS Andrus;
+CREATE DATABASE Andrus WITH OWNER = "LinqUser";
+
+\connect andrus
+--####################################################################
 --## create tables
 --####################################################################
 DROP TABLE t1 CASCADE;
@@ -55,6 +62,17 @@ create table Employee
   startDate date NULL,
   PRIMARY KEY(employeeID)
 );
+
+--####################################################################
+--## make sure permissions are set
+--####################################################################
+grant all on char_pk to "LinqUser";
+grant all on employee to "LinqUser";
+grant all on t1 to "LinqUser";
+grant all on t2 to "LinqUser";
+grant all on t3 to "LinqUser";
+grant all on tcompositepk to "LinqUser";
+
 
 INSERT INTO Employee (employeeType, employeeName) VALUES (0, 'Pavel');
 INSERT INTO Employee (employeeType, employeeName) VALUES (1, 'Piotr');

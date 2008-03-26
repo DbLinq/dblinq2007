@@ -20,15 +20,16 @@ namespace ClientCodePg
 
             Console.WriteLine("newExpr=" + newExpr);
 
-            string connStr = "server=localhost;user id=LinqUser; password=linq2; database=Andrus";
+            string connStr = "server=localhost;user id=LinqUser; password=linq2; database=andrus";
 
             using (Andrus db = new Andrus(connStr))
             {
                 db.Log = Console.Out;
                 foreach (Employee emp in db.Employees)
-                    Console.WriteLine(emp.GetType().Name);
+                    Console.WriteLine(emp.Employeename);
             }
 
+            Console.ReadLine();
             //Andrus db = new Andrus(connStr);
             //db.Log = Console.Out;
             //Char_Pk charpk = db.Char_Pks.Single(c => c.Col1 == "a");
