@@ -47,7 +47,8 @@ namespace SqlMetal
             GetLoaderAndConnection(out dbLinqSchemaLoaderType, out databaseConnectionType, parameters);
             if (dbLinqSchemaLoaderType == null)
                 throw new ApplicationException("Please provide -Provider=MySql (or Oracle, OracleODP, PostgreSql, Sqlite - see app.config for provider listing)");
-            return Load(GetConnectionString(parameters), dbLinqSchemaLoaderType, databaseConnectionType);
+            string connStr = GetConnectionString(parameters);
+            return Load(connStr, dbLinqSchemaLoaderType, databaseConnectionType);
         }
 
         /// <summary>
@@ -177,8 +178,16 @@ namespace SqlMetal
                 connectionString.AppendFormat("user id={0};", parameters.User);
             if (!string.IsNullOrEmpty(parameters.Password))
                 connectionString.AppendFormat("password={0};", parameters.Password);
-            if (!string.IsNullOrEmpty(parameters.Database))
-                connectionString.AppendFormat("database={0};", parameters.Database);
+            
+            if (parameters.Provider == "Oracle")
+            {
+                //Oracle does not allow specifying DB
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(parameters.Database))
+                    connectionString.AppendFormat("database={0};", parameters.Database);
+            }
             return connectionString.ToString();
         }
 

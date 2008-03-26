@@ -24,7 +24,15 @@ namespace DbLinq.Oracle
             NameFormatter.Pluralize = pluralize; // TODO: this could go in a context (instead of service class)
 
             IDbConnection conn = Connection;
-            conn.Open();
+            try
+            {
+                conn.Open();
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine("Connection.Open failed: " + ex.Message);
+                throw ex;
+            }
 
             var names = new Names();
 
