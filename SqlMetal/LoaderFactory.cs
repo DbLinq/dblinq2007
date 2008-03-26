@@ -57,11 +57,24 @@ namespace SqlMetal
         /// </summary>
         public ISchemaLoader Load(string connectionString, Type dbLinqSchemaLoaderType, Type databaseConnectionType)
         {
+            if (dbLinqSchemaLoaderType == null)
+                throw new ArgumentNullException("Null dbLinqSchemaLoaderType");
+            if (databaseConnectionType == null)
+                throw new ArgumentNullException("Null databaseConnectionType");
+
+            string errorMsg = "";
             try
             {
+                errorMsg = "Failed on Activator.CreateInstance(" + dbLinqSchemaLoaderType.Name + ")";
                 ISchemaLoader loader = (ISchemaLoader)Activator.CreateInstance(dbLinqSchemaLoaderType);
+
+                errorMsg = "Failed on Activator.CreateInstance(" + databaseConnectionType.Name + ")";
                 IDbConnection connection = (IDbConnection)Activator.CreateInstance(databaseConnectionType);
+
+                errorMsg = "Failed on setting ConnectionString=" + connectionString;
                 connection.ConnectionString = connectionString;
+
+                errorMsg = "";
                 loader.Connection = connection;
                 return loader;
             }
@@ -70,16 +83,25 @@ namespace SqlMetal
                 //see Pascal's comment on this failure:
                 //http://groups.google.com/group/dblinq/browse_thread/thread/b7a29138435b0678
                 Console.Error.WriteLine("LoaderFactory.Load(schemaType=" + dbLinqSchemaLoaderType.Name + ", dbConnType=" + databaseConnectionType.Name + ")");
+                if (errorMsg != "")
+                    Console.Error.WriteLine(errorMsg);
                 Console.Error.WriteLine("LoaderFactory.Load() failed: " + ex.Message);
-                //TODO: should we also print the InnerException?
                 throw ex;
             }
         }
 
-        public ISchemaLoader Load(string connectionString, string dbLinqSchemaLoaderType, string databaseConnectionType)
+        public ISchemaLoader Load(string connectionString, string dbLinqSchemaLoaderTypeName, string databaseConnectionTypeName)
         {
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
-            ISchemaLoader loader = Load(connectionString, Type.GetType(dbLinqSchemaLoaderType), Type.GetType(databaseConnectionType));
+            Type dbLinqSchemaLoaderType = Type.GetType(dbLinqSchemaLoaderTypeName);
+            Type databaseConnectionType = Type.GetType(databaseConnectionTypeName);
+
+            if (dbLinqSchemaLoaderType == null)
+                throw new ArgumentException("Unable to resolve dbLinqSchemaLoaderType: " + dbLinqSchemaLoaderTypeName);
+            if (databaseConnectionType == null)
+                throw new ArgumentException("Unable to resolve databaseConnectionType: " + databaseConnectionTypeName);
+
+            ISchemaLoader loader = Load(connectionString, dbLinqSchemaLoaderType, databaseConnectionType);
             AppDomain.CurrentDomain.AssemblyResolve -= CurrentDomain_AssemblyResolve;
             return loader;
         }
