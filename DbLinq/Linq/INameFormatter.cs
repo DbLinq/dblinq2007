@@ -54,12 +54,11 @@ namespace DbLinq.Linq
         bool Pluralize { get; set; }
         Case Case { get; set; }
 
-        string GetFullDbName(string name, string schema);
         SchemaName GetSchemaName(string dbName, WordsExtraction extraction);
-        ProcedureName GetProcedureName(string dbName, string dbSchema, WordsExtraction extraction);
-        TableName GetTableName(string dbName, string dbSchema, WordsExtraction extraction);
+        ProcedureName GetProcedureName(string dbName, WordsExtraction extraction);
+        TableName GetTableName(string dbName, WordsExtraction extraction);
         ColumnName GetColumnName(string dbName, WordsExtraction extraction);
-        AssociationName GetAssociationName(string dbManyName, string dbManySchema, string dbOneName, string dbOneSchema, string dbConstraintName, WordsExtraction extraction);
+        AssociationName GetAssociationName(string dbManyName, string dbOneName, string dbConstraintName, WordsExtraction extraction);
 
         string AdjustTableName(string tableName);
         string AdjustColumnName(string columnName);

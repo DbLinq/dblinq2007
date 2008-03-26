@@ -54,7 +54,7 @@ namespace DbLinq.MySql
                 extraction = WordsExtraction.FromCase;
                 dbTableName = tableAliases[dbTableName];
             }
-            return NameFormatter.GetTableName(dbTableName, dbSchema, extraction);
+            return NameFormatter.GetTableName(GetFullDbName(dbTableName, dbSchema), extraction);
         }
 
         public override Database Load(string databaseName, IDictionary<string, string> tableAliases, bool pluralize, bool loadStoredProcedures)
