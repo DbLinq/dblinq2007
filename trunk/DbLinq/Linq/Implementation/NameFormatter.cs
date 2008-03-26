@@ -197,13 +197,6 @@ namespace DbLinq.Linq.Implementation
             return singularization;
         }
 
-        public virtual string GetFullDbName(string name, string schema)
-        {
-            if (string.IsNullOrEmpty(schema))
-                return name;
-            return string.Format("{0}.{1}", schema, name);
-        }
-
         public SchemaName GetSchemaName(string dbName, WordsExtraction extraction)
         {
             var schemaName = new SchemaName { DbName = dbName };
@@ -212,17 +205,17 @@ namespace DbLinq.Linq.Implementation
             return schemaName;
         }
 
-        public ProcedureName GetProcedureName(string dbName, string dbSchema, WordsExtraction extraction)
+        public ProcedureName GetProcedureName(string dbName, WordsExtraction extraction)
         {
-            var procedureName = new ProcedureName { DbName = GetFullDbName(dbName, dbSchema) };
+            var procedureName = new ProcedureName { DbName = dbName };
             procedureName.NameWords = ExtractWords(dbName, extraction);
             procedureName.MethodName = Format(procedureName.NameWords, Case, Singularization.DontChange);
             return procedureName;
         }
 
-        public TableName GetTableName(string dbName, string dbSchema, WordsExtraction extraction)
+        public TableName GetTableName(string dbName, WordsExtraction extraction)
         {
-            var tableName = new TableName { DbName = GetFullDbName(dbName, dbSchema) };
+            var tableName = new TableName { DbName = dbName };
             tableName.NameWords = ExtractWords(dbName, extraction);
             tableName.ClassName = Format(tableName.NameWords, Case, GetSingularization(Singularization.Singular));
             tableName.MemberName = Format(tableName.NameWords, Case, GetSingularization(Singularization.Plural));
@@ -240,9 +233,9 @@ namespace DbLinq.Linq.Implementation
             return columnName;
         }
 
-        public AssociationName GetAssociationName(string dbManyName, string dbManySchema, string dbOneName, string dbOneSchema, string dbConstraintName, WordsExtraction extraction)
+        public AssociationName GetAssociationName(string dbManyName, string dbOneName, string dbConstraintName, WordsExtraction extraction)
         {
-            var associationName = new AssociationName { DbName = GetFullDbName(dbManyName, dbManySchema) };
+            var associationName = new AssociationName { DbName = dbManyName };
             associationName.NameWords = ExtractWords(dbManyName, extraction);
             associationName.ManyToOneMemberName = Format(dbOneName, Case, GetSingularization(Singularization.Singular));
             // TODO: this works only for PascalCase

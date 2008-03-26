@@ -60,7 +60,9 @@ namespace DbLinq.Vendor.Implementation
 
         protected virtual string GetFullDbName(string dbName, string dbSchema)
         {
-            return NameFormatter.GetFullDbName(dbName, dbSchema);
+            if (dbSchema == null)
+                return dbName;
+            return string.Format("{0}.{1}", dbSchema, dbName);
         }
 
         protected virtual TableName CreateTableName(string dbTableName, string dbSchema, IDictionary<string, string> tableAliases)
@@ -72,7 +74,7 @@ namespace DbLinq.Vendor.Implementation
                 extraction = WordsExtraction.FromCase;
                 dbTableName = tableAliases[dbTableName];
             }
-            return NameFormatter.GetTableName(dbTableName, dbSchema, extraction);
+            return NameFormatter.GetTableName(GetFullDbName(dbTableName, dbSchema), extraction);
         }
 
         protected virtual ColumnName CreateColumnName(string dbColumnName)
@@ -82,13 +84,14 @@ namespace DbLinq.Vendor.Implementation
 
         protected virtual ProcedureName CreateProcedureName(string dbProcedureName, string dbSchema)
         {
-            return NameFormatter.GetProcedureName(dbProcedureName, dbSchema, GetExtraction(dbProcedureName));
+            return NameFormatter.GetProcedureName(GetFullDbName(dbProcedureName, dbSchema), GetExtraction(dbProcedureName));
         }
 
         protected virtual AssociationName CreateAssociationName(string dbManyName, string dbManySchema,
             string dbOneName, string dbOneSchema, string dbConstraintName)
         {
-            return NameFormatter.GetAssociationName(dbManyName, dbManySchema, dbOneName, dbOneSchema,
+            return NameFormatter.GetAssociationName(GetFullDbName(dbManyName, dbManySchema),
+                GetFullDbName(dbOneName, dbOneSchema),
                 dbConstraintName, GetExtraction(dbManyName));
         }
 
@@ -119,49 +122,5 @@ namespace DbLinq.Vendor.Implementation
                 columns[columnName.DbName] = columnName;
             }
         }
-
-#if OBSOLETE
-
-        [Obsolete("Use CreateTableName instead")]
-        protected string GetTableName(string name, IDictionary<string, string> tableAliases)
-        {
-            if (tableAliases.ContainsKey(name))
-                return tableAliases[name];
-            return NameFormatter.AdjustTableName(name);
-        }
-
-        [Obsolete("Use CreateColumnName instead")]
-        protected string GetColumnName(string name)
-        {
-            return NameFormatter.AdjustColumnName(name);
-        }
-
-        [Obsolete("Use CreateColumnName instead")]
-        protected string GetColumnFieldName(string name)
-        {
-            return NameFormatter.AdjustColumnFieldName(name);
-        }
-
-        [Obsolete("Use CreateTableName instead")]
-        protected string GetMethodName(string name)
-        {
-            return NameFormatter.AdjustMethodName(name);
-        }
-
-        [Obsolete("Use CreateAssociationName instead")]
-        public virtual string GetManyToOneColumnName(string referencedTableName, string thisTableName)
-        {
-            // TODO: handle aliases?
-            return NameFormatter.AdjustManyToOneColumnName(referencedTableName, thisTableName);
-        }
-
-        [Obsolete("Use CreateAssociationName instead")]
-        public virtual string GetOneToManyColumnName(string referencedTableName)
-        {
-            // TODO: handle aliases?
-            return NameFormatter.AdjustOneToManyColumnName(referencedTableName);
-        }
-
-#endif
     }
 }

@@ -75,14 +75,6 @@ namespace DbLinq.PostgreSql.Schema
         public int? numeric_scale;
 
         /// <summary>
-        /// return table name eg. 'public.customer'
-        /// </summary>
-        public string TableNameWithSchema
-        {
-            get { return table_schema + "." + table_name; }
-        }
-
-        /// <summary>
         /// return 'varchar(50)' or 'decimal(30,2)'
         /// </summary>
         public string DataTypeWithWidth
