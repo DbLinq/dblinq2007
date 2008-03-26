@@ -39,7 +39,6 @@ namespace DbLinq.Oracle
             var schema = new Database();
 
             var schemaName = CreateSchemaName(databaseName, conn);
-
             schema.Name = schemaName.DbName;
             schema.Class = schemaName.ClassName;
 
