@@ -37,13 +37,43 @@ namespace SqlMetal
 {
     public class LoaderFactory
     {
+        /// <summary>
+        /// the 'main entry point' into this class
+        /// </summary>
+        public ISchemaLoader Load(SqlMetalParameters parameters)
+        {
+            string dbLinqSchemaLoaderType;
+            string databaseConnectionType;
+            GetLoaderAndConnection(out dbLinqSchemaLoaderType, out databaseConnectionType, parameters);
+            if (dbLinqSchemaLoaderType == null)
+                throw new ApplicationException("Please provide -Provider=MySql (or Oracle, OracleODP, PostgreSql, Sqlite - see app.config for provider listing)");
+            return Load(GetConnectionString(parameters), dbLinqSchemaLoaderType, databaseConnectionType);
+        }
+
+        /// <summary>
+        /// given a schemaLoaderType and dbConnType 
+        /// (e.g. DbLinq.Oracle.OracleSchemaLoader and System.Data.OracleClient.OracleConnection),
+        /// return an instance of the OracleSchemaLoader.
+        /// </summary>
         public ISchemaLoader Load(string connectionString, Type dbLinqSchemaLoaderType, Type databaseConnectionType)
         {
-            ISchemaLoader loader = (ISchemaLoader)Activator.CreateInstance(dbLinqSchemaLoaderType);
-            IDbConnection connection = (IDbConnection)Activator.CreateInstance(databaseConnectionType);
-            connection.ConnectionString = connectionString;
-            loader.Connection = connection;
-            return loader;
+            try
+            {
+                ISchemaLoader loader = (ISchemaLoader)Activator.CreateInstance(dbLinqSchemaLoaderType);
+                IDbConnection connection = (IDbConnection)Activator.CreateInstance(databaseConnectionType);
+                connection.ConnectionString = connectionString;
+                loader.Connection = connection;
+                return loader;
+            }
+            catch (Exception ex)
+            {
+                //see Pascal's comment on this failure:
+                //http://groups.google.com/group/dblinq/browse_thread/thread/b7a29138435b0678
+                Console.Error.WriteLine("LoaderFactory.Load(schemaType=" + dbLinqSchemaLoaderType.Name + ", dbConnType=" + databaseConnectionType.Name + ")");
+                Console.Error.WriteLine("LoaderFactory.Load() failed: " + ex.Message);
+                //TODO: should we also print the InnerException?
+                throw ex;
+            }
         }
 
         public ISchemaLoader Load(string connectionString, string dbLinqSchemaLoaderType, string databaseConnectionType)
@@ -147,14 +177,5 @@ namespace SqlMetal
             }
         }
 
-        public ISchemaLoader Load(SqlMetalParameters parameters)
-        {
-            string dbLinqSchemaLoaderType;
-            string databaseConnectionType;
-            GetLoaderAndConnection(out dbLinqSchemaLoaderType, out databaseConnectionType, parameters);
-            if (dbLinqSchemaLoaderType == null)
-                throw new ApplicationException("Please provide -Provider=MySql (or Oracle, OracleODP, PostgreSql, Sqlite - see app.config for provider listing)");
-            return Load(GetConnectionString(parameters), dbLinqSchemaLoaderType, databaseConnectionType);
-        }
     }
 }
