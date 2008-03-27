@@ -41,9 +41,9 @@ namespace DbLinq.Ingres.Example
         {
 
             string connStr = "server=(local);user id=<user>; password=<pwd>; database=demodb";
-            demodb db = new demodb(new IngresConnection(connStr));
+            Demodb db = new Demodb(new IngresConnection(connStr));
 
-            var result = from airline in db.Airline select airline.ALName;
+            var result = from airline in db.AdminAirline select airline.AlName;
 
             foreach (var r in result)
             {

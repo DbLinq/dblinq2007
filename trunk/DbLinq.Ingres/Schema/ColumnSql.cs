@@ -47,7 +47,6 @@ namespace DbLinq.Ingres.Schema
         /// eg 'int' or 'datetime'
         /// </summary>
         public string datatype;
-        //public string extra;
 
         /// <summary>
         /// eg. 'int(10) unsigned'
@@ -61,6 +60,7 @@ namespace DbLinq.Ingres.Schema
 
         public int? column_length;
         public int? column_scale;
+        public int key_sequence;
 
         /// <summary>
         /// return table name eg. 'public.customer'
@@ -77,7 +77,23 @@ namespace DbLinq.Ingres.Schema
         {
             get
             {
-                return datatype + "(" + column_length + ")";
+                switch (datatype)
+                {
+                    case "C":
+                    case "CHAR":
+                    case "NCHAR":
+                    case "VARCHAR":
+                    case "NVARCHAR":
+                    case "LONG VARCHAR":
+                    case "TEXT":
+                    case "INTEGER":
+                        return datatype + "(" + column_length + ")";
+
+                    case "DECIMAL":
+                        return datatype + "(" + column_length + ", " + column_scale + ")";
+
+                }
+                return datatype;
             }
         }
 
@@ -109,6 +125,7 @@ namespace DbLinq.Ingres.Schema
 
             t.column_length = GetIntN(rdr, field++);
             t.column_scale = GetIntN(rdr, field++);
+            t.key_sequence = rdr.GetInt32(field++);
 
             return t;
         }
@@ -127,9 +144,10 @@ namespace DbLinq.Ingres.Schema
             string sql = @"
 SELECT t.table_owner, t.table_name, column_name
     ,column_nulls, column_datatype, column_defaults
-    ,column_length, column_scale
+    ,column_length, column_scale, key_sequence
 FROM iicolumns c join iitables t on (c.table_name=t.table_name and c.table_owner=t.table_owner) 
             WHERE t.table_owner <> '$ingres' and t.table_type in ('T', 'V')
+ORDER BY column_sequence
 ";
 
             return DataCommand.Find<Column>(conn, sql, fromRow);

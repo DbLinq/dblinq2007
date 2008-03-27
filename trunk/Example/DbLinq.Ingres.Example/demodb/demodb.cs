@@ -1,4 +1,4 @@
-#region Auto-generated classes for demodb database on 2008-03-18 17:50:53Z
+#region Auto-generated classes for demodb database on 2008-03-27 14:55:28Z
 
 //
 //  ____  _     __  __      _        _
@@ -7,7 +7,7 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from demodb on 2008-03-18 17:50:53Z
+// Auto-generated from demodb on 2008-03-27 14:55:28Z
 // Please visit http://linq.to/db for more information
 
 #endregion
@@ -24,605 +24,264 @@ using System.Text;
 using DbLinq.Linq;
 using DbLinq.Linq.Mapping;
 
-public partial class demodb : DbLinq.Ingres.IngresDataContext
+public partial class Demodb : DbLinq.Ingres.IngresDataContext
 {
 	//public demodb(string connectionString)
 	//    : base(connectionString)
 	//{
 	//}
 
-	public demodb(IDbConnection connection)
+	public Demodb(IDbConnection connection)
 	    : base(connection)
 	{
 	}
 
-	public Table<TZ> TZ { get { return GetTable<TZ>(); } }
-	public Table<UserProfile> UserProfile { get { return GetTable<UserProfile>(); } }
-	public Table<IIeTabF5F6> IIeTabF5F6 { get { return GetTable<IIeTabF5F6>(); } }
-	public Table<Version> Version { get { return GetTable<Version>(); } }
-	public Table<Country> Country { get { return GetTable<Country>(); } }
-	public Table<Airport> Airport { get { return GetTable<Airport>(); } }
-	public Table<Route> Route { get { return GetTable<Route>(); } }
-	public Table<Airline> Airline { get { return GetTable<Airline>(); } }
-	public Table<FlightDay> FlightDay { get { return GetTable<FlightDay>(); } }
-	public Table<FullRoute> FullRoute { get { return GetTable<FullRoute>(); } }
+	public Table<AdminAirline> AdminAirline { get { return GetTable<AdminAirline>(); } }
+	public Table<AdminAirport> AdminAirport { get { return GetTable<AdminAirport>(); } }
+	public Table<AdminCountry> AdminCountry { get { return GetTable<AdminCountry>(); } }
+	public Table<AdminFlightDay> AdminFlightDay { get { return GetTable<AdminFlightDay>(); } }
+	public Table<AdminFullRoute> AdminFullRoute { get { return GetTable<AdminFullRoute>(); } }
+	public Table<AdminIietabF5f6> AdminIietabF5f6 { get { return GetTable<AdminIietabF5f6>(); } }
+	public Table<AdminRoute> AdminRoute { get { return GetTable<AdminRoute>(); } }
+	public Table<AdminTz> AdminTz { get { return GetTable<AdminTz>(); } }
+	public Table<AdminUserProfile> AdminUserProfile { get { return GetTable<AdminUserProfile>(); } }
+	public Table<AdminVersion> AdminVersion { get { return GetTable<AdminVersion>(); } }
 
 }
 
-[Table(Name = "admin.tz")]
-public partial class TZ : IModified
+[Table(Name = "admin.airline")]
+public partial class AdminAirline : INotifyPropertyChanged
 {
-	// IModified backing field
-	public bool IsModified{ get; set; }
+	#region INotifyPropertyChanged handling
 
-	#region int TZID
+	public event PropertyChangedEventHandler PropertyChanged;
 
-	private int tZID;
-	[Column(Storage = "tZID", Name = "tz_id", DbType = "INTEGER(4)", CanBeNull = false)]
+	protected virtual void OnPropertyChanged(string propertyName)
+	{
+		if (PropertyChanged != null)
+		{
+			PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+		}
+	}
+
+	#endregion
+
+	#region string AlCcode
+
+	private string alCcode;
+	[Column(Storage = "alCcode", Name = "al_ccode", DbType = "NCHAR(2)", CanBeNull = false)]
 	[DebuggerNonUserCode]
-	public int TZID
+	public string AlCcode
 	{
 		get
 		{
-			return tZID;
+			return alCcode;
 		}
 		set
 		{
-			if (value != tZID)
+			if (value != alCcode)
 			{
-				tZID = value;
-				IsModified = true;
+				alCcode = value;
+				OnPropertyChanged("AlCcode");
 			}
 		}
 	}
 
 	#endregion
 
-	#region string TZCode
+	#region string AlIatacode
 
-	private string tZCode;
-	[Column(Storage = "tZCode", Name = "tz_code", DbType = "NCHAR(5)")]
+	private string alIatacode;
+	[Column(Storage = "alIatacode", Name = "al_iatacode", DbType = "NCHAR(2)", CanBeNull = false)]
 	[DebuggerNonUserCode]
-	public string TZCode
+	public string AlIatacode
 	{
 		get
 		{
-			return tZCode;
+			return alIatacode;
 		}
 		set
 		{
-			if (value != tZCode)
+			if (value != alIatacode)
 			{
-				tZCode = value;
-				IsModified = true;
+				alIatacode = value;
+				OnPropertyChanged("AlIatacode");
 			}
 		}
 	}
 
 	#endregion
 
-	#region string TZName
+	#region string AlIcaocode
 
-	private string tZName;
-	[Column(Storage = "tZName", Name = "tz_name", DbType = "NCHAR(40)")]
+	private string alIcaocode;
+	[Column(Storage = "alIcaocode", Name = "al_icaocode", DbType = "NCHAR(3)", IsPrimaryKey = true, CanBeNull = false)]
 	[DebuggerNonUserCode]
-	public string TZName
+	public string AlIcaocode
 	{
 		get
 		{
-			return tZName;
+			return alIcaocode;
 		}
 		set
 		{
-			if (value != tZName)
+			if (value != alIcaocode)
 			{
-				tZName = value;
-				IsModified = true;
+				alIcaocode = value;
+				OnPropertyChanged("AlIcaocode");
 			}
 		}
 	}
 
 	#endregion
 
-	#region decimal? TZUtCOffset
+	#region  AlId
 
-	private decimal? tZUtCOffset;
-	[Column(Storage = "tZUtCOffset", Name = "tz_utc_offset", DbType = "DECIMAL(5)")]
+	private Int32 alId;
+	[Column(Storage = "alId", Name = "al_id", DbType = "INTEGER(4)", CanBeNull = false)]
 	[DebuggerNonUserCode]
-	public decimal? TZUtCOffset
+	public Int32 AlId
 	{
 		get
 		{
-			return tZUtCOffset;
+			return alId;
 		}
 		set
 		{
-			if (value != tZUtCOffset)
+			if (value != alId)
 			{
-				tZUtCOffset = value;
-				IsModified = true;
+				alId = value;
+				OnPropertyChanged("AlId");
 			}
 		}
 	}
 
 	#endregion
 
-	#warning L189 table admin.tz has no primary key. Multiple C# objects will refer to the same row.
-}
+	#region string AlName
 
-[Table(Name = "admin.user_profile")]
-public partial class UserProfile : IModified
-{
-	// IModified backing field
-	public bool IsModified{ get; set; }
-
-	#region int UpID
-
-	private int upID;
-	[Column(Storage = "upID", Name = "up_id", DbType = "INTEGER(4)", CanBeNull = false)]
+	private string alName;
+	[Column(Storage = "alName", Name = "al_name", DbType = "NVARCHAR(60)", CanBeNull = false)]
 	[DebuggerNonUserCode]
-	public int UpID
+	public string AlName
 	{
 		get
 		{
-			return upID;
+			return alName;
 		}
 		set
 		{
-			if (value != upID)
+			if (value != alName)
 			{
-				upID = value;
-				IsModified = true;
+				alName = value;
+				OnPropertyChanged("AlName");
 			}
 		}
 	}
 
 	#endregion
 
-	#region string UpLast
+	#region GetHashCode(), Equals() - uses column AlIcaocode to look up objects in liveObjectMap
 
-	private string upLast;
-	[Column(Storage = "upLast", Name = "up_last", DbType = "NVARCHAR(30)", CanBeNull = false)]
-	[DebuggerNonUserCode]
-	public string UpLast
+	public override int GetHashCode()
 	{
-		get
+		return AlIcaocode.GetHashCode();
+	}
+
+	public override bool Equals(object o)
+	{
+		AdminAirline other = o as AdminAirline;
+		if (other == null)
 		{
-			return upLast;
+			return false;
 		}
-		set
-		{
-			if (value != upLast)
-			{
-				upLast = value;
-				IsModified = true;
-			}
-		}
+		return AlIcaocode.Equals(other.AlIcaocode);
 	}
 
 	#endregion
 
-	#region string UpFirst
-
-	private string upFirst;
-	[Column(Storage = "upFirst", Name = "up_first", DbType = "NVARCHAR(30)", CanBeNull = false)]
-	[DebuggerNonUserCode]
-	public string UpFirst
-	{
-		get
-		{
-			return upFirst;
-		}
-		set
-		{
-			if (value != upFirst)
-			{
-				upFirst = value;
-				IsModified = true;
-			}
-		}
-	}
-
-	#endregion
-
-	#region string UpEmail
-
-	private string upEmail;
-	[Column(Storage = "upEmail", Name = "up_email", DbType = "NVARCHAR(100)", CanBeNull = false)]
-	[DebuggerNonUserCode]
-	public string UpEmail
-	{
-		get
-		{
-			return upEmail;
-		}
-		set
-		{
-			if (value != upEmail)
-			{
-				upEmail = value;
-				IsModified = true;
-			}
-		}
-	}
-
-	#endregion
-
-	#region string UpAirport
-
-	private string upAirport;
-	[Column(Storage = "upAirport", Name = "up_airport", DbType = "NCHAR(3)")]
-	[DebuggerNonUserCode]
-	public string UpAirport
-	{
-		get
-		{
-			return upAirport;
-		}
-		set
-		{
-			if (value != upAirport)
-			{
-				upAirport = value;
-				IsModified = true;
-			}
-		}
-	}
-
-	#endregion
-
-	#warning L189 table admin.user_profile has no primary key. Multiple C# objects will refer to the same row.
-}
-
-[Table(Name = "admin.iietab_f5_f6")]
-public partial class IIeTabF5F6 : IModified
-{
-	// IModified backing field
-	public bool IsModified{ get; set; }
-
-	#region string PerKey
-
-	private string perKey;
-	[Column(Storage = "perKey", Name = "per_key", DbType = "CHAR(8)", CanBeNull = false)]
-	[DebuggerNonUserCode]
-	public string PerKey
-	{
-		get
-		{
-			return perKey;
-		}
-		set
-		{
-			if (value != perKey)
-			{
-				perKey = value;
-				IsModified = true;
-			}
-		}
-	}
-
-	#endregion
-
-	#region int PerSegment0
-
-	private int perSegment0;
-	[Column(Storage = "perSegment0", Name = "per_segment0", DbType = "INTEGER(4)", CanBeNull = false)]
-	[DebuggerNonUserCode]
-	public int PerSegment0
-	{
-		get
-		{
-			return perSegment0;
-		}
-		set
-		{
-			if (value != perSegment0)
-			{
-				perSegment0 = value;
-				IsModified = true;
-			}
-		}
-	}
-
-	#endregion
-
-	#region int PerSegment1
-
-	private int perSegment1;
-	[Column(Storage = "perSegment1", Name = "per_segment1", DbType = "INTEGER(4)", CanBeNull = false)]
-	[DebuggerNonUserCode]
-	public int PerSegment1
-	{
-		get
-		{
-			return perSegment1;
-		}
-		set
-		{
-			if (value != perSegment1)
-			{
-				perSegment1 = value;
-				IsModified = true;
-			}
-		}
-	}
-
-	#endregion
-
-	#region int PerNext
-
-	private int perNext;
-	[Column(Storage = "perNext", Name = "per_next", DbType = "INTEGER(4)", CanBeNull = false)]
-	[DebuggerNonUserCode]
-	public int PerNext
-	{
-		get
-		{
-			return perNext;
-		}
-		set
-		{
-			if (value != perNext)
-			{
-				perNext = value;
-				IsModified = true;
-			}
-		}
-	}
-
-	#endregion
-
-	#warning L189 table admin.iietab_f5_f6 has no primary key. Multiple C# objects will refer to the same row.
-}
-
-[Table(Name = "admin.version")]
-public partial class Version : IModified
-{
-	// IModified backing field
-	public bool IsModified{ get; set; }
-
-	#region int VERID
-
-	private int vERID;
-	[Column(Storage = "vERID", Name = "ver_id", DbType = "INTEGER(4)", CanBeNull = false)]
-	[DebuggerNonUserCode]
-	public int VERID
-	{
-		get
-		{
-			return vERID;
-		}
-		set
-		{
-			if (value != vERID)
-			{
-				vERID = value;
-				IsModified = true;
-			}
-		}
-	}
-
-	#endregion
-
-	#region int VERMajor
-
-	private int vERMajor;
-	[Column(Storage = "vERMajor", Name = "ver_major", DbType = "INTEGER(4)", CanBeNull = false)]
-	[DebuggerNonUserCode]
-	public int VERMajor
-	{
-		get
-		{
-			return vERMajor;
-		}
-		set
-		{
-			if (value != vERMajor)
-			{
-				vERMajor = value;
-				IsModified = true;
-			}
-		}
-	}
-
-	#endregion
-
-	#region int VERMinor
-
-	private int vERMinor;
-	[Column(Storage = "vERMinor", Name = "ver_minor", DbType = "INTEGER(4)", CanBeNull = false)]
-	[DebuggerNonUserCode]
-	public int VERMinor
-	{
-		get
-		{
-			return vERMinor;
-		}
-		set
-		{
-			if (value != vERMinor)
-			{
-				vERMinor = value;
-				IsModified = true;
-			}
-		}
-	}
-
-	#endregion
-
-	#region int VERRelease
-
-	private int vERRelease;
-	[Column(Storage = "vERRelease", Name = "ver_release", DbType = "INTEGER(4)", CanBeNull = false)]
-	[DebuggerNonUserCode]
-	public int VERRelease
-	{
-		get
-		{
-			return vERRelease;
-		}
-		set
-		{
-			if (value != vERRelease)
-			{
-				vERRelease = value;
-				IsModified = true;
-			}
-		}
-	}
-
-	#endregion
-
-	#warning L189 table admin.version has no primary key. Multiple C# objects will refer to the same row.
-}
-
-[Table(Name = "admin.country")]
-public partial class Country : IModified
-{
-	// IModified backing field
-	public bool IsModified{ get; set; }
-
-	#region int CtID
-
-	private int ctID;
-	[Column(Storage = "ctID", Name = "ct_id", DbType = "INTEGER(4)", CanBeNull = false)]
-	[DebuggerNonUserCode]
-	public int CtID
-	{
-		get
-		{
-			return ctID;
-		}
-		set
-		{
-			if (value != ctID)
-			{
-				ctID = value;
-				IsModified = true;
-			}
-		}
-	}
-
-	#endregion
-
-	#region string CtCode
-
-	private string ctCode;
-	[Column(Storage = "ctCode", Name = "ct_code", DbType = "NCHAR(2)", CanBeNull = false)]
-	[DebuggerNonUserCode]
-	public string CtCode
-	{
-		get
-		{
-			return ctCode;
-		}
-		set
-		{
-			if (value != ctCode)
-			{
-				ctCode = value;
-				IsModified = true;
-			}
-		}
-	}
-
-	#endregion
-
-	#region string CtName
-
-	private string ctName;
-	[Column(Storage = "ctName", Name = "ct_name", DbType = "NVARCHAR(50)")]
-	[DebuggerNonUserCode]
-	public string CtName
-	{
-		get
-		{
-			return ctName;
-		}
-		set
-		{
-			if (value != ctName)
-			{
-				ctName = value;
-				IsModified = true;
-			}
-		}
-	}
-
-	#endregion
-
-	#warning L189 table admin.country has no primary key. Multiple C# objects will refer to the same row.
 }
 
 [Table(Name = "admin.airport")]
-public partial class Airport : IModified
+public partial class AdminAirport : INotifyPropertyChanged
 {
-	// IModified backing field
-	public bool IsModified{ get; set; }
+	#region INotifyPropertyChanged handling
 
-	#region int ApID
+	public event PropertyChangedEventHandler PropertyChanged;
 
-	private int apID;
-	[Column(Storage = "apID", Name = "ap_id", DbType = "INTEGER(4)", CanBeNull = false)]
+	protected virtual void OnPropertyChanged(string propertyName)
+	{
+		if (PropertyChanged != null)
+		{
+			PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+		}
+	}
+
+	#endregion
+
+	#region string ApCcode
+
+	private string apCcode;
+	[Column(Storage = "apCcode", Name = "ap_ccode", DbType = "NCHAR(2)")]
 	[DebuggerNonUserCode]
-	public int ApID
+	public string ApCcode
 	{
 		get
 		{
-			return apID;
+			return apCcode;
 		}
 		set
 		{
-			if (value != apID)
+			if (value != apCcode)
 			{
-				apID = value;
-				IsModified = true;
+				apCcode = value;
+				OnPropertyChanged("ApCcode");
 			}
 		}
 	}
 
 	#endregion
 
-	#region string ApIAtAcOde
+	#region string ApIatacode
 
-	private string apIAtAcOde;
-	[Column(Storage = "apIAtAcOde", Name = "ap_iatacode", DbType = "NCHAR(3)", CanBeNull = false)]
+	private string apIatacode;
+	[Column(Storage = "apIatacode", Name = "ap_iatacode", DbType = "NCHAR(3)", IsPrimaryKey = true, CanBeNull = false)]
 	[DebuggerNonUserCode]
-	public string ApIAtAcOde
+	public string ApIatacode
 	{
 		get
 		{
-			return apIAtAcOde;
+			return apIatacode;
 		}
 		set
 		{
-			if (value != apIAtAcOde)
+			if (value != apIatacode)
 			{
-				apIAtAcOde = value;
-				IsModified = true;
+				apIatacode = value;
+				OnPropertyChanged("ApIatacode");
 			}
 		}
 	}
 
 	#endregion
 
-	#region string ApPlace
+	#region  ApId
 
-	private string apPlace;
-	[Column(Storage = "apPlace", Name = "ap_place", DbType = "NVARCHAR(30)")]
+	private Int32 apId;
+	[Column(Storage = "apId", Name = "ap_id", DbType = "INTEGER(4)", CanBeNull = false)]
 	[DebuggerNonUserCode]
-	public string ApPlace
+	public Int32 ApId
 	{
 		get
 		{
-			return apPlace;
+			return apId;
 		}
 		set
 		{
-			if (value != apPlace)
+			if (value != apId)
 			{
-				apPlace = value;
-				IsModified = true;
+				apId = value;
+				OnPropertyChanged("ApId");
 			}
 		}
 	}
@@ -645,343 +304,208 @@ public partial class Airport : IModified
 			if (value != apName)
 			{
 				apName = value;
-				IsModified = true;
+				OnPropertyChanged("ApName");
 			}
 		}
 	}
 
 	#endregion
 
-	#region string ApCcOde
+	#region string ApPlace
 
-	private string apCcOde;
-	[Column(Storage = "apCcOde", Name = "ap_ccode", DbType = "NCHAR(2)")]
+	private string apPlace;
+	[Column(Storage = "apPlace", Name = "ap_place", DbType = "NVARCHAR(30)")]
 	[DebuggerNonUserCode]
-	public string ApCcOde
+	public string ApPlace
 	{
 		get
 		{
-			return apCcOde;
+			return apPlace;
 		}
 		set
 		{
-			if (value != apCcOde)
+			if (value != apPlace)
 			{
-				apCcOde = value;
-				IsModified = true;
+				apPlace = value;
+				OnPropertyChanged("ApPlace");
 			}
 		}
 	}
 
 	#endregion
 
-	#warning L189 table admin.airport has no primary key. Multiple C# objects will refer to the same row.
+	#region GetHashCode(), Equals() - uses column ApIatacode to look up objects in liveObjectMap
+
+	public override int GetHashCode()
+	{
+		return ApIatacode.GetHashCode();
+	}
+
+	public override bool Equals(object o)
+	{
+		AdminAirport other = o as AdminAirport;
+		if (other == null)
+		{
+			return false;
+		}
+		return ApIatacode.Equals(other.ApIatacode);
+	}
+
+	#endregion
+
 }
 
-[Table(Name = "admin.route")]
-public partial class Route : IModified
+[Table(Name = "admin.country")]
+public partial class AdminCountry : INotifyPropertyChanged
 {
-	// IModified backing field
-	public bool IsModified{ get; set; }
+	#region INotifyPropertyChanged handling
 
-	#region int RTID
+	public event PropertyChangedEventHandler PropertyChanged;
 
-	private int rTID;
-	[Column(Storage = "rTID", Name = "rt_id", DbType = "INTEGER(4)", CanBeNull = false)]
+	protected virtual void OnPropertyChanged(string propertyName)
+	{
+		if (PropertyChanged != null)
+		{
+			PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+		}
+	}
+
+	#endregion
+
+	#region string CtCode
+
+	private string ctCode;
+	[Column(Storage = "ctCode", Name = "ct_code", DbType = "NCHAR(2)", IsPrimaryKey = true, CanBeNull = false)]
 	[DebuggerNonUserCode]
-	public int RTID
+	public string CtCode
 	{
 		get
 		{
-			return rTID;
+			return ctCode;
 		}
 		set
 		{
-			if (value != rTID)
+			if (value != ctCode)
 			{
-				rTID = value;
-				IsModified = true;
+				ctCode = value;
+				OnPropertyChanged("CtCode");
 			}
 		}
 	}
 
 	#endregion
 
-	#region string RTAirline
+	#region  CtId
 
-	private string rTAirline;
-	[Column(Storage = "rTAirline", Name = "rt_airline", DbType = "NCHAR(3)", CanBeNull = false)]
+	private Int32 ctId;
+	[Column(Storage = "ctId", Name = "ct_id", DbType = "INTEGER(4)", CanBeNull = false)]
 	[DebuggerNonUserCode]
-	public string RTAirline
+	public Int32 CtId
 	{
 		get
 		{
-			return rTAirline;
+			return ctId;
 		}
 		set
 		{
-			if (value != rTAirline)
+			if (value != ctId)
 			{
-				rTAirline = value;
-				IsModified = true;
+				ctId = value;
+				OnPropertyChanged("CtId");
 			}
 		}
 	}
 
 	#endregion
 
-	#region int RTFlightNum
+	#region string CtName
 
-	private int rTFlightNum;
-	[Column(Storage = "rTFlightNum", Name = "rt_flight_num", DbType = "INTEGER(4)", CanBeNull = false)]
+	private string ctName;
+	[Column(Storage = "ctName", Name = "ct_name", DbType = "NVARCHAR(50)")]
 	[DebuggerNonUserCode]
-	public int RTFlightNum
+	public string CtName
 	{
 		get
 		{
-			return rTFlightNum;
+			return ctName;
 		}
 		set
 		{
-			if (value != rTFlightNum)
+			if (value != ctName)
 			{
-				rTFlightNum = value;
-				IsModified = true;
+				ctName = value;
+				OnPropertyChanged("CtName");
 			}
 		}
 	}
 
 	#endregion
 
-	#region string RTDepartFrom
+	#region GetHashCode(), Equals() - uses column CtCode to look up objects in liveObjectMap
 
-	private string rTDepartFrom;
-	[Column(Storage = "rTDepartFrom", Name = "rt_depart_from", DbType = "NCHAR(3)", CanBeNull = false)]
-	[DebuggerNonUserCode]
-	public string RTDepartFrom
+	public override int GetHashCode()
 	{
-		get
+		return CtCode.GetHashCode();
+	}
+
+	public override bool Equals(object o)
+	{
+		AdminCountry other = o as AdminCountry;
+		if (other == null)
 		{
-			return rTDepartFrom;
+			return false;
 		}
-		set
-		{
-			if (value != rTDepartFrom)
-			{
-				rTDepartFrom = value;
-				IsModified = true;
-			}
-		}
+		return CtCode.Equals(other.CtCode);
 	}
 
 	#endregion
 
-	#region string RTArriveTo
-
-	private string rTArriveTo;
-	[Column(Storage = "rTArriveTo", Name = "rt_arrive_to", DbType = "NCHAR(3)", CanBeNull = false)]
-	[DebuggerNonUserCode]
-	public string RTArriveTo
-	{
-		get
-		{
-			return rTArriveTo;
-		}
-		set
-		{
-			if (value != rTArriveTo)
-			{
-				rTArriveTo = value;
-				IsModified = true;
-			}
-		}
-	}
-
-	#endregion
-
-	#region int RTArriveOffset
-
-	private int rTArriveOffset;
-	[Column(Storage = "rTArriveOffset", Name = "rt_arrive_offset", DbType = "INTEGER(1)", CanBeNull = false)]
-	[DebuggerNonUserCode]
-	public int RTArriveOffset
-	{
-		get
-		{
-			return rTArriveOffset;
-		}
-		set
-		{
-			if (value != rTArriveOffset)
-			{
-				rTArriveOffset = value;
-				IsModified = true;
-			}
-		}
-	}
-
-	#endregion
-
-	#region string RTFlightDay
-
-	private string rTFlightDay;
-	[Column(Storage = "rTFlightDay", Name = "rt_flight_day", DbType = "NCHAR(7)", CanBeNull = false)]
-	[DebuggerNonUserCode]
-	public string RTFlightDay
-	{
-		get
-		{
-			return rTFlightDay;
-		}
-		set
-		{
-			if (value != rTFlightDay)
-			{
-				rTFlightDay = value;
-				IsModified = true;
-			}
-		}
-	}
-
-	#endregion
-
-	#warning L189 table admin.route has no primary key. Multiple C# objects will refer to the same row.
-}
-
-[Table(Name = "admin.airline")]
-public partial class Airline : IModified
-{
-	// IModified backing field
-	public bool IsModified{ get; set; }
-
-	#region int ALID
-
-	private int aLID;
-	[Column(Storage = "aLID", Name = "al_id", DbType = "INTEGER(4)", CanBeNull = false)]
-	[DebuggerNonUserCode]
-	public int ALID
-	{
-		get
-		{
-			return aLID;
-		}
-		set
-		{
-			if (value != aLID)
-			{
-				aLID = value;
-				IsModified = true;
-			}
-		}
-	}
-
-	#endregion
-
-	#region string ALIAtAcOde
-
-	private string aLIAtAcOde;
-	[Column(Storage = "aLIAtAcOde", Name = "al_iatacode", DbType = "NCHAR(2)", CanBeNull = false)]
-	[DebuggerNonUserCode]
-	public string ALIAtAcOde
-	{
-		get
-		{
-			return aLIAtAcOde;
-		}
-		set
-		{
-			if (value != aLIAtAcOde)
-			{
-				aLIAtAcOde = value;
-				IsModified = true;
-			}
-		}
-	}
-
-	#endregion
-
-	#region string ALIcaOCode
-
-	private string aLIcaOCode;
-	[Column(Storage = "aLIcaOCode", Name = "al_icaocode", DbType = "NCHAR(3)", CanBeNull = false)]
-	[DebuggerNonUserCode]
-	public string ALIcaOCode
-	{
-		get
-		{
-			return aLIcaOCode;
-		}
-		set
-		{
-			if (value != aLIcaOCode)
-			{
-				aLIcaOCode = value;
-				IsModified = true;
-			}
-		}
-	}
-
-	#endregion
-
-	#region string ALName
-
-	private string aLName;
-	[Column(Storage = "aLName", Name = "al_name", DbType = "NVARCHAR(60)", CanBeNull = false)]
-	[DebuggerNonUserCode]
-	public string ALName
-	{
-		get
-		{
-			return aLName;
-		}
-		set
-		{
-			if (value != aLName)
-			{
-				aLName = value;
-				IsModified = true;
-			}
-		}
-	}
-
-	#endregion
-
-	#region string ALCcOde
-
-	private string aLCcOde;
-	[Column(Storage = "aLCcOde", Name = "al_ccode", DbType = "NCHAR(2)", CanBeNull = false)]
-	[DebuggerNonUserCode]
-	public string ALCcOde
-	{
-		get
-		{
-			return aLCcOde;
-		}
-		set
-		{
-			if (value != aLCcOde)
-			{
-				aLCcOde = value;
-				IsModified = true;
-			}
-		}
-	}
-
-	#endregion
-
-	#warning L189 table admin.airline has no primary key. Multiple C# objects will refer to the same row.
 }
 
 [Table(Name = "admin.flight_day")]
-public partial class FlightDay : IModified
+public partial class AdminFlightDay : INotifyPropertyChanged
 {
-	// IModified backing field
-	public bool IsModified{ get; set; }
+	#region INotifyPropertyChanged handling
+
+	public event PropertyChangedEventHandler PropertyChanged;
+
+	protected virtual void OnPropertyChanged(string propertyName)
+	{
+		if (PropertyChanged != null)
+		{
+			PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+		}
+	}
+
+	#endregion
+
+	#region  DayCode
+
+	private Int16 dayCode;
+	[Column(Storage = "dayCode", Name = "day_code", DbType = "INTEGER(2)", IsPrimaryKey = true, CanBeNull = false)]
+	[DebuggerNonUserCode]
+	public Int16 DayCode
+	{
+		get
+		{
+			return dayCode;
+		}
+		set
+		{
+			if (value != dayCode)
+			{
+				dayCode = value;
+				OnPropertyChanged("DayCode");
+			}
+		}
+	}
+
+	#endregion
 
 	#region string DayMask
 
 	private string dayMask;
-	[Column(Storage = "dayMask", Name = "day_mask", DbType = "NCHAR(7)", CanBeNull = false)]
+	[Column(Storage = "dayMask", Name = "day_mask", DbType = "NCHAR(7)", IsPrimaryKey = true, CanBeNull = false)]
 	[DebuggerNonUserCode]
 	public string DayMask
 	{
@@ -994,30 +518,7 @@ public partial class FlightDay : IModified
 			if (value != dayMask)
 			{
 				dayMask = value;
-				IsModified = true;
-			}
-		}
-	}
-
-	#endregion
-
-	#region int DayCode
-
-	private int dayCode;
-	[Column(Storage = "dayCode", Name = "day_code", DbType = "INTEGER(2)", CanBeNull = false)]
-	[DebuggerNonUserCode]
-	public int DayCode
-	{
-		get
-		{
-			return dayCode;
-		}
-		set
-		{
-			if (value != dayCode)
-			{
-				dayCode = value;
-				IsModified = true;
+				OnPropertyChanged("DayMask");
 			}
 		}
 	}
@@ -1040,223 +541,298 @@ public partial class FlightDay : IModified
 			if (value != dayName)
 			{
 				dayName = value;
-				IsModified = true;
+				OnPropertyChanged("DayName");
 			}
 		}
 	}
 
 	#endregion
 
-	#warning L189 table admin.flight_day has no primary key. Multiple C# objects will refer to the same row.
+	#region GetHashCode(), Equals() - uses column DayCode, DayMask to look up objects in liveObjectMap
+
+	public override int GetHashCode()
+	{
+		return DayCode.GetHashCode() ^ DayMask.GetHashCode();
+	}
+
+	public override bool Equals(object o)
+	{
+		AdminFlightDay other = o as AdminFlightDay;
+		if (other == null)
+		{
+			return false;
+		}
+		return DayCode.Equals(other.DayCode) && DayMask.Equals(other.DayMask);
+	}
+
+	#endregion
+
 }
 
 [Table(Name = "admin.full_route")]
-public partial class FullRoute : IModified
+public partial class AdminFullRoute : INotifyPropertyChanged
 {
-	// IModified backing field
-	public bool IsModified{ get; set; }
+	#region INotifyPropertyChanged handling
 
-	#region string RTAirline
+	public event PropertyChangedEventHandler PropertyChanged;
 
-	private string rTAirline;
-	[Column(Storage = "rTAirline", Name = "rt_airline", DbType = "NCHAR(3)", CanBeNull = false)]
+	protected virtual void OnPropertyChanged(string propertyName)
+	{
+		if (PropertyChanged != null)
+		{
+			PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+		}
+	}
+
+	#endregion
+
+	#region string AlCcode
+
+	private string alCcode;
+	[Column(Storage = "alCcode", Name = "al_ccode", DbType = "NCHAR(2)", CanBeNull = false)]
 	[DebuggerNonUserCode]
-	public string RTAirline
+	public string AlCcode
 	{
 		get
 		{
-			return rTAirline;
+			return alCcode;
 		}
 		set
 		{
-			if (value != rTAirline)
+			if (value != alCcode)
 			{
-				rTAirline = value;
-				IsModified = true;
+				alCcode = value;
+				OnPropertyChanged("AlCcode");
 			}
 		}
 	}
 
 	#endregion
 
-	#region string ALIAtAcOde
+	#region string AlIatacode
 
-	private string aLIAtAcOde;
-	[Column(Storage = "aLIAtAcOde", Name = "al_iatacode", DbType = "NCHAR(2)", CanBeNull = false)]
+	private string alIatacode;
+	[Column(Storage = "alIatacode", Name = "al_iatacode", DbType = "NCHAR(2)", CanBeNull = false)]
 	[DebuggerNonUserCode]
-	public string ALIAtAcOde
+	public string AlIatacode
 	{
 		get
 		{
-			return aLIAtAcOde;
+			return alIatacode;
 		}
 		set
 		{
-			if (value != aLIAtAcOde)
+			if (value != alIatacode)
 			{
-				aLIAtAcOde = value;
-				IsModified = true;
+				alIatacode = value;
+				OnPropertyChanged("AlIatacode");
 			}
 		}
 	}
 
 	#endregion
 
-	#region int RTFlightNum
+	#region string AlName
 
-	private int rTFlightNum;
-	[Column(Storage = "rTFlightNum", Name = "rt_flight_num", DbType = "INTEGER(4)", CanBeNull = false)]
+	private string alName;
+	[Column(Storage = "alName", Name = "al_name", DbType = "NVARCHAR(60)", CanBeNull = false)]
 	[DebuggerNonUserCode]
-	public int RTFlightNum
+	public string AlName
 	{
 		get
 		{
-			return rTFlightNum;
+			return alName;
 		}
 		set
 		{
-			if (value != rTFlightNum)
+			if (value != alName)
 			{
-				rTFlightNum = value;
-				IsModified = true;
+				alName = value;
+				OnPropertyChanged("AlName");
 			}
 		}
 	}
 
 	#endregion
 
-	#region string RTDepartFrom
+	#region string RtAirline
 
-	private string rTDepartFrom;
-	[Column(Storage = "rTDepartFrom", Name = "rt_depart_from", DbType = "NCHAR(3)", CanBeNull = false)]
+	private string rtAirline;
+	[Column(Storage = "rtAirline", Name = "rt_airline", DbType = "NCHAR(3)", CanBeNull = false)]
 	[DebuggerNonUserCode]
-	public string RTDepartFrom
+	public string RtAirline
 	{
 		get
 		{
-			return rTDepartFrom;
+			return rtAirline;
 		}
 		set
 		{
-			if (value != rTDepartFrom)
+			if (value != rtAirline)
 			{
-				rTDepartFrom = value;
-				IsModified = true;
+				rtAirline = value;
+				OnPropertyChanged("RtAirline");
 			}
 		}
 	}
 
 	#endregion
 
-	#region string RTArriveTo
+	#region System.DateTime RtArriveAt
 
-	private string rTArriveTo;
-	[Column(Storage = "rTArriveTo", Name = "rt_arrive_to", DbType = "NCHAR(3)", CanBeNull = false)]
+	private DateTime rtArriveAt;
+	[Column(Storage = "rtArriveAt", Name = "rt_arrive_at", DbType = "INGRESDATE", CanBeNull = false)]
 	[DebuggerNonUserCode]
-	public string RTArriveTo
+	public DateTime RtArriveAt
 	{
 		get
 		{
-			return rTArriveTo;
+			return rtArriveAt;
 		}
 		set
 		{
-			if (value != rTArriveTo)
+			if (value != rtArriveAt)
 			{
-				rTArriveTo = value;
-				IsModified = true;
+				rtArriveAt = value;
+				OnPropertyChanged("RtArriveAt");
 			}
 		}
 	}
 
 	#endregion
 
-	#region int RTArriveOffset
+	#region  RtArriveOffset
 
-	private int rTArriveOffset;
-	[Column(Storage = "rTArriveOffset", Name = "rt_arrive_offset", DbType = "INTEGER(1)", CanBeNull = false)]
+	private Int16 rtArriveOffset;
+	[Column(Storage = "rtArriveOffset", Name = "rt_arrive_offset", DbType = "INTEGER(1)", CanBeNull = false)]
 	[DebuggerNonUserCode]
-	public int RTArriveOffset
+	public Int16 RtArriveOffset
 	{
 		get
 		{
-			return rTArriveOffset;
+			return rtArriveOffset;
 		}
 		set
 		{
-			if (value != rTArriveOffset)
+			if (value != rtArriveOffset)
 			{
-				rTArriveOffset = value;
-				IsModified = true;
+				rtArriveOffset = value;
+				OnPropertyChanged("RtArriveOffset");
 			}
 		}
 	}
 
 	#endregion
 
-	#region string RTFlightDay
+	#region string RtArriveTo
 
-	private string rTFlightDay;
-	[Column(Storage = "rTFlightDay", Name = "rt_flight_day", DbType = "NCHAR(7)", CanBeNull = false)]
+	private string rtArriveTo;
+	[Column(Storage = "rtArriveTo", Name = "rt_arrive_to", DbType = "NCHAR(3)", CanBeNull = false)]
 	[DebuggerNonUserCode]
-	public string RTFlightDay
+	public string RtArriveTo
 	{
 		get
 		{
-			return rTFlightDay;
+			return rtArriveTo;
 		}
 		set
 		{
-			if (value != rTFlightDay)
+			if (value != rtArriveTo)
 			{
-				rTFlightDay = value;
-				IsModified = true;
+				rtArriveTo = value;
+				OnPropertyChanged("RtArriveTo");
 			}
 		}
 	}
 
 	#endregion
 
-	#region string ALName
+	#region System.DateTime RtDepartAt
 
-	private string aLName;
-	[Column(Storage = "aLName", Name = "al_name", DbType = "NVARCHAR(60)", CanBeNull = false)]
+	private DateTime rtDepartAt;
+	[Column(Storage = "rtDepartAt", Name = "rt_depart_at", DbType = "INGRESDATE", CanBeNull = false)]
 	[DebuggerNonUserCode]
-	public string ALName
+	public DateTime RtDepartAt
 	{
 		get
 		{
-			return aLName;
+			return rtDepartAt;
 		}
 		set
 		{
-			if (value != aLName)
+			if (value != rtDepartAt)
 			{
-				aLName = value;
-				IsModified = true;
+				rtDepartAt = value;
+				OnPropertyChanged("RtDepartAt");
 			}
 		}
 	}
 
 	#endregion
 
-	#region string ALCcOde
+	#region string RtDepartFrom
 
-	private string aLCcOde;
-	[Column(Storage = "aLCcOde", Name = "al_ccode", DbType = "NCHAR(2)", CanBeNull = false)]
+	private string rtDepartFrom;
+	[Column(Storage = "rtDepartFrom", Name = "rt_depart_from", DbType = "NCHAR(3)", CanBeNull = false)]
 	[DebuggerNonUserCode]
-	public string ALCcOde
+	public string RtDepartFrom
 	{
 		get
 		{
-			return aLCcOde;
+			return rtDepartFrom;
 		}
 		set
 		{
-			if (value != aLCcOde)
+			if (value != rtDepartFrom)
 			{
-				aLCcOde = value;
-				IsModified = true;
+				rtDepartFrom = value;
+				OnPropertyChanged("RtDepartFrom");
+			}
+		}
+	}
+
+	#endregion
+
+	#region string RtFlightDay
+
+	private string rtFlightDay;
+	[Column(Storage = "rtFlightDay", Name = "rt_flight_day", DbType = "NCHAR(7)", CanBeNull = false)]
+	[DebuggerNonUserCode]
+	public string RtFlightDay
+	{
+		get
+		{
+			return rtFlightDay;
+		}
+		set
+		{
+			if (value != rtFlightDay)
+			{
+				rtFlightDay = value;
+				OnPropertyChanged("RtFlightDay");
+			}
+		}
+	}
+
+	#endregion
+
+	#region  RtFlightNum
+
+	private Int32 rtFlightNum;
+	[Column(Storage = "rtFlightNum", Name = "rt_flight_num", DbType = "INTEGER(4)", CanBeNull = false)]
+	[DebuggerNonUserCode]
+	public Int32 RtFlightNum
+	{
+		get
+		{
+			return rtFlightNum;
+		}
+		set
+		{
+			if (value != rtFlightNum)
+			{
+				rtFlightNum = value;
+				OnPropertyChanged("RtFlightNum");
 			}
 		}
 	}
@@ -1264,4 +840,866 @@ public partial class FullRoute : IModified
 	#endregion
 
 	#warning L189 table admin.full_route has no primary key. Multiple C# objects will refer to the same row.
+}
+
+[Table(Name = "admin.iietab_f5_f6")]
+public partial class AdminIietabF5f6 : INotifyPropertyChanged
+{
+	#region INotifyPropertyChanged handling
+
+	public event PropertyChangedEventHandler PropertyChanged;
+
+	protected virtual void OnPropertyChanged(string propertyName)
+	{
+		if (PropertyChanged != null)
+		{
+			PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+		}
+	}
+
+	#endregion
+
+	#region string PerKey
+
+	private string perKey;
+	[Column(Storage = "perKey", Name = "per_key", DbType = "CHAR(8)", IsPrimaryKey = true, CanBeNull = false)]
+	[DebuggerNonUserCode]
+	public string PerKey
+	{
+		get
+		{
+			return perKey;
+		}
+		set
+		{
+			if (value != perKey)
+			{
+				perKey = value;
+				OnPropertyChanged("PerKey");
+			}
+		}
+	}
+
+	#endregion
+
+	#region  PerNext
+
+	private Int32 perNext;
+	[Column(Storage = "perNext", Name = "per_next", DbType = "INTEGER(4)", CanBeNull = false)]
+	[DebuggerNonUserCode]
+	public Int32 PerNext
+	{
+		get
+		{
+			return perNext;
+		}
+		set
+		{
+			if (value != perNext)
+			{
+				perNext = value;
+				OnPropertyChanged("PerNext");
+			}
+		}
+	}
+
+	#endregion
+
+	#region  PerSegment0
+
+	private Int32 perSegment0;
+	[Column(Storage = "perSegment0", Name = "per_segment0", DbType = "INTEGER(4)", IsPrimaryKey = true, CanBeNull = false)]
+	[DebuggerNonUserCode]
+	public Int32 PerSegment0
+	{
+		get
+		{
+			return perSegment0;
+		}
+		set
+		{
+			if (value != perSegment0)
+			{
+				perSegment0 = value;
+				OnPropertyChanged("PerSegment0");
+			}
+		}
+	}
+
+	#endregion
+
+	#region  PerSegment1
+
+	private Int32 perSegment1;
+	[Column(Storage = "perSegment1", Name = "per_segment1", DbType = "INTEGER(4)", IsPrimaryKey = true, CanBeNull = false)]
+	[DebuggerNonUserCode]
+	public Int32 PerSegment1
+	{
+		get
+		{
+			return perSegment1;
+		}
+		set
+		{
+			if (value != perSegment1)
+			{
+				perSegment1 = value;
+				OnPropertyChanged("PerSegment1");
+			}
+		}
+	}
+
+	#endregion
+
+	#region System.Byte[] PerValue
+
+	private byte[] perValue;
+	[Column(Storage = "perValue", Name = "per_value", DbType = "BYTE VARYING", CanBeNull = false)]
+	[DebuggerNonUserCode]
+	public byte[] PerValue
+	{
+		get
+		{
+			return perValue;
+		}
+		set
+		{
+			if (value != perValue)
+			{
+				perValue = value;
+				OnPropertyChanged("PerValue");
+			}
+		}
+	}
+
+	#endregion
+
+	#region GetHashCode(), Equals() - uses column PerKey, PerSegment0, PerSegment1 to look up objects in liveObjectMap
+
+	public override int GetHashCode()
+	{
+		return PerKey.GetHashCode() ^ PerSegment0.GetHashCode() ^ PerSegment1.GetHashCode();
+	}
+
+	public override bool Equals(object o)
+	{
+		AdminIietabF5f6 other = o as AdminIietabF5f6;
+		if (other == null)
+		{
+			return false;
+		}
+		return PerKey.Equals(other.PerKey) && PerSegment0.Equals(other.PerSegment0) && PerSegment1.Equals(other.PerSegment1);
+	}
+
+	#endregion
+
+}
+
+[Table(Name = "admin.route")]
+public partial class AdminRoute : INotifyPropertyChanged
+{
+	#region INotifyPropertyChanged handling
+
+	public event PropertyChangedEventHandler PropertyChanged;
+
+	protected virtual void OnPropertyChanged(string propertyName)
+	{
+		if (PropertyChanged != null)
+		{
+			PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+		}
+	}
+
+	#endregion
+
+	#region string RtAirline
+
+	private string rtAirline;
+	[Column(Storage = "rtAirline", Name = "rt_airline", DbType = "NCHAR(3)", IsPrimaryKey = true, CanBeNull = false)]
+	[DebuggerNonUserCode]
+	public string RtAirline
+	{
+		get
+		{
+			return rtAirline;
+		}
+		set
+		{
+			if (value != rtAirline)
+			{
+				rtAirline = value;
+				OnPropertyChanged("RtAirline");
+			}
+		}
+	}
+
+	#endregion
+
+	#region System.DateTime RtArriveAt
+
+	private DateTime rtArriveAt;
+	[Column(Storage = "rtArriveAt", Name = "rt_arrive_at", DbType = "INGRESDATE", CanBeNull = false)]
+	[DebuggerNonUserCode]
+	public DateTime RtArriveAt
+	{
+		get
+		{
+			return rtArriveAt;
+		}
+		set
+		{
+			if (value != rtArriveAt)
+			{
+				rtArriveAt = value;
+				OnPropertyChanged("RtArriveAt");
+			}
+		}
+	}
+
+	#endregion
+
+	#region  RtArriveOffset
+
+	private Int16 rtArriveOffset;
+	[Column(Storage = "rtArriveOffset", Name = "rt_arrive_offset", DbType = "INTEGER(1)", CanBeNull = false)]
+	[DebuggerNonUserCode]
+	public Int16 RtArriveOffset
+	{
+		get
+		{
+			return rtArriveOffset;
+		}
+		set
+		{
+			if (value != rtArriveOffset)
+			{
+				rtArriveOffset = value;
+				OnPropertyChanged("RtArriveOffset");
+			}
+		}
+	}
+
+	#endregion
+
+	#region string RtArriveTo
+
+	private string rtArriveTo;
+	[Column(Storage = "rtArriveTo", Name = "rt_arrive_to", DbType = "NCHAR(3)", CanBeNull = false)]
+	[DebuggerNonUserCode]
+	public string RtArriveTo
+	{
+		get
+		{
+			return rtArriveTo;
+		}
+		set
+		{
+			if (value != rtArriveTo)
+			{
+				rtArriveTo = value;
+				OnPropertyChanged("RtArriveTo");
+			}
+		}
+	}
+
+	#endregion
+
+	#region System.DateTime RtDepartAt
+
+	private DateTime rtDepartAt;
+	[Column(Storage = "rtDepartAt", Name = "rt_depart_at", DbType = "INGRESDATE", CanBeNull = false)]
+	[DebuggerNonUserCode]
+	public DateTime RtDepartAt
+	{
+		get
+		{
+			return rtDepartAt;
+		}
+		set
+		{
+			if (value != rtDepartAt)
+			{
+				rtDepartAt = value;
+				OnPropertyChanged("RtDepartAt");
+			}
+		}
+	}
+
+	#endregion
+
+	#region string RtDepartFrom
+
+	private string rtDepartFrom;
+	[Column(Storage = "rtDepartFrom", Name = "rt_depart_from", DbType = "NCHAR(3)", CanBeNull = false)]
+	[DebuggerNonUserCode]
+	public string RtDepartFrom
+	{
+		get
+		{
+			return rtDepartFrom;
+		}
+		set
+		{
+			if (value != rtDepartFrom)
+			{
+				rtDepartFrom = value;
+				OnPropertyChanged("RtDepartFrom");
+			}
+		}
+	}
+
+	#endregion
+
+	#region string RtFlightDay
+
+	private string rtFlightDay;
+	[Column(Storage = "rtFlightDay", Name = "rt_flight_day", DbType = "NCHAR(7)", IsPrimaryKey = true, CanBeNull = false)]
+	[DebuggerNonUserCode]
+	public string RtFlightDay
+	{
+		get
+		{
+			return rtFlightDay;
+		}
+		set
+		{
+			if (value != rtFlightDay)
+			{
+				rtFlightDay = value;
+				OnPropertyChanged("RtFlightDay");
+			}
+		}
+	}
+
+	#endregion
+
+	#region  RtFlightNum
+
+	private Int32 rtFlightNum;
+	[Column(Storage = "rtFlightNum", Name = "rt_flight_num", DbType = "INTEGER(4)", IsPrimaryKey = true, CanBeNull = false)]
+	[DebuggerNonUserCode]
+	public Int32 RtFlightNum
+	{
+		get
+		{
+			return rtFlightNum;
+		}
+		set
+		{
+			if (value != rtFlightNum)
+			{
+				rtFlightNum = value;
+				OnPropertyChanged("RtFlightNum");
+			}
+		}
+	}
+
+	#endregion
+
+	#region  RtId
+
+	private Int32 rtId;
+	[Column(Storage = "rtId", Name = "rt_id", DbType = "INTEGER(4)", CanBeNull = false)]
+	[DebuggerNonUserCode]
+	public Int32 RtId
+	{
+		get
+		{
+			return rtId;
+		}
+		set
+		{
+			if (value != rtId)
+			{
+				rtId = value;
+				OnPropertyChanged("RtId");
+			}
+		}
+	}
+
+	#endregion
+
+	#region GetHashCode(), Equals() - uses column RtAirline, RtFlightDay, RtFlightNum to look up objects in liveObjectMap
+
+	public override int GetHashCode()
+	{
+		return RtAirline.GetHashCode() ^ RtFlightDay.GetHashCode() ^ RtFlightNum.GetHashCode();
+	}
+
+	public override bool Equals(object o)
+	{
+		AdminRoute other = o as AdminRoute;
+		if (other == null)
+		{
+			return false;
+		}
+		return RtAirline.Equals(other.RtAirline) && RtFlightDay.Equals(other.RtFlightDay) && RtFlightNum.Equals(other.RtFlightNum);
+	}
+
+	#endregion
+
+}
+
+[Table(Name = "admin.tz")]
+public partial class AdminTz : INotifyPropertyChanged
+{
+	#region INotifyPropertyChanged handling
+
+	public event PropertyChangedEventHandler PropertyChanged;
+
+	protected virtual void OnPropertyChanged(string propertyName)
+	{
+		if (PropertyChanged != null)
+		{
+			PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+		}
+	}
+
+	#endregion
+
+	#region string TzCode
+
+	private string tzCode;
+	[Column(Storage = "tzCode", Name = "tz_code", DbType = "NCHAR(5)", IsPrimaryKey = true)]
+	[DebuggerNonUserCode]
+	public string TzCode
+	{
+		get
+		{
+			return tzCode;
+		}
+		set
+		{
+			if (value != tzCode)
+			{
+				tzCode = value;
+				OnPropertyChanged("TzCode");
+			}
+		}
+	}
+
+	#endregion
+
+	#region  TzId
+
+	private Int32 tzId;
+	[Column(Storage = "tzId", Name = "tz_id", DbType = "INTEGER(4)", CanBeNull = false)]
+	[DebuggerNonUserCode]
+	public Int32 TzId
+	{
+		get
+		{
+			return tzId;
+		}
+		set
+		{
+			if (value != tzId)
+			{
+				tzId = value;
+				OnPropertyChanged("TzId");
+			}
+		}
+	}
+
+	#endregion
+
+	#region string TzName
+
+	private string tzName;
+	[Column(Storage = "tzName", Name = "tz_name", DbType = "NCHAR(40)")]
+	[DebuggerNonUserCode]
+	public string TzName
+	{
+		get
+		{
+			return tzName;
+		}
+		set
+		{
+			if (value != tzName)
+			{
+				tzName = value;
+				OnPropertyChanged("TzName");
+			}
+		}
+	}
+
+	#endregion
+
+	#region  TzUtcOffset
+
+	private Decimal tzUtcOffset;
+	[Column(Storage = "tzUtcOffset", Name = "tz_utc_offset", DbType = "DECIMAL(5, 2)")]
+	[DebuggerNonUserCode]
+	public Decimal TzUtcOffset
+	{
+		get
+		{
+			return tzUtcOffset;
+		}
+		set
+		{
+			if (value != tzUtcOffset)
+			{
+				tzUtcOffset = value;
+				OnPropertyChanged("TzUtcOffset");
+			}
+		}
+	}
+
+	#endregion
+
+	#region GetHashCode(), Equals() - uses column TzCode to look up objects in liveObjectMap
+
+	public override int GetHashCode()
+	{
+		return TzCode.GetHashCode();
+	}
+
+	public override bool Equals(object o)
+	{
+		AdminTz other = o as AdminTz;
+		if (other == null)
+		{
+			return false;
+		}
+		return TzCode.Equals(other.TzCode);
+	}
+
+	#endregion
+
+}
+
+[Table(Name = "admin.user_profile")]
+public partial class AdminUserProfile : INotifyPropertyChanged
+{
+	#region INotifyPropertyChanged handling
+
+	public event PropertyChangedEventHandler PropertyChanged;
+
+	protected virtual void OnPropertyChanged(string propertyName)
+	{
+		if (PropertyChanged != null)
+		{
+			PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+		}
+	}
+
+	#endregion
+
+	#region string UpAirport
+
+	private string upAirport;
+	[Column(Storage = "upAirport", Name = "up_airport", DbType = "NCHAR(3)")]
+	[DebuggerNonUserCode]
+	public string UpAirport
+	{
+		get
+		{
+			return upAirport;
+		}
+		set
+		{
+			if (value != upAirport)
+			{
+				upAirport = value;
+				OnPropertyChanged("UpAirport");
+			}
+		}
+	}
+
+	#endregion
+
+	#region string UpEmail
+
+	private string upEmail;
+	[Column(Storage = "upEmail", Name = "up_email", DbType = "NVARCHAR(100)", IsPrimaryKey = true, CanBeNull = false)]
+	[DebuggerNonUserCode]
+	public string UpEmail
+	{
+		get
+		{
+			return upEmail;
+		}
+		set
+		{
+			if (value != upEmail)
+			{
+				upEmail = value;
+				OnPropertyChanged("UpEmail");
+			}
+		}
+	}
+
+	#endregion
+
+	#region string UpFirst
+
+	private string upFirst;
+	[Column(Storage = "upFirst", Name = "up_first", DbType = "NVARCHAR(30)", CanBeNull = false)]
+	[DebuggerNonUserCode]
+	public string UpFirst
+	{
+		get
+		{
+			return upFirst;
+		}
+		set
+		{
+			if (value != upFirst)
+			{
+				upFirst = value;
+				OnPropertyChanged("UpFirst");
+			}
+		}
+	}
+
+	#endregion
+
+	#region  UpId
+
+	private Int32 upId;
+	[Column(Storage = "upId", Name = "up_id", DbType = "INTEGER(4)", CanBeNull = false)]
+	[DebuggerNonUserCode]
+	public Int32 UpId
+	{
+		get
+		{
+			return upId;
+		}
+		set
+		{
+			if (value != upId)
+			{
+				upId = value;
+				OnPropertyChanged("UpId");
+			}
+		}
+	}
+
+	#endregion
+
+	#region System.Byte[] UpImage
+
+	private byte[] upImage;
+	[Column(Storage = "upImage", Name = "up_image", DbType = "LONG BYTE")]
+	[DebuggerNonUserCode]
+	public byte[] UpImage
+	{
+		get
+		{
+			return upImage;
+		}
+		set
+		{
+			if (value != upImage)
+			{
+				upImage = value;
+				OnPropertyChanged("UpImage");
+			}
+		}
+	}
+
+	#endregion
+
+	#region string UpLast
+
+	private string upLast;
+	[Column(Storage = "upLast", Name = "up_last", DbType = "NVARCHAR(30)", CanBeNull = false)]
+	[DebuggerNonUserCode]
+	public string UpLast
+	{
+		get
+		{
+			return upLast;
+		}
+		set
+		{
+			if (value != upLast)
+			{
+				upLast = value;
+				OnPropertyChanged("UpLast");
+			}
+		}
+	}
+
+	#endregion
+
+	#region GetHashCode(), Equals() - uses column UpEmail to look up objects in liveObjectMap
+
+	public override int GetHashCode()
+	{
+		return UpEmail.GetHashCode();
+	}
+
+	public override bool Equals(object o)
+	{
+		AdminUserProfile other = o as AdminUserProfile;
+		if (other == null)
+		{
+			return false;
+		}
+		return UpEmail.Equals(other.UpEmail);
+	}
+
+	#endregion
+
+}
+
+[Table(Name = "admin.version")]
+public partial class AdminVersion : INotifyPropertyChanged
+{
+	#region INotifyPropertyChanged handling
+
+	public event PropertyChangedEventHandler PropertyChanged;
+
+	protected virtual void OnPropertyChanged(string propertyName)
+	{
+		if (PropertyChanged != null)
+		{
+			PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+		}
+	}
+
+	#endregion
+
+	#region System.DateTime VerDate
+
+	private DateTime verDate;
+	[Column(Storage = "verDate", Name = "ver_date", DbType = "INGRESDATE", CanBeNull = false)]
+	[DebuggerNonUserCode]
+	public DateTime VerDate
+	{
+		get
+		{
+			return verDate;
+		}
+		set
+		{
+			if (value != verDate)
+			{
+				verDate = value;
+				OnPropertyChanged("VerDate");
+			}
+		}
+	}
+
+	#endregion
+
+	#region  VerId
+
+	private Int32 verId;
+	[Column(Storage = "verId", Name = "ver_id", DbType = "INTEGER(4)", CanBeNull = false)]
+	[DebuggerNonUserCode]
+	public Int32 VerId
+	{
+		get
+		{
+			return verId;
+		}
+		set
+		{
+			if (value != verId)
+			{
+				verId = value;
+				OnPropertyChanged("VerId");
+			}
+		}
+	}
+
+	#endregion
+
+	#region System.DateTime VerInstall
+
+	private DateTime verInstall;
+	[Column(Storage = "verInstall", Name = "ver_install", DbType = "INGRESDATE", CanBeNull = false)]
+	[DebuggerNonUserCode]
+	public DateTime VerInstall
+	{
+		get
+		{
+			return verInstall;
+		}
+		set
+		{
+			if (value != verInstall)
+			{
+				verInstall = value;
+				OnPropertyChanged("VerInstall");
+			}
+		}
+	}
+
+	#endregion
+
+	#region  VerMajor
+
+	private Int32 verMajor;
+	[Column(Storage = "verMajor", Name = "ver_major", DbType = "INTEGER(4)", CanBeNull = false)]
+	[DebuggerNonUserCode]
+	public Int32 VerMajor
+	{
+		get
+		{
+			return verMajor;
+		}
+		set
+		{
+			if (value != verMajor)
+			{
+				verMajor = value;
+				OnPropertyChanged("VerMajor");
+			}
+		}
+	}
+
+	#endregion
+
+	#region  VerMinor
+
+	private Int32 verMinor;
+	[Column(Storage = "verMinor", Name = "ver_minor", DbType = "INTEGER(4)", CanBeNull = false)]
+	[DebuggerNonUserCode]
+	public Int32 VerMinor
+	{
+		get
+		{
+			return verMinor;
+		}
+		set
+		{
+			if (value != verMinor)
+			{
+				verMinor = value;
+				OnPropertyChanged("VerMinor");
+			}
+		}
+	}
+
+	#endregion
+
+	#region  VerRelease
+
+	private Int32 verRelease;
+	[Column(Storage = "verRelease", Name = "ver_release", DbType = "INTEGER(4)", CanBeNull = false)]
+	[DebuggerNonUserCode]
+	public Int32 VerRelease
+	{
+		get
+		{
+			return verRelease;
+		}
+		set
+		{
+			if (value != verRelease)
+			{
+				verRelease = value;
+				OnPropertyChanged("VerRelease");
+			}
+		}
+	}
+
+	#endregion
+
+	#warning L189 table admin.version has no primary key. Multiple C# objects will refer to the same row.
 }
