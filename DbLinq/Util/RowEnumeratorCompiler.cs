@@ -63,9 +63,9 @@ namespace DbLinq.Util
         /// the entry point - routes your call into special cases for Projection and primitive types
         /// </summary>
         /// <returns>compiled func which loads object from SQL reader</returns>
-        public static Func<IDataRecord, T> CompileRowDelegate(SessionVarsParsed vars, ref int fieldID)
+        public static Func<IDataRecord, MappingContext, T> CompileRowDelegate(SessionVarsParsed vars, ref int fieldID)
         {
-            Func<IDataRecord, T> objFromRow = null;
+            Func<IDataRecord, MappingContext, T> objFromRow = null;
 
             ProjectionData projData = vars.ProjectionData;
 
@@ -116,7 +116,7 @@ namespace DbLinq.Util
         /// construct and compile a 'reader.GetString(0);' delegate (or similar).
         /// </summary>
         public static
-            Func<IDataRecord, T>
+            Func<IDataRecord, MappingContext, T>
             CompilePrimitiveRowDelegate(ref int fieldID)
         {
             #region CompilePrimitiveRowDelegate
@@ -125,14 +125,16 @@ namespace DbLinq.Util
             // b) int    GetRow(DataReader rdr){ return rdr.GetInt32(0); }
 
             ParameterExpression rdr = Expression.Parameter(typeof(IDataRecord), "rdr");
+            ParameterExpression mappingContext = Expression.Parameter(typeof(MappingContext), "mappingContext");
 
-            Expression body = GetFieldMethodCall(typeof(T), rdr, fieldID++);
+            Expression body = GetFieldMethodCall(typeof(T), rdr, mappingContext, fieldID++);
 
             List<ParameterExpression> paramListRdr = new List<ParameterExpression>();
             paramListRdr.Add(rdr);
+            paramListRdr.Add(mappingContext);
 
-            LambdaExpression lambda = Expression.Lambda<Func<IDataRecord, T>>(body, paramListRdr);
-            Func<IDataRecord, T> func_t = (Func<IDataRecord, T>)lambda.Compile();
+            LambdaExpression lambda = Expression.Lambda<Func<IDataRecord, MappingContext, T>>(body, paramListRdr);
+            Func<IDataRecord, MappingContext, T> func_t = (Func<IDataRecord, MappingContext, T>)lambda.Compile();
 
             //StringBuilder sb = new StringBuilder();
             //lambda.BuildString(sb);
@@ -150,7 +152,7 @@ namespace DbLinq.Util
         /// order of args got messed up.
         /// </summary>
         public static
-            Func<IDataRecord, T>
+            Func<IDataRecord, MappingContext, T>
             CompileColumnRowDelegate_TableType(ProjectionData projData, ref int fieldID)
         {
             #region CompileColumnRowDelegate
@@ -161,6 +163,7 @@ namespace DbLinq.Util
                 return CompileColumnRowDelegate_TableType_Inheritance(projData, ref fieldID);
 
             ParameterExpression rdr = Expression.Parameter(typeof(IDataRecord), "rdr");
+            ParameterExpression mappgingContext = Expression.Parameter(typeof(MappingContext), "mappingContext");
 
             List<Expression> ctorArgs = new List<Expression>();
             //Andrus points out that order of projData.fields is not reliable after an exception - switch to ctor params
@@ -179,7 +182,7 @@ namespace DbLinq.Util
             foreach (ProjectionData.ProjectionField projFld in projData.fields)
             {
                 Type fieldType = projFld.FieldType;
-                Expression arg_i = GetFieldMethodCall(fieldType, rdr, fieldID++);
+                Expression arg_i = GetFieldMethodCall(fieldType, rdr, mappgingContext, fieldID++);
 
                 //bake expression: "CustomerID = rdr.GetString(0)"
                 string errorIntro = "Cannot retrieve type " + typeof(T) + " from DB, because [Column";
@@ -200,12 +203,13 @@ namespace DbLinq.Util
             NewExpression newExpr1 = Expression.New(projData.ctor); //2008Jan: changed to default ctor
             List<ParameterExpression> paramListRdr = new List<ParameterExpression>();
             paramListRdr.Add(rdr);
+            paramListRdr.Add(mappgingContext);
 
             Expression newExprInit = Expression.MemberInit(newExpr1, bindList.ToArray());
 
 
-            LambdaExpression lambda = Expression.Lambda<Func<IDataRecord, T>>(newExprInit, paramListRdr);
-            Func<IDataRecord, T> func_t = (Func<IDataRecord, T>)lambda.Compile();
+            LambdaExpression lambda = Expression.Lambda<Func<IDataRecord, MappingContext, T>>(newExprInit, paramListRdr);
+            Func<IDataRecord, MappingContext, T> func_t = (Func<IDataRecord, MappingContext, T>)lambda.Compile();
 
             //lambda.BuildString(sb);
             //Console.WriteLine("  RowEnumCompiler(Column): Compiled "+sb);
@@ -221,7 +225,7 @@ namespace DbLinq.Util
         ///    : new SalariedEmployee(){_employeeID=reader.GetInt32(0)};'
         /// </summary>
         public static
-            Func<IDataRecord, T>
+            Func<IDataRecord, MappingContext, T>
             CompileColumnRowDelegate_TableType_Inheritance(ProjectionData projData, ref int fieldID)
         {
             #region CompileColumnRowDelegate
@@ -243,6 +247,7 @@ namespace DbLinq.Util
             int discriminatorColIndex = projData.fields.IndexOf(discriminatorCol);
 
             ParameterExpression rdr = Expression.Parameter(typeof(IDataRecord), "rdr");
+            ParameterExpression mappgingContext = Expression.Parameter(typeof(MappingContext), "mappingContext");
 
             List<Expression> ctorArgs = new List<Expression>();
             //Andrus points out that order of projData.fields is not reliable after an exception - switch to ctor params
@@ -263,11 +268,11 @@ namespace DbLinq.Util
             int discriminatorFieldID = fieldID + discriminatorColIndex;
 
             //create 'reader.GetInt32(7)'
-            Expression readerGetDiscrimExpr = GetFieldMethodCall(discriminatorCol.FieldType, rdr
+            Expression readerGetDiscrimExpr = GetFieldMethodCall(discriminatorCol.FieldType, rdr, mappgingContext
                 , discriminatorFieldID);
 
             int fieldID_copy = fieldID;
-            Expression defaultNewExpr = TableRow_NewMemberInit(projData, fieldNameMap, defaultInheritanceAtt.Type, rdr, ref fieldID);
+            Expression defaultNewExpr = TableRow_NewMemberInit(projData, fieldNameMap, defaultInheritanceAtt.Type, rdr, mappgingContext, ref fieldID);
 
             Expression combinedExpr = defaultNewExpr;
             while (inheritAtts.Count > 0)
@@ -276,7 +281,7 @@ namespace DbLinq.Util
                 inheritAtts.RemoveAt(0);
 
                 int fieldID_temp = fieldID_copy;
-                Expression newExpr = TableRow_NewMemberInit(projData, fieldNameMap, inheritanceAtt.Type, rdr, ref fieldID_temp);
+                Expression newExpr = TableRow_NewMemberInit(projData, fieldNameMap, inheritanceAtt.Type, rdr, mappgingContext, ref fieldID_temp);
 
                 // 'reader.GetInt32(7)==1'
                 Expression testExpr = Expression.Equal(
@@ -290,8 +295,8 @@ namespace DbLinq.Util
             List<ParameterExpression> paramListRdr = new List<ParameterExpression>();
             paramListRdr.Add(rdr);
 
-            LambdaExpression lambda = Expression.Lambda<Func<IDataRecord, T>>(combinedExpr, paramListRdr);
-            Func<IDataRecord, T> func_t = (Func<IDataRecord, T>)lambda.Compile();
+            LambdaExpression lambda = Expression.Lambda<Func<IDataRecord, MappingContext, T>>(combinedExpr, paramListRdr);
+            Func<IDataRecord, MappingContext, T> func_t = (Func<IDataRecord, MappingContext, T>)lambda.Compile();
 
             //lambda.BuildString(sb);
             //Console.WriteLine("  RowEnumCompiler(Column): Compiled "+sb);
@@ -303,16 +308,17 @@ namespace DbLinq.Util
         /// bake expression such as 
         /// 'reader=>new HourlyEmployee(){_employeeID=reader.GetInt32(0)}'
         /// </summary>
-        static Expression TableRow_NewMemberInit(ProjectionData projData
-            , Dictionary<string, FieldInfo> fieldNameMap
-            , Type derivedType
-            , ParameterExpression rdr, ref int fieldID)
+        public static Expression TableRow_NewMemberInit(ProjectionData projData,
+            Dictionary<string, FieldInfo> fieldNameMap,
+            Type derivedType,
+            ParameterExpression rdr, ParameterExpression mappingContext,
+            ref int fieldID)
         {
             List<MemberAssignment> bindList = new List<MemberAssignment>();
             foreach (ProjectionData.ProjectionField projFld in projData.fields)
             {
                 Type fieldType = projFld.FieldType;
-                Expression arg_i = GetFieldMethodCall(fieldType, rdr, fieldID++);
+                Expression arg_i = GetFieldMethodCall(fieldType, rdr, mappingContext, fieldID++);
 
                 //bake expression: "CustomerID = rdr.GetString(0)"
                 string errorIntro = "Cannot retrieve type " + typeof(T) + " from DB, because [Column";
@@ -343,20 +349,21 @@ namespace DbLinq.Util
         /// construct and compile a 'new Customer(reader.GetInt32(0),reader.GetString(1));' 
         /// delegate (or similar).
         /// </summary>
-        public static Func<IDataRecord, T> CompileProjectedRowDelegate(SessionVarsParsed vars, ProjectionData projData)
+        public static Func<IDataRecord, MappingContext, T> CompileProjectedRowDelegate(SessionVarsParsed vars, ProjectionData projData)
         {
             ParameterExpression rdr = Expression.Parameter(typeof(IDataRecord), "rdr");
+            ParameterExpression mappingContext = Expression.Parameter(typeof(MappingContext), "mappingContext");
 
             StringBuilder sb = new StringBuilder(500);
             int fieldID = 0;
-            LambdaExpression lambda = BuildProjectedRowLambda(vars, projData, rdr, ref fieldID);
+            LambdaExpression lambda = BuildProjectedRowLambda(vars, projData, rdr, mappingContext, ref fieldID);
 
             //lambda.BuildString(sb);
 
             //if(vars.log!=null)
             //    vars.log.WriteLine("  RowEnumCompiler(Projection): Compiling "+sb);
             //error lambda not in scope?!
-            Func<IDataRecord, T> func_t = (Func<IDataRecord, T>)lambda.Compile();
+            Func<IDataRecord, MappingContext, T> func_t = (Func<IDataRecord, MappingContext, T>)lambda.Compile();
 
             return func_t;
 
@@ -372,7 +379,9 @@ namespace DbLinq.Util
         /// </summary>
         public static
             LambdaExpression
-            BuildProjectedRowLambda(SessionVarsParsed vars, ProjectionData projData, ParameterExpression rdr, ref int fieldID)
+            BuildProjectedRowLambda(SessionVarsParsed vars, ProjectionData projData,
+            ParameterExpression rdr, ParameterExpression mappingContext,
+            ref int fieldID)
         {
 
             #region CompileColumnRowDelegate
@@ -393,7 +402,7 @@ namespace DbLinq.Util
             if (hasCtor && projData.ctor.GetParameters().Length > 0)
             {
                 //Orcas Beta2: previously, used default ctor. Now, must pass params into ctor:
-                return BuildProjectedRowLambda_NoBind(vars, projData, rdr, ref fieldID);
+                return BuildProjectedRowLambda_NoBind(vars, projData, rdr, mappingContext, ref fieldID);
             }
 
             List<MemberBinding> bindings = new List<MemberBinding>();
@@ -436,7 +445,7 @@ namespace DbLinq.Util
                 case TypeEnum.Primitive:
                     {
                         Type fieldType = projFld.FieldType;
-                        Expression arg_i = GetFieldMethodCall(fieldType, rdr, fieldID++);
+                        Expression arg_i = GetFieldMethodCall(fieldType, rdr, mappingContext, fieldID++);
                         //MethodInfo accessor = null;
                         MemberAssignment binding = Expression.Bind(projFld.MemberInfo, arg_i);
                         bindings.Add(binding);
@@ -449,7 +458,7 @@ namespace DbLinq.Util
                         if (vars.GroupByNewExpression == null)
                             throw new ApplicationException("TODO - handle other cases than groupByNewExpr");
 
-                        MemberAssignment binding = GroupHelper2<T>.BuildProjFieldBinding(vars, projFld, rdr, ref fieldID);
+                        MemberAssignment binding = GroupHelper2<T>.BuildProjFieldBinding(vars, projFld, rdr, mappingContext, ref fieldID);
                         bindings.Add(binding);
                     }
                     break;
@@ -468,8 +477,9 @@ namespace DbLinq.Util
 
             List<ParameterExpression> paramListRdr = new List<ParameterExpression>();
             paramListRdr.Add(rdr);
+            paramListRdr.Add(mappingContext);
 
-            LambdaExpression lambda = Expression.Lambda<Func<IDataRecord, T>>(memberInit, paramListRdr);
+            LambdaExpression lambda = Expression.Lambda<Func<IDataRecord, MappingContext, T>>(memberInit, paramListRdr);
             return lambda;
             //StringBuilder sb = new StringBuilder(500);
             //Func<DataReader2,T> func_t = (Func<DataReader2,T>)lambda.Compile();
@@ -481,11 +491,12 @@ namespace DbLinq.Util
 
         /// <summary>
         /// given user code 'select new {ProductId=p.ProductID}', 
-        /// create expression 'new <>F__AnonymousType7{rdr.GetUint(0)}' - suitable for compilation
+        /// create expression 'new <>F__AnonymousType7{reader.GetUint(0)}' - suitable for compilation
         /// </summary>
         public static
             LambdaExpression
-            BuildProjectedRowLambda_NoBind(SessionVarsParsed vars, ProjectionData projData, ParameterExpression rdr, ref int fieldID)
+            BuildProjectedRowLambda_NoBind(SessionVarsParsed vars, ProjectionData projData,
+                                        ParameterExpression reader, ParameterExpression mappingContext, ref int fieldID)
         {
 
             #region CompileColumnRowDelegate
@@ -509,7 +520,7 @@ namespace DbLinq.Util
 
                         #region Ugly code to create a generic arg T for Expression.Lambda<T>
                         //simple version: (does not work since BuildProjRow needs different generic arg than our T)
-                        //LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, rdr, ref fieldID);                            
+                        //LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, reader, ref fieldID);                            
                         //nasty version:
                         ProjectionData projData2 = AttribHelper.GetProjectionData(projFld.FieldType);
                         Type TArg2 = projFld.FieldType;
@@ -517,13 +528,13 @@ namespace DbLinq.Util
                         object rowCompiler2 = Activator.CreateInstance(rowEnumCompilerType2);
                         MethodInfo[] mis = rowEnumCompilerType2.GetMethods();
                         MethodInfo mi = rowEnumCompilerType2.GetMethod("BuildProjectedRowLambda");
-                        object[] methodArgs = new object[] { vars, projData2, rdr, fieldID };
+                        object[] methodArgs = new object[] { vars, projData2, reader, mappingContext, fieldID };
                         //...and call BuildProjectedRowLambda():
                         object objResult = mi.Invoke(rowCompiler2, methodArgs);
-                        fieldID = (int)methodArgs[3];
+                        fieldID = (int)methodArgs[4];
                         LambdaExpression innerLambda = (LambdaExpression)objResult;
                         #endregion
-                        //LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, rdr, ref fieldID);
+                        //LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, reader, ref fieldID);
 
                         MemberInitExpression innerInit = innerLambda.Body as MemberInitExpression;
                         //MemberAssignment binding = Expression.Bind(projFld.propInfo, innerInit);
@@ -535,7 +546,7 @@ namespace DbLinq.Util
                 case TypeEnum.Primitive:
                     {
                         Type fieldType = projFld.FieldType;
-                        Expression arg_i = GetFieldMethodCall(fieldType, rdr, fieldID++);
+                        Expression arg_i = GetFieldMethodCall(fieldType, reader, mappingContext, fieldID++);
                         //MethodInfo accessor = null;
                         //MemberAssignment binding = Expression.Bind(projFld.MemberInfo, arg_i);
                         //bindings.Add(binding);
@@ -549,7 +560,7 @@ namespace DbLinq.Util
                         if (vars.GroupByNewExpression == null)
                             throw new ApplicationException("TODO - handle other cases than groupByNewExpr");
 
-                        //MemberAssignment binding = GroupHelper2<T>.BuildProjFieldBinding(vars, projFld, rdr, ref fieldID);
+                        //MemberAssignment binding = GroupHelper2<T>.BuildProjFieldBinding(vars, projFld, reader, ref fieldID);
                         //bindings.Add(binding);
                         throw new Exception("TODO L351 - when compiling, handle type" + projFld.typeEnum);
                     }
@@ -562,15 +573,16 @@ namespace DbLinq.Util
 
             //List<Expression> paramZero = new List<Expression>();
             //paramZero.Add( Expression.Constant(0) ); //that's the zero in GetInt32(0)
-            //MethodCallExpression body = Expression.CallVirtual(minfo,rdr,paramZero);
+            //MethodCallExpression body = Expression.CallVirtual(minfo,reader,paramZero);
             NewExpression newExpr = Expression.New(projData.ctor, argList);
             //MemberInitExpression memberInit = Expression.MemberInit(newExpr, bindings);
 
             List<ParameterExpression> paramListRdr = new List<ParameterExpression>();
-            paramListRdr.Add(rdr);
+            paramListRdr.Add(reader);
+            paramListRdr.Add(mappingContext);
 
             //LambdaExpression lambda = Expression.Lambda<Func<DataReader2, T>>(memberInit, paramListRdr);
-            LambdaExpression lambda = Expression.Lambda<Func<IDataRecord, T>>(newExpr, paramListRdr);
+            LambdaExpression lambda = Expression.Lambda<Func<IDataRecord, MappingContext, T>>(newExpr, paramListRdr);
             return lambda;
             //StringBuilder sb = new StringBuilder(500);
             //Func<DataReader2,T> func_t = (Func<DataReader2,T>)lambda.Compile();
@@ -584,9 +596,10 @@ namespace DbLinq.Util
         /// return 'reader.GetString(0)' or 'reader.GetInt32(1)'
         /// as an Expression suitable for compilation
         /// </summary>
-        private static Expression GetFieldMethodCall(Type t2, ParameterExpression rdr, int fieldID)
+        private static Expression GetFieldMethodCall(Type t2, ParameterExpression reader,
+                                                            ParameterExpression mappingContext, int fieldID)
         {
-            Expression callExpr = GetPropertyReader(rdr, t2, fieldID);
+            Expression callExpr = GetPropertyReader(reader, mappingContext, t2, fieldID);
             return callExpr;
         }
 
@@ -595,11 +608,12 @@ namespace DbLinq.Util
         // please note that sometimes (depending on driver), GetValue() returns DBNull instead of null
         // so at this level, we handle both
 
-        private static string GetAsString(IDataRecord dataRecord, int index)
+        private static string GetAsString(IDataRecord dataRecord, MappingContext mappingContext, int index)
         {
             if (dataRecord.IsDBNull(index))
                 return null;
             object o = dataRecord.GetValue(index);
+            // TODO: something here with the mappingContext
             return OnGetString(o, typeof(T), dataRecord, index);
             //return o.ToString();
         }
@@ -689,71 +703,88 @@ namespace DbLinq.Util
             Expression propertyReader;
             if (returnType == typeof(string))
             {
-                propertyReader = (Expression<Func<IDataRecord, string>>)((IDataRecord dataReader) => GetAsString(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, MappingContext, string>>)((dataReader, mappingContext)
+                    => GetAsString(dataReader, mappingContext, valueIndex));
             }
             else if (returnType == typeof(bool))
             {
-                propertyReader = (Expression<Func<IDataRecord, bool>>)((IDataRecord dataReader) => GetAsBool(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, MappingContext, bool>>)((dataReader, mappingContext)
+                    => GetAsBool(dataReader, valueIndex));
             }
             else if (returnType == typeof(char))
             {
-                propertyReader = (Expression<Func<IDataRecord, char>>)((IDataRecord dataReader) => GetAsChar(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, MappingContext, char>>)((dataReader, mappingContext)
+                    => GetAsChar(dataReader, valueIndex));
             }
             else if (returnType == typeof(byte))
             {
-                propertyReader = (Expression<Func<IDataRecord, byte>>)((IDataRecord dataReader) => GetAsNumeric<byte>(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, MappingContext, byte>>)((dataReader, mappingContext)
+                    => GetAsNumeric<byte>(dataReader, valueIndex));
             }
             else if (returnType == typeof(sbyte))
             {
-                propertyReader = (Expression<Func<IDataRecord, sbyte>>)((IDataRecord dataReader) => GetAsNumeric<sbyte>(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, MappingContext, sbyte>>)((dataReader, mappingContext)
+                    => GetAsNumeric<sbyte>(dataReader, valueIndex));
             }
             else if (returnType == typeof(short))
             {
-                propertyReader = (Expression<Func<IDataRecord, short>>)((IDataRecord dataReader) => GetAsNumeric<short>(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, MappingContext, short>>)((dataReader, mappingContext)
+                    => GetAsNumeric<short>(dataReader, valueIndex));
             }
             else if (returnType == typeof(ushort))
             {
-                propertyReader = (Expression<Func<IDataRecord, ushort>>)((IDataRecord dataReader) => GetAsNumeric<ushort>(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, MappingContext, ushort>>)((dataReader, mappingContext)
+                    => GetAsNumeric<ushort>(dataReader, valueIndex));
             }
             else if (returnType == typeof(int))
             {
-                propertyReader = (Expression<Func<IDataRecord, int>>)((IDataRecord dataReader) => GetAsNumeric<int>(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, MappingContext, int>>)((dataReader, mappingContext)
+                    => GetAsNumeric<int>(dataReader, valueIndex));
             }
             else if (returnType == typeof(uint))
             {
-                propertyReader = (Expression<Func<IDataRecord, uint>>)((IDataRecord dataReader) => GetAsNumeric<uint>(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, MappingContext, uint>>)((dataReader, mappingContext)
+                    => GetAsNumeric<uint>(dataReader, valueIndex));
             }
             else if (returnType == typeof(long))
             {
-                propertyReader = (Expression<Func<IDataRecord, long>>)((IDataRecord dataReader) => GetAsNumeric<long>(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, MappingContext, long>>)((dataReader, mappingContext)
+                    => GetAsNumeric<long>(dataReader, valueIndex));
             }
             else if (returnType == typeof(ulong))
             {
-                propertyReader = (Expression<Func<IDataRecord, ulong>>)((IDataRecord dataReader) => GetAsNumeric<ulong>(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, MappingContext, ulong>>)((dataReader, mappingContext)
+                    => GetAsNumeric<ulong>(dataReader, valueIndex));
             }
             else if (returnType == typeof(float))
             {
-                propertyReader = (Expression<Func<IDataRecord, float>>)((IDataRecord dataReader) => GetAsNumeric<float>(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, MappingContext, float>>)((dataReader, mappingContext)
+                    => GetAsNumeric<float>(dataReader, valueIndex));
             }
             else if (returnType == typeof(double))
             {
-                propertyReader = (Expression<Func<IDataRecord, double>>)((IDataRecord dataReader) => GetAsNumeric<double>(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, MappingContext, double>>)((dataReader, mappingContext)
+                    => GetAsNumeric<double>(dataReader, valueIndex));
             }
             else if (returnType == typeof(decimal))
             {
-                propertyReader = (Expression<Func<IDataRecord, decimal>>)((IDataRecord dataReader) => GetAsNumeric<decimal>(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, MappingContext, decimal>>)((dataReader, mappingContext)
+                    => GetAsNumeric<decimal>(dataReader, valueIndex));
             }
             else if (returnType == typeof(DateTime))
             {
-                propertyReader = (Expression<Func<IDataRecord, DateTime>>)((IDataRecord dataReader) => dataReader.GetDateTime(valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, MappingContext, DateTime>>)((dataReader, mappingContext)
+                    => dataReader.GetDateTime(valueIndex));
             }
             else if (returnType == typeof(byte[]))
             {
-                propertyReader = (Expression<Func<IDataRecord, byte[]>>)((IDataRecord dataReader) => GetAsBytes(dataReader, valueIndex));
+                propertyReader = (Expression<Func<IDataRecord, MappingContext, byte[]>>)((dataReader, mappingContext)
+                    => GetAsBytes(dataReader, valueIndex));
             }
             else if (returnType.IsEnum)
             {
-                propertyReader = Expression.Convert((Expression<Func<IDataRecord, int>>)((IDataRecord dataReader) => GetAsNumeric<int>(dataReader, valueIndex)), returnType);
+                propertyReader = Expression.Convert((Expression<Func<IDataRecord, MappingContext, int>>)((dataReader, mappingContext)
+                    => GetAsNumeric<int>(dataReader, valueIndex)), returnType);
             }
             else
             {
@@ -780,21 +811,21 @@ namespace DbLinq.Util
             return null;
         }
 
-        private static Expression GetPropertyReader(Expression reader, Type returnType, int valueIndex)
+        private static Expression GetPropertyReader(Expression reader, Expression mappingContext, Type returnType, int valueIndex)
         {
             Expression propertyReader;
             Type nullableValueType = GetNullableTypeArgument(returnType);
             if (nullableValueType != null)
             {
-                Expression simplePropertyReader = Expression.Convert(Expression.Invoke(GetSimplePropertyReader(nullableValueType, valueIndex), reader), returnType);
+                Expression simplePropertyReader = Expression.Convert(Expression.Invoke(GetSimplePropertyReader(nullableValueType, valueIndex), reader, mappingContext), returnType);
                 Expression zero = Expression.Constant(null, returnType);
                 propertyReader = Expression.Condition(
-                    Expression.Invoke((Expression<Func<IDataRecord, bool>>)((IDataRecord dataReader) => dataReader.IsDBNull(valueIndex)), reader),
+                    Expression.Invoke((Expression<Func<IDataRecord, MappingContext, bool>>)((dataReader, context) => dataReader.IsDBNull(valueIndex)), reader, mappingContext),
                     zero, simplePropertyReader);
             }
             else
             {
-                propertyReader = Expression.Invoke(GetSimplePropertyReader(returnType, valueIndex), reader);
+                propertyReader = Expression.Invoke(GetSimplePropertyReader(returnType, valueIndex), reader, mappingContext);
             }
             return propertyReader;
         }

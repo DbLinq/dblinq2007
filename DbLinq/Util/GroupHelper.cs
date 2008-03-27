@@ -74,13 +74,14 @@ namespace DbLinq.Util
         /// </summary>
         /// <param name="projFld"></param>
         /// <returns></returns>
-        public static MemberAssignment BuildProjFieldBinding(SessionVarsParsed vars, ProjectionData.ProjectionField projFld, ParameterExpression rdr, ref int fieldID)
+        public static MemberAssignment BuildProjFieldBinding(SessionVarsParsed vars, ProjectionData.ProjectionField projFld, 
+            ParameterExpression rdr, ParameterExpression mappingContext, ref int fieldID)
         {
             PropertyInfo[] igroupies = projFld.FieldType.GetProperties();
             ConstructorInfo[] ictos = projFld.FieldType.GetConstructors();
             ProjectionData projInner = ProjectionData.FromSelectGroupByExpr(vars.GroupByNewExpression,vars.GroupByExpression,vars.SqlParts);
             //ProjectionData projInner = ProjectionData.FromSelectGroupByExpr(vars.groupByNewExpr,vars.GroupByExpression,vars.SqlParts);
-            LambdaExpression innerLambda = RowEnumeratorCompiler<T>.BuildProjectedRowLambda(vars, projInner, rdr, ref fieldID);
+            LambdaExpression innerLambda = RowEnumeratorCompiler<T>.BuildProjectedRowLambda(vars, projInner, rdr, mappingContext, ref fieldID);
             MemberAssignment binding = projFld.BuildMemberAssignment(innerLambda.Body);
             
             return binding;

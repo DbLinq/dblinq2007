@@ -31,6 +31,6 @@ namespace DbLinq.Linq
 {
     public interface IResultMapper
     {
-        Func<IDataRecord, T> GetMapper<T>(SessionVarsParsed vars);
+        Func<IDataRecord, MappingContext, T> GetMapper<T>(SessionVarsParsed vars);
     }
 }
