@@ -165,6 +165,8 @@ grant all on region to "LinqUser";
 grant all on shippers to "LinqUser";
 grant all on suppliers to "LinqUser";
 grant all on territories to "LinqUser";
+--sequences
+grant all on products_productid_seq to "LinqUser";
 --####################################################################
 --## populate tables with seed data
 --####################################################################
