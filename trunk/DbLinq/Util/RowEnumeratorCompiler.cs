@@ -38,24 +38,26 @@ using System.Data;
 
 namespace DbLinq.Util
 {
-  public class RowEnumeratorCompiler {
+    public class RowEnumeratorCompiler
+    {
 
-    /// <summary>
-    /// Converts column value to string 
-    /// Sample:
-    /// DbLinq.Util.RowEnumeratorCompiler.GetString +=
-    /// (value, type, datarecord, index)=> value.ToString().TrimEnd();
-    /// </summary>
-    public static event Func<object, Type, IDataRecord, int, string> GetString;
+        /// <summary>
+        /// Converts column value to string 
+        /// Sample:
+        /// DbLinq.Util.RowEnumeratorCompiler.GetString +=
+        /// (value, type, datarecord, index)=> value.ToString().TrimEnd();
+        /// </summary>
+        public static event Func<object, Type, IDataRecord, int, string> GetString;
 
-   internal static string OnGetString(object src, Type t, IDataRecord dr, int index) {
-    if (GetString == null)
-       return src.ToString();
-    return GetString(src, t, dr, index);
-      }
-  }
+        internal static string OnGetString(object src, Type t, IDataRecord dr, int index)
+        {
+            if (GetString == null)
+                return src.ToString();
+            return GetString(src, t, dr, index);
+        }
+    }
 
-  public class RowEnumeratorCompiler<T> : RowEnumeratorCompiler
+    public class RowEnumeratorCompiler<T> : RowEnumeratorCompiler
     {
         /// <summary>
         /// the entry point - routes your call into special cases for Projection and primitive types
@@ -182,7 +184,7 @@ namespace DbLinq.Util
                 //bake expression: "CustomerID = rdr.GetString(0)"
                 string errorIntro = "Cannot retrieve type " + typeof(T) + " from DB, because [Column";
                 if (projFld.columnAttribute == null)
-                    throw new ApplicationException("L162: " + errorIntro + "] is missing for field " + fieldID+": "+projFld.MemberInfo.Name);
+                    throw new ApplicationException("L162: " + errorIntro + "] is missing for field " + fieldID + ": " + projFld.MemberInfo.Name);
                 if (projFld.columnAttribute.Storage == null)
                     throw new ApplicationException("L164: " + errorIntro + " Storage=xx] is missing for col=" + projFld.columnAttribute.Name);
 
@@ -401,59 +403,59 @@ namespace DbLinq.Util
                 //if( ! projFld.isPrimitiveType)
                 switch (projFld.typeEnum)
                 {
-                    case TypeEnum.Column:
-                        {
-                            //occurs for 'from c ... from o ... select new {c,o}'
-                            //should compile into:
-                            //  'new Projection{ new C(field0,field1), new O(field2,field3) }'
+                case TypeEnum.Column:
+                    {
+                        //occurs for 'from c ... from o ... select new {c,o}'
+                        //should compile into:
+                        //  'new Projection{ new C(field0,field1), new O(field2,field3) }'
 
-                            #region Ugly code to create a generic arg T for Expression.Lambda<T>
-                            //simple version: (does not work since BuildProjRow needs different generic arg than our T)
-                            //LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, rdr, ref fieldID);                            
-                            //nasty version:
-                            ProjectionData projData2 = AttribHelper.GetProjectionData(projFld.FieldType);
-                            Type TArg2 = projFld.FieldType;
-                            Type rowEnumCompilerType2 = typeof(RowEnumeratorCompiler<>).MakeGenericType(TArg2);
-                            object rowCompiler2 = Activator.CreateInstance(rowEnumCompilerType2);
-                            MethodInfo[] mis = rowEnumCompilerType2.GetMethods();
-                            MethodInfo mi = rowEnumCompilerType2.GetMethod("BuildProjectedRowLambda");
-                            object[] methodArgs = new object[] { vars, projData2, rdr, fieldID };
-                            //...and call BuildProjectedRowLambda():
-                            object objResult = mi.Invoke(rowCompiler2, methodArgs);
-                            fieldID = (int)methodArgs[3];
-                            LambdaExpression innerLambda = (LambdaExpression)objResult;
-                            #endregion
-                            //LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, rdr, ref fieldID);
+                        #region Ugly code to create a generic arg T for Expression.Lambda<T>
+                        //simple version: (does not work since BuildProjRow needs different generic arg than our T)
+                        //LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, rdr, ref fieldID);                            
+                        //nasty version:
+                        ProjectionData projData2 = AttribHelper.GetProjectionData(projFld.FieldType);
+                        Type TArg2 = projFld.FieldType;
+                        Type rowEnumCompilerType2 = typeof(RowEnumeratorCompiler<>).MakeGenericType(TArg2);
+                        object rowCompiler2 = Activator.CreateInstance(rowEnumCompilerType2);
+                        MethodInfo[] mis = rowEnumCompilerType2.GetMethods();
+                        MethodInfo mi = rowEnumCompilerType2.GetMethod("BuildProjectedRowLambda");
+                        object[] methodArgs = new object[] { vars, projData2, rdr, fieldID };
+                        //...and call BuildProjectedRowLambda():
+                        object objResult = mi.Invoke(rowCompiler2, methodArgs);
+                        fieldID = (int)methodArgs[3];
+                        LambdaExpression innerLambda = (LambdaExpression)objResult;
+                        #endregion
+                        //LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, rdr, ref fieldID);
 
-                            MemberInitExpression innerInit = innerLambda.Body as MemberInitExpression;
-                            //MemberAssignment binding = Expression.Bind(projFld.propInfo, innerInit);
-                            MemberAssignment binding = projFld.BuildMemberAssignment(innerInit);
-                            bindings.Add(binding);
-                        }
-                        break;
-                    case TypeEnum.Primitive:
-                        {
-                            Type fieldType = projFld.FieldType;
-                            Expression arg_i = GetFieldMethodCall(fieldType, rdr, fieldID++);
-                            //MethodInfo accessor = null;
-                            MemberAssignment binding = Expression.Bind(projFld.MemberInfo, arg_i);
-                            bindings.Add(binding);
-                        }
-                        break;
-                    case TypeEnum.Other:
-                        {
-                            //e.g.: "select new {g.Key,g}" - but g is also a projection
-                            //Expression.MemberInit
-                            if (vars.GroupByNewExpression == null)
-                                throw new ApplicationException("TODO - handle other cases than groupByNewExpr");
+                        MemberInitExpression innerInit = innerLambda.Body as MemberInitExpression;
+                        //MemberAssignment binding = Expression.Bind(projFld.propInfo, innerInit);
+                        MemberAssignment binding = projFld.BuildMemberAssignment(innerInit);
+                        bindings.Add(binding);
+                    }
+                    break;
+                case TypeEnum.Primitive:
+                    {
+                        Type fieldType = projFld.FieldType;
+                        Expression arg_i = GetFieldMethodCall(fieldType, rdr, fieldID++);
+                        //MethodInfo accessor = null;
+                        MemberAssignment binding = Expression.Bind(projFld.MemberInfo, arg_i);
+                        bindings.Add(binding);
+                    }
+                    break;
+                case TypeEnum.Other:
+                    {
+                        //e.g.: "select new {g.Key,g}" - but g is also a projection
+                        //Expression.MemberInit
+                        if (vars.GroupByNewExpression == null)
+                            throw new ApplicationException("TODO - handle other cases than groupByNewExpr");
 
-                            MemberAssignment binding = GroupHelper2<T>.BuildProjFieldBinding(vars, projFld, rdr, ref fieldID);
-                            bindings.Add(binding);
-                        }
-                        break;
+                        MemberAssignment binding = GroupHelper2<T>.BuildProjFieldBinding(vars, projFld, rdr, ref fieldID);
+                        bindings.Add(binding);
+                    }
+                    break;
 
-                    default:
-                        throw new ApplicationException("TODO - objects other than primitive and entities in CompileProjRow: " + projFld.FieldType);
+                default:
+                    throw new ApplicationException("TODO - objects other than primitive and entities in CompileProjRow: " + projFld.FieldType);
                 }
 
             }
@@ -499,62 +501,62 @@ namespace DbLinq.Util
             {
                 switch (projFld.typeEnum)
                 {
-                    case TypeEnum.Column:
-                        {
-                            //occurs for 'from c ... from o ... select new {c,o}'
-                            //should compile into:
-                            //  'new Projection{ new C(field0,field1), new O(field2,field3) }'
+                case TypeEnum.Column:
+                    {
+                        //occurs for 'from c ... from o ... select new {c,o}'
+                        //should compile into:
+                        //  'new Projection{ new C(field0,field1), new O(field2,field3) }'
 
-                            #region Ugly code to create a generic arg T for Expression.Lambda<T>
-                            //simple version: (does not work since BuildProjRow needs different generic arg than our T)
-                            //LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, rdr, ref fieldID);                            
-                            //nasty version:
-                            ProjectionData projData2 = AttribHelper.GetProjectionData(projFld.FieldType);
-                            Type TArg2 = projFld.FieldType;
-                            Type rowEnumCompilerType2 = typeof(RowEnumeratorCompiler<>).MakeGenericType(TArg2);
-                            object rowCompiler2 = Activator.CreateInstance(rowEnumCompilerType2);
-                            MethodInfo[] mis = rowEnumCompilerType2.GetMethods();
-                            MethodInfo mi = rowEnumCompilerType2.GetMethod("BuildProjectedRowLambda");
-                            object[] methodArgs = new object[] { vars, projData2, rdr, fieldID };
-                            //...and call BuildProjectedRowLambda():
-                            object objResult = mi.Invoke(rowCompiler2, methodArgs);
-                            fieldID = (int)methodArgs[3];
-                            LambdaExpression innerLambda = (LambdaExpression)objResult;
-                            #endregion
-                            //LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, rdr, ref fieldID);
+                        #region Ugly code to create a generic arg T for Expression.Lambda<T>
+                        //simple version: (does not work since BuildProjRow needs different generic arg than our T)
+                        //LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, rdr, ref fieldID);                            
+                        //nasty version:
+                        ProjectionData projData2 = AttribHelper.GetProjectionData(projFld.FieldType);
+                        Type TArg2 = projFld.FieldType;
+                        Type rowEnumCompilerType2 = typeof(RowEnumeratorCompiler<>).MakeGenericType(TArg2);
+                        object rowCompiler2 = Activator.CreateInstance(rowEnumCompilerType2);
+                        MethodInfo[] mis = rowEnumCompilerType2.GetMethods();
+                        MethodInfo mi = rowEnumCompilerType2.GetMethod("BuildProjectedRowLambda");
+                        object[] methodArgs = new object[] { vars, projData2, rdr, fieldID };
+                        //...and call BuildProjectedRowLambda():
+                        object objResult = mi.Invoke(rowCompiler2, methodArgs);
+                        fieldID = (int)methodArgs[3];
+                        LambdaExpression innerLambda = (LambdaExpression)objResult;
+                        #endregion
+                        //LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, rdr, ref fieldID);
 
-                            MemberInitExpression innerInit = innerLambda.Body as MemberInitExpression;
-                            //MemberAssignment binding = Expression.Bind(projFld.propInfo, innerInit);
-                            //MemberAssignment binding = projFld.BuildMemberAssignment(innerInit);
-                            //bindings.Add(binding);
-                            argList.Add(innerInit);
-                        }
-                        break;
-                    case TypeEnum.Primitive:
-                        {
-                            Type fieldType = projFld.FieldType;
-                            Expression arg_i = GetFieldMethodCall(fieldType, rdr, fieldID++);
-                            //MethodInfo accessor = null;
-                            //MemberAssignment binding = Expression.Bind(projFld.MemberInfo, arg_i);
-                            //bindings.Add(binding);
-                            argList.Add(arg_i);
-                        }
-                        break;
-                    case TypeEnum.Other:
-                        {
-                            //e.g.: "select new {g.Key,g}" - but g is also a projection
-                            //Expression.MemberInit
-                            if (vars.GroupByNewExpression == null)
-                                throw new ApplicationException("TODO - handle other cases than groupByNewExpr");
+                        MemberInitExpression innerInit = innerLambda.Body as MemberInitExpression;
+                        //MemberAssignment binding = Expression.Bind(projFld.propInfo, innerInit);
+                        //MemberAssignment binding = projFld.BuildMemberAssignment(innerInit);
+                        //bindings.Add(binding);
+                        argList.Add(innerInit);
+                    }
+                    break;
+                case TypeEnum.Primitive:
+                    {
+                        Type fieldType = projFld.FieldType;
+                        Expression arg_i = GetFieldMethodCall(fieldType, rdr, fieldID++);
+                        //MethodInfo accessor = null;
+                        //MemberAssignment binding = Expression.Bind(projFld.MemberInfo, arg_i);
+                        //bindings.Add(binding);
+                        argList.Add(arg_i);
+                    }
+                    break;
+                case TypeEnum.Other:
+                    {
+                        //e.g.: "select new {g.Key,g}" - but g is also a projection
+                        //Expression.MemberInit
+                        if (vars.GroupByNewExpression == null)
+                            throw new ApplicationException("TODO - handle other cases than groupByNewExpr");
 
-                            //MemberAssignment binding = GroupHelper2<T>.BuildProjFieldBinding(vars, projFld, rdr, ref fieldID);
-                            //bindings.Add(binding);
-                            throw new Exception("TODO L351 - when compiling, handle type" + projFld.typeEnum);
-                        }
-                        //break;
+                        //MemberAssignment binding = GroupHelper2<T>.BuildProjFieldBinding(vars, projFld, rdr, ref fieldID);
+                        //bindings.Add(binding);
+                        throw new Exception("TODO L351 - when compiling, handle type" + projFld.typeEnum);
+                    }
+                //break;
 
-                    default:
-                        throw new ApplicationException("TODO - objects other than primitive and entities in CompileProjRow: " + projFld.FieldType);
+                default:
+                    throw new ApplicationException("TODO - objects other than primitive and entities in CompileProjRow: " + projFld.FieldType);
                 }
             }
 
@@ -595,10 +597,10 @@ namespace DbLinq.Util
 
         private static string GetAsString(IDataRecord dataRecord, int index)
         {
-            object o = dataRecord.GetValue(index);
-            if (o == null || o is DBNull)
+            if (dataRecord.IsDBNull(index))
                 return null;
-          return OnGetString(o, typeof(T), dataRecord, index);
+            object o = dataRecord.GetValue(index);
+            return OnGetString(o, typeof(T), dataRecord, index);
             //return o.ToString();
         }
 
@@ -641,6 +643,8 @@ namespace DbLinq.Util
 
         private static U GetAsNumeric<U>(IDataRecord dataRecord, int index)
         {
+            if (dataRecord.IsDBNull(index))
+                return default(U);
             return GetAsNumeric<U>(dataRecord.GetValue(index));
         }
 
@@ -665,6 +669,8 @@ namespace DbLinq.Util
 
         private static byte[] GetAsBytes(IDataRecord dataRecord, int index)
         {
+            if (dataRecord.IsDBNull(index))
+                return null;
             object obj = dataRecord.GetValue(index);
             if (obj == null)
                 return null; //nullable blob?

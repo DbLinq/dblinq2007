@@ -141,11 +141,6 @@ namespace DbLinq.SqlServer
         /// </summary>
         //public static readonly Dictionary<DbLinq.Linq.IMTable, bool> UseBulkInsert = new Dictionary<DbLinq.Linq.IMTable, bool>();
 
-        public override IDataReader2 CreateDataReader(IDataReader dataReader)
-        {
-            return new SqlServerDataReader2(dataReader);
-        }
-
         public override bool CanBulkInsert<T>(DbLinq.Linq.Table<T> table)
         {
             return UseBulkInsert.ContainsKey(table);

@@ -143,11 +143,6 @@ namespace DbLinq.Sqlite
             return param;
         }
 */
-        public override IDataReader2 CreateDataReader(IDataReader dataReader)
-        {
-            return new SqliteDataReader2(dataReader);
-        }
-
         public override bool CanBulkInsert<T>(DbLinq.Linq.Table<T> table)
         {
             return UseBulkInsert.ContainsKey(table);
