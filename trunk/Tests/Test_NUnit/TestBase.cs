@@ -71,7 +71,18 @@ namespace Test_NUnit
         const string connStr = "Data Source=Northwind.db3";
 #elif MSSQL
         const string connStr = "Data Source=.\\SQLExpress;Integrated Security=True;Initial Catalog=Northwind";
-#else //Mysql, Postgres
+#elif POSTGRES
+
+        //Postgres
+        public string connStr
+        {
+            get
+            {
+                return string.Format("server={0};user id=LinqUser; password=linq2; database=northwind", DbServer);
+            }
+        }
+#else      
+        //Mysql
         public string connStr
         {
             get
