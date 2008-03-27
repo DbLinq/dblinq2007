@@ -47,7 +47,7 @@ namespace DbLinq.Util
         protected SessionVarsParsed _vars;
 
         //while the FatalExecuteEngineError persists, we use a wrapper class to retrieve data
-        protected Func<IDataRecord, T> _objFromRow2;
+        protected Func<IDataRecord, MappingContext, T> _objFromRow2;
 
         private Dictionary<T, T> _liveObjectMap;
         private string _sqlString;
@@ -133,7 +133,7 @@ namespace DbLinq.Util
                     //                        continue;
                     //#endif
 
-                    T current = _objFromRow2(dataReader);
+                    T current = _objFromRow2(dataReader, _vars.MappingContext);
 
                     //live object cache:
                     if (_liveObjectMap != null && current != null)

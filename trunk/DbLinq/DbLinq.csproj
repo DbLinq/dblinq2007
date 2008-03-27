@@ -67,6 +67,7 @@
     <Compile Include="Linq\Database\Implementation\DatabaseContext.cs" />
     <Compile Include="Linq\Database\Implementation\DatabaseConnection.cs" />
     <Compile Include="Linq\Database\Implementation\DatabaseTransaction.cs" />
+    <Compile Include="Linq\MappingContext.cs" />
     <Compile Include="Logging\ILogger.cs" />
     <Compile Include="Logging\Implementation\ConsoleDebugLogger.cs" />
     <Compile Include="Logging\Implementation\Logger.cs" />

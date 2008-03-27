@@ -24,22 +24,13 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using DbLinq.Util;
-using DbLinq.Vendor;
-
-namespace DbLinq.Linq.Implementation
+namespace DbLinq.Linq
 {
-    public class ResultMapper: IResultMapper
+    /// <summary>
+    /// MappingContext is used during the mapping process
+    /// it contains events and properties give to mapper
+    /// </summary>
+    public class MappingContext
     {
-        public Func<IDataRecord, MappingContext, T> GetMapper<T>(SessionVarsParsed vars)
-        {
-            int fieldID = 0;
-            return RowEnumeratorCompiler<T>.CompileRowDelegate(vars, ref fieldID);
-        }
     }
 }

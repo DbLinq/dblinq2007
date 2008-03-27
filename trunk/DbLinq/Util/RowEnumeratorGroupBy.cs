@@ -46,8 +46,8 @@ namespace DbLinq.Util
     /// <typeparam name="T">the return type, containing an IGrouping</typeparam>
     public class RowEnumeratorGroupBy<T, Key, Val> : RowEnumerator<T>
     {
-        Func<IDataRecord, Key> _keyReadFunc = null;
-        Func<IDataRecord, Val> _valReadFunc = null;
+        Func<IDataRecord, MappingContext, Key> _keyReadFunc = null;
+        Func<IDataRecord, MappingContext, Val> _valReadFunc = null;
 
         public RowEnumeratorGroupBy(SessionVarsParsed vars)
             : base(vars, null)
@@ -112,14 +112,14 @@ namespace DbLinq.Util
                 {
                     if (lookup == null)
                     {
-                        prevKey = _keyReadFunc(dataReader);
-                        Val firstVal = _valReadFunc(dataReader); // valueReadFunc(rdr2);
+                        prevKey = _keyReadFunc(dataReader, _vars.MappingContext);
+                        Val firstVal = _valReadFunc(dataReader, _vars.MappingContext); // valueReadFunc(rdr2);
                         lookup = new Lookup<Key, Val>(prevKey, firstVal);
                         continue;
                     }
 
-                    Key currKey = _keyReadFunc(dataReader);
-                    Val currVal = _valReadFunc(dataReader);
+                    Key currKey = _keyReadFunc(dataReader, _vars.MappingContext);
+                    Val currVal = _valReadFunc(dataReader, _vars.MappingContext);
                     if (currKey.Equals(prevKey))
                     {
                         lookup._elements.Add(currVal);
