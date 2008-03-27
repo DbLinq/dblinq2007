@@ -33,6 +33,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Ingres.Client, Version=2.0.0.0, Culture=neutral, PublicKeyToken=7ab2d069d405ce41, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\Ingres.Client.dll</HintPath>
+    </Reference>
     <Reference Include="MySql.Data, Version=5.0.8.1, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\lib\MySql.Data.dll</HintPath>
@@ -124,6 +128,10 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DbLinq.Ingres\DbLinq.Ingres.csproj">
+      <Project>{90D57CD9-D704-409E-88A1-0F22AC79065A}</Project>
+      <Name>DbLinq.Ingres</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DbLinq.MySql\DbLinq.MySql.csproj">
       <Project>{FA8D1068-3341-4956-BF94-54C6A816BD9E}</Project>
       <Name>DbLinq.MySql</Name>

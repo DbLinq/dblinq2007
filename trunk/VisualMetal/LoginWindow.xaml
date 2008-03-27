@@ -43,6 +43,7 @@
                 <ComboBoxItem>PostgreSQL</ComboBoxItem>
                 <ComboBoxItem>OracleODP</ComboBoxItem>
                 <ComboBoxItem>Oracle</ComboBoxItem>
+                <ComboBoxItem>Ingres</ComboBoxItem>
             </ComboBox>
 		</Grid>
 		<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
