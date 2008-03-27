@@ -38,76 +38,51 @@ namespace DbLinq.Ingres.Schema
         /// </summary>
         /// <param name="mysqlType"></param>
         /// <param name="column_type">e.g. 'unsigned'</param>
-        public static string mapSqlTypeToCsType(string mysqlType, string column_type)
+        public static string mapSqlTypeToCsType(string sqlType, string column_type, int length)
         {
-            #region map "varchar" to "string"
-            switch (mysqlType.Trim().ToLower())
+            switch (sqlType.Trim())
             {
-                case "nvarchar":
-                case "nchar":
-                case "varchar": 
-                case "longtext": 
-                case "text":
-                case "char":
-                case "character":
-                case "character varying":
-                case "inet":
+                case "C":
+                case "CHAR":
+                case "NCHAR":
+                case "VARCHAR":
+                case "NVARCHAR":
+                case "LONG VARCHAR":
+                case "TEXT":
                     return "string";
 
-                case "int": 
-                    if(column_type.Contains("unsigned"))
-                        return "uint";
-                    return "int";
-
-                case "bit":
-                case "boolean":
-                    //case "ebool": //this is Adrus' domain type. TODO: handle domain types.
-                    return "bool";
-
-                case "tinyint": 
-                    if(column_type=="tinyint(1)")
-                        return "bool";
-                    return "char";
-                case "smallint": return "short";
-                case "mediumint": return "short";
-                case "bigint": return "long";
-
-                case "interval":
-                    return "TimeSpan";
-                case "date":
-                case "datetime":
-                case "timestamp":
-                case "timestamp without time zone":
-                case "time without time zone": //reported by twain_bu...@msn.com,
-                case "time with time zone":
+                case "DATE":
+                case "INGRESDATE":
                     return "DateTime";
 
-                case "enum": 
-                    return "Enum";
-                case "float": 
-                    return "float";
+                case "INTEGER":
+                    switch (length)
+                    {
+                        case 1:
+                        case 2:
+                            return "Int16";
+                        case 4:
+                            return "Int32";
+                        case 8:
+                            return "Int64";
+                        default:
+                            return "L52_mapCsType_unprepared_for_ingrestype_"+sqlType+"_of_length_" + length.ToString();
+                    }
 
-                case "double":
-                case "double precision":
-                    return "double";
+                case "FLOAT":
+                    return "Double";
 
-                case "decimal":
-                case "numeric":
-                    return "decimal";
+                case "DECIMAL":
+                    return "Decimal";
 
-                case "blob":
-                case "oid":
-                case "bytea":
+                case "BLOB":
+                case "BYTE VARYING":
+                case "LONG BYTE":
                     return "byte[]";
 
-                    //TODO: blob,longblob,set, ...
-                case "integer": return "int";
-                case "void": 
-                    return "void";
                 default:
-                    return "L52_mapCsType_unprepared_for_ingrestype_"+mysqlType;
+                    return "L52_mapCsType_unprepared_for_ingrestype_"+sqlType;
             }
-            #endregion
         }
 
     }

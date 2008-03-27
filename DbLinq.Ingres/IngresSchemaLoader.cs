@@ -92,7 +92,7 @@ namespace DbLinq.Ingres
                 names.AddColumn(columnRow.table_name, columnName);
 
                 //find which table this column belongs to
-                DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.table_name == tblSchema.Name);
+                DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.TableNameWithSchema == tblSchema.Name);
                 if (tableSchema == null)
                 {
                     Console.WriteLine("ERROR L46: Table '" + columnRow.table_name + "' not found for column " + columnRow.column_name);
@@ -104,7 +104,7 @@ namespace DbLinq.Ingres
                 colSchema.Storage = columnName.StorageFieldName;
                 colSchema.DbType = columnRow.DataTypeWithWidth; //columnRow.datatype;
 
-                colSchema.IsPrimaryKey = false;
+                colSchema.IsPrimaryKey = columnRow.key_sequence != 0;
 
                 if (columnRow.column_default != null && columnRow.column_default.StartsWith("nextval("))
                     colSchema.IsDbGenerated = true;
@@ -115,9 +115,10 @@ namespace DbLinq.Ingres
 
                 //colSchema.IsVersion = ???
                 colSchema.CanBeNull = columnRow.isNullable;
-                colSchema.Type = Mappings.mapSqlTypeToCsType(columnRow.datatype, columnRow.column_type);
-
-                colSchema.Type = Mappings.mapSqlTypeToCsType(columnRow.datatype, columnRow.column_type);
+                colSchema.Type = Mappings.mapSqlTypeToCsType(
+                    columnRow.datatype, 
+                    columnRow.column_type, 
+                    (columnRow.column_length.HasValue ? columnRow.column_length.Value : 0));
                 if (CSharp.IsValueType(colSchema.Type) && columnRow.isNullable)
                     colSchema.Type += "?";
 
