@@ -13,6 +13,24 @@ using DbLinq.Linq;
 
 namespace DbLinq.Vendor
 {
+
+  public class ValueConversionEventArgs : EventArgs {
+    internal void Init(int ordinal, IDataRecord record, object value) {
+      Ordinal = ordinal;
+      Record = record;
+      Value = value;
+    }
+
+    internal ValueConversionEventArgs() { }
+    public ValueConversionEventArgs(int ordinal, IDataRecord record, object value) {
+      Init(ordinal, record, value);
+    }
+
+    public int Ordinal { get; private set; }
+    public object Value { get; set; }
+    public IDataRecord Record { get; private set; }
+  }
+
     /// <summary>
     /// Vendor - specific part of DbLinq.
     /// </summary>
@@ -75,14 +93,33 @@ namespace DbLinq.Vendor
 
         bool IsCaseSensitiveName(string dbName);
 
+        /// <summary>
+        /// Executes query. Stores matching columns in instance fields and properties.
+        /// Does 2-pass (case sensitive then insensitive) match. 
+        /// Handles null reference-type values (string, byte[])
+        /// Handles null Nullable<T> value-type values (int? etc)
+        /// Handles (for entity TResult) class, struct and Nullable<struct>
+        /// Caches and re-uses compiled delegates (thread-safe)
+        /// </summary>
+        /// <typeparam name="TResult">Entity type whose instances are returned</typeparam>
+        /// <param name="context">Database to use</param>
+        /// <param name="sql">Server query returning table</param>
+        /// <param name="parameters">query parameters</param>
+        /// <returns>Entity with matching properties and fields filled</returns>
+        IEnumerable<TResult> ExecuteQuery<TResult>(DbLinq.Linq.DataContext dataContext, string command, object[] parameters);
+
       /// <summary>
-      /// Executes query and returns result in object properties.
+      /// Custom conversion of retrieved values.
+      /// Sample:   
+      /// class MyNorthwind : Northwind {
+      ///   public DefaultContext() : base() {
+      ///     Vendor.ConvertValue += (sender, args) => {
+      ///       if (args.Value != null && args.Value is string) {
+      ///         args.Value = ((string)args.Value).TrimEnd();
+      ///       }
+      ///    };
+      ///   }
       /// </summary>
-      /// <typeparam name="TResult"></typeparam>
-      /// <param name="dataContext"></param>
-      /// <param name="command"></param>
-      /// <param name="parameters"></param>
-      /// <returns></returns>
-      IEnumerable<TResult> ExecuteQuery<TResult>(DbLinq.Linq.DataContext dataContext, string command, object[] parameters); 
+      event EventHandler<ValueConversionEventArgs> ConvertValue;
     }
 }
