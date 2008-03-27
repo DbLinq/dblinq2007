@@ -281,11 +281,6 @@ namespace DbLinq.PostgreSql
             }
             return outParamValues;
         }
-/*
-        public override IDataReader2 CreateDataReader(IDataReader dataReader)
-        {
-            return new PgsqlDataReader2(dataReader);
-        }*/
 
         /// <summary>
         /// In PostgreSQL an insensitive name is lowercase
