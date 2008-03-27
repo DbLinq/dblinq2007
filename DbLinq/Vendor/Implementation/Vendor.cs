@@ -257,11 +257,6 @@ namespace DbLinq.Vendor.Implementation
         public abstract IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt, StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded);
         public abstract IExecuteResult ExecuteMethodCall(Linq.DataContext context, MethodInfo method, params object[] sqlParams);
 
-        public virtual IDataReader2 CreateDataReader(IDataReader dataReader)
-        {
-            return new DataReader2(dataReader);
-        }
-
         public virtual IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
         {
             IDbDataParameter param = cmd.CreateParameter();

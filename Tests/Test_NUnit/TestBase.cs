@@ -78,7 +78,7 @@ namespace Test_NUnit
         {
             get
             {
-                return string.Format("server={0};user id=LinqUser; password=linq2; database=northwind", DbServer);
+                return string.Format("server={0};user id=LinqUser; password=linq2; database=Northwind", DbServer);
             }
         }
 #else      

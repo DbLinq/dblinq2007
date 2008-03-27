@@ -83,8 +83,6 @@ namespace DbLinq.Vendor
 
         IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName);
 
-        IDataReader2 CreateDataReader(IDataReader dataReader);
-
         bool CanBulkInsert<T>(DbLinq.Linq.Table<T> table);
         void SetBulkInsert<T>(DbLinq.Linq.Table<T> table, int pageSize);
         void DoBulkInsert<T>(DbLinq.Linq.Table<T> table, List<T> rows, IDbConnection connection);

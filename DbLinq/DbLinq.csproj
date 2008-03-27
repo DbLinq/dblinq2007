@@ -138,8 +138,6 @@
     <Compile Include="Util\Name.cs" />
     <Compile Include="Util\VarName.cs" />
     <Compile Include="Util\EnglishWords.cs" />
-    <Compile Include="Vendor\Implementation\DataReader2.cs" />
-    <Compile Include="Vendor\IDataReader2.cs" />
     <Compile Include="Vendor\Implementation\Vendor.ExecuteQuery.cs" />
     <Compile Include="Vendor\ISchemaLoader.cs" />
     <Compile Include="Vendor\IVendor.cs" />

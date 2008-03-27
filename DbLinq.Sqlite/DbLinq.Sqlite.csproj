@@ -62,7 +62,6 @@
     <Compile Include="Schema\TableSql.cs" />
     <Compile Include="SqliteSchemaLoader.cs" />
     <Compile Include="SqliteDataContext.cs" />
-    <Compile Include="SqliteDataReader2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqliteTypeConversions.cs" />
     <Compile Include="SqliteVendor.cs" />
