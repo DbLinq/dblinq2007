@@ -19,26 +19,15 @@ namespace DbLinq.Oracle
         protected override IVendor Vendor { get { return vendor; } }
 
         public override System.Type DataContextType { get { return typeof(OracleDataContext); } }
-        public override Database Load(string databaseName, IDictionary<string, string> tableAliases, bool pluralize, bool loadStoredProcedures)
-        {
-            NameFormatter.Pluralize = pluralize; // TODO: this could go in a context (instead of service class)
 
+        protected override Database Load(SchemaName schemaName, IDictionary<string, string> tableAliases, bool loadStoredProcedures)
+        {
             IDbConnection conn = Connection;
-            try
-            {
-                conn.Open();
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine("Connection.Open failed: " + ex.Message);
-                throw ex;
-            }
 
             var names = new Names();
 
             var schema = new Database();
 
-            var schemaName = CreateSchemaName(databaseName, conn);
             schema.Name = schemaName.DbName;
             schema.Class = schemaName.ClassName;
 
@@ -46,10 +35,10 @@ namespace DbLinq.Oracle
             //##################################################################
             //step 1 - load tables
             UserTablesSql utsql = new UserTablesSql();
-            List<UserTablesRow> tables = utsql.getTables(conn, databaseName);
+            List<UserTablesRow> tables = utsql.getTables(conn, schemaName.DbName);
             if (tables == null || tables.Count == 0)
             {
-                Logger.Write(Level.Warning, "No tables found for schema " + databaseName + ", exiting");
+                Logger.Write(Level.Warning, "No tables found for schema " + schemaName.DbName + ", exiting");
                 return null;
             }
 
@@ -74,7 +63,7 @@ namespace DbLinq.Oracle
             //##################################################################
             //step 2 - load columns
             User_Tab_Column_Sql csql = new User_Tab_Column_Sql();
-            List<User_Tab_Column> columns = csql.getColumns(conn, databaseName);
+            List<User_Tab_Column> columns = csql.getColumns(conn, schemaName.DbName);
 
             foreach (User_Tab_Column columnRow in columns)
             {
@@ -119,7 +108,7 @@ namespace DbLinq.Oracle
             //##################################################################
             //step 3 - load foreign keys etc
             User_Constraints_Sql ksql = new User_Constraints_Sql();
-            List<User_Constraints_Row> constraints = ksql.getConstraints1(conn, databaseName);
+            List<User_Constraints_Row> constraints = ksql.getConstraints1(conn, schemaName.DbName);
 
 
             foreach (User_Constraints_Row constraint in constraints)

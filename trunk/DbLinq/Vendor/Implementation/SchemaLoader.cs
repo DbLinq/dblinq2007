@@ -45,7 +45,20 @@ namespace DbLinq.Vendor.Implementation
         public INameFormatter NameFormatter { get; set; }
         public ILogger Logger { get; set; }
 
-        public abstract Database Load(string databaseName, IDictionary<string, string> tableAliases, bool pluralize, bool loadStoredProcedures);
+        public virtual Database Load(string databaseName, IDictionary<string, string> tableAliases, bool pluralize, bool loadStoredProcedures)
+        {
+            NameFormatter.Pluralize = pluralize; // TODO: this could go in a context (instead of service class)
+            if (Connection.State != ConnectionState.Open)
+                Connection.Open();
+            if (string.IsNullOrEmpty(databaseName))
+                databaseName = Connection.Database;
+            if (string.IsNullOrEmpty(databaseName))
+                throw new ArgumentException("A database name is required. Please specify /database=<databaseName>");
+            var schemaName = NameFormatter.GetSchemaName(databaseName, GetExtraction(databaseName));
+            return Load(schemaName, tableAliases, loadStoredProcedures);
+        }
+
+        protected abstract Database Load(SchemaName schemaName, IDictionary<string, string> tableAliases, bool loadStoredProcedures);
 
         protected SchemaLoader()
         {

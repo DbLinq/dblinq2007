@@ -59,28 +59,24 @@ namespace DbLinq.MySql
             return tableName;
         }
 
-        public override Database Load(string databaseName, IDictionary<string, string> tableAliases, bool pluralize, bool loadStoredProcedures)
+        protected override Database Load(SchemaName schemaName, IDictionary<string, string> tableAliases, bool loadStoredProcedures)
         {
-            NameFormatter.Pluralize = pluralize; // TODO: this could go in a context (instead of service class)
-
             IDbConnection conn = Connection;
-            conn.Open();
 
             var names = new Names();
 
             var schema = new Database();
 
-            var schemaName = CreateSchemaName(databaseName, conn);
             schema.Name = schemaName.DbName;
             schema.Class = schemaName.ClassName;
 
             //##################################################################
             //step 1 - load tables
             TableSql tsql = new TableSql();
-            List<TableRow> tables = tsql.getTables(conn, databaseName);
+            List<TableRow> tables = tsql.getTables(conn, schemaName.DbName);
             if (tables == null || tables.Count == 0)
             {
-                Logger.Write(Level.Warning, "No tables found for schema " + databaseName + ", exiting");
+                Logger.Write(Level.Warning, "No tables found for schema " + schemaName.DbName + ", exiting");
                 return null;
             }
 
@@ -99,7 +95,7 @@ namespace DbLinq.MySql
             //##################################################################
             //step 2 - load columns
             ColumnSql csql = new ColumnSql();
-            List<Schema.Column> columns = csql.getColumns(conn, databaseName);
+            List<Schema.Column> columns = csql.getColumns(conn, schemaName.DbName);
 
             foreach (Schema.Column columnRow in columns)
             {
@@ -150,7 +146,7 @@ namespace DbLinq.MySql
             //##################################################################
             //step 3 - load foreign keys etc
             KeyColumnUsageSql ksql = new KeyColumnUsageSql();
-            List<KeyColumnUsage> constraints = ksql.getConstraints(conn, databaseName);
+            List<KeyColumnUsage> constraints = ksql.getConstraints(conn, schemaName.DbName);
 
             //sort tables - parents first (this is moving to SchemaPostprocess)
             //TableSorter.Sort(tables, constraints); 
@@ -214,7 +210,7 @@ namespace DbLinq.MySql
             if (loadStoredProcedures)
             {
                 ProcSql procsql = new ProcSql();
-                List<ProcRow> procs = procsql.getProcs(conn, databaseName);
+                List<ProcRow> procs = procsql.getProcs(conn, schemaName.DbName);
 
                 foreach (ProcRow proc in procs)
                 {

@@ -18,26 +18,25 @@ namespace DbLinq.PostgreSql
         protected override Vendor.IVendor Vendor { get { return vendor; } }
 
         public override System.Type DataContextType { get { return typeof(PgsqlDataContext); } }
-        public override Database Load(string databaseName, IDictionary<string, string> tableAliases, bool pluralize, bool loadStoredProcedures)
-        {
-            NameFormatter.Pluralize = pluralize; // TODO: this could go in a context (instead of service class)
 
+        protected override Database Load(SchemaName schemaName, IDictionary<string, string> tableAliases, bool loadStoredProcedures)
+        {
             IDbConnection conn = Connection;
-            conn.Open();
 
             var names = new Names();
 
-            DbLinq.Schema.Dbml.Database schema = new DbLinq.Schema.Dbml.Database();
-            schema.Name = databaseName;
-            schema.Class = databaseName;
+            var schema = new Database();
+
+            schema.Name = schemaName.DbName;
+            schema.Class = schemaName.ClassName;
 
             //##################################################################
             //step 1 - load tables
             TableSql tsql = new TableSql();
-            List<TableRow> tables = tsql.getTables(conn, databaseName);
+            List<TableRow> tables = tsql.getTables(conn, schemaName.DbName);
             if (tables == null || tables.Count == 0)
             {
-                Logger.Write(Level.Warning, "No tables found for schema " + databaseName + ", exiting");
+                Logger.Write(Level.Warning, "No tables found for schema " + schemaName.DbName + ", exiting");
                 return null;
             }
 
@@ -56,13 +55,13 @@ namespace DbLinq.PostgreSql
             //##################################################################
             //step 2 - load columns
             ColumnSql csql = new ColumnSql();
-            List<Schema.Column> columns = csql.getColumns(conn, databaseName);
+            List<Schema.Column> columns = csql.getColumns(conn, schemaName.DbName);
 
             KeyColumnUsageSql ksql = new KeyColumnUsageSql();
-            List<KeyColumnUsage> constraints = ksql.getConstraints(conn, databaseName);
+            List<KeyColumnUsage> constraints = ksql.getConstraints(conn, schemaName.DbName);
             ForeignKeySql fsql = new ForeignKeySql();
 
-            List<ForeignKeyCrossRef> allKeys2 = fsql.getConstraints(conn, databaseName);
+            List<ForeignKeyCrossRef> allKeys2 = fsql.getConstraints(conn, schemaName.DbName);
             List<ForeignKeyCrossRef> foreignKeys = allKeys2.Where(k => k.constraint_type == "FOREIGN KEY").ToList();
             List<ForeignKeyCrossRef> primaryKeys = allKeys2.Where(k => k.constraint_type == "PRIMARY KEY").ToList();
 
@@ -105,7 +104,7 @@ namespace DbLinq.PostgreSql
                 if (CSharp.IsValueType(colSchema.Type) && columnRow.isNullable)
                     colSchema.Type += "?";
 
-                if (columnRow.column_name == "employeetype" && columnRow.table_name == "employee" && databaseName == "Andrus")
+                if (columnRow.column_name == "employeetype" && columnRow.table_name == "employee" && schemaName.DbName == "Andrus")
                 {
                     //Andrus DB - Employee table: hardcoded for testing of vertical Partitioning
                     colSchema.IsDiscriminator = true;
@@ -188,7 +187,7 @@ namespace DbLinq.PostgreSql
             if (loadStoredProcedures)
             {
                 Pg_Proc_Sql procSql = new Pg_Proc_Sql();
-                List<Pg_Proc> procs = procSql.getProcs(conn, databaseName);
+                List<Pg_Proc> procs = procSql.getProcs(conn, schemaName.DbName);
 
                 //4a. determine unknown types
                 Dictionary<long, string> typeOidToName = new Dictionary<long, string>();
@@ -216,7 +215,7 @@ namespace DbLinq.PostgreSql
                 }
 
                 //4b. get names for unknown types
-                procSql.getTypeNames(conn, databaseName, typeOidToName);
+                procSql.getTypeNames(conn, schemaName.DbName, typeOidToName);
 
                 //4c. generate dbml objects
                 foreach (Pg_Proc proc in procs)

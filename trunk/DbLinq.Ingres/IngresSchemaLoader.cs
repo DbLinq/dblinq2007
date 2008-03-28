@@ -44,28 +44,25 @@ namespace DbLinq.Ingres
 
         public override string VendorName { get { return "Ingres"; } }
         public override System.Type DataContextType { get { return typeof(IngresDataContext); } }
-        public override Database Load(string databaseName, IDictionary<string, string> tableAliases, bool pluralize, bool loadStoredProcedures)
-        {
-            NameFormatter.Pluralize = pluralize; // TODO: this could go in a context (instead of service class)
 
+        protected override Database Load(SchemaName schemaName, IDictionary<string, string> tableAliases, bool loadStoredProcedures)
+        {
             IDbConnection conn = Connection;
-            conn.Open();
 
             var names = new Names();
 
             var schema = new Database();
 
-            var schemaName = CreateSchemaName(databaseName, conn);
             schema.Name = schemaName.DbName;
             schema.Class = schemaName.ClassName;
 
             //##################################################################
             //step 1 - load tables
             TableSql tsql = new TableSql();
-            List<TableRow> tables = tsql.getTables(conn, databaseName);
+            List<TableRow> tables = tsql.getTables(conn, schemaName.DbName);
             if (tables == null || tables.Count == 0)
             {
-                Console.WriteLine("No tables found for schema " + databaseName + ", exiting");
+                Console.WriteLine("No tables found for schema " + schemaName.DbName + ", exiting");
                 return null;
             }
 
@@ -84,7 +81,7 @@ namespace DbLinq.Ingres
             //##################################################################
             //step 2 - load columns
             ColumnSql csql = new ColumnSql();
-            List<Schema.Column> columns = csql.getColumns(conn, databaseName);
+            List<Schema.Column> columns = csql.getColumns(conn, schemaName.DbName);
 
             foreach (Schema.Column columnRow in columns)
             {
@@ -122,7 +119,7 @@ namespace DbLinq.Ingres
                 if (CSharp.IsValueType(colSchema.Type) && columnRow.isNullable)
                     colSchema.Type += "?";
 
-                if (columnRow.column_name == "employeetype" && columnRow.table_name == "employee" && databaseName == "Andrus")
+                if (columnRow.column_name == "employeetype" && columnRow.table_name == "employee" && schemaName.DbName == "Andrus")
                 {
                     //Andrus DB - Employee table: hardcoded for testing of vertical Partitioning
                     colSchema.IsDiscriminator = true;
