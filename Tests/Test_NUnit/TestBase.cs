@@ -29,6 +29,10 @@ using XSqlCommand = System.Data.SQLite.SQLiteCommand;
 using XSqlConnection = System.Data.SqlClient.SqlConnection;
 using XSqlCommand = System.Data.SqlClient.SqlCommand;
 using xint = System.UInt32;
+#elif INGRES
+using XSqlConnection = Ingres.Client.IngresConnection;
+using XSqlCommand = Ingres.Client.IngresCommand;
+using xint = System.UInt32;
 #else
 using XSqlConnection = MySql.Data.MySqlClient.MySqlConnection;
 using XSqlCommand = MySql.Data.MySqlClient.MySqlCommand;

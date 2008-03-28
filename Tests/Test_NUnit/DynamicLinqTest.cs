@@ -15,6 +15,8 @@ namespace Test_NUnit_MySql
     namespace Test_NUnit_PostgreSql
 #elif SQLITE
     namespace Test_NUnit_Sqlite
+#elif INGRES
+    namespace Test_NUnit_Ingres
 #else
     #error unknown target
 #endif
