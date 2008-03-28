@@ -46,30 +46,25 @@ namespace DbLinq.Sqlite
         protected override IVendor Vendor { get { return vendor; } }
 
         public override System.Type DataContextType { get { return typeof(SqliteDataContext); } }
-        public override Database Load(string databaseName, IDictionary<string, string> tableAliases, bool pluralize, bool loadStoredProcedures)
-        {
-            NameFormatter.Pluralize = pluralize; // TODO: this could go in a context (instead of service class)
 
+        protected override Database Load(SchemaName schemaName, IDictionary<string, string> tableAliases, bool loadStoredProcedures)
+        {
             IDbConnection conn = Connection;
-            conn.Open();
 
             var names = new Names();
 
             var schema = new Database();
 
-            string database = Path.GetFileNameWithoutExtension(databaseName);
-
-            var schemaName = CreateSchemaName(database, conn);
             schema.Name = schemaName.DbName;
             schema.Class = schemaName.ClassName;
 
             //##################################################################
             //step 1 - load tables
             TableSql tsql = new TableSql();
-            List<TableRow> tables = tsql.getTables(conn, database);
+            List<TableRow> tables = tsql.getTables(conn, schemaName.DbName);
             if (tables == null || tables.Count == 0)
             {
-                Logger.Write(Level.Warning, "No tables found for schema " + database + ", exiting");
+                Logger.Write(Level.Warning, "No tables found for schema " + schemaName.DbName + ", exiting");
                 return null;
             }
 
@@ -88,7 +83,7 @@ namespace DbLinq.Sqlite
             //##################################################################
             //step 2 - load columns
             ColumnSql csql = new ColumnSql();
-            List<Schema.Column> columns = csql.getColumns(conn, database);
+            List<Schema.Column> columns = csql.getColumns(conn, schemaName.DbName);
 
             foreach (Schema.Column columnRow in columns)
             {
@@ -144,7 +139,7 @@ namespace DbLinq.Sqlite
             //##################################################################
             //step 3 - load foreign keys etc
             KeyColumnUsageSql ksql = new KeyColumnUsageSql();
-            List<KeyColumnUsage> constraints = ksql.getConstraints(conn, database);
+            List<KeyColumnUsage> constraints = ksql.getConstraints(conn, schemaName.DbName);
 
             //sort tables - parents first (this is moving to SchemaPostprocess)
             //TableSorter.Sort(tables, constraints); 
@@ -219,7 +214,7 @@ namespace DbLinq.Sqlite
             if (loadStoredProcedures)
             {
                 ProcSql procsql = new ProcSql();
-                List<ProcRow> procs = procsql.getProcs(conn, database);
+                List<ProcRow> procs = procsql.getProcs(conn, schemaName.DbName);
 
                 foreach (ProcRow proc in procs)
                 {
