@@ -48,13 +48,13 @@ namespace SqlMetal.Generator.Implementation
         protected override void WriteDataContextCtors(CodeWriter writer, DbLinq.Schema.Dbml.Database schema, GenerationContext context)
         {
             writer.WriteLine(context.Evaluate(
-@"//public ${database}(string connectionString) 
+@"//public ${class}(string connectionString) 
 //    : base(connectionString)
 //{
 //}
 "));
             writer.WriteLine(context.Evaluate(
-@"public ${database}(IDbConnection connection) 
+@"public ${class}(IDbConnection connection) 
     : base(connection)
 {
 }

@@ -74,7 +74,9 @@ namespace DbLinq.Vendor.Implementation
                 extraction = WordsExtraction.FromCase;
                 dbTableName = tableAliases[dbTableName];
             }
-            return NameFormatter.GetTableName(GetFullDbName(dbTableName, dbSchema), extraction);
+            var tableName = NameFormatter.GetTableName(dbTableName, extraction);
+            tableName.DbName = GetFullDbName(dbTableName, dbSchema);
+            return tableName;
         }
 
         protected virtual ColumnName CreateColumnName(string dbColumnName)
@@ -84,15 +86,18 @@ namespace DbLinq.Vendor.Implementation
 
         protected virtual ProcedureName CreateProcedureName(string dbProcedureName, string dbSchema)
         {
-            return NameFormatter.GetProcedureName(GetFullDbName(dbProcedureName, dbSchema), GetExtraction(dbProcedureName));
+            var procedureName = NameFormatter.GetProcedureName(dbProcedureName, GetExtraction(dbProcedureName));
+            procedureName.DbName = GetFullDbName(dbProcedureName, dbSchema);
+            return procedureName;
         }
 
         protected virtual AssociationName CreateAssociationName(string dbManyName, string dbManySchema,
             string dbOneName, string dbOneSchema, string dbConstraintName)
         {
-            return NameFormatter.GetAssociationName(GetFullDbName(dbManyName, dbManySchema),
-                GetFullDbName(dbOneName, dbOneSchema),
+            var associationName = NameFormatter.GetAssociationName(dbManyName, dbOneName,
                 dbConstraintName, GetExtraction(dbManyName));
+            associationName.DbName = GetFullDbName(dbManyName, dbManySchema);
+            return associationName;
         }
 
         protected virtual SchemaName CreateSchemaName(string databaseName, IDbConnection connection)
