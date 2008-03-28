@@ -50,6 +50,7 @@ namespace SqlMetal.Generator.Implementation
             context["namespace"] = context.Parameters.Namespace;
             context["database"] = dbSchema.Name;
             context["generationTime"] = DateTime.Now.ToString("u");
+            context["class"] = dbSchema.Class;
 
             using (var codeWriter = CreateCodeWriter(textWriter))
             {
