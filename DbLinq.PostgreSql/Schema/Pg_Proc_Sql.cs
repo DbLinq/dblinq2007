@@ -12,7 +12,7 @@ namespace DbLinq.PostgreSql.Schema
     /// </summary>
     public class Pg_Proc
     {
-        public string proowner;
+        public long proowner;
         public string proname;
         public bool proretset;
         public long prorettype;
@@ -50,7 +50,7 @@ namespace DbLinq.PostgreSql.Schema
         {
             Pg_Proc t = new Pg_Proc();
             int field = 0;
-            t.proowner = rdr.GetString(field++);
+            t.proowner = rdr.GetInt64(field++);
             t.proname = rdr.GetString(field++);
             t.proretset = rdr.GetBoolean(field++);
             t.prorettype = rdr.GetInt64(field++);
