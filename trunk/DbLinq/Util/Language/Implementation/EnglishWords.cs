@@ -1,13 +1,40 @@
-﻿using System;
+﻿#region MIT license
+////////////////////////////////////////////////////////////////////
+// MIT license:
+// Permission is hereby granted, free of charge, to any person obtaining
+// a copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to
+// permit persons to whom the Software is furnished to do so, subject to
+// the following conditions:
+//
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+//
+// Authors:
+//        Jiri George Moudry
+////////////////////////////////////////////////////////////////////
+#endregion
+
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace DbLinq.Util
+namespace DbLinq.Util.Language.Implementation
 {
-    public class EnglishWords
+    public class EnglishWords : ILanguageWords
     {
         private readonly Dictionary<string, int> wordsWeights = new Dictionary<string, int>();
 
@@ -17,12 +44,17 @@ namespace DbLinq.Util
             public string Plural;
         }
 
-        public EnglishWords()
+        public virtual void Load()
         {
             Load("EnglishWords.txt");
         }
 
-        public void Load(string resourceName)
+        public bool Supports(CultureInfo cultureInfo)
+        {
+            return cultureInfo.ThreeLetterISOLanguageName == "eng";
+        }
+
+        public virtual void Load(string resourceName)
         {
             using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(GetType(), resourceName))
             {
@@ -48,7 +80,7 @@ namespace DbLinq.Util
             }
         }
 
-        public int GetWeight(string word)
+        protected int GetWeight(string word)
         {
             if (word.Length == 1) // a letter is always 1
                 return 1;
@@ -57,7 +89,7 @@ namespace DbLinq.Util
             return weight;
         }
 
-        public bool Exists(string word)
+        protected bool Exists(string word)
         {
             return GetWeight(word) > 0;
         }
@@ -101,7 +133,7 @@ namespace DbLinq.Util
             return word;
         }
 
-        public string Try(string word, string ending, string newEnding)
+        protected string Try(string word, string ending, string newEnding)
         {
             if (word.ToLower().EndsWith(ending))
             {
@@ -190,10 +222,10 @@ namespace DbLinq.Util
             if (!context.Splits.TryGetValue(magma, out split))
             {
                 split = new Context.Split
-                {
-                    Magma = magma,
-                    Words = GetMagmaWords(magma, context)
-                };
+                            {
+                                Magma = magma,
+                                Words = GetMagmaWords(magma, context)
+                            };
                 split.Note = GetNote(split.Words);
                 context.Splits[magma] = split;
             }
@@ -221,37 +253,19 @@ namespace DbLinq.Util
             }
             double averageWeight = totalWeight / words.Count;
             return averageWeight / words.Count
-                * 1000; // coz it's easier to read
+                   * 1000; // coz it's easier to read
         }
-
-        private void GetMagmaWords1(string magma, IList<string> words)
-        {
-            for (string remainingMagma = magma; remainingMagma.Length > 0; )
-            {
-                for (int testLength = remainingMagma.Length; testLength > 0; testLength--)
-                {
-                    string wordTest = remainingMagma.Substring(0, testLength);
-                    if (Exists(wordTest) || testLength == 1)
-                    {
-                        words.Add(wordTest);
-                        remainingMagma = remainingMagma.Substring(testLength);
-                        break;
-                    }
-                }
-            }
-        }
-        // this is at final place, since my poor resharper 3.1 gets lost with the construction
 
         // important: keep this from most specific to less specific
         private static SingularPlural[] SingularsPlurals =
-        {
-            new SingularPlural { Singular="ss", Plural="sses" },
-            new SingularPlural { Singular="ch", Plural="ches" },
-            new SingularPlural { Singular="sh", Plural="shes" },
-            new SingularPlural { Singular="zz", Plural="zzes" },
-            new SingularPlural { Singular="x", Plural="xes" },
-            new SingularPlural { Singular="y", Plural="ies" },
-            new SingularPlural { Singular="", Plural="s" },
-        };
+            {
+                new SingularPlural { Singular="ss", Plural="sses" },
+                new SingularPlural { Singular="ch", Plural="ches" },
+                new SingularPlural { Singular="sh", Plural="shes" },
+                new SingularPlural { Singular="zz", Plural="zzes" },
+                new SingularPlural { Singular="x", Plural="xes" },
+                new SingularPlural { Singular="y", Plural="ies" },
+                new SingularPlural { Singular="", Plural="s" },
+            };
     }
 }

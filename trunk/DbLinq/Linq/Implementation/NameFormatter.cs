@@ -26,10 +26,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
+using DbLinq.Factory;
 using DbLinq.Schema;
-using DbLinq.Util;
+using DbLinq.Util.Language;
 
 namespace DbLinq.Linq.Implementation
 {
@@ -45,17 +47,29 @@ namespace DbLinq.Linq.Implementation
             Last = 0x02,
         }
 
-        public EnglishWords EnglishWords { get; set; }
+        private CultureInfo cultureInfo;
+        public CultureInfo CultureInfo
+        {
+            get { return cultureInfo; }
+            set 
+            { 
+                cultureInfo = value;
+                var languages = ObjectFactory.Get<ILanguages>();
+                Words = languages.Load(value);
+                Words.Load();
+            }
+        }
+        public ILanguageWords Words { get; private set; }
 
         public NameFormatter()
         {
-            EnglishWords = new EnglishWords();
+            CultureInfo = new CultureInfo("en-us");
             Case = Case.PascalCase;
         }
 
         public virtual string Format(string oldName, Case newCase, Singularization singularization)
         {
-            var parts = EnglishWords.GetWords(oldName);
+            var parts = Words.GetWords(oldName);
             return Format(parts, newCase, singularization);
         }
 
@@ -90,9 +104,9 @@ namespace DbLinq.Linq.Implementation
             if (singularization != Singularization.DontChange && (position & Position.Last) != 0)
             {
                 if (singularization == Singularization.Singular)
-                    part = EnglishWords.Singularize(part);
+                    part = Words.Singularize(part);
                 else
-                    part = EnglishWords.Pluralize(part);
+                    part = Words.Pluralize(part);
             }
             if ((position & Position.First) != 0 && newCase == Case.camelCase)
                 part = ToCamelCase(part);
@@ -184,7 +198,7 @@ namespace DbLinq.Linq.Implementation
             case WordsExtraction.FromCase:
                 return GetWordsByCase(dbName);
             case WordsExtraction.FromDictionary:
-                return EnglishWords.GetWords(dbName);
+                return Words.GetWords(dbName);
             default:
                 throw new ArgumentOutOfRangeException("extraction");
             }

@@ -24,40 +24,44 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
-using System;
 using System.Collections.Generic;
+using System.Globalization;
 
-namespace DbLinq.Factory
+namespace DbLinq.Util.Language
 {
-    public interface IObjectFactory
+    public interface ILanguageWords
     {
         /// <summary>
-        /// Returns an instance of a stateless class (may be a singleton)
+        /// using English heuristics, convert 'dogs' to 'dog',
+        /// 'categories' to 'category',
+        /// 'cat' remains unchanged.
         /// </summary>
-        /// <typeparam name="T">class or interface</typeparam>
-        /// <returns></returns>
-        T Get<T>();
+        string Singularize(string word);
 
         /// <summary>
-        /// Returns a new instance of the specified class (can not be a singleton)
+        /// using English heuristics, convert 'dog' to 'dogs',
+        /// 'bass' remains unchanged.
         /// </summary>
-        /// <typeparam name="T">class or interface</typeparam>
-        /// <returns></returns>
-        T Create<T>();
+        string Pluralize(string word);
 
         /// <summary>
-        /// Underlying method for Get&lt;T> and Create&lt;T>
+        /// Extracts words from an undistinguishable letters magma
+        /// for example "shipsperunit" --> "ships" "per" "unit"
         /// </summary>
-        /// <param name="t"></param>
-        /// <param name="newInstanceRequired"></param>
+        /// <param name="text"></param>
         /// <returns></returns>
-        object GetInstance(Type t, bool newInstanceRequired);
+        IList<string> GetWords(string text);
 
         /// <summary>
-        /// Returns a list of types implementing the required interface
+        /// Returns true if the required culture is supported
         /// </summary>
-        /// <param name="interfaceType"></param>
+        /// <param name="cultureInfo"></param>
         /// <returns></returns>
-        IEnumerable<Type> GetImplementations(Type interfaceType);
+        bool Supports(CultureInfo cultureInfo);
+
+        /// <summary>
+        /// Loads the words (operation may be slow, so it is excluded from ctor)
+        /// </summary>
+        void Load();
     }
 }
