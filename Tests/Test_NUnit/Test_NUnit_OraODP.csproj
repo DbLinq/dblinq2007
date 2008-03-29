@@ -4,10 +4,10 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{5029E230-FEBF-43EE-8C49-05428762B1FC}</ProjectGuid>
+    <ProjectGuid>{858BAFE8-533F-4DBB-9C9B-57FCDE4DB7CE}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Test_NUnit_OraODP</RootNamespace>
+    <RootNamespace>Test_NUnit</RootNamespace>
     <AssemblyName>Test_NUnit_OraODP</AssemblyName>
     <StartupObject>
     </StartupObject>
@@ -22,7 +22,9 @@
     <OutputPath>bin\</OutputPath>
     <DefineConstants>TRACE;DEBUG;ORACLE;ODP</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <WarningLevel>1</WarningLevel>
+    <NoWarn>
+    </NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -33,15 +35,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MySql.Data, Version=1.0.7.30072, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\MySql.Data.dll</HintPath>
-    </Reference>
     <Reference Include="nunit.framework, Version=2.2.9.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="Oracle.DataAccess, Version=10.1.0.400, Culture=neutral, PublicKeyToken=89b483f429c47342" />
+    <Reference Include="Oracle.DataAccess, Version=10.1.0.400, Culture=neutral, PublicKeyToken=89b483f429c47342">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Oracle.DataAccess.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -56,6 +57,8 @@
     <Compile Include="..\..\Example\DbLinq.Ora.Example\nwind\Northwind.cs">
       <Link>nwind\Northwind.cs</Link>
     </Compile>
+    <Compile Include="ExecuteCommand_Test.cs" />
+    <Compile Include="ExecuteQuery_Test.cs" />
     <Compile Include="Linq_101_Samples\Advanced.cs" />
     <Compile Include="Linq_101_Samples\Count_Sum_Min_Max_Avg.cs" />
     <Compile Include="Linq_101_Samples\Join.cs" />

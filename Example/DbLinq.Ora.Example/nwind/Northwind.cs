@@ -476,7 +476,7 @@ namespace nwind
 	
 		[Column(Storage = "_CATEGORYNAME", Name = "CATEGORYNAME", DbType = "VARCHAR2", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public string CATEGORYNAME
+		public string CategoryName
 		{
 		    get { return _CATEGORYNAME; }
 		    set { _CATEGORYNAME = value; IsModified = true; }
@@ -485,7 +485,7 @@ namespace nwind
 	
 		[Column(Storage = "_DESCRIPTION", Name = "DESCRIPTION", DbType = "VARCHAR2", CanBeNull = true)]
 		[DebuggerNonUserCode]
-		public string DESCRIPTION
+		public string Description
 		{
 		    get { return _DESCRIPTION; }
 		    set { _DESCRIPTION = value; IsModified = true; }

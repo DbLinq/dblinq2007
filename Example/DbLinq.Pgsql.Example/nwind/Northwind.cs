@@ -116,7 +116,7 @@ namespace nwind
 	
 		[Column(Storage = "_categoryname", Name = "categoryname", DbType = "character varying(15)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public string Categoryname
+		public string CategoryName
 		{
 		    get { return _categoryname; }
 		    set { _categoryname = value; IsModified = true; }
