@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using DbLinq.Ingres.Schema;
+using DbLinq.Logging;
 using DbLinq.Schema;
 using DbLinq.Schema.Dbml;
 using DbLinq.Util;
@@ -127,6 +128,74 @@ namespace DbLinq.Ingres
 
                 //tableSchema.Types[0].Columns.Add(colSchema);
                 tableSchema.Type.Columns.Add(colSchema);
+            }
+
+            //##################################################################
+            //step 3 - analyse foreign keys etc
+
+            //TableSorter.Sort(tables, constraints); //sort tables - parents first
+
+            ForeignKeySql fsql = new ForeignKeySql();
+
+            List<ForeignKeyCrossRef> foreignKeys = fsql.getConstraints(conn, schemaName.DbName);
+
+            foreach (ForeignKeyCrossRef keyColRow in foreignKeys)
+            {
+                //find my table:
+                string constraintFullDbName = GetFullDbName(keyColRow.table_name_parent, keyColRow.schema_name_parent);
+                DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => constraintFullDbName == t.Name);
+                if (table == null)
+                {
+                    Logger.Write(Level.Error, "ERROR L138: Table '" 
+                        + keyColRow.table_name_parent 
+                        + "' not found for column " 
+                        + keyColRow.column_name_parent);
+                    continue;
+                }
+
+                if (1 == 1) // test
+                {
+                    string column_name_parent = keyColRow.column_name_parent;
+                    string column_name_child = keyColRow.column_name_child;
+                    string schema_name_child = keyColRow.schema_name_child;
+                    string table_name_child = keyColRow.table_name_child;
+                }
+
+                var associationName = CreateAssociationName(
+                    keyColRow.table_name_parent, 
+                    keyColRow.schema_name_parent, 
+                    keyColRow.table_name_child,
+                    keyColRow.schema_name_child, 
+                    keyColRow.constraint_name);
+
+                //if not PRIMARY, it's a foreign key.
+                //both parent and child table get an [Association]
+                DbLinq.Schema.Dbml.Association assoc = new DbLinq.Schema.Dbml.Association();
+                assoc.IsForeignKey = true;
+                assoc.Name = keyColRow.constraint_name;
+                assoc.Type = null;
+                assoc.ThisKey = names.ColumnsNames[keyColRow.table_name_parent][keyColRow.column_name_parent].PropertyName;
+                assoc.Member = associationName.ManyToOneMemberName;
+                assoc.Storage = associationName.ForeignKeyStorageFieldName;
+                table.Type.Associations.Add(assoc);
+
+                //and insert the reverse association:
+                DbLinq.Schema.Dbml.Association assoc2 = new DbLinq.Schema.Dbml.Association();
+                assoc2.Name = keyColRow.constraint_name;
+                assoc2.Type = table.Type.Name;
+                assoc2.Member = associationName.OneToManyMemberName;
+                assoc2.OtherKey = names.ColumnsNames[keyColRow.table_name_parent][keyColRow.column_name_parent].PropertyName; // GetColumnName(keyColRow.referenced_column_name);
+
+                string parentFullDbName = GetFullDbName(keyColRow.table_name_parent, keyColRow.schema_name_parent);
+                DbLinq.Schema.Dbml.Table parentTable = schema.Tables.FirstOrDefault(t => parentFullDbName == t.Name);
+                if (parentTable == null)
+                    Logger.Write(Level.Error, "ERROR L151: parent table not found: " + keyColRow.table_name_parent);
+                else
+                {
+                    parentTable.Type.Associations.Add(assoc2);
+                    assoc.Type = parentTable.Type.Name;
+                }
+
             }
 
             return schema;
