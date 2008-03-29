@@ -164,7 +164,7 @@ namespace SqlMetal
         {
             string appName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
             Console.WriteLine(appName + " usage:");
-            Console.WriteLine(appName + ".exe -Server:xx -Database:yy -User:zz -Password:** -Provider=[MySql|Oracle|OracleODP|PostgreSql|Sqlite]");
+            Console.WriteLine(appName + ".exe -Server:xx -Database:yy -User:zz -Password:** -Provider=[MySql|Oracle|OracleODP|PostgreSql|Sqlite|Ingres]");
             Console.WriteLine("Result: produces file yy.cs in local directory");
         }
     }

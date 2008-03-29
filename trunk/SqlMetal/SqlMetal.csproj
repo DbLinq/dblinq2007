@@ -81,7 +81,6 @@
     <Compile Include="..\DbLinq.ProductInfo.cs">
       <Link>Properties\DbLinq.ProductInfo.cs</Link>
     </Compile>
-    <Compile Include="bin\NorthwindPgsql1.cs" />
     <Compile Include="Generator\AttributeDefinition.cs" />
     <Compile Include="Generator\EntityInterface\Implementation\INotifyPropertyChangedImplementation.cs" />
     <Compile Include="Generator\GenerationContext.cs" />
@@ -170,6 +169,9 @@
   <ItemGroup>
     <Content Include="DB all to C♯.txt" />
     <Content Include="DB to C♯.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="bin\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
