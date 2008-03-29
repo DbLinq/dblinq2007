@@ -104,12 +104,12 @@ namespace DbLinq.Ingres
 
                 colSchema.IsPrimaryKey = columnRow.key_sequence != 0;
 
-                if (columnRow.column_default != null && columnRow.column_default.StartsWith("nextval("))
+                if (columnRow.column_default != null && columnRow.column_default.StartsWith("next value for"))
                     colSchema.IsDbGenerated = true;
 
                 //parse sequence name from string such as "nextval('suppliers_supplierid_seq'::regclass)"
                 if (colSchema.IsDbGenerated)
-                    colSchema.Expression = columnRow.column_default.Replace("::regclass)", ")");
+                    colSchema.Expression = columnRow.column_default.Replace("next value for ", "") + ".nextval";
 
                 //colSchema.IsVersion = ???
                 colSchema.CanBeNull = columnRow.isNullable;
@@ -151,14 +151,6 @@ namespace DbLinq.Ingres
                         + "' not found for column " 
                         + keyColRow.column_name_parent);
                     continue;
-                }
-
-                if (1 == 1) // test
-                {
-                    string column_name_parent = keyColRow.column_name_parent;
-                    string column_name_child = keyColRow.column_name_child;
-                    string schema_name_child = keyColRow.schema_name_child;
-                    string table_name_child = keyColRow.table_name_child;
                 }
 
                 var associationName = CreateAssociationName(

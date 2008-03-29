@@ -54,7 +54,7 @@ namespace DbLinq.Ingres.Schema
         public string column_type;
 
         /// <summary>
-        /// eg. "nextval('products_productid_seq'::regclass)"
+        /// eg. next value for "linquser"."categories_seq"
         /// </summary>
         public string column_default;
 
@@ -135,7 +135,7 @@ namespace DbLinq.Ingres.Schema
         {
             string sql = @"
 SELECT t.table_owner, t.table_name, column_name
-    ,column_nulls, column_datatype, column_defaults
+    ,column_nulls, column_datatype, column_default_val
     ,column_length, column_scale, key_sequence
 FROM iicolumns c join iitables t on (c.table_name=t.table_name and c.table_owner=t.table_owner) 
             WHERE t.table_owner <> '$ingres' and t.table_type in ('T', 'V')

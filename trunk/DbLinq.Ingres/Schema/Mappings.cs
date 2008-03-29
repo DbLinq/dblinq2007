@@ -49,31 +49,31 @@ namespace DbLinq.Ingres.Schema
                 case "NVARCHAR":
                 case "LONG VARCHAR":
                 case "TEXT":
-                    return "string";
+                    return "System.String";
 
                 case "DATE":
                 case "INGRESDATE":
-                    return "DateTime";
+                    return "System.DateTime";
 
                 case "INTEGER":
                     switch (length)
                     {
                         case 1:
                         case 2:
-                            return "Int16";
+                            return "System.Int16";
                         case 4:
-                            return "Int32";
+                            return "System.Int32";
                         case 8:
-                            return "Int64";
+                            return "System.Int64";
                         default:
                             return "L52_mapCsType_unprepared_for_ingrestype_"+sqlType+"_of_length_" + length.ToString();
                     }
 
                 case "FLOAT":
-                    return "Double";
+                    return "System.Double";
 
                 case "DECIMAL":
-                    return "Decimal";
+                    return "System.Decimal";
 
                 case "BLOB":
                 case "BYTE VARYING":
