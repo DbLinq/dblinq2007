@@ -304,10 +304,10 @@ namespace DbLinq.Vendor.Implementation
         // TODO: merge this with RowEnumeratorCompiler code.
         public virtual IEnumerable<TResult> ExecuteQuery<TResult>(DbLinq.Linq.DataContext context, string sql, params object[] parameters)
         {
+            using (context.DatabaseContext.OpenConnection())
             using (IDbCommand command = context.DatabaseContext.CreateCommand())
             {
                 command.CommandText = ExecuteCommand_PrepareParams(command, sql, parameters);
-                command.Connection.Open();
                 using (IDataReader reader = command.ExecuteReader(
                     CommandBehavior.CloseConnection | CommandBehavior.SingleResult))
                 {
