@@ -36,7 +36,7 @@ namespace DbLinq.Util.Language.Implementation
 {
     public class EnglishWords : ILanguageWords
     {
-        private readonly Dictionary<string, int> wordsWeights = new Dictionary<string, int>();
+        private Dictionary<string, int> wordsWeights;
 
         private class SingularPlural
         {
@@ -46,7 +46,8 @@ namespace DbLinq.Util.Language.Implementation
 
         public virtual void Load()
         {
-            Load("EnglishWords.txt");
+            if (wordsWeights == null)
+                Load("EnglishWords.txt");
         }
 
         public bool Supports(CultureInfo cultureInfo)
@@ -56,6 +57,7 @@ namespace DbLinq.Util.Language.Implementation
 
         public virtual void Load(string resourceName)
         {
+            wordsWeights = new Dictionary<string, int>();
             using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(GetType(), resourceName))
             {
                 using (var resourceReader = new StreamReader(resourceStream))

@@ -106,6 +106,14 @@ namespace DbLinqTest
 
         [TestMethod]
         [Test]
+        public void GetWords8Test()
+        {
+            var actual = englishWords.GetWords("supplierid");
+            AssertAreEqual(actual, "supplier", "i", "d");
+        }
+
+        [TestMethod]
+        [Test]
         public void GetNote1Test()
         {
             Assert.IsTrue(englishWords.GetNote(new[] { "toothpaste" }) > englishWords.GetNote(new[] { "tooth", "paste" }));
