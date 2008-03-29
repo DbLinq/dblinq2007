@@ -8,7 +8,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.Pgsql.Example", "Exa
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{05C5B3A4-2F0B-4330-8106-14D91A73D9F0}"
 	ProjectSection(SolutionItems) = preProject
-		DbLinq.vsmdi = DbLinq.vsmdi
+		DbLinq1.vsmdi = DbLinq1.vsmdi
 		LocalTestRun.testrunconfig = LocalTestRun.testrunconfig
 	EndProjectSection
 EndProject
@@ -61,7 +61,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{C11FF24E-368
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.Ingres.Example", "Example\DbLinq.Ingres.Example\DbLinq.Ingres.Example.csproj", "{B784AE42-25A7-4819-8469-C901EB3635A4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinqTest", "Tests\DbLinqTest\DbLinqTest.csproj", "{9F424D05-5F16-4C01-8C17-14EF22FF2174}"
+EndProject
 Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = DbLinq1.vsmdi
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -143,6 +148,10 @@ Global
 		{B784AE42-25A7-4819-8469-C901EB3635A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B784AE42-25A7-4819-8469-C901EB3635A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B784AE42-25A7-4819-8469-C901EB3635A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F424D05-5F16-4C01-8C17-14EF22FF2174}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F424D05-5F16-4C01-8C17-14EF22FF2174}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F424D05-5F16-4C01-8C17-14EF22FF2174}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F424D05-5F16-4C01-8C17-14EF22FF2174}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -158,5 +167,6 @@ Global
 		{858BAFF7-533F-4DBB-9C9B-57FCDE4DB7CE} = {33BD0DF3-4C8A-44F9-817C-BF5585D58619}
 		{858BAFF7-542F-4DBB-940B-57333E4DB7CE} = {33BD0DF3-4C8A-44F9-817C-BF5585D58619}
 		{3B13F240-D5E3-4BD4-BA4B-8CBDEE18207A} = {33BD0DF3-4C8A-44F9-817C-BF5585D58619}
+		{9F424D05-5F16-4C01-8C17-14EF22FF2174} = {33BD0DF3-4C8A-44F9-817C-BF5585D58619}
 	EndGlobalSection
 EndGlobal

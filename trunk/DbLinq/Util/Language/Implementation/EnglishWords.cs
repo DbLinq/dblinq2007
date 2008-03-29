@@ -204,7 +204,7 @@ namespace DbLinq.Util.Language.Implementation
                 double leftNote = ComputeWords(left, out leftWords, context);
                 double rightNote = ComputeWords(right, out rightWords, context);
                 double note = leftNote + rightNote;
-                if (note > bestNote)
+                if (note >= bestNote) // >= means "longer words are better"
                 {
                     bestNote = note;
                     bestLeft = leftWords;
@@ -240,7 +240,7 @@ namespace DbLinq.Util.Language.Implementation
         /// </summary>
         /// <param name="words"></param>
         /// <returns></returns>
-        private double GetNote(IList<string> words)
+        public double GetNote(IList<string> words)
         {
             if (words.Count == 0)
                 return 0;

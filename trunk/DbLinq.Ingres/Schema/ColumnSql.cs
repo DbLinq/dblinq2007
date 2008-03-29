@@ -63,14 +63,6 @@ namespace DbLinq.Ingres.Schema
         public int key_sequence;
 
         /// <summary>
-        /// return table name eg. 'public.customer'
-        /// </summary>
-        public string TableNameWithSchema
-        {
-            get { return table_owner + "." + table_name; }
-        }
-
-        /// <summary>
         /// return 'varchar(50)' or 'decimal(30,2)'
         /// </summary>
         public string DataTypeWithWidth

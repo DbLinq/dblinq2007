@@ -1,4 +1,5 @@
 ﻿using DbLinq.Util;
+using DbLinq.Util.Language.Implementation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using NUnit.Framework;
@@ -16,6 +17,12 @@ namespace DbLinqTest
     [TestClass]
     public class EnglishWordsTest
     {
+        public EnglishWordsTest()
+        {
+         englishWords = new EnglishWords();
+         englishWords.Load();
+        }
+
         public static void AssertAreIListEqual(IList<string> a, IList<string> b)
         {
             Assert.AreEqual(b.Count, a.Count);
@@ -36,8 +43,7 @@ namespace DbLinqTest
         fkprodcatg
         */
 
-        private EnglishWords englishWords = new EnglishWords();
-        private EnglishWords_Accessor englishWordsP = new EnglishWords_Accessor();
+        private EnglishWords englishWords;
 
         [TestMethod]
         [Test]
@@ -92,23 +98,31 @@ namespace DbLinqTest
 
         [TestMethod]
         [Test]
+        public void GetWords7Test()
+        {
+            var actual = englishWords.GetWords("customerid");
+            AssertAreEqual(actual, "customer", "i", "d");
+        }
+
+        [TestMethod]
+        [Test]
         public void GetNote1Test()
         {
-            Assert.IsTrue(englishWordsP.GetNote(new[] { "toothpaste" }) > englishWordsP.GetNote(new[] { "tooth", "paste" }));
+            Assert.IsTrue(englishWords.GetNote(new[] { "toothpaste" }) > englishWords.GetNote(new[] { "tooth", "paste" }));
         }
 
         [TestMethod]
         [Test]
         public void GetNote2Test()
         {
-            Assert.IsTrue(englishWordsP.GetNote(new[] { "per", "unit" }) > englishWordsP.GetNote(new[] { "peru", "nit" }));
+            Assert.IsTrue(englishWords.GetNote(new[] { "per", "unit" }) > englishWords.GetNote(new[] { "peru", "nit" }));
         }
 
         [TestMethod]
         [Test]
         public void GetNote3Test()
         {
-            Assert.IsTrue(englishWordsP.GetNote(new[] { "hello" }) > englishWordsP.GetNote(new[] { "h", "e", "l", "l", "o" }));
+            Assert.IsTrue(englishWords.GetNote(new[] { "hello" }) > englishWords.GetNote(new[] { "h", "e", "l", "l", "o" }));
         }
     }
 }
