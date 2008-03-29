@@ -75,6 +75,7 @@ namespace SqlMetal
                 return;
             }
 
+            Logger.Write(Level.Information, "");
 
             if (readLineAtExit)
             {

@@ -34,6 +34,7 @@ namespace DbLinq.Vendor
     public interface ISchemaLoader
     {
         string VendorName { get; }
+        IVendor Vendor { get; }
         System.Type DataContextType { get; }
         IDbConnection Connection { get; set; }
         Database Load(string databaseName, IDictionary<string, string> tableAliases, bool pluralize, bool loadStoredProcedures);

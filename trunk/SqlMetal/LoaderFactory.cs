@@ -47,8 +47,7 @@ namespace SqlMetal
             GetLoaderAndConnection(out dbLinqSchemaLoaderType, out databaseConnectionType, parameters);
             if (dbLinqSchemaLoaderType == null)
                 throw new ApplicationException("Please provide -Provider=MySql (or Oracle, OracleODP, PostgreSql, Sqlite - see app.config for provider listing)");
-            string connStr = GetConnectionString(parameters);
-            return Load(connStr, dbLinqSchemaLoaderType, databaseConnectionType);
+            return Load(parameters, dbLinqSchemaLoaderType, databaseConnectionType);
         }
 
         /// <summary>
@@ -56,7 +55,7 @@ namespace SqlMetal
         /// (e.g. DbLinq.Oracle.OracleSchemaLoader and System.Data.OracleClient.OracleConnection),
         /// return an instance of the OracleSchemaLoader.
         /// </summary>
-        public ISchemaLoader Load(string connectionString, Type dbLinqSchemaLoaderType, Type databaseConnectionType)
+        public ISchemaLoader Load(SqlMetalParameters parameters, Type dbLinqSchemaLoaderType, Type databaseConnectionType)
         {
             if (dbLinqSchemaLoaderType == null)
                 throw new ArgumentNullException("Null dbLinqSchemaLoaderType");
@@ -72,6 +71,9 @@ namespace SqlMetal
                 errorMsg = "Failed on Activator.CreateInstance(" + databaseConnectionType.Name + ")";
                 IDbConnection connection = (IDbConnection)Activator.CreateInstance(databaseConnectionType);
 
+                string connectionString = parameters.Conn;
+                if (string.IsNullOrEmpty(connectionString))
+                    connectionString = loader.Vendor.BuildConnectionString(parameters.Server, parameters.Database, parameters.User, parameters.Password);
                 errorMsg = "Failed on setting ConnectionString=" + connectionString;
                 connection.ConnectionString = connectionString;
 
@@ -91,7 +93,7 @@ namespace SqlMetal
             }
         }
 
-        public ISchemaLoader Load(string connectionString, string dbLinqSchemaLoaderTypeName, string databaseConnectionTypeName)
+        public ISchemaLoader Load(SqlMetalParameters parameters, string dbLinqSchemaLoaderTypeName, string databaseConnectionTypeName)
         {
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
             Type dbLinqSchemaLoaderType = Type.GetType(dbLinqSchemaLoaderTypeName);
@@ -102,7 +104,7 @@ namespace SqlMetal
             if (databaseConnectionType == null)
                 throw new ArgumentException("Unable to resolve databaseConnectionType: " + databaseConnectionTypeName);
 
-            ISchemaLoader loader = Load(connectionString, dbLinqSchemaLoaderType, databaseConnectionType);
+            ISchemaLoader loader = Load(parameters, dbLinqSchemaLoaderType, databaseConnectionType);
             AppDomain.CurrentDomain.AssemblyResolve -= CurrentDomain_AssemblyResolve;
             return loader;
         }
@@ -166,7 +168,7 @@ namespace SqlMetal
             }
             return null;
         }
-
+/*
         protected string GetConnectionString(SqlMetalParameters parameters)
         {
             if (parameters.Conn != null)
@@ -190,7 +192,7 @@ namespace SqlMetal
             }
             return connectionString.ToString();
         }
-
+        */
         protected void GetLoaderAndConnection(out string dbLinqSchemaLoaderType, out string databaseConnectionType, SqlMetalParameters parameters)
         {
             if (parameters.Provider != null)
