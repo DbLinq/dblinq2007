@@ -14,22 +14,25 @@ using DbLinq.Linq;
 namespace DbLinq.Vendor
 {
 
-  public class ValueConversionEventArgs : EventArgs {
-    internal void Init(int ordinal, IDataRecord record, object value) {
-      Ordinal = ordinal;
-      Record = record;
-      Value = value;
-    }
+    public class ValueConversionEventArgs : EventArgs
+    {
+        internal void Init(int ordinal, IDataRecord record, object value)
+        {
+            Ordinal = ordinal;
+            Record = record;
+            Value = value;
+        }
 
-    internal ValueConversionEventArgs() { }
-    public ValueConversionEventArgs(int ordinal, IDataRecord record, object value) {
-      Init(ordinal, record, value);
-    }
+        internal ValueConversionEventArgs() { }
+        public ValueConversionEventArgs(int ordinal, IDataRecord record, object value)
+        {
+            Init(ordinal, record, value);
+        }
 
-    public int Ordinal { get; private set; }
-    public object Value { get; set; }
-    public IDataRecord Record { get; private set; }
-  }
+        public int Ordinal { get; private set; }
+        public object Value { get; set; }
+        public IDataRecord Record { get; private set; }
+    }
 
     /// <summary>
     /// Vendor - specific part of DbLinq.
@@ -106,18 +109,21 @@ namespace DbLinq.Vendor
         /// <returns>Entity with matching properties and fields filled</returns>
         IEnumerable<TResult> ExecuteQuery<TResult>(DbLinq.Linq.DataContext dataContext, string command, object[] parameters);
 
-      /// <summary>
-      /// Custom conversion of retrieved values.
-      /// Sample:   
-      /// class MyNorthwind : Northwind {
-      ///   public DefaultContext() : base() {
-      ///     Vendor.ConvertValue += (sender, args) => {
-      ///       if (args.Value != null && args.Value is string) {
-      ///         args.Value = ((string)args.Value).TrimEnd();
-      ///       }
-      ///    };
-      ///   }
-      /// </summary>
-      event EventHandler<ValueConversionEventArgs> ConvertValue;
+        /// <summary>
+        /// Custom conversion of retrieved values.
+        /// Sample:   
+        /// class MyNorthwind : Northwind {
+        ///   public DefaultContext() : base() {
+        ///     Vendor.ConvertValue += (sender, args) => {
+        ///       if (args.Value != null && args.Value is string) {
+        ///         args.Value = ((string)args.Value).TrimEnd();
+        ///       }
+        ///    };
+        ///   }
+        /// </summary>
+        event EventHandler<ValueConversionEventArgs> ConvertValue;
+
+        // builds a connection string from given parameters
+        string BuildConnectionString(string host, string databaseName, string userName, string password);
     }
 }

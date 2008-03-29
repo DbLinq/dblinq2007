@@ -15,7 +15,7 @@ namespace DbLinq.PostgreSql
     class PgsqlSchemaLoader : SchemaLoader
     {
         private readonly Vendor.IVendor vendor = new PgsqlVendor();
-        protected override Vendor.IVendor Vendor { get { return vendor; } }
+        public override Vendor.IVendor Vendor { get { return vendor; } }
 
         public override System.Type DataContextType { get { return typeof(PgsqlDataContext); } }
 

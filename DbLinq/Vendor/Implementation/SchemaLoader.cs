@@ -39,7 +39,7 @@ namespace DbLinq.Vendor.Implementation
     public abstract class SchemaLoader : ISchemaLoader
     {
         public virtual string VendorName { get { return Vendor.VendorName; } }
-        protected abstract IVendor Vendor { get; }
+        public abstract IVendor Vendor { get; }
         public abstract System.Type DataContextType { get; }
         public IDbConnection Connection { get; set; }
         public INameFormatter NameFormatter { get; set; }

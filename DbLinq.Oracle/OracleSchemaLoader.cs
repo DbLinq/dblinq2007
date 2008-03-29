@@ -16,7 +16,7 @@ namespace DbLinq.Oracle
     class OracleSchemaLoader: SchemaLoader
     {
         private readonly Vendor.IVendor vendor = new OracleVendor();
-        protected override IVendor Vendor { get { return vendor; } }
+        public override IVendor Vendor { get { return vendor; } }
 
         public override System.Type DataContextType { get { return typeof(OracleDataContext); } }
 

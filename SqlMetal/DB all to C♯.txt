@@ -1,7 +1,7 @@
 # note that databaserver can be specified in %DbLinqServer%, and is localhost by default (if not specified)
--code:NorthwindIngres1.cs -provider:Ingres     -server:%DbLinqServer??localhost -user:LinqUser -password:linq2
--code:NorthwindSqlite1.cs -provider:Sqlite     -database:Northwind.db3 -conn="data source=Northwind.db3"
--code:NorthwindMySql1.cs  -provider:MySQL      -server:%DbLinqServer??localhost -user:LinqUser -password:linq2
--code:NorthwindOracle1.cs -provider:Oracle     -conn="data source=%DbLinqServer??localhost;user id=Northwind; password=linq2"
--code:NorthwindOraODP1.cs -provider:OracleODP  -conn="data source=%DbLinqServer??localhost;user id=Northwind; password=linq2"
--code:NorthwindPgsql1.cs  -provider:PostgreSQL -server:%DbLinqServer??localhost -user:LinqUser -password:linq2
+-code:NorthwindPgsql1.cs  -provider:PostgreSQL -database=northwind
+-code:NorthwindIngres1.cs -provider:Ingres     
+-code:NorthwindSqlite1.cs -provider:Sqlite     -conn="data source=Northwind.db3"
+-code:NorthwindMySql1.cs  -provider:MySQL      
+-code:NorthwindOracle1.cs -provider:Oracle     -user=Northwind
+-code:NorthwindOraODP1.cs -provider:OracleODP  -user=Northwind

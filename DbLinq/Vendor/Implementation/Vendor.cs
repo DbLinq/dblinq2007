@@ -129,7 +129,7 @@ namespace DbLinq.Vendor.Implementation
             return sql2;
         }
 
-    public virtual bool CanBulkInsert<T>(DbLinq.Linq.Table<T> table)
+        public virtual bool CanBulkInsert<T>(DbLinq.Linq.Table<T> table)
         {
             return false;
         }
@@ -277,6 +277,27 @@ namespace DbLinq.Vendor.Implementation
         public virtual bool IsCaseSensitiveName(string dbName)
         {
             return dbName != dbName.ToUpper();
+        }
+
+        protected virtual string ConnectionStringServer { get { return "server"; } }
+        protected virtual string ConnectionStringUser { get { return "user id"; } }
+        protected virtual string ConnectionStringPassword { get { return "password"; } }
+        protected virtual string ConnectionStringDatabase { get { return "database"; } }
+
+        protected virtual void AddConnectionStringPart(IList<string> parts, string name, string value)
+        {
+            if (!string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(name))
+                parts.Add(string.Format("{0}={1}", name, value));
+        }
+
+        public virtual string BuildConnectionString(string host, string databaseName, string userName, string password)
+        {
+            var connectionStringParts = new List<string>();
+            AddConnectionStringPart(connectionStringParts, ConnectionStringServer, host);
+            AddConnectionStringPart(connectionStringParts, ConnectionStringDatabase, databaseName);
+            AddConnectionStringPart(connectionStringParts, ConnectionStringUser, userName);
+            AddConnectionStringPart(connectionStringParts, ConnectionStringPassword, password);
+            return string.Join(";", connectionStringParts.ToArray());
         }
     }
 }

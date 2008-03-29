@@ -43,7 +43,7 @@ namespace DbLinq.Sqlite
     class SqliteSchemaLoader : SchemaLoader
     {
         private readonly IVendor vendor = new SqliteVendor();
-        protected override IVendor Vendor { get { return vendor; } }
+        public override IVendor Vendor { get { return vendor; } }
 
         public override System.Type DataContextType { get { return typeof(SqliteDataContext); } }
 

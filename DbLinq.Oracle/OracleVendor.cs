@@ -116,5 +116,8 @@ namespace DbLinq.Oracle
         protected override void AddLateLimits(StringBuilder sql, SqlExpressionParts parts)
         {
         }
+
+        protected override string ConnectionStringDatabase { get { return null; } }
+        protected override string ConnectionStringServer { get { return "data source"; } }
     }
 }

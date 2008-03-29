@@ -41,9 +41,8 @@ namespace DbLinq.Ingres
     class IngresSchemaLoader : SchemaLoader
     {
         private readonly Vendor.IVendor vendor = new IngresVendor();
-        protected override Vendor.IVendor Vendor { get { return vendor; } }
+        public override Vendor.IVendor Vendor { get { return vendor; } }
 
-        public override string VendorName { get { return "Ingres"; } }
         public override System.Type DataContextType { get { return typeof(IngresDataContext); } }
 
         protected override Database Load(SchemaName schemaName, IDictionary<string, string> tableAliases, bool loadStoredProcedures)
