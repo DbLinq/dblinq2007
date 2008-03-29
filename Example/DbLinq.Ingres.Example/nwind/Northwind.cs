@@ -1,4 +1,4 @@
-#region Auto-generated classes for Northwind database on 2008-03-29 20:42:43Z
+#region Auto-generated classes for Northwind database on 2008-03-29 23:08:18Z
 
 //
 //  ____  _     __  __      _        _
@@ -7,7 +7,7 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from Northwind on 2008-03-29 20:42:43Z
+// Auto-generated from Northwind on 2008-03-29 23:08:18Z
 // Please visit http://linq.to/db for more information
 
 #endregion
@@ -38,33 +38,34 @@ namespace nwind
 		{
 		}
 
-		public Table<Categories> Categories { get { return GetTable<Categories>(); } }
-		public Table<Customers> Customers { get { return GetTable<Customers>(); } }
-		public Table<Employees> Employees { get { return GetTable<Employees>(); } }
-		public Table<EmployeeTerritories> EmployeeTerritories { get { return GetTable<EmployeeTerritories>(); } }
+		public Table<Category> Categories { get { return GetTable<Category>(); } }
+		public Table<Customer> Customers { get { return GetTable<Customer>(); } }
+		public Table<Employee> Employees { get { return GetTable<Employee>(); } }
+		public Table<EmployeeTerritory> EmployeeTerritories { get { return GetTable<EmployeeTerritory>(); } }
 		public Table<IIeTab107108> IIeTab107108 { get { return GetTable<IIeTab107108>(); } }
 		public Table<IIeTab12B12C> IIeTab12B12C { get { return GetTable<IIeTab12B12C>(); } }
-		public Table<OrderDetails> OrderDetails { get { return GetTable<OrderDetails>(); } }
-		public Table<Orders> Orders { get { return GetTable<Orders>(); } }
-		public Table<Products> Products { get { return GetTable<Products>(); } }
-		public Table<Region> Region { get { return GetTable<Region>(); } }
-		public Table<Suppliers> Suppliers { get { return GetTable<Suppliers>(); } }
-		public Table<Territories> Territories { get { return GetTable<Territories>(); } }
+		public Table<Order> Orders { get { return GetTable<Order>(); } }
+		public Table<OrderDetail> OrderDetails { get { return GetTable<OrderDetail>(); } }
+		public Table<Product> Products { get { return GetTable<Product>(); } }
+		public Table<Region> Regions { get { return GetTable<Region>(); } }
+		public Table<Supplier> Suppliers { get { return GetTable<Supplier>(); } }
+		public Table<Territory> Territories { get { return GetTable<Territory>(); } }
 
 	}
 
 	[Table(Name = "linquser.categories")]
-	public partial class Categories : IModified
+	public partial class Category : IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
 
-		#region  CategoryID
+		#region int CategoryID
 
-		private Int32 categoryID;
-		[Column(Storage = "categoryID", Name = "categoryid", DbType = "INTEGER(4)", CanBeNull = false)]
+		[AutoGenId]
+		private System.Int32 categoryID;
+		[Column(Storage = "categoryID", Name = "categoryid", DbType = "INTEGER(4)", IsDbGenerated = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public Int32 CategoryID
+		public System.Int32 CategoryID
 		{
 			get
 			{
@@ -84,10 +85,10 @@ namespace nwind
 
 		#region string CategoryName
 
-		private string categoryName;
+		private System.String categoryName;
 		[Column(Storage = "categoryName", Name = "categoryname", DbType = "VARCHAR(15)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public string CategoryName
+		public System.String CategoryName
 		{
 			get
 			{
@@ -107,10 +108,10 @@ namespace nwind
 
 		#region string Description
 
-		private string description;
+		private System.String description;
 		[Column(Storage = "description", Name = "description", DbType = "VARCHAR(500)")]
 		[DebuggerNonUserCode]
-		public string Description
+		public System.String Description
 		{
 			get
 			{
@@ -155,17 +156,17 @@ namespace nwind
 	}
 
 	[Table(Name = "linquser.customers")]
-	public partial class Customers : IModified
+	public partial class Customer : IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
 
 		#region string Address
 
-		private string address;
+		private System.String address;
 		[Column(Storage = "address", Name = "address", DbType = "VARCHAR(60)")]
 		[DebuggerNonUserCode]
-		public string Address
+		public System.String Address
 		{
 			get
 			{
@@ -185,10 +186,10 @@ namespace nwind
 
 		#region string City
 
-		private string city;
+		private System.String city;
 		[Column(Storage = "city", Name = "city", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
-		public string City
+		public System.String City
 		{
 			get
 			{
@@ -208,10 +209,10 @@ namespace nwind
 
 		#region string CompanyName
 
-		private string companyName;
+		private System.String companyName;
 		[Column(Storage = "companyName", Name = "companyname", DbType = "VARCHAR(40)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public string CompanyName
+		public System.String CompanyName
 		{
 			get
 			{
@@ -231,10 +232,10 @@ namespace nwind
 
 		#region string ContactName
 
-		private string contactName;
+		private System.String contactName;
 		[Column(Storage = "contactName", Name = "contactname", DbType = "VARCHAR(30)")]
 		[DebuggerNonUserCode]
-		public string ContactName
+		public System.String ContactName
 		{
 			get
 			{
@@ -254,10 +255,10 @@ namespace nwind
 
 		#region string ContactTitle
 
-		private string contactTitle;
+		private System.String contactTitle;
 		[Column(Storage = "contactTitle", Name = "contacttitle", DbType = "VARCHAR(30)")]
 		[DebuggerNonUserCode]
-		public string ContactTitle
+		public System.String ContactTitle
 		{
 			get
 			{
@@ -277,10 +278,10 @@ namespace nwind
 
 		#region string Country
 
-		private string country;
+		private System.String country;
 		[Column(Storage = "country", Name = "country", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
-		public string Country
+		public System.String Country
 		{
 			get
 			{
@@ -300,10 +301,10 @@ namespace nwind
 
 		#region string CustomerID
 
-		private string customerID;
+		private System.String customerID;
 		[Column(Storage = "customerID", Name = "customerid", DbType = "VARCHAR(5)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public string CustomerID
+		public System.String CustomerID
 		{
 			get
 			{
@@ -323,10 +324,10 @@ namespace nwind
 
 		#region string Fax
 
-		private string fax;
+		private System.String fax;
 		[Column(Storage = "fax", Name = "fax", DbType = "VARCHAR(24)")]
 		[DebuggerNonUserCode]
-		public string Fax
+		public System.String Fax
 		{
 			get
 			{
@@ -346,10 +347,10 @@ namespace nwind
 
 		#region string Phone
 
-		private string phone;
+		private System.String phone;
 		[Column(Storage = "phone", Name = "phone", DbType = "VARCHAR(24)")]
 		[DebuggerNonUserCode]
-		public string Phone
+		public System.String Phone
 		{
 			get
 			{
@@ -369,10 +370,10 @@ namespace nwind
 
 		#region string PostalCode
 
-		private string postalCode;
+		private System.String postalCode;
 		[Column(Storage = "postalCode", Name = "postalcode", DbType = "VARCHAR(10)")]
 		[DebuggerNonUserCode]
-		public string PostalCode
+		public System.String PostalCode
 		{
 			get
 			{
@@ -392,10 +393,10 @@ namespace nwind
 
 		#region string Region
 
-		private string region;
+		private System.String region;
 		[Column(Storage = "region", Name = "region", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
-		public string Region
+		public System.String Region
 		{
 			get
 			{
@@ -417,17 +418,17 @@ namespace nwind
 	}
 
 	[Table(Name = "linquser.employees")]
-	public partial class Employees : IModified
+	public partial class Employee : IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
 
 		#region string Address
 
-		private string address;
+		private System.String address;
 		[Column(Storage = "address", Name = "address", DbType = "VARCHAR(60)")]
 		[DebuggerNonUserCode]
-		public string Address
+		public System.String Address
 		{
 			get
 			{
@@ -447,10 +448,10 @@ namespace nwind
 
 		#region System.DateTime? BirthDate
 
-		private DateTime? birthDate;
+		private System.DateTime? birthDate;
 		[Column(Storage = "birthDate", Name = "birthdate", DbType = "INGRESDATE")]
 		[DebuggerNonUserCode]
-		public DateTime? BirthDate
+		public System.DateTime? BirthDate
 		{
 			get
 			{
@@ -470,10 +471,10 @@ namespace nwind
 
 		#region string City
 
-		private string city;
+		private System.String city;
 		[Column(Storage = "city", Name = "city", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
-		public string City
+		public System.String City
 		{
 			get
 			{
@@ -493,10 +494,10 @@ namespace nwind
 
 		#region string Country
 
-		private string country;
+		private System.String country;
 		[Column(Storage = "country", Name = "country", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
-		public string Country
+		public System.String Country
 		{
 			get
 			{
@@ -514,12 +515,13 @@ namespace nwind
 
 		#endregion
 
-		#region  EmployeeID
+		#region int EmployeeID
 
-		private Int32 employeeID;
-		[Column(Storage = "employeeID", Name = "employeeid", DbType = "INTEGER(4)", CanBeNull = false)]
+		[AutoGenId]
+		private System.Int32 employeeID;
+		[Column(Storage = "employeeID", Name = "employeeid", DbType = "INTEGER(4)", IsDbGenerated = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public Int32 EmployeeID
+		public System.Int32 EmployeeID
 		{
 			get
 			{
@@ -539,10 +541,10 @@ namespace nwind
 
 		#region string FirstName
 
-		private string firstName;
+		private System.String firstName;
 		[Column(Storage = "firstName", Name = "firstname", DbType = "VARCHAR(10)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public string FirstName
+		public System.String FirstName
 		{
 			get
 			{
@@ -562,10 +564,10 @@ namespace nwind
 
 		#region System.DateTime? HireDate
 
-		private DateTime? hireDate;
+		private System.DateTime? hireDate;
 		[Column(Storage = "hireDate", Name = "hiredate", DbType = "INGRESDATE")]
 		[DebuggerNonUserCode]
-		public DateTime? HireDate
+		public System.DateTime? HireDate
 		{
 			get
 			{
@@ -585,10 +587,10 @@ namespace nwind
 
 		#region string HomePhone
 
-		private string homePhone;
+		private System.String homePhone;
 		[Column(Storage = "homePhone", Name = "homephone", DbType = "VARCHAR(24)")]
 		[DebuggerNonUserCode]
-		public string HomePhone
+		public System.String HomePhone
 		{
 			get
 			{
@@ -608,10 +610,10 @@ namespace nwind
 
 		#region string LastName
 
-		private string lastName;
+		private System.String lastName;
 		[Column(Storage = "lastName", Name = "lastname", DbType = "VARCHAR(20)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public string LastName
+		public System.String LastName
 		{
 			get
 			{
@@ -631,10 +633,10 @@ namespace nwind
 
 		#region string Notes
 
-		private string notes;
+		private System.String notes;
 		[Column(Storage = "notes", Name = "notes", DbType = "VARCHAR(100)")]
 		[DebuggerNonUserCode]
-		public string Notes
+		public System.String Notes
 		{
 			get
 			{
@@ -677,10 +679,10 @@ namespace nwind
 
 		#region string PostalCode
 
-		private string postalCode;
+		private System.String postalCode;
 		[Column(Storage = "postalCode", Name = "postalcode", DbType = "VARCHAR(10)")]
 		[DebuggerNonUserCode]
-		public string PostalCode
+		public System.String PostalCode
 		{
 			get
 			{
@@ -700,10 +702,10 @@ namespace nwind
 
 		#region string Region
 
-		private string region;
+		private System.String region;
 		[Column(Storage = "region", Name = "region", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
-		public string Region
+		public System.String Region
 		{
 			get
 			{
@@ -721,12 +723,12 @@ namespace nwind
 
 		#endregion
 
-		#region  ReportsTo
+		#region int? ReportsTo
 
-		private Int32 reportsTo;
+		private System.Int32? reportsTo;
 		[Column(Storage = "reportsTo", Name = "reportsto", DbType = "INTEGER(4)")]
 		[DebuggerNonUserCode]
-		public Int32 ReportsTo
+		public System.Int32? ReportsTo
 		{
 			get
 			{
@@ -746,10 +748,10 @@ namespace nwind
 
 		#region string Title
 
-		private string title;
+		private System.String title;
 		[Column(Storage = "title", Name = "title", DbType = "VARCHAR(30)")]
 		[DebuggerNonUserCode]
-		public string Title
+		public System.String Title
 		{
 			get
 			{
@@ -770,9 +772,9 @@ namespace nwind
 		#warning L189 table linquser.employees has no primary key. Multiple C# objects will refer to the same row.
 		#region Children
 
-		[Association(Storage = "null", OtherKey = "ReportsTo", Name = "linquser_employees_reportsto_linquser_employees_employeeid")]
+		[Association(Storage = "null", OtherKey = "EmployeeID", Name = "linquser_employees_reportsto_linquser_employees_employeeid")]
 		[DebuggerNonUserCode]
-		public EntityMSet<Employees> _TODO_L35Employees
+		public EntityMSet<Employee> Employees
 		{
 			get
 			{
@@ -786,10 +788,10 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Employees> linqUserEmployeesReportsToLinqUserEmployeesEmployeeID;
+		private System.Data.Linq.EntityRef<Employee> linqUserEmployeesReportsToLinqUserEmployeesEmployeeID;
 		[Association(Storage = "linqUserEmployeesReportsToLinqUserEmployeesEmployeeID", ThisKey = "ReportsTo", Name = "linquser_employees_reportsto_linquser_employees_employeeid")]
 		[DebuggerNonUserCode]
-		public Employees ParentEmployees
+		public Employee ParentEmployee
 		{
 			get
 			{
@@ -807,17 +809,17 @@ namespace nwind
 	}
 
 	[Table(Name = "linquser.employeeterritories")]
-	public partial class EmployeeTerritories : IModified
+	public partial class EmployeeTerritory : IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
 
-		#region  EmployeeID
+		#region int EmployeeID
 
-		private Int32 employeeID;
+		private System.Int32 employeeID;
 		[Column(Storage = "employeeID", Name = "employeeid", DbType = "INTEGER(4)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public Int32 EmployeeID
+		public System.Int32 EmployeeID
 		{
 			get
 			{
@@ -837,10 +839,10 @@ namespace nwind
 
 		#region string TerritoryID
 
-		private string territoryID;
+		private System.String territoryID;
 		[Column(Storage = "territoryID", Name = "territoryid", DbType = "VARCHAR(20)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public string TerritoryID
+		public System.String TerritoryID
 		{
 			get
 			{
@@ -863,7 +865,7 @@ namespace nwind
 
 		[Association(Storage = "null", OtherKey = "TerritoryID", Name = "linquser_employeeterritories_territoryid_linquser_territories_territoryid")]
 		[DebuggerNonUserCode]
-		public EntityMSet<EmployeeTerritories> _TODO_L35EmployeeTerritories
+		public EntityMSet<EmployeeTerritory> EmployeeTerritories
 		{
 			get
 			{
@@ -874,7 +876,7 @@ namespace nwind
 
 		[Association(Storage = "null", OtherKey = "EmployeeID", Name = "linquser_employeeterritories_employeeid_linquser_employees_employeeid")]
 		[DebuggerNonUserCode]
-		public EntityMSet<EmployeeTerritories> _TODO_L35EmployeeTerritories_linquser_employeeterritories_employeeid_linquser_employees_employeeid
+		public EntityMSet<EmployeeTerritory> EmployeeTerritories_linquser_employeeterritories_employeeid_linquser_employees_employeeid
 		{
 			get
 			{
@@ -888,10 +890,10 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<EmployeeTerritories> linqUserEmployeeTerritoriesTerritoryIDLinqUserTerritoriesTerritoryID;
+		private System.Data.Linq.EntityRef<EmployeeTerritory> linqUserEmployeeTerritoriesTerritoryIDLinqUserTerritoriesTerritoryID;
 		[Association(Storage = "linqUserEmployeeTerritoriesTerritoryIDLinqUserTerritoriesTerritoryID", ThisKey = "TerritoryID", Name = "linquser_employeeterritories_territoryid_linquser_territories_territoryid")]
 		[DebuggerNonUserCode]
-		public EmployeeTerritories Territories
+		public EmployeeTerritory Territory
 		{
 			get
 			{
@@ -903,10 +905,10 @@ namespace nwind
 			}
 		}
 
-		private System.Data.Linq.EntityRef<EmployeeTerritories> linqUserEmployeeTerritoriesEmployeeIDLinqUserEmployeesEmployeeID;
+		private System.Data.Linq.EntityRef<EmployeeTerritory> linqUserEmployeeTerritoriesEmployeeIDLinqUserEmployeesEmployeeID;
 		[Association(Storage = "linqUserEmployeeTerritoriesEmployeeIDLinqUserEmployeesEmployeeID", ThisKey = "EmployeeID", Name = "linquser_employeeterritories_employeeid_linquser_employees_employeeid")]
 		[DebuggerNonUserCode]
-		public EmployeeTerritories Employees
+		public EmployeeTerritory Employee
 		{
 			get
 			{
@@ -931,10 +933,10 @@ namespace nwind
 
 		#region string PerKey
 
-		private string perKey;
+		private System.String perKey;
 		[Column(Storage = "perKey", Name = "per_key", DbType = "CHAR(8)", IsPrimaryKey = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public string PerKey
+		public System.String PerKey
 		{
 			get
 			{
@@ -952,12 +954,12 @@ namespace nwind
 
 		#endregion
 
-		#region  PerNext
+		#region int PerNext
 
-		private Int32 perNext;
+		private System.Int32 perNext;
 		[Column(Storage = "perNext", Name = "per_next", DbType = "INTEGER(4)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public Int32 PerNext
+		public System.Int32 PerNext
 		{
 			get
 			{
@@ -975,12 +977,12 @@ namespace nwind
 
 		#endregion
 
-		#region  PerSegment0
+		#region int PerSegment0
 
-		private Int32 perSegment0;
+		private System.Int32 perSegment0;
 		[Column(Storage = "perSegment0", Name = "per_segment0", DbType = "INTEGER(4)", IsPrimaryKey = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public Int32 PerSegment0
+		public System.Int32 PerSegment0
 		{
 			get
 			{
@@ -998,12 +1000,12 @@ namespace nwind
 
 		#endregion
 
-		#region  PerSegment1
+		#region int PerSegment1
 
-		private Int32 perSegment1;
+		private System.Int32 perSegment1;
 		[Column(Storage = "perSegment1", Name = "per_segment1", DbType = "INTEGER(4)", IsPrimaryKey = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public Int32 PerSegment1
+		public System.Int32 PerSegment1
 		{
 			get
 			{
@@ -1073,10 +1075,10 @@ namespace nwind
 
 		#region string PerKey
 
-		private string perKey;
+		private System.String perKey;
 		[Column(Storage = "perKey", Name = "per_key", DbType = "CHAR(8)", IsPrimaryKey = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public string PerKey
+		public System.String PerKey
 		{
 			get
 			{
@@ -1094,12 +1096,12 @@ namespace nwind
 
 		#endregion
 
-		#region  PerNext
+		#region int PerNext
 
-		private Int32 perNext;
+		private System.Int32 perNext;
 		[Column(Storage = "perNext", Name = "per_next", DbType = "INTEGER(4)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public Int32 PerNext
+		public System.Int32 PerNext
 		{
 			get
 			{
@@ -1117,12 +1119,12 @@ namespace nwind
 
 		#endregion
 
-		#region  PerSegment0
+		#region int PerSegment0
 
-		private Int32 perSegment0;
+		private System.Int32 perSegment0;
 		[Column(Storage = "perSegment0", Name = "per_segment0", DbType = "INTEGER(4)", IsPrimaryKey = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public Int32 PerSegment0
+		public System.Int32 PerSegment0
 		{
 			get
 			{
@@ -1140,12 +1142,12 @@ namespace nwind
 
 		#endregion
 
-		#region  PerSegment1
+		#region int PerSegment1
 
-		private Int32 perSegment1;
+		private System.Int32 perSegment1;
 		[Column(Storage = "perSegment1", Name = "per_segment1", DbType = "INTEGER(4)", IsPrimaryKey = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public Int32 PerSegment1
+		public System.Int32 PerSegment1
 		{
 			get
 			{
@@ -1207,204 +1209,18 @@ namespace nwind
 
 	}
 
-	[Table(Name = "linquser.orderdetails")]
-	public partial class OrderDetails : IModified
-	{
-		// IModified backing field
-		public bool IsModified{ get; set; }
-
-		#region  Discount
-
-		private Double discount;
-		[Column(Storage = "discount", Name = "discount", DbType = "FLOAT", CanBeNull = false)]
-		[DebuggerNonUserCode]
-		public Double Discount
-		{
-			get
-			{
-				return discount;
-			}
-			set
-			{
-				if (value != discount)
-				{
-					discount = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region  OrderID
-
-		private Int32 orderID;
-		[Column(Storage = "orderID", Name = "orderid", DbType = "INTEGER(4)", CanBeNull = false)]
-		[DebuggerNonUserCode]
-		public Int32 OrderID
-		{
-			get
-			{
-				return orderID;
-			}
-			set
-			{
-				if (value != orderID)
-				{
-					orderID = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region  ProductID
-
-		private Int32 productID;
-		[Column(Storage = "productID", Name = "productid", DbType = "INTEGER(4)", CanBeNull = false)]
-		[DebuggerNonUserCode]
-		public Int32 ProductID
-		{
-			get
-			{
-				return productID;
-			}
-			set
-			{
-				if (value != productID)
-				{
-					productID = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region  Quantity
-
-		private Int16 quantity;
-		[Column(Storage = "quantity", Name = "quantity", DbType = "INTEGER(2)", CanBeNull = false)]
-		[DebuggerNonUserCode]
-		public Int16 Quantity
-		{
-			get
-			{
-				return quantity;
-			}
-			set
-			{
-				if (value != quantity)
-				{
-					quantity = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region  UnitPrice
-
-		private Decimal unitPrice;
-		[Column(Storage = "unitPrice", Name = "unitprice", DbType = "DECIMAL(5, 0)", CanBeNull = false)]
-		[DebuggerNonUserCode]
-		public Decimal UnitPrice
-		{
-			get
-			{
-				return unitPrice;
-			}
-			set
-			{
-				if (value != unitPrice)
-				{
-					unitPrice = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#warning L189 table linquser.orderdetails has no primary key. Multiple C# objects will refer to the same row.
-		#region Children
-
-		[Association(Storage = "null", OtherKey = "OrderID", Name = "linquser_orderdetails_orderid_linquser_orders_orderid")]
-		[DebuggerNonUserCode]
-		public EntityMSet<OrderDetails> _TODO_L35OrderDetails
-		{
-			get
-			{
-				// L212 - child data available only when part of query
-				return null;
-			}
-		}
-
-		[Association(Storage = "null", OtherKey = "ProductID", Name = "linquser_orderdetails_productid_linquser_products_productid")]
-		[DebuggerNonUserCode]
-		public EntityMSet<OrderDetails> _TODO_L35OrderDetails_linquser_orderdetails_productid_linquser_products_productid
-		{
-			get
-			{
-				// L212 - child data available only when part of query
-				return null;
-			}
-		}
-
-
-		#endregion
-
-		#region Parents
-
-		private System.Data.Linq.EntityRef<OrderDetails> linqUserOrderDetailsOrderIDLinqUserOrdersOrderID;
-		[Association(Storage = "linqUserOrderDetailsOrderIDLinqUserOrdersOrderID", ThisKey = "OrderID", Name = "linquser_orderdetails_orderid_linquser_orders_orderid")]
-		[DebuggerNonUserCode]
-		public OrderDetails Orders
-		{
-			get
-			{
-				return linqUserOrderDetailsOrderIDLinqUserOrdersOrderID.Entity;
-			}
-			set
-			{
-				linqUserOrderDetailsOrderIDLinqUserOrdersOrderID.Entity = value;
-			}
-		}
-
-		private System.Data.Linq.EntityRef<OrderDetails> linqUserOrderDetailsProductIDLinqUserProductsProductID;
-		[Association(Storage = "linqUserOrderDetailsProductIDLinqUserProductsProductID", ThisKey = "ProductID", Name = "linquser_orderdetails_productid_linquser_products_productid")]
-		[DebuggerNonUserCode]
-		public OrderDetails Products
-		{
-			get
-			{
-				return linqUserOrderDetailsProductIDLinqUserProductsProductID.Entity;
-			}
-			set
-			{
-				linqUserOrderDetailsProductIDLinqUserProductsProductID.Entity = value;
-			}
-		}
-
-
-		#endregion
-
-	}
-
 	[Table(Name = "linquser.orders")]
-	public partial class Orders : IModified
+	public partial class Order : IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
 
 		#region string CustomerID
 
-		private string customerID;
+		private System.String customerID;
 		[Column(Storage = "customerID", Name = "customerid", DbType = "VARCHAR(5)")]
 		[DebuggerNonUserCode]
-		public string CustomerID
+		public System.String CustomerID
 		{
 			get
 			{
@@ -1422,12 +1238,12 @@ namespace nwind
 
 		#endregion
 
-		#region  EmployeeID
+		#region int? EmployeeID
 
-		private Int32 employeeID;
+		private System.Int32? employeeID;
 		[Column(Storage = "employeeID", Name = "employeeid", DbType = "INTEGER(4)")]
 		[DebuggerNonUserCode]
-		public Int32 EmployeeID
+		public System.Int32? EmployeeID
 		{
 			get
 			{
@@ -1445,12 +1261,12 @@ namespace nwind
 
 		#endregion
 
-		#region  Freight
+		#region decimal? Freight
 
-		private Decimal freight;
+		private System.Decimal? freight;
 		[Column(Storage = "freight", Name = "freight", DbType = "DECIMAL(5, 0)")]
 		[DebuggerNonUserCode]
-		public Decimal Freight
+		public System.Decimal? Freight
 		{
 			get
 			{
@@ -1470,10 +1286,10 @@ namespace nwind
 
 		#region System.DateTime? OrderDate
 
-		private DateTime? orderDate;
+		private System.DateTime? orderDate;
 		[Column(Storage = "orderDate", Name = "orderdate", DbType = "INGRESDATE")]
 		[DebuggerNonUserCode]
-		public DateTime? OrderDate
+		public System.DateTime? OrderDate
 		{
 			get
 			{
@@ -1491,12 +1307,13 @@ namespace nwind
 
 		#endregion
 
-		#region  OrderID
+		#region int OrderID
 
-		private Int32 orderID;
-		[Column(Storage = "orderID", Name = "orderid", DbType = "INTEGER(4)", CanBeNull = false)]
+		[AutoGenId]
+		private System.Int32 orderID;
+		[Column(Storage = "orderID", Name = "orderid", DbType = "INTEGER(4)", IsDbGenerated = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public Int32 OrderID
+		public System.Int32 OrderID
 		{
 			get
 			{
@@ -1516,10 +1333,10 @@ namespace nwind
 
 		#region System.DateTime? RequiredDate
 
-		private DateTime? requiredDate;
+		private System.DateTime? requiredDate;
 		[Column(Storage = "requiredDate", Name = "requireddate", DbType = "INGRESDATE")]
 		[DebuggerNonUserCode]
-		public DateTime? RequiredDate
+		public System.DateTime? RequiredDate
 		{
 			get
 			{
@@ -1539,10 +1356,10 @@ namespace nwind
 
 		#region string ShipAddress
 
-		private string shipAddress;
+		private System.String shipAddress;
 		[Column(Storage = "shipAddress", Name = "shipaddress", DbType = "VARCHAR(60)")]
 		[DebuggerNonUserCode]
-		public string ShipAddress
+		public System.String ShipAddress
 		{
 			get
 			{
@@ -1562,10 +1379,10 @@ namespace nwind
 
 		#region string ShipCity
 
-		private string shipCity;
+		private System.String shipCity;
 		[Column(Storage = "shipCity", Name = "shipcity", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
-		public string ShipCity
+		public System.String ShipCity
 		{
 			get
 			{
@@ -1585,10 +1402,10 @@ namespace nwind
 
 		#region string ShipCountry
 
-		private string shipCountry;
+		private System.String shipCountry;
 		[Column(Storage = "shipCountry", Name = "shipcountry", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
-		public string ShipCountry
+		public System.String ShipCountry
 		{
 			get
 			{
@@ -1608,10 +1425,10 @@ namespace nwind
 
 		#region string ShipName
 
-		private string shipName;
+		private System.String shipName;
 		[Column(Storage = "shipName", Name = "shipname", DbType = "VARCHAR(40)")]
 		[DebuggerNonUserCode]
-		public string ShipName
+		public System.String ShipName
 		{
 			get
 			{
@@ -1631,10 +1448,10 @@ namespace nwind
 
 		#region System.DateTime? ShippedDate
 
-		private DateTime? shippedDate;
+		private System.DateTime? shippedDate;
 		[Column(Storage = "shippedDate", Name = "shippeddate", DbType = "INGRESDATE")]
 		[DebuggerNonUserCode]
-		public DateTime? ShippedDate
+		public System.DateTime? ShippedDate
 		{
 			get
 			{
@@ -1654,10 +1471,10 @@ namespace nwind
 
 		#region string ShipPostalCode
 
-		private string shipPostalCode;
+		private System.String shipPostalCode;
 		[Column(Storage = "shipPostalCode", Name = "shippostalcode", DbType = "VARCHAR(10)")]
 		[DebuggerNonUserCode]
-		public string ShipPostalCode
+		public System.String ShipPostalCode
 		{
 			get
 			{
@@ -1677,10 +1494,10 @@ namespace nwind
 
 		#region string ShipRegion
 
-		private string shipRegion;
+		private System.String shipRegion;
 		[Column(Storage = "shipRegion", Name = "shipregion", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
-		public string ShipRegion
+		public System.String ShipRegion
 		{
 			get
 			{
@@ -1698,12 +1515,12 @@ namespace nwind
 
 		#endregion
 
-		#region  ShipVia
+		#region int? ShipVia
 
-		private Int32 shipVia;
+		private System.Int32? shipVia;
 		[Column(Storage = "shipVia", Name = "shipvia", DbType = "INTEGER(4)")]
 		[DebuggerNonUserCode]
-		public Int32 ShipVia
+		public System.Int32? ShipVia
 		{
 			get
 			{
@@ -1726,7 +1543,7 @@ namespace nwind
 
 		[Association(Storage = "null", OtherKey = "EmployeeID", Name = "linquser_orders_employeeid_linquser_employees_employeeid")]
 		[DebuggerNonUserCode]
-		public EntityMSet<Orders> _TODO_L35Orders
+		public EntityMSet<Order> Orders
 		{
 			get
 			{
@@ -1737,7 +1554,7 @@ namespace nwind
 
 		[Association(Storage = "null", OtherKey = "CustomerID", Name = "linquser_orders_customerid_linquser_customers_customerid")]
 		[DebuggerNonUserCode]
-		public EntityMSet<Orders> _TODO_L35Orders_linquser_orders_customerid_linquser_customers_customerid
+		public EntityMSet<Order> Orders_linquser_orders_customerid_linquser_customers_customerid
 		{
 			get
 			{
@@ -1751,10 +1568,10 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Orders> linqUserOrdersEmployeeIDLinqUserEmployeesEmployeeID;
+		private System.Data.Linq.EntityRef<Order> linqUserOrdersEmployeeIDLinqUserEmployeesEmployeeID;
 		[Association(Storage = "linqUserOrdersEmployeeIDLinqUserEmployeesEmployeeID", ThisKey = "EmployeeID", Name = "linquser_orders_employeeid_linquser_employees_employeeid")]
 		[DebuggerNonUserCode]
-		public Orders Employees
+		public Order Employee
 		{
 			get
 			{
@@ -1766,10 +1583,10 @@ namespace nwind
 			}
 		}
 
-		private System.Data.Linq.EntityRef<Orders> linqUserOrdersCustomerIDLinqUserCustomersCustomerID;
+		private System.Data.Linq.EntityRef<Order> linqUserOrdersCustomerIDLinqUserCustomersCustomerID;
 		[Association(Storage = "linqUserOrdersCustomerIDLinqUserCustomersCustomerID", ThisKey = "CustomerID", Name = "linquser_orders_customerid_linquser_customers_customerid")]
 		[DebuggerNonUserCode]
-		public Orders Customers
+		public Order Customer
 		{
 			get
 			{
@@ -1786,18 +1603,204 @@ namespace nwind
 
 	}
 
-	[Table(Name = "linquser.products")]
-	public partial class Products : IModified
+	[Table(Name = "linquser.orderdetails")]
+	public partial class OrderDetail : IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
 
-		#region  CategoryID
+		#region double Discount
 
-		private Int32 categoryID;
+		private System.Double discount;
+		[Column(Storage = "discount", Name = "discount", DbType = "FLOAT", CanBeNull = false)]
+		[DebuggerNonUserCode]
+		public System.Double Discount
+		{
+			get
+			{
+				return discount;
+			}
+			set
+			{
+				if (value != discount)
+				{
+					discount = value;
+					IsModified = true;
+				}
+			}
+		}
+
+		#endregion
+
+		#region int OrderID
+
+		private System.Int32 orderID;
+		[Column(Storage = "orderID", Name = "orderid", DbType = "INTEGER(4)", CanBeNull = false)]
+		[DebuggerNonUserCode]
+		public System.Int32 OrderID
+		{
+			get
+			{
+				return orderID;
+			}
+			set
+			{
+				if (value != orderID)
+				{
+					orderID = value;
+					IsModified = true;
+				}
+			}
+		}
+
+		#endregion
+
+		#region int ProductID
+
+		private System.Int32 productID;
+		[Column(Storage = "productID", Name = "productid", DbType = "INTEGER(4)", CanBeNull = false)]
+		[DebuggerNonUserCode]
+		public System.Int32 ProductID
+		{
+			get
+			{
+				return productID;
+			}
+			set
+			{
+				if (value != productID)
+				{
+					productID = value;
+					IsModified = true;
+				}
+			}
+		}
+
+		#endregion
+
+		#region short Quantity
+
+		private System.Int16 quantity;
+		[Column(Storage = "quantity", Name = "quantity", DbType = "INTEGER(2)", CanBeNull = false)]
+		[DebuggerNonUserCode]
+		public System.Int16 Quantity
+		{
+			get
+			{
+				return quantity;
+			}
+			set
+			{
+				if (value != quantity)
+				{
+					quantity = value;
+					IsModified = true;
+				}
+			}
+		}
+
+		#endregion
+
+		#region decimal UnitPrice
+
+		private System.Decimal unitPrice;
+		[Column(Storage = "unitPrice", Name = "unitprice", DbType = "DECIMAL(5, 0)", CanBeNull = false)]
+		[DebuggerNonUserCode]
+		public System.Decimal UnitPrice
+		{
+			get
+			{
+				return unitPrice;
+			}
+			set
+			{
+				if (value != unitPrice)
+				{
+					unitPrice = value;
+					IsModified = true;
+				}
+			}
+		}
+
+		#endregion
+
+		#warning L189 table linquser.orderdetails has no primary key. Multiple C# objects will refer to the same row.
+		#region Children
+
+		[Association(Storage = "null", OtherKey = "OrderID", Name = "linquser_orderdetails_orderid_linquser_orders_orderid")]
+		[DebuggerNonUserCode]
+		public EntityMSet<OrderDetail> OrderDetails
+		{
+			get
+			{
+				// L212 - child data available only when part of query
+				return null;
+			}
+		}
+
+		[Association(Storage = "null", OtherKey = "ProductID", Name = "linquser_orderdetails_productid_linquser_products_productid")]
+		[DebuggerNonUserCode]
+		public EntityMSet<OrderDetail> OrderDetails_linquser_orderdetails_productid_linquser_products_productid
+		{
+			get
+			{
+				// L212 - child data available only when part of query
+				return null;
+			}
+		}
+
+
+		#endregion
+
+		#region Parents
+
+		private System.Data.Linq.EntityRef<OrderDetail> linqUserOrderDetailsOrderIDLinqUserOrdersOrderID;
+		[Association(Storage = "linqUserOrderDetailsOrderIDLinqUserOrdersOrderID", ThisKey = "OrderID", Name = "linquser_orderdetails_orderid_linquser_orders_orderid")]
+		[DebuggerNonUserCode]
+		public OrderDetail Order
+		{
+			get
+			{
+				return linqUserOrderDetailsOrderIDLinqUserOrdersOrderID.Entity;
+			}
+			set
+			{
+				linqUserOrderDetailsOrderIDLinqUserOrdersOrderID.Entity = value;
+			}
+		}
+
+		private System.Data.Linq.EntityRef<OrderDetail> linqUserOrderDetailsProductIDLinqUserProductsProductID;
+		[Association(Storage = "linqUserOrderDetailsProductIDLinqUserProductsProductID", ThisKey = "ProductID", Name = "linquser_orderdetails_productid_linquser_products_productid")]
+		[DebuggerNonUserCode]
+		public OrderDetail Product
+		{
+			get
+			{
+				return linqUserOrderDetailsProductIDLinqUserProductsProductID.Entity;
+			}
+			set
+			{
+				linqUserOrderDetailsProductIDLinqUserProductsProductID.Entity = value;
+			}
+		}
+
+
+		#endregion
+
+	}
+
+	[Table(Name = "linquser.products")]
+	public partial class Product : IModified
+	{
+		// IModified backing field
+		public bool IsModified{ get; set; }
+
+		#region int? CategoryID
+
+		private System.Int32? categoryID;
 		[Column(Storage = "categoryID", Name = "categoryid", DbType = "INTEGER(4)")]
 		[DebuggerNonUserCode]
-		public Int32 CategoryID
+		public System.Int32? CategoryID
 		{
 			get
 			{
@@ -1815,12 +1818,12 @@ namespace nwind
 
 		#endregion
 
-		#region  Discontinued
+		#region short Discontinued
 
-		private Int16 discontinued;
+		private System.Int16 discontinued;
 		[Column(Storage = "discontinued", Name = "discontinued", DbType = "INTEGER(2)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public Int16 Discontinued
+		public System.Int16 Discontinued
 		{
 			get
 			{
@@ -1838,12 +1841,13 @@ namespace nwind
 
 		#endregion
 
-		#region  ProductID
+		#region int ProductID
 
-		private Int32 productID;
-		[Column(Storage = "productID", Name = "productid", DbType = "INTEGER(4)", CanBeNull = false)]
+		[AutoGenId]
+		private System.Int32 productID;
+		[Column(Storage = "productID", Name = "productid", DbType = "INTEGER(4)", IsDbGenerated = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public Int32 ProductID
+		public System.Int32 ProductID
 		{
 			get
 			{
@@ -1863,10 +1867,10 @@ namespace nwind
 
 		#region string ProductName
 
-		private string productName;
+		private System.String productName;
 		[Column(Storage = "productName", Name = "productname", DbType = "VARCHAR(40)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public string ProductName
+		public System.String ProductName
 		{
 			get
 			{
@@ -1886,10 +1890,10 @@ namespace nwind
 
 		#region string QuantityPerUnit
 
-		private string quantityPerUnit;
+		private System.String quantityPerUnit;
 		[Column(Storage = "quantityPerUnit", Name = "quantityperunit", DbType = "VARCHAR(20)")]
 		[DebuggerNonUserCode]
-		public string QuantityPerUnit
+		public System.String QuantityPerUnit
 		{
 			get
 			{
@@ -1907,12 +1911,12 @@ namespace nwind
 
 		#endregion
 
-		#region  ReorderLevel
+		#region short? ReorderLevel
 
-		private Int16 reorderLevel;
+		private System.Int16? reorderLevel;
 		[Column(Storage = "reorderLevel", Name = "reorderlevel", DbType = "INTEGER(2)")]
 		[DebuggerNonUserCode]
-		public Int16 ReorderLevel
+		public System.Int16? ReorderLevel
 		{
 			get
 			{
@@ -1930,12 +1934,12 @@ namespace nwind
 
 		#endregion
 
-		#region  SupplierID
+		#region int? SupplierID
 
-		private Int32 supplierID;
+		private System.Int32? supplierID;
 		[Column(Storage = "supplierID", Name = "supplierid", DbType = "INTEGER(4)")]
 		[DebuggerNonUserCode]
-		public Int32 SupplierID
+		public System.Int32? SupplierID
 		{
 			get
 			{
@@ -1953,12 +1957,12 @@ namespace nwind
 
 		#endregion
 
-		#region  UnitPrice
+		#region decimal? UnitPrice
 
-		private Decimal unitPrice;
+		private System.Decimal? unitPrice;
 		[Column(Storage = "unitPrice", Name = "unitprice", DbType = "DECIMAL(5, 0)")]
 		[DebuggerNonUserCode]
-		public Decimal UnitPrice
+		public System.Decimal? UnitPrice
 		{
 			get
 			{
@@ -1976,12 +1980,12 @@ namespace nwind
 
 		#endregion
 
-		#region  UnitsInStock
+		#region short? UnitsInStock
 
-		private Int16 unitsInStock;
+		private System.Int16? unitsInStock;
 		[Column(Storage = "unitsInStock", Name = "unitsinstock", DbType = "INTEGER(2)")]
 		[DebuggerNonUserCode]
-		public Int16 UnitsInStock
+		public System.Int16? UnitsInStock
 		{
 			get
 			{
@@ -1999,12 +2003,12 @@ namespace nwind
 
 		#endregion
 
-		#region  UnitsOnOrder
+		#region short? UnitsOnOrder
 
-		private Int16 unitsOnOrder;
+		private System.Int16? unitsOnOrder;
 		[Column(Storage = "unitsOnOrder", Name = "unitsonorder", DbType = "INTEGER(2)")]
 		[DebuggerNonUserCode]
-		public Int16 UnitsOnOrder
+		public System.Int16? UnitsOnOrder
 		{
 			get
 			{
@@ -2027,7 +2031,7 @@ namespace nwind
 
 		[Association(Storage = "null", OtherKey = "SupplierID", Name = "linquser_products_supplierid_linquser_suppliers_supplierid")]
 		[DebuggerNonUserCode]
-		public EntityMSet<Products> _TODO_L35Products
+		public EntityMSet<Product> Products
 		{
 			get
 			{
@@ -2038,7 +2042,7 @@ namespace nwind
 
 		[Association(Storage = "null", OtherKey = "CategoryID", Name = "linquser_products_categoryid_linquser_categories_categoryid")]
 		[DebuggerNonUserCode]
-		public EntityMSet<Products> _TODO_L35Products_linquser_products_categoryid_linquser_categories_categoryid
+		public EntityMSet<Product> Products_linquser_products_categoryid_linquser_categories_categoryid
 		{
 			get
 			{
@@ -2052,10 +2056,10 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Products> linqUserProductsSupplierIDLinqUserSuppliersSupplierID;
+		private System.Data.Linq.EntityRef<Product> linqUserProductsSupplierIDLinqUserSuppliersSupplierID;
 		[Association(Storage = "linqUserProductsSupplierIDLinqUserSuppliersSupplierID", ThisKey = "SupplierID", Name = "linquser_products_supplierid_linquser_suppliers_supplierid")]
 		[DebuggerNonUserCode]
-		public Products Suppliers
+		public Product Supplier
 		{
 			get
 			{
@@ -2067,10 +2071,10 @@ namespace nwind
 			}
 		}
 
-		private System.Data.Linq.EntityRef<Products> linqUserProductsCategoryIDLinqUserCategoriesCategoryID;
+		private System.Data.Linq.EntityRef<Product> linqUserProductsCategoryIDLinqUserCategoriesCategoryID;
 		[Association(Storage = "linqUserProductsCategoryIDLinqUserCategoriesCategoryID", ThisKey = "CategoryID", Name = "linquser_products_categoryid_linquser_categories_categoryid")]
 		[DebuggerNonUserCode]
-		public Products Categories
+		public Product Category
 		{
 			get
 			{
@@ -2095,10 +2099,10 @@ namespace nwind
 
 		#region string RegionDescription
 
-		private string regionDescription;
+		private System.String regionDescription;
 		[Column(Storage = "regionDescription", Name = "regiondescription", DbType = "VARCHAR(50)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public string RegionDescription
+		public System.String RegionDescription
 		{
 			get
 			{
@@ -2116,12 +2120,13 @@ namespace nwind
 
 		#endregion
 
-		#region  RegionID
+		#region int RegionID
 
-		private Int32 regionID;
-		[Column(Storage = "regionID", Name = "regionid", DbType = "INTEGER(4)", CanBeNull = false)]
+		[AutoGenId]
+		private System.Int32 regionID;
+		[Column(Storage = "regionID", Name = "regionid", DbType = "INTEGER(4)", IsDbGenerated = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public Int32 RegionID
+		public System.Int32 RegionID
 		{
 			get
 			{
@@ -2143,17 +2148,17 @@ namespace nwind
 	}
 
 	[Table(Name = "linquser.suppliers")]
-	public partial class Suppliers : IModified
+	public partial class Supplier : IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
 
 		#region string Address
 
-		private string address;
+		private System.String address;
 		[Column(Storage = "address", Name = "address", DbType = "VARCHAR(60)")]
 		[DebuggerNonUserCode]
-		public string Address
+		public System.String Address
 		{
 			get
 			{
@@ -2173,10 +2178,10 @@ namespace nwind
 
 		#region string City
 
-		private string city;
+		private System.String city;
 		[Column(Storage = "city", Name = "city", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
-		public string City
+		public System.String City
 		{
 			get
 			{
@@ -2196,10 +2201,10 @@ namespace nwind
 
 		#region string CompanyName
 
-		private string companyName;
+		private System.String companyName;
 		[Column(Storage = "companyName", Name = "companyname", DbType = "VARCHAR(40)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public string CompanyName
+		public System.String CompanyName
 		{
 			get
 			{
@@ -2219,10 +2224,10 @@ namespace nwind
 
 		#region string ContactName
 
-		private string contactName;
+		private System.String contactName;
 		[Column(Storage = "contactName", Name = "contactname", DbType = "VARCHAR(30)")]
 		[DebuggerNonUserCode]
-		public string ContactName
+		public System.String ContactName
 		{
 			get
 			{
@@ -2242,10 +2247,10 @@ namespace nwind
 
 		#region string ContactTitle
 
-		private string contactTitle;
+		private System.String contactTitle;
 		[Column(Storage = "contactTitle", Name = "contacttitle", DbType = "VARCHAR(30)")]
 		[DebuggerNonUserCode]
-		public string ContactTitle
+		public System.String ContactTitle
 		{
 			get
 			{
@@ -2265,10 +2270,10 @@ namespace nwind
 
 		#region string Country
 
-		private string country;
+		private System.String country;
 		[Column(Storage = "country", Name = "country", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
-		public string Country
+		public System.String Country
 		{
 			get
 			{
@@ -2288,10 +2293,10 @@ namespace nwind
 
 		#region string Fax
 
-		private string fax;
+		private System.String fax;
 		[Column(Storage = "fax", Name = "fax", DbType = "VARCHAR(24)")]
 		[DebuggerNonUserCode]
-		public string Fax
+		public System.String Fax
 		{
 			get
 			{
@@ -2311,10 +2316,10 @@ namespace nwind
 
 		#region string Phone
 
-		private string phone;
+		private System.String phone;
 		[Column(Storage = "phone", Name = "phone", DbType = "VARCHAR(24)")]
 		[DebuggerNonUserCode]
-		public string Phone
+		public System.String Phone
 		{
 			get
 			{
@@ -2334,10 +2339,10 @@ namespace nwind
 
 		#region string PostalCode
 
-		private string postalCode;
+		private System.String postalCode;
 		[Column(Storage = "postalCode", Name = "postalcode", DbType = "VARCHAR(10)")]
 		[DebuggerNonUserCode]
-		public string PostalCode
+		public System.String PostalCode
 		{
 			get
 			{
@@ -2357,10 +2362,10 @@ namespace nwind
 
 		#region string Region
 
-		private string region;
+		private System.String region;
 		[Column(Storage = "region", Name = "region", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
-		public string Region
+		public System.String Region
 		{
 			get
 			{
@@ -2378,12 +2383,13 @@ namespace nwind
 
 		#endregion
 
-		#region  SupplierID
+		#region int SupplierID
 
-		private Int32 supplierID;
-		[Column(Storage = "supplierID", Name = "supplierid", DbType = "INTEGER(4)", CanBeNull = false)]
+		[AutoGenId]
+		private System.Int32 supplierID;
+		[Column(Storage = "supplierID", Name = "supplierid", DbType = "INTEGER(4)", IsDbGenerated = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public Int32 SupplierID
+		public System.Int32 SupplierID
 		{
 			get
 			{
@@ -2405,17 +2411,17 @@ namespace nwind
 	}
 
 	[Table(Name = "linquser.territories")]
-	public partial class Territories : IModified
+	public partial class Territory : IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
 
-		#region  RegionID
+		#region int RegionID
 
-		private Int32 regionID;
+		private System.Int32 regionID;
 		[Column(Storage = "regionID", Name = "regionid", DbType = "INTEGER(4)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public Int32 RegionID
+		public System.Int32 RegionID
 		{
 			get
 			{
@@ -2435,10 +2441,10 @@ namespace nwind
 
 		#region string TerritoryDescription
 
-		private string territoryDescription;
+		private System.String territoryDescription;
 		[Column(Storage = "territoryDescription", Name = "territorydescription", DbType = "VARCHAR(50)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public string TerritoryDescription
+		public System.String TerritoryDescription
 		{
 			get
 			{
@@ -2458,10 +2464,10 @@ namespace nwind
 
 		#region string TerritoryID
 
-		private string territoryID;
+		private System.String territoryID;
 		[Column(Storage = "territoryID", Name = "territoryid", DbType = "VARCHAR(20)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public string TerritoryID
+		public System.String TerritoryID
 		{
 			get
 			{
@@ -2484,7 +2490,7 @@ namespace nwind
 
 		[Association(Storage = "null", OtherKey = "RegionID", Name = "linquser_territories_regionid_linquser_region_regionid")]
 		[DebuggerNonUserCode]
-		public EntityMSet<Territories> _TODO_L35Territories
+		public EntityMSet<Territory> Territories
 		{
 			get
 			{
@@ -2498,10 +2504,10 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Territories> linqUserTerritoriesRegionIDLinqUserRegionRegionID;
+		private System.Data.Linq.EntityRef<Territory> linqUserTerritoriesRegionIDLinqUserRegionRegionID;
 		[Association(Storage = "linqUserTerritoriesRegionIDLinqUserRegionRegionID", ThisKey = "RegionID", Name = "linquser_territories_regionid_linquser_region_regionid")]
 		[DebuggerNonUserCode]
-		public Territories Region
+		public Territory Region
 		{
 			get
 			{

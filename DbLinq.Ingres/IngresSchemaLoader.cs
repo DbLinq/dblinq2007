@@ -120,12 +120,6 @@ namespace DbLinq.Ingres
                 if (CSharp.IsValueType(colSchema.Type) && columnRow.isNullable)
                     colSchema.Type += "?";
 
-                if (columnRow.column_name == "employeetype" && columnRow.table_name == "employee" && schemaName.DbName == "Andrus")
-                {
-                    //Andrus DB - Employee table: hardcoded for testing of vertical Partitioning
-                    colSchema.IsDiscriminator = true;
-                }
-
                 //tableSchema.Types[0].Columns.Add(colSchema);
                 tableSchema.Type.Columns.Add(colSchema);
             }
@@ -176,7 +170,7 @@ namespace DbLinq.Ingres
                 assoc2.Name = keyColRow.constraint_name;
                 assoc2.Type = table.Type.Name;
                 assoc2.Member = associationName.OneToManyMemberName;
-                assoc2.OtherKey = names.ColumnsNames[keyColRow.table_name_parent][keyColRow.column_name_parent].PropertyName; // GetColumnName(keyColRow.referenced_column_name);
+                assoc2.OtherKey = names.ColumnsNames[keyColRow.table_name_child][keyColRow.column_name_child].PropertyName; // GetColumnName(keyColRow.referenced_column_name);
 
                 string parentFullDbName = GetFullDbName(keyColRow.table_name_parent, keyColRow.schema_name_parent);
                 DbLinq.Schema.Dbml.Table parentTable = schema.Tables.FirstOrDefault(t => parentFullDbName == t.Name);
