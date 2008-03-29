@@ -30,8 +30,12 @@ namespace Test_NUnit_PostgreSql
 
             IList<Category> categories1 = (from c in db.Categories orderby c.CategoryName select c).ToList();
             IList<Category> categories2 = db.ExecuteQuery<Category>(
-                @"select categoryid, categoryname, description, picture \
-                    from categories \
+                @"select 
+                        description, 
+                        categoryname, 
+                        picture,
+                        categoryid
+                    from categories
                      order by categoryname").ToList();
 
             Assert.AreEqual(categories1.Count, categories2.Count);
