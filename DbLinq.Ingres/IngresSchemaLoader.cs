@@ -90,7 +90,8 @@ namespace DbLinq.Ingres
                 names.AddColumn(columnRow.table_name, columnName);
 
                 //find which table this column belongs to
-                DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnRow.TableNameWithSchema == tblSchema.Name);
+                string fullColumnDbName = GetFullDbName(columnRow.table_name, columnRow.table_owner);
+                DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => fullColumnDbName == tblSchema.Name);
                 if (tableSchema == null)
                 {
                     Console.WriteLine("ERROR L46: Table '" + columnRow.table_name + "' not found for column " + columnRow.column_name);
