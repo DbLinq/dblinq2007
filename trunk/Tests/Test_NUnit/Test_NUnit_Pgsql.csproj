@@ -52,6 +52,7 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Security" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\Example\DbLinq.Pgsql.Example\nwind\Northwind.cs">
@@ -59,6 +60,7 @@
     </Compile>
     <Compile Include="CompositePK_Test.cs" />
     <Compile Include="ExecuteCommand_Test.cs" />
+    <Compile Include="ExecuteQuery_Test.cs" />
     <Compile Include="Linq_101_Samples\Advanced.cs" />
     <Compile Include="Linq_101_Samples\Count_Sum_Min_Max_Avg.cs" />
     <Compile Include="Linq_101_Samples\Join.cs" />

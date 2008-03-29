@@ -70,6 +70,7 @@
     <Compile Include="CompositePK_Test.cs" />
     <Compile Include="DynamicLinqTest.cs" />
     <Compile Include="ExecuteCommand_Test.cs" />
+    <Compile Include="ExecuteQuery_Test.cs" />
     <Compile Include="Linq_101_Samples\Advanced.cs" />
     <Compile Include="Linq_101_Samples\Count_Sum_Min_Max_Avg.cs" />
     <Compile Include="Linq_101_Samples\Join.cs" />
