@@ -33,6 +33,8 @@ using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Data.Common;
+using DbLinq.Linq;
+using DbLinq.Util;
 
 namespace DbLinq.Vendor.Implementation
 {
@@ -133,10 +135,10 @@ namespace DbLinq.Vendor.Implementation
             /// <summary>
             /// Cache of all readers for this T (by column sets)
             /// </summary>
-            static readonly Dictionary<string[], Func<IDataRecord, Vendor, T>> convertReaders
-                = new Dictionary<string[], Func<IDataRecord, Vendor, T>>(
+            static readonly Dictionary<string[], Func<IDataRecord, MappingContext, Vendor, T>> convertReaders
+                = new Dictionary<string[], Func<IDataRecord, MappingContext, Vendor, T>>(
                     new ArrayComparer<string>(StringComparer.InvariantCultureIgnoreCase)),
-               vanillaReaders = new Dictionary<string[], Func<IDataRecord, Vendor, T>>(
+               vanillaReaders = new Dictionary<string[], Func<IDataRecord, MappingContext, Vendor, T>>(
                     new ArrayComparer<string>(StringComparer.InvariantCultureIgnoreCase));
 
             /// <summary>
@@ -203,11 +205,11 @@ namespace DbLinq.Vendor.Implementation
                 return members != null && members.Length > 0 ? members[0] : null;
             }
 
-            public static Func<IDataRecord, Vendor, T> GetInitializer(string[] names, bool useConversion)
+            public static Func<IDataRecord, MappingContext, Vendor, T> GetInitializer(string[] names, bool useConversion)
             {
                 if (names == null) throw new ArgumentNullException();
-                Func<IDataRecord, Vendor, T> initializer;
-                Dictionary<string[], Func<IDataRecord, Vendor, T>> cache =
+                Func<IDataRecord, MappingContext, Vendor, T> initializer;
+                Dictionary<string[], Func<IDataRecord, MappingContext, Vendor, T>> cache =
                     useConversion ? convertReaders : vanillaReaders;
 
                 lock (cache)
@@ -221,7 +223,48 @@ namespace DbLinq.Vendor.Implementation
                 return initializer;
             }
 
-            static Func<IDataRecord, Vendor, T> CreateInitializer(string[] names, bool useConversion)
+            static Func<IDataRecord, MappingContext, Vendor, T> CreateInitializer(string[] names, bool useConversion)
+            {
+                Trace.WriteLine("Creating initializer for: " + typeof(T).Name);
+                if (names == null) throw new ArgumentNullException("names");
+
+                ParameterExpression readerParam = Expression.Parameter(typeof(IDataRecord), "record");
+                ParameterExpression ctxParam = Expression.Parameter(typeof(Vendor), "ctx");
+                ParameterExpression mappingContext = Expression.Parameter(typeof(MappingContext), "mappingContext");
+
+                Type entityType = typeof(T);
+                Type underlyingEntityType = Nullable.GetUnderlyingType(entityType) ?? entityType;
+                List<MemberBinding> bindings = new List<MemberBinding>();
+
+                NewExpression ctor = Expression.New(underlyingEntityType); // try this first...
+                for (int ordinal = 0; ordinal < names.Length; ordinal++)
+                {
+                    string name = names[ordinal];
+                    BindingInfo bindingInfo;
+                    if (!TryGetBinding(name, out bindingInfo))
+                    { // try implicit binding
+                        MemberInfo member = GetBindingMember(name);
+                        if (member == null)
+                            continue; // not bound
+                        bindingInfo = new BindingInfo(true, member, member);
+                    }
+                    //Trace.WriteLine(string.Format("Binding {0} to {1} ({2})", name, bindingInfo.Member.Name, bindingInfo.Member.MemberType));
+                    Type valueType = bindingInfo.StorageType;
+
+                    Expression readerExpression = RowEnumeratorCompiler<T>.GetPropertyReader(readerParam, mappingContext, valueType, ordinal);
+                    bindings.Add(Expression.Bind(bindingInfo.StorageMember, readerExpression));
+                }
+                Expression body = Expression.MemberInit(ctor, bindings);
+                if (entityType != underlyingEntityType)
+                {
+                    // entity itself was T? - so convert
+                    body = Expression.Convert(body, entityType);
+                }
+                return Expression.Lambda<Func<IDataRecord, MappingContext, Vendor, T>>(body, readerParam, mappingContext, ctxParam).Compile();
+            }
+
+            // obsolete
+            static Func<IDataRecord, Vendor, T> CreateInitializer1(string[] names, bool useConversion)
             {
                 Trace.WriteLine("Creating initializer for: " + typeof(T).Name);
                 if (names == null) throw new ArgumentNullException("names");
@@ -318,11 +361,11 @@ namespace DbLinq.Vendor.Implementation
                         {
                             names[i] = reader.GetName(i);
                         }
-                        Func<IDataRecord, Vendor, TResult> objInit = InitializerCache<TResult>.GetInitializer(names,
+                        Func<IDataRecord, MappingContext, Vendor, TResult> objInit = InitializerCache<TResult>.GetInitializer(names,
                            ConvertValue != null);
                         do
                         { // walk the data 
-                            yield return objInit(reader, this);
+                            yield return objInit(reader, new MappingContext(), this);
                         } while (reader.Read());
                     }
                     while (reader.NextResult()) { } // ensure any trailing errors caught 

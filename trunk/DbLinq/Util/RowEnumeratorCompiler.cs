@@ -811,7 +811,7 @@ namespace DbLinq.Util
             return null;
         }
 
-        private static Expression GetPropertyReader(Expression reader, Expression mappingContext, Type returnType, int valueIndex)
+        public static Expression GetPropertyReader(Expression reader, Expression mappingContext, Type returnType, int valueIndex)
         {
             Expression propertyReader;
             Type nullableValueType = GetNullableTypeArgument(returnType);
