@@ -34,7 +34,7 @@ namespace DbLinq.Factory.Implementation
     /// Object factory. Main objects (most of them are stateless) are created with this class
     /// This may allow later to inject dependencies with a third party injector (I'm a Spring.NET big fan)
     /// </summary>
-    public class ReflectionObjectFactory : IObjectFactory
+    public class ReflectionObjectFactory : AbstractObjectFactory
     {
         private IDictionary<Type, IList<Type>> implementations = new Dictionary<Type, IList<Type>>();
         private IDictionary<Type, object> singletons = new Dictionary<Type, object>();
@@ -63,22 +63,41 @@ namespace DbLinq.Factory.Implementation
             }
         }
 
-        public T Get<T>()
+        private object GetSingleton(Type t)
         {
             object r;
-            if (!singletons.TryGetValue(typeof(T), out r))
-                singletons[typeof(T)] = r = Create<T>();
-            return (T)r;
+            if (!singletons.TryGetValue(t, out r))
+                singletons[t] = r = GetNewInstance(t);
+            return r;
         }
 
-        public T Create<T>()
+        private object GetNewInstance(Type t)
         {
-            IList<Type> types;
-            if (!implementations.TryGetValue(typeof(T), out types))
-                throw new ArgumentException(string.Format("Type '{0}' has no implementation", typeof(T)));
-            if (types.Count > 1)
-                throw new ArgumentException(string.Format("Type '{0}' has too many implementations", typeof(T)));
-            return (T)Activator.CreateInstance(types[0]);
+            if (t.IsInterface)
+            {
+                IList<Type> types;
+                if (!implementations.TryGetValue(t, out types))
+                    throw new ArgumentException(string.Format("Type '{0}' has no implementation", t));
+                if (types.Count > 1)
+                    throw new ArgumentException(string.Format("Type '{0}' has too many implementations", t));
+                return Activator.CreateInstance(types[0]);
+            }
+            else
+            {
+                return Activator.CreateInstance(t);
+            }
+        }
+
+        public override object GetInstance(Type t, bool newInstanceRequired)
+        {
+            if (newInstanceRequired)
+                return GetNewInstance(t);
+            return GetSingleton(t);
+        }
+
+        public override IEnumerable<Type> GetImplementations(Type interfaceType)
+        {
+            return implementations[interfaceType];
         }
     }
 }

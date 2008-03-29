@@ -24,40 +24,12 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
-using System;
-using System.Collections.Generic;
+using System.Globalization;
 
-namespace DbLinq.Factory
+namespace DbLinq.Util.Language
 {
-    public interface IObjectFactory
+    public interface ILanguages
     {
-        /// <summary>
-        /// Returns an instance of a stateless class (may be a singleton)
-        /// </summary>
-        /// <typeparam name="T">class or interface</typeparam>
-        /// <returns></returns>
-        T Get<T>();
-
-        /// <summary>
-        /// Returns a new instance of the specified class (can not be a singleton)
-        /// </summary>
-        /// <typeparam name="T">class or interface</typeparam>
-        /// <returns></returns>
-        T Create<T>();
-
-        /// <summary>
-        /// Underlying method for Get&lt;T> and Create&lt;T>
-        /// </summary>
-        /// <param name="t"></param>
-        /// <param name="newInstanceRequired"></param>
-        /// <returns></returns>
-        object GetInstance(Type t, bool newInstanceRequired);
-
-        /// <summary>
-        /// Returns a list of types implementing the required interface
-        /// </summary>
-        /// <param name="interfaceType"></param>
-        /// <returns></returns>
-        IEnumerable<Type> GetImplementations(Type interfaceType);
+        ILanguageWords Load(CultureInfo cultureInfo);
     }
 }

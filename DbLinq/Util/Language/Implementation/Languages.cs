@@ -25,39 +25,23 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
+using System.Globalization;
+using DbLinq.Factory;
 
-namespace DbLinq.Factory
+namespace DbLinq.Util.Language.Implementation
 {
-    public interface IObjectFactory
+    public class Languages : ILanguages
     {
-        /// <summary>
-        /// Returns an instance of a stateless class (may be a singleton)
-        /// </summary>
-        /// <typeparam name="T">class or interface</typeparam>
-        /// <returns></returns>
-        T Get<T>();
-
-        /// <summary>
-        /// Returns a new instance of the specified class (can not be a singleton)
-        /// </summary>
-        /// <typeparam name="T">class or interface</typeparam>
-        /// <returns></returns>
-        T Create<T>();
-
-        /// <summary>
-        /// Underlying method for Get&lt;T> and Create&lt;T>
-        /// </summary>
-        /// <param name="t"></param>
-        /// <param name="newInstanceRequired"></param>
-        /// <returns></returns>
-        object GetInstance(Type t, bool newInstanceRequired);
-
-        /// <summary>
-        /// Returns a list of types implementing the required interface
-        /// </summary>
-        /// <param name="interfaceType"></param>
-        /// <returns></returns>
-        IEnumerable<Type> GetImplementations(Type interfaceType);
+        public ILanguageWords Load(CultureInfo cultureInfo)
+        {
+            var objectFactory = ObjectFactory.Current;
+            foreach (var languageType in objectFactory.GetImplementations(typeof(ILanguageWords)))
+            {
+                var language = (ILanguageWords)objectFactory.GetInstance(languageType, false);
+                if (language.Supports(cultureInfo))
+                    return language;
+            }
+            return null;
+        }
     }
 }
