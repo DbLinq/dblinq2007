@@ -172,7 +172,7 @@ namespace DbLinq.Ingres
                 assoc2.Member = associationName.OneToManyMemberName;
                 assoc2.OtherKey = names.ColumnsNames[keyColRow.table_name_child][keyColRow.column_name_child].PropertyName; // GetColumnName(keyColRow.referenced_column_name);
 
-                string parentFullDbName = GetFullDbName(keyColRow.table_name_parent, keyColRow.schema_name_parent);
+                string parentFullDbName = GetFullDbName(keyColRow.table_name_child, keyColRow.schema_name_child);
                 DbLinq.Schema.Dbml.Table parentTable = schema.Tables.FirstOrDefault(t => parentFullDbName == t.Name);
                 if (parentTable == null)
                     Logger.Write(Level.Error, "ERROR L151: parent table not found: " + keyColRow.table_name_parent);

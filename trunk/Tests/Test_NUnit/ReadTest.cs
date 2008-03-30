@@ -254,7 +254,7 @@ namespace Test_NUnit_MySql
             //var q = (from p in db.Products where p.ProductName.Contains("p") select p).Take(5);
             var q = db.Products.Where(p => p.ProductName.Contains("p")).Take(5);
             List<Product> prods = q.ToList();
-#if POSTGRES
+#if POSTGRES || INGRES
             int expectedCount = 0; //Only 'Toilet Paper'
 #else
             int expectedCount = 2; //Oracle, Mysql: 'Toilet Paper' and 'iPod'

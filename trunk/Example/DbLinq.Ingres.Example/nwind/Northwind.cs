@@ -1,4 +1,4 @@
-#region Auto-generated classes for Northwind database on 2008-03-29 23:08:18Z
+#region Auto-generated classes for Northwind database on 2008-03-30 12:40:29Z
 
 //
 //  ____  _     __  __      _        _
@@ -7,7 +7,7 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from Northwind on 2008-03-29 23:08:18Z
+// Auto-generated from Northwind on 2008-03-30 12:40:29Z
 // Please visit http://linq.to/db for more information
 
 #endregion
@@ -153,6 +153,22 @@ namespace nwind
 		#endregion
 
 		#warning L189 table linquser.categories has no primary key. Multiple C# objects will refer to the same row.
+		#region Children
+
+		[Association(Storage = "null", OtherKey = "CategoryID", Name = "linquser_products_categoryid_linquser_categories_categoryid")]
+		[DebuggerNonUserCode]
+		public EntityMSet<Product> Products
+		{
+			get
+			{
+				// L212 - child data available only when part of query
+				return null;
+			}
+		}
+
+
+		#endregion
+
 	}
 
 	[Table(Name = "linquser.customers")]
@@ -415,6 +431,22 @@ namespace nwind
 		#endregion
 
 		#warning L189 table linquser.customers has no primary key. Multiple C# objects will refer to the same row.
+		#region Children
+
+		[Association(Storage = "null", OtherKey = "CustomerID", Name = "linquser_orders_customerid_linquser_customers_customerid")]
+		[DebuggerNonUserCode]
+		public EntityMSet<Order> Orders
+		{
+			get
+			{
+				// L212 - child data available only when part of query
+				return null;
+			}
+		}
+
+
+		#endregion
+
 	}
 
 	[Table(Name = "linquser.employees")]
@@ -783,6 +815,28 @@ namespace nwind
 			}
 		}
 
+		[Association(Storage = "null", OtherKey = "EmployeeID", Name = "linquser_employeeterritories_employeeid_linquser_employees_employeeid")]
+		[DebuggerNonUserCode]
+		public EntityMSet<EmployeeTerritory> EmployeeTerritories
+		{
+			get
+			{
+				// L212 - child data available only when part of query
+				return null;
+			}
+		}
+
+		[Association(Storage = "null", OtherKey = "EmployeeID", Name = "linquser_orders_employeeid_linquser_employees_employeeid")]
+		[DebuggerNonUserCode]
+		public EntityMSet<Order> Orders
+		{
+			get
+			{
+				// L212 - child data available only when part of query
+				return null;
+			}
+		}
+
 
 		#endregion
 
@@ -861,39 +915,12 @@ namespace nwind
 		#endregion
 
 		#warning L189 table linquser.employeeterritories has no primary key. Multiple C# objects will refer to the same row.
-		#region Children
-
-		[Association(Storage = "null", OtherKey = "TerritoryID", Name = "linquser_employeeterritories_territoryid_linquser_territories_territoryid")]
-		[DebuggerNonUserCode]
-		public EntityMSet<EmployeeTerritory> EmployeeTerritories
-		{
-			get
-			{
-				// L212 - child data available only when part of query
-				return null;
-			}
-		}
-
-		[Association(Storage = "null", OtherKey = "EmployeeID", Name = "linquser_employeeterritories_employeeid_linquser_employees_employeeid")]
-		[DebuggerNonUserCode]
-		public EntityMSet<EmployeeTerritory> EmployeeTerritories_linquser_employeeterritories_employeeid_linquser_employees_employeeid
-		{
-			get
-			{
-				// L212 - child data available only when part of query
-				return null;
-			}
-		}
-
-
-		#endregion
-
 		#region Parents
 
-		private System.Data.Linq.EntityRef<EmployeeTerritory> linqUserEmployeeTerritoriesTerritoryIDLinqUserTerritoriesTerritoryID;
+		private System.Data.Linq.EntityRef<Territory> linqUserEmployeeTerritoriesTerritoryIDLinqUserTerritoriesTerritoryID;
 		[Association(Storage = "linqUserEmployeeTerritoriesTerritoryIDLinqUserTerritoriesTerritoryID", ThisKey = "TerritoryID", Name = "linquser_employeeterritories_territoryid_linquser_territories_territoryid")]
 		[DebuggerNonUserCode]
-		public EmployeeTerritory Territory
+		public Territory Territory
 		{
 			get
 			{
@@ -905,10 +932,10 @@ namespace nwind
 			}
 		}
 
-		private System.Data.Linq.EntityRef<EmployeeTerritory> linqUserEmployeeTerritoriesEmployeeIDLinqUserEmployeesEmployeeID;
+		private System.Data.Linq.EntityRef<Employee> linqUserEmployeeTerritoriesEmployeeIDLinqUserEmployeesEmployeeID;
 		[Association(Storage = "linqUserEmployeeTerritoriesEmployeeIDLinqUserEmployeesEmployeeID", ThisKey = "EmployeeID", Name = "linquser_employeeterritories_employeeid_linquser_employees_employeeid")]
 		[DebuggerNonUserCode]
-		public EmployeeTerritory Employee
+		public Employee Employee
 		{
 			get
 			{
@@ -1541,20 +1568,9 @@ namespace nwind
 		#warning L189 table linquser.orders has no primary key. Multiple C# objects will refer to the same row.
 		#region Children
 
-		[Association(Storage = "null", OtherKey = "EmployeeID", Name = "linquser_orders_employeeid_linquser_employees_employeeid")]
+		[Association(Storage = "null", OtherKey = "OrderID", Name = "linquser_orderdetails_orderid_linquser_orders_orderid")]
 		[DebuggerNonUserCode]
-		public EntityMSet<Order> Orders
-		{
-			get
-			{
-				// L212 - child data available only when part of query
-				return null;
-			}
-		}
-
-		[Association(Storage = "null", OtherKey = "CustomerID", Name = "linquser_orders_customerid_linquser_customers_customerid")]
-		[DebuggerNonUserCode]
-		public EntityMSet<Order> Orders_linquser_orders_customerid_linquser_customers_customerid
+		public EntityMSet<OrderDetail> OrderDetails
 		{
 			get
 			{
@@ -1568,10 +1584,10 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Order> linqUserOrdersEmployeeIDLinqUserEmployeesEmployeeID;
+		private System.Data.Linq.EntityRef<Employee> linqUserOrdersEmployeeIDLinqUserEmployeesEmployeeID;
 		[Association(Storage = "linqUserOrdersEmployeeIDLinqUserEmployeesEmployeeID", ThisKey = "EmployeeID", Name = "linquser_orders_employeeid_linquser_employees_employeeid")]
 		[DebuggerNonUserCode]
-		public Order Employee
+		public Employee Employee
 		{
 			get
 			{
@@ -1583,10 +1599,10 @@ namespace nwind
 			}
 		}
 
-		private System.Data.Linq.EntityRef<Order> linqUserOrdersCustomerIDLinqUserCustomersCustomerID;
+		private System.Data.Linq.EntityRef<Customer> linqUserOrdersCustomerIDLinqUserCustomersCustomerID;
 		[Association(Storage = "linqUserOrdersCustomerIDLinqUserCustomersCustomerID", ThisKey = "CustomerID", Name = "linquser_orders_customerid_linquser_customers_customerid")]
 		[DebuggerNonUserCode]
-		public Order Customer
+		public Customer Customer
 		{
 			get
 			{
@@ -1725,39 +1741,12 @@ namespace nwind
 		#endregion
 
 		#warning L189 table linquser.orderdetails has no primary key. Multiple C# objects will refer to the same row.
-		#region Children
-
-		[Association(Storage = "null", OtherKey = "OrderID", Name = "linquser_orderdetails_orderid_linquser_orders_orderid")]
-		[DebuggerNonUserCode]
-		public EntityMSet<OrderDetail> OrderDetails
-		{
-			get
-			{
-				// L212 - child data available only when part of query
-				return null;
-			}
-		}
-
-		[Association(Storage = "null", OtherKey = "ProductID", Name = "linquser_orderdetails_productid_linquser_products_productid")]
-		[DebuggerNonUserCode]
-		public EntityMSet<OrderDetail> OrderDetails_linquser_orderdetails_productid_linquser_products_productid
-		{
-			get
-			{
-				// L212 - child data available only when part of query
-				return null;
-			}
-		}
-
-
-		#endregion
-
 		#region Parents
 
-		private System.Data.Linq.EntityRef<OrderDetail> linqUserOrderDetailsOrderIDLinqUserOrdersOrderID;
+		private System.Data.Linq.EntityRef<Order> linqUserOrderDetailsOrderIDLinqUserOrdersOrderID;
 		[Association(Storage = "linqUserOrderDetailsOrderIDLinqUserOrdersOrderID", ThisKey = "OrderID", Name = "linquser_orderdetails_orderid_linquser_orders_orderid")]
 		[DebuggerNonUserCode]
-		public OrderDetail Order
+		public Order Order
 		{
 			get
 			{
@@ -1769,10 +1758,10 @@ namespace nwind
 			}
 		}
 
-		private System.Data.Linq.EntityRef<OrderDetail> linqUserOrderDetailsProductIDLinqUserProductsProductID;
+		private System.Data.Linq.EntityRef<Product> linqUserOrderDetailsProductIDLinqUserProductsProductID;
 		[Association(Storage = "linqUserOrderDetailsProductIDLinqUserProductsProductID", ThisKey = "ProductID", Name = "linquser_orderdetails_productid_linquser_products_productid")]
 		[DebuggerNonUserCode]
-		public OrderDetail Product
+		public Product Product
 		{
 			get
 			{
@@ -1820,10 +1809,10 @@ namespace nwind
 
 		#region short Discontinued
 
-		private System.Int16 discontinued;
+		private bool discontinued;
 		[Column(Storage = "discontinued", Name = "discontinued", DbType = "INTEGER(2)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.Int16 Discontinued
+		public bool Discontinued
 		{
 			get
 			{
@@ -2029,20 +2018,9 @@ namespace nwind
 		#warning L189 table linquser.products has no primary key. Multiple C# objects will refer to the same row.
 		#region Children
 
-		[Association(Storage = "null", OtherKey = "SupplierID", Name = "linquser_products_supplierid_linquser_suppliers_supplierid")]
+		[Association(Storage = "null", OtherKey = "ProductID", Name = "linquser_orderdetails_productid_linquser_products_productid")]
 		[DebuggerNonUserCode]
-		public EntityMSet<Product> Products
-		{
-			get
-			{
-				// L212 - child data available only when part of query
-				return null;
-			}
-		}
-
-		[Association(Storage = "null", OtherKey = "CategoryID", Name = "linquser_products_categoryid_linquser_categories_categoryid")]
-		[DebuggerNonUserCode]
-		public EntityMSet<Product> Products_linquser_products_categoryid_linquser_categories_categoryid
+		public EntityMSet<OrderDetail> OrderDetails
 		{
 			get
 			{
@@ -2056,10 +2034,10 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Product> linqUserProductsSupplierIDLinqUserSuppliersSupplierID;
+		private System.Data.Linq.EntityRef<Supplier> linqUserProductsSupplierIDLinqUserSuppliersSupplierID;
 		[Association(Storage = "linqUserProductsSupplierIDLinqUserSuppliersSupplierID", ThisKey = "SupplierID", Name = "linquser_products_supplierid_linquser_suppliers_supplierid")]
 		[DebuggerNonUserCode]
-		public Product Supplier
+		public Supplier Supplier
 		{
 			get
 			{
@@ -2071,10 +2049,10 @@ namespace nwind
 			}
 		}
 
-		private System.Data.Linq.EntityRef<Product> linqUserProductsCategoryIDLinqUserCategoriesCategoryID;
+		private System.Data.Linq.EntityRef<Category> linqUserProductsCategoryIDLinqUserCategoriesCategoryID;
 		[Association(Storage = "linqUserProductsCategoryIDLinqUserCategoriesCategoryID", ThisKey = "CategoryID", Name = "linquser_products_categoryid_linquser_categories_categoryid")]
 		[DebuggerNonUserCode]
-		public Product Category
+		public Category Category
 		{
 			get
 			{
@@ -2145,6 +2123,22 @@ namespace nwind
 		#endregion
 
 		#warning L189 table linquser.region has no primary key. Multiple C# objects will refer to the same row.
+		#region Children
+
+		[Association(Storage = "null", OtherKey = "RegionID", Name = "linquser_territories_regionid_linquser_region_regionid")]
+		[DebuggerNonUserCode]
+		public EntityMSet<Territory> Territories
+		{
+			get
+			{
+				// L212 - child data available only when part of query
+				return null;
+			}
+		}
+
+
+		#endregion
+
 	}
 
 	[Table(Name = "linquser.suppliers")]
@@ -2408,6 +2402,22 @@ namespace nwind
 		#endregion
 
 		#warning L189 table linquser.suppliers has no primary key. Multiple C# objects will refer to the same row.
+		#region Children
+
+		[Association(Storage = "null", OtherKey = "SupplierID", Name = "linquser_products_supplierid_linquser_suppliers_supplierid")]
+		[DebuggerNonUserCode]
+		public EntityMSet<Product> Products
+		{
+			get
+			{
+				// L212 - child data available only when part of query
+				return null;
+			}
+		}
+
+
+		#endregion
+
 	}
 
 	[Table(Name = "linquser.territories")]
@@ -2488,9 +2498,9 @@ namespace nwind
 		#warning L189 table linquser.territories has no primary key. Multiple C# objects will refer to the same row.
 		#region Children
 
-		[Association(Storage = "null", OtherKey = "RegionID", Name = "linquser_territories_regionid_linquser_region_regionid")]
+		[Association(Storage = "null", OtherKey = "TerritoryID", Name = "linquser_employeeterritories_territoryid_linquser_territories_territoryid")]
 		[DebuggerNonUserCode]
-		public EntityMSet<Territory> Territories
+		public EntityMSet<EmployeeTerritory> EmployeeTerritories
 		{
 			get
 			{
@@ -2504,10 +2514,10 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Territory> linqUserTerritoriesRegionIDLinqUserRegionRegionID;
+		private System.Data.Linq.EntityRef<Region> linqUserTerritoriesRegionIDLinqUserRegionRegionID;
 		[Association(Storage = "linqUserTerritoriesRegionIDLinqUserRegionRegionID", ThisKey = "RegionID", Name = "linquser_territories_regionid_linquser_region_regionid")]
 		[DebuggerNonUserCode]
-		public Territory Region
+		public Region Region
 		{
 			get
 			{
