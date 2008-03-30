@@ -59,7 +59,7 @@ namespace DbLinq.Vendor.Implementation
 
         /// <summary>
         /// string concatenation, eg 'a||b' on Oracle.
-        /// Customized in Postgres to add casting to varchar.
+        /// Customized in Postgres and Ingres to add casting to varchar.
         /// Customized in Mysql to use CONCAT().
         /// </summary>
         /// <param name="parts"></param>
@@ -73,6 +73,7 @@ namespace DbLinq.Vendor.Implementation
         /// <summary>
         /// on Postgres or Oracle, return eg. ':P1'.
         /// Mysql needs to override to return '?P1'
+        /// Ingres needs to override to return '?'.
         /// </summary>
         public virtual string GetParameterName(int index)
         {
@@ -97,6 +98,8 @@ namespace DbLinq.Vendor.Implementation
                 command.CommandText = sql2;
                 //return command.ExecuteNonQuery();
                 object objResult = command.ExecuteScalar();
+                if (objResult is short)
+                    return (int)(short)objResult;
                 if (objResult is int)
                     return (int)objResult;
                 if (objResult is long)

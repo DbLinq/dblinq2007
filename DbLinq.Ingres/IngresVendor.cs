@@ -76,6 +76,44 @@ namespace DbLinq.Ingres
             return null; //we have not created a param object (only Oracle does)
         }
 
+        // Ingres uses ? for parameters placeholders
+        public override string GetParameterName(int index)
+        {
+            return "?";
+        }
+
+        protected override void AddLateLimits(StringBuilder sql, SqlExpressionParts parts)
+        {
+            if (parts.LimitClause != null)
+                sql.Replace("SELECT", "SELECT FIRST " + parts.LimitClause.Value);
+
+            if (parts.OffsetClause != null)
+                throw new Exception("There is no OFFEST clause in Ingres. Sorry...");
+        }
+
+        /// <summary>
+        /// Ingres string concatenation, eg 'a||b'
+        /// </summary>
+        public override string Concat(List<ExpressionAndType> parts)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (ExpressionAndType part in parts)
+            {
+                if (sb.Length != 0) { sb.Append("||"); }
+                if (part.type == typeof(string))
+                {
+                    sb.Append(part.expression);
+                }
+                else
+                {
+                    //integers and friends: must CAST before concatenating
+                    sb.Append("VARCHAR(" + part.expression + ")");
+                }
+            }
+            //If the expression is the left side of any operator, it needs to be wrapped in brackets
+            return "(" + sb.ToString() + ")";
+        }
+
         protected void SetParameterType(IDbDataParameter parameter, PropertyInfo property, string literal)
         {
             object dbType= Enum.Parse(property.PropertyType, literal);

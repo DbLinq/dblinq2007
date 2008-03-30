@@ -65,10 +65,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinqTest", "Tests\DbLinqT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_NUnit_OraODP", "Tests\Test_NUnit\Test_NUnit_OraODP.csproj", "{858BAFE8-533F-4DBB-9C9B-57FCDE4DB7CE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_NUnit_Ingres", "Tests\Test_NUnit\Test_NUnit_Ingres.csproj", "{858BAFF7-542F-4DBB-9C9B-57FCDE0DB7CE}"
+EndProject
 Global
-	GlobalSection(TestCaseManagementSettings) = postSolution
-		CategoryFile = DbLinq1.vsmdi
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -158,6 +157,10 @@ Global
 		{858BAFE8-533F-4DBB-9C9B-57FCDE4DB7CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{858BAFE8-533F-4DBB-9C9B-57FCDE4DB7CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{858BAFE8-533F-4DBB-9C9B-57FCDE4DB7CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{858BAFF7-542F-4DBB-9C9B-57FCDE0DB7CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{858BAFF7-542F-4DBB-9C9B-57FCDE0DB7CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{858BAFF7-542F-4DBB-9C9B-57FCDE0DB7CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{858BAFF7-542F-4DBB-9C9B-57FCDE0DB7CE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -175,5 +178,6 @@ Global
 		{3B13F240-D5E3-4BD4-BA4B-8CBDEE18207A} = {33BD0DF3-4C8A-44F9-817C-BF5585D58619}
 		{9F424D05-5F16-4C01-8C17-14EF22FF2174} = {33BD0DF3-4C8A-44F9-817C-BF5585D58619}
 		{858BAFE8-533F-4DBB-9C9B-57FCDE4DB7CE} = {33BD0DF3-4C8A-44F9-817C-BF5585D58619}
+		{858BAFF7-542F-4DBB-9C9B-57FCDE0DB7CE} = {33BD0DF3-4C8A-44F9-817C-BF5585D58619}
 	EndGlobalSection
 EndGlobal
