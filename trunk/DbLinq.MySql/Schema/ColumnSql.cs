@@ -62,6 +62,13 @@ namespace DbLinq.MySql.Schema
         /// </summary>
         public string csharpFieldName;
 
+        public int? Length;
+        public int? Precision;
+        public int? Scale;
+        public bool Unsigned
+        {
+            get { return column_type.Contains("unsigned"); }
+        }
 
         public override string ToString()
         {
@@ -88,6 +95,9 @@ namespace DbLinq.MySql.Schema
             t.extra         = rdr.GetString(field++);
             t.column_type   = rdr.GetString(field++);
             t.column_key    = rdr.GetString(field++);
+            t.Length        = rdr.GetIntN(field++);
+            t.Precision     = rdr.GetIntN(field++);
+            t.Scale         = rdr.GetIntN(field++);
             return t;
         }
 
@@ -96,7 +106,7 @@ namespace DbLinq.MySql.Schema
             string sql = @"
 SELECT table_catalog,table_schema,table_name,column_name
     ,is_nullable,data_type,extra,column_type
-    ,column_key
+    ,column_key,CHARACTER_MAXIMUM_LENGTH,NUMERIC_PRECISION,NUMERIC_SCALE
 FROM information_schema.`COLUMNS`
 WHERE table_schema=?db";
 

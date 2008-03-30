@@ -36,7 +36,7 @@ using DbLinq.Schema.Dbml;
 
 namespace DbLinq.Vendor.Implementation
 {
-    public abstract class SchemaLoader : ISchemaLoader
+    public abstract partial class SchemaLoader : ISchemaLoader
     {
         public virtual string VendorName { get { return Vendor.VendorName; } }
         public abstract IVendor Vendor { get; }
