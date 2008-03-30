@@ -133,7 +133,7 @@ namespace SqlMetal.Generator.Implementation
         protected abstract void WriteDataContextTable(CodeWriter writer, DbLinq.Schema.Dbml.Table table);
 
         // this method will be removed when we won't use literal types in dbml
-        protected virtual Type GetType(string literalType)
+        protected virtual Type GetType(string literalType, bool canBeNull)
         {
             bool isNullable = literalType.EndsWith("?");
             if (isNullable)
@@ -148,6 +148,11 @@ namespace SqlMetal.Generator.Implementation
                 type = type.MakeArrayType();
             if (isNullable)
                 type = typeof(Nullable<>).MakeGenericType(type);
+            else if (canBeNull)
+            {
+                if (type.IsValueType)
+                    type = typeof(Nullable<>).MakeGenericType(type);
+            }
             return type;
         }
 

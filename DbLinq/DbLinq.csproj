@@ -140,6 +140,7 @@
     <Compile Include="Util\Page.cs" />
     <Compile Include="Util\VarName.cs" />
     <Compile Include="Util\Language\Implementation\EnglishWords.cs" />
+    <Compile Include="Vendor\Implementation\SchemaLoader.TypeMapping.cs" />
     <Compile Include="Vendor\Implementation\Vendor.ExecuteQuery.cs" />
     <Compile Include="Vendor\ISchemaLoader.cs" />
     <Compile Include="Vendor\IVendor.cs" />

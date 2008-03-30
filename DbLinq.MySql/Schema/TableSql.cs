@@ -55,8 +55,8 @@ namespace DbLinq.MySql.Schema
             TableRow t = new TableRow();
             int field = 0;
             t.table_catalog = rdr.GetStringN(field++);
-            t.table_schema  = rdr.GetStringN(field++);
-            t.table_name    = rdr.GetStringN(field++);
+            t.table_schema = rdr.GetStringN(field++);
+            t.table_name = rdr.GetStringN(field++);
             return t;
         }
 
@@ -74,10 +74,17 @@ WHERE table_schema=?db";
     static class MySqlDataReaderExtensions
     {
         public static string GetStringN(this IDataReader rdr, int field)
-    {
-        return rdr.IsDBNull(field)
-                   ? null
-                   : rdr.GetString(field);
-    }
+        {
+            return rdr.IsDBNull(field)
+                       ? null
+                       : rdr.GetString(field);
+        }
+
+        public static int? GetIntN(this IDataReader rdr, int field)
+        {
+            return rdr.IsDBNull(field)
+                       ? null
+                       : (int?)rdr.GetInt32(field);
+        }
     }
 }

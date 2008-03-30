@@ -54,7 +54,7 @@ namespace DbLinq.MySql
                 extraction = WordsExtraction.FromCase;
                 dbTableName = tableAliases[dbTableName];
             }
-            var tableName= NameFormatter.GetTableName(dbTableName, extraction);
+            var tableName = NameFormatter.GetTableName(dbTableName, extraction);
             tableName.DbName = GetFullDbName(dbTableName, dbSchema);
             return tableName;
         }
@@ -133,11 +133,9 @@ namespace DbLinq.MySql
                 colSchema.CanBeNull = columnRow.isNullable;
 
                 //determine the C# type
-                colSchema.Type = Mappings.mapSqlTypeToCsType(columnRow.datatype, columnRow.column_type);
+                colSchema.Type = MapDbType(GetDataType(columnRow)).ToString();
                 if (columnRow.column_name == "DbLinq_EnumTest")
                     colSchema.Type = "DbLinq_EnumTest"; //hadcoded value - used during enum testing
-                if (CSharp.IsValueType(colSchema.Type) && columnRow.isNullable)
-                    colSchema.Type += "?";
 
                 //tableSchema.Types[0].Columns.Add(colSchema);
                 tableSchema.Type.Columns.Add(colSchema);
@@ -231,10 +229,10 @@ namespace DbLinq.MySql
             return schema;
         }
 
-        static void ParseProcParams(ProcRow inputProc, DbLinq.Schema.Dbml.Function outputFunc)
+        protected void ParseProcParams(ProcRow inputProc, DbLinq.Schema.Dbml.Function outputFunc)
         {
             string paramString = inputProc.param_list;
-            if (paramString == null || paramString == "")
+            if (string.IsNullOrEmpty(paramString))
             {
                 //nothing to parse
             }
@@ -266,7 +264,7 @@ namespace DbLinq.MySql
         /// </summary>
         /// <param name="paramStr"></param>
         /// <returns></returns>
-        static DbLinq.Schema.Dbml.Parameter ParseParameterString(string param)
+        protected DbLinq.Schema.Dbml.Parameter ParseParameterString(string param)
         {
             param = param.Trim();
             var inOut = DbLinq.Schema.Dbml.ParameterDirection.In;
@@ -307,11 +305,12 @@ namespace DbLinq.MySql
         /// <summary>
         /// given 'CHAR(30)', return 'string'
         /// </summary>
-        static string ParseDbType(string dbType1)
+        protected string ParseDbType(string dbType1)
         {
             //strip 'CHARSET latin1' from the end
             string dbType2 = re_CHARSET.Replace(dbType1, "");
-
+            bool isUnsigned = false;
+            int? length = null;
             string varType = dbType2.Trim().ToLower();
             string varTypeQualifier = "";
             int indxQuote = varType.IndexOf('(');
@@ -319,15 +318,34 @@ namespace DbLinq.MySql
             {
                 //split 'CHAR(30)' into 'char' and '(30)'
                 varTypeQualifier = varType.Substring(indxQuote);
+                length = int.Parse(varTypeQualifier.TrimStart('(').TrimEnd(')'));
                 varType = varType.Substring(0, indxQuote);
             }
             else if (varType.IndexOf("unsigned", StringComparison.OrdinalIgnoreCase) > -1)
             {
-                varTypeQualifier = "unsigned";
+                isUnsigned = true;
                 varType = varType.Replace("unsigned", "").Trim();
             }
-            string dbTypeStr = Mappings.mapSqlTypeToCsType(varType, varTypeQualifier);
+            var dataType = new DataType
+            {
+                Type = varType,
+                Length = length,
+                Unsigned = isUnsigned
+            };
+            string dbTypeStr = MapDbType(dataType).ToString();
             return dbTypeStr;
+        }
+
+        protected DataType GetDataType(Schema.Column column)
+        {
+            return new DataType
+            {
+                Type = column.datatype,
+                Length = column.Length,
+                Precision = column.Precision,
+                Scale = column.Scale,
+                Unsigned = column.Unsigned
+            };
         }
     }
 }

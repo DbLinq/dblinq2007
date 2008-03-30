@@ -105,7 +105,7 @@ namespace SqlMetal.Generator.Implementation
             Type type = null;
             if (procedure.Return != null)
             {
-                type = GetType(procedure.Return.Type);
+                type = GetType(procedure.Return.Type, false);
             }
 
             bool isDataShapeUnknown = procedure.ElementType == null
@@ -135,7 +135,7 @@ namespace SqlMetal.Generator.Implementation
         {
             var parameterDefinition = new ParameterDefinition();
             parameterDefinition.Name = parameter.Name;
-            parameterDefinition.Type = GetType(parameter.Type);
+            parameterDefinition.Type = GetType(parameter.Type, false);
             switch (parameter.Direction)
             {
             case DbLinq.Schema.Dbml.ParameterDirection.In:

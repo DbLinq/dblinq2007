@@ -145,7 +145,7 @@ namespace SqlMetal.Generator.Implementation
 
         protected virtual void WriteClassProperty(CodeWriter writer, DbLinq.Schema.Dbml.Column property, GenerationContext context)
         {
-            using (writer.WriteRegion(string.Format("{0} {1}", writer.GetLiteralType(GetType(property.Type)), property.Member)))
+            using (writer.WriteRegion(string.Format("{0} {1}", writer.GetLiteralType(GetType(property.Type, property.CanBeNull)), property.Member)))
             {
                 WriteClassPropertyBackingField(writer, property, context);
                 WriteClassPropertyAccessors(writer, property, context);
@@ -158,7 +158,7 @@ namespace SqlMetal.Generator.Implementation
             if (property.IsDbGenerated)
                 autoGenAttribute = NewAttributeDefinition<AutoGenIdAttribute>();
             using (writer.WriteAttribute(autoGenAttribute))
-                writer.WriteField(SpecificationDefinition.Private, property.Storage, property.Type);
+                writer.WriteField(SpecificationDefinition.Private, property.Storage, writer.GetLiteralType(GetType(property.Type, property.CanBeNull)));
         }
 
         protected virtual void WriteClassPropertyAccessors(CodeWriter writer, DbLinq.Schema.Dbml.Column property, GenerationContext context)
@@ -178,7 +178,7 @@ namespace SqlMetal.Generator.Implementation
 
             using (writer.WriteAttribute(column))
             using (writer.WriteAttribute(NewAttributeDefinition<DebuggerNonUserCodeAttribute>()))
-            using (writer.WriteProperty(SpecificationDefinition.Public, property.Member, property.Type))
+            using (writer.WriteProperty(SpecificationDefinition.Public, property.Member, writer.GetLiteralType(GetType(property.Type, property.CanBeNull))))
             {
                 using (writer.WritePropertyGet())
                 {
