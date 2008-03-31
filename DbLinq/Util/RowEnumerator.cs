@@ -31,6 +31,7 @@ using System.Collections.Generic;
 using DbLinq.Factory;
 using DbLinq.Logging;
 using DbLinq.Util;
+using DbLinq.Util.ExprVisitor;
 using DbLinq.Linq;
 
 namespace DbLinq.Util
@@ -94,6 +95,30 @@ namespace DbLinq.Util
 
                     cmd.Parameters.Add(parameter);
                 }
+
+                //some parameters require that we call a delegate to get a value
+                foreach (var param in _vars.SqlParts.ParametersMap2)
+                {
+                    FunctionReturningObject func = param.Value;
+                    object paramValue = null;
+                    try
+                    {
+                        paramValue = func();
+                    }
+                    catch (Exception ex)
+                    {
+                        Trace.WriteLine("SQL PARAM FUNC FAILED: " + ex);
+                        throw ex;
+                    }
+
+                    Trace.WriteLine("SQL PARAM: " + param.Key + " = " + paramValue);
+                    IDbDataParameter parameter = cmd.CreateParameter();
+                    parameter.ParameterName = param.Key;
+                    parameter.Value = paramValue;
+
+                    cmd.Parameters.Add(parameter);
+                }
+
             }
 
             //toncho11: http://code.google.com/p/dblinq2007/issues/detail?id=24

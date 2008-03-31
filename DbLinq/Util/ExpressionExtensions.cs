@@ -117,6 +117,18 @@ namespace DbLinq.Util
         }
 
         /// <summary>
+        /// determine if an object expression refers to fields from local (non-SQL) object.
+        /// examples: 
+        /// return true for 'object.Field' in query: 'from e in db.Employees where e.Name==object.Field'
+        /// return false for 'e.Name' in the same query - it's 
+        /// </summary>
+        public static bool IsLocalExpression(Expression ex)
+        {
+            //{value(<>c__DisplayClass0).pen.Name}
+            return false;
+        }
+
+        /// <summary>
         /// given '<>h__TransparentIdentifier.p.ProductID', return 'p.ProductID'
         /// given '<>h__TransparentIdentifier.p', return 'p'
         /// (or null)
