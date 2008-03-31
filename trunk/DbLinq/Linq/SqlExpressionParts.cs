@@ -28,6 +28,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using DbLinq.Vendor;
+using DbLinq.Util.ExprVisitor;
 
 namespace DbLinq.Linq
 {
@@ -95,6 +96,12 @@ namespace DbLinq.Linq
         public Dictionary<string, object> ParametersMap { get; private set; }
 
         /// <summary>
+        /// some parameters are only obtained by calling a delegate, 
+        /// eg. in 'where product.Name==someObject.someField'
+        /// </summary>
+        public Dictionary<string, FunctionReturningObject> ParametersMap2 { get; private set; }
+
+        /// <summary>
         /// add 'Employee $e' FROM clause
         /// </summary>
         /// <param name="fromTable"></param>
@@ -137,6 +144,7 @@ namespace DbLinq.Linq
             GroupByList = new List<string>();
             OrderByList = new List<string>();
             ParametersMap = new Dictionary<string, object>();
+            ParametersMap2 = new Dictionary<string, FunctionReturningObject>();
             HavingList = new List<string>();
         }
 

@@ -32,6 +32,7 @@ using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using DbLinq.Util;
+using DbLinq.Util.ExprVisitor;
 using DbLinq.Linq.Mapping;
 using DbLinq.Vendor;
 
@@ -346,6 +347,15 @@ namespace DbLinq.Linq.Clause
         /// </summary>
         private void AnalyzeMember(RecurData recurData, MemberExpression expr)
         {
+            FunctionReturningObject funcReturningObj;
+            if (LocalExpressionChecker.TryMatchLocalExpression(expr, out funcReturningObj))
+            {
+                //handle 'someObject.SomeField' constants
+                string paramName = _parent.storeFunctionParam(funcReturningObj);
+                _result.AppendString(paramName);
+                return;
+            }
+
             if (GroupHelper.IsGrouping(expr))
             {
                 //eg. {g.Key.Length}

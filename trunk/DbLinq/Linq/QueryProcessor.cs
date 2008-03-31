@@ -34,6 +34,7 @@ using DbLinq.Factory;
 using DbLinq.Linq.Clause;
 using DbLinq.Logging;
 using DbLinq.Util;
+using DbLinq.Util.ExprVisitor;
 using DbLinq.Vendor;
 
 namespace DbLinq.Linq
@@ -68,6 +69,12 @@ namespace DbLinq.Linq
         /// </summary>
         public readonly Dictionary<string, object> paramMap = new Dictionary<string, object>();
 
+        /// <summary>
+        /// some parameters are not specified immediately, and we need to call a function to get the value -
+        /// e.g. in 'where p.ProductName==otherProduct.ProductName'
+        /// </summary>
+        public readonly Dictionary<string, FunctionReturningObject> paramMap2 = new Dictionary<string, FunctionReturningObject>();
+
         public string lastParamName;
 
         /// <summary>
@@ -97,31 +104,31 @@ namespace DbLinq.Linq
 
             switch (methodName)
             {
-            case "Count":
-            case "Max":
-            case "Min":
-            case "Sum":
-                if (lambdaParam != null)
-                {
-                    MethodCallExpression precedingSelectCall = _vars.ExpressionChain[_vars.ExpressionChain.Count - 1];
-                    LambdaExpression precedingSelect = precedingSelectCall.Arguments[1].XLambda();
-                    //change 'i=>2' into 'p=>ProductID>2'
-                    lambdaParam = new CountExpressionModifier(precedingSelect).Modify(lambdaParam).XLambda();
-                }
+                case "Count":
+                case "Max":
+                case "Min":
+                case "Sum":
+                    if (lambdaParam != null)
+                    {
+                        MethodCallExpression precedingSelectCall = _vars.ExpressionChain[_vars.ExpressionChain.Count - 1];
+                        LambdaExpression precedingSelect = precedingSelectCall.Arguments[1].XLambda();
+                        //change 'i=>2' into 'p=>ProductID>2'
+                        lambdaParam = new DbLinq.Util.ExprVisitor.CountExpressionModifier(precedingSelect).Modify(lambdaParam).XLambda();
+                    }
 
-                _vars.SqlParts.CountClause = methodName.ToUpper();
-                break;
-            case "Average":
-                _vars.SqlParts.CountClause = "AVG";
-                break;
-            case "Single":
-            case "SingleOrDefault":
-                _vars.SqlParts.LimitClause = 2;
-                break;
-            case "First":
-            case "FirstOrDefault":
-                _vars.SqlParts.LimitClause = 1;
-                break;
+                    _vars.SqlParts.CountClause = methodName.ToUpper();
+                    break;
+                case "Average":
+                    _vars.SqlParts.CountClause = "AVG";
+                    break;
+                case "Single":
+                case "SingleOrDefault":
+                    _vars.SqlParts.LimitClause = 2;
+                    break;
+                case "First":
+                case "FirstOrDefault":
+                    _vars.SqlParts.LimitClause = 1;
+                    break;
             }
 
             //there are two forms of Single, one passes in a Where clause
@@ -131,37 +138,6 @@ namespace DbLinq.Linq
                 ProcessWhereClause(lambdaParam);
             }
 
-        }
-
-        /// <summary>
-        /// when the user calls 'Count(i =&gt; 2)', we lost the information about what 'i' was referring to.
-        /// That info lives in the preceding Select.
-        /// This helper class edits our expression to put the info back in:
-        /// Given 'i=>2', we return 'p=>ProductID>2'
-        /// </summary>
-        public class CountExpressionModifier : ExpressionVisitor
-        {
-            #region CountExpressionModifier
-            LambdaExpression _substituteExpr;
-            public CountExpressionModifier(LambdaExpression substituteExpr)
-            {
-                _substituteExpr = substituteExpr;
-            }
-            public Expression Modify(Expression expression)
-            {
-                return Visit(expression);
-            }
-            protected override Expression VisitLambda(LambdaExpression lambda)
-            {
-                Expression body2 = base.Visit(lambda.Body);
-                Expression lambda2 = Expression.Lambda(body2, _substituteExpr.Parameters[0]);
-                return lambda2;
-            }
-            protected override Expression VisitParameter(ParameterExpression p)
-            {
-                return _substituteExpr.Body;
-            }
-            #endregion
         }
 
 
@@ -207,53 +183,53 @@ namespace DbLinq.Linq
 
             switch (methodName)
             {
-            case "Where":
-                ProcessWhereClause(lambda);
-                return;
-            case "GroupBy":
-                ProcessGroupByCall(exprCall);
-                return;
-            case "GroupJoin": //occurs in LinqToSqlJoin10()
-                ProcessGroupJoin(exprCall);
-                return;
-            case "Select":
-                ProcessSelectClause(lambda);
-                return;
-            case "SelectMany":
-                ProcessSelectMany(exprCall);
-                return;
-            case "OrderBy":
-            case "ThenBy":
-                ProcessOrderByClause(lambda, null);
-                return;
-            case "OrderByDescending":
-                ProcessOrderByClause(lambda, "DESC"); // TODO --> IVendor
-                return;
-            case "Join":
-                ProcessJoinClause(exprCall);
-                return;
-            case "Take":
-            case "Skip":
-                {
-                    ConstantExpression howMany = exprCall.XParam(1).XConstant();
-                    if (howMany == null)
-                        throw new ArgumentException("Take(),Skip() must come with ConstExpr");
-                    if (methodName == "Skip")
-                        _vars.SqlParts.OffsetClause = (int)howMany.Value;
-                    else
-                        _vars.SqlParts.LimitClause = (int)howMany.Value;
-                }
-                return;
-            case "Distinct":
-                _vars.SqlParts.DistinctClause = "DISTINCT"; // TODO --> IVendor
-                return;
-            case "Union":
-                string ss = exprCall.ToString();
-                ProcessUnionClause(null);
-                return;
-            default:
-                Logger.Write(Level.Error, "################# L308 TODO " + methodName);
-                throw new InvalidOperationException("L311 Unprepared for Method " + methodName);
+                case "Where":
+                    ProcessWhereClause(lambda);
+                    return;
+                case "GroupBy":
+                    ProcessGroupByCall(exprCall);
+                    return;
+                case "GroupJoin": //occurs in LinqToSqlJoin10()
+                    ProcessGroupJoin(exprCall);
+                    return;
+                case "Select":
+                    ProcessSelectClause(lambda);
+                    return;
+                case "SelectMany":
+                    ProcessSelectMany(exprCall);
+                    return;
+                case "OrderBy":
+                case "ThenBy":
+                    ProcessOrderByClause(lambda, null);
+                    return;
+                case "OrderByDescending":
+                    ProcessOrderByClause(lambda, "DESC"); // TODO --> IVendor
+                    return;
+                case "Join":
+                    ProcessJoinClause(exprCall);
+                    return;
+                case "Take":
+                case "Skip":
+                    {
+                        ConstantExpression howMany = exprCall.XParam(1).XConstant();
+                        if (howMany == null)
+                            throw new ArgumentException("Take(),Skip() must come with ConstExpr");
+                        if (methodName == "Skip")
+                            _vars.SqlParts.OffsetClause = (int)howMany.Value;
+                        else
+                            _vars.SqlParts.LimitClause = (int)howMany.Value;
+                    }
+                    return;
+                case "Distinct":
+                    _vars.SqlParts.DistinctClause = "DISTINCT"; // TODO --> IVendor
+                    return;
+                case "Union":
+                    string ss = exprCall.ToString();
+                    ProcessUnionClause(null);
+                    return;
+                default:
+                    Logger.Write(Level.Error, "################# L308 TODO " + methodName);
+                    throw new InvalidOperationException("L311 Unprepared for Method " + methodName);
             }
         }
 
@@ -289,9 +265,24 @@ namespace DbLinq.Linq
 
         public string storeParam(string value)
         {
-            int count = paramMap.Count;
+            int count = paramMap.Count + paramMap2.Count;
             string paramName = _vars.Context.Vendor.GetParameterName(count);
             paramMap[paramName] = value;
+            lastParamName = paramName;
+            return paramName;
+        }
+
+        /// <summary>
+        /// store a reference to 'localProduct.ProductName'.
+        /// Before calling SQL, we will call a delegate 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public string storeFunctionParam(FunctionReturningObject funcReturningObject)
+        {
+            int count = paramMap.Count + paramMap2.Count;
+            string paramName = _vars.Context.Vendor.GetParameterName(count);
+            paramMap2[paramName] = funcReturningObject;
             lastParamName = paramName;
             return paramName;
         }

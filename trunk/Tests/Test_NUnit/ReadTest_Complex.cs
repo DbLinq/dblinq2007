@@ -18,7 +18,7 @@ namespace Test_NUnit_MySql
 #elif INGRES
     namespace Test_NUnit_Ingres
 #else
-    #error unknown target
+#error unknown target
 #endif
 {
     [TestFixture]
@@ -39,14 +39,26 @@ namespace Test_NUnit_MySql
             //http://groups.google.com/group/dblinq/browse_thread/thread/c25527cbed93d265
 
             Northwind db = CreateDB();
-            var pen = new { Name = "Pen" };
-            var q = from p in db.Products where p.ProductName == pen.Name select p;
+
+            Product localProduct = new Product { ProductName = "Pen" };
+            var q = from p in db.Products where p.ProductName == localProduct.ProductName select p;
+
             List<Product> products = q.ToList();
             int productCount = products.Count;
-            Assert.AreEqual(productCount, 1, "Expected one pen, got count=" +
-            productCount);
+            Assert.AreEqual(productCount, 1, "Expected one pen, got count=" + productCount);
+        }
 
-        } 
+        [Test]
+        public void D1_SelectPensByLocalProperty()
+        {
+            Northwind db = CreateDB();
+            var pen = new { Name = "Pen" };
+            var q = from p in db.Products where p.ProductName == pen.Name select p;
+
+            List<Product> products = q.ToList();
+            int productCount = products.Count;
+            Assert.AreEqual(productCount, 1, "Expected one pen, got count=" + productCount);
+        }
 
         #region Tests 'F' work on aggregation
         [Test]
@@ -225,7 +237,7 @@ namespace Test_NUnit_MySql
                                           CustomerID = c.CustomerID
                                       });
             var list = q.ToList();
-            Assert.Greater(list.Count(), 0, "Expected list"); 
+            Assert.Greater(list.Count(), 0, "Expected list");
             //Assert.Greater(list.Count(), 0, "Expected list");
         }
 
