@@ -63,9 +63,6 @@
     <Compile Include="Schema\KeyColumnUsageSql.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Schema\Mappings.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Schema\Mysql_Proc.cs">
       <SubType>Code</SubType>
     </Compile>

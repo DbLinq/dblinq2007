@@ -26,49 +26,62 @@
 
 using System.Collections.Generic;
 
-namespace DbLinq.Linq {
+namespace DbLinq.Linq
+{
 
-  public sealed class ChangeSet {
+    public sealed class ChangeSet
+    {
 
-    readonly DataContext _dataContext;
+        readonly DataContext _dataContext;
 
-    internal ChangeSet(DataContext dataContext) {
-      _dataContext = dataContext;
-    }
-
-    public IList<object> Deletes {
-      get {
-        List<object> list = new List<object>();
-        foreach (IMTable tbl in _dataContext._tableList) {
-          list.AddRange(tbl.Deletes);
+        internal ChangeSet(DataContext dataContext)
+        {
+            _dataContext = dataContext;
         }
-        return list;
-      }
-    }
 
-    public IList<object> Inserts {
-      get {
-        List<object> list = new List<object>();
-        foreach (IMTable tbl in _dataContext._tableList) {
-          list.AddRange(tbl.Inserts);
+        public IList<object> Deletes
+        {
+            get
+            {
+                List<object> list = new List<object>();
+                foreach (IMTable tbl in _dataContext._tableList)
+                {
+                    list.AddRange(tbl.Deletes);
+                }
+                return list;
+            }
         }
-        return list;
-      }
-    }
 
-    public IList<object> Updates {
-      get {
-        List<object> list = new List<object>();
-        foreach (IMTable tbl in _dataContext._tableList) {
-          list.AddRange(tbl.Updates);
+        public IList<object> Inserts
+        {
+            get
+            {
+                List<object> list = new List<object>();
+                foreach (IMTable tbl in _dataContext._tableList)
+                {
+                    list.AddRange(tbl.Inserts);
+                }
+                return list;
+            }
         }
-        return list;
-      }
-    }
 
-    public override string ToString() {
-      return string.Format("Total changes: {{Added: {0}, Removed: {1}, Modified: {2} }}",
-        Inserts.Count, Deletes.Count, Updates.Count);
-    }
-  };
+        public IList<object> Updates
+        {
+            get
+            {
+                List<object> list = new List<object>();
+                foreach (IMTable tbl in _dataContext._tableList)
+                {
+                    list.AddRange(tbl.Updates);
+                }
+                return list;
+            }
+        }
+
+        public override string ToString()
+        {
+            return string.Format("Total changes: {{Added: {0}, Removed: {1}, Modified: {2} }}",
+              Inserts.Count, Deletes.Count, Updates.Count);
+        }
+    };
 }

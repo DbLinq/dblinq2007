@@ -162,9 +162,6 @@
   <ItemGroup>
     <EmbeddedResource Include="Util\Language\Implementation\EnglishWords.txt" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Schema\Implementation\" />
-  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>

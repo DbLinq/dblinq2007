@@ -98,9 +98,7 @@ namespace DbLinq.PostgreSql
 
                 //colSchema.IsVersion = ???
                 colSchema.CanBeNull = columnRow.isNullable;
-                colSchema.Type = Mappings.mapSqlTypeToCsType(columnRow.datatype, columnRow.column_type);
-
-                colSchema.Type = Mappings.mapSqlTypeToCsType(columnRow.datatype, columnRow.column_type);
+                colSchema.Type = MapDbType(columnRow).ToString();
                 if (CSharp.IsValueType(colSchema.Type) && columnRow.isNullable)
                     colSchema.Type += "?";
 
@@ -256,7 +254,7 @@ namespace DbLinq.PostgreSql
             {
                 var dbml_param = new DbLinq.Schema.Dbml.Return();
                 dbml_param.DbType = pg_proc.formatted_prorettype;
-                dbml_param.Type = Mappings.mapSqlTypeToCsType(pg_proc.formatted_prorettype, "");
+                dbml_param.Type = MapDbType(new DataType { Type = pg_proc.formatted_prorettype }).ToString();
                 dbml_func.Return = dbml_param;
             }
 
@@ -289,7 +287,7 @@ namespace DbLinq.PostgreSql
                     long argTypeOid = argTypes2[i];
                     dbml_param.DbType = typeOidToName[argTypeOid];
                     dbml_param.Name = argNames[i];
-                    dbml_param.Type = Mappings.mapSqlTypeToCsType(dbml_param.DbType, "");
+                    dbml_param.Type = MapDbType(new DataType { Type = dbml_param.DbType }).ToString();
                     string inOut = argModes == null ? "i" : argModes[i];
                     dbml_param.Direction = ParseInOut(inOut);
                     dbml_func.Parameters.Add(dbml_param);
