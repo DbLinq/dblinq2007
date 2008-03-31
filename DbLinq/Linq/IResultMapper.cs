@@ -29,6 +29,9 @@ using System.Data;
 
 namespace DbLinq.Linq
 {
+    /// <summary>
+    /// Creates mappers, ie methods to create entities from IDataRecords
+    /// </summary>
     public interface IResultMapper
     {
         Func<IDataRecord, MappingContext, T> GetMapper<T>(SessionVarsParsed vars);

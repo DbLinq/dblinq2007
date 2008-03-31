@@ -32,13 +32,21 @@ using DbLinq.Util;
 
 namespace SqlMetal.Generator
 {
+    /// <summary>
+    /// Base class for writing code.
+    /// Divided in 3 parts:
+    /// - Code line writing (with indentation)
+    /// - Code formatting (returning a literal type)
+    /// - Code writing (comment line, field, property, event...)
+    /// </summary>
     public abstract class CodeWriter : TextWriter
     {
+        // required by TextWriter
         public override Encoding Encoding
         {
             get
             {
-                return Encoding.UTF8;
+                return TextWriter.Encoding;
             }
         }
 
@@ -54,6 +62,8 @@ namespace SqlMetal.Generator
             IndentationPattern = "\t";
             TextWriter = textWriter;
         }
+
+        #region Writer
 
         protected bool IsFullLine()
         {
@@ -116,7 +126,11 @@ namespace SqlMetal.Generator
             TextWriter.WriteLine(rawLine);
         }
 
+        #endregion
+
         #region Code generation
+
+        // A language sometimes generates complementary text, such as "{" and "}", or "#region"/"#endregion"
 
         protected class NestedInstruction : IDisposable
         {
@@ -133,6 +147,11 @@ namespace SqlMetal.Generator
             }
         }
 
+        /// <summary>
+        /// Registers an "end block" (written on Dispose() call)
+        /// </summary>
+        /// <param name="end"></param>
+        /// <returns></returns>
         protected IDisposable EndAction(Action end)
         {
             return new NestedInstruction(end);
@@ -158,18 +177,10 @@ namespace SqlMetal.Generator
                                             string baseClass, params string[] interfaces);
 
         public abstract IDisposable WriteRegion(string name);
-        public virtual IDisposable Attribute(string name, IDictionary<string, object> members)
-        {
-            if (!string.IsNullOrEmpty(name))
-                return WriteAttribute(new AttributeDefinition(name, members));
-            return null;
-        }
         public abstract IDisposable WriteAttribute(AttributeDefinition attributeDefinition);
 
         public abstract IDisposable WriteMethod(SpecificationDefinition specificationDefinition, string name, Type returnType,
                                            params ParameterDefinition[] parameters);
-
-        public abstract string GetGenericName(string baseName, string type);
 
         public abstract IDisposable WriteProperty(SpecificationDefinition specificationDefinition, string name, string propertyType);
         public abstract IDisposable WritePropertyGet();
@@ -252,6 +263,8 @@ namespace SqlMetal.Generator
         public abstract string GetPropertySetValueExpression();
 
         public abstract string GetNullExpression();
+
+        public abstract string GetGenericName(string baseName, string type);
 
         public abstract string GetDifferentExpression(string a, string b);
         public abstract string GetEqualExpression(string a, string b);

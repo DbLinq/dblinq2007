@@ -26,9 +26,23 @@
 
 namespace DbLinq.Logging
 {
+    /// <summary>
+    /// Basic logging. Use this in place of Console, Debug and Trace.
+    /// </summary>
     public interface ILogger
     {
+        /// <summary>
+        /// Writes a line
+        /// </summary>
+        /// <param name="level"></param>
+        /// <param name="text"></param>
         void Write(Level level, string text);
+        /// <summary>
+        /// Writes a line with formatting
+        /// </summary>
+        /// <param name="level"></param>
+        /// <param name="format"></param>
+        /// <param name="parameters"></param>
         void Write(Level level, string format, params object[] parameters);
     }
 }

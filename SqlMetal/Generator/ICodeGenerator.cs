@@ -30,9 +30,22 @@ using DbLinq.Vendor;
 
 namespace SqlMetal.Generator
 {
+    /// <summary>
+    /// Generates a code file fro a DBML schema
+    /// </summary>
     public interface ICodeGenerator
     {
+        /// <summary>
+        /// Default file extension with leading dot (for example '.cs')
+        /// </summary>
         string Extension { get; }
+
+        /// <summary>
+        /// Writes DBML file to stream
+        /// </summary>
+        /// <param name="textWriter">Output text stream</param>
+        /// <param name="dbSchema">DBML schema</param>
+        /// <param name="context">Holds parameters, variables and ISchemaLoader</param>
         void Write(TextWriter textWriter, DbLinq.Schema.Dbml.Database dbSchema, GenerationContext context);
     }
 }

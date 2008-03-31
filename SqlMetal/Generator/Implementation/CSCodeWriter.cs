@@ -38,7 +38,7 @@ namespace SqlMetal.Generator.Implementation
         public string Indent { get; set; }
         public string Unindent { get; set; }
 
-        private bool trimSpaces;
+        private readonly bool trimSpaces;
 
         public CSCodeWriter(TextWriter textWriter, bool trimSpaces)
             : base(textWriter)
