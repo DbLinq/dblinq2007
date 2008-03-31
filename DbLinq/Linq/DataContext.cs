@@ -44,7 +44,7 @@ namespace DbLinq.Linq
 {
     public abstract class DataContext : IDisposable
     {
-        private readonly List<IMTable> _tableList = new List<IMTable>();
+        internal /*private*/ readonly List<IMTable> _tableList = new List<IMTable>();
         private readonly Dictionary<string, IMTable> _tableMap = new Dictionary<string, IMTable>();
 
         public IVendor Vendor { get; set; }
@@ -211,6 +211,15 @@ namespace DbLinq.Linq
             }
         }
 
+
+        /// <summary>
+        /// Changed object determine 
+        /// </summary>
+        /// <returns>Lists of inserted, updated, deleted objects</returns>
+        public ChangeSet GetChangeSet() {
+          return new ChangeSet(this);
+        }
+
         /// <summary>
         /// TODO: conflict detection is not implemented!
         /// </summary>
@@ -291,6 +300,10 @@ namespace DbLinq.Linq
         void CheckAttachment(object entity);
         List<Exception> SaveAll(System.Data.Linq.ConflictMode failureMode);
         void SaveAll();
+
+        IEnumerable<object> Inserts { get; }
+        IEnumerable<object> Updates { get; }
+        IEnumerable<object> Deletes { get; }
     }
 
     /// <summary>
