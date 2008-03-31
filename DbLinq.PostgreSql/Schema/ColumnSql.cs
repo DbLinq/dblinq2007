@@ -29,30 +29,20 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text;
 using DbLinq.Util;
+using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.PostgreSql.Schema
 {
     /// <summary>
     /// represents one row from information_schema.`COLUMNS`
     /// </summary>
-    public class Column
+    public class Column: SchemaLoader.DataType
     {
         public string table_catalog;
         public string table_schema;
         public string table_name;
         public string column_name;
         public bool isNullable;
-
-        /// <summary>
-        /// eg 'int' or 'datetime'
-        /// </summary>
-        public string datatype;
-        //public string extra;
-
-        /// <summary>
-        /// eg. 'int(10) unsigned'
-        /// </summary>
-        public string column_type;
 
         /// <summary>
         /// if you use domains to typedef a new type, this will be non-null
@@ -70,10 +60,6 @@ namespace DbLinq.PostgreSql.Schema
         /// </summary>
         public string column_default;
 
-        public int? character_maximum_length;
-        public int? numeric_precision;
-        public int? numeric_scale;
-
         /// <summary>
         /// return 'varchar(50)' or 'decimal(30,2)'
         /// </summary>
@@ -85,17 +71,17 @@ namespace DbLinq.PostgreSql.Schema
                 if (/* mmConfig.useDomainTypes && */domain_name != null)
                     return domain_schema +"." + domain_name; //without precision - precision is already defined in CREATE DOMAIN
 
-                if (character_maximum_length != null)
-                    return datatype + "(" + character_maximum_length + ")";
-                if (numeric_precision != null && numeric_scale != null)
-                    return datatype + "(" + numeric_precision + "," + numeric_scale + ")";
-                return datatype;
+                if (Length != null)
+                    return Type + "(" + Length + ")";
+                if (Precision != null && Scale != null)
+                    return Type + "(" + Precision + "," + Scale + ")";
+                return Type;
             }
         }
 
         public override string ToString()
         {
-            return "Column " + table_name + "." + column_name + "  " + datatype.Substring(0, 4);
+            return "Column " + table_name + "." + column_name + "  " + Type.Substring(0, 4);
         }
     }
 
@@ -114,17 +100,16 @@ namespace DbLinq.PostgreSql.Schema
             t.column_name = rdr.GetString(field++);
             string nullableStr = rdr.GetString(field++);
             t.isNullable = nullableStr == "YES";
-            t.datatype = rdr.GetString(field++);
+            t.Type = rdr.GetString(field++);
             t.domain_schema = GetStringN(rdr, field++);
             t.domain_name = GetStringN(rdr, field++);
             t.column_default = GetStringN(rdr, field++);
             //t.extra         = null; //rdr.GetString(field++);
-            t.column_type = null; //rdr.GetString(field++);
             //t.column_key    = null; //rdr.GetString(field++);
 
-            t.character_maximum_length = GetIntN(rdr, field++);
-            t.numeric_precision = GetIntN(rdr, field++);
-            t.numeric_scale = GetIntN(rdr, field++);
+            t.Length = GetIntN(rdr, field++);
+            t.Precision = GetIntN(rdr, field++);
+            t.Scale = GetIntN(rdr, field++);
 
             return t;
         }

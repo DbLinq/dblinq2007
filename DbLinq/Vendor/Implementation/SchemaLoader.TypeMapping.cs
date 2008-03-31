@@ -31,7 +31,11 @@ namespace DbLinq.Vendor.Implementation
 {
     public partial class SchemaLoader
     {
-        protected class DataType
+        public class UnknownType
+        {
+        }
+
+        public class DataType
         {
             public string Type;
             public int? Length;
@@ -44,50 +48,88 @@ namespace DbLinq.Vendor.Implementation
         {
             switch (dataType.Type.ToLower())
             {
-            case "varchar":
+            // string
+            case "char":
+            case "character":
+            case "character varying":
+            case "inet":
             case "longtext":
             case "text":
-            case "char":
-                return typeof(string);
+            case "varchar":
+                return typeof(String);
 
-            case "int":
-                if (dataType.Unsigned ?? false)
-                    return typeof(uint);
-                return typeof(int);
+            // bool
             case "bit":
-                return typeof(bool);
+            case "boolean":
+                return typeof(Boolean);
+
+            // int8
             case "tinyint":
                 if (dataType.Length == 1)
-                    return typeof(bool);
-                return typeof(char);
-            case "smallint":
-                return typeof(short);
-            case "mediumint":
-                return typeof(int);
-            case "bigint":
-                return typeof(long);
+                    return typeof(Boolean);
+                return typeof(Byte);
 
+            // int16
+            case "smallint":
+                return typeof(Int16);
+
+            // int32
+            case "int":
+            case "integer":
+            case "mediumint":
+                if (dataType.Unsigned ?? false)
+                    return typeof(uint);
+                return typeof(Int32);
+
+            // int64
+            case "bigint":
+                return typeof(Int64);
+
+            // single
+            case "float":
+                return typeof(Single);
+
+            // double
+            case "double":
+            case "double precision":
+                return typeof(Double);
+
+            // decimal
+            case "decimal":
+            case "numeric":
+                return typeof(Decimal);
+
+            // time interval
+            case "interval":
+                return typeof(TimeSpan);
+
+            // date
             case "date":
             case "datetime":
             case "timestamp":
+            case "timestamp without time zone":
+            case "time without time zone": //reported by twain_bu...@msn.com,
+            case "time with time zone":
                 return typeof(DateTime);
 
+            // enum
             case "enum":
                 return typeof(Enum);
-            case "float":
-                return typeof(float);
-            case "double":
-                return typeof(double);
-            case "decimal":
-                return typeof(decimal);
 
+            // byte[]
             case "blob":
+            case "bytea":
             case "longblob":
-                return typeof(byte[]);
-            //TODO: blob,longblob,set, ...
-            default:
-                //return "L80_mapCsType_unprepared_for_mysqltype_" + mysqlType;
+            case "oid":
+            case "sytea":
+                return typeof(Byte[]);
+
+            case "void":
                 return null;
+
+            // if we fall to this case, we must handle the type
+            default:
+                return typeof(UnknownType);
             }
         }
     }

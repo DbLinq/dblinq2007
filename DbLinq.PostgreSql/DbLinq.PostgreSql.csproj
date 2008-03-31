@@ -61,7 +61,6 @@
     <Compile Include="Schema\ColumnSql.cs" />
     <Compile Include="Schema\ForeignKeySql.cs" />
     <Compile Include="Schema\KeyColumnUsageSql.cs" />
-    <Compile Include="Schema\Mappings.cs" />
     <Compile Include="Schema\Pg_Proc_Sql.cs" />
     <Compile Include="Schema\TableSql.cs" />
   </ItemGroup>
