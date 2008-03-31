@@ -96,19 +96,20 @@ SELECT pg_catalog.format_type(:typeOid, NULL)
             //clone to prevent 'collection was modified' exception
             Dictionary<long, string> oid_to_name_map2 = new Dictionary<long, string>(oid_to_name_map);
 
-            using (IDbCommand cmd = conn.CreateCommand())
+            foreach (var kv in oid_to_name_map2)
             {
-                cmd.CommandText = sql;
-                foreach (var kv in oid_to_name_map2)
+                using (IDbCommand cmd = conn.CreateCommand())
                 {
+                    cmd.CommandText = sql;
                     if (kv.Value != null)
                         continue; //value already known
 
                     long typeOid = kv.Key;
                     IDbDataParameter parameter = cmd.CreateParameter();
-                    parameter.ParameterName=":typeOid";
-                    parameter.Value=typeOid;
+                    parameter.ParameterName = ":typeOid";
+                    parameter.Value = typeOid;
                     cmd.Parameters.Add(parameter);
+                    //cmd.CommandText = sql.Replace(":typeOid", typeOid.ToString());
                     numDone++;
                     object typeName1 = cmd.ExecuteScalar();
                     string typeName2 = typeName1 as string;
