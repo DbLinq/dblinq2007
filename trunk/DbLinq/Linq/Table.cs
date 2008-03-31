@@ -64,6 +64,7 @@ namespace DbLinq.Linq
         private readonly Dictionary<T, T> _liveObjectMap = new Dictionary<T, T>();
         private readonly List<T> _deleteList = new List<T>();
 
+
         private readonly SessionVars _vars;
 
         public ILogger Logger { get; set; }
@@ -435,6 +436,29 @@ namespace DbLinq.Linq
             where TSubEntity : T
         {
             throw new NotImplementedException();
+        }
+
+        public IEnumerable<object> Inserts {
+          get { return _insertList.Cast<object>(); }
+        }
+
+        public IEnumerable<object> Updates {
+
+          get {
+            List<object> list = new List<object>();
+
+            foreach (T obj in _liveObjectMap.Values) {
+              if (_modificationHandler.IsModified(obj))
+                list.Add(obj);
+            }
+            return list;
+          }
+        }
+
+        public IEnumerable<object> Deletes {
+          get {
+            return _deleteList.Cast<object>();
+          }
         }
 
     }
