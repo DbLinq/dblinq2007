@@ -32,6 +32,7 @@ namespace Test_NUnit_MySql
             db.Log = Console.Out;
         }
 
+        #region 'D' tests exercise 'local object constants'
         [Test]
         public void D0_SelectPensByLocalProperty()
         {
@@ -59,6 +60,20 @@ namespace Test_NUnit_MySql
             int productCount = products.Count;
             Assert.AreEqual(productCount, 1, "Expected one pen, got count=" + productCount);
         }
+
+        [Test]
+        public void D2_ArrayContains()
+        {
+            Northwind db = CreateDB();
+
+            var data = from p in db.Customers
+                       where new string[] { "ALFKI", "WARTH" }.Contains(p.CustomerID)
+                       select new { p.CustomerID, p.Country };
+
+            var dataList = data.ToList();
+            //Assert.AreEqual(productCount, 1, "Expected one pen, got count=" + productCount);
+        }
+        #endregion
 
         #region Tests 'F' work on aggregation
         [Test]

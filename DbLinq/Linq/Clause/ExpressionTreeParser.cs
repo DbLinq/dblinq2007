@@ -511,13 +511,30 @@ namespace DbLinq.Linq.Clause
                 AnalyzeExpression(recurData, expr.Arguments[1]); //p.ProductID
                 _result.AppendString(" IN ( ");
                 //AnalyzeExpression(recurData, expr.Arguments[0]); //{value(<>c__DisplayClass2).ids}
-                MemberExpression array1 = expr.Arguments[0].XMember();
-                ConstantExpression const1 = array1.Expression.XConstant();
-                object valueStruct = const1.Value;
-                System.Reflection.FieldInfo memberInfo = array1.Member as System.Reflection.FieldInfo;
-                object valueObj = memberInfo.GetValue(valueStruct);
-                //TODO instead of casting to array, process directly as IEnumerable
-                System.Collections.IEnumerable valueArray = (System.Collections.IEnumerable)valueObj;
+                System.Collections.IEnumerable valueArray = null;
+                if (expr.Arguments[0].NodeType == ExpressionType.MemberAccess)
+                {
+                    MemberExpression array1 = expr.Arguments[0].XMember();
+                    ConstantExpression const1 = array1.Expression.XConstant();
+                    object valueStruct = const1.Value;
+                    System.Reflection.FieldInfo memberInfo = array1.Member as System.Reflection.FieldInfo;
+                    object valueObj = memberInfo.GetValue(valueStruct);
+                    //TODO instead of casting to array, process directly as IEnumerable
+                    valueArray = (System.Collections.IEnumerable)valueObj;
+                }
+                else if (expr.Arguments[0].NodeType == ExpressionType.NewArrayInit)
+                {
+                    //handle 'where new string[] { "ALFKI", "WARTH" }.Contains(xxx)'
+                    NewArrayExpression newArrayExpr = expr.Arguments[0] as NewArrayExpression;
+                    List<object> valueList = new List<object>();
+                    foreach (Expression part in newArrayExpr.Expressions)
+                    {
+                        ConstantExpression const1 = part.XConstant();
+                        object valueStruct = const1.Value;
+                        valueList.Add(valueStruct);
+                    }
+                    valueArray = valueList;
+                }
 
                 string separator = "";
                 foreach (object obj in valueArray)
