@@ -152,11 +152,11 @@ namespace DbLinq.Linq
                         Trace.WriteLine("Context.SubmitChanges failed: " + ex.Message);
                         switch (failureMode)
                         {
-                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                            exceptions.Add(ex);
-                            break;
-                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                            throw ex;
+                            case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                                exceptions.Add(ex);
+                                break;
+                            case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                                throw ex;
                         }
                     }
                 }
@@ -211,13 +211,13 @@ namespace DbLinq.Linq
             }
         }
 
-
         /// <summary>
         /// Changed object determine 
         /// </summary>
         /// <returns>Lists of inserted, updated, deleted objects</returns>
-        public ChangeSet GetChangeSet() {
-          return new ChangeSet(this);
+        public ChangeSet GetChangeSet()
+        {
+            return new ChangeSet(this);
         }
 
         /// <summary>
