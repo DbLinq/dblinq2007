@@ -26,6 +26,9 @@
 
 namespace DbLinq.Logging
 {
+    /// <summary>
+    /// Logging level, used by ILogger.Write
+    /// </summary>
     public enum Level
     {
         Debug,

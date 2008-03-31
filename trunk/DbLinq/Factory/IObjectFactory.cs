@@ -29,6 +29,10 @@ using System.Collections.Generic;
 
 namespace DbLinq.Factory
 {
+    /// <summary>
+    /// The object factory is the start point for DbLinq main factory.
+    /// See ObjectFactory.Current for details
+    /// </summary>
     public interface IObjectFactory
     {
         /// <summary>

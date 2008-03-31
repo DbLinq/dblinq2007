@@ -93,7 +93,6 @@
     <Compile Include="Linq\IModified.cs" />
     <Compile Include="Linq\Implementation\QueryGenerator.cs" />
     <Compile Include="Linq\IQueryGenerator.cs" />
-    <Compile Include="Linq\LinqEventArgs.cs" />
     <Compile Include="Linq\Mapping\AutoGenIdAttribute.cs" />
     <Compile Include="Linq\Mapping\FunctionExAttribute.cs" />
     <Compile Include="Linq\Implementation\ModificationHandler.cs" />

@@ -24,10 +24,6 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-
 namespace DbLinq.Factory
 {
     /// <summary>
@@ -36,6 +32,9 @@ namespace DbLinq.Factory
     /// </summary>
     public static class ObjectFactory
     {
+        /// <summary>
+        /// Central object factory. If you want to use your own factory, just replace this member.
+        /// </summary>
         public static IObjectFactory Current = new Implementation.ReflectionObjectFactory();
 
         public static T Get<T>()

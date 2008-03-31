@@ -44,7 +44,6 @@ namespace DbLinq.Linq.Implementation
         {
 
             SessionVarsParsed sessionVarsParsed = new SessionVarsParsed(vars);
-            vars.Context.OnQuerying(sessionVarsParsed);
             QueryProcessor queryProcessor = new QueryProcessor(sessionVarsParsed); //TODO
 
             foreach (MethodCallExpression expr in vars.ExpressionChain)

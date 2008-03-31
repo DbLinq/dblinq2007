@@ -29,6 +29,13 @@ using System.Reflection;
 
 namespace DbLinq.Linq
 {
+    /// <summary>
+    /// Interface to watch modifications on registered entities
+    /// Currently supports:
+    /// - IModified (kept for compatibility, not recommended since it does not allow partial updates)
+    /// - INotifyPropertyChanging and INotifyPropertyChanged (best choice)
+    /// - raw objects (keeps a copy of all entity data)
+    /// </summary>
     public interface IModificationHandler
     {
         /// <summary>

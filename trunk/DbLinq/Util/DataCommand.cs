@@ -32,11 +32,22 @@ using System.Text;
 
 namespace DbLinq.Util
 {
+    /// <summary>
+    /// Executes a given SQL command, with parameter and delegate
+    /// </summary>
     public static class DataCommand
     {
-        public delegate T ReadDelegate<T>(IDataReader reader);
-
-        public static List<T> Find<T>(IDbConnection conn, string sql, string dbParameterName, string db, ReadDelegate<T> readDelegate)
+        /// <summary>
+        /// Executes a provided SQL command, with parameter and callback for each row
+        /// </summary>
+        /// <typeparam name="T">Row type</typeparam>
+        /// <param name="conn">Connection to database</param>
+        /// <param name="sql">SQL string</param>
+        /// <param name="dbParameterName">Optional parameter name (null to ignore), like ':db'</param>
+        /// <param name="db">Optional parameter value</param>
+        /// <param name="readDelegate">Function called for each row, returning an instance created for row data</param>
+        /// <returns></returns>
+        public static List<T> Find<T>(IDbConnection conn, string sql, string dbParameterName, string db, Func<IDataReader, T> readDelegate)
         {
             using (IDbCommand command = conn.CreateCommand())
             {
@@ -60,7 +71,15 @@ namespace DbLinq.Util
             }
         }
 
-        public static List<T> Find<T>(IDbConnection conn, string sql, ReadDelegate<T> readDelegate)
+        /// <summary>
+        /// Executes a provided SQL command, with parameter and callback for each row
+        /// </summary>
+        /// <typeparam name="T">Row type</typeparam>
+        /// <param name="conn">Connection to database</param>
+        /// <param name="sql">SQL string</param>
+        /// <param name="readDelegate">Function called for each row, returning an instance created for row data</param>
+        /// <returns></returns>
+        public static List<T> Find<T>(IDbConnection conn, string sql, Func<IDataReader, T> readDelegate)
         {
             return Find<T>(conn, sql, null, null, readDelegate);
         }

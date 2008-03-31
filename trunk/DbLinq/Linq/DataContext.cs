@@ -276,20 +276,6 @@ namespace DbLinq.Linq
             //connection closing should not be done here.
             //read: http://msdn2.microsoft.com/en-us/library/bb292288.aspx
         }
-
-        #region Events
-
-        public delegate void LinqEventHandler(object sender, LinqEventArgs e);
-
-        public event LinqEventHandler Querying;
-
-        public void OnQuerying(SessionVarsParsed vars)
-        {
-            if (Querying != null)
-                Querying(this, new LinqEventArgs { SessionVarsParsed = vars });
-        }
-
-        #endregion
     }
 
     /// <summary>
