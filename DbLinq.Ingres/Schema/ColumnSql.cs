@@ -30,13 +30,14 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text;
 using DbLinq.Util;
+using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.Ingres.Schema
 {
     /// <summary>
     /// represents one row from information_schema.`COLUMNS`
     /// </summary>
-    public class Column
+    public class Column: SchemaLoader.DataType
     {
         public string table_owner;
         public string table_name;
@@ -44,22 +45,10 @@ namespace DbLinq.Ingres.Schema
         public bool isNullable;
 
         /// <summary>
-        /// eg 'int' or 'datetime'
-        /// </summary>
-        public string datatype;
-
-        /// <summary>
-        /// eg. 'int(10) unsigned'
-        /// </summary>
-        public string column_type;
-
-        /// <summary>
         /// eg. next value for "linquser"."categories_seq"
         /// </summary>
         public string column_default;
 
-        public int? column_length;
-        public int? column_scale;
         public int key_sequence;
 
         /// <summary>
@@ -69,7 +58,7 @@ namespace DbLinq.Ingres.Schema
         {
             get
             {
-                switch (datatype)
+                switch (Type)
                 {
                     case "C":
                     case "CHAR":
@@ -79,19 +68,19 @@ namespace DbLinq.Ingres.Schema
                     case "LONG VARCHAR":
                     case "TEXT":
                     case "INTEGER":
-                        return datatype + "(" + column_length + ")";
+                        return Type + "(" + Length + ")";
 
                     case "DECIMAL":
-                        return datatype + "(" + column_length + ", " + column_scale + ")";
+                        return Type + "(" + Length + ", " + Scale + ")";
 
                 }
-                return datatype;
+                return Type;
             }
         }
 
         public override string ToString()
         {
-            return "Column " + table_name + "." + column_name + "  " + datatype.Substring(0, 4);
+            return "Column " + table_name + "." + column_name + "  " + Type.Substring(0, 4);
         }
     }
 
@@ -109,14 +98,13 @@ namespace DbLinq.Ingres.Schema
             t.column_name = rdr.GetString(field++).Trim();
             string nullableStr = rdr.GetString(field++);
             t.isNullable = nullableStr == "Y";
-            t.datatype = rdr.GetString(field++).Trim();
+            t.Type = rdr.GetString(field++).Trim();
             t.column_default = GetStringN(rdr, field++);
             //t.extra         = null; //rdr.GetString(field++);
-            t.column_type = null; //rdr.GetString(field++);
             //t.column_key    = null; //rdr.GetString(field++);
 
-            t.column_length = GetIntN(rdr, field++);
-            t.column_scale = GetIntN(rdr, field++);
+            t.Length = GetIntN(rdr, field++);
+            t.Scale = GetIntN(rdr, field++);
             t.key_sequence = rdr.GetInt32(field++);
 
             return t;

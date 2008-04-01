@@ -100,7 +100,7 @@ namespace DbLinq.Ingres
                 colSchema.Name = columnName.DbName;
                 colSchema.Member = columnName.PropertyName;
                 colSchema.Storage = columnName.StorageFieldName;
-                colSchema.DbType = columnRow.DataTypeWithWidth; //columnRow.datatype;
+                colSchema.DbType = columnRow.DataTypeWithWidth; //columnRow.Type;
 
                 colSchema.IsPrimaryKey = columnRow.key_sequence != 0;
 
@@ -113,10 +113,7 @@ namespace DbLinq.Ingres
 
                 //colSchema.IsVersion = ???
                 colSchema.CanBeNull = columnRow.isNullable;
-                colSchema.Type = Mappings.mapSqlTypeToCsType(
-                    columnRow.datatype, 
-                    columnRow.column_type, 
-                    (columnRow.column_length.HasValue ? columnRow.column_length.Value : 0));
+                colSchema.Type = MapDbType(columnRow).ToString();
                 if (CSharp.IsValueType(colSchema.Type) && columnRow.isNullable)
                     colSchema.Type += "?";
 
@@ -140,18 +137,18 @@ namespace DbLinq.Ingres
                 DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => constraintFullDbName == t.Name);
                 if (table == null)
                 {
-                    Logger.Write(Level.Error, "ERROR L138: Table '" 
-                        + keyColRow.table_name_parent 
-                        + "' not found for column " 
+                    Logger.Write(Level.Error, "ERROR L138: Table '"
+                        + keyColRow.table_name_parent
+                        + "' not found for column "
                         + keyColRow.column_name_parent);
                     continue;
                 }
 
                 var associationName = CreateAssociationName(
-                    keyColRow.table_name_parent, 
-                    keyColRow.schema_name_parent, 
+                    keyColRow.table_name_parent,
+                    keyColRow.schema_name_parent,
                     keyColRow.table_name_child,
-                    keyColRow.schema_name_child, 
+                    keyColRow.schema_name_child,
                     keyColRow.constraint_name);
 
                 //if not PRIMARY, it's a foreign key.
@@ -185,6 +182,30 @@ namespace DbLinq.Ingres
             }
 
             return schema;
+        }
+
+        protected override System.Type MapDbType(DataType dataType)
+        {
+            switch (dataType.Type.ToLower())
+            {
+            case "float":
+                return typeof(Double);
+            case "integer":
+                switch (dataType.Length)
+                {
+                case 1:
+                    return typeof(Byte);
+                case 2:
+                    return typeof(Int16);
+                case 4:
+                    return typeof(Int32);
+                case 8:
+                    return typeof(Int64);
+                }
+                return MapDbType(null);
+            default:
+                return base.MapDbType(dataType);
+            }
         }
     }
 }
