@@ -29,6 +29,11 @@ using System.Collections.Generic;
 namespace DbLinq.Linq
 {
 
+    /// <summary>
+    /// Contains list of datacontext entities to be deleted, inserted and updated.
+    /// Merges table separate lists into single one.
+    /// Standard DLinq class defined in MSDN.
+    /// </summary>
     public sealed class ChangeSet
     {
 
@@ -80,7 +85,7 @@ namespace DbLinq.Linq
 
         public override string ToString()
         {
-            return string.Format("Total changes: {{Added: {0}, Removed: {1}, Modified: {2} }}",
+            return string.Format("Total changes: {{Added: {0}, Removed: {1}, Modified: {2}}}",
               Inserts.Count, Deletes.Count, Updates.Count);
         }
     };
