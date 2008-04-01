@@ -60,6 +60,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="sql\createDB_AllTypes.sql" />
     <None Include="sql\create_Northwind.sql" />
     <None Include="sql\create_User.sql" />
   </ItemGroup>

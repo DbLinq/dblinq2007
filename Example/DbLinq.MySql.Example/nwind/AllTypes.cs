@@ -14,7 +14,7 @@ using DbLinq.Linq;
 using DbLinq.Linq.Mapping;
 using DbLinq.MySql;
 
-namespace allTypes
+namespace AllTypesExample
 {
     
 	/// <summary>
@@ -367,14 +367,14 @@ namespace allTypes
 		protected bool? _tinyIntS;
 		protected long _bigInt;
 		protected long? _bigIntN;
-        protected nwind.DbLinq_EnumTest _DbLinq_EnumTest;
+        protected DbLinq_EnumTest _DbLinq_EnumTest;
 	
 		
 		#region constructors
 		public Allinttype()
 		{
 		}
-        public Allinttype(uint int_, uint? intN, bool boolean, bool? boolN, char byte_, char? byteN, int short_, int? shortN, short smallInt, short? smallIntN, bool tinyIntU, bool? tinyIntUN, bool? tinyIntS, long bigInt, long? bigIntN, nwind.DbLinq_EnumTest DbLinq_EnumTest)
+        public Allinttype(uint int_, uint? intN, bool boolean, bool? boolN, char byte_, char? byteN, int short_, int? shortN, short smallInt, short? smallIntN, bool tinyIntU, bool? tinyIntUN, bool? tinyIntS, long bigInt, long? bigIntN, DbLinq_EnumTest DbLinq_EnumTest)
 		{
 		    this._int = int_;
 		this._intN = intN;
@@ -535,7 +535,7 @@ namespace allTypes
 	
 		[Column(Storage = "_DbLinq_EnumTest", Name = "DbLinq_EnumTest", DbType = "smallint(5) unsigned", CanBeNull = false)]
 		[DebuggerNonUserCode]
-        public nwind.DbLinq_EnumTest DbLinq_EnumTest
+        public DbLinq_EnumTest DbLinq_EnumTest
 		{
 		    get { return _DbLinq_EnumTest; }
 		    set { _DbLinq_EnumTest = value; IsModified = true; }
