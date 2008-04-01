@@ -46,16 +46,26 @@ namespace DbLinq.Vendor.Implementation
 
         protected virtual Type MapDbType(DataType dataType)
         {
+            if (dataType == null)
+                return typeof(UnknownType);
+
             switch (dataType.Type.ToLower())
             {
             // string
+            case "c":
             case "char":
             case "character":
             case "character varying":
             case "inet":
+            case "long":
             case "longtext":
+            case "long varchar":
+            case "nchar":
+            case "nvarchar":
+            case "nvarchar2":
             case "text":
             case "varchar":
+            case "varchar2":
                 return typeof(String);
 
             // bool
@@ -78,7 +88,7 @@ namespace DbLinq.Vendor.Implementation
             case "integer":
             case "mediumint":
                 if (dataType.Unsigned ?? false)
-                    return typeof(uint);
+                    return typeof(UInt32);
                 return typeof(Int32);
 
             // int64
@@ -87,6 +97,7 @@ namespace DbLinq.Vendor.Implementation
 
             // single
             case "float":
+            case "float4":
                 return typeof(Single);
 
             // double
@@ -106,6 +117,7 @@ namespace DbLinq.Vendor.Implementation
             // date
             case "date":
             case "datetime":
+            case "ingresdate":
             case "timestamp":
             case "timestamp without time zone":
             case "time without time zone": //reported by twain_bu...@msn.com,
@@ -119,7 +131,9 @@ namespace DbLinq.Vendor.Implementation
             // byte[]
             case "blob":
             case "bytea":
+            case "byte varying":
             case "longblob":
+            case "long byte":
             case "oid":
             case "sytea":
                 return typeof(Byte[]);

@@ -59,7 +59,6 @@
     <Compile Include="IngresVendor.cs" />
     <Compile Include="Schema\ColumnSql.cs" />
     <Compile Include="Schema\ForeignKeySql.cs" />
-    <Compile Include="Schema\Mappings.cs" />
     <Compile Include="Schema\TableSql.cs" />
   </ItemGroup>
   <ItemGroup>
