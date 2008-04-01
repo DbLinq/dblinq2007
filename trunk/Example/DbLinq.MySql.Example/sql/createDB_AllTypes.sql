@@ -69,3 +69,7 @@ COMMENT = 'Tests mapping of many MySQL types to CSharp types';
 INSERT INTO AllIntTypes (`intN`,`boolean`, `BIGINT`, `byte`, `DbLinq_EnumTest`)
 VALUES (1,'2', -9223372036854775808, 7, 2);
 
+INSERT INTO FloatTypes (`double`,`decimal`,`float`)
+VALUES (1.1, 2.2, 3.3);
+
+
