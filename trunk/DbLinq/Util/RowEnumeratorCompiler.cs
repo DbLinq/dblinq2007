@@ -698,8 +698,21 @@ namespace DbLinq.Util
 
         #endregion
 
-        private static Expression GetSimplePropertyReader(Type returnType, int valueIndex)
+        private static Expression GetSimplePropertyReader(Type returnType, int valueIndex,
+            Expression reader, Expression mappingContext)
         {
+            bool cast;
+            var propertyReader = GetSimplePropertyReader(returnType, valueIndex, out cast);
+            propertyReader = Expression.Invoke(propertyReader, reader, mappingContext);
+            if (cast)
+                propertyReader = Expression.Convert(propertyReader, returnType);
+            return propertyReader;
+        }
+
+        private static Expression GetSimplePropertyReader(Type returnType, int valueIndex,
+            out bool recast)
+        {
+            recast = false;
             Expression propertyReader;
             if (returnType == typeof(string))
             {
@@ -783,8 +796,9 @@ namespace DbLinq.Util
             }
             else if (returnType.IsEnum)
             {
-                propertyReader = Expression.Convert((Expression<Func<IDataRecord, MappingContext, int>>)((dataReader, mappingContext)
-                    => GetAsNumeric<int>(dataReader, valueIndex)), returnType);
+                recast = true;
+                propertyReader = (Expression<Func<IDataRecord, MappingContext, int>>)((dataReader, mappingContext)
+                    => GetAsNumeric<int>(dataReader, valueIndex));
             }
             else
             {
@@ -817,7 +831,8 @@ namespace DbLinq.Util
             Type nullableValueType = GetNullableTypeArgument(returnType);
             if (nullableValueType != null)
             {
-                Expression simplePropertyReader = Expression.Convert(Expression.Invoke(GetSimplePropertyReader(nullableValueType, valueIndex), reader, mappingContext), returnType);
+                Expression simplePropertyReader = Expression.Convert(
+                GetSimplePropertyReader(nullableValueType, valueIndex, reader, mappingContext), returnType);
                 Expression zero = Expression.Constant(null, returnType);
                 propertyReader = Expression.Condition(
                     Expression.Invoke((Expression<Func<IDataRecord, MappingContext, bool>>)((dataReader, context) => dataReader.IsDBNull(valueIndex)), reader, mappingContext),
@@ -825,7 +840,7 @@ namespace DbLinq.Util
             }
             else
             {
-                propertyReader = Expression.Invoke(GetSimplePropertyReader(returnType, valueIndex), reader, mappingContext);
+                propertyReader = GetSimplePropertyReader(returnType, valueIndex, reader, mappingContext);
             }
             return propertyReader;
         }

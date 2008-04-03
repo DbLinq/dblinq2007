@@ -151,6 +151,8 @@ namespace DbLinq.MySql.Example
             //result++;
         }
 
+#if USE_AllTypes
+
         static void Main2(string[] args)
         {
             string connStr = String.Format("server={0};user id={1}; password={2}; database={3}"
@@ -161,6 +163,6 @@ namespace DbLinq.MySql.Example
             var list = db.Allinttypes.Where(at=>at.int_>0).ToList();
             var ct = list.Count;
         }
-
+#endif
     }
 }

@@ -6,7 +6,7 @@ using NUnit.Framework;
 using AllTypesExample;
 
 
-namespace Test_NUnit_Mysql
+namespace Test_NUnit_MySql
 {
 
     /// <summary>
@@ -18,7 +18,7 @@ namespace Test_NUnit_Mysql
     {
         public AllTypes CreateDB()
         {
-            string DbServer = "localhost";
+            string DbServer = Environment.GetEnvironmentVariable("DbLinqServer") ?? "localhost";
             string connStr = string.Format("server={0};user id=LinqUser; password=linq2; database=AllTypes", DbServer);
 
             //return CreateDB(System.Data.ConnectionState.Closed);
