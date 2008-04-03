@@ -238,6 +238,10 @@ namespace DbLinq.Vendor.Implementation
 
         public abstract string VendorName { get; }
 
+        /// <summary>
+        /// given 'Order Details', return '[Order Details]' or `Order Details`, 
+        /// depending on vendor
+        /// </summary>
         public virtual string GetFieldSafeName(string name)
         {
             if (IsFieldNameSafe(name))

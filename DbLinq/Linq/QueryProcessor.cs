@@ -156,8 +156,8 @@ namespace DbLinq.Linq
                 //PS. Should SqlParts not be empty here? Debug Clone() and AnalyzeLambda()
             }
 
-            //string sql = _vars.SqlParts.ToString();
-            string sql = _vars.Context.Vendor.BuildSqlString(_vars.SqlParts);
+            //string sql = _vars.Context.Vendor.BuildSqlString(_vars.SqlParts);
+            string sql = _vars.SqlParts.ToString(); //SqlParts.ToString() internally calls Vendor
 
             if (_vars.Context.Log != null)
                 _vars.Context.Log.WriteLine("SQL: " + sql);
@@ -224,8 +224,7 @@ namespace DbLinq.Linq
                     _vars.SqlParts.DistinctClause = "DISTINCT"; // TODO --> IVendor
                     return;
                 case "Union":
-                    string ss = exprCall.ToString();
-                    ProcessUnionClause(null);
+                    ProcessUnionClause(exprCall);
                     return;
                 default:
                     Logger.Write(Level.Error, "################# L308 TODO " + methodName);
@@ -265,8 +264,8 @@ namespace DbLinq.Linq
 
         public string storeParam(string value)
         {
-            int count = paramMap.Count + paramMap2.Count;
-            string paramName = _vars.Context.Vendor.GetParameterName(count);
+            int paramIndex = _vars.numParameters++;
+            string paramName = _vars.Context.Vendor.GetParameterName(paramIndex);
             paramMap[paramName] = value;
             lastParamName = paramName;
             return paramName;

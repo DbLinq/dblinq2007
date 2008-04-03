@@ -36,12 +36,8 @@ namespace DbLinq.Linq
     /// Object which holds the pieces of a SELECT as it's being put together.
     /// The ToString() method is used to produce the final SQL statement.
     /// </summary>
-    public class SqlExpressionParts //: ICloneable
+    public class SqlExpressionParts
     {
-        // picrap: a good pattern is to avoid static members (there may be thread problems)
-        static int s_serial = 0;
-        int _serial;
-
         private IVendor _vendor;
 
         /// <summary>
@@ -102,6 +98,11 @@ namespace DbLinq.Linq
         public Dictionary<string, FunctionReturningObject> ParametersMap2 { get; private set; }
 
         /// <summary>
+        /// points to 2nd half of 'UNION' statement
+        /// </summary>
+        public SqlExpressionParts UnionPart2;
+
+        /// <summary>
         /// add 'Employee $e' FROM clause
         /// </summary>
         /// <param name="fromTable"></param>
@@ -133,7 +134,6 @@ namespace DbLinq.Linq
 
         public SqlExpressionParts(IVendor vendor)
         {
-            _serial = s_serial++;
             _vendor = vendor;
 
             FromTableList = new List<string>();
@@ -148,26 +148,6 @@ namespace DbLinq.Linq
             HavingList = new List<string>();
         }
 
-        public SqlExpressionParts(SqlExpressionParts sqlExpressionParts)
-        {
-            _serial = s_serial++;
-            _vendor = sqlExpressionParts._vendor;
-
-            FromTableList = new List<string>(sqlExpressionParts.FromTableList);
-            SelectFieldList = new List<string>(sqlExpressionParts.SelectFieldList);
-            JoinList = new List<string>(sqlExpressionParts.JoinList);
-            DoneClauses = new List<string>(sqlExpressionParts.DoneClauses);
-            WhereList = new List<string>(sqlExpressionParts.WhereList);
-            GroupByList = new List<string>(sqlExpressionParts.GroupByList);
-            OrderByList = new List<string>(sqlExpressionParts.OrderByList);
-            OrderDirection = sqlExpressionParts.OrderDirection;
-            CountClause = sqlExpressionParts.CountClause;
-            DistinctClause = sqlExpressionParts.DistinctClause;
-            LimitClause = sqlExpressionParts.LimitClause;
-            OffsetClause = sqlExpressionParts.OffsetClause;
-            ParametersMap = new Dictionary<string, object>(sqlExpressionParts.ParametersMap);
-            HavingList = new List<string>(sqlExpressionParts.HavingList);
-        }
 
         public void AddWhere(string sqlExpr)
         {
@@ -186,7 +166,13 @@ namespace DbLinq.Linq
 
         public override string ToString()
         {
-            return _vendor.BuildSqlString(this);
+            string part1 = _vendor.BuildSqlString(this);
+            if (UnionPart2 != null)
+            {
+                string part2 = _vendor.BuildSqlString(UnionPart2);
+                return part1 + "\n UNION \n" + part2;
+            }
+            return part1;
         }
 
         #endregion
@@ -196,11 +182,31 @@ namespace DbLinq.Linq
             return SelectFieldList.Count == 0;
         }
 
-        public SqlExpressionParts Clone()
+        /// <summary>
+        /// retrieve al param names and their values.
+        /// Warning - this may call into dynamically-compiled code 
+        /// in cases such as 'where ProductName==object.Field'
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<KeyValuePair<string, object>> EnumParams()
         {
-            //don't use MemberwiseClone, since our fields are marked 'readonly'
-            //clone._serial = s_serial++;
-            return new SqlExpressionParts(this);
+            #region EnumParams
+            foreach (KeyValuePair<string, object> constParam in ParametersMap)
+            {
+                yield return constParam;
+            }
+            foreach (KeyValuePair<string, FunctionReturningObject> funcParamPair in ParametersMap2)
+            {
+                FunctionReturningObject func = funcParamPair.Value;
+                object value = func();
+                yield return new KeyValuePair<string, object>(funcParamPair.Key, value);
+            }
+            if (UnionPart2 != null)
+            {
+                foreach (KeyValuePair<string, object> param2 in UnionPart2.EnumParams())
+                    yield return param2;
+            }
+            #endregion
         }
     }
 }

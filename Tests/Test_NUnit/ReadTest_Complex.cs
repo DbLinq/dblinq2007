@@ -308,6 +308,10 @@ namespace Test_NUnit_MySql
               .Union(from e in db.Employees.Where(f => f.City == "London")
                      select new { ContactName = e.LastName });
             var list = q.ToList();
+            Assert.IsTrue(list.Count > 0, "Expected some customers and employees from London");
+
+            int countOfGraeme = list.Count(l => l.ContactName == "graeme");
+            Assert.IsTrue(countOfGraeme==1, "Expected London contacts to include graeme");
         }
 
         [Test]

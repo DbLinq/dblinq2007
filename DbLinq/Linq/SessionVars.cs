@@ -35,9 +35,6 @@ namespace DbLinq.Linq
     /// </summary>
     public class SessionVars
     {
-        private static int                      s_serial = 0;
-        public readonly int             _serial = s_serial++;
-
         public DataContext Context { get; private set; }
         public IMTable Table { get; private set; }
 

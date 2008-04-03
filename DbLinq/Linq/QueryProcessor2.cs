@@ -319,10 +319,29 @@ namespace DbLinq.Linq
             Logger.Write(Level.Error, "TODO L299 Support GroupJoin()");
         }
 
-        void ProcessUnionClause(LambdaExpression unionExpr)
+        void ProcessUnionClause(MethodCallExpression unionExpr)
         {
-            Logger.Write(Level.Error,"Union");
-            //ParseResult result = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, orderByExpr.Body);
+            //ConstantExpression c0 = unionExpr.Arguments[0].XConstant();
+            ConstantExpression c1 = unionExpr.Arguments[1].XConstant();
+            //IGetSessionVars mtableProjected0 = c0.Value as IGetSessionVars;
+            IGetSessionVars mtableProjected1 = c1.Value as IGetSessionVars;
+            //SessionVars vars0 = mtableProjected0.SessionVars;
+            SessionVars vars1 = mtableProjected1.SessionVars;
+
+            SqlExpressionParts sqlPart1 = _vars.SqlParts;
+            SqlExpressionParts sqlPart2 = new SqlExpressionParts(_vars.Context.Vendor);
+            sqlPart1.UnionPart2 = sqlPart2;
+
+            //start populating part2 in calls to ProcessQuery:
+            _vars.SqlParts = sqlPart2;
+
+            foreach (MethodCallExpression expr in vars1.ExpressionChain)
+            {
+                this.ProcessQuery(expr);
+            }
+
+            //restore part1, it knows to include part2 during ToString()
+            _vars.SqlParts = sqlPart1;
         }
 
 

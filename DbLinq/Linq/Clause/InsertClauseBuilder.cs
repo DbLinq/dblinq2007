@@ -219,7 +219,10 @@ namespace DbLinq.Linq.Clause
                 ColumnAttribute colAtt = projFld.columnAttribute;
 
                 string columnName_safe = vars.Context.Vendor.GetFieldSafeName(colAtt.Name); //turn 'User' into '[User]'
-                if (columnName_safe != columnName_safe.ToLower()) columnName_safe = "\"" + columnName_safe + "\""; //toncho11: http://code.google.com/p/dblinq2007/issues/detail?id=24 
+
+                //Toncho, this edit is PostgreSql-specific and breaks MySql,
+                //please move this into Vendor.IsFieldNameSafe / MakeFieldNameSafe
+                //if (columnName_safe != columnName_safe.ToLower()) columnName_safe = "\"" + columnName_safe + "\""; //toncho11: http://code.google.com/p/dblinq2007/issues/detail?id=24 
 
                 if (colAtt.IsPrimaryKey)
                 {
