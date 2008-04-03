@@ -155,7 +155,7 @@ namespace DbLinq.MySql.Example
         {
             string connStr = String.Format("server={0};user id={1}; password={2}; database={3}"
                 , "localhost", "LinqUser", "linq2", "AllTypes");
-            allTypes.AllTypes db = new allTypes.AllTypes(connStr);
+            AllTypesExample.AllTypes db = new AllTypesExample.AllTypes(connStr);
             db.Log = Console.Out;
 
             var list = db.Allinttypes.Where(at=>at.int_>0).ToList();

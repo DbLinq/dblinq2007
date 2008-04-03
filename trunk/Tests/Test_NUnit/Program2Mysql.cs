@@ -25,13 +25,14 @@ namespace Test_NUnit
             //new ReadTest().D04_SelectProducts_OrderByName();
             //new Join().Join_Laurent();
             //new ReadTest().C2_SelectPenId();
-            new ReadTest_Complex().D2_ArrayContains();
+            //new ReadTest_Complex().D2_ArrayContains();
+            //new ReadTest_Complex().O3_OperatorUnion();
             //new StoredProcTest().SPB_GetOrderCount_Having();
             //new ReadTest().E2_ConnectionClosedTest();
             //new ReadTest_AllTypes().AT1_SelectRow();
             //new ReadTest_Operands().H1_SelectConcat();
             //rc.F11_ConcatString();
-            //new WriteTest().G5_SetFieldToNull();
+            new WriteTest().G5_SetFieldToNull();
             //new WriteTest_BulkInsert().BI01_InsertProducts();
             //new NullTest().NullableT_Value();
             //new Count_Sum_Min_Max_Avg().LiqnToSqlCount02();

@@ -8,6 +8,9 @@ CREATE DATABASE `AllTypes`;
 
 USE `AllTypes`;
 
+GRANT ALL ON AllTypes.*  TO 'LinqUser'@'%';
+FLUSH PRIVILEGES;
+
 ####################################################################
 CREATE TABLE `AllIntTypes` (
   `int` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -71,5 +74,4 @@ VALUES (1,'2', -9223372036854775808, 7, 2);
 
 INSERT INTO FloatTypes (`double`,`decimal`,`float`)
 VALUES (1.1, 2.2, 3.3);
-
 

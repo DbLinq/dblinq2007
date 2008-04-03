@@ -95,12 +95,14 @@ namespace DbLinq.Linq.Clause
                 //sqlParts.ParametersMap.Add(key, this.ParametersMap[key]);
                 sqlParts.ParametersMap[key] = qp.paramMap[key];
             }
+            qp.paramMap.Clear();
 
             //some parameters require calling a delegate to get a value:
             foreach (var funcParam in qp.paramMap2)
             {
                 sqlParts.ParametersMap2[funcParam.Key] = funcParam.Value;
             }
+            qp.paramMap2.Clear();
 
             foreach (var t1 in tablesUsed)
             {

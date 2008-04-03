@@ -47,6 +47,7 @@ namespace DbLinq.Linq
         : IOrderedQueryable<T> //projections and joins can still be ordered
         , IQueryText
         , IQueryProvider //new as of Beta2
+        , IGetSessionVars
     {
         public SessionVars _vars;
 
@@ -94,7 +95,6 @@ namespace DbLinq.Linq
 
             SessionVars vars = new SessionVars(_vars).AddScalar(expression); //clone and append Expr
             SessionVarsParsed varsFin =  _vars.Context.QueryGenerator.GenerateQuery(vars, null); //parse all
-            //SessionVars vars = _vars.Clone();
             return new RowScalar<T>(varsFin, this, null).GetScalar<S>(expression);
         }
 
@@ -158,5 +158,16 @@ namespace DbLinq.Linq
         {
             get { return this; }
         }
+
+        /// <summary>
+        /// during a Union clause, we need to retrieve sessionVars from the outside
+        /// </summary>
+        public SessionVars SessionVars { get { return _vars; } }
+
+    }
+
+    public interface IGetSessionVars
+    {
+        SessionVars SessionVars { get; }
     }
 }

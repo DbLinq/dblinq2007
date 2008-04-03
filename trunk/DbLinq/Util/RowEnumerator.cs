@@ -84,39 +84,23 @@ namespace DbLinq.Util
 
             if (_vars.SqlParts != null)
             {
-                foreach (string paramName in _vars.SqlParts.ParametersMap.Keys)
+                try
                 {
-                    object value = _vars.SqlParts.ParametersMap[paramName];
-                    Trace.WriteLine("SQL PARAM: " + paramName + " = " + value);
-
-                    IDbDataParameter parameter = cmd.CreateParameter();
-                    parameter.ParameterName = paramName;
-                    parameter.Value = value;
-
-                    cmd.Parameters.Add(parameter);
+                    //some parameters require that we call a delegate to get a value
+                    foreach (var paramNameValue in _vars.SqlParts.EnumParams())
+                    {
+                        Trace.WriteLine("SQL PARAM: " + paramNameValue.Key + " = " + paramNameValue.Value);
+                        IDbDataParameter parameter = cmd.CreateParameter();
+                        parameter.ParameterName = paramNameValue.Key;
+                        parameter.Value = paramNameValue.Value;
+                        cmd.Parameters.Add(parameter);
+                    }
                 }
-
-                //some parameters require that we call a delegate to get a value
-                foreach (var param in _vars.SqlParts.ParametersMap2)
+                catch (Exception ex)
                 {
-                    FunctionReturningObject func = param.Value;
-                    object paramValue = null;
-                    try
-                    {
-                        paramValue = func();
-                    }
-                    catch (Exception ex)
-                    {
-                        Trace.WriteLine("SQL PARAM FUNC FAILED: " + ex);
-                        throw ex;
-                    }
-
-                    Trace.WriteLine("SQL PARAM: " + param.Key + " = " + paramValue);
-                    IDbDataParameter parameter = cmd.CreateParameter();
-                    parameter.ParameterName = param.Key;
-                    parameter.Value = paramValue;
-
-                    cmd.Parameters.Add(parameter);
+                    //for dynamic params, we call into dynamically compiled code, may have null problems etc
+                    Trace.WriteLine("ERROR - param func probably failed: " + ex);
+                    throw;
                 }
 
             }
