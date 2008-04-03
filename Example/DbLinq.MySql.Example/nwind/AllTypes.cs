@@ -356,8 +356,8 @@ namespace AllTypesExample
 		protected uint? _intN;
 		protected bool _boolean;
 		protected bool? _boolN;
-		protected char _byte;
-		protected char? _byteN;
+		protected byte _byte;
+		protected byte? _byteN;
 		protected int _short;
 		protected int? _shortN;
 		protected short _smallInt;
@@ -374,7 +374,7 @@ namespace AllTypesExample
 		public Allinttype()
 		{
 		}
-        public Allinttype(uint int_, uint? intN, bool boolean, bool? boolN, char byte_, char? byteN, int short_, int? shortN, short smallInt, short? smallIntN, bool tinyIntU, bool? tinyIntUN, bool? tinyIntS, long bigInt, long? bigIntN, DbLinq_EnumTest DbLinq_EnumTest)
+        public Allinttype(uint int_, uint? intN, bool boolean, bool? boolN, byte byte_, byte? byteN, int short_, int? shortN, short smallInt, short? smallIntN, bool tinyIntU, bool? tinyIntUN, bool? tinyIntS, long bigInt, long? bigIntN, DbLinq_EnumTest DbLinq_EnumTest)
 		{
 		    this._int = int_;
 		this._intN = intN;
@@ -436,7 +436,7 @@ namespace AllTypesExample
 	
 		[Column(Storage = "_byte", Name = "byte", DbType = "tinyint(3) unsigned", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public char byte_
+		public byte byte_
 		{
 		    get { return _byte; }
 		    set { _byte = value; IsModified = true; }
@@ -445,7 +445,7 @@ namespace AllTypesExample
 	
 		[Column(Storage = "_byteN", Name = "byteN", DbType = "tinyint(3) unsigned", CanBeNull = true)]
 		[DebuggerNonUserCode]
-		public char? byteN
+		public byte? byteN
 		{
 		    get { return _byteN; }
 		    set { _byteN = value; IsModified = true; }

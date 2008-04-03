@@ -8,7 +8,7 @@ using DbLinq.Factory;
 using DbLinq.Logging;
 using NUnit.Framework;
 
-namespace Test_NUnit_Mysql
+namespace Test_NUnit_MySql
 {
     [TestFixture]
     public class MetalTest
