@@ -30,6 +30,11 @@ namespace DbLinq.Util
             return sequenceName;
         }
 
+        public static string AddQuotes(string name)
+        {
+            return "\""+name+"\"";
+        }
+
         private static string AddQuotes1(Match m)
         {
             // Get the matched string.
