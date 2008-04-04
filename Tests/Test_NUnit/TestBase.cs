@@ -106,7 +106,7 @@ namespace Test_NUnit
             }
         }
 
-#if POSTGRES || ORACLE
+#if POSTGRES || ORACLE || INGRES
         //Postgres sorting: A,B,C,X,d
         public const StringComparison stringComparisonType = StringComparison.Ordinal; 
 #else

@@ -49,8 +49,6 @@ namespace DbLinq.Ingres.Schema
         /// </summary>
         public string column_default;
 
-        public int key_sequence;
-
         /// <summary>
         /// return 'varchar(50)' or 'decimal(30,2)'
         /// </summary>
@@ -105,7 +103,6 @@ namespace DbLinq.Ingres.Schema
 
             t.Length = GetIntN(rdr, field++);
             t.Scale = GetIntN(rdr, field++);
-            t.key_sequence = rdr.GetInt32(field++);
 
             return t;
         }
@@ -124,7 +121,7 @@ namespace DbLinq.Ingres.Schema
             string sql = @"
 SELECT t.table_owner, t.table_name, column_name
     ,column_nulls, column_datatype, column_default_val
-    ,column_length, column_scale, key_sequence
+    ,column_length, column_scale
 FROM iicolumns c join iitables t on (c.table_name=t.table_name and c.table_owner=t.table_owner) 
             WHERE t.table_owner <> '$ingres' and t.table_type in ('T', 'V')
 ORDER BY column_sequence

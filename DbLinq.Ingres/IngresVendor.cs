@@ -63,14 +63,14 @@ namespace DbLinq.Ingres
             {
                 //sequence name is known, is stored in Expression
                 string nextvalExpr = idColAttrib.Expression;                     //eg. "nextval('suppliers_supplierid_seq')"
-                string currvalExpr = nextvalExpr.Replace("nextval", "currval");  //eg. "currval('suppliers_supplierid_seq')"
-                sbIdentity.Append(";SELECT " + currvalExpr);
+                string currvalExpr = nextvalExpr.Replace("next value for", "current value for");  //eg. "currval('suppliers_supplierid_seq')"
+                sbIdentity.Append("; SELECT " + currvalExpr);
             }
             else
             {
                 //assume standard format of sequence name
                 string sequenceName = projData.tableAttribute.Name + "_" + idColName + "_seq";
-                sbIdentity.Append(";SELECT currval('" + sequenceName + "')");
+                sbIdentity.Append("; SELECT currval('" + sequenceName + "')");
             }
 
             return null; //we have not created a param object (only Oracle does)
