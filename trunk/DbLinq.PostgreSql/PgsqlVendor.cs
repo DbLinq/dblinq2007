@@ -105,6 +105,9 @@ namespace DbLinq.PostgreSql
         public override string MakeFieldSafeName(string name)
         {
             // --> how is a special field escaped?
+
+            if (IsCaseSensitiveName(name))
+                name = QuotesHelper.AddQuotes(name);//"\""+name+"\"";
             return name;
         }
 
