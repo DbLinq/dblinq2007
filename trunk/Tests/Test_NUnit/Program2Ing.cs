@@ -7,7 +7,7 @@ using System.Linq;
 using Test_NUnit_Ingres;
 #endregion
 
-namespace Test_NUnit
+namespace Test_NUnit_Ingres
 {
 #region HEADER
     /// <summary>
@@ -19,22 +19,80 @@ namespace Test_NUnit
     {
         static void Main()
         {
-            new ReadTest().A1_PingDatabase();
-            new ReadTest().D10_Products_LetterP_Desc();
-            //new StoredProcTest().SP3_GetOrderCount_SelField();
-            new ReadTest_GroupBy().G01_SimpleGroup_Count();
+            /*==========================================================================*/
+            /* All failing Tests are recorded here. They will be removed, once they run */
+            /*==========================================================================*/
+
+            /*==================================================================*/
+            /* The following failing tests are investigated, but not solved yet */
+            /*==================================================================*/
+            // SELECT COUNT(*) FROM linquser.products p$ ORDER BY p$.productid
+            // productid not found
+            // I don't get this test. Why should I do a count(*) and then order it by a field
+            // that is actually not in the resultset?
+            //new ReadTest().C4_CountWithOrderBy();
+
+            // No clue, what this test does
+            //new ReadTest().D12_SelectChildCustomer();
+
+            // Method All seems not to be mapped
+            // in ExpressionTreeParser.cs
+            //L274: Unprepared to map method All (c.Orders.Select(o => o).All(o => (o.ShipCity = c.City))) to SQL
+            //new ReadTest_Complex().O1_OperatorAll();
+
+            // L274: Unprepared to map method Any (customer.Orders.Any()) to SQL
+            //new ReadTest_Complex().O2_OperatorAny();
+
+            // SELECT ((p$.productname||?)||VARCHAR(p$.supplierid)) FROM linquser.products p$
             //new ReadTest_Operands().H1_SelectConcat();
-            ReadTest_Complex rc = new ReadTest_Complex();
-            rc.F5_AvgProductId();
-            rc.F11_ConcatString();
-            rc.F12_ConcatString_2();
-            rc.F2_ProductCount_Clause();
-            rc.F2_ProductCount_Projected();
-            rc.F3_MaxProductId();
-            new ReadTest().D09_Products_LetterP_Take5();
-            new ReadTest().D07_OrdersFromLondon_Alt();
+
+            // INSERT... ;SELECT... within one single DbCommand gives a Syntax error with the
+            // Ingres driver. All these tests fail due to this reason
+            //new WriteTest().G1_InsertProduct();
             //new WriteTest().G2_DeleteTest();
-            new WriteTest().G1_InsertProduct();
+            //new WriteTest().G3_DeleteTest();
+            //new WriteTest().G4_DuplicateSubmitTest();
+            //new WriteTest().G5_SetFieldToNull();
+            //new WriteTest_BulkInsert().BI01_InsertProducts();
+
+            // generates this SQL:
+            // UPDATE linquser.customers SET address=NULL, city=?, companyname=NULL, 
+            // contactname=NULL, contacttitle=NULL, country=NULL, fax=NULL, phone=NULL, 
+            // postalcode=NULL, region=NULL WHERE  (customerid='AIRBU')
+            // which fails as some of the fields may not be null.
+            //new WriteTest().G9_UpdateOnlyChangedProperty();
+
+            // DUPLICATE KEY ON INSERT
+            //new CompositePK_Test().G10_DeleteTableWithCompositePK();
+
+            // The column value has not changed for some reason, so the assertion fails
+            //new CompositePK_Test().G11_UnchangedColumnShouldNotUpdated();
+
+            // DUPLICATE KEY ON INSERT
+            // it tries a delete first which fails
+            //new CompositePK_Test().G9_UpdateTableWithCompositePK();
+
+            // generates this SQL
+            // SELECT $.categoryid, $.discontinued, $.productid, $.productname, 
+            // $.quantityperunit, $.reorderlevel, $.supplierid, $.unitprice, $.unitsinstock, $.unitsonorder
+            // FROM linquser.products $ WHERE $.supplierid = 1 AND $.unitsinstock > 2 ORDER BY $.productid
+            // which failes as a single $ sign is not allowed for a table alias
+            //new DynamicLinqTest().DL1_Products();
+
+            /*=======================================================*/
+            /* These 101 Tests fail for various reasons, which look  */
+            /* more DBLinq-Core related and not Ingres related       */
+            /* I'm not even sure if those are supposed to be running */
+            /*=======================================================*/
+            //new Linq_101_Samples.AdvancedTest().LinqToSqlAdvanced06();
+            //new Linq_101_Samples.Count_Sum_Min_Max_Avg().LinqToSqlCount07();
+            //new Linq_101_Samples.Count_Sum_Min_Max_Avg().LiqnToSqlCount02();
+            //new Linq_101_Samples.Count_Sum_Min_Max_Avg().LinqToSqlCount10();
+            //new Linq_101_Samples.Join().LinqToSqlJoin03();
+            //new Linq_101_Samples.Join().LinqToSqlJoin10();
+            //new Linq_101_Samples.String_Date_functions().LinqToSqlString01();
+            //new Linq_101_Samples.Top_Bottom().LinqToSqlTop02();
+            //new Linq_101_Samples.Top_Bottom().LinqToSqlTop03_Ex_Andrus();
         }
     }
 }

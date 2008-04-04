@@ -42,21 +42,19 @@ namespace DbLinq.Ingres.Schema
         public string table_name_parent;
         /// <summary>
         /// e.g.
+        /// PRIMARY KEY (productid)
         /// FOREIGN KEY (productid) REFERENCES "linquser".products(productid)
         /// </summary>
         public string text_segment;
 
+        /// <summary>
+        /// P = PRIMARY KEY; R = FOREIGN KEY
+        /// </summary>
+        public string constraint_type;
+
         public override string ToString()
         {
             return text_segment;
-        }
-
-        public string constraint_type
-        {
-            get
-            {
-                return "FOREIGN KEY";
-            }
         }
 
         public string constraint_name
@@ -65,6 +63,22 @@ namespace DbLinq.Ingres.Schema
             {
                 return schema_name_parent + "_" + table_name_parent + "_" + column_name_parent + "_" +
                     schema_name_child + "_" + table_name_child + "_" + column_name_child;
+            }
+        }
+
+        public string[] column_name_primaries
+        {
+            get
+            {
+                string[] tmp = text_segment
+                    .Replace("PRIMARY KEY(", "")
+                    .Replace(")", "")
+                    .Split(',');
+                for (int i = 0; i < tmp.Length; i++)
+                {
+                    tmp[i] = tmp[i].Trim();
+                }
+                return tmp;
             }
         }
 
@@ -125,6 +139,7 @@ namespace DbLinq.Ingres.Schema
             t.schema_name_parent = rdr.GetString(field++).Trim();
             t.table_name_parent = rdr.GetString(field++).Trim();
             t.text_segment = rdr.GetString(field++).Trim();
+            t.constraint_type = rdr.GetString(field++).Trim();
             return t;
         }
 
@@ -134,12 +149,12 @@ namespace DbLinq.Ingres.Schema
 SELECT
     schema_name,
     table_name,
-    text_segment
+    text_segment,
+    constraint_type
 FROM
     iiconstraints
 WHERE
-    system_use = 'U' AND
-    constraint_type = 'R'";
+    system_use = 'U'";
 
             return DataCommand.Find<ForeignKeyCrossRef>(conn, sql, fromRow);
         }

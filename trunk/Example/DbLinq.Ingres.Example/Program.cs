@@ -40,7 +40,7 @@ namespace DbLinq.Ingres.Example
         static void Main(string[] args)
         {
 
-            string connStr = "server=(local);user id=<user>; password=<pwd>; database=demodb";
+            string connStr = "server=(local);user id=LinqUser; password=linq2; database=demodb";
             Demodb db = new Demodb(new IngresConnection(connStr));
 
             var result = from airline in db.AdminAirline select airline.AlName;

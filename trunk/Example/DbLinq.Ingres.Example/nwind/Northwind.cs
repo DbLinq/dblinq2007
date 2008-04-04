@@ -1,4 +1,4 @@
-#region Auto-generated classes for Northwind database on 2008-03-30 12:40:29Z
+#region Auto-generated classes for Northwind database on 2008-04-03 21:37:24Z
 
 //
 //  ____  _     __  __      _        _
@@ -7,7 +7,7 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from Northwind on 2008-03-30 12:40:29Z
+// Auto-generated from Northwind on 2008-04-03 21:37:24Z
 // Please visit http://linq.to/db for more information
 
 #endregion
@@ -62,10 +62,10 @@ namespace nwind
 		#region int CategoryID
 
 		[AutoGenId]
-		private System.Int32 categoryID;
-		[Column(Storage = "categoryID", Name = "categoryid", DbType = "INTEGER(4)", IsDbGenerated = true, CanBeNull = false)]
+		private int categoryID;
+		[Column(Storage = "categoryID", Name = "categoryid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.Int32 CategoryID
+		public int CategoryID
 		{
 			get
 			{
@@ -85,10 +85,10 @@ namespace nwind
 
 		#region string CategoryName
 
-		private System.String categoryName;
+		private string categoryName;
 		[Column(Storage = "categoryName", Name = "categoryname", DbType = "VARCHAR(15)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.String CategoryName
+		public string CategoryName
 		{
 			get
 			{
@@ -108,10 +108,10 @@ namespace nwind
 
 		#region string Description
 
-		private System.String description;
+		private string description;
 		[Column(Storage = "description", Name = "description", DbType = "VARCHAR(500)")]
 		[DebuggerNonUserCode]
-		public System.String Description
+		public string Description
 		{
 			get
 			{
@@ -131,10 +131,10 @@ namespace nwind
 
 		#region System.Byte[] Picture
 
-		private byte[] picture;
+		private System.Byte[] picture;
 		[Column(Storage = "picture", Name = "picture", DbType = "LONG BYTE")]
 		[DebuggerNonUserCode]
-		public byte[] Picture
+		public System.Byte[] Picture
 		{
 			get
 			{
@@ -152,7 +152,25 @@ namespace nwind
 
 		#endregion
 
-		#warning L189 table linquser.categories has no primary key. Multiple C# objects will refer to the same row.
+		#region GetHashCode(), Equals() - uses column CategoryID to look up objects in liveObjectMap
+
+		public override int GetHashCode()
+		{
+			return CategoryID.GetHashCode();
+		}
+
+		public override bool Equals(object o)
+		{
+			Category other = o as Category;
+			if (other == null)
+			{
+				return false;
+			}
+			return CategoryID.Equals(other.CategoryID);
+		}
+
+		#endregion
+
 		#region Children
 
 		[Association(Storage = "null", OtherKey = "CategoryID", Name = "linquser_products_categoryid_linquser_categories_categoryid")]
@@ -179,10 +197,10 @@ namespace nwind
 
 		#region string Address
 
-		private System.String address;
+		private string address;
 		[Column(Storage = "address", Name = "address", DbType = "VARCHAR(60)")]
 		[DebuggerNonUserCode]
-		public System.String Address
+		public string Address
 		{
 			get
 			{
@@ -202,10 +220,10 @@ namespace nwind
 
 		#region string City
 
-		private System.String city;
+		private string city;
 		[Column(Storage = "city", Name = "city", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
-		public System.String City
+		public string City
 		{
 			get
 			{
@@ -225,10 +243,10 @@ namespace nwind
 
 		#region string CompanyName
 
-		private System.String companyName;
+		private string companyName;
 		[Column(Storage = "companyName", Name = "companyname", DbType = "VARCHAR(40)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.String CompanyName
+		public string CompanyName
 		{
 			get
 			{
@@ -248,10 +266,10 @@ namespace nwind
 
 		#region string ContactName
 
-		private System.String contactName;
+		private string contactName;
 		[Column(Storage = "contactName", Name = "contactname", DbType = "VARCHAR(30)")]
 		[DebuggerNonUserCode]
-		public System.String ContactName
+		public string ContactName
 		{
 			get
 			{
@@ -271,10 +289,10 @@ namespace nwind
 
 		#region string ContactTitle
 
-		private System.String contactTitle;
+		private string contactTitle;
 		[Column(Storage = "contactTitle", Name = "contacttitle", DbType = "VARCHAR(30)")]
 		[DebuggerNonUserCode]
-		public System.String ContactTitle
+		public string ContactTitle
 		{
 			get
 			{
@@ -294,10 +312,10 @@ namespace nwind
 
 		#region string Country
 
-		private System.String country;
+		private string country;
 		[Column(Storage = "country", Name = "country", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
-		public System.String Country
+		public string Country
 		{
 			get
 			{
@@ -317,10 +335,10 @@ namespace nwind
 
 		#region string CustomerID
 
-		private System.String customerID;
-		[Column(Storage = "customerID", Name = "customerid", DbType = "VARCHAR(5)", CanBeNull = false)]
+		private string customerID;
+		[Column(Storage = "customerID", Name = "customerid", DbType = "VARCHAR(5)", IsPrimaryKey = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.String CustomerID
+		public string CustomerID
 		{
 			get
 			{
@@ -340,10 +358,10 @@ namespace nwind
 
 		#region string Fax
 
-		private System.String fax;
+		private string fax;
 		[Column(Storage = "fax", Name = "fax", DbType = "VARCHAR(24)")]
 		[DebuggerNonUserCode]
-		public System.String Fax
+		public string Fax
 		{
 			get
 			{
@@ -363,10 +381,10 @@ namespace nwind
 
 		#region string Phone
 
-		private System.String phone;
+		private string phone;
 		[Column(Storage = "phone", Name = "phone", DbType = "VARCHAR(24)")]
 		[DebuggerNonUserCode]
-		public System.String Phone
+		public string Phone
 		{
 			get
 			{
@@ -386,10 +404,10 @@ namespace nwind
 
 		#region string PostalCode
 
-		private System.String postalCode;
+		private string postalCode;
 		[Column(Storage = "postalCode", Name = "postalcode", DbType = "VARCHAR(10)")]
 		[DebuggerNonUserCode]
-		public System.String PostalCode
+		public string PostalCode
 		{
 			get
 			{
@@ -409,10 +427,10 @@ namespace nwind
 
 		#region string Region
 
-		private System.String region;
+		private string region;
 		[Column(Storage = "region", Name = "region", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
-		public System.String Region
+		public string Region
 		{
 			get
 			{
@@ -430,7 +448,25 @@ namespace nwind
 
 		#endregion
 
-		#warning L189 table linquser.customers has no primary key. Multiple C# objects will refer to the same row.
+		#region GetHashCode(), Equals() - uses column CustomerID to look up objects in liveObjectMap
+
+		public override int GetHashCode()
+		{
+			return CustomerID.GetHashCode();
+		}
+
+		public override bool Equals(object o)
+		{
+			Customer other = o as Customer;
+			if (other == null)
+			{
+				return false;
+			}
+			return CustomerID.Equals(other.CustomerID);
+		}
+
+		#endregion
+
 		#region Children
 
 		[Association(Storage = "null", OtherKey = "CustomerID", Name = "linquser_orders_customerid_linquser_customers_customerid")]
@@ -457,10 +493,10 @@ namespace nwind
 
 		#region string Address
 
-		private System.String address;
+		private string address;
 		[Column(Storage = "address", Name = "address", DbType = "VARCHAR(60)")]
 		[DebuggerNonUserCode]
-		public System.String Address
+		public string Address
 		{
 			get
 			{
@@ -503,10 +539,10 @@ namespace nwind
 
 		#region string City
 
-		private System.String city;
+		private string city;
 		[Column(Storage = "city", Name = "city", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
-		public System.String City
+		public string City
 		{
 			get
 			{
@@ -526,10 +562,10 @@ namespace nwind
 
 		#region string Country
 
-		private System.String country;
+		private string country;
 		[Column(Storage = "country", Name = "country", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
-		public System.String Country
+		public string Country
 		{
 			get
 			{
@@ -550,10 +586,10 @@ namespace nwind
 		#region int EmployeeID
 
 		[AutoGenId]
-		private System.Int32 employeeID;
-		[Column(Storage = "employeeID", Name = "employeeid", DbType = "INTEGER(4)", IsDbGenerated = true, CanBeNull = false)]
+		private int employeeID;
+		[Column(Storage = "employeeID", Name = "employeeid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.Int32 EmployeeID
+		public int EmployeeID
 		{
 			get
 			{
@@ -573,10 +609,10 @@ namespace nwind
 
 		#region string FirstName
 
-		private System.String firstName;
+		private string firstName;
 		[Column(Storage = "firstName", Name = "firstname", DbType = "VARCHAR(10)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.String FirstName
+		public string FirstName
 		{
 			get
 			{
@@ -619,10 +655,10 @@ namespace nwind
 
 		#region string HomePhone
 
-		private System.String homePhone;
+		private string homePhone;
 		[Column(Storage = "homePhone", Name = "homephone", DbType = "VARCHAR(24)")]
 		[DebuggerNonUserCode]
-		public System.String HomePhone
+		public string HomePhone
 		{
 			get
 			{
@@ -642,10 +678,10 @@ namespace nwind
 
 		#region string LastName
 
-		private System.String lastName;
+		private string lastName;
 		[Column(Storage = "lastName", Name = "lastname", DbType = "VARCHAR(20)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.String LastName
+		public string LastName
 		{
 			get
 			{
@@ -665,10 +701,10 @@ namespace nwind
 
 		#region string Notes
 
-		private System.String notes;
+		private string notes;
 		[Column(Storage = "notes", Name = "notes", DbType = "VARCHAR(100)")]
 		[DebuggerNonUserCode]
-		public System.String Notes
+		public string Notes
 		{
 			get
 			{
@@ -688,10 +724,10 @@ namespace nwind
 
 		#region System.Byte[] Photo
 
-		private byte[] photo;
+		private System.Byte[] photo;
 		[Column(Storage = "photo", Name = "photo", DbType = "LONG BYTE")]
 		[DebuggerNonUserCode]
-		public byte[] Photo
+		public System.Byte[] Photo
 		{
 			get
 			{
@@ -711,10 +747,10 @@ namespace nwind
 
 		#region string PostalCode
 
-		private System.String postalCode;
+		private string postalCode;
 		[Column(Storage = "postalCode", Name = "postalcode", DbType = "VARCHAR(10)")]
 		[DebuggerNonUserCode]
-		public System.String PostalCode
+		public string PostalCode
 		{
 			get
 			{
@@ -734,10 +770,10 @@ namespace nwind
 
 		#region string Region
 
-		private System.String region;
+		private string region;
 		[Column(Storage = "region", Name = "region", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
-		public System.String Region
+		public string Region
 		{
 			get
 			{
@@ -757,10 +793,10 @@ namespace nwind
 
 		#region int? ReportsTo
 
-		private System.Int32? reportsTo;
+		private int? reportsTo;
 		[Column(Storage = "reportsTo", Name = "reportsto", DbType = "INTEGER(4)")]
 		[DebuggerNonUserCode]
-		public System.Int32? ReportsTo
+		public int? ReportsTo
 		{
 			get
 			{
@@ -780,10 +816,10 @@ namespace nwind
 
 		#region string Title
 
-		private System.String title;
+		private string title;
 		[Column(Storage = "title", Name = "title", DbType = "VARCHAR(30)")]
 		[DebuggerNonUserCode]
-		public System.String Title
+		public string Title
 		{
 			get
 			{
@@ -801,7 +837,25 @@ namespace nwind
 
 		#endregion
 
-		#warning L189 table linquser.employees has no primary key. Multiple C# objects will refer to the same row.
+		#region GetHashCode(), Equals() - uses column EmployeeID to look up objects in liveObjectMap
+
+		public override int GetHashCode()
+		{
+			return EmployeeID.GetHashCode();
+		}
+
+		public override bool Equals(object o)
+		{
+			Employee other = o as Employee;
+			if (other == null)
+			{
+				return false;
+			}
+			return EmployeeID.Equals(other.EmployeeID);
+		}
+
+		#endregion
+
 		#region Children
 
 		[Association(Storage = "null", OtherKey = "EmployeeID", Name = "linquser_employees_reportsto_linquser_employees_employeeid")]
@@ -870,10 +924,10 @@ namespace nwind
 
 		#region int EmployeeID
 
-		private System.Int32 employeeID;
-		[Column(Storage = "employeeID", Name = "employeeid", DbType = "INTEGER(4)", CanBeNull = false)]
+		private int employeeID;
+		[Column(Storage = "employeeID", Name = "employeeid", DbType = "INTEGER(4)", IsPrimaryKey = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.Int32 EmployeeID
+		public int EmployeeID
 		{
 			get
 			{
@@ -893,10 +947,10 @@ namespace nwind
 
 		#region string TerritoryID
 
-		private System.String territoryID;
-		[Column(Storage = "territoryID", Name = "territoryid", DbType = "VARCHAR(20)", CanBeNull = false)]
+		private string territoryID;
+		[Column(Storage = "territoryID", Name = "territoryid", DbType = "VARCHAR(20)", IsPrimaryKey = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.String TerritoryID
+		public string TerritoryID
 		{
 			get
 			{
@@ -914,7 +968,25 @@ namespace nwind
 
 		#endregion
 
-		#warning L189 table linquser.employeeterritories has no primary key. Multiple C# objects will refer to the same row.
+		#region GetHashCode(), Equals() - uses column EmployeeID, TerritoryID to look up objects in liveObjectMap
+
+		public override int GetHashCode()
+		{
+			return EmployeeID.GetHashCode() ^ TerritoryID.GetHashCode();
+		}
+
+		public override bool Equals(object o)
+		{
+			EmployeeTerritory other = o as EmployeeTerritory;
+			if (other == null)
+			{
+				return false;
+			}
+			return EmployeeID.Equals(other.EmployeeID) && TerritoryID.Equals(other.TerritoryID);
+		}
+
+		#endregion
+
 		#region Parents
 
 		private System.Data.Linq.EntityRef<Territory> linqUserEmployeeTerritoriesTerritoryIDLinqUserTerritoriesTerritoryID;
@@ -960,10 +1032,10 @@ namespace nwind
 
 		#region string PerKey
 
-		private System.String perKey;
-		[Column(Storage = "perKey", Name = "per_key", DbType = "CHAR(8)", IsPrimaryKey = true, CanBeNull = false)]
+		private string perKey;
+		[Column(Storage = "perKey", Name = "per_key", DbType = "CHAR(8)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.String PerKey
+		public string PerKey
 		{
 			get
 			{
@@ -983,10 +1055,10 @@ namespace nwind
 
 		#region int PerNext
 
-		private System.Int32 perNext;
+		private int perNext;
 		[Column(Storage = "perNext", Name = "per_next", DbType = "INTEGER(4)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.Int32 PerNext
+		public int PerNext
 		{
 			get
 			{
@@ -1006,10 +1078,10 @@ namespace nwind
 
 		#region int PerSegment0
 
-		private System.Int32 perSegment0;
-		[Column(Storage = "perSegment0", Name = "per_segment0", DbType = "INTEGER(4)", IsPrimaryKey = true, CanBeNull = false)]
+		private int perSegment0;
+		[Column(Storage = "perSegment0", Name = "per_segment0", DbType = "INTEGER(4)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.Int32 PerSegment0
+		public int PerSegment0
 		{
 			get
 			{
@@ -1029,10 +1101,10 @@ namespace nwind
 
 		#region int PerSegment1
 
-		private System.Int32 perSegment1;
-		[Column(Storage = "perSegment1", Name = "per_segment1", DbType = "INTEGER(4)", IsPrimaryKey = true, CanBeNull = false)]
+		private int perSegment1;
+		[Column(Storage = "perSegment1", Name = "per_segment1", DbType = "INTEGER(4)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.Int32 PerSegment1
+		public int PerSegment1
 		{
 			get
 			{
@@ -1052,10 +1124,10 @@ namespace nwind
 
 		#region System.Byte[] PerValue
 
-		private byte[] perValue;
+		private System.Byte[] perValue;
 		[Column(Storage = "perValue", Name = "per_value", DbType = "BYTE VARYING", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public byte[] PerValue
+		public System.Byte[] PerValue
 		{
 			get
 			{
@@ -1073,25 +1145,7 @@ namespace nwind
 
 		#endregion
 
-		#region GetHashCode(), Equals() - uses column PerKey, PerSegment0, PerSegment1 to look up objects in liveObjectMap
-
-		public override int GetHashCode()
-		{
-			return PerKey.GetHashCode() ^ PerSegment0.GetHashCode() ^ PerSegment1.GetHashCode();
-		}
-
-		public override bool Equals(object o)
-		{
-			IIeTab107108 other = o as IIeTab107108;
-			if (other == null)
-			{
-				return false;
-			}
-			return PerKey.Equals(other.PerKey) && PerSegment0.Equals(other.PerSegment0) && PerSegment1.Equals(other.PerSegment1);
-		}
-
-		#endregion
-
+		#warning L189 table linquser.iietab_107_108 has no primary key. Multiple C# objects will refer to the same row.
 	}
 
 	[Table(Name = "linquser.iietab_12b_12c")]
@@ -1102,10 +1156,10 @@ namespace nwind
 
 		#region string PerKey
 
-		private System.String perKey;
-		[Column(Storage = "perKey", Name = "per_key", DbType = "CHAR(8)", IsPrimaryKey = true, CanBeNull = false)]
+		private string perKey;
+		[Column(Storage = "perKey", Name = "per_key", DbType = "CHAR(8)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.String PerKey
+		public string PerKey
 		{
 			get
 			{
@@ -1125,10 +1179,10 @@ namespace nwind
 
 		#region int PerNext
 
-		private System.Int32 perNext;
+		private int perNext;
 		[Column(Storage = "perNext", Name = "per_next", DbType = "INTEGER(4)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.Int32 PerNext
+		public int PerNext
 		{
 			get
 			{
@@ -1148,10 +1202,10 @@ namespace nwind
 
 		#region int PerSegment0
 
-		private System.Int32 perSegment0;
-		[Column(Storage = "perSegment0", Name = "per_segment0", DbType = "INTEGER(4)", IsPrimaryKey = true, CanBeNull = false)]
+		private int perSegment0;
+		[Column(Storage = "perSegment0", Name = "per_segment0", DbType = "INTEGER(4)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.Int32 PerSegment0
+		public int PerSegment0
 		{
 			get
 			{
@@ -1171,10 +1225,10 @@ namespace nwind
 
 		#region int PerSegment1
 
-		private System.Int32 perSegment1;
-		[Column(Storage = "perSegment1", Name = "per_segment1", DbType = "INTEGER(4)", IsPrimaryKey = true, CanBeNull = false)]
+		private int perSegment1;
+		[Column(Storage = "perSegment1", Name = "per_segment1", DbType = "INTEGER(4)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.Int32 PerSegment1
+		public int PerSegment1
 		{
 			get
 			{
@@ -1194,10 +1248,10 @@ namespace nwind
 
 		#region System.Byte[] PerValue
 
-		private byte[] perValue;
+		private System.Byte[] perValue;
 		[Column(Storage = "perValue", Name = "per_value", DbType = "BYTE VARYING", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public byte[] PerValue
+		public System.Byte[] PerValue
 		{
 			get
 			{
@@ -1215,25 +1269,7 @@ namespace nwind
 
 		#endregion
 
-		#region GetHashCode(), Equals() - uses column PerKey, PerSegment0, PerSegment1 to look up objects in liveObjectMap
-
-		public override int GetHashCode()
-		{
-			return PerKey.GetHashCode() ^ PerSegment0.GetHashCode() ^ PerSegment1.GetHashCode();
-		}
-
-		public override bool Equals(object o)
-		{
-			IIeTab12B12C other = o as IIeTab12B12C;
-			if (other == null)
-			{
-				return false;
-			}
-			return PerKey.Equals(other.PerKey) && PerSegment0.Equals(other.PerSegment0) && PerSegment1.Equals(other.PerSegment1);
-		}
-
-		#endregion
-
+		#warning L189 table linquser.iietab_12b_12c has no primary key. Multiple C# objects will refer to the same row.
 	}
 
 	[Table(Name = "linquser.orders")]
@@ -1244,10 +1280,10 @@ namespace nwind
 
 		#region string CustomerID
 
-		private System.String customerID;
+		private string customerID;
 		[Column(Storage = "customerID", Name = "customerid", DbType = "VARCHAR(5)")]
 		[DebuggerNonUserCode]
-		public System.String CustomerID
+		public string CustomerID
 		{
 			get
 			{
@@ -1267,10 +1303,10 @@ namespace nwind
 
 		#region int? EmployeeID
 
-		private System.Int32? employeeID;
+		private int? employeeID;
 		[Column(Storage = "employeeID", Name = "employeeid", DbType = "INTEGER(4)")]
 		[DebuggerNonUserCode]
-		public System.Int32? EmployeeID
+		public int? EmployeeID
 		{
 			get
 			{
@@ -1290,10 +1326,10 @@ namespace nwind
 
 		#region decimal? Freight
 
-		private System.Decimal? freight;
+		private decimal? freight;
 		[Column(Storage = "freight", Name = "freight", DbType = "DECIMAL(5, 0)")]
 		[DebuggerNonUserCode]
-		public System.Decimal? Freight
+		public decimal? Freight
 		{
 			get
 			{
@@ -1337,10 +1373,10 @@ namespace nwind
 		#region int OrderID
 
 		[AutoGenId]
-		private System.Int32 orderID;
-		[Column(Storage = "orderID", Name = "orderid", DbType = "INTEGER(4)", IsDbGenerated = true, CanBeNull = false)]
+		private int orderID;
+		[Column(Storage = "orderID", Name = "orderid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.Int32 OrderID
+		public int OrderID
 		{
 			get
 			{
@@ -1383,10 +1419,10 @@ namespace nwind
 
 		#region string ShipAddress
 
-		private System.String shipAddress;
+		private string shipAddress;
 		[Column(Storage = "shipAddress", Name = "shipaddress", DbType = "VARCHAR(60)")]
 		[DebuggerNonUserCode]
-		public System.String ShipAddress
+		public string ShipAddress
 		{
 			get
 			{
@@ -1406,10 +1442,10 @@ namespace nwind
 
 		#region string ShipCity
 
-		private System.String shipCity;
+		private string shipCity;
 		[Column(Storage = "shipCity", Name = "shipcity", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
-		public System.String ShipCity
+		public string ShipCity
 		{
 			get
 			{
@@ -1429,10 +1465,10 @@ namespace nwind
 
 		#region string ShipCountry
 
-		private System.String shipCountry;
+		private string shipCountry;
 		[Column(Storage = "shipCountry", Name = "shipcountry", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
-		public System.String ShipCountry
+		public string ShipCountry
 		{
 			get
 			{
@@ -1452,10 +1488,10 @@ namespace nwind
 
 		#region string ShipName
 
-		private System.String shipName;
+		private string shipName;
 		[Column(Storage = "shipName", Name = "shipname", DbType = "VARCHAR(40)")]
 		[DebuggerNonUserCode]
-		public System.String ShipName
+		public string ShipName
 		{
 			get
 			{
@@ -1498,10 +1534,10 @@ namespace nwind
 
 		#region string ShipPostalCode
 
-		private System.String shipPostalCode;
+		private string shipPostalCode;
 		[Column(Storage = "shipPostalCode", Name = "shippostalcode", DbType = "VARCHAR(10)")]
 		[DebuggerNonUserCode]
-		public System.String ShipPostalCode
+		public string ShipPostalCode
 		{
 			get
 			{
@@ -1521,10 +1557,10 @@ namespace nwind
 
 		#region string ShipRegion
 
-		private System.String shipRegion;
+		private string shipRegion;
 		[Column(Storage = "shipRegion", Name = "shipregion", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
-		public System.String ShipRegion
+		public string ShipRegion
 		{
 			get
 			{
@@ -1544,10 +1580,10 @@ namespace nwind
 
 		#region int? ShipVia
 
-		private System.Int32? shipVia;
+		private int? shipVia;
 		[Column(Storage = "shipVia", Name = "shipvia", DbType = "INTEGER(4)")]
 		[DebuggerNonUserCode]
-		public System.Int32? ShipVia
+		public int? ShipVia
 		{
 			get
 			{
@@ -1565,7 +1601,25 @@ namespace nwind
 
 		#endregion
 
-		#warning L189 table linquser.orders has no primary key. Multiple C# objects will refer to the same row.
+		#region GetHashCode(), Equals() - uses column OrderID to look up objects in liveObjectMap
+
+		public override int GetHashCode()
+		{
+			return OrderID.GetHashCode();
+		}
+
+		public override bool Equals(object o)
+		{
+			Order other = o as Order;
+			if (other == null)
+			{
+				return false;
+			}
+			return OrderID.Equals(other.OrderID);
+		}
+
+		#endregion
+
 		#region Children
 
 		[Association(Storage = "null", OtherKey = "OrderID", Name = "linquser_orderdetails_orderid_linquser_orders_orderid")]
@@ -1627,10 +1681,10 @@ namespace nwind
 
 		#region double Discount
 
-		private System.Double discount;
+		private double discount;
 		[Column(Storage = "discount", Name = "discount", DbType = "FLOAT", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.Double Discount
+		public double Discount
 		{
 			get
 			{
@@ -1650,10 +1704,10 @@ namespace nwind
 
 		#region int OrderID
 
-		private System.Int32 orderID;
-		[Column(Storage = "orderID", Name = "orderid", DbType = "INTEGER(4)", CanBeNull = false)]
+		private int orderID;
+		[Column(Storage = "orderID", Name = "orderid", DbType = "INTEGER(4)", IsPrimaryKey = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.Int32 OrderID
+		public int OrderID
 		{
 			get
 			{
@@ -1673,10 +1727,10 @@ namespace nwind
 
 		#region int ProductID
 
-		private System.Int32 productID;
-		[Column(Storage = "productID", Name = "productid", DbType = "INTEGER(4)", CanBeNull = false)]
+		private int productID;
+		[Column(Storage = "productID", Name = "productid", DbType = "INTEGER(4)", IsPrimaryKey = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.Int32 ProductID
+		public int ProductID
 		{
 			get
 			{
@@ -1696,10 +1750,10 @@ namespace nwind
 
 		#region short Quantity
 
-		private System.Int16 quantity;
+		private short quantity;
 		[Column(Storage = "quantity", Name = "quantity", DbType = "INTEGER(2)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.Int16 Quantity
+		public short Quantity
 		{
 			get
 			{
@@ -1719,10 +1773,10 @@ namespace nwind
 
 		#region decimal UnitPrice
 
-		private System.Decimal unitPrice;
+		private decimal unitPrice;
 		[Column(Storage = "unitPrice", Name = "unitprice", DbType = "DECIMAL(5, 0)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.Decimal UnitPrice
+		public decimal UnitPrice
 		{
 			get
 			{
@@ -1740,23 +1794,26 @@ namespace nwind
 
 		#endregion
 
-		#warning L189 table linquser.orderdetails has no primary key. Multiple C# objects will refer to the same row.
-		#region Parents
+		#region GetHashCode(), Equals() - uses column OrderID, ProductID to look up objects in liveObjectMap
 
-		private System.Data.Linq.EntityRef<Order> linqUserOrderDetailsOrderIDLinqUserOrdersOrderID;
-		[Association(Storage = "linqUserOrderDetailsOrderIDLinqUserOrdersOrderID", ThisKey = "OrderID", Name = "linquser_orderdetails_orderid_linquser_orders_orderid")]
-		[DebuggerNonUserCode]
-		public Order Order
+		public override int GetHashCode()
 		{
-			get
-			{
-				return linqUserOrderDetailsOrderIDLinqUserOrdersOrderID.Entity;
-			}
-			set
-			{
-				linqUserOrderDetailsOrderIDLinqUserOrdersOrderID.Entity = value;
-			}
+			return OrderID.GetHashCode() ^ ProductID.GetHashCode();
 		}
+
+		public override bool Equals(object o)
+		{
+			OrderDetail other = o as OrderDetail;
+			if (other == null)
+			{
+				return false;
+			}
+			return OrderID.Equals(other.OrderID) && ProductID.Equals(other.ProductID);
+		}
+
+		#endregion
+
+		#region Parents
 
 		private System.Data.Linq.EntityRef<Product> linqUserOrderDetailsProductIDLinqUserProductsProductID;
 		[Association(Storage = "linqUserOrderDetailsProductIDLinqUserProductsProductID", ThisKey = "ProductID", Name = "linquser_orderdetails_productid_linquser_products_productid")]
@@ -1773,6 +1830,21 @@ namespace nwind
 			}
 		}
 
+		private System.Data.Linq.EntityRef<Order> linqUserOrderDetailsOrderIDLinqUserOrdersOrderID;
+		[Association(Storage = "linqUserOrderDetailsOrderIDLinqUserOrdersOrderID", ThisKey = "OrderID", Name = "linquser_orderdetails_orderid_linquser_orders_orderid")]
+		[DebuggerNonUserCode]
+		public Order Order
+		{
+			get
+			{
+				return linqUserOrderDetailsOrderIDLinqUserOrdersOrderID.Entity;
+			}
+			set
+			{
+				linqUserOrderDetailsOrderIDLinqUserOrdersOrderID.Entity = value;
+			}
+		}
+
 
 		#endregion
 
@@ -1786,10 +1858,10 @@ namespace nwind
 
 		#region int? CategoryID
 
-		private System.Int32? categoryID;
+		private int? categoryID;
 		[Column(Storage = "categoryID", Name = "categoryid", DbType = "INTEGER(4)")]
 		[DebuggerNonUserCode]
-		public System.Int32? CategoryID
+		public int? CategoryID
 		{
 			get
 			{
@@ -1807,7 +1879,7 @@ namespace nwind
 
 		#endregion
 
-		#region short Discontinued
+		#region bool Discontinued
 
 		private bool discontinued;
 		[Column(Storage = "discontinued", Name = "discontinued", DbType = "INTEGER(2)", CanBeNull = false)]
@@ -1833,10 +1905,10 @@ namespace nwind
 		#region int ProductID
 
 		[AutoGenId]
-		private System.Int32 productID;
-		[Column(Storage = "productID", Name = "productid", DbType = "INTEGER(4)", IsDbGenerated = true, CanBeNull = false)]
+		private int productID;
+		[Column(Storage = "productID", Name = "productid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression="next value for \"linquser\".\"region_seq\"")]
 		[DebuggerNonUserCode]
-		public System.Int32 ProductID
+		public int ProductID
 		{
 			get
 			{
@@ -1856,10 +1928,10 @@ namespace nwind
 
 		#region string ProductName
 
-		private System.String productName;
+		private string productName;
 		[Column(Storage = "productName", Name = "productname", DbType = "VARCHAR(40)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.String ProductName
+		public string ProductName
 		{
 			get
 			{
@@ -1879,10 +1951,10 @@ namespace nwind
 
 		#region string QuantityPerUnit
 
-		private System.String quantityPerUnit;
+		private string quantityPerUnit;
 		[Column(Storage = "quantityPerUnit", Name = "quantityperunit", DbType = "VARCHAR(20)")]
 		[DebuggerNonUserCode]
-		public System.String QuantityPerUnit
+		public string QuantityPerUnit
 		{
 			get
 			{
@@ -1902,10 +1974,10 @@ namespace nwind
 
 		#region short? ReorderLevel
 
-		private System.Int16? reorderLevel;
+		private short? reorderLevel;
 		[Column(Storage = "reorderLevel", Name = "reorderlevel", DbType = "INTEGER(2)")]
 		[DebuggerNonUserCode]
-		public System.Int16? ReorderLevel
+		public short? ReorderLevel
 		{
 			get
 			{
@@ -1925,10 +1997,10 @@ namespace nwind
 
 		#region int? SupplierID
 
-		private System.Int32? supplierID;
+		private int? supplierID;
 		[Column(Storage = "supplierID", Name = "supplierid", DbType = "INTEGER(4)")]
 		[DebuggerNonUserCode]
-		public System.Int32? SupplierID
+		public int? SupplierID
 		{
 			get
 			{
@@ -1948,10 +2020,10 @@ namespace nwind
 
 		#region decimal? UnitPrice
 
-		private System.Decimal? unitPrice;
+		private decimal? unitPrice;
 		[Column(Storage = "unitPrice", Name = "unitprice", DbType = "DECIMAL(5, 0)")]
 		[DebuggerNonUserCode]
-		public System.Decimal? UnitPrice
+		public decimal? UnitPrice
 		{
 			get
 			{
@@ -1971,10 +2043,10 @@ namespace nwind
 
 		#region short? UnitsInStock
 
-		private System.Int16? unitsInStock;
+		private short? unitsInStock;
 		[Column(Storage = "unitsInStock", Name = "unitsinstock", DbType = "INTEGER(2)")]
 		[DebuggerNonUserCode]
-		public System.Int16? UnitsInStock
+		public short? UnitsInStock
 		{
 			get
 			{
@@ -1994,10 +2066,10 @@ namespace nwind
 
 		#region short? UnitsOnOrder
 
-		private System.Int16? unitsOnOrder;
+		private short? unitsOnOrder;
 		[Column(Storage = "unitsOnOrder", Name = "unitsonorder", DbType = "INTEGER(2)")]
 		[DebuggerNonUserCode]
-		public System.Int16? UnitsOnOrder
+		public short? UnitsOnOrder
 		{
 			get
 			{
@@ -2015,7 +2087,25 @@ namespace nwind
 
 		#endregion
 
-		#warning L189 table linquser.products has no primary key. Multiple C# objects will refer to the same row.
+		#region GetHashCode(), Equals() - uses column ProductID to look up objects in liveObjectMap
+
+		public override int GetHashCode()
+		{
+			return ProductID.GetHashCode();
+		}
+
+		public override bool Equals(object o)
+		{
+			Product other = o as Product;
+			if (other == null)
+			{
+				return false;
+			}
+			return ProductID.Equals(other.ProductID);
+		}
+
+		#endregion
+
 		#region Children
 
 		[Association(Storage = "null", OtherKey = "ProductID", Name = "linquser_orderdetails_productid_linquser_products_productid")]
@@ -2077,10 +2167,10 @@ namespace nwind
 
 		#region string RegionDescription
 
-		private System.String regionDescription;
+		private string regionDescription;
 		[Column(Storage = "regionDescription", Name = "regiondescription", DbType = "VARCHAR(50)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.String RegionDescription
+		public string RegionDescription
 		{
 			get
 			{
@@ -2101,10 +2191,10 @@ namespace nwind
 		#region int RegionID
 
 		[AutoGenId]
-		private System.Int32 regionID;
-		[Column(Storage = "regionID", Name = "regionid", DbType = "INTEGER(4)", IsDbGenerated = true, CanBeNull = false)]
+		private int regionID;
+		[Column(Storage = "regionID", Name = "regionid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.Int32 RegionID
+		public int RegionID
 		{
 			get
 			{
@@ -2122,7 +2212,25 @@ namespace nwind
 
 		#endregion
 
-		#warning L189 table linquser.region has no primary key. Multiple C# objects will refer to the same row.
+		#region GetHashCode(), Equals() - uses column RegionID to look up objects in liveObjectMap
+
+		public override int GetHashCode()
+		{
+			return RegionID.GetHashCode();
+		}
+
+		public override bool Equals(object o)
+		{
+			Region other = o as Region;
+			if (other == null)
+			{
+				return false;
+			}
+			return RegionID.Equals(other.RegionID);
+		}
+
+		#endregion
+
 		#region Children
 
 		[Association(Storage = "null", OtherKey = "RegionID", Name = "linquser_territories_regionid_linquser_region_regionid")]
@@ -2149,10 +2257,10 @@ namespace nwind
 
 		#region string Address
 
-		private System.String address;
+		private string address;
 		[Column(Storage = "address", Name = "address", DbType = "VARCHAR(60)")]
 		[DebuggerNonUserCode]
-		public System.String Address
+		public string Address
 		{
 			get
 			{
@@ -2172,10 +2280,10 @@ namespace nwind
 
 		#region string City
 
-		private System.String city;
+		private string city;
 		[Column(Storage = "city", Name = "city", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
-		public System.String City
+		public string City
 		{
 			get
 			{
@@ -2195,10 +2303,10 @@ namespace nwind
 
 		#region string CompanyName
 
-		private System.String companyName;
+		private string companyName;
 		[Column(Storage = "companyName", Name = "companyname", DbType = "VARCHAR(40)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.String CompanyName
+		public string CompanyName
 		{
 			get
 			{
@@ -2218,10 +2326,10 @@ namespace nwind
 
 		#region string ContactName
 
-		private System.String contactName;
+		private string contactName;
 		[Column(Storage = "contactName", Name = "contactname", DbType = "VARCHAR(30)")]
 		[DebuggerNonUserCode]
-		public System.String ContactName
+		public string ContactName
 		{
 			get
 			{
@@ -2241,10 +2349,10 @@ namespace nwind
 
 		#region string ContactTitle
 
-		private System.String contactTitle;
+		private string contactTitle;
 		[Column(Storage = "contactTitle", Name = "contacttitle", DbType = "VARCHAR(30)")]
 		[DebuggerNonUserCode]
-		public System.String ContactTitle
+		public string ContactTitle
 		{
 			get
 			{
@@ -2264,10 +2372,10 @@ namespace nwind
 
 		#region string Country
 
-		private System.String country;
+		private string country;
 		[Column(Storage = "country", Name = "country", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
-		public System.String Country
+		public string Country
 		{
 			get
 			{
@@ -2287,10 +2395,10 @@ namespace nwind
 
 		#region string Fax
 
-		private System.String fax;
+		private string fax;
 		[Column(Storage = "fax", Name = "fax", DbType = "VARCHAR(24)")]
 		[DebuggerNonUserCode]
-		public System.String Fax
+		public string Fax
 		{
 			get
 			{
@@ -2310,10 +2418,10 @@ namespace nwind
 
 		#region string Phone
 
-		private System.String phone;
+		private string phone;
 		[Column(Storage = "phone", Name = "phone", DbType = "VARCHAR(24)")]
 		[DebuggerNonUserCode]
-		public System.String Phone
+		public string Phone
 		{
 			get
 			{
@@ -2333,10 +2441,10 @@ namespace nwind
 
 		#region string PostalCode
 
-		private System.String postalCode;
+		private string postalCode;
 		[Column(Storage = "postalCode", Name = "postalcode", DbType = "VARCHAR(10)")]
 		[DebuggerNonUserCode]
-		public System.String PostalCode
+		public string PostalCode
 		{
 			get
 			{
@@ -2356,10 +2464,10 @@ namespace nwind
 
 		#region string Region
 
-		private System.String region;
+		private string region;
 		[Column(Storage = "region", Name = "region", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
-		public System.String Region
+		public string Region
 		{
 			get
 			{
@@ -2380,10 +2488,10 @@ namespace nwind
 		#region int SupplierID
 
 		[AutoGenId]
-		private System.Int32 supplierID;
-		[Column(Storage = "supplierID", Name = "supplierid", DbType = "INTEGER(4)", IsDbGenerated = true, CanBeNull = false)]
+		private int supplierID;
+		[Column(Storage = "supplierID", Name = "supplierid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.Int32 SupplierID
+		public int SupplierID
 		{
 			get
 			{
@@ -2401,7 +2509,25 @@ namespace nwind
 
 		#endregion
 
-		#warning L189 table linquser.suppliers has no primary key. Multiple C# objects will refer to the same row.
+		#region GetHashCode(), Equals() - uses column SupplierID to look up objects in liveObjectMap
+
+		public override int GetHashCode()
+		{
+			return SupplierID.GetHashCode();
+		}
+
+		public override bool Equals(object o)
+		{
+			Supplier other = o as Supplier;
+			if (other == null)
+			{
+				return false;
+			}
+			return SupplierID.Equals(other.SupplierID);
+		}
+
+		#endregion
+
 		#region Children
 
 		[Association(Storage = "null", OtherKey = "SupplierID", Name = "linquser_products_supplierid_linquser_suppliers_supplierid")]
@@ -2428,10 +2554,10 @@ namespace nwind
 
 		#region int RegionID
 
-		private System.Int32 regionID;
+		private int regionID;
 		[Column(Storage = "regionID", Name = "regionid", DbType = "INTEGER(4)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.Int32 RegionID
+		public int RegionID
 		{
 			get
 			{
@@ -2451,10 +2577,10 @@ namespace nwind
 
 		#region string TerritoryDescription
 
-		private System.String territoryDescription;
+		private string territoryDescription;
 		[Column(Storage = "territoryDescription", Name = "territorydescription", DbType = "VARCHAR(50)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.String TerritoryDescription
+		public string TerritoryDescription
 		{
 			get
 			{
@@ -2474,10 +2600,10 @@ namespace nwind
 
 		#region string TerritoryID
 
-		private System.String territoryID;
-		[Column(Storage = "territoryID", Name = "territoryid", DbType = "VARCHAR(20)", CanBeNull = false)]
+		private string territoryID;
+		[Column(Storage = "territoryID", Name = "territoryid", DbType = "VARCHAR(20)", IsPrimaryKey = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public System.String TerritoryID
+		public string TerritoryID
 		{
 			get
 			{
@@ -2495,7 +2621,25 @@ namespace nwind
 
 		#endregion
 
-		#warning L189 table linquser.territories has no primary key. Multiple C# objects will refer to the same row.
+		#region GetHashCode(), Equals() - uses column TerritoryID to look up objects in liveObjectMap
+
+		public override int GetHashCode()
+		{
+			return TerritoryID.GetHashCode();
+		}
+
+		public override bool Equals(object o)
+		{
+			Territory other = o as Territory;
+			if (other == null)
+			{
+				return false;
+			}
+			return TerritoryID.Equals(other.TerritoryID);
+		}
+
+		#endregion
+
 		#region Children
 
 		[Association(Storage = "null", OtherKey = "TerritoryID", Name = "linquser_employeeterritories_territoryid_linquser_territories_territoryid")]
