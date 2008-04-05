@@ -309,31 +309,9 @@ namespace DbLinq.MySql
         {
             //strip 'CHARSET latin1' from the end
             string dbType2 = re_CHARSET.Replace(dbType1, "");
-            bool isUnsigned = false;
-            int? length = null;
-            string varType = dbType2.Trim().ToLower();
-            string varTypeQualifier = "";
-            int indxQuote = varType.IndexOf('(');
-            if (indxQuote > -1)
-            {
-                //split 'CHAR(30)' into 'char' and '(30)'
-                varTypeQualifier = varType.Substring(indxQuote);
-                length = int.Parse(varTypeQualifier.TrimStart('(').TrimEnd(')'));
-                varType = varType.Substring(0, indxQuote);
-            }
-            else if (varType.IndexOf("unsigned", StringComparison.OrdinalIgnoreCase) > -1)
-            {
-                isUnsigned = true;
-                varType = varType.Replace("unsigned", "").Trim();
-            }
-            var dataType = new DataType
-            {
-                Type = varType,
-                Length = length,
-                Unsigned = isUnsigned
-            };
-            string dbTypeStr = MapDbType(dataType).ToString();
-            return dbTypeStr;
+            var dataType = new DataType();
+            dataType.UnpackRawDbType(dbType2);
+            return MapDbType(dataType).ToString();
         }
     }
 }

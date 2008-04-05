@@ -106,6 +106,7 @@
     <Compile Include="Util\ExprVisitor\CountExpressionModifier.cs" />
     <Compile Include="Util\ExprVisitor\ExpressionVisitor.cs" />
     <Compile Include="Util\ExprVisitor\LocalExpressionChecker.cs" />
+    <Compile Include="Util\IDataTypeExtensions.cs" />
     <Compile Include="Util\Language\ILanguages.cs" />
     <Compile Include="Util\Language\ILanguageWords.cs" />
     <Compile Include="Util\LambdaComparer.cs" />
@@ -142,6 +143,7 @@
     <Compile Include="Util\Page.cs" />
     <Compile Include="Util\VarName.cs" />
     <Compile Include="Util\Language\Implementation\EnglishWords.cs" />
+    <Compile Include="Vendor\IDataType.cs" />
     <Compile Include="Vendor\Implementation\SchemaLoader.TypeMapping.cs" />
     <Compile Include="Vendor\Implementation\Vendor.ExecuteQuery.cs" />
     <Compile Include="Vendor\ISchemaLoader.cs" />
