@@ -635,6 +635,8 @@ namespace DbLinq.Util
                 // alternative literals
                 if (lb == "T" || lb == "F")
                     return lb == "T";
+                if (lb == "Y" || lb == "N")
+                    return lb == "Y";
             }
             return GetAsNumeric<int>(dataRecord, index) != 0;
         }
