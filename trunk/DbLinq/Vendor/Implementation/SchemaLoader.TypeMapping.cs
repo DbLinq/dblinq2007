@@ -44,7 +44,7 @@ namespace DbLinq.Vendor.Implementation
             bool? Unsigned { get; set; }
         }
 
-        public class DataType: IDataType
+        public class DataType : IDataType
         {
             public virtual string Type { get; set; }
             public virtual int? Length { get; set; }
@@ -117,6 +117,19 @@ namespace DbLinq.Vendor.Implementation
             // decimal
             case "decimal":
             case "numeric":
+                return typeof(Decimal);
+            case "number": // special oracle type
+                if (dataType.Precision.HasValue && (dataType.Scale ?? 0) == 0)
+                {
+                    if (dataType.Precision.Value == 1)
+                        return typeof(Boolean);
+                    if (dataType.Precision.Value <= 4)
+                        return typeof(Int16);
+                    if (dataType.Precision.Value <= 9)
+                        return typeof(Int32);
+                    if (dataType.Precision.Value <= 19)
+                        return typeof(Int64);
+                }
                 return typeof(Decimal);
 
             // time interval

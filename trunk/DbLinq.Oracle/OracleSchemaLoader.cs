@@ -83,23 +83,21 @@ namespace DbLinq.Oracle
                 colSchema.Member = columnName.PropertyName;
                 colSchema.Storage = columnName.StorageFieldName;
 
-                colSchema.DbType = columnRow.data_type; //.column_type ?
+                colSchema.DbType = columnRow.Type; //.column_type ?
                 //colSchema.IsPrimaryKey = false;
                 //colSchema.IsDbGenerated = false;
                 //colSchema.IsVersion = ???
                 colSchema.CanBeNull = columnRow.isNullable;
 
-                colSchema.Type = OraTypeMap.mapSqlTypeToCsType(columnRow.data_type, columnRow.data_precision);
-                if (CSharp.IsValueType(colSchema.Type) && columnRow.isNullable)
-                    colSchema.Type += "?";
+                colSchema.Type = MapDbType(columnRow).ToString();
 
-                bool isPossibleBoolean = columnRow.data_type == "NUMBER(1)"
-                    || columnRow.data_type == "NUMBER";
-                if (isPossibleBoolean && columnRow.column_name == "DISCONTINUED")
-                {
-                    //hack to support Northwind boolean fields out of the box
-                    colSchema.Type = "bool";
-                }
+                //bool isPossibleBoolean = columnRow.Type == "NUMBER(1)"
+                //    || columnRow.Type == "NUMBER";
+                //if (isPossibleBoolean && columnRow.column_name == "DISCONTINUED")
+                //{
+                //    //hack to support Northwind boolean fields out of the box
+                //    colSchema.Type = "bool";
+                //}
 
                 //tableSchema.Types[0].Columns.Add(colSchema);
                 tableSchema.Type.Columns.Add(colSchema);
