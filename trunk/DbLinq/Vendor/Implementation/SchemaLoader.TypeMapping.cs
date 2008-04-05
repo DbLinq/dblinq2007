@@ -35,16 +35,25 @@ namespace DbLinq.Vendor.Implementation
         {
         }
 
-        public class DataType
+        public interface IDataType
         {
-            public string Type;
-            public int? Length;
-            public int? Precision;
-            public int? Scale;
-            public bool? Unsigned;
+            string Type { get; set; }
+            int? Length { get; set; }
+            int? Precision { get; set; }
+            int? Scale { get; set; }
+            bool? Unsigned { get; set; }
         }
 
-        protected virtual Type MapDbType(DataType dataType)
+        public class DataType: IDataType
+        {
+            public virtual string Type { get; set; }
+            public virtual int? Length { get; set; }
+            public virtual int? Precision { get; set; }
+            public virtual int? Scale { get; set; }
+            public virtual bool? Unsigned { get; set; }
+        }
+
+        protected virtual Type MapDbType(IDataType dataType)
         {
             if (dataType == null)
                 return typeof(UnknownType);
