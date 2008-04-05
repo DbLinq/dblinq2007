@@ -193,7 +193,7 @@ namespace DbLinq.Ingres
             return schema;
         }
 
-        protected override System.Type MapDbType(DataType dataType)
+        protected override System.Type MapDbType(IDataType dataType)
         {
             switch (dataType.Type.ToLower())
             {

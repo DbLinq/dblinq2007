@@ -133,7 +133,7 @@ namespace DbLinq.MySql
                 colSchema.CanBeNull = columnRow.isNullable;
 
                 //determine the C# type
-                colSchema.Type = MapDbType(GetDataType(columnRow)).ToString();
+                colSchema.Type = MapDbType(columnRow).ToString();
                 if (columnRow.column_name == "DbLinq_EnumTest")
                     colSchema.Type = "DbLinq_EnumTest"; //hadcoded value - used during enum testing
 
@@ -334,18 +334,6 @@ namespace DbLinq.MySql
             };
             string dbTypeStr = MapDbType(dataType).ToString();
             return dbTypeStr;
-        }
-
-        protected DataType GetDataType(Schema.Column column)
-        {
-            return new DataType
-            {
-                Type = column.datatype,
-                Length = column.Length,
-                Precision = column.Precision,
-                Scale = column.Scale,
-                Unsigned = column.Unsigned
-            };
         }
     }
 }

@@ -27,13 +27,14 @@
 using System.Collections.Generic;
 using System.Data;
 using DbLinq.Util;
+using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.MySql.Schema
 {
     /// <summary>
     /// represents one row from information_schema.`COLUMNS`
     /// </summary>
-    public class Column
+    public class Column: SchemaLoader.DataType
     {
         public string table_catalog;
         public string table_schema;
@@ -44,7 +45,6 @@ namespace DbLinq.MySql.Schema
         /// <summary>
         /// eg 'int' or 'datetime'
         /// </summary>
-        public string datatype;
         public string extra;
 
         /// <summary>
@@ -61,14 +61,6 @@ namespace DbLinq.MySql.Schema
         /// eg. for column called 'int' we use csharpName='int_'
         /// </summary>
         public string csharpFieldName;
-
-        public int? Length;
-        public int? Precision;
-        public int? Scale;
-        public bool Unsigned
-        {
-            get { return column_type.Contains("unsigned"); }
-        }
 
         public override string ToString()
         {
@@ -91,9 +83,10 @@ namespace DbLinq.MySql.Schema
             t.column_name   = rdr.GetString(field++);
             string nullableStr = rdr.GetString(field++);
             t.isNullable    = nullableStr=="YES";
-            t.datatype      = rdr.GetString(field++);
+            t.Type      = rdr.GetString(field++);
             t.extra         = rdr.GetString(field++);
             t.column_type   = rdr.GetString(field++);
+            t.Unsigned = t.column_type.Contains("unsigned");
             t.column_key    = rdr.GetString(field++);
             t.Length        = rdr.GetIntN(field++);
             t.Precision     = rdr.GetIntN(field++);
