@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text;
 using DbLinq.Util;
+using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.Oracle.Schema
 {
     /// <summary>
     /// represents one row from information_schema.`COLUMNS`
     /// </summary>
-    public class User_Tab_Column
+    public class User_Tab_Column: SchemaLoader.DataType
     {
         //public string table_catalog;
         public string table_schema;
@@ -19,20 +20,7 @@ namespace DbLinq.Oracle.Schema
         /// <summary>
         /// eg 'int' or 'datetime'
         /// </summary>
-        public string data_type;
         public string data_type_mod;
-
-        /// <summary>
-        /// eg. null or 4000 for default string?
-        /// </summary>
-        public int? data_length;
-        public decimal? data_scale;
-
-        //Nicholas (.f1@free.fr) reports an error - data_precision being decimal
-        //reference: http://oracle.kuriositaet.de/index/master_index_DATA.html
-        //public string data_precision;
-        public decimal? data_precision;
-
 
         /// <summary>
         /// generated - DB column is actually "Nullable='Y'"
@@ -62,21 +50,21 @@ namespace DbLinq.Oracle.Schema
             t.table_name = rdr.GetString(field++);
             t.column_name = rdr.GetString(field++);
 
-            t.data_type = rdr.GetString(field++);
-            if (t.data_type == "TIMESTAMP(6)")
+            t.Type = rdr.GetString(field++);
+            if (t.Type == "TIMESTAMP(6)")
             {
-                t.data_type = "TIMESTAMP"; //clip the '(6)' - don't know the meaning
+                t.Type = "TIMESTAMP"; //clip the '(6)' - don't know the meaning
             }
 
             //we use OraExtensions.GetNString():
             t.data_type_mod = rdr.GetNString(field++); //todo: null
-            t.data_length = rdr.GetNInt(field++);
+            t.Length = rdr.GetNInt(field++);
 
-            //Nicholas (.f1@free.fr) reports an error - data_precision being decimal
-            //t.data_precision = rdr.GetNString(field++); //null
-            t.data_precision = rdr.GetNDecimal(field++); //null //
+            //Nicholas (.f1@free.fr) reports an error - Precision being decimal
+            //t.Precision = rdr.GetNString(field++); //null
+            t.Precision = rdr.GetNInt(field++); //null //
 
-            t.data_scale = rdr.GetNDecimal(field++); //null
+            t.Scale = rdr.GetNInt(field++); //null
 
             string nullableStr = rdr.GetString(field++);
             t.isNullable = nullableStr == "Y";

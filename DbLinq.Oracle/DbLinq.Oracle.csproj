@@ -58,7 +58,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="OracleVendor.cs" />
     <Compile Include="Schema\OraExtensions.cs" />
-    <Compile Include="Schema\OraTypeMap.cs" />
     <Compile Include="Schema\UserTablesSql.cs" />
     <Compile Include="Schema\User_Constraints.cs" />
     <Compile Include="Schema\User_Tab_Columns.cs" />
