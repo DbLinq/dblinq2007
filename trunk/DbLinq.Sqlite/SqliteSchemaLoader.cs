@@ -103,8 +103,8 @@ namespace DbLinq.Sqlite
                 colSchema.Member = columnName.PropertyName;
                 colSchema.Storage = columnName.StorageFieldName;
 
-                //sample input: columnRow.column_type="varchar(15)", coloumRow.datatype="varchar"
-                //colSchema.DbType = columnRow.datatype;
+                //sample input: columnRow.column_type="varchar(15)", coloumRow.Type="varchar"
+                //colSchema.DbType = columnRow.Type;
                 string dbType = columnRow.column_type;
 
                 dbType = dbType.Replace("int(11)", "int") //remove some default sizes
@@ -114,19 +114,16 @@ namespace DbLinq.Sqlite
                     ;
                 colSchema.DbType = dbType;
 
-                if (columnRow.column_key == "PRI")
-                    colSchema.IsPrimaryKey = true;
-                if (columnRow.extra == "auto_increment")
-                    colSchema.IsDbGenerated = true;
+                colSchema.IsPrimaryKey = columnRow.isPrimaryKey;
+                //if (columnRow.extra == "auto_increment")
+                //    colSchema.IsDbGenerated = true;
 
                 colSchema.CanBeNull = columnRow.isNullable;
 
                 //determine the C# type
-                colSchema.Type = Mappings.mapSqlTypeToCsType(columnRow.datatype, columnRow.column_type);
-                if (columnRow.column_name == "DbLinq_EnumTest")
-                    colSchema.Type = "DbLinq_EnumTest"; //hadcoded value - used during enum testing
-                if (CSharp.IsValueType(colSchema.Type) && columnRow.isNullable)
-                    colSchema.Type += "?";
+                colSchema.Type = MapDbType(columnRow).ToString();
+                //if (columnRow.column_name == "DbLinq_EnumTest")
+                //    colSchema.Type = "DbLinq_EnumTest"; //hadcoded value - used during enum testing
 
                 //SQLite always autoincrement PRimary Key integers
                 if (!colSchema.IsDbGenerated && colSchema.IsPrimaryKey && (colSchema.Type == "int" || colSchema.Type == "int?"))
@@ -239,7 +236,7 @@ namespace DbLinq.Sqlite
         /// parse bytes 'OUT param1 int, param2 int'.
         /// The newly created DbLinq.Schema.Dbml.Parameter objects will be appended to 'outputFunc'.
         /// </summary>
-        static void ParseProcParams(ProcRow inputProc, DbLinq.Schema.Dbml.Function outputFunc)
+        protected void ParseProcParams(ProcRow inputProc, DbLinq.Schema.Dbml.Function outputFunc)
         {
             string paramString = inputProc.param_list;
             if (paramString == null || paramString == "")
@@ -274,7 +271,7 @@ namespace DbLinq.Sqlite
         /// </summary>
         /// <param name="paramStr"></param>
         /// <returns></returns>
-        static DbLinq.Schema.Dbml.Parameter ParseParameterString(string param)
+        protected DbLinq.Schema.Dbml.Parameter ParseParameterString(string param)
         {
             param = param.Trim();
             var inOut = DbLinq.Schema.Dbml.ParameterDirection.In;
@@ -315,27 +312,14 @@ namespace DbLinq.Sqlite
         /// <summary>
         /// given 'CHAR(30)', return 'string'
         /// </summary>
-        static string ParseDbType(string dbType1)
+        protected string ParseDbType(string dbType1)
         {
             //strip 'CHARSET latin1' from the end
             string dbType2 = re_CHARSET.Replace(dbType1, "");
 
-            string varType = dbType2.Trim().ToLower();
-            string varTypeQualifier = "";
-            int indxQuote = varType.IndexOf('(');
-            if (indxQuote > -1)
-            {
-                //split 'CHAR(30)' into 'char' and '(30)'
-                varTypeQualifier = varType.Substring(indxQuote);
-                varType = varType.Substring(0, indxQuote);
-            }
-            else if (varType.IndexOf("unsigned", StringComparison.OrdinalIgnoreCase) > -1)
-            {
-                varTypeQualifier = "unsigned";
-                varType = varType.Replace("unsigned", "").Trim();
-            }
-            string dbTypeStr = Mappings.mapSqlTypeToCsType(varType, varTypeQualifier);
-            return dbTypeStr;
+            var dataType = new DataType();
+            dataType.UnpackRawDbType(dbType2);
+            return MapDbType(dataType).ToString();
         }
     }
 }

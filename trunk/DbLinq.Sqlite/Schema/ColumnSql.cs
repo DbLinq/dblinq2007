@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text;
 using DbLinq.Sqlite.Schema;
+using DbLinq.Util;
+using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.Sqlite.Schema
 {
     /// <summary>
     /// represents one row from information_schema.`COLUMNS`
     /// </summary>
-    public class Column
+    public class Column : SchemaLoader.DataType
     {
         public string table_catalog;
         public string table_schema;
@@ -20,7 +22,6 @@ namespace DbLinq.Sqlite.Schema
         /// <summary>
         /// eg 'int' or 'datetime'
         /// </summary>
-        public string datatype;
         public string extra;
 
         /// <summary>
@@ -31,13 +32,11 @@ namespace DbLinq.Sqlite.Schema
         /// <summary>
         /// null or 'PRI' or 'MUL'
         /// </summary>
-        public string column_key;
+        public bool isPrimaryKey;
 
         /// <summary>
         /// eg. for column called 'int' we use csharpName='int_'
         /// </summary>
-        public string csharpFieldName;
-
 
         public override string ToString()
         {
@@ -57,11 +56,10 @@ namespace DbLinq.Sqlite.Schema
             t.table_schema = "main";
             t.table_name = table;
             t.column_name = dataReader.GetString(1);
-            t.datatype = Mappings.mapSqlTypeToCsType(dataReader.GetString(2), "");
+            t.UnpackRawDbType(dataReader.GetString(2));
             t.column_type = dataReader.GetString(2);
-            Int64 nullableStr = dataReader.GetInt64(3);
-            t.isNullable = nullableStr == 0;
-            t.column_key = (dataReader.GetInt64(5) == 1 ? "PRI" : null);
+            t.isNullable = dataReader.GetInt64(3) == 0;
+            t.isPrimaryKey = dataReader.GetInt64(5) == 1;
             return t;
         }
 

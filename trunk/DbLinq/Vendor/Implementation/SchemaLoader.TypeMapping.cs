@@ -26,6 +26,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace DbLinq.Vendor.Implementation
 {
@@ -33,15 +34,6 @@ namespace DbLinq.Vendor.Implementation
     {
         public class UnknownType
         {
-        }
-
-        public interface IDataType
-        {
-            string Type { get; set; }
-            int? Length { get; set; }
-            int? Precision { get; set; }
-            int? Scale { get; set; }
-            bool? Unsigned { get; set; }
         }
 
         public class DataType : IDataType
@@ -72,6 +64,7 @@ namespace DbLinq.Vendor.Implementation
             case "nchar":
             case "nvarchar":
             case "nvarchar2":
+            case "string":
             case "text":
             case "varchar":
             case "varchar2":
@@ -79,6 +72,7 @@ namespace DbLinq.Vendor.Implementation
 
             // bool
             case "bit":
+            case "bool":
             case "boolean":
                 return typeof(Boolean);
 
@@ -89,7 +83,10 @@ namespace DbLinq.Vendor.Implementation
                 return typeof(Byte);
 
             // int16
+            case "short":
             case "smallint":
+                if (dataType.Unsigned ?? false)
+                    return typeof(UInt16);
                 return typeof(Int16);
 
             // int32
@@ -107,6 +104,7 @@ namespace DbLinq.Vendor.Implementation
             // single
             case "float":
             case "float4":
+            case "real":
                 return typeof(Single);
 
             // double
@@ -142,6 +140,7 @@ namespace DbLinq.Vendor.Implementation
             case "ingresdate":
             case "timestamp":
             case "timestamp without time zone":
+            case "time":
             case "time without time zone": //reported by twain_bu...@msn.com,
             case "time with time zone":
                 return typeof(DateTime);

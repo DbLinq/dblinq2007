@@ -34,6 +34,7 @@ using DbLinq.Logging;
 using DbLinq.Schema;
 using DbLinq.Schema.Dbml;
 using DbLinq.Util;
+using DbLinq.Vendor;
 using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.Ingres

@@ -9,6 +9,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{05C5B3A4-2F0B-4330-8106-14D91A73D9F0}"
 	ProjectSection(SolutionItems) = preProject
 		DbLinq1.vsmdi = DbLinq1.vsmdi
+		DbLinq2.vsmdi = DbLinq2.vsmdi
 		LocalTestRun.testrunconfig = LocalTestRun.testrunconfig
 	EndProjectSection
 EndProject
@@ -68,6 +69,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualMetal", "VisualMetal\VisualMetal.csproj", "{05260362-DD1C-4DF4-890B-163D0A6D94B9}"
 EndProject
 Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = DbLinq2.vsmdi
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
