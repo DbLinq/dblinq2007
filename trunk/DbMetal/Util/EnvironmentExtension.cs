@@ -29,7 +29,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace SqlMetal.Util
+namespace DbMetal.Util
 {
     public static class EnvironmentExtension
     {

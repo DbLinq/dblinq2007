@@ -31,7 +31,7 @@ using System.Linq;
 using System.Text;
 using DbLinq.Util;
 
-namespace SqlMetal.Generator.Implementation
+namespace DbMetal.Generator.Implementation
 {
     class CSCodeWriter : CodeWriter
     {
@@ -133,7 +133,7 @@ namespace SqlMetal.Generator.Implementation
         }
 
         public override IDisposable WriteMethod(SpecificationDefinition specificationDefinition, string name, Type returnType,
-                                    params ParameterDefinition[] parameters)
+                                                params ParameterDefinition[] parameters)
         {
             var methodLineBuilder = new StringBuilder(1024);
 
@@ -146,9 +146,9 @@ namespace SqlMetal.Generator.Implementation
             foreach (var parameter in parameters)
             {
                 string literalParameter = string.Format("{0}{3}{1} {2}",
-                    parameter.Attribute != null ? GetAttribute(parameter.Attribute) + " " : string.Empty,
-                    GetLiteralType(parameter.Type), parameter.Name,
-                    GetDirectionSpecifications(parameter.SpecificationDefinition));
+                                                        parameter.Attribute != null ? GetAttribute(parameter.Attribute) + " " : string.Empty,
+                                                        GetLiteralType(parameter.Type), parameter.Name,
+                                                        GetDirectionSpecifications(parameter.SpecificationDefinition));
                 literalParameters.Add(literalParameter);
             }
             methodLineBuilder.AppendFormat("{0})", string.Join(", ", literalParameters.ToArray()));
@@ -359,23 +359,23 @@ namespace SqlMetal.Generator.Implementation
         }
 
         protected static readonly string[] Keywords = 
-        {
-           "int", "uint","ubyte", "byte", "short", "ushort", "char"
-            ,"decimal", "float", "double"
-            ,"string", "DateTime"
-            , "void", "object"
+            {
+                "int", "uint","ubyte", "byte", "short", "ushort", "char"
+                ,"decimal", "float", "double"
+                ,"string", "DateTime"
+                , "void", "object"
 
-            ,"private", "protected", "public", "internal"
-            ,"override", "virtual", "abstract", "partial", "static", "sealed", "readonly"
-            ,"class", "struct", "namespace", "enum", "interface", "using", "const", "enum"
+                ,"private", "protected", "public", "internal"
+                ,"override", "virtual", "abstract", "partial", "static", "sealed", "readonly"
+                ,"class", "struct", "namespace", "enum", "interface", "using", "const", "enum"
 
-            ,"return", "if", "while", "for", "foreach"
-            ,"yield", "break", "goto", "switch", "case", "default"
+                ,"return", "if", "while", "for", "foreach"
+                ,"yield", "break", "goto", "switch", "case", "default"
 
-            , "as", "catch", "continue", "default", "delegate", "do"
-            , "else", "false", "true", "fixed", "finally", "in", "is", "lock"
-            , "new", "null", "out", "ref", "sizeof", "stackalloc", "throw", "typeof"
-        };
+                , "as", "catch", "continue", "default", "delegate", "do"
+                , "else", "false", "true", "fixed", "finally", "in", "is", "lock"
+                , "new", "null", "out", "ref", "sizeof", "stackalloc", "throw", "typeof"
+            };
 
         protected virtual bool IsKeyword(string name)
         {
@@ -441,4 +441,3 @@ namespace SqlMetal.Generator.Implementation
         #endregion
     }
 }
-

@@ -28,14 +28,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DbLinq.Vendor;
-using SqlMetal.Generator.EntityInterface;
-using SqlMetal.Generator.EntityInterface.Implementation;
+using DbMetal;
+using DbMetal.Generator.EntityInterface;
+using DbMetal.Generator.EntityInterface.Implementation;
 
-namespace SqlMetal.Generator
+namespace DbMetal.Generator
 {
     public class GenerationContext
     {
-        public SqlMetalParameters Parameters;
+        public DbMetalParameters Parameters;
         public IDictionary<string, string> Variables;
         public ISchemaLoader SchemaLoader;
 
@@ -47,7 +48,7 @@ namespace SqlMetal.Generator
             set { Variables[key] = value; }
         }
 
-        public GenerationContext(SqlMetalParameters parameters, ISchemaLoader schemaLoader)
+        public GenerationContext(DbMetalParameters parameters, ISchemaLoader schemaLoader)
         {
             Parameters = parameters;
             Variables = new Dictionary<string, string>();

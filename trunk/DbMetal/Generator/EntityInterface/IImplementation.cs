@@ -26,7 +26,7 @@
 
 using DbLinq.Schema;
 
-namespace SqlMetal.Generator.EntityInterface
+namespace DbMetal.Generator.EntityInterface
 {
     public interface IImplementation
     {

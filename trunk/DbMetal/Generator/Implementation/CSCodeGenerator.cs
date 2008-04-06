@@ -30,8 +30,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using DbLinq.Schema;
+using DbMetal.Generator.Implementation;
 
-namespace SqlMetal.Generator.Implementation
+namespace DbMetal.Generator.Implementation
 {
     public partial class CSCodeGenerator : CodeGenerator
     {
@@ -48,13 +49,13 @@ namespace SqlMetal.Generator.Implementation
         protected override void WriteDataContextCtors(CodeWriter writer, DbLinq.Schema.Dbml.Database schema, GenerationContext context)
         {
             writer.WriteLine(context.Evaluate(
-@"//public ${class}(string connectionString) 
+                                 @"//public ${class}(string connectionString) 
 //    : base(connectionString)
 //{
 //}
 "));
             writer.WriteLine(context.Evaluate(
-@"public ${class}(IDbConnection connection) 
+                                 @"public ${class}(IDbConnection connection) 
     : base(connection)
 {
 }
@@ -64,7 +65,7 @@ namespace SqlMetal.Generator.Implementation
         protected override void WriteDataContextTable(CodeWriter writer, DbLinq.Schema.Dbml.Table table)
         {
             writer.WriteLine("public Table<{1}> {0} {{ get {{ return GetTable<{1}>(); }} }}",
-                                           table.Member, table.Type.Name);
+                             table.Member, table.Type.Name);
         }
 
         protected override string WriteProcedureBodyMethodCall(CodeWriter writer, DbLinq.Schema.Dbml.Function procedure, GenerationContext context)
@@ -79,7 +80,7 @@ namespace SqlMetal.Generator.Implementation
                     parametersBuilder.AppendFormat(", {0}", parameter.Name);
             }
             writer.WriteLine(string.Format("var {0} = ExecuteMethodCall(this, (MethodInfo)MethodBase.GetCurrentMethod(){1});",
-                result, parametersBuilder));
+                                           result, parametersBuilder));
             return result;
         }
     }

@@ -31,7 +31,7 @@ using System.Linq;
 using System.Text;
 using DbLinq.Schema;
 
-namespace SqlMetal.Util
+namespace DbMetal.Util
 {
     /// <summary>
     /// sort tables - parent tables first, child tables next.
@@ -98,8 +98,8 @@ namespace SqlMetal.Util
             visitedMap[parent] = true; 
 
             var q1 = parent.Type.Associations.Where(a => !a.IsForeignKey
-                                        && a.OtherKey != null
-                                        && _typeNameToTableMap.ContainsKey(a.Type));
+                                                         && a.OtherKey != null
+                                                         && _typeNameToTableMap.ContainsKey(a.Type));
             var q = q1.ToList(); //for debugging
 
             //loop through direct child tables ...

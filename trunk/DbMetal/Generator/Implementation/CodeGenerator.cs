@@ -30,7 +30,7 @@ using System.IO;
 using DbLinq.Logging;
 using DbLinq.Schema;
 
-namespace SqlMetal.Generator.Implementation
+namespace DbMetal.Generator.Implementation
 {
     public abstract partial class CodeGenerator : ICodeGenerator
     {
@@ -160,32 +160,32 @@ namespace SqlMetal.Generator.Implementation
         {
             switch (literalType)
             {
-            case "string":
-                return typeof(string);
-            case "long":
-                return typeof(long);
-            case "short":
-                return typeof(short);
-            case "int":
-                return typeof(int);
-            case "char":
-                return typeof(char);
-            case "byte":
-                return typeof(byte);
-            case "float":
-                return typeof(float);
-            case "double":
-                return typeof(double);
-            case "decimal":
-                return typeof(decimal);
-            case "bool":
-                return typeof(bool);
-            case "DateTime":
-                return typeof(DateTime);
-            case "object":
-                return typeof(object);
-            default:
-                return Type.GetType(literalType);
+                case "string":
+                    return typeof(string);
+                case "long":
+                    return typeof(long);
+                case "short":
+                    return typeof(short);
+                case "int":
+                    return typeof(int);
+                case "char":
+                    return typeof(char);
+                case "byte":
+                    return typeof(byte);
+                case "float":
+                    return typeof(float);
+                case "double":
+                    return typeof(double);
+                case "decimal":
+                    return typeof(decimal);
+                case "bool":
+                    return typeof(bool);
+                case "DateTime":
+                    return typeof(DateTime);
+                case "object":
+                    return typeof(object);
+                default:
+                    return Type.GetType(literalType);
             }
         }
 

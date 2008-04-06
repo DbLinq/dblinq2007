@@ -29,8 +29,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using DbLinq.Util;
+using DbMetal.Generator;
 
-namespace SqlMetal.Generator
+namespace DbMetal.Generator
 {
     /// <summary>
     /// Base class for writing code.
@@ -174,13 +175,13 @@ namespace SqlMetal.Generator
         public abstract void WriteUsingNamespace(string name);
         public abstract IDisposable WriteNamespace(string name);
         public abstract IDisposable WriteClass(SpecificationDefinition specificationDefinition, string name,
-                                            string baseClass, params string[] interfaces);
+                                               string baseClass, params string[] interfaces);
 
         public abstract IDisposable WriteRegion(string name);
         public abstract IDisposable WriteAttribute(AttributeDefinition attributeDefinition);
 
         public abstract IDisposable WriteMethod(SpecificationDefinition specificationDefinition, string name, Type returnType,
-                                           params ParameterDefinition[] parameters);
+                                                params ParameterDefinition[] parameters);
 
         public abstract IDisposable WriteProperty(SpecificationDefinition specificationDefinition, string name, string propertyType);
         public abstract IDisposable WritePropertyGet();

@@ -25,8 +25,9 @@
 #endregion
 
 using System;
+using DbMetal.Generator;
 
-namespace SqlMetal.Generator
+namespace DbMetal.Generator
 {
     public class ParameterDefinition
     {

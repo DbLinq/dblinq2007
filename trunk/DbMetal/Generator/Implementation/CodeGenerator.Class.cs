@@ -36,9 +36,9 @@ using DbLinq.Linq;
 using DbLinq.Linq.Mapping;
 using DbLinq.Logging;
 using DbLinq.Schema;
-using SqlMetal.Generator.EntityInterface;
+using DbMetal.Generator.EntityInterface;
 
-namespace SqlMetal.Generator.Implementation
+namespace DbMetal.Generator.Implementation
 {
     public partial class CodeGenerator
     {
@@ -63,7 +63,7 @@ namespace SqlMetal.Generator.Implementation
             tableAttribute["Name"] = table.Name;
             using (writer.WriteAttribute(tableAttribute))
             using (writer.WriteClass(SpecificationDefinition.Public | SpecificationDefinition.Partial,
-                                    table.Type.Name, context.Parameters.EntityBase, context.Parameters.Interfaces))
+                                     table.Type.Name, context.Parameters.EntityBase, context.Parameters.Interfaces))
             {
                 WriteClassHeader(writer, table, context);
                 WriteClassProperties(writer, table, context);
@@ -79,16 +79,16 @@ namespace SqlMetal.Generator.Implementation
             if (primaryKeys.Count == 0)
             {
                 writer.WriteLine("#warning L189 table {0} has no primary key. Multiple C# objects will refer to the same row.",
-                                    table.Name);
+                                 table.Name);
                 return;
             }
 
             using (writer.WriteRegion(string.Format("GetHashCode(), Equals() - uses column {0} to look up objects in liveObjectMap",
-                string.Join(", ", primaryKeys.Select(pk => pk.Member).ToList().ToArray()))))
+                                                    string.Join(", ", primaryKeys.Select(pk => pk.Member).ToList().ToArray()))))
             {
                 // GetHashCode
                 using (writer.WriteMethod(SpecificationDefinition.Public | SpecificationDefinition.Override,
-                        "GetHashCode", typeof(int)))
+                                          "GetHashCode", typeof(int)))
                 {
                     string hashCode = null;
                     foreach (var primaryKey in primaryKeys)
@@ -105,7 +105,7 @@ namespace SqlMetal.Generator.Implementation
                 // Equals
                 string otherAsObject = "o";
                 using (writer.WriteMethod(SpecificationDefinition.Public | SpecificationDefinition.Override,
-                        "Equals", typeof(bool), new ParameterDefinition { Type = typeof(object), Name = otherAsObject }))
+                                          "Equals", typeof(bool), new ParameterDefinition { Type = typeof(object), Name = otherAsObject }))
                 {
                     string other = "other";
                     writer.WriteLine(writer.GetStatement(writer.GetAssignmentExpression(
@@ -120,7 +120,7 @@ namespace SqlMetal.Generator.Implementation
                     foreach (var primaryKey in primaryKeys)
                     {
                         string primaryKeyTest = writer.GetMethodCallExpression(writer.GetMemberExpression(primaryKey.Member, "Equals"),
-                            writer.GetMemberExpression(other, primaryKey.Member));
+                                                                               writer.GetMemberExpression(other, primaryKey.Member));
                         if (string.IsNullOrEmpty(andExpression))
                             andExpression = primaryKeyTest;
                         else
@@ -235,7 +235,7 @@ namespace SqlMetal.Generator.Implementation
             using (writer.WriteAttribute(storageAttribute))
             using (writer.WriteAttribute(NewAttributeDefinition<DebuggerNonUserCodeAttribute>()))
             using (writer.WriteProperty(SpecificationDefinition.Public, child.Member,
-                    writer.GetGenericName(typeof(EntityMSet<>).Name.Split('`')[0], child.Type)))
+                                        writer.GetGenericName(typeof(EntityMSet<>).Name.Split('`')[0], child.Type)))
             {
                 using (writer.WritePropertyGet())
                 {
@@ -280,7 +280,7 @@ namespace SqlMetal.Generator.Implementation
             }
 
             writer.WriteField(SpecificationDefinition.Private, storageField,
-                        writer.GetGenericName(typeof(EntityRef<>).FullName.Split('`')[0], targetTable.Type.Name));
+                              writer.GetGenericName(typeof(EntityRef<>).FullName.Split('`')[0], targetTable.Type.Name));
 
             var storageAttribute = NewAttributeDefinition<AssociationAttribute>();
             storageAttribute["Storage"] = storageField;

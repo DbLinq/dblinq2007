@@ -27,8 +27,9 @@
 using System.IO;
 using DbLinq.Schema;
 using DbLinq.Vendor;
+using DbMetal.Generator;
 
-namespace SqlMetal.Generator
+namespace DbMetal.Generator
 {
     /// <summary>
     /// Generates a code file fro a DBML schema
