@@ -46,13 +46,6 @@ namespace Test_NUnit_Ingres
             // SELECT ((p$.productname||?)||VARCHAR(p$.supplierid)) FROM linquser.products p$
             //new ReadTest_Operands().H1_SelectConcat();
 
-            // generates this SQL:
-            // UPDATE linquser.customers SET address=NULL, city=?, companyname=NULL, 
-            // contactname=NULL, contacttitle=NULL, country=NULL, fax=NULL, phone=NULL, 
-            // postalcode=NULL, region=NULL WHERE  (customerid='AIRBU')
-            // which fails as some of the fields may not be null.
-            //new WriteTest().G9_UpdateOnlyChangedProperty();
-
             // DUPLICATE KEY ON INSERT
             //new CompositePK_Test().G10_DeleteTableWithCompositePK();
 

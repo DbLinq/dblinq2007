@@ -189,8 +189,10 @@ namespace nwind
 
 	}
 
+    // This edit solves Issue 56, as picrap did it in rev316
+    // But I don't know why...
 	[Table(Name = "linquser.customers")]
-	public partial class Customer : IModified
+	public partial class Customer //: IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
