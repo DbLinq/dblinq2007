@@ -152,9 +152,9 @@
       <Project>{97305421-3071-4175-AA3C-9A432CC28121}</Project>
       <Name>DbLinq</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SqlMetal\SqlMetal.csproj">
+    <ProjectReference Include="..\DbMetal\DbMetal.csproj">
       <Project>{363FF43D-C870-4423-BE50-DAED7793A6D1}</Project>
-      <Name>SqlMetal</Name>
+      <Name>DbMetal</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

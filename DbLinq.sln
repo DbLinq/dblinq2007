@@ -41,8 +41,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.Mssql.Example", "Exa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.SQLite.Example", "Example\DbLinq.SQLite.Example\DbLinq.SQLite.Example.csproj", "{DB89A450-3A57-420E-B784-911B83BEA99B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlMetal", "SqlMetal\SqlMetal.csproj", "{363FF43D-C870-4423-BE50-DAED7793A6D1}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.Ingres", "DbLinq.Ingres\DbLinq.Ingres.csproj", "{90D57CD9-D704-409E-88A1-0F22AC79065A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{C11FF24E-368F-4F44-9EB0-E4F730ABF0FA}"
@@ -67,6 +65,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_NUnit_Ingres", "Tests\Test_NUnit\Test_NUnit_Ingres.csproj", "{858BAFF7-542F-4DBB-9C9B-57FCDE0DB7CE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualMetal", "VisualMetal\VisualMetal.csproj", "{05260362-DD1C-4DF4-890B-163D0A6D94B9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbMetal", "DbMetal\DbMetal.csproj", "{363FF43D-C870-4423-BE50-DAED7793A6D1}"
 EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
@@ -137,10 +137,6 @@ Global
 		{DB89A450-3A57-420E-B784-911B83BEA99B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DB89A450-3A57-420E-B784-911B83BEA99B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DB89A450-3A57-420E-B784-911B83BEA99B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{363FF43D-C870-4423-BE50-DAED7793A6D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{363FF43D-C870-4423-BE50-DAED7793A6D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{363FF43D-C870-4423-BE50-DAED7793A6D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{363FF43D-C870-4423-BE50-DAED7793A6D1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{90D57CD9-D704-409E-88A1-0F22AC79065A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{90D57CD9-D704-409E-88A1-0F22AC79065A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90D57CD9-D704-409E-88A1-0F22AC79065A}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -165,6 +161,10 @@ Global
 		{05260362-DD1C-4DF4-890B-163D0A6D94B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{05260362-DD1C-4DF4-890B-163D0A6D94B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{05260362-DD1C-4DF4-890B-163D0A6D94B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{363FF43D-C870-4423-BE50-DAED7793A6D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{363FF43D-C870-4423-BE50-DAED7793A6D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{363FF43D-C870-4423-BE50-DAED7793A6D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{363FF43D-C870-4423-BE50-DAED7793A6D1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
