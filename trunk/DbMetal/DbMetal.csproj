@@ -7,8 +7,8 @@
     <ProjectGuid>{363FF43D-C870-4423-BE50-DAED7793A6D1}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SqlMetal</RootNamespace>
-    <AssemblyName>SqlMetal</AssemblyName>
+    <RootNamespace>DbMetal</RootNamespace>
+    <AssemblyName>DbMetal</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\DbLinq.snk</AssemblyOriginatorKeyFile>
