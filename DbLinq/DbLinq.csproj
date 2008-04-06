@@ -124,6 +124,7 @@
     <Compile Include="Util\Operators.cs" />
     <Compile Include="Util\ProcResult.cs" />
     <Compile Include="Util\QuotesHelper.cs" />
+    <Compile Include="Util\ReferenceEqualityComparer.cs" />
     <Compile Include="Util\RowEnumeratorCompiler.cs" />
     <Compile Include="Util\RowEnumerator.cs" />
     <Compile Include="Linq\Clause\FromClauseBuilder.cs" />

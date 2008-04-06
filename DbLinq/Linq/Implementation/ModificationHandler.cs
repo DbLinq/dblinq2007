@@ -31,6 +31,7 @@ using System.Data.Linq.Mapping;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using DbLinq.Util;
 
 namespace DbLinq.Linq.Implementation
 {
@@ -41,8 +42,8 @@ namespace DbLinq.Linq.Implementation
     /// </summary>
     public class ModificationHandler : IModificationHandler
     {
-        private readonly IDictionary<object, IDictionary<string, object>> rawDataEntities = new Dictionary<object, IDictionary<string, object>>();
-        private readonly IDictionary<object, IDictionary<string, PropertyInfo>> modifiedProperties = new Dictionary<object, IDictionary<string, PropertyInfo>>();
+        private readonly IDictionary<object, IDictionary<string, object>> rawDataEntities = new Dictionary<object, IDictionary<string, object>>(new ReferenceEqualityComparer<object>());
+        private readonly IDictionary<object, IDictionary<string, PropertyInfo>> modifiedProperties = new Dictionary<object, IDictionary<string, PropertyInfo>>(new ReferenceEqualityComparer<object>());
 
         protected IEnumerable<PropertyInfo> GetColumnProperties(Type entityType)
         {
