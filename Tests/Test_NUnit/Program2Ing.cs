@@ -46,15 +46,6 @@ namespace Test_NUnit_Ingres
             // SELECT ((p$.productname||?)||VARCHAR(p$.supplierid)) FROM linquser.products p$
             //new ReadTest_Operands().H1_SelectConcat();
 
-            // INSERT... ;SELECT... within one single DbCommand gives a Syntax error with the
-            // Ingres driver. All these tests fail due to this reason
-            //new WriteTest().G1_InsertProduct();
-            //new WriteTest().G2_DeleteTest();
-            //new WriteTest().G3_DeleteTest();
-            //new WriteTest().G4_DuplicateSubmitTest();
-            //new WriteTest().G5_SetFieldToNull();
-            //new WriteTest_BulkInsert().BI01_InsertProducts();
-
             // generates this SQL:
             // UPDATE linquser.customers SET address=NULL, city=?, companyname=NULL, 
             // contactname=NULL, contacttitle=NULL, country=NULL, fax=NULL, phone=NULL, 
