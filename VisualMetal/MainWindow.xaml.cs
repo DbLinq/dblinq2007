@@ -16,14 +16,14 @@ using System.Windows.Shapes;
 
 using DbLinq.Vendor;
 using DbLinq.Schema.Dbml;
-using SqlMetal;
+using DbMetal;
 
 namespace VisualMetal
 {
 	public partial class MainWindow : Window
 	{
-        public SqlMetalProgram Program = new SqlMetalProgram();
-		public SqlMetalParameters Parameters = new SqlMetalParameters();
+        public DbMetalProgram Program = new DbMetalProgram();
+		public DbMetalParameters Parameters = new DbMetalParameters();
 		public ISchemaLoader Loader;
 		public Database Database;
 
@@ -33,7 +33,7 @@ namespace VisualMetal
 
 			if (!String.IsNullOrEmpty(Properties.Settings.Default.Params))
 			    using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(Properties.Settings.Default.Params)))
-			        Parameters = (SqlMetalParameters)XamlReader.Load(stream);
+			        Parameters = (DbMetalParameters)XamlReader.Load(stream);
 		}
 
 		protected override void OnClosed(EventArgs e)

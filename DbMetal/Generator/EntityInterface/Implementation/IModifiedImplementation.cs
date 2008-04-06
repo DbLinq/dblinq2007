@@ -24,7 +24,7 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
-namespace SqlMetal.Generator.EntityInterface.Implementation
+namespace DbMetal.Generator.EntityInterface.Implementation
 {
     public class IModifiedImplementation : InterfaceImplementation
     {

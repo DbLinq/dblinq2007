@@ -26,7 +26,7 @@
 
 using System;
 
-namespace SqlMetal.Generator
+namespace DbMetal.Generator
 {
     [Flags]
     public enum SpecificationDefinition

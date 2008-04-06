@@ -27,7 +27,7 @@
 using System.ComponentModel;
 using DbLinq.Schema;
 
-namespace SqlMetal.Generator.EntityInterface.Implementation
+namespace DbMetal.Generator.EntityInterface.Implementation
 {
     public class INotifyPropertyChangedImplementation : InterfaceImplementation
     {
@@ -50,14 +50,14 @@ namespace SqlMetal.Generator.EntityInterface.Implementation
                 writer.WriteLine();
                 // method
                 using (writer.WriteMethod(SpecificationDefinition.Protected | SpecificationDefinition.Virtual,
-                             sendPropertyChangedMethod, null, new ParameterDefinition { Name = propertyNameName, Type = typeof(string) }))
+                                          sendPropertyChangedMethod, null, new ParameterDefinition { Name = propertyNameName, Type = typeof(string) }))
                 {
                     using (writer.WriteIf(writer.GetDifferentExpression(eventName, writer.GetNullExpression())))
                     {
                         writer.WriteLine(writer.GetStatement(writer.GetMethodCallExpression(eventName,
-                            writer.GetThisExpression(),
-                            writer.GetNewExpression(writer.GetMethodCallExpression(typeof(PropertyChangedEventArgs).Name,
-                                                                                   propertyNameName)))));
+                                                                                            writer.GetThisExpression(),
+                                                                                            writer.GetNewExpression(writer.GetMethodCallExpression(typeof(PropertyChangedEventArgs).Name,
+                                                                                                                                                   propertyNameName)))));
                     }
                 }
             }
@@ -66,7 +66,7 @@ namespace SqlMetal.Generator.EntityInterface.Implementation
         public override void WritePropertyAfterSet(CodeWriter writer, DbLinq.Schema.Dbml.Column property, GenerationContext context)
         {
             writer.WriteLine(writer.GetStatement(writer.GetMethodCallExpression(sendPropertyChangedMethod,
-                writer.GetLiteralValue(property.Member))));
+                                                                                writer.GetLiteralValue(property.Member))));
         }
     }
 }

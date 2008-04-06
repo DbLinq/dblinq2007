@@ -27,7 +27,7 @@
 using System.ComponentModel;
 using DbLinq.Schema;
 
-namespace SqlMetal.Generator.EntityInterface.Implementation
+namespace DbMetal.Generator.EntityInterface.Implementation
 {
     public class INotifyPropertyChangingImplementation : InterfaceImplementation
     {
@@ -50,17 +50,17 @@ namespace SqlMetal.Generator.EntityInterface.Implementation
                 writer.WriteLine();
                 // empty event arg
                 writer.WriteField(SpecificationDefinition.Private | SpecificationDefinition.Static,
-                    writer.GetAssignmentExpression(emptyArgs, writer.GetNewExpression(
-                                            writer.GetMethodCallExpression(typeof(PropertyChangingEventArgs).Name, "\"\""))),
-                                            typeof(PropertyChangingEventArgs).Name);
+                                  writer.GetAssignmentExpression(emptyArgs, writer.GetNewExpression(
+                                                                                writer.GetMethodCallExpression(typeof(PropertyChangingEventArgs).Name, "\"\""))),
+                                  typeof(PropertyChangingEventArgs).Name);
                 // method
                 using (writer.WriteMethod(SpecificationDefinition.Protected | SpecificationDefinition.Virtual,
-                             sendPropertyChangingMethod, null))
+                                          sendPropertyChangingMethod, null))
                 {
                     using (writer.WriteIf(writer.GetDifferentExpression(eventName, writer.GetNullExpression())))
                     {
                         writer.WriteLine(writer.GetStatement(writer.GetMethodCallExpression(eventName,
-                            writer.GetThisExpression(), emptyArgs)));
+                                                                                            writer.GetThisExpression(), emptyArgs)));
                     }
                 }
             }

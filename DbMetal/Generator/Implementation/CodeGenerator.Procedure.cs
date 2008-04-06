@@ -31,7 +31,7 @@ using System.Data.Linq.Mapping;
 using DbLinq.Logging;
 using DbLinq.Schema;
 
-namespace SqlMetal.Generator.Implementation
+namespace DbMetal.Generator.Implementation
 {
     public partial class CodeGenerator
     {
@@ -58,7 +58,7 @@ namespace SqlMetal.Generator.Implementation
 
             using (writer.WriteAttribute(functionAttribute))
             using (writer.WriteMethod(SpecificationDefinition.Public, GetProcedureName(procedure),
-                GetProcedureType(procedure), GetProcedureParameters(procedure)))
+                                      GetProcedureType(procedure), GetProcedureParameters(procedure)))
             {
                 string result = WriteProcedureBodyMethodCall(writer, procedure, context);
                 WriteProcedureBodyOutParameters(writer, procedure, result, context);
@@ -138,17 +138,17 @@ namespace SqlMetal.Generator.Implementation
             parameterDefinition.Type = GetType(parameter.Type, false);
             switch (parameter.Direction)
             {
-            case DbLinq.Schema.Dbml.ParameterDirection.In:
-                parameterDefinition.SpecificationDefinition |= SpecificationDefinition.In;
-                break;
-            case DbLinq.Schema.Dbml.ParameterDirection.Out:
-                parameterDefinition.SpecificationDefinition |= SpecificationDefinition.Out;
-                break;
-            case DbLinq.Schema.Dbml.ParameterDirection.InOut:
-                parameterDefinition.SpecificationDefinition |= SpecificationDefinition.Ref;
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
+                case DbLinq.Schema.Dbml.ParameterDirection.In:
+                    parameterDefinition.SpecificationDefinition |= SpecificationDefinition.In;
+                    break;
+                case DbLinq.Schema.Dbml.ParameterDirection.Out:
+                    parameterDefinition.SpecificationDefinition |= SpecificationDefinition.Out;
+                    break;
+                case DbLinq.Schema.Dbml.ParameterDirection.InOut:
+                    parameterDefinition.SpecificationDefinition |= SpecificationDefinition.Ref;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
             parameterDefinition.Attribute = NewAttributeDefinition<ParameterAttribute>();
             parameterDefinition.Attribute["Name"] = parameter.Name;

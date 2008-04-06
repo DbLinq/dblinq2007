@@ -32,15 +32,16 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using DbLinq.Vendor;
+using DbMetal;
 
-namespace SqlMetal
+namespace DbMetal
 {
     public class LoaderFactory
     {
         /// <summary>
         /// the 'main entry point' into this class
         /// </summary>
-        public ISchemaLoader Load(SqlMetalParameters parameters)
+        public ISchemaLoader Load(DbMetalParameters parameters)
         {
             string dbLinqSchemaLoaderType;
             string databaseConnectionType;
@@ -55,7 +56,7 @@ namespace SqlMetal
         /// (e.g. DbLinq.Oracle.OracleSchemaLoader and System.Data.OracleClient.OracleConnection),
         /// return an instance of the OracleSchemaLoader.
         /// </summary>
-        public ISchemaLoader Load(SqlMetalParameters parameters, Type dbLinqSchemaLoaderType, Type databaseConnectionType)
+        public ISchemaLoader Load(DbMetalParameters parameters, Type dbLinqSchemaLoaderType, Type databaseConnectionType)
         {
             if (dbLinqSchemaLoaderType == null)
                 throw new ArgumentNullException("Null dbLinqSchemaLoaderType");
@@ -93,7 +94,7 @@ namespace SqlMetal
             }
         }
 
-        public ISchemaLoader Load(SqlMetalParameters parameters, string dbLinqSchemaLoaderTypeName, string databaseConnectionTypeName)
+        public ISchemaLoader Load(DbMetalParameters parameters, string dbLinqSchemaLoaderTypeName, string databaseConnectionTypeName)
         {
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
             Type dbLinqSchemaLoaderType = Type.GetType(dbLinqSchemaLoaderTypeName);
@@ -169,7 +170,7 @@ namespace SqlMetal
             return null;
         }
 /*
-        protected string GetConnectionString(SqlMetalParameters parameters)
+        protected string GetConnectionString(DbMetalParameters parameters)
         {
             if (parameters.Conn != null)
                 return parameters.Conn;
@@ -193,7 +194,7 @@ namespace SqlMetal
             return connectionString.ToString();
         }
         */
-        protected void GetLoaderAndConnection(out string dbLinqSchemaLoaderType, out string databaseConnectionType, SqlMetalParameters parameters)
+        protected void GetLoaderAndConnection(out string dbLinqSchemaLoaderType, out string databaseConnectionType, DbMetalParameters parameters)
         {
             if (parameters.Provider != null)
             {

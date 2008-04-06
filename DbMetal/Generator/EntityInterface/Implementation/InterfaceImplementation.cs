@@ -25,9 +25,8 @@
 #endregion
 
 using DbLinq.Schema;
-using SqlMetal.Generator.EntityInterface;
 
-namespace SqlMetal.Generator.EntityInterface.Implementation
+namespace DbMetal.Generator.EntityInterface.Implementation
 {
     public abstract class InterfaceImplementation : IImplementation
     {

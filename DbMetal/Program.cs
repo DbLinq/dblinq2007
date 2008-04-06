@@ -33,24 +33,24 @@ using DbLinq.Logging.Implementation;
 using DbLinq.Schema;
 using DbLinq.Util;
 using DbLinq.Vendor;
-using SqlMetal.Generator;
-using SqlMetal.Generator.Implementation;
-using SqlMetal.Schema;
-using SqlMetal.Util;
+using DbMetal;
+using DbMetal.Generator;
+using DbMetal.Generator.Implementation;
+using DbMetal.Schema;
 
-namespace SqlMetal
+namespace DbMetal
 {
-    public class SqlMetalProgram
+    public class DbMetalProgram
     {
         static void Main(string[] args)
         {
-            SqlMetalProgram program = new SqlMetalProgram();
+            var program = new DbMetalProgram();
             program.Process(args);
         }
 
         public ILogger Logger { get; set; }
 
-        public SqlMetalProgram()
+        public DbMetalProgram()
         {
             Logger = ObjectFactory.Get<ILogger>();
         }
@@ -61,7 +61,7 @@ namespace SqlMetal
 
             try
             {
-                foreach (var parameters in SqlMetalParameters.GetBatch(args))
+                foreach (var parameters in DbMetalParameters.GetBatch(args))
                 {
                     ProcessSchema(parameters);
                     if (parameters.ReadLineAtExit)
@@ -84,7 +84,7 @@ namespace SqlMetal
             }
         }
 
-        private void ProcessSchema(SqlMetalParameters parameters)
+        private void ProcessSchema(DbMetalParameters parameters)
         {
             try
             {
@@ -120,7 +120,7 @@ namespace SqlMetal
             }
         }
 
-        public void GenerateCSharp(SqlMetalParameters parameters, DbLinq.Schema.Dbml.Database dbSchema, ISchemaLoader schemaLoader, string filename)
+        public void GenerateCSharp(DbMetalParameters parameters, DbLinq.Schema.Dbml.Database dbSchema, ISchemaLoader schemaLoader, string filename)
         {
             ICodeGenerator codeGen = new CSCodeGenerator();
 
@@ -134,7 +134,7 @@ namespace SqlMetal
             }
         }
 
-        public DbLinq.Schema.Dbml.Database LoadSchema(SqlMetalParameters parameters, ISchemaLoader schemaLoader)
+        public DbLinq.Schema.Dbml.Database LoadSchema(DbMetalParameters parameters, ISchemaLoader schemaLoader)
         {
             DbLinq.Schema.Dbml.Database dbSchema;
             var tableAliases = TableAlias.Load(parameters);

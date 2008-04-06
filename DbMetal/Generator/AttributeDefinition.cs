@@ -27,7 +27,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace SqlMetal.Generator
+namespace DbMetal.Generator
 {
     public class AttributeDefinition
     {
