@@ -165,7 +165,7 @@ namespace SqlMetal.Generator.Implementation
             methodLineBuilder.Append(GetInheritanceSpecifications(specificationDefinition));
             methodLineBuilder.Append(GetSpecifications(specificationDefinition & SpecificationDefinition.Event));
 
-            methodLineBuilder.AppendFormat("{0} {1}", memberType, name);
+            methodLineBuilder.AppendFormat("{0} {1}", memberType, GetSafeName(name));
 
             Write(methodLineBuilder.ToString());
         }
@@ -319,15 +319,83 @@ namespace SqlMetal.Generator.Implementation
             return base.GetLiteralValue(value);
         }
 
+        public virtual string GetTypeNickName(Type type)
+        {
+            if (type == typeof(char))
+                return "char";
+            if (type == typeof(string))
+                return "string";
+
+            if (type == typeof(byte))
+                return "byte";
+            if (type == typeof(sbyte))
+                return "sbyte";
+            if (type == typeof(short))
+                return "short";
+            if (type == typeof(ushort))
+                return "ushort";
+            if (type == typeof(int))
+                return "int";
+            if (type == typeof(uint))
+                return "uint";
+            if (type == typeof(long))
+                return "long";
+            if (type == typeof(ulong))
+                return "ulong";
+
+            if (type == typeof(float))
+                return "float";
+            if (type == typeof(double))
+                return "double";
+            if (type == typeof(decimal))
+                return "decimal";
+
+            if (type == typeof(bool))
+                return "bool";
+            if (type == typeof(object))
+                return "object";
+
+            return type.FullName;
+        }
+
+        protected static readonly string[] Keywords = 
+        {
+           "int", "uint","ubyte", "byte", "short", "ushort", "char"
+            ,"decimal", "float", "double"
+            ,"string", "DateTime"
+            , "void", "object"
+
+            ,"private", "protected", "public", "internal"
+            ,"override", "virtual", "abstract", "partial", "static", "sealed", "readonly"
+            ,"class", "struct", "namespace", "enum", "interface", "using", "const", "enum"
+
+            ,"return", "if", "while", "for", "foreach"
+            ,"yield", "break", "goto", "switch", "case", "default"
+
+            , "as", "catch", "continue", "default", "delegate", "do"
+            , "else", "false", "true", "fixed", "finally", "in", "is", "lock"
+            , "new", "null", "out", "ref", "sizeof", "stackalloc", "throw", "typeof"
+        };
+
+        protected virtual bool IsKeyword(string name)
+        {
+            return Keywords.Contains(name);
+        }
+
+        public virtual string GetSafeName(string name)
+        {
+            if (IsKeyword(name))
+                return "@" + name;
+            return name;
+        }
+
         public override string GetLiteralType(Type type)
         {
             if (type == null)
                 return null;
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
-            {
-                return CSharp.FormatType(type.GetGenericArguments()[0].FullName, true);
-            }
-            return CSharp.FormatType(type.FullName, false);
+                return string.Format("{0}?", GetTypeNickName(type.GetGenericArguments()[0]));
+            return GetTypeNickName(type);
         }
 
         public override string GetArray(string array, string literalIndex)

@@ -35,21 +35,21 @@ namespace DbLinq.Util
     /// Lookup: 2nd implementation of IGrouping, as needed in group-by queries.
     /// The original System.Query.Lookup is inaccessible.
     /// </summary>
-    public class Lookup<K,T> : IGrouping<K,T>
+    public class Lookup<K, T> : IGrouping<K, T>
     {
         K _key;
         public List<T> _elements = new List<T>();
 
-        public Lookup(K k, T val){ _key=k; _elements.Add(val); }
+        public Lookup(K k, T val) { _key = k; _elements.Add(val); }
 
         public K Key { get { return _key; } }
-        IEnumerator<T> IEnumerable<T>.GetEnumerator(){ return _elements.GetEnumerator(); }
-        public System.Collections.IEnumerator GetEnumerator(){ return _elements.GetEnumerator(); }
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() { return _elements.GetEnumerator(); }
+        public System.Collections.IEnumerator GetEnumerator() { return _elements.GetEnumerator(); }
 
 
         public override string ToString()
         {
-            return "Lookup Key="+this._key+" Elems="+_elements.Count;
+            return "Lookup Key=" + this._key + " Elems=" + _elements.Count;
         }
     }
 }

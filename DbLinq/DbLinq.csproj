@@ -110,7 +110,6 @@
     <Compile Include="Util\Language\ILanguages.cs" />
     <Compile Include="Util\Language\ILanguageWords.cs" />
     <Compile Include="Util\LambdaComparer.cs" />
-    <Compile Include="Util\CSharp.cs" />
     <Compile Include="Util\DataCommand.cs" />
     <Compile Include="Util\ExpressionAndType.cs" />
     <Compile Include="Util\ExpressionExtensions.cs" />
@@ -139,8 +138,9 @@
     <Compile Include="Util\RowScalar.cs" />
     <Compile Include="Linq\SqlExpressionParts.cs" />
     <Compile Include="Util\TransactionManager.cs" />
-    <Compile Include="Util\TypeEnum.cs" />
+    <Compile Include="Util\TypeCategory.cs" />
     <Compile Include="Util\Page.cs" />
+    <Compile Include="Util\TypeExtensions.cs" />
     <Compile Include="Util\VarName.cs" />
     <Compile Include="Util\Language\Implementation\EnglishWords.cs" />
     <Compile Include="Vendor\IDataType.cs" />

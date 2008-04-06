@@ -96,7 +96,7 @@ namespace DbLinq.Linq
             /// <summary>
             /// is this a primitive type, a DB column, or a projection?
             /// </summary>
-            public TypeEnum typeEnum;
+            public TypeCategory typeEnum;
 
             public ColumnAttribute columnAttribute;
 
@@ -104,7 +104,7 @@ namespace DbLinq.Linq
             {
                 fieldType_NoBind = fieldType;
                 //projField.type = projField.expr1.Type;
-                typeEnum = CSharp.CategorizeType(fieldType);
+                typeEnum = fieldType.GetCategory();
             }
 
             public ProjectionField(MemberInfo memberInfo)
@@ -117,7 +117,7 @@ namespace DbLinq.Linq
                     if (propInfo2 != null)
                     {
                         this.propInfo = propInfo2; //looked up 'ProductId' from '{UInt32 get_ProductId()}'
-                        typeEnum = CSharp.CategorizeType(this.FieldType);
+                        typeEnum = FieldType.GetCategory();
                         return;
                     }
                 }
@@ -136,7 +136,7 @@ namespace DbLinq.Linq
                     }
                 }
 
-                typeEnum = CSharp.CategorizeType(this.FieldType);
+                typeEnum = FieldType.GetCategory();
             }
 
             public Type FieldType
@@ -409,7 +409,7 @@ namespace DbLinq.Linq
                         MethodCallExpression callEx = argExpr.XMethodCall();
                         //projField.expr1 = memberAssign.Expression as MemberExpression;
                         //projField.type = callEx.Type;
-                        //projField.typeEnum = CSharp.CategorizeType(projField.type);
+                        //projField.typeEnum = CSharp.GetCategory(projField.type);
                         break;
                     default:
                         throw new ArgumentException("L390: Unprepared for " + argExpr.NodeType);

@@ -51,11 +51,12 @@ namespace SqlMetal.Schema
                 // picrap processed earlier
                 //col.Storage = "_" + col.Name;
 
-                if (CSharp.IsCsharpKeyword(col.Storage))
-                    col.Storage += "_"; //rename column 'int' -> 'int_'
+                // picrap moved to CSCodeWriter
+                //if (CSharp.IsCsharpKeyword(col.Storage))
+                //    col.Storage += "_"; //rename column 'int' -> 'int_'
 
-                if (CSharp.IsCsharpKeyword(col.Member))
-                    col.Member += "_"; //rename column 'int' -> 'int_'
+                //if (CSharp.IsCsharpKeyword(col.Member))
+                //    col.Member += "_"; //rename column 'int' -> 'int_'
             }
 
             Dictionary<string, bool> knownAssocs = new Dictionary<string, bool>();

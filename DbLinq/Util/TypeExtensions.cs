@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -25,40 +25,36 @@
 #endregion
 
 using System;
-using System.Reflection;
-using System.Collections.Generic;
-using System.Text;
-using System.Data.Linq;
 using System.Data.Linq.Mapping;
-using DbLinq.Util;
+using System.Reflection;
 
 namespace DbLinq.Util
 {
-    public class CSharp
+    public static class TypeExtensions
     {
         /// <summary>
         /// Categorize type - this will determine further processing of retrieved types
         /// </summary>
-        public static TypeEnum CategorizeType(Type t)
+        public static TypeCategory GetCategory(this Type t)
         {
-            if(IsPrimitiveType(t))
-                return TypeEnum.Primitive;
-            if(AttribHelper.GetTableAttrib(t)!=null)
-                return TypeEnum.Column;
-            if (t.IsGenericType && t.GetGenericTypeDefinition()==typeof(Nullable<>))
+            if (IsPrimitive(t))
+                return TypeCategory.Primitive;
+            if (IsTable(t))
+                return TypeCategory.Column;
+            if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 //make 'double?' also primitive
                 Type tInner = t.GetGenericArguments()[0];
-                if (IsPrimitiveType(tInner))
-                    return TypeEnum.Primitive;
+                if (IsPrimitive(tInner))
+                    return TypeCategory.Primitive;
             }
-            return TypeEnum.Other;
+            return TypeCategory.Other;
         }
 
         /// <summary>
         /// if T is string or int or DateTime? or friends, return true.
         /// </summary>
-        public static bool IsPrimitiveType(Type t)
+        public static bool IsPrimitive(this Type t)
         {
             if (t.IsGenericType)
             {
@@ -66,7 +62,7 @@ namespace DbLinq.Util
                 if (genericType == typeof(Nullable<>))
                 {
                     Type[] genericArgs = t.GetGenericArguments();
-                    bool ret = IsPrimitiveType(genericArgs[0]);
+                    bool ret = IsPrimitive(genericArgs[0]);
                     return ret;
                 }
                 else
@@ -76,20 +72,20 @@ namespace DbLinq.Util
             }
 
             #region IsBuiltinType
-            bool isBuiltinType = t==typeof(string)
-                || t==typeof(short)
-                || t==typeof(ushort)
-                || t==typeof(int)
-                || t==typeof(uint)
-                || t==typeof(long)
-                || t==typeof(ulong)
-                || t==typeof(float)
-                || t==typeof(double)
-                || t==typeof(decimal)
-                || t==typeof(char)
-                || t==typeof(byte)
+            bool isBuiltinType = t == typeof(string)
+                || t == typeof(short)
+                || t == typeof(ushort)
+                || t == typeof(int)
+                || t == typeof(uint)
+                || t == typeof(long)
+                || t == typeof(ulong)
+                || t == typeof(float)
+                || t == typeof(double)
+                || t == typeof(decimal)
+                || t == typeof(char)
+                || t == typeof(byte)
                 || t == typeof(bool)
-                || t==typeof(DateTime); //DateTime: not strictly a primitive time
+                || t == typeof(DateTime); //DateTime: not strictly a primitive time
             return isBuiltinType;
             #endregion
         }
@@ -100,12 +96,12 @@ namespace DbLinq.Util
         /// 
         /// Update for Beta2: f__AnonymousType is also a proj, has one ctor, >0 params
         /// </summary>
-        public static bool IsProjection(Type t)
+        public static bool IsProjection(this Type t)
         {
             ConstructorInfo[] cinfo = t.GetConstructors();
             if (cinfo.Length == 0 && t.IsValueType)
                 return true; //allow projection into user-defined structs
-            if(cinfo.Length<1)
+            if (cinfo.Length < 1)
                 return false;
             if (t.Name.Contains("<>f__AnonymousType"))
                 return true; //Beta2 logic
@@ -119,10 +115,10 @@ namespace DbLinq.Util
         /// is this a type with a [Table] attribute?
         /// (Alternatively, you could check if it implements IModified)
         /// </summary>
-        public static bool IsTableType(Type t)
+        public static bool IsTable(this Type t)
         {
-            TableAttribute tAttrib1 = AttribHelper.GetTableAttrib(t);
-            return (tAttrib1!=null);
+            TableAttribute tableAttribute = AttribHelper.GetTableAttrib(t);
+            return (tableAttribute != null);
         }
     }
 }
