@@ -99,8 +99,6 @@ namespace DbLinq.PostgreSql
                 //colSchema.IsVersion = ???
                 colSchema.CanBeNull = columnRow.isNullable;
                 colSchema.Type = MapDbType(columnRow).ToString();
-                if (CSharp.IsValueType(colSchema.Type) && columnRow.isNullable)
-                    colSchema.Type += "?";
 
                 if (columnRow.column_name == "employeetype" && columnRow.table_name == "employee" && schemaName.DbName == "Andrus")
                 {

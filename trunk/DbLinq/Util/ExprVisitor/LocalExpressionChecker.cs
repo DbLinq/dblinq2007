@@ -33,7 +33,7 @@ namespace DbLinq.Util.ExprVisitor
                 {
                     //compile an access function
                     Expression expr2 = expr;
-                    if (CSharp.IsPrimitiveType(expr.Type))
+                    if (expr.Type.IsPrimitive())
                         expr2 = Expression.Convert(expr, typeof(object));
 
                     var empty = new ParameterExpression[] { };

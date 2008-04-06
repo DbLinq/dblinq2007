@@ -73,9 +73,9 @@ namespace DbLinq.Util
             //A) one field ('builtin type'):           extract object of primitive / builtin type (eg. string or int or DateTime?)
             //B) all fields of a table:                extract table object, which will be 'newed' and then tracked for changes
             //C) several fields defined by projection: extract a projection object, using default ctor and bindings, no tracking needed.
-            bool isBuiltinType = CSharp.IsPrimitiveType(typeof(T)) || typeof(T).IsEnum;
-            bool isTableType = CSharp.IsTableType(typeof(T));
-            bool isProjectedType = CSharp.IsProjection(typeof(T));
+            bool isBuiltinType = typeof(T).IsPrimitive() || typeof(T).IsEnum;
+            bool isTableType = typeof(T).IsTable();
+            bool isProjectedType = typeof(T).IsProjection();
 
             if (projData == null && !isBuiltinType)
             {
@@ -412,7 +412,7 @@ namespace DbLinq.Util
                 //if( ! projFld.isPrimitiveType)
                 switch (projFld.typeEnum)
                 {
-                case TypeEnum.Column:
+                case TypeCategory.Column:
                     {
                         //occurs for 'from c ... from o ... select new {c,o}'
                         //should compile into:
@@ -442,7 +442,7 @@ namespace DbLinq.Util
                         bindings.Add(binding);
                     }
                     break;
-                case TypeEnum.Primitive:
+                case TypeCategory.Primitive:
                     {
                         Type fieldType = projFld.FieldType;
                         Expression arg_i = GetFieldMethodCall(fieldType, rdr, mappingContext, fieldID++);
@@ -451,7 +451,7 @@ namespace DbLinq.Util
                         bindings.Add(binding);
                     }
                     break;
-                case TypeEnum.Other:
+                case TypeCategory.Other:
                     {
                         //e.g.: "select new {g.Key,g}" - but g is also a projection
                         //Expression.MemberInit
@@ -512,7 +512,7 @@ namespace DbLinq.Util
             {
                 switch (projFld.typeEnum)
                 {
-                case TypeEnum.Column:
+                case TypeCategory.Column:
                     {
                         //occurs for 'from c ... from o ... select new {c,o}'
                         //should compile into:
@@ -543,7 +543,7 @@ namespace DbLinq.Util
                         argList.Add(innerInit);
                     }
                     break;
-                case TypeEnum.Primitive:
+                case TypeCategory.Primitive:
                     {
                         Type fieldType = projFld.FieldType;
                         Expression arg_i = GetFieldMethodCall(fieldType, reader, mappingContext, fieldID++);
@@ -553,7 +553,7 @@ namespace DbLinq.Util
                         argList.Add(arg_i);
                     }
                     break;
-                case TypeEnum.Other:
+                case TypeCategory.Other:
                     {
                         //e.g.: "select new {g.Key,g}" - but g is also a projection
                         //Expression.MemberInit

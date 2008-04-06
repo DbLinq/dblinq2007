@@ -114,8 +114,6 @@ namespace DbLinq.Ingres
                 //colSchema.IsVersion = ???
                 colSchema.CanBeNull = columnRow.isNullable;
                 colSchema.Type = MapDbType(columnRow).ToString();
-                if (CSharp.IsValueType(colSchema.Type) && columnRow.isNullable)
-                    colSchema.Type += "?";
 
                 //tableSchema.Types[0].Columns.Add(colSchema);
                 tableSchema.Type.Columns.Add(colSchema);

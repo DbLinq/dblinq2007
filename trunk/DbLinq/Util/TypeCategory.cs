@@ -30,9 +30,9 @@ namespace DbLinq.Util
 {
     /// <summary>
     /// TypeEnum: is a type a primitive type, a DB column, or a projection?
-    /// Call CSharp.CategorizeType(T) to examine a type.
+    /// Call CSharp.GetCategory(T) to examine a type.
     /// </summary>
-    public enum TypeEnum 
+    public enum TypeCategory 
     {
         /// <summary>
         /// specifies builtin type, eg. a string or uint.
