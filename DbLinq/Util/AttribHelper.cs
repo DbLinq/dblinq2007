@@ -213,7 +213,7 @@ namespace DbLinq.Util
             if (memberExpr == null)
                 return false;
             MemberInfo memberInfo = memberExpr.Member;
-            PropertyInfo propInfo = memberInfo as PropertyInfo;
+            PropertyInfo propInfo = memberInfo as PropertyInfo; //eg. {DbLinq.Linq.EntityMSet`1[nwind.Order] Orders}
             if (propInfo == null)
                 return false;
             AssociationAttribute assoc1;

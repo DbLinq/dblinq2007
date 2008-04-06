@@ -37,6 +37,9 @@ using DbLinq.Linq.Mapping;
 using DbLinq.Vendor;
 namespace DbLinq.Linq.Clause
 {
+    /// <summary>
+    /// ExpressionTreeParser part2 - MethodCall handling
+    /// </summary>
     public partial class ExpressionTreeParser
     {
         internal void AnalyzeMethodCall(RecurData recurData, MethodCallExpression expr)
@@ -112,7 +115,7 @@ namespace DbLinq.Linq.Clause
         }
 
         /// <summary>
-        /// handle string.Length, string.StartsWith etc
+        /// handle Sum(), Contains(), Count() and other beasts from System.Linq.Enumerable/Queryable.
         /// </summary>
         internal void AnalyzeMethodCall_Queryable(RecurData recurData, MethodCallExpression expr)
         {
@@ -205,9 +208,36 @@ namespace DbLinq.Linq.Clause
                         //this was discontinued after Linq 20006 preview
                         throw new ApplicationException("L581 Discontinued operand: Concat");
                     }
+                case "Any":
+                    {
+                        //this was discontinued after Linq 20006 preview
+                        Expression arg0 = expr.Arguments[0];
+                        //this._parent._vars.SqlParts = new SqlExpressionParts(_parent._vars.Context.Vendor);
+                        //_parent.ProcessScalarExpression();
+                        var prevTablesUsed = _result.tablesUsed;
+                        _result.tablesUsed = new Dictionary<Type, string>();
+                        var prevJoins = _result.joins;
+                        _result.joins = new List<string>();
+
+                        recurData.allowSelectAllFields = false;
+                        AnalyzeExpression(recurData, arg0);
+
+                        KeyValuePair<Type, string> tablesUsedKv = _result.tablesUsed.First();
+                        TableAttribute tableAttrib = AttribHelper.GetTableAttrib(tablesUsedKv.Key);
+                        string tablename = tableAttrib.Name;
+                        string nickname = tablesUsedKv.Value;
+
+                        string clause = "( SELECT COUNT(*) FROM " + tablename + " AS " + nickname + " WHERE " + _result.joins[0] + " ) > 0";
+                        _result.AppendString(clause);
+                        _result.tablesUsed = prevTablesUsed;
+                        _result.joins = prevJoins;
+                        //this;
+                        break;
+                        //_parent.ProcessQuery();
+                    }
                 default:
                     //detailed error will be thrown below
-                    break;
+                    throw new NotImplementedException("L210: unprepared for method " + expr.Method);
             }
         }
 
@@ -263,7 +293,7 @@ namespace DbLinq.Linq.Clause
 
                 default:
                     //detailed error will be thrown below
-                    break;
+                    throw new NotImplementedException("L266: unprepared for method " + expr.Method);
             }
 
         }

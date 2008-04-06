@@ -68,7 +68,7 @@ namespace DbLinq.Linq.Clause
         /// <returns>ParseResult containing params, sql string</returns>
         public static ParseResult Parse(IVendor vendor, QueryProcessor parent, Expression ex)
         {
-            RecurData recur = new RecurData();
+            RecurData recur = new RecurData { allowSelectAllFields = true };
             ExpressionTreeParser parser = new ExpressionTreeParser();
             parser._parent = parent;
             parser._result = new ParseResult(vendor);
@@ -415,7 +415,7 @@ namespace DbLinq.Linq.Clause
                         else
                         {
                             //process 'o.Customer.City'
-                            JoinBuilder.AddJoin2(_parent, expr, _result);
+                            JoinBuilder.AddJoin2(recurData, _parent, expr, _result);
                         }
                         return;
                     }
@@ -427,7 +427,7 @@ namespace DbLinq.Linq.Clause
             if (AttribHelper.IsAssociation(expr, out attribAndProp))
             {
                 //process 'o.Customer'
-                JoinBuilder.AddJoin2(_parent, expr, _result);
+                JoinBuilder.AddJoin2(recurData, _parent, expr, _result);
                 return;
             }
 
@@ -605,7 +605,7 @@ namespace DbLinq.Linq.Clause
         {
             public int depth;
             public int operatorPrecedence;
-            //public bool selectAllFields;
+            public bool allowSelectAllFields;
         }
     }
 }

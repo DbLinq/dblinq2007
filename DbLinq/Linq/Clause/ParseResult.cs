@@ -58,7 +58,8 @@ namespace DbLinq.Linq.Clause
             if (!joins.Contains(joinStr))
                 joins.Add(joinStr);
         }
-        public readonly Dictionary<Type, string> tablesUsed = new Dictionary<Type, string>();
+        public Dictionary<Type, string> tablesUsed = new Dictionary<Type, string>();
+
         public int MarkSbPosition() { return sb.Length; }
         public string Substring(int markedPos)
         {
