@@ -91,9 +91,17 @@ namespace DbMetal.Generator.Implementation
                                           "GetHashCode", typeof(int)))
                 {
                     string hashCode = null;
+
                     foreach (var primaryKey in primaryKeys)
                     {
-                        string primaryKeyHashCode = writer.GetMethodCallExpression(writer.GetMemberExpression(primaryKey.Member, "GetHashCode"));
+                        var member = primaryKey.Storage;
+                        string primaryKeyHashCode = writer.GetMethodCallExpression(writer.GetMemberExpression(member, "GetHashCode"));
+                        if (primaryKey.CanBeNull)
+                        {
+                            var isNullExpression = writer.GetEqualExpression(member, writer.GetNullExpression());
+                            var nullExpression = writer.GetLiteralValue(0);
+                            primaryKeyHashCode = writer.GetTernaryExpression(isNullExpression, nullExpression, primaryKeyHashCode);
+                        }
                         if (string.IsNullOrEmpty(hashCode))
                             hashCode = primaryKeyHashCode;
                         else
@@ -102,6 +110,7 @@ namespace DbMetal.Generator.Implementation
                     writer.WriteLine(writer.GetReturnStatement(hashCode));
                 }
                 writer.WriteLine();
+
                 // Equals
                 string otherAsObject = "o";
                 using (writer.WriteMethod(SpecificationDefinition.Public | SpecificationDefinition.Override,
@@ -119,8 +128,10 @@ namespace DbMetal.Generator.Implementation
                     string andExpression = null;
                     foreach (var primaryKey in primaryKeys)
                     {
-                        string primaryKeyTest = writer.GetMethodCallExpression(writer.GetMemberExpression(primaryKey.Member, "Equals"),
-                                                                               writer.GetMemberExpression(other, primaryKey.Member));
+                        var member = primaryKey.Storage;
+                        string primaryKeyTest = writer.GetMethodCallExpression(writer.GetMemberExpression(writer.GetLiteralType(typeof(object)), "Equals"),
+                                                                               member,
+                                                                               writer.GetMemberExpression(other, member));
                         if (string.IsNullOrEmpty(andExpression))
                             andExpression = primaryKeyTest;
                         else
