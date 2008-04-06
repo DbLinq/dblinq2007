@@ -273,6 +273,10 @@ namespace DbMetal.Generator
         public abstract string GetXOrExpression(string a, string b);
         public abstract string GetAndExpression(string a, string b);
 
+        public abstract string GetTernaryExpression(string conditionExpression, string trueExpression, string falseExpression);
+
+        public abstract string GetNullValueExpression(string literalType);
+
         #endregion
 
     }

@@ -438,6 +438,16 @@ namespace DbMetal.Generator.Implementation
             return string.Format("{0} == {1}", a, b);
         }
 
+        public override string GetTernaryExpression(string conditionExpression, string trueExpression, string falseExpression)
+        {
+            return string.Format("{0} ? {1} : {2}", conditionExpression, trueExpression, falseExpression);
+        }
+
+        public override string GetNullValueExpression(string literalType)
+        {
+            return string.Format("default({0})", literalType);
+        }
+
         #endregion
     }
 }
