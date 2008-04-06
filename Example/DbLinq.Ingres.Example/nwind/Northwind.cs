@@ -1,4 +1,4 @@
-#region Auto-generated classes for Northwind database on 2008-04-03 21:37:24Z
+#region Auto-generated classes for Northwind database on 2008-04-06 12:50:44Z
 
 //
 //  ____  _     __  __      _        _
@@ -7,7 +7,7 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from Northwind on 2008-04-03 21:37:24Z
+// Auto-generated from Northwind on 2008-04-06 12:50:44Z
 // Please visit http://linq.to/db for more information
 
 #endregion
@@ -63,7 +63,7 @@ namespace nwind
 
 		[AutoGenId]
 		private int categoryID;
-		[Column(Storage = "categoryID", Name = "categoryid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
+		[Column(Storage = "categoryID", Name = "categoryid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = "next value for \"linquser\".\"categories_seq\"")]
 		[DebuggerNonUserCode]
 		public int CategoryID
 		{
@@ -587,7 +587,7 @@ namespace nwind
 
 		[AutoGenId]
 		private int employeeID;
-		[Column(Storage = "employeeID", Name = "employeeid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
+		[Column(Storage = "employeeID", Name = "employeeid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = "next value for \"linquser\".\"employees_seq\"")]
 		[DebuggerNonUserCode]
 		public int EmployeeID
 		{
@@ -1374,7 +1374,7 @@ namespace nwind
 
 		[AutoGenId]
 		private int orderID;
-		[Column(Storage = "orderID", Name = "orderid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
+		[Column(Storage = "orderID", Name = "orderid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = "next value for \"linquser\".\"categories_seq\"")]
 		[DebuggerNonUserCode]
 		public int OrderID
 		{
@@ -1881,10 +1881,10 @@ namespace nwind
 
 		#region bool Discontinued
 
-		private bool discontinued;
+        private bool discontinued;
 		[Column(Storage = "discontinued", Name = "discontinued", DbType = "INTEGER(2)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public bool Discontinued
+        public bool Discontinued
 		{
 			get
 			{
@@ -1906,7 +1906,7 @@ namespace nwind
 
 		[AutoGenId]
 		private int productID;
-		[Column(Storage = "productID", Name = "productid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression="next value for \"linquser\".\"region_seq\"")]
+		[Column(Storage = "productID", Name = "productid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = "next value for \"linquser\".\"products_seq\"")]
 		[DebuggerNonUserCode]
 		public int ProductID
 		{
@@ -2192,7 +2192,7 @@ namespace nwind
 
 		[AutoGenId]
 		private int regionID;
-		[Column(Storage = "regionID", Name = "regionid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
+		[Column(Storage = "regionID", Name = "regionid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = "next value for \"linquser\".\"region_seq\"")]
 		[DebuggerNonUserCode]
 		public int RegionID
 		{
@@ -2489,7 +2489,7 @@ namespace nwind
 
 		[AutoGenId]
 		private int supplierID;
-		[Column(Storage = "supplierID", Name = "supplierid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
+		[Column(Storage = "supplierID", Name = "supplierid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = "next value for \"linquser\".\"suppliers_seq\"")]
 		[DebuggerNonUserCode]
 		public int SupplierID
 		{

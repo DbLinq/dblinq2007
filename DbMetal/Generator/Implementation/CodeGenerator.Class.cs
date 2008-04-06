@@ -175,6 +175,10 @@ namespace SqlMetal.Generator.Implementation
                 column["IsDbGenerated"] = property.IsDbGenerated;
             if (property.CanBeNull != columnAttribute.CanBeNull)
                 column["CanBeNull"] = property.CanBeNull;
+            if (!string.IsNullOrEmpty(property.Expression))
+            {
+                column["Expression"] = property.Expression.Replace("\"", "\\\"");
+            }
 
             using (writer.WriteAttribute(column))
             using (writer.WriteAttribute(NewAttributeDefinition<DebuggerNonUserCodeAttribute>()))
