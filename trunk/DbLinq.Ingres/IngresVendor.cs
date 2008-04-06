@@ -49,31 +49,48 @@ namespace DbLinq.Ingres
     {
         public override string VendorName { get { return "Ingres"; } }
 
+        private string lastIdExpression = null;
+
         public override IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
                                                , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
         {
             ColumnAttribute[] colAttribs = AttribHelper.GetColumnAttribs(projData.type);
-
-            //changing IsPk->IsDbGen after discussion with Andrus:
-            //ColumnAttribute idColAttrib = colAttribs.FirstOrDefault(c => c.IsPrimaryKey);
             ColumnAttribute idColAttrib = colAttribs.FirstOrDefault(c => c.IsDbGenerated);
-
             string idColName = idColAttrib == null ? "ERROR_L93_MissingIdCol" : idColAttrib.Name;
-            if (idColAttrib!=null && idColAttrib.Expression != null)
+            if (idColAttrib != null && idColAttrib.Expression != null)
             {
                 //sequence name is known, is stored in Expression
                 string nextvalExpr = idColAttrib.Expression;                     //eg. "nextval('suppliers_supplierid_seq')"
                 string currvalExpr = nextvalExpr.Replace("next value for", "current value for");  //eg. "currval('suppliers_supplierid_seq')"
-                sbIdentity.Append("; SELECT " + currvalExpr);
-            }
-            else
-            {
-                //assume standard format of sequence name
-                string sequenceName = projData.tableAttribute.Name + "_" + idColName + "_seq";
-                sbIdentity.Append("; SELECT currval('" + sequenceName + "')");
+                lastIdExpression = "SELECT " + currvalExpr;
             }
 
+            // Ingres needs to have the explicit nextvalue statement in the insert clause
+            // to be able to issue a currval afterwards.
+            // this is a known problem.
+            sb.Append(", " + colAtt.Name);
+            sbValues.Append(", " + idColAttrib.Expression);
             return null; //we have not created a param object (only Oracle does)
+        }
+
+        public override void ProcessInsertedId(IDbCommand cmd1, ref object returnedId)
+        {
+            if (lastIdExpression == null)
+                return;
+
+            // The current value for the sequence in question is gathered
+            // by issuing a new query to the database.
+            // it can only be done this way, as Ingres allows only one statement
+            // per DbCommand
+            object objID = null;
+            IDbCommand cmd2 = cmd1.Connection.CreateCommand();
+            cmd2.CommandText = lastIdExpression;
+            cmd2.Transaction = cmd1.Transaction;
+
+            objID = cmd2.ExecuteScalar();
+            if (objID != null)
+                returnedId = objID;
+            lastIdExpression = null;
         }
 
         // Ingres uses ? for parameters placeholders
