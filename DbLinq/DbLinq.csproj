@@ -64,6 +64,7 @@
     <Compile Include="Factory\IObjectFactory.cs" />
     <Compile Include="Factory\ObjectFactory.cs" />
     <Compile Include="Linq\ChangeSet.cs" />
+    <Compile Include="Linq\Clause\ExpressionTreeParser_Call.cs" />
     <Compile Include="Linq\Database\DatabaseContextExtensions.cs" />
     <Compile Include="Linq\Database\IDatabaseTransaction.cs" />
     <Compile Include="Linq\Database\Implementation\DatabaseContext.cs" />
