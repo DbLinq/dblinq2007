@@ -73,7 +73,7 @@ namespace DbLinq.Linq.Clause
         /// b) insert into our StringBuilder '$c.City'
         /// c) insert into tablesUsed[Customer]='$c' and tablesUsed[Order]='$o'
         /// </summary>
-        public static void AddJoin2(QueryProcessor qp, MemberExpression exprOuter, ParseResult result)
+        public static void AddJoin2(ExpressionTreeParser.RecurData recurData, QueryProcessor qp, MemberExpression exprOuter, ParseResult result)
         {
             string nick1, nick2;
             AttribAndProp attribAndProp1;
@@ -146,13 +146,23 @@ namespace DbLinq.Linq.Clause
 
                         assoc1 = attribAndProp1.assoc;
                         //nickname for parent table (not available in Expr tree) - eg. "p94$" for Products
-                        string parentTypeName = exprOuter.Type.Name;
+                        Type outerType = exprOuter.Type; //eg. EntityMSet<Order>
+                        if(outerType.IsGenericType && outerType.GetGenericTypeDefinition()==typeof(EntityMSet<>))
+                        {
+                            outerType = outerType.GetGenericArguments()[0]; //extract Order from EntityMSet<Order>
+                        }
+
+                        type2 = outerType;
+                        string parentTypeName = outerType.Name;
+
                         nick2 = VarName.GetSqlName(Char.ToLower(parentTypeName[0]) + "94"); 
                         nick1 = VarName.GetSqlName(paramExpr.Name);
-                        type2 = exprOuter.Type;
-                        SqlExpressionParts sqlParts = new SqlExpressionParts(qp._vars.Context.Vendor);
-                        FromClauseBuilder.SelectAllFields(null, sqlParts,type2, nick2);
-                        result.AppendString(sqlParts.GetSelect());
+                        if (recurData.allowSelectAllFields)
+                        {
+                            SqlExpressionParts sqlParts = new SqlExpressionParts(qp._vars.Context.Vendor);
+                            FromClauseBuilder.SelectAllFields(null, sqlParts, type2, nick2);
+                            result.AppendString(sqlParts.GetSelect());
+                        }
                         break;
                     }
                 default:
@@ -162,11 +172,18 @@ namespace DbLinq.Linq.Clause
             Type type1 = exprOuter.Expression.Type;
             assoc2 = AttribHelper.FindReverseAssociation(attribAndProp1);
 
-            //string joinString = "$c.CustomerID=$o.CustomerID"
-            string joinString = nick1+"."+assoc1.ThisKey+"="+nick2+"."+assoc2.OtherKey;
-
-            //_parts.JoinList.Add(joinString);
-            result.addJoin(joinString);
+            if (assoc1.OtherKey != null && assoc2.ThisKey != null)
+            {
+                //string joinString = "$c.CustomerID=$o.CustomerID"
+                string joinString = nick1 + "." + assoc1.OtherKey + "=" + nick2 + "." + assoc2.ThisKey;
+                result.addJoin(joinString);
+            }
+            else
+            {
+                //string joinString = "$c.CustomerID=$o.CustomerID"
+                string joinString = nick1 + "." + assoc1.ThisKey + "=" + nick2 + "." + assoc2.OtherKey;
+                result.addJoin(joinString);
+            }
             result.tablesUsed[type2] = nick2;    //tablesUsed[Order] = $o
             result.tablesUsed[type1] = nick1;    //tablesUsed[Customer] = $join
 
