@@ -9,7 +9,7 @@ using Test_NUnit;
 #if MYSQL
 namespace Test_NUnit_MySql
 #elif ORACLE
-    namespace Test_NUnit_Oracle
+namespace Test_NUnit_Oracle
 #elif POSTGRES
     namespace Test_NUnit_PostgreSql
 #elif SQLITE
@@ -17,7 +17,7 @@ namespace Test_NUnit_MySql
 #elif INGRES
     namespace Test_NUnit_Ingres
 #else
-    #error unknown target
+#error unknown target
 #endif
 {
     [TestFixture]
@@ -290,16 +290,15 @@ namespace Test_NUnit_MySql
         }
 
         [Test]
-        public void D12_SelectChildCustomer()
+        public void D12_SelectDerivedClass()
         {
-
             Northwind dbo = CreateDB();
             Northwind1 db = new Northwind1(dbo.DatabaseContext.Connection);
 
-            var childCustomer = (from c in db.ChildCustomers
-                                 where c.City == "London"
-                                 select c).First();
-            Assert.AreSame(childCustomer.City, "London");
+            var derivedCustomer = (from c in db.ChildCustomers
+                                   where c.City == "London"
+                                   select c).First();
+            Assert.IsTrue(derivedCustomer.City == "London");
         }
 
         public class Northwind1 : Northwind
@@ -308,11 +307,11 @@ namespace Test_NUnit_MySql
                 : base(connection)
             { }
 
-            public class ChildCustomer : Customer { }
+            public class CustomerDerivedClass : Customer { }
 
-            public DbLinq.Linq.Table<ChildCustomer> ChildCustomers
+            public DbLinq.Linq.Table<CustomerDerivedClass> ChildCustomers
             {
-                get { return base.GetTable<ChildCustomer>(); }
+                get { return base.GetTable<CustomerDerivedClass>(); }
             }
         }
         #endregion
