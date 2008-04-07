@@ -77,6 +77,7 @@ namespace DbLinq.Ingres.Schema
                 for (int i = 0; i < tmp.Length; i++)
                 {
                     tmp[i] = tmp[i].Trim();
+                    tmp[i] = tmp[i].Replace("\"", "");
                 }
                 return tmp;
             }
@@ -119,8 +120,12 @@ namespace DbLinq.Ingres.Schema
             {
                 string tmp = text_segment
                     .Substring(text_segment.IndexOf("\".") + 2);
-                return tmp
-                    .Substring(0, tmp.IndexOf("("));
+                if (tmp.Contains("("))
+                {
+                    return tmp
+                        .Substring(0, tmp.IndexOf("("));
+                }
+                return tmp;
             }
         }
 
