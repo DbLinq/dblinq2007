@@ -29,7 +29,15 @@ using Test_NUnit;
             Northwind db = CreateDB();
             try
             {
+                // Get the name of the Order Details table properly evaluating the Annotation
                 string tableName = db.Vendor.GetFieldSafeName("order details"); //eg. "[Order Details]"
+                foreach (object obj in typeof(OrderDetail).GetCustomAttributes(true))
+                {
+                    if (obj is System.Data.Linq.Mapping.TableAttribute)
+                    {
+                        tableName = ((System.Data.Linq.Mapping.TableAttribute)obj).Name;
+                    }
+                }
                 string sql = string.Format("DELETE FROM {0} WHERE OrderID=3 AND ProductID=2", tableName);
                 db.ExecuteCommand(sql);
             }

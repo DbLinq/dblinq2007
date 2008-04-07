@@ -26,6 +26,19 @@ namespace Test_NUnit_Ingres
             /*==================================================================*/
             /* The following failing tests are investigated, but not solved yet */
             /*==================================================================*/
+            // DUPLICATE KEY ON INSERT
+            //new CompositePK_Test().G10_DeleteTableWithCompositePK();
+
+            // The column value has not changed for some reason, so the assertion fails
+            //new CompositePK_Test().G11_UnchangedColumnShouldNotUpdated();
+
+            // generates this SQL
+            // SELECT $.categoryid, $.discontinued, $.productid, $.productname, 
+            // $.quantityperunit, $.reorderlevel, $.supplierid, $.unitprice, $.unitsinstock, $.unitsonorder
+            // FROM linquser.products $ WHERE $.supplierid = 1 AND $.unitsinstock > 2 ORDER BY $.productid
+            // which failes as a single $ sign is not allowed for a table alias
+            //new DynamicLinqTest().DL1_Products();
+
             // SELECT COUNT(*) FROM linquser.products p$ ORDER BY p$.productid
             // productid not found
             // I don't get this test. Why should I do a count(*) and then order it by a field
@@ -40,28 +53,8 @@ namespace Test_NUnit_Ingres
             //L274: Unprepared to map method All (c.Orders.Select(o => o).All(o => (o.ShipCity = c.City))) to SQL
             //new ReadTest_Complex().O1_OperatorAll();
 
-            // L274: Unprepared to map method Any (customer.Orders.Any()) to SQL
-            //new ReadTest_Complex().O2_OperatorAny();
-
             // SELECT ((p$.productname||?)||VARCHAR(p$.supplierid)) FROM linquser.products p$
             //new ReadTest_Operands().H1_SelectConcat();
-
-            // DUPLICATE KEY ON INSERT
-            //new CompositePK_Test().G10_DeleteTableWithCompositePK();
-
-            // The column value has not changed for some reason, so the assertion fails
-            //new CompositePK_Test().G11_UnchangedColumnShouldNotUpdated();
-
-            // DUPLICATE KEY ON INSERT
-            // it tries a delete first which fails
-            //new CompositePK_Test().G9_UpdateTableWithCompositePK();
-
-            // generates this SQL
-            // SELECT $.categoryid, $.discontinued, $.productid, $.productname, 
-            // $.quantityperunit, $.reorderlevel, $.supplierid, $.unitprice, $.unitsinstock, $.unitsonorder
-            // FROM linquser.products $ WHERE $.supplierid = 1 AND $.unitsinstock > 2 ORDER BY $.productid
-            // which failes as a single $ sign is not allowed for a table alias
-            //new DynamicLinqTest().DL1_Products();
 
             /*=======================================================*/
             /* These 101 Tests fail for various reasons, which look  */
