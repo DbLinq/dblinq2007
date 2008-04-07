@@ -22,7 +22,7 @@ namespace VisualMetal
 {
 	public partial class MainWindow : Window
 	{
-        public DbMetalProgram Program = new DbMetalProgram();
+		public DbMetalProgram Program = new DbMetalProgram();
 		public DbMetalParameters Parameters = new DbMetalParameters();
 		public ISchemaLoader Loader;
 		public Database Database;
@@ -31,9 +31,13 @@ namespace VisualMetal
 		{
 			InitializeComponent();
 
-			if (!String.IsNullOrEmpty(Properties.Settings.Default.Params))
-			    using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(Properties.Settings.Default.Params)))
-			        Parameters = (DbMetalParameters)XamlReader.Load(stream);
+			try
+			{
+				if (!String.IsNullOrEmpty(Properties.Settings.Default.Params))
+					using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(Properties.Settings.Default.Params)))
+						Parameters = (DbMetalParameters)XamlReader.Load(stream);
+			}
+			catch { } // throw away any errors from parsing parameters
 		}
 
 		protected override void OnClosed(EventArgs e)
