@@ -64,6 +64,7 @@ namespace DbLinq.Linq.Implementation
         public NameFormatter()
         {
             CultureInfo = new CultureInfo("en-us");
+            //CultureInfo = new CultureInfo("de");
             Case = Case.PascalCase;
         }
 
