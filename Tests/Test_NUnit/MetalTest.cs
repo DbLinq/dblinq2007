@@ -73,6 +73,15 @@ namespace Test_NUnit_MySql
             Directory.SetCurrentDirectory(currDir);
         }
 
+        [Test]
+        public void GetHashCode_should_not_throw()
+        {
+            nwind.Customer customer = new nwind.Customer();
+
+            //bug: GetHashCode sometimes throws NullPointerException because of null _customerID
+            int hashCode = customer.GetHashCode();
+        }
+
         #region helper class ProcessRunner - launches jobs, reads output
         class ProcessRunner
         {
