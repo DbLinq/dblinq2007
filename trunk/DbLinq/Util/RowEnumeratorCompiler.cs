@@ -170,9 +170,11 @@ namespace DbLinq.Util
 
             //given type Customer, find protected fields: _CustomerID,_CompanyName,...
             Type t = typeof(T);
-            MemberInfo[] fields1 = t.FindMembers(MemberTypes.Field
-                , BindingFlags.NonPublic | BindingFlags.Instance
-                , null, null);
+
+            //MemberInfo[] fields1 = t.FindMembers(MemberTypes.Field
+            //    , BindingFlags.NonPublic | BindingFlags.Instance
+            //    , null, null);
+            MemberInfo[] fields1 = AttribHelper.GetMemberFields(t); //this works with derived types also
 
             Dictionary<string, FieldInfo> fieldNameMap = fields1
                 .OfType<FieldInfo>()
