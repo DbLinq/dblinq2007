@@ -39,6 +39,7 @@ namespace DbLinq.Util
 {
     /// <summary>
     /// Helper class which does the walking over Types to analyze attributes
+    /// TODO: rename this to 'ReflectionHelper'?
     /// </summary>
     public class AttribHelper
     {
@@ -48,9 +49,39 @@ namespace DbLinq.Util
         /// </summary>
         public static TableAttribute GetTableAttrib(Type t)
         {
-            object[] objs = t.GetCustomAttributes(typeof(TableAttribute), false);
-            TableAttribute tbl = objs.OfType<TableAttribute>().FirstOrDefault();
-            return tbl;
+            //object[] objs = t.GetCustomAttributes(typeof(TableAttribute), false);
+            foreach (Type t2 in SelfAndBaseClasses(t))
+            {
+                object[] objs = t2.GetCustomAttributes(typeof(TableAttribute), true);
+                if (objs.Length == 0)
+                    continue;
+                TableAttribute tbl = objs.OfType<TableAttribute>().FirstOrDefault();
+                return tbl;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// enumerate inheritance chain - copied from DynamicLinq
+        /// </summary>
+        static IEnumerable<Type> SelfAndBaseClasses(Type type)
+        {
+            while (type != null)
+            {
+                yield return type;
+                type = type.BaseType;
+            }
+        }
+
+        public static MemberInfo[] GetMemberFields(Type t)
+        {
+            List<MemberInfo> fields = new List<MemberInfo>();
+            foreach (Type t2 in SelfAndBaseClasses(t))
+            {
+                MemberInfo[] members = t2.FindMembers(MemberTypes.Field, BindingFlags.Instance | BindingFlags.NonPublic, null, null);
+                fields.AddRange(members);
+            }
+            return fields.ToArray();
         }
 
         /// <summary>
@@ -190,7 +221,9 @@ namespace DbLinq.Util
             }
 
             //now we are looking for '[AutoGenId] protected int productId':
-            MemberInfo[] members = t.FindMembers(MemberTypes.Field, BindingFlags.Instance | BindingFlags.NonPublic, null, null);
+            //MemberInfo[] members = t.FindMembers(MemberTypes.Field, BindingFlags.Instance | BindingFlags.NonPublic, null, null);
+            MemberInfo[] members = GetMemberFields(t);
+
             foreach (FieldInfo field in members.OfType<FieldInfo>())
             {
                 object[] objs = field.GetCustomAttributes(typeof(AutoGenIdAttribute), false);
@@ -213,7 +246,7 @@ namespace DbLinq.Util
             if (memberExpr == null)
                 return false;
             MemberInfo memberInfo = memberExpr.Member;
-            PropertyInfo propInfo = memberInfo as PropertyInfo; //eg. {DbLinq.Linq.EntityMSet`1[nwind.Order] Orders}
+            PropertyInfo propInfo = memberInfo as PropertyInfo;
             if (propInfo == null)
                 return false;
             AssociationAttribute assoc1;
