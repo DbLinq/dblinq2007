@@ -167,6 +167,8 @@
     <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="DB to DBML.txt" />
+    <Content Include="DB all to DBML.txt" />
     <Content Include="DB all to C♯.txt" />
     <Content Include="DB to C♯.txt" />
   </ItemGroup>

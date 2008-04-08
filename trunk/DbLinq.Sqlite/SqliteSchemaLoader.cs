@@ -164,12 +164,16 @@ namespace DbLinq.Sqlite
                             keyColRow.referenced_table_name, keyColRow.referenced_table_schema,
                             keyColRow.constraint_name);
 
+                        var foreignKey = names.ColumnsNames[keyColRow.table_name][keyColRow.column_name].PropertyName;
+                        var reverseForeignKey = names.ColumnsNames[keyColRow.referenced_table_name][keyColRow.referenced_column_name].PropertyName; // GetColumnName(keyColRow.referenced_column_name);
+
                         //both parent and child table get an [Association]
                         DbLinq.Schema.Dbml.Association assoc = new DbLinq.Schema.Dbml.Association();
                         assoc.IsForeignKey = true;
                         assoc.Name = keyColRow.constraint_name;
                         assoc.Type = null;
-                        assoc.ThisKey = names.ColumnsNames[keyColRow.table_name][keyColRow.column_name].PropertyName;
+                        assoc.ThisKey = foreignKey;
+                        assoc.OtherKey=reverseForeignKey;
                         assoc.Member = associationName.ManyToOneMemberName;
                         assoc.Storage = associationName.ForeignKeyStorageFieldName;
                         table.Type.Associations.Add(assoc);
@@ -179,7 +183,8 @@ namespace DbLinq.Sqlite
                         assoc2.Name = keyColRow.constraint_name;
                         assoc2.Type = table.Type.Name; //keyColRow.table_name;
                         assoc2.Member = associationName.OneToManyMemberName;
-                        assoc2.OtherKey = names.ColumnsNames[keyColRow.referenced_table_name][keyColRow.referenced_column_name].PropertyName; // GetColumnName(keyColRow.referenced_column_name);
+                        assoc2.ThisKey = reverseForeignKey;
+                        assoc2.OtherKey = foreignKey;
                         //assoc2.Member = keyColRow.table_name;
 
                         //bool isSelfJoin = keyColRow.table_name == keyColRow.referenced_table_name;

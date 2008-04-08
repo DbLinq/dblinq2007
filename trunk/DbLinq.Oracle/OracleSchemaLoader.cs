@@ -13,7 +13,7 @@ using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.Oracle
 {
-    class OracleSchemaLoader: SchemaLoader
+    class OracleSchemaLoader : SchemaLoader
     {
         private readonly Vendor.IVendor vendor = new OracleVendor();
         public override IVendor Vendor { get { return vendor; } }
@@ -140,8 +140,11 @@ namespace DbLinq.Oracle
                         continue;
                     }
 
-                    var associationName = CreateAssociationName(constraint.table_name, constraint.table_schema, 
+                    var associationName = CreateAssociationName(constraint.table_name, constraint.table_schema,
                         referencedConstraint.table_name, referencedConstraint.table_schema, constraint.constraint_name);
+
+                    var foreignKey = names.ColumnsNames[constraint.table_name][constraint.column_name].PropertyName;
+                    var reverseForeignKey = names.ColumnsNames[referencedConstraint.table_name][referencedConstraint.column_name].PropertyName;
 
                     //if not PRIMARY, it's a foreign key.
                     //both parent and child table get an [Association]
@@ -149,9 +152,10 @@ namespace DbLinq.Oracle
                     assoc.IsForeignKey = true;
                     assoc.Name = constraint.constraint_name;
                     assoc.Type = null;
-                    assoc.ThisKey = names.ColumnsNames[constraint.table_name][constraint.column_name].PropertyName; 
+                    assoc.ThisKey = foreignKey;
+                    assoc.OtherKey = reverseForeignKey;
                     assoc.Member = associationName.ManyToOneMemberName;
-                    assoc.Storage = associationName.ForeignKeyStorageFieldName; 
+                    assoc.Storage = associationName.ForeignKeyStorageFieldName;
                     table.Type.Associations.Add(assoc);
 
                     //and insert the reverse association:
@@ -159,7 +163,8 @@ namespace DbLinq.Oracle
                     assoc2.Name = constraint.constraint_name;
                     assoc2.Type = table.Type.Name;
                     assoc2.Member = associationName.OneToManyMemberName;
-                    assoc2.OtherKey = names.ColumnsNames[referencedConstraint.table_name][referencedConstraint.column_name].PropertyName;
+                    assoc2.ThisKey = reverseForeignKey;
+                    assoc2.OtherKey = foreignKey;
 
                     string referencedFullDbName = GetFullDbName(referencedConstraint.table_name, referencedConstraint.table_schema);
                     DbLinq.Schema.Dbml.Table parentTable = schema.Tables.FirstOrDefault(t => referencedFullDbName == t.Name);
