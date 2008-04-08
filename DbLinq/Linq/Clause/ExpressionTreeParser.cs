@@ -66,18 +66,24 @@ namespace DbLinq.Linq.Clause
         /// main entry point for recursive analysis of an expression tree.
         /// </summary>
         /// <returns>ParseResult containing params, sql string</returns>
-        public static ParseResult Parse(IVendor vendor, QueryProcessor parent, Expression ex)
+        public static ParseResult Parse(IVendor vendor, QueryProcessor parent, Expression expr)
         {
-            RecurData recur = new RecurData { allowSelectAllFields = true };
+            RecurData recurData = new RecurData { allowSelectAllFields = true };
+            return Parse(recurData, vendor, parent, expr);
+        }
+
+        public static ParseResult Parse(RecurData recurData, IVendor vendor, QueryProcessor parent, Expression expr)
+        {
             ExpressionTreeParser parser = new ExpressionTreeParser();
             parser._parent = parent;
             parser._result = new ParseResult(vendor);
 
-            parser.AnalyzeExpression(recur, ex); //recursion here
+            parser.AnalyzeExpression(recurData, expr); //recursion here
 
             parser._result.EndField();
             return parser._result;
         }
+
 
         private void AnalyzeExpression(RecurData recurData, Expression expr)
         {
@@ -116,6 +122,7 @@ namespace DbLinq.Linq.Clause
                     return;
                 case ExpressionType.Convert:
                 case ExpressionType.Not:
+                case ExpressionType.Quote:
                     //case ExpressionType.Cast: //Cast disappeared in Bet2?!
                     AnalyzeUnary(recurData, (UnaryExpression)expr);
                     return;
