@@ -210,7 +210,10 @@ namespace DbLinq.Linq.Clause
                     }
                 case "Any":
                     {
-                        //this was discontinued after Linq 20006 preview
+                        //WARNING: this is still a hack
+                        //TODO: All and Any are similar and should be handled by one function
+                        //at the moment, they are handled by ProcessWhereClause_All and AnalyzeMethodCall_Queryable
+
                         Expression arg0 = expr.Arguments[0];
                         //this._parent._vars.SqlParts = new SqlExpressionParts(_parent._vars.Context.Vendor);
                         //_parent.ProcessScalarExpression();

@@ -27,6 +27,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using System.Linq.Expressions;
 using DbLinq.Linq.Clause;
 using DbLinq.Logging;
@@ -42,6 +43,13 @@ namespace DbLinq.Linq
     {
         void ProcessWhereClause(LambdaExpression lambda)
         {
+            MethodCallExpression call = lambda.Body.XMethodCall();
+            if (call != null && call.Method.Name == "All")
+            {
+                ProcessWhereClause_All(call);
+                return;
+            }
+
             ParseResult result = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, lambda.Body);
 
             if (GroupHelper.IsGrouping(lambda.Parameters[0].Type))
@@ -55,6 +63,53 @@ namespace DbLinq.Linq
 
             result.CopyInto(this, _vars.SqlParts); //transfer params and tablesUsed
         }
+
+        /// <summary>
+        /// process 'All' subclause 
+        /// </summary>
+        /// <param name="call"></param>
+        void ProcessWhereClause_All(MethodCallExpression call)
+        {
+            //WARNING: this is still a hack
+            //TODO: All and Any are similar and should be handled by one function
+            //at the moment, they are handled by ProcessWhereClause_All and AnalyzeMethodCall_Queryable
+
+            Expression arg0 = call.Arguments[0]; //{c.Orders.Select(o => o)}
+            Expression arg1 = call.Arguments[1]; //{o => (o.ShipCity = c.City)}
+            MethodCallExpression sel0 = arg0.XMethodCall(); //it's a Select()
+            Expression sel0arg0 = sel0.Arguments[0]; //Member
+            //Expression sel0arg1 = sel0.Arguments[1]; //Quote of Lambda - ignore
+            Expression arg1B = arg1.XLambda().Body;
+            //Console.WriteLine("" + arg0);
+
+            ParseResult result3 = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, arg1B);
+
+            ExpressionTreeParser.RecurData recurData = new ExpressionTreeParser.RecurData { allowSelectAllFields = false };
+            ParseResult result1 = ExpressionTreeParser.Parse(recurData, _vars.Context.Vendor, this, sel0arg0);
+            //ParseResult result2 = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, sel0arg1);
+
+            //WHERE 
+            //(    SELECT  COUNT(*) 
+            //    FROM Orders AS t1
+            //    WHERE ((t1.CustomerID = t0.CustomerID) AND  NOT  ((t1.ShipCity = t0.City)))
+            //) = 0
+            string whereClauseFmt = " ( SELECT COUNT(*) FROM {0} AS {1} WHERE {2} AND NOT ({3}) )=0  ";
+
+            var tablesUsed3 = result3.tablesUsed.First();
+            string tableName = AttribHelper.GetTableAttrib(tablesUsed3.Key).Name;
+            string nicknameOk = tablesUsed3.Value;
+            string nicknameBad = result1.tablesUsed.First().Value;
+
+            string join1 = result1.joins[0];
+            string join2 = join1.Replace(nicknameBad, nicknameOk);
+
+            string whereClause = string.Format(whereClauseFmt, tableName, nicknameOk
+                                        , join2
+                                        , result3.columns[0]);
+            _vars.SqlParts.AddWhere(whereClause);
+        }
+
+
 
         void ProcessSelectClause(LambdaExpression selectExpr)
         {
