@@ -28,7 +28,7 @@ using Test_NUnit;
     public class Count_Sum_Min_Max_Avg : TestBase
     {
         [Test]
-        public void LiqnToSqlCount01()
+        public void LinqToSqlCount01()
         {
             Northwind db = CreateDB();
             var q = db.Customers.Count();
@@ -37,7 +37,7 @@ using Test_NUnit;
         }
 
         [Test]
-        public void LiqnToSqlCount02()
+        public void LinqToSqlCount02()
         {
             Northwind db = CreateDB();
             var q = (from p in db.Products where !p.Discontinued select p)
@@ -45,6 +45,7 @@ using Test_NUnit;
 
             Assert.IsTrue(q > 0, "Expect non-zero count");
         }
+
         [Test(Description = "This sample uses Sum to find the total freight over all Orders.")]
         public void LinqToSqlCount03()
         {
