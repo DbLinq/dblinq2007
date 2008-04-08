@@ -165,13 +165,17 @@ namespace DbLinq.Ingres
                         keyColRow.schema_name_child,
                         keyColRow.constraint_name);
 
+                    var foreignKey = names.ColumnsNames[keyColRow.table_name_parent][keyColRow.column_name_parent].PropertyName;
+                    var reverseForeignKey = names.ColumnsNames[keyColRow.table_name_child][keyColRow.column_name_child].PropertyName; 
+
                     //if not PRIMARY, it's a foreign key.
                     //both parent and child table get an [Association]
                     DbLinq.Schema.Dbml.Association assoc = new DbLinq.Schema.Dbml.Association();
                     assoc.IsForeignKey = true;
                     assoc.Name = keyColRow.constraint_name;
                     assoc.Type = null;
-                    assoc.ThisKey = names.ColumnsNames[keyColRow.table_name_parent][keyColRow.column_name_parent].PropertyName;
+                    assoc.ThisKey = foreignKey;
+                    assoc.OtherKey=reverseForeignKey;
                     assoc.Member = associationName.ManyToOneMemberName;
                     assoc.Storage = associationName.ForeignKeyStorageFieldName;
                     table.Type.Associations.Add(assoc);
@@ -181,7 +185,8 @@ namespace DbLinq.Ingres
                     assoc2.Name = keyColRow.constraint_name;
                     assoc2.Type = table.Type.Name;
                     assoc2.Member = associationName.OneToManyMemberName;
-                    assoc2.OtherKey = names.ColumnsNames[keyColRow.table_name_child][keyColRow.column_name_child].PropertyName; // GetColumnName(keyColRow.referenced_column_name);
+                    assoc2.ThisKey = reverseForeignKey;
+                    assoc2.OtherKey = foreignKey;
 
                     string parentFullDbName = GetFullDbName(keyColRow.table_name_child, keyColRow.schema_name_child);
                     DbLinq.Schema.Dbml.Table parentTable = schema.Tables.FirstOrDefault(t => parentFullDbName == t.Name);

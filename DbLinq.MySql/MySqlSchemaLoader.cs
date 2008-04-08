@@ -119,6 +119,7 @@ namespace DbLinq.MySql
                 //colSchema.DbType = columnRow.datatype;
                 string dbType = columnRow.column_type;
 
+                // TODO picrap: this is in theory useless, check and remove
                 dbType = dbType.Replace("int(11)", "int") //remove some default sizes
                     .Replace("int(10) unsigned", "int unsigned")
                     .Replace("mediumint(8) unsigned", "mediumint unsigned")
@@ -169,12 +170,16 @@ namespace DbLinq.MySql
                         keyColRow.referenced_table_name, keyColRow.referenced_table_schema,
                         keyColRow.constraint_name);
 
+                    var foreignKey = names.ColumnsNames[keyColRow.table_name][keyColRow.column_name].PropertyName; //GetColumnName(keyColRow.column_name);
+                    var reverseForeignKey = names.ColumnsNames[keyColRow.referenced_table_name][keyColRow.referenced_column_name].PropertyName; // GetColumnName(keyColRow.referenced_column_name);
+
                     //both parent and child table get an [Association]
                     DbLinq.Schema.Dbml.Association assoc = new DbLinq.Schema.Dbml.Association();
                     assoc.IsForeignKey = true;
                     assoc.Name = keyColRow.constraint_name;
                     assoc.Type = null;
-                    assoc.ThisKey = names.ColumnsNames[keyColRow.table_name][keyColRow.column_name].PropertyName; //GetColumnName(keyColRow.column_name);
+                    assoc.ThisKey = foreignKey;
+                    assoc.OtherKey = reverseForeignKey;
                     assoc.Member = associationName.ManyToOneMemberName;
                     assoc.Storage = associationName.ForeignKeyStorageFieldName; //GetColumnFieldName(keyColRow.constraint_name);
                     table.Type.Associations.Add(assoc);
@@ -184,7 +189,8 @@ namespace DbLinq.MySql
                     assoc2.Name = keyColRow.constraint_name;
                     assoc2.Type = table.Type.Name;
                     assoc2.Member = associationName.OneToManyMemberName;
-                    assoc2.OtherKey = names.ColumnsNames[keyColRow.referenced_table_name][keyColRow.referenced_column_name].PropertyName; // GetColumnName(keyColRow.referenced_column_name);
+                    assoc2.ThisKey = reverseForeignKey;
+                    assoc2.OtherKey = foreignKey;
 
                     string referencedTableFullDbName = GetFullDbName(keyColRow.referenced_table_name, keyColRow.referenced_table_schema);
                     DbLinq.Schema.Dbml.Table parentTable = schema.Tables.FirstOrDefault(t => referencedTableFullDbName == t.Name);

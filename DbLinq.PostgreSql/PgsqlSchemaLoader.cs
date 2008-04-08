@@ -146,13 +146,17 @@ namespace DbLinq.PostgreSql
 
                     var associationName = CreateAssociationName(keyColRow.table_name, keyColRow.table_schema, foreignKey.table_name_Parent, foreignKey.table_schema_Parent, keyColRow.constraint_name);
 
+                    var foreignKey2 = names.ColumnsNames[keyColRow.table_name][keyColRow.column_name].PropertyName;
+                    var reverseForeignKey = names.ColumnsNames[foreignKey.table_name_Parent][foreignKey.column_name].PropertyName; // GetColumnName(keyColRow.referenced_column_name);
+
                     //if not PRIMARY, it's a foreign key.
                     //both parent and child table get an [Association]
                     DbLinq.Schema.Dbml.Association assoc = new DbLinq.Schema.Dbml.Association();
                     assoc.IsForeignKey = true;
                     assoc.Name = keyColRow.constraint_name;
                     assoc.Type = null;
-                    assoc.ThisKey = names.ColumnsNames[keyColRow.table_name][keyColRow.column_name].PropertyName;
+                    assoc.ThisKey = foreignKey2;
+                    assoc.OtherKey = reverseForeignKey;
                     assoc.Member = associationName.ManyToOneMemberName;
                     assoc.Storage = associationName.ForeignKeyStorageFieldName;
                     table.Type.Associations.Add(assoc);
@@ -162,7 +166,8 @@ namespace DbLinq.PostgreSql
                     assoc2.Name = keyColRow.constraint_name;
                     assoc2.Type = table.Type.Name;
                     assoc2.Member = associationName.OneToManyMemberName;
-                    assoc2.OtherKey = names.ColumnsNames[foreignKey.table_name_Parent][foreignKey.column_name].PropertyName; // GetColumnName(keyColRow.referenced_column_name);
+                    assoc2.ThisKey = reverseForeignKey;
+                    assoc2.OtherKey = foreignKey2;
 
                     string parentFullDbName = GetFullDbName(foreignKey.table_name_Parent, foreignKey.table_schema_Parent);
                     DbLinq.Schema.Dbml.Table parentTable = schema.Tables.FirstOrDefault(t => parentFullDbName == t.Name);
