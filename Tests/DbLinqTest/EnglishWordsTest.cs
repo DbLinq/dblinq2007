@@ -101,7 +101,7 @@ namespace DbLinqTest
         public void GetWords7Test()
         {
             var actual = englishWords.GetWords("customerid");
-            AssertAreEqual(actual, "customer", "i", "d");
+            AssertAreEqual(actual, "customer", "id");
         }
 
         [TestMethod]
@@ -109,7 +109,7 @@ namespace DbLinqTest
         public void GetWords8Test()
         {
             var actual = englishWords.GetWords("supplierid");
-            AssertAreEqual(actual, "supplier", "i", "d");
+            AssertAreEqual(actual, "supplier", "id");
         }
 
         [TestMethod]
