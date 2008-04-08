@@ -45,15 +45,14 @@ namespace Test_NUnit_Ingres
             // that is actually not in the resultset?
             //new ReadTest().C4_CountWithOrderBy();
 
-            // No clue, what this test does
-            //new ReadTest().D12_SelectChildCustomer();
-
             // Method All seems not to be mapped
             // in ExpressionTreeParser.cs
             //L274: Unprepared to map method All (c.Orders.Select(o => o).All(o => (o.ShipCity = c.City))) to SQL
             //new ReadTest_Complex().O1_OperatorAll();
 
+            // Yields this SQL:
             // SELECT ((p$.productname||?)||VARCHAR(p$.supplierid)) FROM linquser.products p$
+            // A parameter before the FROM crashes the Ingres driver. Known problem.
             //new ReadTest_Operands().H1_SelectConcat();
 
             /*=======================================================*/
