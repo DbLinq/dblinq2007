@@ -39,6 +39,26 @@ namespace DbMetal
 {
     public class Parameters
     {
+        public class DescriptionAttribute : Attribute
+        {
+            public string Text { get; set; }
+
+            public DescriptionAttribute(string text)
+            {
+                Text = text;
+            }
+        }
+
+        public class AlternateAttribute : Attribute
+        {
+            public string Name { get; set; }
+
+            public AlternateAttribute(string name)
+            {
+                Name = name;
+            }
+        }
+
         public readonly IList<string> Extra = new List<string>();
 
         private bool IsParameter(string arg, string switchPrefix, out string parameterName, out string parameterValue)
@@ -238,7 +258,7 @@ namespace DbMetal
                     parameters.AddRange(GetParameterBatchFile<P>(commonArgs, Path.Combine(argsFileDirectory, argsFile)));
                 }
             }
-                // if we don't, just use the args
+            // if we don't, just use the args
             else if (commonArgs.Count > 0)
             {
                 var p = new P();

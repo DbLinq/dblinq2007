@@ -33,7 +33,8 @@ namespace DbLinq.Linq
     {
         Leave,
         camelCase,
-        PascalCase
+        PascalCase,
+        NetCase,
     }
 
     public enum WordsExtraction

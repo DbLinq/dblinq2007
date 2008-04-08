@@ -51,8 +51,8 @@ namespace DbLinq.Linq.Implementation
         public CultureInfo CultureInfo
         {
             get { return cultureInfo; }
-            set 
-            { 
+            set
+            {
                 cultureInfo = value;
                 var languages = ObjectFactory.Get<ILanguages>();
                 Words = languages.Load(value);
@@ -100,6 +100,15 @@ namespace DbLinq.Linq.Implementation
             return part;
         }
 
+        public string ToNetCase(string part)
+        {
+            if (part.Length <= 2)
+                part = part.ToUpper();
+            else
+                part = ToPascalCase(part);
+            return part;
+        }
+
         protected virtual string AdjustPart(string part, Position position, Case newCase, Singularization singularization)
         {
             if (singularization != Singularization.DontChange && (position & Position.Last) != 0)
@@ -109,10 +118,25 @@ namespace DbLinq.Linq.Implementation
                 else
                     part = Words.Pluralize(part);
             }
-            if ((position & Position.First) != 0 && newCase == Case.camelCase)
+            Case applyCase = newCase;
+            if (applyCase == Case.camelCase && (position & Position.First) == 0)
+                applyCase = Case.PascalCase;
+            switch (applyCase)
+            {
+            case Case.Leave:
+                break;
+            case Case.camelCase:
                 part = ToCamelCase(part);
-            else if (newCase != Case.Leave)
+                break;
+            case Case.PascalCase:
                 part = ToPascalCase(part);
+                break;
+            case Case.NetCase:
+                part = ToNetCase(part);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+            }
             return part;
         }
 
