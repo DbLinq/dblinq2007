@@ -35,131 +35,81 @@ namespace DbMetal
     [DebuggerDisplay("Parameters from {Provider}, server={Server}")]
     public class DbMetalParameters : Parameters
     {
-        string user;
-
         /// <summary>
         /// user name for database access
         /// SQLMetal compatible
         /// </summary>
-        public string User
-        {
-            get { return user; }
-            set { user = value; }
-        }
-
-        string password;
+        [Option("Login user ID.", Group = 1)]
+        public string User { get; set; }
 
         /// <summary>
         /// user password for database access
         /// SQLMetal compatible
         /// </summary>
-        public string Password
-        {
-            get { return password; }
-            set { password = value; }
-        }
-
-        string server; // picrap: emptied this to use string.Empty as default value
+        [Option("Login password.", Group = 1)]
+        public string Password { get; set; }
 
         /// <summary>
         /// server host name
         /// SQLMetal compatible
         /// </summary>
-        public string Server
-        {
-            get { return server; }
-            set { server = value; }
-        }
-
-        string database;
+        [Option("Database server name.", Group = 1)]
+        public string Server { get; set; }
 
         /// <summary>
         /// database name
         /// SQLMetal compatible
         /// </summary>
-        public string Database
-        {
-            get { return database; }
-            set { database = value; }
-        }
-
-        string conn;
+        [Option("Database catalog on server.", Group = 1)]
+        public string Database { get; set; }
 
         /// <summary>
         /// This connection string if present overrides User, Password, Server.
         /// Database is always used to generate the specific DataContext name
         /// SQLMetal compatible
         /// </summary>
-        public string Conn
-        {
-            get { return conn; }
-            set { conn = value; }
-        }
-
-        string _namespace;
+        [Option("Database connection string. Cannot be used with /server, /user or /password options.", Group = 1)]
+        public string Conn { get; set; }
 
         /// <summary>
         /// the namespace to put our classes into
         /// SQLMetal compatible
         /// </summary>
-        public string Namespace
-        {
-            get { return _namespace; }
-            set { _namespace = value; }
-        }
-
-        string code;
+        [Option("Namespace of generated code (default: no namespace).", Group = 4)]
+        public string Namespace { get; set; }
 
         /// <summary>
         /// If present, write out C# code
         /// SQLMetal compatible
         /// </summary>
-        public string Code
-        {
-            get { return code; }
-            set { code = value; }
-        }
-
-        string dbml;
+        [Option("Output as source code. Cannot be used with /dbml option.", Group = 3)]
+        public string Code { get; set; }
 
         /// <summary>
         /// If present, write out DBML XML representing the DB
         /// SQLMetal compatible
         /// </summary>
-        public string Dbml
-        {
-            get { return dbml; }
-            set { dbml = value; }
-        }
+        [Option("Output as dbml. Cannot be used with /map option.", Group = 3)]
+        public string Dbml { get; set; }
 
         /// <summary>
         /// when true, we will call Singularize()/Pluralize() functions.
         /// SQLMetal compatible
         /// </summary>
+        [Option("Automatically pluralize or singularize class and member names using specified culture rules.", Group = 4)]
         public bool Pluralize { get; set; }
-
-        ///// <summary>
-        ///// for mysql, we want to keep case as specified in DB.
-        ///// DbLinq specific
-        ///// </summary>
-        //public bool ForceUcaseFieldName;
-
-        ///// <summary>
-        ///// rename object 'productid' to 'productID'?
-        ///// DbLinq specific
-        ///// </summary>
-        //public bool ForceUcaseID = true;
-        //#endregion
 
         /// <summary>
         /// Load object renamings from an xml file
         /// DbLinq specific
         /// </summary>
+        [Option("Use mapping file.", Group = 3)]
         public string RenamesFile { get; set; }
 
         /// <summary>
         /// this is the "input file" parameter
         /// </summary>
+        [File("input file", "DBML input file.")]
         public string SchemaXmlFile
         {
             get
@@ -172,12 +122,14 @@ namespace DbMetal
         /// base class from which all generated entities will inherit
         /// SQLMetal compatible
         /// </summary>
+        [Option("Base class of entity classes in the generated code (default: entities have no base class).", Group = 4)]
         public string EntityBase { get; set; }
 
         /// <summary>
         /// Interfaces to be implemented
         /// </summary>
         public string EntityInterfaces = "INotifyPropertyChanged";//INotifyPropertyChanging INotifyPropertyChanged IModified
+        [Option("Comma separated base interfaces of entity classes in the generated code (default: entities implement INotifyPropertyChanged).", Group = 4)]
         public string[] Interfaces
         {
             get
@@ -190,6 +142,7 @@ namespace DbMetal
         /// export stored procedures
         /// SQLMetal compatible
         /// </summary>
+        [Option("Extract stored procedures.", Group = 2)]
         public bool SProcs { get; set; }
 
         /// <summary>
@@ -218,30 +171,28 @@ namespace DbMetal
         /// picrap comment: you may use the tool to write output to Visual Studio output window instead of a console window
         /// DbLinq specific
         /// </summary>
+        [Option("Wait for a key to be pressed after processing.", Group = 4)]
         public bool ReadLineAtExit { get; set; }
 
-        string provider; // no default provider
-       
         /// <summary>
         /// specifies a provider (which here is a pair or ISchemaLoader and IDbConnection implementors)
         /// SQLMetal compatible
         /// </summary>
-        public string Provider
-        {
-            get { return provider; }
-            set { provider = value; }
-        }
+        [Option("Specify provider. May be Ingres, MySql, Oracle, OracleODP, PostgreSql or Sqlite.", Group = 1)]
+        public string Provider { get; set; }
 
         /// <summary>
         /// For fine tuning, we allow to specifiy an ISchemaLoader
         /// DbLinq specific
         /// </summary>
+        [Option("Specify a custom ISchemaLoader implementation type.", Group = 1)]
         public string DbLinqSchemaLoaderProvider { get; set; }
 
         /// <summary>
         /// For fine tuning, we allow to specifiy an IDbConnection
         /// DbLinq specific
         /// </summary>
+        [Option("Specify a custom IDbConnection implementation type.", Group = 1)]
         public string DatabaseConnectionProvider { get; set; }
 
         public DbMetalParameters()
@@ -257,5 +208,27 @@ namespace DbMetal
         {
             return GetParameterBatch<DbMetalParameters>(args);
         }
+
+        #region Help
+
+        public override void WriteHeader()
+        {
+            //Microsoft (R) Database Mapping Generator 2008 version 1.00.21022
+            //for Microsoft (R) .NET Framework version 3.5
+            //Copyright (C) Microsoft Corporation. All rights reserved.
+            Write("DbLinq Database mapping generator 2008 version {0}", ApplicationVersion);
+            Write("for Microsoft (R) .NET Framework version 3.5");
+            Write("Distributed under the MIT licence");
+        }
+
+        public override void WriteSummary()
+        {
+            Write("  Generates code and mapping for DbLinq. SqlMetal can:");
+            Write("  - Generate source code and mapping attributes or a mapping file from a database.");
+            Write("  - Generate an intermediate dbml file for customization from the database.");
+            Write("  - Generate code and mapping attributes or mapping file from a dbml file.");
+        }
+
+        #endregion
     }
 }

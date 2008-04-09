@@ -57,31 +57,39 @@ namespace DbMetal
 
         public void Process(string[] args)
         {
-            bool readLineAtExit = false;
-
-            try
-            {
-                foreach (var parameters in DbMetalParameters.GetBatch(args))
-                {
-                    ProcessSchema(parameters);
-                    if (parameters.ReadLineAtExit)
-                        readLineAtExit = true;
-                }
-            }
-            catch (ArgumentException e)
-            {
-                Logger.Write(Level.Error, e.Message);
+            if (args.Length == 0)
                 PrintUsage();
-                return;
+
+            else
+            {
+                bool readLineAtExit = false;
+
+                // TODO add WriteHeader() here
+
+                try
+                {
+                    foreach (var parameters in DbMetalParameters.GetBatch(args))
+                    {
+                        ProcessSchema(parameters);
+                        if (parameters.ReadLineAtExit)
+                            readLineAtExit = true;
+                    }
+                }
+                catch (ArgumentException e)
+                {
+                    Logger.Write(Level.Error, e.Message);
+                    PrintUsage();
+                    return;
+                }
+                if (readLineAtExit)
+                {
+                    // '-readLineAtExit' flag: useful when running from Visual Studio
+                    Console.ReadKey();
+                }
             }
 
             Logger.Write(Level.Information, "");
 
-            if (readLineAtExit)
-            {
-                // '-readLineAtExit' flag: useful when running from Visual Studio
-                Console.ReadKey();
-            }
         }
 
         private void ProcessSchema(DbMetalParameters parameters)
@@ -162,10 +170,8 @@ namespace DbMetal
 
         private void PrintUsage()
         {
-            string appName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
-            Console.WriteLine(appName + " usage:");
-            Console.WriteLine(appName + ".exe -Server:xx -Database:yy -User:zz -Password:** -Provider=[MySql|Oracle|OracleODP|PostgreSql|Sqlite|Ingres]");
-            Console.WriteLine("Result: produces file yy.cs in local directory");
+            var parameters = new DbMetalParameters();
+            parameters.WriteHelp();
         }
     }
 }
