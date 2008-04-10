@@ -25,9 +25,11 @@
 #endregion
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Collections.Generic;
 using DbLinq.Factory;
+using DbLinq.Linq;
 using DbLinq.Logging;
 using DbLinq.Logging.Implementation;
 using DbLinq.Schema;
@@ -149,7 +151,9 @@ namespace DbMetal
             if (parameters.SchemaXmlFile == null) // read schema from DB
             {
                 Logger.Write(Level.Information, ">>> Reading schema from {0} database", schemaLoader.VendorName);
-                dbSchema = schemaLoader.Load(parameters.Database, tableAliases, parameters.Pluralize, parameters.SProcs);
+                dbSchema = schemaLoader.Load(parameters.Database, tableAliases,
+                    new NameFormat { Case = Case.PascalCase, Pluralize = parameters.Pluralize, Culture = new CultureInfo("en") },
+                    parameters.SProcs);
                 dbSchema.Provider = parameters.Provider;
                 dbSchema.Tables.Sort(new LambdaComparer<DbLinq.Schema.Dbml.Table>((x, y) => (x.Type.Name.CompareTo(y.Type.Name))));
                 foreach (var table in dbSchema.Tables)

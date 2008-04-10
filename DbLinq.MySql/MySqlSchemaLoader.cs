@@ -46,7 +46,7 @@ namespace DbLinq.MySql
 
         public override System.Type DataContextType { get { return typeof(MySqlDataContext); } }
 
-        protected override TableName CreateTableName(string dbTableName, string dbSchema, IDictionary<string, string> tableAliases)
+        protected override TableName CreateTableName(string dbTableName, string dbSchema, IDictionary<string, string> tableAliases, NameFormat nameFormat)
         {
             WordsExtraction extraction = WordsExtraction.FromDictionary;
             if (tableAliases != null && tableAliases.ContainsKey(dbTableName))
@@ -54,12 +54,12 @@ namespace DbLinq.MySql
                 extraction = WordsExtraction.FromCase;
                 dbTableName = tableAliases[dbTableName];
             }
-            var tableName = NameFormatter.GetTableName(dbTableName, extraction);
+            var tableName = NameFormatter.GetTableName(dbTableName, extraction, nameFormat);
             tableName.DbName = GetFullDbName(dbTableName, dbSchema);
             return tableName;
         }
 
-        protected override Database Load(SchemaName schemaName, IDictionary<string, string> tableAliases, bool loadStoredProcedures)
+        protected override Database Load(SchemaName schemaName, IDictionary<string, string> tableAliases, NameFormat nameFormat, bool loadStoredProcedures)
         {
             IDbConnection conn = Connection;
 
@@ -82,7 +82,7 @@ namespace DbLinq.MySql
 
             foreach (TableRow tblRow in tables)
             {
-                var tableName = CreateTableName(tblRow.table_name, tblRow.table_schema, tableAliases);
+                var tableName = CreateTableName(tblRow.table_name, tblRow.table_schema, tableAliases, nameFormat);
                 names.TablesNames[tableName.DbName] = tableName;
 
                 var tblSchema = new Table();
@@ -99,7 +99,7 @@ namespace DbLinq.MySql
 
             foreach (Schema.Column columnRow in columns)
             {
-                var columnName = CreateColumnName(columnRow.column_name);
+                var columnName = CreateColumnName(columnRow.column_name, nameFormat);
                 names.AddColumn(columnRow.table_name, columnName);
 
                 //find which table this column belongs to
@@ -168,7 +168,7 @@ namespace DbLinq.MySql
                 {
                     var associationName = CreateAssociationName(keyColRow.table_name, keyColRow.table_schema,
                         keyColRow.referenced_table_name, keyColRow.referenced_table_schema,
-                        keyColRow.constraint_name);
+                        keyColRow.constraint_name, nameFormat);
 
                     var foreignKey = names.ColumnsNames[keyColRow.table_name][keyColRow.column_name].PropertyName; //GetColumnName(keyColRow.column_name);
                     var reverseForeignKey = names.ColumnsNames[keyColRow.referenced_table_name][keyColRow.referenced_column_name].PropertyName; // GetColumnName(keyColRow.referenced_column_name);
@@ -218,7 +218,7 @@ namespace DbLinq.MySql
 
                 foreach (ProcRow proc in procs)
                 {
-                    var procedureName = CreateProcedureName(proc.specific_name, proc.db);
+                    var procedureName = CreateProcedureName(proc.specific_name, proc.db, nameFormat);
 
                     DbLinq.Schema.Dbml.Function func = new DbLinq.Schema.Dbml.Function();
                     func.Name = procedureName.DbName;

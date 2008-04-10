@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using DbLinq.Ingres.Schema;
+using DbLinq.Linq;
 using DbLinq.Logging;
 using DbLinq.Schema;
 using DbLinq.Schema.Dbml;
@@ -46,7 +47,7 @@ namespace DbLinq.Ingres
 
         public override System.Type DataContextType { get { return typeof(IngresDataContext); } }
 
-        protected override Database Load(SchemaName schemaName, IDictionary<string, string> tableAliases, bool loadStoredProcedures)
+        protected override Database Load(SchemaName schemaName, IDictionary<string, string> tableAliases, NameFormat nameFormat, bool loadStoredProcedures)
         {
             IDbConnection conn = Connection;
 
@@ -69,7 +70,7 @@ namespace DbLinq.Ingres
 
             foreach (TableRow tblRow in tables)
             {
-                var tableName = CreateTableName(tblRow.table_name, tblRow.table_owner, tableAliases);
+                var tableName = CreateTableName(tblRow.table_name, tblRow.table_owner, tableAliases, nameFormat);
                 names.TablesNames[tableName.DbName] = tableName;
 
                 DbLinq.Schema.Dbml.Table tblSchema = new DbLinq.Schema.Dbml.Table();
@@ -86,7 +87,7 @@ namespace DbLinq.Ingres
 
             foreach (Schema.Column columnRow in columns)
             {
-                var columnName = CreateColumnName(columnRow.column_name);
+                var columnName = CreateColumnName(columnRow.column_name, nameFormat);
                 names.AddColumn(columnRow.table_name, columnName);
 
                 //find which table this column belongs to
@@ -163,10 +164,11 @@ namespace DbLinq.Ingres
                         keyColRow.schema_name_parent,
                         keyColRow.table_name_child,
                         keyColRow.schema_name_child,
-                        keyColRow.constraint_name);
+                        keyColRow.constraint_name,
+                        nameFormat);
 
                     var foreignKey = names.ColumnsNames[keyColRow.table_name_parent][keyColRow.column_name_parent].PropertyName;
-                    var reverseForeignKey = names.ColumnsNames[keyColRow.table_name_child][keyColRow.column_name_child].PropertyName; 
+                    var reverseForeignKey = names.ColumnsNames[keyColRow.table_name_child][keyColRow.column_name_child].PropertyName;
 
                     //if not PRIMARY, it's a foreign key.
                     //both parent and child table get an [Association]
@@ -175,7 +177,7 @@ namespace DbLinq.Ingres
                     assoc.Name = keyColRow.constraint_name;
                     assoc.Type = null;
                     assoc.ThisKey = foreignKey;
-                    assoc.OtherKey=reverseForeignKey;
+                    assoc.OtherKey = reverseForeignKey;
                     assoc.Member = associationName.ManyToOneMemberName;
                     assoc.Storage = associationName.ForeignKeyStorageFieldName;
                     table.Type.Associations.Add(assoc);

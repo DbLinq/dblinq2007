@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using DbLinq.Linq;
 using DbLinq.Logging;
 using DbLinq.Schema;
 using DbLinq.Schema.Dbml;
@@ -47,7 +48,7 @@ namespace DbLinq.Sqlite
 
         public override System.Type DataContextType { get { return typeof(SqliteDataContext); } }
 
-        protected override Database Load(SchemaName schemaName, IDictionary<string, string> tableAliases, bool loadStoredProcedures)
+        protected override Database Load(SchemaName schemaName, IDictionary<string, string> tableAliases, NameFormat nameFormat, bool loadStoredProcedures)
         {
             IDbConnection conn = Connection;
 
@@ -70,7 +71,7 @@ namespace DbLinq.Sqlite
 
             foreach (TableRow tblRow in tables)
             {
-                var tableName = CreateTableName(tblRow.table_name, tblRow.table_schema, tableAliases);
+                var tableName = CreateTableName(tblRow.table_name, tblRow.table_schema, tableAliases, nameFormat);
                 names.TablesNames[tableName.DbName] = tableName;
 
                 var tblSchema = new Table();
@@ -87,7 +88,7 @@ namespace DbLinq.Sqlite
 
             foreach (Schema.Column columnRow in columns)
             {
-                var columnName = CreateColumnName(columnRow.column_name);
+                var columnName = CreateColumnName(columnRow.column_name, nameFormat);
                 names.AddColumn(columnRow.table_name, columnName);
 
                 //find which table this column belongs to
@@ -162,7 +163,7 @@ namespace DbLinq.Sqlite
                     {
                         var associationName = CreateAssociationName(keyColRow.table_name, keyColRow.table_schema,
                             keyColRow.referenced_table_name, keyColRow.referenced_table_schema,
-                            keyColRow.constraint_name);
+                            keyColRow.constraint_name, nameFormat);
 
                         var foreignKey = names.ColumnsNames[keyColRow.table_name][keyColRow.column_name].PropertyName;
                         var reverseForeignKey = names.ColumnsNames[keyColRow.referenced_table_name][keyColRow.referenced_column_name].PropertyName; // GetColumnName(keyColRow.referenced_column_name);
@@ -220,7 +221,7 @@ namespace DbLinq.Sqlite
 
                 foreach (ProcRow proc in procs)
                 {
-                    var procedureName = CreateProcedureName(proc.specific_name, proc.db);
+                    var procedureName = CreateProcedureName(proc.specific_name, proc.db, nameFormat);
 
                     DbLinq.Schema.Dbml.Function func = new DbLinq.Schema.Dbml.Function();
                     func.Name = proc.specific_name;

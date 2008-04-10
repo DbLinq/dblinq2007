@@ -25,19 +25,34 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Data;
-using DbLinq.Linq;
-using DbLinq.Schema;
-using DbLinq.Schema.Dbml;
+using System.Globalization;
 
-namespace DbLinq.Vendor
+namespace DbLinq.Util.Language.Implementation
 {
-    public interface ISchemaLoader
+    public class NoLanguageWords: ILanguageWords
     {
-        string VendorName { get; }
-        IVendor Vendor { get; }
-        System.Type DataContextType { get; }
-        IDbConnection Connection { get; set; }
-        Database Load(string databaseName, IDictionary<string, string> tableAliases, NameFormat nameFormat, bool loadStoredProcedures);
+        public string Singularize(string word)
+        {
+            return word;
+        }
+
+        public string Pluralize(string word)
+        {
+            return word;
+        }
+
+        public IList<string> GetWords(string text)
+        {
+            return new [] { text };
+        }
+
+        public bool Supports(CultureInfo cultureInfo)
+        {
+            return cultureInfo.IsNeutralCulture;
+        }
+
+        public void Load()
+        {
+        }
     }
 }

@@ -24,20 +24,14 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
-using System.Collections.Generic;
-using System.Data;
-using DbLinq.Linq;
-using DbLinq.Schema;
-using DbLinq.Schema.Dbml;
+using System.Globalization;
 
-namespace DbLinq.Vendor
+namespace DbLinq.Linq
 {
-    public interface ISchemaLoader
+    public class NameFormat
     {
-        string VendorName { get; }
-        IVendor Vendor { get; }
-        System.Type DataContextType { get; }
-        IDbConnection Connection { get; set; }
-        Database Load(string databaseName, IDictionary<string, string> tableAliases, NameFormat nameFormat, bool loadStoredProcedures);
+        public bool Pluralize { get; set; }
+        public Case Case { get; set; }
+        public CultureInfo Culture { get; set; }
     }
 }

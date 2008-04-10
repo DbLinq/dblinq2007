@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using DbLinq.Linq;
 using DbLinq.Logging;
 using DbLinq.Oracle.Schema;
 using DbLinq.Schema;
@@ -20,7 +21,7 @@ namespace DbLinq.Oracle
 
         public override System.Type DataContextType { get { return typeof(OracleDataContext); } }
 
-        protected override Database Load(SchemaName schemaName, IDictionary<string, string> tableAliases, bool loadStoredProcedures)
+        protected override Database Load(SchemaName schemaName, IDictionary<string, string> tableAliases, NameFormat nameFormat, bool loadStoredProcedures)
         {
             IDbConnection conn = Connection;
 
@@ -44,7 +45,7 @@ namespace DbLinq.Oracle
 
             foreach (UserTablesRow tblRow in tables)
             {
-                var tableName = CreateTableName(tblRow.table_name, tblRow.table_schema, tableAliases);
+                var tableName = CreateTableName(tblRow.table_name, tblRow.table_schema, tableAliases, nameFormat);
                 names.TablesNames[tableName.DbName] = tableName;
 
                 var tblSchema = new DbLinq.Schema.Dbml.Table();
@@ -67,7 +68,7 @@ namespace DbLinq.Oracle
 
             foreach (User_Tab_Column columnRow in columns)
             {
-                var columnName = CreateColumnName(columnRow.column_name);
+                var columnName = CreateColumnName(columnRow.column_name, nameFormat);
                 names.AddColumn(columnRow.table_name, columnName);
 
                 //find which table this column belongs to
@@ -141,7 +142,8 @@ namespace DbLinq.Oracle
                     }
 
                     var associationName = CreateAssociationName(constraint.table_name, constraint.table_schema,
-                        referencedConstraint.table_name, referencedConstraint.table_schema, constraint.constraint_name);
+                        referencedConstraint.table_name, referencedConstraint.table_schema, constraint.constraint_name,
+                        nameFormat);
 
                     var foreignKey = names.ColumnsNames[constraint.table_name][constraint.column_name].PropertyName;
                     var reverseForeignKey = names.ColumnsNames[referencedConstraint.table_name][referencedConstraint.column_name].PropertyName;
