@@ -71,6 +71,7 @@
     <Compile Include="Linq\Database\Implementation\DatabaseConnection.cs" />
     <Compile Include="Linq\Database\Implementation\DatabaseTransaction.cs" />
     <Compile Include="Linq\MappingContext.cs" />
+    <Compile Include="Linq\NameFormat.cs" />
     <Compile Include="Logging\ILogger.cs" />
     <Compile Include="Logging\Implementation\ConsoleDebugLogger.cs" />
     <Compile Include="Logging\Implementation\Logger.cs" />
@@ -119,6 +120,7 @@
     <Compile Include="Linq\INameFormatter.cs" />
     <Compile Include="Util\Language\Implementation\GermanWords.cs" />
     <Compile Include="Util\Language\Implementation\Languages.cs" />
+    <Compile Include="Util\Language\Implementation\NoLanguageWords.cs" />
     <Compile Include="Util\Log1.cs" />
     <Compile Include="Util\Lookup.cs" />
     <Compile Include="Linq\Implementation\NameFormatter.cs" />

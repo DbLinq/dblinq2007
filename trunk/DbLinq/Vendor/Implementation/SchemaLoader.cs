@@ -45,20 +45,19 @@ namespace DbLinq.Vendor.Implementation
         public INameFormatter NameFormatter { get; set; }
         public ILogger Logger { get; set; }
 
-        public virtual Database Load(string databaseName, IDictionary<string, string> tableAliases, bool pluralize, bool loadStoredProcedures)
+        public virtual Database Load(string databaseName, IDictionary<string, string> tableAliases, NameFormat nameFormat, bool loadStoredProcedures)
         {
-            NameFormatter.Pluralize = pluralize; // TODO: this could go in a context (instead of service class)
             if (Connection.State != ConnectionState.Open)
                 Connection.Open();
             if (string.IsNullOrEmpty(databaseName))
                 databaseName = Connection.Database;
             if (string.IsNullOrEmpty(databaseName))
                 throw new ArgumentException("A database name is required. Please specify /database=<databaseName>");
-            var schemaName = NameFormatter.GetSchemaName(databaseName, GetExtraction(databaseName));
-            return Load(schemaName, tableAliases, loadStoredProcedures);
+            var schemaName = NameFormatter.GetSchemaName(databaseName, GetExtraction(databaseName), nameFormat);
+            return Load(schemaName, tableAliases, nameFormat, loadStoredProcedures);
         }
 
-        protected abstract Database Load(SchemaName schemaName, IDictionary<string, string> tableAliases, bool loadStoredProcedures);
+        protected abstract Database Load(SchemaName schemaName, IDictionary<string, string> tableAliases, NameFormat nameFormat, bool loadStoredProcedures);
 
         protected SchemaLoader()
         {
@@ -78,7 +77,7 @@ namespace DbLinq.Vendor.Implementation
             return string.Format("{0}.{1}", dbSchema, dbName);
         }
 
-        protected virtual TableName CreateTableName(string dbTableName, string dbSchema, IDictionary<string, string> tableAliases)
+        protected virtual TableName CreateTableName(string dbTableName, string dbSchema, IDictionary<string, string> tableAliases,NameFormat nameFormat)
         {
             WordsExtraction extraction = GetExtraction(dbTableName);
             // if we have an alias, use it, and don't try to analyze it (a human probably already did the job)
@@ -87,33 +86,33 @@ namespace DbLinq.Vendor.Implementation
                 extraction = WordsExtraction.FromCase;
                 dbTableName = tableAliases[dbTableName];
             }
-            var tableName = NameFormatter.GetTableName(dbTableName, extraction);
+            var tableName = NameFormatter.GetTableName(dbTableName, extraction,nameFormat);
             tableName.DbName = GetFullDbName(dbTableName, dbSchema);
             return tableName;
         }
 
-        protected virtual ColumnName CreateColumnName(string dbColumnName)
+        protected virtual ColumnName CreateColumnName(string dbColumnName,NameFormat nameFormat)
         {
-            return NameFormatter.GetColumnName(dbColumnName, GetExtraction(dbColumnName));
+            return NameFormatter.GetColumnName(dbColumnName, GetExtraction(dbColumnName),nameFormat);
         }
 
-        protected virtual ProcedureName CreateProcedureName(string dbProcedureName, string dbSchema)
+        protected virtual ProcedureName CreateProcedureName(string dbProcedureName, string dbSchema,NameFormat nameFormat)
         {
-            var procedureName = NameFormatter.GetProcedureName(dbProcedureName, GetExtraction(dbProcedureName));
+            var procedureName = NameFormatter.GetProcedureName(dbProcedureName, GetExtraction(dbProcedureName),nameFormat);
             procedureName.DbName = GetFullDbName(dbProcedureName, dbSchema);
             return procedureName;
         }
 
         protected virtual AssociationName CreateAssociationName(string dbManyName, string dbManySchema,
-            string dbOneName, string dbOneSchema, string dbConstraintName)
+            string dbOneName, string dbOneSchema, string dbConstraintName, NameFormat nameFormat)
         {
             var associationName = NameFormatter.GetAssociationName(dbManyName, dbOneName,
-                dbConstraintName, GetExtraction(dbManyName));
+                dbConstraintName, GetExtraction(dbManyName), nameFormat);
             associationName.DbName = GetFullDbName(dbManyName, dbManySchema);
             return associationName;
         }
 
-        protected virtual SchemaName CreateSchemaName(string databaseName, IDbConnection connection)
+        protected virtual SchemaName CreateSchemaName(string databaseName, IDbConnection connection, NameFormat nameFormat)
         {
             if (string.IsNullOrEmpty(databaseName))
             {
@@ -121,7 +120,7 @@ namespace DbLinq.Vendor.Implementation
                 if (string.IsNullOrEmpty(databaseName))
                     throw new ArgumentException("Could not deduce database name from connection string. Please specify /database=<databaseName>");
             }
-            return NameFormatter.GetSchemaName(databaseName, GetExtraction(databaseName));
+            return NameFormatter.GetSchemaName(databaseName, GetExtraction(databaseName), nameFormat);
         }
 
         protected class Names

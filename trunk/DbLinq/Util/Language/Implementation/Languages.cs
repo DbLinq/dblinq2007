@@ -39,7 +39,10 @@ namespace DbLinq.Util.Language.Implementation
             {
                 var language = (ILanguageWords)objectFactory.GetInstance(languageType, false);
                 if (language.Supports(cultureInfo))
+                {
+                    language.Load();
                     return language;
+                }
             }
             return null;
         }

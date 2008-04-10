@@ -1,8 +1,34 @@
-﻿
+﻿#region MIT license
+////////////////////////////////////////////////////////////////////
+// MIT license:
+// Permission is hereby granted, free of charge, to any person obtaining
+// a copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to
+// permit persons to whom the Software is furnished to do so, subject to
+// the following conditions:
+//
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+//
+// Authors:
+//        Jiri George Moudry
+////////////////////////////////////////////////////////////////////
+#endregion
+
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using DbLinq.Linq;
 using DbLinq.PostgreSql.Schema;
 using DbLinq.Schema;
 using DbLinq.Schema.Dbml;
@@ -19,7 +45,7 @@ namespace DbLinq.PostgreSql
 
         public override System.Type DataContextType { get { return typeof(PgsqlDataContext); } }
 
-        protected override Database Load(SchemaName schemaName, IDictionary<string, string> tableAliases, bool loadStoredProcedures)
+        protected override Database Load(SchemaName schemaName, IDictionary<string, string> tableAliases, NameFormat nameFormat, bool loadStoredProcedures)
         {
             IDbConnection conn = Connection;
 
@@ -42,7 +68,7 @@ namespace DbLinq.PostgreSql
 
             foreach (TableRow tblRow in tables)
             {
-                var tableName = CreateTableName(tblRow.table_name, tblRow.table_schema, tableAliases);
+                var tableName = CreateTableName(tblRow.table_name, tblRow.table_schema, tableAliases, nameFormat);
                 names.TablesNames[tableName.DbName] = tableName;
 
                 var tblSchema = new DbLinq.Schema.Dbml.Table();
@@ -68,7 +94,7 @@ namespace DbLinq.PostgreSql
 
             foreach (Schema.Column columnRow in columns)
             {
-                var columnName = CreateColumnName(columnRow.column_name);
+                var columnName = CreateColumnName(columnRow.column_name, nameFormat);
                 names.AddColumn(columnRow.table_name, columnName);
 
                 //find which table this column belongs to
@@ -144,7 +170,9 @@ namespace DbLinq.PostgreSql
                         continue; //as per Andrus, do not throw. //putting together an Adnrus_DB test case.
                     }
 
-                    var associationName = CreateAssociationName(keyColRow.table_name, keyColRow.table_schema, foreignKey.table_name_Parent, foreignKey.table_schema_Parent, keyColRow.constraint_name);
+                    var associationName = CreateAssociationName(keyColRow.table_name, keyColRow.table_schema,
+                        foreignKey.table_name_Parent, foreignKey.table_schema_Parent, keyColRow.constraint_name,
+                        nameFormat);
 
                     var foreignKey2 = names.ColumnsNames[keyColRow.table_name][keyColRow.column_name].PropertyName;
                     var reverseForeignKey = names.ColumnsNames[foreignKey.table_name_Parent][foreignKey.column_name].PropertyName; // GetColumnName(keyColRow.referenced_column_name);
@@ -221,7 +249,7 @@ namespace DbLinq.PostgreSql
                 //4c. generate dbml objects
                 foreach (Pg_Proc proc in procs)
                 {
-                    DbLinq.Schema.Dbml.Function dbml_fct = ParseFunction(proc, typeOidToName);
+                    DbLinq.Schema.Dbml.Function dbml_fct = ParseFunction(proc, typeOidToName, nameFormat);
                     if (!SkipProc(dbml_fct.Name))
                         schema.Functions.Add(dbml_fct);
                 }
@@ -245,9 +273,9 @@ namespace DbLinq.PostgreSql
             return parts;
         }
 
-        DbLinq.Schema.Dbml.Function ParseFunction(Pg_Proc pg_proc, Dictionary<long, string> typeOidToName)
+        DbLinq.Schema.Dbml.Function ParseFunction(Pg_Proc pg_proc, Dictionary<long, string> typeOidToName, NameFormat nameFormat)
         {
-            var procedureName = CreateProcedureName(pg_proc.proname, null);
+            var procedureName = CreateProcedureName(pg_proc.proname, null, nameFormat);
 
             DbLinq.Schema.Dbml.Function dbml_func = new DbLinq.Schema.Dbml.Function();
             dbml_func.Name = procedureName.DbName;

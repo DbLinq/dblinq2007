@@ -43,30 +43,13 @@ namespace DbLinq.Linq
         FromDictionary,
     }
 
-    public enum Singularization
-    {
-        DontChange,
-        Singular,
-        Plural,
-    }
-
     public interface INameFormatter
     {
-        bool Pluralize { get; set; }
-        Case Case { get; set; }
-
-        SchemaName GetSchemaName(string dbName, WordsExtraction extraction);
-        ProcedureName GetProcedureName(string dbName, WordsExtraction extraction);
-        TableName GetTableName(string dbName, WordsExtraction extraction);
-        ColumnName GetColumnName(string dbName, WordsExtraction extraction);
-        AssociationName GetAssociationName(string dbManyName, string dbOneName, 
-            string dbConstraintName, WordsExtraction extraction);
-
-        string AdjustTableName(string tableName);
-        string AdjustColumnName(string columnName);
-        string AdjustColumnFieldName(string columnName);
-        string AdjustMethodName(string methodName);
-        string AdjustOneToManyColumnName(string referencedTableName);
-        string AdjustManyToOneColumnName(string referencedTableName, string thisTableName);
+        SchemaName GetSchemaName(string dbName, WordsExtraction extraction, NameFormat nameFormat);
+        ProcedureName GetProcedureName(string dbName, WordsExtraction extraction, NameFormat nameFormat);
+        TableName GetTableName(string dbName, WordsExtraction extraction, NameFormat nameFormat);
+        ColumnName GetColumnName(string dbName, WordsExtraction extraction, NameFormat nameFormat);
+        AssociationName GetAssociationName(string dbManyName, string dbOneName,
+            string dbConstraintName, WordsExtraction extraction, NameFormat nameFormat);
     }
 }
