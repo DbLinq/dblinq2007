@@ -90,6 +90,23 @@ namespace Test_NUnit_MySql
         }
 
         [Test]
+        public void AT6_ReadBlob()
+        {
+            //DbLinq could not read byte[]
+            //This test was contributed by Anatoli Koutsevol 
+
+            Console.WriteLine("from p in db.Othertypes orderby p.DateTime_ select p.blob;");
+            AllTypes db = CreateDB();
+
+            var result = from p in db.Othertypes orderby p.DateTime_ select p.blob;
+            foreach (var blob in result)
+            {
+                Console.WriteLine("blob[{0}]", blob.Length);
+            }
+            Console.WriteLine("Press enter to continue.");
+        }
+
+        [Test]
         public void Test(string connStr)
         {
             Console.Clear();
