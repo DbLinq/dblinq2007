@@ -207,6 +207,8 @@ namespace DbMetal.Generator
 
         public virtual string GetLiteralValue(object value)
         {
+            if (value == null)
+                return GetNullExpression();
             if (value is string)
                 return string.Format("\"{0}\"", value);
             return value.ToString();
@@ -251,7 +253,7 @@ namespace DbMetal.Generator
 
         public abstract string GetArray(string array, string literalIndex);
 
-        public virtual string GetMethodCallExpression(string method, params string [] literalParameters)
+        public virtual string GetMethodCallExpression(string method, params string[] literalParameters)
         {
             return string.Format("{0}({1})", method, string.Join(", ", literalParameters));
         }
