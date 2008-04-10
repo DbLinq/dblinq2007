@@ -173,7 +173,7 @@ namespace DbLinq.Sqlite
                         assoc.Name = keyColRow.constraint_name;
                         assoc.Type = null;
                         assoc.ThisKey = foreignKey;
-                        assoc.OtherKey=reverseForeignKey;
+                        assoc.OtherKey = reverseForeignKey;
                         assoc.Member = associationName.ManyToOneMemberName;
                         assoc.Storage = associationName.ForeignKeyStorageFieldName;
                         table.Type.Associations.Add(assoc);

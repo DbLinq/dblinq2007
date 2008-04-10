@@ -215,7 +215,7 @@ namespace DbMetal.Generator.Implementation
 
         protected virtual void WriteClassChildren(CodeWriter writer, DbLinq.Schema.Dbml.Table table, DbLinq.Schema.Dbml.Database schema, GenerationContext context)
         {
-            var children = table.Type.Associations.Where(a => a.OtherKey != null).ToList();
+            var children = table.Type.Associations.Where(a => a.Storage == null).ToList();
             if (children.Count > 0)
             {
                 using (writer.WriteRegion("Children"))
@@ -239,7 +239,7 @@ namespace DbMetal.Generator.Implementation
             }
 
             var storageAttribute = NewAttributeDefinition<AssociationAttribute>();
-            storageAttribute["Storage"] = writer.GetNullExpression();
+            storageAttribute["Storage"] = null;
             storageAttribute["OtherKey"] = child.OtherKey;
             storageAttribute["Name"] = child.Name;
 
@@ -259,7 +259,7 @@ namespace DbMetal.Generator.Implementation
 
         protected virtual void WriteClassParents(CodeWriter writer, DbLinq.Schema.Dbml.Table table, DbLinq.Schema.Dbml.Database schema, GenerationContext context)
         {
-            var parents = table.Type.Associations.Where(a => a.ThisKey != null).ToList();
+            var parents = table.Type.Associations.Where(a => a.Storage != null).ToList();
             if (parents.Count > 0)
             {
                 using (writer.WriteRegion("Parents"))
