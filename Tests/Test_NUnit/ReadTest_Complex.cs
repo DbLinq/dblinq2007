@@ -62,7 +62,22 @@ namespace Test_NUnit_MySql
         }
 
         [Test]
-        public void D2_ArrayContains()
+        public void D2_SelectPensByLocalPropertyAndConstant()
+        {
+
+            Northwind db = CreateDB();
+            string pen = "Pen";
+            var q = from p in db.Products
+                    where p.ProductName == pen &&
+                        p.QuantityPerUnit == "10"
+                    select p;
+            List<Product> products = q.ToList();
+            int productCount = products.Count;
+            Assert.AreEqual(1, productCount, "Expected one pen, got count=" +productCount);
+        }
+
+        [Test]
+        public void D3_ArrayContains()
         {
             Northwind db = CreateDB();
 
@@ -291,6 +306,14 @@ namespace Test_NUnit_MySql
         [Test(Description = "list of customers who have placed no orders")]
         public void O2_OperatorAny()
         {
+            //SELECT  t0.CustomerID, t0.ContactName
+            //FROM Customers AS t0
+            //WHERE  NOT  (
+            //(    SELECT  COUNT(*) 
+            //    FROM Orders AS t1
+            //    WHERE (t1.CustomerID = t0.CustomerID)
+            //) > 0
+            //)
             var q = from customer in db.Customers
                     where !customer.Orders.Any()
                     select new { customer.CustomerID, customer.ContactName };
@@ -311,7 +334,7 @@ namespace Test_NUnit_MySql
             Assert.IsTrue(list.Count > 0, "Expected some customers and employees from London");
 
             int countOfGraeme = list.Count(l => l.ContactName == "graeme");
-            Assert.IsTrue(countOfGraeme==1, "Expected London contacts to include graeme");
+            Assert.IsTrue(countOfGraeme == 1, "Expected London contacts to include graeme");
         }
 
         [Test]
