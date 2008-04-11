@@ -79,8 +79,63 @@ using Test_NUnit;
         }
 
         [Test(Description = "This sample uses Min to find the Products that have the lowest unit price in each category")]
-        public void LinqToSqlCount07()
+        public void LinqToSqlCount07(bool this_test_is_disabled)
         {
+#if SHOW_MICROSOFT_GENERATED_SQL
+            //the one Linq statement below gets translated into 9 SQL statements
+SELECT MIN([t0].[UnitPrice]) AS [value], [t0].[CategoryID]
+FROM [dbo].[Products] AS [t0]
+GROUP BY [t0].[CategoryID]
+
+SELECT [t0].[ProductID], [t0].[ProductName], [t0].[SupplierID], [t0].[CategoryID], [t0].[QuantityPerUnit], [t0].[UnitPrice], [t0].[UnitsInStock], [t0].[UnitsOnOrder], [t0].[ReorderLevel], [t0].[Discontinued]
+FROM [dbo].[Products] AS [t0]
+WHERE ([t0].[UnitPrice] = @x2) AND (((@x1 IS NULL) AND ([t0].[CategoryID] IS NULL)) OR ((@x1 IS NOT NULL) AND ([t0].[CategoryID] IS NOT NULL) AND (@x1 = [t0].[CategoryID])))
+-- @x1: Input Int (Size = 0; Prec = 0; Scale = 0) [1]
+-- @x2: Input Money (Size = 0; Prec = 19; Scale = 4) [4.5000]
+
+SELECT [t0].[ProductID], [t0].[ProductName], [t0].[SupplierID], [t0].[CategoryID], [t0].[QuantityPerUnit], [t0].[UnitPrice], [t0].[UnitsInStock], [t0].[UnitsOnOrder], [t0].[ReorderLevel], [t0].[Discontinued]
+FROM [dbo].[Products] AS [t0]
+WHERE ([t0].[UnitPrice] = @x2) AND (((@x1 IS NULL) AND ([t0].[CategoryID] IS NULL)) OR ((@x1 IS NOT NULL) AND ([t0].[CategoryID] IS NOT NULL) AND (@x1 = [t0].[CategoryID])))
+-- @x1: Input Int (Size = 0; Prec = 0; Scale = 0) [2]
+-- @x2: Input Money (Size = 0; Prec = 19; Scale = 4) [10.0000]
+
+SELECT [t0].[ProductID], [t0].[ProductName], [t0].[SupplierID], [t0].[CategoryID], [t0].[QuantityPerUnit], [t0].[UnitPrice], [t0].[UnitsInStock], [t0].[UnitsOnOrder], [t0].[ReorderLevel], [t0].[Discontinued]
+FROM [dbo].[Products] AS [t0]
+WHERE ([t0].[UnitPrice] = @x2) AND (((@x1 IS NULL) AND ([t0].[CategoryID] IS NULL)) OR ((@x1 IS NOT NULL) AND ([t0].[CategoryID] IS NOT NULL) AND (@x1 = [t0].[CategoryID])))
+-- @x1: Input Int (Size = 0; Prec = 0; Scale = 0) [3]
+-- @x2: Input Money (Size = 0; Prec = 19; Scale = 4) [9.2000]
+
+SELECT [t0].[ProductID], [t0].[ProductName], [t0].[SupplierID], [t0].[CategoryID], [t0].[QuantityPerUnit], [t0].[UnitPrice], [t0].[UnitsInStock], [t0].[UnitsOnOrder], [t0].[ReorderLevel], [t0].[Discontinued]
+FROM [dbo].[Products] AS [t0]
+WHERE ([t0].[UnitPrice] = @x2) AND (((@x1 IS NULL) AND ([t0].[CategoryID] IS NULL)) OR ((@x1 IS NOT NULL) AND ([t0].[CategoryID] IS NOT NULL) AND (@x1 = [t0].[CategoryID])))
+-- @x1: Input Int (Size = 0; Prec = 0; Scale = 0) [4]
+-- @x2: Input Money (Size = 0; Prec = 19; Scale = 4) [2.5000]
+
+SELECT [t0].[ProductID], [t0].[ProductName], [t0].[SupplierID], [t0].[CategoryID], [t0].[QuantityPerUnit], [t0].[UnitPrice], [t0].[UnitsInStock], [t0].[UnitsOnOrder], [t0].[ReorderLevel], [t0].[Discontinued]
+FROM [dbo].[Products] AS [t0]
+WHERE ([t0].[UnitPrice] = @x2) AND (((@x1 IS NULL) AND ([t0].[CategoryID] IS NULL)) OR ((@x1 IS NOT NULL) AND ([t0].[CategoryID] IS NOT NULL) AND (@x1 = [t0].[CategoryID])))
+-- @x1: Input Int (Size = 0; Prec = 0; Scale = 0) [5]
+-- @x2: Input Money (Size = 0; Prec = 19; Scale = 4) [7.0000]
+
+SELECT [t0].[ProductID], [t0].[ProductName], [t0].[SupplierID], [t0].[CategoryID], [t0].[QuantityPerUnit], [t0].[UnitPrice], [t0].[UnitsInStock], [t0].[UnitsOnOrder], [t0].[ReorderLevel], [t0].[Discontinued]
+FROM [dbo].[Products] AS [t0]
+WHERE ([t0].[UnitPrice] = @x2) AND (((@x1 IS NULL) AND ([t0].[CategoryID] IS NULL)) OR ((@x1 IS NOT NULL) AND ([t0].[CategoryID] IS NOT NULL) AND (@x1 = [t0].[CategoryID])))
+-- @x1: Input Int (Size = 0; Prec = 0; Scale = 0) [6]
+-- @x2: Input Money (Size = 0; Prec = 19; Scale = 4) [7.4500]
+
+SELECT [t0].[ProductID], [t0].[ProductName], [t0].[SupplierID], [t0].[CategoryID], [t0].[QuantityPerUnit], [t0].[UnitPrice], [t0].[UnitsInStock], [t0].[UnitsOnOrder], [t0].[ReorderLevel], [t0].[Discontinued]
+FROM [dbo].[Products] AS [t0]
+WHERE ([t0].[UnitPrice] = @x2) AND (((@x1 IS NULL) AND ([t0].[CategoryID] IS NULL)) OR ((@x1 IS NOT NULL) AND ([t0].[CategoryID] IS NOT NULL) AND (@x1 = [t0].[CategoryID])))
+-- @x1: Input Int (Size = 0; Prec = 0; Scale = 0) [7]
+-- @x2: Input Money (Size = 0; Prec = 19; Scale = 4) [10.0000]
+
+SELECT [t0].[ProductID], [t0].[ProductName], [t0].[SupplierID], [t0].[CategoryID], [t0].[QuantityPerUnit], [t0].[UnitPrice], [t0].[UnitsInStock], [t0].[UnitsOnOrder], [t0].[ReorderLevel], [t0].[Discontinued]
+FROM [dbo].[Products] AS [t0]
+WHERE ([t0].[UnitPrice] = @x2) AND (((@x1 IS NULL) AND ([t0].[CategoryID] IS NULL)) OR ((@x1 IS NOT NULL) AND ([t0].[CategoryID] IS NOT NULL) AND (@x1 = [t0].[CategoryID])))
+-- @x1: Input Int (Size = 0; Prec = 0; Scale = 0) [8]
+-- @x2: Input Money (Size = 0; Prec = 19; Scale = 4) [6.0000]
+
+#endif
             Northwind db = CreateDB();
             var categories = (from p in db.Products
                               group p by p.CategoryID into g
@@ -113,8 +168,9 @@ using Test_NUnit;
         }
 
         [Test(Description = "This sample uses Max to find the Products that have the highest unit price in each category")]
-        public void LinqToSqlCount10()
+        public void LinqToSqlCount10(bool this_test_is_disabled)
         {
+            //Miscrosoft translates this query into multiple SQL statements
             Northwind db = CreateDB();
             var q = from p in db.Products
                     group p by p.CategoryID into g
