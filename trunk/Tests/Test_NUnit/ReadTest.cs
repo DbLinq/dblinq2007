@@ -314,6 +314,22 @@ namespace Test_NUnit_Oracle
                 get { return base.GetTable<CustomerDerivedClass>(); }
             }
         }
+
+
+        [Test(Description="Calls ExecuteQuery<> to store result into object type property")]
+        // note: for PostgreSQL requires database with lowercase names, NorthwindReqular.SQL
+        public void D13_ExecuteQueryObjectProperty() {
+          Northwind db = CreateDB();
+
+          var res = db.ExecuteQuery<Pen>(@"SELECT ProductID as PenId FROM Products WHERE
+              ProductName ='Pen'").Single();
+          Assert.AreEqual(1, res.PenId);
+        }
+
+        class Pen {
+          internal object PenId;
+        }
+
         #endregion
 
         [Test]
