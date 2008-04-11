@@ -700,6 +700,13 @@ namespace DbLinq.Util
             return new byte[0];
         }
 
+        private static object GetAsObject(IDataRecord dataRecord, int index) {
+          if (dataRecord.IsDBNull(index))
+            return null;
+          object obj = dataRecord.GetValue(index);
+          return obj;
+        }
+
         #endregion
 
         private static Expression GetSimplePropertyReader(Type returnType, int valueIndex,
@@ -804,6 +811,12 @@ namespace DbLinq.Util
                 propertyReader = (Expression<Func<IDataRecord, MappingContext, int>>)((dataReader, mappingContext)
                     => GetAsNumeric<int>(dataReader, valueIndex));
             }
+            // for polymorphic types especially for ExecuteQuery<>()
+            else if (returnType == typeof(object)) 
+            {
+              propertyReader = (Expression<Func<IDataRecord, MappingContext, object>>)((dataReader, mappingContext)
+                  => GetAsObject(dataReader, valueIndex));
+            } 
             else
             {
                 //s_rdr.GetUInt32();
