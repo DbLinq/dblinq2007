@@ -22,13 +22,77 @@
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition />
 				<ColumnDefinition />
+				<!--<ColumnDefinition />-->
 			</Grid.ColumnDefinitions>
+
 			<GroupBox Header="Tables" Grid.Column="0">
-				<ListBox HorizontalAlignment="Stretch" x:Name="TableList" SelectionChanged="TableList_SelectionChanged" />
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="Auto" />
+						<ColumnDefinition />
+					</Grid.ColumnDefinitions>
+					<Grid.RowDefinitions>
+						<RowDefinition />
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+					</Grid.RowDefinitions>
+
+					<ListBox Grid.Row="0" Grid.ColumnSpan="2" x:Name="TableList" SelectionChanged="TableList_SelectionChanged" />
+
+					<Button Grid.Row="1" Grid.ColumnSpan="2" Click="RebindTableList" Margin="5" >Refresh Table View</Button>
+
+					<Label Grid.Row="2" HorizontalAlignment="Right">Table Name:</Label>
+					<TextBox Grid.Row="2" Grid.Column="1" Margin="5" Text="{Binding ElementName=TableList, Path=SelectedItem.Member}" />
+				</Grid>
 			</GroupBox>
+			
 			<GroupBox Header="Columns" Grid.Column="1">
-				<ListBox x:Name="ColumnList" />
-			</GroupBox>
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="Auto" />
+						<ColumnDefinition />
+					</Grid.ColumnDefinitions>
+					<Grid.RowDefinitions>
+						<RowDefinition />
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+					</Grid.RowDefinitions>
+
+					<ListBox Grid.Row="0" Grid.ColumnSpan="2" x:Name="ColumnList" />
+
+					<Button Grid.Row="1" Grid.ColumnSpan="2" Click="RebindColumnList" Margin="5" >Refresh Column View</Button>
+
+					<Label Grid.Row="2" HorizontalAlignment="Right">Column Name:</Label>
+					<TextBox Grid.Row="2" Grid.Column="1" Margin="5" Text="{Binding ElementName=ColumnList, Path=SelectedItem.Member}" />
+
+					<Label Grid.Row="3" HorizontalAlignment="Right">Column Type:</Label>
+					<ComboBox Grid.Column="1" Grid.Row="3" Margin="5,2,5,0" Text="{Binding ElementName=ColumnList, Path=SelectedItem.Type}" >
+						<ComboBoxItem>System.Boolean</ComboBoxItem>
+						<ComboBoxItem>System.Byte</ComboBoxItem>
+						<ComboBoxItem>System.SByte</ComboBoxItem>
+						<ComboBoxItem>System.Char</ComboBoxItem>
+						<ComboBoxItem>System.DateTime</ComboBoxItem>
+						<ComboBoxItem>System.Decimal</ComboBoxItem>
+						<ComboBoxItem>System.Double</ComboBoxItem>
+						<ComboBoxItem>System.Single</ComboBoxItem>
+						<ComboBoxItem>System.Int32</ComboBoxItem>
+						<ComboBoxItem>System.UInt32</ComboBoxItem>
+						<ComboBoxItem>System.Int64</ComboBoxItem>
+						<ComboBoxItem>System.UInt64</ComboBoxItem>
+						<ComboBoxItem>System.Int16</ComboBoxItem>
+						<ComboBoxItem>System.UInt16</ComboBoxItem>
+						<ComboBoxItem>System.String</ComboBoxItem>
+					</ComboBox>
+				</Grid>
+			</GroupBox>			
 		</Grid>
+
+		<!--<StackPanel Grid.Column="2" >
+			<GroupBox Header="Procedures">
+
+			</GroupBox>
+		</StackPanel>-->
 	</DockPanel>
 </Window>
