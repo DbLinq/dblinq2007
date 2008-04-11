@@ -118,5 +118,25 @@ namespace VisualMetal
 				using (Stream dbmlFile = File.OpenWrite(dialog.FileName))
 					DbLinq.Schema.DbmlSerializer.Write(dbmlFile, Database);
 		}
-	}
+
+        private void RebindTableList(object sender, RoutedEventArgs e)
+        {
+            // this is ugly, it's needed to refresh the Table.ToString calls
+            // Alternates to doing this might be implementing INotifyProvider on the table class, or not using an ItemsSource binding
+            // or maybe use a data template to display the item, instead of using ToString
+            // ideally we need a datagrid instead of a listbox
+
+            var temp = TableList.ItemsSource;
+            TableList.ItemsSource = null;
+            TableList.ItemsSource = temp;
+        }
+
+        private void RebindColumnList(object sender, RoutedEventArgs e)
+        {
+            // this is ugly, it's needed to refresh the Column.ToString calls
+            var temp = ColumnList.ItemsSource;
+            ColumnList.ItemsSource = null;
+            ColumnList.ItemsSource = temp;
+        }
+    }
 }
