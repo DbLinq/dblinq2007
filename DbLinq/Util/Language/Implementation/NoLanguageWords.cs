@@ -29,7 +29,7 @@ using System.Globalization;
 
 namespace DbLinq.Util.Language.Implementation
 {
-    public class NoLanguageWords: ILanguageWords
+    public class NoLanguageWords : ILanguageWords
     {
         public string Singularize(string word)
         {
@@ -43,12 +43,12 @@ namespace DbLinq.Util.Language.Implementation
 
         public IList<string> GetWords(string text)
         {
-            return new [] { text };
+            return new[] { text };
         }
 
         public bool Supports(CultureInfo cultureInfo)
         {
-            return cultureInfo.IsNeutralCulture;
+            return cultureInfo.IsNeutralCulture || cultureInfo.ThreeLetterISOLanguageName == "IVL";
         }
 
         public void Load()

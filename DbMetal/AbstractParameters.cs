@@ -55,10 +55,16 @@ namespace DbMetal
             /// Allows to specify a group. All options in the same group are displayed together
             /// </summary>
             public int Group { get; set; }
+
             /// <summary>
             /// Description
             /// </summary>
             public string Text { get; set; }
+
+            /// <summary>
+            /// Value name, used for help
+            /// </summary>
+            public string ValueName { get; set; }
 
             public OptionAttribute(string text)
             {
@@ -237,7 +243,7 @@ namespace DbMetal
         /// <param name="commandLine"></param>
         /// <param name="quotes"></param>
         /// <returns></returns>
-        public static IList<string> ExtractArguments(string commandLine, char[] quotes)
+        public IList<string> ExtractArguments(string commandLine, char[] quotes)
         {
             var arg = new StringBuilder();
             var args = new List<string>();
@@ -280,7 +286,7 @@ namespace DbMetal
         /// </summary>
         /// <param name="commandLine">The command line</param>
         /// <returns>Arguments list</returns>
-        public static IList<string> ExtractArguments(string commandLine)
+        public IList<string> ExtractArguments(string commandLine)
         {
             return ExtractArguments(commandLine, Quotes);
         }
@@ -293,13 +299,13 @@ namespace DbMetal
         /// <typeparam name="P"></typeparam>
         /// <param name="args"></param>
         /// <returns></returns>
-        public static IList<P> GetParameterBatch<P>(IList<string> args)
+        protected IList<P> GetParameterBatch<P>(IList<string> args)
             where P : AbstractParameters, new()
         {
             return GetParameterBatch<P>(args, ".");
         }
 
-        public static IList<P> GetParameterBatch<P>(IList<string> args, string argsFileDirectory)
+        public IList<P> GetParameterBatch<P>(IList<string> args, string argsFileDirectory)
             where P : AbstractParameters, new()
         {
             var parameters = new List<P>();
@@ -330,7 +336,7 @@ namespace DbMetal
             return parameters;
         }
 
-        private static IList<P> GetParameterBatchFile<P>(IList<string> baseArgs, string argsList)
+        private IList<P> GetParameterBatchFile<P>(IList<string> baseArgs, string argsList)
             where P : AbstractParameters, new()
         {
             var parameters = new List<P>();
@@ -349,6 +355,11 @@ namespace DbMetal
                 }
             }
             return parameters;
+        }
+
+        protected int TextWidth
+        {
+            get { return Console.BufferWidth; }
         }
 
         /// <summary>
@@ -392,10 +403,21 @@ namespace DbMetal
             }
         }
 
+        private bool headerWritten;
         /// <summary>
         /// Writes the application header
         /// </summary>
-        public abstract void WriteHeader();
+        public void WriteHeader()
+        {
+            if (!headerWritten)
+            {
+                WriteHeaderContents();
+                WriteLine();
+                headerWritten = true;
+            }
+        }
+
+        protected abstract void WriteHeaderContents();
 
         /// <summary>
         /// Writes a small summary
@@ -528,7 +550,11 @@ namespace DbMetal
         /// <returns></returns>
         protected virtual string GetOptionText(Option option)
         {
-            return option.Name.ToLower();
+            if (string.IsNullOrEmpty(option.Description.ValueName))
+                return option.Name.ToLower();
+            return string.Format("{0}:<{1}>",
+                option.Name[0].ToString().ToLower() + option.Name.Substring(1),
+                option.Description.ValueName);
         }
 
         /// <summary>
@@ -570,6 +596,34 @@ namespace DbMetal
             return maxLength;
         }
 
+        protected string[] SplitText(string text, int width)
+        {
+            var lines = new List<string>(new[] { "" });
+            var words = text.Split(' ');
+            foreach (var word in words)
+            {
+                var line = lines.Last();
+                if (line.Length == 0)
+                    lines[lines.Count - 1] = word;
+                else if (line.Length + word.Length + 1 < width)
+                    lines[lines.Count - 1] = line + " " + word;
+                else
+                    lines.Add(word);
+            }
+            return lines.ToArray();
+        }
+
+        protected void WriteOption(string firstLine, string text)
+        {
+            int width = TextWidth - firstLine.Length - 2;
+            var lines = SplitText(text, width);
+            var padding = string.Empty.PadRight(firstLine.Length);
+            for (int i = 0; i < lines.Length; i++)
+            {
+                Write("{0} {1}", i == 0 ? firstLine : padding, lines[i]);
+            }
+        }
+
         /// <summary>
         /// Displays all available options and files
         /// </summary>
@@ -584,23 +638,13 @@ namespace DbMetal
                 var optionsList = options[group];
                 foreach (var option in from o in optionsList orderby o.Name select o)
                 {
-                    var line = new StringBuilder("  /");
-                    var optionName = GetOptionText(option);
-                    line.Append(optionName.PadRight(maxLength));
-                    line.Append(" ");
-                    line.Append(option.Description.Text);
-                    Write(line.ToString());
+                    WriteOption(string.Format("  /{0}", GetOptionText(option).PadRight(maxLength)), option.Description.Text);
                 }
                 WriteLine();
             }
             foreach (var file in files)
             {
-                var line = new StringBuilder("  ");
-                var fileName = GetFileText(file);
-                line.Append(fileName.PadRight(maxLength));
-                line.Append("  ");
-                line.Append(file.Description.Text);
-                Write(line.ToString());
+                WriteOption(string.Format("  {0}", GetFileText(file).PadRight(maxLength + 1)), file.Description.Text);
             }
         }
 
@@ -609,8 +653,7 @@ namespace DbMetal
         /// </summary>
         public void WriteHelp()
         {
-            WriteHeader();
-            WriteLine();
+            WriteHeader(); // includes a WriteLine()
             WriteSyntax();
             WriteLine();
             WriteSummary();

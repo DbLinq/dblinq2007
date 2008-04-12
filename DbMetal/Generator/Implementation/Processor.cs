@@ -51,28 +51,30 @@ namespace DbMetal.Generator.Implementation
 
         public void Process(string[] args)
         {
+            var parameters = new Parameters();
+
             if (args.Length == 0)
-                PrintUsage();
+                PrintUsage(parameters);
 
             else
             {
                 bool readLineAtExit = false;
 
-                // TODO add WriteHeader() here
+                parameters.WriteHeader();
 
                 try
                 {
-                    foreach (var parameters in Parameters.GetBatch(args))
+                    foreach (var parametersBatch in parameters.GetBatch(args))
                     {
-                        ProcessSchema(parameters);
-                        if (parameters.ReadLineAtExit)
+                        ProcessSchema(parametersBatch);
+                        if (parametersBatch.ReadLineAtExit)
                             readLineAtExit = true;
                     }
                 }
                 catch (ArgumentException e)
                 {
                     Logger.Write(Level.Error, e.Message);
-                    PrintUsage();
+                    PrintUsage(parameters);
                     return;
                 }
                 if (readLineAtExit)
@@ -83,7 +85,6 @@ namespace DbMetal.Generator.Implementation
             }
 
             Logger.Write(Level.Information, "");
-
         }
 
         private void ProcessSchema(Parameters parameters)
@@ -141,7 +142,7 @@ namespace DbMetal.Generator.Implementation
             {
                 Logger.Write(Level.Information, ">>> Reading schema from {0} database", schemaLoader.VendorName);
                 dbSchema = schemaLoader.Load(parameters.Database, tableAliases,
-                    new NameFormat { Case = Case.PascalCase, Pluralize = parameters.Pluralize, Culture = new CultureInfo("en") },
+                    new NameFormat { Case = Case.PascalCase, Pluralize = parameters.Pluralize, Culture = new CultureInfo(parameters.Culture) },
                     parameters.SProcs);
                 dbSchema.Provider = parameters.Provider;
                 dbSchema.Tables.Sort(new LambdaComparer<Table>((x, y) => (x.Type.Name.CompareTo(y.Type.Name))));
@@ -161,9 +162,8 @@ namespace DbMetal.Generator.Implementation
             return dbSchema;
         }
 
-        private void PrintUsage()
+        private void PrintUsage(Parameters parameters)
         {
-            var parameters = new Parameters();
             parameters.WriteHelp();
         }
     }
