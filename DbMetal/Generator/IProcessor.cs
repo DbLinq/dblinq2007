@@ -1,4 +1,4 @@
-#region MIT License
+﻿#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -24,17 +24,18 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
-using DbLinq.Factory;
-using DbMetal.Generator;
+using DbLinq.Logging;
+using DbLinq.Schema.Dbml;
+using DbLinq.Vendor;
 
-namespace DbMetal
+namespace DbMetal.Generator
 {
-    public class DbMetalProgram
+    public interface IProcessor
     {
-        static void Main(string[] args)
-        {
-            var processor = ObjectFactory.Get<IProcessor>();
-            processor.Process(args);
-        }
+        ILogger Logger { get; set; }
+        ISchemaLoaderFactory SchemaLoaderFactory { get; set; }
+        void Process(string[] args);
+        void GenerateCSharp(Parameters parameters, Database dbSchema, ISchemaLoader schemaLoader, string filename);
+        Database LoadSchema(Parameters parameters, ISchemaLoader schemaLoader);
     }
 }

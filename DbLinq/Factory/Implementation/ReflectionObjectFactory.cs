@@ -27,6 +27,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using DbLinq.Util;
 
 namespace DbLinq.Factory.Implementation
 {
@@ -41,7 +42,8 @@ namespace DbLinq.Factory.Implementation
 
         public ReflectionObjectFactory()
         {
-            Parse(Assembly.GetExecutingAssembly());
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+                Parse(assembly);
         }
 
         protected void Parse(Assembly assembly)
@@ -52,7 +54,7 @@ namespace DbLinq.Factory.Implementation
                     continue;
                 foreach (Type i in type.GetInterfaces())
                 {
-                    if (i.Assembly == assembly)
+                    if (i.Assembly.GetCustomAttributes(typeof(DbLinqAttribute), false).Length > 0)
                     {
                         IList<Type> types;
                         if (!implementations.TryGetValue(i, out types))

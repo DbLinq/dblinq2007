@@ -31,16 +31,17 @@ using DbLinq.Vendor;
 using DbMetal;
 using DbMetal.Generator.EntityInterface;
 using DbMetal.Generator.EntityInterface.Implementation;
+using DbMetal.Utility;
 
 namespace DbMetal.Generator
 {
     public class GenerationContext
     {
-        public DbMetalParameters Parameters;
+        public Parameters Parameters;
         public IDictionary<string, string> Variables;
         public ISchemaLoader SchemaLoader;
 
-        public List<IImplementation> AllImplementations =new List<IImplementation>();
+        public List<IImplementation> AllImplementations = new List<IImplementation>();
 
         public string this[string key]
         {
@@ -48,7 +49,7 @@ namespace DbMetal.Generator
             set { Variables[key] = value; }
         }
 
-        public GenerationContext(DbMetalParameters parameters, ISchemaLoader schemaLoader)
+        public GenerationContext(Parameters parameters, ISchemaLoader schemaLoader)
         {
             Parameters = parameters;
             Variables = new Dictionary<string, string>();

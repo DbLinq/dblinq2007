@@ -49,7 +49,7 @@ namespace DbMetal
             public string @new;
         }
 
-        public static IDictionary<string, string> Load(string fileName, DbMetalParameters mmConfig)
+        public static IDictionary<string, string> Load(string fileName, Parameters mmConfig)
         {
             if (!System.IO.File.Exists(fileName))
                 throw new ArgumentException("Renames file missing:" + mmConfig.RenamesFile);
@@ -67,7 +67,7 @@ namespace DbMetal
             return aliases;
         }
 
-        public static IDictionary<string, string> Load(DbMetalParameters mmConfig)
+        public static IDictionary<string, string> Load(Parameters mmConfig)
         {
             if (mmConfig.RenamesFile == null)
                 return new Dictionary<string, string>();

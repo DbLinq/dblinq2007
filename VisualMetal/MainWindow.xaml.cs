@@ -13,17 +13,18 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-
+using DbLinq.Factory;
 using DbLinq.Vendor;
 using DbLinq.Schema.Dbml;
 using DbMetal;
+using DbMetal.Generator;
 
 namespace VisualMetal
 {
 	public partial class MainWindow : Window
 	{
-		public DbMetalProgram Program = new DbMetalProgram();
-		public DbMetalParameters Parameters = new DbMetalParameters();
+        public IProcessor Program = ObjectFactory.Get<IProcessor>();
+		public Parameters Parameters = new Parameters();
 		public ISchemaLoader Loader;
 		public Database Database;
 
@@ -35,7 +36,7 @@ namespace VisualMetal
 			{
 				if (!String.IsNullOrEmpty(Properties.Settings.Default.Params))
 					using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(Properties.Settings.Default.Params)))
-						Parameters = (DbMetalParameters)XamlReader.Load(stream);
+						Parameters = (Parameters)XamlReader.Load(stream);
 			}
 			catch { } // throw away any errors from parsing parameters
 		}
@@ -59,7 +60,7 @@ namespace VisualMetal
 		{
 			try
 			{
-				Loader = new LoaderFactory().Load(Parameters);
+				Loader = new SchemaLoaderFactory().Load(Parameters);
 				Database = Program.LoadSchema(Parameters, Loader);
 
 				TableList.ItemsSource = Database.Table;

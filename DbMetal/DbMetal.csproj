@@ -95,19 +95,21 @@
     <Compile Include="Generator\EntityInterface\IImplementation.cs" />
     <Compile Include="Generator\EntityInterface\Implementation\IModifiedImplementation.cs" />
     <Compile Include="Generator\EntityInterface\Implementation\INotifyPropertyChangingImplementation.cs" />
+    <Compile Include="Generator\Implementation\Processor.cs" />
+    <Compile Include="Generator\IProcessor.cs" />
+    <Compile Include="Generator\ISchemaLoaderFactory.cs" />
     <Compile Include="Generator\SpecificationDefinition.cs" />
     <Compile Include="Generator\ParameterDefinition.cs" />
-    <Compile Include="Generator\VariablesExtension.cs" />
+    <Compile Include="Utility\VariablesExtension.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Parameters.cs" />
+    <Compile Include="AbstractParameters.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ProvidersSection.cs" />
+    <Compile Include="Configuration\ProvidersSection.cs" />
     <Compile Include="Schema\SchemaPostprocess.cs" />
-    <Compile Include="DbMetalParameters.cs" />
+    <Compile Include="Parameters.cs" />
     <Compile Include="TableAlias.cs" />
-    <Compile Include="Util\TableSorter.cs" />
-    <Compile Include="LoaderFactory.cs" />
-    <Compile Include="Util\EnvironmentExtension.cs" />
+    <Compile Include="Generator\Implementation\SchemaLoaderFactory.cs" />
+    <Compile Include="Utility\EnvironmentExtension.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\DbLinq.snk">
