@@ -39,28 +39,28 @@ namespace DbMetal
         /// user name for database access
         /// SQLMetal compatible
         /// </summary>
-        [Option("Login user ID.", Group = 1)]
+        [Option("Login user ID.", ValueName = "name", Group = 1)]
         public string User { get; set; }
 
         /// <summary>
         /// user password for database access
         /// SQLMetal compatible
         /// </summary>
-        [Option("Login password.", Group = 1)]
+        [Option("Login password.", ValueName = "password", Group = 1)]
         public string Password { get; set; }
 
         /// <summary>
         /// server host name
         /// SQLMetal compatible
         /// </summary>
-        [Option("Database server name.", Group = 1)]
+        [Option("Database server name.", ValueName = "name", Group = 1)]
         public string Server { get; set; }
 
         /// <summary>
         /// database name
         /// SQLMetal compatible
         /// </summary>
-        [Option("Database catalog on server.", Group = 1)]
+        [Option("Database catalog on server.", ValueName = "name", Group = 1)]
         public string Database { get; set; }
 
         /// <summary>
@@ -68,28 +68,29 @@ namespace DbMetal
         /// Database is always used to generate the specific DataContext name
         /// SQLMetal compatible
         /// </summary>
-        [Option("Database connection string. Cannot be used with /server, /user or /password options.", Group = 1)]
+        [Option("Database connection string. Cannot be used with /server, /user or /password options.",
+            ValueName = "connection string", Group = 1)]
         public string Conn { get; set; }
 
         /// <summary>
         /// the namespace to put our classes into
         /// SQLMetal compatible
         /// </summary>
-        [Option("Namespace of generated code (default: no namespace).", Group = 4)]
+        [Option("Namespace of generated code (default: no namespace).", ValueName = "name", Group = 4)]
         public string Namespace { get; set; }
 
         /// <summary>
         /// If present, write out C# code
         /// SQLMetal compatible
         /// </summary>
-        [Option("Output as source code. Cannot be used with /dbml option.", Group = 3)]
+        [Option("Output as source code. Cannot be used with /dbml option.", ValueName = "file", Group = 3)]
         public string Code { get; set; }
 
         /// <summary>
         /// If present, write out DBML XML representing the DB
         /// SQLMetal compatible
         /// </summary>
-        [Option("Output as dbml. Cannot be used with /map option.", Group = 3)]
+        [Option("Output as dbml. Cannot be used with /map option.", ValueName = "file", Group = 3)]
         public string Dbml { get; set; }
 
         /// <summary>
@@ -99,11 +100,14 @@ namespace DbMetal
         [Option("Automatically pluralize or singularize class and member names using specified culture rules.", Group = 4)]
         public bool Pluralize { get; set; }
 
+        [Option("Specify culture for word recognition and pluralization (default=\"en\").", Group = 4)]
+        public string Culture { get; set; }
+
         /// <summary>
         /// Load object renamings from an xml file
         /// DbLinq specific
         /// </summary>
-        [Option("Use mapping file.", Group = 3)]
+        [Option("Use mapping file.", ValueName = "file", Group = 3)]
         public string RenamesFile { get; set; }
 
         /// <summary>
@@ -122,14 +126,16 @@ namespace DbMetal
         /// base class from which all generated entities will inherit
         /// SQLMetal compatible
         /// </summary>
-        [Option("Base class of entity classes in the generated code (default: entities have no base class).", Group = 4)]
+        [Option("Base class of entity classes in the generated code (default: entities have no base class).",
+            ValueName = "type", Group = 4)]
         public string EntityBase { get; set; }
 
         /// <summary>
         /// Interfaces to be implemented
         /// </summary>
         public string EntityInterfaces = "INotifyPropertyChanged";//INotifyPropertyChanging INotifyPropertyChanged IModified
-        [Option("Comma separated base interfaces of entity classes in the generated code (default: entities implement INotifyPropertyChanged).", Group = 4)]
+        [Option("Comma separated base interfaces of entity classes in the generated code (default: entities implement INotifyPropertyChanged).",
+            ValueName = "interface(s)", Group = 4)]
         public string[] Interfaces
         {
             get
@@ -178,44 +184,38 @@ namespace DbMetal
         /// specifies a provider (which here is a pair or ISchemaLoader and IDbConnection implementors)
         /// SQLMetal compatible
         /// </summary>
-        [Option("Specify provider. May be Ingres, MySql, Oracle, OracleODP, PostgreSql or Sqlite.", Group = 1)]
+        [Option("Specify provider. May be Ingres, MySql, Oracle, OracleODP, PostgreSql or Sqlite.",
+            ValueName = "provider", Group = 1)]
         public string Provider { get; set; }
 
         /// <summary>
         /// For fine tuning, we allow to specifiy an ISchemaLoader
         /// DbLinq specific
         /// </summary>
-        [Option("Specify a custom ISchemaLoader implementation type.", Group = 1)]
+        [Option("Specify a custom ISchemaLoader implementation type.", ValueName = "type", Group = 1)]
         public string DbLinqSchemaLoaderProvider { get; set; }
 
         /// <summary>
         /// For fine tuning, we allow to specifiy an IDbConnection
         /// DbLinq specific
         /// </summary>
-        [Option("Specify a custom IDbConnection implementation type.", Group = 1)]
+        [Option("Specify a custom IDbConnection implementation type.", ValueName = "type", Group = 1)]
         public string DatabaseConnectionProvider { get; set; }
 
         public Parameters()
         {
+            Culture = "en";
         }
 
-        public Parameters(IList<string> args)
-            : base(args)
-        {
-        }
-
-        public static IEnumerable<Parameters> GetBatch(IList<string> args)
+        public IEnumerable<Parameters> GetBatch(IList<string> args)
         {
             return GetParameterBatch<Parameters>(args);
         }
 
         #region Help
 
-        public override void WriteHeader()
+        protected override void WriteHeaderContents()
         {
-            //Microsoft (R) Database Mapping Generator 2008 version 1.00.21022
-            //for Microsoft (R) .NET Framework version 3.5
-            //Copyright (C) Microsoft Corporation. All rights reserved.
             Write("DbLinq Database mapping generator 2008 version {0}", ApplicationVersion);
             Write("for Microsoft (R) .NET Framework version 3.5");
             Write("Distributed under the MIT licence");

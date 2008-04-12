@@ -1,2 +1,2 @@
 ﻿# DbMetal "@Db to C♯.txt"
-/database=Northwind /server=%DbLinqServer??localhost /user=LinqUser /password=linq2 /namespace=nwind /sprocs /entityInterfaces=INotifyPropertyChanged /pluralize "@DB all to C♯.txt"
+/database=Northwind /server=%DbLinqServer??localhost /user=LinqUser /password=linq2 /namespace=nwind /sprocs /entityInterfaces=INotifyPropertyChanged /pluralize "@DB all to C♯.txt" /culture="en"
