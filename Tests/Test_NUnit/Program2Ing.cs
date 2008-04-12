@@ -26,8 +26,6 @@ namespace Test_NUnit_Ingres
             /*==================================================================*/
             /* The following failing tests are investigated, but not solved yet */
             /*==================================================================*/
-            // DUPLICATE KEY ON INSERT
-            //new CompositePK_Test().G10_DeleteTableWithCompositePK();
 
             // The column value has not changed for some reason, so the assertion fails
             //new CompositePK_Test().G11_UnchangedColumnShouldNotUpdated();
@@ -45,10 +43,9 @@ namespace Test_NUnit_Ingres
             // that is actually not in the resultset?
             //new ReadTest().C4_CountWithOrderBy();
 
-            // Method All seems not to be mapped
-            // in ExpressionTreeParser.cs
-            //L274: Unprepared to map method All (c.Orders.Select(o => o).All(o => (o.ShipCity = c.City))) to SQL
-            //new ReadTest_Complex().O1_OperatorAll();
+            // The parameters are added to the query in reverse order. Ingres can't handle this,
+            // as all params are called "?"
+            //new ReadTest_Complex().D2_SelectPensByLocalPropertyAndConstant();
 
             // Yields this SQL:
             // SELECT ((p$.productname||?)||VARCHAR(p$.supplierid)) FROM linquser.products p$

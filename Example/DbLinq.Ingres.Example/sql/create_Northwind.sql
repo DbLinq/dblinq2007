@@ -8,7 +8,7 @@ CREATE SEQUENCE Region_seq     START WITH 1    INCREMENT BY 1;
 CREATE SEQUENCE Categories_seq START WITH 1    INCREMENT BY 1;
 CREATE SEQUENCE Suppliers_seq  START WITH 1    INCREMENT BY 1;
 CREATE SEQUENCE Products_seq   START WITH 1    INCREMENT BY 1;
-CREATE SEQUENCE Orders_seq     START WITH 1000 INCREMENT BY 1;
+CREATE SEQUENCE Orders_seq     START WITH 1    INCREMENT BY 1;
 CREATE SEQUENCE Employees_seq  START WITH 1    INCREMENT BY 1;
 COMMIT;\p\g
 
@@ -127,7 +127,7 @@ COMMIT;\p\g
 /********************************************************************/
 
 CREATE TABLE Orders (
-  OrderID INTEGER NOT NULL DEFAULT Categories_seq.nextval,
+  OrderID INTEGER NOT NULL DEFAULT Orders_seq.nextval,
   CustomerID VARCHAR(5),
   EmployeeID INTEGER,
   OrderDate INGRESDATE,
@@ -244,6 +244,10 @@ Values ('BT___', 1, date('now'), 11.5);
 
 insert INTO Orders (CustomerID, EmployeeID, OrderDate, Freight)
 Values ('UKMOD', 1, date('now'), 32.5);
+
+
+insert INTO OrderDetails (OrderID, ProductID, UnitPrice, Quantity, Discount)
+Values (1, 2, 33, 5, 11);
 
 
 COMMIT;\p\g
