@@ -1,4 +1,4 @@
-#region MIT License
+﻿#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -24,17 +24,16 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
-using DbLinq.Factory;
-using DbMetal.Generator;
+using System;
 
-namespace DbMetal
+
+namespace DbLinq.Factory
 {
-    public class DbMetalProgram
+    /// <summary>
+    /// This class is used by ReflectionObjectFactory to determine if the interfaces come from a DbLinq assembly
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Assembly)]
+    public class DbLinqAttribute : Attribute
     {
-        static void Main(string[] args)
-        {
-            var processor = ObjectFactory.Get<IProcessor>();
-            processor.Process(args);
-        }
     }
 }

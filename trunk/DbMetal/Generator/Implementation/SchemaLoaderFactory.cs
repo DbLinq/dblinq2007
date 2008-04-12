@@ -33,15 +33,17 @@ using System.Reflection;
 using System.Text;
 using DbLinq.Vendor;
 using DbMetal;
+using DbMetal.Configuration;
+using DbMetal.Generator;
 
 namespace DbMetal
 {
-    public class LoaderFactory
+    public class SchemaLoaderFactory: ISchemaLoaderFactory
     {
         /// <summary>
         /// the 'main entry point' into this class
         /// </summary>
-        public ISchemaLoader Load(DbMetalParameters parameters)
+        public ISchemaLoader Load(Parameters parameters)
         {
             string dbLinqSchemaLoaderType;
             string databaseConnectionType;
@@ -56,7 +58,7 @@ namespace DbMetal
         /// (e.g. DbLinq.Oracle.OracleSchemaLoader and System.Data.OracleClient.OracleConnection),
         /// return an instance of the OracleSchemaLoader.
         /// </summary>
-        public ISchemaLoader Load(DbMetalParameters parameters, Type dbLinqSchemaLoaderType, Type databaseConnectionType)
+        public ISchemaLoader Load(Parameters parameters, Type dbLinqSchemaLoaderType, Type databaseConnectionType)
         {
             if (dbLinqSchemaLoaderType == null)
                 throw new ArgumentNullException("Null dbLinqSchemaLoaderType");
@@ -94,7 +96,7 @@ namespace DbMetal
             }
         }
 
-        public ISchemaLoader Load(DbMetalParameters parameters, string dbLinqSchemaLoaderTypeName, string databaseConnectionTypeName)
+        public ISchemaLoader Load(Parameters parameters, string dbLinqSchemaLoaderTypeName, string databaseConnectionTypeName)
         {
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
             Type dbLinqSchemaLoaderType = Type.GetType(dbLinqSchemaLoaderTypeName);
@@ -169,37 +171,13 @@ namespace DbMetal
             }
             return null;
         }
-/*
-        protected string GetConnectionString(DbMetalParameters parameters)
-        {
-            if (parameters.Conn != null)
-                return parameters.Conn;
-            var connectionString = new StringBuilder();
-            if (!string.IsNullOrEmpty(parameters.Server))
-                connectionString.AppendFormat("server={0};", parameters.Server);
-            if (!string.IsNullOrEmpty(parameters.User))
-                connectionString.AppendFormat("user id={0};", parameters.User);
-            if (!string.IsNullOrEmpty(parameters.Password))
-                connectionString.AppendFormat("password={0};", parameters.Password);
-            
-            if (parameters.Provider == "Oracle")
-            {
-                //Oracle does not allow specifying DB
-            }
-            else
-            {
-                if (!string.IsNullOrEmpty(parameters.Database))
-                    connectionString.AppendFormat("database={0};", parameters.Database);
-            }
-            return connectionString.ToString();
-        }
-        */
-        protected void GetLoaderAndConnection(out string dbLinqSchemaLoaderType, out string databaseConnectionType, DbMetalParameters parameters)
+
+        protected void GetLoaderAndConnection(out string dbLinqSchemaLoaderType, out string databaseConnectionType, Parameters parameters)
         {
             if (parameters.Provider != null)
             {
-                ProvidersSection configuration = (ProvidersSection)ConfigurationManager.GetSection("providers");
-                ProvidersSection.ProviderElement element = configuration.Providers.GetProvider(parameters.Provider);
+                var configuration = (ProvidersSection)ConfigurationManager.GetSection("providers");
+                var element = configuration.Providers.GetProvider(parameters.Provider);
                 //databaseConnectionType = types[1].Trim();
                 dbLinqSchemaLoaderType = element.DbLinqSchemaLoader;
                 databaseConnectionType = element.DatabaseConnection;

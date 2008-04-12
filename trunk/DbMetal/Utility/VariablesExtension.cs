@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace DbMetal.Generator
+namespace DbMetal.Utility
 {
     public static class VariableExtension
     {

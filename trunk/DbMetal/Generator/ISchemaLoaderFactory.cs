@@ -1,4 +1,4 @@
-#region MIT License
+﻿#region MIT License
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -24,17 +24,25 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
-using DbLinq.Factory;
-using DbMetal.Generator;
+using System;
+using DbLinq.Vendor;
 
-namespace DbMetal
+namespace DbMetal.Generator
 {
-    public class DbMetalProgram
+    public interface ISchemaLoaderFactory
     {
-        static void Main(string[] args)
-        {
-            var processor = ObjectFactory.Get<IProcessor>();
-            processor.Process(args);
-        }
+        /// <summary>
+        /// the 'main entry point' into this class
+        /// </summary>
+        ISchemaLoader Load(Parameters parameters);
+
+        /// <summary>
+        /// given a schemaLoaderType and dbConnType 
+        /// (e.g. DbLinq.Oracle.OracleSchemaLoader and System.Data.OracleClient.OracleConnection),
+        /// return an instance of the OracleSchemaLoader.
+        /// </summary>
+        ISchemaLoader Load(Parameters parameters, Type dbLinqSchemaLoaderType, Type databaseConnectionType);
+
+        ISchemaLoader Load(Parameters parameters, string dbLinqSchemaLoaderTypeName, string databaseConnectionTypeName);
     }
 }
