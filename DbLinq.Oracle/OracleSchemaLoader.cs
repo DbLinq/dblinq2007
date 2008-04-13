@@ -36,16 +36,16 @@ namespace DbLinq.Oracle
             //##################################################################
             //step 1 - load tables
             UserTablesSql utsql = new UserTablesSql();
-            List<UserTablesRow> tables = utsql.getTables(conn, schemaName.DbName);
+            var tables = utsql.getTables(conn, schemaName.DbName);
             if (tables == null || tables.Count == 0)
             {
                 Logger.Write(Level.Warning, "No tables found for schema " + schemaName.DbName + ", exiting");
                 return null;
             }
 
-            foreach (UserTablesRow tblRow in tables)
+            foreach (var tblRow in tables)
             {
-                var tableName = CreateTableName(tblRow.table_name, tblRow.table_schema, tableAliases, nameFormat);
+                var tableName = CreateTableName(tblRow.Name, tblRow.Schema, tableAliases, nameFormat);
                 names.TablesNames[tableName.DbName] = tableName;
 
                 var tblSchema = new DbLinq.Schema.Dbml.Table();

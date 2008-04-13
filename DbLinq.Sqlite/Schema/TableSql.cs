@@ -2,80 +2,30 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
+using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.Sqlite.Schema
 {
-    /// <summary>
-    /// represents one row from SQLite's information_schema.`TABLES` table
-    /// </summary>
-    public class TableRow
-    {
-        public string table_catalog;
-        public string table_schema;
-        public string table_name;
-
-        /// <summary>
-        /// dependencies are determined by analyzing foreign keys.
-        /// </summary>
-        public readonly List<TableRow> childTables = new List<TableRow>();
-
-        public IEnumerable<TableRow> EnumChildTables(Dictionary<TableRow,bool> visitedMap)
-        {
-            //if (depth > 99)
-            //{
-            //    //prevent infinite recursion, in case of circular dependency
-            //    throw new ApplicationException("L26 Circular dependency suspected");
-            //}
-
-            foreach (TableRow t in childTables)
-            {
-                if (t == this)
-                    continue; //in Northwind database: Employee.ReportsTo points back to Employee - skip that child relationship
-
-                if (visitedMap.ContainsKey(t))
-                    continue; //prevent infinite recursion - don't yield twice 
-
-                visitedMap[t] = true;
-                yield return t;
-
-                foreach (TableRow t2 in t.EnumChildTables(visitedMap))
-                {
-                    if (visitedMap.ContainsKey(t2))
-                        continue; //prevent infinite recursion - don't yield twice 
-
-                    visitedMap[t2] = true;
-                    yield return t2;
-                }
-            }
-        }
-
-        public override string ToString()
-        {
-            return "TableRow " + table_schema + "." + table_name + "  child:" + childTables.Count;
-        }
-    }
-
     /// <summary>
     /// class for reading from "information_schema.`TABLES`"
     /// </summary>
     class TableSql
     {
-        TableRow fromRow(IDataReader rdr)
+        SchemaLoader.DataName fromRow(IDataReader rdr)
         {
-            TableRow t = new TableRow();
+            var t = new SchemaLoader.DataName();
             int field = 0;
-            t.table_catalog = "SQLite";
-            t.table_schema  = "main";
-            t.table_name    = rdr.GetString(field++);
+            t.Schema  = "main";
+            t.Name    = rdr.GetString(field++);
             return t;
         }
 
-        public List<TableRow> getTables(IDbConnection conn, string db)
+        public List<SchemaLoader.DataName> getTables(IDbConnection conn, string db)
         {
             // As there is no foreign key, we are sorting table by name
             string sql = @" SELECT tbl_name FROM sqlite_master WHERE type='table' order by tbl_name";
 
-            return Util.DataCommand.Find<TableRow>(conn, sql, fromRow);
+            return Util.DataCommand.Find<SchemaLoader.DataName>(conn, sql, fromRow);
         }
     }
 }

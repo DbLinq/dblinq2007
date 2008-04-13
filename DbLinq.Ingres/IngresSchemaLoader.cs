@@ -61,16 +61,16 @@ namespace DbLinq.Ingres
             //##################################################################
             //step 1 - load tables
             TableSql tsql = new TableSql();
-            List<TableRow> tables = tsql.getTables(conn, schemaName.DbName);
+            var tables = tsql.getTables(conn, schemaName.DbName);
             if (tables == null || tables.Count == 0)
             {
                 Console.WriteLine("No tables found for schema " + schemaName.DbName + ", exiting");
                 return null;
             }
 
-            foreach (TableRow tblRow in tables)
+            foreach (var tblRow in tables)
             {
-                var tableName = CreateTableName(tblRow.table_name, tblRow.table_owner, tableAliases, nameFormat);
+                var tableName = CreateTableName(tblRow.Name, tblRow.Schema, tableAliases, nameFormat);
                 names.TablesNames[tableName.DbName] = tableName;
 
                 DbLinq.Schema.Dbml.Table tblSchema = new DbLinq.Schema.Dbml.Table();
