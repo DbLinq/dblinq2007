@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -21,40 +21,14 @@
 //
 // Authors:
 //        Jiri George Moudry
-//        Thomas Glaser
 ////////////////////////////////////////////////////////////////////
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Text;
-using DbLinq.Util;
-using DbLinq.Vendor.Implementation;
-
-namespace DbLinq.Ingres.Schema
+namespace DbLinq.Vendor
 {
-    /// <summary>
-    /// class for reading from "information_schema.`TABLES`"
-    /// </summary>
-    class TableSql
+    public interface IDataName
     {
-        SchemaLoader.DataName fromRow(IDataReader rdr)
-        {
-            var t = new SchemaLoader.DataName();
-            int field = 0;
-            t.Name  = rdr.GetString(field++).Trim();
-            t.Schema = rdr.GetString(field++).Trim();
-            return t;
-        }
-
-        public List<SchemaLoader.DataName> getTables(IDbConnection conn, string db)
-        {
-            string sql = @"
-SELECT table_name,table_owner
-FROM iitables WHERE table_owner <> '$ingres' AND table_type in ('T', 'V')";
-
-            return DataCommand.Find<SchemaLoader.DataName>(conn, sql, fromRow);
-        }
+        string Name { get; set; }
+        string Schema { get; set; }
     }
 }

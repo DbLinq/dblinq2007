@@ -62,16 +62,16 @@ namespace DbLinq.Sqlite
             //##################################################################
             //step 1 - load tables
             TableSql tsql = new TableSql();
-            List<TableRow> tables = tsql.getTables(conn, schemaName.DbName);
+            var tables = tsql.getTables(conn, schemaName.DbName);
             if (tables == null || tables.Count == 0)
             {
                 Logger.Write(Level.Warning, "No tables found for schema " + schemaName.DbName + ", exiting");
                 return null;
             }
 
-            foreach (TableRow tblRow in tables)
+            foreach (var tblRow in tables)
             {
-                var tableName = CreateTableName(tblRow.table_name, tblRow.table_schema, tableAliases, nameFormat);
+                var tableName = CreateTableName(tblRow.Name, tblRow.Schema, tableAliases, nameFormat);
                 names.TablesNames[tableName.DbName] = tableName;
 
                 var tblSchema = new Table();
@@ -182,13 +182,13 @@ namespace DbLinq.Sqlite
                         //and insert the reverse association:
                         DbLinq.Schema.Dbml.Association assoc2 = new DbLinq.Schema.Dbml.Association();
                         assoc2.Name = keyColRow.constraint_name;
-                        assoc2.Type = table.Type.Name; //keyColRow.table_name;
+                        assoc2.Type = table.Type.Name; //keyColRow.Name;
                         assoc2.Member = associationName.OneToManyMemberName;
                         assoc2.ThisKey = reverseForeignKey;
                         assoc2.OtherKey = foreignKey;
-                        //assoc2.Member = keyColRow.table_name;
+                        //assoc2.Member = keyColRow.Name;
 
-                        //bool isSelfJoin = keyColRow.table_name == keyColRow.referenced_table_name;
+                        //bool isSelfJoin = keyColRow.Name == keyColRow.referenced_table_name;
                         //assoc2.OtherKey = isSelfJoin
                         //    ? keyColRow.column_name //in Employees table - "ReportsTo" appears in both [Association]
                         //    : keyColRow.referenced_column_name;
