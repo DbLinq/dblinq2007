@@ -29,7 +29,7 @@ namespace DbLinq.Vendor
     public interface IDataType
     {
         string Type { get; set; }
-        int? Length { get; set; }
+        long? Length { get; set; }
         int? Precision { get; set; }
         int? Scale { get; set; }
         bool? Unsigned { get; set; }
