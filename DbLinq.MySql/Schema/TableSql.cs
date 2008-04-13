@@ -86,5 +86,12 @@ WHERE table_schema=?db";
                        ? null
                        : (int?)rdr.GetInt32(field);
         }
+
+        public static long? GetInt64N(this IDataReader rdr, int field)
+        {
+            return rdr.IsDBNull(field)
+                       ? null
+                       : (int?)rdr.GetInt64(field);
+        }
     }
 }

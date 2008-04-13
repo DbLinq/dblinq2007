@@ -49,7 +49,7 @@ namespace DbLinq.Util
                     dataType.Length = length;
                 else
                     dataType.Length = null;
-                dataType.Precision = dataType.Length;
+                dataType.Precision = (int?)dataType.Length;
                 var rawScale = match.Result("${scale}");
                 int scale;
                 if (int.TryParse(rawScale, out scale))

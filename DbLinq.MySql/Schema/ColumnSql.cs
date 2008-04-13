@@ -88,7 +88,7 @@ namespace DbLinq.MySql.Schema
             t.column_type   = rdr.GetString(field++);
             t.Unsigned = t.column_type.Contains("unsigned");
             t.column_key    = rdr.GetString(field++);
-            t.Length        = rdr.GetIntN(field++);
+            t.Length        = rdr.GetInt64N(field++);
             t.Precision     = rdr.GetIntN(field++);
             t.Scale         = rdr.GetIntN(field++);
             return t;
