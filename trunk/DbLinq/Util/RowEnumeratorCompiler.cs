@@ -55,6 +55,23 @@ namespace DbLinq.Util
                 return src.ToString();
             return GetString(src, t, dr, index);
         }
+
+        /// <summary>
+        /// Occurs when object type of property is read.
+        /// Sample:
+        /// DbLinq.Util.RowEnumeratorCompiler.GetObject +=
+        /// (value, type, datarecord, index)=> {
+        /// (value is string) ?
+        ///     value.ToString().TrimEnd() : value;
+        /// </summary>
+        public static event Func<object, Type, IDataRecord, int, object> GetObject;
+
+        internal static object OnGetObject(object src, Type t, IDataRecord dr, int index) {
+          if (GetObject == null)
+            return src;
+          return GetObject(src, t, dr, index);
+        }
+
     }
 
     public class RowEnumeratorCompiler<T> : RowEnumeratorCompiler
@@ -704,7 +721,8 @@ namespace DbLinq.Util
           if (dataRecord.IsDBNull(index))
             return null;
           object obj = dataRecord.GetValue(index);
-          return obj;
+          return OnGetObject(obj, typeof(T), dataRecord, index);
+          // return obj;
         }
 
         #endregion
