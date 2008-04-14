@@ -202,7 +202,7 @@ namespace DbLinq.Linq
         [Obsolete("NOT IMPLEMENTED YET - Use Execute<S>")]
         public object Execute(Expression expression)
         {
-            throw new ApplicationException("Not implemented");
+            throw new ApplicationException("L205 Not implemented");
         }
 
         public void Add(T newObject)

@@ -139,7 +139,7 @@ namespace DbLinq.Linq
         [Obsolete("NOT IMPLEMENTED")]
         public object Execute(Expression expression)
         {
-            throw new ApplicationException("Not implemented");
+            throw new ApplicationException("L142 Not implemented");
         }
 
         public string GetQueryText()
