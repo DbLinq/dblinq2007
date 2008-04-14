@@ -38,43 +38,7 @@ using System.Data;
 
 namespace DbLinq.Util
 {
-    public class RowEnumeratorCompiler
-    {
-
-        /// <summary>
-        /// Converts column value to string 
-        /// Sample:
-        /// DbLinq.Util.RowEnumeratorCompiler.GetString +=
-        /// (value, type, datarecord, index)=> value.ToString().TrimEnd();
-        /// </summary>
-        public static event Func<object, Type, IDataRecord, int, string> GetString;
-
-        internal static string OnGetString(object src, Type t, IDataRecord dr, int index)
-        {
-            if (GetString == null)
-                return src.ToString();
-            return GetString(src, t, dr, index);
-        }
-
-        /// <summary>
-        /// Occurs when object type of property is read.
-        /// Sample:
-        /// DbLinq.Util.RowEnumeratorCompiler.GetObject +=
-        /// (value, type, datarecord, index)=> {
-        /// (value is string) ?
-        ///     value.ToString().TrimEnd() : value;
-        /// </summary>
-        public static event Func<object, Type, IDataRecord, int, object> GetObject;
-
-        internal static object OnGetObject(object src, Type t, IDataRecord dr, int index) {
-          if (GetObject == null)
-            return src;
-          return GetObject(src, t, dr, index);
-        }
-
-    }
-
-    public class RowEnumeratorCompiler<T> : RowEnumeratorCompiler
+    public class RowEnumeratorCompiler<T>
     {
         /// <summary>
         /// the entry point - routes your call into special cases for Projection and primitive types
@@ -431,59 +395,59 @@ namespace DbLinq.Util
                 //if( ! projFld.isPrimitiveType)
                 switch (projFld.typeEnum)
                 {
-                    case TypeCategory.Column:
-                        {
-                            //occurs for 'from c ... from o ... select new {c,o}'
-                            //should compile into:
-                            //  'new Projection{ new C(field0,field1), new O(field2,field3) }'
+                case TypeCategory.Column:
+                    {
+                        //occurs for 'from c ... from o ... select new {c,o}'
+                        //should compile into:
+                        //  'new Projection{ new C(field0,field1), new O(field2,field3) }'
 
-                            #region Ugly code to create a generic arg T for Expression.Lambda<T>
-                            //simple version: (does not work since BuildProjRow needs different generic arg than our T)
-                            //LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, rdr, ref fieldID);                            
-                            //nasty version:
-                            ProjectionData projData2 = AttribHelper.GetProjectionData(projFld.FieldType);
-                            Type TArg2 = projFld.FieldType;
-                            Type rowEnumCompilerType2 = typeof(RowEnumeratorCompiler<>).MakeGenericType(TArg2);
-                            object rowCompiler2 = Activator.CreateInstance(rowEnumCompilerType2);
-                            MethodInfo[] mis = rowEnumCompilerType2.GetMethods();
-                            MethodInfo mi = rowEnumCompilerType2.GetMethod("BuildProjectedRowLambda");
-                            object[] methodArgs = new object[] { vars, projData2, rdr, fieldID };
-                            //...and call BuildProjectedRowLambda():
-                            object objResult = mi.Invoke(rowCompiler2, methodArgs);
-                            fieldID = (int)methodArgs[3];
-                            LambdaExpression innerLambda = (LambdaExpression)objResult;
-                            #endregion
-                            //LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, rdr, ref fieldID);
+                        #region Ugly code to create a generic arg T for Expression.Lambda<T>
+                        //simple version: (does not work since BuildProjRow needs different generic arg than our T)
+                        //LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, rdr, ref fieldID);                            
+                        //nasty version:
+                        ProjectionData projData2 = AttribHelper.GetProjectionData(projFld.FieldType);
+                        Type TArg2 = projFld.FieldType;
+                        Type rowEnumCompilerType2 = typeof(RowEnumeratorCompiler<>).MakeGenericType(TArg2);
+                        object rowCompiler2 = Activator.CreateInstance(rowEnumCompilerType2);
+                        MethodInfo[] mis = rowEnumCompilerType2.GetMethods();
+                        MethodInfo mi = rowEnumCompilerType2.GetMethod("BuildProjectedRowLambda");
+                        object[] methodArgs = new object[] { vars, projData2, rdr, fieldID };
+                        //...and call BuildProjectedRowLambda():
+                        object objResult = mi.Invoke(rowCompiler2, methodArgs);
+                        fieldID = (int)methodArgs[3];
+                        LambdaExpression innerLambda = (LambdaExpression)objResult;
+                        #endregion
+                        //LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, rdr, ref fieldID);
 
-                            MemberInitExpression innerInit = innerLambda.Body as MemberInitExpression;
-                            //MemberAssignment binding = Expression.Bind(projFld.propInfo, innerInit);
-                            MemberAssignment binding = projFld.BuildMemberAssignment(innerInit);
-                            bindings.Add(binding);
-                        }
-                        break;
-                    case TypeCategory.Primitive:
-                        {
-                            Type fieldType = projFld.FieldType;
-                            Expression arg_i = GetFieldMethodCall(fieldType, rdr, mappingContext, fieldID++);
-                            //MethodInfo accessor = null;
-                            MemberAssignment binding = Expression.Bind(projFld.MemberInfo, arg_i);
-                            bindings.Add(binding);
-                        }
-                        break;
-                    case TypeCategory.Other:
-                        {
-                            //e.g.: "select new {g.Key,g}" - but g is also a projection
-                            //Expression.MemberInit
-                            if (vars.GroupByNewExpression == null)
-                                throw new ApplicationException("TODO - handle other cases than groupByNewExpr");
+                        MemberInitExpression innerInit = innerLambda.Body as MemberInitExpression;
+                        //MemberAssignment binding = Expression.Bind(projFld.propInfo, innerInit);
+                        MemberAssignment binding = projFld.BuildMemberAssignment(innerInit);
+                        bindings.Add(binding);
+                    }
+                    break;
+                case TypeCategory.Primitive:
+                    {
+                        Type fieldType = projFld.FieldType;
+                        Expression arg_i = GetFieldMethodCall(fieldType, rdr, mappingContext, fieldID++);
+                        //MethodInfo accessor = null;
+                        MemberAssignment binding = Expression.Bind(projFld.MemberInfo, arg_i);
+                        bindings.Add(binding);
+                    }
+                    break;
+                case TypeCategory.Other:
+                    {
+                        //e.g.: "select new {g.Key,g}" - but g is also a projection
+                        //Expression.MemberInit
+                        if (vars.GroupByNewExpression == null)
+                            throw new ApplicationException("TODO - handle other cases than groupByNewExpr");
 
-                            MemberAssignment binding = GroupHelper2<T>.BuildProjFieldBinding(vars, projFld, rdr, mappingContext, ref fieldID);
-                            bindings.Add(binding);
-                        }
-                        break;
+                        MemberAssignment binding = GroupHelper2<T>.BuildProjFieldBinding(vars, projFld, rdr, mappingContext, ref fieldID);
+                        bindings.Add(binding);
+                    }
+                    break;
 
-                    default:
-                        throw new ApplicationException("TODO - objects other than primitive and entities in CompileProjRow: " + projFld.FieldType);
+                default:
+                    throw new ApplicationException("TODO - objects other than primitive and entities in CompileProjRow: " + projFld.FieldType);
                 }
 
             }
@@ -531,62 +495,62 @@ namespace DbLinq.Util
             {
                 switch (projFld.typeEnum)
                 {
-                    case TypeCategory.Column:
-                        {
-                            //occurs for 'from c ... from o ... select new {c,o}'
-                            //should compile into:
-                            //  'new Projection{ new C(field0,field1), new O(field2,field3) }'
+                case TypeCategory.Column:
+                    {
+                        //occurs for 'from c ... from o ... select new {c,o}'
+                        //should compile into:
+                        //  'new Projection{ new C(field0,field1), new O(field2,field3) }'
 
-                            #region Ugly code to create a generic arg T for Expression.Lambda<T>
-                            //simple version: (does not work since BuildProjRow needs different generic arg than our T)
-                            //LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, reader, ref fieldID);                            
-                            //nasty version:
-                            ProjectionData projData2 = AttribHelper.GetProjectionData(projFld.FieldType);
-                            Type TArg2 = projFld.FieldType;
-                            Type rowEnumCompilerType2 = typeof(RowEnumeratorCompiler<>).MakeGenericType(TArg2);
-                            object rowCompiler2 = Activator.CreateInstance(rowEnumCompilerType2);
-                            MethodInfo[] mis = rowEnumCompilerType2.GetMethods();
-                            MethodInfo mi = rowEnumCompilerType2.GetMethod("BuildProjectedRowLambda");
-                            object[] methodArgs = new object[] { vars, projData2, reader, mappingContext, fieldID };
-                            //...and call BuildProjectedRowLambda():
-                            object objResult = mi.Invoke(rowCompiler2, methodArgs);
-                            fieldID = (int)methodArgs[4];
-                            LambdaExpression innerLambda = (LambdaExpression)objResult;
-                            #endregion
-                            //LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, reader, ref fieldID);
+                        #region Ugly code to create a generic arg T for Expression.Lambda<T>
+                        //simple version: (does not work since BuildProjRow needs different generic arg than our T)
+                        //LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, reader, ref fieldID);                            
+                        //nasty version:
+                        ProjectionData projData2 = AttribHelper.GetProjectionData(projFld.FieldType);
+                        Type TArg2 = projFld.FieldType;
+                        Type rowEnumCompilerType2 = typeof(RowEnumeratorCompiler<>).MakeGenericType(TArg2);
+                        object rowCompiler2 = Activator.CreateInstance(rowEnumCompilerType2);
+                        MethodInfo[] mis = rowEnumCompilerType2.GetMethods();
+                        MethodInfo mi = rowEnumCompilerType2.GetMethod("BuildProjectedRowLambda");
+                        object[] methodArgs = new object[] { vars, projData2, reader, mappingContext, fieldID };
+                        //...and call BuildProjectedRowLambda():
+                        object objResult = mi.Invoke(rowCompiler2, methodArgs);
+                        fieldID = (int)methodArgs[4];
+                        LambdaExpression innerLambda = (LambdaExpression)objResult;
+                        #endregion
+                        //LambdaExpression innerLambda = BuildProjectedRowLambda(vars, projData2, reader, ref fieldID);
 
-                            MemberInitExpression innerInit = innerLambda.Body as MemberInitExpression;
-                            //MemberAssignment binding = Expression.Bind(projFld.propInfo, innerInit);
-                            //MemberAssignment binding = projFld.BuildMemberAssignment(innerInit);
-                            //bindings.Add(binding);
-                            argList.Add(innerInit);
-                        }
-                        break;
-                    case TypeCategory.Primitive:
-                        {
-                            Type fieldType = projFld.FieldType;
-                            Expression arg_i = GetFieldMethodCall(fieldType, reader, mappingContext, fieldID++);
-                            //MethodInfo accessor = null;
-                            //MemberAssignment binding = Expression.Bind(projFld.MemberInfo, arg_i);
-                            //bindings.Add(binding);
-                            argList.Add(arg_i);
-                        }
-                        break;
-                    case TypeCategory.Other:
-                        {
-                            //e.g.: "select new {g.Key,g}" - but g is also a projection
-                            //Expression.MemberInit
-                            if (vars.GroupByNewExpression == null)
-                                throw new ApplicationException("TODO - handle other cases than groupByNewExpr");
+                        MemberInitExpression innerInit = innerLambda.Body as MemberInitExpression;
+                        //MemberAssignment binding = Expression.Bind(projFld.propInfo, innerInit);
+                        //MemberAssignment binding = projFld.BuildMemberAssignment(innerInit);
+                        //bindings.Add(binding);
+                        argList.Add(innerInit);
+                    }
+                    break;
+                case TypeCategory.Primitive:
+                    {
+                        Type fieldType = projFld.FieldType;
+                        Expression arg_i = GetFieldMethodCall(fieldType, reader, mappingContext, fieldID++);
+                        //MethodInfo accessor = null;
+                        //MemberAssignment binding = Expression.Bind(projFld.MemberInfo, arg_i);
+                        //bindings.Add(binding);
+                        argList.Add(arg_i);
+                    }
+                    break;
+                case TypeCategory.Other:
+                    {
+                        //e.g.: "select new {g.Key,g}" - but g is also a projection
+                        //Expression.MemberInit
+                        if (vars.GroupByNewExpression == null)
+                            throw new ApplicationException("TODO - handle other cases than groupByNewExpr");
 
-                            //MemberAssignment binding = GroupHelper2<T>.BuildProjFieldBinding(vars, projFld, reader, ref fieldID);
-                            //bindings.Add(binding);
-                            throw new Exception("TODO L351 - when compiling, handle type" + projFld.typeEnum);
-                        }
-                    //break;
+                        //MemberAssignment binding = GroupHelper2<T>.BuildProjFieldBinding(vars, projFld, reader, ref fieldID);
+                        //bindings.Add(binding);
+                        throw new Exception("TODO L351 - when compiling, handle type" + projFld.typeEnum);
+                    }
+                //break;
 
-                    default:
-                        throw new ApplicationException("TODO - objects other than primitive and entities in CompileProjRow: " + projFld.FieldType);
+                default:
+                    throw new ApplicationException("TODO - objects other than primitive and entities in CompileProjRow: " + projFld.FieldType);
                 }
             }
 
@@ -622,111 +586,6 @@ namespace DbLinq.Util
             return callExpr;
         }
 
-        #region GetAs*
-
-        // please note that sometimes (depending on driver), GetValue() returns DBNull instead of null
-        // so at this level, we handle both
-
-        private static string GetAsString(IDataRecord dataRecord, MappingContext mappingContext, int index)
-        {
-            if (dataRecord.IsDBNull(index))
-                return null;
-            object o = dataRecord.GetValue(index);
-            // TODO: something here with the mappingContext
-            return OnGetString(o, typeof(T), dataRecord, index);
-            //return o.ToString();
-        }
-
-        private static bool GetAsBool(IDataRecord dataRecord, int index)
-        {
-            object b = dataRecord.GetValue(index);
-            // first check: this may be a boolean
-            if (b is bool)
-                return (bool)b;
-            // if it is a string, we may have "T"/"F" or "True"/"False"
-            if (b is string)
-            {
-                // regular literals
-                string lb = (string)b;
-                bool ob;
-                if (bool.TryParse(lb, out ob))
-                    return ob;
-                // alternative literals
-                if (lb == "T" || lb == "F")
-                    return lb == "T";
-                if (lb == "Y" || lb == "N")
-                    return lb == "Y";
-            }
-            return GetAsNumeric<int>(dataRecord, index) != 0;
-        }
-
-        private static char GetAsChar(IDataRecord dataRecord, int index)
-        {
-            object c = dataRecord.GetValue(index);
-            if (c is char)
-                return (char)c;
-            if (c is string)
-            {
-                string sc = (string)c;
-                if (sc.Length == 1)
-                    return sc[0];
-            }
-            if (c == null || c is DBNull)
-                return '\0';
-            throw new InvalidCastException(string.Format("Can't convert type {0} in GetAsChar()", c.GetType().Name));
-        }
-
-        private static U GetAsNumeric<U>(IDataRecord dataRecord, int index)
-        {
-            if (dataRecord.IsDBNull(index))
-                return default(U);
-            return GetAsNumeric<U>(dataRecord.GetValue(index));
-        }
-
-        private static U GetAsNumeric<U>(object o)
-        {
-            if (o is U)
-                return (U)o;
-            if (o == null || o is DBNull)
-                return (U)Convert.ChangeType(0, typeof(U)); // this is a trick, since I found no simple way to do the cas
-            string methodName = string.Format("To{0}", typeof(U).Name);
-            MethodInfo convertMethod = typeof(Convert).GetMethod(methodName, new Type[] { o.GetType() });
-            if (convertMethod != null)
-                return (U)convertMethod.Invoke(null, new object[] { o });
-            throw new InvalidCastException(string.Format("Can't convert type {0} in Convert.{1}()", o.GetType().Name, methodName));
-        }
-
-        private static object GetAsEnum(IDataRecord dataRecord, Type enumType, int index)
-        {
-            int enumAsInt = GetAsNumeric<int>(dataRecord, index);
-            return enumAsInt;
-        }
-
-        private static byte[] GetAsBytes(IDataRecord dataRecord, int index)
-        {
-            if (dataRecord.IsDBNull(index))
-                return null;
-            object obj = dataRecord.GetValue(index);
-            if (obj == null)
-                return null; //nullable blob?
-            byte[] bytes = obj as byte[];
-            if (bytes != null)
-                return bytes; //works for BLOB field
-            Console.WriteLine("GetBytes: received unexpected type:" + obj);
-            //return _rdr.GetInt32(index);
-            return new byte[0];
-        }
-
-        private static object GetAsObject(IDataRecord dataRecord, int index) {
-          if (dataRecord.IsDBNull(index))
-            return null;
-          object obj = dataRecord.GetValue(index);
-          return OnGetObject(obj, typeof(T), dataRecord, index);
-          // return obj;
-        }
-
-        #endregion
-
         private static Expression GetSimplePropertyReader(Type returnType, int valueIndex,
             Expression reader, Expression mappingContext)
         {
@@ -738,6 +597,20 @@ namespace DbLinq.Util
             return propertyReader;
         }
 
+        private static string GetAsString(IDataRecord dataRecord, int columnIndex, MappingContext mappingContext)
+        {
+            var value = dataRecord.GetAsString(columnIndex);
+            mappingContext.OnGetAsString(dataRecord, ref value, typeof(T), columnIndex);
+            return value;
+        }
+
+        private static object GetAsObject(IDataRecord dataRecord, int columnIndex, MappingContext mappingContext)
+        {
+            var value = dataRecord.GetAsObject(columnIndex);
+            mappingContext.OnGetAsObject(dataRecord, ref value, typeof(T), columnIndex);
+            return value;
+        }
+
         private static Expression GetSimplePropertyReader(Type returnType, int valueIndex,
             out bool recast)
         {
@@ -746,72 +619,72 @@ namespace DbLinq.Util
             if (returnType == typeof(string))
             {
                 propertyReader = (Expression<Func<IDataRecord, MappingContext, string>>)((dataReader, mappingContext)
-                    => GetAsString(dataReader, mappingContext, valueIndex));
+                    => GetAsString(dataReader, valueIndex, mappingContext));
             }
             else if (returnType == typeof(bool))
             {
                 propertyReader = (Expression<Func<IDataRecord, MappingContext, bool>>)((dataReader, mappingContext)
-                    => GetAsBool(dataReader, valueIndex));
+                    => dataReader.GetAsBool(valueIndex));
             }
             else if (returnType == typeof(char))
             {
                 propertyReader = (Expression<Func<IDataRecord, MappingContext, char>>)((dataReader, mappingContext)
-                    => GetAsChar(dataReader, valueIndex));
+                    => dataReader.GetAsChar(valueIndex));
             }
             else if (returnType == typeof(byte))
             {
                 propertyReader = (Expression<Func<IDataRecord, MappingContext, byte>>)((dataReader, mappingContext)
-                    => GetAsNumeric<byte>(dataReader, valueIndex));
+                    => dataReader.GetAsNumeric<byte>(valueIndex));
             }
             else if (returnType == typeof(sbyte))
             {
                 propertyReader = (Expression<Func<IDataRecord, MappingContext, sbyte>>)((dataReader, mappingContext)
-                    => GetAsNumeric<sbyte>(dataReader, valueIndex));
+                    => dataReader.GetAsNumeric<sbyte>(valueIndex));
             }
             else if (returnType == typeof(short))
             {
                 propertyReader = (Expression<Func<IDataRecord, MappingContext, short>>)((dataReader, mappingContext)
-                    => GetAsNumeric<short>(dataReader, valueIndex));
+                    => dataReader.GetAsNumeric<short>(valueIndex));
             }
             else if (returnType == typeof(ushort))
             {
                 propertyReader = (Expression<Func<IDataRecord, MappingContext, ushort>>)((dataReader, mappingContext)
-                    => GetAsNumeric<ushort>(dataReader, valueIndex));
+                    => dataReader.GetAsNumeric<ushort>(valueIndex));
             }
             else if (returnType == typeof(int))
             {
                 propertyReader = (Expression<Func<IDataRecord, MappingContext, int>>)((dataReader, mappingContext)
-                    => GetAsNumeric<int>(dataReader, valueIndex));
+                    => dataReader.GetAsNumeric<int>(valueIndex));
             }
             else if (returnType == typeof(uint))
             {
                 propertyReader = (Expression<Func<IDataRecord, MappingContext, uint>>)((dataReader, mappingContext)
-                    => GetAsNumeric<uint>(dataReader, valueIndex));
+                    => dataReader.GetAsNumeric<uint>(valueIndex));
             }
             else if (returnType == typeof(long))
             {
                 propertyReader = (Expression<Func<IDataRecord, MappingContext, long>>)((dataReader, mappingContext)
-                    => GetAsNumeric<long>(dataReader, valueIndex));
+                    => dataReader.GetAsNumeric<long>(valueIndex));
             }
             else if (returnType == typeof(ulong))
             {
                 propertyReader = (Expression<Func<IDataRecord, MappingContext, ulong>>)((dataReader, mappingContext)
-                    => GetAsNumeric<ulong>(dataReader, valueIndex));
+                    => dataReader.GetAsNumeric<ulong>(valueIndex));
             }
             else if (returnType == typeof(float))
             {
                 propertyReader = (Expression<Func<IDataRecord, MappingContext, float>>)((dataReader, mappingContext)
-                    => GetAsNumeric<float>(dataReader, valueIndex));
+                    => dataReader.GetAsNumeric<float>(valueIndex));
             }
             else if (returnType == typeof(double))
             {
                 propertyReader = (Expression<Func<IDataRecord, MappingContext, double>>)((dataReader, mappingContext)
-                    => GetAsNumeric<double>(dataReader, valueIndex));
+                    => dataReader.GetAsNumeric<double>(valueIndex));
             }
             else if (returnType == typeof(decimal))
             {
                 propertyReader = (Expression<Func<IDataRecord, MappingContext, decimal>>)((dataReader, mappingContext)
-                    => GetAsNumeric<decimal>(dataReader, valueIndex));
+                    => dataReader.GetAsNumeric<decimal>(valueIndex));
             }
             else if (returnType == typeof(DateTime))
             {
@@ -821,20 +694,20 @@ namespace DbLinq.Util
             else if (returnType == typeof(byte[]))
             {
                 propertyReader = (Expression<Func<IDataRecord, MappingContext, byte[]>>)((dataReader, mappingContext)
-                    => GetAsBytes(dataReader, valueIndex));
+                    => dataReader.GetAsBytes(valueIndex));
             }
             else if (returnType.IsEnum)
             {
                 recast = true;
                 propertyReader = (Expression<Func<IDataRecord, MappingContext, int>>)((dataReader, mappingContext)
-                    => GetAsNumeric<int>(dataReader, valueIndex));
+                    => dataReader.GetAsNumeric<int>(valueIndex));
             }
             // for polymorphic types especially for ExecuteQuery<>()
-            else if (returnType == typeof(object)) 
+            else if (returnType == typeof(object))
             {
-              propertyReader = (Expression<Func<IDataRecord, MappingContext, object>>)((dataReader, mappingContext)
-                  => GetAsObject(dataReader, valueIndex));
-            } 
+                propertyReader = (Expression<Func<IDataRecord, MappingContext, object>>)((dataReader, mappingContext)
+                    => GetAsObject(dataReader, valueIndex, mappingContext));
+            }
             else
             {
                 //s_rdr.GetUInt32();

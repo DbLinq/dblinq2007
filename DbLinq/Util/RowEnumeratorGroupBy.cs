@@ -112,14 +112,14 @@ namespace DbLinq.Util
                 {
                     if (lookup == null)
                     {
-                        prevKey = _keyReadFunc(dataReader, _vars.MappingContext);
-                        Val firstVal = _valReadFunc(dataReader, _vars.MappingContext); // valueReadFunc(rdr2);
+                        prevKey = _keyReadFunc(dataReader, _vars.Context.MappingContext);
+                        Val firstVal = _valReadFunc(dataReader, _vars.Context.MappingContext); // valueReadFunc(rdr2);
                         lookup = new Lookup<Key, Val>(prevKey, firstVal);
                         continue;
                     }
 
-                    Key currKey = _keyReadFunc(dataReader, _vars.MappingContext);
-                    Val currVal = _valReadFunc(dataReader, _vars.MappingContext);
+                    Key currKey = _keyReadFunc(dataReader, _vars.Context.MappingContext);
+                    Val currVal = _valReadFunc(dataReader, _vars.Context.MappingContext);
                     if (currKey.Equals(prevKey))
                     {
                         lookup._elements.Add(currVal);

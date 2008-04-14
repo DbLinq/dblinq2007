@@ -24,13 +24,56 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
+using System;
+using System.Data;
+
 namespace DbLinq.Linq
 {
     /// <summary>
     /// MappingContext is used during the mapping process
-    /// it contains events and properties give to mapper
+    /// it contains events and properties give to mapper.
+    /// There is one default instance in DataContext.
     /// </summary>
     public class MappingContext
     {
+        public delegate void GenerateSqlDelegate(object sender, ref string sql);
+        public delegate void GetAsDelegate<T>(object sender, ref T value, Type tableType, int columnIndex);
+
+        /// <summary>
+        /// Called when a genereated SQL command is about to be executed
+        /// </summary>
+        public event GenerateSqlDelegate GenerateSql;
+
+        /// <summary>
+        /// Called when the target field is a string
+        /// </summary>
+        public event GetAsDelegate<string> GetAsString;
+
+        /// <summary>
+        /// Called when the target field is an object
+        /// </summary>
+        public event GetAsDelegate<object> GetAsObject;
+
+        #region event senders
+
+        public void OnGenerateSql(object sender, ref string sql)
+        {
+            if (GenerateSql != null)
+                GenerateSql(sender, ref sql);
+        }
+
+        public void OnGetAsString(object sender, ref string value, Type tableType, int columnIndex)
+        {
+            if (GetAsString != null)
+                GetAsString(sender, ref value, tableType, columnIndex);
+        }
+
+        public void OnGetAsObject(object sender, ref object value, Type tableType, int columnIndex)
+        {
+            if (GetAsObject != null)
+                GetAsObject(sender, ref value, tableType, columnIndex);
+        }
+
+        #endregion
     }
 }

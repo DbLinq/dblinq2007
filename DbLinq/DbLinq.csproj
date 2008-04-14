@@ -109,6 +109,7 @@
     <Compile Include="Util\ExprVisitor\CountExpressionModifier.cs" />
     <Compile Include="Util\ExprVisitor\ExpressionVisitor.cs" />
     <Compile Include="Util\ExprVisitor\LocalExpressionChecker.cs" />
+    <Compile Include="Util\IDataRecordExtensions.cs" />
     <Compile Include="Util\IDataTypeExtensions.cs" />
     <Compile Include="Util\Language\ILanguages.cs" />
     <Compile Include="Util\Language\ILanguageWords.cs" />

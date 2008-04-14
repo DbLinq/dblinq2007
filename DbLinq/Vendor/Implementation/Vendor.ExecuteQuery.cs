@@ -345,7 +345,7 @@ namespace DbLinq.Vendor.Implementation
         // TODO: add composability
         // TODO: only homogeneous sets supported
         // TODO: merge this with RowEnumeratorCompiler code.
-        public virtual IEnumerable<TResult> ExecuteQuery<TResult>(DbLinq.Linq.DataContext context, string sql, params object[] parameters)
+        public virtual IEnumerable<TResult> ExecuteQuery<TResult>(DataContext context, string sql, params object[] parameters)
         {
             using (context.DatabaseContext.OpenConnection())
             using (IDbCommand command = context.DatabaseContext.CreateCommand())
@@ -365,7 +365,7 @@ namespace DbLinq.Vendor.Implementation
                            ConvertValue != null);
                         do
                         { // walk the data 
-                            yield return objInit(reader, new MappingContext(), this);
+                            yield return objInit(reader, context.MappingContext, this);
                         } while (reader.Read());
                     }
                     while (reader.NextResult()) { } // ensure any trailing errors caught 

@@ -77,7 +77,8 @@ namespace DbLinq.Util
         protected IDbCommand ExecuteSqlCommand(out IDataReader dataReader)
         {
             //prepend user prolog string, if any
-            string sqlFull = _vars.sqlProlog + _sqlString;
+            string sqlFull = _sqlString;
+            _vars.Context.MappingContext.OnGenerateSql(_vars.Context, ref sqlFull);
 
             IDbCommand cmd = _vars.Context.DatabaseContext.CreateCommand();
             cmd.CommandText = sqlFull;
@@ -142,7 +143,7 @@ namespace DbLinq.Util
                     //                        continue;
                     //#endif
 
-                    T current = _objFromRow2(dataReader, _vars.MappingContext);
+                    T current = _objFromRow2(dataReader, _vars.Context.MappingContext);
 
                     //live object cache:
                     if (_liveObjectMap != null && current != null)
