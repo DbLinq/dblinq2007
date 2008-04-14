@@ -117,6 +117,22 @@ namespace DbLinq.Oracle
         {
         }
 
+        // This method workds much better on various environment. But why? Thanks Oracle guys for dry documentation.
+        public override string BuildConnectionString(string host, string databaseName, string userName, string password)
+        {
+            var connectionStringBuilder = new StringBuilder();
+            connectionStringBuilder.AppendFormat(
+                "Data Source = (DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = {0})(PORT = 1521)))(CONNECT_DATA = (SERVER = DEDICATED)))",
+                host);
+            if (!string.IsNullOrEmpty(userName))
+            {
+                connectionStringBuilder.AppendFormat("; User Id = {0}", userName);
+                if (!string.IsNullOrEmpty(password))
+                    connectionStringBuilder.AppendFormat("; Password = {0}", password);
+            }
+            return connectionStringBuilder.ToString();
+        }
+
         protected override string ConnectionStringDatabase { get { return null; } }
         protected override string ConnectionStringServer { get { return "data source"; } }
     }
