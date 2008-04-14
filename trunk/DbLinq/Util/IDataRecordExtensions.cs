@@ -1,0 +1,135 @@
+﻿#region MIT license
+////////////////////////////////////////////////////////////////////
+// MIT license:
+// Permission is hereby granted, free of charge, to any person obtaining
+// a copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to
+// permit persons to whom the Software is furnished to do so, subject to
+// the following conditions:
+//
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+//
+// Authors:
+//        Jiri George Moudry
+////////////////////////////////////////////////////////////////////
+#endregion
+
+using System;
+using System.Data;
+using System.Reflection;
+using DbLinq.Linq;
+
+namespace DbLinq.Util
+{
+    public static class IDataRecordExtensions
+    {
+        // please note that sometimes (depending on driver), GetValue() returns DBNull instead of null
+        // so at this level, we handle both
+
+        public static string GetAsString(this IDataRecord dataRecord, int index)
+        {
+            if (dataRecord.IsDBNull(index))
+                return null;
+            object o = dataRecord.GetValue(index);
+            return o.ToString();
+        }
+
+        public static bool GetAsBool(this IDataRecord dataRecord, int index)
+        {
+            object b = dataRecord.GetValue(index);
+            // first check: this may be a boolean
+            if (b is bool)
+                return (bool)b;
+            // if it is a string, we may have "T"/"F" or "True"/"False"
+            if (b is string)
+            {
+                // regular literals
+                var lb = (string)b;
+                bool ob;
+                if (bool.TryParse(lb, out ob))
+                    return ob;
+                // alternative literals
+                if (lb == "T" || lb == "F")
+                    return lb == "T";
+                if (lb == "Y" || lb == "N")
+                    return lb == "Y";
+            }
+            return GetAsNumeric<int>(dataRecord, index) != 0;
+        }
+
+        public static char GetAsChar(this IDataRecord dataRecord, int index)
+        {
+            object c = dataRecord.GetValue(index);
+            if (c is char)
+                return (char)c;
+            if (c is string)
+            {
+                string sc = (string)c;
+                if (sc.Length == 1)
+                    return sc[0];
+            }
+            if (c == null || c is DBNull)
+                return '\0';
+            throw new InvalidCastException(string.Format("Can't convert type {0} in GetAsChar()", c.GetType().Name));
+        }
+
+        public static U GetAsNumeric<U>(this IDataRecord dataRecord, int index)
+        {
+            if (dataRecord.IsDBNull(index))
+                return default(U);
+            return GetAsNumeric<U>(dataRecord.GetValue(index));
+        }
+
+        private static U GetAsNumeric<U>(object o)
+        {
+            if (o is U)
+                return (U)o;
+            if (o == null || o is DBNull)
+                return (U)Convert.ChangeType(0, typeof(U)); // this is a trick, since I found no simple way to do the cas
+            string methodName = string.Format("To{0}", typeof(U).Name);
+            MethodInfo convertMethod = typeof(Convert).GetMethod(methodName, new Type[] { o.GetType() });
+            if (convertMethod != null)
+                return (U)convertMethod.Invoke(null, new object[] { o });
+            throw new InvalidCastException(string.Format("Can't convert type {0} in Convert.{1}()", o.GetType().Name, methodName));
+        }
+
+        public static object GetAsEnum(this IDataRecord dataRecord, Type enumType, int index)
+        {
+            int enumAsInt = GetAsNumeric<int>(dataRecord, index);
+            return enumAsInt;
+        }
+
+        public static byte[] GetAsBytes(this IDataRecord dataRecord, int index)
+        {
+            if (dataRecord.IsDBNull(index))
+                return null;
+            object obj = dataRecord.GetValue(index);
+            if (obj == null)
+                return null; //nullable blob?
+            byte[] bytes = obj as byte[];
+            if (bytes != null)
+                return bytes; //works for BLOB field
+            Console.WriteLine("GetBytes: received unexpected type:" + obj);
+            //return _rdr.GetInt32(index);
+            return new byte[0];
+        }
+
+        public static object GetAsObject(this IDataRecord dataRecord, int index)
+        {
+            if (dataRecord.IsDBNull(index))
+                return null;
+            object obj = dataRecord.GetValue(index);
+            return obj;
+        }
+    }
+}

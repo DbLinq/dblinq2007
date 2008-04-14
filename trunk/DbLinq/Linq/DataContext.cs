@@ -55,6 +55,11 @@ namespace DbLinq.Linq
         public ILogger Logger { get; set; }
 
         /// <summary>
+        /// The default behavior creates one MappingContext.
+        /// </summary>
+        public virtual MappingContext MappingContext { get; set; }
+
+        /// <summary>
         /// A DataContext opens and closes a database connection as needed 
         /// if you provide a closed connection or a connection string. 
         /// In general, you should never have to call Dispose on a DataContext. 
@@ -74,6 +79,8 @@ namespace DbLinq.Linq
             ResultMapper = ObjectFactory.Get<IResultMapper>();
             ModificationHandler = ObjectFactory.Create<IModificationHandler>(); // not a singleton: object is stateful
             QueryGenerator = ObjectFactory.Get<IQueryGenerator>();
+
+            MappingContext = new MappingContext();
         }
 
         public DataContext(IDbConnection dbConnection, IVendor vendor)
