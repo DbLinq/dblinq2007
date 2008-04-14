@@ -360,7 +360,16 @@ namespace DbLinq.Linq
 
         void ProcessGroupJoin(MethodCallExpression exprCall)
         {
-            //occurs in LinqToSqlJoin10()
+            //our test case: occurs in LinqToSqlJoin10()
+
+            //reading materials for GroupJoin:
+            //http://blogs.msdn.com/vbteam/rss_tag_LINQ_2F00_VB9.xml by Bill Horst
+            //http://www.developer.com/db/article.php/3739391 by Paul Kimmel
+            //http://weblogs.asp.net/fbouma/archive/2007/11/23/developing-linq-to-llblgen-pro-part-9.aspx by Frans Brouma
+
+            //Bart-De-Smet's Linq-To-SQO (to learn how operators work internally)
+            //http://community.bartdesmet.net/blogs/bart/archive/2007/07/28/linq-sqo-v0-9-2-for-orcas-beta-2-rtw.aspx
+
             switch (exprCall.Arguments.Count)
             {
                 case 5:

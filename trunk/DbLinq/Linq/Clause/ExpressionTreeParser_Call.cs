@@ -62,6 +62,12 @@ namespace DbLinq.Linq.Clause
                 return;
             }
 
+            if (expr.Method.DeclaringType == typeof(DateTime))
+            {
+                AnalyzeMethodCall_DateTime(recurData, expr);
+                return;
+            }
+
             if (expr.Method.DeclaringType == typeof(System.Linq.Queryable) || expr.Method.DeclaringType == typeof(System.Linq.Enumerable))
             {
                 AnalyzeMethodCall_Queryable(recurData, expr);
@@ -77,15 +83,6 @@ namespace DbLinq.Linq.Clause
                         //this was discontinued after Linq 20006 preview
                         throw new ApplicationException("L581 Discontinued operand: Concat");
                     }
-                case "FromOADate":
-                    {
-                        //convert double to DateTime
-                        _result.AppendString("CAST(");
-                        AnalyzeExpression(recurData, expr.Arguments[0]); //it's a static fct - don't pass expr.Object
-                        _result.AppendString(" as smalldatetime)");
-                        return;
-                    }
-
                 default:
                     //detailed error will be thrown below
                     break;
@@ -299,6 +296,42 @@ namespace DbLinq.Linq.Clause
                     throw new NotImplementedException("L266: unprepared for method " + expr.Method);
             }
 
+        }
+        /// <summary>
+        /// handle string.Length, string.StartsWith etc
+        /// </summary>
+        internal void AnalyzeMethodCall_DateTime(RecurData recurData, MethodCallExpression expr)
+        {
+            if (expr.Method.DeclaringType != typeof(DateTime))
+                throw new ArgumentException("Only string.X method allowed, not: " + expr.Method);
+
+            switch (expr.Method.Name)
+            {
+                case "FromOADate":
+                    {
+                        //convert double to DateTime
+                        _result.AppendString("CAST(");
+                        AnalyzeExpression(recurData, expr.Arguments[0]); //it's a static fct - don't pass expr.Object
+                        _result.AppendString(" as smalldatetime)");
+                        return;
+                    }
+                case "ParseExact":
+                    {
+                        //compile a function that accepts one argument and does the following:
+                        //DateTime.ParseExact(hireDate, "yyyy.MM.dd", CultureInfo.InvariantCulture)
+                        FunctionReturningObject funcReturningObj;
+                        var empty = new ParameterExpression[] { };
+                        UnaryExpression castToObjExpr = Expression.Convert(expr, typeof(object));
+                        LambdaExpression lambda = Expression.Lambda<FunctionReturningObject>(castToObjExpr, empty);
+                        Delegate delg = lambda.Compile();
+                        funcReturningObj = delg as FunctionReturningObject;
+                        string paramName = _parent.storeFunctionParam(funcReturningObj);
+                        _result.AppendString(paramName);
+                        return;
+                    }
+                default:
+                    throw new ApplicationException("L333 Unprepared to map DateTime method " + expr.Method.Name);
+            }
         }
 
     }
