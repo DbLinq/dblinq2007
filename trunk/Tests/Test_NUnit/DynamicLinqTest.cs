@@ -35,6 +35,28 @@ namespace Test_NUnit_MySql
             Assert.IsTrue(list.Count > 0, "Expected results from dynamic query");
         }
 
+        [Test]
+        public void DL2_ProductCount()
+        {
+            Northwind db = CreateDB();
+
+            int numProducts = db.Products.Where("SupplierID=1").Count();
+            Assert.IsTrue(numProducts > 0, "Expected results from dynamic query");
+        }
+
+        //note:
+        //user Sqlite reports problems with DynamicLinq Count() -
+        //but neither DL2 nor DL3 tests seem to hit the problem.
+
+        [Test]
+        public void DL3_ProductCount()
+        {
+            Northwind db = CreateDB();
+
+            int numProducts = db.Products.Count();
+            Assert.IsTrue(numProducts > 0, "Expected results from dynamic query");
+        }
+
 #if DECIDE_IF_THIS_CAST_IS_LEGAL
         [Test]
         public void DL2_Cast()
