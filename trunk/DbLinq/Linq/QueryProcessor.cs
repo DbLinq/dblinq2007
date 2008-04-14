@@ -264,8 +264,8 @@ namespace DbLinq.Linq
 
         public string storeParam(string value)
         {
-            //int paramIndex = _vars.numParameters++;
-            int paramIndex = paramMap.Count + paramMap2.Count;
+            int paramIndex = _vars.numParameters++;
+            //int paramIndex = paramMap.Count + paramMap2.Count; //this breaks for Union operators
             string paramName = _vars.Context.Vendor.GetParameterName(paramIndex);
             paramMap[paramName] = value;
             lastParamName = paramName;
@@ -280,7 +280,8 @@ namespace DbLinq.Linq
         /// <returns></returns>
         public string storeFunctionParam(FunctionReturningObject funcReturningObject)
         {
-            int paramIndex = paramMap.Count + paramMap2.Count;
+            int paramIndex = _vars.numParameters++;
+            //int paramIndex = paramMap.Count + paramMap2.Count; //this breaks for Union operators
             string paramName = _vars.Context.Vendor.GetParameterName(paramIndex);
             paramMap2[paramName] = funcReturningObject;
             lastParamName = paramName;
