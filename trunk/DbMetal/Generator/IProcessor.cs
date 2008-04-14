@@ -37,5 +37,6 @@ namespace DbMetal.Generator
         void Process(string[] args);
         void GenerateCSharp(Parameters parameters, Database dbSchema, ISchemaLoader schemaLoader, string filename);
         Database LoadSchema(Parameters parameters, ISchemaLoader schemaLoader);
+		Database LoadSchema(string filename);
     }
 }
