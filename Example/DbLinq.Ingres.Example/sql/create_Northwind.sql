@@ -163,91 +163,104 @@ COMMIT;\p\g
 
 /********************************************************************/
 
-Insert INTO Categories (CategoryName, Description)
-values ('Beverages',	'Soft drinks, coffees, teas, beers, and ales');
-Insert INTO Categories (CategoryName,Description)
-values ('Condiments','Sweet and savory sauces, relishes, spreads, and seasonings');
+INSERT INTO Categories (CategoryName, Description)
+VALUES ('Beverages',	'Soft drinks, coffees, teas, beers, and ales');
+INSERT INTO Categories (CategoryName,Description)
+VALUES ('Condiments','Sweet and savory sauces, relishes, spreads, and seasonings');
 COMMIT;\p\g
 
 /********************************************************************/
 
-insert INTO Customers (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
-values ('AIRBU', 'airbus','jacques','France','10000','Paris');
-insert INTO Customers (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
-values ('BT___','BT','graeme','U.K.','E14','London');
-
-insert INTO Customers (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
-values ('ATT__','ATT','bob','USA','10021','New York');
-insert INTO Customers (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
-values ('UKMOD', 'MOD','(secret)','U.K.','E14','London');
-
-insert INTO Customers (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
-values ('ALFKI', 'Alfreds Futterkiste','Maria Anders','Sales Representative','Germany','12209','Berlin','030-0074321');
-
-insert INTO Customers (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
-values ('BONAP', 'Bon something','Bon Boss','Sales Representative','France','11109','Paris','033-0074321');
-
-insert INTO Customers (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
-values ('WARTH', 'Wartian Herkku','Pirkko Koskitalo','Accounting Manager','Finland','90110','Oulu','981-443655');
+INSERT INTO Region (RegionDescription) VALUES ('North America');
+INSERT INTO Region (RegionDescription) VALUES ('Europe');
 COMMIT;\p\g
 
 /********************************************************************/
 
-insert INTO Suppliers (CompanyName, ContactName, ContactTitle, Address, City, Region, Country)
+INSERT INTO Customers (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
+VALUES ('AIRBU', 'airbus','jacques','France','10000','Paris');
+INSERT INTO Customers (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
+VALUES ('BT___','BT','graeme','U.K.','E14','London');
+
+INSERT INTO Customers (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
+VALUES ('ATT__','ATT','bob','USA','10021','New York');
+INSERT INTO Customers (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
+VALUES ('UKMOD', 'MOD','(secret)','U.K.','E14','London');
+
+INSERT INTO Customers (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
+VALUES ('ALFKI', 'Alfreds Futterkiste','Maria Anders','Sales Representative','Germany','12209','Berlin','030-0074321');
+
+INSERT INTO Customers (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
+VALUES ('BONAP', 'Bon something','Bon Boss','Sales Representative','France','11109','Paris','033-0074321');
+
+INSERT INTO Customers (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
+VALUES ('WARTH', 'Wartian Herkku','Pirkko Koskitalo','Accounting Manager','Finland','90110','Oulu','981-443655');
+COMMIT;\p\g
+
+/********************************************************************/
+
+INSERT INTO Suppliers (CompanyName, ContactName, ContactTitle, Address, City, Region, Country)
 VALUES ('alles AG', 'Harald Reitmeyer', 'Prof', 'Fischergasse 8', 'Heidelberg', 'B-W', 'Germany');
 
-insert INTO Suppliers (CompanyName, ContactName, ContactTitle, Address, City, Region, Country)
+INSERT INTO Suppliers (CompanyName, ContactName, ContactTitle, Address, City, Region, Country)
 VALUES ('Microsoft', 'Mr Allen', 'Monopolist', '1 MS', 'Redmond', 'WA', 'USA');
 
 
-insert INTO Products (ProductName,SupplierID, QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+INSERT INTO Products (ProductName,SupplierID, QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
 VALUES ('Pen',1, 10,     12, 2,  0);
-insert INTO Products (ProductName,SupplierID, QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+INSERT INTO Products (ProductName,SupplierID, QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
 VALUES ('Bicycle',1, 1,  6, 0,  0);
-insert INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+INSERT INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
 VALUES ('Phone',3,    7, 0,  0);
-insert INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+INSERT INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
 VALUES ('SAM',1,      51, 11, 0);
-insert INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+INSERT INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
 VALUES ('iPod',0,     11, 0, 0);
-insert INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+INSERT INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
 VALUES ('Toilet Paper',2,  0, 3, 1);
-insert INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+INSERT INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
 VALUES ('Fork',5,   111, 0, 0);
-insert INTO Products (ProductName,SupplierID, QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
+INSERT INTO Products (ProductName,SupplierID, QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
 VALUES ('Linq Book',2, 1, 0, 26, 0);
 COMMIT;\p\g
 
 /********************************************************************/
 
-insert INTO Employees (LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
+INSERT INTO Employees (LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
 VALUES ('Fuller','Andrew','Vice President, Sales',date('01-jan-1964'), date('01-jan-1989'), '908 W. Capital Way','Tacoma',NULL);
 
-insert INTO Employees (LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
+INSERT INTO Employees (LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
 VALUES ('Davolio','Nancy','Sales Representative',date('01-jan-1964'), date('01-jan-1994'),'507 - 20th Ave. E.  Apt. 2A','Seattle',1);
 
-insert INTO Employees (LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
+INSERT INTO Employees (LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
 VALUES ('Builder', 'Bob', 'Handyman',date('01-jan-1964'), date('01-jan-1964'),'666 dark street','Seattle',2);
+COMMIT;\p\g
+
+INSERT INTO Territories (TerritoryID, TerritoryDescription, RegionID) VALUES ('US.Northwest', 'Northwest', 1);
+COMMIT;\p\g
+
+INSERT INTO EmployeeTerritories (EmployeeID,TerritoryID)
+VALUES (2,'US.Northwest');
 COMMIT;\p\g
 
 /********************************************************************/
 /*truncate table Orders;*/
 /********************************************************************/
-insert INTO Orders (CustomerID, EmployeeID, OrderDate, Freight)
-Values ('AIRBU', 1, date('now'), 21.3);
+INSERT INTO Orders (CustomerID, EmployeeID, OrderDate, Freight)
+VALUES ('AIRBU', 1, date('now'), 21.3);
 
-insert INTO Orders (CustomerID, EmployeeID, OrderDate, Freight)
-Values ('BT___', 1, date('now'), 11.1);
+INSERT INTO Orders (CustomerID, EmployeeID, OrderDate, Freight)
+VALUES ('BT___', 1, date('now'), 11.1);
 
-insert INTO Orders (CustomerID, EmployeeID, OrderDate, Freight)
-Values ('BT___', 1, date('now'), 11.5);
+INSERT INTO Orders (CustomerID, EmployeeID, OrderDate, Freight)
+VALUES ('BT___', 1, date('now'), 11.5);
 
-insert INTO Orders (CustomerID, EmployeeID, OrderDate, Freight)
-Values ('UKMOD', 1, date('now'), 32.5);
+INSERT INTO Orders (CustomerID, EmployeeID, OrderDate, Freight)
+VALUES ('UKMOD', 1, date('now'), 32.5);
 
 
-insert INTO OrderDetails (OrderID, ProductID, UnitPrice, Quantity, Discount)
-Values (1, 2, 33, 5, 11);
+INSERT INTO OrderDetails (OrderID, ProductID, UnitPrice, Quantity, Discount)
+VALUES (1, 2, 33, 5, 11);
 
 
 COMMIT;\p\g

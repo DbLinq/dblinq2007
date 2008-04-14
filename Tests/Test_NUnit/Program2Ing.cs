@@ -26,10 +26,6 @@ namespace Test_NUnit_Ingres
             /*==================================================================*/
             /* The following failing tests are investigated, but not solved yet */
             /*==================================================================*/
-
-            // The column value has not changed for some reason, so the assertion fails
-            //new CompositePK_Test().G11_UnchangedColumnShouldNotUpdated();
-
             // generates this SQL
             // SELECT $.categoryid, $.discontinued, $.productid, $.productname, 
             // $.quantityperunit, $.reorderlevel, $.supplierid, $.unitprice, $.unitsinstock, $.unitsonorder
@@ -50,20 +46,20 @@ namespace Test_NUnit_Ingres
             // Yields this SQL:
             // SELECT ((p$.productname||?)||VARCHAR(p$.supplierid)) FROM linquser.products p$
             // A parameter before the FROM crashes the Ingres driver. Known problem.
+            // Both tests fail due to this
             //new ReadTest_Operands().H1_SelectConcat();
-
-            /*=======================================================*/
-            /* These 101 Tests fail for various reasons, which look  */
-            /* more DBLinq-Core related and not Ingres related       */
-            /* I'm not even sure if those are supposed to be running */
-            /*=======================================================*/
-            //new Linq_101_Samples.AdvancedTest().LinqToSqlAdvanced06();
-            //new Linq_101_Samples.Count_Sum_Min_Max_Avg().LinqToSqlCount07();
-            //new Linq_101_Samples.Count_Sum_Min_Max_Avg().LiqnToSqlCount02();
-            //new Linq_101_Samples.Count_Sum_Min_Max_Avg().LinqToSqlCount10();
-            //new Linq_101_Samples.Join().LinqToSqlJoin03();
-            //new Linq_101_Samples.Join().LinqToSqlJoin10();
             //new Linq_101_Samples.String_Date_functions().LinqToSqlString01();
+
+            // Ingres does not support booleans. there needs to be some workaround...
+            // Both these tests fail due to this
+            //new Linq_101_Samples.AdvancedTest().LinqToSqlAdvanced06();
+            //new Linq_101_Samples.Count_Sum_Min_Max_Avg().LinqToSqlCount02();
+
+            // NullRef exception in FromClausebuilder
+            //new Linq_101_Samples.Join().LinqToSqlJoin10();
+
+            // OFFSET clause is not supported in Ingres
+            // Both tests fail due to this.
             //new Linq_101_Samples.Top_Bottom().LinqToSqlTop02();
             //new Linq_101_Samples.Top_Bottom().LinqToSqlTop03_Ex_Andrus();
         }
