@@ -62,6 +62,8 @@ namespace DbLinq.Linq
         public string sqlProlog = string.Empty;
         public MappingContext MappingContext = new MappingContext();
 
+        public int numParameters;
+
         public SessionVarsParsed(SessionVars vars)
             : base(vars)
         {
