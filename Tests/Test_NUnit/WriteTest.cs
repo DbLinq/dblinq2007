@@ -255,6 +255,7 @@ using Test_NUnit;
 
         }
 
+#if POSTGRES || INGRES
 
         public class Northwind1 : Northwind {
           public Northwind1(System.Data.IDbConnection connection)
@@ -351,6 +352,9 @@ dummy text
             }
           }
         }
+#endif
+
+#if POSTGRES || INGRES
 
         [Test]
         public void G11_TwoSequencesInTable() {
@@ -378,6 +382,8 @@ reanr int DEFAULT nextval('rid_reanr_seq'));
           Assert.AreEqual(Rid.Id,2);
           Assert.AreEqual(Rid.Reanr, 23);
         }
+
+#endif
 
         public void G12_EmptyInsertList() {
           Northwind db = CreateDB();
