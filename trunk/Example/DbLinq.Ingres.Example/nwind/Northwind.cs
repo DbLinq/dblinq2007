@@ -1681,12 +1681,12 @@ namespace nwind
 		// IModified backing field
 		public bool IsModified{ get; set; }
 
-		#region double Discount
+		#region float Discount
 
-		private double discount;
+		private float discount;
 		[Column(Storage = "discount", Name = "discount", DbType = "FLOAT", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public double Discount
+		public float Discount
 		{
 			get
 			{
