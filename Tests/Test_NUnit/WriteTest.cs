@@ -255,7 +255,7 @@ using Test_NUnit;
 
         }
 
-#if POSTGRES || INGRES
+#if POSTGRES
 
         public class Northwind1 : Northwind {
           public Northwind1(System.Data.IDbConnection connection)
@@ -316,6 +316,7 @@ dummy text
           db.ExecuteCommand("drop table cust1; drop sequence seq8;");
           Assert.IsNotNull(Cust1.CustomerId);
         }
+#endif
 
         public class NorthwindG11 : Northwind {
           public NorthwindG11(System.Data.IDbConnection connection)
@@ -352,48 +353,53 @@ dummy text
             }
           }
         }
-#endif
 
 #if POSTGRES || INGRES
 
         [Test]
-        public void G11_TwoSequencesInTable() {
-          Northwind dbo = CreateDB();
-          NorthwindG11 db = new NorthwindG11(dbo.DatabaseContext.Connection);
-          db.ExecuteCommand(@"create sequence rid_id1_seq;
-create sequence rid_reanr_seq;
-create temp table Rid ( id int primary key DEFAULT nextval('rid_id1_seq'),
-reanr int DEFAULT nextval('rid_reanr_seq'));
-");
+        public void G11_TwoSequencesInTable()
+        {
+            Northwind dbo = CreateDB();
+            NorthwindG11 db = new NorthwindG11(dbo.DatabaseContext.Connection);
+            db.ExecuteCommand(@"create sequence rid_id1_seq");
+            db.ExecuteCommand(@"create sequence rid_reanr_seq");
+#if INGRES
+            db.ExecuteCommand(@"create table Rid ( id int primary key DEFAULT rid_id1_seq.nextval, reanr int DEFAULT rid_reanr_seq.nextval)");
+#else
+            db.ExecuteCommand(@"create temp table Rid ( id int primary key DEFAULT nextval('rid_id1_seq'), reanr int DEFAULT nextval('rid_reanr_seq'))");
+#endif
 
-          DbLinq.Linq.Table<NorthwindG11.Rid> Rids =
-          db.GetTable<NorthwindG11.Rid>();
+            DbLinq.Linq.Table<NorthwindG11.Rid> Rids =
+            db.GetTable<NorthwindG11.Rid>();
 
-          var Rid = new NorthwindG11.Rid();
-          Rid.Reanr = 22;
-          db.Rids.Add(Rid);
+            var Rid = new NorthwindG11.Rid();
+            Rid.Reanr = 22;
+            db.Rids.Add(Rid);
 
-          Rid = new NorthwindG11.Rid();
-          Rid.Reanr = 23;
-          db.Rids.Add(Rid);
-          db.SubmitChanges();
+            Rid = new NorthwindG11.Rid();
+            Rid.Reanr = 23;
+            db.Rids.Add(Rid);
+            db.SubmitChanges();
 
-          db.ExecuteCommand("drop table rid; drop sequence rid_reanr_seq;drop sequence rid_id1_seq;");
-          Assert.AreEqual(Rid.Id,2);
-          Assert.AreEqual(Rid.Reanr, 23);
+            db.ExecuteCommand("drop table rid");
+            db.ExecuteCommand("drop sequence rid_reanr_seq");
+            db.ExecuteCommand("drop sequence rid_id1_seq;");
+            Assert.AreEqual(Rid.Id, 2);
+            Assert.AreEqual(Rid.Reanr, 23);
         }
 
 #endif
 
-        public void G12_EmptyInsertList() {
-          Northwind db = CreateDB();
-          Customer newCust = new Customer();
-          db.Customers.Add(newCust);
-          db.SubmitChanges();
-          Assert.IsNotNull(newCust.CustomerID);
-          db.Customers.Remove(newCust);
-          db.SubmitChanges();
-
+        [Test]
+        public void G12_EmptyInsertList()
+        {
+            Northwind db = CreateDB();
+            Customer newCust = new Customer();
+            db.Customers.Add(newCust);
+            db.SubmitChanges();
+            Assert.IsNotNull(newCust.CustomerID);
+            db.Customers.Remove(newCust);
+            db.SubmitChanges();
         }
 
 

@@ -26,6 +26,13 @@ namespace Test_NUnit_Ingres
             /*==================================================================*/
             /* The following failing tests are investigated, but not solved yet */
             /*==================================================================*/
+
+            // Generates faulty SQL
+            //new WriteTest().G11_TwoSequencesInTable();
+
+            // Generates faulty SQL
+            //new WriteTest().G12_EmptyInsertList();
+
             // generates this SQL
             // SELECT $.categoryid, $.discontinued, $.productid, $.productname, 
             // $.quantityperunit, $.reorderlevel, $.supplierid, $.unitprice, $.unitsinstock, $.unitsonorder

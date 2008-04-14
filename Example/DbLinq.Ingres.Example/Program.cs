@@ -40,15 +40,21 @@ namespace DbLinq.Ingres.Example
         static void Main(string[] args)
         {
 
-            string connStr = "server=(local);user id=LinqUser; password=linq2; database=demodb";
-            Demodb db = new Demodb(new IngresConnection(connStr));
+            string connStr = "server=(local);user id=LinqUser; password=linq2; database=northwind";
+            nwind.Northwind db = new nwind.Northwind(new IngresConnection(connStr));
 
-            var result = from airline in db.AdminAirline select airline.AlName;
+            var result = from customer in db.Customers
+                         where customer.City == "London"
+                         orderby customer.City
+                         select customer;
 
             foreach (var r in result)
             {
+                r.Fax = "changed " + DateTime.Now.Ticks.ToString();
                 System.Console.WriteLine(r);
             }
+
+            db.SubmitChanges();
 
             System.Console.ReadKey();
         }
