@@ -48,7 +48,7 @@ namespace DbLinq.Linq
 
         public S Execute<S>(Expression expression)
         {
-            throw new ApplicationException("Not implemented");
+            throw new ApplicationException("L51 Not implemented");
         }
 
         /// <summary>
@@ -65,14 +65,14 @@ namespace DbLinq.Linq
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            throw new ApplicationException("Not implemented");
+            throw new ApplicationException("L68 Not implemented");
         }
 
         public Type ElementType
         {
             get
             {
-                throw new ApplicationException("Not implemented");
+                throw new ApplicationException("L75 Not implemented");
             }
         }
 
@@ -85,12 +85,12 @@ namespace DbLinq.Linq
 
         public IQueryable CreateQuery(Expression expression)
         {
-            throw new ApplicationException("Not implemented");
+            throw new ApplicationException("L88 Not implemented");
         }
 
         public object Execute(Expression expression)
         {
-            throw new ApplicationException("Not implemented");
+            throw new ApplicationException("L93 Not implemented");
         }
 
         /// <summary>
