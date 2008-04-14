@@ -48,7 +48,15 @@ namespace DbLinq.Factory.Implementation
 
         protected void Parse(Assembly assembly)
         {
-            foreach (Type type in assembly.GetTypes())
+          Type[] assemblyTypes;
+          try {
+            assemblyTypes = assembly.GetTypes();
+          } catch (ReflectionTypeLoadException ex) {
+            // This is dynamic assembly which is not created yet.
+            return;
+          }
+
+          foreach (Type type in assemblyTypes)
             {
                 if (type.IsAbstract)
                     continue;
