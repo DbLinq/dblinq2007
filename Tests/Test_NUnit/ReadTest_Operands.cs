@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
@@ -8,7 +9,7 @@ using nwind;
 using Test_NUnit;
 
 #if MYSQL
-    namespace Test_NUnit_MySql
+namespace Test_NUnit_MySql
 #elif ORACLE
     namespace Test_NUnit_Oracle
 #elif POSTGRES
@@ -18,7 +19,7 @@ using Test_NUnit;
 #elif INGRES
     namespace Test_NUnit_Ingres
 #else
-    #error unknown target
+#error unknown target
 #endif
 {
     /// <summary>
@@ -120,7 +121,7 @@ using Test_NUnit;
             Northwind db = CreateDB();
             var q = from p in db.Products
                     where p.ProductID > 5
-                    select new ProductWrapper3 ( p.ProductID, p.SupplierID );
+                    select new ProductWrapper3(p.ProductID, p.SupplierID);
             int count = 0;
             foreach (ProductWrapper3 p in q)
             {
@@ -163,6 +164,23 @@ using Test_NUnit;
 
             var q = from p in db.Products select p.ProductName;
             string s = db.GetQueryText(q); //MTable_Projected.GetQueryText()
+        }
+
+        [Test]
+        public void J1_LocalFunction_DateTime_ParseExact()
+        {
+            Northwind db = CreateDB();
+
+            //Lookup EmployeeID 1:
+            //Andy Fuller - HireDate: 1989-01-01 00:00:00
+
+            string hireDate = "1989.01.01";
+
+            var q = from e in db.Employees
+                    where e.HireDate == DateTime.ParseExact(hireDate, "yyyy.MM.dd", CultureInfo.InvariantCulture)
+                    select e.EmployeeID;
+            int empID = q.Single(); //MTable_Projected.GetQueryText()
+            Assert.IsTrue(empID == 1);
         }
 
 
