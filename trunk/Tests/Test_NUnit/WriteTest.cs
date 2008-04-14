@@ -256,7 +256,6 @@ using Test_NUnit;
         }
 
 
-#if POSTGRES
         public class Northwind1 : Northwind {
           public Northwind1(System.Data.IDbConnection connection)
             : base(connection) { }
@@ -316,16 +315,13 @@ dummy text
           db.ExecuteCommand("drop table cust1; drop sequence seq8;");
           Assert.IsNotNull(Cust1.CustomerId);
         }
-#endif 
 
-
-#if POSTGRES
         public class NorthwindG11 : Northwind {
           public NorthwindG11(System.Data.IDbConnection connection)
             : base(connection) { }
 
-	[System.Data.Linq.Mapping.Table(Name = "rid")]
-	public  class Rid :DbLinq.Linq.IModified {
+         [System.Data.Linq.Mapping.Table(Name = "rid")]
+	       public  class Rid :DbLinq.Linq.IModified {
 
     
           [DbLinq.Linq.Mapping.AutoGenId]
@@ -382,7 +378,17 @@ reanr int DEFAULT nextval('rid_reanr_seq'));
           Assert.AreEqual(Rid.Id,2);
           Assert.AreEqual(Rid.Reanr, 23);
         }
-#endif
+
+        public void G12_EmptyInsertList() {
+          Northwind db = CreateDB();
+          Customer newCust = new Customer();
+          db.Customers.Add(newCust);
+          db.SubmitChanges();
+          Assert.IsNotNull(newCust.CustomerID);
+          db.Customers.Remove(newCust);
+          db.SubmitChanges();
+
+        }
 
 
         #endregion
