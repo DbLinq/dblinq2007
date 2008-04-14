@@ -38,133 +38,136 @@ using DbMetal.Schema;
 
 namespace DbMetal.Generator.Implementation
 {
-    public class Processor : IProcessor
-    {
-        public ILogger Logger { get; set; }
-        public ISchemaLoaderFactory SchemaLoaderFactory { get; set; }
+	public class Processor : IProcessor
+	{
+		public ILogger Logger { get; set; }
+		public ISchemaLoaderFactory SchemaLoaderFactory { get; set; }
 
-        public Processor()
-        {
-            Logger = ObjectFactory.Get<ILogger>();
-            SchemaLoaderFactory = ObjectFactory.Get<ISchemaLoaderFactory>();
-        }
+		public Processor()
+		{
+			Logger = ObjectFactory.Get<ILogger>();
+			SchemaLoaderFactory = ObjectFactory.Get<ISchemaLoaderFactory>();
+		}
 
-        public void Process(string[] args)
-        {
-            var parameters = new Parameters();
+		public void Process(string[] args)
+		{
+			var parameters = new Parameters();
 
-            if (args.Length == 0)
-                PrintUsage(parameters);
+			if (args.Length == 0)
+				PrintUsage(parameters);
 
-            else
-            {
-                bool readLineAtExit = false;
+			else
+			{
+				bool readLineAtExit = false;
 
-                parameters.WriteHeader();
+				parameters.WriteHeader();
 
-                try
-                {
-                    foreach (var parametersBatch in parameters.GetBatch(args))
-                    {
-                        ProcessSchema(parametersBatch);
-                        if (parametersBatch.ReadLineAtExit)
-                            readLineAtExit = true;
-                    }
-                }
-                catch (ArgumentException e)
-                {
-                    Logger.Write(Level.Error, e.Message);
-                    PrintUsage(parameters);
-                    return;
-                }
-                if (readLineAtExit)
-                {
-                    // '-readLineAtExit' flag: useful when running from Visual Studio
-                    Console.ReadKey();
-                }
-            }
+				try
+				{
+					foreach (var parametersBatch in parameters.GetBatch(args))
+					{
+						ProcessSchema(parametersBatch);
+						if (parametersBatch.ReadLineAtExit)
+							readLineAtExit = true;
+					}
+				}
+				catch (ArgumentException e)
+				{
+					Logger.Write(Level.Error, e.Message);
+					PrintUsage(parameters);
+					return;
+				}
+				if (readLineAtExit)
+				{
+					// '-readLineAtExit' flag: useful when running from Visual Studio
+					Console.ReadKey();
+				}
+			}
 
-            Logger.Write(Level.Information, "");
-        }
+			Logger.Write(Level.Information, "");
+		}
 
-        private void ProcessSchema(Parameters parameters)
-        {
-            try
-            {
-                // we always need a factory, even if generating from a DBML file, because we need a namespace
-                var schemaLoader = SchemaLoaderFactory.Load(parameters);
+		private void ProcessSchema(Parameters parameters)
+		{
+			try
+			{
+				// we always need a factory, even if generating from a DBML file, because we need a namespace
+				var schemaLoader = SchemaLoaderFactory.Load(parameters);
 
-                Database dbSchema = LoadSchema(parameters, schemaLoader);
+				Database dbSchema = LoadSchema(parameters, schemaLoader);
 
-                if (parameters.Dbml != null)
-                {
-                    //we are supposed to write out a DBML file and exit
-                    Logger.Write(Level.Information, "<<< Writing file '{0}'", parameters.Dbml);
-                    using (Stream dbmlFile = File.OpenWrite(parameters.Dbml))
-                    {
-                        DbmlSerializer.Write(dbmlFile, dbSchema);
-                    }
-                }
-                else
-                {
-                    string filename = parameters.Code ?? parameters.Database.Replace("\"", "");
-                    Logger.Write(Level.Information, "<<< writing C# classes in file '{0}'", filename);
-                    GenerateCSharp(parameters, dbSchema, schemaLoader, filename);
+				if (parameters.Dbml != null)
+				{
+					//we are supposed to write out a DBML file and exit
+					Logger.Write(Level.Information, "<<< Writing file '{0}'", parameters.Dbml);
+					using (Stream dbmlFile = File.OpenWrite(parameters.Dbml))
+					{
+						DbmlSerializer.Write(dbmlFile, dbSchema);
+					}
+				}
+				else
+				{
+					string filename = parameters.Code ?? parameters.Database.Replace("\"", "");
+					Logger.Write(Level.Information, "<<< writing C# classes in file '{0}'", filename);
+					GenerateCSharp(parameters, dbSchema, schemaLoader, filename);
 
-                }
-            }
-            catch (Exception ex)
-            {
-                string assyName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
-                Logger.Write(Level.Error, assyName + " failed:" + ex);
-            }
-        }
+				}
+			}
+			catch (Exception ex)
+			{
+				string assyName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
+				Logger.Write(Level.Error, assyName + " failed:" + ex);
+			}
+		}
 
-        public void GenerateCSharp(Parameters parameters, Database dbSchema, ISchemaLoader schemaLoader, string filename)
-        {
-            ICodeGenerator codeGen = new CSCodeGenerator();
+		public void GenerateCSharp(Parameters parameters, Database dbSchema, ISchemaLoader schemaLoader, string filename)
+		{
+			ICodeGenerator codeGen = new CSCodeGenerator();
 
-            if (String.IsNullOrEmpty(Path.GetExtension(filename)))
-                filename += codeGen.Extension;
+			if (String.IsNullOrEmpty(Path.GetExtension(filename)))
+				filename += codeGen.Extension;
 
-            using (var streamWriter = new StreamWriter(filename))
-            {
-                var generationContext = new GenerationContext(parameters, schemaLoader);
-                codeGen.Write(streamWriter, dbSchema, generationContext);
-            }
-        }
+			using (var streamWriter = new StreamWriter(filename))
+			{
+				var generationContext = new GenerationContext(parameters, schemaLoader);
+				codeGen.Write(streamWriter, dbSchema, generationContext);
+			}
+		}
 
-        public Database LoadSchema(Parameters parameters, ISchemaLoader schemaLoader)
-        {
-            Database dbSchema;
-            var tableAliases = TableAlias.Load(parameters);
-            if (parameters.SchemaXmlFile == null) // read schema from DB
-            {
-                Logger.Write(Level.Information, ">>> Reading schema from {0} database", schemaLoader.VendorName);
-                dbSchema = schemaLoader.Load(parameters.Database, tableAliases,
-                    new NameFormat { Case = Case.PascalCase, Pluralize = parameters.Pluralize, Culture = new CultureInfo(parameters.Culture) },
-                    parameters.SProcs);
-                dbSchema.Provider = parameters.Provider;
-                dbSchema.Tables.Sort(new LambdaComparer<Table>((x, y) => (x.Type.Name.CompareTo(y.Type.Name))));
-                foreach (var table in dbSchema.Tables)
-                    table.Type.Columns.Sort(new LambdaComparer<Column>((x, y) => (x.Member.CompareTo(y.Member))));
-                dbSchema.Functions.Sort(new LambdaComparer<Function>((x, y) => (x.Method.CompareTo(y.Method))));
-                SchemaPostprocess.PostProcess_DB(dbSchema);
-            }
-            else // load DBML
-            {
-                Logger.Write(Level.Information, ">>> Reading schema from DBML file '{0}'", parameters.SchemaXmlFile);
-                using (Stream dbmlFile = File.OpenRead(parameters.SchemaXmlFile))
-                {
-                    dbSchema = DbmlSerializer.Read(dbmlFile);
-                }
-            }
-            return dbSchema;
-        }
+		public Database LoadSchema(Parameters parameters, ISchemaLoader schemaLoader)
+		{
+			Database dbSchema;
+			var tableAliases = TableAlias.Load(parameters);
+			if (parameters.SchemaXmlFile == null) // read schema from DB
+			{
+				Logger.Write(Level.Information, ">>> Reading schema from {0} database", schemaLoader.VendorName);
+				dbSchema = schemaLoader.Load(parameters.Database, tableAliases,
+					new NameFormat { Case = Case.PascalCase, Pluralize = parameters.Pluralize, Culture = new CultureInfo(parameters.Culture) },
+					parameters.SProcs);
+				dbSchema.Provider = parameters.Provider;
+				dbSchema.Tables.Sort(new LambdaComparer<Table>((x, y) => (x.Type.Name.CompareTo(y.Type.Name))));
+				foreach (var table in dbSchema.Tables)
+					table.Type.Columns.Sort(new LambdaComparer<Column>((x, y) => (x.Member.CompareTo(y.Member))));
+				dbSchema.Functions.Sort(new LambdaComparer<Function>((x, y) => (x.Method.CompareTo(y.Method))));
+				SchemaPostprocess.PostProcess_DB(dbSchema);
+			}
+			else // load DBML
+				dbSchema = LoadSchema(parameters.SchemaXmlFile);
+			return dbSchema;
+		}
 
-        private void PrintUsage(Parameters parameters)
-        {
-            parameters.WriteHelp();
-        }
-    }
+		public Database LoadSchema(string filename)
+		{
+			Logger.Write(Level.Information, ">>> Reading schema from DBML file '{0}'", filename);
+			using (Stream dbmlFile = File.OpenRead(filename))
+			{
+				return DbmlSerializer.Read(dbmlFile);
+			}
+		}
+
+		private void PrintUsage(Parameters parameters)
+		{
+			parameters.WriteHelp();
+		}
+	}
 }

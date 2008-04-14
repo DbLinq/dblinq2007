@@ -23,10 +23,25 @@ namespace VisualMetal
 {
 	public partial class MainWindow : Window
 	{
-        public IProcessor Program = ObjectFactory.Get<IProcessor>();
+		public IProcessor Program = ObjectFactory.Get<IProcessor>();
 		public Parameters Parameters = new Parameters();
 		public ISchemaLoader Loader;
-		public Database Database;
+		
+		Database database;
+		public Database Database
+		{
+			get
+			{
+				return database;
+			}
+			set
+			{
+				database = value;
+
+				TableList.ItemsSource = Database.Table;
+				SchemaPropertyGrid.SelectedObject = Database;
+			}
+		}
 
 		public MainWindow()
 		{
@@ -56,36 +71,13 @@ namespace VisualMetal
 			new LoginWindow(this).ShowDialog();
 		}
 
-		public bool LoadSchema()
+		private void Open_Click(object sender, RoutedEventArgs e)
 		{
-			try
+			var dialog = new System.Windows.Forms.OpenFileDialog();
+			dialog.Filter = "Database markup files (*.dbml)|*.dbml|All files (*.*)|*.*";
+			if (dialog.ShowDialog() != System.Windows.Forms.DialogResult.Cancel)
 			{
-				Loader = new SchemaLoaderFactory().Load(Parameters);
-				Database = Program.LoadSchema(Parameters, Loader);
-
-				TableList.ItemsSource = Database.Table;
-			}
-			catch (Exception exception)
-			{
-				MessageBox.Show(exception.ToString());
-				return false;
-			}
-			return true;
-		}
-
-		private void Exit_Click(object sender, RoutedEventArgs e)
-		{
-			Close();
-		}
-
-		private void TableList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-		{
-			if (e.AddedItems.Count == 0)
-				ColumnList.ItemsSource = null;
-			else
-			{
-				DbLinq.Schema.Dbml.Table selected = (DbLinq.Schema.Dbml.Table)e.AddedItems[0];
-				ColumnList.ItemsSource = selected.Type.Items;
+				Database = Program.LoadSchema(dialog.FileName);
 			}
 		}
 
@@ -120,24 +112,64 @@ namespace VisualMetal
 					DbLinq.Schema.DbmlSerializer.Write(dbmlFile, Database);
 		}
 
-        private void RebindTableList(object sender, RoutedEventArgs e)
-        {
-            // this is ugly, it's needed to refresh the Table.ToString calls
-            // Alternates to doing this might be implementing INotifyProvider on the table class, or not using an ItemsSource binding
-            // or maybe use a data template to display the item, instead of using ToString
-            // ideally we need a datagrid instead of a listbox
+		private void Exit_Click(object sender, RoutedEventArgs e)
+		{
+			Close();
+		}
 
-            var temp = TableList.ItemsSource;
-            TableList.ItemsSource = null;
-            TableList.ItemsSource = temp;
-        }
+		private void TableList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			if (e.AddedItems.Count == 0)
+				ColumnList.ItemsSource = null;
+			else
+			{
+				DbLinq.Schema.Dbml.Table selected = (DbLinq.Schema.Dbml.Table)e.AddedItems[0];
+				ColumnList.ItemsSource = selected.Type.Items;
+				TablePropertyGrid.SelectedObject = selected;
+			}
+		}
 
-        private void RebindColumnList(object sender, RoutedEventArgs e)
-        {
-            // this is ugly, it's needed to refresh the Column.ToString calls
-            var temp = ColumnList.ItemsSource;
-            ColumnList.ItemsSource = null;
-            ColumnList.ItemsSource = temp;
-        }
-    }
+		private void ColumnList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			if (e.AddedItems.Count > 0)
+				ColumnPropertyGrid.SelectedObject = e.AddedItems[0];
+			else
+				ColumnPropertyGrid.SelectedObject = null;
+		}
+
+		private void RebindTableList(object sender, RoutedEventArgs e)
+		{
+			// this is ugly, it's needed to refresh the Table.ToString calls
+			// Alternates to doing this might be implementing INotifyProvider on the table class, or not using an ItemsSource binding
+			// or maybe use a data template to display the item, instead of using ToString
+			// ideally we need a datagrid instead of a listbox
+
+			var temp = TableList.ItemsSource;
+			TableList.ItemsSource = null;
+			TableList.ItemsSource = temp;
+		}
+
+		private void RebindColumnList(object sender, RoutedEventArgs e)
+		{
+			// this is ugly, it's needed to refresh the Column.ToString calls
+			var temp = ColumnList.ItemsSource;
+			ColumnList.ItemsSource = null;
+			ColumnList.ItemsSource = temp;
+		}
+
+		public bool LoadSchema()
+		{
+			try
+			{
+				Loader = new SchemaLoaderFactory().Load(Parameters);
+				Database = Program.LoadSchema(Parameters, Loader);
+			}
+			catch (Exception exception)
+			{
+				MessageBox.Show(exception.ToString());
+				return false;
+			}
+			return true;
+		}
+	}
 }

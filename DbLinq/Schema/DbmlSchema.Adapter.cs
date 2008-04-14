@@ -320,7 +320,7 @@ namespace DbLinq.Schema.Dbml
 
 		public override string ToString()
 		{
-			return Columns.Count + " columns";
+			return Columns.Count + " Columns";
 		}
 	}
 
@@ -397,6 +397,11 @@ namespace DbLinq.Schema.Dbml
 		public Association()
 		{
 			SpecifiedHelper.Register(this);
+		}
+
+		public override string ToString()
+		{
+			return Name;
 		}
 	}
 
