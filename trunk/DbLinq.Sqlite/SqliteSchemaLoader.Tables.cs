@@ -32,7 +32,7 @@ namespace DbLinq.Sqlite
 {
     partial class SqliteSchemaLoader
     {
-        public override IList<IDataName> LoadTablesSchema(IDbConnection connectionString, string databaseName)
+        public override IList<IDataName> ReadTables(IDbConnection connectionString, string databaseName)
         {
             // note: the ReadDataNameAndSchema relies on information order
             const string sql = @" SELECT tbl_name, 'main' FROM sqlite_master WHERE type='table' order by tbl_name";

@@ -33,7 +33,7 @@ namespace DbLinq.Oracle
 {
     public partial class OracleSchemaLoader
     {
-        public override IList<IDataName> LoadTablesSchema(IDbConnection connectionString, string databaseName)
+        public override IList<IDataName> ReadTables(IDbConnection connectionString, string databaseName)
         {
             // note: the ReadDataNameAndSchema relies on information order
             const string sql = @"
