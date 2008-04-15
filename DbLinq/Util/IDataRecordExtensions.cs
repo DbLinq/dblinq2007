@@ -64,7 +64,7 @@ namespace DbLinq.Util
                 if (lb == "Y" || lb == "N")
                     return lb == "Y";
             }
-            return GetAsNumeric<int>(dataRecord, index) != 0;
+            return dataRecord.GetAsNumeric<int>(index) != 0;
         }
 
         public static char GetAsChar(this IDataRecord dataRecord, int index)
@@ -90,12 +90,20 @@ namespace DbLinq.Util
             return GetAsNumeric<U>(dataRecord.GetValue(index));
         }
 
+        public static U? GetAsNullableNumeric<U>(this IDataRecord dataRecord, int index)
+            where U: struct
+        {
+            if (dataRecord.IsDBNull(index))
+                return null;
+            return GetAsNumeric<U>(dataRecord.GetValue(index));
+        }
+
         private static U GetAsNumeric<U>(object o)
         {
             if (o is U)
                 return (U)o;
             if (o == null || o is DBNull)
-                return (U)Convert.ChangeType(0, typeof(U)); // this is a trick, since I found no simple way to do the cas
+                return default(U);
             string methodName = string.Format("To{0}", typeof(U).Name);
             MethodInfo convertMethod = typeof(Convert).GetMethod(methodName, new Type[] { o.GetType() });
             if (convertMethod != null)
@@ -105,7 +113,7 @@ namespace DbLinq.Util
 
         public static object GetAsEnum(this IDataRecord dataRecord, Type enumType, int index)
         {
-            int enumAsInt = GetAsNumeric<int>(dataRecord, index);
+            int enumAsInt = dataRecord.GetAsNumeric<int>(index);
             return enumAsInt;
         }
 

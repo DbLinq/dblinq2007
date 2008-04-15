@@ -24,42 +24,13 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
-namespace DbLinq.Vendor
-{
-    /// <summary>
-    /// Represents a database data type
-    /// </summary>
-    public interface IDataType
-    {
-        /// <summary>
-        /// The base type, like 'number', 'varchar'
-        /// </summary>
-        string Type { get; set; }
-        /// <summary>
-        /// For all types, the possibility to have a NULL
-        /// </summary>
-        bool Nullable { get; set; }
-        /// <summary>
-        /// On non numeric data types, the length (for strings or blobs)
-        /// </summary>
-        long? Length { get; set; }
-        /// <summary>
-        /// On numeric data types, the number of digits in the integer part
-        /// </summary>
-        int? Precision { get; set; }
-        /// <summary>
-        /// On numeric data types, the number of digits in the decimal part
-        /// </summary>
-        int? Scale { get; set; }
-        /// <summary>
-        /// On numeric data types, if there is a sign
-        /// </summary>
-        bool? Unsigned { get; set; }
+using System.Collections.Generic;
+using System.Data;
 
-        /// <summary>
-        /// The original (or domain) type, returned raw by column information.
-        /// Is also used to generated the database.
-        /// </summary>
-        string FullType { get; set; }
+namespace DbLinq.Vendor.Implementation
+{
+    public partial class SchemaLoader
+    {
+        public abstract IList<IDataTableColumn> ReadColumns(IDbConnection connectionString, string databaseName);
     }
 }

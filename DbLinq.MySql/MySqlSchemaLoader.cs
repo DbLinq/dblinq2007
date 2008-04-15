@@ -74,10 +74,9 @@ namespace DbLinq.MySql
 
             //##################################################################
             //step 2 - load columns
-            ColumnSql csql = new ColumnSql();
-            List<Schema.Column> columns = csql.getColumns(conn, schemaName.DbName);
+            var columns = ReadColumns(conn, schemaName.DbName);
 
-            foreach (Schema.Column columnRow in columns)
+            foreach (var columnRow in columns)
             {
                 var columnName = CreateColumnName(columnRow.ColumnName, nameFormat);
                 names.AddColumn(columnRow.TableName, columnName);
@@ -97,7 +96,7 @@ namespace DbLinq.MySql
 
                 //sample input: columnRow.column_type="varchar(15)", coloumRow.datatype="varchar"
                 //colSchema.DbType = columnRow.datatype;
-                string dbType = columnRow.column_type;
+                string dbType = columnRow.FullType;
 
                 // TODO picrap: this is in theory useless, check and remove
                 dbType = dbType.Replace("int(11)", "int") //remove some default sizes
@@ -107,9 +106,9 @@ namespace DbLinq.MySql
                     ;
                 colSchema.DbType = dbType;
 
-                if (columnRow.column_key == "PRI")
-                    colSchema.IsPrimaryKey = true;
-                if (columnRow.extra == "auto_increment")
+                if (columnRow.PrimaryKey.HasValue)
+                    colSchema.IsPrimaryKey = columnRow.PrimaryKey.Value;
+                if (columnRow.DefaultValue == "auto_increment")
                     colSchema.IsDbGenerated = true;
                 colSchema.CanBeNull = columnRow.Nullable;
 

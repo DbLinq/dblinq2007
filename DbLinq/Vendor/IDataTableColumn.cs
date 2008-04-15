@@ -35,14 +35,27 @@ namespace DbLinq.Vendor
         /// The column name
         /// </summary>
         string ColumnName { get; set; }
+
         /// <summary>
         /// The table to which belongs the column
         /// </summary>
         string TableName { get; set; }
+
         /// <summary>
         /// The table schema to which belongs the column
         /// </summary>
         string TableSchema { get; set; }
 
+        /// <summary>
+        /// Used to determine if the column is a primary key.
+        /// May be null, because some vendors don't show this as a column property (Oracle for example) but as table constraints
+        /// </summary>
+        bool? PrimaryKey { get; set; }
+
+        /// <summary>
+        /// The value assigned when nothing is specified in insert.
+        /// Sometimes use to determine if a column is a sequence.
+        /// </summary>
+        string DefaultValue { get; set; }
     }
 }

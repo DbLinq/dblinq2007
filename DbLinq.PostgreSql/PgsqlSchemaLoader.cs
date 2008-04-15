@@ -60,19 +60,9 @@ namespace DbLinq.PostgreSql
 
             //##################################################################
             //step 2 - load columns
-            ColumnSql csql = new ColumnSql();
-            List<Schema.Column> columns = csql.getColumns(conn, schemaName.DbName);
+            var columns = ReadColumns(conn, schemaName.DbName);
 
-            KeyColumnUsageSql ksql = new KeyColumnUsageSql();
-            List<KeyColumnUsage> constraints = ksql.getConstraints(conn, schemaName.DbName);
-            ForeignKeySql fsql = new ForeignKeySql();
-
-            List<ForeignKeyCrossRef> allKeys2 = fsql.getConstraints(conn, schemaName.DbName);
-            List<ForeignKeyCrossRef> foreignKeys = allKeys2.Where(k => k.constraint_type == "FOREIGN KEY").ToList();
-            List<ForeignKeyCrossRef> primaryKeys = allKeys2.Where(k => k.constraint_type == "PRIMARY KEY").ToList();
-
-
-            foreach (Schema.Column columnRow in columns)
+            foreach (var columnRow in columns)
             {
                 var columnName = CreateColumnName(columnRow.ColumnName, nameFormat);
                 names.AddColumn(columnRow.TableName, columnName);
@@ -89,18 +79,18 @@ namespace DbLinq.PostgreSql
                 colSchema.Name = columnName.DbName;
                 colSchema.Member = columnName.PropertyName;
                 colSchema.Storage = columnName.StorageFieldName;
-                colSchema.DbType = columnRow.DataTypeWithWidth; //columnRow.datatype;
+                colSchema.DbType = columnRow.FullType; //columnRow.datatype;
 
-                KeyColumnUsage primaryKCU = constraints.FirstOrDefault(c => c.column_name == columnRow.ColumnName
-                    && c.table_name == columnRow.TableName && c.constraint_name.EndsWith("_pkey"));
-                if (primaryKCU != null) //columnRow.column_key=="PRI";
-                    colSchema.IsPrimaryKey = true;
-                if (columnRow.column_default != null && columnRow.column_default.StartsWith("nextval("))
+                //KeyColumnUsage primaryKCU = constraints.FirstOrDefault(c => c.column_name == columnRow.ColumnName
+                //    && c.table_name == columnRow.TableName && c.constraint_name.EndsWith("_pkey"));
+                //if (primaryKCU != null) //columnRow.column_key=="PRI";
+                //    colSchema.IsPrimaryKey = true;
+                if (columnRow.DefaultValue != null && columnRow.DefaultValue.StartsWith("nextval("))
                     colSchema.IsDbGenerated = true;
 
                 //parse sequence name from string such as "nextval('suppliers_supplierid_seq'::regclass)"
                 if (colSchema.IsDbGenerated)
-                    colSchema.Expression = columnRow.column_default.Replace("::regclass)", ")");
+                    colSchema.Expression = columnRow.DefaultValue.Replace("::regclass)", ")");
 
                 //colSchema.IsVersion = ???
                 colSchema.CanBeNull = columnRow.Nullable;
@@ -120,6 +110,15 @@ namespace DbLinq.PostgreSql
             //step 3 - analyse foreign keys etc
 
             //TableSorter.Sort(tables, constraints); //sort tables - parents first
+
+            KeyColumnUsageSql ksql = new KeyColumnUsageSql();
+            List<KeyColumnUsage> constraints = ksql.getConstraints(conn, schemaName.DbName);
+            ForeignKeySql fsql = new ForeignKeySql();
+
+            List<ForeignKeyCrossRef> allKeys2 = fsql.getConstraints(conn, schemaName.DbName);
+            List<ForeignKeyCrossRef> foreignKeys = allKeys2.Where(k => k.constraint_type == "FOREIGN KEY").ToList();
+            List<ForeignKeyCrossRef> primaryKeys = allKeys2.Where(k => k.constraint_type == "PRIMARY KEY").ToList();
+
 
             foreach (KeyColumnUsage keyColRow in constraints)
             {

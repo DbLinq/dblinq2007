@@ -62,10 +62,9 @@ namespace DbLinq.Ingres
 
             //##################################################################
             //step 2 - load columns
-            ColumnSql csql = new ColumnSql();
-            List<Schema.Column> columns = csql.getColumns(conn, schemaName.DbName);
+            var columns = ReadColumns(conn, schemaName.DbName);
 
-            foreach (Schema.Column columnRow in columns)
+            foreach (var columnRow in columns)
             {
                 var columnName = CreateColumnName(columnRow.ColumnName, nameFormat);
                 names.AddColumn(columnRow.TableName, columnName);
@@ -82,14 +81,14 @@ namespace DbLinq.Ingres
                 colSchema.Name = columnName.DbName;
                 colSchema.Member = columnName.PropertyName;
                 colSchema.Storage = columnName.StorageFieldName;
-                colSchema.DbType = columnRow.DataTypeWithWidth; //columnRow.Type;
+                colSchema.DbType = columnRow.FullType; //columnRow.Type;
 
                 colSchema.IsPrimaryKey = false;
 
-                if (columnRow.column_default != null && columnRow.column_default.StartsWith("next value for"))
+                if (columnRow.DefaultValue != null && columnRow.DefaultValue.StartsWith("next value for"))
                 {
                     colSchema.IsDbGenerated = true;
-                    colSchema.Expression = columnRow.column_default;
+                    colSchema.Expression = columnRow.DefaultValue;
                 }
 
                 //colSchema.IsVersion = ???

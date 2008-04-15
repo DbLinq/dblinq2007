@@ -54,13 +54,11 @@
       <Link>Properties\DbLinq.ProductInfo.cs</Link>
     </Compile>
     <Compile Include="MySqlDataContext.cs" />
+    <Compile Include="MySqlSchemaLoader.Columns.cs" />
     <Compile Include="MySqlSchemaLoader.cs" />
     <Compile Include="MySqlSchemaLoader.Tables.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MySqlVendor.cs" />
-    <Compile Include="Schema\ColumnSql.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Schema\KeyColumnUsageSql.cs">
       <SubType>Code</SubType>
     </Compile>

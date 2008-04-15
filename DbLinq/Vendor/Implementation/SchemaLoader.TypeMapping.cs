@@ -32,10 +32,17 @@ namespace DbLinq.Vendor.Implementation
 {
     public partial class SchemaLoader
     {
+        /// <summary>
+        /// This class is used as fallback when no matching type was found.
+        /// If we have the case, then something is missing from DbMetal
+        /// </summary>
         public class UnknownType
         {
         }
 
+        /// <summary>
+        /// Default IDataType implementation (see IDataType for details)
+        /// </summary>
         public class DataType : IDataType
         {
             public virtual string Type { get; set; }
@@ -44,6 +51,7 @@ namespace DbLinq.Vendor.Implementation
             public virtual int? Precision { get; set; }
             public virtual int? Scale { get; set; }
             public virtual bool? Unsigned { get; set; }
+            public string FullType { get; set; }
         }
 
         protected virtual Type MapDbType(IDataType dataType)
