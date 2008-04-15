@@ -72,10 +72,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\lib\System.Data.SQLite.DLL</HintPath>
     </Reference>
-    <Reference Include="System.XML" />
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\DbLinq.ProductInfo.cs">
@@ -100,6 +97,8 @@
     <Compile Include="Generator\ISchemaLoaderFactory.cs" />
     <Compile Include="Generator\SpecificationDefinition.cs" />
     <Compile Include="Generator\ParameterDefinition.cs" />
+    <Compile Include="Schema\DbmlRename.cs" />
+    <Compile Include="Schema\DbmlRenameLoader.cs" />
     <Compile Include="Utility\VariablesExtension.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="AbstractParameters.cs" />
@@ -116,6 +115,10 @@
       <Link>Properties\DbLinq.snk</Link>
     </None>
     <None Include="App.config" />
+    <None Include="NorthwindRename.dbml">
+      <LastGenOutput>NorthwindRename.designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DbLinq.Ingres\DbLinq.Ingres.csproj">
