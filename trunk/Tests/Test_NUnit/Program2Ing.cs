@@ -48,11 +48,6 @@ namespace Test_NUnit_Ingres
             //new ReadTest_Operands().H1_SelectConcat();
             //new Linq_101_Samples.String_Date_functions().LinqToSqlString01();
 
-            // Ingres does not support booleans. there needs to be some workaround...
-            // Both these tests fail due to this
-            //new Linq_101_Samples.AdvancedTest().LinqToSqlAdvanced06();
-            //new Linq_101_Samples.Count_Sum_Min_Max_Avg().LinqToSqlCount02();
-
             // NullRef exception in FromClausebuilder
             //new Linq_101_Samples.Join().LinqToSqlJoin10();
 
