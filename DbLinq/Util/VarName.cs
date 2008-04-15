@@ -41,7 +41,7 @@ namespace DbLinq.Util
             //as of 2006Dec, we were using "$x".
             //That works in MySql, but not Oracle.
             //now we are switching to "x$", which works in both.
-            return csharpName+"$";
+            return (string.IsNullOrEmpty(csharpName) ? "x" : csharpName) + "$";
         }
     }
 }
