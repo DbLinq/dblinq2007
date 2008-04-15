@@ -58,19 +58,21 @@ namespace DbLinq.Ingres
 
         protected virtual IDataTableColumn ReadColumn(IDataRecord rdr)
         {
-            var t = new DataTableColumn();
+            var column = new DataTableColumn();
             int field = 0;
-            t.TableSchema = rdr.GetAsString(field++).Trim();
-            t.TableName = rdr.GetAsString(field++).Trim();
-            t.ColumnName = rdr.GetAsString(field++).Trim();
+            column.TableSchema = rdr.GetAsString(field++).Trim();
+            column.TableName = rdr.GetAsString(field++).Trim();
+            column.ColumnName = rdr.GetAsString(field++).Trim();
             string nullableStr = rdr.GetAsString(field++);
-            t.Nullable = nullableStr == "Y";
-            t.Type = rdr.GetAsString(field++).Trim();
-            t.DefaultValue = rdr.GetAsString(field++);
-            t.Length = rdr.GetAsNullableNumeric<long>(field++);
-            t.Scale = rdr.GetAsNullableNumeric<int>(field++);
-            t.FullType = GetFullType(t);
-            return t;
+            column.Nullable = nullableStr == "Y";
+            column.Type = rdr.GetAsString(field++).Trim();
+            column.DefaultValue = rdr.GetAsString(field++);
+            column.Generated = column.DefaultValue != null && column.DefaultValue.StartsWith("next value for");
+
+            column.Length = rdr.GetAsNullableNumeric<long>(field++);
+            column.Scale = rdr.GetAsNullableNumeric<int>(field++);
+            column.FullType = GetFullType(column);
+            return column;
         }
 
         public override IList<IDataTableColumn> ReadColumns(IDbConnection connectionString, string databaseName)

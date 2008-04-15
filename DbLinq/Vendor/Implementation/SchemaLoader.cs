@@ -27,6 +27,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using DbLinq.Factory;
 using DbLinq.Linq;
 using DbLinq.Linq.Implementation;
@@ -77,7 +78,7 @@ namespace DbLinq.Vendor.Implementation
             return string.Format("{0}.{1}", dbSchema, dbName);
         }
 
-        protected virtual TableName CreateTableName(string dbTableName, string dbSchema, IDictionary<string, string> tableAliases,NameFormat nameFormat)
+        protected virtual TableName CreateTableName(string dbTableName, string dbSchema, IDictionary<string, string> tableAliases, NameFormat nameFormat)
         {
             WordsExtraction extraction = GetExtraction(dbTableName);
             // if we have an alias, use it, and don't try to analyze it (a human probably already did the job)
@@ -86,19 +87,19 @@ namespace DbLinq.Vendor.Implementation
                 extraction = WordsExtraction.FromCase;
                 dbTableName = tableAliases[dbTableName];
             }
-            var tableName = NameFormatter.GetTableName(dbTableName, extraction,nameFormat);
+            var tableName = NameFormatter.GetTableName(dbTableName, extraction, nameFormat);
             tableName.DbName = GetFullDbName(dbTableName, dbSchema);
             return tableName;
         }
 
-        protected virtual ColumnName CreateColumnName(string dbColumnName,NameFormat nameFormat)
+        protected virtual ColumnName CreateColumnName(string dbColumnName, NameFormat nameFormat)
         {
-            return NameFormatter.GetColumnName(dbColumnName, GetExtraction(dbColumnName),nameFormat);
+            return NameFormatter.GetColumnName(dbColumnName, GetExtraction(dbColumnName), nameFormat);
         }
 
-        protected virtual ProcedureName CreateProcedureName(string dbProcedureName, string dbSchema,NameFormat nameFormat)
+        protected virtual ProcedureName CreateProcedureName(string dbProcedureName, string dbSchema, NameFormat nameFormat)
         {
-            var procedureName = NameFormatter.GetProcedureName(dbProcedureName, GetExtraction(dbProcedureName),nameFormat);
+            var procedureName = NameFormatter.GetProcedureName(dbProcedureName, GetExtraction(dbProcedureName), nameFormat);
             procedureName.DbName = GetFullDbName(dbProcedureName, dbSchema);
             return procedureName;
         }
@@ -153,6 +154,44 @@ namespace DbLinq.Vendor.Implementation
                 table.Member = tableName.MemberName;
                 table.Type.Name = tableName.ClassName;
                 schema.Tables.Add(table);
+            }
+        }
+
+        protected void LoadColumns(Database schema, SchemaName schemaName, IDbConnection conn, NameFormat nameFormat, Names names)
+        {
+            var columns = ReadColumns(conn, schemaName.DbName);
+            foreach (var columnRow in columns)
+            {
+                var columnName = CreateColumnName(columnRow.ColumnName, nameFormat);
+                names.AddColumn(columnRow.TableName, columnName);
+
+                //find which table this column belongs to
+                string fullColumnDbName = GetFullDbName(columnRow.TableName, columnRow.TableSchema);
+                DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => fullColumnDbName == tblSchema.Name);
+                if (tableSchema == null)
+                {
+                    Logger.Write(Level.Error, "ERROR L46: Table '" + columnRow.TableName + "' not found for column " + columnRow.ColumnName);
+                    continue;
+                }
+                var colSchema = new Column();
+                colSchema.Name = columnName.DbName;
+                colSchema.Member = columnName.PropertyName;
+                colSchema.Storage = columnName.StorageFieldName;
+                colSchema.DbType = columnRow.FullType;
+
+                if (columnRow.PrimaryKey.HasValue)
+                    colSchema.IsPrimaryKey = columnRow.PrimaryKey.Value;
+
+                if (columnRow.Generated.HasValue)
+                    colSchema.IsDbGenerated = columnRow.Generated.Value;
+
+                if (colSchema.IsDbGenerated)
+                    colSchema.Expression = columnRow.DefaultValue;
+
+                colSchema.CanBeNull = columnRow.Nullable;
+                colSchema.Type = MapDbType(columnRow).ToString();
+
+                tableSchema.Type.Columns.Add(colSchema);
             }
         }
     }

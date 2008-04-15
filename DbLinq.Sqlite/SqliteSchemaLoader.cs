@@ -61,58 +61,7 @@ namespace DbLinq.Sqlite
 
             LoadTables(schema, schemaName, conn, tableAliases, nameFormat, names);
 
-            //##################################################################
-            //step 2 - load columns
-            var columns = ReadColumns(conn, schemaName.DbName);
-
-            foreach (var columnRow in columns)
-            {
-                var columnName = CreateColumnName(columnRow.ColumnName, nameFormat);
-                names.AddColumn(columnRow.TableName, columnName);
-
-                //find which table this column belongs to
-                string columnFullDbName = GetFullDbName(columnRow.TableName, columnRow.TableSchema);
-                DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnFullDbName == tblSchema.Name);
-                if (tableSchema == null)
-                {
-                    Logger.Write(Level.Error, "ERROR L46: Table '" + columnRow.TableName + "' not found for column " + columnRow.ColumnName);
-                    continue;
-                }
-                DbLinq.Schema.Dbml.Column colSchema = new DbLinq.Schema.Dbml.Column();
-                colSchema.Name = columnName.DbName;
-                colSchema.Member = columnName.PropertyName;
-                colSchema.Storage = columnName.StorageFieldName;
-
-                //sample input: columnRow.column_type="varchar(15)", coloumRow.Type="varchar"
-                //colSchema.DbType = columnRow.Type;
-                string dbType = columnRow.FullType;
-
-                dbType = dbType.Replace("int(11)", "int") //remove some default sizes
-                    .Replace("int(10) unsigned", "int unsigned")
-                    .Replace("mediumint(8) unsigned", "mediumint unsigned")
-                    .Replace("decimal(10,0)", "decimal")
-                    ;
-                colSchema.DbType = dbType;
-
-                if (columnRow.PrimaryKey.HasValue)
-                    colSchema.IsPrimaryKey = columnRow.PrimaryKey.Value;
-                //if (columnRow.extra == "auto_increment")
-                //    colSchema.IsDbGenerated = true;
-
-                colSchema.CanBeNull = columnRow.Nullable;
-
-                //determine the C# type
-                colSchema.Type = MapDbType(columnRow).ToString();
-                //if (columnRow.column_name == "DbLinq_EnumTest")
-                //    colSchema.Type = "DbLinq_EnumTest"; //hadcoded value - used during enum testing
-
-                //SQLite always autoincrement PRimary Key integers
-                if (!colSchema.IsDbGenerated && colSchema.IsPrimaryKey && (colSchema.Type == "int" || colSchema.Type == "int?"))
-                    colSchema.IsDbGenerated = true;
-
-                //tableSchema.Types[0].Columns.Add(colSchema);
-                tableSchema.Type.Columns.Add(colSchema);
-            }
+            LoadColumns(schema, schemaName, conn, nameFormat, names);
 
             //##################################################################
             //step 3 - load foreign keys etc

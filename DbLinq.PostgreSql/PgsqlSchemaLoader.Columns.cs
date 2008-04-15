@@ -33,7 +33,7 @@ namespace DbLinq.PostgreSql
 {
     partial class PgsqlSchemaLoader
     {
-        protected virtual string GetFullType(string domain_name, string domain_schema, IDataTableColumn column)
+        protected virtual string GetColumnFullType(string domain_name, string domain_schema, IDataTableColumn column)
         {
             // TODO: uncomment
             if (/* mmConfig.useDomainTypes && */domain_name != null)
@@ -46,7 +46,15 @@ namespace DbLinq.PostgreSql
             return column.Type;
         }
 
-        protected virtual IDataTableColumn fromRow(IDataReader rdr)
+        protected virtual string GetColumnDefaultValue(string defaultValue)
+        {
+            if (defaultValue == null)
+                return defaultValue;
+            // nextval('suppliers_supplierid_seq'::regclass)
+            return defaultValue.Replace("::regclass)", ")");
+        }
+
+        protected virtual IDataTableColumn ReadColumn(IDataReader rdr)
         {
             var column = new DataTableColumn();
             int field = 0;
@@ -58,13 +66,14 @@ namespace DbLinq.PostgreSql
             column.Type = rdr.GetAsString(field++);
             var domain_schema = rdr.GetAsString(field++);
             var domain_name = rdr.GetAsString(field++);
-            column.DefaultValue = rdr.GetAsString(field++);
+            column.DefaultValue = GetColumnDefaultValue(rdr.GetAsString(field++));
+            column.Generated = column.DefaultValue != null && column.DefaultValue.StartsWith("nextval(");
 
             column.Length = rdr.GetAsNullableNumeric<long>(field++);
             column.Precision = rdr.GetAsNullableNumeric<int>(field++);
             column.Scale = rdr.GetAsNullableNumeric<int>(field++);
 
-            column.FullType = GetFullType(domain_name, domain_schema, column);
+            column.FullType = GetColumnFullType(domain_name, domain_schema, column);
 
             return column;
         }
@@ -81,7 +90,7 @@ WHERE table_catalog=:db
 ORDER BY ordinal_position
 ";
 
-            return DataCommand.Find<IDataTableColumn>(connectionString, sql, ":db", databaseName, fromRow);
+            return DataCommand.Find<IDataTableColumn>(connectionString, sql, ":db", databaseName, ReadColumn);
         }
     }
 }

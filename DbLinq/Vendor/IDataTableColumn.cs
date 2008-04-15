@@ -57,5 +57,10 @@ namespace DbLinq.Vendor
         /// Sometimes use to determine if a column is a sequence.
         /// </summary>
         string DefaultValue { get; set; }
+
+        /// <summary>
+        /// Determines if the column value is generated when there is no value given in insert
+        /// </summary>
+        bool? Generated { get; set; }
     }
 }

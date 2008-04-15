@@ -60,53 +60,7 @@ namespace DbLinq.Oracle
 
             LoadTables(schema, schemaName, conn, tableAliases, nameFormat, names);
 
-            //ensure all table schemas contain one type:
-            //foreach(DbLinq.Schema.Dbml.Table tblSchema in schema0.Tables)
-            //{
-            //    tblSchema.Types.Add( new DbLinq.Schema.Dbml.Type());
-            //}
-
-            //##################################################################
-            //step 2 - load columns
-            var columns = ReadColumns(conn, schemaName.DbName);
-
-            foreach (var columnRow in columns)
-            {
-                var columnName = CreateColumnName(columnRow.ColumnName, nameFormat);
-                names.AddColumn(columnRow.TableName, columnName);
-
-                //find which table this column belongs to
-                string columnFullDbName = GetFullDbName(columnRow.TableName, columnRow.TableSchema);
-                DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnFullDbName == tblSchema.Name);
-                if (tableSchema == null)
-                {
-                    Logger.Write(Level.Error, "ERROR L46: Table '" + columnRow.TableName + "' not found for column " + columnRow.ColumnName);
-                    continue;
-                }
-                DbLinq.Schema.Dbml.Column colSchema = new DbLinq.Schema.Dbml.Column();
-                colSchema.Name = columnName.DbName;
-                colSchema.Member = columnName.PropertyName;
-                colSchema.Storage = columnName.StorageFieldName;
-
-                colSchema.DbType = columnRow.Type; //.column_type ?
-                //colSchema.IsPrimaryKey = false;
-                //colSchema.IsDbGenerated = false;
-                //colSchema.IsVersion = ???
-                colSchema.CanBeNull = columnRow.Nullable;
-
-                colSchema.Type = MapDbType(columnRow).ToString();
-
-                //bool isPossibleBoolean = columnRow.Type == "NUMBER(1)"
-                //    || columnRow.Type == "NUMBER";
-                //if (isPossibleBoolean && columnRow.column_name == "DISCONTINUED")
-                //{
-                //    //hack to support Northwind boolean fields out of the box
-                //    colSchema.Type = "bool";
-                //}
-
-                //tableSchema.Types[0].Columns.Add(colSchema);
-                tableSchema.Type.Columns.Add(colSchema);
-            }
+            LoadColumns(schema, schemaName, conn, nameFormat, names);
 
             //##################################################################
             //step 3 - load foreign keys etc

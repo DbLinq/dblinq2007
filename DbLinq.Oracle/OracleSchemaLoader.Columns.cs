@@ -35,18 +35,19 @@ namespace DbLinq.Oracle
     {
         protected virtual IDataTableColumn ReadColumn(IDataReader rdr)
         {
-            var t = new DataTableColumn();
+            var column = new DataTableColumn();
             int field = 0;
-            t.TableSchema = rdr.GetString(field++);
-            t.TableName = rdr.GetString(field++);
-            t.ColumnName = rdr.GetString(field++);
-            t.Type = rdr.GetString(field++);
-            t.Length = rdr.GetAsNullableNumeric<long>(field++);
-            t.Precision = rdr.GetAsNullableNumeric<int>(field++); 
-            t.Scale = rdr.GetAsNullableNumeric<int>(field++);
+            column.TableSchema = rdr.GetString(field++);
+            column.TableName = rdr.GetString(field++);
+            column.ColumnName = rdr.GetString(field++);
+            column.Type = rdr.GetString(field++);
+            column.Length = rdr.GetAsNullableNumeric<long>(field++);
+            column.Precision = rdr.GetAsNullableNumeric<int>(field++);
+            column.Scale = rdr.GetAsNullableNumeric<int>(field++);
             string nullableStr = rdr.GetString(field++);
-            t.Nullable = nullableStr == "Y";
-            return t;
+            column.Nullable = nullableStr == "Y";
+            column.FullType = column.Type;
+            return column;
         }
 
         public override IList<IDataTableColumn> ReadColumns(IDbConnection connectionString, string databaseName)
