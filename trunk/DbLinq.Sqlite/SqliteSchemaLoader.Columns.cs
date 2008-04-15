@@ -35,15 +35,16 @@ namespace DbLinq.Sqlite
     {
         protected virtual IDataTableColumn ReadColumn(IDataReader dataReader, string table)
         {
-            var t = new DataTableColumn();
-            t.TableSchema = "main";
-            t.TableName = table;
-            t.ColumnName = dataReader.GetString(1);
-            t.UnpackRawDbType(dataReader.GetString(2));
-            t.FullType = dataReader.GetString(2);
-            t.Nullable = dataReader.GetInt64(3) == 0;
-            t.PrimaryKey = dataReader.GetInt64(5) == 1;
-            return t;
+            var column = new DataTableColumn();
+            column.TableSchema = "main";
+            column.TableName = table;
+            column.ColumnName = dataReader.GetString(1);
+            column.UnpackRawDbType(dataReader.GetString(2));
+            column.FullType = dataReader.GetString(2);
+            column.Nullable = dataReader.GetInt64(3) == 0;
+            column.PrimaryKey = dataReader.GetInt64(5) == 1;
+            column.Generated = column.PrimaryKey.Value && MapDbType(column) == typeof(int);
+            return column;
         }
 
         public override IList<IDataTableColumn> ReadColumns(IDbConnection connectionString, string databaseName)

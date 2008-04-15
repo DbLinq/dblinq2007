@@ -58,54 +58,7 @@ namespace DbLinq.PostgreSql
 
             LoadTables(schema, schemaName, conn, tableAliases, nameFormat, names);
 
-            //##################################################################
-            //step 2 - load columns
-            var columns = ReadColumns(conn, schemaName.DbName);
-
-            foreach (var columnRow in columns)
-            {
-                var columnName = CreateColumnName(columnRow.ColumnName, nameFormat);
-                names.AddColumn(columnRow.TableName, columnName);
-
-                //find which table this column belongs to
-                string columnFullDbName = GetFullDbName(columnRow.TableName, columnRow.TableSchema);
-                DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnFullDbName == tblSchema.Name);
-                if (tableSchema == null)
-                {
-                    Logger.Write(Level.Error, "ERROR L46: Table '" + columnRow.TableName + "' not found for column " + columnRow.ColumnName);
-                    continue;
-                }
-                var colSchema = new DbLinq.Schema.Dbml.Column();
-                colSchema.Name = columnName.DbName;
-                colSchema.Member = columnName.PropertyName;
-                colSchema.Storage = columnName.StorageFieldName;
-                colSchema.DbType = columnRow.FullType; //columnRow.datatype;
-
-                //KeyColumnUsage primaryKCU = constraints.FirstOrDefault(c => c.column_name == columnRow.ColumnName
-                //    && c.table_name == columnRow.TableName && c.constraint_name.EndsWith("_pkey"));
-                //if (primaryKCU != null) //columnRow.column_key=="PRI";
-                //    colSchema.IsPrimaryKey = true;
-                if (columnRow.DefaultValue != null && columnRow.DefaultValue.StartsWith("nextval("))
-                    colSchema.IsDbGenerated = true;
-
-                //parse sequence name from string such as "nextval('suppliers_supplierid_seq'::regclass)"
-                if (colSchema.IsDbGenerated)
-                    colSchema.Expression = columnRow.DefaultValue.Replace("::regclass)", ")");
-
-                //colSchema.IsVersion = ???
-                colSchema.CanBeNull = columnRow.Nullable;
-                colSchema.Type = MapDbType(columnRow).ToString();
-
-                if (columnRow.ColumnName == "employeetype" && columnRow.TableName == "employee" && schemaName.DbName == "Andrus")
-                {
-                    //Andrus DB - Employee table: hardcoded for testing of vertical Partitioning
-                    colSchema.IsDiscriminator = true;
-                }
-
-                //tableSchema.Types[0].Columns.Add(colSchema);
-                tableSchema.Type.Columns.Add(colSchema);
-            }
-
+            LoadColumns(schema, schemaName, conn, nameFormat, names);
             //##################################################################
             //step 3 - analyse foreign keys etc
 

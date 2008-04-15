@@ -36,25 +36,37 @@ namespace DbLinq.MySql
 {
     partial class MySqlSchemaLoader
     {
-        protected virtual IDataTableColumn fromRow(IDataReader rdr)
+        protected virtual string FormatFullType(string fullType)
         {
-            var t = new DataTableColumn();
+            fullType = fullType.Replace("int(11)", "int") //remove some default sizes
+                .Replace("int(10) unsigned", "int unsigned")
+                .Replace("mediumint(8) unsigned", "mediumint unsigned")
+                .Replace("decimal(10,0)", "decimal")
+                ;
+            return fullType;
+        }
+
+        protected virtual IDataTableColumn ReadColumn(IDataReader rdr)
+        {
+            var column = new DataTableColumn();
             int field = 0;
-            t.TableSchema = rdr.GetAsString(field++);
-            t.TableName = rdr.GetAsString(field++);
-            t.ColumnName = rdr.GetAsString(field++);
+            column.TableSchema = rdr.GetAsString(field++);
+            column.TableName = rdr.GetAsString(field++);
+            column.ColumnName = rdr.GetAsString(field++);
             string nullableStr = rdr.GetAsString(field++);
-            t.Nullable = nullableStr == "YES";
-            t.Type = rdr.GetAsString(field++);
-            t.DefaultValue = rdr.GetAsString(field++); // picrap TODO: this is NOT the default value, so find a way to also collect the default value
-            t.FullType = rdr.GetAsString(field++);
-            t.Unsigned = t.FullType.Contains("unsigned");
+            column.Nullable = nullableStr == "YES";
+            column.Type = rdr.GetAsString(field++);
+            var extra = rdr.GetAsString(field++); 
+            column.Generated = extra == "auto_increment";
+            column.FullType = FormatFullType(rdr.GetAsString(field++));
+            column.Unsigned = column.FullType.Contains("unsigned");
             string columnKey = rdr.GetAsString(field++);
-            t.PrimaryKey = columnKey == "PRI";
-            t.Length = rdr.GetAsNullableNumeric<long>(field++);
-            t.Precision = rdr.GetAsNullableNumeric<int>(field++);
-            t.Scale = rdr.GetAsNullableNumeric<int>(field++);
-            return t;
+            column.PrimaryKey = columnKey == "PRI";
+            column.Length = rdr.GetAsNullableNumeric<long>(field++);
+            column.Precision = rdr.GetAsNullableNumeric<int>(field++);
+            column.Scale = rdr.GetAsNullableNumeric<int>(field++);
+            column.DefaultValue = rdr.GetAsString(field++);
+            return column;
         }
 
         public override IList<IDataTableColumn> ReadColumns(IDbConnection connectionString, string databaseName)
@@ -62,11 +74,12 @@ namespace DbLinq.MySql
             const string sql = @"
 SELECT table_schema,table_name,column_name
     ,is_nullable,data_type,extra,column_type
-    ,column_key,character_maximum_length,numeric_precision,numeric_scale
+    ,column_key,character_maximum_length,numeric_precision,numeric_scale,
+    column_default
 FROM information_schema.`COLUMNS`
 WHERE table_schema=?db";
 
-            return DataCommand.Find<IDataTableColumn>(connectionString, sql, "?db", databaseName, fromRow);
+            return DataCommand.Find<IDataTableColumn>(connectionString, sql, "?db", databaseName, ReadColumn);
         }
     }
 }

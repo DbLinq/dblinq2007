@@ -60,44 +60,7 @@ namespace DbLinq.Ingres
 
             LoadTables(schema, schemaName, conn, tableAliases, nameFormat, names);
 
-            //##################################################################
-            //step 2 - load columns
-            var columns = ReadColumns(conn, schemaName.DbName);
-
-            foreach (var columnRow in columns)
-            {
-                var columnName = CreateColumnName(columnRow.ColumnName, nameFormat);
-                names.AddColumn(columnRow.TableName, columnName);
-
-                //find which table this column belongs to
-                string fullColumnDbName = GetFullDbName(columnRow.TableName, columnRow.TableSchema);
-                DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => fullColumnDbName == tblSchema.Name);
-                if (tableSchema == null)
-                {
-                    Console.WriteLine("ERROR L46: Table '" + columnRow.TableName + "' not found for column " + columnRow.ColumnName);
-                    continue;
-                }
-                DbLinq.Schema.Dbml.Column colSchema = new DbLinq.Schema.Dbml.Column();
-                colSchema.Name = columnName.DbName;
-                colSchema.Member = columnName.PropertyName;
-                colSchema.Storage = columnName.StorageFieldName;
-                colSchema.DbType = columnRow.FullType; //columnRow.Type;
-
-                colSchema.IsPrimaryKey = false;
-
-                if (columnRow.DefaultValue != null && columnRow.DefaultValue.StartsWith("next value for"))
-                {
-                    colSchema.IsDbGenerated = true;
-                    colSchema.Expression = columnRow.DefaultValue;
-                }
-
-                //colSchema.IsVersion = ???
-                colSchema.CanBeNull = columnRow.Nullable;
-                colSchema.Type = MapDbType(columnRow).ToString();
-
-                //tableSchema.Types[0].Columns.Add(colSchema);
-                tableSchema.Type.Columns.Add(colSchema);
-            }
+            LoadColumns(schema, schemaName, conn, nameFormat, names);
 
             //##################################################################
             //step 3 - analyse foreign keys etc
