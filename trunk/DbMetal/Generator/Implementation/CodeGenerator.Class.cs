@@ -67,7 +67,8 @@ namespace DbMetal.Generator.Implementation
             {
                 WriteClassHeader(writer, table, context);
                 WriteClassProperties(writer, table, context);
-                WriteClassComparer(writer, table, context);
+                if (context.Parameters.GenerateEqualsAndHash)
+                    WriteClassComparer(writer, table, context);
                 WriteClassChildren(writer, table, schema, context);
                 WriteClassParents(writer, table, schema, context);
             }

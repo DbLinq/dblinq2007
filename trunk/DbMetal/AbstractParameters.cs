@@ -550,10 +550,11 @@ namespace DbMetal
         /// <returns></returns>
         protected virtual string GetOptionText(Option option)
         {
+            var optionName = option.Name[0].ToString().ToLower() + option.Name.Substring(1);
             if (string.IsNullOrEmpty(option.Description.ValueName))
-                return option.Name.ToLower();
+                return optionName;
             return string.Format("{0}:<{1}>",
-                option.Name[0].ToString().ToLower() + option.Name.Substring(1),
+                optionName,
                 option.Description.ValueName);
         }
 
