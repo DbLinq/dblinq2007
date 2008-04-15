@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 ////////////////////////////////////////////////////////////////////
 // MIT license:
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -27,56 +27,22 @@
 using System.Collections.Generic;
 using System.Data;
 using DbLinq.Util;
+using DbLinq.Vendor;
 using DbLinq.Vendor.Implementation;
 
-namespace DbLinq.MySql.Schema
+namespace DbLinq.MySql
 {
-    /// <summary>
-    /// class for reading from "information_schema.`TABLES`"
-    /// </summary>
-    class TableSql
+    public partial class MySqlSchemaLoader
     {
-        SchemaLoader.DataName fromRow(IDataReader rdr)
+        public override IList<IDataName> LoadTablesSchema(IDbConnection connectionString, string databaseName)
         {
-            var t = new SchemaLoader.DataName();
-            int field = 0;
-            t.Schema = rdr.GetStringN(field++);
-            t.Name = rdr.GetStringN(field++);
-            return t;
-        }
-
-        public List<SchemaLoader.DataName> getTables(IDbConnection conn, string db)
-        {
-            string sql = @"
-SELECT table_schema,table_name
+            // note: the ReadDataNameAndSchema relies on information order
+            const string sql = @"
+SELECT table_name, table_schema
 FROM information_schema.`TABLES`
 WHERE table_schema=?db";
 
-            return DataCommand.Find<SchemaLoader.DataName>(conn, sql, "?db", db, fromRow);
-        }
-    }
-
-    static class MySqlDataReaderExtensions
-    {
-        public static string GetStringN(this IDataReader rdr, int field)
-        {
-            return rdr.IsDBNull(field)
-                       ? null
-                       : rdr.GetString(field);
-        }
-
-        public static int? GetIntN(this IDataReader rdr, int field)
-        {
-            return rdr.IsDBNull(field)
-                       ? null
-                       : (int?)rdr.GetInt32(field);
-        }
-
-        public static long? GetInt64N(this IDataReader rdr, int field)
-        {
-            return rdr.IsDBNull(field)
-                       ? null
-                       : (int?)rdr.GetInt64(field);
+            return DataCommand.Find<IDataName>(connectionString, sql, "?db", databaseName, ReadDataNameAndSchema);
         }
     }
 }

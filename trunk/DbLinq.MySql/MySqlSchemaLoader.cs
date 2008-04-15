@@ -39,7 +39,7 @@ using DbLinq.Logging;
 
 namespace DbLinq.MySql
 {
-    class MySqlSchemaLoader : SchemaLoader
+    partial class MySqlSchemaLoader : SchemaLoader
     {
         private readonly IVendor vendor = new MySqlVendor();
         public override IVendor Vendor { get { return vendor; } }
@@ -72,8 +72,7 @@ namespace DbLinq.MySql
 
             //##################################################################
             //step 1 - load tables
-            TableSql tsql = new TableSql();
-            var tables = tsql.getTables(conn, schemaName.DbName);
+            var tables = LoadTablesSchema(conn, schemaName.DbName);
             if (tables == null || tables.Count == 0)
             {
                 Logger.Write(Level.Warning, "No tables found for schema " + schemaName.DbName + ", exiting");
