@@ -34,13 +34,8 @@ namespace DbLinq.MySql.Schema
     /// <summary>
     /// represents one row from information_schema.`COLUMNS`
     /// </summary>
-    public class Column: SchemaLoader.DataType
+    public class Column: SchemaLoader.DataTableColumn
     {
-        public string table_catalog;
-        public string table_schema;
-        public string table_name;
-        public string column_name;
-
         /// <summary>
         /// eg 'int' or 'datetime'
         /// </summary>
@@ -56,14 +51,9 @@ namespace DbLinq.MySql.Schema
         /// </summary>
         public string column_key;
 
-        /// <summary>
-        /// eg. for column called 'int' we use csharpName='int_'
-        /// </summary>
-        public string csharpFieldName;
-
         public override string ToString()
         {
-            return "info_schema.COLUMN: " + table_name + "." + column_name;
+            return "info_schema.COLUMN: " + TableName + "." + ColumnName;
         }
     }
 
@@ -76,10 +66,9 @@ namespace DbLinq.MySql.Schema
         {
             Column t = new Column();
             int field = 0;
-            t.table_catalog = rdr.GetAsString(field++);
-            t.table_schema  = rdr.GetAsString(field++);
-            t.table_name    = rdr.GetAsString(field++);
-            t.column_name   = rdr.GetAsString(field++);
+            t.TableSchema  = rdr.GetAsString(field++);
+            t.TableName    = rdr.GetAsString(field++);
+            t.ColumnName   = rdr.GetAsString(field++);
             string nullableStr = rdr.GetAsString(field++);
             t.Nullable    = nullableStr=="YES";
             t.Type      = rdr.GetAsString(field++);
@@ -96,7 +85,7 @@ namespace DbLinq.MySql.Schema
         public List<Column> getColumns(IDbConnection conn, string db)
         {
             string sql = @"
-SELECT table_catalog,table_schema,table_name,column_name
+SELECT table_schema,table_name,column_name
     ,is_nullable,data_type,extra,column_type
     ,column_key,CHARACTER_MAXIMUM_LENGTH,NUMERIC_PRECISION,NUMERIC_SCALE
 FROM information_schema.`COLUMNS`
