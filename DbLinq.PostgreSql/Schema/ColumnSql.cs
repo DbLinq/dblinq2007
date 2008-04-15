@@ -38,21 +38,15 @@ namespace DbLinq.PostgreSql.Schema
     /// </summary>
     public class Column: SchemaLoader.DataType
     {
-        public string table_catalog;
-        public string table_schema;
-        public string table_name;
-        public string column_name;
+        public string TableSchema;
+        public string TableName;
+        public string ColumnName;
 
         /// <summary>
         /// if you use domains to typedef a new type, this will be non-null
         /// </summary>
         public string domain_schema;
         public string domain_name;
-
-        /// <summary>
-        /// eg. for column called 'int' we use csharpName='int_'
-        /// </summary>
-        public string csharpFieldName;
 
         /// <summary>
         /// eg. "nextval('products_productid_seq'::regclass)"
@@ -80,7 +74,7 @@ namespace DbLinq.PostgreSql.Schema
 
         public override string ToString()
         {
-            return "Column " + table_name + "." + column_name + "  " + Type.Substring(0, 4);
+            return "Column " + TableName + "." + ColumnName + "  " + Type.Substring(0, 4);
         }
     }
 
@@ -93,10 +87,9 @@ namespace DbLinq.PostgreSql.Schema
         {
             Column t = new Column();
             int field = 0;
-            t.table_catalog = rdr.GetString(field++);
-            t.table_schema = rdr.GetString(field++);
-            t.table_name = rdr.GetString(field++);
-            t.column_name = rdr.GetString(field++);
+            t.TableSchema = rdr.GetString(field++);
+            t.TableName = rdr.GetString(field++);
+            t.ColumnName = rdr.GetString(field++);
             string nullableStr = rdr.GetString(field++);
             t.Nullable = nullableStr == "YES";
             t.Type = rdr.GetString(field++);
@@ -125,7 +118,7 @@ namespace DbLinq.PostgreSql.Schema
         public List<Column> getColumns(IDbConnection conn, string db)
         {
             string sql = @"
-SELECT table_catalog, table_schema, table_name, column_name
+SELECT table_schema, table_name, column_name
     ,is_nullable, data_type, domain_schema, domain_name, column_default
     ,character_maximum_length, numeric_precision, numeric_scale
 FROM information_schema.COLUMNS

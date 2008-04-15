@@ -150,8 +150,10 @@
     <Compile Include="Util\TypeExtensions.cs" />
     <Compile Include="Util\VarName.cs" />
     <Compile Include="Util\Language\Implementation\EnglishWords.cs" />
+    <Compile Include="Vendor\IDataTableColumn.cs" />
     <Compile Include="Vendor\IDataName.cs" />
     <Compile Include="Vendor\IDataType.cs" />
+    <Compile Include="Vendor\Implementation\SchemaLoader.DataTableColumn.cs" />
     <Compile Include="Vendor\Implementation\SchemaLoader.DataName.cs" />
     <Compile Include="Vendor\Implementation\SchemaLoader.Tables.cs" />
     <Compile Include="Vendor\Implementation\SchemaLoader.TypeMapping.cs" />

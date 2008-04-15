@@ -93,15 +93,15 @@ namespace DbLinq.PostgreSql
 
             foreach (Schema.Column columnRow in columns)
             {
-                var columnName = CreateColumnName(columnRow.column_name, nameFormat);
-                names.AddColumn(columnRow.table_name, columnName);
+                var columnName = CreateColumnName(columnRow.ColumnName, nameFormat);
+                names.AddColumn(columnRow.TableName, columnName);
 
                 //find which table this column belongs to
-                string columnFullDbName = GetFullDbName(columnRow.table_name, columnRow.table_schema);
+                string columnFullDbName = GetFullDbName(columnRow.TableName, columnRow.TableSchema);
                 DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnFullDbName == tblSchema.Name);
                 if (tableSchema == null)
                 {
-                    Logger.Write(Level.Error, "ERROR L46: Table '" + columnRow.table_name + "' not found for column " + columnRow.column_name);
+                    Logger.Write(Level.Error, "ERROR L46: Table '" + columnRow.TableName + "' not found for column " + columnRow.ColumnName);
                     continue;
                 }
                 var colSchema = new DbLinq.Schema.Dbml.Column();
@@ -110,8 +110,8 @@ namespace DbLinq.PostgreSql
                 colSchema.Storage = columnName.StorageFieldName;
                 colSchema.DbType = columnRow.DataTypeWithWidth; //columnRow.datatype;
 
-                KeyColumnUsage primaryKCU = constraints.FirstOrDefault(c => c.column_name == columnRow.column_name
-                    && c.table_name == columnRow.table_name && c.constraint_name.EndsWith("_pkey"));
+                KeyColumnUsage primaryKCU = constraints.FirstOrDefault(c => c.column_name == columnRow.ColumnName
+                    && c.table_name == columnRow.TableName && c.constraint_name.EndsWith("_pkey"));
                 if (primaryKCU != null) //columnRow.column_key=="PRI";
                     colSchema.IsPrimaryKey = true;
                 if (columnRow.column_default != null && columnRow.column_default.StartsWith("nextval("))
@@ -125,7 +125,7 @@ namespace DbLinq.PostgreSql
                 colSchema.CanBeNull = columnRow.Nullable;
                 colSchema.Type = MapDbType(columnRow).ToString();
 
-                if (columnRow.column_name == "employeetype" && columnRow.table_name == "employee" && schemaName.DbName == "Andrus")
+                if (columnRow.ColumnName == "employeetype" && columnRow.TableName == "employee" && schemaName.DbName == "Andrus")
                 {
                     //Andrus DB - Employee table: hardcoded for testing of vertical Partitioning
                     colSchema.IsDiscriminator = true;

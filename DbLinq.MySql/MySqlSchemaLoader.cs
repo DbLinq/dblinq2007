@@ -98,15 +98,15 @@ namespace DbLinq.MySql
 
             foreach (Schema.Column columnRow in columns)
             {
-                var columnName = CreateColumnName(columnRow.column_name, nameFormat);
-                names.AddColumn(columnRow.table_name, columnName);
+                var columnName = CreateColumnName(columnRow.ColumnName, nameFormat);
+                names.AddColumn(columnRow.TableName, columnName);
 
                 //find which table this column belongs to
-                string fullColumnDbName = GetFullDbName(columnRow.table_name, columnRow.table_schema);
+                string fullColumnDbName = GetFullDbName(columnRow.TableName, columnRow.TableSchema);
                 DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => fullColumnDbName == tblSchema.Name);
                 if (tableSchema == null)
                 {
-                    Logger.Write(Level.Error, "ERROR L46: Table '" + columnRow.table_name + "' not found for column " + columnRow.column_name);
+                    Logger.Write(Level.Error, "ERROR L46: Table '" + columnRow.TableName + "' not found for column " + columnRow.ColumnName);
                     continue;
                 }
                 DbLinq.Schema.Dbml.Column colSchema = new DbLinq.Schema.Dbml.Column();
@@ -134,7 +134,7 @@ namespace DbLinq.MySql
 
                 //determine the C# type
                 colSchema.Type = MapDbType(columnRow).ToString();
-                if (columnRow.column_name == "DbLinq_EnumTest")
+                if (columnRow.ColumnName == "DbLinq_EnumTest")
                     colSchema.Type = "DbLinq_EnumTest"; //hadcoded value - used during enum testing
 
                 //tableSchema.Types[0].Columns.Add(colSchema);

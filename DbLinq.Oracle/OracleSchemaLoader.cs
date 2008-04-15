@@ -88,19 +88,19 @@ namespace DbLinq.Oracle
             //##################################################################
             //step 2 - load columns
             User_Tab_Column_Sql csql = new User_Tab_Column_Sql();
-            List<User_Tab_Column> columns = csql.getColumns(conn, schemaName.DbName);
+            var columns = csql.getColumns(conn, schemaName.DbName);
 
-            foreach (User_Tab_Column columnRow in columns)
+            foreach (var columnRow in columns)
             {
-                var columnName = CreateColumnName(columnRow.column_name, nameFormat);
-                names.AddColumn(columnRow.table_name, columnName);
+                var columnName = CreateColumnName(columnRow.ColumnName, nameFormat);
+                names.AddColumn(columnRow.TableName, columnName);
 
                 //find which table this column belongs to
-                string columnFullDbName = GetFullDbName(columnRow.table_name, columnRow.table_schema);
+                string columnFullDbName = GetFullDbName(columnRow.TableName, columnRow.TableSchema);
                 DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => columnFullDbName == tblSchema.Name);
                 if (tableSchema == null)
                 {
-                    Logger.Write(Level.Error, "ERROR L46: Table '" + columnRow.table_name + "' not found for column " + columnRow.column_name);
+                    Logger.Write(Level.Error, "ERROR L46: Table '" + columnRow.TableName + "' not found for column " + columnRow.ColumnName);
                     continue;
                 }
                 DbLinq.Schema.Dbml.Column colSchema = new DbLinq.Schema.Dbml.Column();

@@ -11,13 +11,8 @@ namespace DbLinq.Sqlite.Schema
     /// <summary>
     /// represents one row from information_schema.`COLUMNS`
     /// </summary>
-    public class Column : SchemaLoader.DataType
+    public class Column : SchemaLoader.DataTableColumn
     {
-        public string table_catalog;
-        public string table_schema;
-        public string table_name;
-        public string column_name;
-
         /// <summary>
         /// eg 'int' or 'datetime'
         /// </summary>
@@ -39,7 +34,7 @@ namespace DbLinq.Sqlite.Schema
 
         public override string ToString()
         {
-            return "info_schema.COLUMN: " + table_name + "." + column_name;
+            return "info_schema.COLUMN: " + TableName + "." + ColumnName;
         }
     }
 
@@ -51,10 +46,9 @@ namespace DbLinq.Sqlite.Schema
         private Column fromRow(IDataReader dataReader, string table)
         {
             Column t = new Column();
-            t.table_catalog = "SQLite";
-            t.table_schema = "main";
-            t.table_name = table;
-            t.column_name = dataReader.GetString(1);
+            t.TableSchema = "main";
+            t.TableName = table;
+            t.ColumnName = dataReader.GetString(1);
             t.UnpackRawDbType(dataReader.GetString(2));
             t.column_type = dataReader.GetString(2);
             t.Nullable = dataReader.GetInt64(3) == 0;

@@ -37,12 +37,8 @@ namespace DbLinq.Ingres.Schema
     /// <summary>
     /// represents one row from information_schema.`COLUMNS`
     /// </summary>
-    public class Column: SchemaLoader.DataType
+    public class Column: SchemaLoader.DataTableColumn
     {
-        public string table_owner;
-        public string table_name;
-        public string column_name;
-
         /// <summary>
         /// eg. next value for "linquser"."categories_seq"
         /// </summary>
@@ -77,7 +73,7 @@ namespace DbLinq.Ingres.Schema
 
         public override string ToString()
         {
-            return "Column " + table_name + "." + column_name + "  " + Type.Substring(0, 4);
+            return "Column " + TableName + "." + ColumnName + "  " + Type.Substring(0, 4);
         }
     }
 
@@ -90,9 +86,9 @@ namespace DbLinq.Ingres.Schema
         {
             Column t = new Column();
             int field = 0;
-            t.table_owner = rdr.GetString(field++).Trim();
-            t.table_name = rdr.GetString(field++).Trim();
-            t.column_name = rdr.GetString(field++).Trim();
+            t.TableSchema = rdr.GetString(field++).Trim();
+            t.TableName = rdr.GetString(field++).Trim();
+            t.ColumnName = rdr.GetString(field++).Trim();
             string nullableStr = rdr.GetString(field++);
             t.Nullable = nullableStr == "Y";
             t.Type = rdr.GetString(field++).Trim();
