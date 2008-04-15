@@ -1881,12 +1881,12 @@ namespace nwind
 
 		#endregion
 
-		#region bool Discontinued
+		#region short Discontinued
 
-        private bool discontinued;
+        private short discontinued;
 		[Column(Storage = "discontinued", Name = "discontinued", DbType = "INTEGER(2)", CanBeNull = false)]
 		[DebuggerNonUserCode]
-        public bool Discontinued
+        public short Discontinued
 		{
 			get
 			{

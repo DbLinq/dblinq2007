@@ -40,8 +40,13 @@ using Test_NUnit;
         public void LinqToSqlCount02()
         {
             Northwind db = CreateDB();
+#if INGRES
+            var q = (from p in db.Products where p.Discontinued == 0 select p)
+                .Count();
+#else
             var q = (from p in db.Products where !p.Discontinued select p)
                 .Count();
+#endif
 
             Assert.IsTrue(q > 0, "Expect non-zero count");
         }

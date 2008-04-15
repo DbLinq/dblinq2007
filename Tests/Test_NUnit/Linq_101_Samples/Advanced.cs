@@ -52,9 +52,13 @@ using Test_NUnit;
         public void LinqToSqlAdvanced06()
         {
             Northwind db = CreateDB();
-
+#if INGRES
+            var prods = from p in db.Products.OrderByDescending(p=> p.UnitPrice).Take(10) 
+                       where p.Discontinued == 1 select p;
+#else
             var prods = from p in db.Products.OrderByDescending(p=> p.UnitPrice).Take(10) 
                        where p.Discontinued select p;
+#endif
 
             var list = prods.ToList();
             Assert.IsTrue(list.Count > 0);

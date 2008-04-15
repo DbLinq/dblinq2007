@@ -155,7 +155,11 @@ using Test_NUnit;
         {
             Northwind db = CreateDB();
             int productCount1 = db.Products.Count();
+#if INGRES
+            Product p_temp = new Product { ProductName = "temp_g4", Discontinued = 0 };
+#else
             Product p_temp = new Product { ProductName = "temp_g4", Discontinued = false };
+#endif
             db.Products.Add(p_temp);
             db.SubmitChanges();
             db.SubmitChanges();
@@ -174,6 +178,8 @@ using Test_NUnit;
 #if ORACLE
             //todo fix Oracle
             Product p1 = new Product { ProductName = productName, Discontinued = false, UnitPrice = 11 };
+#elif INGRES
+            Product p1 = new Product { ProductName = productName, Discontinued = 0, UnitPrice = 11m };
 #else
             Product p1 = new Product { ProductName = productName, Discontinued = false, UnitPrice = 11m };
 #endif
