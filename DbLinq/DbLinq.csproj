@@ -153,6 +153,7 @@
     <Compile Include="Vendor\IDataName.cs" />
     <Compile Include="Vendor\IDataType.cs" />
     <Compile Include="Vendor\Implementation\SchemaLoader.DataName.cs" />
+    <Compile Include="Vendor\Implementation\SchemaLoader.Tables.cs" />
     <Compile Include="Vendor\Implementation\SchemaLoader.TypeMapping.cs" />
     <Compile Include="Vendor\Implementation\Vendor.ExecuteQuery.cs" />
     <Compile Include="Vendor\ISchemaLoader.cs" />

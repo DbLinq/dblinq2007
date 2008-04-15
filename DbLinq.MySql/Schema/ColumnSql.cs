@@ -77,20 +77,20 @@ namespace DbLinq.MySql.Schema
         {
             Column t = new Column();
             int field = 0;
-            t.table_catalog = rdr.GetStringN(field++);
-            t.table_schema  = rdr.GetString(field++);
-            t.table_name    = rdr.GetString(field++);
-            t.column_name   = rdr.GetString(field++);
-            string nullableStr = rdr.GetString(field++);
+            t.table_catalog = rdr.GetAsString(field++);
+            t.table_schema  = rdr.GetAsString(field++);
+            t.table_name    = rdr.GetAsString(field++);
+            t.column_name   = rdr.GetAsString(field++);
+            string nullableStr = rdr.GetAsString(field++);
             t.isNullable    = nullableStr=="YES";
-            t.Type      = rdr.GetString(field++);
-            t.extra         = rdr.GetString(field++);
-            t.column_type   = rdr.GetString(field++);
+            t.Type      = rdr.GetAsString(field++);
+            t.extra         = rdr.GetAsString(field++);
+            t.column_type   = rdr.GetAsString(field++);
             t.Unsigned = t.column_type.Contains("unsigned");
-            t.column_key    = rdr.GetString(field++);
-            t.Length        = rdr.GetInt64N(field++);
-            t.Precision     = rdr.GetIntN(field++);
-            t.Scale         = rdr.GetIntN(field++);
+            t.column_key    = rdr.GetAsString(field++);
+            t.Length        = rdr.GetAsNumeric<long>(field++);
+            t.Precision     = rdr.GetAsNumeric<int>(field++);
+            t.Scale         = rdr.GetAsNumeric<int>(field++);
             return t;
         }
 

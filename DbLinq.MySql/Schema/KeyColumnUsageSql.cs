@@ -62,14 +62,14 @@ namespace DbLinq.MySql.Schema
         {
             KeyColumnUsage t = new KeyColumnUsage();
             int field = 0;
-            t.constraint_schema = rdr.GetStringN(field++);
-            t.constraint_name = rdr.GetString(field++);
-            t.table_schema  = rdr.GetStringN(field++);
-            t.table_name    = rdr.GetString(field++);
-            t.column_name    = rdr.GetString(field++);
-            t.referenced_table_schema = rdr.GetStringN(field++);
-            t.referenced_table_name = rdr.GetStringN(field++);
-            t.referenced_column_name = rdr.GetStringN(field++);
+            t.constraint_schema = rdr.GetAsString(field++);
+            t.constraint_name = rdr.GetAsString(field++);
+            t.table_schema  = rdr.GetAsString(field++);
+            t.table_name    = rdr.GetAsString(field++);
+            t.column_name    = rdr.GetAsString(field++);
+            t.referenced_table_schema = rdr.GetAsString(field++);
+            t.referenced_table_name = rdr.GetAsString(field++);
+            t.referenced_column_name = rdr.GetAsString(field++);
             return t;
         }
 

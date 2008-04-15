@@ -40,7 +40,7 @@ using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.Ingres
 {
-    class IngresSchemaLoader : SchemaLoader
+    public partial class IngresSchemaLoader : SchemaLoader
     {
         private readonly Vendor.IVendor vendor = new IngresVendor();
         public override Vendor.IVendor Vendor { get { return vendor; } }
@@ -60,8 +60,8 @@ namespace DbLinq.Ingres
 
             //##################################################################
             //step 1 - load tables
-            TableSql tsql = new TableSql();
-            var tables = tsql.getTables(conn, schemaName.DbName);
+
+            var tables = LoadTablesSchema(conn, schemaName.DbName);
             if (tables == null || tables.Count == 0)
             {
                 Console.WriteLine("No tables found for schema " + schemaName.DbName + ", exiting");

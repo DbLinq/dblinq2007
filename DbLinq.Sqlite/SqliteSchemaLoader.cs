@@ -41,7 +41,7 @@ using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.Sqlite
 {
-    class SqliteSchemaLoader : SchemaLoader
+    partial class SqliteSchemaLoader : SchemaLoader
     {
         private readonly IVendor vendor = new SqliteVendor();
         public override IVendor Vendor { get { return vendor; } }
@@ -61,8 +61,7 @@ namespace DbLinq.Sqlite
 
             //##################################################################
             //step 1 - load tables
-            TableSql tsql = new TableSql();
-            var tables = tsql.getTables(conn, schemaName.DbName);
+            var tables = LoadTablesSchema(conn, schemaName.DbName);
             if (tables == null || tables.Count == 0)
             {
                 Logger.Write(Level.Warning, "No tables found for schema " + schemaName.DbName + ", exiting");
