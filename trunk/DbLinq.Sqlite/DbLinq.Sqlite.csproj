@@ -53,10 +53,10 @@
     <Compile Include="..\DbLinq.ProductInfo.cs">
       <Link>Properties\DbLinq.ProductInfo.cs</Link>
     </Compile>
-    <Compile Include="Schema\ColumnSql.cs" />
     <Compile Include="Schema\DataCommand.cs" />
     <Compile Include="Schema\KeyColumnUsageSql.cs" />
     <Compile Include="Schema\SQLite_Proc.cs" />
+    <Compile Include="SqliteSchemaLoader.Columns.cs" />
     <Compile Include="SqliteSchemaLoader.cs" />
     <Compile Include="SqliteDataContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

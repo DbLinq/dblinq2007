@@ -68,8 +68,7 @@ namespace DbLinq.Oracle
 
             //##################################################################
             //step 2 - load columns
-            User_Tab_Column_Sql csql = new User_Tab_Column_Sql();
-            var columns = csql.getColumns(conn, schemaName.DbName);
+            var columns = ReadColumns(conn, schemaName.DbName);
 
             foreach (var columnRow in columns)
             {

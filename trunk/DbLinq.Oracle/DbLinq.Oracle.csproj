@@ -53,6 +53,7 @@
     <Compile Include="..\DbLinq.ProductInfo.cs">
       <Link>Properties\DbLinq.ProductInfo.cs</Link>
     </Compile>
+    <Compile Include="OracleSchemaLoader.Columns.cs" />
     <Compile Include="OracleSchemaLoader.cs" />
     <Compile Include="OracleDataContext.cs" />
     <Compile Include="OracleSchemaLoader.Tables.cs" />
@@ -60,7 +61,6 @@
     <Compile Include="OracleVendor.cs" />
     <Compile Include="Schema\OraExtensions.cs" />
     <Compile Include="Schema\User_Constraints.cs" />
-    <Compile Include="Schema\User_Tab_Columns.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DbLinq\DbLinq.csproj">

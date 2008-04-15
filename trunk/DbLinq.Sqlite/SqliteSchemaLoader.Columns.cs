@@ -24,42 +24,34 @@
 ////////////////////////////////////////////////////////////////////
 #endregion
 
-namespace DbLinq.Vendor
-{
-    /// <summary>
-    /// Represents a database data type
-    /// </summary>
-    public interface IDataType
-    {
-        /// <summary>
-        /// The base type, like 'number', 'varchar'
-        /// </summary>
-        string Type { get; set; }
-        /// <summary>
-        /// For all types, the possibility to have a NULL
-        /// </summary>
-        bool Nullable { get; set; }
-        /// <summary>
-        /// On non numeric data types, the length (for strings or blobs)
-        /// </summary>
-        long? Length { get; set; }
-        /// <summary>
-        /// On numeric data types, the number of digits in the integer part
-        /// </summary>
-        int? Precision { get; set; }
-        /// <summary>
-        /// On numeric data types, the number of digits in the decimal part
-        /// </summary>
-        int? Scale { get; set; }
-        /// <summary>
-        /// On numeric data types, if there is a sign
-        /// </summary>
-        bool? Unsigned { get; set; }
+using System.Collections.Generic;
+using System.Data;
+using DbLinq.Util;
+using DbLinq.Vendor;
 
-        /// <summary>
-        /// The original (or domain) type, returned raw by column information.
-        /// Is also used to generated the database.
-        /// </summary>
-        string FullType { get; set; }
+namespace DbLinq.Sqlite
+{
+    partial class SqliteSchemaLoader
+    {
+        protected virtual IDataTableColumn ReadColumn(IDataReader dataReader, string table)
+        {
+            var t = new DataTableColumn();
+            t.TableSchema = "main";
+            t.TableName = table;
+            t.ColumnName = dataReader.GetString(1);
+            t.UnpackRawDbType(dataReader.GetString(2));
+            t.FullType = dataReader.GetString(2);
+            t.Nullable = dataReader.GetInt64(3) == 0;
+            t.PrimaryKey = dataReader.GetInt64(5) == 1;
+            return t;
+        }
+
+        public override IList<IDataTableColumn> ReadColumns(IDbConnection connectionString, string databaseName)
+        {
+            const string sql = @" SELECT tbl_name FROM sqlite_master WHERE type='table' order by tbl_name";
+            const string pragma = @"PRAGMA table_info('{0}');";
+
+            return Schema.DataCommand.Find<IDataTableColumn>(connectionString, sql, pragma, ReadColumn);
+        }
     }
 }
