@@ -79,7 +79,9 @@ namespace DbLinq.Util
             foreach (Type t2 in SelfAndBaseClasses(t))
             {
                 //find member fields, includes protected members from base class
-                MemberInfo[] membersInclBase = t2.FindMembers(MemberTypes.Field, BindingFlags.Instance | BindingFlags.NonPublic, null, null);
+                MemberInfo[] membersInclBase = t2.FindMembers(MemberTypes.Field
+                    , BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public
+                    , null, null);
                 //now remove the base class members (to exclude duplicates):
                 var membersWithoutBase = membersInclBase.Where(m => m.DeclaringType == t2);
                 fields.AddRange(membersWithoutBase);
