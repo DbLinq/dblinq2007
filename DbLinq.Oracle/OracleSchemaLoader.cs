@@ -58,26 +58,7 @@ namespace DbLinq.Oracle
             schema.Class = schemaName.ClassName;
 
 
-            //##################################################################
-            //step 1 - load tables
-            var tables = LoadTablesSchema(conn, schemaName.DbName);
-            if (tables == null || tables.Count == 0)
-            {
-                Logger.Write(Level.Warning, "No tables found for schema " + schemaName.DbName + ", exiting");
-                return null;
-            }
-
-            foreach (var tblRow in tables)
-            {
-                var tableName = CreateTableName(tblRow.Name, tblRow.Schema, tableAliases, nameFormat);
-                names.TablesNames[tableName.DbName] = tableName;
-
-                var tblSchema = new DbLinq.Schema.Dbml.Table();
-                tblSchema.Name = tableName.DbName;
-                tblSchema.Member = tableName.MemberName;
-                tblSchema.Type.Name = tableName.ClassName;
-                schema.Tables.Add(tblSchema);
-            }
+            LoadTables(schema, schemaName, conn, tableAliases, nameFormat, names);
 
             //ensure all table schemas contain one type:
             //foreach(DbLinq.Schema.Dbml.Table tblSchema in schema0.Tables)

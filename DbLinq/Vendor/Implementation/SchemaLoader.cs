@@ -139,5 +139,21 @@ namespace DbLinq.Vendor.Implementation
                 columns[columnName.DbName] = columnName;
             }
         }
+
+        protected virtual void LoadTables(Database schema, SchemaName schemaName, IDbConnection conn, IDictionary<string, string> tableAliases, NameFormat nameFormat, Names names)
+        {
+            var tables = ReadTables(conn, schemaName.DbName);
+            foreach (var row in tables)
+            {
+                var tableName = CreateTableName(row.Name, row.Schema, tableAliases, nameFormat);
+                names.TablesNames[tableName.DbName] = tableName;
+
+                var table = new Table();
+                table.Name = tableName.DbName;
+                table.Member = tableName.MemberName;
+                table.Type.Name = tableName.ClassName;
+                schema.Tables.Add(table);
+            }
+        }
     }
 }

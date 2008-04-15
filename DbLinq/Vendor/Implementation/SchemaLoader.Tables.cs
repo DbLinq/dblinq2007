@@ -38,6 +38,6 @@ namespace DbLinq.Vendor.Implementation
             return dataName;
         }
 
-        public abstract IList<IDataName> LoadTablesSchema(IDbConnection connectionString, string databaseName);
+        public abstract IList<IDataName> ReadTables(IDbConnection connectionString, string databaseName);
     }
 }
