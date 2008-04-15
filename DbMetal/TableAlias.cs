@@ -49,15 +49,15 @@ namespace DbMetal
             public string @new;
         }
 
-        public static IDictionary<string, string> Load(string fileName, Parameters mmConfig)
+        public static IDictionary<string, string> Load(string fileName, Parameters parameters)
         {
             if (!System.IO.File.Exists(fileName))
-                throw new ArgumentException("Renames file missing:" + mmConfig.RenamesFile);
+                throw new ArgumentException("Renames file missing:" + parameters.RenamesFile);
 
             Console.WriteLine("Loading renames file: " + fileName);
 
             XmlSerializer renamingsXmlSerializer = new XmlSerializer(typeof(Renamings));
-            Renamings renamings = (Renamings)renamingsXmlSerializer.Deserialize(System.IO.File.OpenText(mmConfig.RenamesFile));
+            Renamings renamings = (Renamings)renamingsXmlSerializer.Deserialize(System.IO.File.OpenText(parameters.RenamesFile));
 
             Dictionary<string, string> aliases = new Dictionary<string, string>();
             foreach (Renaming renaming in renamings.Arr)
@@ -67,11 +67,11 @@ namespace DbMetal
             return aliases;
         }
 
-        public static IDictionary<string, string> Load(Parameters mmConfig)
+        public static IDictionary<string, string> Load(Parameters parameters)
         {
-            if (mmConfig.RenamesFile == null)
+            if (parameters.RenamesFile == null)
                 return new Dictionary<string, string>();
-            return Load(mmConfig.RenamesFile, mmConfig);
+            return Load(parameters.RenamesFile, parameters);
         }
     }
 }
