@@ -26,19 +26,10 @@ namespace Test_NUnit_Ingres
             /*==================================================================*/
             /* The following failing tests are investigated, but not solved yet */
             /*==================================================================*/
-
-            // Generates faulty SQL
-            //new WriteTest().G11_TwoSequencesInTable();
-
-            // Generates faulty SQL
-            //new WriteTest().G12_EmptyInsertList();
-
-            // generates this SQL
-            // SELECT $.categoryid, $.discontinued, $.productid, $.productname, 
-            // $.quantityperunit, $.reorderlevel, $.supplierid, $.unitprice, $.unitsinstock, $.unitsonorder
-            // FROM linquser.products $ WHERE $.supplierid = 1 AND $.unitsinstock > 2 ORDER BY $.productid
-            // which failes as a single $ sign is not allowed for a table alias
-            //new DynamicLinqTest().DL1_Products();
+            
+            // The query yields exactly one result, still the exception is thrown.
+            // Looks like a bug in linq
+            //new ReadTest_Operands().J1_LocalFunction_DateTime_ParseExact();
 
             // SELECT COUNT(*) FROM linquser.products p$ ORDER BY p$.productid
             // productid not found
@@ -69,6 +60,12 @@ namespace Test_NUnit_Ingres
             // Both tests fail due to this.
             //new Linq_101_Samples.Top_Bottom().LinqToSqlTop02();
             //new Linq_101_Samples.Top_Bottom().LinqToSqlTop03_Ex_Andrus();
+
+            // Generates faulty SQL
+            //new WriteTest().G11_TwoSequencesInTable();
+
+            // Generates faulty SQL
+            //new WriteTest().G12_EmptyInsertList();
         }
     }
 }
