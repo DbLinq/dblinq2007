@@ -113,7 +113,7 @@ namespace DbLinq.Ingres
                 }
 
                 //colSchema.IsVersion = ???
-                colSchema.CanBeNull = columnRow.isNullable;
+                colSchema.CanBeNull = columnRow.Nullable;
                 colSchema.Type = MapDbType(columnRow).ToString();
 
                 //tableSchema.Types[0].Columns.Add(colSchema);

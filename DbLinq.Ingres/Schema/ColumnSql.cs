@@ -42,7 +42,6 @@ namespace DbLinq.Ingres.Schema
         public string table_owner;
         public string table_name;
         public string column_name;
-        public bool isNullable;
 
         /// <summary>
         /// eg. next value for "linquser"."categories_seq"
@@ -95,7 +94,7 @@ namespace DbLinq.Ingres.Schema
             t.table_name = rdr.GetString(field++).Trim();
             t.column_name = rdr.GetString(field++).Trim();
             string nullableStr = rdr.GetString(field++);
-            t.isNullable = nullableStr == "Y";
+            t.Nullable = nullableStr == "Y";
             t.Type = rdr.GetString(field++).Trim();
             t.column_default = GetStringN(rdr, field++);
             //t.extra         = null; //rdr.GetString(field++);

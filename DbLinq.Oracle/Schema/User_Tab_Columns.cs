@@ -22,11 +22,6 @@ namespace DbLinq.Oracle.Schema
         /// </summary>
         public string data_type_mod;
 
-        /// <summary>
-        /// generated - DB column is actually "Nullable='Y'"
-        /// </summary>
-        public bool isNullable;
-
         public int column_id;
 
 
@@ -67,7 +62,7 @@ namespace DbLinq.Oracle.Schema
             t.Scale = rdr.GetNInt(field++); //null
 
             string nullableStr = rdr.GetString(field++);
-            t.isNullable = nullableStr == "Y";
+            t.Nullable = nullableStr == "Y";
             t.column_id = Convert.ToInt32(rdr.GetValue(field++));
             return t;
         }

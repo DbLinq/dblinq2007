@@ -130,7 +130,7 @@ namespace DbLinq.MySql
                     colSchema.IsPrimaryKey = true;
                 if (columnRow.extra == "auto_increment")
                     colSchema.IsDbGenerated = true;
-                colSchema.CanBeNull = columnRow.isNullable;
+                colSchema.CanBeNull = columnRow.Nullable;
 
                 //determine the C# type
                 colSchema.Type = MapDbType(columnRow).ToString();

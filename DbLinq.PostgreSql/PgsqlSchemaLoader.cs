@@ -122,7 +122,7 @@ namespace DbLinq.PostgreSql
                     colSchema.Expression = columnRow.column_default.Replace("::regclass)", ")");
 
                 //colSchema.IsVersion = ???
-                colSchema.CanBeNull = columnRow.isNullable;
+                colSchema.CanBeNull = columnRow.Nullable;
                 colSchema.Type = MapDbType(columnRow).ToString();
 
                 if (columnRow.column_name == "employeetype" && columnRow.table_name == "employee" && schemaName.DbName == "Andrus")
