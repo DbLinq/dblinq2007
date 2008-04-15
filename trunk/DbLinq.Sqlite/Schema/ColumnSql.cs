@@ -17,7 +17,6 @@ namespace DbLinq.Sqlite.Schema
         public string table_schema;
         public string table_name;
         public string column_name;
-        public bool isNullable;
 
         /// <summary>
         /// eg 'int' or 'datetime'
@@ -58,7 +57,7 @@ namespace DbLinq.Sqlite.Schema
             t.column_name = dataReader.GetString(1);
             t.UnpackRawDbType(dataReader.GetString(2));
             t.column_type = dataReader.GetString(2);
-            t.isNullable = dataReader.GetInt64(3) == 0;
+            t.Nullable = dataReader.GetInt64(3) == 0;
             t.isPrimaryKey = dataReader.GetInt64(5) == 1;
             return t;
         }

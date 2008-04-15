@@ -26,12 +26,34 @@
 
 namespace DbLinq.Vendor
 {
+    /// <summary>
+    /// Represents a database data type
+    /// </summary>
     public interface IDataType
     {
+        /// <summary>
+        /// The base type, like 'number', 'varchar'
+        /// </summary>
         string Type { get; set; }
+        /// <summary>
+        /// For all types, the possibility to have a NULL
+        /// </summary>
+        bool Nullable { get; set; }
+        /// <summary>
+        /// On non numeric data types, the length (for strings or blobs)
+        /// </summary>
         long? Length { get; set; }
+        /// <summary>
+        /// On numeric data types, the number of digits in the integer part
+        /// </summary>
         int? Precision { get; set; }
+        /// <summary>
+        /// On numeric data types, the number of digits in the decimal part
+        /// </summary>
         int? Scale { get; set; }
+        /// <summary>
+        /// On numeric data types, if there is a sign
+        /// </summary>
         bool? Unsigned { get; set; }
     }
 }

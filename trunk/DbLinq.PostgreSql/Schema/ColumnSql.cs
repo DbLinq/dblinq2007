@@ -42,7 +42,6 @@ namespace DbLinq.PostgreSql.Schema
         public string table_schema;
         public string table_name;
         public string column_name;
-        public bool isNullable;
 
         /// <summary>
         /// if you use domains to typedef a new type, this will be non-null
@@ -99,7 +98,7 @@ namespace DbLinq.PostgreSql.Schema
             t.table_name = rdr.GetString(field++);
             t.column_name = rdr.GetString(field++);
             string nullableStr = rdr.GetString(field++);
-            t.isNullable = nullableStr == "YES";
+            t.Nullable = nullableStr == "YES";
             t.Type = rdr.GetString(field++);
             t.domain_schema = GetStringN(rdr, field++);
             t.domain_name = GetStringN(rdr, field++);

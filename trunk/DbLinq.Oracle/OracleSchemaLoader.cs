@@ -112,7 +112,7 @@ namespace DbLinq.Oracle
                 //colSchema.IsPrimaryKey = false;
                 //colSchema.IsDbGenerated = false;
                 //colSchema.IsVersion = ???
-                colSchema.CanBeNull = columnRow.isNullable;
+                colSchema.CanBeNull = columnRow.Nullable;
 
                 colSchema.Type = MapDbType(columnRow).ToString();
 

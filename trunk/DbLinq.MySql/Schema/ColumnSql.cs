@@ -40,7 +40,6 @@ namespace DbLinq.MySql.Schema
         public string table_schema;
         public string table_name;
         public string column_name;
-        public bool isNullable;
 
         /// <summary>
         /// eg 'int' or 'datetime'
@@ -82,7 +81,7 @@ namespace DbLinq.MySql.Schema
             t.table_name    = rdr.GetAsString(field++);
             t.column_name   = rdr.GetAsString(field++);
             string nullableStr = rdr.GetAsString(field++);
-            t.isNullable    = nullableStr=="YES";
+            t.Nullable    = nullableStr=="YES";
             t.Type      = rdr.GetAsString(field++);
             t.extra         = rdr.GetAsString(field++);
             t.column_type   = rdr.GetAsString(field++);

@@ -39,6 +39,7 @@ namespace DbLinq.Vendor.Implementation
         public class DataType : IDataType
         {
             public virtual string Type { get; set; }
+            public virtual bool Nullable { get; set; }
             public virtual long? Length { get; set; }
             public virtual int? Precision { get; set; }
             public virtual int? Scale { get; set; }
