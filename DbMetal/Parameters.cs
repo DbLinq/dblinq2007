@@ -145,11 +145,18 @@ namespace DbMetal
         }
 
         /// <summary>
+        /// base class from which all generated entities will inherit
+        /// SQLMetal compatible
+        /// </summary>
+        [Option("Generates overrides for Equals() and GetHashCode() methods.", Group = 4)]
+        public bool GenerateEqualsAndHash { get; set; }
+
+        /// <summary>
         /// export stored procedures
         /// SQLMetal compatible
         /// </summary>
         [Option("Extract stored procedures.", Group = 2)]
-        public bool SProcs { get; set; }
+        public bool Sprocs { get; set; }
 
         /// <summary>
         /// ??
@@ -218,7 +225,7 @@ namespace DbMetal
         {
             Write("DbLinq Database mapping generator 2008 version {0}", ApplicationVersion);
             Write("for Microsoft (R) .NET Framework version 3.5");
-            Write("Distributed under the MIT licence");
+            Write("Distributed under the MIT licence (http://linq.to/db/license)");
         }
 
         public override void WriteSummary()
