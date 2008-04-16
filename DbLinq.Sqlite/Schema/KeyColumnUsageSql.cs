@@ -35,19 +35,19 @@ namespace DbLinq.Sqlite.Schema
     public class KeyColumnUsage
     {
         public string constraint_schema;
-        public string constraint_name;
-        public string table_schema;
-        public string table_name;
+        public string ConstraintName;
+        public string TableSchema;
+        public string TableName;
         public string column_name;
-        public string referenced_table_schema;
-        public string referenced_table_name;
+        public string ReferencedTableSchema;
+        public string ReferencedTableName;
         public string referenced_column_name;
 
         public override string ToString()
         {
-            string detail = constraint_name == "PRIMARY"
-                                ? table_name + " PK"
-                                : constraint_name;
+            string detail = ConstraintName == "PRIMARY"
+                                ? TableName + " PK"
+                                : ConstraintName;
             return "KeyColUsage " + detail;
         }
     }
@@ -76,14 +76,14 @@ namespace DbLinq.Sqlite.Schema
             const int K_TO = 4;
             
             t.constraint_schema = "main";
-            t.table_schema = "main";
-            t.referenced_table_schema = "main";
+            t.TableSchema = "main";
+            t.ReferencedTableSchema = "main";
             
-            t.constraint_name = "fk_" + table + "_" + rdr.GetInt32(K_ID).ToString();
-            t.table_name = table;
+            t.ConstraintName = "fk_" + table + "_" + rdr.GetInt32(K_ID).ToString();
+            t.TableName = table;
             t.column_name = rdr.GetString(K_FROM);
             
-            t.referenced_table_name = rdr.GetString(K_TABLE);
+            t.ReferencedTableName = rdr.GetString(K_TABLE);
             t.referenced_column_name = rdr.GetString(K_TO);
             return t;
 

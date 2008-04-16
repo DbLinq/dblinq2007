@@ -74,63 +74,23 @@ namespace DbLinq.Sqlite
                 foreach (KeyColumnUsage keyColRow in constraints)
                 {
                     //find my table:
-                    string tableFullDbName = GetFullDbName(keyColRow.table_name, keyColRow.table_schema);
+                    string tableFullDbName = GetFullDbName(keyColRow.TableName, keyColRow.TableSchema);
                     DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => tableFullDbName == t.Name);
                     if (table == null)
                     {
-                        Logger.Write(Level.Error, "ERROR L46: Table '" + keyColRow.table_name + "' not found for column " + keyColRow.column_name);
+                        Logger.Write(Level.Error, "ERROR L46: Table '" + keyColRow.TableName + "' not found for column " + keyColRow.column_name);
                         continue;
                     }
 
-                    bool isForeignKey = keyColRow.constraint_name != "PRIMARY"
-                                        && keyColRow.referenced_table_name != null;
+                    bool isForeignKey = keyColRow.ConstraintName != "PRIMARY"
+                                        && keyColRow.ReferencedTableName != null;
 
                     if (isForeignKey)
                     {
-                        var associationName = CreateAssociationName(keyColRow.table_name, keyColRow.table_schema,
-                            keyColRow.referenced_table_name, keyColRow.referenced_table_schema,
-                            keyColRow.constraint_name, nameFormat);
-
-                        var foreignKey = names.ColumnsNames[keyColRow.table_name][keyColRow.column_name].PropertyName;
-                        var reverseForeignKey = names.ColumnsNames[keyColRow.referenced_table_name][keyColRow.referenced_column_name].PropertyName; // GetColumnName(keyColRow.referenced_column_name);
-
-                        //both parent and child table get an [Association]
-                        DbLinq.Schema.Dbml.Association assoc = new DbLinq.Schema.Dbml.Association();
-                        assoc.IsForeignKey = true;
-                        assoc.Name = keyColRow.constraint_name;
-                        assoc.Type = null;
-                        assoc.ThisKey = foreignKey;
-                        assoc.OtherKey = reverseForeignKey;
-                        assoc.Member = associationName.ManyToOneMemberName;
-                        assoc.Storage = associationName.ForeignKeyStorageFieldName;
-                        table.Type.Associations.Add(assoc);
-
-                        //and insert the reverse association:
-                        DbLinq.Schema.Dbml.Association assoc2 = new DbLinq.Schema.Dbml.Association();
-                        assoc2.Name = keyColRow.constraint_name;
-                        assoc2.Type = table.Type.Name; //keyColRow.Name;
-                        assoc2.Member = associationName.OneToManyMemberName;
-                        assoc2.ThisKey = reverseForeignKey;
-                        assoc2.OtherKey = foreignKey;
-                        //assoc2.Member = keyColRow.Name;
-
-                        //bool isSelfJoin = keyColRow.Name == keyColRow.referenced_table_name;
-                        //assoc2.OtherKey = isSelfJoin
-                        //    ? keyColRow.column_name //in Employees table - "ReportsTo" appears in both [Association]
-                        //    : keyColRow.referenced_column_name;
-                        //assoc2.OtherKey = keyColRow.referenced_column_name;
-
-                        string parentFullDbName = GetFullDbName(keyColRow.referenced_table_name, keyColRow.referenced_table_schema);
-                        DbLinq.Schema.Dbml.Table parentTable = schema.Tables.FirstOrDefault(t => parentFullDbName == t.Name);
-                        if (parentTable == null)
-                        {
-                            Logger.Write(Level.Error, "ERROR 148: parent table not found: " + keyColRow.referenced_table_name);
-                        }
-                        else
-                        {
-                            parentTable.Type.Associations.Add(assoc2);
-                            assoc.Type = parentTable.Type.Name;
-                        }
+                        LoadForeignKey(schema, table, keyColRow.column_name, keyColRow.TableName, keyColRow.TableSchema,
+                                      keyColRow.referenced_column_name, keyColRow.ReferencedTableName,
+                                      keyColRow.ReferencedTableSchema,
+                                      keyColRow.ConstraintName, nameFormat, names);
 
                     }
 

@@ -34,8 +34,8 @@ namespace DbLinq.Ingres.Schema
     /// </summary>
     public class ForeignKeyCrossRef
     {
-        public string schema_name_parent;
-        public string table_name_parent;
+        public string TableSchema;
+        public string TableName;
         /// <summary>
         /// e.g.
         /// PRIMARY KEY (productid)
@@ -53,12 +53,12 @@ namespace DbLinq.Ingres.Schema
             return text_segment;
         }
 
-        public string constraint_name
+        public string ConstraintName
         {
             get
             {
-                return schema_name_parent + "_" + table_name_parent + "_" + column_name_parent + "_" +
-                    schema_name_child + "_" + table_name_child + "_" + column_name_child;
+                return TableSchema + "_" + TableName + "_" + ColumnName + "_" +
+                    ReferencedTableSchema + "_" + ReferencedTableName + "_" + ReferencedColumnName;
             }
         }
 
@@ -79,7 +79,7 @@ namespace DbLinq.Ingres.Schema
             }
         }
 
-        public string column_name_parent
+        public string ColumnName
         {
             get
             {
@@ -88,7 +88,7 @@ namespace DbLinq.Ingres.Schema
             }
         }
 
-        public string column_name_child
+        public string ReferencedColumnName
         {
             get
             {
@@ -99,7 +99,7 @@ namespace DbLinq.Ingres.Schema
             }
         }
 
-        public string schema_name_child
+        public string ReferencedTableSchema
         {
             get
             {
@@ -110,7 +110,7 @@ namespace DbLinq.Ingres.Schema
             }
         }
 
-        public string table_name_child
+        public string ReferencedTableName
         {
             get
             {
@@ -137,8 +137,8 @@ namespace DbLinq.Ingres.Schema
         {
             ForeignKeyCrossRef t = new ForeignKeyCrossRef();
             int field = 0;
-            t.schema_name_parent = rdr.GetString(field++).Trim();
-            t.table_name_parent = rdr.GetString(field++).Trim();
+            t.TableSchema = rdr.GetString(field++).Trim();
+            t.TableName = rdr.GetString(field++).Trim();
             t.text_segment = rdr.GetString(field++).Trim();
             t.constraint_type = rdr.GetString(field++).Trim();
             return t;

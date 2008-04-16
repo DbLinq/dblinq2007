@@ -33,19 +33,19 @@ namespace DbLinq.MySql.Schema
     public class KeyColumnUsage
     {
         public string constraint_schema;
-        public string constraint_name;
-        public string table_schema;
-        public string table_name;
-        public string column_name;
-        public string referenced_table_schema;
-        public string referenced_table_name;
-        public string referenced_column_name;
+        public string ConstraintName;
+        public string TableSchema;
+        public string TableName;
+        public string ColumnName;
+        public string ReferencedTableSchema;
+        public string ReferencedTableName;
+        public string ReferencedColumnName;
 
         public override string ToString()
         {
-            string detail = constraint_name == "PRIMARY"
-                                ? table_name + " PK"
-                                : constraint_name;
+            string detail = ConstraintName == "PRIMARY"
+                                ? TableName + " PK"
+                                : ConstraintName;
             return "KeyColUsage " + detail;
         }
     }
@@ -60,13 +60,13 @@ namespace DbLinq.MySql.Schema
             KeyColumnUsage t = new KeyColumnUsage();
             int field = 0;
             t.constraint_schema = rdr.GetAsString(field++);
-            t.constraint_name = rdr.GetAsString(field++);
-            t.table_schema  = rdr.GetAsString(field++);
-            t.table_name    = rdr.GetAsString(field++);
-            t.column_name    = rdr.GetAsString(field++);
-            t.referenced_table_schema = rdr.GetAsString(field++);
-            t.referenced_table_name = rdr.GetAsString(field++);
-            t.referenced_column_name = rdr.GetAsString(field++);
+            t.ConstraintName = rdr.GetAsString(field++);
+            t.TableSchema  = rdr.GetAsString(field++);
+            t.TableName    = rdr.GetAsString(field++);
+            t.ColumnName    = rdr.GetAsString(field++);
+            t.ReferencedTableSchema = rdr.GetAsString(field++);
+            t.ReferencedTableName = rdr.GetAsString(field++);
+            t.ReferencedColumnName = rdr.GetAsString(field++);
             return t;
         }
 

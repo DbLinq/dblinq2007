@@ -31,16 +31,16 @@ namespace DbLinq.Oracle.Schema
 {
     public class User_Constraints_Row
     {
-        public string table_schema;
-        public string constraint_name;
-        public string table_name;
+        public string TableSchema;
+        public string ConstraintName;
+        public string TableName;
         public string column_name;
         public string constraint_type;
         public string R_constraint_name;
 
         public override string ToString()
         {
-            return "User_Constraint  " + table_name + "." + column_name;
+            return "User_Constraint  " + TableName + "." + column_name;
         }
     }
 
@@ -50,9 +50,9 @@ namespace DbLinq.Oracle.Schema
         {
             User_Constraints_Row t = new User_Constraints_Row();
             int field = 0;
-            t.table_schema = rdr.GetString(field++);
-            t.constraint_name  = rdr.GetString(field++);
-            t.table_name    = rdr.GetString(field++);
+            t.TableSchema = rdr.GetString(field++);
+            t.ConstraintName  = rdr.GetString(field++);
+            t.TableName    = rdr.GetString(field++);
             t.column_name   = rdr.GetString(field++);
             t.constraint_type = rdr.GetString(field++);
             t.R_constraint_name = rdr.GetNString(field++);

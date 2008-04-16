@@ -37,13 +37,13 @@ namespace DbLinq.PostgreSql.Schema
         public string constraint_name;
         public string table_name_Child;
         public string constraint_type;
-        public string table_schema_Parent;
-        public string table_name_Parent;
-        public string column_name;
+        public string ReferencedTableSchema;
+        public string ReferencedTableName;
+        public string ColumnName;
 
         public override string ToString()
         {
-            return "ForKeyXR "+constraint_name+": "+constraint_type+"  "+table_name_Child+"->"+table_name_Parent;
+            return "ForKeyXR "+constraint_name+": "+constraint_type+"  "+table_name_Child+"->"+ReferencedTableName;
         }
     }
 
@@ -60,9 +60,9 @@ namespace DbLinq.PostgreSql.Schema
             t.constraint_name = rdr.GetString(field++);
             t.table_name_Child    = rdr.GetString(field++);
             t.constraint_type = rdr.GetString(field++);
-            t.table_schema_Parent = rdr.GetString(field++);
-            t.table_name_Parent = rdr.GetString(field++);
-            t.column_name = rdr.GetString(field++);
+            t.ReferencedTableSchema = rdr.GetString(field++);
+            t.ReferencedTableName = rdr.GetString(field++);
+            t.ColumnName = rdr.GetString(field++);
             return t;
         }
 

@@ -73,68 +73,36 @@ namespace DbLinq.PostgreSql
             foreach (KeyColumnUsage keyColRow in constraints)
             {
                 //find my table:
-                string constraintFullDbName = GetFullDbName(keyColRow.table_name, keyColRow.table_schema);
+                string constraintFullDbName = GetFullDbName(keyColRow.TableName, keyColRow.TableSchema);
                 DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => constraintFullDbName == t.Name);
                 if (table == null)
                 {
-                    Logger.Write(Level.Error, "ERROR L138: Table '" + keyColRow.table_name + "' not found for column " + keyColRow.column_name);
+                    Logger.Write(Level.Error, "ERROR L138: Table '" + keyColRow.TableName + "' not found for column " + keyColRow.ColumnName);
                     continue;
                 }
 
-                if (keyColRow.constraint_name.EndsWith("_pkey")) //MYSQL reads 'PRIMARY'
+                if (keyColRow.ConstraintName.EndsWith("_pkey")) //MYSQL reads 'PRIMARY'
                 {
                     //A) add primary key
-                    DbLinq.Schema.Dbml.Column primaryKeyCol = table.Type.Columns.First(c => c.Name == keyColRow.column_name);
+                    DbLinq.Schema.Dbml.Column primaryKeyCol = table.Type.Columns.First(c => c.Name == keyColRow.ColumnName);
                     if (!primaryKeyCol.IsPrimaryKey) // picrap: just to check if the case happens
                         primaryKeyCol.IsPrimaryKey = true;
                 }
                 else
                 {
-                    ForeignKeyCrossRef foreignKey = foreignKeys.FirstOrDefault(f => f.constraint_name == keyColRow.constraint_name);
+                    ForeignKeyCrossRef foreignKey = foreignKeys.FirstOrDefault(f => f.constraint_name == keyColRow.ConstraintName);
                     if (foreignKey == null)
                     {
-                        string msg = "Missing data from 'constraint_column_usage' for foreign key " + keyColRow.constraint_name;
+                        string msg = "Missing data from 'constraint_column_usage' for foreign key " + keyColRow.ConstraintName;
                         Logger.Write(Level.Error, msg);
                         //throw new ApplicationException(msg);
                         continue; //as per Andrus, do not throw. //putting together an Adnrus_DB test case.
                     }
 
-                    var associationName = CreateAssociationName(keyColRow.table_name, keyColRow.table_schema,
-                        foreignKey.table_name_Parent, foreignKey.table_schema_Parent, keyColRow.constraint_name,
-                        nameFormat);
-
-                    var foreignKey2 = names.ColumnsNames[keyColRow.table_name][keyColRow.column_name].PropertyName;
-                    var reverseForeignKey = names.ColumnsNames[foreignKey.table_name_Parent][foreignKey.column_name].PropertyName; // GetColumnName(keyColRow.referenced_column_name);
-
-                    //if not PRIMARY, it's a foreign key.
-                    //both parent and child table get an [Association]
-                    DbLinq.Schema.Dbml.Association assoc = new DbLinq.Schema.Dbml.Association();
-                    assoc.IsForeignKey = true;
-                    assoc.Name = keyColRow.constraint_name;
-                    assoc.Type = null;
-                    assoc.ThisKey = foreignKey2;
-                    assoc.OtherKey = reverseForeignKey;
-                    assoc.Member = associationName.ManyToOneMemberName;
-                    assoc.Storage = associationName.ForeignKeyStorageFieldName;
-                    table.Type.Associations.Add(assoc);
-
-                    //and insert the reverse association:
-                    DbLinq.Schema.Dbml.Association assoc2 = new DbLinq.Schema.Dbml.Association();
-                    assoc2.Name = keyColRow.constraint_name;
-                    assoc2.Type = table.Type.Name;
-                    assoc2.Member = associationName.OneToManyMemberName;
-                    assoc2.ThisKey = reverseForeignKey;
-                    assoc2.OtherKey = foreignKey2;
-
-                    string parentFullDbName = GetFullDbName(foreignKey.table_name_Parent, foreignKey.table_schema_Parent);
-                    DbLinq.Schema.Dbml.Table parentTable = schema.Tables.FirstOrDefault(t => parentFullDbName == t.Name);
-                    if (parentTable == null)
-                        Logger.Write(Level.Error, "ERROR L151: parent table not found: " + foreignKey.table_name_Parent);
-                    else
-                    {
-                        parentTable.Type.Associations.Add(assoc2);
-                        assoc.Type = parentTable.Type.Name;
-                    }
+                    LoadForeignKey(schema, table, keyColRow.ColumnName, keyColRow.TableName, keyColRow.TableSchema,
+                                  foreignKey.ColumnName, foreignKey.ReferencedTableName,
+                                  foreignKey.ReferencedTableSchema,
+                                  keyColRow.ConstraintName, nameFormat, names);
 
                 }
 

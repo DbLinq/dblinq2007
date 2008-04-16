@@ -68,11 +68,11 @@ namespace DbLinq.Oracle
             foreach (User_Constraints_Row constraint in constraints)
             {
                 //find my table:
-                string constraintFullDbName = GetFullDbName(constraint.table_name, constraint.table_schema);
+                string constraintFullDbName = GetFullDbName(constraint.TableName, constraint.TableSchema);
                 DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => constraintFullDbName == t.Name);
                 if (table == null)
                 {
-                    Logger.Write(Level.Error, "ERROR L100: Table '" + constraint.table_name + "' not found for column " + constraint.column_name);
+                    Logger.Write(Level.Error, "ERROR L100: Table '" + constraint.TableName + "' not found for column " + constraint.column_name);
                     continue;
                 }
 
@@ -89,51 +89,17 @@ namespace DbLinq.Oracle
                 {
                     //if not PRIMARY, it's a foreign key. (constraint_type=="R")
                     //both parent and child table get an [Association]
-                    User_Constraints_Row referencedConstraint = constraints.FirstOrDefault(c => c.constraint_name == constraint.R_constraint_name);
+                    User_Constraints_Row referencedConstraint = constraints.FirstOrDefault(c => c.ConstraintName == constraint.R_constraint_name);
                     if (constraint.R_constraint_name == null || referencedConstraint == null)
                     {
                         Logger.Write(Level.Error, "ERROR L127: given R_contraint_name='" + constraint.R_constraint_name + "', unable to find parent constraint");
                         continue;
                     }
 
-                    var associationName = CreateAssociationName(constraint.table_name, constraint.table_schema,
-                        referencedConstraint.table_name, referencedConstraint.table_schema, constraint.constraint_name,
-                        nameFormat);
-
-                    var foreignKey = names.ColumnsNames[constraint.table_name][constraint.column_name].PropertyName;
-                    var reverseForeignKey = names.ColumnsNames[referencedConstraint.table_name][referencedConstraint.column_name].PropertyName;
-
-                    //if not PRIMARY, it's a foreign key.
-                    //both parent and child table get an [Association]
-                    DbLinq.Schema.Dbml.Association assoc = new DbLinq.Schema.Dbml.Association();
-                    assoc.IsForeignKey = true;
-                    assoc.Name = constraint.constraint_name;
-                    assoc.Type = null;
-                    assoc.ThisKey = foreignKey;
-                    assoc.OtherKey = reverseForeignKey;
-                    assoc.Member = associationName.ManyToOneMemberName;
-                    assoc.Storage = associationName.ForeignKeyStorageFieldName;
-                    table.Type.Associations.Add(assoc);
-
-                    //and insert the reverse association:
-                    DbLinq.Schema.Dbml.Association assoc2 = new DbLinq.Schema.Dbml.Association();
-                    assoc2.Name = constraint.constraint_name;
-                    assoc2.Type = table.Type.Name;
-                    assoc2.Member = associationName.OneToManyMemberName;
-                    assoc2.ThisKey = reverseForeignKey;
-                    assoc2.OtherKey = foreignKey;
-
-                    string referencedFullDbName = GetFullDbName(referencedConstraint.table_name, referencedConstraint.table_schema);
-                    DbLinq.Schema.Dbml.Table parentTable = schema.Tables.FirstOrDefault(t => referencedFullDbName == t.Name);
-                    if (parentTable == null)
-                    {
-                        Logger.Write(Level.Error, "ERROR 148: parent table not found: " + referencedConstraint.table_name);
-                    }
-                    else
-                    {
-                        parentTable.Type.Associations.Add(assoc2);
-                        assoc.Type = parentTable.Type.Name;
-                    }
+                    LoadForeignKey(schema, table, constraint.column_name, constraint.TableName, constraint.TableSchema,
+                                  referencedConstraint.column_name, referencedConstraint.TableName,
+                                  referencedConstraint.TableSchema,
+                                  constraint.ConstraintName, nameFormat, names);
 
                 }
             }
