@@ -221,6 +221,49 @@ insert INTO Orders (OrderID, CustomerID, EmployeeID, OrderDate, Freight)
 Values (Orders_seq.NextVal, 'UKMOD', 1, sysdate, 32.5);
 
 
+--####################################################################
+
+CREATE OR REPLACE FUNCTION NORTHWIND.HELLO0
+RETURN varchar
+  IS
+BEGIN
+  return 'hello0';
+END;
+
+CREATE OR REPLACE FUNCTION NORTHWIND.HELLO1
+(s varchar)
+RETURN varchar
+  IS
+BEGIN
+  return 'Hello, ' || s || '!';
+END;
+
+CREATE OR REPLACE FUNCTION NORTHWIND.HELLO2
+(s varchar, s2 number)
+RETURN varchar
+  IS
+BEGIN
+  return 'Hello, ' || s || '!';
+END;
+
+CREATE OR REPLACE FUNCTION NORTHWIND.GETORDERCOUNT
+(custId varchar)
+RETURN number
+  IS
+count1 number;
+BEGIN
+SELECT COUNT(*) INTO count1 FROM Orders WHERE CustomerID=custId;
+RETURN count1;
+END;
+
+CREATE OR REPLACE PROCEDURE NORTHWIND.SP_SELORDERS
+(s varchar, s2 out number)
+  IS    
+BEGIN
+select 22 into s2 from dual;
+END;
+
+
 COMMIT;
 
 
