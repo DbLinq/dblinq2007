@@ -21,6 +21,7 @@
 // THE SOFTWARE.
 // 
 #endregion
+
 using System.Collections.Generic;
 
 namespace DbLinq.Schema
@@ -28,7 +29,7 @@ namespace DbLinq.Schema
     public class Name
     {
         /// <summary>
-        /// The original database name, returned directly by database analysus
+        /// The original database name, returned directly by database analysis
         /// </summary>
         public string DbName { get; set; }
 

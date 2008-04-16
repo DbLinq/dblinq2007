@@ -21,33 +21,14 @@
 // THE SOFTWARE.
 // 
 #endregion
-using DbLinq.Linq.Implementation;
-using DbLinq.Schema;
 
-namespace DbLinq.Linq
+namespace DbLinq.Schema
 {
-    public enum Case
+    public class ParameterName : Name
     {
-        Leave,
-        camelCase,
-        PascalCase,
-        NetCase,
-    }
-
-    public enum WordsExtraction
-    {
-        FromCase,
-        FromDictionary,
-    }
-
-    public interface INameFormatter
-    {
-        SchemaName GetSchemaName(string dbName, WordsExtraction extraction, NameFormat nameFormat);
-        ProcedureName GetProcedureName(string dbName, WordsExtraction extraction, NameFormat nameFormat);
-        ParameterName GetParameterName(string dbName, WordsExtraction extraction, NameFormat nameFormat);
-        TableName GetTableName(string dbName, WordsExtraction extraction, NameFormat nameFormat);
-        ColumnName GetColumnName(string dbName, WordsExtraction extraction, NameFormat nameFormat);
-        AssociationName GetAssociationName(string dbManyName, string dbOneName,
-            string dbConstraintName, WordsExtraction extraction, NameFormat nameFormat);
+        /// <summary>
+        /// Name to be used from a .NET call
+        /// </summary>
+        public string CallName { get; set; }
     }
 }

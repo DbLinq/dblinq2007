@@ -65,7 +65,7 @@ namespace DbLinq.MySql
             {
                 var procedureName = CreateProcedureName(proc.specific_name, proc.db, nameFormat);
 
-                DbLinq.Schema.Dbml.Function func = new DbLinq.Schema.Dbml.Function();
+                var func = new Function();
                 func.Name = procedureName.DbName;
                 func.Method = procedureName.MethodName;
                 func.IsComposable = string.Compare(proc.type, "FUNCTION") == 0;
@@ -109,7 +109,7 @@ namespace DbLinq.MySql
             }
         }
 
-        protected void ParseProcParams(ProcRow inputProc, DbLinq.Schema.Dbml.Function outputFunc)
+        protected void ParseProcParams(ProcRow inputProc, Function outputFunc)
         {
             string paramString = inputProc.param_list;
             if (string.IsNullOrEmpty(paramString))
@@ -120,8 +120,6 @@ namespace DbLinq.MySql
             {
                 string[] parts = paramString.Split(',');
 
-                char[] SPACES = new char[] { ' ', '\t', '\n' }; //word separators
-
                 foreach (string part in parts) //part='OUT param1 int'
                 {
                     DbLinq.Schema.Dbml.Parameter paramObj = ParseParameterString(part);
@@ -130,9 +128,9 @@ namespace DbLinq.MySql
                 }
             }
 
-            if (inputProc.returns != null && inputProc.returns != "")
+            if (!string.IsNullOrEmpty(inputProc.returns))
             {
-                var paramRet = new DbLinq.Schema.Dbml.Return();
+                var paramRet = new Return();
                 paramRet.DbType = inputProc.returns;
                 paramRet.Type = ParseDbType(inputProc.returns);
                 outputFunc.Return = paramRet;
@@ -172,7 +170,7 @@ namespace DbLinq.MySql
             string varName = param.Substring(0, indxSpace);
             string varType = param.Substring(indxSpace + 1);
 
-            DbLinq.Schema.Dbml.Parameter paramObj = new DbLinq.Schema.Dbml.Parameter();
+            var paramObj = new Parameter();
             paramObj.Direction = inOut;
             paramObj.Name = varName;
             paramObj.DbType = varType;
