@@ -202,12 +202,18 @@ namespace DbLinq.Linq
             throw new ApplicationException("L205 Not implemented");
         }
 
+        // TODO: rename to InsertOnSubmit()
         public void Add(T newObject)
         {
             _insertList.Add(newObject);
         }
+
+        // TODO: rename to DeleteOnSubmit()
         public void Remove(T objectToDelete)
         {
+          if (_insertList.Contains(objectToDelete))
+            _insertList.Remove(objectToDelete);
+          else
             //TODO: queue an object for SQL DELETE
             _deleteList.Add(objectToDelete);
         }
