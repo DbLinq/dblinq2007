@@ -65,13 +65,13 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                 WriteClassHeader(writer, table, context);
                 WriteClassProperties(writer, table, context);
                 if (context.Parameters.GenerateEqualsAndHash)
-                    WriteClassComparer(writer, table, context);
+                    WriteClassEqualsAndHash(writer, table, context);
                 WriteClassChildren(writer, table, schema, context);
                 WriteClassParents(writer, table, schema, context);
             }
         }
 
-        protected virtual void WriteClassComparer(CodeWriter writer, DbLinq.Schema.Dbml.Table table, GenerationContext context)
+        protected virtual void WriteClassEqualsAndHash(CodeWriter writer, DbLinq.Schema.Dbml.Table table, GenerationContext context)
         {
             List<DbLinq.Schema.Dbml.Column> primaryKeys = table.Type.Columns.Where(c => c.IsPrimaryKey).ToList();
             if (primaryKeys.Count == 0)
@@ -94,7 +94,9 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                     {
                         var member = primaryKey.Storage;
                         string primaryKeyHashCode = writer.GetMethodCallExpression(writer.GetMemberExpression(member, "GetHashCode"));
-                        if (primaryKey.CanBeNull)
+                        if (primaryKey.CanBeNull
+                        || GetType(primaryKey.Type, false).IsClass) // this patch to ensure that even if DB does not allow nulls,
+                                                                    // our in-memory object won't generate a fault
                         {
                             var isNullExpression = writer.GetEqualExpression(member, writer.GetNullExpression());
                             var nullExpression = writer.GetLiteralValue(0);
