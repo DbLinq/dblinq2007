@@ -144,7 +144,6 @@
     <Compile Include="Util\RowEnumFactory.cs" />
     <Compile Include="Util\RowScalar.cs" />
     <Compile Include="Linq\SqlExpressionParts.cs" />
-    <Compile Include="Util\TransactionManager.cs" />
     <Compile Include="Util\TypeCategory.cs" />
     <Compile Include="Util\Page.cs" />
     <Compile Include="Util\TypeExtensions.cs" />
