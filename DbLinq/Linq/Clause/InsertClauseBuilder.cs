@@ -70,7 +70,7 @@ namespace DbLinq.Linq.Clause
             {
                 ColumnAttribute colAtt = projFld.columnAttribute;
 
-                if (colAtt.IsPrimaryKey && projData.autoGenField != null)
+                if (colAtt.IsPrimaryKey && projData.AutoGen)
                 {
                     //Note: not every ID is autogen
                     //on Oracle, populate PK field from associated sequence

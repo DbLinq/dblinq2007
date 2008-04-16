@@ -126,6 +126,7 @@
     <Compile Include="Util\Log1.cs" />
     <Compile Include="Util\Lookup.cs" />
     <Compile Include="Linq\Implementation\NameFormatter.cs" />
+    <Compile Include="Util\TypeConvert.cs" />
     <Compile Include="Util\Operators.cs" />
     <Compile Include="Util\ProcResult.cs" />
     <Compile Include="Util\QuotesHelper.cs" />

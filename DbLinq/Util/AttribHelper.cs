@@ -222,19 +222,40 @@ namespace DbLinq.Util
                 }
             }
 
-            //now we are looking for '[AutoGenId] protected int productId':
-            //MemberInfo[] members = t.FindMembers(MemberTypes.Field, BindingFlags.Instance | BindingFlags.NonPublic, null, null);
-            MemberInfo[] members = GetMemberFields(t);
 
-            foreach (FieldInfo field in members.OfType<FieldInfo>())
+            // picrap: we use ColumnAttribute properties first, instead of AutoGenIdAttribute
+            // if we find none, we pass the hand to AutoGenId handle
+            foreach (var propertyInfo in t.GetProperties())
             {
-                object[] objs = field.GetCustomAttributes(typeof(AutoGenIdAttribute), false);
-                List<AutoGenIdAttribute> att = objs.OfType<AutoGenIdAttribute>().ToList();
-                if (att.Count == 0)
-                    continue; //not our field
-                projData.autoGenField = field;
-                break;
+                var columnAttributes = (ColumnAttribute[]) propertyInfo.GetCustomAttributes(typeof (ColumnAttribute), true);
+                if(columnAttributes.Length>0)
+                {
+                    var columnAttribute = columnAttributes[0];
+                    if(columnAttribute.IsDbGenerated)
+                    {
+                        projData.AutoGenProperty = propertyInfo;
+                        break;
+                    }
+                }
             }
+
+            if (projData.AutoGenProperty == null)
+            {
+                //now we are looking for '[AutoGenId] protected int productId':
+                //MemberInfo[] members = t.FindMembers(MemberTypes.Field, BindingFlags.Instance | BindingFlags.NonPublic, null, null);
+
+                MemberInfo[] members = GetMemberFields(t);
+                foreach (FieldInfo field in members.OfType<FieldInfo>())
+                {
+                    object[] objs = field.GetCustomAttributes(typeof (AutoGenIdAttribute), false);
+                    List<AutoGenIdAttribute> att = objs.OfType<AutoGenIdAttribute>().ToList();
+                    if (att.Count == 0)
+                        continue; //not our field
+                    projData.AutoGenField = field;
+                    break;
+                }
+            }
+
             return projData;
         }
 

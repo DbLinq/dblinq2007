@@ -63,7 +63,25 @@ namespace DbLinq.Linq
         /// <summary>
         /// this field must be populated after an INSERT.
         /// </summary>
-        public FieldInfo autoGenField;
+        public FieldInfo AutoGenField; // obsolete, use AutoGenProperty instead
+
+        public PropertyInfo AutoGenProperty;
+
+        public bool AutoGen { get { return AutoGenProperty != null || AutoGenField != null; } }
+
+        public void UpdateAutoGen(object reference, object value)
+        {
+            if (AutoGenProperty != null)
+            {
+                object convertedValue = TypeConvert.ToNumber(value, AutoGenProperty.PropertyType);
+                AutoGenProperty.GetSetMethod().Invoke(reference, new[] { convertedValue });
+            }
+            else
+            {
+                object convertedValue = TypeConvert.ToNumber(value, AutoGenField.FieldType);
+                AutoGenField.SetValue(reference, convertedValue);
+            }
+        }
 
         /// <summary>
         /// key column, eg. 'productID', used for deletion
@@ -238,43 +256,43 @@ namespace DbLinq.Linq
         {
             switch (selectExpr.Body.NodeType)
             {
-                case ExpressionType.New:
+            case ExpressionType.New:
+                {
+                    NewExpression newExpr1 = selectExpr.Body as NewExpression;
+                    //OrcasBeta2: we now receive a NewExpression instead of a MemberInitExpression
+                    ProjectionData proj1 = new ProjectionData();
+                    proj1.ctor = newExpr1.Constructor;
+                    LoopOverBindings_OrcasB2(proj1, newExpr1);
+                    return proj1;
+                }
+            case ExpressionType.MemberAccess:
+            case ExpressionType.Parameter:
+                {
+                    //MemberAccess example: in LinqToSqlJoin01(), we get "{<>h__TransparentIdentifier0.o}"
+                    //Parameter example: in C1_SelectProducts(), we get Products.Select(p => p)
+                    //that means we wish to select entire 'Order' row
+                    return FromDbType(selectExpr.Body.Type);
+                }
+            case ExpressionType.MemberInit:
+                {
+                    MemberInitExpression memberInit = selectExpr.Body as MemberInitExpression;
+                    if (memberInit == null)
                     {
-                        NewExpression newExpr1 = selectExpr.Body as NewExpression;
-                        //OrcasBeta2: we now receive a NewExpression instead of a MemberInitExpression
-                        ProjectionData proj1 = new ProjectionData();
-                        proj1.ctor = newExpr1.Constructor;
-                        LoopOverBindings_OrcasB2(proj1, newExpr1);
-                        return proj1;
+                        Console.WriteLine("  Select is not a projection - just a single field");
+                        return null;
                     }
-                case ExpressionType.MemberAccess:
-                case ExpressionType.Parameter:
-                    {
-                        //MemberAccess example: in LinqToSqlJoin01(), we get "{<>h__TransparentIdentifier0.o}"
-                        //Parameter example: in C1_SelectProducts(), we get Products.Select(p => p)
-                        //that means we wish to select entire 'Order' row
-                        return FromDbType(selectExpr.Body.Type);
-                    }
-                case ExpressionType.MemberInit:
-                    {
-                        MemberInitExpression memberInit = selectExpr.Body as MemberInitExpression;
-                        if (memberInit == null)
-                        {
-                            Console.WriteLine("  Select is not a projection - just a single field");
-                            return null;
-                        }
 
-                        ProjectionData proj = new ProjectionData();
-                        NewExpression newExpr = memberInit.NewExpression;
-                        proj.ctor = newExpr.Constructor;
-                        proj.type = newExpr.Type;
+                    ProjectionData proj = new ProjectionData();
+                    NewExpression newExpr = memberInit.NewExpression;
+                    proj.ctor = newExpr.Constructor;
+                    proj.type = newExpr.Type;
 
-                        LoopOverBindings(proj, memberInit);
-                        return proj;
-                    }
-                default:
-                    //throw new ApplicationException("L270 ProjData.FromSelectExpr: unprepared for " + selectExpr.Body.NodeType + " in " + selectExpr.Body);
-                    return null; //eg contatenated strings
+                    LoopOverBindings(proj, memberInit);
+                    return proj;
+                }
+            default:
+                //throw new ApplicationException("L270 ProjData.FromSelectExpr: unprepared for " + selectExpr.Body.NodeType + " in " + selectExpr.Body);
+                return null; //eg contatenated strings
             }
         }
 
@@ -320,25 +338,25 @@ namespace DbLinq.Linq
 
                 switch (memberAssign.Expression.NodeType)
                 {
-                    case ExpressionType.MemberAccess:
-                        //occurs during 'select new {e.ID,e.Name}'
-                        projField.expr1 = memberAssign.Expression as MemberExpression;
-                        break;
-                    case ExpressionType.Parameter:
-                        //occurs during 'from c ... from o ... select new {c,o}'
-                        ParameterExpression paramEx = memberAssign.Expression as ParameterExpression;
-                        break;
+                case ExpressionType.MemberAccess:
+                    //occurs during 'select new {e.ID,e.Name}'
+                    projField.expr1 = memberAssign.Expression as MemberExpression;
+                    break;
+                case ExpressionType.Parameter:
+                    //occurs during 'from c ... from o ... select new {c,o}'
+                    ParameterExpression paramEx = memberAssign.Expression as ParameterExpression;
+                    break;
 
-                    case ExpressionType.Convert:
-                        //occurs in 'select (CategoryEnum)o.EmployeeCategory'
-                        break;
-                    case ExpressionType.Call:
-                        //occurs during 'from c ... group o by o.CustomerID into g ... 
-                        //select new { g.Key , OrderCount = g.Count() };
-                        MethodCallExpression callEx = memberAssign.Expression.XMethodCall();
-                        break;
-                    default:
-                        throw new ArgumentException("L325: Unprepared for " + memberAssign.Expression.NodeType);
+                case ExpressionType.Convert:
+                    //occurs in 'select (CategoryEnum)o.EmployeeCategory'
+                    break;
+                case ExpressionType.Call:
+                    //occurs during 'from c ... group o by o.CustomerID into g ... 
+                    //select new { g.Key , OrderCount = g.Count() };
+                    MethodCallExpression callEx = memberAssign.Expression.XMethodCall();
+                    break;
+                default:
+                    throw new ArgumentException("L325: Unprepared for " + memberAssign.Expression.NodeType);
                 }
                 proj.fields.Add(projField);
             }
@@ -374,42 +392,42 @@ namespace DbLinq.Linq
 
                 switch (argExpr.NodeType)
                 {
-                    case ExpressionType.MemberAccess:
-                        //occurs during 'select new {e.ID,e.Name}'
-                        projField.expr1 = argExpr as MemberExpression;
+                case ExpressionType.MemberAccess:
+                    //occurs during 'select new {e.ID,e.Name}'
+                    projField.expr1 = argExpr as MemberExpression;
 
-                        //Now handled in ExpressionTreeParser
-                        ////TODO: for GroupBy selects, replace 'g.Key' with 'o.CustomerID':
-                        //if(projField.expr1.Member.Name=="Key")
-                        //{
-                        //    projField.expr1 = GroupByExpression.Body as MemberExpression;
-                        //    sqlParts.SelectFieldList.Add(projField.expr1.Member.Name);
-                        //}
-                        break;
-                    case ExpressionType.Parameter:
-                        //occurs during 'from c ... from o ... select new {c,o}'
-                        ParameterExpression paramEx = argExpr as ParameterExpression;
-                        break;
+                    //Now handled in ExpressionTreeParser
+                    ////TODO: for GroupBy selects, replace 'g.Key' with 'o.CustomerID':
+                    //if(projField.expr1.Member.Name=="Key")
+                    //{
+                    //    projField.expr1 = GroupByExpression.Body as MemberExpression;
+                    //    sqlParts.SelectFieldList.Add(projField.expr1.Member.Name);
+                    //}
+                    break;
+                case ExpressionType.Parameter:
+                    //occurs during 'from c ... from o ... select new {c,o}'
+                    ParameterExpression paramEx = argExpr as ParameterExpression;
+                    break;
 
-                    //CallVirtual disappeared in Beta2?!
-                    //case ExpressionType.CallVirtual:
-                    //    //occurs in 'select o.Name.ToLower()'
-                    //    break;
+                //CallVirtual disappeared in Beta2?!
+                //case ExpressionType.CallVirtual:
+                //    //occurs in 'select o.Name.ToLower()'
+                //    break;
 
-                    case ExpressionType.Add: //{new <>f__AnonymousType16`2(CustomerID = c.CustomerID, Location = ((c.City + ", ") + c.Country))}
-                    case ExpressionType.Convert: //'select (CategoryEnum)o.EmployeeCategory'
-                        break;
+                case ExpressionType.Add: //{new <>f__AnonymousType16`2(CustomerID = c.CustomerID, Location = ((c.City + ", ") + c.Country))}
+                case ExpressionType.Convert: //'select (CategoryEnum)o.EmployeeCategory'
+                    break;
 
-                    case ExpressionType.Call:
-                        //occurs during 'from c ... group o by o.CustomerID into g ... 
-                        //select new { g.Key , OrderCount = g.Count() };
-                        MethodCallExpression callEx = argExpr.XMethodCall();
-                        //projField.expr1 = memberAssign.Expression as MemberExpression;
-                        //projField.type = callEx.Type;
-                        //projField.typeEnum = CSharp.GetCategory(projField.type);
-                        break;
-                    default:
-                        throw new ArgumentException("L390: Unprepared for " + argExpr.NodeType);
+                case ExpressionType.Call:
+                    //occurs during 'from c ... group o by o.CustomerID into g ... 
+                    //select new { g.Key , OrderCount = g.Count() };
+                    MethodCallExpression callEx = argExpr.XMethodCall();
+                    //projField.expr1 = memberAssign.Expression as MemberExpression;
+                    //projField.type = callEx.Type;
+                    //projField.typeEnum = CSharp.GetCategory(projField.type);
+                    break;
+                default:
+                    throw new ArgumentException("L390: Unprepared for " + argExpr.NodeType);
                 }
                 proj.fields.Add(projField);
             }

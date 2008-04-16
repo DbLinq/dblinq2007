@@ -275,7 +275,7 @@ namespace DbLinq.Linq
                         object objID = null;
                         objID = cmd.ExecuteScalar();
 
-                        if (proj.autoGenField == null)
+                        if (!proj.AutoGen)
                             continue; //ID was already assigned by user, not from a DB sequence.
 
                         //Oracle unpacks objID from an out-param:
@@ -284,7 +284,7 @@ namespace DbLinq.Linq
                         try
                         {
                             //set the object's ID:
-                            FieldUtils.SetObjectIdField(obj, proj.autoGenField, objID);
+                            proj.UpdateAutoGen(obj, objID);
 
                             _modificationHandler.ClearModified(obj); //we just saved it - it's not 'dirty'
                         }
@@ -435,27 +435,33 @@ namespace DbLinq.Linq
             throw new NotImplementedException();
         }
 
-        public IEnumerable<object> Inserts {
-          get { return _insertList.Cast<object>(); }
+        public IEnumerable<object> Inserts
+        {
+            get { return _insertList.Cast<object>(); }
         }
 
-        public IEnumerable<object> Updates {
+        public IEnumerable<object> Updates
+        {
 
-          get {
-            List<object> list = new List<object>();
+            get
+            {
+                List<object> list = new List<object>();
 
-            foreach (T obj in _liveObjectMap.Values) {
-              if (_modificationHandler.IsModified(obj))
-                list.Add(obj);
+                foreach (T obj in _liveObjectMap.Values)
+                {
+                    if (_modificationHandler.IsModified(obj))
+                        list.Add(obj);
+                }
+                return list;
             }
-            return list;
-          }
         }
 
-        public IEnumerable<object> Deletes {
-          get {
-            return _deleteList.Cast<object>();
-          }
+        public IEnumerable<object> Deletes
+        {
+            get
+            {
+                return _deleteList.Cast<object>();
+            }
         }
 
     }

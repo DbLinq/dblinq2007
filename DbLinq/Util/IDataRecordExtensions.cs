@@ -97,15 +97,9 @@ namespace DbLinq.Util
 
         private static U GetAsNumeric<U>(object o)
         {
-            if (o is U)
-                return (U)o;
             if (o == null || o is DBNull)
                 return default(U);
-            string methodName = string.Format("To{0}", typeof(U).Name);
-            MethodInfo convertMethod = typeof(Convert).GetMethod(methodName, new Type[] { o.GetType() });
-            if (convertMethod != null)
-                return (U)convertMethod.Invoke(null, new object[] { o });
-            throw new InvalidCastException(string.Format("Can't convert type {0} in Convert.{1}()", o.GetType().Name, methodName));
+            return TypeConvert.ToNumber<U>(o);
         }
 
         public static object GetAsEnum(this IDataRecord dataRecord, Type enumType, int index)
