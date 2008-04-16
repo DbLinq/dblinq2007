@@ -22,15 +22,19 @@
 // 
 #endregion
 
+using System.Data;
 using System.Linq;
 using DbLinq.Linq;
 using DbLinq.Logging;
+using DbLinq.Schema;
 using DbLinq.Schema.Dbml;
 
 namespace DbLinq.Vendor.Implementation
 {
     partial class SchemaLoader
     {
+        protected abstract void LoadConstraints(Database schema, SchemaName schemaName, IDbConnection conn, NameFormat nameFormat, Names names);
+
         protected virtual void LoadForeignKey(Database schema, Table table, string columnName, string tableName, string tableSchema,
             string referencedColumnName, string referencedTableName, string referencedTableSchema,
             string constraintName,

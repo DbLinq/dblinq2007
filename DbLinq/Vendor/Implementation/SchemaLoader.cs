@@ -45,17 +45,33 @@ namespace DbLinq.Vendor.Implementation
 
         public virtual Database Load(string databaseName, IDictionary<string, string> tableAliases, NameFormat nameFormat, bool loadStoredProcedures)
         {
+            // check if connection is open. Note: we may use something more flexible
             if (Connection.State != ConnectionState.Open)
                 Connection.Open();
+
+            // get the database name. If we don't have one, take it from connection string...
             if (string.IsNullOrEmpty(databaseName))
                 databaseName = Connection.Database;
+            // ... and if connection string doesn't provide a name, then throw an error
             if (string.IsNullOrEmpty(databaseName))
                 throw new ArgumentException("A database name is required. Please specify /database=<databaseName>");
-            var schemaName = NameFormatter.GetSchemaName(databaseName, GetExtraction(databaseName), nameFormat);
-            return Load(schemaName, tableAliases, nameFormat, loadStoredProcedures);
-        }
 
-        protected abstract Database Load(SchemaName schemaName, IDictionary<string, string> tableAliases, NameFormat nameFormat, bool loadStoredProcedures);
+            var schemaName = NameFormatter.GetSchemaName(databaseName, GetExtraction(databaseName), nameFormat);
+            var names = new Names();
+            var schema = new Database {Name = schemaName.DbName, Class = schemaName.ClassName};
+
+            // order is important, we must have:
+            // 1. tables
+            // 2. columns
+            // 3. constraints
+            LoadTables(schema, schemaName, Connection, tableAliases, nameFormat, names);
+            LoadColumns(schema, schemaName, Connection, nameFormat, names);
+            LoadConstraints(schema, schemaName, Connection, nameFormat, names);
+            if (loadStoredProcedures)
+                LoadStoredProcedures(schema, schemaName, Connection, nameFormat);
+
+            return schema;
+        }
 
         protected SchemaLoader()
         {

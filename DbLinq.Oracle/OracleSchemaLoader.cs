@@ -43,24 +43,8 @@ namespace DbLinq.Oracle
 
         public override System.Type DataContextType { get { return typeof(OracleDataContext); } }
 
-        protected override Database Load(SchemaName schemaName, IDictionary<string, string> tableAliases, NameFormat nameFormat, bool loadStoredProcedures)
+        protected override void LoadConstraints(Database schema, SchemaName schemaName, IDbConnection conn, NameFormat nameFormat, Names names)
         {
-            IDbConnection conn = Connection;
-
-            var names = new Names();
-
-            var schema = new Database();
-
-            schema.Name = schemaName.DbName;
-            schema.Class = schemaName.ClassName;
-
-
-            LoadTables(schema, schemaName, conn, tableAliases, nameFormat, names);
-
-            LoadColumns(schema, schemaName, conn, nameFormat, names);
-
-            //##################################################################
-            //step 3 - load foreign keys etc
             User_Constraints_Sql ksql = new User_Constraints_Sql();
             List<User_Constraints_Row> constraints = ksql.getConstraints1(conn, schemaName.DbName);
 
@@ -97,16 +81,14 @@ namespace DbLinq.Oracle
                     }
 
                     LoadForeignKey(schema, table, constraint.column_name, constraint.TableName, constraint.TableSchema,
-                                  referencedConstraint.column_name, referencedConstraint.TableName,
-                                  referencedConstraint.TableSchema,
-                                  constraint.ConstraintName, nameFormat, names);
+                                   referencedConstraint.column_name, referencedConstraint.TableName,
+                                   referencedConstraint.TableSchema,
+                                   constraint.ConstraintName, nameFormat, names);
 
                 }
             }
 
             GuessSequencePopulatedFields(schema);
-
-            return schema;
         }
 
         /// <summary>

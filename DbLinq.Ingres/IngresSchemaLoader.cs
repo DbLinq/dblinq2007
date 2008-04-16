@@ -43,24 +43,8 @@ namespace DbLinq.Ingres
 
         public override System.Type DataContextType { get { return typeof(IngresDataContext); } }
 
-        protected override Database Load(SchemaName schemaName, IDictionary<string, string> tableAliases, NameFormat nameFormat, bool loadStoredProcedures)
+        protected override void LoadConstraints(Database schema, SchemaName schemaName, IDbConnection conn, NameFormat nameFormat, Names names)
         {
-            IDbConnection conn = Connection;
-
-            var names = new Names();
-
-            var schema = new Database();
-
-            schema.Name = schemaName.DbName;
-            schema.Class = schemaName.ClassName;
-
-            LoadTables(schema, schemaName, conn, tableAliases, nameFormat, names);
-
-            LoadColumns(schema, schemaName, conn, nameFormat, names);
-
-            //##################################################################
-            //step 3 - analyse foreign keys etc
-
             //TableSorter.Sort(tables, constraints); //sort tables - parents first
 
             ForeignKeySql fsql = new ForeignKeySql();
@@ -75,9 +59,9 @@ namespace DbLinq.Ingres
                 if (table == null)
                 {
                     Logger.Write(Level.Error, "ERROR L138: Table '"
-                        + keyColRow.TableName
-                        + "' not found for column "
-                        + keyColRow.ColumnName);
+                                              + keyColRow.TableName
+                                              + "' not found for column "
+                                              + keyColRow.ColumnName);
                     continue;
                 }
 
@@ -98,16 +82,14 @@ namespace DbLinq.Ingres
                         continue;
 
                     LoadForeignKey(schema, table, keyColRow.ColumnName, keyColRow.TableName,
-                                  keyColRow.TableSchema,
-                                  keyColRow.ReferencedColumnName, keyColRow.ReferencedTableName,
-                                  keyColRow.ReferencedTableSchema,
-                                  keyColRow.ConstraintName, nameFormat, names);
+                                   keyColRow.TableSchema,
+                                   keyColRow.ReferencedColumnName, keyColRow.ReferencedTableName,
+                                   keyColRow.ReferencedTableSchema,
+                                   keyColRow.ConstraintName, nameFormat, names);
 
                 }
 
             }
-
-            return schema;
         }
 
         protected override System.Type MapDbType(IDataType dataType)
