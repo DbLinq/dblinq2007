@@ -137,6 +137,12 @@ namespace DbLinq.Vendor.Implementation
             return NameFormatter.GetSchemaName(databaseName, GetExtraction(databaseName), nameFormat);
         }
 
+        protected virtual ParameterName CreateParameterName(string dbParameterName, NameFormat nameFormat)
+        {
+            var parameterName = NameFormatter.GetParameterName(dbParameterName, GetExtraction(dbParameterName), nameFormat);
+            return parameterName;
+        }
+
         protected class Names
         {
             public IDictionary<string, TableName> TablesNames = new Dictionary<string, TableName>();

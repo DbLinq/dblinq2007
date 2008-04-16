@@ -79,6 +79,7 @@
     <Compile Include="Logging\Level.cs" />
     <Compile Include="Schema\AssociationName.cs" />
     <Compile Include="Schema\ColumnName.cs" />
+    <Compile Include="Schema\ParameterName.cs" />
     <Compile Include="Schema\DbmlSchema.Adapter.cs" />
     <Compile Include="Schema\DbmlSchema.cs">
       <DependentUpon>DbmlSchema.xsd</DependentUpon>

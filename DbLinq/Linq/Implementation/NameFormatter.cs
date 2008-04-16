@@ -218,6 +218,15 @@ namespace DbLinq.Linq.Implementation
             return procedureName;
         }
 
+        public ParameterName GetParameterName(string dbName, WordsExtraction extraction, NameFormat nameFormat)
+        {
+            var words = GetLanguageWords(nameFormat.Culture);
+            var parameterName = new ParameterName { DbName = dbName };
+            parameterName.NameWords = ExtractWords(words, dbName, extraction);
+            parameterName.CallName = Format(words, parameterName.NameWords, Case.camelCase, Singularization.DontChange);
+            return parameterName;
+        }
+
         public TableName GetTableName(string dbName, WordsExtraction extraction, NameFormat nameFormat)
         {
             var words = GetLanguageWords(nameFormat.Culture);
