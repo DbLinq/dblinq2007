@@ -79,16 +79,18 @@
       <Link>Properties\DbLinq.ProductInfo.cs</Link>
     </Compile>
     <Compile Include="Generator\AttributeDefinition.cs" />
-    <Compile Include="Generator\CodeDomGenerator.cs" />
+    <Compile Include="Generator\Implementation\CodeDomGenerator\AbstractCodeDomGenerator.cs" />
     <Compile Include="Generator\EntityInterface\Implementation\INotifyPropertyChangedImplementation.cs" />
     <Compile Include="Generator\GenerationContext.cs" />
     <Compile Include="Generator\ICodeGenerator.cs" />
     <Compile Include="Generator\EntityInterface\Implementation\InterfaceImplementation.cs" />
-    <Compile Include="Generator\Implementation\CodeGenerator.Class.cs" />
-    <Compile Include="Generator\Implementation\CodeGenerator.cs" />
-    <Compile Include="Generator\Implementation\CodeGenerator.Procedure.cs" />
-    <Compile Include="Generator\Implementation\CSCodeGenerator.cs" />
-    <Compile Include="Generator\Implementation\CSCodeWriter.cs" />
+    <Compile Include="Generator\Implementation\CodeDomGenerator\VisualBasicCodeDomGenerator.cs" />
+    <Compile Include="Generator\Implementation\CodeDomGenerator\CSharpCodeDomGenerator.cs" />
+    <Compile Include="Generator\Implementation\CodeTextGenerator\CodeGenerator.Class.cs" />
+    <Compile Include="Generator\Implementation\CodeTextGenerator\CodeGenerator.cs" />
+    <Compile Include="Generator\Implementation\CodeTextGenerator\CodeGenerator.Procedure.cs" />
+    <Compile Include="Generator\Implementation\CodeTextGenerator\CSCodeGenerator.cs" />
+    <Compile Include="Generator\Implementation\CodeTextGenerator\CSCodeWriter.cs" />
     <Compile Include="Generator\CodeWriter.cs" />
     <Compile Include="Generator\EntityInterface\IImplementation.cs" />
     <Compile Include="Generator\EntityInterface\Implementation\IModifiedImplementation.cs" />
