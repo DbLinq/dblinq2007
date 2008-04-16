@@ -122,16 +122,22 @@ namespace DbMetal.Generator.Implementation
 
 		public void GenerateCSharp(Parameters parameters, Database dbSchema, ISchemaLoader schemaLoader, string filename)
 		{
-			ICodeGenerator codeGen = new CSCodeGenerator();
+			// This commented out code is the non CodeDom based generator.
+			//ICodeGenerator codeGen = new CSCodeGenerator();
+
+			//if (String.IsNullOrEmpty(Path.GetExtension(filename)))
+			//    filename += codeGen.Extension;
+
+			//using (var streamWriter = new StreamWriter(filename))
+			//{
+			//    var generationContext = new GenerationContext(parameters, schemaLoader);
+			//    codeGen.Write(streamWriter, dbSchema, generationContext);
+			//}
 
 			if (String.IsNullOrEmpty(Path.GetExtension(filename)))
-				filename += codeGen.Extension;
+				filename += ".cs";
 
-			using (var streamWriter = new StreamWriter(filename))
-			{
-				var generationContext = new GenerationContext(parameters, schemaLoader);
-				codeGen.Write(streamWriter, dbSchema, generationContext);
-			}
+			CodeDomGenerator.GenerateCSharp(dbSchema, filename);
 		}
 
 		public Database LoadSchema(Parameters parameters, ISchemaLoader schemaLoader)

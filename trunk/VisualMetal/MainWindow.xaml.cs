@@ -93,7 +93,23 @@ namespace VisualMetal
 			dialog.Filter = "C# source files (*.cs)|*.cs|All files (*.*)|*.*";
 			dialog.FileName = Parameters.Database;
 			if (dialog.ShowDialog() != System.Windows.Forms.DialogResult.Cancel)
-				Program.GenerateCSharp(Parameters, Database, Loader, dialog.FileName);
+				DbMetal.Generator.CodeDomGenerator.GenerateCSharp(Database, dialog.FileName);
+				//Program.GenerateCSharp(Parameters, Database, Loader, dialog.FileName);
+		}
+
+		private void GenerateVisualBasic_Click(object sender, RoutedEventArgs e)
+		{
+			if (Database == null)
+			{
+				MessageBox.Show("No database schema loaded.");
+				return;
+			}
+
+			var dialog = new System.Windows.Forms.SaveFileDialog();
+			dialog.Filter = "Visual Basic source files (*.vb)|*.vb|All files (*.*)|*.*";
+			dialog.FileName = Parameters.Database;
+			if (dialog.ShowDialog() != System.Windows.Forms.DialogResult.Cancel)
+				DbMetal.Generator.CodeDomGenerator.GenerateVisualBasic(Database, dialog.FileName);
 		}
 
 		private void SaveDbml_Click(object sender, RoutedEventArgs e)

@@ -11,9 +11,10 @@
 			<MenuItem Header="_File" >
 				<MenuItem Header="_Login to Database..." Click="Login_Click" />
 				<MenuItem Header="_Open DBML..." Click="Open_Click" />
+				<MenuItem Header="_Save DBML..." Click="SaveDbml_Click" />
 				<Separator />
 				<MenuItem Header="_Generate C#..." Click="GenerateCSharp_Click" />
-				<MenuItem Header="_Save DBML..." Click="SaveDbml_Click" />
+				<MenuItem Header="Generate _Visual Basic..." Click="GenerateVisualBasic_Click" />
 				<Separator />
 				<MenuItem Header="E_xit" Click="Exit_Click" />
 			</MenuItem>

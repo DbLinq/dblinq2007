@@ -79,6 +79,7 @@
       <Link>Properties\DbLinq.ProductInfo.cs</Link>
     </Compile>
     <Compile Include="Generator\AttributeDefinition.cs" />
+    <Compile Include="Generator\CodeDomGenerator.cs" />
     <Compile Include="Generator\EntityInterface\Implementation\INotifyPropertyChangedImplementation.cs" />
     <Compile Include="Generator\GenerationContext.cs" />
     <Compile Include="Generator\ICodeGenerator.cs" />
