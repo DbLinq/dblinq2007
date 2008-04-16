@@ -45,23 +45,29 @@ namespace DbLinq.Sqlite
 
         public override System.Type DataContextType { get { return typeof(SqliteDataContext); } }
 
-        protected override Database Load(SchemaName schemaName, IDictionary<string, string> tableAliases, NameFormat nameFormat, bool loadStoredProcedures)
+        protected override void LoadStoredProcedures(Database schema, SchemaName schemaName, IDbConnection conn, NameFormat nameFormat)
         {
-            IDbConnection conn = Connection;
+            ProcSql procsql = new ProcSql();
+            List<ProcRow> procs = procsql.getProcs(conn, schemaName.DbName);
 
-            var names = new Names();
+            foreach (ProcRow proc in procs)
+            {
+                var procedureName = CreateProcedureName(proc.specific_name, proc.db, nameFormat);
 
-            var schema = new Database();
+                DbLinq.Schema.Dbml.Function func = new DbLinq.Schema.Dbml.Function();
+                func.Name = proc.specific_name;
+                func.Method = procedureName.MethodName;
+                func.IsComposable = string.Compare(proc.type, "FUNCTION") == 0;
+                func.BodyContainsSelectStatement = proc.body != null
+                                                   && proc.body.IndexOf("select", StringComparison.OrdinalIgnoreCase) > -1;
+                ParseProcParams(proc, func);
 
-            schema.Name = schemaName.DbName;
-            schema.Class = schemaName.ClassName;
+                schema.Functions.Add(func);
+            }
+        }
 
-            LoadTables(schema, schemaName, conn, tableAliases, nameFormat, names);
-
-            LoadColumns(schema, schemaName, conn, nameFormat, names);
-
-            //##################################################################
-            //step 3 - load foreign keys etc
+        protected override void LoadConstraints(Database schema, SchemaName schemaName, IDbConnection conn, NameFormat nameFormat, Names names)
+        {
             KeyColumnUsageSql ksql = new KeyColumnUsageSql();
             List<KeyColumnUsage> constraints = ksql.getConstraints(conn, schemaName.DbName);
 
@@ -88,40 +94,14 @@ namespace DbLinq.Sqlite
                     if (isForeignKey)
                     {
                         LoadForeignKey(schema, table, keyColRow.column_name, keyColRow.TableName, keyColRow.TableSchema,
-                                      keyColRow.referenced_column_name, keyColRow.ReferencedTableName,
-                                      keyColRow.ReferencedTableSchema,
-                                      keyColRow.ConstraintName, nameFormat, names);
+                                       keyColRow.referenced_column_name, keyColRow.ReferencedTableName,
+                                       keyColRow.ReferencedTableSchema,
+                                       keyColRow.ConstraintName, nameFormat, names);
 
                     }
 
                 }
             }
-
-
-            //##################################################################
-            //step 4 - load stored procs
-            if (loadStoredProcedures)
-            {
-                ProcSql procsql = new ProcSql();
-                List<ProcRow> procs = procsql.getProcs(conn, schemaName.DbName);
-
-                foreach (ProcRow proc in procs)
-                {
-                    var procedureName = CreateProcedureName(proc.specific_name, proc.db, nameFormat);
-
-                    DbLinq.Schema.Dbml.Function func = new DbLinq.Schema.Dbml.Function();
-                    func.Name = proc.specific_name;
-                    func.Method = procedureName.MethodName;
-                    func.IsComposable = string.Compare(proc.type, "FUNCTION") == 0;
-                    func.BodyContainsSelectStatement = proc.body != null
-                                                       && proc.body.IndexOf("select", StringComparison.OrdinalIgnoreCase) > -1;
-                    ParseProcParams(proc, func);
-
-                    schema.Functions.Add(func);
-                }
-            }
-
-            return schema;
         }
 
         /// <summary>
@@ -131,7 +111,7 @@ namespace DbLinq.Sqlite
         protected void ParseProcParams(ProcRow inputProc, DbLinq.Schema.Dbml.Function outputFunc)
         {
             string paramString = inputProc.param_list;
-            if (paramString == null || paramString == "")
+            if (string.IsNullOrEmpty(paramString))
             {
                 //nothing to parse
             }
@@ -149,7 +129,7 @@ namespace DbLinq.Sqlite
                 }
             }
 
-            if (inputProc.returns != null && inputProc.returns != "")
+            if (!string.IsNullOrEmpty(inputProc.returns))
             {
                 var paramRet = new DbLinq.Schema.Dbml.Return();
                 paramRet.DbType = inputProc.returns;

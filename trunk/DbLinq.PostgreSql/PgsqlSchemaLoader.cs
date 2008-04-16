@@ -42,23 +42,50 @@ namespace DbLinq.PostgreSql
 
         public override System.Type DataContextType { get { return typeof(PgsqlDataContext); } }
 
-        protected override Database Load(SchemaName schemaName, IDictionary<string, string> tableAliases, NameFormat nameFormat, bool loadStoredProcedures)
+        protected override void LoadStoredProcedures(Database schema, SchemaName schemaName, IDbConnection conn, NameFormat nameFormat)
         {
-            IDbConnection conn = Connection;
+            Pg_Proc_Sql procSql = new Pg_Proc_Sql();
+            List<Pg_Proc> procs = procSql.getProcs(conn, schemaName.DbName);
 
-            var names = new Names();
+            //4a. determine unknown types
+            Dictionary<long, string> typeOidToName = new Dictionary<long, string>();
 
-            var schema = new Database();
+            foreach (Pg_Proc proc in procs)
+            {
+                if (proc.proallargtypes == null && !string.IsNullOrEmpty(proc.proargtypes))
+                    proc.proallargtypes = "{" + proc.proargtypes.Replace(' ', ',') + "}"; //work around pgsql weirdness?
+            }
 
-            schema.Name = schemaName.DbName;
-            schema.Class = schemaName.ClassName;
+            foreach (Pg_Proc proc in procs)
+            {
+                typeOidToName[proc.prorettype] = proc.formatted_prorettype;
+                if (proc.proallargtypes == null)
+                    continue; //no args, no Oids to resolve, skip
 
-            LoadTables(schema, schemaName, conn, tableAliases, nameFormat, names);
+                string[] argTypes1 = parseCsvString(proc.proallargtypes); //eg. {23,24,1043}
+                var argTypes2 = from t in argTypes1 select long.Parse(t);
 
-            LoadColumns(schema, schemaName, conn, nameFormat, names);
-            //##################################################################
-            //step 3 - analyse foreign keys etc
+                foreach (long argType in argTypes2)
+                {
+                    if (!typeOidToName.ContainsKey(argType))
+                        typeOidToName[argType] = null;
+                }
+            }
 
+            //4b. get names for unknown types
+            procSql.getTypeNames(conn, schemaName.DbName, typeOidToName);
+
+            //4c. generate dbml objects
+            foreach (Pg_Proc proc in procs)
+            {
+                DbLinq.Schema.Dbml.Function dbml_fct = ParseFunction(proc, typeOidToName, nameFormat);
+                if (!SkipProc(dbml_fct.Name))
+                    schema.Functions.Add(dbml_fct);
+            }
+        }
+
+        protected override void LoadConstraints(Database schema, SchemaName schemaName, IDbConnection conn, NameFormat nameFormat, Names names)
+        {
             //TableSorter.Sort(tables, constraints); //sort tables - parents first
 
             KeyColumnUsageSql ksql = new KeyColumnUsageSql();
@@ -100,59 +127,13 @@ namespace DbLinq.PostgreSql
                     }
 
                     LoadForeignKey(schema, table, keyColRow.ColumnName, keyColRow.TableName, keyColRow.TableSchema,
-                                  foreignKey.ColumnName, foreignKey.ReferencedTableName,
-                                  foreignKey.ReferencedTableSchema,
-                                  keyColRow.ConstraintName, nameFormat, names);
+                                   foreignKey.ColumnName, foreignKey.ReferencedTableName,
+                                   foreignKey.ReferencedTableSchema,
+                                   keyColRow.ConstraintName, nameFormat, names);
 
                 }
 
             }
-
-            //##################################################################
-            //step 4 - analyse stored procs
-            if (loadStoredProcedures)
-            {
-                Pg_Proc_Sql procSql = new Pg_Proc_Sql();
-                List<Pg_Proc> procs = procSql.getProcs(conn, schemaName.DbName);
-
-                //4a. determine unknown types
-                Dictionary<long, string> typeOidToName = new Dictionary<long, string>();
-
-                foreach (Pg_Proc proc in procs)
-                {
-                    if (proc.proallargtypes == null && proc.proargtypes != null && proc.proargtypes != "")
-                        proc.proallargtypes = "{" + proc.proargtypes.Replace(' ', ',') + "}"; //work around pgsql weirdness?
-                }
-
-                foreach (Pg_Proc proc in procs)
-                {
-                    typeOidToName[proc.prorettype] = proc.formatted_prorettype;
-                    if (proc.proallargtypes == null)
-                        continue; //no args, no Oids to resolve, skip
-
-                    string[] argTypes1 = parseCsvString(proc.proallargtypes); //eg. {23,24,1043}
-                    var argTypes2 = from t in argTypes1 select long.Parse(t);
-
-                    foreach (long argType in argTypes2)
-                    {
-                        if (!typeOidToName.ContainsKey(argType))
-                            typeOidToName[argType] = null;
-                    }
-                }
-
-                //4b. get names for unknown types
-                procSql.getTypeNames(conn, schemaName.DbName, typeOidToName);
-
-                //4c. generate dbml objects
-                foreach (Pg_Proc proc in procs)
-                {
-                    DbLinq.Schema.Dbml.Function dbml_fct = ParseFunction(proc, typeOidToName, nameFormat);
-                    if (!SkipProc(dbml_fct.Name))
-                        schema.Functions.Add(dbml_fct);
-                }
-
-            }
-            return schema;
         }
 
         #region function parsing
@@ -238,7 +219,7 @@ namespace DbLinq.PostgreSql
 
         #endregion
 
-
+        // TODO: find our inspiration somewhere else than AppSettings
         private bool SkipProc(string name)
         {
             string[] prefixes = System.Configuration.ConfigurationManager.AppSettings["postgresqlSkipProcPrefixes"].Split(',');
