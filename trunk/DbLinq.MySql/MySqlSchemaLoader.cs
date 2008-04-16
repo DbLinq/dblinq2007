@@ -82,57 +82,22 @@ namespace DbLinq.MySql
             foreach (KeyColumnUsage keyColRow in constraints)
             {
                 //find my table:
-                string fullKeyDbName = GetFullDbName(keyColRow.table_name, keyColRow.table_schema);
+                string fullKeyDbName = GetFullDbName(keyColRow.TableName, keyColRow.TableSchema);
                 DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => fullKeyDbName == t.Name);
                 if (table == null)
                 {
-                    Logger.Write(Level.Error, "ERROR L46: Table '" + keyColRow.table_name + "' not found for column " + keyColRow.column_name);
+                    Logger.Write(Level.Error, "ERROR L46: Table '" + keyColRow.TableName + "' not found for column " + keyColRow.ColumnName);
                     continue;
                 }
 
-                bool isForeignKey = keyColRow.constraint_name != "PRIMARY"
-                                 && keyColRow.referenced_table_name != null;
+                bool isForeignKey = keyColRow.ConstraintName != "PRIMARY"
+                                 && keyColRow.ReferencedTableName != null;
 
                 if (isForeignKey)
                 {
-                    var associationName = CreateAssociationName(keyColRow.table_name, keyColRow.table_schema,
-                        keyColRow.referenced_table_name, keyColRow.referenced_table_schema,
-                        keyColRow.constraint_name, nameFormat);
-
-                    var foreignKey = names.ColumnsNames[keyColRow.table_name][keyColRow.column_name].PropertyName; //GetColumnName(keyColRow.column_name);
-                    var reverseForeignKey = names.ColumnsNames[keyColRow.referenced_table_name][keyColRow.referenced_column_name].PropertyName; // GetColumnName(keyColRow.referenced_column_name);
-
-                    //both parent and child table get an [Association]
-                    DbLinq.Schema.Dbml.Association assoc = new DbLinq.Schema.Dbml.Association();
-                    assoc.IsForeignKey = true;
-                    assoc.Name = keyColRow.constraint_name;
-                    assoc.Type = null;
-                    assoc.ThisKey = foreignKey;
-                    assoc.OtherKey = reverseForeignKey;
-                    assoc.Member = associationName.ManyToOneMemberName;
-                    assoc.Storage = associationName.ForeignKeyStorageFieldName; //GetColumnFieldName(keyColRow.constraint_name);
-                    table.Type.Associations.Add(assoc);
-
-                    //and insert the reverse association:
-                    DbLinq.Schema.Dbml.Association assoc2 = new DbLinq.Schema.Dbml.Association();
-                    assoc2.Name = keyColRow.constraint_name;
-                    assoc2.Type = table.Type.Name;
-                    assoc2.Member = associationName.OneToManyMemberName;
-                    assoc2.ThisKey = reverseForeignKey;
-                    assoc2.OtherKey = foreignKey;
-
-                    string referencedTableFullDbName = GetFullDbName(keyColRow.referenced_table_name, keyColRow.referenced_table_schema);
-                    DbLinq.Schema.Dbml.Table parentTable = schema.Tables.FirstOrDefault(t => referencedTableFullDbName == t.Name);
-                    if (parentTable == null)
-                    {
-                        Logger.Write(Level.Error, "ERROR 148: parent table not found: " + keyColRow.referenced_table_name);
-                    }
-                    else
-                    {
-                        parentTable.Type.Associations.Add(assoc2);
-                        assoc.Type = parentTable.Type.Name;
-                    }
-
+                    LoadForeignKey(schema, table, keyColRow.ColumnName, keyColRow.TableName, keyColRow.TableSchema,
+                        keyColRow.ReferencedColumnName, keyColRow.ReferencedTableName, keyColRow.ReferencedTableSchema,
+                        keyColRow.ConstraintName, nameFormat, names);
                 }
 
             }

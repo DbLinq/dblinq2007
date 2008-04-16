@@ -35,14 +35,14 @@ namespace DbLinq.PostgreSql.Schema
     public class KeyColumnUsage
     {
         public string constraint_schema;
-        public string constraint_name;
-        public string table_schema;
-        public string table_name;
-        public string column_name;
+        public string ConstraintName;
+        public string TableSchema;
+        public string TableName;
+        public string ColumnName;
 
         public override string ToString()
         {
-            return "KeyColUsage "+constraint_name+":  "+table_name+"."+column_name;
+            return "KeyColUsage "+ConstraintName+":  "+TableName+"."+ColumnName;
         }
     }
 
@@ -56,10 +56,10 @@ namespace DbLinq.PostgreSql.Schema
             KeyColumnUsage t = new KeyColumnUsage();
             int field = 0;
             t.constraint_schema = rdr.GetString(field++);
-            t.constraint_name = rdr.GetString(field++);
-            t.table_schema  = rdr.GetString(field++);
-            t.table_name    = rdr.GetString(field++);
-            t.column_name    = rdr.GetString(field++);
+            t.ConstraintName = rdr.GetString(field++);
+            t.TableSchema  = rdr.GetString(field++);
+            t.TableName    = rdr.GetString(field++);
+            t.ColumnName    = rdr.GetString(field++);
             //t.referenced_table_schema = rdr.GetString(field++);
             //t.referenced_table_name = rdr.GetString(field++);
             //t.referenced_column_name = rdr.GetString(field++);
