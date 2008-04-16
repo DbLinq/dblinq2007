@@ -73,12 +73,14 @@ namespace DbLinq.Ingres
 
         public override IList<IDataTableColumn> ReadColumns(IDbConnection connectionString, string databaseName)
         {
-            string sql = @"
+            const string sql = @"
 SELECT t.table_owner, t.table_name, column_name
     ,column_nulls, column_datatype, column_default_val
     ,column_length, column_scale
 FROM iicolumns c join iitables t on (c.table_name=t.table_name and c.table_owner=t.table_owner) 
             WHERE t.table_owner <> '$ingres' and t.table_type in ('T', 'V')
+            AND t.table_name NOT LIKE 'iietab_%'
+            AND t.table_name <> 'rid'
 ORDER BY column_sequence
 ";
 

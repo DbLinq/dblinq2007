@@ -91,7 +91,11 @@ namespace Test_NUnit
         {
             get
             {
-                return string.Format("data source={0};user id=Northwind; password=linq2", DbServer);
+                //return string.Format("data source={0};user id=Northwind; password=linq2", DbServer);
+                const string fmt =
+@"Data Source = (DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = {0})(PORT = 1521)))
+(CONNECT_DATA = (SERVER = DEDICATED))); User Id = Northwind; Password = linq2";
+                return string.Format(fmt, DbServer);
             }
         }
 #elif SQLITE

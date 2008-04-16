@@ -1,4 +1,4 @@
-﻿#region MIT license
+#region MIT license
 // 
 // Copyright (c) 2007-2008 Jiri Moudry
 // 
@@ -21,33 +21,32 @@
 // THE SOFTWARE.
 // 
 #endregion
-using System.Collections.Generic;
-using System.Data;
-using DbLinq.Util;
-using DbLinq.Vendor;
 
-namespace DbLinq.Ingres
+using System;
+using System.Reflection;
+
+namespace DbLinq.Util
 {
-    public partial class IngresSchemaLoader
+    /// <summary>
+    /// Types conversion.
+    /// A "smart" extension to System.Convert (at least that's what we hope)
+    /// </summary>
+    public static class TypeConvert
     {
-        protected override IDataName ReadDataNameAndSchema(IDataRecord dataRecord)
+        public static object ToNumber(object o, Type numberType)
         {
-            var dataName = new DataName { Name = dataRecord.GetAsString(0).TrimEnd(), Schema = dataRecord.GetAsString(1).TrimEnd() };
-            return dataName;
+            if (o.GetType() == numberType)
+                return o;
+            string methodName = string.Format("To{0}", numberType.Name);
+            MethodInfo convertMethod = typeof(Convert).GetMethod(methodName, new[] { o.GetType() });
+            if (convertMethod != null)
+                return convertMethod.Invoke(null, new[] { o });
+            throw new InvalidCastException(string.Format("Can't convert type {0} in Convert.{1}()", o.GetType().Name, methodName));
         }
 
-        public override IList<IDataName> ReadTables(IDbConnection connectionString, string databaseName)
+        public static U ToNumber<U>(object o)
         {
-            // note: the ReadDataNameAndSchema relies on information order
-            const string sql = @"
-SELECT table_name, table_owner
-FROM iitables 
-WHERE table_owner <> '$ingres' 
-            AND table_type in ('T', 'V')
-            AND table_name NOT LIKE 'iietab_%'
-            AND table_name <> 'rid'";
-
-            return DataCommand.Find<IDataName>(connectionString, sql, ReadDataNameAndSchema);
+            return (U)ToNumber(o, typeof(U));
         }
     }
 }
