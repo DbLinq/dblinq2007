@@ -118,6 +118,11 @@ using Test_NUnit;
         [Test(Description = "GroupJoin - Nullable\\Nonnullable Key Relationship")]
         public void LinqToSqlJoin10()
         {
+            //Microsoft Linq-to-SQL generated statement that we want to match:
+            //SELECT [t0].[OrderID], [t1].[FirstName]
+            //FROM [dbo].[Orders] AS [t0], [dbo].[Employees] AS [t1]
+            //WHERE [t0].[EmployeeID] = ([t1].[EmployeeID])
+
             Logger.Write(Level.Information, "\nLinq.Join10()");
             Northwind db = CreateDB();
 
@@ -129,8 +134,28 @@ using Test_NUnit;
             var list = q.ToList();
             Assert.IsTrue(list.Count > 0);
         }
+
+        [Test(Description="example by Frans Brouma: select all customers that have no orders")]
+        public void OuterJoin_DefaultIfEmpty()
+        {
+            //example by Frans Brouma on Matt Warren's site
+            //select all customers that have no orders
+            //http://blogs.msdn.com/mattwar/archive/2007/09/04/linq-building-an-iqueryable-provider-part-vii.aspx
+            //http://weblogs.asp.net/fbouma/archive/2007/11/23/developing-linq-to-llblgen-pro-part-9.aspx
+
+            Northwind db = CreateDB();
+
+            var q = from c in db.Customers
+                    join o in db.Orders on c.CustomerID equals o.CustomerID into oc
+                    from x in oc.DefaultIfEmpty()
+                    where x.OrderID == null
+                    select c;
+
+            var list = q.ToList();
+        }
+
         // picrap: commented out, it doesn't build because of db.Orderdetails (again, a shared source file...)
-/*
+
         [Test(Description = "Problem discovered by Laurent")]
         public void Join_Laurent()
         {
@@ -138,7 +163,7 @@ using Test_NUnit;
             Northwind db = CreateDB();
 
             var q1 = (from p in db.Products
-                      join o in db.Orderdetails on p.ProductID equals o.ProductID
+                      join o in db.OrderDetails on p.ProductID equals o.ProductID
                       where p.ProductID>1
                       select new
                       {
@@ -150,6 +175,6 @@ using Test_NUnit;
 
             Assert.IsTrue(q1.Count > 0);
         }
-        */
+        
     }
 }
