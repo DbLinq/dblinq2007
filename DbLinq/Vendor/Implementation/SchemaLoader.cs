@@ -43,7 +43,7 @@ namespace DbLinq.Vendor.Implementation
         public INameFormatter NameFormatter { get; set; }
         public ILogger Logger { get; set; }
 
-        public virtual Database Load(string databaseName, IDictionary<string, string> tableAliases, NameFormat nameFormat, bool loadStoredProcedures)
+        public virtual Database Load(string databaseName, INameAliases nameAliases, NameFormat nameFormat, bool loadStoredProcedures)
         {
             // check if connection is open. Note: we may use something more flexible
             if (Connection.State != ConnectionState.Open)
@@ -58,13 +58,13 @@ namespace DbLinq.Vendor.Implementation
 
             var schemaName = NameFormatter.GetSchemaName(databaseName, GetExtraction(databaseName), nameFormat);
             var names = new Names();
-            var schema = new Database {Name = schemaName.DbName, Class = schemaName.ClassName};
+            var schema = new Database { Name = schemaName.DbName, Class = schemaName.ClassName };
 
             // order is important, we must have:
             // 1. tables
             // 2. columns
             // 3. constraints
-            LoadTables(schema, schemaName, Connection, tableAliases, nameFormat, names);
+            LoadTables(schema, schemaName, Connection, nameAliases, nameFormat, names);
             LoadColumns(schema, schemaName, Connection, nameFormat, names);
             LoadConstraints(schema, schemaName, Connection, nameFormat, names);
             if (loadStoredProcedures)
@@ -91,18 +91,31 @@ namespace DbLinq.Vendor.Implementation
             return string.Format("{0}.{1}", dbSchema, dbName);
         }
 
-        protected virtual TableName CreateTableName(string dbTableName, string dbSchema, IDictionary<string, string> tableAliases, NameFormat nameFormat)
+
+
+        protected virtual TableName CreateTableName(string dbTableName, string dbSchema, INameAliases nameAliases, NameFormat nameFormat, WordsExtraction extraction)
         {
-            WordsExtraction extraction = GetExtraction(dbTableName);
             // if we have an alias, use it, and don't try to analyze it (a human probably already did the job)
-            if (tableAliases != null && tableAliases.ContainsKey(dbTableName))
-            {
+            var tableTypeAlias = nameAliases != null ? nameAliases.GetTableTypeAlias(dbTableName, dbSchema) : null;
+            if (tableTypeAlias != null)
                 extraction = WordsExtraction.FromCase;
-                dbTableName = tableAliases[dbTableName];
-            }
-            var tableName = NameFormatter.GetTableName(dbTableName, extraction, nameFormat);
+            else
+                tableTypeAlias = dbTableName;
+
+            var tableName = NameFormatter.GetTableName(tableTypeAlias, extraction, nameFormat);
+
+            // alias for member
+            var tableMemberAlias = nameAliases != null ? nameAliases.GetTableMemberAlias(dbTableName, dbSchema) : null;
+            if (tableMemberAlias != null)
+                tableName.MemberName = tableMemberAlias;
+
             tableName.DbName = GetFullDbName(dbTableName, dbSchema);
             return tableName;
+        }
+
+        protected virtual TableName CreateTableName(string dbTableName, string dbSchema, INameAliases nameAliases, NameFormat nameFormat)
+        {
+            return CreateTableName(dbTableName, dbSchema, nameAliases, nameFormat, GetExtraction(dbTableName));
         }
 
         protected virtual ColumnName CreateColumnName(string dbColumnName, NameFormat nameFormat)
@@ -160,12 +173,12 @@ namespace DbLinq.Vendor.Implementation
             }
         }
 
-        protected virtual void LoadTables(Database schema, SchemaName schemaName, IDbConnection conn, IDictionary<string, string> tableAliases, NameFormat nameFormat, Names names)
+        protected virtual void LoadTables(Database schema, SchemaName schemaName, IDbConnection conn, INameAliases nameAliases, NameFormat nameFormat, Names names)
         {
             var tables = ReadTables(conn, schemaName.DbName);
             foreach (var row in tables)
             {
-                var tableName = CreateTableName(row.Name, row.Schema, tableAliases, nameFormat);
+                var tableName = CreateTableName(row.Name, row.Schema, nameAliases, nameFormat);
                 names.TablesNames[tableName.DbName] = tableName;
 
                 var table = new Table();

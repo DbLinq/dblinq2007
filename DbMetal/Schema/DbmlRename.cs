@@ -21,7 +21,10 @@
 // THE SOFTWARE.
 // 
 #endregion
+
+using System.Linq;
 using System.Xml.Serialization;
+using DbLinq.Vendor;
 
 namespace DbMetal.Schema
 {
@@ -29,9 +32,13 @@ namespace DbMetal.Schema
     /// This class main purpose is to allow renamings.
     /// It is based on DBML format (but simpler).
     /// </summary>
-    [XmlRoot("Database")]
-    public class DbmlRename
+    //[XmlRoot("Database")]
+    [XmlRoot("Database", Namespace = "http://schemas.microsoft.com/linqtosql/dbml/2007", IsNullable = false)]
+    public class DbmlRename : INameAliases
     {
+        [XmlNamespaceDeclarations]
+        public XmlSerializerNamespaces XmlNamespaceDeclarations { get; set; }
+
         [XmlAttribute("Name")]
         public string Name { get; set; }
 
@@ -75,6 +82,56 @@ namespace DbMetal.Schema
 
             [XmlAttribute("Type")]
             public string Type { get; set; }
+        }
+
+        protected Table GetTable(string table, string schema)
+        {
+            string qualifiedName;
+            if (!string.IsNullOrEmpty(schema))
+                qualifiedName = string.Format("{0}.{1}", schema, table);
+            else
+                qualifiedName = table;
+            return (from t in Tables where t.Name == qualifiedName select t).SingleOrDefault();
+        }
+
+        protected Column GetColumn(string column, string table, string schema)
+        {
+            var t = GetTable(table, schema);
+            if (t == null || t.Type == null || t.Type.Columns == null)
+                return null;
+            return (from c in t.Type.Columns where c.Name == column select c).SingleOrDefault();
+        }
+
+        public string GetTableTypeAlias(string table, string schema)
+        {
+            var t = GetTable(table, schema);
+            if (t == null || t.Type == null)
+                return null;
+            return t.Type.Name;
+        }
+
+        public string GetTableMemberAlias(string table, string schema)
+        {
+            var t = GetTable(table, schema);
+            if (t == null)
+                return null;
+            return t.Member;
+        }
+
+        public string GetColumnMemberAlias(string column, string table, string schema)
+        {
+            var c = GetColumn(column, table, schema);
+            if (c == null)
+                return null;
+            return c.Member;
+        }
+
+        public string GetColumnForcedType(string column, string table, string schema)
+        {
+            var c = GetColumn(column, table, schema);
+            if (c == null)
+                return null;
+            return c.Type;
         }
     }
 }

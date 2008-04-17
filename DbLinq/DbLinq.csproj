@@ -162,6 +162,7 @@
     <Compile Include="Vendor\Implementation\SchemaLoader.Tables.cs" />
     <Compile Include="Vendor\Implementation\SchemaLoader.TypeMapping.cs" />
     <Compile Include="Vendor\Implementation\Vendor.ExecuteQuery.cs" />
+    <Compile Include="Vendor\INameAliases.cs" />
     <Compile Include="Vendor\ISchemaLoader.cs" />
     <Compile Include="Vendor\IVendor.cs" />
     <Compile Include="Vendor\Implementation\SchemaLoader.cs" />

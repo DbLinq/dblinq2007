@@ -43,17 +43,9 @@ namespace DbLinq.MySql
 
         public override System.Type DataContextType { get { return typeof(MySqlDataContext); } }
 
-        protected override TableName CreateTableName(string dbTableName, string dbSchema, IDictionary<string, string> tableAliases, NameFormat nameFormat)
+        protected override TableName CreateTableName(string dbTableName, string dbSchema, INameAliases nameAliases, NameFormat nameFormat)
         {
-            WordsExtraction extraction = WordsExtraction.FromDictionary;
-            if (tableAliases != null && tableAliases.ContainsKey(dbTableName))
-            {
-                extraction = WordsExtraction.FromCase;
-                dbTableName = tableAliases[dbTableName];
-            }
-            var tableName = NameFormatter.GetTableName(dbTableName, extraction, nameFormat);
-            tableName.DbName = GetFullDbName(dbTableName, dbSchema);
-            return tableName;
+            return CreateTableName(dbTableName, dbSchema, nameAliases, nameFormat, WordsExtraction.FromDictionary);
         }
 
         protected override void LoadStoredProcedures(Database schema, SchemaName schemaName, IDbConnection conn, NameFormat nameFormat)
