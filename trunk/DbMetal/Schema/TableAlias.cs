@@ -21,21 +21,48 @@
 // THE SOFTWARE.
 // 
 #endregion
+
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
 using System.Xml.Serialization;
+using DbLinq.Vendor;
 using DbMetal;
 
-namespace DbMetal
+namespace DbMetal.Schema
 {
     public class TableAlias
     {
-        public class Renamings
+        public class Renamings : INameAliases
         {
             [XmlElement("Renaming")]
             public readonly List<Renaming> Arr = new List<Renaming>();
+
+            protected string GetAlias(string name)
+            {
+                return (from r in Arr where r.old == name select r.@new).SingleOrDefault();
+            }
+
+            public string GetTableTypeAlias(string table, string schema)
+            {
+                return GetAlias(table);
+            }
+
+            public string GetTableMemberAlias(string table, string schema)
+            {
+                return null;
+            }
+
+            public string GetColumnMemberAlias(string column, string table, string schema)
+            {
+                return GetAlias(column);
+            }
+
+            public string GetColumnForcedType(string column, string table, string schema)
+            {
+                return GetAlias(column);
+            }
         }
 
         public class Renaming
@@ -46,6 +73,16 @@ namespace DbMetal
             public string @new;
         }
 
+        public static Renamings Load(string fileName)
+        {
+            using (var stream = File.OpenRead(fileName))
+            {
+                var renamingsXmlSerializer = new XmlSerializer(typeof(Renamings));
+                var renamings = (Renamings)renamingsXmlSerializer.Deserialize(stream);
+                return renamings;
+            }
+        }
+
         public static IDictionary<string, string> Load(string fileName, Parameters parameters)
         {
             if (!System.IO.File.Exists(fileName))
@@ -53,8 +90,7 @@ namespace DbMetal
 
             Console.WriteLine("Loading renames file: " + fileName);
 
-            XmlSerializer renamingsXmlSerializer = new XmlSerializer(typeof(Renamings));
-            Renamings renamings = (Renamings)renamingsXmlSerializer.Deserialize(System.IO.File.OpenText(parameters.RenamesFile));
+            Renamings renamings = Load(parameters.RenamesFile);
 
             Dictionary<string, string> aliases = new Dictionary<string, string>();
             foreach (Renaming renaming in renamings.Arr)
@@ -70,5 +106,6 @@ namespace DbMetal
                 return new Dictionary<string, string>();
             return Load(parameters.RenamesFile, parameters);
         }
+
     }
 }

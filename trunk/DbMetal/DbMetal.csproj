@@ -102,6 +102,7 @@
     <Compile Include="Generator\ParameterDefinition.cs" />
     <Compile Include="Schema\DbmlRename.cs" />
     <Compile Include="Schema\DbmlRenameLoader.cs" />
+    <Compile Include="Schema\NameAliasesLoader.cs" />
     <Compile Include="Utility\VariablesExtension.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="AbstractParameters.cs" />
@@ -109,7 +110,7 @@
     <Compile Include="Configuration\ProvidersSection.cs" />
     <Compile Include="Schema\SchemaPostprocess.cs" />
     <Compile Include="Parameters.cs" />
-    <Compile Include="TableAlias.cs" />
+    <Compile Include="Schema\TableAlias.cs" />
     <Compile Include="Generator\Implementation\SchemaLoaderFactory.cs" />
     <Compile Include="Utility\EnvironmentExtension.cs" />
   </ItemGroup>

@@ -21,20 +21,29 @@
 // THE SOFTWARE.
 // 
 #endregion
-using System.Collections.Generic;
-using System.Data;
-using DbLinq.Linq;
-using DbLinq.Schema;
-using DbLinq.Schema.Dbml;
 
-namespace DbLinq.Vendor
+using System;
+using DbLinq.Vendor;
+
+namespace DbMetal.Schema
 {
-    public interface ISchemaLoader
+    public static class NameAliasesLoader
     {
-        string VendorName { get; }
-        IVendor Vendor { get; }
-        System.Type DataContextType { get; }
-        IDbConnection Connection { get; set; }
-        Database Load(string databaseName, INameAliases nameAliases, NameFormat nameFormat, bool loadStoredProcedures);
+        public static INameAliases Load(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+                return null;
+            try
+            {
+                return DbmlRenameLoader.Load(path);
+            }
+            catch { }
+            try
+            {
+                return TableAlias.Load(path);
+            }
+            catch { }
+            throw new ArgumentException("");
+        }
     }
 }

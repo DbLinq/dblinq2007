@@ -165,11 +165,11 @@ namespace DbMetal.Generator.Implementation
         public Database LoadSchema(Parameters parameters, ISchemaLoader schemaLoader)
         {
             Database dbSchema;
-            var tableAliases = TableAlias.Load(parameters);
+            var nameAliases = NameAliasesLoader.Load(parameters.RenamesFile);
             if (parameters.SchemaXmlFile == null) // read schema from DB
             {
                 Logger.Write(Level.Information, ">>> Reading schema from {0} database", schemaLoader.VendorName);
-                dbSchema = schemaLoader.Load(parameters.Database, tableAliases,
+                dbSchema = schemaLoader.Load(parameters.Database, nameAliases,
                     new NameFormat { Case = Case.PascalCase, Pluralize = parameters.Pluralize, Culture = new CultureInfo(parameters.Culture) },
                     parameters.Sprocs);
                 dbSchema.Provider = parameters.Provider;
