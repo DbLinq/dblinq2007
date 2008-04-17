@@ -202,20 +202,42 @@ namespace DbLinq.Linq
             throw new ApplicationException("L205 Not implemented");
         }
 
-        // TODO: rename to InsertOnSubmit()
+        [Obsolete("Replace with InsertOnSubmit")]
         public void Add(T newObject)
+        {
+            InsertOnSubmit(newObject);
+        }
+
+        public void InsertOnSubmit(T newObject)
         {
             _insertList.Add(newObject);
         }
 
-        // TODO: rename to DeleteOnSubmit()
+        public void InsertAllOnSubmit<TSubEntity>(IEnumerable<TSubEntity> entities) where TSubEntity : T
+        {
+            foreach (TSubEntity newObject in entities)
+                _insertList.Add(newObject);
+        }
+
+        [Obsolete("Replace with DeleteOnSubmit")]
         public void Remove(T objectToDelete)
         {
-          if (_insertList.Contains(objectToDelete))
-            _insertList.Remove(objectToDelete);
-          else
-            //TODO: queue an object for SQL DELETE
-            _deleteList.Add(objectToDelete);
+            DeleteOnSubmit(objectToDelete);
+        }
+
+        public void DeleteOnSubmit(T objectToDelete)
+        {
+            if (_insertList.Contains(objectToDelete))
+                _insertList.Remove(objectToDelete);
+            else
+                //TODO: queue an object for SQL DELETE
+                _deleteList.Add(objectToDelete);
+        }
+
+        public void DeleteAllOnSubmit<TSubEntity>(IEnumerable<TSubEntity> entities) where TSubEntity : T
+        {
+            foreach (TSubEntity row in entities)
+                DeleteOnSubmit(row);
         }
 
         /// <summary>
@@ -231,6 +253,13 @@ namespace DbLinq.Linq
             _liveObjectMap[entity] = entity;
             _modificationHandler.Register(entity);
         }
+
+        public void AttachAll<TSubEntity>(IEnumerable<TSubEntity> entities) where TSubEntity : T
+        {
+            foreach (TSubEntity row in entities)
+                Attach(row);
+        }
+
 
         public void CheckAttachment(object entity)
         {
@@ -308,11 +337,11 @@ namespace DbLinq.Linq
                 {
                     switch (failureMode)
                     {
-                    case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                        excepts.Add(ex);
-                        break;
-                    case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                        throw ex;
+                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                            excepts.Add(ex);
+                            break;
+                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                            throw ex;
                     }
                 }
 
@@ -347,11 +376,11 @@ namespace DbLinq.Linq
                     Trace.WriteLine("Table.SubmitChanges failed: " + ex);
                     switch (failureMode)
                     {
-                    case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                        excepts.Add(ex);
-                        break;
-                    case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                        throw ex;
+                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                            excepts.Add(ex);
+                            break;
+                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                            throw ex;
                     }
                 }
             }
@@ -389,11 +418,11 @@ namespace DbLinq.Linq
                     {
                         switch (failureMode)
                         {
-                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                            excepts.Add(ex);
-                            break;
-                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                            throw ex;
+                            case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                                excepts.Add(ex);
+                                break;
+                            case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                                throw ex;
                         }
                     }
                 }
