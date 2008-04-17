@@ -120,7 +120,7 @@ using Test_NUnit;
             newProd.CategoryID = 1;
             newProd.ProductName = "Temp." + Environment.TickCount;
             newProd.QuantityPerUnit = "33 1/2";
-            db.Products.Add(newProd);
+            db.Products.InsertOnSubmit(newProd);
             db.SubmitChanges();
             Assert.Greater(newProd.ProductID, 0, "After insertion, ProductID should be non-zero");
             Assert.IsFalse(newProd.IsModified, "After insertion, Product.IsModified should be false");
@@ -145,7 +145,7 @@ using Test_NUnit;
             List<Product> insertedProducts = q.ToList();
             foreach (Product insertedProd in insertedProducts)
             {
-                db.Products.Remove(insertedProd);
+                db.Products.DeleteOnSubmit(insertedProd);
             }
             db.SubmitChanges();
 
@@ -165,7 +165,7 @@ using Test_NUnit;
             List<Product> insertedProducts = q.ToList();
             foreach (Product insertedProd in insertedProducts)
             {
-                db.Products.Remove(insertedProd);
+                db.Products.DeleteOnSubmit(insertedProd);
             }
             db.SubmitChanges();
 
@@ -183,7 +183,7 @@ using Test_NUnit;
 #else
             Product p_temp = new Product { ProductName = "temp_g4", Discontinued = false };
 #endif
-            db.Products.Add(p_temp);
+            db.Products.InsertOnSubmit(p_temp);
             db.SubmitChanges();
             db.SubmitChanges();
             int productCount2 = db.Products.Count();
@@ -206,7 +206,7 @@ using Test_NUnit;
 #else
             Product p1 = new Product { ProductName = productName, Discontinued = false, UnitPrice = 11m };
 #endif
-            db.Products.Add(p1);
+            db.Products.InsertOnSubmit(p1);
             db.SubmitChanges();
 
             p1.UnitPrice = null;
@@ -243,7 +243,7 @@ using Test_NUnit;
                 ContactName = "Antonio Pigafetta",
                 City = "Lisboa",
             };
-            db.Customers.Add(custTemp);
+            db.Customers.InsertOnSubmit(custTemp);
             db.SubmitChanges();
         }
 
@@ -254,7 +254,7 @@ using Test_NUnit;
             Customer cust = (from c in db.Customers
                              where c.CustomerID == "TEMP_"
                              select c).Single();
-            db.Customers.Remove(cust);
+            db.Customers.DeleteOnSubmit(cust);
             db.SubmitChanges();
         }
 
@@ -424,10 +424,10 @@ dummy text
         {
             Northwind db = CreateDB();
             Customer newCust = new Customer();
-            db.Customers.Add(newCust);
+            db.Customers.InsertOnSubmit(newCust);
             db.SubmitChanges();
             Assert.IsNotNull(newCust.CustomerID);
-            db.Customers.Remove(newCust);
+            db.Customers.DeleteOnSubmit(newCust);
             db.SubmitChanges();
         }
 
@@ -437,10 +437,10 @@ dummy text
           Category newCat = new Category();
           newCat.CategoryID=999;
           newCat.CategoryName = "test";
-          db.Categories.Add(newCat);
+          db.Categories.InsertOnSubmit(newCat);
           db.SubmitChanges();
           Assert.AreEqual( 999, newCat.CategoryID );
-          db.Categories.Remove(newCat);
+          db.Categories.DeleteOnSubmit(newCat);
           db.SubmitChanges();
         }
 

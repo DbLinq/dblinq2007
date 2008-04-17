@@ -59,10 +59,10 @@ using Test_NUnit;
             //DbLinq.vendor.mysql.MySqlVendor.UseBulkInsert[db.Products] = 3; //insert three rows at a time
             // picrap: inject this information in the IVendor (and check this is necessary)
 
-            db.Products.Add(NewProduct("tmp_ProductA"));
-            db.Products.Add(NewProduct("tmp_ProductB"));
-            db.Products.Add(NewProduct("tmp_ProductC"));
-            db.Products.Add(NewProduct("tmp_ProductD"));
+            db.Products.InsertOnSubmit(NewProduct("tmp_ProductA"));
+            db.Products.InsertOnSubmit(NewProduct("tmp_ProductB"));
+            db.Products.InsertOnSubmit(NewProduct("tmp_ProductC"));
+            db.Products.InsertOnSubmit(NewProduct("tmp_ProductD"));
             db.SubmitChanges();
 
             //confirm that we indeed inserted four rows:
