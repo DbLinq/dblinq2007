@@ -44,7 +44,7 @@ namespace nwind
 		public Table<Employeeterritory> Employeeterritories { get { return base.GetTable<Employeeterritory>("Employeeterritories"); } }
 		public Table<Customer> Customers { get { return base.GetTable<Customer>("Customers"); } }
 		public Table<Region> Regions { get { return base.GetTable<Region>("Regions"); } }
-		public Table<Orderdetail> Orderdetails { get { return base.GetTable<Orderdetail>("Orderdetails"); } }
+		public Table<OrderDetail> OrderDetails { get { return base.GetTable<OrderDetail>("Orderdetails"); } }
 		public Table<Product> Products { get { return base.GetTable<Product>("Products"); } }
 		public Table<Territory> Territories { get { return base.GetTable<Territory>("Territories"); } }
 	
@@ -411,7 +411,7 @@ namespace nwind
 	
 		
 		[Association(Storage = "null", OtherKey = "ORDERID", Name = "SYS_C005303")]
-		public EntityMSet<Orderdetail> Orderdetails
+		public EntityMSet<OrderDetail> Orderdetails
 		{
 		    get { return null; } //L212 - child data available only when part of query
 		}
@@ -1081,7 +1081,7 @@ namespace nwind
 	
 	
 	[Table(Name = "ORDERDETAILS")]
-	public partial class Orderdetail : IModified
+	public partial class OrderDetail : IModified
 	{
 		
 		protected int _ORDERID;
@@ -1092,10 +1092,10 @@ namespace nwind
 	
 		
 		#region costructors
-		public Orderdetail()
+		public OrderDetail()
 		{
 		}
-		public Orderdetail(int OrderID,int ProductID,int UnitPrice,int QUANTITY,double DISCOUNT)
+		public OrderDetail(int OrderID,int ProductID,int UnitPrice,int QUANTITY,double DISCOUNT)
 		{
 		    this._ORDERID = OrderID;
 		this._PRODUCTID = ProductID;
@@ -1162,7 +1162,7 @@ namespace nwind
 		}
 		public override bool Equals(object obj)
 		{
-			Orderdetail o2 = obj as Orderdetail;
+			OrderDetail o2 = obj as OrderDetail;
 			if(o2==null)
 				return false;
 			return _ORDERID == o2._ORDERID && _PRODUCTID == o2._PRODUCTID;
@@ -1340,7 +1340,7 @@ namespace nwind
 	
 		
 		[Association(Storage = "null", OtherKey = "PRODUCTID", Name = "SYS_C005304")]
-		public EntityMSet<Orderdetail> Orderdetails
+		public EntityMSet<OrderDetail> Orderdetails
 		{
 		    get { return null; } //L212 - child data available only when part of query
 		}
