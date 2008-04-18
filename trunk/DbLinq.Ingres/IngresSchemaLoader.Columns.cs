@@ -80,7 +80,6 @@ SELECT t.table_owner, t.table_name, column_name
 FROM iicolumns c join iitables t on (c.table_name=t.table_name and c.table_owner=t.table_owner) 
             WHERE t.table_owner <> '$ingres' and t.table_type in ('T', 'V')
             AND t.table_name NOT LIKE 'iietab_%'
-            AND t.table_name <> 'rid'
 ORDER BY column_sequence
 ";
 
