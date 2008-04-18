@@ -44,8 +44,7 @@ SELECT table_name, table_owner
 FROM iitables 
 WHERE table_owner <> '$ingres' 
             AND table_type in ('T', 'V')
-            AND table_name NOT LIKE 'iietab_%'
-            AND table_name <> 'rid'";
+            AND table_name NOT LIKE 'iietab_%'";
 
             return DataCommand.Find<IDataName>(connectionString, sql, ReadDataNameAndSchema);
         }
