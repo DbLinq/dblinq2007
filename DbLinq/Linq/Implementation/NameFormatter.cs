@@ -184,6 +184,8 @@ namespace DbLinq.Linq.Implementation
         {
             switch (extraction)
             {
+            case WordsExtraction.None:
+                return new[] { dbName };
             case WordsExtraction.FromCase:
                 return GetWordsByCase(dbName);
             case WordsExtraction.FromDictionary:
@@ -232,7 +234,11 @@ namespace DbLinq.Linq.Implementation
             var words = GetLanguageWords(nameFormat.Culture);
             var tableName = new TableName { DbName = dbName };
             tableName.NameWords = ExtractWords(words, dbName, extraction);
-            tableName.ClassName = Format(words, tableName.NameWords, nameFormat.Case, GetSingularization(Singularization.Singular, nameFormat));
+            // if no extraction (preset name, just copy it)
+            if (extraction == WordsExtraction.None)
+                tableName.ClassName = tableName.DbName;
+            else
+                tableName.ClassName = Format(words, tableName.NameWords, nameFormat.Case, GetSingularization(Singularization.Singular, nameFormat));
             tableName.MemberName = Format(words, tableName.NameWords, nameFormat.Case, GetSingularization(Singularization.Plural, nameFormat));
             return tableName;
         }
@@ -242,7 +248,11 @@ namespace DbLinq.Linq.Implementation
             var words = GetLanguageWords(nameFormat.Culture);
             var columnName = new ColumnName { DbName = dbName };
             columnName.NameWords = ExtractWords(words, dbName, extraction);
-            columnName.PropertyName = Format(words, columnName.NameWords, nameFormat.Case, Singularization.DontChange);
+            // if no extraction (preset name, just copy it)
+            if (extraction == WordsExtraction.None)
+                columnName.PropertyName = dbName;
+            else
+                columnName.PropertyName = Format(words, columnName.NameWords, nameFormat.Case, Singularization.DontChange);
             columnName.StorageFieldName = Format(words, columnName.NameWords, Case.camelCase, Singularization.DontChange);
             if (columnName.StorageFieldName == columnName.PropertyName)
                 columnName.StorageFieldName = columnName.StorageFieldName + "Field";
