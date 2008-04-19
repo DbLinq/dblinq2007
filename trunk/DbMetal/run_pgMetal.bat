@@ -1,5 +1,1 @@
-rem this script is obsolete
-
-bin\DbMetal.exe -user:LinqUser -database:Northwind -server:localhost -password:linq2 -namespace:nwind -renamesFile:pgsqlFieldRenames.xml -sprocs
-
-
+bin\DbMetal.exe /provider=PostgreSql /code=Northwind.cs -user:LinqUser -database:northwind -server:%%DbLinqServer??localhost -password:linq2 -namespace:nwind -renamesFile:pgsqlFieldRenames.xml -sprocs
