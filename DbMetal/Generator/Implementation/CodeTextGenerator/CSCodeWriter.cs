@@ -21,12 +21,12 @@
 // THE SOFTWARE.
 // 
 #endregion
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using DbLinq.Util;
 
 namespace DbMetal.Generator.Implementation.CodeTextGenerator
 {
@@ -162,7 +162,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             methodLineBuilder.Append(GetInheritanceSpecifications(specificationDefinition));
             methodLineBuilder.Append(GetSpecifications(specificationDefinition & SpecificationDefinition.Event));
 
-            methodLineBuilder.AppendFormat("{0} {1}", memberType, GetSafeName(name));
+            methodLineBuilder.AppendFormat("{0} {1}", memberType, GetVariableExpression(name));
 
             Write(methodLineBuilder.ToString());
         }
@@ -379,7 +379,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             return Keywords.Contains(name);
         }
 
-        public virtual string GetSafeName(string name)
+        public override string GetVariableExpression(string name)
         {
             if (IsKeyword(name))
                 return "@" + name;
