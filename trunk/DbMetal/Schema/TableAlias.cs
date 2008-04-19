@@ -86,11 +86,11 @@ namespace DbMetal.Schema
         public static IDictionary<string, string> Load(string fileName, Parameters parameters)
         {
             if (!System.IO.File.Exists(fileName))
-                throw new ArgumentException("Renames file missing:" + parameters.RenamesFile);
+                throw new ArgumentException("Renames file missing:" + parameters.Aliases);
 
             Console.WriteLine("Loading renames file: " + fileName);
 
-            Renamings renamings = Load(parameters.RenamesFile);
+            Renamings renamings = Load(parameters.Aliases);
 
             Dictionary<string, string> aliases = new Dictionary<string, string>();
             foreach (Renaming renaming in renamings.Arr)
@@ -102,9 +102,9 @@ namespace DbMetal.Schema
 
         public static IDictionary<string, string> Load(Parameters parameters)
         {
-            if (parameters.RenamesFile == null)
+            if (parameters.Aliases == null)
                 return new Dictionary<string, string>();
-            return Load(parameters.RenamesFile, parameters);
+            return Load(parameters.Aliases, parameters);
         }
 
     }

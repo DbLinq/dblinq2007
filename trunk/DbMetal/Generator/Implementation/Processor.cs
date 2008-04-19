@@ -106,6 +106,8 @@ namespace DbMetal.Generator.Implementation
                 }
                 else
                 {
+                    if (!parameters.Schema)
+                        RemoveSchema(dbSchema);
                     string filename = parameters.Code ?? parameters.Database.Replace("\"", "");
                     Logger.Write(Level.Information, "<<< writing C# classes in file '{0}'", filename);
                     Generate(parameters, dbSchema, schemaLoader, filename);
@@ -116,6 +118,15 @@ namespace DbMetal.Generator.Implementation
             {
                 string assyName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
                 Logger.Write(Level.Error, assyName + " failed:" + ex);
+            }
+        }
+
+        protected void RemoveSchema(Database schema)
+        {
+            foreach (var table in schema.Table)
+            {
+                string[] nameAndSchema = table.Name.Split('.');
+                table.Name = nameAndSchema[nameAndSchema.Length - 1];
             }
         }
 
@@ -169,7 +180,7 @@ namespace DbMetal.Generator.Implementation
         public Database LoadSchema(Parameters parameters, ISchemaLoader schemaLoader)
         {
             Database dbSchema;
-            var nameAliases = NameAliasesLoader.Load(parameters.RenamesFile);
+            var nameAliases = NameAliasesLoader.Load(parameters.Aliases);
             if (parameters.SchemaXmlFile == null) // read schema from DB
             {
                 Logger.Write(Level.Information, ">>> Reading schema from {0} database", schemaLoader.VendorName);

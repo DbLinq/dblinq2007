@@ -112,7 +112,8 @@ namespace DbMetal
         /// DbLinq specific
         /// </summary>
         [Option("Use mapping file.", ValueName = "file", Group = 3)]
-        public string RenamesFile { get; set; }
+        [Alternate("renamesFile")]
+        public string Aliases { get; set; }
 
         /// <summary>
         /// this is the "input file" parameter
@@ -125,6 +126,9 @@ namespace DbMetal
                 return Extra.Count > 0 ? Extra[0] : null;
             }
         }
+
+        [Option("Generate schema in code files (default='true').", Group = 4)]
+        public bool Schema { get; set; }
 
         /// <summary>
         /// base class from which all generated entities will inherit
@@ -215,6 +219,7 @@ namespace DbMetal
 
         public Parameters()
         {
+            Schema = true;
             Culture = "en";
         }
 

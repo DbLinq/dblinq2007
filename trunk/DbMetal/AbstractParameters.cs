@@ -176,6 +176,29 @@ namespace DbMetal
             return typedValue;
         }
 
+        protected virtual MemberInfo FindParameter(string name, Type type)
+        {
+            // the easy way: find propery or field name
+            BindingFlags flags = BindingFlags.IgnoreCase | BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public;
+            MemberInfo[] memberInfos = type.GetMember(name, flags);
+            if (memberInfos.Length > 0)
+                return memberInfos[0];
+            // the hard way: look for alternate names
+            memberInfos = type.GetMembers();
+            foreach (var memberInfo in memberInfos)
+            {
+                var alternates = (AlternateAttribute[])memberInfo.GetCustomAttributes(typeof(AlternateAttribute), true);
+                if (Array.Exists(alternates, a => string.Compare(a.Name, name) == 0))
+                    return memberInfo;
+            }
+            return null;
+        }
+
+        protected virtual MemberInfo FindParameter(string name)
+        {
+            return FindParameter(name, GetType());
+        }
+
         /// <summary>
         /// Assigns a parameter by reflection
         /// </summary>
@@ -188,19 +211,10 @@ namespace DbMetal
             // evaluate
             value = value.EvaluateEnvironment();
 
-            Type thisType = GetType();
-            BindingFlags flags = BindingFlags.IgnoreCase | BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public;
-            FieldInfo fieldInfo = thisType.GetField(name, flags);
-            if (fieldInfo != null)
-                fieldInfo.SetValue(this, GetValue(value, fieldInfo.FieldType));
-            else
-            {
-                PropertyInfo propertyInfo = thisType.GetProperty(name, flags);
-                if (propertyInfo != null)
-                    propertyInfo.GetSetMethod().Invoke(this, new[] { GetValue(value, propertyInfo.PropertyType) });
-                else
-                    throw new ArgumentException(string.Format("Parameter {0} does not exist", name));
-            }
+            var memberInfo = FindParameter(name);
+            if (memberInfo == null)
+                throw new ArgumentException(string.Format("Parameter {0} does not exist", name));
+            memberInfo.SetMemberValue(this, GetValue(value, memberInfo.GetMemberType()));
         }
 
         /// <summary>
