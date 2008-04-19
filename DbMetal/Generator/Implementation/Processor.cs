@@ -121,7 +121,7 @@ namespace DbMetal.Generator.Implementation
 
         public virtual IEnumerable<ICodeGenerator> EnumerateCodeGenerators()
         {
-            foreach (var codeGeneratorType in ObjectFactory.Current.GetImplementations(typeof (ICodeGenerator)))
+            foreach (var codeGeneratorType in ObjectFactory.Current.GetImplementations(typeof(ICodeGenerator)))
             {
                 yield return (ICodeGenerator)ObjectFactory.Current.GetInstance(codeGeneratorType, false);
             }
@@ -151,7 +151,11 @@ namespace DbMetal.Generator.Implementation
         public void Generate(Parameters parameters, Database dbSchema, ISchemaLoader schemaLoader, string filename)
         {
             ICodeGenerator codeGen = FindCodeGenerator(parameters, filename);
+            if (codeGen == null)
+                throw new ArgumentException("Please specify either a /language or a /code file");
 
+            if (string.IsNullOrEmpty(filename))
+                filename = dbSchema.Class;
             if (String.IsNullOrEmpty(Path.GetExtension(filename)))
                 filename += codeGen.Extension;
 
