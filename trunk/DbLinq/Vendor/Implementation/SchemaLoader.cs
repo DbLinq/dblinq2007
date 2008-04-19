@@ -65,7 +65,7 @@ namespace DbLinq.Vendor.Implementation
             // 2. columns
             // 3. constraints
             LoadTables(schema, schemaName, Connection, nameAliases, nameFormat, names);
-            LoadColumns(schema, schemaName, Connection, nameFormat, names);
+            LoadColumns(schema, schemaName, Connection, nameAliases, nameFormat, names);
             LoadConstraints(schema, schemaName, Connection, nameFormat, names);
             if (loadStoredProcedures)
                 LoadStoredProcedures(schema, schemaName, Connection, nameFormat);
@@ -98,7 +98,7 @@ namespace DbLinq.Vendor.Implementation
             // if we have an alias, use it, and don't try to analyze it (a human probably already did the job)
             var tableTypeAlias = nameAliases != null ? nameAliases.GetTableTypeAlias(dbTableName, dbSchema) : null;
             if (tableTypeAlias != null)
-                extraction = WordsExtraction.FromCase;
+                extraction = WordsExtraction.None;
             else
                 tableTypeAlias = dbTableName;
 
@@ -118,9 +118,22 @@ namespace DbLinq.Vendor.Implementation
             return CreateTableName(dbTableName, dbSchema, nameAliases, nameFormat, GetExtraction(dbTableName));
         }
 
-        protected virtual ColumnName CreateColumnName(string dbColumnName, NameFormat nameFormat)
+        protected virtual ColumnName CreateColumnName(string dbColumnName, string dbTableName, string dbSchema, INameAliases nameAliases, NameFormat nameFormat)
         {
-            return NameFormatter.GetColumnName(dbColumnName, GetExtraction(dbColumnName), nameFormat);
+            var columnNameAlias = nameAliases != null ? nameAliases.GetColumnMemberAlias(dbColumnName, dbTableName, dbSchema) : null;
+            WordsExtraction extraction;
+            if (columnNameAlias != null)
+            {
+                extraction = WordsExtraction.None;
+            }
+            else
+            {
+                extraction = GetExtraction(dbColumnName);
+                columnNameAlias = dbColumnName;
+            }
+            var columnName= NameFormatter.GetColumnName(columnNameAlias, extraction, nameFormat);
+            columnName.DbName = dbColumnName;
+            return columnName;
         }
 
         protected virtual ProcedureName CreateProcedureName(string dbProcedureName, string dbSchema, NameFormat nameFormat)
@@ -189,12 +202,12 @@ namespace DbLinq.Vendor.Implementation
             }
         }
 
-        protected void LoadColumns(Database schema, SchemaName schemaName, IDbConnection conn, NameFormat nameFormat, Names names)
+        protected void LoadColumns(Database schema, SchemaName schemaName, IDbConnection conn, INameAliases nameAliases, NameFormat nameFormat, Names names)
         {
             var columns = ReadColumns(conn, schemaName.DbName);
             foreach (var columnRow in columns)
             {
-                var columnName = CreateColumnName(columnRow.ColumnName, nameFormat);
+                var columnName = CreateColumnName(columnRow.ColumnName, columnRow.TableName, columnRow.TableSchema, nameAliases, nameFormat);
                 names.AddColumn(columnRow.TableName, columnName);
 
                 //find which table this column belongs to

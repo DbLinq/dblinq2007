@@ -36,6 +36,7 @@ namespace DbLinq.Linq
 
     public enum WordsExtraction
     {
+        None, // one word, as provided
         FromCase,
         FromDictionary,
     }
