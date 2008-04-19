@@ -34,6 +34,19 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
         public abstract string LanguageCode { get; }
         public abstract string Extension { get; }
 
+        protected class MassDisposer : IDisposable
+        {
+            public IList<IDisposable> Disposables = new List<IDisposable>();
+
+            public void Dispose()
+            {
+                for (int index = Disposables.Count - 1; index > 0; index--)
+                {
+                    Disposables[index].Dispose();
+                }
+            }
+        }
+
         protected abstract CodeWriter CreateCodeWriter(TextWriter textWriter);
 
         public void Write(TextWriter textWriter, DbLinq.Schema.Dbml.Database dbSchema, GenerationContext context)
@@ -158,32 +171,32 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
         {
             switch (literalType)
             {
-                case "string":
-                    return typeof(string);
-                case "long":
-                    return typeof(long);
-                case "short":
-                    return typeof(short);
-                case "int":
-                    return typeof(int);
-                case "char":
-                    return typeof(char);
-                case "byte":
-                    return typeof(byte);
-                case "float":
-                    return typeof(float);
-                case "double":
-                    return typeof(double);
-                case "decimal":
-                    return typeof(decimal);
-                case "bool":
-                    return typeof(bool);
-                case "DateTime":
-                    return typeof(DateTime);
-                case "object":
-                    return typeof(object);
-                default:
-                    return Type.GetType(literalType);
+            case "string":
+                return typeof(string);
+            case "long":
+                return typeof(long);
+            case "short":
+                return typeof(short);
+            case "int":
+                return typeof(int);
+            case "char":
+                return typeof(char);
+            case "byte":
+                return typeof(byte);
+            case "float":
+                return typeof(float);
+            case "double":
+                return typeof(double);
+            case "decimal":
+                return typeof(decimal);
+            case "bool":
+                return typeof(bool);
+            case "DateTime":
+                return typeof(DateTime);
+            case "object":
+                return typeof(object);
+            default:
+                return Type.GetType(literalType);
             }
         }
 
@@ -201,6 +214,22 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             where T : Attribute
         {
             return new AttributeDefinition(GetAttributeShortName<T>());
+        }
+
+        protected IDisposable WriteAttributes(CodeWriter writer, params AttributeDefinition[] definitions)
+        {
+            var massDisposer = new MassDisposer();
+            foreach (var definition in definitions)
+                massDisposer.Disposables.Add(writer.WriteAttribute(definition));
+            return massDisposer;
+        }
+
+        protected IDisposable WriteAttributes(CodeWriter writer, params string[] definitions)
+        {
+            var attributeDefinitions = new List<AttributeDefinition>();
+            foreach (string definition in definitions)
+                attributeDefinitions.Add(new AttributeDefinition(definition));
+            return WriteAttributes(writer, attributeDefinitions.ToArray());
         }
     }
 }
