@@ -91,7 +91,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
 
                     foreach (var primaryKey in primaryKeys)
                     {
-                        var member = primaryKey.Storage;
+                        var member = writer.GetVariableExpression(primaryKey.Storage);
                         string primaryKeyHashCode = writer.GetMethodCallExpression(writer.GetMemberExpression(member, "GetHashCode"));
                         if (primaryKey.CanBeNull
                         || GetType(primaryKey.Type, false).IsClass) // this patch to ensure that even if DB does not allow nulls,
@@ -127,7 +127,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                     string andExpression = null;
                     foreach (var primaryKey in primaryKeys)
                     {
-                        var member = primaryKey.Storage;
+                        var member = writer.GetVariableExpression(primaryKey.Storage);
                         string primaryKeyTest = writer.GetMethodCallExpression(writer.GetMemberExpression(writer.GetLiteralType(typeof(object)), "Equals"),
                                                                                member,
                                                                                writer.GetMemberExpression(other, member));
@@ -197,15 +197,15 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             {
                 using (writer.WritePropertyGet())
                 {
-                    writer.WriteLine(writer.GetReturnStatement(property.Storage));
+                    writer.WriteLine(writer.GetReturnStatement(writer.GetVariableExpression(property.Storage)));
                 }
                 using (writer.WritePropertySet())
                 {
-                    using (writer.WriteIf(writer.GetDifferentExpression(writer.GetPropertySetValueExpression(), property.Storage)))
+                    using (writer.WriteIf(writer.GetDifferentExpression(writer.GetPropertySetValueExpression(), writer.GetVariableExpression(property.Storage))))
                     {
                         foreach (IImplementation implementation in context.Implementations())
                             implementation.WritePropertyBeforeSet(writer, property, context);
-                        writer.WriteLine(writer.GetStatement(writer.GetAssignmentExpression(property.Storage, writer.GetPropertySetValueExpression())));
+                        writer.WriteLine(writer.GetStatement(writer.GetAssignmentExpression(writer.GetVariableExpression(property.Storage), writer.GetPropertySetValueExpression())));
                         foreach (IImplementation implementation in context.Implementations())
                             implementation.WritePropertyAfterSet(writer, property, context);
                     }

@@ -228,6 +228,13 @@ namespace DbMetal.Generator
             return GetStatement(string.Format("return {0}", expression));
         }
 
+        /// <summary>
+        /// Returns the specified variable as a safe expression
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public abstract string GetVariableExpression(string name);
+
         public virtual string GetNewExpression(string ctor)
         {
             return string.Format("new {0}", ctor);
