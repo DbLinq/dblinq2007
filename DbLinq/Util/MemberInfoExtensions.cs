@@ -1,0 +1,64 @@
+﻿#region MIT license
+// 
+// Copyright (c) 2007-2008 Jiri Moudry
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+// 
+#endregion
+
+using System;
+using System.Reflection;
+
+namespace DbLinq.Util
+{
+    /// <summary>
+    /// Extensions to handle FieldInfo and PropertyInfo as a single class, their MemberInfo class
+    /// </summary>
+    public static class MemberInfoExtensions
+    {
+        /// <summary>
+        /// Returns the type of the specified member
+        /// </summary>
+        /// <param name="memberInfo">member to get type from</param>
+        /// <returns>Member type</returns>
+        public static Type GetMemberType(this MemberInfo memberInfo)
+        {
+            if (memberInfo is FieldInfo)
+                return ((FieldInfo)memberInfo).FieldType;
+            if (memberInfo is PropertyInfo)
+                return ((PropertyInfo)memberInfo).PropertyType;
+            throw new ArgumentException();
+        }
+
+        /// <summary>
+        /// Sets a field/property
+        /// </summary>
+        /// <param name="memberInfo">The memberInfo specifying the object</param>
+        /// <param name="o">The object</param>
+        /// <param name="value">The field/property value to assign</param>
+        public static void SetMemberValue(this MemberInfo memberInfo, object o, object value)
+        {
+            if (memberInfo is FieldInfo)
+                ((FieldInfo)memberInfo).SetValue(o, value);
+            else if (memberInfo is PropertyInfo)
+                ((PropertyInfo)memberInfo).GetSetMethod().Invoke(o, new[] { value });
+            else throw new ArgumentException();
+        }
+    }
+}
