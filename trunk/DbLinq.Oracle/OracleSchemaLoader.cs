@@ -69,7 +69,7 @@ namespace DbLinq.Oracle
                     DbLinq.Schema.Dbml.Column pkColumn = table.Type.Columns.Where(c => c.Name == constraint.column_name).First();
                     pkColumn.IsPrimaryKey = true;
                 }
-                else
+                else if (constraint.constraint_type == "R")
                 {
                     //if not PRIMARY, it's a foreign key. (constraint_type=="R")
                     //both parent and child table get an [Association]
