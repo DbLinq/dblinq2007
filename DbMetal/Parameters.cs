@@ -141,16 +141,26 @@ namespace DbMetal
         /// <summary>
         /// Interfaces to be implemented
         /// </summary>
-        public string EntityInterfaces = "INotifyPropertyChanged";//INotifyPropertyChanging INotifyPropertyChanged IModified
         [Option("Comma separated base interfaces of entity classes in the generated code (default: entities implement INotifyPropertyChanged).",
             ValueName = "interface(s)", Group = 4)]
-        public string[] Interfaces
-        {
-            get
-            {
-                return new List<string>(from entityInterface in EntityInterfaces.Split(',') select entityInterface.Trim()).ToArray();
-            }
-        }
+        public string EntityInterfaces { get; set; }
+        public string[] EntityImplementedInterfaces { get { return GetArray(EntityInterfaces); } }
+
+        /// <summary>
+        /// Extra attributes to be implemented by class
+        /// </summary>
+        [Option("Comma separated attributes of entity classes in the generated code.",
+            ValueName = "attribute(s)", Group = 4)]
+        public string EntityAttributes { get; set; }
+        public string[] EntityExposedAttributes { get { return GetArray(EntityAttributes); } }
+
+        /// <summary>
+        /// Extra attributes to be implemented by class
+        /// </summary>
+        [Option("Comma separated attributes of entity members in the generated code.",
+            ValueName = "attribute(s)", Group = 4)]
+        public string MemberAttributes { get; set; }
+        public string[] MemberExposedAttributes { get { return GetArray(MemberAttributes); } }
 
         /// <summary>
         /// base class from which all generated entities will inherit
@@ -221,6 +231,7 @@ namespace DbMetal
         {
             Schema = true;
             Culture = "en";
+            EntityInterfaces = "INotifyPropertyChanged";//INotifyPropertyChanging INotifyPropertyChanged IModified
         }
 
         public IEnumerable<Parameters> GetBatch(IList<string> args)

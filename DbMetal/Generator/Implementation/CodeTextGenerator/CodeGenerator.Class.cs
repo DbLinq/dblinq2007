@@ -21,18 +21,16 @@
 // THE SOFTWARE.
 // 
 #endregion
-using System;
+
 using System.Collections.Generic;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using DbLinq.Factory;
 using DbLinq.Linq;
 using DbLinq.Linq.Mapping;
 using DbLinq.Logging;
-using DbLinq.Schema;
 using DbMetal.Generator.EntityInterface;
 
 namespace DbMetal.Generator.Implementation.CodeTextGenerator
@@ -58,9 +56,10 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
 
             var tableAttribute = NewAttributeDefinition<TableAttribute>();
             tableAttribute["Name"] = table.Name;
+            using (WriteAttributes(writer, context.Parameters.EntityExposedAttributes))
             using (writer.WriteAttribute(tableAttribute))
             using (writer.WriteClass(SpecificationDefinition.Public | SpecificationDefinition.Partial,
-                                     table.Type.Name, context.Parameters.EntityBase, context.Parameters.Interfaces))
+                                     table.Type.Name, context.Parameters.EntityBase, context.Parameters.EntityImplementedInterfaces))
             {
                 WriteClassHeader(writer, table, context);
                 WriteClassProperties(writer, table, context);
@@ -96,7 +95,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                         string primaryKeyHashCode = writer.GetMethodCallExpression(writer.GetMemberExpression(member, "GetHashCode"));
                         if (primaryKey.CanBeNull
                         || GetType(primaryKey.Type, false).IsClass) // this patch to ensure that even if DB does not allow nulls,
-                                                                    // our in-memory object won't generate a fault
+                        // our in-memory object won't generate a fault
                         {
                             var isNullExpression = writer.GetEqualExpression(member, writer.GetNullExpression());
                             var nullExpression = writer.GetLiteralValue(0);
@@ -191,8 +190,9 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                 column["Expression"] = property.Expression.Replace("\"", "\\\"");
             }
 
-            using (writer.WriteAttribute(column))
+            using (WriteAttributes(writer, context.Parameters.MemberExposedAttributes))
             using (writer.WriteAttribute(NewAttributeDefinition<DebuggerNonUserCodeAttribute>()))
+            using (writer.WriteAttribute(column))
             using (writer.WriteProperty(SpecificationDefinition.Public, property.Member, writer.GetLiteralType(GetType(property.Type, property.CanBeNull))))
             {
                 using (writer.WritePropertyGet())

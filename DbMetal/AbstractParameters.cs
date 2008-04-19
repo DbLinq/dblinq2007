@@ -303,6 +303,16 @@ namespace DbMetal
         }
 
         /// <summary>
+        /// Converts a list separated by a comma to a string array
+        /// </summary>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        public string[] GetArray(string list)
+        {
+            return (from entityInterface in list.Split(',') select entityInterface.Trim()).ToArray();
+        }
+
+        /// <summary>
         /// Processes different "lines" of parameters:
         /// 1. the original input parameter must be starting with @
         /// 2. all other parameters are kept as a common part
