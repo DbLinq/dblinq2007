@@ -451,6 +451,10 @@ dummy text
             db.Categories.InsertOnSubmit(newCat);
             db.SubmitChanges();
             Assert.AreEqual(999, newCat.CategoryID);
+            // then, load our object
+            var checkCat = (from c in db.Categories where c.CategoryID == newCat.CategoryID select c).Single();
+            Assert.AreEqual(999, checkCat.CategoryID);
+            // remove the whole thing
             db.Categories.DeleteOnSubmit(newCat);
             db.SubmitChanges();
         }
