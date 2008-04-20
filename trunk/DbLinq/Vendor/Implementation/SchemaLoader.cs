@@ -43,7 +43,8 @@ namespace DbLinq.Vendor.Implementation
         public INameFormatter NameFormatter { get; set; }
         public ILogger Logger { get; set; }
 
-        public virtual Database Load(string databaseName, INameAliases nameAliases, NameFormat nameFormat, bool loadStoredProcedures)
+        public virtual Database Load(string databaseName, INameAliases nameAliases, NameFormat nameFormat,
+            bool loadStoredProcedures, string contextNamespace, string entityNamespace)
         {
             // check if connection is open. Note: we may use something more flexible
             if (Connection.State != ConnectionState.Open)
@@ -58,7 +59,14 @@ namespace DbLinq.Vendor.Implementation
 
             var schemaName = NameFormatter.GetSchemaName(databaseName, GetExtraction(databaseName), nameFormat);
             var names = new Names();
-            var schema = new Database { Name = schemaName.DbName, Class = schemaName.ClassName };
+            var schema = new Database
+                             {
+                                 Name = schemaName.DbName,
+                                 Class = schemaName.ClassName,
+                                 BaseType = typeof(DataContext).FullName,
+                                 ContextNamespace = contextNamespace,
+                                 EntityNamespace = entityNamespace,
+                             };
 
             // order is important, we must have:
             // 1. tables
@@ -131,7 +139,7 @@ namespace DbLinq.Vendor.Implementation
                 extraction = GetExtraction(dbColumnName);
                 columnNameAlias = dbColumnName;
             }
-            var columnName= NameFormatter.GetColumnName(columnNameAlias, extraction, nameFormat);
+            var columnName = NameFormatter.GetColumnName(columnNameAlias, extraction, nameFormat);
             columnName.DbName = dbColumnName;
             return columnName;
         }

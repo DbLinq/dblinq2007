@@ -67,10 +67,29 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             {
                 WriteBanner(codeWriter, context);
                 WriteUsings(codeWriter, context);
-                using (WriteNamespace(codeWriter, context))
+
+                string contextNamespace = context.Parameters.Namespace;
+                if (string.IsNullOrEmpty(contextNamespace))
+                    contextNamespace = dbSchema.ContextNamespace;
+
+                string entityNamespace = context.Parameters.Namespace;
+                if (string.IsNullOrEmpty(entityNamespace))
+                    entityNamespace = dbSchema.EntityNamespace;
+
+                if (contextNamespace == entityNamespace)
                 {
-                    WriteDataContext(codeWriter, dbSchema, context);
-                    WriteClasses(codeWriter, dbSchema, context);
+                    using (WriteNamespace(codeWriter, contextNamespace))
+                    {
+                        WriteDataContext(codeWriter, dbSchema, context);
+                        WriteClasses(codeWriter, dbSchema, context);
+                    }
+                }
+                else
+                {
+                    using (WriteNamespace(codeWriter, contextNamespace))
+                        WriteDataContext(codeWriter, dbSchema, context);
+                    using (WriteNamespace(codeWriter, entityNamespace))
+                        WriteClasses(codeWriter, dbSchema, context);
                 }
             }
         }
@@ -110,10 +129,10 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             writer.WriteLine();
         }
 
-        private IDisposable WriteNamespace(CodeWriter writer, GenerationContext context)
+        private IDisposable WriteNamespace(CodeWriter writer, string nameSpace)
         {
-            if (!string.IsNullOrEmpty(context.Parameters.Namespace))
-                return writer.WriteNamespace(context.Parameters.Namespace);
+            if (!string.IsNullOrEmpty(nameSpace))
+                return writer.WriteNamespace(nameSpace);
             return null;
         }
 
@@ -124,7 +143,12 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                 writer.WriteCommentLine("L69 no tables found");
                 return;
             }
-            using (writer.WriteClass(SpecificationDefinition.Partial, schema.Class, context.SchemaLoader.DataContextType.FullName))
+
+            string contextBase = schema.BaseType;
+            if (string.IsNullOrEmpty(contextBase))
+                contextBase = context.SchemaLoader.DataContextType.FullName;
+
+            using (writer.WriteClass(SpecificationDefinition.Partial, schema.Class, contextBase))
             {
                 WriteDataContextCtors(writer, schema, context);
                 WriteDataContextTables(writer, schema, context);

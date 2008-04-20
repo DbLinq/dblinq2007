@@ -186,7 +186,7 @@ namespace DbMetal.Generator.Implementation
                 Logger.Write(Level.Information, ">>> Reading schema from {0} database", schemaLoader.VendorName);
                 dbSchema = schemaLoader.Load(parameters.Database, nameAliases,
                     new NameFormat { Case = Case.PascalCase, Pluralize = parameters.Pluralize, Culture = new CultureInfo(parameters.Culture) },
-                    parameters.Sprocs);
+                    parameters.Sprocs, parameters.Namespace, parameters.Namespace);
                 dbSchema.Provider = parameters.Provider;
                 dbSchema.Tables.Sort(new LambdaComparer<Table>((x, y) => (x.Type.Name.CompareTo(y.Type.Name))));
                 foreach (var table in dbSchema.Tables)
