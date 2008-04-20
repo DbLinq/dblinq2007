@@ -30,7 +30,7 @@ using nwind;
 using Test_NUnit;
 
 #if MYSQL
-    namespace Test_NUnit_MySql
+namespace Test_NUnit_MySql
 #elif ORACLE
     namespace Test_NUnit_Oracle
 #elif POSTGRES
@@ -40,7 +40,7 @@ using Test_NUnit;
 #elif INGRES
     namespace Test_NUnit_Ingres
 #else
-    #error unknown target
+#error unknown target
 #endif
 {
     [TestFixture]
@@ -75,7 +75,7 @@ using Test_NUnit;
                 UnitPrice = 20
             };
 
-            db.OrderDetails.Add(orderDetail);
+            db.OrderDetails.InsertOnSubmit(orderDetail);
             db.SubmitChanges();
 
             orderDetail.UnitPrice = 40;
@@ -91,7 +91,7 @@ using Test_NUnit;
             Assert.AreEqual(2, orderDetail2.ProductID);
             Assert.AreEqual(40, orderDetail2.UnitPrice);
 
-            db.OrderDetails.Remove(orderDetail);
+            db.OrderDetails.DeleteOnSubmit(orderDetail);
             db.SubmitChanges();
         }
 
@@ -101,11 +101,11 @@ using Test_NUnit;
             Northwind db = CreateDB();
 
             var orderDetail = new OrderDetail { OrderID = 3, ProductID = 2 };
-            db.OrderDetails.Add(orderDetail);
+            db.OrderDetails.InsertOnSubmit(orderDetail);
             db.SubmitChanges();
 
             Assert.AreEqual(db.OrderDetails.Count(), 2);
-            db.OrderDetails.Remove(orderDetail);
+            db.OrderDetails.DeleteOnSubmit(orderDetail);
             db.SubmitChanges();
 
             Assert.AreEqual(db.OrderDetails.Count(), 1);
@@ -127,5 +127,17 @@ using Test_NUnit;
             var orderDetail2 = db.OrderDetails.Single();
             Assert.AreEqual(orderDetail2.Discount, newDiscount);
         }
+
+        [Test(Description = "Check that both keys are used to determine identity")]
+        public void G12_Composite_ObjectIdentity()
+        {
+            Northwind db = CreateDB();
+            var q = db.OrderDetails.Where(od => od.ProductID == 2 && od.OrderID == 1);
+            OrderDetail row1 = q.Single();
+            OrderDetail row2 = q.Single();
+            Assert.IsTrue(object.ReferenceEquals(row1, row2));
+        }
+
+
     }
 }
