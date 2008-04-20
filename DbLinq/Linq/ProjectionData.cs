@@ -63,24 +63,25 @@ namespace DbLinq.Linq
         /// <summary>
         /// this field must be populated after an INSERT.
         /// </summary>
-        public FieldInfo AutoGenField; // obsolete, use AutoGenProperty instead
+        public MemberInfo AutoGenMember;
+        public bool AutoGen { get { return AutoGenMember != null; } }
 
-        public PropertyInfo AutoGenProperty;
-
-        public bool AutoGen { get { return AutoGenProperty != null || AutoGenField != null; } }
+        public bool IsAutoGenSpecified(object reference)
+        {
+            if (AutoGenMember == null)
+                return false;
+            object value = AutoGenMember.GetMemberValue(reference);
+            if (value == null)
+                return false;
+            if (Equals(value, TypeConvert.GetDefault(value.GetType())))
+                return false;
+            return true;
+        }
 
         public void UpdateAutoGen(object reference, object value)
         {
-            if (AutoGenProperty != null)
-            {
-                object convertedValue = TypeConvert.ToNumber(value, AutoGenProperty.PropertyType);
-                AutoGenProperty.GetSetMethod().Invoke(reference, new[] { convertedValue });
-            }
-            else
-            {
-                object convertedValue = TypeConvert.ToNumber(value, AutoGenField.FieldType);
-                AutoGenField.SetValue(reference, convertedValue);
-            }
+            if (AutoGenMember != null)
+                AutoGenMember.SetMemberValue(reference, TypeConvert.ToNumber(value, AutoGenMember.GetMemberType()));
         }
 
         /// <summary>

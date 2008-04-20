@@ -233,13 +233,13 @@ namespace DbLinq.Util
                     var columnAttribute = columnAttributes[0];
                     if(columnAttribute.IsDbGenerated)
                     {
-                        projData.AutoGenProperty = propertyInfo;
+                        projData.AutoGenMember = propertyInfo;
                         break;
                     }
                 }
             }
 
-            if (projData.AutoGenProperty == null)
+            if (projData.AutoGenMember == null)
             {
                 //now we are looking for '[AutoGenId] protected int productId':
                 //MemberInfo[] members = t.FindMembers(MemberTypes.Field, BindingFlags.Instance | BindingFlags.NonPublic, null, null);
@@ -251,7 +251,7 @@ namespace DbLinq.Util
                     List<AutoGenIdAttribute> att = objs.OfType<AutoGenIdAttribute>().ToList();
                     if (att.Count == 0)
                         continue; //not our field
-                    projData.AutoGenField = field;
+                    projData.AutoGenMember = field;
                     break;
                 }
             }

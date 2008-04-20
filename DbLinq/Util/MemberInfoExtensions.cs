@@ -47,6 +47,20 @@ namespace DbLinq.Util
         }
 
         /// <summary>
+        /// Gets a field/property
+        /// </summary>
+        /// <param name="memberInfo">The memberInfo specifying the object</param>
+        /// <param name="o">The object</param>
+        public static object GetMemberValue(this MemberInfo memberInfo, object o)
+        {
+            if (memberInfo is FieldInfo)
+                return ((FieldInfo)memberInfo).GetValue(o);
+            if (memberInfo is PropertyInfo)
+                return ((PropertyInfo)memberInfo).GetGetMethod().Invoke(o, new object[0]);
+            throw new ArgumentException();
+        }
+
+        /// <summary>
         /// Sets a field/property
         /// </summary>
         /// <param name="memberInfo">The memberInfo specifying the object</param>

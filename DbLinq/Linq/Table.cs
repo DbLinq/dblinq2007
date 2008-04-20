@@ -307,8 +307,7 @@ namespace DbLinq.Linq
                 {
                     using (IDbCommand cmd = InsertClauseBuilder.GetClause(_vars.Context.Vendor, _vars.Context.DatabaseContext, obj, proj))
                     {
-                        object objID = null;
-                        objID = cmd.ExecuteScalar();
+                        object objID = cmd.ExecuteScalar();
 
                         if (!proj.AutoGen)
                             continue; //ID was already assigned by user, not from a DB sequence.
@@ -319,7 +318,8 @@ namespace DbLinq.Linq
                         try
                         {
                             //set the object's ID:
-                            proj.UpdateAutoGen(obj, objID);
+                            if (!proj.IsAutoGenSpecified(obj))
+                                proj.UpdateAutoGen(obj, objID);
 
                             _modificationHandler.ClearModified(obj); //we just saved it - it's not 'dirty'
                         }
@@ -337,11 +337,11 @@ namespace DbLinq.Linq
                 {
                     switch (failureMode)
                     {
-                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                            excepts.Add(ex);
-                            break;
-                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                            throw ex;
+                    case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                        excepts.Add(ex);
+                        break;
+                    case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                        throw ex;
                     }
                 }
 
@@ -376,11 +376,11 @@ namespace DbLinq.Linq
                     Trace.WriteLine("Table.SubmitChanges failed: " + ex);
                     switch (failureMode)
                     {
-                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                            excepts.Add(ex);
-                            break;
-                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                            throw ex;
+                    case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                        excepts.Add(ex);
+                        break;
+                    case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                        throw ex;
                     }
                 }
             }
@@ -418,11 +418,11 @@ namespace DbLinq.Linq
                     {
                         switch (failureMode)
                         {
-                            case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                                excepts.Add(ex);
-                                break;
-                            case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                                throw ex;
+                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                            excepts.Add(ex);
+                            break;
+                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                            throw ex;
                         }
                     }
                 }

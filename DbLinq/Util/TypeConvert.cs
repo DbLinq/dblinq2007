@@ -48,5 +48,18 @@ namespace DbLinq.Util
         {
             return (U)ToNumber(o, typeof(U));
         }
+
+        /// <summary>
+        /// Returns the default value for a specified type.
+        /// Reflection equivalent of default(T)
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        public static object GetDefault(Type t)
+        {
+            if (!t.IsValueType)
+                return null;
+            return Activator.CreateInstance(t);
+        }
     }
 }
