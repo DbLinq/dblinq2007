@@ -47,5 +47,25 @@ using Test_NUnit;
             Assert.IsTrue(cust1.CustomerID == "BONAP", "CustomerID must be BONAP - was: " + cust1.CustomerID);
         }
 
+        [Test(Description="Example 2 from msdn")]
+        public void MSDN_ObjectIdentity2()
+        {
+            //source: http://msdn2.microsoft.com/en-us/library/bb399376.aspx
+            Northwind db = CreateDB();
+
+            Customer cust1 =
+                (from cust in db.Customers
+                 where cust.CustomerID == "BONAP"
+                 select cust).First();
+
+            Customer cust2 =
+                (from ord in db.Orders
+                 where ord.Customer.CustomerID == "BONAP"
+                 select ord).First().Customer;
+
+            bool isSameObject = Object.ReferenceEquals(cust1, cust2);
+            Assert.IsTrue(isSameObject);
+        }
+
     }
 }
