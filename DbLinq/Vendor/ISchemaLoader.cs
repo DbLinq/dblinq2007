@@ -35,6 +35,7 @@ namespace DbLinq.Vendor
         IVendor Vendor { get; }
         System.Type DataContextType { get; }
         IDbConnection Connection { get; set; }
-        Database Load(string databaseName, INameAliases nameAliases, NameFormat nameFormat, bool loadStoredProcedures);
+        Database Load(string databaseName, INameAliases nameAliases, NameFormat nameFormat, 
+            bool loadStoredProcedures, string contextNamespace, string entityNamespace);
     }
 }
