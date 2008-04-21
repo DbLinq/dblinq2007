@@ -59,12 +59,12 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                 entityBase = schema.EntityBase;
 
             var specifications = SpecificationDefinition.Partial;
-            if (schema.AccessModifierSpecified)
-                specifications |= GetSpecificationDefinition(table.AccessModifier);
+            if (table.Type.AccessModifierSpecified)
+                specifications |= GetSpecificationDefinition(table.Type.AccessModifier);
             else
                 specifications |= SpecificationDefinition.Public;
-            if (schema.ModifierSpecified)
-                specifications |= GetSpecificationDefinition(table.Modifier);
+            if (table.Type.ModifierSpecified)
+                specifications |= GetSpecificationDefinition(table.Type.Modifier);
 
             var tableAttribute = NewAttributeDefinition<TableAttribute>();
             tableAttribute["Name"] = table.Name;
