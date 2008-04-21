@@ -199,10 +199,16 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                 column["CanBeNull"] = property.CanBeNull;
             column["Expression"] = property.Expression;
 
+            var specifications = property.AccessModifierSpecified
+                                     ? GetSpecificationDefinition(property.AccessModifier)
+                                     : SpecificationDefinition.Public;
+            if (property.ModifierSpecified)
+                specifications |= GetSpecificationDefinition(property.Modifier);
+
             using (WriteAttributes(writer, context.Parameters.MemberExposedAttributes))
             using (writer.WriteAttribute(NewAttributeDefinition<DebuggerNonUserCodeAttribute>()))
             using (writer.WriteAttribute(column))
-            using (writer.WriteProperty(SpecificationDefinition.Public, property.Member, writer.GetLiteralType(GetType(property.Type, property.CanBeNull))))
+            using (writer.WriteProperty(specifications, property.Member, writer.GetLiteralType(GetType(property.Type, property.CanBeNull))))
             {
                 using (writer.WritePropertyGet())
                 {
