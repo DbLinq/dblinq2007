@@ -89,7 +89,7 @@ namespace DbLinq.Oracle
 
         protected override string MakeFieldSafeName(string name)
         {
-            return name.Enquote('[', ']');
+            return name.Enquote('\"');
         }
 
         public override IExecuteResult ExecuteMethodCall(DbLinq.Linq.DataContext context, MethodInfo method
