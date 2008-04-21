@@ -54,12 +54,16 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
         {
             writer.WriteLine();
 
+            string entityBase = context.Parameters.EntityBase;
+            if (string.IsNullOrEmpty(entityBase))
+                entityBase = schema.EntityBase;
+
             var tableAttribute = NewAttributeDefinition<TableAttribute>();
             tableAttribute["Name"] = table.Name;
             using (WriteAttributes(writer, context.Parameters.EntityExposedAttributes))
             using (writer.WriteAttribute(tableAttribute))
             using (writer.WriteClass(SpecificationDefinition.Public | SpecificationDefinition.Partial,
-                                     table.Type.Name, context.Parameters.EntityBase, context.Parameters.EntityImplementedInterfaces))
+                                     table.Type.Name, entityBase, context.Parameters.EntityImplementedInterfaces))
             {
                 WriteClassHeader(writer, table, context);
                 WriteClassProperties(writer, table, context);
