@@ -353,6 +353,23 @@ namespace Test_NUnit_Oracle
           internal object PenId;
         }
 
+
+        [Test]
+        public void D14_ProjectedProductList() {
+          Northwind db = CreateDB();
+
+          var prod = (from pr in db.Products
+                      select new {
+                        pr.ProductID,
+                        pr.ProductName,
+                        pr.Supplier,         // exception!
+                        pr.UnitPrice,        // exception!
+                        pr.UnitsInStock,
+                        pr.UnitsOnOrder
+                      }).ToList();
+
+        }
+
         #endregion
 
         [Test]
