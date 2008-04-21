@@ -235,6 +235,8 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                 literalSpecifications.Add("virtual");
             if (HasSpecification(specificationDefinition, SpecificationDefinition.Override))
                 literalSpecifications.Add("override");
+            if (HasSpecification(specificationDefinition, SpecificationDefinition.New))
+                literalSpecifications.Add("new");
             if (HasSpecification(specificationDefinition, SpecificationDefinition.Static))
                 literalSpecifications.Add("static");
 

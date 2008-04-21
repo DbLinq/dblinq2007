@@ -21,6 +21,7 @@
 // THE SOFTWARE.
 // 
 #endregion
+
 using System;
 
 namespace DbMetal.Generator
@@ -40,6 +41,7 @@ namespace DbMetal.Generator
         Override            = 0x000400,
         Static              = 0x000800,
         Sealed              = 0x001000,
+        New                 = 0x002000,
 
         DomainClass         = 0x0F0000,
         Partial             = 0x010000,
