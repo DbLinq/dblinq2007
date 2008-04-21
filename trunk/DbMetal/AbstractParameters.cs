@@ -309,7 +309,10 @@ namespace DbMetal
         /// <returns></returns>
         public string[] GetArray(string list)
         {
-            return (from entityInterface in list.Split(',') select entityInterface.Trim()).ToArray();
+            if (string.IsNullOrEmpty(list))
+                return new string[0];
+            return (from entityInterface in list.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    select entityInterface.Trim()).ToArray();
         }
 
         /// <summary>
