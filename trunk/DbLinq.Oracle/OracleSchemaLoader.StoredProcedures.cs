@@ -38,6 +38,7 @@ namespace DbLinq.Oracle
         {
             public string ProcedureName { get; set; }
             public string Name { get; set; }
+            public string Schema { get; set; }
             public DataType Type { get; set; }
             public bool In { get; set; }
             public bool Out { get; set; }
@@ -49,6 +50,7 @@ namespace DbLinq.Oracle
             int field = 0;
             parameter.ProcedureName = dataRecord.GetAsString(field++);
             parameter.Name = dataRecord.GetAsString(field++);
+            parameter.Schema = dataRecord.GetAsString(field++);
             parameter.Type = new DataType();
             parameter.Type.Type = dataRecord.GetAsString(field++);
             parameter.Type.Length = dataRecord.GetAsNullableNumeric<long>(field++);
@@ -62,7 +64,7 @@ namespace DbLinq.Oracle
 
         protected IList<StoredProcedureParameter> ReadParameters(IDbConnection connection, string databaseName)
         {
-            const string sql = @"select object_name, argument_name, data_type, data_length, data_precision, data_scale, in_out
+            const string sql = @"select object_name, argument_name, owner, data_type, data_length, data_precision, data_scale, in_out
 from all_arguments where lower(owner) = :db order by object_id, position";
 
             return DataCommand.Find<StoredProcedureParameter>(connection, sql, ":db", databaseName.ToLower(), ReadParameter);
@@ -73,12 +75,12 @@ from all_arguments where lower(owner) = :db order by object_id, position";
             var parameters = ReadParameters(conn, schemaName.DbName);
             foreach (var parameter in parameters)
             {
-                var procedureName = CreateProcedureName(parameter.ProcedureName, schemaName.DbName, nameFormat);
+                var procedureName = CreateProcedureName(parameter.ProcedureName, parameter.Schema, nameFormat);
 
                 Function function = schema.Functions.SingleOrDefault(f => f.Method == procedureName.MethodName);
                 if (function == null)
                 {
-                    function = new Function { Name = schemaName.DbName, Method = procedureName.MethodName };
+                    function = new Function { Name = procedureName.DbName, Method = procedureName.MethodName };
                     schema.Functions.Add(function);
                 }
 

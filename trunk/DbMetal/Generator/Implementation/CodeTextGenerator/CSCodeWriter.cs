@@ -313,6 +313,14 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
         {
             if (value is bool)
                 return ((bool)value) ? "true" : "false";
+            if (value is string)
+            {
+                if (((string)value).Contains("categories_seq"))
+                {
+                    int z = 1;
+                }
+                return string.Format("\"{0}\"", ((string)value).Replace("\"", "\\\""));
+            }
             return base.GetLiteralValue(value);
         }
 

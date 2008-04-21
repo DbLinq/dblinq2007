@@ -54,7 +54,7 @@ namespace DbLinq.Ingres
             foreach (ForeignKeyCrossRef keyColRow in foreignKeys)
             {
                 //find my table:
-                string constraintFullDbName = GetFullDbName(keyColRow.TableName, keyColRow.TableSchema);
+                string constraintFullDbName = GetFullCaseSafeDbName(keyColRow.TableName, keyColRow.TableSchema);
                 DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => constraintFullDbName == t.Name);
                 if (table == null)
                 {

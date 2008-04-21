@@ -275,7 +275,7 @@ namespace DbLinq.MySql
         /// </summary>
         /// <param name="dbName"></param>
         /// <returns></returns>
-        public override bool IsCaseSensitiveName(string dbName)
+        protected override bool IsNameCaseSafe(string dbName)
         {
             return true;
         }

@@ -298,9 +298,14 @@ namespace DbLinq.Ingres
             return outParamValues;
         }
 
-        public override bool IsCaseSensitiveName(string dbName)
+        protected override bool IsNameCaseSafe(string dbName)
         {
-            return dbName != dbName.ToLower();
+            return dbName == dbName.ToLower();
+        }
+
+        protected override string MakeNameCaseSafe(string namePart)
+        {
+            return namePart.Enquote('`');
         }
     }
 }

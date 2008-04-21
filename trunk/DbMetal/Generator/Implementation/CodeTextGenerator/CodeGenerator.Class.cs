@@ -185,10 +185,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                 column["IsDbGenerated"] = property.IsDbGenerated;
             if (property.CanBeNull != columnAttribute.CanBeNull)
                 column["CanBeNull"] = property.CanBeNull;
-            if (!string.IsNullOrEmpty(property.Expression))
-            {
-                column["Expression"] = property.Expression.Replace("\"", "\\\"");
-            }
+            column["Expression"] = property.Expression;
 
             using (WriteAttributes(writer, context.Parameters.MemberExposedAttributes))
             using (writer.WriteAttribute(NewAttributeDefinition<DebuggerNonUserCodeAttribute>()))

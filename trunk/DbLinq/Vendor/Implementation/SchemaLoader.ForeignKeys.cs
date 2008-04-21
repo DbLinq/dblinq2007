@@ -65,7 +65,7 @@ namespace DbLinq.Vendor.Implementation
             reverseAssociation.ThisKey = reverseForeignKey;
             reverseAssociation.OtherKey = foreignKey;
 
-            string referencedFullDbName = GetFullDbName(referencedTableName, referencedTableSchema);
+            string referencedFullDbName = GetFullCaseSafeDbName(referencedTableName, referencedTableSchema);
             var referencedTable = schema.Tables.FirstOrDefault(t => referencedFullDbName == t.Name);
             if (referencedTable == null)
                 Logger.Write(Level.Error, "ERROR L151: parent table not found: " + referencedTableName);
