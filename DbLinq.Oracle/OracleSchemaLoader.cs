@@ -52,7 +52,7 @@ namespace DbLinq.Oracle
             foreach (User_Constraints_Row constraint in constraints)
             {
                 //find my table:
-                string constraintFullDbName = GetFullDbName(constraint.TableName, constraint.TableSchema);
+                string constraintFullDbName = GetFullCaseSafeDbName(constraint.TableName, constraint.TableSchema);
                 DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => constraintFullDbName == t.Name);
                 if (table == null)
                 {

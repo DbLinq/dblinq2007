@@ -247,47 +247,9 @@ namespace DbLinq.Vendor.Implementation
             return MakeFieldSafeName(name);
         }
 
-        /// <summary>
-        /// Determines if a given field is dangerous (related to a SQL keyword or containing problematic characters)
-        /// </summary>
-        protected virtual bool IsFieldNameSafe(string name)
-        {
-            string nameL = name.ToLower();
-            switch (nameL)
-            {
-            case "user":
-            case "bit":
-            case "int":
-            case "smallint":
-            case "tinyint":
-            case "mediumint":
-
-            case "float":
-            case "double":
-            case "real":
-            case "decimal":
-            case "numeric":
-
-            case "blob":
-            case "text":
-            case "char":
-            case "varchar":
-
-            case "date":
-            case "time":
-            case "datetime":
-            case "timestamp":
-            case "year":
-
-                return false;
-            default:
-                return !name.Contains(' ');
-            }
-        }
-
         protected virtual string MakeFieldSafeName(string name)
         {
-            return name.Enquote('`');
+            return name.Enquote('\"');
         }
 
         public abstract IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt, StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded);
@@ -303,16 +265,6 @@ namespace DbLinq.Vendor.Implementation
         protected FunctionAttribute GetFunctionAttribute(MethodInfo methodInfo)
         {
             return AttribHelper.GetFunctionAttribute(methodInfo);
-        }
-
-        /// <summary>
-        /// By default, the name is case sensitive if not in full uppercase
-        /// </summary>
-        /// <param name="dbName"></param>
-        /// <returns></returns>
-        public virtual bool IsCaseSensitiveName(string dbName)
-        {
-            return dbName != dbName.ToUpper();
         }
 
         protected virtual string ConnectionStringServer { get { return "server"; } }

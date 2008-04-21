@@ -89,16 +89,18 @@ namespace DbLinq.Vendor.Implementation
 
         protected virtual WordsExtraction GetExtraction(string dbColumnName)
         {
-            return Vendor.IsCaseSensitiveName(dbColumnName) ? WordsExtraction.FromCase : WordsExtraction.FromDictionary;
+            bool isMixedCase = dbColumnName != dbColumnName.ToLower() && dbColumnName != dbColumnName.ToUpper();
+            return isMixedCase ? WordsExtraction.FromCase : WordsExtraction.FromDictionary;
         }
 
-        protected virtual string GetFullDbName(string dbName, string dbSchema)
+        protected virtual string GetFullCaseSafeDbName(string dbName, string dbSchema)
         {
             string fullDbName;
             if (dbSchema == null)
                 fullDbName = dbName;
             else
                 fullDbName = string.Format("{0}.{1}", dbSchema, dbName);
+            fullDbName = Vendor.GetSqlCaseSafeName(fullDbName);
             return fullDbName;
         }
 
@@ -118,7 +120,7 @@ namespace DbLinq.Vendor.Implementation
             if (tableMemberAlias != null)
                 tableName.MemberName = tableMemberAlias;
 
-            tableName.DbName = GetFullDbName(dbTableName, dbSchema);
+            tableName.DbName = GetFullCaseSafeDbName(dbTableName, dbSchema);
             return tableName;
         }
 
@@ -141,14 +143,14 @@ namespace DbLinq.Vendor.Implementation
                 columnNameAlias = dbColumnName;
             }
             var columnName = NameFormatter.GetColumnName(columnNameAlias, extraction, nameFormat);
-            columnName.DbName = dbColumnName;
+            columnName.DbName = Vendor.GetSqlCaseSafeName(dbColumnName);
             return columnName;
         }
 
         protected virtual ProcedureName CreateProcedureName(string dbProcedureName, string dbSchema, NameFormat nameFormat)
         {
             var procedureName = NameFormatter.GetProcedureName(dbProcedureName, GetExtraction(dbProcedureName), nameFormat);
-            procedureName.DbName = GetFullDbName(dbProcedureName, dbSchema);
+            procedureName.DbName = GetFullCaseSafeDbName(dbProcedureName, dbSchema);
             return procedureName;
         }
 
@@ -157,7 +159,7 @@ namespace DbLinq.Vendor.Implementation
         {
             var associationName = NameFormatter.GetAssociationName(dbManyName, dbOneName,
                 dbConstraintName, GetExtraction(dbManyName), nameFormat);
-            associationName.DbName = GetFullDbName(dbManyName, dbManySchema);
+            associationName.DbName = GetFullCaseSafeDbName(dbManyName, dbManySchema);
             return associationName;
         }
 
@@ -220,7 +222,7 @@ namespace DbLinq.Vendor.Implementation
                 names.AddColumn(columnRow.TableName, columnName);
 
                 //find which table this column belongs to
-                string fullColumnDbName = GetFullDbName(columnRow.TableName, columnRow.TableSchema);
+                string fullColumnDbName = GetFullCaseSafeDbName(columnRow.TableName, columnRow.TableSchema);
                 DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => fullColumnDbName == tblSchema.Name);
                 if (tableSchema == null)
                 {

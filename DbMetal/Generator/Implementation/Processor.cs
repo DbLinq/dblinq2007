@@ -99,7 +99,7 @@ namespace DbMetal.Generator.Implementation
                 {
                     //we are supposed to write out a DBML file and exit
                     Logger.Write(Level.Information, "<<< Writing file '{0}'", parameters.Dbml);
-                    using (Stream dbmlFile = File.OpenWrite(parameters.Dbml))
+                    using (Stream dbmlFile = File.Create(parameters.Dbml))
                     {
                         DbmlSerializer.Write(dbmlFile, dbSchema);
                     }

@@ -151,11 +151,11 @@ namespace DbLinq.Vendor
         string GetSqlFieldSafeName(string name);
 
         /// <summary>
-        /// Determines if a table or column name is case sensitive
+        /// Returns a table/column in case safe expression, if required
         /// </summary>
-        /// <param name="dbName"></param>
+        /// <param name="name"></param>
         /// <returns></returns>
-        bool IsCaseSensitiveName(string dbName);
+        string GetSqlCaseSafeName(string name);
 
         /// <summary>
         /// return 'LENGTH' on Oracle,Mysql,PostgreSql, return 'LEN' on MSSql
