@@ -58,11 +58,19 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             if (string.IsNullOrEmpty(entityBase))
                 entityBase = schema.EntityBase;
 
+            var specifications = SpecificationDefinition.Partial;
+            if (schema.AccessModifierSpecified)
+                specifications |= GetSpecificationDefinition(table.AccessModifier);
+            else
+                specifications |= SpecificationDefinition.Public;
+            if (schema.ModifierSpecified)
+                specifications |= GetSpecificationDefinition(table.Modifier);
+
             var tableAttribute = NewAttributeDefinition<TableAttribute>();
             tableAttribute["Name"] = table.Name;
             using (WriteAttributes(writer, context.Parameters.EntityExposedAttributes))
             using (writer.WriteAttribute(tableAttribute))
-            using (writer.WriteClass(SpecificationDefinition.Public | SpecificationDefinition.Partial,
+            using (writer.WriteClass(specifications,
                                      table.Type.Name, entityBase, context.Parameters.EntityImplementedInterfaces))
             {
                 WriteClassHeader(writer, table, context);
