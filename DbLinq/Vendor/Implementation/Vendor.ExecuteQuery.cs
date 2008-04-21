@@ -36,7 +36,7 @@ using DbLinq.Util;
 namespace DbLinq.Vendor.Implementation
 {
 
-    public abstract partial class Vendor : IVendor
+    public abstract partial class Vendor
     {
 
         // re-use args to minimize GEN0

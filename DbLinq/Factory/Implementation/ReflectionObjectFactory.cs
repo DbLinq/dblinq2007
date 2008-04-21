@@ -48,7 +48,7 @@ namespace DbLinq.Factory.Implementation
           Type[] assemblyTypes;
           try {
             assemblyTypes = assembly.GetTypes();
-          } catch (ReflectionTypeLoadException ex) {
+          } catch (ReflectionTypeLoadException) {
             // This is dynamic assembly which is not created yet.
             return;
           }

@@ -426,7 +426,7 @@ namespace DbLinq.Linq
                         }
                     }
                 }
-                string tableName = _vars.Context.Vendor.GetFieldSafeName(proj.tableAttribute.Name);
+                string tableName = _vars.Context.Vendor.GetSqlFieldSafeName(proj.tableAttribute.Name);
 
                 //this does not work with CompositePKs:
                 //string sql = "DELETE FROM " + tableName + " WHERE " + proj.keyColumnName + " in (" + sbDeleteIDs + ")";

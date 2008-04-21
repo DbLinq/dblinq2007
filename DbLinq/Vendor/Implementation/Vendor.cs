@@ -61,7 +61,7 @@ namespace DbLinq.Vendor.Implementation
         /// </summary>
         /// <param name="parts"></param>
         /// <returns></returns>
-        public virtual string Concat(List<DbLinq.Util.ExpressionAndType> parts)
+        public virtual string GetSqlConcat(List<DbLinq.Util.ExpressionAndType> parts)
         {
             string[] arr = parts.Select(p => p.expression).ToArray();
             return string.Join("||", arr);
@@ -72,7 +72,7 @@ namespace DbLinq.Vendor.Implementation
         /// Mysql needs to override to return '?P1'
         /// Ingres needs to override to return '?'.
         /// </summary>
-        public virtual string GetParameterName(int index)
+        public virtual string GetSqlParameterName(int index)
         {
             return ":P" + index;
         }
@@ -82,7 +82,7 @@ namespace DbLinq.Vendor.Implementation
             //only Oracle does anything
         }
 
-        public virtual string GetStringLengthFunction()
+        public virtual string GetSqlStringLengthFunction()
         {
             return "LENGTH";
         }
@@ -94,6 +94,7 @@ namespace DbLinq.Vendor.Implementation
                 string sql2 = ExecuteCommand_PrepareParams(command, sql, parameters);
                 command.CommandText = sql2;
                 //return command.ExecuteNonQuery();
+                // picrap TODO optimize and use TypeConvert.ToNumber<>();
                 object objResult = command.ExecuteScalar();
                 if (objResult is short)
                     return (int)(short)objResult;
@@ -116,7 +117,7 @@ namespace DbLinq.Vendor.Implementation
             List<string> paramNames = new List<string>();
             foreach (object paramValue in parameters)
             {
-                string paramName = GetParameterName(iParam++);
+                string paramName = GetSqlParameterName(iParam++);
                 IDbDataParameter sqlParam = command.CreateParameter();
                 sqlParam.ParameterName = paramName;
                 sqlParam.Value = paramValue;
@@ -239,29 +240,60 @@ namespace DbLinq.Vendor.Implementation
         /// given 'Order Details', return '[Order Details]' or `Order Details`, 
         /// depending on vendor
         /// </summary>
-        public virtual string GetFieldSafeName(string name)
+        public virtual string GetSqlFieldSafeName(string name)
         {
             if (IsFieldNameSafe(name))
                 return name;
             return MakeFieldSafeName(name);
         }
 
-        public virtual bool IsFieldNameSafe(string name)
+        /// <summary>
+        /// Determines if a given field is dangerous (related to a SQL keyword or containing problematic characters)
+        /// </summary>
+        protected virtual bool IsFieldNameSafe(string name)
         {
-            switch (name.ToLower())
+            string nameL = name.ToLower();
+            switch (nameL)
             {
             case "user":
+            case "bit":
+            case "int":
+            case "smallint":
+            case "tinyint":
+            case "mediumint":
+
+            case "float":
+            case "double":
+            case "real":
+            case "decimal":
+            case "numeric":
+
+            case "blob":
+            case "text":
+            case "char":
+            case "varchar":
+
+            case "date":
+            case "time":
+            case "datetime":
+            case "timestamp":
+            case "year":
+
                 return false;
             default:
                 return !name.Contains(' ');
             }
         }
 
-        public abstract string MakeFieldSafeName(string name);
+        protected virtual string MakeFieldSafeName(string name)
+        {
+            return name.Enquote('`');
+        }
+
         public abstract IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt, StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded);
         public abstract IExecuteResult ExecuteMethodCall(Linq.DataContext context, MethodInfo method, params object[] sqlParams);
 
-        public virtual IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
+        public virtual IDbDataParameter CreateDbDataParameter(IDbCommand cmd, string dbTypeName, string paramName)
         {
             IDbDataParameter param = cmd.CreateParameter();
             param.ParameterName = paramName;

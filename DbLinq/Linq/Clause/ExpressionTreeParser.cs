@@ -463,7 +463,7 @@ namespace DbLinq.Linq.Clause
             ColumnAttribute columnAttrib = expr.Member.GetCustomAttributes(false).OfType<ColumnAttribute>().FirstOrDefault();
             string sqlColumnName = expr.Member.Name;
             if (columnAttrib != null)
-                sqlColumnName = _parent._vars.Context.Vendor.GetFieldSafeName(columnAttrib.Name);
+                sqlColumnName = _parent._vars.Context.Vendor.GetSqlFieldSafeName(columnAttrib.Name);
             _result.AppendString(sqlColumnName);
         }
 
@@ -480,7 +480,7 @@ namespace DbLinq.Linq.Clause
                 //process string length function here. 
                 //"LENGTH()" function seems to be available on Oracle,Mysql,PostgreSql
                 //Ha! it's called LEN() on MssqlServer
-                string length_func = _parent._vars.Context.Vendor.GetStringLengthFunction();
+                string length_func = _parent._vars.Context.Vendor.GetSqlStringLengthFunction();
                 _result.AppendString(length_func + "(");
                 AnalyzeExpression(recurData, memberInner);
                 _result.AppendString(")");
@@ -562,7 +562,7 @@ namespace DbLinq.Linq.Clause
                     strings.Add(new ExpressionAndType { expression = substr, type = concatPart2.Type });
                 }
                 _result.Revert(posInitial);
-                string sqlConcatStr = _parent._vars.Context.Vendor.Concat(strings);
+                string sqlConcatStr = _parent._vars.Context.Vendor.GetSqlConcat(strings);
                 _result.AppendString(sqlConcatStr);
                 return;
             }

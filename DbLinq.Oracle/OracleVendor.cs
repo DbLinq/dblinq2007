@@ -29,6 +29,7 @@ using System.Text;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using DbLinq.Linq;
+using DbLinq.Util;
 
 namespace DbLinq.Oracle
 {
@@ -55,7 +56,7 @@ namespace DbLinq.Oracle
             string sequenceName = projData.tableAttribute.Name + "_SEQ";
             sbValues.AppendFormat("{0}.NextVal", sequenceName);
 
-            string outParamName = this.GetParameterName(numFieldsAdded);
+            string outParamName = this.GetSqlParameterName(numFieldsAdded);
             IDbDataParameter outParam = cmd.CreateParameter();
             outParam.ParameterName = outParamName;
             outParam.DbType = DbType.Decimal;
@@ -86,9 +87,9 @@ namespace DbLinq.Oracle
             }
         }
 
-        public override string MakeFieldSafeName(string name)
+        protected override string MakeFieldSafeName(string name)
         {
-            return "[" + name + "]";
+            return name.Enquote('[', ']');
         }
 
         public override IExecuteResult ExecuteMethodCall(DbLinq.Linq.DataContext context, MethodInfo method

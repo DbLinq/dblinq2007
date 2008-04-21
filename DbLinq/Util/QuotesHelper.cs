@@ -55,7 +55,28 @@ namespace DbLinq.Util
 
         public static string AddQuotes(string name)
         {
-            return "\""+name+"\"";
+            return "\"" + name + "\"";
+        }
+
+        /// <summary>
+        /// Enquotes a given string, if not already enquoted
+        /// </summary>
+        /// <param name="name">The string to enquote</param>
+        /// <param name="startQuote">The start quote</param>
+        /// <param name="endQuote">The end quote</param>
+        /// <returns></returns>
+        public static string Enquote(string name, char startQuote, char endQuote)
+        {
+            if (name.Length > 0 && name[0] != startQuote)
+                name = startQuote + name;
+            if (name.Length > 0 && name[name.Length - 1] != endQuote)
+                name = name + endQuote;
+            return name;
+        }
+
+        public static string Enquote(string name, char quote)
+        {
+            return Enquote(name, quote, quote);
         }
 
         private static string AddQuotes1(Match m)

@@ -56,7 +56,7 @@ namespace DbLinq.PostgreSql
             ColumnAttribute idColAttrib = colAttribs.FirstOrDefault(c => c.IsDbGenerated);
 
             string idColName = idColAttrib == null ? "ERROR_L93_MissingIdCol" : idColAttrib.Name;
-            if (idColAttrib!=null && idColAttrib.Expression != null)
+            if (idColAttrib != null && idColAttrib.Expression != null)
             {
                 //sequence name is known, is stored in Expression
                 string nextvalExpr = idColAttrib.Expression;                     //eg. "nextval('suppliers_supplierid_seq')"
@@ -68,7 +68,7 @@ namespace DbLinq.PostgreSql
                 //assume standard format of sequence name
                 string sequenceName = projData.tableAttribute.Name + "_" + idColName + "_seq";
                 sequenceName = QuotesHelper.AddQuotesToSequence(idColName, sequenceName);//toncho11: quotes are added due to issue http://code.google.com/p/dblinq2007/issues/detail?id=27}
-                
+
                 sbIdentity.Append(";SELECT currval('" + sequenceName + "')");
             }
 
@@ -78,7 +78,7 @@ namespace DbLinq.PostgreSql
         /// <summary>
         /// Postgres string concatenation, eg 'a||b'
         /// </summary>
-        public override string Concat(List<ExpressionAndType> parts)
+        public override string GetSqlConcat(List<ExpressionAndType> parts)
         {
             //string[] arr = parts.ToArray();
             //return string.Join("||", arr);
@@ -99,18 +99,14 @@ namespace DbLinq.PostgreSql
             return sb.ToString();
         }
 
-        public override string MakeFieldSafeName(string name)
+        protected override string MakeFieldSafeName(string name)
         {
-            // --> how is a special field escaped?
-
-            if (IsCaseSensitiveName(name))
-                name = QuotesHelper.AddQuotes(name);//"\""+name+"\"";
-            return name;
+            return name.Enquote('"');
         }
 
         protected void SetParameterType(IDbDataParameter parameter, PropertyInfo property, string literal)
         {
-            object dbType= Enum.Parse(property.PropertyType, literal);
+            object dbType = Enum.Parse(property.PropertyType, literal);
             property.GetSetMethod().Invoke(parameter, new object[] { dbType });
         }
 
@@ -119,7 +115,7 @@ namespace DbLinq.PostgreSql
             SetParameterType(parameter, parameter.GetType().GetProperty("NpgsqlDbType"), literal);
         }
 
-        public override IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
+        public override IDbDataParameter CreateDbDataParameter(IDbCommand cmd, string dbTypeName, string paramName)
         {
             IDbDataParameter param = cmd.CreateParameter();
             param.ParameterName = paramName;

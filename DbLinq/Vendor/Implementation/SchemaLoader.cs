@@ -94,12 +94,13 @@ namespace DbLinq.Vendor.Implementation
 
         protected virtual string GetFullDbName(string dbName, string dbSchema)
         {
+            string fullDbName;
             if (dbSchema == null)
-                return dbName;
-            return string.Format("{0}.{1}", dbSchema, dbName);
+                fullDbName = dbName;
+            else
+                fullDbName = string.Format("{0}.{1}", dbSchema, dbName);
+            return fullDbName;
         }
-
-
 
         protected virtual TableName CreateTableName(string dbTableName, string dbSchema, INameAliases nameAliases, NameFormat nameFormat, WordsExtraction extraction)
         {

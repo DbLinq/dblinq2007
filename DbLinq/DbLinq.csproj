@@ -128,6 +128,7 @@
     <Compile Include="Util\Lookup.cs" />
     <Compile Include="Linq\Implementation\NameFormatter.cs" />
     <Compile Include="Util\MemberInfoExtensions.cs" />
+    <Compile Include="Util\StringExtensions.cs" />
     <Compile Include="Util\TypeConvert.cs" />
     <Compile Include="Util\Operators.cs" />
     <Compile Include="Util\ProcResult.cs" />

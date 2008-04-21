@@ -62,7 +62,7 @@ namespace DbLinq.Sqlite
         /// <summary>
         /// on Postgres or Oracle, return eg. ':P1', on Mysql, '?P1', on SQLite, '@P1'
         /// </summary>
-        public override string GetParameterName(int index)
+        public override string GetSqlParameterName(int index)
         {
             return "@P"+index;
         }
@@ -70,7 +70,7 @@ namespace DbLinq.Sqlite
         /// <summary>
         /// Postgres and Sqlite string concatenation, eg 'a||b'
         /// </summary>
-        public override string Concat(List<ExpressionAndType> parts)
+        public override string GetSqlConcat(List<ExpressionAndType> parts)
         {
             StringBuilder sb = new StringBuilder();
             foreach (ExpressionAndType part in parts)
@@ -88,58 +88,7 @@ namespace DbLinq.Sqlite
             }
             return sb.ToString();
         }
-        
-        /// <summary>
-        /// given 'int', return '`int`' to prevent a SQL keyword conflict
-        /// </summary>
-        public override bool IsFieldNameSafe(string name)
-        {
-            string nameL = name.ToLower();
-            switch (nameL)
-            {
-                case "user":
-                case "bit":
-                case "int":
-                case "smallint":
-                case "tinyint":
-                case "mediumint":
 
-                case "float":
-                case "double":
-                case "real":
-                case "decimal":
-                case "numeric":
-
-                case "blob":
-                case "text":
-                case "char":
-                case "varchar":
-
-                case "date":
-                case "time":
-                case "datetime":
-                case "timestamp":
-                case "year":
-
-                    return false;
-                default:
-                    return base.IsFieldNameSafe(name);
-            }
-        }
-
-        public override string MakeFieldSafeName(string name)
-        {
-            return "`" + name + "`";
-        }
-
-/*
-        public override IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
-        {
-            System.Data.DbType dbType = SqliteTypeConversions.ParseType(dbTypeName);
-            SQLiteParameter param = new SQLiteParameter(paramName, dbType);
-            return param;
-        }
-*/
         public override bool CanBulkInsert<T>(DbLinq.Linq.Table<T> table)
         {
             return UseBulkInsert.ContainsKey(table);

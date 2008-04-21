@@ -80,13 +80,13 @@ namespace DbLinq.Linq.Clause
 
             foreach (ColumnAttribute colAtt in colAttribs2)
             {
-                string safeColumnName = vars.Context.Vendor.GetFieldSafeName(colAtt.Name);
+                string safeColumnName = vars.Context.Vendor.GetSqlFieldSafeName(colAtt.Name);
                 string part = nick + "." + safeColumnName; //eg. '$o.OrderID'
                 selectParts.AddSelect(part);
             }
 
             //build string '[Order Details] o$'
-            string tableName2 = vars.Context.Vendor.GetFieldSafeName(tAttrib.Name) + " " + nick;
+            string tableName2 = vars.Context.Vendor.GetSqlFieldSafeName(tAttrib.Name) + " " + nick;
             selectParts.AddFrom(tableName2);
         }
 
