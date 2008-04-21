@@ -249,7 +249,7 @@ namespace DbLinq.Vendor.Implementation
 
         protected virtual string MakeFieldSafeName(string name)
         {
-            return name.Enquote('\"');
+            return name.Enquote('`');
         }
 
         public abstract IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt, StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded);
