@@ -90,7 +90,8 @@ namespace DbLinq.Ingres
         }
 
         // Ingres uses ? for parameters placeholders
-        public override string GetParameterName(int index)
+        // picrap --> thomas: is there no order? This is potentially non-working
+        public override string GetSqlParameterName(int index)
         {
             return "?";
         }
@@ -107,7 +108,7 @@ namespace DbLinq.Ingres
         /// <summary>
         /// Ingres string concatenation, eg 'a||b'
         /// </summary>
-        public override string Concat(List<ExpressionAndType> parts)
+        public override string GetSqlConcat(List<ExpressionAndType> parts)
         {
             StringBuilder sb = new StringBuilder();
             foreach (ExpressionAndType part in parts)
@@ -138,14 +139,13 @@ namespace DbLinq.Ingres
             SetParameterType(parameter, parameter.GetType().GetProperty("IngresDbType"), literal);
         }
 
-
-        public override string MakeFieldSafeName(string name)
+        protected override string MakeFieldSafeName(string name)
         {
             // --> how is a special field escaped?
             return name;
         }
         
-        public override IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
+        public override IDbDataParameter CreateDbDataParameter(IDbCommand cmd, string dbTypeName, string paramName)
         {
             IDbDataParameter param = cmd.CreateParameter();
             param.ParameterName = paramName;

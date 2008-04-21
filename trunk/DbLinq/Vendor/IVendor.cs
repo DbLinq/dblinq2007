@@ -62,60 +62,40 @@ namespace DbLinq.Vendor
     /// </summary>
     public interface IVendor
     {
+        #region Database access and generic methods
+
         /// <summary>
-        /// return 'Oracle' or 'Mysql'
+        /// VendorName represents the database being handled by this vendor 'Oracle' or 'MySql'
         /// </summary>
         string VendorName { get; }
 
         /// <summary>
-        /// simple command to test round-trip functionality against DB:
-        /// 'SELECT 11' or
-        /// 'SELECT 11 FROM DUAL'
+        /// Builds a connection string given the input parameters
         /// </summary>
-        string SqlPingCommand { get; }
+        /// <param name="host">Server host</param>
+        /// <param name="databaseName">Database (or schema) name</param>
+        /// <param name="userName">Login user name</param>
+        /// <param name="password">Login password</param>
+        /// <returns></returns>
+        string BuildConnectionString(string host, string databaseName, string userName, string password);
 
         /// <summary>
-        /// On Oracle, we have to insert a primary key manually.
-        /// On MySql/Pgsql/Mssql, we use the IDENTITY clause to populate it automatically.
+        /// Executes an int-returning simple command
         /// </summary>
-        IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
-            , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded);
-
-        void ProcessInsertedId(IDbCommand cmd1, ref object returnedId);
+        /// <param name="context"></param>
+        /// <param name="sql"></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        int ExecuteCommand(Linq.DataContext context, string sql, params object[] parameters);
 
         /// <summary>
-        /// string concatenation, eg 'a||b' on Postgres 
+        /// Executes a stored procedure/function call
         /// </summary>
-        string Concat(List<ExpressionAndType> parts);
-
-        /// <summary>
-        /// GetParameterName: on Postgres or Oracle, return ':P1', on Mysql, return '?P1'
-        /// </summary>
-        string GetParameterName(int index);
-
-        /// <summary>
-        /// given 'User', return '[User]' to prevent a SQL keyword conflict
-        /// </summary>
-        string GetFieldSafeName(string name);
-
-        /// <summary>
-        /// return 'LENGTH' on Oracle,Mysql,PostgreSql, return 'LEN' on MSSql
-        /// </summary>
-        string GetStringLengthFunction();
-
-        int ExecuteCommand(DbLinq.Linq.DataContext context, string sql, params object[] parameters);
-
-        IExecuteResult ExecuteMethodCall(DbLinq.Linq.DataContext context, MethodInfo method, params object[] sqlParams);
-
-        IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName);
-
-        bool CanBulkInsert<T>(DbLinq.Linq.Table<T> table);
-        void SetBulkInsert<T>(DbLinq.Linq.Table<T> table, int pageSize);
-        void DoBulkInsert<T>(DbLinq.Linq.Table<T> table, List<T> rows, IDbConnection connection);
-
-        string BuildSqlString(SqlExpressionParts parts);
-
-        bool IsCaseSensitiveName(string dbName);
+        /// <param name="context"></param>
+        /// <param name="method"></param>
+        /// <param name="sqlParams"></param>
+        /// <returns></returns>
+        IExecuteResult ExecuteMethodCall(Linq.DataContext context, MethodInfo method, params object[] sqlParams);
 
         /// <summary>
         /// Executes query. Stores matching columns in instance fields and properties.
@@ -126,11 +106,113 @@ namespace DbLinq.Vendor
         /// Caches and re-uses compiled delegates (thread-safe)
         /// </summary>
         /// <typeparam name="TResult">Entity type whose instances are returned</typeparam>
-        /// <param name="context">Database to use</param>
-        /// <param name="sql">Server query returning table</param>
+        /// <param name="dataContext">Database to use</param>
+        /// <param name="command">Server query returning table</param>
         /// <param name="parameters">query parameters</param>
         /// <returns>Entity with matching properties and fields filled</returns>
-        IEnumerable<TResult> ExecuteQuery<TResult>(DbLinq.Linq.DataContext dataContext, string command, object[] parameters);
+        IEnumerable<TResult> ExecuteQuery<TResult>(Linq.DataContext dataContext, string command, object[] parameters);
+
+        /// <summary>
+        /// Creates a parameter for use with IDbCommand.
+        /// To be removed (should be useless)
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="dbTypeName"></param>
+        /// <param name="paramName"></param>
+        /// <returns></returns>
+        IDbDataParameter CreateDbDataParameter(IDbCommand cmd, string dbTypeName, string paramName);
+
+        #endregion
+
+        #region SQL generator
+
+        /// <summary>
+        /// simple command to test round-trip functionality against DB:
+        /// 'SELECT 11' or
+        /// 'SELECT 11 FROM DUAL'
+        /// </summary>
+        string SqlPingCommand { get; }
+
+        /// <summary>
+        /// string concatenation, eg 'a||b' on Postgres 
+        /// </summary>
+        string GetSqlConcat(List<ExpressionAndType> parts);
+
+        /// <summary>
+        /// Returns a named parameter based on a given index
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        string GetSqlParameterName(int index);
+
+        /// <summary>
+        /// given 'User', return '[User]' to prevent a SQL keyword conflict
+        /// </summary>
+        string GetSqlFieldSafeName(string name);
+
+        /// <summary>
+        /// Determines if a table or column name is case sensitive
+        /// </summary>
+        /// <param name="dbName"></param>
+        /// <returns></returns>
+        bool IsCaseSensitiveName(string dbName);
+
+        /// <summary>
+        /// return 'LENGTH' on Oracle,Mysql,PostgreSql, return 'LEN' on MSSql
+        /// </summary>
+        string GetSqlStringLengthFunction();
+
+        /// <summary>
+        /// Generates the SQL request, based on provided parts
+        /// </summary>
+        /// <param name="parts">The request, expressed as objects</param>
+        /// <returns></returns>
+        string BuildSqlString(SqlExpressionParts parts);
+
+        #endregion
+
+        #region Insert / PK processor
+
+        /// <summary>
+        /// Determines if the current vendor/table can do bulk insert
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="table"></param>
+        /// <returns></returns>
+        bool CanBulkInsert<T>(Linq.Table<T> table);
+        /// <summary>
+        /// Sets the bulk insert capability for a given table
+        /// If the vendor doesn't support bulk insert, then this method is ignored and the CanBulkInsert() method always return false.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="table"></param>
+        /// <param name="pageSize"></param>
+        void SetBulkInsert<T>(Linq.Table<T> table, int pageSize);
+        /// <summary>
+        /// Performs bulk insert.
+        /// Please note that PKs may not be updated
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="table"></param>
+        /// <param name="rows"></param>
+        /// <param name="connection"></param>
+        void DoBulkInsert<T>(Linq.Table<T> table, List<T> rows, IDbConnection connection);
+
+        /// <summary>
+        /// On Oracle, we have to insert a primary key manually.
+        /// On MySql/Pgsql/Mssql, we use the IDENTITY clause to populate it automatically.
+        /// </summary>
+        IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
+            , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded);
+
+        /// <summary>
+        /// Gets generated PK from an insert command
+        /// </summary>
+        /// <param name="cmd1"></param>
+        /// <param name="returnedId"></param>
+        void ProcessInsertedId(IDbCommand cmd1, ref object returnedId);
+
+        #endregion
 
         /// <summary>
         /// Custom conversion of retrieved values.
@@ -144,9 +226,7 @@ namespace DbLinq.Vendor
         ///    };
         ///   }
         /// </summary>
+        [Obsolete("Use MappingContext")]
         event EventHandler<ValueConversionEventArgs> ConvertValue;
-
-        // builds a connection string from given parameters
-        string BuildConnectionString(string host, string databaseName, string userName, string password);
     }
 }

@@ -61,7 +61,7 @@ namespace DbLinq.Linq.Clause
             StringBuilder sbValues = new StringBuilder("VALUES (");
             StringBuilder sbIdentity = new StringBuilder();
 
-            string tableName_safe = vendor.GetFieldSafeName(projData.tableAttribute.Name); //eg. "[Order Details]"
+            string tableName_safe = vendor.GetSqlFieldSafeName(projData.tableAttribute.Name); //eg. "[Order Details]"
             sb.Append(tableName_safe).Append(" (");
             List<IDbDataParameter> paramList = new List<IDbDataParameter>();
 
@@ -91,10 +91,10 @@ namespace DbLinq.Linq.Clause
                 sb.Append(colAtt.Name);
 
                 //get either ":p0" or "?p0"
-                string paramName = vendor.GetParameterName(numFieldsAdded);
+                string paramName = vendor.GetSqlParameterName(numFieldsAdded);
                 sbValues.Append(paramName);
 
-                IDbDataParameter param = vendor.CreateSqlParameter(cmd, colAtt.DbType, paramName);
+                IDbDataParameter param = vendor.CreateDbDataParameter(cmd, colAtt.DbType, paramName);
 
                 param.Value = paramValue;
                 paramList.Add(param);
@@ -169,11 +169,11 @@ namespace DbLinq.Linq.Clause
                 object paramValue = projFld.GetFieldValue(objectToInsert);
 
                 //get either ":p0" or "?p0"
-                string paramName = vendor.GetParameterName(numFieldsAdded++);
+                string paramName = vendor.GetSqlParameterName(numFieldsAdded++);
                 sbVals.Append(separator).Append(paramName);
                 separator = ", ";
 
-                IDbDataParameter param = vendor.CreateSqlParameter(cmd, colAtt.DbType, paramName);
+                IDbDataParameter param = vendor.CreateDbDataParameter(cmd, colAtt.DbType, paramName);
 
                 param.Value = paramValue;
                 paramList.Add(param);
@@ -195,7 +195,7 @@ namespace DbLinq.Linq.Clause
 
             IDbCommand cmd = vars.Context.DatabaseContext.CreateCommand();
 
-            string tableName_safe = vars.Context.Vendor.GetFieldSafeName(projData.tableAttribute.Name); //eg. "[Order Details]"
+            string tableName_safe = vars.Context.Vendor.GetSqlFieldSafeName(projData.tableAttribute.Name); //eg. "[Order Details]"
 
             StringBuilder sb = new StringBuilder("UPDATE ");
             sb.Append(tableName_safe).Append(" SET ");
@@ -215,7 +215,7 @@ namespace DbLinq.Linq.Clause
 
                 ColumnAttribute colAtt = projFld.columnAttribute;
 
-                string columnName_safe = vars.Context.Vendor.GetFieldSafeName(colAtt.Name); //turn 'User' into '[User]'
+                string columnName_safe = vars.Context.Vendor.GetSqlFieldSafeName(colAtt.Name); //turn 'User' into '[User]'
 
                 //Toncho, this edit is PostgreSql-specific and breaks MySql,
                 //please move this into Vendor.IsFieldNameSafe / MakeFieldNameSafe
@@ -236,7 +236,7 @@ namespace DbLinq.Linq.Clause
                     }
                     else
                     {
-                        paramName = vars.Context.Vendor.GetParameterName(paramIndex++);
+                        paramName = vars.Context.Vendor.GetSqlParameterName(paramIndex++);
                     }
 
                     //append string, eg. ",Name=:p0"
@@ -249,7 +249,7 @@ namespace DbLinq.Linq.Clause
                     }
                     else
                     {
-                        IDbDataParameter param = vars.Context.Vendor.CreateSqlParameter(cmd, colAtt.DbType, paramName);
+                        IDbDataParameter param = vars.Context.Vendor.CreateDbDataParameter(cmd, colAtt.DbType, paramName);
                         param.Value = paramValue;
                         paramList.Add(param);
                     }
@@ -298,7 +298,7 @@ namespace DbLinq.Linq.Clause
 
                 if (colAtt.IsPrimaryKey)
                 {
-                    string columnName_safe = vars.Context.Vendor.GetFieldSafeName(colAtt.Name); //turn 'User' into '[User]'
+                    string columnName_safe = vars.Context.Vendor.GetSqlFieldSafeName(colAtt.Name); //turn 'User' into '[User]'
 
                     //Primary Key field: build WHERE clause
                     string primaryKeyName = columnName_safe;

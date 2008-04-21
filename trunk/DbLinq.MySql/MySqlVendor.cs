@@ -59,7 +59,7 @@ namespace DbLinq.MySql
         /// <summary>
         /// on Postgres or Oracle, return eg. ':P1', on Mysql, '?P1'
         /// </summary>
-        public override string GetParameterName(int index)
+        public override string GetSqlParameterName(int index)
         {
             return "?P" + index;
         }
@@ -67,53 +67,10 @@ namespace DbLinq.MySql
         /// <summary>
         /// Mysql string concatenation
         /// </summary>
-        public override string Concat(List<ExpressionAndType> parts)
+        public override string GetSqlConcat(List<ExpressionAndType> parts)
         {
             string[] arr = parts.Select(p => p.expression).ToArray();
             return "CONCAT(" + string.Join(",", arr) + ")";
-        }
-
-        /// <summary>
-        /// given 'int', return '`int`' to prevent a SQL keyword conflict
-        /// </summary>
-        public override bool IsFieldNameSafe(string name)
-        {
-            string nameL = name.ToLower();
-            switch (nameL)
-            {
-            case "user":
-            case "bit":
-            case "int":
-            case "smallint":
-            case "tinyint":
-            case "mediumint":
-
-            case "float":
-            case "double":
-            case "real":
-            case "decimal":
-            case "numeric":
-
-            case "blob":
-            case "text":
-            case "char":
-            case "varchar":
-
-            case "date":
-            case "time":
-            case "datetime":
-            case "timestamp":
-            case "year":
-
-                return false;
-            default:
-                return base.IsFieldNameSafe(name);
-            }
-        }
-
-        public override string MakeFieldSafeName(string name)
-        {
-            return "`" + name + "`";
         }
 
         public override bool CanBulkInsert<T>(Table<T> table)

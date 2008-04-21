@@ -45,7 +45,7 @@ namespace DbLinq.SqlServer
         /// <summary>
         /// Postgres string concatenation, eg 'a||b'
         /// </summary>
-        public override string Concat(List<ExpressionAndType> parts)
+        public override string GetSqlConcat(List<ExpressionAndType> parts)
         {
             string[] arr = parts.Select(p => p.expression).ToArray();
             return "CONCAT(" + string.Join(",", arr) + ")";
@@ -54,17 +54,17 @@ namespace DbLinq.SqlServer
         /// <summary>
         /// on Postgres or Oracle, return eg. ':P1', on Mysql, '?P1', @P1 for Microsoft
         /// </summary>
-        public override string GetParameterName(int index)
+        public override string GetSqlParameterName(int index)
         {
             return "@P" + index;
         }
 
-        public override string MakeFieldSafeName(string name)
+        protected override string MakeFieldSafeName(string name)
         {
-            return "[" + name + "]";
+            return name.Enquote('[', ']');
         }
 
-        public override IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
+        public override IDbDataParameter CreateDbDataParameter(IDbCommand cmd, string dbTypeName, string paramName)
         {
             System.Data.SqlDbType dbType = SqlServerTypeConversions.ParseType(dbTypeName);
             SqlParameter param = new SqlParameter(paramName, dbType);

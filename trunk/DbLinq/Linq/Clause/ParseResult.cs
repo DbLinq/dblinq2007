@@ -108,7 +108,7 @@ namespace DbLinq.Linq.Clause
                 if (tAttrib != null)
                 {
                     //prepare fragment: "[order details] o$"
-                    string fromClause = _vendor.GetFieldSafeName(tAttrib.Name) + " " + RemoveTransparentId(t1.Value);
+                    string fromClause = _vendor.GetSqlFieldSafeName(tAttrib.Name) + " " + RemoveTransparentId(t1.Value);
 
                     sqlParts.AddFrom(fromClause);
                 }
