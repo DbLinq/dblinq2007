@@ -149,6 +149,8 @@ Insert INTO Categories (CategoryID, CategoryName,Description)
 values (Categories_seq.NextVal, 'Beverages',	'Soft drinks, coffees, teas, beers, and ales');
 Insert INTO Categories (CategoryID, CategoryName,Description)
 values (Categories_seq.NextVal, 'Condiments','Sweet and savory sauces, relishes, spreads, and seasonings');
+Insert INTO Categories (CategoryID, CategoryName,Description)
+values (Categories_seq.NextVal, 'Seafood','Seaweed and fish');
 
 --####################################################################
 insert INTO Customers (CustomerID, CompanyName,ContactName,Country,PostalCode,City)
@@ -177,6 +179,9 @@ VALUES (Suppliers_seq.Nextval, 'alles AG', 'Harald Reitmeyer', 'Prof', 'Fischerg
 insert INTO Suppliers (SupplierID, CompanyName, ContactName, ContactTitle, Address, City, Region, Country)
 VALUES (Suppliers_seq.Nextval, 'Microsoft', 'Mr Allen', 'Monopolist', '1 MS', 'Redmond', 'WA', 'USA');
 
+INSERT INTO Suppliers (SupplierID, CompanyName, ContactName, ContactTitle, Address, City, Region, PostalCode, Country, Phone, Fax)
+VALUES (Suppliers_seq.Nextval, 'Pavlova, Ltd.', 'Ian Devling', 'Marketing Manager', '74 Rose St. Moonie Ponds', 'Melbourne', 'Victoria', '3058', 'Australia', '(03) 444-2343', '(03) 444-6588');
+
 
 insert INTO Products (ProductId, ProductName,SupplierID, QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
 VALUES (Products_seq.nextval, 'Pen',1, 10,     12, 2,  0);
@@ -194,6 +199,8 @@ insert INTO Products (ProductId, ProductName,QuantityPerUnit,UnitsInStock,UnitsO
 VALUES (Products_seq.nextval, 'Fork',5,   111, 0, 0);
 insert INTO Products (ProductId, ProductName,SupplierID, QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
 VALUES (Products_seq.nextval, 'Linq Book',2, 1, 0, 26, 0);
+INSERT INTO `Products` (ProductId, ProductName,SupplierID, QuantityPerUnit,UnitPrice,  UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES (Products_seq.nextval, 'Carnarvon Tigers', 3,'16 kg pkg.',62.50,  42, 0, 0);
 
 --####################################################################
 insert INTO Employees (EmployeeID, LastName,FirstName,Title,BirthDate,HireDate,Address,City,ReportsTo)
@@ -219,6 +226,15 @@ Values (Orders_seq.NextVal, 'BT___', 1, sysdate, 11.5);
 
 insert INTO Orders (OrderID, CustomerID, EmployeeID, OrderDate, Freight)
 Values (Orders_seq.NextVal, 'UKMOD', 1, sysdate, 32.5);
+
+insert INTO Orders (OrderID, CustomerID, EmployeeID, OrderDate, RequiredDate, ShippedDate, Freight, ShipName, ShipAddress, ShipCity, ShipCountry)
+Values (Orders_seq.NextVal, 'BONAP', 1, '1996-10-16', '1996-11-27', '1996-10-21', 10.21, 'Bon app''', '12, rue des Bouchers', 'Marseille', 'France' );
+
+INSERT INTO OrderDetails (OrderID, ProductID, UnitPrice, Quantity, Discount)
+VALUES (1,2, 33, 5, 11);
+
+INSERT INTO OrderDetails (OrderID, ProductID, UnitPrice, Quantity,   Discount)
+VALUES (5,9, 50, 20,   0.05); --## CanarvonTigers for customer BONAP
 
 
 --####################################################################

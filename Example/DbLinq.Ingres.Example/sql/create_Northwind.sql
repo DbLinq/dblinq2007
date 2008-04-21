@@ -167,6 +167,9 @@ INSERT INTO Categories (CategoryName, Description)
 VALUES ('Beverages',	'Soft drinks, coffees, teas, beers, and ales');
 INSERT INTO Categories (CategoryName,Description)
 VALUES ('Condiments','Sweet and savory sauces, relishes, spreads, and seasonings');
+INSERT INTO Categories (CategoryName,Description)
+VALUES ('Seafood','Seaweed and fish');
+
 COMMIT;\p\g
 
 /********************************************************************/
@@ -190,8 +193,8 @@ VALUES ('UKMOD', 'MOD','(secret)','U.K.','E14','London');
 INSERT INTO Customers (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
 VALUES ('ALFKI', 'Alfreds Futterkiste','Maria Anders','Sales Representative','Germany','12209','Berlin','030-0074321');
 
-INSERT INTO Customers (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
-VALUES ('BONAP', 'Bon something','Bon Boss','Sales Representative','France','11109','Paris','033-0074321');
+INSERT INTO Customers (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,Address,City, Phone, Fax)
+values ('BONAP', 'Bon app''','Laurence Lebihan','Owner','France','13008','12, rue des Bouchers','Marseille','91.24.45.40', '91.24.45.41');
 
 INSERT INTO Customers (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,City, Phone)
 VALUES ('WARTH', 'Wartian Herkku','Pirkko Koskitalo','Accounting Manager','Finland','90110','Oulu','981-443655');
@@ -204,6 +207,9 @@ VALUES ('alles AG', 'Harald Reitmeyer', 'Prof', 'Fischergasse 8', 'Heidelberg', 
 
 INSERT INTO Suppliers (CompanyName, ContactName, ContactTitle, Address, City, Region, Country)
 VALUES ('Microsoft', 'Mr Allen', 'Monopolist', '1 MS', 'Redmond', 'WA', 'USA');
+
+INSERT INTO Suppliers (CompanyName, ContactName, ContactTitle, Address, City, Region, PostalCode, Country, Phone, Fax)
+VALUES ('Pavlova, Ltd.', 'Ian Devling', 'Marketing Manager', '74 Rose St. Moonie Ponds', 'Melbourne', 'Victoria', '3058', 'Australia', '(03) 444-2343', '(03) 444-6588');
 
 
 INSERT INTO Products (ProductName,SupplierID, QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
@@ -222,6 +228,9 @@ INSERT INTO Products (ProductName,QuantityPerUnit,UnitsInStock,UnitsOnOrder,Disc
 VALUES ('Fork',5,   111, 0, 0);
 INSERT INTO Products (ProductName,SupplierID, QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
 VALUES ('Linq Book',2, 1, 0, 26, 0);
+INSERT INTO Products (ProductName,SupplierID, QuantityPerUnit,UnitPrice,  UnitsInStock,UnitsOnOrder,Discontinued)
+VALUES ('Carnarvon Tigers', 3,'16 kg pkg.',62.50,  42, 0, 0);
+
 COMMIT;\p\g
 
 /********************************************************************/
@@ -258,10 +267,15 @@ VALUES ('BT___', 1, date('now'), 11.5);
 INSERT INTO Orders (CustomerID, EmployeeID, OrderDate, Freight)
 VALUES ('UKMOD', 1, date('now'), 32.5);
 
+INSERT INTO Orders (CustomerID, EmployeeID, OrderDate, RequiredDate, ShippedDate, Freight, ShipName, ShipAddress, ShipCity, ShipCountry)
+VALUES ('BONAP', 1, '1996-10-16', '1996-11-27', '1996-10-21', 10.21, 'Bon app''', '12, rue des Bouchers', 'Marseille', 'France' );
+
 
 INSERT INTO OrderDetails (OrderID, ProductID, UnitPrice, Quantity, Discount)
 VALUES (1, 2, 33, 5, 11);
 
+INSERT INTO OrderDetails (OrderID, ProductID, UnitPrice, Quantity,   Discount)
+VALUES (5,9, 50, 20,   0.05); /* CanarvonTigers for customer BONAP */
 
 COMMIT;\p\g
 \q
