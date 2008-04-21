@@ -26,6 +26,8 @@ using System.Collections.Generic;
 using System.IO;
 using DbLinq.Logging;
 using DbLinq.Schema;
+using DbLinq.Schema.Dbml;
+using Type = System.Type;
 
 namespace DbMetal.Generator.Implementation.CodeTextGenerator
 {
@@ -148,7 +150,14 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             if (string.IsNullOrEmpty(contextBase))
                 contextBase = context.SchemaLoader.DataContextType.FullName;
 
-            using (writer.WriteClass(SpecificationDefinition.Partial, schema.Class, contextBase))
+            var specifications = SpecificationDefinition.Partial;
+            if (schema.AccessModifierSpecified)
+                specifications |= GetSpecificationDefinition(schema.AccessModifier);
+            else
+                specifications |= SpecificationDefinition.Public;
+            if (schema.ModifierSpecified)
+                specifications |= GetSpecificationDefinition(schema.Modifier);
+            using (writer.WriteClass(specifications, schema.Class, contextBase))
             {
                 WriteDataContextCtors(writer, schema, context);
                 WriteDataContextTables(writer, schema, context);
@@ -254,6 +263,55 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             foreach (string definition in definitions)
                 attributeDefinitions.Add(new AttributeDefinition(definition));
             return WriteAttributes(writer, attributeDefinitions.ToArray());
+        }
+
+        protected virtual SpecificationDefinition GetSpecificationDefinition(AccessModifier accessModifier)
+        {
+            switch (accessModifier)
+            {
+            case AccessModifier.Public:
+                return SpecificationDefinition.Public;
+            case AccessModifier.Internal:
+                return SpecificationDefinition.Internal;
+            case AccessModifier.Protected:
+                return SpecificationDefinition.Protected;
+            case AccessModifier.ProtectedInternal:
+                return SpecificationDefinition.Protected | SpecificationDefinition.Internal;
+            case AccessModifier.Private:
+                return SpecificationDefinition.Private;
+            default:
+                throw new ArgumentOutOfRangeException("accessModifier");
+            }
+        }
+
+        protected virtual SpecificationDefinition GetSpecificationDefinition(ClassModifier classModifier)
+        {
+            switch (classModifier)
+            {
+            case ClassModifier.Sealed:
+                return SpecificationDefinition.Sealed;
+            case ClassModifier.Abstract:
+                return SpecificationDefinition.Abstract;
+            default:
+                throw new ArgumentOutOfRangeException("classModifier");
+            }
+        }
+
+        protected virtual SpecificationDefinition GetSpecificationDefinition(MemberModifier memberModifier)
+        {
+            switch (memberModifier)
+            {
+            case MemberModifier.Virtual:
+                return SpecificationDefinition.Virtual;
+            case MemberModifier.Override:
+                return SpecificationDefinition.Override;
+            case MemberModifier.New:
+                return SpecificationDefinition.New;
+            case MemberModifier.NewVirtual:
+                return SpecificationDefinition.New | SpecificationDefinition.Virtual;
+            default:
+                throw new ArgumentOutOfRangeException("memberModifier");
+            }
         }
     }
 }
