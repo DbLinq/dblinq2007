@@ -72,9 +72,19 @@ namespace DbLinq.Vendor.Implementation
         /// Mysql needs to override to return '?P1'
         /// Ingres needs to override to return '?'.
         /// </summary>
-        public virtual string GetSqlParameterName(int index)
+        public virtual string GetOrderableParameterName(int index)
         {
             return ":P" + index;
+        }
+
+        public virtual string GetFinalParameterName(string orderableName)
+        {
+            return orderableName;
+        }
+
+        public virtual string ReplaceParamNameInSql(string orderableName, string sql)
+        {
+            return sql;
         }
 
         public virtual void ProcessInsertedId(IDbCommand cmd1, ref object returnedId)
@@ -117,7 +127,7 @@ namespace DbLinq.Vendor.Implementation
             List<string> paramNames = new List<string>();
             foreach (object paramValue in parameters)
             {
-                string paramName = GetSqlParameterName(iParam++);
+                string paramName = GetFinalParameterName(GetOrderableParameterName(iParam++));
                 IDbDataParameter sqlParam = command.CreateParameter();
                 sqlParam.ParameterName = paramName;
                 sqlParam.Value = paramValue;

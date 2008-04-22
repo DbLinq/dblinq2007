@@ -91,11 +91,19 @@ namespace DbLinq.Ingres
             lastIdExpression = null;
         }
 
-        // Ingres uses ? for parameters placeholders
-        // picrap --> thomas: is there no order? This is potentially non-working
-        public override string GetSqlParameterName(int index)
+        public override string GetOrderableParameterName(int index)
+        {
+            return "$param_" + index.ToString("000000") + "_param$";
+        }
+
+        public override string GetFinalParameterName(string orderableName)
         {
             return "?";
+        }
+
+        public override string ReplaceParamNameInSql(string orderableName, string sql)
+        {
+            return sql.Replace(orderableName, "?");
         }
 
         protected override void AddLateLimits(StringBuilder sql, SqlExpressionParts parts)

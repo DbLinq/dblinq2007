@@ -54,7 +54,7 @@ namespace DbLinq.SqlServer
         /// <summary>
         /// on Postgres or Oracle, return eg. ':P1', on Mysql, '?P1', @P1 for Microsoft
         /// </summary>
-        public override string GetSqlParameterName(int index)
+        public override string GetOrderableParameterName(int index)
         {
             return "@P" + index;
         }
