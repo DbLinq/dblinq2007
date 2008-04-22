@@ -74,9 +74,6 @@ namespace Test_NUnit_Ingres
             // Param before FROM
             //new ReadTest_Operands().H1_SelectConcat();
 
-            // Bug in Linq?
-            //new ReadTest_Operands().J1_LocalFunction_DateTime_ParseExact();
-
             // Generates faulty SQL
             //new WriteTest().G12_EmptyInsertList();
         }
