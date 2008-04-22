@@ -199,8 +199,13 @@ namespace Test_NUnit_MySql
 
             string hireDate = "1989.01.01";
 
+            // Ingres assumes UTC on all date queries
             var q = from e in db.Employees
+#if INGRES
+                    where e.HireDate == DateTime.ParseExact(hireDate, "yyyy.MM.dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal)
+#else
                     where e.HireDate == DateTime.ParseExact(hireDate, "yyyy.MM.dd", CultureInfo.InvariantCulture)
+#endif
                     select e.EmployeeID;
             int empID = q.Single(); //MTable_Projected.GetQueryText()
             Assert.IsTrue(empID == 1);
