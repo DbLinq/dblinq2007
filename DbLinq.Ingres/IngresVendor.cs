@@ -61,11 +61,13 @@ namespace DbLinq.Ingres
                 lastIdExpression = "SELECT " + currvalExpr;
             }
 
+            if (numFieldsAdded++ > 0) { sb.Append(", "); sbValues.Append(", "); }
+
             // Ingres needs to have the explicit nextvalue statement in the insert clause
             // to be able to issue a currval afterwards.
             // this is a known problem.
-            sb.Append(", " + colAtt.Name);
-            sbValues.Append(", " + idColAttrib.Expression);
+            sb.Append(colAtt.Name);
+            sbValues.Append(idColAttrib.Expression);
             return null; //we have not created a param object (only Oracle does)
         }
 

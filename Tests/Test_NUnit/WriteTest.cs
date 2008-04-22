@@ -360,15 +360,25 @@ dummy text
           [DbLinq.Linq.Mapping.AutoGenId]
           protected int _reanr;
 
+
+#if INGRES
+          [System.Data.Linq.Mapping.Column(Storage = "_id", Name = "id", DbType = "integer(32,0)", IsPrimaryKey = true, IsDbGenerated = true, Expression = "next value for rid_id1_seq")]
+#else
           [System.Data.Linq.Mapping.Column(Storage = "_id", Name = "id", DbType = "integer(32,0)", IsPrimaryKey = true, IsDbGenerated = true, Expression = "nextval('rid_id1_seq')")]
-          public int Id {
-            get { return _id; }
-            set { _id = value; IsModified = true; }
+#endif
+          public int Id
+          {
+              get { return _id; }
+              set { _id = value; IsModified = true; }
           }
 
-
+#if INGRES
+          [System.Data.Linq.Mapping.Column(Storage = "_reanr", Name = "reanr", DbType = "integer(32,0)", IsDbGenerated = true, CanBeNull = false, Expression = "next value for rid_reanr_seq")]
+#else
           [System.Data.Linq.Mapping.Column(Storage = "_reanr", Name = "reanr", DbType = "integer(32,0)", IsDbGenerated = true, CanBeNull = false, Expression = "nextval('rid_reanr_seq')")]
-          public int Reanr {
+#endif
+          public int Reanr
+          {
             get { return _reanr; }
             set { _reanr = value; IsModified = true; }
           }
