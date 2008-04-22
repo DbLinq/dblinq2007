@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using DbLinq.Vendor;
 using DbLinq.Util.ExprVisitor;
 
@@ -183,9 +184,24 @@ namespace DbLinq.Linq
         /// retrieve al param names and their values.
         /// Warning - this may call into dynamically-compiled code 
         /// in cases such as 'where ProductName==object.Field'
+        /// The result set is ordered by the name of the parameter
         /// </summary>
         /// <returns></returns>
         public IEnumerable<KeyValuePair<string, object>> EnumParams()
+        {
+            var result = from p in EnumParams_Unordered()
+                         orderby p.Key
+                         select p;
+            return result;
+        }
+
+        /// <summary>
+        /// retrieve al param names and their values.
+        /// Warning - this may call into dynamically-compiled code 
+        /// in cases such as 'where ProductName==object.Field'
+        /// </summary>
+        /// <returns></returns>
+        protected IEnumerable<KeyValuePair<string, object>> EnumParams_Unordered()
         {
             #region EnumParams
             foreach (KeyValuePair<string, object> constParam in ParametersMap)
