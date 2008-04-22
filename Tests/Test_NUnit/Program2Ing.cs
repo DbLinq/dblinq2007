@@ -56,6 +56,7 @@ namespace Test_NUnit_Ingres
             // Generates faulty SQL
             //new Linq_101_Samples.Join().OuterJoin_DefaultIfEmpty();
 
+            // Enumeration has no entries
             //new Linq_101_Samples.Object_Identity().MSDN_ObjectIdentity2();
 
             // OFFSET clause is not supported in Ingres
@@ -67,10 +68,8 @@ namespace Test_NUnit_Ingres
             // SELECT COUNT(*) FROM x order by y
             //new ReadTest().C4_CountWithOrderBy();
 
+            // Bug in DbLinq
             //new ReadTest().D14_ProjectedProductList();
-
-            // Parameters added in wrong order
-            //new ReadTest_Complex().D2_SelectPensByLocalPropertyAndConstant();
 
             // Param before FROM
             //new ReadTest_Operands().H1_SelectConcat();

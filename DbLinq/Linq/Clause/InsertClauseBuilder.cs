@@ -91,7 +91,7 @@ namespace DbLinq.Linq.Clause
                 sb.Append(colAtt.Name);
 
                 //get either ":p0" or "?p0"
-                string paramName = vendor.GetSqlParameterName(numFieldsAdded);
+                string paramName = vendor.GetFinalParameterName(vendor.GetOrderableParameterName(numFieldsAdded));
                 sbValues.Append(paramName);
 
                 IDbDataParameter param = vendor.CreateDbDataParameter(cmd, colAtt.DbType, paramName);
@@ -169,7 +169,7 @@ namespace DbLinq.Linq.Clause
                 object paramValue = projFld.GetFieldValue(objectToInsert);
 
                 //get either ":p0" or "?p0"
-                string paramName = vendor.GetSqlParameterName(numFieldsAdded++);
+                string paramName = vendor.GetOrderableParameterName(numFieldsAdded++);
                 sbVals.Append(separator).Append(paramName);
                 separator = ", ";
 
@@ -236,7 +236,7 @@ namespace DbLinq.Linq.Clause
                     }
                     else
                     {
-                        paramName = vars.Context.Vendor.GetSqlParameterName(paramIndex++);
+                        paramName = vars.Context.Vendor.GetFinalParameterName(vars.Context.Vendor.GetOrderableParameterName(paramIndex++));
                     }
 
                     //append string, eg. ",Name=:p0"

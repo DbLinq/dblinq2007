@@ -263,7 +263,7 @@ namespace DbLinq.Linq
         {
             int paramIndex = _vars.numParameters++;
             //int paramIndex = paramMap.Count + paramMap2.Count; //this breaks for Union operators
-            string paramName = _vars.Context.Vendor.GetSqlParameterName(paramIndex);
+            string paramName = _vars.Context.Vendor.GetOrderableParameterName(paramIndex);
             paramMap[paramName] = value;
             lastParamName = paramName;
             return paramName;
@@ -279,7 +279,7 @@ namespace DbLinq.Linq
         {
             int paramIndex = _vars.numParameters++;
             //int paramIndex = paramMap.Count + paramMap2.Count; //this breaks for Union operators
-            string paramName = _vars.Context.Vendor.GetSqlParameterName(paramIndex);
+            string paramName = _vars.Context.Vendor.GetOrderableParameterName(paramIndex);
             paramMap2[paramName] = funcReturningObject;
             lastParamName = paramName;
             return paramName;

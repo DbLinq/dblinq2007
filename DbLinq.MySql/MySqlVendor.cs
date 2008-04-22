@@ -59,7 +59,7 @@ namespace DbLinq.MySql
         /// <summary>
         /// on Postgres or Oracle, return eg. ':P1', on Mysql, '?P1'
         /// </summary>
-        public override string GetSqlParameterName(int index)
+        public override string GetOrderableParameterName(int index)
         {
             return "?P" + index;
         }

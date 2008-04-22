@@ -89,7 +89,8 @@ namespace DbLinq.Util
                     {
                         Trace.WriteLine("SQL PARAM: " + paramNameValue.Key + " = " + paramNameValue.Value);
                         IDbDataParameter parameter = cmd.CreateParameter();
-                        parameter.ParameterName = paramNameValue.Key;
+                        parameter.ParameterName = _vars.Context.Vendor.GetFinalParameterName(paramNameValue.Key);
+                        cmd.CommandText = _vars.Context.Vendor.ReplaceParamNameInSql(paramNameValue.Key, cmd.CommandText);
                         parameter.Value = paramNameValue.Value;
                         cmd.Parameters.Add(parameter);
                     }

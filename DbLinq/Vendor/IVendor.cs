@@ -140,10 +140,28 @@ namespace DbLinq.Vendor
 
         /// <summary>
         /// Returns a named parameter based on a given index
+        /// This has to be an alphabetically orderable name
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        string GetSqlParameterName(int index);
+        string GetOrderableParameterName(int index);
+
+        /// <summary>
+        /// Transform the name into the final parameter name
+        /// and patch the SQL accordingly
+        /// </summary>
+        /// <param name="orderableName"></param>
+        /// <param name="sql"></param>
+        /// <returns></returns>
+        string GetFinalParameterName(string orderableName);
+
+        /// <summary>
+        /// Patch the SQL according to the name parameter name
+        /// </summary>
+        /// <param name="orderableName"></param>
+        /// <param name="sql"></param>
+        /// <returns></returns>
+        string ReplaceParamNameInSql(string orderableName, string sql);
 
         /// <summary>
         /// given 'User', return '[User]' to prevent a SQL keyword conflict

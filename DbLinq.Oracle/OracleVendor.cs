@@ -56,7 +56,7 @@ namespace DbLinq.Oracle
             string sequenceName = projData.tableAttribute.Name + "_SEQ";
             sbValues.AppendFormat("{0}.NextVal", sequenceName);
 
-            string outParamName = this.GetSqlParameterName(numFieldsAdded);
+            string outParamName = this.GetOrderableParameterName(numFieldsAdded);
             IDbDataParameter outParam = cmd.CreateParameter();
             outParam.ParameterName = outParamName;
             outParam.DbType = DbType.Decimal;
