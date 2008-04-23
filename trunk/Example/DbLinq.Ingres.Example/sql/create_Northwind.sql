@@ -268,7 +268,7 @@ INSERT INTO Orders (CustomerID, EmployeeID, OrderDate, Freight)
 VALUES ('UKMOD', 1, date('now'), 32.5);
 
 INSERT INTO Orders (CustomerID, EmployeeID, OrderDate, RequiredDate, ShippedDate, Freight, ShipName, ShipAddress, ShipCity, ShipCountry)
-VALUES ('BONAP', 1, '1996-10-16', '1996-11-27', '1996-10-21', 10.21, 'Bon app''', '12, rue des Bouchers', 'Marseille', 'France' );
+VALUES ('BONAP', 1, '16-oct-1996', '27-nov-1996', '21-oct-1996', 10.21, 'Bon app''', '12, rue des Bouchers', 'Marseille', 'France' );
 
 
 INSERT INTO OrderDetails (OrderID, ProductID, UnitPrice, Quantity, Discount)
