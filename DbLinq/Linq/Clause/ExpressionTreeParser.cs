@@ -271,6 +271,8 @@ namespace DbLinq.Linq.Clause
                         {
                             MemberExpression memberExpr = MAExpr as MemberExpression;
                             colAttribs = AttribHelper.GetColumnAttribs(MAExpr.Type);
+                            bool isAssoc = AttribHelper.IsAssociation(memberExpr);
+
                             if (colAttribs.Length == 0)
                             {
                                 if (GroupHelper.IsGrouping(memberExpr))
@@ -288,6 +290,12 @@ namespace DbLinq.Linq.Clause
                                     AnalyzeExpression(recurData, memberExpr);
                                 }
                                 continue;
+                            }
+                            else if (isAssoc)
+                            {
+                                //eg. select p.Supplier from Products
+                                recurData.allowSelectAllFields = false;
+                                JoinBuilder.AddJoin2(recurData, _parent, memberExpr, _result);
                             }
 
                             //try extracting 'c' from '<>h__TransparentIdentifier10.c' 

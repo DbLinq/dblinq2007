@@ -259,6 +259,11 @@ namespace DbLinq.Util
             return projData;
         }
 
+        public static bool IsAssociation(MemberExpression memberExpr)
+        {
+            AttribAndProp attribAndProp;
+            return IsAssociation(memberExpr, out attribAndProp);
+        }
 
         /// <summary>
         /// given expression {o.Customer} (type Order.Customer), check whether it has [Association] attribute

@@ -331,6 +331,7 @@ namespace Test_NUnit_Oracle
             { }
 
             public class CustomerDerivedClass : Customer { }
+            public class CustomerDerivedClass2 : CustomerDerivedClass { }
 
             public DbLinq.Linq.Table<CustomerDerivedClass> ChildCustomers
             {
@@ -350,7 +351,7 @@ namespace Test_NUnit_Oracle
         }
 
         class Pen {
-          internal object PenId;
+          internal int PenId;
         }
 
 
@@ -358,7 +359,7 @@ namespace Test_NUnit_Oracle
         public void D14_ProjectedProductList() {
           Northwind db = CreateDB();
 
-          var prod = (from pr in db.Products
+          var query = from pr in db.Products
                       select new {
                         pr.ProductID,
                         pr.ProductName,
@@ -366,8 +367,14 @@ namespace Test_NUnit_Oracle
                         pr.UnitPrice,        // exception!
                         pr.UnitsInStock,
                         pr.UnitsOnOrder
-                      }).ToList();
-
+                      };
+            //WARNING - as of 2008Apr, we return Suppliers without blowing up, but they need to be live
+            var list = query.ToList();
+            Assert.IsTrue(list.Count > 0);
+            foreach (var item in list)
+            {
+                Assert.IsTrue(item.Supplier != null);
+            }
         }
 
         #endregion
