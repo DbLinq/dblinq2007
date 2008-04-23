@@ -136,7 +136,7 @@ using Test_NUnit;
         }
 
         [Test(Description="example by Frans Brouma: select all customers that have no orders")]
-        public void OuterJoin_DefaultIfEmpty()
+        public void LeftOuterJoin_DefaultIfEmpty()
         {
             //example by Frans Brouma on Matt Warren's site
             //select all customers that have no orders
@@ -152,6 +152,25 @@ using Test_NUnit;
                     select c;
 
             var list = q.ToList();
+        }
+
+        [Test]
+        public void LeftOuterJoin_Suppliers()
+        {
+            //http://blogs.class-a.nl/blogs/anko/archive/2008/03/14/linq-to-sql-outer-joins.aspx
+            //example by Anko Duizer (NL)
+            Northwind db = CreateDB();
+            var query = from s in db.Suppliers
+                        join c in db.Customers on s.City equals c.City into temp
+                        from t in temp.DefaultIfEmpty()
+                        select new
+                        {
+                            SupplierName = s.CompanyName,
+                            CustomerName = t.CompanyName,
+                            City = s.City
+                        };
+
+            var list = query.ToList();
         }
 
         // picrap: commented out, it doesn't build because of db.Orderdetails (again, a shared source file...)

@@ -110,7 +110,7 @@ namespace DbLinq.Linq.Clause
                         bool isAssoc = AttribHelper.IsAssociation(member, out attribAndProp1);
                         if (!isAssoc)
                         {
-                            throw new Exception("L55 AddJoin2: member1.member2.member3 only allowed for associations, not for: " + member);
+                            throw new Exception("L113 AddJoin2: member1.member2.member3 only allowed for associations, not for: " + member);
                         }
                         assoc1 = attribAndProp1.assoc;
                         nick1 = qp.NicknameRequest(exprOuter, assoc1);
@@ -140,7 +140,7 @@ namespace DbLinq.Linq.Clause
                         bool isAssoc = AttribHelper.IsAssociation(exprOuter, out attribAndProp1);
                         if (!isAssoc)
                         {
-                            throw new Exception("L55 AddJoin2: member1.member2 only allowed for associations, not for: " + exprOuter.Expression);
+                            throw new Exception("L143 AddJoin2: member1.member2 only allowed for associations, not for: " + exprOuter.Expression);
                         }
 
                         assoc1 = attribAndProp1.assoc;
@@ -154,8 +154,12 @@ namespace DbLinq.Linq.Clause
                         type2 = outerType;
                         string parentTypeName = outerType.Name;
 
-                        nick2 = VarName.GetSqlName(Char.ToLower(parentTypeName[0]) + "94"); 
+                        string nick2Inner = Char.ToLower(parentTypeName[0]) + "94";
+                        //eg. nick2="s94$" when doing "select p.Supplier from Products"
+                        nick2 = VarName.GetSqlName(nick2Inner); 
                         nick1 = VarName.GetSqlName(paramExpr.Name);
+                        qp.memberExprNickames[exprOuterOrig] = nick2Inner;
+
                         if (recurData.allowSelectAllFields)
                         {
                             SqlExpressionParts sqlParts = new SqlExpressionParts(qp._vars.Context.Vendor);
