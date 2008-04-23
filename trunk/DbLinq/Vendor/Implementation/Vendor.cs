@@ -45,8 +45,8 @@ namespace DbLinq.Vendor.Implementation
         public ILogger Logger { get; set; }
 
         public Vendor()
-        {
-            Logger = ObjectFactory.Get<ILogger>();
+        {  
+           Logger = ObjectFactory.Get<ILogger>();
         }
 
         public virtual string SqlPingCommand
@@ -209,10 +209,12 @@ namespace DbLinq.Vendor.Implementation
                 parts.LimitClause = 9999999;
             }
 
-            AppendList(sql, " ORDER BY ", parts.OrderByList, ", ");
-            if (parts.OrderDirection != null)
+            // PostgreSQL, Ingres cause exception if COUNT(*) is used with ORDER BY
+            if (parts.CountClause != "COUNT") {
+              AppendList(sql, " ORDER BY ", parts.OrderByList, ", ");
+              if (parts.OrderDirection != null)
                 sql.Append(' ').Append(parts.OrderDirection).Append(' '); //' DESC '
-
+              }
             AddLateLimits(sql, parts);
 
             return sql.ToString();
