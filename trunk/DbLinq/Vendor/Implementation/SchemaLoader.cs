@@ -63,7 +63,7 @@ namespace DbLinq.Vendor.Implementation
                              {
                                  Name = schemaName.DbName,
                                  Class = schemaName.ClassName,
-                                 BaseType = typeof(DataContext).FullName,
+                                 //BaseType = typeof(DataContext).FullName, // picrap: commented out, base type is given at code-generation time
                                  ContextNamespace = contextNamespace,
                                  EntityNamespace = entityNamespace,
                              };
