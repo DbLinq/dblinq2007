@@ -443,11 +443,11 @@ dummy text
         public void G12_EmptyInsertList()
         {
             Northwind db = CreateDB();
-            Customer newCust = new Customer();
-            db.Customers.InsertOnSubmit(newCust);
+            Region newRegion= new Region();
+            db.Region.InsertOnSubmit(newRegion);
             db.SubmitChanges();
-            Assert.IsNotNull(newCust.CustomerID);
-            db.Customers.DeleteOnSubmit(newCust);
+            Assert.IsNotNull(newRegion.RegionID);
+            db.Region.DeleteOnSubmit(newRegion);
             db.SubmitChanges();
         }
 
