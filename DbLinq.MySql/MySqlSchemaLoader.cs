@@ -84,8 +84,13 @@ namespace DbLinq.MySql
                 DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => fullKeyDbName == t.Name);
                 if (table == null)
                 {
-                    Logger.Write(Level.Error, "ERROR L46: Table '" + keyColRow.TableName + "' not found for column " + keyColRow.ColumnName);
-                    continue;
+                    bool ignoreCase = true;
+                    table = schema.Tables.FirstOrDefault(t => 0 == string.Compare(fullKeyDbName, t.Name, ignoreCase));
+                    if (table == null)
+                    {
+                        Logger.Write(Level.Error, "ERROR L46: Table '" + keyColRow.TableName + "' not found for column " + keyColRow.ColumnName);
+                        continue;
+                    }
                 }
 
                 bool isForeignKey = keyColRow.ConstraintName != "PRIMARY"
