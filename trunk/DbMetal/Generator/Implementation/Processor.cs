@@ -108,7 +108,12 @@ namespace DbMetal.Generator.Implementation
                 {
                     if (!parameters.Schema)
                         RemoveSchema(dbSchema);
-                    string filename = parameters.Code ?? parameters.Database.Replace("\"", "");
+
+                    string filename = parameters.Code;
+                    if (string.IsNullOrEmpty(filename) && !string.IsNullOrEmpty(parameters.Database))
+                        filename = parameters.Database.Replace("\"", "");
+                    if (string.IsNullOrEmpty(filename))
+                        filename = dbSchema.Name;
                     Logger.Write(Level.Information, "<<< writing C# classes in file '{0}'", filename);
                     Generate(parameters, dbSchema, schemaLoader, filename);
 

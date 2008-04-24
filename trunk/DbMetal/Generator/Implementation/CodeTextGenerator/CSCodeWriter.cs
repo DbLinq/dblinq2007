@@ -210,6 +210,12 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             return WriteBrackets();
         }
 
+        public override IDisposable WriteEnum(SpecificationDefinition specificationDefinition, string name)
+        {
+            WriteLine("{0}enum {1}", GetProtectionSpecifications(specificationDefinition), name);
+            return WriteBrackets();
+        }
+
         #endregion
 
         #region Code generation - Language construction

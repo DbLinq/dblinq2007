@@ -22,6 +22,7 @@
 // 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
@@ -31,6 +32,7 @@ using DbLinq.Factory;
 using DbLinq.Linq;
 using DbLinq.Linq.Mapping;
 using DbLinq.Logging;
+using DbLinq.Schema.Dbml;
 using DbMetal.Generator.EntityInterface;
 
 namespace DbMetal.Generator.Implementation.CodeTextGenerator
@@ -74,6 +76,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                                      table.Type.Name, entityBase, context.Parameters.EntityImplementedInterfaces))
             {
                 WriteClassHeader(writer, table, context);
+                WriteCustomTypes(writer, table, schema, context);
                 WriteClassProperties(writer, table, context);
                 if (context.Parameters.GenerateEqualsAndHash)
                     WriteClassEqualsAndHash(writer, table, context);
@@ -106,6 +109,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                         var member = writer.GetVariableExpression(primaryKey.Storage);
                         string primaryKeyHashCode = writer.GetMethodCallExpression(writer.GetMemberExpression(member, "GetHashCode"));
                         if (primaryKey.CanBeNull
+                        || primaryKey.ExtendedType.Type == DbLinq.Schema.Dbml.ExtendedType.ExtendedTypeType.ExtendedTypeSimple
                         || GetType(primaryKey.Type, false).IsClass) // this patch to ensure that even if DB does not allow nulls,
                         // our in-memory object won't generate a fault
                         {
@@ -165,9 +169,22 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                 WriteClassProperty(writer, property, context);
         }
 
+        protected virtual string GetTypeOrExtendedType(CodeWriter writer, Column property)
+        {
+            switch(property.ExtendedType.Type)
+            {
+                case ExtendedType.ExtendedTypeType.ExtendedTypeSimple:
+                    return writer.GetLiteralType(GetType(property.Type, property.CanBeNull));
+                case ExtendedType.ExtendedTypeType.ExtendedTypeEnum:
+                    return writer.GetEnumType(property.ExtendedTypeName);
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
         protected virtual void WriteClassProperty(CodeWriter writer, DbLinq.Schema.Dbml.Column property, GenerationContext context)
         {
-            using (writer.WriteRegion(string.Format("{0} {1}", writer.GetLiteralType(GetType(property.Type, property.CanBeNull)), property.Member)))
+            using (writer.WriteRegion(string.Format("{0} {1}", GetTypeOrExtendedType(writer, property), property.Member)))
             {
                 WriteClassPropertyBackingField(writer, property, context);
                 WriteClassPropertyAccessors(writer, property, context);
@@ -180,7 +197,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             if (property.IsDbGenerated)
                 autoGenAttribute = NewAttributeDefinition<AutoGenIdAttribute>();
             using (writer.WriteAttribute(autoGenAttribute))
-                writer.WriteField(SpecificationDefinition.Private, property.Storage, writer.GetLiteralType(GetType(property.Type, property.CanBeNull)));
+                writer.WriteField(SpecificationDefinition.Private, property.Storage, GetTypeOrExtendedType(writer, property));
         }
 
         protected virtual void WriteClassPropertyAccessors(CodeWriter writer, DbLinq.Schema.Dbml.Column property, GenerationContext context)
@@ -208,7 +225,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             using (WriteAttributes(writer, context.Parameters.MemberExposedAttributes))
             using (writer.WriteAttribute(NewAttributeDefinition<DebuggerNonUserCodeAttribute>()))
             using (writer.WriteAttribute(column))
-            using (writer.WriteProperty(specifications, property.Member, writer.GetLiteralType(GetType(property.Type, property.CanBeNull))))
+            using (writer.WriteProperty(specifications, property.Member, GetTypeOrExtendedType(writer, property)))
             {
                 using (writer.WritePropertyGet())
                 {

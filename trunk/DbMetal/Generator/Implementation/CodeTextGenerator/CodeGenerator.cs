@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using DbLinq.Logging;
 using DbLinq.Schema;
 using DbLinq.Schema.Dbml;
@@ -51,7 +52,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
 
         protected abstract CodeWriter CreateCodeWriter(TextWriter textWriter);
 
-        public void Write(TextWriter textWriter, DbLinq.Schema.Dbml.Database dbSchema, GenerationContext context)
+        public void Write(TextWriter textWriter, Database dbSchema, GenerationContext context)
         {
             if (dbSchema == null || dbSchema.Tables == null)
             {
@@ -59,8 +60,9 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                 return;
             }
 
-            context["dataContextBase"] = context.SchemaLoader.DataContextType.FullName;
-            context["namespace"] = context.Parameters.Namespace;
+            context["namespace"] = string.IsNullOrEmpty(context.Parameters.Namespace)
+                                       ? dbSchema.ContextNamespace
+                                       : context.Parameters.Namespace;
             context["database"] = dbSchema.Name;
             context["generationTime"] = DateTime.Now.ToString("u");
             context["class"] = dbSchema.Class;
@@ -138,7 +140,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             return null;
         }
 
-        private void WriteDataContext(CodeWriter writer, DbLinq.Schema.Dbml.Database schema, GenerationContext context)
+        private void WriteDataContext(CodeWriter writer, Database schema, GenerationContext context)
         {
             if (schema.Tables.Count == 0)
             {
@@ -165,18 +167,17 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             }
         }
 
-        protected abstract void WriteDataContextCtors(CodeWriter writer, DbLinq.Schema.Dbml.Database schema, GenerationContext context);
+        protected abstract void WriteDataContextCtors(CodeWriter writer, Database schema, GenerationContext context);
 
-        private void WriteDataContextTables(CodeWriter writer, DbLinq.Schema.Dbml.Database schema, GenerationContext context)
+        private void WriteDataContextTables(CodeWriter writer, Database schema, GenerationContext context)
         {
             foreach (var table in schema.Tables)
                 WriteDataContextTable(writer, table);
             writer.WriteLine();
         }
 
-        protected abstract void WriteDataContextTable(CodeWriter writer, DbLinq.Schema.Dbml.Table table);
+        protected abstract void WriteDataContextTable(CodeWriter writer, Table table);
 
-        // this method will be removed when we won't use literal types in dbml
         protected virtual Type GetType(string literalType, bool canBeNull)
         {
             bool isNullable = literalType.EndsWith("?");
@@ -311,6 +312,58 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                 return SpecificationDefinition.New | SpecificationDefinition.Virtual;
             default:
                 throw new ArgumentOutOfRangeException("memberModifier");
+            }
+        }
+
+        protected virtual void WriteCustomTypes(CodeWriter writer, Table table, Database schema, GenerationContext context)
+        {
+            foreach (var column in table.Type.Columns)
+            {
+                switch (column.ExtendedType.Type)
+                {
+                case ExtendedType.ExtendedTypeType.ExtendedTypeEnum:
+                    context.ExtendedTypes[column] = new GenerationContext.ExtendedTypeAndName
+                    {
+                        Type = column.ExtendedType,
+                        Table = table
+                    };
+                    column.ExtendedTypeName = column.ExtendedType.EnumName;
+                    break;
+                }
+            }
+            // create names and avoid conflits
+            foreach (var extendedTypePair in context.ExtendedTypes)
+            {
+                if (extendedTypePair.Value.Table != table)
+                    continue;
+                if (string.IsNullOrEmpty(extendedTypePair.Key.ExtendedTypeName))
+                {
+                    string name = extendedTypePair.Key.Member + "Type";
+                    for (; ; )
+                    {
+                        if ((from t in context.ExtendedTypes.Keys where t.ExtendedTypeName == name select t).FirstOrDefault() == null)
+                        {
+                            extendedTypePair.Key.ExtendedTypeName = name;
+                            break;
+                        }
+                        // at 3rd loop, it will look ugly, however we will never go there
+                        name = extendedTypePair.Value.Table.Type.Name + name;
+                    }
+                }
+            }
+            // write types
+            foreach (var extendedTypePair in context.ExtendedTypes)
+            {
+                if (extendedTypePair.Value.Table != table)
+                    continue;
+                switch (extendedTypePair.Value.Type.Type)
+                {
+                case ExtendedType.ExtendedTypeType.ExtendedTypeEnum:
+                    writer.WriteEnum(GetSpecificationDefinition(extendedTypePair.Key.AccessModifier),
+                                     extendedTypePair.Key.ExtendedTypeName, extendedTypePair.Value.Type.EnumValues);
+                    break;
+                }
+                writer.WriteLine();
             }
         }
     }

@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DbLinq.Schema.Dbml;
 using DbLinq.Vendor;
 using DbMetal;
 using DbMetal.Generator.EntityInterface;
@@ -34,9 +35,16 @@ namespace DbMetal.Generator
 {
     public class GenerationContext
     {
+        public class ExtendedTypeAndName
+        {
+            public Table Table;
+            public ExtendedType Type;
+        }
+
         public Parameters Parameters;
         public IDictionary<string, string> Variables;
         public ISchemaLoader SchemaLoader;
+        public IDictionary<Column, ExtendedTypeAndName> ExtendedTypes;
 
         public List<IImplementation> AllImplementations = new List<IImplementation>();
 
@@ -51,6 +59,7 @@ namespace DbMetal.Generator
             Parameters = parameters;
             Variables = new Dictionary<string, string>();
             SchemaLoader = schemaLoader;
+            ExtendedTypes = new Dictionary<Column, ExtendedTypeAndName>();
             AllImplementations.Add(new IModifiedImplementation());
             AllImplementations.Add(new INotifyPropertyChangingImplementation());
             AllImplementations.Add(new INotifyPropertyChangedImplementation());
@@ -61,6 +70,7 @@ namespace DbMetal.Generator
             Parameters = original.Parameters;
             Variables = new Dictionary<string, string>(original.Variables);
             SchemaLoader = original.SchemaLoader;
+            ExtendedTypes = new Dictionary<Column, ExtendedTypeAndName>(original.ExtendedTypes);
             AllImplementations = new List<IImplementation>(original.AllImplementations);
         }
 
