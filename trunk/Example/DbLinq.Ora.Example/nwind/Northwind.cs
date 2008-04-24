@@ -1035,7 +1035,7 @@ namespace nwind
 	
 		[Column(Storage = "_REGIONID", Name = "REGIONID", DbType = "NUMBER", IsPrimaryKey = true, IsDbGenerated = true)]
 		[DebuggerNonUserCode]
-		public int REGIONID
+		public int RegionID
 		{
 		    get { return _REGIONID; }
 		    set { _REGIONID = value; IsModified = true; }

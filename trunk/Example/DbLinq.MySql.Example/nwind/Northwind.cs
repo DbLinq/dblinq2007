@@ -38,7 +38,7 @@ namespace nwind
 		{
 		}
 
-		public Table<Region> Region { get { return GetTable<Region>(); } }
+		public Table<Region> Regions { get { return GetTable<Region>(); } }
 		public Table<Supplier> Suppliers { get { return GetTable<Supplier>(); } }
 		public Table<Shipper> Shippers { get { return GetTable<Shipper>(); } }
 		public Table<Category> Categories { get { return GetTable<Category>(); } }
