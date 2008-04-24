@@ -443,7 +443,7 @@ dummy text
         public void G12_EmptyInsertList()
         {
             Northwind db = CreateDB();
-            Region newRegion= new Region();
+            Region newRegion = new Region() { RegionDescription = "" }; // RegionDescription must be non-null
             db.Regions.InsertOnSubmit(newRegion);
             db.SubmitChanges();
             Assert.IsNotNull(newRegion.RegionID);
