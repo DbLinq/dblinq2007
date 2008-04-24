@@ -25,6 +25,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -54,8 +55,11 @@ namespace DbLinq.Schema.Dbml
         public string Name
         {
             get { return name; }
-            set { name = value;
-                UpdateMember(); }
+            set
+            {
+                name = value;
+                UpdateMember();
+            }
         }
 
         private readonly IDictionary<string, int> dictionary;
@@ -255,10 +259,12 @@ namespace DbLinq.Schema.Dbml
         #endregion
     }
 
+    [DebuggerDisplay("{reflectedMember}")]
     internal class ArrayHelper<T> : ISimpleList<T>
     {
         private object owner;
         private MemberInfo memberInfo;
+        private object reflectedMember { get { return memberInfo.GetMemberValue(owner); } }
 
         protected IEnumerable GetValue()
         {
