@@ -319,16 +319,15 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
         {
             foreach (var column in table.Type.Columns)
             {
-                switch (column.ExtendedType.Type)
+                var extendedType = column.ExtendedType;
+                var enumType = extendedType as EnumType;
+                if (enumType != null)
                 {
-                case ExtendedType.ExtendedTypeType.ExtendedTypeEnum:
                     context.ExtendedTypes[column] = new GenerationContext.ExtendedTypeAndName
                     {
                         Type = column.ExtendedType,
                         Table = table
                     };
-                    column.ExtendedTypeName = column.ExtendedType.EnumName;
-                    break;
                 }
             }
             // create names and avoid conflits
@@ -336,14 +335,14 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             {
                 if (extendedTypePair.Value.Table != table)
                     continue;
-                if (string.IsNullOrEmpty(extendedTypePair.Key.ExtendedTypeName))
+                if (string.IsNullOrEmpty(extendedTypePair.Value.Type.Name))
                 {
                     string name = extendedTypePair.Key.Member + "Type";
                     for (; ; )
                     {
-                        if ((from t in context.ExtendedTypes.Keys where t.ExtendedTypeName == name select t).FirstOrDefault() == null)
+                        if ((from t in context.ExtendedTypes.Values where t.Type.Name == name select t).FirstOrDefault() == null)
                         {
-                            extendedTypePair.Key.ExtendedTypeName = name;
+                            extendedTypePair.Value.Type.Name = name;
                             break;
                         }
                         // at 3rd loop, it will look ugly, however we will never go there
@@ -356,12 +355,14 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             {
                 if (extendedTypePair.Value.Table != table)
                     continue;
-                switch (extendedTypePair.Value.Type.Type)
+
+                var extendedType = extendedTypePair.Value.Type;
+                var enumValue = extendedType as EnumType;
+
+                if (enumValue != null)
                 {
-                case ExtendedType.ExtendedTypeType.ExtendedTypeEnum:
                     writer.WriteEnum(GetSpecificationDefinition(extendedTypePair.Key.AccessModifier),
-                                     extendedTypePair.Key.ExtendedTypeName, extendedTypePair.Value.Type.EnumValues);
-                    break;
+                                     enumValue.Name, enumValue);
                 }
                 writer.WriteLine();
             }
