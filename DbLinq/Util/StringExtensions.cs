@@ -35,5 +35,30 @@ namespace DbLinq.Util
         {
             return QuotesHelper.Enquote(text, quote);
         }
+
+        /// <summary>
+        /// Returns true is the provided string is a valid .NET symbol
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static bool IsIdentifier(this string name)
+        {
+            for (int index = 0; index < name.Length; index++)
+            {
+                var category = char.GetUnicodeCategory(name, index);
+                // this is not nice, but I found no other way to identity a valid identifier
+                switch (category)
+                {
+                case System.Globalization.UnicodeCategory.DecimalDigitNumber:
+                case System.Globalization.UnicodeCategory.LetterNumber:
+                case System.Globalization.UnicodeCategory.LowercaseLetter:
+                case System.Globalization.UnicodeCategory.UppercaseLetter:
+                    break;
+                default:
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }

@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using DbLinq.Util;
 using DbMetal.Generator;
@@ -122,6 +123,33 @@ namespace DbMetal.Generator
                 }
             }
             TextWriter.WriteLine(rawLine);
+        }
+
+        public virtual string GetEnumType(string name)
+        {
+            return name;
+        }
+
+        public abstract IDisposable WriteEnum(SpecificationDefinition specificationDefinition, string name);
+
+        public virtual void WriteEnum(SpecificationDefinition specificationDefinition, string name, IDictionary<string, int> values)
+        {
+            using (WriteEnum(specificationDefinition, name))
+            {
+                var orderedValues = from nv in values orderby nv.Value select nv;
+                int currentValue = 1;
+                foreach (var nameValue in orderedValues)
+                {
+                    if (nameValue.Value == currentValue)
+                        WriteLine(string.Format("{0},", nameValue.Key));
+                    else
+                    {
+                        currentValue = nameValue.Value;
+                        WriteLine(string.Format("{0} = {1},", nameValue.Key, nameValue.Value));
+                    }
+                    currentValue++;
+                }
+            }
         }
 
         #endregion
