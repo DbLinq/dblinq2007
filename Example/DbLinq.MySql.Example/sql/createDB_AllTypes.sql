@@ -64,6 +64,7 @@ CREATE TABLE `OtherTypes` (
   `charN` CHAR,
   `text` TEXT NOT NULL,
   `textN` TEXT,
+  `rainbow` ENUM ('red', 'orange', 'yellow') NOT NULL,
   PRIMARY KEY(`id1`)
 )
 ENGINE = InnoDB
@@ -75,5 +76,5 @@ VALUES (1,'2', -9223372036854775808, 7, 2);
 INSERT INTO FloatTypes (`double`,`decimal`,`float`)
 VALUES (1.1, 2.2, 3.3);
 
-INSERT INTO OtherTypes (`blob`,`text`)
-VALUES ( REPEAT("\0",(8)), 'text' );
+INSERT INTO OtherTypes (`blob`,`text`, rainbow)
+VALUES ( REPEAT("\0",(8)), 'text', 'red' );
