@@ -444,10 +444,10 @@ dummy text
         {
             Northwind db = CreateDB();
             Region newRegion= new Region();
-            db.Region.InsertOnSubmit(newRegion);
+            db.Regions.InsertOnSubmit(newRegion);
             db.SubmitChanges();
             Assert.IsNotNull(newRegion.RegionID);
-            db.Region.DeleteOnSubmit(newRegion);
+            db.Regions.DeleteOnSubmit(newRegion);
             db.SubmitChanges();
         }
 
