@@ -67,9 +67,6 @@ namespace Test_NUnit_Ingres
 
             // Param before FROM
             //new ReadTest_Operands().H1_SelectConcat();
-
-            // Generates faulty SQL
-            //new WriteTest().G12_EmptyInsertList();
         }
     }
 }
