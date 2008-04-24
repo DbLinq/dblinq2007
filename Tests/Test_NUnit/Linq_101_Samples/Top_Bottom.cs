@@ -40,6 +40,9 @@ using Test_NUnit;
             Assert.IsTrue(list.Count > 0);
         }
 
+        // The .Skip() method won't work on Ingres as it does not support the OFFSET clause
+        // but it's on the roadmap...
+#if !INGRES
         [Test(Description = "This sample uses Skip to select all but the 10 most expensive Products.")]
         public void LinqToSqlTop02()
         {
@@ -64,6 +67,6 @@ using Test_NUnit;
             Assert.IsTrue(list.Count > 0);
 
         }
-
+#endif
     }
 }
