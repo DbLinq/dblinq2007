@@ -46,8 +46,19 @@ namespace Test_NUnit_MySql
     [TestFixture]
     public class CompositePK_Test : TestBase
     {
+
         [Test]
-        public void G9_UpdateTableWithCompositePK()
+        public void CP1_DeletePreviousRows()
+        {
+            //delete any rows from previous testing
+            Northwind db = CreateDB();
+            var orderDetail = new OrderDetail { OrderID = 3, ProductID = 2 };
+            db.OrderDetails.DeleteOnSubmit(orderDetail);
+            db.SubmitChanges();
+        }
+
+        [Test]
+        public void CP2_UpdateTableWithCompositePK()
         {
             Northwind db = CreateDB();
             try
@@ -96,23 +107,24 @@ namespace Test_NUnit_MySql
         }
 
         [Test]
-        public void G10_DeleteTableWithCompositePK()
+        public void CP3_DeleteTableWithCompositePK()
         {
             Northwind db = CreateDB();
+            int initialCount = db.OrderDetails.Count();
 
             var orderDetail = new OrderDetail { OrderID = 3, ProductID = 2 };
             db.OrderDetails.InsertOnSubmit(orderDetail);
             db.SubmitChanges();
 
-            Assert.AreEqual(db.OrderDetails.Count(), 2);
+            Assert.AreEqual(db.OrderDetails.Count(), initialCount + 1);
             db.OrderDetails.DeleteOnSubmit(orderDetail);
             db.SubmitChanges();
 
-            Assert.AreEqual(db.OrderDetails.Count(), 1);
+            Assert.AreEqual(db.OrderDetails.Count(), initialCount);
         }
 
         [Test]
-        public void G11_UnchangedColumnShouldNotUpdated()
+        public void CP4_UnchangedColumnShouldNotUpdated()
         {
             Random rand = new Random();
 
@@ -124,12 +136,12 @@ namespace Test_NUnit_MySql
             orderDetail.Discount = newDiscount;
             db.SubmitChanges();
 
-            var orderDetail2 = db.OrderDetails.Single();
+            var orderDetail2 = db.OrderDetails.Single(od => od.OrderID == 1);
             Assert.AreEqual(orderDetail2.Discount, newDiscount);
         }
 
         [Test(Description = "Check that both keys are used to determine identity")]
-        public void G12_Composite_ObjectIdentity()
+        public void CP5_Composite_ObjectIdentity()
         {
             Northwind db = CreateDB();
             var q = db.OrderDetails.Where(od => od.ProductID == 2 && od.OrderID == 1);
