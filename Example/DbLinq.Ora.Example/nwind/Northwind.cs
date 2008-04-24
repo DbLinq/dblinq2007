@@ -1044,7 +1044,7 @@ namespace nwind
 	
 		[Column(Storage = "_REGIONDESCRIPTION", Name = "REGIONDESCRIPTION", DbType = "VARCHAR2", CanBeNull = false)]
 		[DebuggerNonUserCode]
-		public string REGIONDESCRIPTION
+		public string RegionDescription
 		{
 		    get { return _REGIONDESCRIPTION; }
 		    set { _REGIONDESCRIPTION = value; IsModified = true; }
