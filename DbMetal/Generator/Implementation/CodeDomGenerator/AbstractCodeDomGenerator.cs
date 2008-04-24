@@ -126,7 +126,7 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
 
             if (database.BaseType != null)
                 _class.BaseTypes.Add(database.BaseType);
-            else
+            else // TODO: something with less risk
                 _class.BaseTypes.Add(String.Format("DbLinq.{0}.{0}DataContext", database.Provider));
 
             // CodeDom does not currently support partial methods.  This will be a problem for VB.  Will probably be fixed in .net 4
