@@ -59,14 +59,8 @@ namespace Test_NUnit_Ingres
             // Enumeration has no entries
             //new Linq_101_Samples.Object_Identity().MSDN_ObjectIdentity2();
 
-            // OFFSET clause is not supported in Ingres
-            //new Linq_101_Samples.Top_Bottom().LinqToSqlTop02();
-
-            // OFFSET clause is not supported in Ingres
-            //new Linq_101_Samples.Top_Bottom().LinqToSqlTop03_Ex_Andrus();
-
-            // SELECT COUNT(*) FROM x order by y
-            //new ReadTest().C4_CountWithOrderBy();
+            // Param before FROM
+            //new Linq_101_Samples.String_Date_functions().LinqToSqlString01();
 
             // Bug in DbLinq
             //new ReadTest().D14_ProjectedProductList();
