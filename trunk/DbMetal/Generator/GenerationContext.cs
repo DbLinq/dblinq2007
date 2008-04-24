@@ -38,7 +38,7 @@ namespace DbMetal.Generator
         public class ExtendedTypeAndName
         {
             public Table Table;
-            public ExtendedType Type;
+            public INamedType Type;
         }
 
         public Parameters Parameters;

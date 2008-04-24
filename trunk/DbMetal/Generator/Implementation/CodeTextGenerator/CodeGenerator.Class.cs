@@ -109,7 +109,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                         var member = writer.GetVariableExpression(primaryKey.Storage);
                         string primaryKeyHashCode = writer.GetMethodCallExpression(writer.GetMemberExpression(member, "GetHashCode"));
                         if (primaryKey.CanBeNull
-                        || primaryKey.ExtendedType.Type == DbLinq.Schema.Dbml.ExtendedType.ExtendedTypeType.ExtendedTypeSimple
+                        || primaryKey.ExtendedType == null
                         || GetType(primaryKey.Type, false).IsClass) // this patch to ensure that even if DB does not allow nulls,
                         // our in-memory object won't generate a fault
                         {
@@ -171,18 +171,14 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
 
         protected virtual string GetTypeOrExtendedType(CodeWriter writer, Column property)
         {
-            switch(property.ExtendedType.Type)
-            {
-                case ExtendedType.ExtendedTypeType.ExtendedTypeSimple:
-                    return writer.GetLiteralType(GetType(property.Type, property.CanBeNull));
-                case ExtendedType.ExtendedTypeType.ExtendedTypeEnum:
-                    return writer.GetEnumType(property.ExtendedTypeName);
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            object extendedType = property.ExtendedType;
+            var enumType = extendedType as EnumType;
+            if (enumType != null)
+                return writer.GetEnumType(enumType.Name);
+            return writer.GetLiteralType(GetType(property.Type, property.CanBeNull));
         }
 
-        protected virtual void WriteClassProperty(CodeWriter writer, DbLinq.Schema.Dbml.Column property, GenerationContext context)
+        protected virtual void WriteClassProperty(CodeWriter writer, Column property, GenerationContext context)
         {
             using (writer.WriteRegion(string.Format("{0} {1}", GetTypeOrExtendedType(writer, property), property.Member)))
             {
@@ -191,7 +187,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             }
         }
 
-        protected virtual void WriteClassPropertyBackingField(CodeWriter writer, DbLinq.Schema.Dbml.Column property, GenerationContext context)
+        protected virtual void WriteClassPropertyBackingField(CodeWriter writer, Column property, GenerationContext context)
         {
             AttributeDefinition autoGenAttribute = null;
             if (property.IsDbGenerated)
@@ -200,7 +196,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                 writer.WriteField(SpecificationDefinition.Private, property.Storage, GetTypeOrExtendedType(writer, property));
         }
 
-        protected virtual void WriteClassPropertyAccessors(CodeWriter writer, DbLinq.Schema.Dbml.Column property, GenerationContext context)
+        protected virtual void WriteClassPropertyAccessors(CodeWriter writer, Column property, GenerationContext context)
         {
             var column = NewAttributeDefinition<ColumnAttribute>();
             column["Storage"] = property.Storage;

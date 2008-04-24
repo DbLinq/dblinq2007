@@ -43,266 +43,216 @@ namespace DbLinq.Schema.Dbml
         List<T> FindAll(Predicate<T> match);
     }
 
-    public class ExtendedType
+    public interface INamedType
     {
-        public enum ExtendedTypeType
+        string Name { get; set; }
+    }
+
+    public class EnumType : IDictionary<string, int>, INamedType
+    {
+        private string name;
+        public string Name
         {
-            ExtendedTypeSimple,
-            ExtendedTypeEnum,
+            get { return name; }
+            set { name = value;
+                UpdateMember(); }
         }
 
-        private object owner;
-        private MemberInfo memberInfo;
+        private readonly IDictionary<string, int> dictionary;
+        private readonly object owner;
+        private readonly MemberInfo memberInfo;
 
-        public string Member
+        internal static bool IsEnum(string literalType)
         {
-            get { return (string)memberInfo.GetMemberValue(owner); }
+            string enumName;
+            IDictionary<string, int> values;
+            return Extract(literalType, out enumName, out values);
         }
 
-        private class EnumValuesHolder : IDictionary<string, int>
+        /// <summary>
+        /// Extracts enum name and value from a given string.
+        /// The string is in the following form:
+        /// enumName key1[=value1]{,keyN[=valueN]}
+        /// if enumName is 'enum', then the enum is anonymous
+        /// </summary>
+        /// <param name="literalType"></param>
+        /// <param name="enumName"></param>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        private static bool Extract(string literalType, out string enumName, out IDictionary<string, int> values)
         {
-            private string name;
-            private IDictionary<string, int> dictionary;
-            private object owner;
-            private MemberInfo memberInfo;
+            enumName = null;
+            values = new Dictionary<string, int>();
 
-            public static bool IsEnum(string literalType)
+            var nameValues = literalType.Split(new[] { ' ' }, 2);
+            if (nameValues.Length == 2)
             {
-                string enumName;
-                IDictionary<string, int> values;
-                return Extract(literalType, out enumName, out values);
-            }
+                // extract the name
+                string name = nameValues[0].Trim();
+                if (!name.IsIdentifier())
+                    return false;
 
-            public static string GetEnumName(string literalType)
-            {
-                string enumName;
-                IDictionary<string, int> values;
-                Extract(literalType, out enumName, out values);
-                return enumName;
-            }
-
-            /// <summary>
-            /// Extracts enum name and value from a given string.
-            /// The string is in the following form:
-            /// enumName key1[=value1]{,keyN[=valueN]}
-            /// if enumName is 'enum', then the enum is anonymous
-            /// </summary>
-            /// <param name="literalType"></param>
-            /// <param name="enumName"></param>
-            /// <param name="values"></param>
-            /// <returns></returns>
-            private static bool Extract(string literalType, out string enumName, out IDictionary<string, int> values)
-            {
-                enumName = null;
-                values = null;
-
-                var nameValues = literalType.Split(new[] { ' ' }, 2);
-                if (nameValues.Length == 2)
+                // now extract the values
+                IDictionary<string, int> readValues = new Dictionary<string, int>();
+                int currentValue = 1;
+                var keyValues = nameValues[1].Split(',');
+                foreach (var keyValue in keyValues)
                 {
-                    // extract the name
-                    string name = nameValues[0].Trim();
-                    if (!name.IsIdentifier())
+                    // a value may indicate its numeric equivalent, or not (in this case, we work the same way as C# enums, with an implicit counter)
+                    var keyValueParts = keyValue.Split(new[] { '=' }, 2);
+                    var key = keyValueParts[0].Trim();
+
+                    if (!key.IsIdentifier())
                         return false;
 
-                    // now extract the values
-                    IDictionary<string, int> readValues = new Dictionary<string, int>();
-                    int currentValue = 1;
-                    var keyValues = nameValues[1].Split(',');
-                    foreach (var keyValue in keyValues)
+                    if (keyValueParts.Length > 1)
                     {
-                        // a value may indicate its numeric equivalent, or not (in this case, we work the same way as C# enums, with an implicit counter)
-                        var keyValueParts = keyValue.Split(new[] { '=' }, 2);
-                        var key = keyValueParts[0].Trim();
-
-                        if (!key.IsIdentifier())
+                        if (!int.TryParse(keyValueParts[1], out currentValue))
                             return false;
-
-                        if (keyValueParts.Length > 1)
-                        {
-                            if (!int.TryParse(keyValueParts[1], out currentValue))
-                                return false;
-                        }
-                        readValues[key] = currentValue++;
                     }
-                    if (name == "enum")
-                        enumName = string.Empty;
-                    else
-                        enumName = name;
-                    values = readValues;
-                    return true;
+                    readValues[key] = currentValue++;
                 }
-                return false;
+                if (name == "enum")
+                    enumName = string.Empty;
+                else
+                    enumName = name;
+                values = readValues;
+                return true;
             }
+            return false;
+        }
 
-            /// <summary>
-            /// Does the opposite: creates a literal string from values
-            /// </summary>
-            private void UpdateMember()
+        /// <summary>
+        /// Does the opposite: creates a literal string from values
+        /// </summary>
+        private void UpdateMember()
+        {
+            var pairs = from kvp in dictionary orderby kvp.Value select kvp;
+            int currentValue = 1;
+            var keyValues = new List<string>();
+            foreach (var pair in pairs)
             {
-                var pairs = from kvp in dictionary orderby kvp.Value select kvp;
-                int currentValue = 1;
-                var keyValues = new List<string>();
-                foreach (var pair in pairs)
+                string keyValue;
+                if (pair.Value == currentValue)
+                    keyValue = pair.Key;
+                else
                 {
-                    string keyValue;
-                    if (pair.Value == currentValue)
-                        keyValue = pair.Key;
-                    else
-                    {
-                        currentValue = pair.Value;
-                        keyValue = string.Format("{0}={1}", pair.Key, pair.Value);
-                    }
-                    keyValues.Add(keyValue);
-                    currentValue++;
+                    currentValue = pair.Value;
+                    keyValue = string.Format("{0}={1}", pair.Key, pair.Value);
                 }
-                string literalType = name ?? "enum";
-                literalType += " ";
-                literalType += string.Join(", ", keyValues.ToArray());
-                memberInfo.SetMemberValue(owner, literalType);
+                keyValues.Add(keyValue);
+                currentValue++;
             }
+            string literalType = string.IsNullOrEmpty(Name) ? "enum" : Name;
+            literalType += " ";
+            literalType += string.Join(", ", keyValues.ToArray());
+            memberInfo.SetMemberValue(owner, literalType);
+        }
 
-            public EnumValuesHolder(object owner, MemberInfo memberInfo)
+        internal EnumType(object owner, MemberInfo memberInfo)
+        {
+            this.owner = owner;
+            this.memberInfo = memberInfo;
+            string name;
+            Extract((string)memberInfo.GetMemberValue(owner), out name, out dictionary);
+            Name = name;
+        }
+
+        #region IDictionary implementation
+
+        public void Add(KeyValuePair<string, int> item)
+        {
+            dictionary.Add(item);
+            UpdateMember();
+        }
+
+        public void Clear()
+        {
+            dictionary.Clear();
+            UpdateMember();
+        }
+
+        public bool Contains(KeyValuePair<string, int> item)
+        {
+            return dictionary.Contains(item);
+        }
+
+        public void CopyTo(KeyValuePair<string, int>[] array, int arrayIndex)
+        {
+            dictionary.CopyTo(array, arrayIndex);
+        }
+
+        public bool Remove(KeyValuePair<string, int> item)
+        {
+            bool removed = dictionary.Remove(item);
+            UpdateMember();
+            return removed;
+        }
+
+        public int Count
+        {
+            get { return dictionary.Count; }
+        }
+
+        public bool IsReadOnly
+        {
+            get { return dictionary.IsReadOnly; }
+        }
+
+        public bool ContainsKey(string key)
+        {
+            return dictionary.ContainsKey(key);
+        }
+
+        public void Add(string key, int value)
+        {
+            dictionary.Add(key, value);
+            UpdateMember();
+        }
+
+        public bool Remove(string key)
+        {
+            bool removed = dictionary.Remove(key);
+            UpdateMember();
+            return removed;
+        }
+
+        public bool TryGetValue(string key, out int value)
+        {
+            return dictionary.TryGetValue(key, out value);
+        }
+
+        public int this[string key]
+        {
+            get { return dictionary[key]; }
+            set
             {
-                this.owner = owner;
-                this.memberInfo = memberInfo;
-                Extract((string)memberInfo.GetMemberValue(owner), out name, out dictionary);
-            }
-
-            #region IDictionary implementation
-
-            public void Add(KeyValuePair<string, int> item)
-            {
-                dictionary.Add(item);
+                dictionary[key] = value;
                 UpdateMember();
             }
-
-            public void Clear()
-            {
-                dictionary.Clear();
-                UpdateMember();
-            }
-
-            public bool Contains(KeyValuePair<string, int> item)
-            {
-                return dictionary.Contains(item);
-            }
-
-            public void CopyTo(KeyValuePair<string, int>[] array, int arrayIndex)
-            {
-                dictionary.CopyTo(array, arrayIndex);
-            }
-
-            public bool Remove(KeyValuePair<string, int> item)
-            {
-                bool removed = dictionary.Remove(item);
-                UpdateMember();
-                return removed;
-            }
-
-            public int Count
-            {
-                get { return dictionary.Count; }
-            }
-
-            public bool IsReadOnly
-            {
-                get { return dictionary.IsReadOnly; }
-            }
-
-            public bool ContainsKey(string key)
-            {
-                return dictionary.ContainsKey(key);
-            }
-
-            public void Add(string key, int value)
-            {
-                dictionary.Add(key, value);
-                UpdateMember();
-            }
-
-            public bool Remove(string key)
-            {
-                bool removed = dictionary.Remove(key);
-                UpdateMember();
-                return removed;
-            }
-
-            public bool TryGetValue(string key, out int value)
-            {
-                return dictionary.TryGetValue(key, out value);
-            }
-
-            public int this[string key]
-            {
-                get { return dictionary[key]; }
-                set
-                {
-                    dictionary[key] = value;
-                    UpdateMember();
-                }
-            }
-
-            public ICollection<string> Keys
-            {
-                get { return dictionary.Keys; }
-            }
-
-            public ICollection<int> Values
-            {
-                get { return dictionary.Values; }
-            }
-
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return ((IEnumerable<KeyValuePair<string, int>>)this).GetEnumerator();
-            }
-
-            public IEnumerator<KeyValuePair<string, int>> GetEnumerator()
-            {
-                return dictionary.GetEnumerator();
-            }
-
-            #endregion
         }
 
-        public ExtendedTypeType Type
+        public ICollection<string> Keys
         {
-            get
-            {
-                if (EnumValuesHolder.IsEnum(Member))
-                    return ExtendedTypeType.ExtendedTypeEnum;
-                return ExtendedTypeType.ExtendedTypeSimple;
-            }
+            get { return dictionary.Keys; }
         }
 
-        public IDictionary<string, int> EnumValues
+        public ICollection<int> Values
         {
-            get
-            {
-                return new EnumValuesHolder(owner, memberInfo);
-            }
+            get { return dictionary.Values; }
         }
 
-        public string EnumName
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            get { return EnumValuesHolder.GetEnumName(Member); }
+            return ((IEnumerable<KeyValuePair<string, int>>)this).GetEnumerator();
         }
 
-        public string SimpleType
+        public IEnumerator<KeyValuePair<string, int>> GetEnumerator()
         {
-            get { return Member; }
+            return dictionary.GetEnumerator();
         }
 
-        // required (and unused) by the serializer
-        public ExtendedType()
-        {
-        }
-
-        public ExtendedType(object o, string fieldName)
-        {
-            owner = o;
-            memberInfo = o.GetType().GetMember(fieldName)[0];
-        }
+        #endregion
     }
 
     internal class ArrayHelper<T> : ISimpleList<T>
@@ -657,16 +607,37 @@ namespace DbLinq.Schema.Dbml
 
     public partial class Column
     {
-        public ExtendedType ExtendedType;
-        /// <summary>
-        /// ReflectedType is used at generation time for an extended type name (or replacement if extended type name is anonymous)
-        /// </summary>
-        public string ExtendedTypeName;
+        private INamedType extendedType;
+        [XmlIgnore]
+        public INamedType ExtendedType
+        {
+            get
+            {
+                if (extendedType == null)
+                {
+                    if (EnumType.IsEnum(Type))
+                        return new EnumType(this, TypeMemberInfo);
+                }
+                return extendedType;
+            }
+        }
+
+        public EnumType SetExtendedTypeAsEnumType()
+        {
+            return new EnumType(this, TypeMemberInfo);
+        }
+
+        private MemberInfo TypeMemberInfo
+        {
+            get
+            {
+                return GetType().GetMember("Type")[0];
+            }
+        }
 
         public Column()
         {
             SpecifiedHelper.Register(this);
-            ExtendedType = new ExtendedType(this, "Type");
         }
 
         public override string ToString()
