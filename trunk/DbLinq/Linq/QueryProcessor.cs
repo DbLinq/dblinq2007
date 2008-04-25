@@ -81,6 +81,8 @@ namespace DbLinq.Linq
 
         public ILogger Logger { get; set; }
 
+        bool _didGroupJoin;
+
         internal QueryProcessor(SessionVarsParsed vars)
         {
             Logger = ObjectFactory.Get<ILogger>();

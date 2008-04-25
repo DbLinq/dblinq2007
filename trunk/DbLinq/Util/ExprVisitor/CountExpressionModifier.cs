@@ -39,6 +39,7 @@ namespace DbLinq.Util.ExprVisitor
     {
         #region CountExpressionModifier
         LambdaExpression _substituteExpr;
+
         public CountExpressionModifier(LambdaExpression substituteExpr)
         {
             _substituteExpr = substituteExpr;
