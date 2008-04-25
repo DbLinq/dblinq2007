@@ -29,6 +29,7 @@ using System.Linq.Expressions;
 using DbLinq.Linq.Clause;
 using DbLinq.Logging;
 using DbLinq.Util;
+using DbLinq.Util.ExprVisitor;
 
 namespace DbLinq.Linq
 {
@@ -209,6 +210,12 @@ namespace DbLinq.Linq
 
         private void ProcessSelectMany(MethodCallExpression exprCall)
         {
+            if (_didGroupJoin)
+            {
+                ProcessSelectMany_PostJoin(exprCall);
+                return;
+            }
+
             //see ReadTest.D07_OrdersFromLondon_Alt(), or Join.LinqToSqlJoin01() for example
             //special case: SelectMany can come with 2 or 3 params
             switch (exprCall.Arguments.Count)
@@ -229,6 +236,42 @@ namespace DbLinq.Linq
                         ParseResult result = new ParseResult(_vars.Context.Vendor);
                         JoinBuilder.AddJoin1(memberExpression, paramExpression, result);
                         result.CopyInto(this, _vars.SqlParts);  //transfer params and tablesUsed
+                    }
+
+                    //processSelectClause(lambda2);
+                    return;
+                default:
+                    throw new ApplicationException("processSelectMany: Prepared only for 2 or 3 param GroupBys");
+            }
+        }
+
+        private void ProcessSelectMany_PostJoin(MethodCallExpression exprCall)
+        {
+            //see ReadTest.D07_OrdersFromLondon_Alt(), or Join.LinqToSqlJoin01() for example
+            //special case: SelectMany can come with 2 or 3 params
+            switch (exprCall.Arguments.Count)
+            {
+                case 2: //???
+                    ProcessSelectManyLambdaSimple(exprCall.Arguments[1].XLambda());
+                    return;
+                case 3:
+                    //(A) subsequent SelectMany contains:
+                    //[0]{value(DbLinq.Linq.MTable_Projected`1[<>f__AnonymousType1a`2[nwind.Order,IEnumerable`1[nwind.Employee]]])}
+                    //[1]{<>h__TransparentIdentifier4 => <>h__TransparentIdentifier4.emps}
+                    //[2]{(<>h__TransparentIdentifier4, e) 
+                    //=> new <>f__AnonymousType1b`2(OrderID = <>h__TransparentIdentifier4.o.OrderID, FirstName = e.FirstName)}
+
+                    //(B) subsequent SelectMany for LeftOuterJoin_DefaultIfEmpty
+                    //[0]{value(DbLinq.Linq.MTable_Projected`1[<>f__AnonymousType1c`2[nwind.Customer,System.Collections.Generic.IEnumerable`1[nwind.Order]]])}
+                    //[1]{<>h__TransparentIdentifier6 => <>h__TransparentIdentifier6.oc.DefaultIfEmpty()}
+                    //[2]{(<>h__TransparentIdentifier6, x) => new <>f__AnonymousType1d`2(<>h__TransparentIdentifier6 = <>h__TransparentIdentifier6, x = x)}
+
+                    LambdaExpression lambda1 = exprCall.Arguments[1].XLambda();
+                    LambdaExpression lambda2 = exprCall.Arguments[2].XLambda();
+                    {
+                        //ParameterExpression paramExpression = lambda2.Parameters[1];
+                        ParseResult result = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, lambda2.Body);
+                        _vars.SqlParts.AddSelect(result.columns);
                     }
 
                     //processSelectClause(lambda2);
@@ -357,6 +400,7 @@ namespace DbLinq.Linq
 
         void ProcessGroupJoin(MethodCallExpression exprCall)
         {
+            _didGroupJoin = true;
             //our test case: occurs in LinqToSqlJoin10()
 
             //reading materials for GroupJoin:
@@ -370,8 +414,26 @@ namespace DbLinq.Linq
             switch (exprCall.Arguments.Count)
             {
                 case 5:
+                    //arg[0]: {value(DbLinq.Linq.Table`1[nwind.Order])}
+                    //arg[1]: {value(DbLinq.Linq.Table`1[nwind.Employee])}
+                    //arg[2]: {o => o.EmployeeID}
+                    //arg[3]: {e => Convert(e.EmployeeID)}
+                    //arg[4]: {(o, emps) => new <>f__AnonymousType1a`2(o = o, emps = emps)}
+
+                    //(A) subsequent SelectMany contains:
+                    //[0]{value(DbLinq.Linq.MTable_Projected`1[<>f__AnonymousType1a`2[nwind.Order,IEnumerable`1[nwind.Employee]]])}
+                    //[1]{<>h__TransparentIdentifier4 => <>h__TransparentIdentifier4.emps}
+                    //[2]{(<>h__TransparentIdentifier4, e) 
+                    //=> new <>f__AnonymousType1b`2(OrderID = <>h__TransparentIdentifier4.o.OrderID, FirstName = e.FirstName)}
+
+                    //(B) subsequent SelectMany for LeftOuterJoin_DefaultIfEmpty
+                    //[0]{value(DbLinq.Linq.MTable_Projected`1[<>f__AnonymousType1c`2[nwind.Customer,System.Collections.Generic.IEnumerable`1[nwind.Order]]])}
+                    //[1]{<>h__TransparentIdentifier6 => <>h__TransparentIdentifier6.oc.DefaultIfEmpty()}
+                    //[2]{(<>h__TransparentIdentifier6, x) => new <>f__AnonymousType1d`2(<>h__TransparentIdentifier6 = <>h__TransparentIdentifier6, x = x)}
+
                     LambdaExpression l1 = exprCall.Arguments[1].XLambda();
                     LambdaExpression l2 = exprCall.Arguments[2].XLambda();
+                    LambdaExpression l4 = exprCall.Arguments[4].XUnary().Operand.XLambda();
                     ProcessJoinClause(exprCall);
                     break;
                 default:
