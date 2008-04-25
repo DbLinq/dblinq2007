@@ -40,9 +40,6 @@ namespace DbLinq.Linq.Clause
 {
     public class InsertClauseBuilder
     {
-        //static object[] s_emptyIndices = new object[0];
-        static Dictionary<string, string> s_logOnceMap = new Dictionary<string, string>();
-
         /// <summary>
         /// given type Employee, return 'INSERT Employee (ID, Name) VALUES (?p1,?p2)'
         /// (by examining [Table] and [Column] attribs)
@@ -101,18 +98,19 @@ namespace DbLinq.Linq.Clause
             }
             sb.Append(") ");
             sbValues.Append(") ");
-            //" FROM Employee e"
+
+            //append " FROM Employee e"
             sb.Append(sbValues.ToString());
 
             sb.Append(sbIdentity.ToString());
 
             string sql = sb.ToString();
 
-            if (!s_logOnceMap.ContainsKey(sql))
-            {
-                Console.WriteLine("SQL INSERT L60: " + sql);
-                s_logOnceMap[sql] = "unused"; //log once only
-            }
+            //if (!s_logOnceMap.ContainsKey(sql))
+            //{
+            //    Console.WriteLine("SQL INSERT L60: " + sql);
+            //    s_logOnceMap[sql] = "unused"; //log once only
+            //}
 
             cmd.CommandText = sql;
             foreach (IDbDataParameter param in paramList)
@@ -260,11 +258,11 @@ namespace DbLinq.Linq.Clause
 
             string sql = sb.ToString();
 
-            if (!s_logOnceMap.ContainsKey(sql))
-            {
-                Console.WriteLine("SQL UPDATE L175: " + sql);
-                s_logOnceMap[sql] = "unused"; //log once only
-            }
+            //if (!s_logOnceMap.ContainsKey(sql))
+            //{
+            //    Console.WriteLine("SQL UPDATE L175: " + sql);
+            //    s_logOnceMap[sql] = "unused"; //log once only
+            //}
 
             cmd.CommandText = sql;
             foreach (IDbDataParameter param in paramList)
