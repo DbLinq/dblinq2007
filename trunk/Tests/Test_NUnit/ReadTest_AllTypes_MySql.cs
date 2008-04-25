@@ -22,7 +22,7 @@ namespace Test_NUnit_MySql
             string connStr = string.Format("server={0};user id=LinqUser; password=linq2; database=AllTypes", DbServer);
 
             //return CreateDB(System.Data.ConnectionState.Closed);
-            AllTypes db = new AllTypes(connStr);
+            AllTypes db = new AllTypes(new MySql.Data.MySqlClient.MySqlConnection(connStr));
             db.Log = Console.Out;
             return db;
         }
@@ -62,11 +62,12 @@ namespace Test_NUnit_MySql
         {
             AllTypes db = CreateDB();
 
-            var q = from p in db.Floattypes select p.decimalN;
+            var q = from p in db.Floattypes select p.DecimalN;
             int count = q.ToList().Count;
             Assert.IsTrue(count > 0, "Expected some entries in AllTypes, got none");
         }
 
+#if DBLINQ_ENUMTEST
         [Test]
         public void AT4_SelectEnum()
         {
@@ -88,6 +89,7 @@ namespace Test_NUnit_MySql
             DbLinq_EnumTest enumValue = q.First();
             Assert.IsTrue(enumValue > 0, "Expected enum value>0 in AllTypes, got enumValue=" + enumValue);
         }
+#endif
 
         [Test]
         public void AT6_ReadBlob()
@@ -98,7 +100,7 @@ namespace Test_NUnit_MySql
             Console.WriteLine("from p in db.Othertypes orderby p.DateTime_ select p.blob;");
             AllTypes db = CreateDB();
 
-            var result = from p in db.Othertypes orderby p.DateTime_ select p.blob;
+            var result = from p in db.Othertypes orderby p.DateTime select p.Blob;
             foreach (var blob in result)
             {
                 Console.WriteLine("blob[{0}]", blob.Length);
@@ -107,15 +109,16 @@ namespace Test_NUnit_MySql
         }
 
         [Test]
-        public void Test(string connStr)
+        public void Test_Unknown()
         {
+            AllTypes db = CreateDB();
             Console.Clear();
             Console.WriteLine("from p in db.Othertypes orderby p.DateTime_ select p.blob;");
-            AllTypes db = new AllTypes(connStr);
+
             var result = from p in db.Othertypes
-                         orderby p.DateTime_
+                         orderby p.DateTime
                          select
-                             p.blob;
+                             p.Blob;
             foreach (var blob in result)
             {
                 Console.WriteLine("blob[{0}]", blob.Length);
