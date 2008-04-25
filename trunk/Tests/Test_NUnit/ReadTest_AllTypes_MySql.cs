@@ -112,8 +112,6 @@ namespace Test_NUnit_MySql
         public void Test_Unknown()
         {
             AllTypes db = CreateDB();
-            Console.Clear();
-            Console.WriteLine("from p in db.Othertypes orderby p.DateTime_ select p.blob;");
 
             var result = from p in db.Othertypes
                          orderby p.DateTime
@@ -123,8 +121,6 @@ namespace Test_NUnit_MySql
             {
                 Console.WriteLine("blob[{0}]", blob.Length);
             }
-            Console.WriteLine("Press enter to continue.");
-            Console.ReadLine();
         }
     }
 }
