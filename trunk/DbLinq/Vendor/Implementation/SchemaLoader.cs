@@ -215,8 +215,8 @@ namespace DbLinq.Vendor.Implementation
 
         protected void LoadColumns(Database schema, SchemaName schemaName, IDbConnection conn, INameAliases nameAliases, NameFormat nameFormat, Names names)
         {
-            var columns = ReadColumns(conn, schemaName.DbName);
-            foreach (var columnRow in columns)
+            var columnRows = ReadColumns(conn, schemaName.DbName);
+            foreach (var columnRow in columnRows)
             {
                 var columnName = CreateColumnName(columnRow.ColumnName, columnRow.TableName, columnRow.TableSchema, nameAliases, nameFormat);
                 names.AddColumn(columnRow.TableName, columnName);
@@ -229,38 +229,39 @@ namespace DbLinq.Vendor.Implementation
                     Logger.Write(Level.Error, "ERROR L46: Table '" + columnRow.TableName + "' not found for column " + columnRow.ColumnName);
                     continue;
                 }
-                var colSchema = new Column();
-                colSchema.Name = columnName.DbName;
-                colSchema.Member = columnName.PropertyName;
-                colSchema.Storage = columnName.StorageFieldName;
-                colSchema.DbType = columnRow.FullType;
+                var column = new Column();
+                column.Name = columnName.DbName;
+                column.Member = columnName.PropertyName;
+                column.Storage = columnName.StorageFieldName;
+                column.DbType = columnRow.FullType;
 
                 if (columnRow.PrimaryKey.HasValue)
-                    colSchema.IsPrimaryKey = columnRow.PrimaryKey.Value;
+                    column.IsPrimaryKey = columnRow.PrimaryKey.Value;
 
                 if (columnRow.Generated.HasValue)
-                    colSchema.IsDbGenerated = columnRow.Generated.Value;
+                    column.IsDbGenerated = columnRow.Generated.Value;
 
-                if (colSchema.IsDbGenerated)
-                    colSchema.Expression = columnRow.DefaultValue;
+                if (column.IsDbGenerated)
+                    column.Expression = columnRow.DefaultValue;
 
-                colSchema.CanBeNull = columnRow.Nullable;
+                column.CanBeNull = columnRow.Nullable;
 
                 var columnType = MapDbType(columnRow);
 
                 var columnEnumType = columnType as EnumType;
                 if (columnEnumType != null)
                 {
-                    var enumType = colSchema.SetExtendedTypeAsEnumType();
+                    var enumType = column.SetExtendedTypeAsEnumType();
+                    enumType.Name = columnEnumType.Name;
                     foreach (KeyValuePair<string, int> enumValue in columnEnumType.EnumValues)
                     {
                         enumType[enumValue.Key] = enumValue.Value;
                     }
                 }
                 else
-                    colSchema.Type = columnType.ToString();
+                    column.Type = columnType.ToString();
 
-                tableSchema.Type.Columns.Add(colSchema);
+                tableSchema.Type.Columns.Add(column);
             }
         }
     }

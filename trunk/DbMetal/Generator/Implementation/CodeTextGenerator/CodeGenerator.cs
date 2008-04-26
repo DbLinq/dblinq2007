@@ -330,11 +330,15 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                     };
                 }
             }
+
+            var customTypesNames = new List<string>();
+
             // create names and avoid conflits
             foreach (var extendedTypePair in context.ExtendedTypes)
             {
                 if (extendedTypePair.Value.Table != table)
                     continue;
+
                 if (string.IsNullOrEmpty(extendedTypePair.Value.Type.Name))
                 {
                     string name = extendedTypePair.Key.Member + "Type";
@@ -349,22 +353,29 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                         name = extendedTypePair.Value.Table.Type.Name + name;
                     }
                 }
+                customTypesNames.Add(extendedTypePair.Value.Type.Name);
             }
-            // write types
-            foreach (var extendedTypePair in context.ExtendedTypes)
+
+            if (customTypesNames.Count > 0)
             {
-                if (extendedTypePair.Value.Table != table)
-                    continue;
-
-                var extendedType = extendedTypePair.Value.Type;
-                var enumValue = extendedType as EnumType;
-
-                if (enumValue != null)
+                using (writer.WriteRegion(string.Format("Custom type definition for {0}", string.Join(", ", customTypesNames.ToArray()))))
                 {
-                    writer.WriteEnum(GetSpecificationDefinition(extendedTypePair.Key.AccessModifier),
-                                     enumValue.Name, enumValue);
+                    // write types
+                    foreach (var extendedTypePair in context.ExtendedTypes)
+                    {
+                        if (extendedTypePair.Value.Table != table)
+                            continue;
+
+                        var extendedType = extendedTypePair.Value.Type;
+                        var enumValue = extendedType as EnumType;
+
+                        if (enumValue != null)
+                        {
+                            writer.WriteEnum(GetSpecificationDefinition(extendedTypePair.Key.AccessModifier),
+                                             enumValue.Name, enumValue);
+                        }
+                    }
                 }
-                writer.WriteLine();
             }
         }
     }
