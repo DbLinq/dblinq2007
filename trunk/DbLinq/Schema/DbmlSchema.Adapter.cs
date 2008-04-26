@@ -88,6 +88,9 @@ namespace DbLinq.Schema.Dbml
             enumName = null;
             values = new Dictionary<string, int>();
 
+            if (string.IsNullOrEmpty(literalType))
+                return false;
+
             var nameValues = literalType.Split(new[] { ' ' }, 2);
             if (nameValues.Length == 2)
             {
