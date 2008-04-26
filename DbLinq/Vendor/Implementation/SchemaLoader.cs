@@ -245,18 +245,20 @@ namespace DbLinq.Vendor.Implementation
                     colSchema.Expression = columnRow.DefaultValue;
 
                 colSchema.CanBeNull = columnRow.Nullable;
-                colSchema.Type = MapDbType(columnRow).ToString();
 
-#if PICRAP_TEST // Example on how to use enum support -- please remove when a real enum support is in place
-                if (colSchema.Name == "value0")
+                var columnType = MapDbType(columnRow);
+
+                var columnEnumType = columnType as EnumType;
+                if (columnEnumType != null)
                 {
                     var enumType = colSchema.SetExtendedTypeAsEnumType();
-                    enumType["A"] = 1;
-                    enumType["B"] = 2;
-                    enumType["D"] = 4;
-                    enumType["E"] = 5;
+                    foreach (KeyValuePair<string, int> enumValue in columnEnumType.EnumValues)
+                    {
+                        enumType[enumValue.Key] = enumValue.Value;
+                    }
                 }
-#endif
+                else
+                    colSchema.Type = columnType.ToString();
 
                 tableSchema.Type.Columns.Add(colSchema);
             }

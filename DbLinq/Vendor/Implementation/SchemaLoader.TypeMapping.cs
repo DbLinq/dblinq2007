@@ -23,6 +23,9 @@
 #endregion
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Reflection;
+using System.Reflection.Emit;
 using System.Text.RegularExpressions;
 
 namespace DbLinq.Vendor.Implementation
@@ -140,6 +143,10 @@ namespace DbLinq.Vendor.Implementation
             case "interval":
                 return typeof(TimeSpan);
 
+            //enum
+            case "enum":
+                return MapEnumDbType(dataType);
+
             // date
             case "date":
             case "datetime":
@@ -150,10 +157,6 @@ namespace DbLinq.Vendor.Implementation
             case "time without time zone": //reported by twain_bu...@msn.com,
             case "time with time zone":
                 return typeof(DateTime);
-
-            // enum
-            case "enum":
-                return typeof(Enum);
 
             // byte[]
             case "blob":
@@ -172,6 +175,234 @@ namespace DbLinq.Vendor.Implementation
             default:
                 return typeof(UnknownType);
             }
+        }
+
+        protected class EnumType : Type
+        {
+            public EnumType()
+            {
+                EnumValues = new Dictionary<string, int>();
+            }
+
+            public string EnumName { get; set; }
+
+            public IDictionary<string, int> EnumValues;
+
+            #region Type overrides - the ones who make sense
+
+            public override string Name
+            {
+                get { return EnumName; }
+            }
+
+            public override Type BaseType
+            {
+                get { return typeof(Enum); }
+            }
+
+            public override string FullName
+            {
+                get { return Name; } // this is a dynamic type without any qualification (namespace or assembly)
+            }
+
+            protected override bool IsArrayImpl()
+            {
+                return false;
+            }
+
+            protected override bool IsByRefImpl()
+            {
+                return false;
+            }
+
+            protected override bool IsCOMObjectImpl()
+            {
+                return false;
+            }
+
+            protected override bool IsPointerImpl()
+            {
+                return false;
+            }
+
+            protected override bool IsPrimitiveImpl()
+            {
+                return true;
+            }
+
+            #endregion
+
+            #region Type overrides - the ones we don't care about
+            public override object[] GetCustomAttributes(Type attributeType, bool inherit)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override object[] GetCustomAttributes(bool inherit)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override bool IsDefined(Type attributeType, bool inherit)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override Assembly Assembly
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+            public override string AssemblyQualifiedName
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+            protected override TypeAttributes GetAttributeFlagsImpl()
+            {
+                throw new NotImplementedException();
+            }
+
+            protected override ConstructorInfo GetConstructorImpl(BindingFlags bindingAttr, Binder binder,
+                                                                  CallingConventions callConvention, Type[] types,
+                                                                  ParameterModifier[] modifiers)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override ConstructorInfo[] GetConstructors(BindingFlags bindingAttr)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override Type GetElementType()
+            {
+                throw new NotImplementedException();
+            }
+
+            public override EventInfo GetEvent(string name, BindingFlags bindingAttr)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override EventInfo[] GetEvents(BindingFlags bindingAttr)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override FieldInfo GetField(string name, BindingFlags bindingAttr)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override FieldInfo[] GetFields(BindingFlags bindingAttr)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override Type GetInterface(string name, bool ignoreCase)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override Type[] GetInterfaces()
+            {
+                throw new NotImplementedException();
+            }
+
+            public override MemberInfo[] GetMembers(BindingFlags bindingAttr)
+            {
+                throw new NotImplementedException();
+            }
+
+            protected override MethodInfo GetMethodImpl(string name, BindingFlags bindingAttr, Binder binder,
+                                                        CallingConventions callConvention, Type[] types,
+                                                        ParameterModifier[] modifiers)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override MethodInfo[] GetMethods(BindingFlags bindingAttr)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override Type GetNestedType(string name, BindingFlags bindingAttr)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override Type[] GetNestedTypes(BindingFlags bindingAttr)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override PropertyInfo[] GetProperties(BindingFlags bindingAttr)
+            {
+                throw new NotImplementedException();
+            }
+
+            protected override PropertyInfo GetPropertyImpl(string name, BindingFlags bindingAttr, Binder binder,
+                                                            Type returnType, Type[] types, ParameterModifier[] modifiers)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override Guid GUID
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+            protected override bool HasElementTypeImpl()
+            {
+                throw new NotImplementedException();
+            }
+
+            public override object InvokeMember(string name, BindingFlags invokeAttr, Binder binder, object target,
+                                                object[] args, ParameterModifier[] modifiers, CultureInfo culture,
+                                                string[] namedParameters)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override Module Module
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+            public override string Namespace
+            {
+                get { throw new NotImplementedException(); }
+            }
+
+            public override Type UnderlyingSystemType
+            {
+                get { throw new NotImplementedException(); }
+            }
+            #endregion
+        }
+
+        protected static Regex DefaultEnumDefinitionEx = new Regex(@"\s*enum\s*\((?<values>.*)\s*\)\s*", RegexOptions.Compiled);
+        protected static Regex EnumValuesEx = new Regex(@"\'(?<value>\w*)\'\s*,?\s*", RegexOptions.Compiled);
+
+        protected virtual EnumType MapEnumDbType(IDataType dataType)
+        {
+            var enumType = new EnumType();
+            // MySQL represents enums as follows:
+            // enum('value1','value2')
+            Match outerMatch = DefaultEnumDefinitionEx.Match(dataType.FullType);
+            if (outerMatch.Success)
+            {
+                string values = outerMatch.Groups["values"].Value;
+                var innerMatches = EnumValuesEx.Matches(values);
+                int currentValue = 1;
+                foreach (Match innerMatch in innerMatches)
+                {
+                    var value = innerMatch.Groups["value"].Value;
+                    enumType.EnumValues[value] = currentValue++;
+                }
+            }
+            return enumType;
         }
     }
 }
