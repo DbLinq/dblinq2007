@@ -129,8 +129,9 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             return null;
         }
 
-        public override IDisposable WriteMethod(SpecificationDefinition specificationDefinition, string name, Type returnType,
-                                                params ParameterDefinition[] parameters)
+        protected virtual IDisposable WriteGeneralMethod(SpecificationDefinition specificationDefinition, string name,
+                                                bool hasReturnType, Type returnType,
+                                                IList<ParameterDefinition> parameters, IList<string> baseCallParameters)
         {
             var methodLineBuilder = new StringBuilder(1024);
 
@@ -138,7 +139,10 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             methodLineBuilder.Append(GetDomainSpecifications(specificationDefinition));
             methodLineBuilder.Append(GetInheritanceSpecifications(specificationDefinition));
 
-            methodLineBuilder.AppendFormat("{0} {1}(", GetLiteralType(returnType) ?? "void", name);
+            if (hasReturnType)
+                methodLineBuilder.AppendFormat("{0} {1}(", GetLiteralType(returnType) ?? "void", name);
+            else
+                methodLineBuilder.AppendFormat("{0}(", name);
             var literalParameters = new List<string>();
             foreach (var parameter in parameters)
             {
@@ -149,8 +153,25 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                 literalParameters.Add(literalParameter);
             }
             methodLineBuilder.AppendFormat("{0})", string.Join(", ", literalParameters.ToArray()));
+            if (baseCallParameters != null && baseCallParameters.Count > 0)
+            {
+                methodLineBuilder.AppendLine();
+                methodLineBuilder.AppendFormat(": base({0})", string.Join(", ", baseCallParameters.ToArray()));
+            }
             WriteLine(methodLineBuilder.ToString());
             return WriteBrackets();
+        }
+
+        public override IDisposable WriteCtor(SpecificationDefinition specificationDefinition, string name,
+                                                ParameterDefinition[] parameters, IList<string> baseCallParameters)
+        {
+            return WriteGeneralMethod(specificationDefinition, name, false, null, parameters, baseCallParameters);
+        }
+
+        public override IDisposable WriteMethod(SpecificationDefinition specificationDefinition, string name, Type returnType,
+                                                params ParameterDefinition[] parameters)
+        {
+            return WriteGeneralMethod(specificationDefinition, name, true, returnType, parameters, null);
         }
 
         protected void WriteFieldOrProperty(SpecificationDefinition specificationDefinition, string name, string memberType)

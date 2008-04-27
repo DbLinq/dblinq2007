@@ -25,9 +25,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using DbLinq.Linq;
 using DbLinq.Logging;
 using DbLinq.Schema;
 using DbLinq.Schema.Dbml;
+using DbLinq.Util;
 using Type = System.Type;
 
 namespace DbMetal.Generator.Implementation.CodeTextGenerator
@@ -148,9 +150,14 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                 return;
             }
 
+
             string contextBase = schema.BaseType;
+            var contextBaseType = TypeLoader.Load(contextBase);
             if (string.IsNullOrEmpty(contextBase))
-                contextBase = context.SchemaLoader.DataContextType.FullName;
+            {
+                contextBaseType = typeof(DataContext);
+                contextBase = contextBaseType.FullName;
+            }
 
             var specifications = SpecificationDefinition.Partial;
             if (schema.AccessModifierSpecified)
@@ -161,13 +168,11 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                 specifications |= GetSpecificationDefinition(schema.Modifier);
             using (writer.WriteClass(specifications, schema.Class, contextBase))
             {
-                WriteDataContextCtors(writer, schema, context);
+                WriteDataContextCtors(writer, schema, contextBaseType, context);
                 WriteDataContextTables(writer, schema, context);
                 WriteDataContextProcedures(writer, schema, context);
             }
         }
-
-        protected abstract void WriteDataContextCtors(CodeWriter writer, Database schema, GenerationContext context);
 
         private void WriteDataContextTables(CodeWriter writer, Database schema, GenerationContext context)
         {

@@ -151,6 +151,7 @@
     <Compile Include="Util\TypeCategory.cs" />
     <Compile Include="Util\Page.cs" />
     <Compile Include="Util\TypeExtensions.cs" />
+    <Compile Include="Util\TypeLoader.cs" />
     <Compile Include="Util\VarName.cs" />
     <Compile Include="Util\Language\Implementation\EnglishWords.cs" />
     <Compile Include="Vendor\IDataTableColumn.cs" />
