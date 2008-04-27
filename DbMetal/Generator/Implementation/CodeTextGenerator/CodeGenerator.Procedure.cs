@@ -21,12 +21,15 @@
 // THE SOFTWARE.
 // 
 #endregion
+
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Linq.Mapping;
 using DbLinq.Logging;
 using DbLinq.Schema;
+using DbLinq.Schema.Dbml;
+using Type = System.Type;
 
 namespace DbMetal.Generator.Implementation.CodeTextGenerator
 {
@@ -40,7 +43,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             }
         }
 
-        private void WriteDataContextProcedure(CodeWriter writer, DbLinq.Schema.Dbml.Function procedure, GenerationContext context)
+        private void WriteDataContextProcedure(CodeWriter writer, Function procedure, GenerationContext context)
         {
             if (procedure == null || procedure.Name == null)
             {
@@ -53,8 +56,16 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             functionAttribute["Name"] = procedure.Name;
             functionAttribute["IsComposable"] = procedure.IsComposable;
 
+            SpecificationDefinition specifications;
+            if (procedure.AccessModifierSpecified)
+                specifications = GetSpecificationDefinition(procedure.AccessModifier);
+            else
+                specifications = SpecificationDefinition.Public;
+            if (procedure.ModifierSpecified)
+                specifications |= GetSpecificationDefinition(procedure.Modifier);
+
             using (writer.WriteAttribute(functionAttribute))
-            using (writer.WriteMethod(SpecificationDefinition.Public, GetProcedureName(procedure),
+            using (writer.WriteMethod(specifications, GetProcedureName(procedure),
                                       GetProcedureType(procedure), GetProcedureParameters(procedure)))
             {
                 string result = WriteProcedureBodyMethodCall(writer, procedure, context);
@@ -135,17 +146,17 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             parameterDefinition.Type = GetType(parameter.Type, false);
             switch (parameter.Direction)
             {
-                case DbLinq.Schema.Dbml.ParameterDirection.In:
-                    parameterDefinition.SpecificationDefinition |= SpecificationDefinition.In;
-                    break;
-                case DbLinq.Schema.Dbml.ParameterDirection.Out:
-                    parameterDefinition.SpecificationDefinition |= SpecificationDefinition.Out;
-                    break;
-                case DbLinq.Schema.Dbml.ParameterDirection.InOut:
-                    parameterDefinition.SpecificationDefinition |= SpecificationDefinition.Ref;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+            case DbLinq.Schema.Dbml.ParameterDirection.In:
+                parameterDefinition.SpecificationDefinition |= SpecificationDefinition.In;
+                break;
+            case DbLinq.Schema.Dbml.ParameterDirection.Out:
+                parameterDefinition.SpecificationDefinition |= SpecificationDefinition.Out;
+                break;
+            case DbLinq.Schema.Dbml.ParameterDirection.InOut:
+                parameterDefinition.SpecificationDefinition |= SpecificationDefinition.Ref;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
             }
             parameterDefinition.Attribute = NewAttributeDefinition<ParameterAttribute>();
             parameterDefinition.Attribute["Name"] = parameter.Name;

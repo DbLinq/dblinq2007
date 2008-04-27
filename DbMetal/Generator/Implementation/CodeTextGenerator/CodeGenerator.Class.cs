@@ -256,7 +256,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             }
         }
 
-        private void WriteClassChild(CodeWriter writer, DbLinq.Schema.Dbml.Association child, DbLinq.Schema.Dbml.Database schema, GenerationContext context)
+        private void WriteClassChild(CodeWriter writer, Association child, Database schema, GenerationContext context)
         {
             // the following is apparently useless
             DbLinq.Schema.Dbml.Table targetTable = schema.Tables.FirstOrDefault(t => t.Type.Name == child.Type);
@@ -271,9 +271,17 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             storageAttribute["OtherKey"] = child.OtherKey;
             storageAttribute["Name"] = child.Name;
 
+            SpecificationDefinition specifications;
+            if (child.AccessModifierSpecified)
+                specifications = GetSpecificationDefinition(child.AccessModifier);
+            else
+                specifications = SpecificationDefinition.Public;
+            if (child.ModifierSpecified)
+                specifications |= GetSpecificationDefinition(child.Modifier);
+
             using (writer.WriteAttribute(storageAttribute))
             using (writer.WriteAttribute(NewAttributeDefinition<DebuggerNonUserCodeAttribute>()))
-            using (writer.WriteProperty(SpecificationDefinition.Public, child.Member,
+            using (writer.WriteProperty(specifications, child.Member,
                                         writer.GetGenericName(typeof(EntityMSet<>).Name.Split('`')[0], child.Type)))
             {
                 using (writer.WritePropertyGet())
@@ -300,7 +308,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             }
         }
 
-        protected virtual void WriteClassParent(CodeWriter writer, DbLinq.Schema.Dbml.Association parent, DbLinq.Schema.Dbml.Database schema, GenerationContext context)
+        protected virtual void WriteClassParent(CodeWriter writer, Association parent, Database schema, GenerationContext context)
         {
             // the following is apparently useless
             DbLinq.Schema.Dbml.Table targetTable = schema.Tables.FirstOrDefault(t => t.Type.Name == parent.Type);
@@ -326,9 +334,17 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             storageAttribute["ThisKey"] = parent.ThisKey;
             storageAttribute["Name"] = parent.Name;
 
+            SpecificationDefinition specifications;
+            if (parent.AccessModifierSpecified)
+                specifications = GetSpecificationDefinition(parent.AccessModifier);
+            else
+                specifications = SpecificationDefinition.Public;
+            if (parent.ModifierSpecified)
+                specifications |= GetSpecificationDefinition(parent.Modifier);
+
             using (writer.WriteAttribute(storageAttribute))
             using (writer.WriteAttribute(NewAttributeDefinition<DebuggerNonUserCodeAttribute>()))
-            using (writer.WriteProperty(SpecificationDefinition.Public, member, targetTable.Type.Name))
+            using (writer.WriteProperty(specifications, member, targetTable.Type.Name))
             {
                 string storage = writer.GetMemberExpression(storageField, "Entity");
                 using (writer.WritePropertyGet())
