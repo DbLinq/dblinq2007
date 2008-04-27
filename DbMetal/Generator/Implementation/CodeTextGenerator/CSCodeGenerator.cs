@@ -41,6 +41,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             return new CSCodeWriter(textWriter, false);
         }
 
+#if obsolete
         protected override void WriteDataContextCtors(CodeWriter writer, DbLinq.Schema.Dbml.Database schema, GenerationContext context)
         {
             writer.WriteLine(context.Evaluate(
@@ -56,7 +57,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
 }
 "));
         }
-
+#endif
         protected override void WriteDataContextTable(CodeWriter writer, DbLinq.Schema.Dbml.Table table)
         {
             writer.WriteLine("public Table<{1}> {0} {{ get {{ return GetTable<{1}>(); }} }}",

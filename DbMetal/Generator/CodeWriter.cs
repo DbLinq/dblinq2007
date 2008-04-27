@@ -205,6 +205,8 @@ namespace DbMetal.Generator
         public abstract IDisposable WriteRegion(string name);
         public abstract IDisposable WriteAttribute(AttributeDefinition attributeDefinition);
 
+        public abstract IDisposable WriteCtor(SpecificationDefinition specificationDefinition, string name,
+                                              ParameterDefinition[] parameters, IList<string> baseCallParameters);
         public abstract IDisposable WriteMethod(SpecificationDefinition specificationDefinition, string name, Type returnType,
                                                 params ParameterDefinition[] parameters);
 

@@ -42,8 +42,8 @@ namespace DbLinqTest
     {
         public EnglishWordsTest()
         {
-         englishWords = new EnglishWords();
-         englishWords.Load();
+            englishWords = new EnglishWords();
+            englishWords.Load();
         }
 
         public static void AssertAreIListEqual(IList<string> a, IList<string> b)
@@ -70,28 +70,28 @@ namespace DbLinqTest
 
         [TestMethod]
         [Test]
-        public void GetWords0Test()
+        public void GetWordsTest_HelloWorld()
         {
             var actual = englishWords.GetWords("helloworld");
             AssertAreEqual(actual, "hello", "world");
         }
         [TestMethod]
         [Test]
-        public void GetWords1Test()
+        public void GetWordsTest_HireDate()
         {
             var actual = englishWords.GetWords("hiredate");
             AssertAreEqual(actual, "hire", "date");
         }
         [TestMethod]
         [Test]
-        public void GetWords2Test()
+        public void GetWordsTest_QuantityPerUnit()
         {
             var actual = englishWords.GetWords("quantityperunit");
             AssertAreEqual(actual, "quantity", "per", "unit");
         }
         [TestMethod]
         [Test]
-        public void GetWords3Test()
+        public void GetWordsTest_UnitsInStock()
         {
             var actual = englishWords.GetWords("unitsinstock");
             AssertAreEqual(actual, "units", "in", "stock");
@@ -106,14 +106,14 @@ namespace DbLinqTest
         //}
         [TestMethod]
         [Test]
-        public void GetWords5Test()
+        public void GetWordsTest_FkProdCatG()
         {
             var actual = englishWords.GetWords("fkprodcatg");
             AssertAreEqual(actual, "fk", "prod", "cat", "g");
         }
         [TestMethod]
         [Test]
-        public void GetWords6Test()
+        public void GetWordsTest_CatG()
         {
             var actual = englishWords.GetWords("catg");
             AssertAreEqual(actual, "cat", "g");
@@ -121,7 +121,7 @@ namespace DbLinqTest
 
         [TestMethod]
         [Test]
-        public void GetWords7Test()
+        public void GetWordsTest_CustomerId()
         {
             var actual = englishWords.GetWords("customerid");
             AssertAreEqual(actual, "customer", "id");
@@ -129,29 +129,47 @@ namespace DbLinqTest
 
         [TestMethod]
         [Test]
-        public void GetWords8Test()
+        public void GetWordsTest_SupplierId()
         {
             var actual = englishWords.GetWords("supplierid");
             AssertAreEqual(actual, "supplier", "id");
         }
 
+        // picrap: this one's failing, and I think we're at the limits of words recognition
+        // (at least at the limits of what I'm able to do)
+        //[TestMethod]
+        //[Test]
+        //public void GetWordsTest_IntType()
+        //{
+        //    var actual = englishWords.GetWords("inttype");
+        //    AssertAreEqual(actual, "int", "type");
+        //}
+
         [TestMethod]
         [Test]
-        public void GetNote1Test()
+        public void GetWordsTest_AllIntType()
+        {
+            var actual = englishWords.GetWords("allinttype");
+            AssertAreEqual(actual, "all", "int", "type");
+        }
+
+        [TestMethod]
+        [Test]
+        public void GetNoteTest_ToothPaste()
         {
             Assert.IsTrue(englishWords.GetNote(new[] { "toothpaste" }) > englishWords.GetNote(new[] { "tooth", "paste" }));
         }
 
         [TestMethod]
         [Test]
-        public void GetNote2Test()
+        public void GetNoteTest_PerUnit()
         {
             Assert.IsTrue(englishWords.GetNote(new[] { "per", "unit" }) > englishWords.GetNote(new[] { "peru", "nit" }));
         }
 
         [TestMethod]
         [Test]
-        public void GetNote3Test()
+        public void GetNoteTest_Hello()
         {
             Assert.IsTrue(englishWords.GetNote(new[] { "hello" }) > englishWords.GetNote(new[] { "h", "e", "l", "l", "o" }));
         }

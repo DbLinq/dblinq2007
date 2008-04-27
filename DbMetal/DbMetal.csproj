@@ -87,6 +87,7 @@
     <Compile Include="Generator\Implementation\CodeDomGenerator\VisualBasicCodeDomGenerator.cs" />
     <Compile Include="Generator\Implementation\CodeDomGenerator\CSharpCodeDomGenerator.cs" />
     <Compile Include="Generator\Implementation\CodeTextGenerator\CodeGenerator.Class.cs" />
+    <Compile Include="Generator\Implementation\CodeTextGenerator\CodeGenerator.Context.Ctor.cs" />
     <Compile Include="Generator\Implementation\CodeTextGenerator\CodeGenerator.cs" />
     <Compile Include="Generator\Implementation\CodeTextGenerator\CodeGenerator.Procedure.cs" />
     <Compile Include="Generator\Implementation\CodeTextGenerator\CSCodeGenerator.cs" />
