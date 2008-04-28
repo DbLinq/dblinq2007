@@ -40,7 +40,7 @@ namespace DbLinq.Linq
     /// since objects returned from here are not 'live'.
     /// </summary>
     /// <typeparam name="T">eg. 'int' in query 'from e in db.Employees select e.ID'</typeparam>
-    class MTable_Projected<T> 
+    class MTable_Projected<T>
         : IOrderedQueryable<T> //projections and joins can still be ordered
         , IQueryText
         , IQueryProvider //new as of Beta2
@@ -91,7 +91,7 @@ namespace DbLinq.Linq
                 _vars.Context.Log.WriteLine("MTable_Proj.Execute<" + typeof(S) + ">: " + expression);
 
             SessionVars vars = new SessionVars(_vars).AddScalar(expression); //clone and append Expr
-            SessionVarsParsed varsFin =  _vars.Context.QueryGenerator.GenerateQuery(vars, null); //parse all
+            SessionVarsParsed varsFin = _vars.Context.QueryGenerator.GenerateQuery(vars, null); //parse all
             return new RowScalar<T>(varsFin, this, null).GetScalar<S>(expression);
         }
 
@@ -101,8 +101,8 @@ namespace DbLinq.Linq
         public IEnumerator<T> GetEnumerator()
         {
             //we don't keep projections in cache, pass cache=null
-            if(_vars.Context.Log!=null)
-                _vars.Context.Log.WriteLine("MTable_Proj.GetEnumerator <"+typeof(T)+">");
+            if (_vars.Context.Log != null)
+                _vars.Context.Log.WriteLine("MTable_Proj.GetEnumerator <" + typeof(T) + ">");
 
             //SessionVars vars = _vars.Clone();
             SessionVarsParsed varsFin = _vars.Context.QueryGenerator.GenerateQuery(_vars, typeof(T)); //for test D7, already done in MTable.CreateQ?
@@ -115,19 +115,33 @@ namespace DbLinq.Linq
         [Obsolete("COMPLETELY UNTESTED")]
         IEnumerator IEnumerable.GetEnumerator()
         {
-            IEnumerator<T> enumT = GetEnumerator();
-            return enumT;
+            Type dynamicType;
+            if (!TypeExtensions.IsDynamicClass(typeof(T), out dynamicType))
+            {
+                IEnumerator<T> enumT = GetEnumerator();
+                return enumT;
+            }
+            else
+            {
+                Type mtableProjectedType2 = typeof(MTable_Projected<>).MakeGenericType(dynamicType);
+                object projectedQ = Activator.CreateInstance(mtableProjectedType2, _vars);
+                System.Reflection.MethodInfo[] methods = mtableProjectedType2.GetMethods();
+                System.Reflection.MethodInfo getEnumMethod = methods.Where(m => m.Name == "GetEnumerator").Single();
+                object enumeratorObj = getEnumMethod.Invoke(projectedQ, new object[0]);
+                return enumeratorObj as IEnumerator;
+            }
+
         }
 
         [Obsolete("COMPLETELY UNTESTED")]
-        public Type ElementType 
+        public Type ElementType
         {
             //this is a wild guess
             get { return typeof(T); }
         }
 
-        public Expression Expression 
-        { 
+        public Expression Expression
+        {
             //copied from RdfProvider
             get { return Expression.Constant(this); }
         }
@@ -151,7 +165,7 @@ namespace DbLinq.Linq
         }
 
         //New as of Orcas Beta2 - what does it do?
-        public IQueryProvider Provider 
+        public IQueryProvider Provider
         {
             get { return this; }
         }

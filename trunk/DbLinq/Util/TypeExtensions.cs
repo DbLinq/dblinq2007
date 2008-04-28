@@ -102,10 +102,36 @@ namespace DbLinq.Util
                 return false;
             if (t.Name.Contains("<>f__AnonymousType"))
                 return true; //Beta2 logic
+
             //ParameterInfo[] ctor0_params = cinfo[0].GetParameters();
             //if (ctor0_params.Length != 0)
             //    return false;
             return true;
+        }
+
+        /// <summary>
+        /// is this a type IQueryable{DynamicClass1} ?
+        /// where DynamicClass1 descends from DynamicClass 
+        /// (see Dynamic Linq and test DL4_DynamicAssociationProperty)
+        /// </summary>
+        public static bool IsDynamicClass(this Type t, out Type dynamicClassType)
+        {
+            dynamicClassType = null;
+            if (!t.IsGenericType)
+                return false;
+
+            Type genericDef = t.GetGenericTypeDefinition();
+            if(genericDef!=typeof(System.Linq.IQueryable<>))
+                return false;
+
+            Type[] genericArg = t.GetGenericArguments();
+            if (genericArg.Length == 1 && genericArg[0].Name.StartsWith("DynamicClass"))
+            {
+                //occurs for DynamicType, see test DL4_DynamicAssociationProperty
+                dynamicClassType = genericArg[0];
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
