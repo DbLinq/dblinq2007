@@ -136,7 +136,7 @@ using Test_NUnit;
         }
 
         [Test(Description="example by Frans Brouma: select all customers that have no orders")]
-        public void LeftOuterJoin_DefaultIfEmpty()
+        public void LeftJoin_DefaultIfEmpty()
         {
             //example by Frans Brouma on Matt Warren's site
             //select all customers that have no orders
@@ -194,6 +194,92 @@ using Test_NUnit;
 
             Assert.IsTrue(q1.Count > 0);
         }
+
+        [Test]
+        public void RetrieveParentAssociationProperty()
+        {
+            Northwind dbo = CreateDB();
+            Northwind1 db = new Northwind1(dbo.DatabaseContext.Connection);
+            var t = db.GetTable<Northwind1.ExtendedOrder>();
+            var q = from order in t
+                    select new
+                    {
+                        order.OrderID,
+                        order.CustomerShipCity.ContactName
+                    };
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+        }
+
+        [Test]
+        public void SelectCustomerContactNameFromOrder()
+        {
+            Northwind dbo = CreateDB();
+            Northwind1 db = new Northwind1(dbo.DatabaseContext.Connection);
+            var t = db.GetTable<Northwind1.ExtendedOrder>();
+
+            var q = from order in t
+                    select new
+                    {
+                        order.CustomerContactName
+                    };
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+        }
+
+        public class Northwind1 : Northwind
+        {
+            public Northwind1(System.Data.IDbConnection connection)
+                : base(connection) { }
+
+            public class ExtendedOrder : Order
+            {
+
+                System.Data.Linq.EntityRef<Customer> _x_Customer;
+
+                [System.Data.Linq.Mapping.Association(Storage = "_x_Customer",
+                    ThisKey = "ShipCity", Name = "fk_order_customer")]
+                public Customer CustomerShipCity
+                {
+                    get { return _x_Customer.Entity; }
+                    set { _x_Customer.Entity = value; }
+                }
+
+                public string CustomerContactName
+                {
+                    get
+                    {
+                        return "Test";
+                    }
+                }
+
+            }
+
+            public DbLinq.Linq.Table<ExtendedOrder> ExtendedOrders
+            {
+                get { return base.GetTable<ExtendedOrder>(); }
+            }
+        }
+
+        [Test]
+        public void WhereBeforeSelect()
+        {
+            Northwind db = CreateDB();
+            var t = db.GetTable<Order>();
+
+            var query = t.Where(o => o.OrderID != 0);
+
+            query = query.Select(dok => new Order
+            {
+                OrderID = dok.OrderID,
+                OrderDate = dok.OrderDate,
+                ShipCity = dok.Customer.ContactName,
+                //Shippostalcode = dok.Shippostalcode,
+                Freight = dok.Freight
+            });
+            var list = query.ToList();
+            Assert.IsTrue(list.Count > 0);
+        } 
         
     }
 }

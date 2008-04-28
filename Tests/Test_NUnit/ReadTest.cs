@@ -149,6 +149,17 @@ namespace Test_NUnit_Oracle
                      select p).Count();
             Assert.IsTrue(q > 0);
         }
+
+        [Test]
+        public void C5_ConstantProperty()
+        {
+            Northwind db = CreateDB();
+            var res = from o in db.Orders
+                      select new { test = 1 };
+            var list = res.ToList();
+            Assert.IsTrue(list.Count > 0);
+        } 
+
         #endregion
 
         #region region D - select first or last - calls IQueryable.Execute instead of GetEnumerator
