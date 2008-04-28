@@ -249,7 +249,7 @@ namespace DbLinq.Linq.Clause
             switch (expr.Method.Name)
             {
                 case "StartsWith":
-                case "EndWith":
+                case "EndsWith":
                 case "Contains":
                     {
                         //turn "e.Name.StartsWith("X")" -> "e.Name LIKE 'X%'
@@ -266,7 +266,7 @@ namespace DbLinq.Linq.Clause
                             switch (expr.Method.Name)
                             {
                                 case "StartsWith": modParam = lastParam + "%"; break;
-                                case "EndWith": modParam = "%" + lastParam; break;
+                                case "EndsWith": modParam = "%" + lastParam; break;
                                 case "Contains": modParam = "%" + lastParam + "%"; break;
                             }
                             _parent.paramMap[paramName] = modParam;
