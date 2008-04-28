@@ -80,6 +80,35 @@ namespace Test_NUnit_MySql
             Assert.IsTrue(numProducts > 0, "Expected results from dynamic query");
         }
 
+        [Test]
+        public void DL4_DynamicAssociationProperty()
+        {
+
+            Northwind db = CreateDB();
+            var orders = db.GetTable<Order>();
+            var res = orders.Select(@"new (OrderID,Customer.ContactName)");
+
+            List<object> list = new List<object>();
+            foreach (var u in res)
+                list.Add(u);
+            Assert.IsTrue(list.Count > 0);
+        }
+
+        //[Test]
+        //public void DLX()
+        //{
+        //    Northwind db = CreateDB();
+        //    var q = db.Products.Where("ProductID>1")
+        //        .OrderBy("ProductID");
+        //    var q2 = q.Count();
+        //    var list = q.ToList();
+        //    System.Windows.Forms.Form frm = new System.Windows.Forms.Form() { Text = "DynLinq" };
+        //    System.Windows.Forms.DataGridView grd = new System.Windows.Forms.DataGridView();
+        //    frm.Controls.Add(grd);
+        //    grd.DataSource = list;
+        //    System.Windows.Forms.Application.Run(frm);
+        //}
+
 #if DECIDE_IF_THIS_CAST_IS_LEGAL
         [Test]
         public void DL2_Cast()
