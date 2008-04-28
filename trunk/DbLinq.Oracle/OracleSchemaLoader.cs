@@ -56,32 +56,32 @@ namespace DbLinq.Oracle
                 DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => constraintFullDbName == t.Name);
                 if (table == null)
                 {
-                    Logger.Write(Level.Error, "ERROR L100: Table '" + constraint.TableName + "' not found for column " + constraint.column_name);
+                    Logger.Write(Level.Error, "ERROR L100: Table '" + constraint.TableName + "' not found for column " + constraint.ColumnName);
                     continue;
                 }
 
                 //if (table.Name.StartsWith("E"))
                 //    Logger.Write("---Dbg");
 
-                if (constraint.constraint_type == "P")
+                if (constraint.ConstraintType == "P")
                 {
                     //A) add primary key
-                    DbLinq.Schema.Dbml.Column pkColumn = table.Type.Columns.Where(c => c.Name == constraint.column_name).First();
+                    DbLinq.Schema.Dbml.Column pkColumn = table.Type.Columns.Where(c => c.Name == constraint.ColumnName).First();
                     pkColumn.IsPrimaryKey = true;
                 }
-                else if (constraint.constraint_type == "R")
+                else if (constraint.ConstraintType == "R")
                 {
                     //if not PRIMARY, it's a foreign key. (constraint_type=="R")
                     //both parent and child table get an [Association]
-                    User_Constraints_Row referencedConstraint = constraints.FirstOrDefault(c => c.ConstraintName == constraint.R_constraint_name);
-                    if (constraint.R_constraint_name == null || referencedConstraint == null)
+                    User_Constraints_Row referencedConstraint = constraints.FirstOrDefault(c => c.ConstraintName == constraint.ReverseConstraintName);
+                    if (constraint.ReverseConstraintName == null || referencedConstraint == null)
                     {
-                        Logger.Write(Level.Error, "ERROR L127: given R_contraint_name='" + constraint.R_constraint_name + "', unable to find parent constraint");
+                        Logger.Write(Level.Error, "ERROR L127: given R_contraint_name='" + constraint.ReverseConstraintName + "', unable to find parent constraint");
                         continue;
                     }
 
-                    LoadForeignKey(schema, table, constraint.column_name, constraint.TableName, constraint.TableSchema,
-                                   referencedConstraint.column_name, referencedConstraint.TableName,
+                    LoadForeignKey(schema, table, constraint.ColumnName, constraint.TableName, constraint.TableSchema,
+                                   referencedConstraint.ColumnName, referencedConstraint.TableName,
                                    referencedConstraint.TableSchema,
                                    constraint.ConstraintName, nameFormat, names);
 

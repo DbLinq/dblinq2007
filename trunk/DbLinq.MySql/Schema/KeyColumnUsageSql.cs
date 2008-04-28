@@ -32,7 +32,6 @@ namespace DbLinq.MySql.Schema
     /// </summary>
     public class KeyColumnUsage
     {
-        public string constraint_schema;
         public string ConstraintName;
         public string TableSchema;
         public string TableName;
@@ -59,7 +58,6 @@ namespace DbLinq.MySql.Schema
         {
             KeyColumnUsage t = new KeyColumnUsage();
             int field = 0;
-            t.constraint_schema = rdr.GetAsString(field++);
             t.ConstraintName = rdr.GetAsString(field++);
             t.TableSchema  = rdr.GetAsString(field++);
             t.TableName    = rdr.GetAsString(field++);
@@ -73,7 +71,7 @@ namespace DbLinq.MySql.Schema
         public List<KeyColumnUsage> getConstraints(IDbConnection conn, string db)
         {
             string sql = @"
-SELECT constraint_schema,constraint_name,table_schema,table_name
+SELECT constraint_name,table_schema,table_name
     ,column_name,referenced_table_schema,referenced_table_name,referenced_column_name
 FROM information_schema.`KEY_COLUMN_USAGE`
 WHERE table_schema=?db";

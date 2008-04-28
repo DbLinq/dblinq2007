@@ -34,13 +34,13 @@ namespace DbLinq.Oracle.Schema
         public string TableSchema;
         public string ConstraintName;
         public string TableName;
-        public string column_name;
-        public string constraint_type;
-        public string R_constraint_name;
+        public string ColumnName;
+        public string ConstraintType;
+        public string ReverseConstraintName;
 
         public override string ToString()
         {
-            return "User_Constraint  " + TableName + "." + column_name;
+            return "User_Constraint  " + TableName + "." + ColumnName;
         }
     }
 
@@ -50,12 +50,12 @@ namespace DbLinq.Oracle.Schema
         {
             User_Constraints_Row t = new User_Constraints_Row();
             int field = 0;
-            t.TableSchema = rdr.GetString(field++);
-            t.ConstraintName  = rdr.GetString(field++);
-            t.TableName    = rdr.GetString(field++);
-            t.column_name   = rdr.GetString(field++);
-            t.constraint_type = rdr.GetString(field++);
-            t.R_constraint_name = rdr.GetNString(field++);
+            t.TableSchema = rdr.GetAsString(field++);
+            t.ConstraintName  = rdr.GetAsString(field++);
+            t.TableName    = rdr.GetAsString(field++);
+            t.ColumnName   = rdr.GetAsString(field++);
+            t.ConstraintType = rdr.GetAsString(field++);
+            t.ReverseConstraintName = rdr.GetAsString(field++);
             return t;
         }
 
@@ -72,18 +72,6 @@ and lower(UCC.owner) = :owner";
 
             return DataCommand.Find<User_Constraints_Row>(conn, sql, ":owner", db.ToLower(), fromRow);
         }
-#if UNUSED
-        public List<User_Constraints_Row> getConstraints2(IDbConnection conn, string db)
-        {
-            string sql = @"
-SELECT UCC.constraint_name, UCC.table_name, UCC.column_name, UC.constraint_type 
-FROM user_cons_columns UCC, user_constraints UC
-WHERE UCC.constraint_name=UC.constraint_name
-AND UCC.table_name=UC.table_name
-AND UCC.TABLE_NAME NOT LIKE '%$%' AND UCC.TABLE_NAME NOT LIKE 'LOGMNR%'";
 
-            return DataCommand.Find<User_Constraints_Row>(conn, sql, fromRow);
-        }
-#endif
     }
 }

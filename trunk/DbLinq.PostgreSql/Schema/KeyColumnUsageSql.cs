@@ -34,7 +34,6 @@ namespace DbLinq.PostgreSql.Schema
     /// </summary>
     public class KeyColumnUsage
     {
-        public string constraint_schema;
         public string ConstraintName;
         public string TableSchema;
         public string TableName;
@@ -55,21 +54,17 @@ namespace DbLinq.PostgreSql.Schema
         {
             KeyColumnUsage t = new KeyColumnUsage();
             int field = 0;
-            t.constraint_schema = rdr.GetString(field++);
-            t.ConstraintName = rdr.GetString(field++);
-            t.TableSchema  = rdr.GetString(field++);
-            t.TableName    = rdr.GetString(field++);
-            t.ColumnName    = rdr.GetString(field++);
-            //t.referenced_table_schema = rdr.GetString(field++);
-            //t.referenced_table_name = rdr.GetString(field++);
-            //t.referenced_column_name = rdr.GetString(field++);
+            t.ConstraintName = rdr.GetAsString(field++);
+            t.TableSchema  = rdr.GetAsString(field++);
+            t.TableName    = rdr.GetAsString(field++);
+            t.ColumnName    = rdr.GetAsString(field++);
             return t;
         }
 
         public List<KeyColumnUsage> getConstraints(IDbConnection conn, string db)
         {
             string sql = @"
-SELECT constraint_schema,constraint_name,table_schema,table_name
+SELECT constraint_name,table_schema,table_name
     ,column_name
 FROM information_schema.KEY_COLUMN_USAGE
 WHERE constraint_catalog=:db";

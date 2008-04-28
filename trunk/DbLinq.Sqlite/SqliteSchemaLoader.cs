@@ -84,7 +84,7 @@ namespace DbLinq.Sqlite
                     DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => tableFullDbName == t.Name);
                     if (table == null)
                     {
-                        Logger.Write(Level.Error, "ERROR L46: Table '" + keyColRow.TableName + "' not found for column " + keyColRow.column_name);
+                        Logger.Write(Level.Error, "ERROR L46: Table '" + keyColRow.TableName + "' not found for column " + keyColRow.ColumnName);
                         continue;
                     }
 
@@ -93,8 +93,8 @@ namespace DbLinq.Sqlite
 
                     if (isForeignKey)
                     {
-                        LoadForeignKey(schema, table, keyColRow.column_name, keyColRow.TableName, keyColRow.TableSchema,
-                                       keyColRow.referenced_column_name, keyColRow.ReferencedTableName,
+                        LoadForeignKey(schema, table, keyColRow.ColumnName, keyColRow.TableName, keyColRow.TableSchema,
+                                       keyColRow.ReferencedColumnName, keyColRow.ReferencedTableName,
                                        keyColRow.ReferencedTableSchema,
                                        keyColRow.ConstraintName, nameFormat, names);
 
