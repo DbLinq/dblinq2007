@@ -61,5 +61,23 @@ namespace DbLinq.Util
                 return null;
             return Activator.CreateInstance(t);
         }
+
+        /// <summary>
+        /// Converts a value to an enum
+        /// (work with literals string values and numbers)
+        /// </summary>
+        /// <param name="o">The literal to convert</param>
+        /// <param name="enumType">The target enum type</param>
+        /// <returns></returns>
+        public static int ToEnum(object o, Type enumType)
+        {
+            var e = (int)Enum.Parse(enumType, o.ToString());
+            return e;
+        }
+
+        public static E ToEnum<E>(object o)
+        {
+            return (E)(object)ToEnum(o, typeof(E));
+        }
     }
 }

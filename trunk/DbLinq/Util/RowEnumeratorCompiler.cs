@@ -698,7 +698,7 @@ namespace DbLinq.Util
             {
                 recast = true;
                 propertyReader = (Expression<Func<IDataRecord, MappingContext, int>>)((dataReader, mappingContext)
-                    => dataReader.GetAsNumeric<int>(valueIndex));
+                    => dataReader.GetAsEnum(returnType, valueIndex));
             }
             // for polymorphic types especially for ExecuteQuery<>()
             else if (returnType == typeof(object))
