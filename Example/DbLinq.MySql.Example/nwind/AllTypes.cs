@@ -1,4 +1,4 @@
-#region Auto-generated classes for AllTypes database on 2008-04-25 20:59:07Z
+#region Auto-generated classes for AllTypes database on 2008-04-28 21:26:17Z
 
 //
 //  ____  _     __  __      _        _
@@ -7,7 +7,7 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from AllTypes on 2008-04-25 20:59:07Z
+// Auto-generated from AllTypes on 2008-04-28 21:26:17Z
 // Please visit http://linq.to/db for more information
 
 #endregion
@@ -26,15 +26,15 @@ using DbLinq.Linq.Mapping;
 
 namespace AllTypesExample
 {
-	public partial class AllTypes : DbLinq.MySql.MySqlDataContext
+	public partial class AllTypes : DbLinq.Linq.DataContext
 	{
-		//public AllTypes(string connectionString)
-		//    : base(connectionString)
-		//{
-		//}
+		public AllTypes(System.Data.IDbConnection connection)
+		: base(connection, new DbLinq.MySql.MySqlVendor())
+		{
+		}
 
-		public AllTypes(IDbConnection connection)
-		    : base(connection)
+		public AllTypes(System.Data.IDbConnection connection, DbLinq.Vendor.IVendor vendor)
+		: base(connection, vendor)
 		{
 		}
 
@@ -722,6 +722,17 @@ namespace AllTypesExample
 
 		#endregion
 
+		#region Custom type definition for RainbowType
+
+		public enum RainbowType
+		{
+			red,
+			orange,
+			yellow,
+		}
+
+		#endregion
+
 		#region System.Byte[] Blob
 
 		private System.Byte[] blob;
@@ -884,12 +895,12 @@ namespace AllTypesExample
 
 		#endregion
 
-		#region System.Enum Rainbow
+		#region RainbowType Rainbow
 
-		private System.Enum rainbow;
+		private RainbowType rainbow;
 		[DebuggerNonUserCode]
 		[Column(Storage = "rainbow", Name = "rainbow", DbType = "enum('red','orange','yellow')", CanBeNull = false, Expression = null)]
-		public System.Enum Rainbow
+		public RainbowType Rainbow
 		{
 			get
 			{
