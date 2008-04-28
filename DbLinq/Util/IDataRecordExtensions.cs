@@ -102,7 +102,7 @@ namespace DbLinq.Util
             return TypeConvert.ToNumber<U>(o);
         }
 
-        public static object GetAsEnum(this IDataRecord dataRecord, Type enumType, int index)
+        public static int GetAsEnum(this IDataRecord dataRecord, Type enumType, int index)
         {
             int enumAsInt = dataRecord.GetAsNumeric<int>(index);
             return enumAsInt;

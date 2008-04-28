@@ -625,7 +625,7 @@ namespace DbLinq.Schema.Dbml
                 if (extendedType == null)
                 {
                     if (EnumType.IsEnum(Type))
-                        return new EnumType(this, TypeMemberInfo);
+                        extendedType = new EnumType(this, TypeMemberInfo);
                 }
                 return extendedType;
             }
