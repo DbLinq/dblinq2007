@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text;
 using DbLinq.Sqlite.Schema;
+using DbLinq.Util;
 
 namespace DbLinq.Sqlite.Schema
 {
@@ -34,14 +35,13 @@ namespace DbLinq.Sqlite.Schema
     /// </summary>
     public class KeyColumnUsage
     {
-        public string constraint_schema;
         public string ConstraintName;
         public string TableSchema;
         public string TableName;
-        public string column_name;
+        public string ColumnName;
         public string ReferencedTableSchema;
         public string ReferencedTableName;
-        public string referenced_column_name;
+        public string ReferencedColumnName;
 
         public override string ToString()
         {
@@ -75,16 +75,15 @@ namespace DbLinq.Sqlite.Schema
             const int K_FROM = 3;
             const int K_TO = 4;
             
-            t.constraint_schema = "main";
             t.TableSchema = "main";
             t.ReferencedTableSchema = "main";
             
-            t.ConstraintName = "fk_" + table + "_" + rdr.GetInt32(K_ID).ToString();
+            t.ConstraintName = "fk_" + table + "_" + rdr.GetAsNumeric<int>(K_ID).ToString();
             t.TableName = table;
-            t.column_name = rdr.GetString(K_FROM);
+            t.ColumnName = rdr.GetAsString(K_FROM);
             
-            t.ReferencedTableName = rdr.GetString(K_TABLE);
-            t.referenced_column_name = rdr.GetString(K_TO);
+            t.ReferencedTableName = rdr.GetAsString(K_TABLE);
+            t.ReferencedColumnName = rdr.GetAsString(K_TO);
             return t;
 
         }

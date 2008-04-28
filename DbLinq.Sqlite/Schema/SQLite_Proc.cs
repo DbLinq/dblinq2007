@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
+using DbLinq.Util;
 
 namespace DbLinq.Sqlite.Schema
 {
@@ -58,15 +59,14 @@ namespace DbLinq.Sqlite.Schema
         {
             ProcRow p = new ProcRow();
             int field = 0;
-            p.db = rdr.GetString(field++);
-            p.name = rdr.GetString(field++);
-            p.type = rdr.GetString(field++);
-            p.specific_name = rdr.GetString(field++);
+            p.db = rdr.GetAsString(field++);
+            p.name = rdr.GetAsString(field++);
+            p.type = rdr.GetAsString(field++);
+            p.specific_name = rdr.GetAsString(field++);
             
-            object oo = rdr.GetFieldType(field);
-            p.param_list = rdr.GetString(field++);
-            p.returns = rdr.GetString(field++);
-            p.body = rdr.GetString(field++);
+            p.param_list = rdr.GetAsString(field++);
+            p.returns = rdr.GetAsString(field++);
+            p.body = rdr.GetAsString(field++);
             return p;
         }
 

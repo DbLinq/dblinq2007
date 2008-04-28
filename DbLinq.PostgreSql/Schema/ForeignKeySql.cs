@@ -57,12 +57,12 @@ namespace DbLinq.PostgreSql.Schema
         {
             ForeignKeyCrossRef t = new ForeignKeyCrossRef();
             int field = 0;
-            t.constraint_name = rdr.GetString(field++);
-            t.table_name_Child    = rdr.GetString(field++);
-            t.constraint_type = rdr.GetString(field++);
-            t.ReferencedTableSchema = rdr.GetString(field++);
-            t.ReferencedTableName = rdr.GetString(field++);
-            t.ColumnName = rdr.GetString(field++);
+            t.constraint_name = rdr.GetAsString(field++);
+            t.table_name_Child    = rdr.GetAsString(field++);
+            t.constraint_type = rdr.GetAsString(field++);
+            t.ReferencedTableSchema = rdr.GetAsString(field++);
+            t.ReferencedTableName = rdr.GetAsString(field++);
+            t.ColumnName = rdr.GetAsString(field++);
             return t;
         }
 

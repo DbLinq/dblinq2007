@@ -60,7 +60,6 @@
     <Compile Include="OracleSchemaLoader.Tables.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="OracleVendor.cs" />
-    <Compile Include="Schema\OraExtensions.cs" />
     <Compile Include="Schema\User_Constraints.cs" />
   </ItemGroup>
   <ItemGroup>
