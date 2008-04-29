@@ -267,6 +267,7 @@ namespace DbLinq.Schema.Dbml
     {
         private object owner;
         private MemberInfo memberInfo;
+        // just to be debugger friendly
         private object reflectedMember { get { return memberInfo.GetMemberValue(owner); } }
 
         protected IEnumerable GetValue()
@@ -483,8 +484,10 @@ namespace DbLinq.Schema.Dbml
 
     public partial class Database
     {
+        [Browsable(false)]
         [XmlIgnore]
         public ISimpleList<Table> Tables;
+        [Browsable(false)]
         [XmlIgnore]
         public ISimpleList<Function> Functions;
 
@@ -504,6 +507,7 @@ namespace DbLinq.Schema.Dbml
             SpecifiedHelper.Register(this);
         }
 
+        [Browsable(false)]
         [XmlIgnore]
         public bool _isChild;
 
@@ -515,8 +519,10 @@ namespace DbLinq.Schema.Dbml
 
     public partial class Type
     {
+        [Browsable(false)]
         [XmlIgnore]
         public ISimpleList<Column> Columns;
+        [Browsable(false)]
         [XmlIgnore]
         public ISimpleList<Association> Associations;
 
@@ -535,11 +541,14 @@ namespace DbLinq.Schema.Dbml
 
     public partial class Function
     {
+        [Browsable(false)]
         [XmlIgnore]
         public bool BodyContainsSelectStatement;
 
+        [Browsable(false)]
         [XmlIgnore]
         public ISimpleList<Parameter> Parameters;
+        [Browsable(false)]
         [XmlIgnore]
         public Return Return
         {
@@ -576,6 +585,7 @@ namespace DbLinq.Schema.Dbml
             }
         }
 
+        [Browsable(false)]
         [XmlIgnore]
         public object ElementType;
 
@@ -588,12 +598,14 @@ namespace DbLinq.Schema.Dbml
 
     public partial class Parameter
     {
+        [Browsable(false)]
         [XmlIgnore]
         public bool DirectionIn
         {
             get { return Direction == ParameterDirection.In || Direction == ParameterDirection.InOut; }
         }
 
+        [Browsable(false)]
         [XmlIgnore]
         public bool DirectionOut
         {
@@ -617,6 +629,7 @@ namespace DbLinq.Schema.Dbml
     public partial class Column
     {
         private INamedType extendedType;
+        [Browsable(false)]
         [XmlIgnore]
         public INamedType ExtendedType
         {
@@ -670,6 +683,7 @@ namespace DbLinq.Schema.Dbml
             SpecifiedHelper.Register(this);
         }
     }
+
     public partial class Return
     {
         public Return()
@@ -685,6 +699,7 @@ namespace DbLinq.Schema.Dbml
             SpecifiedHelper.Register(this);
         }
     }
+
     public partial class TableFunctionParameter
     {
         public TableFunctionParameter()
@@ -692,6 +707,7 @@ namespace DbLinq.Schema.Dbml
             SpecifiedHelper.Register(this);
         }
     }
+
     public partial class TableFunctionReturn
     {
         public TableFunctionReturn()

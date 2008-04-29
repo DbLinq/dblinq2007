@@ -25,58 +25,54 @@ using System.Collections.Generic;
 using System.Data;
 using DbLinq.Util;
 
-namespace DbLinq.MySql.Schema
+namespace DbLinq.MySql
 {
-    /// <summary>
-    /// represents one row from MySQL's MYSQL.PROC table
-    /// </summary>
-    public class ProcRow
+    partial class MySqlSchemaLoader
     {
-        public string db;
-        public string name;
-        public string type;
-        public string specific_name;
-        public string param_list;
-        public string returns;
-        public string body;
-
-        public override string ToString()
+        /// <summary>
+        /// represents one row from MySQL's MYSQL.PROC table
+        /// </summary>
+        public class DataStoredProcedure
         {
-            return "ProcRow " + name;
+            public string db;
+            public string name;
+            public string type;
+            public string specific_name;
+            public string param_list;
+            public string returns;
+            public string body;
+
+            public override string ToString()
+            {
+                return "ProcRow " + name;
+            }
         }
-    }
 
-    /// <summary>
-    /// class for reading from 'MYSQL.PROC'.
-    /// We use mysql.PROC instead of information_schema.ROUTINES, because it saves us parsing of parameters.
-    /// Note: higher permissions are required to access mysql.PROC.
-    /// </summary>
-    class ProcSql
-    {
-        ProcRow fromRow(IDataReader rdr)
+        DataStoredProcedure ReadProcedure(IDataReader rdr)
         {
-            ProcRow p = new ProcRow();
+            DataStoredProcedure procedure = new DataStoredProcedure();
             int field = 0;
-            p.db = rdr.GetString(field++);
-            p.name = rdr.GetString(field++);
-            p.type = rdr.GetString(field++);
-            p.specific_name = rdr.GetString(field++);
-            
-            object oo = rdr.GetFieldType(field);
-            p.param_list = rdr.GetString(field++);
-            p.returns = rdr.GetString(field++);
-            p.body = rdr.GetString(field++);
-            return p;
+            procedure.db = rdr.GetAsString(field++);
+            procedure.name = rdr.GetAsString(field++);
+            procedure.type = rdr.GetAsString(field++);
+            procedure.specific_name = rdr.GetAsString(field++);
+
+            procedure.param_list = rdr.GetAsString(field++);
+            procedure.returns = rdr.GetAsString(field++);
+            procedure.body = rdr.GetAsString(field++);
+            return procedure;
         }
 
-        public List<ProcRow> getProcs(IDbConnection conn, string db)
+        // We use mysql.PROC instead of information_schema.ROUTINES, because it saves us parsing of parameters.
+        // Note: higher permissions are required to access mysql.PROC.
+        public List<DataStoredProcedure> ReadProcedures(IDbConnection conn, string db)
         {
             string sql = @"
 SELECT db, name, type, specific_name, param_list, returns, body
 FROM mysql.proc
 WHERE db=?db AND type IN ('FUNCTION','PROCEDURE')";
 
-            return DataCommand.Find<ProcRow>(conn, sql, "?db", db.ToLower(), fromRow);
+            return DataCommand.Find<DataStoredProcedure>(conn, sql, "?db", db.ToLower(), ReadProcedure);
         }
     }
 }

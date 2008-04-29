@@ -51,20 +51,20 @@ namespace DbMetal.Generator
         /// <param name="dbSchema">Loaded schema (from file or database)</param>
         /// <param name="schemaLoader">Schema loader related to dbSchema</param>
         /// <param name="filename">Output filename</param>
-        void Generate(Parameters parameters, Database dbSchema, ISchemaLoader schemaLoader, string filename);
+        void GenerateCode(Parameters parameters, Database dbSchema, ISchemaLoader schemaLoader, string filename);
         /// <summary>
         /// Loads a schema from a database
         /// </summary>
         /// <param name="parameters"></param>
         /// <param name="schemaLoader"></param>
         /// <returns></returns>
-        Database LoadSchema(Parameters parameters, ISchemaLoader schemaLoader);
+        Database ReadSchema(Parameters parameters, ISchemaLoader schemaLoader);
         /// <summary>
         /// Loads a schema from a given file
         /// </summary>
         /// <param name="filename"></param>
         /// <returns></returns>
-		Database LoadSchema(string filename);
+		Database ReadSchema(string filename);
         /// <summary>
         /// Lists all code generators available in DbMetal
         /// </summary>

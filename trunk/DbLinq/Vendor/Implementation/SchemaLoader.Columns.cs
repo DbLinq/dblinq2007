@@ -28,6 +28,6 @@ namespace DbLinq.Vendor.Implementation
 {
     public partial class SchemaLoader
     {
-        public abstract IList<IDataTableColumn> ReadColumns(IDbConnection connectionString, string databaseName);
+        protected abstract IList<IDataTableColumn> ReadColumns(IDbConnection connectionString, string databaseName);
     }
 }

@@ -47,7 +47,7 @@ namespace DbLinq.Oracle
             return column;
         }
 
-        public override IList<IDataTableColumn> ReadColumns(IDbConnection connectionString, string databaseName)
+        protected override IList<IDataTableColumn> ReadColumns(IDbConnection connectionString, string databaseName)
         {
             const string sql = @"
 SELECT owner, table_name, column_name, data_type, data_length, data_precision, data_scale, nullable

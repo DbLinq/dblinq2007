@@ -44,7 +44,7 @@ namespace DbLinq.Oracle
             public bool Out { get; set; }
         }
 
-        protected StoredProcedureParameter ReadParameter(IDataRecord dataRecord)
+        protected virtual StoredProcedureParameter ReadParameter(IDataRecord dataRecord)
         {
             var parameter = new StoredProcedureParameter();
             int field = 0;
@@ -62,7 +62,7 @@ namespace DbLinq.Oracle
             return parameter;
         }
 
-        protected IList<StoredProcedureParameter> ReadParameters(IDbConnection connection, string databaseName)
+        protected virtual IList<StoredProcedureParameter> ReadParameters(IDbConnection connection, string databaseName)
         {
             const string sql = @"select object_name, argument_name, owner, data_type, data_length, data_precision, data_scale, in_out
 from all_arguments where lower(owner) = :db order by object_id, position";

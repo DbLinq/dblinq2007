@@ -45,31 +45,9 @@ namespace DbLinq.Sqlite
 
         public override System.Type DataContextType { get { return typeof(SqliteDataContext); } }
 
-        protected override void LoadStoredProcedures(Database schema, SchemaName schemaName, IDbConnection conn, NameFormat nameFormat)
-        {
-            ProcSql procsql = new ProcSql();
-            List<ProcRow> procs = procsql.getProcs(conn, schemaName.DbName);
-
-            foreach (ProcRow proc in procs)
-            {
-                var procedureName = CreateProcedureName(proc.specific_name, proc.db, nameFormat);
-
-                DbLinq.Schema.Dbml.Function func = new DbLinq.Schema.Dbml.Function();
-                func.Name = proc.specific_name;
-                func.Method = procedureName.MethodName;
-                func.IsComposable = string.Compare(proc.type, "FUNCTION") == 0;
-                func.BodyContainsSelectStatement = proc.body != null
-                                                   && proc.body.IndexOf("select", StringComparison.OrdinalIgnoreCase) > -1;
-                ParseProcParams(proc, func);
-
-                schema.Functions.Add(func);
-            }
-        }
-
         protected override void LoadConstraints(Database schema, SchemaName schemaName, IDbConnection conn, NameFormat nameFormat, Names names)
         {
-            KeyColumnUsageSql ksql = new KeyColumnUsageSql();
-            List<KeyColumnUsage> constraints = ksql.getConstraints(conn, schemaName.DbName);
+            var constraints = ReadConstraints(conn, schemaName.DbName);
 
             //sort tables - parents first (this is moving to SchemaPostprocess)
             //TableSorter.Sort(tables, constraints); 
@@ -77,7 +55,7 @@ namespace DbLinq.Sqlite
             // Deal with non existing foreign key database
             if (constraints != null)
             {
-                foreach (KeyColumnUsage keyColRow in constraints)
+                foreach (DataConstraint keyColRow in constraints)
                 {
                     //find my table:
                     string tableFullDbName = GetFullCaseSafeDbName(keyColRow.TableName, keyColRow.TableSchema);
@@ -101,40 +79,6 @@ namespace DbLinq.Sqlite
                     }
 
                 }
-            }
-        }
-
-        /// <summary>
-        /// parse bytes 'OUT param1 int, param2 int'.
-        /// The newly created DbLinq.Schema.Dbml.Parameter objects will be appended to 'outputFunc'.
-        /// </summary>
-        protected void ParseProcParams(ProcRow inputProc, DbLinq.Schema.Dbml.Function outputFunc)
-        {
-            string paramString = inputProc.param_list;
-            if (string.IsNullOrEmpty(paramString))
-            {
-                //nothing to parse
-            }
-            else
-            {
-                string[] parts = paramString.Split(',');
-
-                char[] SPACES = new char[] { ' ', '\t', '\n' }; //word separators
-
-                foreach (string part in parts) //part='OUT param1 int'
-                {
-                    DbLinq.Schema.Dbml.Parameter paramObj = ParseParameterString(part);
-                    if (paramObj != null)
-                        outputFunc.Parameters.Add(paramObj);
-                }
-            }
-
-            if (!string.IsNullOrEmpty(inputProc.returns))
-            {
-                var paramRet = new DbLinq.Schema.Dbml.Return();
-                paramRet.DbType = inputProc.returns;
-                paramRet.Type = ParseDbType(inputProc.returns);
-                outputFunc.Return = paramRet;
             }
         }
 

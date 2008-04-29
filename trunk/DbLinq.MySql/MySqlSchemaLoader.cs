@@ -21,12 +21,12 @@
 // THE SOFTWARE.
 // 
 #endregion
+
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using DbLinq.Linq;
-using DbLinq.MySql.Schema;
 using DbLinq.Schema;
 using DbLinq.Schema.Dbml;
 using DbLinq.Util;
@@ -50,10 +50,9 @@ namespace DbLinq.MySql
 
         protected override void LoadStoredProcedures(Database schema, SchemaName schemaName, IDbConnection conn, NameFormat nameFormat)
         {
-            ProcSql procsql = new ProcSql();
-            List<ProcRow> procs = procsql.getProcs(conn, schemaName.DbName);
+            var procs = ReadProcedures(conn, schemaName.DbName);
 
-            foreach (ProcRow proc in procs)
+            foreach (DataStoredProcedure proc in procs)
             {
                 var procedureName = CreateProcedureName(proc.specific_name, proc.db, nameFormat);
 
@@ -71,13 +70,12 @@ namespace DbLinq.MySql
 
         protected override void LoadConstraints(Database schema, SchemaName schemaName, IDbConnection conn, NameFormat nameFormat, Names names)
         {
-            KeyColumnUsageSql ksql = new KeyColumnUsageSql();
-            List<KeyColumnUsage> constraints = ksql.getConstraints(conn, schemaName.DbName);
+            var constraints = ReadConstraints(conn, schemaName.DbName);
 
             //sort tables - parents first (this is moving to SchemaPostprocess)
             //TableSorter.Sort(tables, constraints); 
 
-            foreach (KeyColumnUsage keyColRow in constraints)
+            foreach (DataConstraint keyColRow in constraints)
             {
                 //find my table:
                 string fullKeyDbName = GetFullCaseSafeDbName(keyColRow.TableName, keyColRow.TableSchema);
@@ -106,9 +104,9 @@ namespace DbLinq.MySql
             }
         }
 
-        protected void ParseProcParams(ProcRow inputProc, Function outputFunc)
+        protected void ParseProcParams(DataStoredProcedure inputData, Function outputFunc)
         {
-            string paramString = inputProc.param_list;
+            string paramString = inputData.param_list;
             if (string.IsNullOrEmpty(paramString))
             {
                 //nothing to parse
@@ -125,11 +123,11 @@ namespace DbLinq.MySql
                 }
             }
 
-            if (!string.IsNullOrEmpty(inputProc.returns))
+            if (!string.IsNullOrEmpty(inputData.returns))
             {
                 var paramRet = new Return();
-                paramRet.DbType = inputProc.returns;
-                paramRet.Type = ParseDbType(inputProc.returns);
+                paramRet.DbType = inputData.returns;
+                paramRet.Type = ParseDbType(inputData.returns);
                 outputFunc.Return = paramRet;
             }
         }

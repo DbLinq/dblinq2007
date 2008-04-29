@@ -176,7 +176,6 @@
     <None Include="..\DbLinq.snk">
       <Link>Properties\DbLinq.snk</Link>
     </None>
-    <None Include="ClassDiagram1.cd" />
     <None Include="Schema\DbmlSchema.bat" />
     <EmbeddedResource Include="Schema\DbmlSchema.xsd">
     </EmbeddedResource>

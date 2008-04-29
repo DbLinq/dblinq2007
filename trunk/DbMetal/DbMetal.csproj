@@ -120,10 +120,6 @@
       <Link>Properties\DbLinq.snk</Link>
     </None>
     <None Include="App.config" />
-    <None Include="NorthwindRename.dbml">
-      <LastGenOutput>NorthwindRename.designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DbLinq.Ingres\DbLinq.Ingres.csproj">

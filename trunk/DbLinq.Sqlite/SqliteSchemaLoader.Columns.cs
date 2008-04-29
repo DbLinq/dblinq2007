@@ -40,11 +40,12 @@ namespace DbLinq.Sqlite
             column.FullType = dataReader.GetString(2);
             column.Nullable = dataReader.GetInt64(3) == 0;
             column.PrimaryKey = dataReader.GetInt64(5) == 1;
+            // SQLite says: if it is a primary key of integer type, then it is automatically generated
             column.Generated = column.PrimaryKey.Value && MapDbType(column) == typeof(int);
             return column;
         }
 
-        public override IList<IDataTableColumn> ReadColumns(IDbConnection connectionString, string databaseName)
+        protected override IList<IDataTableColumn> ReadColumns(IDbConnection connectionString, string databaseName)
         {
             const string sql = @" SELECT tbl_name FROM sqlite_master WHERE type='table' order by tbl_name";
             const string pragma = @"PRAGMA table_info('{0}');";
