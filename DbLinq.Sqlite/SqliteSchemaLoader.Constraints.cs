@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // Copyright (c) 2007-2008 Jiri Moudry
 // 
@@ -27,68 +27,57 @@ using System.Data;
 using System.Text;
 using DbLinq.Sqlite.Schema;
 using DbLinq.Util;
+using DataCommand = DbLinq.Sqlite.Schema.DataCommand;
 
-namespace DbLinq.Sqlite.Schema
+namespace DbLinq.Sqlite
 {
-    /// <summary>
-    /// represents one row from MySQL's information_schema.`Key_Column_Usage` table
-    /// </summary>
-    public class KeyColumnUsage
+    partial class SqliteSchemaLoader
     {
-        public string ConstraintName;
-        public string TableSchema;
-        public string TableName;
-        public string ColumnName;
-        public string ReferencedTableSchema;
-        public string ReferencedTableName;
-        public string ReferencedColumnName;
-
-        public override string ToString()
+        /// <summary>
+        /// represents one row from MySQL's information_schema.`Key_Column_Usage` table
+        /// </summary>
+        public class DataConstraint
         {
-            string detail = ConstraintName == "PRIMARY"
-                                ? TableName + " PK"
-                                : ConstraintName;
-            return "KeyColUsage " + detail;
-        }
-    }
+            public string ConstraintName;
+            public string TableSchema;
+            public string TableName;
+            public string ColumnName;
+            public string ReferencedTableSchema;
+            public string ReferencedTableName;
+            public string ReferencedColumnName;
 
-    /// <summary>
-    /// class for reading from "information_schema.`Key_Column_Usage`"
-    /// </summary>
-    class KeyColumnUsageSql
-    {
-        enum fk_index
-        {
-            id = 0,
-            seq = 1,
-            table = 2,
-            from = 3,
-            to = 4
+            public override string ToString()
+            {
+                string detail = ConstraintName == "PRIMARY"
+                                    ? TableName + " PK"
+                                    : ConstraintName;
+                return "KeyColUsage " + detail;
+            }
         }
 
-        KeyColumnUsage fromRow(IDataReader rdr, string table)
+        protected virtual DataConstraint ReadConstraint(IDataReader rdr, string table)
         {
-            KeyColumnUsage t = new KeyColumnUsage();
+            DataConstraint t = new DataConstraint();
             const int K_ID = 0;
             //const int K_SEQ = 1;
             const int K_TABLE = 2;
             const int K_FROM = 3;
             const int K_TO = 4;
-            
+
             t.TableSchema = "main";
             t.ReferencedTableSchema = "main";
-            
+
             t.ConstraintName = "fk_" + table + "_" + rdr.GetAsNumeric<int>(K_ID).ToString();
             t.TableName = table;
             t.ColumnName = rdr.GetAsString(K_FROM);
-            
+
             t.ReferencedTableName = rdr.GetAsString(K_TABLE);
             t.ReferencedColumnName = rdr.GetAsString(K_TO);
             return t;
 
         }
 
-        public List<KeyColumnUsage> getConstraints(IDbConnection conn, string db)
+        protected virtual List<DataConstraint> ReadConstraints(IDbConnection conn, string db)
         {
             //Could perhaps use conn.GetSchema() instead 
             //Warning... Sqlite doesnt enforce constraints unless you define some triggers
@@ -96,7 +85,7 @@ namespace DbLinq.Sqlite.Schema
             string sql = @" SELECT tbl_name FROM sqlite_master WHERE type='table' order by tbl_name";
             string sqlPragma = @"PRAGMA foreign_key_list('{0}');";
 
-            return DataCommand.Find<KeyColumnUsage>(conn, sql, sqlPragma, fromRow);
+            return DataCommand.Find<DataConstraint>(conn, sql, sqlPragma, ReadConstraint);
         }
     }
 }

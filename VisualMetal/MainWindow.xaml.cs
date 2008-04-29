@@ -101,7 +101,7 @@ namespace VisualMetal
             dialog.Filter = "Database markup files (*.dbml)|*.dbml|All files (*.*)|*.*";
             if (dialog.ShowDialog() != System.Windows.Forms.DialogResult.Cancel)
             {
-                Database = Program.LoadSchema(dialog.FileName);
+                Database = Program.ReadSchema(dialog.FileName);
             }
         }
 
@@ -203,7 +203,7 @@ namespace VisualMetal
             try
             {
                 Loader = new SchemaLoaderFactory().Load(Parameters);
-                Database = Program.LoadSchema(Parameters, Loader);
+                Database = Program.ReadSchema(Parameters, Loader);
             }
             catch (Exception exception)
             {

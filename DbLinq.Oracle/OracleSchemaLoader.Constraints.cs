@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // Copyright (c) 2007-2008 Jiri Moudry
 // 
@@ -27,39 +27,39 @@ using System.Data;
 using System.Text;
 using DbLinq.Util;
 
-namespace DbLinq.Oracle.Schema
+namespace DbLinq.Oracle
 {
-    public class User_Constraints_Row
+    partial class OracleSchemaLoader
     {
-        public string TableSchema;
-        public string ConstraintName;
-        public string TableName;
-        public string ColumnName;
-        public string ConstraintType;
-        public string ReverseConstraintName;
-
-        public override string ToString()
+        protected class DataConstraint
         {
-            return "User_Constraint  " + TableName + "." + ColumnName;
+            public string TableSchema;
+            public string ConstraintName;
+            public string TableName;
+            public string ColumnName;
+            public string ConstraintType;
+            public string ReverseConstraintName;
+
+            public override string ToString()
+            {
+                return "User_Constraint  " + TableName + "." + ColumnName;
+            }
         }
-    }
 
-    public class User_Constraints_Sql
-    {
-        User_Constraints_Row fromRow(IDataReader rdr)
+        protected virtual DataConstraint ReadConstraint(IDataReader rdr)
         {
-            User_Constraints_Row t = new User_Constraints_Row();
+            var constraint = new DataConstraint();
             int field = 0;
-            t.TableSchema = rdr.GetAsString(field++);
-            t.ConstraintName  = rdr.GetAsString(field++);
-            t.TableName    = rdr.GetAsString(field++);
-            t.ColumnName   = rdr.GetAsString(field++);
-            t.ConstraintType = rdr.GetAsString(field++);
-            t.ReverseConstraintName = rdr.GetAsString(field++);
-            return t;
+            constraint.TableSchema = rdr.GetAsString(field++);
+            constraint.ConstraintName = rdr.GetAsString(field++);
+            constraint.TableName = rdr.GetAsString(field++);
+            constraint.ColumnName = rdr.GetAsString(field++);
+            constraint.ConstraintType = rdr.GetAsString(field++);
+            constraint.ReverseConstraintName = rdr.GetAsString(field++);
+            return constraint;
         }
 
-        public List<User_Constraints_Row> getConstraints1(IDbConnection conn, string db)
+        protected virtual List<DataConstraint> ReadConstraints(IDbConnection conn, string db)
         {
             string sql = @"
 SELECT UCC.owner, UCC.constraint_name, UCC.table_name, UCC.column_name, UC.constraint_type, UC.R_constraint_name
@@ -70,8 +70,7 @@ AND UCC.TABLE_NAME NOT LIKE '%$%' AND UCC.TABLE_NAME NOT LIKE 'LOGMNR%' AND UCC.
 AND UC.CONSTRAINT_TYPE!='C'
 and lower(UCC.owner) = :owner";
 
-            return DataCommand.Find<User_Constraints_Row>(conn, sql, ":owner", db.ToLower(), fromRow);
+            return DataCommand.Find<DataConstraint>(conn, sql, ":owner", db.ToLower(), ReadConstraint);
         }
-
     }
 }

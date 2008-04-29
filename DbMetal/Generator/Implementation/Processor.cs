@@ -92,32 +92,10 @@ namespace DbMetal.Generator.Implementation
             {
                 // we always need a factory, even if generating from a DBML file, because we need a namespace
                 var schemaLoader = SchemaLoaderFactory.Load(parameters);
-
-                Database dbSchema = LoadSchema(parameters, schemaLoader);
-
-                if (parameters.Dbml != null)
-                {
-                    //we are supposed to write out a DBML file and exit
-                    Logger.Write(Level.Information, "<<< Writing file '{0}'", parameters.Dbml);
-                    using (Stream dbmlFile = File.Create(parameters.Dbml))
-                    {
-                        DbmlSerializer.Write(dbmlFile, dbSchema);
-                    }
-                }
-                else
-                {
-                    if (!parameters.Schema)
-                        RemoveSchema(dbSchema);
-
-                    string filename = parameters.Code;
-                    if (string.IsNullOrEmpty(filename) && !string.IsNullOrEmpty(parameters.Database))
-                        filename = parameters.Database.Replace("\"", "");
-                    if (string.IsNullOrEmpty(filename))
-                        filename = dbSchema.Name;
-                    Logger.Write(Level.Information, "<<< writing C# classes in file '{0}'", filename);
-                    Generate(parameters, dbSchema, schemaLoader, filename);
-
-                }
+                // then we load the schema
+                Database dbSchema = ReadSchema(parameters, schemaLoader);
+                // the we write it (to DBML or code)
+                WriteSchema(dbSchema, schemaLoader, parameters);
             }
             catch (Exception ex)
             {
@@ -126,7 +104,36 @@ namespace DbMetal.Generator.Implementation
             }
         }
 
-        protected void RemoveSchema(Database schema)
+        protected void WriteSchema(Database dbSchema, ISchemaLoader schemaLoader, Parameters parameters)
+        {
+            if (parameters.Dbml != null)
+            {
+                //we are supposed to write out a DBML file and exit
+                Logger.Write(Level.Information, "<<< Writing file '{0}'", parameters.Dbml);
+                using (Stream dbmlFile = File.Create(parameters.Dbml))
+                {
+                    DbmlSerializer.Write(dbmlFile, dbSchema);
+                }
+            }
+            else
+            {
+                if (!parameters.Schema)
+                    RemoveSchemaFromTables(dbSchema);
+
+                // extract filename from output filename, database schema or schema name
+                string filename = parameters.Code;
+                if (string.IsNullOrEmpty(filename) && !string.IsNullOrEmpty(parameters.Database))
+                    filename = parameters.Database.Replace("\"", "");
+                if (string.IsNullOrEmpty(filename))
+                    filename = dbSchema.Name;
+
+                Logger.Write(Level.Information, "<<< writing C# classes in file '{0}'", filename);
+                GenerateCode(parameters, dbSchema, schemaLoader, filename);
+
+            }
+        }
+
+        protected void RemoveSchemaFromTables(Database schema)
         {
             foreach (var table in schema.Table)
             {
@@ -164,25 +171,25 @@ namespace DbMetal.Generator.Implementation
             return FindCodeGeneratorByExtension(Path.GetExtension(filename));
         }
 
-        public void Generate(Parameters parameters, Database dbSchema, ISchemaLoader schemaLoader, string filename)
+        public void GenerateCode(Parameters parameters, Database dbSchema, ISchemaLoader schemaLoader, string filename)
         {
-            ICodeGenerator codeGen = FindCodeGenerator(parameters, filename);
-            if (codeGen == null)
+            ICodeGenerator codeGenerator = FindCodeGenerator(parameters, filename);
+            if (codeGenerator == null)
                 throw new ArgumentException("Please specify either a /language or a /code file");
 
             if (string.IsNullOrEmpty(filename))
                 filename = dbSchema.Class;
             if (String.IsNullOrEmpty(Path.GetExtension(filename)))
-                filename += codeGen.Extension;
+                filename += codeGenerator.Extension;
 
             using (var streamWriter = new StreamWriter(filename))
             {
                 var generationContext = new GenerationContext(parameters, schemaLoader);
-                codeGen.Write(streamWriter, dbSchema, generationContext);
+                codeGenerator.Write(streamWriter, dbSchema, generationContext);
             }
         }
 
-        public Database LoadSchema(Parameters parameters, ISchemaLoader schemaLoader)
+        public Database ReadSchema(Parameters parameters, ISchemaLoader schemaLoader)
         {
             Database dbSchema;
             var nameAliases = NameAliasesLoader.Load(parameters.Aliases);
@@ -200,11 +207,11 @@ namespace DbMetal.Generator.Implementation
                 SchemaPostprocess.PostProcess_DB(dbSchema);
             }
             else // load DBML
-                dbSchema = LoadSchema(parameters.SchemaXmlFile);
+                dbSchema = ReadSchema(parameters.SchemaXmlFile);
             return dbSchema;
         }
 
-        public Database LoadSchema(string filename)
+        public Database ReadSchema(string filename)
         {
             Logger.Write(Level.Information, ">>> Reading schema from DBML file '{0}'", filename);
             using (Stream dbmlFile = File.OpenRead(filename))

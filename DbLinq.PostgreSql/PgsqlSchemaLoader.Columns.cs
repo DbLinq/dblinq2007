@@ -75,7 +75,7 @@ namespace DbLinq.PostgreSql
             return column;
         }
 
-        public override IList<IDataTableColumn> ReadColumns(IDbConnection connectionString, string databaseName)
+        protected override IList<IDataTableColumn> ReadColumns(IDbConnection connectionString, string databaseName)
         {
             const string sql = @"
 SELECT table_schema, table_name, column_name

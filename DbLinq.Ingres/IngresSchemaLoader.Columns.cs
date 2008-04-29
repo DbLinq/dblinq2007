@@ -71,7 +71,7 @@ namespace DbLinq.Ingres
             return column;
         }
 
-        public override IList<IDataTableColumn> ReadColumns(IDbConnection connectionString, string databaseName)
+        protected override IList<IDataTableColumn> ReadColumns(IDbConnection connectionString, string databaseName)
         {
             const string sql = @"
 SELECT t.table_owner, t.table_name, column_name

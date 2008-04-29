@@ -27,7 +27,6 @@ using System.Data;
 using System.Linq;
 using DbLinq.Linq;
 using DbLinq.Logging;
-using DbLinq.Oracle.Schema;
 using DbLinq.Schema;
 using DbLinq.Schema.Dbml;
 using DbLinq.Util;
@@ -45,11 +44,9 @@ namespace DbLinq.Oracle
 
         protected override void LoadConstraints(Database schema, SchemaName schemaName, IDbConnection conn, NameFormat nameFormat, Names names)
         {
-            User_Constraints_Sql ksql = new User_Constraints_Sql();
-            List<User_Constraints_Row> constraints = ksql.getConstraints1(conn, schemaName.DbName);
+            var constraints = ReadConstraints(conn, schemaName.DbName);
 
-
-            foreach (User_Constraints_Row constraint in constraints)
+            foreach (DataConstraint constraint in constraints)
             {
                 //find my table:
                 string constraintFullDbName = GetFullCaseSafeDbName(constraint.TableName, constraint.TableSchema);
@@ -73,7 +70,7 @@ namespace DbLinq.Oracle
                 {
                     //if not PRIMARY, it's a foreign key. (constraint_type=="R")
                     //both parent and child table get an [Association]
-                    User_Constraints_Row referencedConstraint = constraints.FirstOrDefault(c => c.ConstraintName == constraint.ReverseConstraintName);
+                    DataConstraint referencedConstraint = constraints.FirstOrDefault(c => c.ConstraintName == constraint.ReverseConstraintName);
                     if (constraint.ReverseConstraintName == null || referencedConstraint == null)
                     {
                         Logger.Write(Level.Error, "ERROR L127: given R_contraint_name='" + constraint.ReverseConstraintName + "', unable to find parent constraint");

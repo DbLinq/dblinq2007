@@ -28,72 +28,61 @@ using System.Linq;
 using System.Text;
 using DbLinq.Util;
 
-namespace DbLinq.PostgreSql.Schema
+namespace DbLinq.PostgreSql
 {
-    /// <summary>
-    /// represents one row from pg_proc table
-    /// </summary>
-    public class Pg_Proc
+    partial class PgsqlSchemaLoader
     {
-        public long proowner;
-        public string proname;
-        public bool proretset;
-        public long prorettype;
-        public string formatted_prorettype;
-
         /// <summary>
-        /// species types of in-args, eg. '23 1043'
+        /// represents one row from pg_proc table
         /// </summary>
-        public string proargtypes;
-
-        /// <summary>
-        /// species types of in,out args, eg. '{23,1043,1043}'
-        /// </summary>
-        public string proallargtypes;
-
-        /// <summary>
-        /// param names, eg {i1,i2,o2}
-        /// </summary>
-        public string proargnames;
-
-        /// <summary>
-        /// specifies in/out modes - eg. '{i,i,o}'
-        /// </summary>
-        public string proargmodes;
-
-        public override string ToString() { return "Pg_Proc " + proname; }
-    }
-
-    /// <summary>
-    /// class for reading from pg_proc table
-    /// </summary>
-    public class Pg_Proc_Sql
-    {
-        Pg_Proc fromRow(IDataReader rdr)
+        protected class DataStoredProcedure
         {
-            Pg_Proc t = new Pg_Proc();
+            public long proowner;
+            public string proname;
+            public bool proretset;
+            public long prorettype;
+            public string formatted_prorettype;
+
+            /// <summary>
+            /// species types of in-args, eg. '23 1043'
+            /// </summary>
+            public string proargtypes;
+
+            /// <summary>
+            /// species types of in,out args, eg. '{23,1043,1043}'
+            /// </summary>
+            public string proallargtypes;
+
+            /// <summary>
+            /// param names, eg {i1,i2,o2}
+            /// </summary>
+            public string proargnames;
+
+            /// <summary>
+            /// specifies in/out modes - eg. '{i,i,o}'
+            /// </summary>
+            public string proargmodes;
+
+            public override string ToString() { return "Pg_Proc " + proname; }
+        }
+
+        protected virtual DataStoredProcedure ReadProcedure(IDataReader rdr)
+        {
+            DataStoredProcedure procedure = new DataStoredProcedure();
             int field = 0;
-            t.proowner = rdr.GetInt64(field++);
-            t.proname = rdr.GetString(field++);
-            t.proretset = rdr.GetBoolean(field++);
-            t.prorettype = rdr.GetInt64(field++);
-            t.formatted_prorettype = rdr.GetString(field++);
-            t.proargtypes = rdr.GetString(field++);
-            t.proallargtypes = GetStringOrNull(rdr, field++);
-            t.proargnames = GetStringOrNull(rdr, field++);
-            t.proargmodes = GetStringOrNull(rdr, field++);
-            return t;
+            procedure.proowner = rdr.GetAsNumeric<long>(field++);
+            procedure.proname = rdr.GetAsString(field++);
+            procedure.proretset = rdr.GetAsBool(field++);
+            procedure.prorettype = rdr.GetAsNumeric<long>(field++);
+            procedure.formatted_prorettype = rdr.GetAsString(field++);
+            procedure.proargtypes = rdr.GetAsString(field++);
+            procedure.proallargtypes = rdr.GetAsString( field++);
+            procedure.proargnames = rdr.GetAsString(field++);
+            procedure.proargmodes = rdr.GetAsString(field++);
+            return procedure;
         }
 
-        static string GetStringOrNull(IDataReader rdr, int field)
-        {
-            if (rdr.IsDBNull(field))
-                return null;
-            else
-                return rdr.GetString(field++);
-        }
-
-        public List<Pg_Proc> getProcs(IDbConnection conn, string db)
+        protected virtual List<DataStoredProcedure> ReadProcedures(IDbConnection conn, string db)
         {
             string sql = @"
 SELECT pr.proowner, pr.proname, pr.proretset, pr.prorettype, pg_catalog.format_type(pr.prorettype, NULL) 
@@ -106,10 +95,10 @@ WHERE nspname NOT LIKE 'pg_%' AND nspname != 'information_schema' );
 
 ";
 
-            return DataCommand.Find<Pg_Proc>(conn, sql, ":db", db, fromRow);
+            return DataCommand.Find<DataStoredProcedure>(conn, sql, ":db", db, ReadProcedure);
         }
 
-        public int getTypeNames(IDbConnection conn, string db, Dictionary<long, string> oid_to_name_map)
+        protected virtual int GetTypeNames(IDbConnection conn, string db, Dictionary<long, string> oid_to_name_map)
         {
             string sql = @"
 SELECT pg_catalog.format_type(:typeOid, NULL)

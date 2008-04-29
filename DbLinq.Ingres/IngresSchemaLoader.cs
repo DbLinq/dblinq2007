@@ -25,7 +25,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using DbLinq.Ingres.Schema;
 using DbLinq.Linq;
 using DbLinq.Logging;
 using DbLinq.Schema;
@@ -47,11 +46,9 @@ namespace DbLinq.Ingres
         {
             //TableSorter.Sort(tables, constraints); //sort tables - parents first
 
-            ForeignKeySql fsql = new ForeignKeySql();
+            var foreignKeys = ReadConstraints(conn, schemaName.DbName);
 
-            List<ForeignKeyCrossRef> foreignKeys = fsql.getConstraints(conn, schemaName.DbName);
-
-            foreach (ForeignKeyCrossRef keyColRow in foreignKeys)
+            foreach (DataConstraint keyColRow in foreignKeys)
             {
                 //find my table:
                 string constraintFullDbName = GetFullCaseSafeDbName(keyColRow.TableName, keyColRow.TableSchema);
@@ -65,7 +62,7 @@ namespace DbLinq.Ingres
                     continue;
                 }
 
-                if (keyColRow.constraint_type.Equals("P")) //'PRIMARY KEY'
+                if (keyColRow.ConstraintType.Equals("P")) //'PRIMARY KEY'
                 {
                     foreach (string pk_name in keyColRow.column_name_primaries)
                     {
@@ -75,7 +72,7 @@ namespace DbLinq.Ingres
                     continue;
                 }
 
-                if (keyColRow.constraint_type.Equals("R")) //'FOREIGN KEY'
+                if (keyColRow.ConstraintType.Equals("R")) //'FOREIGN KEY'
                 {
                     // This is very bad...
                     if (!names.ColumnsNames[keyColRow.ReferencedTableName].ContainsKey(keyColRow.ReferencedColumnName))

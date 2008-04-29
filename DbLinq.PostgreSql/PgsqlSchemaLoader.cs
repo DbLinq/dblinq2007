@@ -26,7 +26,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using DbLinq.Linq;
-using DbLinq.PostgreSql.Schema;
 using DbLinq.Schema;
 using DbLinq.Schema.Dbml;
 using DbLinq.Util;
@@ -44,19 +43,18 @@ namespace DbLinq.PostgreSql
 
         protected override void LoadStoredProcedures(Database schema, SchemaName schemaName, IDbConnection conn, NameFormat nameFormat)
         {
-            Pg_Proc_Sql procSql = new Pg_Proc_Sql();
-            List<Pg_Proc> procs = procSql.getProcs(conn, schemaName.DbName);
+            var procs = ReadProcedures(conn, schemaName.DbName);
 
             //4a. determine unknown types
             Dictionary<long, string> typeOidToName = new Dictionary<long, string>();
 
-            foreach (Pg_Proc proc in procs)
+            foreach (DataStoredProcedure proc in procs)
             {
                 if (proc.proallargtypes == null && !string.IsNullOrEmpty(proc.proargtypes))
                     proc.proallargtypes = "{" + proc.proargtypes.Replace(' ', ',') + "}"; //work around pgsql weirdness?
             }
 
-            foreach (Pg_Proc proc in procs)
+            foreach (DataStoredProcedure proc in procs)
             {
                 typeOidToName[proc.prorettype] = proc.formatted_prorettype;
                 if (proc.proallargtypes == null)
@@ -73,10 +71,10 @@ namespace DbLinq.PostgreSql
             }
 
             //4b. get names for unknown types
-            procSql.getTypeNames(conn, schemaName.DbName, typeOidToName);
+            GetTypeNames(conn, schemaName.DbName, typeOidToName);
 
             //4c. generate dbml objects
-            foreach (Pg_Proc proc in procs)
+            foreach (DataStoredProcedure proc in procs)
             {
                 DbLinq.Schema.Dbml.Function dbml_fct = ParseFunction(proc, typeOidToName, nameFormat);
                 if (!SkipProc(dbml_fct.Name))
@@ -88,16 +86,14 @@ namespace DbLinq.PostgreSql
         {
             //TableSorter.Sort(tables, constraints); //sort tables - parents first
 
-            KeyColumnUsageSql ksql = new KeyColumnUsageSql();
-            List<KeyColumnUsage> constraints = ksql.getConstraints(conn, schemaName.DbName);
-            ForeignKeySql fsql = new ForeignKeySql();
+            var constraints = ReadConstraints(conn, schemaName.DbName);
 
-            List<ForeignKeyCrossRef> allKeys2 = fsql.getConstraints(conn, schemaName.DbName);
-            List<ForeignKeyCrossRef> foreignKeys = allKeys2.Where(k => k.constraint_type == "FOREIGN KEY").ToList();
-            List<ForeignKeyCrossRef> primaryKeys = allKeys2.Where(k => k.constraint_type == "PRIMARY KEY").ToList();
+            var allKeys2 = ReadForeignConstraints(conn, schemaName.DbName);
+            var foreignKeys = allKeys2.Where(k => k.ConstraintType == "FOREIGN KEY");//.ToList();
+            //var primaryKeys = allKeys2.Where(k => k.ConstraintType == "PRIMARY KEY").ToList();
 
 
-            foreach (KeyColumnUsage keyColRow in constraints)
+            foreach (DataConstraint keyColRow in constraints)
             {
                 //find my table:
                 string constraintFullDbName = GetFullCaseSafeDbName(keyColRow.TableName, keyColRow.TableSchema);
@@ -117,8 +113,8 @@ namespace DbLinq.PostgreSql
                 }
                 else
                 {
-                    ForeignKeyCrossRef foreignKey = foreignKeys.FirstOrDefault(f => f.constraint_name == keyColRow.ConstraintName);
-                    if (foreignKey == null)
+                    DataForeignConstraint dataForeignConstraint = foreignKeys.FirstOrDefault(f => f.ConstraintName == keyColRow.ConstraintName);
+                    if (dataForeignConstraint == null)
                     {
                         string msg = "Missing data from 'constraint_column_usage' for foreign key " + keyColRow.ConstraintName;
                         Logger.Write(Level.Error, msg);
@@ -127,8 +123,8 @@ namespace DbLinq.PostgreSql
                     }
 
                     LoadForeignKey(schema, table, keyColRow.ColumnName, keyColRow.TableName, keyColRow.TableSchema,
-                                   foreignKey.ColumnName, foreignKey.ReferencedTableName,
-                                   foreignKey.ReferencedTableSchema,
+                                   dataForeignConstraint.ColumnName, dataForeignConstraint.ReferencedTableName,
+                                   dataForeignConstraint.ReferencedTableSchema,
                                    keyColRow.ConstraintName, nameFormat, names);
 
                 }
@@ -151,7 +147,7 @@ namespace DbLinq.PostgreSql
             return parts;
         }
 
-        DbLinq.Schema.Dbml.Function ParseFunction(Pg_Proc pg_proc, Dictionary<long, string> typeOidToName, NameFormat nameFormat)
+        DbLinq.Schema.Dbml.Function ParseFunction(DataStoredProcedure pg_proc, Dictionary<long, string> typeOidToName, NameFormat nameFormat)
         {
             var procedureName = CreateProcedureName(pg_proc.proname, null, nameFormat);
 
@@ -219,10 +215,10 @@ namespace DbLinq.PostgreSql
 
         #endregion
 
-        // TODO: find our inspiration somewhere else than AppSettings
         private bool SkipProc(string name)
         {
-            string[] prefixes = System.Configuration.ConfigurationManager.AppSettings["postgresqlSkipProcPrefixes"].Split(',');
+            //string[] prefixes = System.Configuration.ConfigurationManager.AppSettings["postgresqlSkipProcPrefixes"].Split(',');
+            string[] prefixes = { "pldbg", "gbtreekey", "gbt_", "pg_buffercache", "plpgsql_", "plpgsql_call_handler" };
 
             foreach (string s in prefixes)
             {
