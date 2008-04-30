@@ -311,6 +311,17 @@ namespace Test_NUnit_MySql
             //Assert.Greater(list.Count(), 0, "Expected list");
         }
 
+
+        [Test]
+        public void F15_OrderByCoalesce() {
+          Northwind db = CreateDB();
+          var q = from c in db.Customers
+                   orderby c.ContactName ?? ""
+                    select c;
+          var list = q.ToList();
+          Assert.Greater(list.Count(), 0, "Expected list");
+        }
+
         /// <summary>
         /// the following three tests are from Jahmani's page
         /// LinqToSQL: Comprehensive Support for SQLite, MS Access, SQServer2000/2005
@@ -376,5 +387,7 @@ namespace Test_NUnit_MySql
             Assert.AreEqual(3, products.Count());
 
         }
+
+    
     }
 }
