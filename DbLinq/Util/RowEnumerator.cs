@@ -136,7 +136,7 @@ namespace DbLinq.Util
 
                     T current = _objFromRow2(dataReader, _vars.Context.MappingContext);
 
-                    //live object cache:
+                    //live object cache: see class EntityMap for internals
                     if (current != null)
                     {
                         current = (T)_vars.Context.GetOrRegisterEntity(current);

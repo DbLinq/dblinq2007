@@ -30,6 +30,9 @@ using DbLinq.Linq.Identity;
 
 namespace DbLinq.Linq.Implementation
 {
+    /// <summary>
+    /// this is the 'live object cache'
+    /// </summary>
     public class EntityMap : IEntityMap
     {
         private IDictionary<IdentityKey, object> entities = new Dictionary<IdentityKey, object>();
@@ -39,6 +42,14 @@ namespace DbLinq.Linq.Implementation
             get { return entities.Keys; }
         }
 
+        /// <summary>
+        /// lookup or store an object in the 'live object cache'.
+        /// Example:
+        /// To store Product with ProductID=1, we use the following IdentityKey:
+        ///  IdentityKey{Type=Product, Keys={1}}
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public object this[IdentityKey key]
         {
             get
