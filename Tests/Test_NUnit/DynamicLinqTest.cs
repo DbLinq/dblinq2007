@@ -109,6 +109,37 @@ namespace Test_NUnit_MySql
         }
 
 
+        [Test]
+        public void DL6_StaticVersionOfDynamicAssociatonWithExtensionMethodTest() {
+
+          Northwind db = CreateDB();
+          var orders = db.GetTable<Order>().ToArray().AsQueryable();
+
+          var query = from order in orders
+                   select new Order {
+                     OrderID = order.OrderID,
+                     Customer = new Customer {
+                       ContactName = order.Customer.ContactName,
+                       ContactTitle = order.Customer.ContactTitle
+                     }
+                   };
+          var list = query.ToList();
+          Assert.IsTrue(list.Count > 0);
+        }
+
+        [Test]
+        public void DL7_DynamicAssociatonUsingDoubleProjection() {
+          
+          Northwind db = CreateDB();
+
+          // Double projection works in Linq-SQL:
+          var orders = db.GetTable<Order>().ToArray().AsQueryable();
+          var query = orders.Select(new string[] { "OrderID", "Customer.ContactName" });
+          var list = query.ToList();
+          Assert.IsTrue(list.Count > 0);
+        }
+
+
         //[Test]
         //public void DLX()
         //{
