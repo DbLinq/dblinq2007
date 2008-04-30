@@ -95,7 +95,7 @@ namespace nwind
 	}
 
 	[Table(Name = "region")]
-	public partial class Region : IModified
+	public partial class Region //: IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
@@ -185,7 +185,7 @@ namespace nwind
 	}
 
 	[Table(Name = "suppliers")]
-	public partial class Supplier : IModified
+	public partial class Supplier //: IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
@@ -482,7 +482,7 @@ namespace nwind
 	}
 
 	[Table(Name = "shippers")]
-	public partial class Shipper : IModified
+	public partial class Shipper //: IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
@@ -595,7 +595,7 @@ namespace nwind
 	}
 
 	[Table(Name = "categories")]
-	public partial class Category : IModified
+	public partial class Category //: IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
@@ -731,7 +731,7 @@ namespace nwind
 	}
 
 	[Table(Name = "customers")]
-	public partial class Customer : IModified
+	public partial class Customer //: IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
@@ -1027,7 +1027,7 @@ namespace nwind
 	}
 
 	[Table(Name = "employees")]
-	public partial class Employee : IModified
+	public partial class Employee //: IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
@@ -1458,7 +1458,7 @@ namespace nwind
 	}
 
 	[Table(Name = "territories")]
-	public partial class Territory : IModified
+	public partial class Territory //: IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
@@ -1590,7 +1590,7 @@ namespace nwind
 	}
 
 	[Table(Name = "employeeterritories")]
-	public partial class EmployeeTerritory : IModified
+	public partial class EmployeeTerritory //: IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
@@ -1698,7 +1698,7 @@ namespace nwind
 	}
 
 	[Table(Name = "orders")]
-	public partial class Order : IModified
+	public partial class Order //: IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
@@ -2114,7 +2114,7 @@ namespace nwind
 	}
 
 	[Table(Name = "products")]
-	public partial class Product : IModified
+	public partial class Product //: IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
@@ -2423,7 +2423,7 @@ namespace nwind
 	}
 
 	[Table(Name = "order details")]
-	public partial class OrderDetail : IModified
+	public partial class OrderDetail //: IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }

@@ -26,6 +26,8 @@ using System.Diagnostics;
 using System.Data;
 using System.Collections.Generic;
 using DbLinq.Factory;
+using DbLinq.Linq.Identity;
+using DbLinq.Linq.Identity.Implementation;
 using DbLinq.Logging;
 using DbLinq.Util;
 using DbLinq.Util.ExprVisitor;
@@ -40,6 +42,7 @@ namespace DbLinq.Util
     /// <typeparam name="T">the type of the row object</typeparam>
     public class RowEnumerator<T> : IEnumerable<T>, IQueryText
     {
+        public IIdentityReaderFactory IdentityProviderFactory { get; set; }
         public ILogger Logger { get; set; }
 
         protected SessionVarsParsed _vars;
@@ -47,17 +50,14 @@ namespace DbLinq.Util
         //while the FatalExecuteEngineError persists, we use a wrapper class to retrieve data
         protected Func<IDataRecord, MappingContext, T> _objFromRow2;
 
-        private Dictionary<T, T> _liveObjectMap;
         private string _sqlString;
 
-        public RowEnumerator(SessionVarsParsed vars, Dictionary<T, T> liveObjectMap)
+        public RowEnumerator(SessionVarsParsed vars)
         {
             Logger = ObjectFactory.Get<ILogger>();
+            IdentityProviderFactory = ObjectFactory.Get<IIdentityReaderFactory>();
 
             _vars = vars;
-
-            //for [Table] objects only: keep objects (to save them if they get modified)
-            _liveObjectMap = liveObjectMap;
 
             CompileReaderFct();
 
@@ -132,32 +132,16 @@ namespace DbLinq.Util
                 while (dataReader.Read())
                 {
                     if (dataReader.FieldCount == 0)
-                        // note to the below code author: could you check this modification validity?
                         continue;
-                    //#if SQLITE
-                    //                    // if not this might crash with SQLite
-                    //                    //(only SqlLite implements HasRow?!)
-                    //                    if (!rdr2.HasRow)
-                    //                        continue;
-                    //#endif
 
                     T current = _objFromRow2(dataReader, _vars.Context.MappingContext);
 
                     //live object cache:
-                    if (_liveObjectMap != null && current != null)
+                    if (current != null)
                     {
-                        //TODO: given object's ID, try to retrieve an existing cached object
-                        //_rowCache.Add(_current); //store so we can save if modified
-                        T previousObj;
-                        //rowCache uses Order.OrderId as key (uses Order.GetHashCode and .Equals)
-                        bool contains = _liveObjectMap.TryGetValue(current, out previousObj);
-                        if (contains)
-                        {
-                            //discard data from DB, return previously loaded instance
-                            current = previousObj;
-                        }
+                        current = (T)_vars.Context.GetOrRegisterEntity(current);
                         _vars.Table.CheckAttachment(current); // registers the object to be watched for updates
-                        _liveObjectMap[current] = current;
+                        _vars.Context.ModificationHandler.Register(current);
                     }
 
                     //Error: Cannot yield a value in the body of a try block with a catch clause

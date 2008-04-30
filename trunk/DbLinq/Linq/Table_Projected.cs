@@ -92,7 +92,7 @@ namespace DbLinq.Linq
 
             SessionVars vars = new SessionVars(_vars).AddScalar(expression); //clone and append Expr
             SessionVarsParsed varsFin = _vars.Context.QueryGenerator.GenerateQuery(vars, null); //parse all
-            return new RowScalar<T>(varsFin, this, null).GetScalar<S>(expression);
+            return new RowScalar<T>(varsFin, this).GetScalar<S>(expression);
         }
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace DbLinq.Linq
             //SessionVars vars = _vars.Clone();
             SessionVarsParsed varsFin = _vars.Context.QueryGenerator.GenerateQuery(_vars, typeof(T)); //for test D7, already done in MTable.CreateQ?
 
-            RowEnumerator<T> rowEnumerator = RowEnumFactory<T>.Create(varsFin, null);
+            RowEnumerator<T> rowEnumerator = RowEnumFactory<T>.Create(varsFin);
 
             return rowEnumerator.GetEnumerator();
         }

@@ -34,13 +34,13 @@ namespace DbLinq.Util
         /// <summary>
         /// factory method to create either RowEnum class, or derived RowEnumGroupBy class
         /// </summary>
-        public static RowEnumerator<T> Create(SessionVarsParsed vars, Dictionary<T,T> rowCache)
+        public static RowEnumerator<T> Create(SessionVarsParsed vars)
         {
             Type groupType;
             bool hasGroup = IsOrHasGroupField(vars, out groupType); 
             if(!hasGroup)
             {
-                return new RowEnumerator<T>(vars,rowCache);
+                return new RowEnumerator<T>(vars);
             }
 
             //for GroupBy queries, determine type TKey, TVal, and read funcs

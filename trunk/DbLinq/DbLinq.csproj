@@ -71,6 +71,15 @@
     <Compile Include="Linq\Database\Implementation\DatabaseContext.cs" />
     <Compile Include="Linq\Database\Implementation\DatabaseConnection.cs" />
     <Compile Include="Linq\Database\Implementation\DatabaseTransaction.cs" />
+    <Compile Include="Linq\Identity\IdentityKey.cs" />
+    <Compile Include="Linq\Identity\IIdentityProvider.cs" />
+    <Compile Include="Linq\Identity\IIdentityReader.cs" />
+    <Compile Include="Linq\Identity\IIdentityReaderFactory.cs" />
+    <Compile Include="Linq\Identity\Implementation\IdentityProviderReader.cs" />
+    <Compile Include="Linq\Identity\Implementation\IdentityReader.cs" />
+    <Compile Include="Linq\Identity\Implementation\IdentityReaderFactory.cs" />
+    <Compile Include="Linq\IEntityMap.cs" />
+    <Compile Include="Linq\Implementation\EntityMap.cs" />
     <Compile Include="Linq\MappingContext.cs" />
     <Compile Include="Linq\NameFormat.cs" />
     <Compile Include="Logging\ILogger.cs" />
