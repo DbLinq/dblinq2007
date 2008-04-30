@@ -88,7 +88,7 @@ namespace Test_NUnit_MySql
 
             Northwind db = CreateDB();
             var orders = db.GetTable<Order>();
-            var res = orders.Select(@"new (OrderID,Customer.ContactName)");
+            var res = orders.SelectDynamic(@"new (OrderID,Customer.ContactName)");
 
             List<object> list = new List<object>();
             foreach (var u in res)
@@ -102,7 +102,7 @@ namespace Test_NUnit_MySql
 
           Northwind db = CreateDB();
           var orders = db.GetTable<Order>();
-          var res = orders.Select(new string [] { "OrderID", "Customer.ContactName"});
+          var res = orders.SelectDynamic(new string [] { "OrderID", "Customer.ContactName"});
 
           List<Order> list = res.ToList();
           Assert.IsTrue(list.Count > 0);
@@ -134,7 +134,7 @@ namespace Test_NUnit_MySql
 
           // Double projection works in Linq-SQL:
           var orders = db.GetTable<Order>().ToArray().AsQueryable();
-          var query = orders.Select(new string[] { "OrderID", "Customer.ContactName" });
+          var query = orders.SelectDynamic(new string[] { "OrderID", "Customer.ContactName" });
           var list = query.ToList();
           Assert.IsTrue(list.Count > 0);
         }
@@ -159,7 +159,7 @@ namespace Test_NUnit_MySql
 
     // Extension method written by Marc Gravell
     public static class SelectUsingSingleProjection {
-      public static IQueryable<T> Select<T>(this IQueryable<T> source, params string[] propertyNames)
+      public static IQueryable<T> SelectDynamic<T>(this IQueryable<T> source, params string[] propertyNames)
           where T : new() {
         Type type = typeof(T);
         var sourceItem = Expression.Parameter(type, "t");
