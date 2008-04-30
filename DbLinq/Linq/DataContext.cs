@@ -32,6 +32,7 @@ using System.Linq;
 using DbLinq.Factory;
 using DbLinq.Linq.Database;
 using DbLinq.Linq.Database.Implementation;
+using DbLinq.Linq.Identity;
 using DbLinq.Linq.Implementation;
 using DbLinq.Logging;
 using DbLinq.Vendor;
@@ -50,6 +51,10 @@ namespace DbLinq.Linq
         public IModificationHandler ModificationHandler { get; set; }
         public IDatabaseContext DatabaseContext { get; private set; }
         public ILogger Logger { get; set; }
+
+        public IEntityMap EntityMap { get; set; }
+        private IIdentityReaderFactory identityReaderFactory;
+        private IDictionary<Type, IIdentityReader> identityReaders = new Dictionary<Type, IIdentityReader>();
 
         /// <summary>
         /// The default behavior creates one MappingContext.
@@ -76,6 +81,9 @@ namespace DbLinq.Linq
             ResultMapper = ObjectFactory.Get<IResultMapper>();
             ModificationHandler = ObjectFactory.Create<IModificationHandler>(); // not a singleton: object is stateful
             QueryGenerator = ObjectFactory.Get<IQueryGenerator>();
+
+            EntityMap = ObjectFactory.Create<IEntityMap>();
+            identityReaderFactory = ObjectFactory.Get<IIdentityReaderFactory>();
 
             MappingContext = new MappingContext();
         }
@@ -156,11 +164,11 @@ namespace DbLinq.Linq
                         Trace.WriteLine("Context.SubmitChanges failed: " + ex.Message);
                         switch (failureMode)
                         {
-                            case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                                exceptions.Add(ex);
-                                break;
-                            case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                                throw ex;
+                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                            exceptions.Add(ex);
+                            break;
+                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                            throw ex;
                         }
                     }
                 }
@@ -213,6 +221,75 @@ namespace DbLinq.Linq
                 System.Data.Linq.IExecuteResult result = Vendor.ExecuteMethodCall(context, method, sqlParams);
                 return result;
             }
+        }
+
+        protected IIdentityReader GetIdentityReader(Type t)
+        {
+            IIdentityReader identityReader;
+            if (!identityReaders.TryGetValue(t, out identityReader))
+            {
+                identityReader = identityReaderFactory.GetReader(t);
+                identityReaders[t] = identityReader;
+            }
+            return identityReader;
+        }
+
+        internal void RegisterEntity(object entity)
+        {
+            var identityReader = GetIdentityReader(entity.GetType());
+            var identityKey = identityReader.GetIdentityKey(entity);
+            if (identityKey == null)
+                return;
+            EntityMap[identityKey] = entity;
+        }
+
+        internal object GetRegisteredEntityByKey(IdentityKey identityKey)
+        {
+            return EntityMap[identityKey];
+        }
+
+        internal object GetRegisteredEntity(object entity)
+        {
+            var identityReader = GetIdentityReader(entity.GetType());
+            var identityKey = identityReader.GetIdentityKey(entity);
+            if (identityKey == null) // if we don't have an entitykey here, it means that the entity has no PK
+                return entity;
+            var registeredEntity = EntityMap[identityKey];
+            return registeredEntity;
+        }
+
+        internal object GetOrRegisterEntity(object entity)
+        {
+            var identityReader = GetIdentityReader(entity.GetType());
+            var identityKey = identityReader.GetIdentityKey(entity);
+            if (identityKey == null)
+                return entity;
+            var registeredEntity = EntityMap[identityKey];
+            if (registeredEntity == null)
+            {
+                registeredEntity = entity;
+                EntityMap[identityKey] = entity;
+            }
+            return registeredEntity;
+        }
+
+        internal IEnumerable<T> GetRegisteredEntities<T>()
+        {
+            foreach (IdentityKey key in EntityMap.Keys)
+            {
+                if (key.Type == typeof(T))
+                    yield return (T)EntityMap[key];
+            }
+        }
+
+        internal bool HasRegisteredEntities<T>()
+        {
+            foreach (IdentityKey key in EntityMap.Keys)
+            {
+                if (key.Type == typeof(T))
+                    return true;
+            }
+            return false;
         }
 
         /// <summary>

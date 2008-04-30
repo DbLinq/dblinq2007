@@ -47,7 +47,7 @@ namespace DbLinq.Util
         Func<IDataRecord, MappingContext, Val> _valReadFunc = null;
 
         public RowEnumeratorGroupBy(SessionVarsParsed vars)
-            : base(vars, null)
+            : base(vars)
         {
         }
 

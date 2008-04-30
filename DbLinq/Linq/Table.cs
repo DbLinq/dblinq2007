@@ -58,9 +58,7 @@ namespace DbLinq.Linq
         /// </summary>
         public DataContext DataContext { get; private set; }
         private readonly List<T> _insertList = new List<T>();
-        private readonly Dictionary<T, T> _liveObjectMap = new Dictionary<T, T>();
         private readonly List<T> _deleteList = new List<T>();
-
 
         private readonly SessionVars _vars;
 
@@ -81,7 +79,6 @@ namespace DbLinq.Linq
         public Table(Table<T> parent, SessionVars vars)
         {
             _insertList = parent._insertList;
-            _liveObjectMap = parent._liveObjectMap;
             _deleteList = parent._deleteList;
             DataContext = parent.DataContext;
             _vars = vars;
@@ -163,7 +160,7 @@ namespace DbLinq.Linq
             Log1.Info("MTable.Execute<" + typeof(S) + ">: " + expression);
             SessionVars vars2 = new SessionVars(_vars).AddScalar(expression); //clone and append Expr
             SessionVarsParsed varsFin = _vars.Context.QueryGenerator.GenerateQuery(vars2, typeof(T)); //parse all
-            return new RowScalar<T>(varsFin, this, _liveObjectMap).GetScalar<S>(expression);
+            return new RowScalar<T>(varsFin, this).GetScalar<S>(expression);
         }
 
         /// <summary>
@@ -172,7 +169,7 @@ namespace DbLinq.Linq
         public IEnumerator<T> GetEnumerator()
         {
             SessionVarsParsed varsFin = _vars.Context.QueryGenerator.GenerateQuery(_vars, typeof(T));
-            RowEnumerator<T> rowEnumerator = new RowEnumerator<T>(varsFin, _liveObjectMap);
+            RowEnumerator<T> rowEnumerator = new RowEnumerator<T>(varsFin);
             return rowEnumerator.GetEnumerator();
         }
 
@@ -247,10 +244,10 @@ namespace DbLinq.Linq
         /// <param name="entity">table row object to attach</param>
         public void Attach(T entity)
         {
-            if (_liveObjectMap.ContainsKey(entity))
+            if (DataContext.GetRegisteredEntity(entity) != null)
                 throw new System.Data.Linq.DuplicateKeyException(entity);
 
-            _liveObjectMap[entity] = entity;
+            DataContext.RegisterEntity(entity);
             _modificationHandler.Register(entity);
         }
 
@@ -260,13 +257,9 @@ namespace DbLinq.Linq
                 Attach(row);
         }
 
-
         public void CheckAttachment(object entity)
         {
-            var typedEntity = (T)entity;
-            if (_liveObjectMap.ContainsKey(typedEntity))
-                return;
-            Attach(typedEntity);
+            DataContext.GetOrRegisterEntity(entity);
         }
 
         public void SaveAll()
@@ -276,7 +269,7 @@ namespace DbLinq.Linq
 
         public List<Exception> SaveAll(System.Data.Linq.ConflictMode failureMode)
         {
-            if (_insertList.Count == 0 && _liveObjectMap.Count == 0 && _deleteList.Count == 0)
+            if (_insertList.Count == 0 && _deleteList.Count == 0 && !DataContext.HasRegisteredEntities<T>())
                 return new List<Exception>(); //nothing to do
 
             using (DataContext.DatabaseContext.OpenConnection())
@@ -350,7 +343,7 @@ namespace DbLinq.Linq
             Func<T, string[]> getObjectID = RowEnumeratorCompiler<T>.CompileIDRetrieval(proj);
 
             //todo: check object is not in two lists
-            foreach (T obj in _liveObjectMap.Values)
+            foreach (T obj in DataContext.GetRegisteredEntities<T>())
             {
                 try
                 {
@@ -388,7 +381,7 @@ namespace DbLinq.Linq
             foreach (T insertedT in _insertList)
             {
                 //inserted objects are now live:
-                _liveObjectMap[insertedT] = insertedT;
+                DataContext.RegisterEntity(insertedT);
             }
             //thanks to Martin Rauscher for spotting that I forgot to clear the list:
             _insertList.Clear();
@@ -477,12 +470,11 @@ namespace DbLinq.Linq
 
         public IEnumerable<object> Updates
         {
-
             get
             {
                 List<object> list = new List<object>();
 
-                foreach (T obj in _liveObjectMap.Values)
+                foreach (T obj in DataContext.GetRegisteredEntities<T>())
                 {
                     if (_modificationHandler.IsModified(obj))
                         list.Add(obj);

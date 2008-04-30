@@ -54,7 +54,7 @@ namespace nwind
 	}
 
 	[Table(Name = "linquser.categories")]
-	public partial class Category : IModified
+	public partial class Category //: IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
@@ -488,7 +488,7 @@ namespace nwind
 	}
 
 	[Table(Name = "linquser.employees")]
-	public partial class Employee : IModified
+	public partial class Employee //: IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
@@ -919,7 +919,7 @@ namespace nwind
 	}
 
 	[Table(Name = "linquser.employeeterritories")]
-	public partial class EmployeeTerritory : IModified
+	public partial class EmployeeTerritory //: IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
@@ -1027,7 +1027,7 @@ namespace nwind
 	}
 
 	[Table(Name = "linquser.iietab_107_108")]
-	public partial class IIeTab107108 : IModified
+	public partial class IIeTab107108 //: IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
@@ -1151,7 +1151,7 @@ namespace nwind
 	}
 
 	[Table(Name = "linquser.iietab_12b_12c")]
-	public partial class IIeTab12B12C : IModified
+	public partial class IIeTab12B12C //: IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
@@ -1275,7 +1275,7 @@ namespace nwind
 	}
 
 	[Table(Name = "linquser.orders")]
-	public partial class Order : IModified
+	public partial class Order //: IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
@@ -1676,7 +1676,7 @@ namespace nwind
 	}
 
 	[Table(Name = "linquser.orderdetails")]
-	public partial class OrderDetail : IModified
+	public partial class OrderDetail //: IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
@@ -1853,7 +1853,7 @@ namespace nwind
 	}
 
 	[Table(Name = "linquser.products")]
-	public partial class Product : IModified
+	public partial class Product //: IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
@@ -2162,7 +2162,7 @@ namespace nwind
 	}
 
 	[Table(Name = "linquser.region")]
-	public partial class Region : IModified
+	public partial class Region //: IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
@@ -2252,7 +2252,7 @@ namespace nwind
 	}
 
 	[Table(Name = "linquser.suppliers")]
-	public partial class Supplier : IModified
+	public partial class Supplier //: IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }
@@ -2549,7 +2549,7 @@ namespace nwind
 	}
 
 	[Table(Name = "linquser.territories")]
-	public partial class Territory : IModified
+	public partial class Territory //: IModified
 	{
 		// IModified backing field
 		public bool IsModified{ get; set; }

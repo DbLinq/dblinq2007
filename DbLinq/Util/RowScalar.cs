@@ -40,17 +40,15 @@ namespace DbLinq.Util
     {
         SessionVarsParsed _vars;
         IEnumerable<T> _parentTable;
-        Dictionary<T, T> _liveObjectMap;
 
         public ILogger Logger { get; set; }
 
-        public RowScalar(SessionVarsParsed vars, IEnumerable<T> parentTable, Dictionary<T, T> liveObjMap)
+        public RowScalar(SessionVarsParsed vars, IEnumerable<T> parentTable)
         {
             Logger = ObjectFactory.Get<ILogger>();
             //don't modify the parent query with any additional clauses:
             _vars = vars;
             _parentTable = parentTable;
-            _liveObjectMap = liveObjMap;
         }
 
         public S GetScalar<S>(Expression expression)
@@ -58,12 +56,6 @@ namespace DbLinq.Util
             MethodCallExpression exprCall = expression as MethodCallExpression;
             if (exprCall == null)
                 throw new ApplicationException("L35: GetScalar<S> only prepared for MethodCall, not " + expression.NodeType);
-
-            Dictionary<S, S> liveObjectMapS = null;
-            if (typeof(T) == typeof(S))
-            {
-                liveObjectMapS = (Dictionary<S, S>)(object)_liveObjectMap;
-            }
 
             switch (exprCall.Method.Name)
             {
@@ -75,7 +67,7 @@ namespace DbLinq.Util
                     //MySql syntax:     "SELECT ProductId FROM Products LIMIT 1"
 
                     //foreach(T t in _parentTable) //call GetEnumerator
-                    var rowEnum = new RowEnumerator<S>(_vars, liveObjectMapS);
+                    var rowEnum = new RowEnumerator<S>(_vars);
                     foreach (S firstS in rowEnum)
                     {
                         return firstS;
@@ -99,7 +91,7 @@ namespace DbLinq.Util
                         string varName = "x$"; //TODO - get it from QueryProcessor
                         FromClauseBuilder.SelectAllFields(_vars, _vars.SqlParts, typeof(T), varName);
 
-                        var rowEnum = new RowEnumerator<S>(_vars, null);
+                        var rowEnum = new RowEnumerator<S>(_vars);
                         foreach (S firstS in rowEnum)
                         {
                             return firstS;
@@ -108,7 +100,7 @@ namespace DbLinq.Util
                     }
 
                     //during Average(), typeof(T)=int, typeof(S)=double.
-                    var rowEnumerator = new RowEnumerator<S>(_vars, null);
+                    var rowEnumerator = new RowEnumerator<S>(_vars);
                     using (IEnumerator<S> enumerator = rowEnumerator.GetEnumerator())
                     {
                         bool hasOne = enumerator.MoveNext();
@@ -159,7 +151,7 @@ namespace DbLinq.Util
                     //LambdaExpression lambdaParam = expression.XMethodCall().XParam(1).XLambda();
                     //MTable<T> table2 = _parentTable as MTable<T>;
                     //IEnumerator<T> enumerator;
-                    var rowEnumerator = new RowEnumerator<T>(_vars, _liveObjectMap);
+                    var rowEnumerator = new RowEnumerator<T>(_vars);
                     using (IEnumerator<T> enumerator = rowEnumerator.GetEnumerator())
                     {
                         //_vars.LimitClause = "LIMIT 2";
