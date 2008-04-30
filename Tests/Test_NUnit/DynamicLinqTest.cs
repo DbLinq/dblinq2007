@@ -88,7 +88,7 @@ namespace Test_NUnit_MySql
 
             Northwind db = CreateDB();
             var orders = db.GetTable<Order>();
-            var res = orders.SelectDynamic(@"new (OrderID,Customer.ContactName)");
+            var res = orders.Select(@"new (OrderID,Customer.ContactName)");
 
             List<object> list = new List<object>();
             foreach (var u in res)
