@@ -29,10 +29,13 @@ using System.Collections.Generic;
 namespace DbLinq.Linq.Identity
 {
     /// <summary>
-    /// Identifies an object in a unique way
+    /// Identifies an object in a unique way (think Primay Keys in a database table)
     /// Identity is:
     /// - A type
     /// - A collection 
+    /// 
+    /// Example: to store Product with ProductID=1, we use the following IdentityKey:
+    ///  IdentityKey{Type=Product, Keys={1}}
     /// </summary>
     public class IdentityKey
     {
