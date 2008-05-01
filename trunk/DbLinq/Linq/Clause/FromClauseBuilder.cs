@@ -28,6 +28,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
+using DbLinq.Logging;
 using DbLinq.Util;
 using DbLinq.Vendor;
 
@@ -64,7 +65,7 @@ namespace DbLinq.Linq.Clause
 
             if (selectParts.DoneClauses.Contains(nick))
             {
-                Console.WriteLine("Duplicate GetClause for " + nick + ", skipping");
+                vars.Context.Logger.Write(Level.Warning, "Duplicate GetClause for {0}, skipping", nick);
                 return;
             }
             selectParts.DoneClauses.Add(nick);

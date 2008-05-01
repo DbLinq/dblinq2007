@@ -80,6 +80,7 @@ namespace DbLinq.Util
         /// <summary>
         /// perform cast between decimal, int, uint, and long types.
         /// </summary>
+        // TODO: unify this with TypeConvert
         public static object CastValue(object dbValue, Type desiredType)
         {
 
@@ -149,6 +150,7 @@ namespace DbLinq.Util
         /// Return 'NULL' if param is null.
         /// </summary>
         /// <returns></returns>
+        // TODO: merge this with QuotesHelper
         public static string QuoteString_Safe(this string value)
         {
             if (value == null)

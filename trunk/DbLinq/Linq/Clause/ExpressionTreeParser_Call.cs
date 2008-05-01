@@ -28,6 +28,7 @@ using System.Text;
 using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
+using DbLinq.Logging;
 using DbLinq.Util;
 using DbLinq.Util.ExprVisitor;
 using DbLinq.Linq.Mapping;
@@ -39,7 +40,7 @@ namespace DbLinq.Linq.Clause
     /// </summary>
     public partial class ExpressionTreeParser
     {
-        internal void AnalyzeMethodCall(RecurData recurData, MethodCallExpression expr)
+        internal void AnalyzeMethodCall(RecurData recurData, MethodCallExpression expr, DataContext dataContext)
         {
             string methodName = expr.Method.Name;
 
@@ -102,9 +103,8 @@ namespace DbLinq.Linq.Clause
             }
 
             //TODO: throw for any other method - database probably cannot handle such call
-            string msg2 = "L274: Unprepared to map method " + methodName + " (" + expr + ") to SQL";
-            Console.WriteLine(msg2);
-            throw new ApplicationException(msg2);
+            dataContext.Logger.Write(Level.Error, "L274: Unprepared to map method {0} ({1}) to SQL", methodName, expr);
+            throw new ApplicationException("L274");
             //_result.AppendString(expr.Method.Name);
         }
 
