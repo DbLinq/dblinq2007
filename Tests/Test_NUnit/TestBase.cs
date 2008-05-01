@@ -150,7 +150,7 @@ namespace Test_NUnit
         {
             return CreateDB(System.Data.ConnectionState.Closed);
             Northwind db = new Northwind(new XSqlConnection(connStr));
-            db.Log = Console.Out;
+            
 #if SQLITE
             if (doRecreate)
             {
@@ -167,7 +167,7 @@ namespace Test_NUnit
             if (state==System.Data.ConnectionState.Open)
                 conn.Open();
             Northwind db = new Northwind(conn);
-            db.Log = Console.Out;
+            
 #if SQLITE
             if (doRecreate)
             {

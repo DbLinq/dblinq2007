@@ -47,14 +47,14 @@ namespace ClientCodePg
 
             using (Andrus db = new Andrus(connStr))
             {
-                db.Log = Console.Out;
+                
                 foreach (Employee emp in db.Employees)
                     Console.WriteLine(emp.Employeename);
             }
 
             Console.ReadLine();
             //Andrus db = new Andrus(connStr);
-            //db.Log = Console.Out;
+            //
             //Char_Pk charpk = db.Char_Pks.Single(c => c.Col1 == "a");
             //charpk.Val1 = 22;
             //db.SubmitChanges();

@@ -52,7 +52,7 @@ namespace Test_NUnit_MySql
         public ReadTest_Complex()
         {
             db = CreateDB();
-            db.Log = Console.Out;
+            
         }
 
         #region 'D' tests exercise 'local object constants'

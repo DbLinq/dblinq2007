@@ -30,6 +30,7 @@ using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
 using DbLinq.Linq.Clause;
+using DbLinq.Logging;
 using DbLinq.Util;
 
 namespace DbLinq.Linq
@@ -60,8 +61,7 @@ namespace DbLinq.Linq
             //string msg2 = "MTable_Proj.CreateQuery: "+expression;
             //Log1.Info(msg1);
             //Log1.Info(msg2);
-            if (_vars.Context.Log != null)
-                _vars.Context.Log.WriteLine("MTable_Proj.CreateQuery: " + expression);
+            _vars.Context.Logger.Write(Level.Debug, "MTable_Proj.CreateQuery: " + expression);
 
             //todo: Clone SessionVars, call StoreQuery, and return secondary MTable_Proj?
             SessionVars vars2 = new SessionVars(_vars).Add(expression);
@@ -87,8 +87,7 @@ namespace DbLinq.Linq
 
         public S Execute<S>(Expression expression)
         {
-            if (_vars.Context.Log != null)
-                _vars.Context.Log.WriteLine("MTable_Proj.Execute<" + typeof(S) + ">: " + expression);
+            _vars.Context.Logger.Write(Level.Debug, "MTable_Proj.Execute<{0}>: {1}", typeof(S), expression);
 
             SessionVars vars = new SessionVars(_vars).AddScalar(expression); //clone and append Expr
             SessionVarsParsed varsFin = _vars.Context.QueryGenerator.GenerateQuery(vars, null); //parse all
@@ -101,8 +100,7 @@ namespace DbLinq.Linq
         public IEnumerator<T> GetEnumerator()
         {
             //we don't keep projections in cache, pass cache=null
-            if (_vars.Context.Log != null)
-                _vars.Context.Log.WriteLine("MTable_Proj.GetEnumerator <" + typeof(T) + ">");
+            _vars.Context.Logger.Write(Level.Debug, "MTable_Proj.GetEnumerator <{0}>", typeof (T));
 
             //SessionVars vars = _vars.Clone();
             SessionVarsParsed varsFin = _vars.Context.QueryGenerator.GenerateQuery(_vars, typeof(T)); //for test D7, already done in MTable.CreateQ?
