@@ -223,12 +223,6 @@ namespace DbMetal
         /// <param name="args"></param>
         public void Load(IList<string> args)
         {
-            // picrap: default values are unsafe, we should try something else here instead of conf.
-            var configurationParameters = (NameValueCollection)ConfigurationManager.GetSection("parameters");
-            foreach (string key in configurationParameters.AllKeys)
-            {
-                SetParameter(key, configurationParameters[key]);
-            }
             foreach (string arg in args)
             {
                 string key, value;
