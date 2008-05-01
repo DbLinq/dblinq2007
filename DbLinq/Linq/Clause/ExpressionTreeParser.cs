@@ -103,7 +103,7 @@ namespace DbLinq.Linq.Clause
                     return;
                 case ExpressionType.Call:
                     //case ExpressionType.MethodCallVirtual:
-                    AnalyzeMethodCall(recurData, (MethodCallExpression)expr);
+                    AnalyzeMethodCall(recurData, (MethodCallExpression)expr, _parent._vars.Context);
                     return;
                 case ExpressionType.MemberAccess:
                     AnalyzeMember(recurData, (MemberExpression)expr);

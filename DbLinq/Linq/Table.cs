@@ -151,7 +151,7 @@ namespace DbLinq.Linq
         /// </summary>
         public S Execute<S>(Expression expression)
         {
-            Log1.Info("MTable.Execute<" + typeof(S) + ">: " + expression);
+            _vars.Context.Logger.Write(Level.Debug, "MTable.Execute<{0}>: {1}", typeof(S) , expression);
             SessionVars vars2 = new SessionVars(_vars).AddScalar(expression); //clone and append Expr
             SessionVarsParsed varsFin = _vars.Context.QueryGenerator.GenerateQuery(vars2, typeof(T)); //parse all
             return new RowScalar<T>(varsFin, this).GetScalar<S>(expression);

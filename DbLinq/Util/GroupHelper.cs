@@ -37,16 +37,14 @@ namespace DbLinq.Util
         /// </summary>
         public static bool IsGrouping(MemberExpression me)
         {
-            if(me==null)
+            if (me == null)
                 return false;
-            while(me.Expression.NodeType==ExpressionType.MemberAccess)
+            while (me.Expression.NodeType == ExpressionType.MemberAccess)
             {
                 //given {g.Key.Length}, extract {g.Key}
                 me = me.Expression as MemberExpression;
             }
-            Type meExType = me.Expression.Type;
-            bool isGrp = meExType.Name=="IGrouping`2";
-            return isGrp;
+            return IsGrouping(me.Expression.Type);
         }
 
         /// <summary>
@@ -58,7 +56,7 @@ namespace DbLinq.Util
                 return false;
             //bool isGrp = t.Name == "IGrouping`2";
             Type genBaseType = t.GetGenericTypeDefinition();
-            bool isGrp = genBaseType==typeof(System.Linq.IGrouping<,>);
+            bool isGrp = genBaseType == typeof(System.Linq.IGrouping<,>);
             return isGrp;
         }
     }
@@ -71,16 +69,16 @@ namespace DbLinq.Util
         /// </summary>
         /// <param name="projFld"></param>
         /// <returns></returns>
-        public static MemberAssignment BuildProjFieldBinding(SessionVarsParsed vars, ProjectionData.ProjectionField projFld, 
+        public static MemberAssignment BuildProjFieldBinding(SessionVarsParsed vars, ProjectionData.ProjectionField projFld,
             ParameterExpression rdr, ParameterExpression mappingContext, ref int fieldID)
         {
             PropertyInfo[] igroupies = projFld.FieldType.GetProperties();
             ConstructorInfo[] ictos = projFld.FieldType.GetConstructors();
-            ProjectionData projInner = ProjectionData.FromSelectGroupByExpr(vars.GroupByNewExpression,vars.GroupByExpression,vars.SqlParts);
+            ProjectionData projInner = ProjectionData.FromSelectGroupByExpr(vars.GroupByNewExpression, vars.GroupByExpression, vars.SqlParts);
             //ProjectionData projInner = ProjectionData.FromSelectGroupByExpr(vars.groupByNewExpr,vars.GroupByExpression,vars.SqlParts);
             LambdaExpression innerLambda = RowEnumeratorCompiler<T>.BuildProjectedRowLambda(vars, projInner, rdr, mappingContext, ref fieldID);
             MemberAssignment binding = projFld.BuildMemberAssignment(innerLambda.Body);
-            
+
             return binding;
         }
     }
