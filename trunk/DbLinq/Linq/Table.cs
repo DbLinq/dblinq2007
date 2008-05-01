@@ -90,10 +90,7 @@ namespace DbLinq.Linq
         /// </summary>
         public IQueryable<S> CreateQuery<S>(Expression expr)
         {
-            if (DataContext.Log != null)
-            {
-                DataContext.Log.WriteLine("MTable.CreateQuery: " + expr);
-            }
+            DataContext.Logger.Write(Level.Debug, "MTable.CreateQuery: {0}", expr);
 
             SessionVars vars = new SessionVars(_vars).Add(expr);
 
@@ -121,10 +118,7 @@ namespace DbLinq.Linq
         [Obsolete("COMPLETELY UNTESTED - Use CreateQuery<S>")]
         public IQueryable CreateQuery(Expression expression)
         {
-            if (DataContext.Log != null)
-            {
-                DataContext.Log.WriteLine("MTable.CreateQuery: " + expression);
-            }
+            DataContext.Logger.Write(Level.Debug, "MTable.CreateQuery: {0}", expression);
 
             Type S = expression.Type;
             SessionVars vars = new SessionVars(_vars).Add(expression);

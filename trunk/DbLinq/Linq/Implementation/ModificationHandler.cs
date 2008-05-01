@@ -149,6 +149,8 @@ namespace DbLinq.Linq.Implementation
 
         private void RegisterNotification(object entity)
         {
+            if (modifiedProperties.ContainsKey(entity))
+                return;
             modifiedProperties[entity] = new Dictionary<string, PropertyInfo>();
             if (entity is INotifyPropertyChanging)
             {

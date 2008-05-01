@@ -158,8 +158,7 @@ namespace DbLinq.Linq
             //string sql = _vars.Context.Vendor.BuildSqlString(_vars.SqlParts);
             string sql = _vars.SqlParts.ToString(); //SqlParts.ToString() internally calls Vendor
 
-            if (_vars.Context.Log != null)
-                _vars.Context.Log.WriteLine("SQL: " + sql);
+            _vars.Context.Logger.Write(Level.Debug, "SQL: " + sql);
 
             _vars.SqlString = sql;
             return sql;

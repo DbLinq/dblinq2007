@@ -204,11 +204,6 @@ namespace DbLinq.Linq
             return "TODO L56 GetChangeText()";
         }
 
-        /// <summary>
-        /// debugging output
-        /// </summary>
-        public TextWriter Log { get; set; }
-
         #endregion
 
         /// <summary>

@@ -23,7 +23,7 @@ namespace Test_NUnit_MySql
 
             //return CreateDB(System.Data.ConnectionState.Closed);
             AllTypes db = new AllTypes(new MySql.Data.MySqlClient.MySqlConnection(connStr));
-            db.Log = Console.Out;
+            
             return db;
         }
 
