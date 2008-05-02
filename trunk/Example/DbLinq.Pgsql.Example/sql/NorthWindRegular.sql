@@ -23,7 +23,7 @@ CREATE TABLE Categories (
   CategoryID SERIAL NOT NULL,
   CategoryName VARCHAR(15) NOT NULL,
   Description TEXT NULL,
-  Picture OID NULL, --BLOB type is called OID?
+  Picture BYTEA NULL,
   PRIMARY KEY(CategoryID)
 );
 
@@ -96,7 +96,7 @@ CREATE TABLE Employees (
   PostalCode VARCHAR(10) NULL,
   Country VARCHAR(15) NULL,
   HomePhone VARCHAR(24) NULL,
-  Photo OID NULL, --'BLOB'
+  Photo BYTEA NULL,
   Notes TEXT NULL,
   ReportsTo INTEGER NULL,
   CONSTRAINT FK_Emp_ReportsToEmp FOREIGN KEY (ReportsTo) REFERENCES Employees(EmployeeID),
