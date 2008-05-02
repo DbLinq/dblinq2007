@@ -35,7 +35,7 @@ using DbMetal.Generator;
 
 namespace DbMetal
 {
-    public class SchemaLoaderFactory: ISchemaLoaderFactory
+    public class SchemaLoaderFactory : ISchemaLoaderFactory
     {
         /// <summary>
         /// the 'main entry point' into this class
@@ -109,27 +109,43 @@ namespace DbMetal
             return loader;
         }
 
+        private Assembly LoadAssembly(string path)
+        {
+            if (File.Exists(path))
+                return Assembly.LoadFile(path);
+            return null;
+        }
+
+        private Assembly LoadAssembly(string baseName, string path)
+        {
+            string basePath = Path.Combine(path, baseName);
+            Assembly assembly = LoadAssembly(basePath + ".dll");
+            if (assembly == null)
+                assembly = LoadAssembly(basePath + ".exe");
+            return assembly;
+        }
+
+        private Assembly LocalLoadAssembly(string baseName)
+        {
+            Assembly assembly = LoadAssembly(baseName, Directory.GetCurrentDirectory());
+            if (assembly == null)
+                assembly = LoadAssembly(baseName, new Uri(Path.GetDirectoryName(Assembly.GetEntryAssembly().CodeBase)).LocalPath);
+            return assembly;
+        }
+
         private Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
             // try to load from within the current AppDomain
             IList<Assembly> assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            foreach (Assembly assembly in assemblies)
+            foreach (Assembly loadedAssembly in assemblies)
             {
-                if (assembly.GetName().Name == args.Name)
-                    return assembly;
+                if (loadedAssembly.GetName().Name == args.Name)
+                    return loadedAssembly;
             }
-            // try to load the files
-            string fileName = args.Name + ".dll";
-            if (File.Exists(fileName))
-                return Assembly.LoadFile(fileName);
-            fileName = args.Name + ".exe";
-            if (File.Exists(fileName))
-                return Assembly.LoadFile(fileName);
-            // try to load from the GAC
-            var gacAssembly = GacLoad(args.Name);
-            if (gacAssembly != null)
-                return gacAssembly;
-            return null;
+            var assembly = LocalLoadAssembly(args.Name);
+            if (assembly == null)
+                assembly = GacLoadAssembly(args.Name);
+            return assembly;
         }
 
         /// <summary>
@@ -137,13 +153,18 @@ namespace DbMetal
         /// </summary>
         /// <param name="shortName"></param>
         /// <returns></returns>
-        private Assembly GacLoad(string shortName)
+        private Assembly GacLoadAssembly(string shortName)
         {
             string assemblyDirectory = Path.Combine(Environment.GetEnvironmentVariable("SystemRoot"), "Assembly");
-            return GacLoad(shortName, Path.Combine(assemblyDirectory, "GAC"));
+            var assembly = GacLoadAssembly(shortName, Path.Combine(assemblyDirectory, "GAC_MSIL"));
+            if (assembly == null)
+                return GacLoadAssembly(shortName, Path.Combine(assemblyDirectory, "GAC_32"));
+            if (assembly == null)
+                return GacLoadAssembly(shortName, Path.Combine(assemblyDirectory, "GAC"));
+            return assembly;
         }
 
-        private Assembly GacLoad(string shortName, string directory)
+        private Assembly GacLoadAssembly(string shortName, string directory)
         {
             string assemblyDirectory = Path.Combine(directory, shortName);
             if (Directory.Exists(assemblyDirectory))

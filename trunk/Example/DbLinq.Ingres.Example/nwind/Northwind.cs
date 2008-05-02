@@ -1,4 +1,4 @@
-#region Auto-generated classes for Northwind database on 2008-04-06 12:50:44Z
+#region Auto-generated classes for Northwind database on 2008-05-03 00:22:45Z
 
 //
 //  ____  _     __  __      _        _
@@ -7,7 +7,7 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from Northwind on 2008-04-06 12:50:44Z
+// Auto-generated from Northwind on 2008-05-03 00:22:45Z
 // Please visit http://linq.to/db for more information
 
 #endregion
@@ -26,15 +26,15 @@ using DbLinq.Linq.Mapping;
 
 namespace nwind
 {
-	public partial class Northwind : DbLinq.Ingres.IngresDataContext
+	public partial class Northwind : DbLinq.Linq.DataContext
 	{
-		//public Northwind(string connectionString)
-		//    : base(connectionString)
-		//{
-		//}
+		public Northwind(System.Data.IDbConnection connection)
+		: base(connection, new DbLinq.Ingres.IngresVendor())
+		{
+		}
 
-		public Northwind(IDbConnection connection)
-		    : base(connection)
+		public Northwind(System.Data.IDbConnection connection, DbLinq.Vendor.IVendor vendor)
+		: base(connection, vendor)
 		{
 		}
 
@@ -42,29 +42,25 @@ namespace nwind
 		public Table<Customer> Customers { get { return GetTable<Customer>(); } }
 		public Table<Employee> Employees { get { return GetTable<Employee>(); } }
 		public Table<EmployeeTerritory> EmployeeTerritories { get { return GetTable<EmployeeTerritory>(); } }
-		public Table<IIeTab107108> IIeTab107108 { get { return GetTable<IIeTab107108>(); } }
-		public Table<IIeTab12B12C> IIeTab12B12C { get { return GetTable<IIeTab12B12C>(); } }
 		public Table<Order> Orders { get { return GetTable<Order>(); } }
 		public Table<OrderDetail> OrderDetails { get { return GetTable<OrderDetail>(); } }
 		public Table<Product> Products { get { return GetTable<Product>(); } }
 		public Table<Region> Regions { get { return GetTable<Region>(); } }
+		public Table<Rid> Rids { get { return GetTable<Rid>(); } }
 		public Table<Supplier> Suppliers { get { return GetTable<Supplier>(); } }
 		public Table<Territory> Territories { get { return GetTable<Territory>(); } }
 
 	}
 
-	[Table(Name = "linquser.categories")]
-	public partial class Category //: IModified
+	[Table(Name = "categories")]
+	public partial class Category
 	{
-		// IModified backing field
-		public bool IsModified{ get; set; }
-
 		#region int CategoryID
 
 		[AutoGenId]
 		private int categoryID;
-		[Column(Storage = "categoryID", Name = "categoryid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = "next value for \"linquser\".\"categories_seq\"")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "categoryID", Name = "categoryid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = "next value for \"linquser\".\"categories_seq\"")]
 		public int CategoryID
 		{
 			get
@@ -76,7 +72,6 @@ namespace nwind
 				if (value != categoryID)
 				{
 					categoryID = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -86,8 +81,8 @@ namespace nwind
 		#region string CategoryName
 
 		private string categoryName;
-		[Column(Storage = "categoryName", Name = "categoryname", DbType = "VARCHAR(15)", CanBeNull = false)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "categoryName", Name = "categoryname", DbType = "VARCHAR(15)", CanBeNull = false, Expression = null)]
 		public string CategoryName
 		{
 			get
@@ -99,7 +94,6 @@ namespace nwind
 				if (value != categoryName)
 				{
 					categoryName = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -109,8 +103,8 @@ namespace nwind
 		#region string Description
 
 		private string description;
-		[Column(Storage = "description", Name = "description", DbType = "VARCHAR(500)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "description", Name = "description", DbType = "VARCHAR(500)", Expression = null)]
 		public string Description
 		{
 			get
@@ -122,7 +116,6 @@ namespace nwind
 				if (value != description)
 				{
 					description = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -132,8 +125,8 @@ namespace nwind
 		#region System.Byte[] Picture
 
 		private System.Byte[] picture;
-		[Column(Storage = "picture", Name = "picture", DbType = "LONG BYTE")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "picture", Name = "picture", DbType = "LONG BYTE", Expression = null)]
 		public System.Byte[] Picture
 		{
 			get
@@ -145,35 +138,15 @@ namespace nwind
 				if (value != picture)
 				{
 					picture = value;
-					IsModified = true;
 				}
 			}
 		}
 
 		#endregion
 
-		#region GetHashCode(), Equals() - uses column CategoryID to look up objects in liveObjectMap
-
-		public override int GetHashCode()
-		{
-			return CategoryID.GetHashCode();
-		}
-
-		public override bool Equals(object o)
-		{
-			Category other = o as Category;
-			if (other == null)
-			{
-				return false;
-			}
-			return CategoryID.Equals(other.CategoryID);
-		}
-
-		#endregion
-
 		#region Children
 
-		[Association(Storage = "null", OtherKey = "CategoryID", Name = "linquser_products_categoryid_linquser_categories_categoryid")]
+		[Association(Storage = null, OtherKey = "CategoryID", Name = "linquser_products_categoryid_linquser_categories_categoryid")]
 		[DebuggerNonUserCode]
 		public EntityMSet<Product> Products
 		{
@@ -189,19 +162,14 @@ namespace nwind
 
 	}
 
-    // This edit solves Issue 56, as picrap did it in rev316
-    // But I don't know why...
-	[Table(Name = "linquser.customers")]
-	public partial class Customer //: IModified
+	[Table(Name = "customers")]
+	public partial class Customer
 	{
-		// IModified backing field
-		public bool IsModified{ get; set; }
-
 		#region string Address
 
 		private string address;
-		[Column(Storage = "address", Name = "address", DbType = "VARCHAR(60)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "address", Name = "address", DbType = "VARCHAR(60)", Expression = null)]
 		public string Address
 		{
 			get
@@ -213,7 +181,6 @@ namespace nwind
 				if (value != address)
 				{
 					address = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -223,8 +190,8 @@ namespace nwind
 		#region string City
 
 		private string city;
-		[Column(Storage = "city", Name = "city", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "city", Name = "city", DbType = "VARCHAR(15)", Expression = null)]
 		public string City
 		{
 			get
@@ -236,7 +203,6 @@ namespace nwind
 				if (value != city)
 				{
 					city = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -246,8 +212,8 @@ namespace nwind
 		#region string CompanyName
 
 		private string companyName;
-		[Column(Storage = "companyName", Name = "companyname", DbType = "VARCHAR(40)", CanBeNull = false)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "companyName", Name = "companyname", DbType = "VARCHAR(40)", CanBeNull = false, Expression = null)]
 		public string CompanyName
 		{
 			get
@@ -259,7 +225,6 @@ namespace nwind
 				if (value != companyName)
 				{
 					companyName = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -269,8 +234,8 @@ namespace nwind
 		#region string ContactName
 
 		private string contactName;
-		[Column(Storage = "contactName", Name = "contactname", DbType = "VARCHAR(30)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "contactName", Name = "contactname", DbType = "VARCHAR(30)", Expression = null)]
 		public string ContactName
 		{
 			get
@@ -282,7 +247,6 @@ namespace nwind
 				if (value != contactName)
 				{
 					contactName = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -292,8 +256,8 @@ namespace nwind
 		#region string ContactTitle
 
 		private string contactTitle;
-		[Column(Storage = "contactTitle", Name = "contacttitle", DbType = "VARCHAR(30)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "contactTitle", Name = "contacttitle", DbType = "VARCHAR(30)", Expression = null)]
 		public string ContactTitle
 		{
 			get
@@ -305,7 +269,6 @@ namespace nwind
 				if (value != contactTitle)
 				{
 					contactTitle = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -315,8 +278,8 @@ namespace nwind
 		#region string Country
 
 		private string country;
-		[Column(Storage = "country", Name = "country", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "country", Name = "country", DbType = "VARCHAR(15)", Expression = null)]
 		public string Country
 		{
 			get
@@ -328,7 +291,6 @@ namespace nwind
 				if (value != country)
 				{
 					country = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -338,8 +300,8 @@ namespace nwind
 		#region string CustomerID
 
 		private string customerID;
-		[Column(Storage = "customerID", Name = "customerid", DbType = "VARCHAR(5)", IsPrimaryKey = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "customerID", Name = "customerid", DbType = "VARCHAR(5)", IsPrimaryKey = true, CanBeNull = false, Expression = null)]
 		public string CustomerID
 		{
 			get
@@ -351,7 +313,6 @@ namespace nwind
 				if (value != customerID)
 				{
 					customerID = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -361,8 +322,8 @@ namespace nwind
 		#region string Fax
 
 		private string fax;
-		[Column(Storage = "fax", Name = "fax", DbType = "VARCHAR(24)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "fax", Name = "fax", DbType = "VARCHAR(24)", Expression = null)]
 		public string Fax
 		{
 			get
@@ -374,7 +335,6 @@ namespace nwind
 				if (value != fax)
 				{
 					fax = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -384,8 +344,8 @@ namespace nwind
 		#region string Phone
 
 		private string phone;
-		[Column(Storage = "phone", Name = "phone", DbType = "VARCHAR(24)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "phone", Name = "phone", DbType = "VARCHAR(24)", Expression = null)]
 		public string Phone
 		{
 			get
@@ -397,7 +357,6 @@ namespace nwind
 				if (value != phone)
 				{
 					phone = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -407,8 +366,8 @@ namespace nwind
 		#region string PostalCode
 
 		private string postalCode;
-		[Column(Storage = "postalCode", Name = "postalcode", DbType = "VARCHAR(10)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "postalCode", Name = "postalcode", DbType = "VARCHAR(10)", Expression = null)]
 		public string PostalCode
 		{
 			get
@@ -420,7 +379,6 @@ namespace nwind
 				if (value != postalCode)
 				{
 					postalCode = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -430,8 +388,8 @@ namespace nwind
 		#region string Region
 
 		private string region;
-		[Column(Storage = "region", Name = "region", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "region", Name = "region", DbType = "VARCHAR(15)", Expression = null)]
 		public string Region
 		{
 			get
@@ -443,35 +401,15 @@ namespace nwind
 				if (value != region)
 				{
 					region = value;
-					IsModified = true;
 				}
 			}
 		}
 
 		#endregion
 
-		#region GetHashCode(), Equals() - uses column CustomerID to look up objects in liveObjectMap
-
-		public override int GetHashCode()
-		{
-			return CustomerID.GetHashCode();
-		}
-
-		public override bool Equals(object o)
-		{
-			Customer other = o as Customer;
-			if (other == null)
-			{
-				return false;
-			}
-			return CustomerID.Equals(other.CustomerID);
-		}
-
-		#endregion
-
 		#region Children
 
-		[Association(Storage = "null", OtherKey = "CustomerID", Name = "linquser_orders_customerid_linquser_customers_customerid")]
+		[Association(Storage = null, OtherKey = "CustomerID", Name = "linquser_orders_customerid_linquser_customers_customerid")]
 		[DebuggerNonUserCode]
 		public EntityMSet<Order> Orders
 		{
@@ -487,17 +425,14 @@ namespace nwind
 
 	}
 
-	[Table(Name = "linquser.employees")]
-	public partial class Employee //: IModified
+	[Table(Name = "employees")]
+	public partial class Employee
 	{
-		// IModified backing field
-		public bool IsModified{ get; set; }
-
 		#region string Address
 
 		private string address;
-		[Column(Storage = "address", Name = "address", DbType = "VARCHAR(60)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "address", Name = "address", DbType = "VARCHAR(60)", Expression = null)]
 		public string Address
 		{
 			get
@@ -509,7 +444,6 @@ namespace nwind
 				if (value != address)
 				{
 					address = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -519,8 +453,8 @@ namespace nwind
 		#region System.DateTime? BirthDate
 
 		private System.DateTime? birthDate;
-		[Column(Storage = "birthDate", Name = "birthdate", DbType = "INGRESDATE")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "birthDate", Name = "birthdate", DbType = "INGRESDATE", Expression = null)]
 		public System.DateTime? BirthDate
 		{
 			get
@@ -532,7 +466,6 @@ namespace nwind
 				if (value != birthDate)
 				{
 					birthDate = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -542,8 +475,8 @@ namespace nwind
 		#region string City
 
 		private string city;
-		[Column(Storage = "city", Name = "city", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "city", Name = "city", DbType = "VARCHAR(15)", Expression = null)]
 		public string City
 		{
 			get
@@ -555,7 +488,6 @@ namespace nwind
 				if (value != city)
 				{
 					city = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -565,8 +497,8 @@ namespace nwind
 		#region string Country
 
 		private string country;
-		[Column(Storage = "country", Name = "country", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "country", Name = "country", DbType = "VARCHAR(15)", Expression = null)]
 		public string Country
 		{
 			get
@@ -578,7 +510,6 @@ namespace nwind
 				if (value != country)
 				{
 					country = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -589,8 +520,8 @@ namespace nwind
 
 		[AutoGenId]
 		private int employeeID;
-		[Column(Storage = "employeeID", Name = "employeeid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = "next value for \"linquser\".\"employees_seq\"")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "employeeID", Name = "employeeid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = "next value for \"linquser\".\"employees_seq\"")]
 		public int EmployeeID
 		{
 			get
@@ -602,7 +533,6 @@ namespace nwind
 				if (value != employeeID)
 				{
 					employeeID = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -612,8 +542,8 @@ namespace nwind
 		#region string FirstName
 
 		private string firstName;
-		[Column(Storage = "firstName", Name = "firstname", DbType = "VARCHAR(10)", CanBeNull = false)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "firstName", Name = "firstname", DbType = "VARCHAR(10)", CanBeNull = false, Expression = null)]
 		public string FirstName
 		{
 			get
@@ -625,7 +555,6 @@ namespace nwind
 				if (value != firstName)
 				{
 					firstName = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -635,8 +564,8 @@ namespace nwind
 		#region System.DateTime? HireDate
 
 		private System.DateTime? hireDate;
-		[Column(Storage = "hireDate", Name = "hiredate", DbType = "INGRESDATE")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "hireDate", Name = "hiredate", DbType = "INGRESDATE", Expression = null)]
 		public System.DateTime? HireDate
 		{
 			get
@@ -648,7 +577,6 @@ namespace nwind
 				if (value != hireDate)
 				{
 					hireDate = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -658,8 +586,8 @@ namespace nwind
 		#region string HomePhone
 
 		private string homePhone;
-		[Column(Storage = "homePhone", Name = "homephone", DbType = "VARCHAR(24)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "homePhone", Name = "homephone", DbType = "VARCHAR(24)", Expression = null)]
 		public string HomePhone
 		{
 			get
@@ -671,7 +599,6 @@ namespace nwind
 				if (value != homePhone)
 				{
 					homePhone = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -681,8 +608,8 @@ namespace nwind
 		#region string LastName
 
 		private string lastName;
-		[Column(Storage = "lastName", Name = "lastname", DbType = "VARCHAR(20)", CanBeNull = false)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "lastName", Name = "lastname", DbType = "VARCHAR(20)", CanBeNull = false, Expression = null)]
 		public string LastName
 		{
 			get
@@ -694,7 +621,6 @@ namespace nwind
 				if (value != lastName)
 				{
 					lastName = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -704,8 +630,8 @@ namespace nwind
 		#region string Notes
 
 		private string notes;
-		[Column(Storage = "notes", Name = "notes", DbType = "VARCHAR(100)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "notes", Name = "notes", DbType = "VARCHAR(100)", Expression = null)]
 		public string Notes
 		{
 			get
@@ -717,7 +643,6 @@ namespace nwind
 				if (value != notes)
 				{
 					notes = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -727,8 +652,8 @@ namespace nwind
 		#region System.Byte[] Photo
 
 		private System.Byte[] photo;
-		[Column(Storage = "photo", Name = "photo", DbType = "LONG BYTE")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "photo", Name = "photo", DbType = "LONG BYTE", Expression = null)]
 		public System.Byte[] Photo
 		{
 			get
@@ -740,7 +665,6 @@ namespace nwind
 				if (value != photo)
 				{
 					photo = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -750,8 +674,8 @@ namespace nwind
 		#region string PostalCode
 
 		private string postalCode;
-		[Column(Storage = "postalCode", Name = "postalcode", DbType = "VARCHAR(10)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "postalCode", Name = "postalcode", DbType = "VARCHAR(10)", Expression = null)]
 		public string PostalCode
 		{
 			get
@@ -763,7 +687,6 @@ namespace nwind
 				if (value != postalCode)
 				{
 					postalCode = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -773,8 +696,8 @@ namespace nwind
 		#region string Region
 
 		private string region;
-		[Column(Storage = "region", Name = "region", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "region", Name = "region", DbType = "VARCHAR(15)", Expression = null)]
 		public string Region
 		{
 			get
@@ -786,7 +709,6 @@ namespace nwind
 				if (value != region)
 				{
 					region = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -796,8 +718,8 @@ namespace nwind
 		#region int? ReportsTo
 
 		private int? reportsTo;
-		[Column(Storage = "reportsTo", Name = "reportsto", DbType = "INTEGER(4)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "reportsTo", Name = "reportsto", DbType = "INTEGER(4)", Expression = null)]
 		public int? ReportsTo
 		{
 			get
@@ -809,7 +731,6 @@ namespace nwind
 				if (value != reportsTo)
 				{
 					reportsTo = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -819,8 +740,8 @@ namespace nwind
 		#region string Title
 
 		private string title;
-		[Column(Storage = "title", Name = "title", DbType = "VARCHAR(30)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "title", Name = "title", DbType = "VARCHAR(30)", Expression = null)]
 		public string Title
 		{
 			get
@@ -832,35 +753,15 @@ namespace nwind
 				if (value != title)
 				{
 					title = value;
-					IsModified = true;
 				}
 			}
 		}
 
 		#endregion
 
-		#region GetHashCode(), Equals() - uses column EmployeeID to look up objects in liveObjectMap
-
-		public override int GetHashCode()
-		{
-			return EmployeeID.GetHashCode();
-		}
-
-		public override bool Equals(object o)
-		{
-			Employee other = o as Employee;
-			if (other == null)
-			{
-				return false;
-			}
-			return EmployeeID.Equals(other.EmployeeID);
-		}
-
-		#endregion
-
 		#region Children
 
-		[Association(Storage = "null", OtherKey = "EmployeeID", Name = "linquser_employees_reportsto_linquser_employees_employeeid")]
+		[Association(Storage = null, OtherKey = "ReportsTo", Name = "linquser_employees_reportsto_linquser_employees_employeeid")]
 		[DebuggerNonUserCode]
 		public EntityMSet<Employee> Employees
 		{
@@ -871,7 +772,7 @@ namespace nwind
 			}
 		}
 
-		[Association(Storage = "null", OtherKey = "EmployeeID", Name = "linquser_employeeterritories_employeeid_linquser_employees_employeeid")]
+		[Association(Storage = null, OtherKey = "EmployeeID", Name = "linquser_employeeterritories_employeeid_linquser_employees_employeeid")]
 		[DebuggerNonUserCode]
 		public EntityMSet<EmployeeTerritory> EmployeeTerritories
 		{
@@ -882,7 +783,7 @@ namespace nwind
 			}
 		}
 
-		[Association(Storage = "null", OtherKey = "EmployeeID", Name = "linquser_orders_employeeid_linquser_employees_employeeid")]
+		[Association(Storage = null, OtherKey = "EmployeeID", Name = "linquser_orders_employeeid_linquser_employees_employeeid")]
 		[DebuggerNonUserCode]
 		public EntityMSet<Order> Orders
 		{
@@ -918,17 +819,14 @@ namespace nwind
 
 	}
 
-	[Table(Name = "linquser.employeeterritories")]
-	public partial class EmployeeTerritory //: IModified
+	[Table(Name = "employeeterritories")]
+	public partial class EmployeeTerritory
 	{
-		// IModified backing field
-		public bool IsModified{ get; set; }
-
 		#region int EmployeeID
 
 		private int employeeID;
-		[Column(Storage = "employeeID", Name = "employeeid", DbType = "INTEGER(4)", IsPrimaryKey = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "employeeID", Name = "employeeid", DbType = "INTEGER(4)", IsPrimaryKey = true, CanBeNull = false, Expression = null)]
 		public int EmployeeID
 		{
 			get
@@ -940,7 +838,6 @@ namespace nwind
 				if (value != employeeID)
 				{
 					employeeID = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -950,8 +847,8 @@ namespace nwind
 		#region string TerritoryID
 
 		private string territoryID;
-		[Column(Storage = "territoryID", Name = "territoryid", DbType = "VARCHAR(20)", IsPrimaryKey = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "territoryID", Name = "territoryid", DbType = "VARCHAR(20)", IsPrimaryKey = true, CanBeNull = false, Expression = null)]
 		public string TerritoryID
 		{
 			get
@@ -963,28 +860,8 @@ namespace nwind
 				if (value != territoryID)
 				{
 					territoryID = value;
-					IsModified = true;
 				}
 			}
-		}
-
-		#endregion
-
-		#region GetHashCode(), Equals() - uses column EmployeeID, TerritoryID to look up objects in liveObjectMap
-
-		public override int GetHashCode()
-		{
-			return EmployeeID.GetHashCode() ^ TerritoryID.GetHashCode();
-		}
-
-		public override bool Equals(object o)
-		{
-			EmployeeTerritory other = o as EmployeeTerritory;
-			if (other == null)
-			{
-				return false;
-			}
-			return EmployeeID.Equals(other.EmployeeID) && TerritoryID.Equals(other.TerritoryID);
 		}
 
 		#endregion
@@ -1026,265 +903,14 @@ namespace nwind
 
 	}
 
-	[Table(Name = "linquser.iietab_107_108")]
-	public partial class IIeTab107108 //: IModified
+	[Table(Name = "orders")]
+	public partial class Order
 	{
-		// IModified backing field
-		public bool IsModified{ get; set; }
-
-		#region string PerKey
-
-		private string perKey;
-		[Column(Storage = "perKey", Name = "per_key", DbType = "CHAR(8)", CanBeNull = false)]
-		[DebuggerNonUserCode]
-		public string PerKey
-		{
-			get
-			{
-				return perKey;
-			}
-			set
-			{
-				if (value != perKey)
-				{
-					perKey = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region int PerNext
-
-		private int perNext;
-		[Column(Storage = "perNext", Name = "per_next", DbType = "INTEGER(4)", CanBeNull = false)]
-		[DebuggerNonUserCode]
-		public int PerNext
-		{
-			get
-			{
-				return perNext;
-			}
-			set
-			{
-				if (value != perNext)
-				{
-					perNext = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region int PerSegment0
-
-		private int perSegment0;
-		[Column(Storage = "perSegment0", Name = "per_segment0", DbType = "INTEGER(4)", CanBeNull = false)]
-		[DebuggerNonUserCode]
-		public int PerSegment0
-		{
-			get
-			{
-				return perSegment0;
-			}
-			set
-			{
-				if (value != perSegment0)
-				{
-					perSegment0 = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region int PerSegment1
-
-		private int perSegment1;
-		[Column(Storage = "perSegment1", Name = "per_segment1", DbType = "INTEGER(4)", CanBeNull = false)]
-		[DebuggerNonUserCode]
-		public int PerSegment1
-		{
-			get
-			{
-				return perSegment1;
-			}
-			set
-			{
-				if (value != perSegment1)
-				{
-					perSegment1 = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region System.Byte[] PerValue
-
-		private System.Byte[] perValue;
-		[Column(Storage = "perValue", Name = "per_value", DbType = "BYTE VARYING", CanBeNull = false)]
-		[DebuggerNonUserCode]
-		public System.Byte[] PerValue
-		{
-			get
-			{
-				return perValue;
-			}
-			set
-			{
-				if (value != perValue)
-				{
-					perValue = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#warning L189 table linquser.iietab_107_108 has no primary key. Multiple C# objects will refer to the same row.
-	}
-
-	[Table(Name = "linquser.iietab_12b_12c")]
-	public partial class IIeTab12B12C //: IModified
-	{
-		// IModified backing field
-		public bool IsModified{ get; set; }
-
-		#region string PerKey
-
-		private string perKey;
-		[Column(Storage = "perKey", Name = "per_key", DbType = "CHAR(8)", CanBeNull = false)]
-		[DebuggerNonUserCode]
-		public string PerKey
-		{
-			get
-			{
-				return perKey;
-			}
-			set
-			{
-				if (value != perKey)
-				{
-					perKey = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region int PerNext
-
-		private int perNext;
-		[Column(Storage = "perNext", Name = "per_next", DbType = "INTEGER(4)", CanBeNull = false)]
-		[DebuggerNonUserCode]
-		public int PerNext
-		{
-			get
-			{
-				return perNext;
-			}
-			set
-			{
-				if (value != perNext)
-				{
-					perNext = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region int PerSegment0
-
-		private int perSegment0;
-		[Column(Storage = "perSegment0", Name = "per_segment0", DbType = "INTEGER(4)", CanBeNull = false)]
-		[DebuggerNonUserCode]
-		public int PerSegment0
-		{
-			get
-			{
-				return perSegment0;
-			}
-			set
-			{
-				if (value != perSegment0)
-				{
-					perSegment0 = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region int PerSegment1
-
-		private int perSegment1;
-		[Column(Storage = "perSegment1", Name = "per_segment1", DbType = "INTEGER(4)", CanBeNull = false)]
-		[DebuggerNonUserCode]
-		public int PerSegment1
-		{
-			get
-			{
-				return perSegment1;
-			}
-			set
-			{
-				if (value != perSegment1)
-				{
-					perSegment1 = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region System.Byte[] PerValue
-
-		private System.Byte[] perValue;
-		[Column(Storage = "perValue", Name = "per_value", DbType = "BYTE VARYING", CanBeNull = false)]
-		[DebuggerNonUserCode]
-		public System.Byte[] PerValue
-		{
-			get
-			{
-				return perValue;
-			}
-			set
-			{
-				if (value != perValue)
-				{
-					perValue = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#warning L189 table linquser.iietab_12b_12c has no primary key. Multiple C# objects will refer to the same row.
-	}
-
-	[Table(Name = "linquser.orders")]
-	public partial class Order //: IModified
-	{
-		// IModified backing field
-		public bool IsModified{ get; set; }
-
 		#region string CustomerID
 
 		private string customerID;
-		[Column(Storage = "customerID", Name = "customerid", DbType = "VARCHAR(5)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "customerID", Name = "customerid", DbType = "VARCHAR(5)", Expression = null)]
 		public string CustomerID
 		{
 			get
@@ -1296,7 +922,6 @@ namespace nwind
 				if (value != customerID)
 				{
 					customerID = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -1306,8 +931,8 @@ namespace nwind
 		#region int? EmployeeID
 
 		private int? employeeID;
-		[Column(Storage = "employeeID", Name = "employeeid", DbType = "INTEGER(4)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "employeeID", Name = "employeeid", DbType = "INTEGER(4)", Expression = null)]
 		public int? EmployeeID
 		{
 			get
@@ -1319,7 +944,6 @@ namespace nwind
 				if (value != employeeID)
 				{
 					employeeID = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -1329,8 +953,8 @@ namespace nwind
 		#region decimal? Freight
 
 		private decimal? freight;
-		[Column(Storage = "freight", Name = "freight", DbType = "DECIMAL(5, 0)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "freight", Name = "freight", DbType = "DECIMAL(5, 0)", Expression = null)]
 		public decimal? Freight
 		{
 			get
@@ -1342,7 +966,6 @@ namespace nwind
 				if (value != freight)
 				{
 					freight = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -1352,8 +975,8 @@ namespace nwind
 		#region System.DateTime? OrderDate
 
 		private System.DateTime? orderDate;
-		[Column(Storage = "orderDate", Name = "orderdate", DbType = "INGRESDATE")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "orderDate", Name = "orderdate", DbType = "INGRESDATE", Expression = null)]
 		public System.DateTime? OrderDate
 		{
 			get
@@ -1365,7 +988,6 @@ namespace nwind
 				if (value != orderDate)
 				{
 					orderDate = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -1376,8 +998,8 @@ namespace nwind
 
 		[AutoGenId]
 		private int orderID;
-		[Column(Storage = "orderID", Name = "orderid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = "next value for \"linquser\".\"categories_seq\"")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "orderID", Name = "orderid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = "next value for \"linquser\".\"categories_seq\"")]
 		public int OrderID
 		{
 			get
@@ -1389,7 +1011,6 @@ namespace nwind
 				if (value != orderID)
 				{
 					orderID = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -1399,8 +1020,8 @@ namespace nwind
 		#region System.DateTime? RequiredDate
 
 		private System.DateTime? requiredDate;
-		[Column(Storage = "requiredDate", Name = "requireddate", DbType = "INGRESDATE")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "requiredDate", Name = "requireddate", DbType = "INGRESDATE", Expression = null)]
 		public System.DateTime? RequiredDate
 		{
 			get
@@ -1412,7 +1033,6 @@ namespace nwind
 				if (value != requiredDate)
 				{
 					requiredDate = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -1422,8 +1042,8 @@ namespace nwind
 		#region string ShipAddress
 
 		private string shipAddress;
-		[Column(Storage = "shipAddress", Name = "shipaddress", DbType = "VARCHAR(60)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "shipAddress", Name = "shipaddress", DbType = "VARCHAR(60)", Expression = null)]
 		public string ShipAddress
 		{
 			get
@@ -1435,7 +1055,6 @@ namespace nwind
 				if (value != shipAddress)
 				{
 					shipAddress = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -1445,8 +1064,8 @@ namespace nwind
 		#region string ShipCity
 
 		private string shipCity;
-		[Column(Storage = "shipCity", Name = "shipcity", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "shipCity", Name = "shipcity", DbType = "VARCHAR(15)", Expression = null)]
 		public string ShipCity
 		{
 			get
@@ -1458,7 +1077,6 @@ namespace nwind
 				if (value != shipCity)
 				{
 					shipCity = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -1468,8 +1086,8 @@ namespace nwind
 		#region string ShipCountry
 
 		private string shipCountry;
-		[Column(Storage = "shipCountry", Name = "shipcountry", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "shipCountry", Name = "shipcountry", DbType = "VARCHAR(15)", Expression = null)]
 		public string ShipCountry
 		{
 			get
@@ -1481,7 +1099,6 @@ namespace nwind
 				if (value != shipCountry)
 				{
 					shipCountry = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -1491,8 +1108,8 @@ namespace nwind
 		#region string ShipName
 
 		private string shipName;
-		[Column(Storage = "shipName", Name = "shipname", DbType = "VARCHAR(40)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "shipName", Name = "shipname", DbType = "VARCHAR(40)", Expression = null)]
 		public string ShipName
 		{
 			get
@@ -1504,7 +1121,6 @@ namespace nwind
 				if (value != shipName)
 				{
 					shipName = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -1514,8 +1130,8 @@ namespace nwind
 		#region System.DateTime? ShippedDate
 
 		private System.DateTime? shippedDate;
-		[Column(Storage = "shippedDate", Name = "shippeddate", DbType = "INGRESDATE")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "shippedDate", Name = "shippeddate", DbType = "INGRESDATE", Expression = null)]
 		public System.DateTime? ShippedDate
 		{
 			get
@@ -1527,7 +1143,6 @@ namespace nwind
 				if (value != shippedDate)
 				{
 					shippedDate = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -1537,8 +1152,8 @@ namespace nwind
 		#region string ShipPostalCode
 
 		private string shipPostalCode;
-		[Column(Storage = "shipPostalCode", Name = "shippostalcode", DbType = "VARCHAR(10)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "shipPostalCode", Name = "shippostalcode", DbType = "VARCHAR(10)", Expression = null)]
 		public string ShipPostalCode
 		{
 			get
@@ -1550,7 +1165,6 @@ namespace nwind
 				if (value != shipPostalCode)
 				{
 					shipPostalCode = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -1560,8 +1174,8 @@ namespace nwind
 		#region string ShipRegion
 
 		private string shipRegion;
-		[Column(Storage = "shipRegion", Name = "shipregion", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "shipRegion", Name = "shipregion", DbType = "VARCHAR(15)", Expression = null)]
 		public string ShipRegion
 		{
 			get
@@ -1573,7 +1187,6 @@ namespace nwind
 				if (value != shipRegion)
 				{
 					shipRegion = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -1583,8 +1196,8 @@ namespace nwind
 		#region int? ShipVia
 
 		private int? shipVia;
-		[Column(Storage = "shipVia", Name = "shipvia", DbType = "INTEGER(4)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "shipVia", Name = "shipvia", DbType = "INTEGER(4)", Expression = null)]
 		public int? ShipVia
 		{
 			get
@@ -1596,35 +1209,15 @@ namespace nwind
 				if (value != shipVia)
 				{
 					shipVia = value;
-					IsModified = true;
 				}
 			}
 		}
 
 		#endregion
 
-		#region GetHashCode(), Equals() - uses column OrderID to look up objects in liveObjectMap
-
-		public override int GetHashCode()
-		{
-			return OrderID.GetHashCode();
-		}
-
-		public override bool Equals(object o)
-		{
-			Order other = o as Order;
-			if (other == null)
-			{
-				return false;
-			}
-			return OrderID.Equals(other.OrderID);
-		}
-
-		#endregion
-
 		#region Children
 
-		[Association(Storage = "null", OtherKey = "OrderID", Name = "linquser_orderdetails_orderid_linquser_orders_orderid")]
+		[Association(Storage = null, OtherKey = "OrderID", Name = "linquser_orderdetails_orderid_linquser_orders_orderid")]
 		[DebuggerNonUserCode]
 		public EntityMSet<OrderDetail> OrderDetails
 		{
@@ -1675,18 +1268,15 @@ namespace nwind
 
 	}
 
-	[Table(Name = "linquser.orderdetails")]
-	public partial class OrderDetail //: IModified
+	[Table(Name = "orderdetails")]
+	public partial class OrderDetail
 	{
-		// IModified backing field
-		public bool IsModified{ get; set; }
+		#region double Discount
 
-		#region float Discount
-
-		private float discount;
-		[Column(Storage = "discount", Name = "discount", DbType = "FLOAT", CanBeNull = false)]
+		private double discount;
 		[DebuggerNonUserCode]
-		public float Discount
+		[Column(Storage = "discount", Name = "discount", DbType = "FLOAT", CanBeNull = false, Expression = null)]
+		public double Discount
 		{
 			get
 			{
@@ -1697,7 +1287,6 @@ namespace nwind
 				if (value != discount)
 				{
 					discount = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -1707,8 +1296,8 @@ namespace nwind
 		#region int OrderID
 
 		private int orderID;
-		[Column(Storage = "orderID", Name = "orderid", DbType = "INTEGER(4)", IsPrimaryKey = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "orderID", Name = "orderid", DbType = "INTEGER(4)", IsPrimaryKey = true, CanBeNull = false, Expression = null)]
 		public int OrderID
 		{
 			get
@@ -1720,7 +1309,6 @@ namespace nwind
 				if (value != orderID)
 				{
 					orderID = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -1730,8 +1318,8 @@ namespace nwind
 		#region int ProductID
 
 		private int productID;
-		[Column(Storage = "productID", Name = "productid", DbType = "INTEGER(4)", IsPrimaryKey = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "productID", Name = "productid", DbType = "INTEGER(4)", IsPrimaryKey = true, CanBeNull = false, Expression = null)]
 		public int ProductID
 		{
 			get
@@ -1743,7 +1331,6 @@ namespace nwind
 				if (value != productID)
 				{
 					productID = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -1753,8 +1340,8 @@ namespace nwind
 		#region short Quantity
 
 		private short quantity;
-		[Column(Storage = "quantity", Name = "quantity", DbType = "INTEGER(2)", CanBeNull = false)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "quantity", Name = "quantity", DbType = "INTEGER(2)", CanBeNull = false, Expression = null)]
 		public short Quantity
 		{
 			get
@@ -1766,7 +1353,6 @@ namespace nwind
 				if (value != quantity)
 				{
 					quantity = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -1776,8 +1362,8 @@ namespace nwind
 		#region decimal UnitPrice
 
 		private decimal unitPrice;
-		[Column(Storage = "unitPrice", Name = "unitprice", DbType = "DECIMAL(5, 0)", CanBeNull = false)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "unitPrice", Name = "unitprice", DbType = "DECIMAL(5, 0)", CanBeNull = false, Expression = null)]
 		public decimal UnitPrice
 		{
 			get
@@ -1789,28 +1375,8 @@ namespace nwind
 				if (value != unitPrice)
 				{
 					unitPrice = value;
-					IsModified = true;
 				}
 			}
-		}
-
-		#endregion
-
-		#region GetHashCode(), Equals() - uses column OrderID, ProductID to look up objects in liveObjectMap
-
-		public override int GetHashCode()
-		{
-			return OrderID.GetHashCode() ^ ProductID.GetHashCode();
-		}
-
-		public override bool Equals(object o)
-		{
-			OrderDetail other = o as OrderDetail;
-			if (other == null)
-			{
-				return false;
-			}
-			return OrderID.Equals(other.OrderID) && ProductID.Equals(other.ProductID);
 		}
 
 		#endregion
@@ -1852,17 +1418,14 @@ namespace nwind
 
 	}
 
-	[Table(Name = "linquser.products")]
-	public partial class Product //: IModified
+	[Table(Name = "products")]
+	public partial class Product
 	{
-		// IModified backing field
-		public bool IsModified{ get; set; }
-
 		#region int? CategoryID
 
 		private int? categoryID;
-		[Column(Storage = "categoryID", Name = "categoryid", DbType = "INTEGER(4)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "categoryID", Name = "categoryid", DbType = "INTEGER(4)", Expression = null)]
 		public int? CategoryID
 		{
 			get
@@ -1874,7 +1437,6 @@ namespace nwind
 				if (value != categoryID)
 				{
 					categoryID = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -1883,10 +1445,10 @@ namespace nwind
 
 		#region short Discontinued
 
-        private short discontinued;
-		[Column(Storage = "discontinued", Name = "discontinued", DbType = "INTEGER(2)", CanBeNull = false)]
+		private short discontinued;
 		[DebuggerNonUserCode]
-        public short Discontinued
+		[Column(Storage = "discontinued", Name = "discontinued", DbType = "INTEGER(2)", CanBeNull = false, Expression = null)]
+		public short Discontinued
 		{
 			get
 			{
@@ -1897,7 +1459,6 @@ namespace nwind
 				if (value != discontinued)
 				{
 					discontinued = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -1908,8 +1469,8 @@ namespace nwind
 
 		[AutoGenId]
 		private int productID;
-		[Column(Storage = "productID", Name = "productid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = "next value for \"linquser\".\"products_seq\"")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "productID", Name = "productid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = "next value for \"linquser\".\"products_seq\"")]
 		public int ProductID
 		{
 			get
@@ -1921,7 +1482,6 @@ namespace nwind
 				if (value != productID)
 				{
 					productID = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -1931,8 +1491,8 @@ namespace nwind
 		#region string ProductName
 
 		private string productName;
-		[Column(Storage = "productName", Name = "productname", DbType = "VARCHAR(40)", CanBeNull = false)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "productName", Name = "productname", DbType = "VARCHAR(40)", CanBeNull = false, Expression = null)]
 		public string ProductName
 		{
 			get
@@ -1944,7 +1504,6 @@ namespace nwind
 				if (value != productName)
 				{
 					productName = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -1954,8 +1513,8 @@ namespace nwind
 		#region string QuantityPerUnit
 
 		private string quantityPerUnit;
-		[Column(Storage = "quantityPerUnit", Name = "quantityperunit", DbType = "VARCHAR(20)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "quantityPerUnit", Name = "quantityperunit", DbType = "VARCHAR(20)", Expression = null)]
 		public string QuantityPerUnit
 		{
 			get
@@ -1967,7 +1526,6 @@ namespace nwind
 				if (value != quantityPerUnit)
 				{
 					quantityPerUnit = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -1977,8 +1535,8 @@ namespace nwind
 		#region short? ReorderLevel
 
 		private short? reorderLevel;
-		[Column(Storage = "reorderLevel", Name = "reorderlevel", DbType = "INTEGER(2)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "reorderLevel", Name = "reorderlevel", DbType = "INTEGER(2)", Expression = null)]
 		public short? ReorderLevel
 		{
 			get
@@ -1990,7 +1548,6 @@ namespace nwind
 				if (value != reorderLevel)
 				{
 					reorderLevel = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -2000,8 +1557,8 @@ namespace nwind
 		#region int? SupplierID
 
 		private int? supplierID;
-		[Column(Storage = "supplierID", Name = "supplierid", DbType = "INTEGER(4)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "supplierID", Name = "supplierid", DbType = "INTEGER(4)", Expression = null)]
 		public int? SupplierID
 		{
 			get
@@ -2013,7 +1570,6 @@ namespace nwind
 				if (value != supplierID)
 				{
 					supplierID = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -2023,8 +1579,8 @@ namespace nwind
 		#region decimal? UnitPrice
 
 		private decimal? unitPrice;
-		[Column(Storage = "unitPrice", Name = "unitprice", DbType = "DECIMAL(5, 0)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "unitPrice", Name = "unitprice", DbType = "DECIMAL(5, 0)", Expression = null)]
 		public decimal? UnitPrice
 		{
 			get
@@ -2036,7 +1592,6 @@ namespace nwind
 				if (value != unitPrice)
 				{
 					unitPrice = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -2046,8 +1601,8 @@ namespace nwind
 		#region short? UnitsInStock
 
 		private short? unitsInStock;
-		[Column(Storage = "unitsInStock", Name = "unitsinstock", DbType = "INTEGER(2)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "unitsInStock", Name = "unitsinstock", DbType = "INTEGER(2)", Expression = null)]
 		public short? UnitsInStock
 		{
 			get
@@ -2059,7 +1614,6 @@ namespace nwind
 				if (value != unitsInStock)
 				{
 					unitsInStock = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -2069,8 +1623,8 @@ namespace nwind
 		#region short? UnitsOnOrder
 
 		private short? unitsOnOrder;
-		[Column(Storage = "unitsOnOrder", Name = "unitsonorder", DbType = "INTEGER(2)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "unitsOnOrder", Name = "unitsonorder", DbType = "INTEGER(2)", Expression = null)]
 		public short? UnitsOnOrder
 		{
 			get
@@ -2082,35 +1636,15 @@ namespace nwind
 				if (value != unitsOnOrder)
 				{
 					unitsOnOrder = value;
-					IsModified = true;
 				}
 			}
 		}
 
 		#endregion
 
-		#region GetHashCode(), Equals() - uses column ProductID to look up objects in liveObjectMap
-
-		public override int GetHashCode()
-		{
-			return ProductID.GetHashCode();
-		}
-
-		public override bool Equals(object o)
-		{
-			Product other = o as Product;
-			if (other == null)
-			{
-				return false;
-			}
-			return ProductID.Equals(other.ProductID);
-		}
-
-		#endregion
-
 		#region Children
 
-		[Association(Storage = "null", OtherKey = "ProductID", Name = "linquser_orderdetails_productid_linquser_products_productid")]
+		[Association(Storage = null, OtherKey = "ProductID", Name = "linquser_orderdetails_productid_linquser_products_productid")]
 		[DebuggerNonUserCode]
 		public EntityMSet<OrderDetail> OrderDetails
 		{
@@ -2161,17 +1695,14 @@ namespace nwind
 
 	}
 
-	[Table(Name = "linquser.region")]
-	public partial class Region //: IModified
+	[Table(Name = "region")]
+	public partial class Region
 	{
-		// IModified backing field
-		public bool IsModified{ get; set; }
-
 		#region string RegionDescription
 
 		private string regionDescription;
-		[Column(Storage = "regionDescription", Name = "regiondescription", DbType = "VARCHAR(50)", CanBeNull = false)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "regionDescription", Name = "regiondescription", DbType = "VARCHAR(50)", CanBeNull = false, Expression = null)]
 		public string RegionDescription
 		{
 			get
@@ -2183,7 +1714,6 @@ namespace nwind
 				if (value != regionDescription)
 				{
 					regionDescription = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -2194,8 +1724,8 @@ namespace nwind
 
 		[AutoGenId]
 		private int regionID;
-		[Column(Storage = "regionID", Name = "regionid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = "next value for \"linquser\".\"region_seq\"")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "regionID", Name = "regionid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = "next value for \"linquser\".\"region_seq\"")]
 		public int RegionID
 		{
 			get
@@ -2207,35 +1737,15 @@ namespace nwind
 				if (value != regionID)
 				{
 					regionID = value;
-					IsModified = true;
 				}
 			}
 		}
 
 		#endregion
 
-		#region GetHashCode(), Equals() - uses column RegionID to look up objects in liveObjectMap
-
-		public override int GetHashCode()
-		{
-			return RegionID.GetHashCode();
-		}
-
-		public override bool Equals(object o)
-		{
-			Region other = o as Region;
-			if (other == null)
-			{
-				return false;
-			}
-			return RegionID.Equals(other.RegionID);
-		}
-
-		#endregion
-
 		#region Children
 
-		[Association(Storage = "null", OtherKey = "RegionID", Name = "linquser_territories_regionid_linquser_region_regionid")]
+		[Association(Storage = null, OtherKey = "RegionID", Name = "linquser_territories_regionid_linquser_region_regionid")]
 		[DebuggerNonUserCode]
 		public EntityMSet<Territory> Territories
 		{
@@ -2251,17 +1761,65 @@ namespace nwind
 
 	}
 
-	[Table(Name = "linquser.suppliers")]
-	public partial class Supplier //: IModified
+	[Table(Name = "rid")]
+	public partial class Rid
 	{
-		// IModified backing field
-		public bool IsModified{ get; set; }
+		#region int ID
 
+		[AutoGenId]
+		private int id;
+		[DebuggerNonUserCode]
+		[Column(Storage = "id", Name = "id", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = "next value for \"linquser\".\"rid_id1_seq\"")]
+		public int ID
+		{
+			get
+			{
+				return id;
+			}
+			set
+			{
+				if (value != id)
+				{
+					id = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region int? ReAnR
+
+		[AutoGenId]
+		private int? reAnR;
+		[DebuggerNonUserCode]
+		[Column(Storage = "reAnR", Name = "reanr", DbType = "INTEGER(4)", IsDbGenerated = true, Expression = "next value for \"linquser\".\"rid_reanr_seq\"")]
+		public int? ReAnR
+		{
+			get
+			{
+				return reAnR;
+			}
+			set
+			{
+				if (value != reAnR)
+				{
+					reAnR = value;
+				}
+			}
+		}
+
+		#endregion
+
+	}
+
+	[Table(Name = "suppliers")]
+	public partial class Supplier
+	{
 		#region string Address
 
 		private string address;
-		[Column(Storage = "address", Name = "address", DbType = "VARCHAR(60)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "address", Name = "address", DbType = "VARCHAR(60)", Expression = null)]
 		public string Address
 		{
 			get
@@ -2273,7 +1831,6 @@ namespace nwind
 				if (value != address)
 				{
 					address = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -2283,8 +1840,8 @@ namespace nwind
 		#region string City
 
 		private string city;
-		[Column(Storage = "city", Name = "city", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "city", Name = "city", DbType = "VARCHAR(15)", Expression = null)]
 		public string City
 		{
 			get
@@ -2296,7 +1853,6 @@ namespace nwind
 				if (value != city)
 				{
 					city = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -2306,8 +1862,8 @@ namespace nwind
 		#region string CompanyName
 
 		private string companyName;
-		[Column(Storage = "companyName", Name = "companyname", DbType = "VARCHAR(40)", CanBeNull = false)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "companyName", Name = "companyname", DbType = "VARCHAR(40)", CanBeNull = false, Expression = null)]
 		public string CompanyName
 		{
 			get
@@ -2319,7 +1875,6 @@ namespace nwind
 				if (value != companyName)
 				{
 					companyName = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -2329,8 +1884,8 @@ namespace nwind
 		#region string ContactName
 
 		private string contactName;
-		[Column(Storage = "contactName", Name = "contactname", DbType = "VARCHAR(30)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "contactName", Name = "contactname", DbType = "VARCHAR(30)", Expression = null)]
 		public string ContactName
 		{
 			get
@@ -2342,7 +1897,6 @@ namespace nwind
 				if (value != contactName)
 				{
 					contactName = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -2352,8 +1906,8 @@ namespace nwind
 		#region string ContactTitle
 
 		private string contactTitle;
-		[Column(Storage = "contactTitle", Name = "contacttitle", DbType = "VARCHAR(30)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "contactTitle", Name = "contacttitle", DbType = "VARCHAR(30)", Expression = null)]
 		public string ContactTitle
 		{
 			get
@@ -2365,7 +1919,6 @@ namespace nwind
 				if (value != contactTitle)
 				{
 					contactTitle = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -2375,8 +1928,8 @@ namespace nwind
 		#region string Country
 
 		private string country;
-		[Column(Storage = "country", Name = "country", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "country", Name = "country", DbType = "VARCHAR(15)", Expression = null)]
 		public string Country
 		{
 			get
@@ -2388,7 +1941,6 @@ namespace nwind
 				if (value != country)
 				{
 					country = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -2398,8 +1950,8 @@ namespace nwind
 		#region string Fax
 
 		private string fax;
-		[Column(Storage = "fax", Name = "fax", DbType = "VARCHAR(24)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "fax", Name = "fax", DbType = "VARCHAR(24)", Expression = null)]
 		public string Fax
 		{
 			get
@@ -2411,7 +1963,6 @@ namespace nwind
 				if (value != fax)
 				{
 					fax = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -2421,8 +1972,8 @@ namespace nwind
 		#region string Phone
 
 		private string phone;
-		[Column(Storage = "phone", Name = "phone", DbType = "VARCHAR(24)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "phone", Name = "phone", DbType = "VARCHAR(24)", Expression = null)]
 		public string Phone
 		{
 			get
@@ -2434,7 +1985,6 @@ namespace nwind
 				if (value != phone)
 				{
 					phone = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -2444,8 +1994,8 @@ namespace nwind
 		#region string PostalCode
 
 		private string postalCode;
-		[Column(Storage = "postalCode", Name = "postalcode", DbType = "VARCHAR(10)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "postalCode", Name = "postalcode", DbType = "VARCHAR(10)", Expression = null)]
 		public string PostalCode
 		{
 			get
@@ -2457,7 +2007,6 @@ namespace nwind
 				if (value != postalCode)
 				{
 					postalCode = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -2467,8 +2016,8 @@ namespace nwind
 		#region string Region
 
 		private string region;
-		[Column(Storage = "region", Name = "region", DbType = "VARCHAR(15)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "region", Name = "region", DbType = "VARCHAR(15)", Expression = null)]
 		public string Region
 		{
 			get
@@ -2480,7 +2029,6 @@ namespace nwind
 				if (value != region)
 				{
 					region = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -2491,8 +2039,8 @@ namespace nwind
 
 		[AutoGenId]
 		private int supplierID;
-		[Column(Storage = "supplierID", Name = "supplierid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = "next value for \"linquser\".\"suppliers_seq\"")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "supplierID", Name = "supplierid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = "next value for \"linquser\".\"suppliers_seq\"")]
 		public int SupplierID
 		{
 			get
@@ -2504,35 +2052,15 @@ namespace nwind
 				if (value != supplierID)
 				{
 					supplierID = value;
-					IsModified = true;
 				}
 			}
 		}
 
 		#endregion
 
-		#region GetHashCode(), Equals() - uses column SupplierID to look up objects in liveObjectMap
-
-		public override int GetHashCode()
-		{
-			return SupplierID.GetHashCode();
-		}
-
-		public override bool Equals(object o)
-		{
-			Supplier other = o as Supplier;
-			if (other == null)
-			{
-				return false;
-			}
-			return SupplierID.Equals(other.SupplierID);
-		}
-
-		#endregion
-
 		#region Children
 
-		[Association(Storage = "null", OtherKey = "SupplierID", Name = "linquser_products_supplierid_linquser_suppliers_supplierid")]
+		[Association(Storage = null, OtherKey = "SupplierID", Name = "linquser_products_supplierid_linquser_suppliers_supplierid")]
 		[DebuggerNonUserCode]
 		public EntityMSet<Product> Products
 		{
@@ -2548,17 +2076,14 @@ namespace nwind
 
 	}
 
-	[Table(Name = "linquser.territories")]
-	public partial class Territory //: IModified
+	[Table(Name = "territories")]
+	public partial class Territory
 	{
-		// IModified backing field
-		public bool IsModified{ get; set; }
-
 		#region int RegionID
 
 		private int regionID;
-		[Column(Storage = "regionID", Name = "regionid", DbType = "INTEGER(4)", CanBeNull = false)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "regionID", Name = "regionid", DbType = "INTEGER(4)", CanBeNull = false, Expression = null)]
 		public int RegionID
 		{
 			get
@@ -2570,7 +2095,6 @@ namespace nwind
 				if (value != regionID)
 				{
 					regionID = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -2580,8 +2104,8 @@ namespace nwind
 		#region string TerritoryDescription
 
 		private string territoryDescription;
-		[Column(Storage = "territoryDescription", Name = "territorydescription", DbType = "VARCHAR(50)", CanBeNull = false)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "territoryDescription", Name = "territorydescription", DbType = "VARCHAR(50)", CanBeNull = false, Expression = null)]
 		public string TerritoryDescription
 		{
 			get
@@ -2593,7 +2117,6 @@ namespace nwind
 				if (value != territoryDescription)
 				{
 					territoryDescription = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -2603,8 +2126,8 @@ namespace nwind
 		#region string TerritoryID
 
 		private string territoryID;
-		[Column(Storage = "territoryID", Name = "territoryid", DbType = "VARCHAR(20)", IsPrimaryKey = true, CanBeNull = false)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "territoryID", Name = "territoryid", DbType = "VARCHAR(20)", IsPrimaryKey = true, CanBeNull = false, Expression = null)]
 		public string TerritoryID
 		{
 			get
@@ -2616,35 +2139,15 @@ namespace nwind
 				if (value != territoryID)
 				{
 					territoryID = value;
-					IsModified = true;
 				}
 			}
 		}
 
 		#endregion
 
-		#region GetHashCode(), Equals() - uses column TerritoryID to look up objects in liveObjectMap
-
-		public override int GetHashCode()
-		{
-			return TerritoryID.GetHashCode();
-		}
-
-		public override bool Equals(object o)
-		{
-			Territory other = o as Territory;
-			if (other == null)
-			{
-				return false;
-			}
-			return TerritoryID.Equals(other.TerritoryID);
-		}
-
-		#endregion
-
 		#region Children
 
-		[Association(Storage = "null", OtherKey = "TerritoryID", Name = "linquser_employeeterritories_territoryid_linquser_territories_territoryid")]
+		[Association(Storage = null, OtherKey = "TerritoryID", Name = "linquser_employeeterritories_territoryid_linquser_territories_territoryid")]
 		[DebuggerNonUserCode]
 		public EntityMSet<EmployeeTerritory> EmployeeTerritories
 		{

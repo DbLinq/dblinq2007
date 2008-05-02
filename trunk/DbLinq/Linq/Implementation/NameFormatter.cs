@@ -92,6 +92,9 @@ namespace DbLinq.Linq.Implementation
 
         public string ToPascalCase(string part)
         {
+            // we have a very special case here, for "ID" that goes to full uppercase even in PascalCase mode
+            if (string.Compare(part, "id", true) == 0)
+                return "ID";
             part = part.Substring(0, 1).ToUpper() + part.Substring(1).ToLower();
             return part;
         }

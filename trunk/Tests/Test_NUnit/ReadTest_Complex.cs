@@ -30,6 +30,12 @@ using NUnit.Framework;
 using nwind;
 using Test_NUnit;
 
+#if ORACLE
+using Id = System.Decimal;
+#else
+using Id = System.Int32;
+#endif
+
 #if MYSQL
 namespace Test_NUnit_MySql
 #elif ORACLE
@@ -143,7 +149,7 @@ namespace Test_NUnit_MySql
         public void F3_MaxProductId()
         {
             var q = from p in db.Products select p.ProductID;
-            int maxID = q.Max();
+            var maxID = q.Max();
             Assert.Greater(maxID, 0, "Expected non-zero product count");
         }
 
@@ -151,7 +157,7 @@ namespace Test_NUnit_MySql
         public void F4_MinProductId()
         {
             var q = from p in db.Products select p.ProductID;
-            int minID = q.Min();
+            var minID = q.Min();
             Assert.Greater(minID, 0, "Expected non-zero product count");
         }
 
@@ -374,7 +380,7 @@ namespace Test_NUnit_MySql
         [Test]
         public void O4_OperatorContains()
         {
-            int[] ids = new int[] { 1, 2, 3 };
+            var ids = new Id[] { 1, 2, 3 };
             Northwind db = CreateDB();
 
             //var q = from p in db.Products select p.ProductID;
