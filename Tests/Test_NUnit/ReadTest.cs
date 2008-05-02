@@ -117,7 +117,7 @@ namespace Test_NUnit_Oracle
             Northwind db = CreateDB();
 
             var q = from p in db.Products where p.ProductName == "Pen" select p.ProductID;
-            List<int> productIDs = q.ToList();
+            var productIDs = q.ToList();
             int productCount = productIDs.Count;
             Assert.AreEqual(productCount, 1, "Expected one pen, got count=" + productCount);
         }
@@ -169,7 +169,7 @@ namespace Test_NUnit_Oracle
             Northwind db = CreateDB();
 
             var q = from p in db.Products where p.ProductName == "Pen" select p.ProductID;
-            int productID = q.First();
+            var productID = q.First();
             Assert.Greater(productID, 0, "Expected penID>0, got " + productID);
         }
 
@@ -189,7 +189,7 @@ namespace Test_NUnit_Oracle
             Northwind db = CreateDB();
 
             var q = from p in db.Products where p.ProductName == "Pen" select p.ProductID;
-            int productID = q.Last();
+            var productID = q.Last();
             Assert.Greater(productID, 0, "Expected penID>0, got " + productID);
         }
 
@@ -310,8 +310,8 @@ namespace Test_NUnit_Oracle
             List<Product> prods = q.ToList();
             Assert.Greater(prods.Count, 2, "Expected couple of products with letter 'p'");
 
-            int prodID0 = prods[0].ProductID;
-            int prodID1 = prods[1].ProductID;
+            var prodID0 = prods[0].ProductID;
+            var prodID1 = prods[1].ProductID;
             Assert.Greater(prodID0, prodID1, "Sorting is broken");
         }
 

@@ -1,13 +1,13 @@
-#region Auto-generated classes for Northwind database on 2008-03-12 22:22:46Z
+#region Auto-generated classes for Northwind database on 2008-05-03 00:22:46Z
 
 //
-//              _        _ __                       _
-//   /\/\   ___| |_ __ _| / _\ ___  __ _ _   _  ___| |
-//  /    \ / _ \ __/ _` | \ \ / _ \/ _` | | | |/ _ \ |
-// / /\/\ \  __/ || (_| | |\ \  __/ (_| | |_| |  __/ |
-// \/    \/\___|\__\__,_|_\__/\___|\__, |\__,_|\___|_|
-//                                    |_|
-// Auto-generated from Northwind on 2008-03-12 22:22:46Z
+//  ____  _     __  __      _        _
+// |  _ \| |__ |  \/  | ___| |_ __ _| |
+// | | | | '_ \| |\/| |/ _ \ __/ _` | |
+// | |_| | |_) | |  | |  __/ || (_| | |
+// |____/|_.__/|_|  |_|\___|\__\__,_|_|
+//
+// Auto-generated from Northwind on 2008-05-03 00:22:46Z
 // Please visit http://linq.to/db for more information
 
 #endregion
@@ -26,67 +26,67 @@ using DbLinq.Linq.Mapping;
 
 namespace nwind
 {
-	public partial class Northwind : DbLinq.MySql.MySqlDataContext
+	public partial class Northwind : DbLinq.Linq.DataContext
 	{
-		//public Northwind(string connectionString)
-		//    : base(connectionString)
-		//{
-		//}
-
-		public Northwind(IDbConnection connection)
-		    : base(connection)
+		public Northwind(System.Data.IDbConnection connection)
+		: base(connection, new DbLinq.MySql.MySqlVendor())
 		{
 		}
 
-		public Table<Region> Regions { get { return GetTable<Region>(); } }
-		public Table<Supplier> Suppliers { get { return GetTable<Supplier>(); } }
-		public Table<Shipper> Shippers { get { return GetTable<Shipper>(); } }
+		public Northwind(System.Data.IDbConnection connection, DbLinq.Vendor.IVendor vendor)
+		: base(connection, vendor)
+		{
+		}
+
 		public Table<Category> Categories { get { return GetTable<Category>(); } }
 		public Table<Customer> Customers { get { return GetTable<Customer>(); } }
 		public Table<Employee> Employees { get { return GetTable<Employee>(); } }
-		public Table<Territory> Territories { get { return GetTable<Territory>(); } }
 		public Table<EmployeeTerritory> EmployeeTerritories { get { return GetTable<EmployeeTerritory>(); } }
 		public Table<Order> Orders { get { return GetTable<Order>(); } }
-		public Table<Product> Products { get { return GetTable<Product>(); } }
 		public Table<OrderDetail> OrderDetails { get { return GetTable<OrderDetail>(); } }
+		public Table<Product> Products { get { return GetTable<Product>(); } }
+		public Table<Region> Regions { get { return GetTable<Region>(); } }
+		public Table<Shipper> Shippers { get { return GetTable<Shipper>(); } }
+		public Table<Supplier> Suppliers { get { return GetTable<Supplier>(); } }
+		public Table<Territory> Territories { get { return GetTable<Territory>(); } }
 
-		[Function(Name = "getOrderCount", IsComposable = true)]
+		[Function(Name = "northwind.getOrderCount", IsComposable = true)]
 		public int GetOrderCount([Parameter(Name = "custId", DbType = "VARCHAR(5)")] string custId)
 		{
 			var result = ExecuteMethodCall(this, (MethodInfo)MethodBase.GetCurrentMethod(), custId);
 			return (int)result.ReturnValue;
 		}
 
-		[Function(Name = "hello0", IsComposable = true)]
+		[Function(Name = "northwind.hello0", IsComposable = true)]
 		public string Hello0()
 		{
 			var result = ExecuteMethodCall(this, (MethodInfo)MethodBase.GetCurrentMethod());
 			return (string)result.ReturnValue;
 		}
 
-		[Function(Name = "hello1", IsComposable = true)]
+		[Function(Name = "northwind.hello1", IsComposable = true)]
 		public string Hello1([Parameter(Name = "s", DbType = "CHAR(20)")] string s)
 		{
 			var result = ExecuteMethodCall(this, (MethodInfo)MethodBase.GetCurrentMethod(), s);
 			return (string)result.ReturnValue;
 		}
 
-		[Function(Name = "hello2", IsComposable = true)]
+		[Function(Name = "northwind.hello2", IsComposable = true)]
 		public string Hello2([Parameter(Name = "s", DbType = "CHAR(20)")] string s, [Parameter(Name = "s2", DbType = "int")] int s2)
 		{
 			var result = ExecuteMethodCall(this, (MethodInfo)MethodBase.GetCurrentMethod(), s, s2);
 			return (string)result.ReturnValue;
 		}
 
-		[Function(Name = "sp_selOrders", IsComposable = false)]
+		[Function(Name = "northwind.sp_selOrders", IsComposable = false)]
 		public System.Data.DataSet SpSelOrders([Parameter(Name = "s", DbType = "CHAR(20)")] string s, [Parameter(Name = "s2", DbType = "int")] out int s2)
 		{
 			var result = ExecuteMethodCall(this, (MethodInfo)MethodBase.GetCurrentMethod(), s);
-			s2 = (int)result.GetParameterValue(1);
+			s2 = (System.Int32)result.GetParameterValue(1);
 			return (System.Data.DataSet)result.ReturnValue;
 		}
 
-		[Function(Name = "sp_updOrders", IsComposable = false)]
+		[Function(Name = "northwind.sp_updOrders", IsComposable = false)]
 		public void SpUpdOrders([Parameter(Name = "custID", DbType = "int")] int custID, [Parameter(Name = "prodId", DbType = "int")] int prodId)
 		{
 			var result = ExecuteMethodCall(this, (MethodInfo)MethodBase.GetCurrentMethod(), custID, prodId);
@@ -94,518 +94,15 @@ namespace nwind
 
 	}
 
-	[Table(Name = "region")]
-	public partial class Region //: IModified
-	{
-		// IModified backing field
-		public bool IsModified{ get; set; }
-
-		#region int RegionID
-
-		[AutoGenId]
-		private int regionID;
-		[Column(Storage = "regionID", Name = "RegionID", DbType = "int", IsPrimaryKey = true, IsDbGenerated = true)]
-		[DebuggerNonUserCode]
-		public int RegionID
-		{
-			get
-			{
-				return regionID;
-			}
-			set
-			{
-				if (value != regionID)
-				{
-					regionID = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string RegionDescription
-
-		private string regionDescription;
-		[Column(Storage = "regionDescription", Name = "RegionDescription", DbType = "varchar(50)")]
-		[DebuggerNonUserCode]
-		public string RegionDescription
-		{
-			get
-			{
-				return regionDescription;
-			}
-			set
-			{
-				if (value != regionDescription)
-				{
-					regionDescription = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region GetHashCode(), Equals() - uses column RegionID to look up objects in liveObjectMap
-
-		public override int GetHashCode()
-		{
-			return RegionID.GetHashCode();
-		}
-
-		public override bool Equals(object o)
-		{
-			Region other = o as Region;
-			if (other == null)
-			{
-				return false;
-			}
-			return RegionID.Equals(other.RegionID);
-		}
-
-		#endregion
-
-		#region Children
-
-		[Association(Storage = "null", OtherKey = "RegionID", Name = "territories_ibfk_1")]
-		[DebuggerNonUserCode]
-		public EntityMSet<Territory> Territories
-		{
-			get
-			{
-				// L212 - child data available only when part of query
-				return null;
-			}
-		}
-
-
-		#endregion
-
-	}
-
-	[Table(Name = "suppliers")]
-	public partial class Supplier //: IModified
-	{
-		// IModified backing field
-		public bool IsModified{ get; set; }
-
-		#region int SupplierID
-
-		[AutoGenId]
-		private int supplierID;
-		[Column(Storage = "supplierID", Name = "SupplierID", DbType = "int", IsPrimaryKey = true, IsDbGenerated = true)]
-		[DebuggerNonUserCode]
-		public int SupplierID
-		{
-			get
-			{
-				return supplierID;
-			}
-			set
-			{
-				if (value != supplierID)
-				{
-					supplierID = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string CompanyName
-
-		private string companyName;
-		[Column(Storage = "companyName", Name = "CompanyName", DbType = "varchar(40)")]
-		[DebuggerNonUserCode]
-		public string CompanyName
-		{
-			get
-			{
-				return companyName;
-			}
-			set
-			{
-				if (value != companyName)
-				{
-					companyName = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string ContactName
-
-		private string contactName;
-		[Column(Storage = "contactName", Name = "ContactName", DbType = "varchar(30)", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public string ContactName
-		{
-			get
-			{
-				return contactName;
-			}
-			set
-			{
-				if (value != contactName)
-				{
-					contactName = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string ContactTitle
-
-		private string contactTitle;
-		[Column(Storage = "contactTitle", Name = "ContactTitle", DbType = "varchar(30)", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public string ContactTitle
-		{
-			get
-			{
-				return contactTitle;
-			}
-			set
-			{
-				if (value != contactTitle)
-				{
-					contactTitle = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string Address
-
-		private string address;
-		[Column(Storage = "address", Name = "Address", DbType = "varchar(60)", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public string Address
-		{
-			get
-			{
-				return address;
-			}
-			set
-			{
-				if (value != address)
-				{
-					address = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string City
-
-		private string city;
-		[Column(Storage = "city", Name = "City", DbType = "varchar(15)", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public string City
-		{
-			get
-			{
-				return city;
-			}
-			set
-			{
-				if (value != city)
-				{
-					city = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string Region
-
-		private string region;
-		[Column(Storage = "region", Name = "Region", DbType = "varchar(15)", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public string Region
-		{
-			get
-			{
-				return region;
-			}
-			set
-			{
-				if (value != region)
-				{
-					region = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string PostalCode
-
-		private string postalCode;
-		[Column(Storage = "postalCode", Name = "PostalCode", DbType = "varchar(10)", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public string PostalCode
-		{
-			get
-			{
-				return postalCode;
-			}
-			set
-			{
-				if (value != postalCode)
-				{
-					postalCode = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string Country
-
-		private string country;
-		[Column(Storage = "country", Name = "Country", DbType = "varchar(15)", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public string Country
-		{
-			get
-			{
-				return country;
-			}
-			set
-			{
-				if (value != country)
-				{
-					country = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string Phone
-
-		private string phone;
-		[Column(Storage = "phone", Name = "Phone", DbType = "varchar(24)", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public string Phone
-		{
-			get
-			{
-				return phone;
-			}
-			set
-			{
-				if (value != phone)
-				{
-					phone = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string Fax
-
-		private string fax;
-		[Column(Storage = "fax", Name = "Fax", DbType = "varchar(24)", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public string Fax
-		{
-			get
-			{
-				return fax;
-			}
-			set
-			{
-				if (value != fax)
-				{
-					fax = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region GetHashCode(), Equals() - uses column SupplierID to look up objects in liveObjectMap
-
-		public override int GetHashCode()
-		{
-			return SupplierID.GetHashCode();
-		}
-
-		public override bool Equals(object o)
-		{
-			Supplier other = o as Supplier;
-			if (other == null)
-			{
-				return false;
-			}
-			return SupplierID.Equals(other.SupplierID);
-		}
-
-		#endregion
-
-		#region Children
-
-		[Association(Storage = "null", OtherKey = "SupplierID", Name = "products_ibfk_2")]
-		[DebuggerNonUserCode]
-		public EntityMSet<Product> Products
-		{
-			get
-			{
-				// L212 - child data available only when part of query
-				return null;
-			}
-		}
-
-
-		#endregion
-
-	}
-
-	[Table(Name = "shippers")]
-	public partial class Shipper //: IModified
-	{
-		// IModified backing field
-		public bool IsModified{ get; set; }
-
-		#region int ShipperID
-
-		[AutoGenId]
-		private int shipperID;
-		[Column(Storage = "shipperID", Name = "ShipperID", DbType = "int", IsPrimaryKey = true, IsDbGenerated = true)]
-		[DebuggerNonUserCode]
-		public int ShipperID
-		{
-			get
-			{
-				return shipperID;
-			}
-			set
-			{
-				if (value != shipperID)
-				{
-					shipperID = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string CompanyName
-
-		private string companyName;
-		[Column(Storage = "companyName", Name = "CompanyName", DbType = "varchar(40)")]
-		[DebuggerNonUserCode]
-		public string CompanyName
-		{
-			get
-			{
-				return companyName;
-			}
-			set
-			{
-				if (value != companyName)
-				{
-					companyName = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string Phone
-
-		private string phone;
-		[Column(Storage = "phone", Name = "Phone", DbType = "varchar(24)", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public string Phone
-		{
-			get
-			{
-				return phone;
-			}
-			set
-			{
-				if (value != phone)
-				{
-					phone = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region GetHashCode(), Equals() - uses column ShipperID to look up objects in liveObjectMap
-
-		public override int GetHashCode()
-		{
-			return ShipperID.GetHashCode();
-		}
-
-		public override bool Equals(object o)
-		{
-			Shipper other = o as Shipper;
-			if (other == null)
-			{
-				return false;
-			}
-			return ShipperID.Equals(other.ShipperID);
-		}
-
-		#endregion
-
-		#region Children
-
-		[Association(Storage = "null", OtherKey = "ShipperID", Name = "orders_ibfk_3")]
-		[DebuggerNonUserCode]
-		public EntityMSet<Order> Orders
-		{
-			get
-			{
-				// L212 - child data available only when part of query
-				return null;
-			}
-		}
-
-
-		#endregion
-
-	}
-
 	[Table(Name = "categories")]
-	public partial class Category //: IModified
+	public partial class Category
 	{
-		// IModified backing field
-		public bool IsModified{ get; set; }
-
 		#region int CategoryID
 
 		[AutoGenId]
 		private int categoryID;
-		[Column(Storage = "categoryID", Name = "CategoryID", DbType = "int", IsPrimaryKey = true, IsDbGenerated = true)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "categoryID", Name = "CategoryID", DbType = "int", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null)]
 		public int CategoryID
 		{
 			get
@@ -617,7 +114,6 @@ namespace nwind
 				if (value != categoryID)
 				{
 					categoryID = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -627,8 +123,8 @@ namespace nwind
 		#region string CategoryName
 
 		private string categoryName;
-		[Column(Storage = "categoryName", Name = "CategoryName", DbType = "varchar(15)")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "categoryName", Name = "CategoryName", DbType = "varchar(15)", CanBeNull = false, Expression = null)]
 		public string CategoryName
 		{
 			get
@@ -640,7 +136,6 @@ namespace nwind
 				if (value != categoryName)
 				{
 					categoryName = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -650,8 +145,8 @@ namespace nwind
 		#region string Description
 
 		private string description;
-		[Column(Storage = "description", Name = "Description", DbType = "text", CanBeNull = true)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "description", Name = "Description", DbType = "text", Expression = null)]
 		public string Description
 		{
 			get
@@ -663,7 +158,6 @@ namespace nwind
 				if (value != description)
 				{
 					description = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -672,10 +166,10 @@ namespace nwind
 
 		#region System.Byte[] Picture
 
-		private byte[] picture;
-		[Column(Storage = "picture", Name = "Picture", DbType = "blob", CanBeNull = true)]
+		private System.Byte[] picture;
 		[DebuggerNonUserCode]
-		public byte[] Picture
+		[Column(Storage = "picture", Name = "Picture", DbType = "blob", Expression = null)]
+		public System.Byte[] Picture
 		{
 			get
 			{
@@ -686,35 +180,15 @@ namespace nwind
 				if (value != picture)
 				{
 					picture = value;
-					IsModified = true;
 				}
 			}
 		}
 
 		#endregion
 
-		#region GetHashCode(), Equals() - uses column CategoryID to look up objects in liveObjectMap
-
-		public override int GetHashCode()
-		{
-			return CategoryID.GetHashCode();
-		}
-
-		public override bool Equals(object o)
-		{
-			Category other = o as Category;
-			if (other == null)
-			{
-				return false;
-			}
-			return CategoryID.Equals(other.CategoryID);
-		}
-
-		#endregion
-
 		#region Children
 
-		[Association(Storage = "null", OtherKey = "CategoryID", Name = "products_ibfk_1")]
+		[Association(Storage = null, OtherKey = "CategoryID", Name = "products_ibfk_1")]
 		[DebuggerNonUserCode]
 		public EntityMSet<Product> Products
 		{
@@ -731,108 +205,13 @@ namespace nwind
 	}
 
 	[Table(Name = "customers")]
-	public partial class Customer //: IModified
+	public partial class Customer
 	{
-		// IModified backing field
-		public bool IsModified{ get; set; }
-
-		#region string CustomerID
-
-		private string customerID;
-		[Column(Storage = "customerID", Name = "CustomerID", DbType = "varchar(5)", IsPrimaryKey = true)]
-		[DebuggerNonUserCode]
-		public string CustomerID
-		{
-			get
-			{
-				return customerID;
-			}
-			set
-			{
-				if (value != customerID)
-				{
-					customerID = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string CompanyName
-
-		private string companyName;
-		[Column(Storage = "companyName", Name = "CompanyName", DbType = "varchar(40)")]
-		[DebuggerNonUserCode]
-		public string CompanyName
-		{
-			get
-			{
-				return companyName;
-			}
-			set
-			{
-				if (value != companyName)
-				{
-					companyName = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string ContactName
-
-		private string contactName;
-		[Column(Storage = "contactName", Name = "ContactName", DbType = "varchar(30)", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public string ContactName
-		{
-			get
-			{
-				return contactName;
-			}
-			set
-			{
-				if (value != contactName)
-				{
-					contactName = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string ContactTitle
-
-		private string contactTitle;
-		[Column(Storage = "contactTitle", Name = "ContactTitle", DbType = "varchar(30)", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public string ContactTitle
-		{
-			get
-			{
-				return contactTitle;
-			}
-			set
-			{
-				if (value != contactTitle)
-				{
-					contactTitle = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
 		#region string Address
 
 		private string address;
-		[Column(Storage = "address", Name = "Address", DbType = "varchar(60)", CanBeNull = true)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "address", Name = "Address", DbType = "varchar(60)", Expression = null)]
 		public string Address
 		{
 			get
@@ -844,7 +223,6 @@ namespace nwind
 				if (value != address)
 				{
 					address = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -854,8 +232,8 @@ namespace nwind
 		#region string City
 
 		private string city;
-		[Column(Storage = "city", Name = "City", DbType = "varchar(15)", CanBeNull = true)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "city", Name = "City", DbType = "varchar(15)", Expression = null)]
 		public string City
 		{
 			get
@@ -867,53 +245,72 @@ namespace nwind
 				if (value != city)
 				{
 					city = value;
-					IsModified = true;
 				}
 			}
 		}
 
 		#endregion
 
-		#region string Region
+		#region string CompanyName
 
-		private string region;
-		[Column(Storage = "region", Name = "Region", DbType = "varchar(15)", CanBeNull = true)]
+		private string companyName;
 		[DebuggerNonUserCode]
-		public string Region
+		[Column(Storage = "companyName", Name = "CompanyName", DbType = "varchar(40)", CanBeNull = false, Expression = null)]
+		public string CompanyName
 		{
 			get
 			{
-				return region;
+				return companyName;
 			}
 			set
 			{
-				if (value != region)
+				if (value != companyName)
 				{
-					region = value;
-					IsModified = true;
+					companyName = value;
 				}
 			}
 		}
 
 		#endregion
 
-		#region string PostalCode
+		#region string ContactName
 
-		private string postalCode;
-		[Column(Storage = "postalCode", Name = "PostalCode", DbType = "varchar(10)", CanBeNull = true)]
+		private string contactName;
 		[DebuggerNonUserCode]
-		public string PostalCode
+		[Column(Storage = "contactName", Name = "ContactName", DbType = "varchar(30)", Expression = null)]
+		public string ContactName
 		{
 			get
 			{
-				return postalCode;
+				return contactName;
 			}
 			set
 			{
-				if (value != postalCode)
+				if (value != contactName)
 				{
-					postalCode = value;
-					IsModified = true;
+					contactName = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string ContactTitle
+
+		private string contactTitle;
+		[DebuggerNonUserCode]
+		[Column(Storage = "contactTitle", Name = "ContactTitle", DbType = "varchar(30)", Expression = null)]
+		public string ContactTitle
+		{
+			get
+			{
+				return contactTitle;
+			}
+			set
+			{
+				if (value != contactTitle)
+				{
+					contactTitle = value;
 				}
 			}
 		}
@@ -923,8 +320,8 @@ namespace nwind
 		#region string Country
 
 		private string country;
-		[Column(Storage = "country", Name = "Country", DbType = "varchar(15)", CanBeNull = true)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "country", Name = "Country", DbType = "varchar(15)", Expression = null)]
 		public string Country
 		{
 			get
@@ -936,30 +333,28 @@ namespace nwind
 				if (value != country)
 				{
 					country = value;
-					IsModified = true;
 				}
 			}
 		}
 
 		#endregion
 
-		#region string Phone
+		#region string CustomerID
 
-		private string phone;
-		[Column(Storage = "phone", Name = "Phone", DbType = "varchar(24)", CanBeNull = true)]
+		private string customerID;
 		[DebuggerNonUserCode]
-		public string Phone
+		[Column(Storage = "customerID", Name = "CustomerID", DbType = "varchar(5)", IsPrimaryKey = true, CanBeNull = false, Expression = null)]
+		public string CustomerID
 		{
 			get
 			{
-				return phone;
+				return customerID;
 			}
 			set
 			{
-				if (value != phone)
+				if (value != customerID)
 				{
-					phone = value;
-					IsModified = true;
+					customerID = value;
 				}
 			}
 		}
@@ -969,8 +364,8 @@ namespace nwind
 		#region string Fax
 
 		private string fax;
-		[Column(Storage = "fax", Name = "Fax", DbType = "varchar(24)", CanBeNull = true)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "fax", Name = "Fax", DbType = "varchar(24)", Expression = null)]
 		public string Fax
 		{
 			get
@@ -982,35 +377,81 @@ namespace nwind
 				if (value != fax)
 				{
 					fax = value;
-					IsModified = true;
 				}
 			}
 		}
 
 		#endregion
 
-		#region GetHashCode(), Equals() - uses column CustomerID to look up objects in liveObjectMap
+		#region string Phone
 
-		public override int GetHashCode()
+		private string phone;
+		[DebuggerNonUserCode]
+		[Column(Storage = "phone", Name = "Phone", DbType = "varchar(24)", Expression = null)]
+		public string Phone
 		{
-			return CustomerID.GetHashCode();
+			get
+			{
+				return phone;
+			}
+			set
+			{
+				if (value != phone)
+				{
+					phone = value;
+				}
+			}
 		}
 
-		public override bool Equals(object o)
+		#endregion
+
+		#region string PostalCode
+
+		private string postalCode;
+		[DebuggerNonUserCode]
+		[Column(Storage = "postalCode", Name = "PostalCode", DbType = "varchar(10)", Expression = null)]
+		public string PostalCode
 		{
-			Customer other = o as Customer;
-			if (other == null)
+			get
 			{
-				return false;
+				return postalCode;
 			}
-			return CustomerID.Equals(other.CustomerID);
+			set
+			{
+				if (value != postalCode)
+				{
+					postalCode = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string Region
+
+		private string region;
+		[DebuggerNonUserCode]
+		[Column(Storage = "region", Name = "Region", DbType = "varchar(15)", Expression = null)]
+		public string Region
+		{
+			get
+			{
+				return region;
+			}
+			set
+			{
+				if (value != region)
+				{
+					region = value;
+				}
+			}
 		}
 
 		#endregion
 
 		#region Children
 
-		[Association(Storage = "null", OtherKey = "CustomerID", Name = "orders_ibfk_1")]
+		[Association(Storage = null, OtherKey = "CustomerID", Name = "orders_ibfk_1")]
 		[DebuggerNonUserCode]
 		public EntityMSet<Order> Orders
 		{
@@ -1027,155 +468,13 @@ namespace nwind
 	}
 
 	[Table(Name = "employees")]
-	public partial class Employee //: IModified
+	public partial class Employee
 	{
-		// IModified backing field
-		public bool IsModified{ get; set; }
-
-		#region int EmployeeID
-
-		[AutoGenId]
-		private int employeeID;
-		[Column(Storage = "employeeID", Name = "EmployeeID", DbType = "int", IsPrimaryKey = true, IsDbGenerated = true)]
-		[DebuggerNonUserCode]
-		public int EmployeeID
-		{
-			get
-			{
-				return employeeID;
-			}
-			set
-			{
-				if (value != employeeID)
-				{
-					employeeID = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string LastName
-
-		private string lastName;
-		[Column(Storage = "lastName", Name = "LastName", DbType = "varchar(20)")]
-		[DebuggerNonUserCode]
-		public string LastName
-		{
-			get
-			{
-				return lastName;
-			}
-			set
-			{
-				if (value != lastName)
-				{
-					lastName = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string FirstName
-
-		private string firstName;
-		[Column(Storage = "firstName", Name = "FirstName", DbType = "varchar(10)")]
-		[DebuggerNonUserCode]
-		public string FirstName
-		{
-			get
-			{
-				return firstName;
-			}
-			set
-			{
-				if (value != firstName)
-				{
-					firstName = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string Title
-
-		private string title;
-		[Column(Storage = "title", Name = "Title", DbType = "varchar(30)", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public string Title
-		{
-			get
-			{
-				return title;
-			}
-			set
-			{
-				if (value != title)
-				{
-					title = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region System.DateTime? BirthDate
-
-		private DateTime? birthDate;
-		[Column(Storage = "birthDate", Name = "BirthDate", DbType = "datetime", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public DateTime? BirthDate
-		{
-			get
-			{
-				return birthDate;
-			}
-			set
-			{
-				if (value != birthDate)
-				{
-					birthDate = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region System.DateTime? HireDate
-
-		private DateTime? hiredAte;
-		[Column(Storage = "hiredAte", Name = "HireDate", DbType = "datetime", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public DateTime? HireDate
-		{
-			get
-			{
-				return hiredAte;
-			}
-			set
-			{
-				if (value != hiredAte)
-				{
-					hiredAte = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
 		#region string Address
 
 		private string address;
-		[Column(Storage = "address", Name = "Address", DbType = "varchar(60)", CanBeNull = true)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "address", Name = "Address", DbType = "varchar(60)", Expression = null)]
 		public string Address
 		{
 			get
@@ -1187,7 +486,28 @@ namespace nwind
 				if (value != address)
 				{
 					address = value;
-					IsModified = true;
+				}
+			}
+		}
+
+		#endregion
+
+		#region System.DateTime? BirthDate
+
+		private System.DateTime? birthDate;
+		[DebuggerNonUserCode]
+		[Column(Storage = "birthDate", Name = "BirthDate", DbType = "datetime", Expression = null)]
+		public System.DateTime? BirthDate
+		{
+			get
+			{
+				return birthDate;
+			}
+			set
+			{
+				if (value != birthDate)
+				{
+					birthDate = value;
 				}
 			}
 		}
@@ -1197,8 +517,8 @@ namespace nwind
 		#region string City
 
 		private string city;
-		[Column(Storage = "city", Name = "City", DbType = "varchar(15)", CanBeNull = true)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "city", Name = "City", DbType = "varchar(15)", Expression = null)]
 		public string City
 		{
 			get
@@ -1210,53 +530,6 @@ namespace nwind
 				if (value != city)
 				{
 					city = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string Region
-
-		private string region;
-		[Column(Storage = "region", Name = "Region", DbType = "varchar(15)", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public string Region
-		{
-			get
-			{
-				return region;
-			}
-			set
-			{
-				if (value != region)
-				{
-					region = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string PostalCode
-
-		private string postalCode;
-		[Column(Storage = "postalCode", Name = "PostalCode", DbType = "varchar(10)", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public string PostalCode
-		{
-			get
-			{
-				return postalCode;
-			}
-			set
-			{
-				if (value != postalCode)
-				{
-					postalCode = value;
-					IsModified = true;
 				}
 			}
 		}
@@ -1266,8 +539,8 @@ namespace nwind
 		#region string Country
 
 		private string country;
-		[Column(Storage = "country", Name = "Country", DbType = "varchar(15)", CanBeNull = true)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "country", Name = "Country", DbType = "varchar(15)", Expression = null)]
 		public string Country
 		{
 			get
@@ -1279,7 +552,73 @@ namespace nwind
 				if (value != country)
 				{
 					country = value;
-					IsModified = true;
+				}
+			}
+		}
+
+		#endregion
+
+		#region int EmployeeID
+
+		[AutoGenId]
+		private int employeeID;
+		[DebuggerNonUserCode]
+		[Column(Storage = "employeeID", Name = "EmployeeID", DbType = "int", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null)]
+		public int EmployeeID
+		{
+			get
+			{
+				return employeeID;
+			}
+			set
+			{
+				if (value != employeeID)
+				{
+					employeeID = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string FirstName
+
+		private string firstName;
+		[DebuggerNonUserCode]
+		[Column(Storage = "firstName", Name = "FirstName", DbType = "varchar(10)", CanBeNull = false, Expression = null)]
+		public string FirstName
+		{
+			get
+			{
+				return firstName;
+			}
+			set
+			{
+				if (value != firstName)
+				{
+					firstName = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region System.DateTime? HireDate
+
+		private System.DateTime? hireDate;
+		[DebuggerNonUserCode]
+		[Column(Storage = "hireDate", Name = "HireDate", DbType = "datetime", Expression = null)]
+		public System.DateTime? HireDate
+		{
+			get
+			{
+				return hireDate;
+			}
+			set
+			{
+				if (value != hireDate)
+				{
+					hireDate = value;
 				}
 			}
 		}
@@ -1289,8 +628,8 @@ namespace nwind
 		#region string HomePhone
 
 		private string homePhone;
-		[Column(Storage = "homePhone", Name = "HomePhone", DbType = "varchar(24)", CanBeNull = true)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "homePhone", Name = "HomePhone", DbType = "varchar(24)", Expression = null)]
 		public string HomePhone
 		{
 			get
@@ -1302,30 +641,28 @@ namespace nwind
 				if (value != homePhone)
 				{
 					homePhone = value;
-					IsModified = true;
 				}
 			}
 		}
 
 		#endregion
 
-		#region System.Byte[] Photo
+		#region string LastName
 
-		private byte[] photo;
-		[Column(Storage = "photo", Name = "Photo", DbType = "blob", CanBeNull = true)]
+		private string lastName;
 		[DebuggerNonUserCode]
-		public byte[] Photo
+		[Column(Storage = "lastName", Name = "LastName", DbType = "varchar(20)", CanBeNull = false, Expression = null)]
+		public string LastName
 		{
 			get
 			{
-				return photo;
+				return lastName;
 			}
 			set
 			{
-				if (value != photo)
+				if (value != lastName)
 				{
-					photo = value;
-					IsModified = true;
+					lastName = value;
 				}
 			}
 		}
@@ -1335,8 +672,8 @@ namespace nwind
 		#region string Notes
 
 		private string notes;
-		[Column(Storage = "notes", Name = "Notes", DbType = "text", CanBeNull = true)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "notes", Name = "Notes", DbType = "text", Expression = null)]
 		public string Notes
 		{
 			get
@@ -1348,7 +685,72 @@ namespace nwind
 				if (value != notes)
 				{
 					notes = value;
-					IsModified = true;
+				}
+			}
+		}
+
+		#endregion
+
+		#region System.Byte[] Photo
+
+		private System.Byte[] photo;
+		[DebuggerNonUserCode]
+		[Column(Storage = "photo", Name = "Photo", DbType = "blob", Expression = null)]
+		public System.Byte[] Photo
+		{
+			get
+			{
+				return photo;
+			}
+			set
+			{
+				if (value != photo)
+				{
+					photo = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string PostalCode
+
+		private string postalCode;
+		[DebuggerNonUserCode]
+		[Column(Storage = "postalCode", Name = "PostalCode", DbType = "varchar(10)", Expression = null)]
+		public string PostalCode
+		{
+			get
+			{
+				return postalCode;
+			}
+			set
+			{
+				if (value != postalCode)
+				{
+					postalCode = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string Region
+
+		private string region;
+		[DebuggerNonUserCode]
+		[Column(Storage = "region", Name = "Region", DbType = "varchar(15)", Expression = null)]
+		public string Region
+		{
+			get
+			{
+				return region;
+			}
+			set
+			{
+				if (value != region)
+				{
+					region = value;
 				}
 			}
 		}
@@ -1358,8 +760,8 @@ namespace nwind
 		#region int? ReportsTo
 
 		private int? reportsTo;
-		[Column(Storage = "reportsTo", Name = "ReportsTo", DbType = "int", CanBeNull = true)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "reportsTo", Name = "ReportsTo", DbType = "int", Expression = null)]
 		public int? ReportsTo
 		{
 			get
@@ -1371,35 +773,37 @@ namespace nwind
 				if (value != reportsTo)
 				{
 					reportsTo = value;
-					IsModified = true;
 				}
 			}
 		}
 
 		#endregion
 
-		#region GetHashCode(), Equals() - uses column EmployeeID to look up objects in liveObjectMap
+		#region string Title
 
-		public override int GetHashCode()
+		private string title;
+		[DebuggerNonUserCode]
+		[Column(Storage = "title", Name = "Title", DbType = "varchar(30)", Expression = null)]
+		public string Title
 		{
-			return EmployeeID.GetHashCode();
-		}
-
-		public override bool Equals(object o)
-		{
-			Employee other = o as Employee;
-			if (other == null)
+			get
 			{
-				return false;
+				return title;
 			}
-			return EmployeeID.Equals(other.EmployeeID);
+			set
+			{
+				if (value != title)
+				{
+					title = value;
+				}
+			}
 		}
 
 		#endregion
 
 		#region Children
 
-		[Association(Storage = "null", OtherKey = "EmployeeID", Name = "employees_ibfk_1")]
+		[Association(Storage = null, OtherKey = "ReportsTo", Name = "employees_ibfk_1")]
 		[DebuggerNonUserCode]
 		public EntityMSet<Employee> Employees
 		{
@@ -1410,7 +814,7 @@ namespace nwind
 			}
 		}
 
-		[Association(Storage = "null", OtherKey = "EmployeeID", Name = "employeeterritories_ibfk_1")]
+		[Association(Storage = null, OtherKey = "EmployeeID", Name = "employeeterritories_ibfk_1")]
 		[DebuggerNonUserCode]
 		public EntityMSet<EmployeeTerritory> EmployeeTerritories
 		{
@@ -1421,7 +825,7 @@ namespace nwind
 			}
 		}
 
-		[Association(Storage = "null", OtherKey = "EmployeeID", Name = "orders_ibfk_2")]
+		[Association(Storage = null, OtherKey = "EmployeeID", Name = "orders_ibfk_2")]
 		[DebuggerNonUserCode]
 		public EntityMSet<Order> Orders
 		{
@@ -1437,18 +841,18 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Employee> employeesIBFK1;
-		[Association(Storage = "employeesIBFK1", ThisKey = "ReportsTo", Name = "employees_ibfk_1")]
+		private System.Data.Linq.EntityRef<Employee> employeesIBFk1;
+		[Association(Storage = "employeesIBFk1", ThisKey = "ReportsTo", Name = "employees_ibfk_1")]
 		[DebuggerNonUserCode]
 		public Employee ParentEmployee
 		{
 			get
 			{
-				return employeesIBFK1.Entity;
+				return employeesIBFk1.Entity;
 			}
 			set
 			{
-				employeesIBFK1.Entity = value;
+				employeesIBFk1.Entity = value;
 			}
 		}
 
@@ -1457,17 +861,36 @@ namespace nwind
 
 	}
 
-	[Table(Name = "territories")]
-	public partial class Territory //: IModified
+	[Table(Name = "employeeterritories")]
+	public partial class EmployeeTerritory
 	{
-		// IModified backing field
-		public bool IsModified{ get; set; }
+		#region int EmployeeID
+
+		private int employeeID;
+		[DebuggerNonUserCode]
+		[Column(Storage = "employeeID", Name = "EmployeeID", DbType = "int", IsPrimaryKey = true, CanBeNull = false, Expression = null)]
+		public int EmployeeID
+		{
+			get
+			{
+				return employeeID;
+			}
+			set
+			{
+				if (value != employeeID)
+				{
+					employeeID = value;
+				}
+			}
+		}
+
+		#endregion
 
 		#region string TerritoryID
 
 		private string territoryID;
-		[Column(Storage = "territoryID", Name = "TerritoryID", DbType = "varchar(20)", IsPrimaryKey = true)]
 		[DebuggerNonUserCode]
+		[Column(Storage = "territoryID", Name = "TerritoryID", DbType = "varchar(20)", IsPrimaryKey = true, CanBeNull = false, Expression = null)]
 		public string TerritoryID
 		{
 			get
@@ -1479,30 +902,875 @@ namespace nwind
 				if (value != territoryID)
 				{
 					territoryID = value;
-					IsModified = true;
 				}
 			}
 		}
 
 		#endregion
 
-		#region string TerritoryDescription
+		#region Parents
 
-		private string territoryDescription;
-		[Column(Storage = "territoryDescription", Name = "TerritoryDescription", DbType = "varchar(50)")]
+		private System.Data.Linq.EntityRef<Employee> employeeTerritoriesIBFk1;
+		[Association(Storage = "employeeTerritoriesIBFk1", ThisKey = "EmployeeID", Name = "employeeterritories_ibfk_1")]
 		[DebuggerNonUserCode]
-		public string TerritoryDescription
+		public Employee Employee
 		{
 			get
 			{
-				return territoryDescription;
+				return employeeTerritoriesIBFk1.Entity;
 			}
 			set
 			{
-				if (value != territoryDescription)
+				employeeTerritoriesIBFk1.Entity = value;
+			}
+		}
+
+		private System.Data.Linq.EntityRef<Territory> employeeTerritoriesIBFk2;
+		[Association(Storage = "employeeTerritoriesIBFk2", ThisKey = "TerritoryID", Name = "employeeterritories_ibfk_2")]
+		[DebuggerNonUserCode]
+		public Territory Territory
+		{
+			get
+			{
+				return employeeTerritoriesIBFk2.Entity;
+			}
+			set
+			{
+				employeeTerritoriesIBFk2.Entity = value;
+			}
+		}
+
+
+		#endregion
+
+	}
+
+	[Table(Name = "orders")]
+	public partial class Order
+	{
+		#region string CustomerID
+
+		private string customerID;
+		[DebuggerNonUserCode]
+		[Column(Storage = "customerID", Name = "CustomerID", DbType = "varchar(5)", Expression = null)]
+		public string CustomerID
+		{
+			get
+			{
+				return customerID;
+			}
+			set
+			{
+				if (value != customerID)
 				{
-					territoryDescription = value;
-					IsModified = true;
+					customerID = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region int? EmployeeID
+
+		private int? employeeID;
+		[DebuggerNonUserCode]
+		[Column(Storage = "employeeID", Name = "EmployeeID", DbType = "int", Expression = null)]
+		public int? EmployeeID
+		{
+			get
+			{
+				return employeeID;
+			}
+			set
+			{
+				if (value != employeeID)
+				{
+					employeeID = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region decimal? Freight
+
+		private decimal? freight;
+		[DebuggerNonUserCode]
+		[Column(Storage = "freight", Name = "Freight", DbType = "decimal", Expression = null)]
+		public decimal? Freight
+		{
+			get
+			{
+				return freight;
+			}
+			set
+			{
+				if (value != freight)
+				{
+					freight = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region System.DateTime? OrderDate
+
+		private System.DateTime? orderDate;
+		[DebuggerNonUserCode]
+		[Column(Storage = "orderDate", Name = "OrderDate", DbType = "datetime", Expression = null)]
+		public System.DateTime? OrderDate
+		{
+			get
+			{
+				return orderDate;
+			}
+			set
+			{
+				if (value != orderDate)
+				{
+					orderDate = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region int OrderID
+
+		[AutoGenId]
+		private int orderID;
+		[DebuggerNonUserCode]
+		[Column(Storage = "orderID", Name = "OrderID", DbType = "int", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null)]
+		public int OrderID
+		{
+			get
+			{
+				return orderID;
+			}
+			set
+			{
+				if (value != orderID)
+				{
+					orderID = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region System.DateTime? RequiredDate
+
+		private System.DateTime? requiredDate;
+		[DebuggerNonUserCode]
+		[Column(Storage = "requiredDate", Name = "RequiredDate", DbType = "datetime", Expression = null)]
+		public System.DateTime? RequiredDate
+		{
+			get
+			{
+				return requiredDate;
+			}
+			set
+			{
+				if (value != requiredDate)
+				{
+					requiredDate = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string ShipAddress
+
+		private string shipAddress;
+		[DebuggerNonUserCode]
+		[Column(Storage = "shipAddress", Name = "ShipAddress", DbType = "varchar(60)", Expression = null)]
+		public string ShipAddress
+		{
+			get
+			{
+				return shipAddress;
+			}
+			set
+			{
+				if (value != shipAddress)
+				{
+					shipAddress = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string ShipCity
+
+		private string shipCity;
+		[DebuggerNonUserCode]
+		[Column(Storage = "shipCity", Name = "ShipCity", DbType = "varchar(15)", Expression = null)]
+		public string ShipCity
+		{
+			get
+			{
+				return shipCity;
+			}
+			set
+			{
+				if (value != shipCity)
+				{
+					shipCity = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string ShipCountry
+
+		private string shipCountry;
+		[DebuggerNonUserCode]
+		[Column(Storage = "shipCountry", Name = "ShipCountry", DbType = "varchar(15)", Expression = null)]
+		public string ShipCountry
+		{
+			get
+			{
+				return shipCountry;
+			}
+			set
+			{
+				if (value != shipCountry)
+				{
+					shipCountry = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string ShipName
+
+		private string shipName;
+		[DebuggerNonUserCode]
+		[Column(Storage = "shipName", Name = "ShipName", DbType = "varchar(40)", Expression = null)]
+		public string ShipName
+		{
+			get
+			{
+				return shipName;
+			}
+			set
+			{
+				if (value != shipName)
+				{
+					shipName = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region System.DateTime? ShippedDate
+
+		private System.DateTime? shippedDate;
+		[DebuggerNonUserCode]
+		[Column(Storage = "shippedDate", Name = "ShippedDate", DbType = "datetime", Expression = null)]
+		public System.DateTime? ShippedDate
+		{
+			get
+			{
+				return shippedDate;
+			}
+			set
+			{
+				if (value != shippedDate)
+				{
+					shippedDate = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string ShipPostalCode
+
+		private string shipPostalCode;
+		[DebuggerNonUserCode]
+		[Column(Storage = "shipPostalCode", Name = "ShipPostalCode", DbType = "varchar(10)", Expression = null)]
+		public string ShipPostalCode
+		{
+			get
+			{
+				return shipPostalCode;
+			}
+			set
+			{
+				if (value != shipPostalCode)
+				{
+					shipPostalCode = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string ShipRegion
+
+		private string shipRegion;
+		[DebuggerNonUserCode]
+		[Column(Storage = "shipRegion", Name = "ShipRegion", DbType = "varchar(15)", Expression = null)]
+		public string ShipRegion
+		{
+			get
+			{
+				return shipRegion;
+			}
+			set
+			{
+				if (value != shipRegion)
+				{
+					shipRegion = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region int? ShipVia
+
+		private int? shipVia;
+		[DebuggerNonUserCode]
+		[Column(Storage = "shipVia", Name = "ShipVia", DbType = "int", Expression = null)]
+		public int? ShipVia
+		{
+			get
+			{
+				return shipVia;
+			}
+			set
+			{
+				if (value != shipVia)
+				{
+					shipVia = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region Children
+
+		[Association(Storage = null, OtherKey = "OrderID", Name = "order details_ibfk_1")]
+		[DebuggerNonUserCode]
+		public EntityMSet<OrderDetail> OrderDetails
+		{
+			get
+			{
+				// L212 - child data available only when part of query
+				return null;
+			}
+		}
+
+
+		#endregion
+
+		#region Parents
+
+		private System.Data.Linq.EntityRef<Customer> ordersIBFk1;
+		[Association(Storage = "ordersIBFk1", ThisKey = "CustomerID", Name = "orders_ibfk_1")]
+		[DebuggerNonUserCode]
+		public Customer Customer
+		{
+			get
+			{
+				return ordersIBFk1.Entity;
+			}
+			set
+			{
+				ordersIBFk1.Entity = value;
+			}
+		}
+
+		private System.Data.Linq.EntityRef<Employee> ordersIBFk2;
+		[Association(Storage = "ordersIBFk2", ThisKey = "EmployeeID", Name = "orders_ibfk_2")]
+		[DebuggerNonUserCode]
+		public Employee Employee
+		{
+			get
+			{
+				return ordersIBFk2.Entity;
+			}
+			set
+			{
+				ordersIBFk2.Entity = value;
+			}
+		}
+
+		private System.Data.Linq.EntityRef<Shipper> ordersIBFk3;
+		[Association(Storage = "ordersIBFk3", ThisKey = "ShipVia", Name = "orders_ibfk_3")]
+		[DebuggerNonUserCode]
+		public Shipper Shipper
+		{
+			get
+			{
+				return ordersIBFk3.Entity;
+			}
+			set
+			{
+				ordersIBFk3.Entity = value;
+			}
+		}
+
+
+		#endregion
+
+	}
+
+	[Table(Name = "order details")]
+	public partial class OrderDetail
+	{
+		#region float Discount
+
+		private float discount;
+		[DebuggerNonUserCode]
+		[Column(Storage = "discount", Name = "Discount", DbType = "float", CanBeNull = false, Expression = null)]
+		public float Discount
+		{
+			get
+			{
+				return discount;
+			}
+			set
+			{
+				if (value != discount)
+				{
+					discount = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region int OrderID
+
+		private int orderID;
+		[DebuggerNonUserCode]
+		[Column(Storage = "orderID", Name = "OrderID", DbType = "int", IsPrimaryKey = true, CanBeNull = false, Expression = null)]
+		public int OrderID
+		{
+			get
+			{
+				return orderID;
+			}
+			set
+			{
+				if (value != orderID)
+				{
+					orderID = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region int ProductID
+
+		private int productID;
+		[DebuggerNonUserCode]
+		[Column(Storage = "productID", Name = "ProductID", DbType = "int", IsPrimaryKey = true, CanBeNull = false, Expression = null)]
+		public int ProductID
+		{
+			get
+			{
+				return productID;
+			}
+			set
+			{
+				if (value != productID)
+				{
+					productID = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region short Quantity
+
+		private short quantity;
+		[DebuggerNonUserCode]
+		[Column(Storage = "quantity", Name = "Quantity", DbType = "smallint(6)", CanBeNull = false, Expression = null)]
+		public short Quantity
+		{
+			get
+			{
+				return quantity;
+			}
+			set
+			{
+				if (value != quantity)
+				{
+					quantity = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region decimal UnitPrice
+
+		private decimal unitPrice;
+		[DebuggerNonUserCode]
+		[Column(Storage = "unitPrice", Name = "UnitPrice", DbType = "decimal", CanBeNull = false, Expression = null)]
+		public decimal UnitPrice
+		{
+			get
+			{
+				return unitPrice;
+			}
+			set
+			{
+				if (value != unitPrice)
+				{
+					unitPrice = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region Parents
+
+		private System.Data.Linq.EntityRef<Order> orderDetailsIBFk1;
+		[Association(Storage = "orderDetailsIBFk1", ThisKey = "OrderID", Name = "order details_ibfk_1")]
+		[DebuggerNonUserCode]
+		public Order Order
+		{
+			get
+			{
+				return orderDetailsIBFk1.Entity;
+			}
+			set
+			{
+				orderDetailsIBFk1.Entity = value;
+			}
+		}
+
+		private System.Data.Linq.EntityRef<Product> orderDetailsIBFk2;
+		[Association(Storage = "orderDetailsIBFk2", ThisKey = "ProductID", Name = "order details_ibfk_2")]
+		[DebuggerNonUserCode]
+		public Product Product
+		{
+			get
+			{
+				return orderDetailsIBFk2.Entity;
+			}
+			set
+			{
+				orderDetailsIBFk2.Entity = value;
+			}
+		}
+
+
+		#endregion
+
+	}
+
+	[Table(Name = "products")]
+	public partial class Product
+	{
+		#region int? CategoryID
+
+		private int? categoryID;
+		[DebuggerNonUserCode]
+		[Column(Storage = "categoryID", Name = "CategoryID", DbType = "int", Expression = null)]
+		public int? CategoryID
+		{
+			get
+			{
+				return categoryID;
+			}
+			set
+			{
+				if (value != categoryID)
+				{
+					categoryID = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region bool Discontinued
+
+		private bool discontinued;
+		[DebuggerNonUserCode]
+		[Column(Storage = "discontinued", Name = "Discontinued", DbType = "bit(1)", CanBeNull = false, Expression = null)]
+		public bool Discontinued
+		{
+			get
+			{
+				return discontinued;
+			}
+			set
+			{
+				if (value != discontinued)
+				{
+					discontinued = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region int ProductID
+
+		[AutoGenId]
+		private int productID;
+		[DebuggerNonUserCode]
+		[Column(Storage = "productID", Name = "ProductID", DbType = "int", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null)]
+		public int ProductID
+		{
+			get
+			{
+				return productID;
+			}
+			set
+			{
+				if (value != productID)
+				{
+					productID = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string ProductName
+
+		private string productName;
+		[DebuggerNonUserCode]
+		[Column(Storage = "productName", Name = "ProductName", DbType = "varchar(40)", CanBeNull = false, Expression = null)]
+		public string ProductName
+		{
+			get
+			{
+				return productName;
+			}
+			set
+			{
+				if (value != productName)
+				{
+					productName = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string QuantityPerUnit
+
+		private string quantityPerUnit;
+		[DebuggerNonUserCode]
+		[Column(Storage = "quantityPerUnit", Name = "QuantityPerUnit", DbType = "varchar(20)", Expression = null)]
+		public string QuantityPerUnit
+		{
+			get
+			{
+				return quantityPerUnit;
+			}
+			set
+			{
+				if (value != quantityPerUnit)
+				{
+					quantityPerUnit = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region short? ReorderLevel
+
+		private short? reorderLevel;
+		[DebuggerNonUserCode]
+		[Column(Storage = "reorderLevel", Name = "ReorderLevel", DbType = "smallint(6)", Expression = null)]
+		public short? ReorderLevel
+		{
+			get
+			{
+				return reorderLevel;
+			}
+			set
+			{
+				if (value != reorderLevel)
+				{
+					reorderLevel = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region int? SupplierID
+
+		private int? supplierID;
+		[DebuggerNonUserCode]
+		[Column(Storage = "supplierID", Name = "SupplierID", DbType = "int", Expression = null)]
+		public int? SupplierID
+		{
+			get
+			{
+				return supplierID;
+			}
+			set
+			{
+				if (value != supplierID)
+				{
+					supplierID = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region decimal? UnitPrice
+
+		private decimal? unitPrice;
+		[DebuggerNonUserCode]
+		[Column(Storage = "unitPrice", Name = "UnitPrice", DbType = "decimal", Expression = null)]
+		public decimal? UnitPrice
+		{
+			get
+			{
+				return unitPrice;
+			}
+			set
+			{
+				if (value != unitPrice)
+				{
+					unitPrice = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region short? UnitsInStock
+
+		private short? unitsInStock;
+		[DebuggerNonUserCode]
+		[Column(Storage = "unitsInStock", Name = "UnitsInStock", DbType = "smallint(6)", Expression = null)]
+		public short? UnitsInStock
+		{
+			get
+			{
+				return unitsInStock;
+			}
+			set
+			{
+				if (value != unitsInStock)
+				{
+					unitsInStock = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region short? UnitsOnOrder
+
+		private short? unitsOnOrder;
+		[DebuggerNonUserCode]
+		[Column(Storage = "unitsOnOrder", Name = "UnitsOnOrder", DbType = "smallint(6)", Expression = null)]
+		public short? UnitsOnOrder
+		{
+			get
+			{
+				return unitsOnOrder;
+			}
+			set
+			{
+				if (value != unitsOnOrder)
+				{
+					unitsOnOrder = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region Children
+
+		[Association(Storage = null, OtherKey = "ProductID", Name = "order details_ibfk_2")]
+		[DebuggerNonUserCode]
+		public EntityMSet<OrderDetail> OrderDetails
+		{
+			get
+			{
+				// L212 - child data available only when part of query
+				return null;
+			}
+		}
+
+
+		#endregion
+
+		#region Parents
+
+		private System.Data.Linq.EntityRef<Category> productsIBFk1;
+		[Association(Storage = "productsIBFk1", ThisKey = "CategoryID", Name = "products_ibfk_1")]
+		[DebuggerNonUserCode]
+		public Category Category
+		{
+			get
+			{
+				return productsIBFk1.Entity;
+			}
+			set
+			{
+				productsIBFk1.Entity = value;
+			}
+		}
+
+		private System.Data.Linq.EntityRef<Supplier> productsIBFk2;
+		[Association(Storage = "productsIBFk2", ThisKey = "SupplierID", Name = "products_ibfk_2")]
+		[DebuggerNonUserCode]
+		public Supplier Supplier
+		{
+			get
+			{
+				return productsIBFk2.Entity;
+			}
+			set
+			{
+				productsIBFk2.Entity = value;
+			}
+		}
+
+
+		#endregion
+
+	}
+
+	[Table(Name = "region")]
+	public partial class Region
+	{
+		#region string RegionDescription
+
+		private string regionDescription;
+		[DebuggerNonUserCode]
+		[Column(Storage = "regionDescription", Name = "RegionDescription", DbType = "varchar(50)", CanBeNull = false, Expression = null)]
+		public string RegionDescription
+		{
+			get
+			{
+				return regionDescription;
+			}
+			set
+			{
+				if (value != regionDescription)
+				{
+					regionDescription = value;
 				}
 			}
 		}
@@ -1511,9 +1779,10 @@ namespace nwind
 
 		#region int RegionID
 
+		[AutoGenId]
 		private int regionID;
-		[Column(Storage = "regionID", Name = "RegionID", DbType = "int")]
 		[DebuggerNonUserCode]
+		[Column(Storage = "regionID", Name = "RegionID", DbType = "int", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null)]
 		public int RegionID
 		{
 			get
@@ -1525,35 +1794,454 @@ namespace nwind
 				if (value != regionID)
 				{
 					regionID = value;
-					IsModified = true;
 				}
 			}
 		}
 
 		#endregion
 
-		#region GetHashCode(), Equals() - uses column TerritoryID to look up objects in liveObjectMap
+		#region Children
 
-		public override int GetHashCode()
+		[Association(Storage = null, OtherKey = "RegionID", Name = "territories_ibfk_1")]
+		[DebuggerNonUserCode]
+		public EntityMSet<Territory> Territories
 		{
-			return TerritoryID.GetHashCode();
+			get
+			{
+				// L212 - child data available only when part of query
+				return null;
+			}
 		}
 
-		public override bool Equals(object o)
+
+		#endregion
+
+	}
+
+	[Table(Name = "shippers")]
+	public partial class Shipper
+	{
+		#region string CompanyName
+
+		private string companyName;
+		[DebuggerNonUserCode]
+		[Column(Storage = "companyName", Name = "CompanyName", DbType = "varchar(40)", CanBeNull = false, Expression = null)]
+		public string CompanyName
 		{
-			Territory other = o as Territory;
-			if (other == null)
+			get
 			{
-				return false;
+				return companyName;
 			}
-			return TerritoryID.Equals(other.TerritoryID);
+			set
+			{
+				if (value != companyName)
+				{
+					companyName = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string Phone
+
+		private string phone;
+		[DebuggerNonUserCode]
+		[Column(Storage = "phone", Name = "Phone", DbType = "varchar(24)", Expression = null)]
+		public string Phone
+		{
+			get
+			{
+				return phone;
+			}
+			set
+			{
+				if (value != phone)
+				{
+					phone = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region int ShipperID
+
+		[AutoGenId]
+		private int shipperID;
+		[DebuggerNonUserCode]
+		[Column(Storage = "shipperID", Name = "ShipperID", DbType = "int", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null)]
+		public int ShipperID
+		{
+			get
+			{
+				return shipperID;
+			}
+			set
+			{
+				if (value != shipperID)
+				{
+					shipperID = value;
+				}
+			}
 		}
 
 		#endregion
 
 		#region Children
 
-		[Association(Storage = "null", OtherKey = "TerritoryID", Name = "employeeterritories_ibfk_2")]
+		[Association(Storage = null, OtherKey = "ShipVia", Name = "orders_ibfk_3")]
+		[DebuggerNonUserCode]
+		public EntityMSet<Order> Orders
+		{
+			get
+			{
+				// L212 - child data available only when part of query
+				return null;
+			}
+		}
+
+
+		#endregion
+
+	}
+
+	[Table(Name = "suppliers")]
+	public partial class Supplier
+	{
+		#region string Address
+
+		private string address;
+		[DebuggerNonUserCode]
+		[Column(Storage = "address", Name = "Address", DbType = "varchar(60)", Expression = null)]
+		public string Address
+		{
+			get
+			{
+				return address;
+			}
+			set
+			{
+				if (value != address)
+				{
+					address = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string City
+
+		private string city;
+		[DebuggerNonUserCode]
+		[Column(Storage = "city", Name = "City", DbType = "varchar(15)", Expression = null)]
+		public string City
+		{
+			get
+			{
+				return city;
+			}
+			set
+			{
+				if (value != city)
+				{
+					city = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string CompanyName
+
+		private string companyName;
+		[DebuggerNonUserCode]
+		[Column(Storage = "companyName", Name = "CompanyName", DbType = "varchar(40)", CanBeNull = false, Expression = null)]
+		public string CompanyName
+		{
+			get
+			{
+				return companyName;
+			}
+			set
+			{
+				if (value != companyName)
+				{
+					companyName = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string ContactName
+
+		private string contactName;
+		[DebuggerNonUserCode]
+		[Column(Storage = "contactName", Name = "ContactName", DbType = "varchar(30)", Expression = null)]
+		public string ContactName
+		{
+			get
+			{
+				return contactName;
+			}
+			set
+			{
+				if (value != contactName)
+				{
+					contactName = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string ContactTitle
+
+		private string contactTitle;
+		[DebuggerNonUserCode]
+		[Column(Storage = "contactTitle", Name = "ContactTitle", DbType = "varchar(30)", Expression = null)]
+		public string ContactTitle
+		{
+			get
+			{
+				return contactTitle;
+			}
+			set
+			{
+				if (value != contactTitle)
+				{
+					contactTitle = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string Country
+
+		private string country;
+		[DebuggerNonUserCode]
+		[Column(Storage = "country", Name = "Country", DbType = "varchar(15)", Expression = null)]
+		public string Country
+		{
+			get
+			{
+				return country;
+			}
+			set
+			{
+				if (value != country)
+				{
+					country = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string Fax
+
+		private string fax;
+		[DebuggerNonUserCode]
+		[Column(Storage = "fax", Name = "Fax", DbType = "varchar(24)", Expression = null)]
+		public string Fax
+		{
+			get
+			{
+				return fax;
+			}
+			set
+			{
+				if (value != fax)
+				{
+					fax = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string Phone
+
+		private string phone;
+		[DebuggerNonUserCode]
+		[Column(Storage = "phone", Name = "Phone", DbType = "varchar(24)", Expression = null)]
+		public string Phone
+		{
+			get
+			{
+				return phone;
+			}
+			set
+			{
+				if (value != phone)
+				{
+					phone = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string PostalCode
+
+		private string postalCode;
+		[DebuggerNonUserCode]
+		[Column(Storage = "postalCode", Name = "PostalCode", DbType = "varchar(10)", Expression = null)]
+		public string PostalCode
+		{
+			get
+			{
+				return postalCode;
+			}
+			set
+			{
+				if (value != postalCode)
+				{
+					postalCode = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string Region
+
+		private string region;
+		[DebuggerNonUserCode]
+		[Column(Storage = "region", Name = "Region", DbType = "varchar(15)", Expression = null)]
+		public string Region
+		{
+			get
+			{
+				return region;
+			}
+			set
+			{
+				if (value != region)
+				{
+					region = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region int SupplierID
+
+		[AutoGenId]
+		private int supplierID;
+		[DebuggerNonUserCode]
+		[Column(Storage = "supplierID", Name = "SupplierID", DbType = "int", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null)]
+		public int SupplierID
+		{
+			get
+			{
+				return supplierID;
+			}
+			set
+			{
+				if (value != supplierID)
+				{
+					supplierID = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region Children
+
+		[Association(Storage = null, OtherKey = "SupplierID", Name = "products_ibfk_2")]
+		[DebuggerNonUserCode]
+		public EntityMSet<Product> Products
+		{
+			get
+			{
+				// L212 - child data available only when part of query
+				return null;
+			}
+		}
+
+
+		#endregion
+
+	}
+
+	[Table(Name = "territories")]
+	public partial class Territory
+	{
+		#region int RegionID
+
+		private int regionID;
+		[DebuggerNonUserCode]
+		[Column(Storage = "regionID", Name = "RegionID", DbType = "int", CanBeNull = false, Expression = null)]
+		public int RegionID
+		{
+			get
+			{
+				return regionID;
+			}
+			set
+			{
+				if (value != regionID)
+				{
+					regionID = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string TerritoryDescription
+
+		private string territoryDescription;
+		[DebuggerNonUserCode]
+		[Column(Storage = "territoryDescription", Name = "TerritoryDescription", DbType = "varchar(50)", CanBeNull = false, Expression = null)]
+		public string TerritoryDescription
+		{
+			get
+			{
+				return territoryDescription;
+			}
+			set
+			{
+				if (value != territoryDescription)
+				{
+					territoryDescription = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string TerritoryID
+
+		private string territoryID;
+		[DebuggerNonUserCode]
+		[Column(Storage = "territoryID", Name = "TerritoryID", DbType = "varchar(20)", IsPrimaryKey = true, CanBeNull = false, Expression = null)]
+		public string TerritoryID
+		{
+			get
+			{
+				return territoryID;
+			}
+			set
+			{
+				if (value != territoryID)
+				{
+					territoryID = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region Children
+
+		[Association(Storage = null, OtherKey = "TerritoryID", Name = "employeeterritories_ibfk_2")]
 		[DebuggerNonUserCode]
 		public EntityMSet<EmployeeTerritory> EmployeeTerritories
 		{
@@ -1569,1028 +2257,18 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Region> territoriesIBFK1;
-		[Association(Storage = "territoriesIBFK1", ThisKey = "RegionID", Name = "territories_ibfk_1")]
+		private System.Data.Linq.EntityRef<Region> territoriesIBFk1;
+		[Association(Storage = "territoriesIBFk1", ThisKey = "RegionID", Name = "territories_ibfk_1")]
 		[DebuggerNonUserCode]
 		public Region Region
 		{
 			get
 			{
-				return territoriesIBFK1.Entity;
+				return territoriesIBFk1.Entity;
 			}
 			set
 			{
-				territoriesIBFK1.Entity = value;
-			}
-		}
-
-
-		#endregion
-
-	}
-
-	[Table(Name = "employeeterritories")]
-	public partial class EmployeeTerritory //: IModified
-	{
-		// IModified backing field
-		public bool IsModified{ get; set; }
-
-		#region int EmployeeID
-
-		private int employeeID;
-		[Column(Storage = "employeeID", Name = "EmployeeID", DbType = "int", IsPrimaryKey = true)]
-		[DebuggerNonUserCode]
-		public int EmployeeID
-		{
-			get
-			{
-				return employeeID;
-			}
-			set
-			{
-				if (value != employeeID)
-				{
-					employeeID = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string TerritoryID
-
-		private string territoryID;
-		[Column(Storage = "territoryID", Name = "TerritoryID", DbType = "varchar(20)", IsPrimaryKey = true)]
-		[DebuggerNonUserCode]
-		public string TerritoryID
-		{
-			get
-			{
-				return territoryID;
-			}
-			set
-			{
-				if (value != territoryID)
-				{
-					territoryID = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region GetHashCode(), Equals() - uses column EmployeeID, TerritoryID to look up objects in liveObjectMap
-
-		public override int GetHashCode()
-		{
-			return EmployeeID.GetHashCode() ^ TerritoryID.GetHashCode();
-		}
-
-		public override bool Equals(object o)
-		{
-			EmployeeTerritory other = o as EmployeeTerritory;
-			if (other == null)
-			{
-				return false;
-			}
-			return EmployeeID.Equals(other.EmployeeID) && TerritoryID.Equals(other.TerritoryID);
-		}
-
-		#endregion
-
-		#region Parents
-
-		private System.Data.Linq.EntityRef<Employee> employeeTerritoriesIBFK1;
-		[Association(Storage = "employeeTerritoriesIBFK1", ThisKey = "EmployeeID", Name = "employeeterritories_ibfk_1")]
-		[DebuggerNonUserCode]
-		public Employee Employee
-		{
-			get
-			{
-				return employeeTerritoriesIBFK1.Entity;
-			}
-			set
-			{
-				employeeTerritoriesIBFK1.Entity = value;
-			}
-		}
-
-		private System.Data.Linq.EntityRef<Territory> employeeTerritoriesIBFK2;
-		[Association(Storage = "employeeTerritoriesIBFK2", ThisKey = "TerritoryID", Name = "employeeterritories_ibfk_2")]
-		[DebuggerNonUserCode]
-		public Territory Territory
-		{
-			get
-			{
-				return employeeTerritoriesIBFK2.Entity;
-			}
-			set
-			{
-				employeeTerritoriesIBFK2.Entity = value;
-			}
-		}
-
-
-		#endregion
-
-	}
-
-	[Table(Name = "orders")]
-	public partial class Order //: IModified
-	{
-		// IModified backing field
-		public bool IsModified{ get; set; }
-
-		#region int OrderID
-
-		[AutoGenId]
-		private int orderID;
-		[Column(Storage = "orderID", Name = "OrderID", DbType = "int", IsPrimaryKey = true, IsDbGenerated = true)]
-		[DebuggerNonUserCode]
-		public int OrderID
-		{
-			get
-			{
-				return orderID;
-			}
-			set
-			{
-				if (value != orderID)
-				{
-					orderID = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string CustomerID
-
-		private string customerID;
-		[Column(Storage = "customerID", Name = "CustomerID", DbType = "varchar(5)", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public string CustomerID
-		{
-			get
-			{
-				return customerID;
-			}
-			set
-			{
-				if (value != customerID)
-				{
-					customerID = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region int? EmployeeID
-
-		private int? employeeID;
-		[Column(Storage = "employeeID", Name = "EmployeeID", DbType = "int", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public int? EmployeeID
-		{
-			get
-			{
-				return employeeID;
-			}
-			set
-			{
-				if (value != employeeID)
-				{
-					employeeID = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region System.DateTime? OrderDate
-
-		private DateTime? orderDate;
-		[Column(Storage = "orderDate", Name = "OrderDate", DbType = "datetime", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public DateTime? OrderDate
-		{
-			get
-			{
-				return orderDate;
-			}
-			set
-			{
-				if (value != orderDate)
-				{
-					orderDate = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region System.DateTime? RequiredDate
-
-		private DateTime? requiredDate;
-		[Column(Storage = "requiredDate", Name = "RequiredDate", DbType = "datetime", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public DateTime? RequiredDate
-		{
-			get
-			{
-				return requiredDate;
-			}
-			set
-			{
-				if (value != requiredDate)
-				{
-					requiredDate = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region System.DateTime? ShippedDate
-
-		private DateTime? shippedDate;
-		[Column(Storage = "shippedDate", Name = "ShippedDate", DbType = "datetime", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public DateTime? ShippedDate
-		{
-			get
-			{
-				return shippedDate;
-			}
-			set
-			{
-				if (value != shippedDate)
-				{
-					shippedDate = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region int? ShipVia
-
-		private int? shipVia;
-		[Column(Storage = "shipVia", Name = "ShipVia", DbType = "int", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public int? ShipVia
-		{
-			get
-			{
-				return shipVia;
-			}
-			set
-			{
-				if (value != shipVia)
-				{
-					shipVia = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region decimal? Freight
-
-		private decimal? freight;
-		[Column(Storage = "freight", Name = "Freight", DbType = "decimal", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public decimal? Freight
-		{
-			get
-			{
-				return freight;
-			}
-			set
-			{
-				if (value != freight)
-				{
-					freight = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string ShipName
-
-		private string shipName;
-		[Column(Storage = "shipName", Name = "ShipName", DbType = "varchar(40)", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public string ShipName
-		{
-			get
-			{
-				return shipName;
-			}
-			set
-			{
-				if (value != shipName)
-				{
-					shipName = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string ShipAddress
-
-		private string shipAddress;
-		[Column(Storage = "shipAddress", Name = "ShipAddress", DbType = "varchar(60)", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public string ShipAddress
-		{
-			get
-			{
-				return shipAddress;
-			}
-			set
-			{
-				if (value != shipAddress)
-				{
-					shipAddress = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string ShipCity
-
-		private string shipCity;
-		[Column(Storage = "shipCity", Name = "ShipCity", DbType = "varchar(15)", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public string ShipCity
-		{
-			get
-			{
-				return shipCity;
-			}
-			set
-			{
-				if (value != shipCity)
-				{
-					shipCity = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string ShipRegion
-
-		private string shipRegion;
-		[Column(Storage = "shipRegion", Name = "ShipRegion", DbType = "varchar(15)", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public string ShipRegion
-		{
-			get
-			{
-				return shipRegion;
-			}
-			set
-			{
-				if (value != shipRegion)
-				{
-					shipRegion = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string ShipPostalCode
-
-		private string shipPostalCode;
-		[Column(Storage = "shipPostalCode", Name = "ShipPostalCode", DbType = "varchar(10)", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public string ShipPostalCode
-		{
-			get
-			{
-				return shipPostalCode;
-			}
-			set
-			{
-				if (value != shipPostalCode)
-				{
-					shipPostalCode = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string ShipCountry
-
-		private string shipCountry;
-		[Column(Storage = "shipCountry", Name = "ShipCountry", DbType = "varchar(15)", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public string ShipCountry
-		{
-			get
-			{
-				return shipCountry;
-			}
-			set
-			{
-				if (value != shipCountry)
-				{
-					shipCountry = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region GetHashCode(), Equals() - uses column OrderID to look up objects in liveObjectMap
-
-		public override int GetHashCode()
-		{
-			return OrderID.GetHashCode();
-		}
-
-		public override bool Equals(object o)
-		{
-			Order other = o as Order;
-			if (other == null)
-			{
-				return false;
-			}
-			return OrderID.Equals(other.OrderID);
-		}
-
-		#endregion
-
-		#region Children
-
-		[Association(Storage = "null", OtherKey = "OrderID", Name = "order@0020details_ibfk_1")]
-		[DebuggerNonUserCode]
-		public EntityMSet<OrderDetail> OrderDetails
-		{
-			get
-			{
-				// L212 - child data available only when part of query
-				return null;
-			}
-		}
-
-
-		#endregion
-
-		#region Parents
-
-		private System.Data.Linq.EntityRef<Customer> ordersIBFK1;
-		[Association(Storage = "ordersIBFK1", ThisKey = "CustomerID", Name = "orders_ibfk_1")]
-		[DebuggerNonUserCode]
-		public Customer Customer
-		{
-			get
-			{
-				return ordersIBFK1.Entity;
-			}
-			set
-			{
-				ordersIBFK1.Entity = value;
-			}
-		}
-
-		private System.Data.Linq.EntityRef<Employee> ordersIBFK2;
-		[Association(Storage = "ordersIBFK2", ThisKey = "EmployeeID", Name = "orders_ibfk_2")]
-		[DebuggerNonUserCode]
-		public Employee Employee
-		{
-			get
-			{
-				return ordersIBFK2.Entity;
-			}
-			set
-			{
-				ordersIBFK2.Entity = value;
-			}
-		}
-
-		private System.Data.Linq.EntityRef<Shipper> ordersIBFK3;
-		[Association(Storage = "ordersIBFK3", ThisKey = "ShipVia", Name = "orders_ibfk_3")]
-		[DebuggerNonUserCode]
-		public Shipper Shipper
-		{
-			get
-			{
-				return ordersIBFK3.Entity;
-			}
-			set
-			{
-				ordersIBFK3.Entity = value;
-			}
-		}
-
-
-		#endregion
-
-	}
-
-	[Table(Name = "products")]
-	public partial class Product //: IModified
-	{
-		// IModified backing field
-		public bool IsModified{ get; set; }
-
-		#region int ProductID
-
-		[AutoGenId]
-		private int productID;
-		[Column(Storage = "productID", Name = "ProductID", DbType = "int", IsPrimaryKey = true, IsDbGenerated = true)]
-		[DebuggerNonUserCode]
-		public int ProductID
-		{
-			get
-			{
-				return productID;
-			}
-			set
-			{
-				if (value != productID)
-				{
-					productID = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string ProductName
-
-		private string productName;
-		[Column(Storage = "productName", Name = "ProductName", DbType = "varchar(40)")]
-		[DebuggerNonUserCode]
-		public string ProductName
-		{
-			get
-			{
-				return productName;
-			}
-			set
-			{
-				if (value != productName)
-				{
-					productName = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region int? SupplierID
-
-		private int? supplierID;
-		[Column(Storage = "supplierID", Name = "SupplierID", DbType = "int", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public int? SupplierID
-		{
-			get
-			{
-				return supplierID;
-			}
-			set
-			{
-				if (value != supplierID)
-				{
-					supplierID = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region int? CategoryID
-
-		private int? categoryID;
-		[Column(Storage = "categoryID", Name = "CategoryID", DbType = "int", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public int? CategoryID
-		{
-			get
-			{
-				return categoryID;
-			}
-			set
-			{
-				if (value != categoryID)
-				{
-					categoryID = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region string QuantityPerUnit
-
-		private string quantityPeruNit;
-		[Column(Storage = "quantityPeruNit", Name = "QuantityPerUnit", DbType = "varchar(20)", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public string QuantityPerUnit
-		{
-			get
-			{
-				return quantityPeruNit;
-			}
-			set
-			{
-				if (value != quantityPeruNit)
-				{
-					quantityPeruNit = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region decimal? UnitPrice
-
-		private decimal? unitPrice;
-		[Column(Storage = "unitPrice", Name = "UnitPrice", DbType = "decimal", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public decimal? UnitPrice
-		{
-			get
-			{
-				return unitPrice;
-			}
-			set
-			{
-				if (value != unitPrice)
-				{
-					unitPrice = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region short? UnitsInStock
-
-		private short? unitsInsToCK;
-		[Column(Storage = "unitsInsToCK", Name = "UnitsInStock", DbType = "smallint(6)", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public short? UnitsInStock
-		{
-			get
-			{
-				return unitsInsToCK;
-			}
-			set
-			{
-				if (value != unitsInsToCK)
-				{
-					unitsInsToCK = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region short? UnitsOnOrder
-
-		private short? unitsOnOrder;
-		[Column(Storage = "unitsOnOrder", Name = "UnitsOnOrder", DbType = "smallint(6)", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public short? UnitsOnOrder
-		{
-			get
-			{
-				return unitsOnOrder;
-			}
-			set
-			{
-				if (value != unitsOnOrder)
-				{
-					unitsOnOrder = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region short? ReorderLevel
-
-		private short? reorderLevel;
-		[Column(Storage = "reorderLevel", Name = "ReorderLevel", DbType = "smallint(6)", CanBeNull = true)]
-		[DebuggerNonUserCode]
-		public short? ReorderLevel
-		{
-			get
-			{
-				return reorderLevel;
-			}
-			set
-			{
-				if (value != reorderLevel)
-				{
-					reorderLevel = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region bool Discontinued
-
-		private bool discontinued;
-		[Column(Storage = "discontinued", Name = "Discontinued", DbType = "bit(1)")]
-		[DebuggerNonUserCode]
-		public bool Discontinued
-		{
-			get
-			{
-				return discontinued;
-			}
-			set
-			{
-				if (value != discontinued)
-				{
-					discontinued = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region GetHashCode(), Equals() - uses column ProductID to look up objects in liveObjectMap
-
-		public override int GetHashCode()
-		{
-			return ProductID.GetHashCode();
-		}
-
-		public override bool Equals(object o)
-		{
-			Product other = o as Product;
-			if (other == null)
-			{
-				return false;
-			}
-			return ProductID.Equals(other.ProductID);
-		}
-
-		#endregion
-
-		#region Children
-
-		[Association(Storage = "null", OtherKey = "ProductID", Name = "order@0020details_ibfk_2")]
-		[DebuggerNonUserCode]
-		public EntityMSet<OrderDetail> OrderDetails
-		{
-			get
-			{
-				// L212 - child data available only when part of query
-				return null;
-			}
-		}
-
-
-		#endregion
-
-		#region Parents
-
-		private System.Data.Linq.EntityRef<Category> productsIBFK1;
-		[Association(Storage = "productsIBFK1", ThisKey = "CategoryID", Name = "products_ibfk_1")]
-		[DebuggerNonUserCode]
-		public Category Category
-		{
-			get
-			{
-				return productsIBFK1.Entity;
-			}
-			set
-			{
-				productsIBFK1.Entity = value;
-			}
-		}
-
-		private System.Data.Linq.EntityRef<Supplier> productsIBFK2;
-		[Association(Storage = "productsIBFK2", ThisKey = "SupplierID", Name = "products_ibfk_2")]
-		[DebuggerNonUserCode]
-		public Supplier Supplier
-		{
-			get
-			{
-				return productsIBFK2.Entity;
-			}
-			set
-			{
-				productsIBFK2.Entity = value;
-			}
-		}
-
-
-		#endregion
-
-	}
-
-	[Table(Name = "order details")]
-	public partial class OrderDetail //: IModified
-	{
-		// IModified backing field
-		public bool IsModified{ get; set; }
-
-		#region int OrderID
-
-		private int orderID;
-		[Column(Storage = "orderID", Name = "OrderID", DbType = "int", IsPrimaryKey = true)]
-		[DebuggerNonUserCode]
-		public int OrderID
-		{
-			get
-			{
-				return orderID;
-			}
-			set
-			{
-				if (value != orderID)
-				{
-					orderID = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region int ProductID
-
-		private int productID;
-		[Column(Storage = "productID", Name = "ProductID", DbType = "int", IsPrimaryKey = true)]
-		[DebuggerNonUserCode]
-		public int ProductID
-		{
-			get
-			{
-				return productID;
-			}
-			set
-			{
-				if (value != productID)
-				{
-					productID = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region decimal UnitPrice
-
-		private decimal unitPrice;
-		[Column(Storage = "unitPrice", Name = "UnitPrice", DbType = "decimal")]
-		[DebuggerNonUserCode]
-		public decimal UnitPrice
-		{
-			get
-			{
-				return unitPrice;
-			}
-			set
-			{
-				if (value != unitPrice)
-				{
-					unitPrice = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region short Quantity
-
-		private short quantity;
-		[Column(Storage = "quantity", Name = "Quantity", DbType = "smallint(6)")]
-		[DebuggerNonUserCode]
-		public short Quantity
-		{
-			get
-			{
-				return quantity;
-			}
-			set
-			{
-				if (value != quantity)
-				{
-					quantity = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region System.Single Discount
-
-		private float discount;
-		[Column(Storage = "discount", Name = "Discount", DbType = "float")]
-		[DebuggerNonUserCode]
-		public float Discount
-		{
-			get
-			{
-				return discount;
-			}
-			set
-			{
-				if (value != discount)
-				{
-					discount = value;
-					IsModified = true;
-				}
-			}
-		}
-
-		#endregion
-
-		#region GetHashCode(), Equals() - uses column OrderID, ProductID to look up objects in liveObjectMap
-
-		public override int GetHashCode()
-		{
-			return OrderID.GetHashCode() ^ ProductID.GetHashCode();
-		}
-
-		public override bool Equals(object o)
-		{
-			OrderDetail other = o as OrderDetail;
-			if (other == null)
-			{
-				return false;
-			}
-			return OrderID.Equals(other.OrderID) && ProductID.Equals(other.ProductID);
-		}
-
-		#endregion
-
-		#region Parents
-
-		private System.Data.Linq.EntityRef<Order> order0020DetailsIBFK1;
-		[Association(Storage = "order0020DetailsIBFK1", ThisKey = "OrderID", Name = "order@0020details_ibfk_1")]
-		[DebuggerNonUserCode]
-		public Order Order
-		{
-			get
-			{
-				return order0020DetailsIBFK1.Entity;
-			}
-			set
-			{
-				order0020DetailsIBFK1.Entity = value;
-			}
-		}
-
-		private System.Data.Linq.EntityRef<Product> order0020DetailsIBFK2;
-		[Association(Storage = "order0020DetailsIBFK2", ThisKey = "ProductID", Name = "order@0020details_ibfk_2")]
-		[DebuggerNonUserCode]
-		public Product Product
-		{
-			get
-			{
-				return order0020DetailsIBFK2.Entity;
-			}
-			set
-			{
-				order0020DetailsIBFK2.Entity = value;
+				territoriesIBFk1.Entity = value;
 			}
 		}
 

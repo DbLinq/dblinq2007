@@ -112,7 +112,7 @@ namespace Test_NUnit_MySql
             Northwind db = CreateDB();
             var q = from p in db.Products
                     where p.ProductID > 5
-                    select new ProductWrapper1 { ProductID = p.ProductID, SupplierID = p.SupplierID };
+                    select new ProductWrapper1 { ProductID = (int)p.ProductID, SupplierID = (int?)p.SupplierID };
             int count = 0;
             foreach (ProductWrapper1 p in q)
             {
@@ -128,7 +128,7 @@ namespace Test_NUnit_MySql
             Northwind db = CreateDB();
             var q = from p in db.Products
                     where p.ProductID > 5
-                    select new ProductWrapper2 { ProductID = p.ProductID, SupplierID = p.SupplierID };
+                    select new ProductWrapper2 { ProductID = (int)p.ProductID, SupplierID = (int?)p.SupplierID };
             int count = 0;
             foreach (ProductWrapper2 p in q)
             {
@@ -144,7 +144,7 @@ namespace Test_NUnit_MySql
             Northwind db = CreateDB();
             var q = from p in db.Products
                     where p.ProductID > 5
-                    select new ProductWrapper3(p.ProductID, p.SupplierID);
+                    select new ProductWrapper3((int)p.ProductID, (int?)p.SupplierID);
             int count = 0;
             foreach (ProductWrapper3 p in q)
             {
@@ -207,7 +207,7 @@ namespace Test_NUnit_MySql
                     where e.HireDate == DateTime.ParseExact(hireDate, "yyyy.MM.dd", CultureInfo.InvariantCulture)
 #endif
                     select e.EmployeeID;
-            int empID = q.Single(); //MTable_Projected.GetQueryText()
+            var empID = q.Single(); //MTable_Projected.GetQueryText()
             Assert.IsTrue(empID == 1);
         }
 

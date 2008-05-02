@@ -30,6 +30,12 @@ using NUnit.Framework;
 using nwind;
 using Test_NUnit;
 
+#if ORACLE
+using Id = System.Decimal;
+#else
+using Id = System.Int32;
+#endif
+
 #if MYSQL
 namespace Test_NUnit_MySql
 #elif ORACLE
@@ -124,7 +130,7 @@ namespace Test_NUnit_MySql
             db.SubmitChanges();
             Assert.Greater(newProd.ProductID, 0, "After insertion, ProductID should be non-zero");
             //Assert.IsFalse(newProd.IsModified, "After insertion, Product.IsModified should be false");
-            return newProd.ProductID; //this test cab be used from delete tests
+            return (int)newProd.ProductID; //this test cab be used from delete tests
         }
 
         [Test]

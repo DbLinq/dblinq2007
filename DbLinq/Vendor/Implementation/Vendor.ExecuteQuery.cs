@@ -1,4 +1,4 @@
-﻿#region MIT license
+#region MIT license
 // 
 // Copyright (c) 2007-2008 Jiri Moudry
 // 

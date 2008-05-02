@@ -57,9 +57,9 @@ namespace DbLinq.MySql
             procedure.type = rdr.GetAsString(field++);
             procedure.specific_name = rdr.GetAsString(field++);
 
-            procedure.param_list = rdr.GetAsString(field++);
+            procedure.param_list = rdr.GetString(field++); // for some obscure reasons, GetAsString() doesn't work
             procedure.returns = rdr.GetAsString(field++);
-            procedure.body = rdr.GetAsString(field++);
+            procedure.body = rdr.GetString(field++);
             return procedure;
         }
 

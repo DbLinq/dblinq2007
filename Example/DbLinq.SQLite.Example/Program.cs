@@ -113,6 +113,7 @@ namespace DbLinq.SQLite.Example
             string reply0 = db.hello0();
             string reply1 = db.Hello1("Pigafetta");
 #endif
+#if NO
 
             Console.Clear();
             Console.WriteLine("from at in db.Alltypes select at;");
@@ -121,7 +122,7 @@ namespace DbLinq.SQLite.Example
                 ObjectDumper.Write(v);
             Console.WriteLine("Press enter to continue.");
             Console.ReadLine();
-
+#endif
 
             Console.Clear();
             Console.WriteLine("from p in db.Products orderby p.ProductName select p;");
