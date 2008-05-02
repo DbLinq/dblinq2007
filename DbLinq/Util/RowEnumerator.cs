@@ -105,7 +105,7 @@ namespace DbLinq.Util
             }
 
             //toncho11: http://code.google.com/p/dblinq2007/issues/detail?id=24
-            QuotesHelper.AddQuotesToQuery(cmd);
+            //QuotesHelper.AddQuotesToQuery(cmd);
 
             dataReader = cmd.ExecuteReader();
 
