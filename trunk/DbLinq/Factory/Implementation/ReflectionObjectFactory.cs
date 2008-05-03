@@ -39,34 +39,34 @@ namespace DbLinq.Factory.Implementation
 
         public ReflectionObjectFactory()
         {
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            foreach (var assembly in assemblies)
                 Parse(assembly);
         }
 
         protected void Parse(Assembly assembly)
         {
-          Type[] assemblyTypes;
-          try {
-            assemblyTypes = assembly.GetTypes();
-          } catch (ReflectionTypeLoadException) {
-            // This is dynamic assembly which is not created yet.
-            return;
-          }
-
-          foreach (Type type in assemblyTypes)
+            try
             {
-                if (type.IsAbstract)
-                    continue;
-                foreach (Type i in type.GetInterfaces())
+                var assemblyTypes = assembly.GetTypes();
+                foreach (Type type in assemblyTypes)
                 {
-                    if (i.Assembly.GetCustomAttributes(typeof(DbLinqAttribute), false).Length > 0)
+                    if (type.IsAbstract)
+                        continue;
+                    foreach (Type i in type.GetInterfaces())
                     {
-                        IList<Type> types;
-                        if (!implementations.TryGetValue(i, out types))
-                            implementations[i] = types = new List<Type>();
-                        types.Add(type);
+                        if (i.Assembly.GetCustomAttributes(typeof(DbLinqAttribute), false).Length > 0)
+                        {
+                            IList<Type> types;
+                            if (!implementations.TryGetValue(i, out types))
+                                implementations[i] = types = new List<Type>();
+                            types.Add(type);
+                        }
                     }
                 }
+            }
+            catch (ReflectionTypeLoadException)
+            {
             }
         }
 

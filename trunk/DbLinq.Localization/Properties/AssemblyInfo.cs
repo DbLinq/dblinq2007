@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // Copyright (c) 2007-2008 Jiri Moudry
 // 
@@ -24,16 +24,21 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using DbLinq.Factory;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Jiri George Moudry")]
-[assembly: AssemblyProduct("DbLinq")]
-[assembly: AssemblyCopyright("Copyright \u00A9 Jiri George Moudry 2005-2008")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
+[assembly: AssemblyTitle("DbLinq")]
+[assembly: AssemblyDescription("DbLinq localization")]
+
+// Setting ComVisible to false makes the types in this assembly not visible 
+// to COM componenets.  If you need to access a type in this assembly from 
+// COM, set the ComVisible attribute to true on that type.
+[assembly: ComVisible(false)]
+
+// The following GUID is for the ID of the typelib if this project is exposed to COM
+[assembly: Guid("e23858FE-cdb0-401d-9019-f72079b4928d")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -42,4 +47,6 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("0.17.*")]
+[assembly: AssemblyFileVersion("0.0.0.16")]
+
+[assembly: DbLinq]

@@ -21,44 +21,41 @@
 // THE SOFTWARE.
 // 
 #endregion
+using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using DbLinq.Util.Language;
+using DbLinq.Util.Language.Implementation;
 
-namespace DbLinq.Util.Language
+namespace DbLinq.Localization.Language
 {
-    public interface ILanguageWords
+    public class GermanWords : AbstractEndPluralWords
     {
-        /// <summary>
-        /// using English heuristics, convert 'dogs' to 'dog',
-        /// 'categories' to 'category',
-        /// 'cat' remains unchanged.
-        /// </summary>
-        string Singularize(string plural);
+        public override void Load()
+        {
+            if (WordsWeights == null)
+                Load("GermanWords.txt");
+        }
 
-        /// <summary>
-        /// using English heuristics, convert 'dog' to 'dogs',
-        /// 'bass' remains unchanged.
-        /// </summary>
-        string Pluralize(string singular);
+        public override bool Supports(CultureInfo cultureInfo)
+        {
+            return cultureInfo.ThreeLetterISOLanguageName == "deu";
+        }
 
-        /// <summary>
-        /// Extracts words from an undistinguishable letters magma
-        /// for example "shipsperunit" --> "ships" "per" "unit"
-        /// </summary>
-        /// <param name="text"></param>
-        /// <returns></returns>
-        IList<string> GetWords(string text);
+        protected override SingularPlural[] SingularsPlurals
+        {
+            get { return singularsPlurals; }
+        }
 
-        /// <summary>
-        /// Returns true if the required culture is supported
-        /// </summary>
-        /// <param name="cultureInfo"></param>
-        /// <returns></returns>
-        bool Supports(CultureInfo cultureInfo);
-
-        /// <summary>
-        /// Loads the words (operation may be slow, so it is excluded from ctor)
-        /// </summary>
-        void Load();
+        // important: keep this from most specific to less specific
+        private static SingularPlural[] singularsPlurals =
+            {
+                new SingularPlural { Singular="e", Plural="en" },
+                new SingularPlural { Singular="", Plural="e" },
+            };
     }
 }

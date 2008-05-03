@@ -63,18 +63,18 @@ namespace ClientCode2
             //arr.
             //var q7 = arr.Any(.Distinct().ToArray();
 
-            Northwind db = new Northwind(connStr);
-            //var q = from at in db.alltypes select at;
-            //var q = from p in db.products orderby p.ProductName select p;
-            var q = from c in db.Customers
-                    from o in c.Orders
-                    where c.City == "London"
-                    select new { c, o };
+            //Northwind db = new Northwind(connStr);
+            ////var q = from at in db.alltypes select at;
+            ////var q = from p in db.products orderby p.ProductName select p;
+            //var q = from c in db.Customers
+            //        from o in c.Orders
+            //        where c.City == "London"
+            //        select new { c, o };
 
-            foreach (var v in q)
-            {
-                Console.WriteLine("OBJ:" + v.c.ContactName);
-            }
+            //foreach (var v in q)
+            //{
+            //    Console.WriteLine("OBJ:" + v.c.ContactName);
+            //}
             //db.SaveChanges();
         }
 

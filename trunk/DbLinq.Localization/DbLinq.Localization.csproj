@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{FA8D1068-3341-4956-BF94-54C6A816BD9E}</ProjectGuid>
+    <ProjectGuid>{E636DAE5-1245-4ED1-A709-057935D20E24}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DbLinq.MySql</RootNamespace>
-    <AssemblyName>DbLinq.MySql</AssemblyName>
+    <RootNamespace>DbLinq.Localization</RootNamespace>
+    <AssemblyName>DbLinq.Localization</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SignAssembly>true</SignAssembly>
@@ -37,24 +37,16 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Data.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\DbLinq.ProductInfo.cs">
       <Link>Properties\DbLinq.ProductInfo.cs</Link>
     </Compile>
-    <Compile Include="MySqlDataContext.cs" />
-    <Compile Include="MySqlSchemaLoader.Columns.cs" />
-    <Compile Include="MySqlSchemaLoader.Constraints.cs" />
-    <Compile Include="MySqlSchemaLoader.cs" />
-    <Compile Include="MySqlSchemaLoader.StoredProcedures.cs" />
-    <Compile Include="MySqlSchemaLoader.Tables.cs" />
+    <Compile Include="Language\EnglishWords.cs" />
+    <Compile Include="Language\FrenchWords.cs" />
+    <Compile Include="Language\GermanWords.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="MySqlVendor.cs" />
+    <Compile Include="Reference.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DbLinq\DbLinq.csproj">
@@ -66,6 +58,15 @@
     <None Include="..\DbLinq.snk">
       <Link>Properties\DbLinq.snk</Link>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Language\EnglishWords.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Language\GermanWords.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Language\FrenchWords.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

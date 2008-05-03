@@ -23,22 +23,43 @@
 #endregion
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
+using System.Globalization;
+using System.IO;
 using System.Linq;
-using System.Windows;
-using DbLinq.Localization;
+using System.Reflection;
+using System.Text;
+using DbLinq.Util.Language.Implementation;
 
-namespace VisualMetal
+namespace DbLinq.Localization.Language
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
-    public partial class App : Application
+    public class EnglishWords : AbstractEndPluralWords
     {
-        public App()
+        public override void Load()
         {
-            Reference.DbLinqLocalizations();
+            if (WordsWeights == null)
+                Load("EnglishWords.txt");
         }
+
+        public override bool Supports(CultureInfo cultureInfo)
+        {
+            return cultureInfo.ThreeLetterISOLanguageName == "eng";
+        }
+
+        protected override SingularPlural[] SingularsPlurals
+        {
+            get { return singularsPlurals; }
+        }
+
+        // important: keep this from most specific to less specific
+        private SingularPlural[] singularsPlurals =
+            {
+                new SingularPlural { Singular="ss", Plural="sses" },
+                new SingularPlural { Singular="ch", Plural="ches" },
+                new SingularPlural { Singular="sh", Plural="shes" },
+                new SingularPlural { Singular="zz", Plural="zzes" },
+                new SingularPlural { Singular="x", Plural="xes" },
+                new SingularPlural { Singular="y", Plural="ies" },
+                new SingularPlural { Singular="", Plural="s" },
+            };
     }
 }

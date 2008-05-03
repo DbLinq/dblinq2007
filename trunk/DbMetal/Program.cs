@@ -23,13 +23,15 @@
 #endregion
 using DbLinq.Factory;
 using DbMetal.Generator;
+using DbLinq.Localization;
 
 namespace DbMetal
 {
-    public class DbMetalProgram
+    public class Program
     {
         static void Main(string[] args)
         {
+            Reference.DbLinqLocalizations();
             var processor = ObjectFactory.Get<IProcessor>();
             processor.Process(args);
         }

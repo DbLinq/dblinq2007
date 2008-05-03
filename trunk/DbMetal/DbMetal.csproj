@@ -12,6 +12,7 @@
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\DbLinq.snk</AssemblyOriginatorKeyFile>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -24,7 +25,6 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -53,6 +53,9 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Data.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Web.Extensions">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Xml" />
@@ -108,6 +111,10 @@
     <ProjectReference Include="..\DbLinq.Ingres\DbLinq.Ingres.csproj">
       <Project>{90D57CD9-D704-409E-88A1-0F22AC79065A}</Project>
       <Name>DbLinq.Ingres</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DbLinq.Localization\DbLinq.Localization.csproj">
+      <Project>{E636DAE5-1245-4ED1-A709-057935D20E24}</Project>
+      <Name>DbLinq.Localization</Name>
     </ProjectReference>
     <ProjectReference Include="..\DbLinq.MySql\DbLinq.MySql.csproj">
       <Project>{FA8D1068-3341-4956-BF94-54C6A816BD9E}</Project>
