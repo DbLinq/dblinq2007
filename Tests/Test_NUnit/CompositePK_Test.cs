@@ -137,7 +137,7 @@ namespace Test_NUnit_MySql
             db.SubmitChanges();
 
             var orderDetail2 = db.OrderDetails.Single(od => od.OrderID == 1);
-            Assert.AreEqual(orderDetail2.Discount, newDiscount);
+            Assert.AreEqual((float)orderDetail2.Discount, newDiscount);
         }
 
         [Test(Description = "Check that both keys are used to determine identity")]
