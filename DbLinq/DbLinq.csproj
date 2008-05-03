@@ -32,28 +32,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MySql.Data, Version=1.0.7.30072, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\lib\MySql.Data.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
     <Reference Include="System.Data.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\DbLinq.ProductInfo.cs">
@@ -130,7 +117,8 @@
     <Compile Include="Util\FieldUtils.cs" />
     <Compile Include="Util\GroupHelper.cs" />
     <Compile Include="Linq\INameFormatter.cs" />
-    <Compile Include="Util\Language\Implementation\GermanWords.cs" />
+    <Compile Include="Util\Language\Implementation\AbstractEndPluralWords.cs" />
+    <Compile Include="Util\Language\Implementation\AbstractWords.cs" />
     <Compile Include="Util\Language\Implementation\Languages.cs" />
     <Compile Include="Util\Language\Implementation\NoLanguageWords.cs" />
     <Compile Include="Util\Lookup.cs" />
@@ -161,7 +149,6 @@
     <Compile Include="Util\TypeExtensions.cs" />
     <Compile Include="Util\TypeLoader.cs" />
     <Compile Include="Util\VarName.cs" />
-    <Compile Include="Util\Language\Implementation\EnglishWords.cs" />
     <Compile Include="Vendor\IDataTableColumn.cs" />
     <Compile Include="Vendor\IDataName.cs" />
     <Compile Include="Vendor\IDataType.cs" />
@@ -187,10 +174,6 @@
     <None Include="Schema\DbmlSchema.bat" />
     <EmbeddedResource Include="Schema\DbmlSchema.xsd">
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Util\Language\Implementation\EnglishWords.txt" />
-    <EmbeddedResource Include="Util\Language\Implementation\GermanWords.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

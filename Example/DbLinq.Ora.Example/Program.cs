@@ -49,7 +49,7 @@ namespace nwind
             insertTest(connStr);
             return;
 
-            Northwind db = new Northwind(connStr);
+            //Northwind db = new Northwind(connStr);
             //var q = from at in db.alltypes select at;
             //var q = from p in db.products orderby p.ProductName select p;
             //var q = from c in db.customers from o in c.Orders 
@@ -57,8 +57,8 @@ namespace nwind
 
             int insertedID = 7;
             //var q = from p in db.Products where p.ProductID==insertedID select p;
-            var q = from p in db.Products //where p.ProductID==insertedID 
-                    select p;
+            //var q = from p in db.Products //where p.ProductID==insertedID 
+            //        select p;
             //int ii = q.Count();
             //var q = from c in db.Customers from o in c.Orders where c.City == "London" select new { c, o };
             //It’s also possible to do the reverse.
@@ -70,10 +70,10 @@ namespace nwind
             //Console.WriteLine("User sees sql:"+queryText);
 
 
-            foreach (var v in q)
-            {
-                Console.WriteLine("OBJ:" + v);
-            }
+            //foreach (var v in q)
+            //{
+            //    Console.WriteLine("OBJ:" + v);
+            //}
         }
 
         public static void insertTest(string connStr)

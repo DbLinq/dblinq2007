@@ -21,44 +21,16 @@
 // THE SOFTWARE.
 // 
 #endregion
-using System.Collections.Generic;
-using System.Globalization;
 
-namespace DbLinq.Util.Language
+namespace DbLinq.Localization
 {
-    public interface ILanguageWords
+    public static class Reference
     {
         /// <summary>
-        /// using English heuristics, convert 'dogs' to 'dog',
-        /// 'categories' to 'category',
-        /// 'cat' remains unchanged.
+        /// This method does nothing (as you can see), but forces assembly loading and reference
         /// </summary>
-        string Singularize(string plural);
-
-        /// <summary>
-        /// using English heuristics, convert 'dog' to 'dogs',
-        /// 'bass' remains unchanged.
-        /// </summary>
-        string Pluralize(string singular);
-
-        /// <summary>
-        /// Extracts words from an undistinguishable letters magma
-        /// for example "shipsperunit" --> "ships" "per" "unit"
-        /// </summary>
-        /// <param name="text"></param>
-        /// <returns></returns>
-        IList<string> GetWords(string text);
-
-        /// <summary>
-        /// Returns true if the required culture is supported
-        /// </summary>
-        /// <param name="cultureInfo"></param>
-        /// <returns></returns>
-        bool Supports(CultureInfo cultureInfo);
-
-        /// <summary>
-        /// Loads the words (operation may be slow, so it is excluded from ctor)
-        /// </summary>
-        void Load();
+        public static void DbLinqLocalizations()
+        {
+        }
     }
 }

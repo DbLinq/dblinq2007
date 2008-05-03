@@ -21,6 +21,7 @@
 // THE SOFTWARE.
 // 
 #endregion
+
 using System.Collections.Generic;
 using System.Globalization;
 
@@ -28,14 +29,14 @@ namespace DbLinq.Util.Language.Implementation
 {
     public class NoLanguageWords : ILanguageWords
     {
-        public string Singularize(string word)
+        public string Singularize(string plural)
         {
-            return word;
+            return plural;
         }
 
-        public string Pluralize(string word)
+        public string Pluralize(string singular)
         {
-            return word;
+            return singular;
         }
 
         public IList<string> GetWords(string text)

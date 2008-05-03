@@ -21,44 +21,52 @@
 // THE SOFTWARE.
 // 
 #endregion
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace DbLinq.Util.Language.Implementation
 {
-    public class EnglishWords : ILanguageWords
+    public abstract class AbstractWords : ILanguageWords
     {
-        private Dictionary<string, int> wordsWeights;
+        protected IDictionary<string, int> WordsWeights;
+        protected IDictionary<string, string> SingularToPlural = new Dictionary<string, string>();
+        protected IDictionary<string, string> PluralToSingular = new Dictionary<string, string>();
 
-        private class SingularPlural
+        public virtual string Singularize(string plural)
         {
-            public string Singular;
-            public string Plural;
+            string singular;
+            if (PluralToSingular.TryGetValue(plural, out singular))
+                return singular;
+            return ComputeSingular(plural);
         }
 
-        public virtual void Load()
+        public virtual string Pluralize(string singular)
         {
-            if (wordsWeights == null)
-                Load("EnglishWords.txt");
+            string plural;
+            if (SingularToPlural.TryGetValue(singular, out plural))
+                return plural;
+            return ComputePlural(singular);
         }
 
-        public bool Supports(CultureInfo cultureInfo)
-        {
-            return cultureInfo.ThreeLetterISOLanguageName == "eng";
-        }
+        protected abstract string ComputeSingular(string plural);
+        protected abstract string ComputePlural(string singular);
+
+        public abstract bool Supports(CultureInfo cultureInfo);
+        public abstract void Load();
 
         public virtual void Load(string resourceName)
         {
-            wordsWeights = new Dictionary<string, int>();
-            using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(GetType(), resourceName))
+            WordsWeights = new Dictionary<string, int>();
+            var type = GetType();
+            using (var resourceStream = type.Assembly.GetManifestResourceStream(type, resourceName))
             {
                 using (var resourceReader = new StreamReader(resourceStream))
                 {
+                    var singularPluralSeparator = new[] { "=>" };
                     while (!resourceReader.EndOfStream)
                     {
                         string word = resourceReader.ReadLine().Trim().ToLower();
@@ -70,13 +78,28 @@ namespace DbLinq.Util.Language.Implementation
                             count++;
                             word = word.Substring(1);
                         }
-                        if (!wordsWeights.ContainsKey(word))
-                            wordsWeights[word] = count;
+
+                        var singularPlural = word.Split(singularPluralSeparator, StringSplitOptions.RemoveEmptyEntries);
+                        if (singularPlural.Length > 1)
+                        {
+                            word = singularPlural[0].Trim();
+                            var plural = singularPlural[1].Trim();
+                            SingularToPlural[word] = plural;
+                            PluralToSingular[plural] = word;
+                        }
+
+                        if (!WordsWeights.ContainsKey(word))
+                            WordsWeights[word] = count;
                         else
-                            wordsWeights[word] += count;
+                            WordsWeights[word] += count;
                     }
                 }
             }
+        }
+
+        protected virtual string GetStandard(string word)
+        {
+            return word;
         }
 
         protected int GetWeight(string word)
@@ -84,63 +107,13 @@ namespace DbLinq.Util.Language.Implementation
             if (word.Length == 1) // a letter is always 1
                 return 1;
             int weight;
-            wordsWeights.TryGetValue(word.ToLower(), out weight);
+            WordsWeights.TryGetValue(GetStandard(word.ToLower()), out weight);
             return weight;
         }
 
         protected bool Exists(string word)
         {
             return GetWeight(word) > 0;
-        }
-
-        /// <summary>
-        /// using English heuristics, convert 'dogs' to 'dog',
-        /// 'categories' to 'category',
-        /// 'cat' remains unchanged.
-        /// </summary>
-        public string Singularize(string word)
-        {
-            if (word.Length < 2)
-                return word;
-
-            foreach (SingularPlural sp in SingularsPlurals)
-            {
-                string newWord = Try(word, sp.Plural, sp.Singular);
-                if (newWord != null)
-                    return newWord;
-            }
-
-            return word;
-        }
-
-        /// <summary>
-        /// using English heuristics, convert 'dog' to 'dogs',
-        /// 'bass' remains unchanged.
-        /// </summary>
-        public string Pluralize(string word)
-        {
-            if (word.Length < 2)
-                return word;
-
-            foreach (SingularPlural sp in SingularsPlurals)
-            {
-                string newWord = Try(word, sp.Singular, sp.Plural);
-                if (newWord != null)
-                    return newWord;
-            }
-
-            return word;
-        }
-
-        protected string Try(string word, string ending, string newEnding)
-        {
-            if (word.ToLower().EndsWith(ending))
-            {
-                string newWord = word.Substring(0, word.Length - ending.Length) + newEnding;
-                if (Exists(newWord))
-                    return newWord;
-            }
-            return null;
         }
 
         private class Context
@@ -155,7 +128,7 @@ namespace DbLinq.Util.Language.Implementation
             public IDictionary<string, Split> Splits = new Dictionary<string, Split>();
         }
 
-        public IList<string> GetWords(string text)
+        public virtual IList<string> GetWords(string text)
         {
             var context = new Context();
             IList<string> words = new List<string>();
@@ -254,17 +227,5 @@ namespace DbLinq.Util.Language.Implementation
             return averageWeight / words.Count
                    * 1000; // coz it's easier to read
         }
-
-        // important: keep this from most specific to less specific
-        private static SingularPlural[] SingularsPlurals =
-            {
-                new SingularPlural { Singular="ss", Plural="sses" },
-                new SingularPlural { Singular="ch", Plural="ches" },
-                new SingularPlural { Singular="sh", Plural="shes" },
-                new SingularPlural { Singular="zz", Plural="zzes" },
-                new SingularPlural { Singular="x", Plural="xes" },
-                new SingularPlural { Singular="y", Plural="ies" },
-                new SingularPlural { Singular="", Plural="s" },
-            };
     }
 }
