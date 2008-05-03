@@ -1,4 +1,4 @@
-#region Auto-generated classes for Northwind database on 2008-05-03 00:22:43Z
+#region Auto-generated classes for Northwind database on 2008-05-03 23:51:17Z
 
 //
 //  ____  _     __  __      _        _
@@ -7,7 +7,7 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from Northwind on 2008-05-03 00:22:43Z
+// Auto-generated from Northwind on 2008-05-03 23:51:17Z
 // Please visit http://linq.to/db for more information
 
 #endregion
@@ -50,46 +50,34 @@ namespace nwind
 		public Table<Supplier> Suppliers { get { return GetTable<Supplier>(); } }
 		public Table<Territory> Territories { get { return GetTable<Territory>(); } }
 
-		#region stored procs
-	
-		
-		[FunctionEx(Name = "hello0", ProcedureOrFunction = "")]	
-		public string Hello0()	
-		{	
-			System.Data.Linq.IExecuteResult result = base.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())));	
-			return (string)result.ReturnValue;	
-		}	
-		
-	
-		
-		[FunctionEx(Name = "hello1", ProcedureOrFunction = "")]	
-		public string Hello1([Parameter(Name = "name", DbType = "text")] string name)	
-		{	
-			System.Data.Linq.IExecuteResult result = base.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), name);	
-			return (string)result.ReturnValue;	
-		}	
-		
-	
-		
-		[FunctionEx(Name = "hello2", ProcedureOrFunction = "")]	
-		public string hello2([Parameter(Name = "name", DbType = "text")] string name
-				,[Parameter(Name = "unused", DbType = "text")] string unused)	
-		{	
-			System.Data.Linq.IExecuteResult result = base.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), name, unused);	
-			return (string)result.ReturnValue;	
-		}	
-		
-	
-		
-		[FunctionEx(Name = "getordercount", ProcedureOrFunction = "")]	
-		public int GetOrderCount([Parameter(Name = "custid", DbType = "character varying")] string custid)	
-		{	
-			System.Data.Linq.IExecuteResult result = base.ExecuteMethodCall(this, ((MethodInfo)(MethodInfo.GetCurrentMethod())), custid);	
-			return (int)result.ReturnValue;	
-		}	
-		
-	
-	#endregion
+		[Function(Name = "getordercount", IsComposable = true)]
+		public int GetOrderCount([Parameter(Name = "custid", DbType = "character varying")] string custid)
+		{
+			var result = ExecuteMethodCall(this, (MethodInfo)MethodBase.GetCurrentMethod(), custid);
+			return (int)result.ReturnValue;
+		}
+
+		[Function(Name = "hello0", IsComposable = true)]
+		public string Hello0()
+		{
+			var result = ExecuteMethodCall(this, (MethodInfo)MethodBase.GetCurrentMethod());
+			return (string)result.ReturnValue;
+		}
+
+		[Function(Name = "hello1", IsComposable = true)]
+		public string Hello1([Parameter(Name = "name", DbType = "text")] string name)
+		{
+			var result = ExecuteMethodCall(this, (MethodInfo)MethodBase.GetCurrentMethod(), name);
+			return (string)result.ReturnValue;
+		}
+
+		[Function(Name = "hello2", IsComposable = true)]
+		public string Hello2([Parameter(Name = "name", DbType = "text")] string name, [Parameter(Name = "unused", DbType = "text")] string unused)
+		{
+			var result = ExecuteMethodCall(this, (MethodInfo)MethodBase.GetCurrentMethod(), name, unused);
+			return (string)result.ReturnValue;
+		}
+
 	}
 
 	[Table(Name = "categories")]

@@ -147,20 +147,21 @@ namespace DbLinq.PostgreSql
             return parts;
         }
 
-        DbLinq.Schema.Dbml.Function ParseFunction(DataStoredProcedure pg_proc, Dictionary<long, string> typeOidToName, NameFormat nameFormat)
+        Function ParseFunction(DataStoredProcedure pg_proc, Dictionary<long, string> typeOidToName, NameFormat nameFormat)
         {
             var procedureName = CreateProcedureName(pg_proc.proname, null, nameFormat);
 
-            DbLinq.Schema.Dbml.Function dbml_func = new DbLinq.Schema.Dbml.Function();
+            DbLinq.Schema.Dbml.Function dbml_func = new Function();
             dbml_func.Name = procedureName.DbName;
             dbml_func.Method = procedureName.MethodName;
 
-            if (pg_proc.formatted_prorettype != null)
+            if (pg_proc.formatted_prorettype != null && string.Compare(pg_proc.formatted_prorettype, "void") != 0)
             {
-                var dbml_param = new DbLinq.Schema.Dbml.Return();
+                var dbml_param = new Return();
                 dbml_param.DbType = pg_proc.formatted_prorettype;
                 dbml_param.Type = MapDbType(new DataType { Type = pg_proc.formatted_prorettype }).ToString();
                 dbml_func.Return = dbml_param;
+                dbml_func.IsComposable = true;
             }
 
             if (pg_proc.proallargtypes != null)
@@ -185,10 +186,10 @@ namespace DbLinq.PostgreSql
                     return null;
                 }
 
-                List<DbLinq.Schema.Dbml.Parameter> paramList = new List<DbLinq.Schema.Dbml.Parameter>();
+                List<DbLinq.Schema.Dbml.Parameter> paramList = new List<Parameter>();
                 for (int i = 0; i < argNames.Length; i++)
                 {
-                    DbLinq.Schema.Dbml.Parameter dbml_param = new DbLinq.Schema.Dbml.Parameter();
+                    DbLinq.Schema.Dbml.Parameter dbml_param = new Parameter();
                     long argTypeOid = argTypes2[i];
                     dbml_param.DbType = typeOidToName[argTypeOid];
                     dbml_param.Name = argNames[i];
