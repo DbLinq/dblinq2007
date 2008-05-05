@@ -77,8 +77,30 @@ namespace DbLinq.Vendor.Implementation
             LoadConstraints(schema, schemaName, Connection, nameFormat, names);
             if (loadStoredProcedures)
                 LoadStoredProcedures(schema, schemaName, Connection, nameFormat);
+            CheckNamesCaseSafety(schema);
 
             return schema;
+        }
+
+        protected virtual void CheckNamesCaseSafety(Database schema)
+        {
+            schema.Name = Vendor.GetSqlCaseSafeName(schema.Name);
+            foreach (var table in schema.Table)
+            {
+                table.Name = Vendor.GetSqlCaseSafeName(table.Name);
+                foreach (var column in table.Type.Columns)
+                {
+                    column.Name = Vendor.GetSqlCaseSafeName(column.Name);
+                }
+                foreach (var association in table.Type.Associations)
+                {
+                    association.Name = Vendor.GetSqlCaseSafeName(association.Name);
+                }
+            }
+            foreach (var storedProcedure in schema.Functions)
+            {
+                storedProcedure.Name = Vendor.GetSqlCaseSafeName(storedProcedure.Name);
+            }
         }
 
         protected SchemaLoader()
@@ -93,14 +115,13 @@ namespace DbLinq.Vendor.Implementation
             return isMixedCase ? WordsExtraction.FromCase : WordsExtraction.FromDictionary;
         }
 
-        protected virtual string GetFullCaseSafeDbName(string dbName, string dbSchema)
+        protected virtual string GetFullDbName(string dbName, string dbSchema)
         {
             string fullDbName;
             if (dbSchema == null)
                 fullDbName = dbName;
             else
                 fullDbName = string.Format("{0}.{1}", dbSchema, dbName);
-            fullDbName = Vendor.GetSqlCaseSafeName(fullDbName);
             return fullDbName;
         }
 
@@ -120,7 +141,7 @@ namespace DbLinq.Vendor.Implementation
             if (tableMemberAlias != null)
                 tableName.MemberName = tableMemberAlias;
 
-            tableName.DbName = GetFullCaseSafeDbName(dbTableName, dbSchema);
+            tableName.DbName = GetFullDbName(dbTableName, dbSchema);
             return tableName;
         }
 
@@ -143,14 +164,14 @@ namespace DbLinq.Vendor.Implementation
                 columnNameAlias = dbColumnName;
             }
             var columnName = NameFormatter.GetColumnName(columnNameAlias, extraction, nameFormat);
-            columnName.DbName = Vendor.GetSqlCaseSafeName(dbColumnName);
+            columnName.DbName = dbColumnName;
             return columnName;
         }
 
         protected virtual ProcedureName CreateProcedureName(string dbProcedureName, string dbSchema, NameFormat nameFormat)
         {
             var procedureName = NameFormatter.GetProcedureName(dbProcedureName, GetExtraction(dbProcedureName), nameFormat);
-            procedureName.DbName = GetFullCaseSafeDbName(dbProcedureName, dbSchema);
+            procedureName.DbName = GetFullDbName(dbProcedureName, dbSchema);
             return procedureName;
         }
 
@@ -159,7 +180,7 @@ namespace DbLinq.Vendor.Implementation
         {
             var associationName = NameFormatter.GetAssociationName(dbManyName, dbOneName,
                 dbConstraintName, GetExtraction(dbManyName), nameFormat);
-            associationName.DbName = GetFullCaseSafeDbName(dbManyName, dbManySchema);
+            associationName.DbName = GetFullDbName(dbManyName, dbManySchema);
             return associationName;
         }
 
@@ -222,7 +243,7 @@ namespace DbLinq.Vendor.Implementation
                 names.AddColumn(columnRow.TableName, columnName);
 
                 //find which table this column belongs to
-                string fullColumnDbName = GetFullCaseSafeDbName(columnRow.TableName, columnRow.TableSchema);
+                string fullColumnDbName = GetFullDbName(columnRow.TableName, columnRow.TableSchema);
                 DbLinq.Schema.Dbml.Table tableSchema = schema.Tables.FirstOrDefault(tblSchema => fullColumnDbName == tblSchema.Name);
                 if (tableSchema == null)
                 {

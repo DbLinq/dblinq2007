@@ -45,7 +45,7 @@ namespace DbLinq.Util
 
         public RowScalar(SessionVarsParsed vars, IEnumerable<T> parentTable)
         {
-            Logger = ObjectFactory.Get<ILogger>();
+            Logger = vars.Context.Logger;
             //don't modify the parent query with any additional clauses:
             _vars = vars;
             _parentTable = parentTable;

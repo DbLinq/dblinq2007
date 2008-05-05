@@ -96,7 +96,7 @@ namespace DbLinq.PostgreSql
             foreach (DataConstraint keyColRow in constraints)
             {
                 //find my table:
-                string constraintFullDbName = GetFullCaseSafeDbName(keyColRow.TableName, keyColRow.TableSchema);
+                string constraintFullDbName = GetFullDbName(keyColRow.TableName, keyColRow.TableSchema);
                 DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => constraintFullDbName == t.Name);
                 if (table == null)
                 {
@@ -108,8 +108,7 @@ namespace DbLinq.PostgreSql
                 {
                     //A) add primary key
                     DbLinq.Schema.Dbml.Column primaryKeyCol = table.Type.Columns.First(c => c.Name == keyColRow.ColumnName);
-                    if (!primaryKeyCol.IsPrimaryKey) // picrap: just to check if the case happens
-                        primaryKeyCol.IsPrimaryKey = true;
+                    primaryKeyCol.IsPrimaryKey = true;
                 }
                 else
                 {

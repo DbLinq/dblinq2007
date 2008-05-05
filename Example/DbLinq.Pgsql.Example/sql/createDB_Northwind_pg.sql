@@ -2,10 +2,10 @@
 --script to create PostgreSql version of the Northwind test DB
 --####################################################################
 
-DROP DATABASE IF EXISTS Northwind;
-CREATE DATABASE Northwind WITH OWNER = "LinqUser";
+DROP DATABASE IF EXISTS "Northwind";
+CREATE DATABASE "Northwind" WITH OWNER = "LinqUser";
 
-\connect Northwind; 
+\connect "Northwind"; 
 --Carramba! http://www.postgresqlforums.com/forums/viewtopic.php?f=33&t=10
 --Re: switch database connection in jdbc Postby wagnerch on Tue Jan 02, 2007 3:05 pm 
 --You would need to disconnect and reconnect to the other database, or hold two connections to each database. 

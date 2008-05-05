@@ -51,7 +51,7 @@ namespace DbLinq.Ingres
             foreach (DataConstraint keyColRow in foreignKeys)
             {
                 //find my table:
-                string constraintFullDbName = GetFullCaseSafeDbName(keyColRow.TableName, keyColRow.TableSchema);
+                string constraintFullDbName = GetFullDbName(keyColRow.TableName, keyColRow.TableSchema);
                 DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => constraintFullDbName == t.Name);
                 if (table == null)
                 {

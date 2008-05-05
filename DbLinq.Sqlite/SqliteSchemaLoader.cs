@@ -58,7 +58,7 @@ namespace DbLinq.Sqlite
                 foreach (DataConstraint keyColRow in constraints)
                 {
                     //find my table:
-                    string tableFullDbName = GetFullCaseSafeDbName(keyColRow.TableName, keyColRow.TableSchema);
+                    string tableFullDbName = GetFullDbName(keyColRow.TableName, keyColRow.TableSchema);
                     DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => tableFullDbName == t.Name);
                     if (table == null)
                     {
