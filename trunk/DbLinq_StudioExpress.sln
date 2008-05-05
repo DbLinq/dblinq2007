@@ -16,6 +16,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.PostgreSql", "DbLinq
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_NUnit_Pgsql", "Tests\Test_NUnit\Test_NUnit_Pgsql.csproj", "{858BAFF7-542F-4DBB-940B-57333E4DB7CE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.Localization", "DbLinq.Localization\DbLinq.Localization.csproj", "{E636DAE5-1245-4ED1-A709-057935D20E24}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,6 +56,10 @@ Global
 		{858BAFF7-542F-4DBB-940B-57333E4DB7CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{858BAFF7-542F-4DBB-940B-57333E4DB7CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{858BAFF7-542F-4DBB-940B-57333E4DB7CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E636DAE5-1245-4ED1-A709-057935D20E24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E636DAE5-1245-4ED1-A709-057935D20E24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E636DAE5-1245-4ED1-A709-057935D20E24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E636DAE5-1245-4ED1-A709-057935D20E24}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
