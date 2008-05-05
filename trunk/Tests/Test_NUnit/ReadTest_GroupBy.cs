@@ -230,7 +230,7 @@ using Test_NUnit;
             {
                 Console.WriteLine("  Result: custID=" + result.Key + " sum=" + result.OrderSum);
                 Assert.IsTrue(result.Key != null, "Key must be non-null");
-                Assert.Greater(result.OrderSum, 0f, "OrderSum must be > 0");
+                Assert.Greater(result.OrderSum, 0, "OrderSum must be > 0");
             }
             //select new { g.Key , SumPerCustomer = g.Sum(o2=>o2.OrderID) };
         }
