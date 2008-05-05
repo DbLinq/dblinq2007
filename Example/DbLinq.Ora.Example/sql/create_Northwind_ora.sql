@@ -140,7 +140,7 @@ CREATE SEQUENCE Region_seq     START WITH 1    INCREMENT BY 1;
 CREATE SEQUENCE Categories_seq START WITH 1    INCREMENT BY 1;
 CREATE SEQUENCE Suppliers_seq  START WITH 1    INCREMENT BY 1;
 CREATE SEQUENCE Products_seq   START WITH 1    INCREMENT BY 1;
-CREATE SEQUENCE Orders_seq     START WITH 1000 INCREMENT BY 1;
+CREATE SEQUENCE Orders_seq     START WITH 1    INCREMENT BY 1;
 CREATE SEQUENCE Employees_seq  START WITH 1    INCREMENT BY 1;
  
 
@@ -199,7 +199,7 @@ insert INTO Products (ProductId, ProductName,QuantityPerUnit,UnitsInStock,UnitsO
 VALUES (Products_seq.nextval, 'Fork',5,   111, 0, 0);
 insert INTO Products (ProductId, ProductName,SupplierID, QuantityPerUnit,UnitsInStock,UnitsOnOrder,Discontinued)
 VALUES (Products_seq.nextval, 'Linq Book',2, 1, 0, 26, 0);
-INSERT INTO `Products` (ProductId, ProductName,SupplierID, QuantityPerUnit,UnitPrice,  UnitsInStock,UnitsOnOrder,Discontinued)
+INSERT INTO Products (ProductId, ProductName,SupplierID, QuantityPerUnit,UnitPrice,  UnitsInStock,UnitsOnOrder,Discontinued)
 VALUES (Products_seq.nextval, 'Carnarvon Tigers', 3,'16 kg pkg.',62.50,  42, 0, 0);
 
 --####################################################################
@@ -228,7 +228,7 @@ insert INTO Orders (OrderID, CustomerID, EmployeeID, OrderDate, Freight)
 Values (Orders_seq.NextVal, 'UKMOD', 1, sysdate, 32.5);
 
 insert INTO Orders (OrderID, CustomerID, EmployeeID, OrderDate, RequiredDate, ShippedDate, Freight, ShipName, ShipAddress, ShipCity, ShipCountry)
-Values (Orders_seq.NextVal, 'BONAP', 1, '1996-10-16', '1996-11-27', '1996-10-21', 10.21, 'Bon app''', '12, rue des Bouchers', 'Marseille', 'France' );
+Values (Orders_seq.NextVal, 'BONAP', 1, to_date('1996-10-16', 'yyyy-mm-dd'), to_date('1996-11-27', 'yyyy-mm-dd'), to_date('1996-10-21', 'yyyy-mm-dd'), 10.21, 'Bon app''', '12, rue des Bouchers', 'Marseille', 'France' );
 
 INSERT INTO OrderDetails (OrderID, ProductID, UnitPrice, Quantity, Discount)
 VALUES (1,2, 33, 5, 11);
