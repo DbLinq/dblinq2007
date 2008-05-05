@@ -78,7 +78,7 @@ namespace DbLinq.MySql
             foreach (DataConstraint keyColRow in constraints)
             {
                 //find my table:
-                string fullKeyDbName = GetFullCaseSafeDbName(keyColRow.TableName, keyColRow.TableSchema);
+                string fullKeyDbName = GetFullDbName(keyColRow.TableName, keyColRow.TableSchema);
                 DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => fullKeyDbName == t.Name);
                 if (table == null)
                 {
