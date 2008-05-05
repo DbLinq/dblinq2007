@@ -251,6 +251,16 @@ namespace DbLinq.Linq
                 Attach(row);
         }
 
+        /// <summary>
+        /// Attaches existing entity with original state
+        /// </summary>
+        /// <param name="entity">live entity added to change tracking</param>
+        /// <param name="original">original unchanged property values</param>
+        public void Attach(T entity, T original) 
+        {
+            throw new NotImplementedException();
+        }
+
         public void CheckAttachment(object entity)
         {
             DataContext.GetOrRegisterEntity(entity);
@@ -351,7 +361,6 @@ namespace DbLinq.Linq
 
                     using (IDbCommand cmd = InsertClauseBuilder.GetUpdateCommand(_vars, obj, proj, ID_to_update, modifiedProperties))
                     {
-                        QuotesHelper.AddQuotesToQuery(cmd);
                         int result = cmd.ExecuteNonQuery();
                         Trace.WriteLine("MTable SaveAll.Update returned:" + result);
                     }
