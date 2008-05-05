@@ -158,6 +158,32 @@ namespace Test_NUnit_Oracle
                       select new { test = 1 };
             var list = res.ToList();
             Assert.IsTrue(list.Count > 0);
+        }
+
+        [Test]
+        public void C6_NullParentEmplyee() {
+          Northwind db = CreateDB();
+          var query = from e in db.Employees 
+                      select new {
+                        Name = e.FirstName,
+                        ReportsTo = e.ParentEmployee.FirstName 
+                      };
+
+          var list = query.ToList();
+          Assert.AreEqual(3, list.Count);
+        } 
+
+
+        [Test]
+        public void C7_CaseInsensitiveSubstringSearch() {
+          Northwind db = CreateDB();
+
+          string search = "HERKKU";
+          var query = db.Customers.Where(d => d.CompanyName.ToUpper()
+            .Contains( search ));
+
+          var list = query.ToList();
+          Assert.AreEqual(1, list.Count);
         } 
 
         #endregion
