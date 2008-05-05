@@ -23,7 +23,11 @@
 #endregion
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.Linq;
+using System.Diagnostics;
 using System.Reflection;
+using System.Xml;
 using DbLinq.Util;
 
 namespace DbLinq.Factory.Implementation
@@ -34,17 +38,48 @@ namespace DbLinq.Factory.Implementation
     /// </summary>
     public class ReflectionObjectFactory : AbstractObjectFactory
     {
-        private IDictionary<Type, IList<Type>> implementations = new Dictionary<Type, IList<Type>>();
-        private IDictionary<Type, object> singletons = new Dictionary<Type, object>();
-
-        public ReflectionObjectFactory()
+        private IDictionary<Type, IList<Type>> implementations;
+        protected IDictionary<Type, IList<Type>> Implementations
         {
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            foreach (var assembly in assemblies)
-                Parse(assembly);
+            get
+            {
+                if (implementations == null)
+                {
+                    implementations = ParseAppDomain();
+                }
+                return implementations;
+            }
+        }
+        protected IDictionary<Type, object> Singletons = new Dictionary<Type, object>();
+
+        protected virtual IList<Assembly> GetAssembliesToAvoid()
+        {
+            return new[]
+                       {
+                           typeof(object).Assembly,         // mscorlib
+                           typeof(Uri).Assembly,            // System
+                           typeof(Action).Assembly,         // System.Core
+                           typeof(IDbConnection).Assembly,  // System.Data
+                           typeof(ITable).Assembly,         // System.Data.Linq
+                           typeof(XmlDocument).Assembly     // System.Xml
+                       };
         }
 
-        protected void Parse(Assembly assembly)
+        protected IDictionary<Type, IList<Type>> ParseAppDomain()
+        {
+            var interfaceImplementations = new Dictionary<Type, IList<Type>>();
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            var assembliesToAvoid = GetAssembliesToAvoid();
+            foreach (var assembly in assemblies)
+            {
+                if (assembliesToAvoid.Contains(assembly))
+                    continue;
+                Parse(assembly, interfaceImplementations);
+            }
+            return interfaceImplementations;
+        }
+
+        protected virtual void Parse(Assembly assembly, IDictionary<Type, IList<Type>> interfaceImplementations)
         {
             try
             {
@@ -58,8 +93,8 @@ namespace DbLinq.Factory.Implementation
                         if (i.Assembly.GetCustomAttributes(typeof(DbLinqAttribute), false).Length > 0)
                         {
                             IList<Type> types;
-                            if (!implementations.TryGetValue(i, out types))
-                                implementations[i] = types = new List<Type>();
+                            if (!interfaceImplementations.TryGetValue(i, out types))
+                                interfaceImplementations[i] = types = new List<Type>();
                             types.Add(type);
                         }
                     }
@@ -73,8 +108,8 @@ namespace DbLinq.Factory.Implementation
         private object GetSingleton(Type t)
         {
             object r;
-            if (!singletons.TryGetValue(t, out r))
-                singletons[t] = r = GetNewInstance(t);
+            if (!Singletons.TryGetValue(t, out r))
+                Singletons[t] = r = GetNewInstance(t);
             return r;
         }
 
@@ -83,7 +118,7 @@ namespace DbLinq.Factory.Implementation
             if (t.IsInterface)
             {
                 IList<Type> types;
-                if (!implementations.TryGetValue(t, out types))
+                if (!Implementations.TryGetValue(t, out types))
                     throw new ArgumentException(string.Format("Type '{0}' has no implementation", t));
                 if (types.Count > 1)
                     throw new ArgumentException(string.Format("Type '{0}' has too many implementations", t));
@@ -104,7 +139,7 @@ namespace DbLinq.Factory.Implementation
 
         public override IEnumerable<Type> GetImplementations(Type interfaceType)
         {
-            return implementations[interfaceType];
+            return Implementations[interfaceType];
         }
     }
 }
