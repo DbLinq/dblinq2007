@@ -54,6 +54,11 @@
     <Compile Include="..\..\Example\DbLinq.Ora.Example\nwind\Northwind.cs">
       <Link>nwind\Northwind.cs</Link>
     </Compile>
+    <Compile Include="..\..\lib\DynamicLinq.cs">
+      <Link>lib\DynamicLinq.cs</Link>
+    </Compile>
+    <Compile Include="CompositePK_Test.cs" />
+    <Compile Include="DynamicLinqTest.cs" />
     <Compile Include="ExecuteCommand_Test.cs" />
     <Compile Include="ExecuteQuery_Test.cs" />
     <Compile Include="Linq_101_Samples\Advanced.cs" />

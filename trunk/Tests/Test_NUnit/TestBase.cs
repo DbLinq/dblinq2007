@@ -23,6 +23,7 @@
 #endregion
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Linq;
 using DbLinq.Factory;
@@ -146,35 +147,29 @@ namespace Test_NUnit
         //    return CreateDB(System.Data.ConnectionState.Closed);
         //}
 
-        public Northwind CreateDB()
+        private void CheckRecreateSqlite()
         {
-            return CreateDB(System.Data.ConnectionState.Closed);
-            Northwind db = new Northwind(new XSqlConnection(connStr));
-            
 #if SQLITE
             if (doRecreate)
             {
-                db.ExecuteCommand(System.IO.File.ReadAllText(@"..\..\..\Example\DbLinq.SQLite.Example\sql\create_Northwind.sql"), new object[] { });
+                File.Copy(@"..\..\..\Northwind.db3", "Northwind.db3", true);
                 doRecreate = false;
             }
 #endif
-            return db;
+        }
+
+        public Northwind CreateDB()
+        {
+            return CreateDB(System.Data.ConnectionState.Closed);
         }
 
         public Northwind CreateDB(System.Data.ConnectionState state)
         {
+            CheckRecreateSqlite();
             XSqlConnection conn = new XSqlConnection(connStr);
             if (state==System.Data.ConnectionState.Open)
                 conn.Open();
             Northwind db = new Northwind(conn);
-            
-#if SQLITE
-            if (doRecreate)
-            {
-                db.ExecuteCommand(System.IO.File.ReadAllText(@"..\..\..\Example\DbLinq.SQLite.Example\sql\create_Northwind.sql"), new object[] { });
-                doRecreate = false;
-            }
-#endif
             return db;
         }
 
