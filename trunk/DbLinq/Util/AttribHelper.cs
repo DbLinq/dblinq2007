@@ -155,7 +155,7 @@ namespace DbLinq.Util
         /// <summary>
         /// from one column Employee.EmployeeID, extract its [Column] attrib
         /// </summary>
-        public static ColumnAttribute GetColumnAttrib(MemberInfo memberInfo)
+        public static ColumnAttribute GetColumnAttribute(MemberInfo memberInfo)
         {
             object[] colAttribs = memberInfo.GetCustomAttributes(typeof(ColumnAttribute), false);
             if (colAttribs.Length != 1)
@@ -166,12 +166,17 @@ namespace DbLinq.Util
             return colAtt0;
         }
 
+        public static ColumnAttribute GetColumnAttribute(Type t, string memberName)
+        {
+            return GetColumnAttribute(t.GetMember(memberName)[0]);
+        }
+
         /// <summary>
         /// get name of column in SQL table, given one C# field (MemberInfo).
         /// </summary>
         public static string GetSQLColumnName(MemberInfo memberInfo)
         {
-            ColumnAttribute colAtt0 = GetColumnAttrib(memberInfo);
+            ColumnAttribute colAtt0 = GetColumnAttribute(memberInfo);
             return colAtt0 == null ? null : colAtt0.Name;
         }
 
@@ -227,11 +232,11 @@ namespace DbLinq.Util
             // if we find none, we pass the hand to AutoGenId handle
             foreach (var propertyInfo in t.GetProperties())
             {
-                var columnAttributes = (ColumnAttribute[]) propertyInfo.GetCustomAttributes(typeof (ColumnAttribute), true);
-                if(columnAttributes.Length>0)
+                var columnAttributes = (ColumnAttribute[])propertyInfo.GetCustomAttributes(typeof(ColumnAttribute), true);
+                if (columnAttributes.Length > 0)
                 {
                     var columnAttribute = columnAttributes[0];
-                    if(columnAttribute.IsDbGenerated)
+                    if (columnAttribute.IsDbGenerated)
                     {
                         projData.AutoGenMember = propertyInfo;
                         break;
@@ -247,7 +252,7 @@ namespace DbLinq.Util
                 MemberInfo[] members = GetMemberFields(t);
                 foreach (FieldInfo field in members.OfType<FieldInfo>())
                 {
-                    object[] objs = field.GetCustomAttributes(typeof (AutoGenIdAttribute), false);
+                    object[] objs = field.GetCustomAttributes(typeof(AutoGenIdAttribute), false);
                     List<AutoGenIdAttribute> att = objs.OfType<AutoGenIdAttribute>().ToList();
                     if (att.Count == 0)
                         continue; //not our field

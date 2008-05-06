@@ -51,7 +51,7 @@ using Test_NUnit;
         {
             Northwind db = CreateDB();
             //string sql = "SELECT count(*) FROM Northwind.Products";
-            int result = db.ExecuteCommand("SELECT count(*) FROM Products");
+            int result = db.ExecuteCommand("SELECT count(*) FROM <<Products>>");
             //long iResult = base.ExecuteScalar(sql);
             Assert.Greater(result, 0, "Expecting some rows in Products table, got:" + result);
         }
@@ -63,7 +63,7 @@ using Test_NUnit;
         public void A3_ProductCount_Param()
         {
             Northwind db = CreateDB();
-            int result = db.ExecuteCommand("SELECT count(*) FROM Products WHERE ProductID>{0}", 3);
+            int result = db.ExecuteCommand("SELECT count(*) FROM <<Products>> WHERE <<ProductID>>>{0}", 3);
             //long iResult = base.ExecuteScalar(sql);
             Assert.Greater(result, 0, "Expecting some rows in Products table, got:" + result);
         }

@@ -218,6 +218,8 @@ namespace DbLinq.Linq
             }
         }
 
+        #region Identity management
+
         protected IIdentityReader GetIdentityReader(Type t)
         {
             IIdentityReader identityReader;
@@ -286,6 +288,8 @@ namespace DbLinq.Linq
             }
             return false;
         }
+
+        #endregion
 
         /// <summary>
         /// Changed object determine 

@@ -165,6 +165,7 @@ namespace DbLinq.Linq
         public override string ToString()
         {
             string part1 = _vendor.BuildSqlString(this);
+            // picrap to the author --> this should move to the vendor
             if (UnionPart2 != null)
             {
                 string part2 = _vendor.BuildSqlString(UnionPart2);

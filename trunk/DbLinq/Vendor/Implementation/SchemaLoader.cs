@@ -84,22 +84,22 @@ namespace DbLinq.Vendor.Implementation
 
         protected virtual void CheckNamesCaseSafety(Database schema)
         {
-            schema.Name = Vendor.GetSqlCaseSafeName(schema.Name);
+            schema.Name = Vendor.GetSqlFieldSafeName(schema.Name);
             foreach (var table in schema.Table)
             {
-                table.Name = Vendor.GetSqlCaseSafeName(table.Name);
+                table.Name = Vendor.GetSqlFieldSafeName(table.Name);
                 foreach (var column in table.Type.Columns)
                 {
-                    column.Name = Vendor.GetSqlCaseSafeName(column.Name);
+                    column.Name = Vendor.GetSqlFieldSafeName(column.Name);
                 }
                 foreach (var association in table.Type.Associations)
                 {
-                    association.Name = Vendor.GetSqlCaseSafeName(association.Name);
+                    association.Name = Vendor.GetSqlFieldSafeName(association.Name);
                 }
             }
             foreach (var storedProcedure in schema.Functions)
             {
-                storedProcedure.Name = Vendor.GetSqlCaseSafeName(storedProcedure.Name);
+                storedProcedure.Name = Vendor.GetSqlFieldSafeName(storedProcedure.Name);
             }
         }
 

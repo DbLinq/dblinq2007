@@ -47,6 +47,11 @@ namespace DbLinq.MySql
 
         public override string VendorName { get { return "MySQL"; } }
 
+        protected override string MakeNameSafe(string namePart)
+        {
+            return namePart.Enquote('`');
+        }
+
         public override IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
                                                , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
         {

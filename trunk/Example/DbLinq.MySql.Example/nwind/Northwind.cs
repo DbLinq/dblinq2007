@@ -1,4 +1,4 @@
-#region Auto-generated classes for Northwind database on 2008-05-03 23:51:19Z
+#region Auto-generated classes for Northwind database on 2008-05-06 11:28:20Z
 
 //
 //  ____  _     __  __      _        _
@@ -7,7 +7,7 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from Northwind on 2008-05-03 23:51:19Z
+// Auto-generated from Northwind on 2008-05-06 11:28:20Z
 // Please visit http://linq.to/db for more information
 
 #endregion
@@ -38,6 +38,7 @@ namespace nwind
 		{
 		}
 
+		public Table<CaseTest> CaseTests { get { return GetTable<CaseTest>(); } }
 		public Table<Category> Categories { get { return GetTable<Category>(); } }
 		public Table<Customer> Customers { get { return GetTable<Customer>(); } }
 		public Table<Employee> Employees { get { return GetTable<Employee>(); } }
@@ -91,6 +92,77 @@ namespace nwind
 		{
 			var result = ExecuteMethodCall(this, (MethodInfo)MethodBase.GetCurrentMethod(), custID, prodId);
 		}
+
+	}
+
+	[Table(Name = "casetest")]
+	public partial class CaseTest
+	{
+		#region string NoCase
+
+		private string noCase;
+		[DebuggerNonUserCode]
+		[Column(Storage = "noCase", Name = "NoCase", DbType = "varchar(25)", Expression = null)]
+		public string NoCase
+		{
+			get
+			{
+				return noCase;
+			}
+			set
+			{
+				if (value != noCase)
+				{
+					noCase = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region uint Value0
+
+		private uint value0;
+		[DebuggerNonUserCode]
+		[Column(Storage = "value0", Name = "value0", DbType = "int(20) unsigned", CanBeNull = false, Expression = null)]
+		public uint Value0
+		{
+			get
+			{
+				return value0;
+			}
+			set
+			{
+				if (value != value0)
+				{
+					value0 = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string WithCase
+
+		private string withCase;
+		[DebuggerNonUserCode]
+		[Column(Storage = "withCase", Name = "WithCase", DbType = "varchar(25)", Expression = null)]
+		public string WithCase
+		{
+			get
+			{
+				return withCase;
+			}
+			set
+			{
+				if (value != withCase)
+				{
+					withCase = value;
+				}
+			}
+		}
+
+		#endregion
 
 	}
 
@@ -1259,7 +1331,7 @@ namespace nwind
 
 		#region Children
 
-		[Association(Storage = null, OtherKey = "OrderID", Name = "order details_ibfk_1")]
+		[Association(Storage = null, OtherKey = "OrderID", Name = "`order details_ibfk_1`")]
 		[DebuggerNonUserCode]
 		public EntityMSet<OrderDetail> OrderDetails
 		{
@@ -1325,7 +1397,7 @@ namespace nwind
 
 	}
 
-	[Table(Name = "order details")]
+	[Table(Name = "`order details`")]
 	public partial class OrderDetail
 	{
 		#region float Discount
@@ -1441,7 +1513,7 @@ namespace nwind
 		#region Parents
 
 		private System.Data.Linq.EntityRef<Order> orderDetailsIBFk1;
-		[Association(Storage = "orderDetailsIBFk1", ThisKey = "OrderID", Name = "order details_ibfk_1")]
+		[Association(Storage = "orderDetailsIBFk1", ThisKey = "OrderID", Name = "`order details_ibfk_1`")]
 		[DebuggerNonUserCode]
 		public Order Order
 		{
@@ -1456,7 +1528,7 @@ namespace nwind
 		}
 
 		private System.Data.Linq.EntityRef<Product> orderDetailsIBFk2;
-		[Association(Storage = "orderDetailsIBFk2", ThisKey = "ProductID", Name = "order details_ibfk_2")]
+		[Association(Storage = "orderDetailsIBFk2", ThisKey = "ProductID", Name = "`order details_ibfk_2`")]
 		[DebuggerNonUserCode]
 		public Product Product
 		{
@@ -1701,7 +1773,7 @@ namespace nwind
 
 		#region Children
 
-		[Association(Storage = null, OtherKey = "ProductID", Name = "order details_ibfk_2")]
+		[Association(Storage = null, OtherKey = "ProductID", Name = "`order details_ibfk_2`")]
 		[DebuggerNonUserCode]
 		public EntityMSet<OrderDetail> OrderDetails
 		{

@@ -1,4 +1,4 @@
-#region Auto-generated classes for Northwind database on 2008-05-03 23:51:18Z
+#region Auto-generated classes for Northwind database on 2008-05-06 11:28:20Z
 
 //
 //  ____  _     __  __      _        _
@@ -7,7 +7,7 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from Northwind on 2008-05-03 23:51:18Z
+// Auto-generated from Northwind on 2008-05-06 11:28:20Z
 // Please visit http://linq.to/db for more information
 
 #endregion
@@ -46,7 +46,6 @@ namespace nwind
 		public Table<OrderDetail> OrderDetails { get { return GetTable<OrderDetail>(); } }
 		public Table<Product> Products { get { return GetTable<Product>(); } }
 		public Table<Region> Regions { get { return GetTable<Region>(); } }
-		public Table<Rid> Rids { get { return GetTable<Rid>(); } }
 		public Table<Supplier> Suppliers { get { return GetTable<Supplier>(); } }
 		public Table<Territory> Territories { get { return GetTable<Territory>(); } }
 
@@ -868,21 +867,6 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Territory> linqUserEmployeeTerritoriesTerritoryIDLinqUserTerritoriesTerritoryID;
-		[Association(Storage = "linqUserEmployeeTerritoriesTerritoryIDLinqUserTerritoriesTerritoryID", ThisKey = "TerritoryID", Name = "linquser_employeeterritories_territoryid_linquser_territories_territoryid")]
-		[DebuggerNonUserCode]
-		public Territory Territory
-		{
-			get
-			{
-				return linqUserEmployeeTerritoriesTerritoryIDLinqUserTerritoriesTerritoryID.Entity;
-			}
-			set
-			{
-				linqUserEmployeeTerritoriesTerritoryIDLinqUserTerritoriesTerritoryID.Entity = value;
-			}
-		}
-
 		private System.Data.Linq.EntityRef<Employee> linqUserEmployeeTerritoriesEmployeeIDLinqUserEmployeesEmployeeID;
 		[Association(Storage = "linqUserEmployeeTerritoriesEmployeeIDLinqUserEmployeesEmployeeID", ThisKey = "EmployeeID", Name = "linquser_employeeterritories_employeeid_linquser_employees_employeeid")]
 		[DebuggerNonUserCode]
@@ -895,6 +879,21 @@ namespace nwind
 			set
 			{
 				linqUserEmployeeTerritoriesEmployeeIDLinqUserEmployeesEmployeeID.Entity = value;
+			}
+		}
+
+		private System.Data.Linq.EntityRef<Territory> linqUserEmployeeTerritoriesTerritoryIDLinqUserTerritoriesTerritoryID;
+		[Association(Storage = "linqUserEmployeeTerritoriesTerritoryIDLinqUserTerritoriesTerritoryID", ThisKey = "TerritoryID", Name = "linquser_employeeterritories_territoryid_linquser_territories_territoryid")]
+		[DebuggerNonUserCode]
+		public Territory Territory
+		{
+			get
+			{
+				return linqUserEmployeeTerritoriesTerritoryIDLinqUserTerritoriesTerritoryID.Entity;
+			}
+			set
+			{
+				linqUserEmployeeTerritoriesTerritoryIDLinqUserTerritoriesTerritoryID.Entity = value;
 			}
 		}
 
@@ -999,7 +998,7 @@ namespace nwind
 		[AutoGenId]
 		private int orderID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "orderID", Name = "orderid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = "next value for \"linquser\".\"categories_seq\"")]
+		[Column(Storage = "orderID", Name = "orderid", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = "next value for \"linquser\".\"orders_seq\"")]
 		public int OrderID
 		{
 			get
@@ -1233,21 +1232,6 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Employee> linqUserOrdersEmployeeIDLinqUserEmployeesEmployeeID;
-		[Association(Storage = "linqUserOrdersEmployeeIDLinqUserEmployeesEmployeeID", ThisKey = "EmployeeID", Name = "linquser_orders_employeeid_linquser_employees_employeeid")]
-		[DebuggerNonUserCode]
-		public Employee Employee
-		{
-			get
-			{
-				return linqUserOrdersEmployeeIDLinqUserEmployeesEmployeeID.Entity;
-			}
-			set
-			{
-				linqUserOrdersEmployeeIDLinqUserEmployeesEmployeeID.Entity = value;
-			}
-		}
-
 		private System.Data.Linq.EntityRef<Customer> linqUserOrdersCustomerIDLinqUserCustomersCustomerID;
 		[Association(Storage = "linqUserOrdersCustomerIDLinqUserCustomersCustomerID", ThisKey = "CustomerID", Name = "linquser_orders_customerid_linquser_customers_customerid")]
 		[DebuggerNonUserCode]
@@ -1260,6 +1244,21 @@ namespace nwind
 			set
 			{
 				linqUserOrdersCustomerIDLinqUserCustomersCustomerID.Entity = value;
+			}
+		}
+
+		private System.Data.Linq.EntityRef<Employee> linqUserOrdersEmployeeIDLinqUserEmployeesEmployeeID;
+		[Association(Storage = "linqUserOrdersEmployeeIDLinqUserEmployeesEmployeeID", ThisKey = "EmployeeID", Name = "linquser_orders_employeeid_linquser_employees_employeeid")]
+		[DebuggerNonUserCode]
+		public Employee Employee
+		{
+			get
+			{
+				return linqUserOrdersEmployeeIDLinqUserEmployeesEmployeeID.Entity;
+			}
+			set
+			{
+				linqUserOrdersEmployeeIDLinqUserEmployeesEmployeeID.Entity = value;
 			}
 		}
 
@@ -1383,21 +1382,6 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Product> linqUserOrderDetailsProductIDLinqUserProductsProductID;
-		[Association(Storage = "linqUserOrderDetailsProductIDLinqUserProductsProductID", ThisKey = "ProductID", Name = "linquser_orderdetails_productid_linquser_products_productid")]
-		[DebuggerNonUserCode]
-		public Product Product
-		{
-			get
-			{
-				return linqUserOrderDetailsProductIDLinqUserProductsProductID.Entity;
-			}
-			set
-			{
-				linqUserOrderDetailsProductIDLinqUserProductsProductID.Entity = value;
-			}
-		}
-
 		private System.Data.Linq.EntityRef<Order> linqUserOrderDetailsOrderIDLinqUserOrdersOrderID;
 		[Association(Storage = "linqUserOrderDetailsOrderIDLinqUserOrdersOrderID", ThisKey = "OrderID", Name = "linquser_orderdetails_orderid_linquser_orders_orderid")]
 		[DebuggerNonUserCode]
@@ -1410,6 +1394,21 @@ namespace nwind
 			set
 			{
 				linqUserOrderDetailsOrderIDLinqUserOrdersOrderID.Entity = value;
+			}
+		}
+
+		private System.Data.Linq.EntityRef<Product> linqUserOrderDetailsProductIDLinqUserProductsProductID;
+		[Association(Storage = "linqUserOrderDetailsProductIDLinqUserProductsProductID", ThisKey = "ProductID", Name = "linquser_orderdetails_productid_linquser_products_productid")]
+		[DebuggerNonUserCode]
+		public Product Product
+		{
+			get
+			{
+				return linqUserOrderDetailsProductIDLinqUserProductsProductID.Entity;
+			}
+			set
+			{
+				linqUserOrderDetailsProductIDLinqUserProductsProductID.Entity = value;
 			}
 		}
 
@@ -1756,57 +1755,6 @@ namespace nwind
 			}
 		}
 
-
-		#endregion
-
-	}
-
-	[Table(Name = "rid")]
-	public partial class Rid
-	{
-		#region int ID
-
-		[AutoGenId]
-		private int id;
-		[DebuggerNonUserCode]
-		[Column(Storage = "id", Name = "id", DbType = "INTEGER(4)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = "next value for \"linquser\".\"rid_id1_seq\"")]
-		public int ID
-		{
-			get
-			{
-				return id;
-			}
-			set
-			{
-				if (value != id)
-				{
-					id = value;
-				}
-			}
-		}
-
-		#endregion
-
-		#region int? ReAnR
-
-		[AutoGenId]
-		private int? reAnR;
-		[DebuggerNonUserCode]
-		[Column(Storage = "reAnR", Name = "reanr", DbType = "INTEGER(4)", IsDbGenerated = true, Expression = "next value for \"linquser\".\"rid_reanr_seq\"")]
-		public int? ReAnR
-		{
-			get
-			{
-				return reAnR;
-			}
-			set
-			{
-				if (value != reAnR)
-				{
-					reAnR = value;
-				}
-			}
-		}
 
 		#endregion
 

@@ -169,13 +169,6 @@ namespace DbLinq.Vendor
         string GetSqlFieldSafeName(string name);
 
         /// <summary>
-        /// Returns a table/column in case safe expression, if required
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        string GetSqlCaseSafeName(string name);
-
-        /// <summary>
         /// return 'LENGTH' on Oracle,Mysql,PostgreSql, return 'LEN' on MSSql
         /// </summary>
         string GetSqlStringLengthFunction();

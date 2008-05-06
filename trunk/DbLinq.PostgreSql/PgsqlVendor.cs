@@ -99,11 +99,6 @@ namespace DbLinq.PostgreSql
             return sb.ToString();
         }
 
-        protected override string MakeFieldSafeName(string name)
-        {
-            return name.Enquote('"');
-        }
-
         protected void SetParameterType(IDbDataParameter parameter, PropertyInfo property, string literal)
         {
             object dbType = Enum.Parse(property.PropertyType, literal);
@@ -286,11 +281,6 @@ namespace DbLinq.PostgreSql
         protected override bool IsNameCaseSafe(string dbName)
         {
             return dbName == dbName.ToLower();
-        }
-
-        protected override string MakeNameCaseSafe(string namePart)
-        {
-            return namePart.Enquote('`');
         }
     }
 }

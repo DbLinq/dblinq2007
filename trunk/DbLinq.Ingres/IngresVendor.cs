@@ -149,7 +149,7 @@ namespace DbLinq.Ingres
             SetParameterType(parameter, parameter.GetType().GetProperty("IngresDbType"), literal);
         }
 
-        protected override string MakeFieldSafeName(string name)
+        protected override string MakeNameSafe(string name)
         {
             // --> how is a special field escaped?
             return name;
@@ -311,11 +311,6 @@ namespace DbLinq.Ingres
         protected override bool IsNameCaseSafe(string dbName)
         {
             return dbName == dbName.ToLower();
-        }
-
-        protected override string MakeNameCaseSafe(string namePart)
-        {
-            return namePart.Enquote('`');
         }
     }
 }

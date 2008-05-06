@@ -34,7 +34,7 @@ namespace Test_NUnit_MySql
 #elif ORACLE
 namespace Test_NUnit_Oracle
 #elif POSTGRES
-    namespace Test_NUnit_PostgreSql
+namespace Test_NUnit_PostgreSql
 #elif SQLITE
     namespace Test_NUnit_Sqlite
 #elif INGRES
@@ -69,7 +69,7 @@ namespace Test_NUnit_Oracle
         {
             Northwind db = CreateDB();
             //string sql = @"SELECT count(*) FROM linqtestdb.Products WHERE ProductName='Pen'";
-            string sql = @"SELECT count(*) FROM Products WHERE ProductName='Pen'";
+            string sql = @"SELECT count(*) FROM <<Products>> WHERE <<ProductName>>='Pen'";
             long iResult = db.ExecuteCommand(sql);
             //long iResult = base.ExecuteScalar(sql);
             Assert.AreEqual(iResult, 1L, "Expecting one Pen in Products table, got:" + iResult + " (SQL:" + sql + ")");
@@ -161,30 +161,33 @@ namespace Test_NUnit_Oracle
         }
 
         [Test]
-        public void C6_NullParentEmplyee() {
-          Northwind db = CreateDB();
-          var query = from e in db.Employees 
-                      select new {
-                        Name = e.FirstName,
-                        ReportsTo = e.ParentEmployee.FirstName 
-                      };
+        public void C6_NullParentEmplyee()
+        {
+            Northwind db = CreateDB();
+            var query = from e in db.Employees
+                        select new
+                        {
+                            Name = e.FirstName,
+                            ReportsTo = e.ParentEmployee.FirstName
+                        };
 
-          var list = query.ToList();
-          Assert.AreEqual(3, list.Count);
-        } 
+            var list = query.ToList();
+            Assert.AreEqual(3, list.Count);
+        }
 
 
         [Test]
-        public void C7_CaseInsensitiveSubstringSearch() {
-          Northwind db = CreateDB();
+        public void C7_CaseInsensitiveSubstringSearch()
+        {
+            Northwind db = CreateDB();
 
-          string search = "HERKKU";
-          var query = db.Customers.Where(d => d.CompanyName.ToUpper()
-            .Contains( search ));
+            string search = "HERKKU";
+            var query = db.Customers.Where(d => d.CompanyName.ToUpper()
+              .Contains(search));
 
-          var list = query.ToList();
-          Assert.AreEqual(1, list.Count);
-        } 
+            var list = query.ToList();
+            Assert.AreEqual(1, list.Count);
+        }
 
         #endregion
 
@@ -377,34 +380,38 @@ namespace Test_NUnit_Oracle
         }
 
 
-        [Test(Description="Calls ExecuteQuery<> to store result into object type property")]
+        [Test(Description = "Calls ExecuteQuery<> to store result into object type property")]
         // note: for PostgreSQL requires database with lowercase names, NorthwindReqular.SQL
-        public void D13_ExecuteQueryObjectProperty() {
-          Northwind db = CreateDB();
+        public void D13_ExecuteQueryObjectProperty()
+        {
+            Northwind db = CreateDB();
 
-          var res = db.ExecuteQuery<Pen>(@"SELECT ProductID as PenId FROM Products WHERE
-              ProductName ='Pen'").Single();
-          Assert.AreEqual(1, res.PenId);
+            var res = db.ExecuteQuery<Pen>(@"SELECT <<ProductID>> as PenId FROM <<Products>> WHERE
+              <<ProductName>> ='Pen'").Single();
+            Assert.AreEqual(1, res.PenId);
         }
 
-        class Pen {
-          internal int PenId;
+        class Pen
+        {
+            internal int PenId;
         }
 
 
         [Test]
-        public void D14_ProjectedProductList() {
-          Northwind db = CreateDB();
+        public void D14_ProjectedProductList()
+        {
+            Northwind db = CreateDB();
 
-          var query = from pr in db.Products
-                      select new {
-                        pr.ProductID,
-                        pr.ProductName,
-                        pr.Supplier,         // exception!
-                        pr.UnitPrice,        // exception!
-                        pr.UnitsInStock,
-                        pr.UnitsOnOrder
-                      };
+            var query = from pr in db.Products
+                        select new
+                        {
+                            pr.ProductID,
+                            pr.ProductName,
+                            pr.Supplier,         // exception!
+                            pr.UnitPrice,        // exception!
+                            pr.UnitsInStock,
+                            pr.UnitsOnOrder
+                        };
             //WARNING - as of 2008Apr, we return Suppliers without blowing up, but they need to be live
             var list = query.ToList();
             Assert.IsTrue(list.Count > 0);

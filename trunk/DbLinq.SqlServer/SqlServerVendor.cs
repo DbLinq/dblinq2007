@@ -59,7 +59,7 @@ namespace DbLinq.SqlServer
             return "@P" + index;
         }
 
-        protected override string MakeFieldSafeName(string name)
+        protected override string MakeNameSafe(string name)
         {
             return name.Enquote('[', ']');
         }

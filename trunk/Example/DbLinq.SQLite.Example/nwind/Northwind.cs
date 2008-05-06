@@ -1,4 +1,4 @@
-#region Auto-generated classes for Northwind database on 2008-05-03 23:51:13Z
+#region Auto-generated classes for Northwind database on 2008-05-06 11:28:14Z
 
 //
 //  ____  _     __  __      _        _
@@ -7,7 +7,7 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from Northwind on 2008-05-03 23:51:13Z
+// Auto-generated from Northwind on 2008-05-06 11:28:14Z
 // Please visit http://linq.to/db for more information
 
 #endregion
@@ -1202,7 +1202,7 @@ namespace nwind
 
 		#region Children
 
-		[Association(Storage = null, OtherKey = "OrderID", Name = "fk_Order Details_1")]
+		[Association(Storage = null, OtherKey = "OrderID", Name = "\"fk_Order Details_1\"")]
 		[DebuggerNonUserCode]
 		public EntityMSet<OrderDetail> OrderDetails
 		{
@@ -1253,7 +1253,7 @@ namespace nwind
 
 	}
 
-	[Table(Name = "Order Details")]
+	[Table(Name = "\"Order Details\"")]
 	public partial class OrderDetail
 	{
 		#region float Discount
@@ -1371,7 +1371,7 @@ namespace nwind
 		#region Parents
 
 		private System.Data.Linq.EntityRef<Product> fkOrderDetails0;
-		[Association(Storage = "fkOrderDetails0", ThisKey = "ProductID", Name = "fk_Order Details_0")]
+		[Association(Storage = "fkOrderDetails0", ThisKey = "ProductID", Name = "\"fk_Order Details_0\"")]
 		[DebuggerNonUserCode]
 		public Product Product
 		{
@@ -1386,7 +1386,7 @@ namespace nwind
 		}
 
 		private System.Data.Linq.EntityRef<Order> fkOrderDetails1;
-		[Association(Storage = "fkOrderDetails1", ThisKey = "OrderID", Name = "fk_Order Details_1")]
+		[Association(Storage = "fkOrderDetails1", ThisKey = "OrderID", Name = "\"fk_Order Details_1\"")]
 		[DebuggerNonUserCode]
 		public Order Order
 		{
@@ -1631,7 +1631,7 @@ namespace nwind
 
 		#region Children
 
-		[Association(Storage = null, OtherKey = "ProductID", Name = "fk_Order Details_0")]
+		[Association(Storage = null, OtherKey = "ProductID", Name = "\"fk_Order Details_0\"")]
 		[DebuggerNonUserCode]
 		public EntityMSet<OrderDetail> OrderDetails
 		{

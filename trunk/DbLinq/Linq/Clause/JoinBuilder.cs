@@ -40,22 +40,27 @@ namespace DbLinq.Linq.Clause
         /// add sql JOIN clause: 'c$.CustomerID=o$.CustomerID'.
         /// This is used from SelectMany.
         /// </summary>
-        public static void AddJoin1(MemberExpression memberExpr, ParameterExpression paramExpr, ParseResult result)
+        public static void AddJoin1(MemberExpression memberExpr, QueryProcessor qp, ParameterExpression paramExpr, ParseResult result)
         {
             AttribAndProp attribAndProp;
-            AssociationAttribute assoc1, assoc2;
             bool isAssoc1 = AttribHelper.IsAssociation(memberExpr, out attribAndProp);
-            if( ! isAssoc1)
+            if (!isAssoc1)
                 return; //no join
-            assoc1 = attribAndProp.assoc;
+            AssociationAttribute assoc1 = attribAndProp.assoc;
 
             //user passed in part of SelectMany, eg. 'c.Orders'
             string nick1 = VarName.GetSqlName(memberExpr.Expression.XParam().Name); // c$
             string nick2 = VarName.GetSqlName(paramExpr.Name); //o$
-            assoc2 = AttribHelper.FindReverseAssociation(attribAndProp);
+            AssociationAttribute assoc2 = AttribHelper.FindReverseAssociation(attribAndProp);
             if (assoc2 == null)
                 throw new ApplicationException("Failed to find reverse assoc for " + assoc1.Name);
-            string joinString = nick1+"."+assoc1.OtherKey+"="+nick2+"."+assoc2.ThisKey;
+
+            var vendor = qp._vars.Context.Vendor;
+            var type1 = memberExpr.Expression.Type;
+            var type2 = paramExpr.Type;
+            var otherKeyColumn = vendor.GetSqlFieldSafeName(AttribHelper.GetColumnAttribute(type1, assoc1.OtherKey).Name);
+            var thisKeyColumn = vendor.GetSqlFieldSafeName(AttribHelper.GetColumnAttribute(type2, assoc2.ThisKey).Name);
+            string joinString = nick1 + "." + otherKeyColumn + "=" + nick2 + "." + thisKeyColumn;
 
             //Type childType = AttribHelper.ExtractTypeFromMSet(memberExpr.Type);
             result.addJoin(joinString);
@@ -81,6 +86,7 @@ namespace DbLinq.Linq.Clause
 
             MemberExpression exprOuterOrig = exprOuter;
             Expression exprInner = exprOuter.Expression;
+            var vendor = qp._vars.Context.Vendor;
 
             if (exprOuter.Expression.NodeType == ExpressionType.MemberAccess)
             {
@@ -103,88 +109,96 @@ namespace DbLinq.Linq.Clause
 
             switch (exprInner.NodeType)
             {
-                case ExpressionType.MemberAccess:
+            case ExpressionType.MemberAccess:
+                {
+                    //eg. "SELECT order.Product.ProductID"
+                    MemberExpression member = exprInner.XMember();
+                    bool isAssoc = AttribHelper.IsAssociation(member, out attribAndProp1);
+                    if (!isAssoc)
                     {
-                        //eg. "SELECT order.Product.ProductID"
-                        MemberExpression member = exprInner.XMember();
-                        bool isAssoc = AttribHelper.IsAssociation(member, out attribAndProp1);
-                        if (!isAssoc)
-                        {
-                            throw new Exception("L113 AddJoin2: member1.member2.member3 only allowed for associations, not for: " + member);
-                        }
-                        assoc1 = attribAndProp1.assoc;
-                        nick1 = qp.NicknameRequest(exprOuter, assoc1);
-                        nick1 = VarName.GetSqlName(nick1);
-
-                        //store this nickname for subsequent selects:
-                        //result.memberExprNickames[member] = nick1;
-                        qp.memberExprNickames[member] = nick1;
-
-                        nick2 = member.Expression.XParam().Name;
-                        nick2 = VarName.GetSqlName(nick2);
-
-                        type2 = member.Expression.Type;
-
-                        //System.Reflection.PropertyInfo propInfo = exprOuter.Member as System.Reflection.PropertyInfo;
-                        string sqlColumnName = AttribHelper.GetSQLColumnName(exprOuter.Member)
-                            ?? exprOuter.Member.Name; //'City' or 'Content'
-
-                        result.AppendString(nick1 + "." + sqlColumnName); //where clause: '$c.City'
-                        break;
+                        throw new Exception("L113 AddJoin2: member1.member2.member3 only allowed for associations, not for: " + member);
                     }
-                case ExpressionType.Parameter:
+                    assoc1 = attribAndProp1.assoc;
+                    nick1 = qp.NicknameRequest(exprOuter, assoc1);
+                    nick1 = VarName.GetSqlName(nick1);
+
+                    //store this nickname for subsequent selects:
+                    //result.memberExprNickames[member] = nick1;
+                    qp.memberExprNickames[member] = nick1;
+
+                    nick2 = member.Expression.XParam().Name;
+                    nick2 = VarName.GetSqlName(nick2);
+
+                    type2 = member.Expression.Type;
+
+                    //System.Reflection.PropertyInfo propInfo = exprOuter.Member as System.Reflection.PropertyInfo;
+                    string sqlColumnName = AttribHelper.GetSQLColumnName(exprOuter.Member)
+                        ?? exprOuter.Member.Name; //'City' or 'Content'
+
+                    result.AppendString(nick1 + "." + sqlColumnName); //where clause: '$c.City'
+                    break;
+                }
+            case ExpressionType.Parameter:
+                {
+                    //eg. "SELECT order.Product"
+                    ParameterExpression paramExpr = exprInner.XParam();
+
+                    bool isAssoc = AttribHelper.IsAssociation(exprOuter, out attribAndProp1);
+                    if (!isAssoc)
                     {
-                        //eg. "SELECT order.Product"
-                        ParameterExpression paramExpr = exprInner.XParam();
-
-                        bool isAssoc = AttribHelper.IsAssociation(exprOuter, out attribAndProp1);
-                        if (!isAssoc)
-                        {
-                            throw new Exception("L143 AddJoin2: member1.member2 only allowed for associations, not for: " + exprOuter.Expression);
-                        }
-
-                        assoc1 = attribAndProp1.assoc;
-                        //nickname for parent table (not available in Expr tree) - eg. "p94$" for Products
-                        Type outerType = exprOuter.Type; //eg. EntityMSet<Order>
-                        if(outerType.IsGenericType && outerType.GetGenericTypeDefinition()==typeof(EntityMSet<>))
-                        {
-                            outerType = outerType.GetGenericArguments()[0]; //extract Order from EntityMSet<Order>
-                        }
-
-                        type2 = outerType;
-                        string parentTypeName = outerType.Name;
-
-                        string nick2Inner = Char.ToLower(parentTypeName[0]) + "94";
-                        //eg. nick2="s94$" when doing "select p.Supplier from Products"
-                        nick2 = VarName.GetSqlName(nick2Inner); 
-                        nick1 = VarName.GetSqlName(paramExpr.Name);
-                        qp.memberExprNickames[exprOuterOrig] = nick2Inner;
-
-                        if (recurData.allowSelectAllFields)
-                        {
-                            SqlExpressionParts sqlParts = new SqlExpressionParts(qp._vars.Context.Vendor);
-                            FromClauseBuilder.SelectAllFields(null, sqlParts, type2, nick2);
-                            result.AppendString(sqlParts.GetSelect());
-                        }
-                        break;
+                        throw new Exception("L143 AddJoin2: member1.member2 only allowed for associations, not for: " + exprOuter.Expression);
                     }
-                default:
-                    throw new Exception("L49 AddJoin2: member1.member2.member3 only allowed for associations, not for: " + exprOuter.Expression);
+
+                    assoc1 = attribAndProp1.assoc;
+                    //nickname for parent table (not available in Expr tree) - eg. "p94$" for Products
+                    Type outerType = exprOuter.Type; //eg. EntityMSet<Order>
+                    if (outerType.IsGenericType && outerType.GetGenericTypeDefinition() == typeof(EntityMSet<>))
+                    {
+                        outerType = outerType.GetGenericArguments()[0]; //extract Order from EntityMSet<Order>
+                    }
+
+                    type2 = outerType;
+                    string parentTypeName = outerType.Name;
+
+                    string nick2Inner = Char.ToLower(parentTypeName[0]) + "94";
+                    //eg. nick2="s94$" when doing "select p.Supplier from Products"
+                    nick2 = VarName.GetSqlName(nick2Inner);
+                    nick1 = VarName.GetSqlName(paramExpr.Name);
+                    qp.memberExprNickames[exprOuterOrig] = nick2Inner;
+
+                    if (recurData.allowSelectAllFields)
+                    {
+                        SqlExpressionParts sqlParts = new SqlExpressionParts(vendor);
+                        FromClauseBuilder.SelectAllFields(null, sqlParts, type2, nick2);
+                        result.AppendString(sqlParts.GetSelect());
+                    }
+                    break;
+                }
+            default:
+                throw new Exception("L49 AddJoin2: member1.member2.member3 only allowed for associations, not for: " + exprOuter.Expression);
             }
 
             Type type1 = exprOuter.Expression.Type;
             assoc2 = AttribHelper.FindReverseAssociation(attribAndProp1);
 
+            // TODO here: ThisKey and OtherKey are property names, not column names
+            //            --> get column name from ColumnAttribute
+
+            // picrap: this test is probably inaccurate, it should rely on other properties (... to be determined)
             if (assoc1.OtherKey != null && assoc2.ThisKey != null)
             {
+                var otherKeyColumn = vendor.GetSqlFieldSafeName(AttribHelper.GetColumnAttribute(type1, assoc1.OtherKey).Name);
+                var thisKeyColumn = vendor.GetSqlFieldSafeName(AttribHelper.GetColumnAttribute(type2, assoc2.ThisKey).Name);
                 //string joinString = "$c.CustomerID=$o.CustomerID"
-                string joinString = nick1 + "." + assoc1.OtherKey + "=" + nick2 + "." + assoc2.ThisKey;
+                string joinString = nick1 + "." + otherKeyColumn + "=" + nick2 + "." + thisKeyColumn;
                 result.addJoin(joinString);
             }
             else
             {
+                var thisKeyColumn = vendor.GetSqlFieldSafeName(AttribHelper.GetColumnAttribute(type2, assoc1.ThisKey).Name);
+                var otherKeyColumn = vendor.GetSqlFieldSafeName(AttribHelper.GetColumnAttribute(type1, assoc2.OtherKey).Name);
                 //string joinString = "$c.CustomerID=$o.CustomerID"
-                string joinString = nick1 + "." + assoc1.ThisKey + "=" + nick2 + "." + assoc2.OtherKey;
+                string joinString = nick1 + "." + thisKeyColumn + "=" + nick2 + "." + otherKeyColumn;
                 result.addJoin(joinString);
             }
             result.tablesUsed[type2] = nick2;    //tablesUsed[Order] = $o
