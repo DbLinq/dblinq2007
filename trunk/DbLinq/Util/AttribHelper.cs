@@ -225,22 +225,12 @@ namespace DbLinq.Util
                 {
                     projData.keyColumnName = colAtt[0].Name;
                 }
-            }
 
-
-            // picrap: we use ColumnAttribute properties first, instead of AutoGenIdAttribute
-            // if we find none, we pass the hand to AutoGenId handle
-            foreach (var propertyInfo in t.GetProperties())
-            {
-                var columnAttributes = (ColumnAttribute[])propertyInfo.GetCustomAttributes(typeof(ColumnAttribute), true);
-                if (columnAttributes.Length > 0)
+                // picrap: we use ColumnAttribute properties first, instead of AutoGenIdAttribute
+                // if we find none, we pass the hand to AutoGenId handle
+                if (colAtt[0].IsDbGenerated)
                 {
-                    var columnAttribute = columnAttributes[0];
-                    if (columnAttribute.IsDbGenerated)
-                    {
-                        projData.AutoGenMember = propertyInfo;
-                        break;
-                    }
+                    projData.AutoGenMember = prop;
                 }
             }
 
