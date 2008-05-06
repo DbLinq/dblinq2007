@@ -51,6 +51,21 @@ namespace DbMetal
         }
 
         /// <summary>
+        /// loads a ISchemaLoader from a provider id string (used by schema loader)
+        /// </summary>
+        /// <param name="provider"></param>
+        /// <returns></returns>
+        public ISchemaLoader Load(string provider)
+        {
+            string dbLinqSchemaLoaderType;
+            string databaseConnectionType;
+            GetLoaderAndConnection(out dbLinqSchemaLoaderType, out databaseConnectionType, provider);
+            if (dbLinqSchemaLoaderType == null)
+                return null;
+            return Load(null, dbLinqSchemaLoaderType, databaseConnectionType);
+        }
+
+        /// <summary>
         /// given a schemaLoaderType and dbConnType 
         /// (e.g. DbLinq.Oracle.OracleSchemaLoader and System.Data.OracleClient.OracleConnection),
         /// return an instance of the OracleSchemaLoader.
@@ -71,11 +86,15 @@ namespace DbMetal
                 errorMsg = "Failed on Activator.CreateInstance(" + databaseConnectionType.Name + ")";
                 IDbConnection connection = (IDbConnection)Activator.CreateInstance(databaseConnectionType);
 
-                string connectionString = parameters.Conn;
-                if (string.IsNullOrEmpty(connectionString))
-                    connectionString = loader.Vendor.BuildConnectionString(parameters.Server, parameters.Database, parameters.User, parameters.Password);
-                errorMsg = "Failed on setting ConnectionString=" + connectionString;
-                connection.ConnectionString = connectionString;
+                if (parameters != null)
+                {
+                    string connectionString = parameters.Conn;
+                    if (string.IsNullOrEmpty(connectionString))
+                        connectionString = loader.Vendor.BuildConnectionString(parameters.Server, parameters.Database,
+                                                                               parameters.User, parameters.Password);
+                    errorMsg = "Failed on setting ConnectionString=" + connectionString;
+                    connection.ConnectionString = connectionString;
+                }
 
                 errorMsg = "";
                 loader.Connection = connection;
@@ -190,15 +209,20 @@ namespace DbMetal
             return null;
         }
 
+        protected void GetLoaderAndConnection(out string dbLinqSchemaLoaderType, out string databaseConnectionType, string provider)
+        {
+            var configuration = (ProvidersSection)ConfigurationManager.GetSection("providers");
+            var element = configuration.Providers.GetProvider(provider);
+            //databaseConnectionType = types[1].Trim();
+            dbLinqSchemaLoaderType = element.DbLinqSchemaLoader;
+            databaseConnectionType = element.DatabaseConnection;
+        }
+
         protected void GetLoaderAndConnection(out string dbLinqSchemaLoaderType, out string databaseConnectionType, Parameters parameters)
         {
-            if (parameters.Provider != null)
+            if (!string.IsNullOrEmpty(parameters.Provider))
             {
-                var configuration = (ProvidersSection)ConfigurationManager.GetSection("providers");
-                var element = configuration.Providers.GetProvider(parameters.Provider);
-                //databaseConnectionType = types[1].Trim();
-                dbLinqSchemaLoaderType = element.DbLinqSchemaLoader;
-                databaseConnectionType = element.DatabaseConnection;
+                GetLoaderAndConnection(out dbLinqSchemaLoaderType, out databaseConnectionType, parameters.Provider);
             }
             else
             {

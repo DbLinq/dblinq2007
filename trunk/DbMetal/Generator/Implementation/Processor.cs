@@ -91,9 +91,9 @@ namespace DbMetal.Generator.Implementation
             try
             {
                 // we always need a factory, even if generating from a DBML file, because we need a namespace
-                var schemaLoader = SchemaLoaderFactory.Load(parameters);
+                ISchemaLoader schemaLoader;
                 // then we load the schema
-                Database dbSchema = ReadSchema(parameters, schemaLoader);
+                Database dbSchema = ReadSchema(parameters, out schemaLoader);
                 // the we write it (to DBML or code)
                 WriteSchema(dbSchema, schemaLoader, parameters);
             }
@@ -189,17 +189,20 @@ namespace DbMetal.Generator.Implementation
             }
         }
 
-        public Database ReadSchema(Parameters parameters, ISchemaLoader schemaLoader)
+        public Database ReadSchema(Parameters parameters, out ISchemaLoader schemaLoader)
         {
             Database dbSchema;
             var nameAliases = NameAliasesLoader.Load(parameters.Aliases);
             if (parameters.SchemaXmlFile == null) // read schema from DB
             {
+                schemaLoader = SchemaLoaderFactory.Load(parameters);
+
                 Logger.Write(Level.Information, ">>> Reading schema from {0} database", schemaLoader.VendorName);
                 dbSchema = schemaLoader.Load(parameters.Database, nameAliases,
                     new NameFormat { Case = Case.PascalCase, Pluralize = parameters.Pluralize, Culture = new CultureInfo(parameters.Culture) },
                     parameters.Sprocs, parameters.Namespace, parameters.Namespace);
                 dbSchema.Provider = parameters.Provider;
+                dbSchema.CheckNames();
                 dbSchema.Tables.Sort(new LambdaComparer<Table>((x, y) => (x.Type.Name.CompareTo(y.Type.Name))));
                 foreach (var table in dbSchema.Tables)
                     table.Type.Columns.Sort(new LambdaComparer<Column>((x, y) => (x.Member.CompareTo(y.Member))));
@@ -207,7 +210,14 @@ namespace DbMetal.Generator.Implementation
                 SchemaPostprocess.PostProcess_DB(dbSchema);
             }
             else // load DBML
+            {
                 dbSchema = ReadSchema(parameters.SchemaXmlFile);
+                schemaLoader = SchemaLoaderFactory.Load(dbSchema.Provider);
+            }
+
+            if (schemaLoader == null)
+                throw new ApplicationException("Please provide -Provider=MySql (or Oracle, OracleODP, PostgreSql, Sqlite - see app.config for provider listing)");
+
             return dbSchema;
         }
 

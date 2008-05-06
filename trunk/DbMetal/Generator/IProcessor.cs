@@ -58,7 +58,7 @@ namespace DbMetal.Generator
         /// <param name="parameters"></param>
         /// <param name="schemaLoader"></param>
         /// <returns></returns>
-        Database ReadSchema(Parameters parameters, ISchemaLoader schemaLoader);
+        Database ReadSchema(Parameters parameters, out ISchemaLoader schemaLoader);
         /// <summary>
         /// Loads a schema from a given file
         /// </summary>
