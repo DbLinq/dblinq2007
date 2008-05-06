@@ -37,13 +37,13 @@ namespace Test_NUnit_MySql
 #elif ORACLE
     namespace Test_NUnit_Oracle
 #elif POSTGRES
-    namespace Test_NUnit_PostgreSql
+namespace Test_NUnit_PostgreSql
 #elif SQLITE
     namespace Test_NUnit_Sqlite
 #elif INGRES
     namespace Test_NUnit_Ingres
 #else
-    #error unknown target
+#error unknown target
 #endif
 {
     [TestFixture]
@@ -98,45 +98,49 @@ namespace Test_NUnit_MySql
 
 
         [Test]
-        public void DL5_DynamicAssociatonWithExtensionMethod() {
+        public void DL5_DynamicAssociatonWithExtensionMethod()
+        {
 
-          Northwind db = CreateDB();
-          var orders = db.GetTable<Order>();
-          var res = orders.SelectDynamic(new string [] { "OrderID", "Customer.ContactName"});
+            Northwind db = CreateDB();
+            var orders = db.GetTable<Order>();
+            var res = orders.SelectDynamic(new string[] { "OrderID", "Customer.ContactName" });
 
-          List<Order> list = res.ToList();
-          Assert.IsTrue(list.Count > 0);
-        }
-
-
-        [Test]
-        public void DL6_StaticVersionOfDynamicAssociatonWithExtensionMethodTest() {
-
-          Northwind db = CreateDB();
-          var orders = db.GetTable<Order>().ToArray().AsQueryable();
-
-          var query = from order in orders
-                   select new Order {
-                     OrderID = order.OrderID,
-                     Customer = new Customer {
-                       ContactName = order.Customer.ContactName,
-                       ContactTitle = order.Customer.ContactTitle
-                     }
-                   };
-          var list = query.ToList();
-          Assert.IsTrue(list.Count > 0);
+            List<Order> list = res.ToList();
+            Assert.IsTrue(list.Count > 0);
         }
 
         [Test]
-        public void DL7_DynamicAssociatonUsingDoubleProjection() {
-          
-          Northwind db = CreateDB();
+        public void DL6_StaticVersionOfDynamicAssociatonWithExtensionMethodTest()
+        {
 
-          // Double projection works in Linq-SQL:
-          var orders = db.GetTable<Order>().ToArray().AsQueryable();
-          var query = orders.SelectDynamic(new string[] { "OrderID", "Customer.ContactName" });
-          var list = query.ToList();
-          Assert.IsTrue(list.Count > 0);
+            Northwind db = CreateDB();
+            var orders = db.GetTable<Order>().ToArray().AsQueryable();
+
+            var query = from order in orders
+                        select new Order
+                        {
+                            OrderID = order.OrderID,
+                            Customer = new Customer
+                            {
+                                ContactName = order.Customer.ContactName,
+                                ContactTitle = order.Customer.ContactTitle
+                            }
+                        };
+            var list = query.ToList();
+            Assert.IsTrue(list.Count > 0);
+        }
+
+        [Test]
+        public void DL7_DynamicAssociatonUsingDoubleProjection()
+        {
+
+            Northwind db = CreateDB();
+
+            // Double projection works in Linq-SQL:
+            var orders = db.GetTable<Order>().ToArray().AsQueryable();
+            var query = orders.SelectDynamic(new string[] { "OrderID", "Customer.ContactName" });
+            var list = query.ToList();
+            Assert.IsTrue(list.Count > 0);
         }
 
 
@@ -158,46 +162,54 @@ namespace Test_NUnit_MySql
     }
 
     // Extension method written by Marc Gravell
-    public static class SelectUsingSingleProjection {
-      public static IQueryable<T> SelectDynamic<T>(this IQueryable<T> source, params string[] propertyNames)
-          where T : new() {
-        Type type = typeof(T);
-        var sourceItem = Expression.Parameter(type, "t");
-        Expression exp = CreateAndInit(type, sourceItem, propertyNames);
-        return source.Select(Expression.Lambda<Func<T, T>>(exp, sourceItem));
-      }
-
-      static Expression CreateAndInit(Type type, Expression source, string[] propertyNames) {
-        if (type == null) throw new ArgumentNullException("type");
-        if (source == null) throw new ArgumentNullException("source");
-        if (propertyNames == null) throw new ArgumentNullException("propertyNames");
-
-        var newExpr = Expression.New(type.GetConstructor(Type.EmptyTypes));
-        // take "Foo.A", "Bar", "Foo.B" to "Foo" ["A","B"], "Bar" []
-        var groupedNames = from name in propertyNames
-                           let dotIndex = name.IndexOf('.')
-                           let primary = dotIndex < 0 ? name : name.Substring(0, dotIndex)
-                           let aux = dotIndex < 0 ? null : name.Substring(dotIndex + 1)
-                           group aux by primary into grouped
-                           select new {
-                             Primary = grouped.Key,
-                             Aux = grouped.Where(x => x != null).ToArray()
-                           };
-        List<MemberBinding> bindings = new List<MemberBinding>();
-        foreach (var grp in groupedNames) {
-          PropertyInfo dest = type.GetProperty(grp.Primary);
-          Expression value, readFrom = Expression.Property(source, grp.Primary);
-          if (grp.Aux.Length == 0) {
-            value = readFrom;
-          } else {
-            value = CreateAndInit(dest.PropertyType, readFrom, grp.Aux);
-          }
-          bindings.Add(Expression.Bind(dest, value));
+    public static class SelectUsingSingleProjection
+    {
+        public static IQueryable<T> SelectDynamic<T>(this IQueryable<T> source, params string[] propertyNames)
+            where T : new()
+        {
+            Type type = typeof(T);
+            var sourceItem = Expression.Parameter(type, "t");
+            Expression exp = CreateAndInit(type, sourceItem, propertyNames);
+            return source.Select(Expression.Lambda<Func<T, T>>(exp, sourceItem));
         }
-        return Expression.MemberInit(newExpr, bindings);
-      }
+
+        static Expression CreateAndInit(Type type, Expression source, string[] propertyNames)
+        {
+            if (type == null) throw new ArgumentNullException("type");
+            if (source == null) throw new ArgumentNullException("source");
+            if (propertyNames == null) throw new ArgumentNullException("propertyNames");
+
+            var newExpr = Expression.New(type.GetConstructor(Type.EmptyTypes));
+            // take "Foo.A", "Bar", "Foo.B" to "Foo" ["A","B"], "Bar" []
+            var groupedNames = from name in propertyNames
+                               let dotIndex = name.IndexOf('.')
+                               let primary = dotIndex < 0 ? name : name.Substring(0, dotIndex)
+                               let aux = dotIndex < 0 ? null : name.Substring(dotIndex + 1)
+                               group aux by primary into grouped
+                               select new
+                               {
+                                   Primary = grouped.Key,
+                                   Aux = grouped.Where(x => x != null).ToArray()
+                               };
+            List<MemberBinding> bindings = new List<MemberBinding>();
+            foreach (var grp in groupedNames)
+            {
+                PropertyInfo dest = type.GetProperty(grp.Primary);
+                Expression value, readFrom = Expression.Property(source, grp.Primary);
+                if (grp.Aux.Length == 0)
+                {
+                    value = readFrom;
+                }
+                else
+                {
+                    value = CreateAndInit(dest.PropertyType, readFrom, grp.Aux);
+                }
+                bindings.Add(Expression.Bind(dest, value));
+            }
+            return Expression.MemberInit(newExpr, bindings);
+        }
     }
 
 
 
-    }
+}

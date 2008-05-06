@@ -234,7 +234,7 @@ namespace DbLinq.Linq
                         MemberExpression memberExpression = lambda1.Body as MemberExpression;
                         ParameterExpression paramExpression = lambda2.Parameters[1];
                         ParseResult result = new ParseResult(_vars.Context.Vendor);
-                        JoinBuilder.AddJoin1(memberExpression, paramExpression, result);
+                        JoinBuilder.AddJoin1(memberExpression, this, paramExpression, result);
                         result.CopyInto(this, _vars.SqlParts);  //transfer params and tablesUsed
                     }
 

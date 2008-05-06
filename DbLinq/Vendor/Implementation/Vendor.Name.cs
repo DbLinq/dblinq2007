@@ -23,27 +23,30 @@
 #endregion
 
 using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
 using DbLinq.Util;
+using System.Collections.Generic;
 
 namespace DbLinq.Vendor.Implementation
 {
     partial class Vendor
     {
-        public virtual string GetSqlCaseSafeName(string name)
+        public virtual string GetSqlFieldSafeName(string name)
         {
             string[] nameParts = name.Split('.');
             for (int index = 0; index < nameParts.Length; index++)
             {
-                nameParts[index] = GetSqlCaseSafeNamePart(nameParts[index]);
+                nameParts[index] = GetSqlSafeNamePart(nameParts[index]);
             }
             return string.Join(".", nameParts);
         }
 
-        protected virtual string GetSqlCaseSafeNamePart(string namePart)
+        protected virtual string GetSqlSafeNamePart(string namePart)
         {
-            if (IsNameCaseSafe(namePart))
+            if (IsFieldNameSafe(namePart) && IsNameCaseSafe(namePart))
                 return namePart;
-            return MakeNameCaseSafe(namePart);
+            return MakeNameSafe(namePart);
         }
 
         protected virtual bool IsNameCaseSafe(string namePart)
@@ -56,9 +59,9 @@ namespace DbLinq.Vendor.Implementation
             return true;
         }
 
-        protected virtual string MakeNameCaseSafe(string namePart)
+        protected virtual string MakeNameSafe(string namePart)
         {
-            return namePart.Enquote('\"');
+            return namePart.Enquote('"');
         }
 
         /// <summary>
@@ -99,5 +102,18 @@ namespace DbLinq.Vendor.Implementation
             }
         }
 
+        private static Regex FieldIdentifierEx = new Regex(@"\<\<(?<var>[\w.]+)\>\>", RegexOptions.Singleline | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
+
+        public virtual string GetSqlCaseSafeQuery(string sqlString)
+        {
+            if (sqlString == null)
+                return null;
+            return FieldIdentifierEx.Replace(sqlString, delegate(Match e)
+            {
+                string field = e.Groups[1].Value;
+                string safeField = GetSqlSafeNamePart(field);
+                return safeField;
+            });
+        }
     }
 }

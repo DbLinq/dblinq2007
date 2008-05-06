@@ -1,4 +1,4 @@
-#region Auto-generated classes for Northwind database on 2008-05-03 23:51:15Z
+#region Auto-generated classes for "Northwind" database on 2008-05-06 11:28:17Z
 
 //
 //  ____  _     __  __      _        _
@@ -7,7 +7,7 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from Northwind on 2008-05-03 23:51:15Z
+// Auto-generated from "Northwind" on 2008-05-06 11:28:17Z
 // Please visit http://linq.to/db for more information
 
 #endregion
@@ -38,6 +38,8 @@ namespace nwind
 		{
 		}
 
+		public Table<CaseTest> CaseTests { get { return GetTable<CaseTest>(); } }
+		public Table<CaseTest2> CaseTest2 { get { return GetTable<CaseTest2>(); } }
 		public Table<Category> Categories { get { return GetTable<Category>(); } }
 		public Table<Customer> Customers { get { return GetTable<Customer>(); } }
 		public Table<Employee> Employees { get { return GetTable<Employee>(); } }
@@ -63,7 +65,7 @@ namespace nwind
 			return (string)result.ReturnValue;
 		}
 
-		[Function(Name = "NORTHWIND.HELLO1", IsComposable = true)]
+		[Function(Name = "NORTHWIND.\"Hello1\"", IsComposable = true)]
 		public string Hello1([Parameter(Name = "s", DbType = "VARCHAR2")] string s)
 		{
 			var result = ExecuteMethodCall(this, (MethodInfo)MethodBase.GetCurrentMethod(), s);
@@ -86,7 +88,149 @@ namespace nwind
 
 	}
 
-	[Table(Name = "CATEGORIES")]
+	[Table(Name = "CASETEST")]
+	public partial class CaseTest
+	{
+		#region string NoCase
+
+		private string noCase;
+		[DebuggerNonUserCode]
+		[Column(Storage = "noCase", Name = "NOCASE", DbType = "VARCHAR2", Expression = null)]
+		public string NoCase
+		{
+			get
+			{
+				return noCase;
+			}
+			set
+			{
+				if (value != noCase)
+				{
+					noCase = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region decimal? Number1
+
+		private decimal? number1;
+		[DebuggerNonUserCode]
+		[Column(Storage = "number1", Name = "\"Number1\"", DbType = "NUMBER", Expression = null)]
+		public decimal? Number1
+		{
+			get
+			{
+				return number1;
+			}
+			set
+			{
+				if (value != number1)
+				{
+					number1 = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region decimal? Number2
+
+		private decimal? number2;
+		[DebuggerNonUserCode]
+		[Column(Storage = "number2", Name = "\"Number2\"", DbType = "NUMBER", Expression = null)]
+		public decimal? Number2
+		{
+			get
+			{
+				return number2;
+			}
+			set
+			{
+				if (value != number2)
+				{
+					number2 = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string Value0
+
+		private string value0;
+		[DebuggerNonUserCode]
+		[Column(Storage = "value0", Name = "\"value0\"", DbType = "VARCHAR2", Expression = null)]
+		public string Value0
+		{
+			get
+			{
+				return value0;
+			}
+			set
+			{
+				if (value != value0)
+				{
+					value0 = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string WithCase
+
+		private string withCase;
+		[DebuggerNonUserCode]
+		[Column(Storage = "withCase", Name = "\"WithCase\"", DbType = "VARCHAR2", Expression = null)]
+		public string WithCase
+		{
+			get
+			{
+				return withCase;
+			}
+			set
+			{
+				if (value != withCase)
+				{
+					withCase = value;
+				}
+			}
+		}
+
+		#endregion
+
+	}
+
+	[Table(Name = "\"CaseTest2\"")]
+	public partial class CaseTest2
+	{
+		#region string SimpleColumn
+
+		private string simpleColumn;
+		[DebuggerNonUserCode]
+		[Column(Storage = "simpleColumn", Name = "\"SimpleColumn\"", DbType = "VARCHAR2", Expression = null)]
+		public string SimpleColumn
+		{
+			get
+			{
+				return simpleColumn;
+			}
+			set
+			{
+				if (value != simpleColumn)
+				{
+					simpleColumn = value;
+				}
+			}
+		}
+
+		#endregion
+
+	}
+
+	[Table(Name = "\"Categories\"")]
 	public partial class Category
 	{
 		#region decimal CategoryID
@@ -94,7 +238,7 @@ namespace nwind
 		[AutoGenId]
 		private decimal categoryID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "categoryID", Name = "CATEGORYID", DbType = "NUMBER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null)]
+		[Column(Storage = "categoryID", Name = "\"CategoryID\"", DbType = "NUMBER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null)]
 		public decimal CategoryID
 		{
 			get
@@ -116,7 +260,7 @@ namespace nwind
 
 		private string categoryName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "categoryName", Name = "CATEGORYNAME", DbType = "VARCHAR2", CanBeNull = false, Expression = null)]
+		[Column(Storage = "categoryName", Name = "\"CategoryName\"", DbType = "VARCHAR2", CanBeNull = false, Expression = null)]
 		public string CategoryName
 		{
 			get
@@ -138,7 +282,7 @@ namespace nwind
 
 		private string description;
 		[DebuggerNonUserCode]
-		[Column(Storage = "description", Name = "DESCRIPTION", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "description", Name = "\"Description\"", DbType = "VARCHAR2", Expression = null)]
 		public string Description
 		{
 			get
@@ -160,7 +304,7 @@ namespace nwind
 
 		private System.Byte[] picture;
 		[DebuggerNonUserCode]
-		[Column(Storage = "picture", Name = "PICTURE", DbType = "BLOB", Expression = null)]
+		[Column(Storage = "picture", Name = "\"Picture\"", DbType = "BLOB", Expression = null)]
 		public System.Byte[] Picture
 		{
 			get
@@ -180,7 +324,7 @@ namespace nwind
 
 		#region Children
 
-		[Association(Storage = null, OtherKey = "CategoryID", Name = "SYS_C004131")]
+		[Association(Storage = null, OtherKey = "CategoryID", Name = "SYS_C004573")]
 		[DebuggerNonUserCode]
 		public EntityMSet<Product> Products
 		{
@@ -196,14 +340,14 @@ namespace nwind
 
 	}
 
-	[Table(Name = "CUSTOMERS")]
+	[Table(Name = "\"Customers\"")]
 	public partial class Customer
 	{
 		#region string Address
 
 		private string address;
 		[DebuggerNonUserCode]
-		[Column(Storage = "address", Name = "ADDRESS", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "address", Name = "\"Address\"", DbType = "VARCHAR2", Expression = null)]
 		public string Address
 		{
 			get
@@ -225,7 +369,7 @@ namespace nwind
 
 		private string city;
 		[DebuggerNonUserCode]
-		[Column(Storage = "city", Name = "CITY", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "city", Name = "\"City\"", DbType = "VARCHAR2", Expression = null)]
 		public string City
 		{
 			get
@@ -247,7 +391,7 @@ namespace nwind
 
 		private string companyName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "companyName", Name = "COMPANYNAME", DbType = "VARCHAR2", CanBeNull = false, Expression = null)]
+		[Column(Storage = "companyName", Name = "\"CompanyName\"", DbType = "VARCHAR2", CanBeNull = false, Expression = null)]
 		public string CompanyName
 		{
 			get
@@ -269,7 +413,7 @@ namespace nwind
 
 		private string contactName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "contactName", Name = "CONTACTNAME", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "contactName", Name = "\"ContactName\"", DbType = "VARCHAR2", Expression = null)]
 		public string ContactName
 		{
 			get
@@ -291,7 +435,7 @@ namespace nwind
 
 		private string contactTitle;
 		[DebuggerNonUserCode]
-		[Column(Storage = "contactTitle", Name = "CONTACTTITLE", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "contactTitle", Name = "\"ContactTitle\"", DbType = "VARCHAR2", Expression = null)]
 		public string ContactTitle
 		{
 			get
@@ -313,7 +457,7 @@ namespace nwind
 
 		private string country;
 		[DebuggerNonUserCode]
-		[Column(Storage = "country", Name = "COUNTRY", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "country", Name = "\"Country\"", DbType = "VARCHAR2", Expression = null)]
 		public string Country
 		{
 			get
@@ -335,7 +479,7 @@ namespace nwind
 
 		private string customerID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "customerID", Name = "CUSTOMERID", DbType = "VARCHAR2", IsPrimaryKey = true, CanBeNull = false, Expression = null)]
+		[Column(Storage = "customerID", Name = "\"CustomerID\"", DbType = "VARCHAR2", IsPrimaryKey = true, CanBeNull = false, Expression = null)]
 		public string CustomerID
 		{
 			get
@@ -357,7 +501,7 @@ namespace nwind
 
 		private string fax;
 		[DebuggerNonUserCode]
-		[Column(Storage = "fax", Name = "FAX", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "fax", Name = "\"Fax\"", DbType = "VARCHAR2", Expression = null)]
 		public string Fax
 		{
 			get
@@ -379,7 +523,7 @@ namespace nwind
 
 		private string phone;
 		[DebuggerNonUserCode]
-		[Column(Storage = "phone", Name = "PHONE", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "phone", Name = "\"Phone\"", DbType = "VARCHAR2", Expression = null)]
 		public string Phone
 		{
 			get
@@ -401,7 +545,7 @@ namespace nwind
 
 		private string postalCode;
 		[DebuggerNonUserCode]
-		[Column(Storage = "postalCode", Name = "POSTALCODE", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "postalCode", Name = "\"PostalCode\"", DbType = "VARCHAR2", Expression = null)]
 		public string PostalCode
 		{
 			get
@@ -423,7 +567,7 @@ namespace nwind
 
 		private string region;
 		[DebuggerNonUserCode]
-		[Column(Storage = "region", Name = "REGION", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "region", Name = "\"Region\"", DbType = "VARCHAR2", Expression = null)]
 		public string Region
 		{
 			get
@@ -443,7 +587,7 @@ namespace nwind
 
 		#region Children
 
-		[Association(Storage = null, OtherKey = "CustomerID", Name = "SYS_C004148")]
+		[Association(Storage = null, OtherKey = "CustomerID", Name = "SYS_C004590")]
 		[DebuggerNonUserCode]
 		public EntityMSet<Order> Orders
 		{
@@ -459,14 +603,14 @@ namespace nwind
 
 	}
 
-	[Table(Name = "EMPLOYEES")]
+	[Table(Name = "\"Employees\"")]
 	public partial class Employee
 	{
 		#region string Address
 
 		private string address;
 		[DebuggerNonUserCode]
-		[Column(Storage = "address", Name = "ADDRESS", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "address", Name = "\"Address\"", DbType = "VARCHAR2", Expression = null)]
 		public string Address
 		{
 			get
@@ -488,7 +632,7 @@ namespace nwind
 
 		private System.DateTime? birthDate;
 		[DebuggerNonUserCode]
-		[Column(Storage = "birthDate", Name = "BIRTHDATE", DbType = "DATE", Expression = null)]
+		[Column(Storage = "birthDate", Name = "\"BirthDate\"", DbType = "DATE", Expression = null)]
 		public System.DateTime? BirthDate
 		{
 			get
@@ -510,7 +654,7 @@ namespace nwind
 
 		private string city;
 		[DebuggerNonUserCode]
-		[Column(Storage = "city", Name = "CITY", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "city", Name = "\"City\"", DbType = "VARCHAR2", Expression = null)]
 		public string City
 		{
 			get
@@ -532,7 +676,7 @@ namespace nwind
 
 		private string country;
 		[DebuggerNonUserCode]
-		[Column(Storage = "country", Name = "COUNTRY", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "country", Name = "\"Country\"", DbType = "VARCHAR2", Expression = null)]
 		public string Country
 		{
 			get
@@ -555,7 +699,7 @@ namespace nwind
 		[AutoGenId]
 		private decimal employeeID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "employeeID", Name = "EMPLOYEEID", DbType = "NUMBER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null)]
+		[Column(Storage = "employeeID", Name = "\"EmployeeID\"", DbType = "NUMBER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null)]
 		public decimal EmployeeID
 		{
 			get
@@ -577,7 +721,7 @@ namespace nwind
 
 		private string firstName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "firstName", Name = "FIRSTNAME", DbType = "VARCHAR2", CanBeNull = false, Expression = null)]
+		[Column(Storage = "firstName", Name = "\"FirstName\"", DbType = "VARCHAR2", CanBeNull = false, Expression = null)]
 		public string FirstName
 		{
 			get
@@ -599,7 +743,7 @@ namespace nwind
 
 		private System.DateTime? hireDate;
 		[DebuggerNonUserCode]
-		[Column(Storage = "hireDate", Name = "HIREDATE", DbType = "DATE", Expression = null)]
+		[Column(Storage = "hireDate", Name = "\"HireDate\"", DbType = "DATE", Expression = null)]
 		public System.DateTime? HireDate
 		{
 			get
@@ -621,7 +765,7 @@ namespace nwind
 
 		private string homePhone;
 		[DebuggerNonUserCode]
-		[Column(Storage = "homePhone", Name = "HOMEPHONE", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "homePhone", Name = "\"HomePhone\"", DbType = "VARCHAR2", Expression = null)]
 		public string HomePhone
 		{
 			get
@@ -643,7 +787,7 @@ namespace nwind
 
 		private string lastName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "lastName", Name = "LASTNAME", DbType = "VARCHAR2", CanBeNull = false, Expression = null)]
+		[Column(Storage = "lastName", Name = "\"LastName\"", DbType = "VARCHAR2", CanBeNull = false, Expression = null)]
 		public string LastName
 		{
 			get
@@ -665,7 +809,7 @@ namespace nwind
 
 		private string notes;
 		[DebuggerNonUserCode]
-		[Column(Storage = "notes", Name = "NOTES", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "notes", Name = "\"Notes\"", DbType = "VARCHAR2", Expression = null)]
 		public string Notes
 		{
 			get
@@ -687,7 +831,7 @@ namespace nwind
 
 		private System.Byte[] photo;
 		[DebuggerNonUserCode]
-		[Column(Storage = "photo", Name = "PHOTO", DbType = "BLOB", Expression = null)]
+		[Column(Storage = "photo", Name = "\"Photo\"", DbType = "BLOB", Expression = null)]
 		public System.Byte[] Photo
 		{
 			get
@@ -709,7 +853,7 @@ namespace nwind
 
 		private string postalCode;
 		[DebuggerNonUserCode]
-		[Column(Storage = "postalCode", Name = "POSTALCODE", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "postalCode", Name = "\"PostalCode\"", DbType = "VARCHAR2", Expression = null)]
 		public string PostalCode
 		{
 			get
@@ -731,7 +875,7 @@ namespace nwind
 
 		private string region;
 		[DebuggerNonUserCode]
-		[Column(Storage = "region", Name = "REGION", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "region", Name = "\"Region\"", DbType = "VARCHAR2", Expression = null)]
 		public string Region
 		{
 			get
@@ -753,7 +897,7 @@ namespace nwind
 
 		private decimal? reportsTo;
 		[DebuggerNonUserCode]
-		[Column(Storage = "reportsTo", Name = "REPORTSTO", DbType = "NUMBER", Expression = null)]
+		[Column(Storage = "reportsTo", Name = "\"ReportsTo\"", DbType = "NUMBER", Expression = null)]
 		public decimal? ReportsTo
 		{
 			get
@@ -775,7 +919,7 @@ namespace nwind
 
 		private string title;
 		[DebuggerNonUserCode]
-		[Column(Storage = "title", Name = "TITLE", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "title", Name = "\"Title\"", DbType = "VARCHAR2", Expression = null)]
 		public string Title
 		{
 			get
@@ -795,7 +939,7 @@ namespace nwind
 
 		#region Children
 
-		[Association(Storage = null, OtherKey = "ReportsTo", Name = "SYS_C004140")]
+		[Association(Storage = null, OtherKey = "ReportsTo", Name = "SYS_C004582")]
 		[DebuggerNonUserCode]
 		public EntityMSet<Employee> Employees
 		{
@@ -806,7 +950,7 @@ namespace nwind
 			}
 		}
 
-		[Association(Storage = null, OtherKey = "EmployeeID", Name = "SYS_C004144")]
+		[Association(Storage = null, OtherKey = "EmployeeID", Name = "SYS_C004586")]
 		[DebuggerNonUserCode]
 		public EntityMSet<EmployeeTerritory> EmployeeTerritories
 		{
@@ -817,7 +961,7 @@ namespace nwind
 			}
 		}
 
-		[Association(Storage = null, OtherKey = "EmployeeID", Name = "SYS_C004149")]
+		[Association(Storage = null, OtherKey = "EmployeeID", Name = "SYS_C004591")]
 		[DebuggerNonUserCode]
 		public EntityMSet<Order> Orders
 		{
@@ -833,18 +977,18 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Employee> sysC004140;
-		[Association(Storage = "sysC004140", ThisKey = "ReportsTo", Name = "SYS_C004140")]
+		private System.Data.Linq.EntityRef<Employee> sysC004582;
+		[Association(Storage = "sysC004582", ThisKey = "ReportsTo", Name = "SYS_C004582")]
 		[DebuggerNonUserCode]
 		public Employee ParentEmployee
 		{
 			get
 			{
-				return sysC004140.Entity;
+				return sysC004582.Entity;
 			}
 			set
 			{
-				sysC004140.Entity = value;
+				sysC004582.Entity = value;
 			}
 		}
 
@@ -853,14 +997,14 @@ namespace nwind
 
 	}
 
-	[Table(Name = "EMPLOYEETERRITORIES")]
+	[Table(Name = "\"EmployeeTerritories\"")]
 	public partial class EmployeeTerritory
 	{
 		#region decimal EmployeeID
 
 		private decimal employeeID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "employeeID", Name = "EMPLOYEEID", DbType = "NUMBER", IsPrimaryKey = true, CanBeNull = false, Expression = null)]
+		[Column(Storage = "employeeID", Name = "\"EmployeeID\"", DbType = "NUMBER", IsPrimaryKey = true, CanBeNull = false, Expression = null)]
 		public decimal EmployeeID
 		{
 			get
@@ -882,7 +1026,7 @@ namespace nwind
 
 		private string territoryID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "territoryID", Name = "TERRITORYID", DbType = "VARCHAR2", IsPrimaryKey = true, CanBeNull = false, Expression = null)]
+		[Column(Storage = "territoryID", Name = "\"TerritoryID\"", DbType = "VARCHAR2", IsPrimaryKey = true, CanBeNull = false, Expression = null)]
 		public string TerritoryID
 		{
 			get
@@ -902,33 +1046,33 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Territory> sysC004145;
-		[Association(Storage = "sysC004145", ThisKey = "TerritoryID", Name = "SYS_C004145")]
+		private System.Data.Linq.EntityRef<Territory> sysC004587;
+		[Association(Storage = "sysC004587", ThisKey = "TerritoryID", Name = "SYS_C004587")]
 		[DebuggerNonUserCode]
 		public Territory Territory
 		{
 			get
 			{
-				return sysC004145.Entity;
+				return sysC004587.Entity;
 			}
 			set
 			{
-				sysC004145.Entity = value;
+				sysC004587.Entity = value;
 			}
 		}
 
-		private System.Data.Linq.EntityRef<Employee> sysC004144;
-		[Association(Storage = "sysC004144", ThisKey = "EmployeeID", Name = "SYS_C004144")]
+		private System.Data.Linq.EntityRef<Employee> sysC004586;
+		[Association(Storage = "sysC004586", ThisKey = "EmployeeID", Name = "SYS_C004586")]
 		[DebuggerNonUserCode]
 		public Employee Employee
 		{
 			get
 			{
-				return sysC004144.Entity;
+				return sysC004586.Entity;
 			}
 			set
 			{
-				sysC004144.Entity = value;
+				sysC004586.Entity = value;
 			}
 		}
 
@@ -937,14 +1081,14 @@ namespace nwind
 
 	}
 
-	[Table(Name = "ORDERS")]
+	[Table(Name = "\"Orders\"")]
 	public partial class Order
 	{
 		#region string CustomerID
 
 		private string customerID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "customerID", Name = "CUSTOMERID", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "customerID", Name = "\"CustomerID\"", DbType = "VARCHAR2", Expression = null)]
 		public string CustomerID
 		{
 			get
@@ -966,7 +1110,7 @@ namespace nwind
 
 		private decimal? employeeID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "employeeID", Name = "EMPLOYEEID", DbType = "NUMBER", Expression = null)]
+		[Column(Storage = "employeeID", Name = "\"EmployeeID\"", DbType = "NUMBER", Expression = null)]
 		public decimal? EmployeeID
 		{
 			get
@@ -988,7 +1132,7 @@ namespace nwind
 
 		private decimal? freight;
 		[DebuggerNonUserCode]
-		[Column(Storage = "freight", Name = "FREIGHT", DbType = "NUMBER", Expression = null)]
+		[Column(Storage = "freight", Name = "\"Freight\"", DbType = "NUMBER", Expression = null)]
 		public decimal? Freight
 		{
 			get
@@ -1010,7 +1154,7 @@ namespace nwind
 
 		private System.DateTime? orderDate;
 		[DebuggerNonUserCode]
-		[Column(Storage = "orderDate", Name = "ORDERDATE", DbType = "DATE", Expression = null)]
+		[Column(Storage = "orderDate", Name = "\"OrderDate\"", DbType = "DATE", Expression = null)]
 		public System.DateTime? OrderDate
 		{
 			get
@@ -1033,7 +1177,7 @@ namespace nwind
 		[AutoGenId]
 		private decimal orderID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "orderID", Name = "ORDERID", DbType = "NUMBER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null)]
+		[Column(Storage = "orderID", Name = "\"OrderID\"", DbType = "NUMBER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null)]
 		public decimal OrderID
 		{
 			get
@@ -1055,7 +1199,7 @@ namespace nwind
 
 		private System.DateTime? requiredDate;
 		[DebuggerNonUserCode]
-		[Column(Storage = "requiredDate", Name = "REQUIREDDATE", DbType = "DATE", Expression = null)]
+		[Column(Storage = "requiredDate", Name = "\"RequiredDate\"", DbType = "DATE", Expression = null)]
 		public System.DateTime? RequiredDate
 		{
 			get
@@ -1077,7 +1221,7 @@ namespace nwind
 
 		private string shipAddress;
 		[DebuggerNonUserCode]
-		[Column(Storage = "shipAddress", Name = "SHIPADDRESS", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "shipAddress", Name = "\"ShipAddress\"", DbType = "VARCHAR2", Expression = null)]
 		public string ShipAddress
 		{
 			get
@@ -1099,7 +1243,7 @@ namespace nwind
 
 		private string shipCity;
 		[DebuggerNonUserCode]
-		[Column(Storage = "shipCity", Name = "SHIPCITY", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "shipCity", Name = "\"ShipCity\"", DbType = "VARCHAR2", Expression = null)]
 		public string ShipCity
 		{
 			get
@@ -1121,7 +1265,7 @@ namespace nwind
 
 		private string shipCountry;
 		[DebuggerNonUserCode]
-		[Column(Storage = "shipCountry", Name = "SHIPCOUNTRY", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "shipCountry", Name = "\"ShipCountry\"", DbType = "VARCHAR2", Expression = null)]
 		public string ShipCountry
 		{
 			get
@@ -1143,7 +1287,7 @@ namespace nwind
 
 		private string shipName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "shipName", Name = "SHIPNAME", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "shipName", Name = "\"ShipName\"", DbType = "VARCHAR2", Expression = null)]
 		public string ShipName
 		{
 			get
@@ -1165,7 +1309,7 @@ namespace nwind
 
 		private System.DateTime? shippedDate;
 		[DebuggerNonUserCode]
-		[Column(Storage = "shippedDate", Name = "SHIPPEDDATE", DbType = "DATE", Expression = null)]
+		[Column(Storage = "shippedDate", Name = "\"ShippedDate\"", DbType = "DATE", Expression = null)]
 		public System.DateTime? ShippedDate
 		{
 			get
@@ -1187,7 +1331,7 @@ namespace nwind
 
 		private string shipPostalCode;
 		[DebuggerNonUserCode]
-		[Column(Storage = "shipPostalCode", Name = "SHIPPOSTALCODE", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "shipPostalCode", Name = "\"ShipPostalCode\"", DbType = "VARCHAR2", Expression = null)]
 		public string ShipPostalCode
 		{
 			get
@@ -1209,7 +1353,7 @@ namespace nwind
 
 		private string shipRegion;
 		[DebuggerNonUserCode]
-		[Column(Storage = "shipRegion", Name = "SHIPREGION", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "shipRegion", Name = "\"ShipRegion\"", DbType = "VARCHAR2", Expression = null)]
 		public string ShipRegion
 		{
 			get
@@ -1231,7 +1375,7 @@ namespace nwind
 
 		private decimal? shipVia;
 		[DebuggerNonUserCode]
-		[Column(Storage = "shipVia", Name = "SHIPVIA", DbType = "NUMBER", Expression = null)]
+		[Column(Storage = "shipVia", Name = "\"ShipVia\"", DbType = "NUMBER", Expression = null)]
 		public decimal? ShipVia
 		{
 			get
@@ -1251,7 +1395,7 @@ namespace nwind
 
 		#region Children
 
-		[Association(Storage = null, OtherKey = "OrderID", Name = "SYS_C004156")]
+		[Association(Storage = null, OtherKey = "OrderID", Name = "SYS_C004598")]
 		[DebuggerNonUserCode]
 		public EntityMSet<OrderDetail> OrderDetails
 		{
@@ -1267,33 +1411,33 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Employee> sysC004149;
-		[Association(Storage = "sysC004149", ThisKey = "EmployeeID", Name = "SYS_C004149")]
+		private System.Data.Linq.EntityRef<Employee> sysC004591;
+		[Association(Storage = "sysC004591", ThisKey = "EmployeeID", Name = "SYS_C004591")]
 		[DebuggerNonUserCode]
 		public Employee Employee
 		{
 			get
 			{
-				return sysC004149.Entity;
+				return sysC004591.Entity;
 			}
 			set
 			{
-				sysC004149.Entity = value;
+				sysC004591.Entity = value;
 			}
 		}
 
-		private System.Data.Linq.EntityRef<Customer> sysC004148;
-		[Association(Storage = "sysC004148", ThisKey = "CustomerID", Name = "SYS_C004148")]
+		private System.Data.Linq.EntityRef<Customer> sysC004590;
+		[Association(Storage = "sysC004590", ThisKey = "CustomerID", Name = "SYS_C004590")]
 		[DebuggerNonUserCode]
 		public Customer Customer
 		{
 			get
 			{
-				return sysC004148.Entity;
+				return sysC004590.Entity;
 			}
 			set
 			{
-				sysC004148.Entity = value;
+				sysC004590.Entity = value;
 			}
 		}
 
@@ -1302,14 +1446,14 @@ namespace nwind
 
 	}
 
-	[Table(Name = "ORDERDETAILS")]
+	[Table(Name = "\"OrderDetails\"")]
 	public partial class OrderDetail
 	{
 		#region float Discount
 
 		private float discount;
 		[DebuggerNonUserCode]
-		[Column(Storage = "discount", Name = "DISCOUNT", DbType = "FLOAT", CanBeNull = false, Expression = null)]
+		[Column(Storage = "discount", Name = "\"Discount\"", DbType = "FLOAT", CanBeNull = false, Expression = null)]
 		public float Discount
 		{
 			get
@@ -1331,7 +1475,7 @@ namespace nwind
 
 		private decimal orderID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "orderID", Name = "ORDERID", DbType = "NUMBER", IsPrimaryKey = true, CanBeNull = false, Expression = null)]
+		[Column(Storage = "orderID", Name = "\"OrderID\"", DbType = "NUMBER", IsPrimaryKey = true, CanBeNull = false, Expression = null)]
 		public decimal OrderID
 		{
 			get
@@ -1353,7 +1497,7 @@ namespace nwind
 
 		private decimal productID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "productID", Name = "PRODUCTID", DbType = "NUMBER", IsPrimaryKey = true, CanBeNull = false, Expression = null)]
+		[Column(Storage = "productID", Name = "\"ProductID\"", DbType = "NUMBER", IsPrimaryKey = true, CanBeNull = false, Expression = null)]
 		public decimal ProductID
 		{
 			get
@@ -1375,7 +1519,7 @@ namespace nwind
 
 		private decimal quantity;
 		[DebuggerNonUserCode]
-		[Column(Storage = "quantity", Name = "QUANTITY", DbType = "NUMBER", CanBeNull = false, Expression = null)]
+		[Column(Storage = "quantity", Name = "\"Quantity\"", DbType = "NUMBER", CanBeNull = false, Expression = null)]
 		public decimal Quantity
 		{
 			get
@@ -1397,7 +1541,7 @@ namespace nwind
 
 		private decimal unitPrice;
 		[DebuggerNonUserCode]
-		[Column(Storage = "unitPrice", Name = "UNITPRICE", DbType = "NUMBER", CanBeNull = false, Expression = null)]
+		[Column(Storage = "unitPrice", Name = "\"UnitPrice\"", DbType = "NUMBER", CanBeNull = false, Expression = null)]
 		public decimal UnitPrice
 		{
 			get
@@ -1417,33 +1561,33 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Product> sysC004157;
-		[Association(Storage = "sysC004157", ThisKey = "ProductID", Name = "SYS_C004157")]
+		private System.Data.Linq.EntityRef<Product> sysC004599;
+		[Association(Storage = "sysC004599", ThisKey = "ProductID", Name = "SYS_C004599")]
 		[DebuggerNonUserCode]
 		public Product Product
 		{
 			get
 			{
-				return sysC004157.Entity;
+				return sysC004599.Entity;
 			}
 			set
 			{
-				sysC004157.Entity = value;
+				sysC004599.Entity = value;
 			}
 		}
 
-		private System.Data.Linq.EntityRef<Order> sysC004156;
-		[Association(Storage = "sysC004156", ThisKey = "OrderID", Name = "SYS_C004156")]
+		private System.Data.Linq.EntityRef<Order> sysC004598;
+		[Association(Storage = "sysC004598", ThisKey = "OrderID", Name = "SYS_C004598")]
 		[DebuggerNonUserCode]
 		public Order Order
 		{
 			get
 			{
-				return sysC004156.Entity;
+				return sysC004598.Entity;
 			}
 			set
 			{
-				sysC004156.Entity = value;
+				sysC004598.Entity = value;
 			}
 		}
 
@@ -1452,14 +1596,14 @@ namespace nwind
 
 	}
 
-	[Table(Name = "PRODUCTS")]
+	[Table(Name = "\"Products\"")]
 	public partial class Product
 	{
 		#region decimal? CategoryID
 
 		private decimal? categoryID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "categoryID", Name = "CATEGORYID", DbType = "NUMBER", Expression = null)]
+		[Column(Storage = "categoryID", Name = "\"CategoryID\"", DbType = "NUMBER", Expression = null)]
 		public decimal? CategoryID
 		{
 			get
@@ -1481,7 +1625,7 @@ namespace nwind
 
 		private bool discontinued;
 		[DebuggerNonUserCode]
-		[Column(Storage = "discontinued", Name = "DISCONTINUED", DbType = "NUMBER", CanBeNull = false, Expression = null)]
+		[Column(Storage = "discontinued", Name = "\"Discontinued\"", DbType = "NUMBER", CanBeNull = false, Expression = null)]
 		public bool Discontinued
 		{
 			get
@@ -1504,7 +1648,7 @@ namespace nwind
 		[AutoGenId]
 		private decimal productID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "productID", Name = "PRODUCTID", DbType = "NUMBER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null)]
+		[Column(Storage = "productID", Name = "\"ProductID\"", DbType = "NUMBER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null)]
 		public decimal ProductID
 		{
 			get
@@ -1526,7 +1670,7 @@ namespace nwind
 
 		private string productName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "productName", Name = "PRODUCTNAME", DbType = "VARCHAR2", CanBeNull = false, Expression = null)]
+		[Column(Storage = "productName", Name = "\"ProductName\"", DbType = "VARCHAR2", CanBeNull = false, Expression = null)]
 		public string ProductName
 		{
 			get
@@ -1548,7 +1692,7 @@ namespace nwind
 
 		private string quantityPerUnit;
 		[DebuggerNonUserCode]
-		[Column(Storage = "quantityPerUnit", Name = "QUANTITYPERUNIT", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "quantityPerUnit", Name = "\"QuantityPerUnit\"", DbType = "VARCHAR2", Expression = null)]
 		public string QuantityPerUnit
 		{
 			get
@@ -1570,7 +1714,7 @@ namespace nwind
 
 		private decimal? reorderLevel;
 		[DebuggerNonUserCode]
-		[Column(Storage = "reorderLevel", Name = "REORDERLEVEL", DbType = "NUMBER", Expression = null)]
+		[Column(Storage = "reorderLevel", Name = "\"ReorderLevel\"", DbType = "NUMBER", Expression = null)]
 		public decimal? ReorderLevel
 		{
 			get
@@ -1592,7 +1736,7 @@ namespace nwind
 
 		private decimal? supplierID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "supplierID", Name = "SUPPLIERID", DbType = "NUMBER", Expression = null)]
+		[Column(Storage = "supplierID", Name = "\"SupplierID\"", DbType = "NUMBER", Expression = null)]
 		public decimal? SupplierID
 		{
 			get
@@ -1614,7 +1758,7 @@ namespace nwind
 
 		private decimal? unitPrice;
 		[DebuggerNonUserCode]
-		[Column(Storage = "unitPrice", Name = "UNITPRICE", DbType = "NUMBER", Expression = null)]
+		[Column(Storage = "unitPrice", Name = "\"UnitPrice\"", DbType = "NUMBER", Expression = null)]
 		public decimal? UnitPrice
 		{
 			get
@@ -1636,7 +1780,7 @@ namespace nwind
 
 		private decimal? unitsInStock;
 		[DebuggerNonUserCode]
-		[Column(Storage = "unitsInStock", Name = "UNITSINSTOCK", DbType = "NUMBER", Expression = null)]
+		[Column(Storage = "unitsInStock", Name = "\"UnitsInStock\"", DbType = "NUMBER", Expression = null)]
 		public decimal? UnitsInStock
 		{
 			get
@@ -1658,7 +1802,7 @@ namespace nwind
 
 		private decimal? unitsOnOrder;
 		[DebuggerNonUserCode]
-		[Column(Storage = "unitsOnOrder", Name = "UNITSONORDER", DbType = "NUMBER", Expression = null)]
+		[Column(Storage = "unitsOnOrder", Name = "\"UnitsOnOrder\"", DbType = "NUMBER", Expression = null)]
 		public decimal? UnitsOnOrder
 		{
 			get
@@ -1678,7 +1822,7 @@ namespace nwind
 
 		#region Children
 
-		[Association(Storage = null, OtherKey = "ProductID", Name = "SYS_C004157")]
+		[Association(Storage = null, OtherKey = "ProductID", Name = "SYS_C004599")]
 		[DebuggerNonUserCode]
 		public EntityMSet<OrderDetail> OrderDetails
 		{
@@ -1694,33 +1838,33 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Supplier> sysC004132;
-		[Association(Storage = "sysC004132", ThisKey = "SupplierID", Name = "SYS_C004132")]
+		private System.Data.Linq.EntityRef<Supplier> sysC004574;
+		[Association(Storage = "sysC004574", ThisKey = "SupplierID", Name = "SYS_C004574")]
 		[DebuggerNonUserCode]
 		public Supplier Supplier
 		{
 			get
 			{
-				return sysC004132.Entity;
+				return sysC004574.Entity;
 			}
 			set
 			{
-				sysC004132.Entity = value;
+				sysC004574.Entity = value;
 			}
 		}
 
-		private System.Data.Linq.EntityRef<Category> sysC004131;
-		[Association(Storage = "sysC004131", ThisKey = "CategoryID", Name = "SYS_C004131")]
+		private System.Data.Linq.EntityRef<Category> sysC004573;
+		[Association(Storage = "sysC004573", ThisKey = "CategoryID", Name = "SYS_C004573")]
 		[DebuggerNonUserCode]
 		public Category Category
 		{
 			get
 			{
-				return sysC004131.Entity;
+				return sysC004573.Entity;
 			}
 			set
 			{
-				sysC004131.Entity = value;
+				sysC004573.Entity = value;
 			}
 		}
 
@@ -1729,14 +1873,14 @@ namespace nwind
 
 	}
 
-	[Table(Name = "REGION")]
+	[Table(Name = "\"Region\"")]
 	public partial class Region
 	{
 		#region string RegionDescription
 
 		private string regionDescription;
 		[DebuggerNonUserCode]
-		[Column(Storage = "regionDescription", Name = "REGIONDESCRIPTION", DbType = "VARCHAR2", CanBeNull = false, Expression = null)]
+		[Column(Storage = "regionDescription", Name = "\"RegionDescription\"", DbType = "VARCHAR2", CanBeNull = false, Expression = null)]
 		public string RegionDescription
 		{
 			get
@@ -1759,7 +1903,7 @@ namespace nwind
 		[AutoGenId]
 		private decimal regionID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "regionID", Name = "REGIONID", DbType = "NUMBER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null)]
+		[Column(Storage = "regionID", Name = "\"RegionID\"", DbType = "NUMBER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null)]
 		public decimal RegionID
 		{
 			get
@@ -1779,7 +1923,7 @@ namespace nwind
 
 		#region Children
 
-		[Association(Storage = null, OtherKey = "RegionID", Name = "SYS_C004120")]
+		[Association(Storage = null, OtherKey = "RegionID", Name = "SYS_C004562")]
 		[DebuggerNonUserCode]
 		public EntityMSet<Territory> Territories
 		{
@@ -1795,14 +1939,14 @@ namespace nwind
 
 	}
 
-	[Table(Name = "SUPPLIERS")]
+	[Table(Name = "\"Suppliers\"")]
 	public partial class Supplier
 	{
 		#region string Address
 
 		private string address;
 		[DebuggerNonUserCode]
-		[Column(Storage = "address", Name = "ADDRESS", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "address", Name = "\"Address\"", DbType = "VARCHAR2", Expression = null)]
 		public string Address
 		{
 			get
@@ -1824,7 +1968,7 @@ namespace nwind
 
 		private string city;
 		[DebuggerNonUserCode]
-		[Column(Storage = "city", Name = "CITY", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "city", Name = "\"City\"", DbType = "VARCHAR2", Expression = null)]
 		public string City
 		{
 			get
@@ -1846,7 +1990,7 @@ namespace nwind
 
 		private string companyName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "companyName", Name = "COMPANYNAME", DbType = "VARCHAR2", CanBeNull = false, Expression = null)]
+		[Column(Storage = "companyName", Name = "\"CompanyName\"", DbType = "VARCHAR2", CanBeNull = false, Expression = null)]
 		public string CompanyName
 		{
 			get
@@ -1868,7 +2012,7 @@ namespace nwind
 
 		private string contactName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "contactName", Name = "CONTACTNAME", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "contactName", Name = "\"ContactName\"", DbType = "VARCHAR2", Expression = null)]
 		public string ContactName
 		{
 			get
@@ -1890,7 +2034,7 @@ namespace nwind
 
 		private string contactTitle;
 		[DebuggerNonUserCode]
-		[Column(Storage = "contactTitle", Name = "CONTACTTITLE", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "contactTitle", Name = "\"ContactTitle\"", DbType = "VARCHAR2", Expression = null)]
 		public string ContactTitle
 		{
 			get
@@ -1912,7 +2056,7 @@ namespace nwind
 
 		private string country;
 		[DebuggerNonUserCode]
-		[Column(Storage = "country", Name = "COUNTRY", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "country", Name = "\"Country\"", DbType = "VARCHAR2", Expression = null)]
 		public string Country
 		{
 			get
@@ -1934,7 +2078,7 @@ namespace nwind
 
 		private string fax;
 		[DebuggerNonUserCode]
-		[Column(Storage = "fax", Name = "FAX", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "fax", Name = "\"Fax\"", DbType = "VARCHAR2", Expression = null)]
 		public string Fax
 		{
 			get
@@ -1956,7 +2100,7 @@ namespace nwind
 
 		private string phone;
 		[DebuggerNonUserCode]
-		[Column(Storage = "phone", Name = "PHONE", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "phone", Name = "\"Phone\"", DbType = "VARCHAR2", Expression = null)]
 		public string Phone
 		{
 			get
@@ -1978,7 +2122,7 @@ namespace nwind
 
 		private string postalCode;
 		[DebuggerNonUserCode]
-		[Column(Storage = "postalCode", Name = "POSTALCODE", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "postalCode", Name = "\"PostalCode\"", DbType = "VARCHAR2", Expression = null)]
 		public string PostalCode
 		{
 			get
@@ -2000,7 +2144,7 @@ namespace nwind
 
 		private string region;
 		[DebuggerNonUserCode]
-		[Column(Storage = "region", Name = "REGION", DbType = "VARCHAR2", Expression = null)]
+		[Column(Storage = "region", Name = "\"Region\"", DbType = "VARCHAR2", Expression = null)]
 		public string Region
 		{
 			get
@@ -2023,7 +2167,7 @@ namespace nwind
 		[AutoGenId]
 		private decimal supplierID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "supplierID", Name = "SUPPLIERID", DbType = "NUMBER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null)]
+		[Column(Storage = "supplierID", Name = "\"SupplierID\"", DbType = "NUMBER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null)]
 		public decimal SupplierID
 		{
 			get
@@ -2043,7 +2187,7 @@ namespace nwind
 
 		#region Children
 
-		[Association(Storage = null, OtherKey = "SupplierID", Name = "SYS_C004132")]
+		[Association(Storage = null, OtherKey = "SupplierID", Name = "SYS_C004574")]
 		[DebuggerNonUserCode]
 		public EntityMSet<Product> Products
 		{
@@ -2059,14 +2203,14 @@ namespace nwind
 
 	}
 
-	[Table(Name = "TERRITORIES")]
+	[Table(Name = "\"Territories\"")]
 	public partial class Territory
 	{
 		#region decimal RegionID
 
 		private decimal regionID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "regionID", Name = "REGIONID", DbType = "NUMBER", CanBeNull = false, Expression = null)]
+		[Column(Storage = "regionID", Name = "\"RegionID\"", DbType = "NUMBER", CanBeNull = false, Expression = null)]
 		public decimal RegionID
 		{
 			get
@@ -2088,7 +2232,7 @@ namespace nwind
 
 		private string territoryDescription;
 		[DebuggerNonUserCode]
-		[Column(Storage = "territoryDescription", Name = "TERRITORYDESCRIPTION", DbType = "VARCHAR2", CanBeNull = false, Expression = null)]
+		[Column(Storage = "territoryDescription", Name = "\"TerritoryDescription\"", DbType = "VARCHAR2", CanBeNull = false, Expression = null)]
 		public string TerritoryDescription
 		{
 			get
@@ -2110,7 +2254,7 @@ namespace nwind
 
 		private string territoryID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "territoryID", Name = "TERRITORYID", DbType = "VARCHAR2", IsPrimaryKey = true, CanBeNull = false, Expression = null)]
+		[Column(Storage = "territoryID", Name = "\"TerritoryID\"", DbType = "VARCHAR2", IsPrimaryKey = true, CanBeNull = false, Expression = null)]
 		public string TerritoryID
 		{
 			get
@@ -2130,7 +2274,7 @@ namespace nwind
 
 		#region Children
 
-		[Association(Storage = null, OtherKey = "TerritoryID", Name = "SYS_C004145")]
+		[Association(Storage = null, OtherKey = "TerritoryID", Name = "SYS_C004587")]
 		[DebuggerNonUserCode]
 		public EntityMSet<EmployeeTerritory> EmployeeTerritories
 		{
@@ -2146,18 +2290,18 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Region> sysC004120;
-		[Association(Storage = "sysC004120", ThisKey = "RegionID", Name = "SYS_C004120")]
+		private System.Data.Linq.EntityRef<Region> sysC004562;
+		[Association(Storage = "sysC004562", ThisKey = "RegionID", Name = "SYS_C004562")]
 		[DebuggerNonUserCode]
 		public Region Region
 		{
 			get
 			{
-				return sysC004120.Entity;
+				return sysC004562.Entity;
 			}
 			set
 			{
-				sysC004120.Entity = value;
+				sysC004562.Entity = value;
 			}
 		}
 

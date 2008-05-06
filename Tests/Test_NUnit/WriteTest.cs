@@ -41,7 +41,7 @@ namespace Test_NUnit_MySql
 #elif ORACLE
     namespace Test_NUnit_Oracle
 #elif POSTGRES
-    namespace Test_NUnit_PostgreSql
+namespace Test_NUnit_PostgreSql
 #elif SQLITE
     namespace Test_NUnit_Sqlite
 #elif INGRES
@@ -240,7 +240,7 @@ namespace Test_NUnit_MySql
         public void G7_InsertTableWithStringPK()
         {
             Northwind db = CreateDB();
-            db.ExecuteCommand("DELETE FROM Customers WHERE CustomerID='TEMP_'");
+            db.ExecuteCommand("DELETE FROM <<Customers>> WHERE <<CustomerID>>='TEMP_'");
 
             Customer custTemp = new Customer
             {
@@ -292,64 +292,79 @@ namespace Test_NUnit_MySql
 
 #if POSTGRES
 
-        public class Northwind1 : Northwind {
-          public Northwind1(System.Data.IDbConnection connection)
-            : base(connection) { }
+        public class Northwind1 : Northwind
+        {
+            public Northwind1(System.Data.IDbConnection connection)
+                : base(connection) { }
 
-          [System.Data.Linq.Mapping.Table(Name = "Cust1")]
-          public class Cust1 {
-            [DbLinq.Linq.Mapping.AutoGenId]
-            string _customerid;
+            [System.Data.Linq.Mapping.Table(Name = "cust1")]
+            public class Cust1
+            {
+                [DbLinq.Linq.Mapping.AutoGenId]
+                string _customerid;
 
-            [System.Data.Linq.Mapping.Column(Storage = "_customerid",
-            Name = "customerid", IsPrimaryKey = true,
-            DbType = "char(10)",
-            IsDbGenerated = true,
-            Expression = "nextval('seq8')")]
-            public string CustomerId {
-              get { return _customerid; }
-              set { _customerid = value; }
+                [System.Data.Linq.Mapping.Column(Storage = "_customerid",
+                Name = "customerid", IsPrimaryKey = true,
+                DbType = "char(10)",
+                IsDbGenerated = true,
+                Expression = "nextval('seq8')")]
+                public string CustomerId
+                {
+                    get { return _customerid; }
+                    set { _customerid = value; }
+                }
+
+                // Dummy property is required only as workaround over empty insert list bug
+                // If this bug is fixed this may be removed
+                string _dummy;
+                [System.Data.Linq.Mapping.Column(Storage = "_dummy",
+                DbType = "text", Name = "dummy")]
+                public string Dummy
+                {
+                    get;
+                    set;
+                }
+
             }
 
-            // Dummy property is required only as workaround over empty insert list bug
-            // If this bug is fixed this may be removed
-            string _dummy;
-            [System.Data.Linq.Mapping.Column(Storage = "_dummy",
-            DbType = "text", Name = "dummy")]
-            public string Dummy {
-              get;
-              set;
+            public DbLinq.Linq.Table<Cust1> Cust1s
+            {
+
+                get
+                {
+                    return base.GetTable<Cust1>();
+                }
             }
-
-          }
-
-          public DbLinq.Linq.Table<Cust1> Cust1s {
-
-            get {
-              return base.GetTable<Cust1>();
-            }
-          }
         }
 
         [Test]
-        public void G10_InsertCharSerialPrimaryKey() {
-          Northwind dbo = CreateDB();
-          Northwind1 db = new Northwind1(dbo.DatabaseContext.Connection);
-          db.ExecuteCommand(@"create sequence seq8;
+        public void G10_InsertCharSerialPrimaryKey()
+        {
+            Northwind dbo = CreateDB();
+            Northwind1 db = new Northwind1(dbo.DatabaseContext.Connection);
+            try
+            {
+                db.ExecuteCommand(
+                    @"create sequence seq8;
 create temp table cust1 ( CustomerID char(10) DEFAULT nextval('seq8'),
 dummy text
 );
 ");
 
-          DbLinq.Linq.Table<Northwind1.Cust1> Cust1s =
-             db.GetTable<Northwind1.Cust1>();
+                DbLinq.Linq.Table<Northwind1.Cust1> cust1s =
+                    db.GetTable<Northwind1.Cust1>();
 
-          var Cust1 = new Northwind1.Cust1();
-          Cust1.Dummy = "";
-          db.Cust1s.Add(Cust1);
-          db.SubmitChanges();
-          db.ExecuteCommand("drop table cust1; drop sequence seq8;");
-          Assert.IsNotNull(Cust1.CustomerId);
+                var cust1 = new Northwind1.Cust1();
+                cust1.Dummy = "";
+                db.Cust1s.Add(cust1);
+                db.SubmitChanges();
+                Assert.IsNotNull(cust1.CustomerId);
+            }
+            finally
+            {
+                try { db.ExecuteCommand("drop table cust1;"); } catch { }
+                try { db.ExecuteCommand("drop sequence seq8;"); } catch { }
+            }
         }
 #endif
 
@@ -432,7 +447,7 @@ dummy text
             {
                 db.SubmitChanges();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 e = ex;
             }

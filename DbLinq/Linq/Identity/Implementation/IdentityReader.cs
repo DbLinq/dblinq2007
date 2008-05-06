@@ -53,7 +53,7 @@ namespace DbLinq.Linq.Identity.Implementation
             type = t;
             foreach (var memberInfo in t.GetMembers())
             {
-                var columnAttribute = AttribHelper.GetColumnAttrib(memberInfo);
+                var columnAttribute = AttribHelper.GetColumnAttribute(memberInfo);
                 if (columnAttribute != null)
                 {
                     if (columnAttribute.IsPrimaryKey)

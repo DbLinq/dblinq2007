@@ -53,7 +53,8 @@ namespace DbLinq.Oracle
 
             sb.Insert(0, "BEGIN ");
             sb.Append(colAtt.Name);
-            string sequenceName = projData.tableAttribute.Name + "_SEQ";
+            // TODO: WTF?
+            string sequenceName = projData.tableAttribute.Name.Trim('"') + "_SEQ";
             sbValues.AppendFormat("{0}.NextVal", sequenceName);
 
             string outParamName = this.GetOrderableParameterName(numFieldsAdded);
@@ -85,11 +86,6 @@ namespace DbLinq.Oracle
                     return;
                 }
             }
-        }
-
-        protected override string MakeFieldSafeName(string name)
-        {
-            return name.Enquote('\"');
         }
 
         public override IExecuteResult ExecuteMethodCall(DbLinq.Linq.DataContext context, MethodInfo method

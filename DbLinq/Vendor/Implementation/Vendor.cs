@@ -45,8 +45,8 @@ namespace DbLinq.Vendor.Implementation
         public ILogger Logger { get; set; }
 
         public Vendor()
-        {  
-           Logger = ObjectFactory.Get<ILogger>();
+        {
+            Logger = ObjectFactory.Get<ILogger>();
         }
 
         public virtual string SqlPingCommand
@@ -120,6 +120,7 @@ namespace DbLinq.Vendor.Implementation
 
         private string ExecuteCommand_PrepareParams(IDbCommand command, string sql, object[] parameters)
         {
+            sql = GetSqlCaseSafeQuery(sql);
             if (parameters.Length == 0)
                 return sql; //nothing to do
 
@@ -210,11 +211,12 @@ namespace DbLinq.Vendor.Implementation
             }
 
             // PostgreSQL, Ingres cause exception if COUNT(*) is used with ORDER BY
-            if (parts.CountClause != "COUNT") {
-              AppendList(sql, " ORDER BY ", parts.OrderByList, ", ");
-              if (parts.OrderDirection != null)
-                sql.Append(' ').Append(parts.OrderDirection).Append(' '); //' DESC '
-              }
+            if (parts.CountClause != "COUNT")
+            {
+                AppendList(sql, " ORDER BY ", parts.OrderByList, ", ");
+                if (parts.OrderDirection != null)
+                    sql.Append(' ').Append(parts.OrderDirection).Append(' '); //' DESC '
+            }
             AddLateLimits(sql, parts);
 
             return sql.ToString();
@@ -247,22 +249,6 @@ namespace DbLinq.Vendor.Implementation
         }
 
         public abstract string VendorName { get; }
-
-        /// <summary>
-        /// given 'Order Details', return '[Order Details]' or `Order Details`, 
-        /// depending on vendor
-        /// </summary>
-        public virtual string GetSqlFieldSafeName(string name)
-        {
-            if (IsFieldNameSafe(name))
-                return name;
-            return MakeFieldSafeName(name);
-        }
-
-        protected virtual string MakeFieldSafeName(string name)
-        {
-            return name.Enquote('`');
-        }
 
         public abstract IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt, StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded);
         public abstract IExecuteResult ExecuteMethodCall(Linq.DataContext context, MethodInfo method, params object[] sqlParams);
