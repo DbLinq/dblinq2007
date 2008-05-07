@@ -6,15 +6,8 @@ DROP DATABASE IF EXISTS "Northwind";
 CREATE DATABASE "Northwind" WITH OWNER = "LinqUser";
 
 \connect "Northwind"; 
---Carramba! http://www.postgresqlforums.com/forums/viewtopic.php?f=33&t=10
---Re: switch database connection in jdbc Postby wagnerch on Tue Jan 02, 2007 3:05 pm 
---You would need to disconnect and reconnect to the other database, or hold two connections to each database. 
---I am not aware of an option in PostgreSQL for switching databases, like MySQL has. 
---PostgreSQL has a similar feature, but it is called a schema.
 
---####################################################################
---## create tables
---####################################################################
+
 CREATE TABLE "Region" (
   "RegionID" SERIAL NOT NULL,
   "RegionDescription" VARCHAR(50) NOT NULL,
@@ -34,7 +27,7 @@ CREATE TABLE "Categories" (
   "CategoryID" SERIAL NOT NULL,
   "CategoryName" VARCHAR(15) NOT NULL,
   "Description" TEXT NULL,
-  "Picture" OID NULL, --BLOB type is called OID?
+  "Picture" BYTEA,
   PRIMARY KEY("CategoryID")
 );
 
@@ -107,7 +100,7 @@ CREATE TABLE "Employees" (
   "PostalCode" VARCHAR(10) NULL,
   "Country" VARCHAR(15) NULL,
   "HomePhone" VARCHAR(24) NULL,
-  "Photo" OID NULL, --'BLOB'
+ "Photo" BYTEA,
   "Notes" TEXT NULL,
   "ReportsTo" INTEGER NULL,
   CONSTRAINT "FK_Emp_ReportsToEmp" FOREIGN KEY ("ReportsTo") REFERENCES "Employees"("EmployeeID"),
@@ -183,8 +176,6 @@ INSERT INTO "Region" ("RegionDescription") VALUES ('Europe');
 
 INSERT INTO "Territories" ("TerritoryID","TerritoryDescription", "RegionID") VALUES ('US.Northwest', 'Northwest', 1);
 
-truncate table "Orders" CASCADE; -- must be truncated before Customer
-truncate table "Customers" CASCADE;
 
 insert INTO "Customers" ("CustomerID", "CompanyName","ContactName","Country","PostalCode","City")
 values ('AIRBU', 'airbus','jacques','France','10000','Paris');
@@ -200,7 +191,7 @@ values ('UKMOD', 'MOD','(secret)','U.K.','E14','London');
 insert INTO "Customers" ("CustomerID", "CompanyName","ContactName", "ContactTitle", "Country","PostalCode","City", "Phone")
 values ('ALFKI', 'Alfreds Futterkiste','Maria Anders','Sales Representative','Germany','12209','Berlin','030-0074321');
 
-insert INTO Customers (CustomerID, CompanyName,ContactName, ContactTitle, Country,PostalCode,Address,City, Phone, Fax)
+insert INTO "Customers" ("CustomerID", "CompanyName","ContactName", "ContactTitle", "Country","PostalCode","Address","City", "Phone", "Fax")
 values ('BONAP', 'Bon app''','Laurence Lebihan','Owner','France','13008','12, rue des Bouchers','Marseille','91.24.45.40', '91.24.45.41');
 
 insert INTO "Customers" ("CustomerID", "CompanyName","ContactName", "ContactTitle", "Country","PostalCode","City", "Phone")
@@ -215,7 +206,7 @@ VALUES ('alles AG', 'Harald Reitmeyer', 'Prof', 'Fischergasse 8', 'Heidelberg', 
 insert INTO "Suppliers" ("CompanyName", "ContactName", "ContactTitle", "Address", "City", "Region", "Country")
 VALUES ('Microsoft', 'Mr Allen', 'Monopolist', '1 MS', 'Redmond', 'WA', 'USA');
 
-INSERT INTO Suppliers (CompanyName, ContactName, ContactTitle, Address, City, Region, PostalCode, Country, Phone, Fax)
+INSERT INTO "Suppliers" ("CompanyName", "ContactName", "ContactTitle", "Address", "City", "Region", "PostalCode", "Country", "Phone", "Fax")
 VALUES ('Pavlova, Ltd.', 'Ian Devling', 'Marketing Manager', '74 Rose St. Moonie Ponds', 'Melbourne', 'Victoria', '3058', 'Australia', '(03) 444-2343', '(03) 444-6588');
 
 --#################################################################################
@@ -236,8 +227,8 @@ VALUES ('Fork',5,   111, 0, '0');
 insert INTO "Products" ("ProductName","SupplierID", "QuantityPerUnit","UnitsInStock","UnitsOnOrder","Discontinued")
 VALUES ('Linq Book',2, 1, 0, 26, '0');
 
-INSERT INTO Products (ProductName,SupplierID, QuantityPerUnit,UnitPrice,  UnitsInStock,UnitsOnOrder,Discontinued)
-VALUES ('Carnarvon Tigers', 3,'16 kg pkg.',62.50,  42, 0, 0);
+INSERT INTO "Products" ("ProductName","SupplierID", "QuantityPerUnit","UnitPrice",  "UnitsInStock","UnitsOnOrder","Discontinued")
+VALUES ('Carnarvon Tigers', 3,'16 kg pkg.',62.50,  42, 0, false);
 
 
 insert INTO  "Employees"  ("LastName","FirstName","Title","BirthDate","HireDate","Address","City","ReportsTo")
@@ -266,13 +257,14 @@ Values ('BT___', 1, now(), 11.5);
 insert INTO "Orders" ("CustomerID", "EmployeeID", "OrderDate", "Freight")
 Values ('UKMOD', 1, now(), 32.5);
 
-insert INTO Orders (CustomerID, EmployeeID, OrderDate, RequiredDate, ShippedDate, Freight, ShipName, ShipAddress, ShipCity, ShipCountry)
+insert INTO "Orders" ("CustomerID", "EmployeeID", "OrderDate", "RequiredDate", "ShippedDate", "Freight", "ShipName", "ShipAddress",
+"ShipCity", "ShipCountry")
 Values ('BONAP', 1, '1996-10-16', '1996-11-27', '1996-10-21', 10.21, 'Bon app''', '12, rue des Bouchers', 'Marseille', 'France' );
 
 INSERT INTO "OrderDetails" ("OrderID", "ProductID", "UnitPrice", "Quantity", "Discount")
 VALUES (1,2, 33, 5, 11);
 
-INSERT INTO "Order Details" (OrderID, ProductID, UnitPrice, Quantity,   Discount)
+INSERT INTO "OrderDetails" ("OrderID", "ProductID", "UnitPrice", "Quantity",   "Discount")
 VALUES (5,9, 50, 20,   0.05); --## CanarvonTigers
 
 CREATE FUNCTION hello0() RETURNS text AS $$ 
@@ -299,6 +291,10 @@ END;
 $$ LANGUAGE plpgsql;
 
 COMMIT;
+
+
+
+
 
 
 
