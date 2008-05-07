@@ -12,13 +12,13 @@ using Test_NUnit;
 #elif ORACLE
     namespace Test_NUnit_Oracle.Linq_101_Samples
 #elif POSTGRES
-    namespace Test_NUnit_PostgreSql.Linq_101_Samples
+namespace Test_NUnit_PostgreSql.Linq_101_Samples
 #elif SQLITE
     namespace Test_NUnit_Sqlite.Linq_101_Samples
 #elif INGRES
     namespace Test_NUnit_Ingres.Linq_101_Samples
 #else
-    #error unknown target
+#error unknown target
 #endif
 {
     /// <summary>
@@ -34,13 +34,13 @@ using Test_NUnit;
             Northwind db = CreateDB();
 
             var q = from c in db.Customers
-                    from o in c.Orders 
-                    where c.City == "London" 
+                    from o in c.Orders
+                    where c.City == "London"
                     select o;
 
             var list = q.ToList();
-            Assert.IsTrue(list.Count > 0,"No rows returned");
-            Assert.IsTrue(list[0].CustomerID!=null,"Missing CustomerID");
+            Assert.IsTrue(list.Count > 0, "No rows returned");
+            Assert.IsTrue(list[0].CustomerID != null, "Missing CustomerID");
         }
 
         [Test(Description = "This sample uses foreign key navigation in the from clause to select all orders for customers in London")]
@@ -135,7 +135,7 @@ using Test_NUnit;
             Assert.IsTrue(list.Count > 0);
         }
 
-        [Test(Description="example by Frans Brouma: select all customers that have no orders")]
+        [Test(Description = "example by Frans Brouma: select all customers that have no orders")]
         public void LeftJoin_DefaultIfEmpty()
         {
             //example by Frans Brouma on Matt Warren's site
@@ -183,7 +183,7 @@ using Test_NUnit;
 
             var q1 = (from p in db.Products
                       join o in db.OrderDetails on p.ProductID equals o.ProductID
-                      where p.ProductID>1
+                      where p.ProductID > 1
                       select new
                       {
                           p.ProductName,
@@ -210,6 +210,24 @@ using Test_NUnit;
             var list = q.ToList();
             Assert.IsTrue(list.Count > 0);
         }
+
+        [Test]
+        public void DifferentParentAndAssociationPropertyNames()
+        {
+            Northwind dbo = CreateDB();
+            Northwind1 db = new Northwind1(dbo.DatabaseContext.Connection);
+            var query = db.GetTable<Northwind1.ExtendedOrder>() as IQueryable<Northwind1.ExtendedOrder>;
+
+            var q2 = query.Select(e => new Northwind1.ExtendedOrder
+            {
+                OrderID = e.OrderID,
+                ShipAddress = e.CustomerShipCity.ContactName
+            });
+            var list = q2.ToList();
+            Assert.IsTrue(list.Count > 0);
+        }
+
+
 
         [Test]
         public void SelectCustomerContactNameFromOrder()
@@ -279,7 +297,7 @@ using Test_NUnit;
             });
             var list = query.ToList();
             Assert.IsTrue(list.Count > 0);
-        } 
-        
+        }
+
     }
 }
