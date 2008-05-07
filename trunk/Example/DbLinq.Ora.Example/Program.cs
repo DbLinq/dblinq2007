@@ -36,6 +36,8 @@ using System.Linq;
 using Oracle.DataAccess.Client;
 #else
 using System.Data.OracleClient;
+using DbLinq.Linq.Mapping;
+
 #endif
 
 
@@ -45,6 +47,16 @@ namespace nwind
     {
         static void Main(string[] args)
         {
+            //var mappingSource = new AttributeMappingSource();
+            //var metaModel = mappingSource.GetModel(typeof(Northwind));
+            //foreach (var tableModel in metaModel.GetTables())
+            //{
+            //    foreach (var columnModel in tableModel.RowType.DataMembers)
+            //    {
+
+            //    }
+            //}
+
             string connStr = "server=localhost;user=Northwind;password=linq2";
             insertTest(connStr);
             return;
@@ -98,7 +110,7 @@ namespace nwind
             //OracleCommand cmd = new OracleCommand(sql, conn);
             //cmd.CommandType = System.Data.CommandType.Text;
             OracleCommand cmd = conn.CreateCommand();
-            OracleParameter p1 = new OracleParameter("1",OracleType.Number);
+            OracleParameter p1 = new OracleParameter("1", OracleType.Number);
             p1.Direction = System.Data.ParameterDirection.Output;
             cmd.Parameters.Add(p1);
 

@@ -43,6 +43,10 @@ namespace DbLinq.Util
                 return ((FieldInfo)memberInfo).FieldType;
             if (memberInfo is PropertyInfo)
                 return ((PropertyInfo)memberInfo).PropertyType;
+            if (memberInfo is MethodInfo)
+                return ((MethodInfo)memberInfo).ReturnType;
+            if (memberInfo is ConstructorInfo)
+                return null;
             throw new ArgumentException();
         }
 
