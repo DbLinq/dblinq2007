@@ -8,7 +8,7 @@ using nwind;
 using Test_NUnit;
 
 #if MYSQL
-    namespace Test_NUnit_MySql.Linq_101_Samples
+namespace Test_NUnit_MySql.Linq_101_Samples
 #elif ORACLE
     namespace Test_NUnit_Oracle.Linq_101_Samples
 #elif POSTGRES
@@ -152,6 +152,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
                     select c;
 
             var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
         }
 
         [Test]
@@ -171,6 +172,15 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
                         };
 
             var list = query.ToList();
+
+            bool foundMelb = false, foundNull = false;
+            foreach (var item in list)
+            {
+                foundMelb = foundMelb || item.City == "Melbourne";
+                foundNull = foundNull || item.City == null;
+            }
+            Assert.IsTrue(foundMelb, "Expected rows with City=Melbourne");
+            Assert.IsTrue(foundNull, "Expected rows with City=null");
         }
 
         // picrap: commented out, it doesn't build because of db.Orderdetails (again, a shared source file...)
