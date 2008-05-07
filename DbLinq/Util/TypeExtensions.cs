@@ -121,7 +121,7 @@ namespace DbLinq.Util
                 return false;
 
             Type genericDef = t.GetGenericTypeDefinition();
-            if(genericDef!=typeof(System.Linq.IQueryable<>))
+            if (genericDef != typeof(System.Linq.IQueryable<>))
                 return false;
 
             Type[] genericArg = t.GetGenericArguments();
@@ -142,6 +142,42 @@ namespace DbLinq.Util
         {
             TableAttribute tableAttribute = AttribHelper.GetTableAttrib(t);
             return (tableAttribute != null);
+        }
+
+        /// <summary>
+        /// Determines if a given type can have a null value
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        public static bool CanBeNull(this Type t)
+        {
+            return !t.IsValueType;
+        }
+
+        /// <summary>
+        /// Returns a unique MemberInfo
+        /// </summary>
+        /// <param name="t">The declaring type</param>
+        /// <param name="name">The member name</param>
+        /// <returns>A MemberInfo or null</returns>
+        public static MemberInfo GetSingleMember(this Type t, string name)
+        {
+            return GetSingleMember(t, name, BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance);
+        }
+
+        /// <summary>
+        /// Returns a unique MemberInfo
+        /// </summary>
+        /// <param name="t">The declaring type</param>
+        /// <param name="name">The member name</param>
+        /// <param name="bindingFlags">Binding flags</param>
+        /// <returns>A MemberInfo or null</returns>
+        public static MemberInfo GetSingleMember(this Type t, string name, BindingFlags bindingFlags)
+        {
+            var members = t.GetMember(name, bindingFlags);
+            if (members.Length > 0)
+                return members[0];
+            return null;
         }
     }
 }

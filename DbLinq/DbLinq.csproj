@@ -68,6 +68,16 @@
     <Compile Include="Linq\IEntityMap.cs" />
     <Compile Include="Linq\Implementation\EntityMap.cs" />
     <Compile Include="Linq\MappingContext.cs" />
+    <Compile Include="Linq\Mapping\AttributedMetaModel.cs" />
+    <Compile Include="Linq\Mapping\AttributedAbstractMetaDataMember.cs" />
+    <Compile Include="Linq\Mapping\AttributedAssociationMetaDataMember.cs" />
+    <Compile Include="Linq\Mapping\AttributedMetaAssociation.cs" />
+    <Compile Include="Linq\Mapping\AttributedColumnMetaDataMember.cs" />
+    <Compile Include="Linq\Mapping\AttributedMetaFunction.cs" />
+    <Compile Include="Linq\Mapping\AttributedMetaTable.cs" />
+    <Compile Include="Linq\Mapping\AttributedMetaType.cs" />
+    <Compile Include="Linq\Mapping\AttributeMappingSource.cs" />
+    <Compile Include="Linq\Mapping\SourcedMetaModel.cs" />
     <Compile Include="Linq\NameFormat.cs" />
     <Compile Include="Logging\ILogger.cs" />
     <Compile Include="Logging\Implementation\ConsoleDebugLogger.cs" />
@@ -125,6 +135,7 @@
     <Compile Include="Util\Lookup.cs" />
     <Compile Include="Linq\Implementation\NameFormatter.cs" />
     <Compile Include="Util\MemberInfoExtensions.cs" />
+    <Compile Include="Util\ReflectionExtensions.cs" />
     <Compile Include="Util\StringExtensions.cs" />
     <Compile Include="Util\TypeConvert.cs" />
     <Compile Include="Util\Operators.cs" />
