@@ -202,8 +202,8 @@ namespace VisualMetal
         {
             try
             {
-                Loader = new SchemaLoaderFactory().Load(Parameters);
-                Database = Program.ReadSchema(Parameters, Loader);
+                ISchemaLoader loader;
+                Database = Program.ReadSchema(Parameters, out loader);
             }
             catch (Exception exception)
             {
