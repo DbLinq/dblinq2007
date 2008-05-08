@@ -273,7 +273,7 @@ namespace DbLinq.Linq.Implementation
                 associationName.ManyToOneMemberName = "Parent" + associationName.ManyToOneMemberName;
             // TODO: support new extraction
             associationName.OneToManyMemberName = Format(words, dbManyName, nameFormat.Case, GetSingularization(Singularization.Plural, nameFormat));
-            associationName.ForeignKeyStorageFieldName = Format(words, dbConstraintName, Case.camelCase, Singularization.DontChange);
+            associationName.ForeignKeyStorageFieldName = Format(words, dbConstraintName, Case.camelCase, GetSingularization(Singularization.Plural, nameFormat));
             return associationName;
         }
     }
