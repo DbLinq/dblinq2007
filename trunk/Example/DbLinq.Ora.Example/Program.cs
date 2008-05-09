@@ -47,15 +47,15 @@ namespace nwind
     {
         static void Main(string[] args)
         {
-            //var mappingSource = new AttributeMappingSource();
-            //var metaModel = mappingSource.GetModel(typeof(Northwind));
-            //foreach (var tableModel in metaModel.GetTables())
-            //{
-            //    foreach (var columnModel in tableModel.RowType.DataMembers)
-            //    {
+            var mappingSource = new AttributeMappingSource();
+            var metaModel = mappingSource.GetModel(typeof(Northwind));
+            foreach (var tableModel in metaModel.GetTables())
+            {
+                foreach (var columnModel in tableModel.RowType.DataMembers)
+                {
 
-            //    }
-            //}
+                }
+            }
 
             string connStr = "server=localhost;user=Northwind;password=linq2";
             insertTest(connStr);

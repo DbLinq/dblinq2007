@@ -55,7 +55,7 @@ namespace DbLinq.Linq.Mapping
                                                                  otherTable.RowType));
                 }
             }
-            theseKeys = new ReadOnlyCollection<MetaDataMember>(otherKeysList);
+            otherKeys = new ReadOnlyCollection<MetaDataMember>(otherKeysList);
             otherMember = otherAssociationMember;
         }
 

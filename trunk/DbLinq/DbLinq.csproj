@@ -46,6 +46,7 @@
     <Compile Include="..\DbLinq.ProductInfo.cs">
       <Link>Properties\DbLinq.ProductInfo.cs</Link>
     </Compile>
+    <Compile Include="DbLinqToDoAttribute.cs" />
     <Compile Include="Factory\DbLinqAttribute.cs" />
     <Compile Include="Factory\Implementation\AbstractObjectFactory.cs" />
     <Compile Include="Factory\Implementation\ReflectionObjectFactory.cs" />
@@ -77,7 +78,6 @@
     <Compile Include="Linq\Mapping\AttributedMetaTable.cs" />
     <Compile Include="Linq\Mapping\AttributedMetaType.cs" />
     <Compile Include="Linq\Mapping\AttributeMappingSource.cs" />
-    <Compile Include="Linq\Mapping\SourcedMetaModel.cs" />
     <Compile Include="Schema\Case.cs" />
     <Compile Include="Schema\WordsExtraction.cs" />
     <Compile Include="Schema\NameFormat.cs" />
