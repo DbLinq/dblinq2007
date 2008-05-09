@@ -79,28 +79,12 @@ namespace DbLinq.Vendor.Implementation
                 LoadStoredProcedures(schema, schemaName, Connection, nameFormat);
             CheckNamesCaseSafety(schema);
 
-            return schema;
-        }
+            // check for duplicate names between properties
+            CheckNames(schema);
+            // generate backing fields name (since we have here correct names)
+            GenerateStorageFields(schema);
 
-        protected virtual void CheckNamesCaseSafety(Database schema)
-        {
-            schema.Name = Vendor.GetSqlFieldSafeName(schema.Name);
-            foreach (var table in schema.Table)
-            {
-                table.Name = Vendor.GetSqlFieldSafeName(table.Name);
-                foreach (var column in table.Type.Columns)
-                {
-                    column.Name = Vendor.GetSqlFieldSafeName(column.Name);
-                }
-                foreach (var association in table.Type.Associations)
-                {
-                    association.Name = Vendor.GetSqlFieldSafeName(association.Name);
-                }
-            }
-            foreach (var storedProcedure in schema.Functions)
-            {
-                storedProcedure.Name = Vendor.GetSqlFieldSafeName(storedProcedure.Name);
-            }
+            return schema;
         }
 
         protected SchemaLoader()
@@ -253,7 +237,6 @@ namespace DbLinq.Vendor.Implementation
                 var column = new Column();
                 column.Name = columnName.DbName;
                 column.Member = columnName.PropertyName;
-                column.Storage = columnName.StorageFieldName;
                 column.DbType = columnRow.FullType;
 
                 if (columnRow.PrimaryKey.HasValue)
