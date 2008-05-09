@@ -150,7 +150,7 @@ namespace VisualMetal
             dialog.FileName = Parameters.Database;
             if (dialog.ShowDialog() != System.Windows.Forms.DialogResult.Cancel)
                 using (Stream dbmlFile = File.OpenWrite(dialog.FileName))
-                    DbLinq.Schema.DbmlSerializer.Write(dbmlFile, Database);
+                    DbmlSerializer.Write(dbmlFile, Database);
         }
 
         private void Exit_Click(object sender, RoutedEventArgs e)

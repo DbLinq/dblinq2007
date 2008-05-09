@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // Copyright (c) 2007-2008 Jiri Moudry
 // 
@@ -22,19 +22,28 @@
 // 
 #endregion
 
-using DbLinq;
-using DbLinq.Factory;
-using DbMetal.Generator;
+using DbLinq.Linq.Implementation;
+using DbLinq.Schema;
 
-namespace DbMetal
+namespace DbLinq.Schema
 {
-    public class Program
+    /// <summary>
+    /// Determines how to extract words from a given text
+    /// </summary>
+    public enum WordsExtraction
     {
-        static void Main(string[] args)
-        {
-            Reference.DbLinqLocalizations();
-            var processor = ObjectFactory.Get<IProcessor>();
-            processor.Process(args);
-        }
+        /// <summary>
+        /// Considers the given text as a single word
+        /// </summary>
+        None,
+        /// <summary>
+        /// Considers words starting by an uppercase letter, or with full uppercase
+        /// (for example thisIsMyWORD --> "this" "Is" "My" "WORD")
+        /// </summary>
+        FromCase,
+        /// <summary>
+        /// Extracts word from dictionary, given NameFormat.Culture
+        /// </summary>
+        FromDictionary,
     }
 }

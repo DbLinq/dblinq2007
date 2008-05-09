@@ -21,14 +21,20 @@
 // THE SOFTWARE.
 // 
 #endregion
-using System.Globalization;
 
-namespace DbLinq.Linq
+using DbLinq.Linq.Implementation;
+using DbLinq.Schema;
+
+namespace DbLinq.Schema
 {
-    public class NameFormat
+    public interface INameFormatter
     {
-        public bool Pluralize { get; set; }
-        public Case Case { get; set; }
-        public CultureInfo Culture { get; set; }
+        SchemaName GetSchemaName(string dbName, WordsExtraction extraction, NameFormat nameFormat);
+        ProcedureName GetProcedureName(string dbName, WordsExtraction extraction, NameFormat nameFormat);
+        ParameterName GetParameterName(string dbName, WordsExtraction extraction, NameFormat nameFormat);
+        TableName GetTableName(string dbName, WordsExtraction extraction, NameFormat nameFormat);
+        ColumnName GetColumnName(string dbName, WordsExtraction extraction, NameFormat nameFormat);
+        AssociationName GetAssociationName(string dbManyName, string dbOneName,
+                                           string dbConstraintName, WordsExtraction extraction, NameFormat nameFormat);
     }
 }

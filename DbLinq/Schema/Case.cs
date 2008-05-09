@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // Copyright (c) 2007-2008 Jiri Moudry
 // 
@@ -22,19 +22,28 @@
 // 
 #endregion
 
-using DbLinq;
-using DbLinq.Factory;
-using DbMetal.Generator;
-
-namespace DbMetal
+namespace DbLinq.Schema
 {
-    public class Program
+    /// <summary>
+    /// Represent a case model
+    /// </summary>
+    public enum Case
     {
-        static void Main(string[] args)
-        {
-            Reference.DbLinqLocalizations();
-            var processor = ObjectFactory.Get<IProcessor>();
-            processor.Process(args);
-        }
-    }
+        /// <summary>
+        /// With this value, the case of a give word is unchanged
+        /// </summary>
+        Leave,
+        /// <summary>
+        /// first word all lowercase, next words capitalized
+        /// </summary>
+        camelCase,
+        /// <summary>
+        /// all words capitalized
+        /// </summary>
+        PascalCase,
+        /// <summary>
+        /// all words capitalized, words with 2 letters or less full uppercase
+        /// </summary>
+        NetCase,
+    }   
 }

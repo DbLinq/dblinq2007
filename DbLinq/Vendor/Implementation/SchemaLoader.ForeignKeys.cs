@@ -24,7 +24,6 @@
 
 using System.Data;
 using System.Linq;
-using DbLinq.Linq;
 using DbLinq.Logging;
 using DbLinq.Schema;
 using DbLinq.Schema.Dbml;

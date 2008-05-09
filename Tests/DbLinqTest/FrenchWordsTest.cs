@@ -22,7 +22,7 @@
 // 
 #endregion
 
-using DbLinq.Localization.Language;
+using DbLinq.Language;
 using DbLinq.Util;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;

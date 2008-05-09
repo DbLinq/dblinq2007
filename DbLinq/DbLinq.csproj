@@ -78,7 +78,9 @@
     <Compile Include="Linq\Mapping\AttributedMetaType.cs" />
     <Compile Include="Linq\Mapping\AttributeMappingSource.cs" />
     <Compile Include="Linq\Mapping\SourcedMetaModel.cs" />
-    <Compile Include="Linq\NameFormat.cs" />
+    <Compile Include="Schema\Case.cs" />
+    <Compile Include="Schema\WordsExtraction.cs" />
+    <Compile Include="Schema\NameFormat.cs" />
     <Compile Include="Logging\ILogger.cs" />
     <Compile Include="Logging\Implementation\ConsoleDebugLogger.cs" />
     <Compile Include="Logging\Implementation\Logger.cs" />
@@ -86,11 +88,11 @@
     <Compile Include="Schema\AssociationName.cs" />
     <Compile Include="Schema\ColumnName.cs" />
     <Compile Include="Schema\ParameterName.cs" />
-    <Compile Include="Schema\DbmlSchema.Adapter.cs" />
-    <Compile Include="Schema\DbmlSchema.cs">
+    <Compile Include="Schema\Dbml\DbmlSchema.Adapter.cs" />
+    <Compile Include="Schema\Dbml\DbmlSchema.cs">
       <DependentUpon>DbmlSchema.xsd</DependentUpon>
     </Compile>
-    <Compile Include="Schema\DbmlSerializer.cs" />
+    <Compile Include="Schema\Dbml\DbmlSerializer.cs" />
     <Compile Include="Linq\Clause\ExpressionTreeParser.cs" />
     <Compile Include="Linq\Clause\InsertClauseBuilder.cs" />
     <Compile Include="Linq\Clause\JoinBuilder.cs" />
@@ -127,13 +129,13 @@
     <Compile Include="Util\ExpressionExtensions.cs" />
     <Compile Include="Util\FieldUtils.cs" />
     <Compile Include="Util\GroupHelper.cs" />
-    <Compile Include="Linq\INameFormatter.cs" />
+    <Compile Include="Schema\INameFormatter.cs" />
     <Compile Include="Language\Implementation\AbstractEndPluralWords.cs" />
     <Compile Include="Language\Implementation\AbstractWords.cs" />
     <Compile Include="Language\Implementation\Languages.cs" />
     <Compile Include="Language\Implementation\NoLanguageWords.cs" />
     <Compile Include="Util\Lookup.cs" />
-    <Compile Include="Linq\Implementation\NameFormatter.cs" />
+    <Compile Include="Schema\Implementation\NameFormatter.cs" />
     <Compile Include="Util\MemberInfoExtensions.cs" />
     <Compile Include="Util\ReflectionExtensions.cs" />
     <Compile Include="Util\StringExtensions.cs" />
@@ -183,8 +185,8 @@
     <None Include="..\DbLinq.snk">
       <Link>Properties\DbLinq.snk</Link>
     </None>
-    <None Include="Schema\DbmlSchema.bat" />
-    <EmbeddedResource Include="Schema\DbmlSchema.xsd">
+    <None Include="Schema\Dbml\DbmlSchema.bat" />
+    <EmbeddedResource Include="Schema\Dbml\DbmlSchema.xsd">
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
