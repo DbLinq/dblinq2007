@@ -26,8 +26,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using DbLinq.Factory;
+using DbLinq.Language;
 using DbLinq.Schema;
-using DbLinq.Util.Language;
 
 namespace DbLinq.Linq.Implementation
 {

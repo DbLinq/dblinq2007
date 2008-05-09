@@ -119,8 +119,8 @@
     <Compile Include="Util\ExprVisitor\LocalExpressionChecker.cs" />
     <Compile Include="Util\IDataRecordExtensions.cs" />
     <Compile Include="Util\IDataTypeExtensions.cs" />
-    <Compile Include="Util\Language\ILanguages.cs" />
-    <Compile Include="Util\Language\ILanguageWords.cs" />
+    <Compile Include="Language\ILanguages.cs" />
+    <Compile Include="Language\ILanguageWords.cs" />
     <Compile Include="Util\LambdaComparer.cs" />
     <Compile Include="Util\DataCommand.cs" />
     <Compile Include="Util\ExpressionAndType.cs" />
@@ -128,10 +128,10 @@
     <Compile Include="Util\FieldUtils.cs" />
     <Compile Include="Util\GroupHelper.cs" />
     <Compile Include="Linq\INameFormatter.cs" />
-    <Compile Include="Util\Language\Implementation\AbstractEndPluralWords.cs" />
-    <Compile Include="Util\Language\Implementation\AbstractWords.cs" />
-    <Compile Include="Util\Language\Implementation\Languages.cs" />
-    <Compile Include="Util\Language\Implementation\NoLanguageWords.cs" />
+    <Compile Include="Language\Implementation\AbstractEndPluralWords.cs" />
+    <Compile Include="Language\Implementation\AbstractWords.cs" />
+    <Compile Include="Language\Implementation\Languages.cs" />
+    <Compile Include="Language\Implementation\NoLanguageWords.cs" />
     <Compile Include="Util\Lookup.cs" />
     <Compile Include="Linq\Implementation\NameFormatter.cs" />
     <Compile Include="Util\MemberInfoExtensions.cs" />

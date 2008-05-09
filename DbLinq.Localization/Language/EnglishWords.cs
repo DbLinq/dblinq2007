@@ -28,9 +28,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using DbLinq.Util.Language.Implementation;
+using DbLinq.Language.Implementation;
 
-namespace DbLinq.Localization.Language
+namespace DbLinq.Language
 {
     public class EnglishWords : AbstractEndPluralWords
     {

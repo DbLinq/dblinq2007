@@ -24,7 +24,6 @@
 
 using DbLinq.Localization.Language;
 using DbLinq.Util;
-using DbLinq.Util.Language.Implementation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using NUnit.Framework;

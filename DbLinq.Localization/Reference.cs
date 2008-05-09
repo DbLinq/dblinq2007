@@ -22,7 +22,7 @@
 // 
 #endregion
 
-namespace DbLinq.Localization
+namespace DbLinq
 {
     public static class Reference
     {
