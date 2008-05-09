@@ -27,9 +27,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using DbLinq.Util.Language.Implementation;
+using DbLinq.Language.Implementation;
 
-namespace DbLinq.Localization.Language
+namespace DbLinq.Language
 {
     public class FrenchWords : AbstractEndPluralWords
     {

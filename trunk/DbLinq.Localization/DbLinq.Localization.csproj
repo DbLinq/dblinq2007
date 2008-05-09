@@ -8,7 +8,7 @@
     <ProjectGuid>{E636DAE5-1245-4ED1-A709-057935D20E24}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DbLinq.Localization</RootNamespace>
+    <RootNamespace>DbLinq</RootNamespace>
     <AssemblyName>DbLinq.Localization</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

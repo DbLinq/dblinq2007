@@ -21,6 +21,7 @@
 // THE SOFTWARE.
 // 
 #endregion
+
 using DbLinq.Factory;
 using DbMetal.Generator;
 using DbLinq.Localization;
