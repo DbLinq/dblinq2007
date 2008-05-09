@@ -21,8 +21,10 @@
 // THE SOFTWARE.
 // 
 #endregion
+
 using System;
 using System.Data;
+using System.Data.Linq.Mapping;
 using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
@@ -40,19 +42,24 @@ using DbLinq.Util;
 
 namespace DbLinq.Linq
 {
-    public abstract class DataContext : IDisposable
+    public class DataContext : IDisposable
     {
         internal /*private*/ readonly List<IMTable> _tableList = new List<IMTable>();
         private readonly Dictionary<string, IMTable> _tableMap = new Dictionary<string, IMTable>();
 
+        public MetaModel Mapping { get; private set; }
+
+        // all properties below are set public to optionally be injected
+        // TODO check if 'internal' works
         public IVendor Vendor { get; set; }
         public IQueryGenerator QueryGenerator { get; set; }
         public IResultMapper ResultMapper { get; set; }
         public IModificationHandler ModificationHandler { get; set; }
         public IDatabaseContext DatabaseContext { get; private set; }
         public ILogger Logger { get; set; }
-
         public IEntityMap EntityMap { get; set; }
+        // /all properties...
+
         private IIdentityReaderFactory identityReaderFactory;
         private IDictionary<Type, IIdentityReader> identityReaders = new Dictionary<Type, IIdentityReader>();
 
@@ -68,7 +75,7 @@ namespace DbLinq.Linq
         /// If you provide an open connection, the DataContext will not close it
         /// source: http://msdn2.microsoft.com/en-us/library/bb292288.aspx
         /// </summary>
-        public DataContext(IDatabaseContext databaseContext, IVendor vendor)
+        public DataContext(IDatabaseContext databaseContext, MappingSource mappingSource, IVendor vendor)
         {
             if (databaseContext == null || vendor == null)
                 throw new ArgumentNullException("Null arguments");
@@ -86,6 +93,22 @@ namespace DbLinq.Linq
             identityReaderFactory = ObjectFactory.Get<IIdentityReaderFactory>();
 
             MappingContext = new MappingContext();
+
+            // initialize the mapping information
+            if (mappingSource == null)
+                mappingSource = new AttributeMappingSource();
+            Mapping = mappingSource.GetModel(GetType());
+        }
+
+        public DataContext(IDbConnection dbConnection, MappingSource mappingSource, IVendor vendor)
+            : this(new DatabaseContext(dbConnection), mappingSource, vendor)
+        {
+        }
+
+
+        public DataContext(IDatabaseContext databaseContext, IVendor vendor)
+            : this(databaseContext, null, vendor)
+        {
         }
 
         public DataContext(IDbConnection dbConnection, IVendor vendor)

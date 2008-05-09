@@ -24,11 +24,13 @@
 
 using System;
 using System.Data.Linq.Mapping;
+using System.Diagnostics;
 using System.Reflection;
 using DbLinq.Util;
 
 namespace DbLinq.Linq.Mapping
 {
+    [DebuggerDisplay("MetaDataMember for {MappedName}")]
     internal class AttributedColumnMetaDataMember : AttributedAbstractMetaDataMember
     {
         public AttributedColumnMetaDataMember(MemberInfo member, ColumnAttribute attribute, MetaType declaringType)

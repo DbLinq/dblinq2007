@@ -31,8 +31,7 @@ namespace DbLinq.Linq.Mapping
     {
         protected override MetaModel CreateModel(Type dataContextType)
         {
-            var attributedMetaModel = new AttributedMetaModel(dataContextType);
-            var metaModel = new SourcedMetaModel(attributedMetaModel, this);
+            var metaModel = new AttributedMetaModel(dataContextType, this);
             return metaModel;
         }
     }

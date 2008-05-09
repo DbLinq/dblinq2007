@@ -22,52 +22,28 @@
 // 
 #endregion
 
-using System.Data.Linq.Mapping;
-using System.Diagnostics;
-using System.Reflection;
+using System;
 
-namespace DbLinq.Linq.Mapping
+namespace DbLinq
 {
-    [DebuggerDisplay("MetaTable for {TableName}")]
-    internal class AttributedMetaTable : MetaTable
+    /// <summary>
+    /// This attribute is used to mark unterminated methods
+    /// </summary>
+    public class DbLinqToDoAttribute : Attribute
     {
-        public AttributedMetaTable(TableAttribute attribute, MetaType type)
+
+        /// <summary>
+        /// Optional message (may be null)
+        /// </summary>
+        public string Message { get; private set; }
+
+        public DbLinqToDoAttribute()
         {
-            tableAttribute = attribute;
-            metaType = type;
         }
 
-        private TableAttribute tableAttribute;
-        private MetaType metaType;
-
-        public override MethodInfo DeleteMethod
+        public DbLinqToDoAttribute(string message)
         {
-            get { throw new System.NotImplementedException(); }
-        }
-
-        public override MethodInfo InsertMethod
-        {
-            get { throw new System.NotImplementedException(); }
-        }
-
-        public override MetaModel Model
-        {
-            get { throw new System.NotImplementedException(); }
-        }
-
-        public override MetaType RowType
-        {
-            get { return metaType; }
-        }
-
-        public override string TableName
-        {
-            get { return tableAttribute.Name; }
-        }
-
-        public override MethodInfo UpdateMethod
-        {
-            get { throw new System.NotImplementedException(); }
+            Message = message;
         }
     }
 }

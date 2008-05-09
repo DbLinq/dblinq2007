@@ -25,6 +25,7 @@
 using System;
 using System.Collections;
 using System.Data.Linq.Mapping;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using DbLinq.Util;
@@ -36,11 +37,13 @@ namespace DbLinq.Linq.Mapping
     /// This class is a stateless attribute meta model (it does not depend on any provider)
     /// So the MappingSource can use singletons
     /// </summary>
+    [DebuggerDisplay("MetaModel for {DatabaseName}")]
     internal class AttributedMetaModel : MetaModel
     {
-        public AttributedMetaModel(Type dataContextType)
+        public AttributedMetaModel(Type dataContextType, MappingSource mappingSource)
         {
             contextType = dataContextType;
+            this.mappingSource = mappingSource;
             Load();
         }
 
@@ -203,10 +206,13 @@ namespace DbLinq.Linq.Mapping
             get { throw new NotImplementedException(); }
         }
 
-        // this is by design: it is not this class responsibility to return a mapping source type
+        // just because of this, the whole model can not be cached efficiently, since we can not guarantee
+        // that another mapping source instance will not use the same model
+        private MappingSource mappingSource;
         public override MappingSource MappingSource
         {
-            get { throw new NotImplementedException(); }
+            get { return mappingSource; }
         }
+
     }
 }
