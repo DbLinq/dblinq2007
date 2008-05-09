@@ -21,34 +21,36 @@
 // THE SOFTWARE.
 // 
 #endregion
-using DbLinq.Linq.Implementation;
+using System.Globalization;
 using DbLinq.Schema;
 
-namespace DbLinq.Linq
+namespace DbLinq.Schema
 {
-    public enum Case
+    /// <summary>
+    /// Determines how names must be formated, when extracting from database
+    /// </summary>
+    public class NameFormat
     {
-        Leave,
-        camelCase,
-        PascalCase,
-        NetCase,
-    }
+        /// <summary>
+        /// True if we allow pluralization/singularization
+        /// False if we consider words as invariant
+        /// </summary>
+        public bool Pluralize { get; private set; }
+        /// <summary>
+        /// Casing model: this is used for public properties generation
+        /// </summary>
+        public Case Case { get; private set; }
+        /// <summary>
+        /// When extraction words from a dictionary or pluralization/singularization, determines which language
+        /// should be used
+        /// </summary>
+        public CultureInfo Culture { get; private set; }
 
-    public enum WordsExtraction
-    {
-        None, // one word, as provided
-        FromCase,
-        FromDictionary,
-    }
-
-    public interface INameFormatter
-    {
-        SchemaName GetSchemaName(string dbName, WordsExtraction extraction, NameFormat nameFormat);
-        ProcedureName GetProcedureName(string dbName, WordsExtraction extraction, NameFormat nameFormat);
-        ParameterName GetParameterName(string dbName, WordsExtraction extraction, NameFormat nameFormat);
-        TableName GetTableName(string dbName, WordsExtraction extraction, NameFormat nameFormat);
-        ColumnName GetColumnName(string dbName, WordsExtraction extraction, NameFormat nameFormat);
-        AssociationName GetAssociationName(string dbManyName, string dbOneName,
-            string dbConstraintName, WordsExtraction extraction, NameFormat nameFormat);
+        public NameFormat(bool pluralize, Case _case, CultureInfo culture)
+        {
+            Pluralize = pluralize;
+            Case = _case;
+            Culture = culture;
+        }
     }
 }

@@ -27,7 +27,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using DbLinq.Factory;
-using DbLinq.Linq;
 using DbLinq.Logging;
 using DbLinq.Schema;
 using DbLinq.Schema.Dbml;
@@ -199,7 +198,7 @@ namespace DbMetal.Generator.Implementation
 
                 Logger.Write(Level.Information, ">>> Reading schema from {0} database", schemaLoader.VendorName);
                 dbSchema = schemaLoader.Load(parameters.Database, nameAliases,
-                    new NameFormat { Case = Case.PascalCase, Pluralize = parameters.Pluralize, Culture = new CultureInfo(parameters.Culture) },
+                    new NameFormat (parameters.Pluralize, Case.PascalCase, new CultureInfo(parameters.Culture)),
                     parameters.Sprocs, parameters.Namespace, parameters.Namespace);
                 dbSchema.Provider = parameters.Provider;
                 dbSchema.CheckNames();

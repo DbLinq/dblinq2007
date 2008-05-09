@@ -29,7 +29,7 @@ using DbLinq.Factory;
 using DbLinq.Language;
 using DbLinq.Schema;
 
-namespace DbLinq.Linq.Implementation
+namespace DbLinq.Schema.Implementation
 {
     public class NameFormatter : INameFormatter
     {
@@ -122,19 +122,19 @@ namespace DbLinq.Linq.Implementation
                 applyCase = Case.PascalCase;
             switch (applyCase)
             {
-            case Case.Leave:
-                break;
-            case Case.camelCase:
-                part = ToCamelCase(part);
-                break;
-            case Case.PascalCase:
-                part = ToPascalCase(part);
-                break;
-            case Case.NetCase:
-                part = ToNetCase(part);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
+                case Case.Leave:
+                    break;
+                case Case.camelCase:
+                    part = ToCamelCase(part);
+                    break;
+                case Case.PascalCase:
+                    part = ToPascalCase(part);
+                    break;
+                case Case.NetCase:
+                    part = ToNetCase(part);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
             return part;
         }
@@ -187,14 +187,14 @@ namespace DbLinq.Linq.Implementation
         {
             switch (extraction)
             {
-            case WordsExtraction.None:
-                return new[] { dbName };
-            case WordsExtraction.FromCase:
-                return GetWordsByCase(dbName);
-            case WordsExtraction.FromDictionary:
-                return words.GetWords(dbName);
-            default:
-                throw new ArgumentOutOfRangeException("extraction");
+                case WordsExtraction.None:
+                    return new[] { dbName };
+                case WordsExtraction.FromCase:
+                    return GetWordsByCase(dbName);
+                case WordsExtraction.FromDictionary:
+                    return words.GetWords(dbName);
+                default:
+                    throw new ArgumentOutOfRangeException("extraction");
             }
         }
 

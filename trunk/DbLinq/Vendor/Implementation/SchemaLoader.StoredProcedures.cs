@@ -23,7 +23,6 @@
 #endregion
 
 using System.Data;
-using DbLinq.Linq;
 using DbLinq.Schema;
 using DbLinq.Schema.Dbml;
 

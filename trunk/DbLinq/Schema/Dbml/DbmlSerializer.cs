@@ -28,7 +28,7 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 
-namespace DbLinq.Schema
+namespace DbLinq.Schema.Dbml
 {
     public static class DbmlSerializer
     {
@@ -48,9 +48,9 @@ namespace DbLinq.Schema
             xmlReaderSettings.Schemas.Add(null, XmlReader.Create(xsdStream));
             xmlReaderSettings.ValidationType = ValidationType.Schema;
             xmlReaderSettings.ValidationEventHandler += delegate(object sender, ValidationEventArgs e)
-                                                        {
-                                                            validationErrors.Add(e.Message);
-                                                        };
+                                                            {
+                                                                validationErrors.Add(e.Message);
+                                                            };
             var xmlValidator = XmlReader.Create(xmlStream, xmlReaderSettings);
             return xmlValidator;
         }
@@ -68,18 +68,18 @@ namespace DbLinq.Schema
             }
         }
 
-        public static Dbml.Database Read(Stream xmlStream, IList<string> validationErrors)
+        public static Database Read(Stream xmlStream, IList<string> validationErrors)
         {
             using (Stream xsdStream = OpenXsd())
             using (XmlReader xmlReader = OpenXml(xmlStream, xsdStream, validationErrors))
             {
-                var xmlSerializer = new XmlSerializer(typeof(Dbml.Database));
+                var xmlSerializer = new XmlSerializer(typeof(Database));
                 var dbml = (Dbml.Database)xmlSerializer.Deserialize(xmlReader);
                 return dbml;
             }
         }
 
-        public static Dbml.Database Read(Stream xmlStream)
+        public static Database Read(Stream xmlStream)
         {
             var validationErrors = new List<string>();
             var dbml = Read(xmlStream, validationErrors);
@@ -87,7 +87,7 @@ namespace DbLinq.Schema
             return dbml;
         }
 
-        public static void Write(Stream xmlStream, Dbml.Database dbml)
+        public static void Write(Stream xmlStream, Database dbml)
         {
             var xmlSerializer = new XmlSerializer(dbml.GetType());
             xmlSerializer.Serialize(xmlStream, dbml);
