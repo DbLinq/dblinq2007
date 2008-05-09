@@ -29,10 +29,5 @@ namespace DbLinq.Schema
         /// Name of the public property
         /// </summary>
         public string PropertyName { get; set; }
-
-        /// <summary>
-        /// Name of the backing field
-        /// </summary>
-        public string StorageFieldName { get; set; }
     }
 }

@@ -46,13 +46,13 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             Logger = ObjectFactory.Get<ILogger>();
         }
 
-        protected virtual void WriteClasses(CodeWriter writer, DbLinq.Schema.Dbml.Database schema, GenerationContext context)
+        protected virtual void WriteClasses(CodeWriter writer, Database schema, GenerationContext context)
         {
             foreach (var table in schema.Tables)
                 WriteClass(writer, table, schema, context);
         }
 
-        protected virtual void WriteClass(CodeWriter writer, DbLinq.Schema.Dbml.Table table, DbLinq.Schema.Dbml.Database schema, GenerationContext context)
+        protected virtual void WriteClass(CodeWriter writer, Table table, Database schema, GenerationContext context)
         {
             writer.WriteLine();
 
@@ -85,7 +85,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             }
         }
 
-        protected virtual void WriteClassEqualsAndHash(CodeWriter writer, DbLinq.Schema.Dbml.Table table, GenerationContext context)
+        protected virtual void WriteClassEqualsAndHash(CodeWriter writer, Table table, GenerationContext context)
         {
             List<DbLinq.Schema.Dbml.Column> primaryKeys = table.Type.Columns.Where(c => c.IsPrimaryKey).ToList();
             if (primaryKeys.Count == 0)
@@ -157,13 +157,13 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             }
         }
 
-        private void WriteClassHeader(CodeWriter writer, DbLinq.Schema.Dbml.Table table, GenerationContext context)
+        private void WriteClassHeader(CodeWriter writer, Table table, GenerationContext context)
         {
             foreach (IImplementation implementation in context.Implementations())
                 implementation.WriteHeader(writer, table, context);
         }
 
-        protected virtual void WriteClassProperties(CodeWriter writer, DbLinq.Schema.Dbml.Table table, GenerationContext context)
+        protected virtual void WriteClassProperties(CodeWriter writer, Table table, GenerationContext context)
         {
             foreach (var property in table.Type.Columns)
                 WriteClassProperty(writer, property, context);
@@ -241,9 +241,9 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             }
         }
 
-        protected virtual void WriteClassChildren(CodeWriter writer, DbLinq.Schema.Dbml.Table table, DbLinq.Schema.Dbml.Database schema, GenerationContext context)
+        protected virtual void WriteClassChildren(CodeWriter writer, Table table, Database schema, GenerationContext context)
         {
-            var children = table.Type.Associations.Where(a => a.Storage == null).ToList();
+            var children = table.Type.Associations.Where(a => !a.IsForeignKey).ToList();
             if (children.Count > 0)
             {
                 using (writer.WriteRegion("Children"))
@@ -293,9 +293,9 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             writer.WriteLine();
         }
 
-        protected virtual void WriteClassParents(CodeWriter writer, DbLinq.Schema.Dbml.Table table, DbLinq.Schema.Dbml.Database schema, GenerationContext context)
+        protected virtual void WriteClassParents(CodeWriter writer, Table table, Database schema, GenerationContext context)
         {
-            var parents = table.Type.Associations.Where(a => a.Storage != null).ToList();
+            var parents = table.Type.Associations.Where(a => a.IsForeignKey).ToList();
             if (parents.Count > 0)
             {
                 using (writer.WriteRegion("Parents"))

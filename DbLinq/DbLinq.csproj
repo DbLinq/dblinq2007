@@ -115,7 +115,6 @@
     <Compile Include="Schema\Name.cs" />
     <Compile Include="Schema\SchemaName.cs" />
     <Compile Include="Schema\TableName.cs" />
-    <Compile Include="Util\DbmlSchemaExtensions.cs" />
     <Compile Include="Util\ExprVisitor\CountExpressionModifier.cs" />
     <Compile Include="Util\ExprVisitor\ExpressionVisitor.cs" />
     <Compile Include="Util\ExprVisitor\LocalExpressionChecker.cs" />
@@ -166,11 +165,12 @@
     <Compile Include="Vendor\IDataTableColumn.cs" />
     <Compile Include="Vendor\IDataName.cs" />
     <Compile Include="Vendor\IDataType.cs" />
+    <Compile Include="Vendor\Implementation\SchemaLoader.Name.cs" />
     <Compile Include="Vendor\Implementation\Vendor.Name.cs" />
     <Compile Include="Vendor\Implementation\SchemaLoader.Columns.cs" />
     <Compile Include="Vendor\Implementation\SchemaLoader.DataTableColumn.cs" />
     <Compile Include="Vendor\Implementation\SchemaLoader.DataName.cs" />
-    <Compile Include="Vendor\Implementation\SchemaLoader.ForeignKeys.cs" />
+    <Compile Include="Vendor\Implementation\SchemaLoader.ForeignKey.cs" />
     <Compile Include="Vendor\Implementation\SchemaLoader.StoredProcedures.cs" />
     <Compile Include="Vendor\Implementation\SchemaLoader.Tables.cs" />
     <Compile Include="Vendor\Implementation\SchemaLoader.TypeMapping.cs" />

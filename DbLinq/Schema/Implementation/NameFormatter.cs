@@ -122,19 +122,19 @@ namespace DbLinq.Schema.Implementation
                 applyCase = Case.PascalCase;
             switch (applyCase)
             {
-                case Case.Leave:
-                    break;
-                case Case.camelCase:
-                    part = ToCamelCase(part);
-                    break;
-                case Case.PascalCase:
-                    part = ToPascalCase(part);
-                    break;
-                case Case.NetCase:
-                    part = ToNetCase(part);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+            case Case.Leave:
+                break;
+            case Case.camelCase:
+                part = ToCamelCase(part);
+                break;
+            case Case.PascalCase:
+                part = ToPascalCase(part);
+                break;
+            case Case.NetCase:
+                part = ToNetCase(part);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
             }
             return part;
         }
@@ -154,7 +154,7 @@ namespace DbLinq.Schema.Implementation
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        protected virtual IList<string> GetWordsByCase(string name)
+        protected virtual IList<string> ExtractWordsFromCase(string name)
         {
             List<string> words = new List<string>();
             bool currentLowerCase = true;
@@ -187,14 +187,14 @@ namespace DbLinq.Schema.Implementation
         {
             switch (extraction)
             {
-                case WordsExtraction.None:
-                    return new[] { dbName };
-                case WordsExtraction.FromCase:
-                    return GetWordsByCase(dbName);
-                case WordsExtraction.FromDictionary:
-                    return words.GetWords(dbName);
-                default:
-                    throw new ArgumentOutOfRangeException("extraction");
+            case WordsExtraction.None:
+                return new[] { dbName };
+            case WordsExtraction.FromCase:
+                return ExtractWordsFromCase(dbName);
+            case WordsExtraction.FromDictionary:
+                return words.GetWords(dbName);
+            default:
+                throw new ArgumentOutOfRangeException("extraction");
             }
         }
 
@@ -203,6 +203,11 @@ namespace DbLinq.Schema.Implementation
             if (!nameFormat.Pluralize)
                 return Singularization.DontChange;
             return singularization;
+        }
+
+        public string Format(string words, Case newCase)
+        {
+            return Format(null, ExtractWordsFromCase(words), newCase, Singularization.DontChange);
         }
 
         public SchemaName GetSchemaName(string dbName, WordsExtraction extraction, NameFormat nameFormat)
@@ -256,9 +261,6 @@ namespace DbLinq.Schema.Implementation
                 columnName.PropertyName = dbName;
             else
                 columnName.PropertyName = Format(words, columnName.NameWords, nameFormat.Case, Singularization.DontChange);
-            columnName.StorageFieldName = Format(words, columnName.NameWords, Case.camelCase, Singularization.DontChange);
-            if (columnName.StorageFieldName == columnName.PropertyName)
-                columnName.StorageFieldName = columnName.StorageFieldName + "Field";
             return columnName;
         }
 
@@ -273,7 +275,6 @@ namespace DbLinq.Schema.Implementation
                 associationName.ManyToOneMemberName = "Parent" + associationName.ManyToOneMemberName;
             // TODO: support new extraction
             associationName.OneToManyMemberName = Format(words, dbManyName, nameFormat.Case, GetSingularization(Singularization.Plural, nameFormat));
-            associationName.ForeignKeyStorageFieldName = Format(words, dbConstraintName, Case.camelCase, GetSingularization(Singularization.Plural, nameFormat));
             return associationName;
         }
     }

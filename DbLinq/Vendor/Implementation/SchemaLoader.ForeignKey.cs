@@ -53,7 +53,7 @@ namespace DbLinq.Vendor.Implementation
             assoc.ThisKey = foreignKey;
             assoc.OtherKey = reverseForeignKey;
             assoc.Member = associationName.ManyToOneMemberName;
-            assoc.Storage = associationName.ForeignKeyStorageFieldName;
+            assoc.Cardinality = Cardinality.Many; // TODO: check this is the right direction (even if it appears to be useless)
             table.Type.Associations.Add(assoc);
 
             //and insert the reverse association:
@@ -61,6 +61,7 @@ namespace DbLinq.Vendor.Implementation
             reverseAssociation.Name = constraintName;
             reverseAssociation.Type = table.Type.Name;
             reverseAssociation.Member = associationName.OneToManyMemberName;
+            reverseAssociation.Cardinality = Cardinality.One;
             reverseAssociation.ThisKey = reverseForeignKey;
             reverseAssociation.OtherKey = foreignKey;
 

@@ -27,6 +27,5 @@ namespace DbLinq.Schema
     {
         public string ManyToOneMemberName { get; set; }
         public string OneToManyMemberName { get; set; }
-        public string ForeignKeyStorageFieldName { get; set; }
     }
 }
