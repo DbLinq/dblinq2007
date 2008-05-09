@@ -24,6 +24,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using System.Linq.Expressions;
 using System.Data.Linq;
@@ -40,7 +41,22 @@ namespace DbLinq.Linq.Clause
     /// </summary>
     public partial class ExpressionTreeParser
     {
-        internal void AnalyzeMethodCall(RecurData recurData, MethodCallExpression expr, DataContext dataContext)
+        private bool IsStringMethod(MethodInfo methodInfo)
+        {
+            if (methodInfo.DeclaringType == typeof(string))
+                return true;
+            if (methodInfo.IsStatic
+                && (methodInfo.DeclaringType.FullName == "Microsoft.VisualBasic.CompilerServices.Operators"
+                 || methodInfo.DeclaringType.FullName == "Microsoft.VisualBasic.CompilerServices.LikeOperator"))
+            {
+                var parameters = methodInfo.GetParameters();
+                if (parameters.Length > 0 && parameters[0].ParameterType == typeof(string))
+                    return true;
+            }
+            return false;
+        }
+
+        internal AnalysisResult AnalyzeMethodCall(RecurData recurData, MethodCallExpression expr, DataContext dataContext)
         {
             string methodName = expr.Method.Name;
 
@@ -51,25 +67,22 @@ namespace DbLinq.Linq.Clause
                 AnalyzeExpression(recurData, expr.Arguments[0]);
                 _result.AppendString(sqlOperatorName);
                 AnalyzeExpression(recurData, expr.Arguments[1]);
-                return;
+                return AnalysisResult.Proceed;
             }
 
-            if (expr.Method.DeclaringType == typeof(string))
+            if (IsStringMethod(expr.Method))
             {
-                AnalyzeMethodCall_String(recurData, expr);
-                return;
+                return AnalyzeMethodCall_String(recurData, expr);
             }
 
             if (expr.Method.DeclaringType == typeof(DateTime))
             {
-                AnalyzeMethodCall_DateTime(recurData, expr);
-                return;
+                return AnalyzeMethodCall_DateTime(recurData, expr);
             }
 
-            if (expr.Method.DeclaringType == typeof(System.Linq.Queryable) || expr.Method.DeclaringType == typeof(System.Linq.Enumerable))
+            if (expr.Method.DeclaringType == typeof(Queryable) || expr.Method.DeclaringType == typeof(Enumerable))
             {
-                AnalyzeMethodCall_Queryable(recurData, expr);
-                return;
+                return AnalyzeMethodCall_Queryable(recurData, expr);
             }
 
 
@@ -99,19 +112,20 @@ namespace DbLinq.Linq.Clause
                     AnalyzeExpression(recurData, functionArg);
                 }
                 _result.AppendString(")");
-                return;
+                return AnalysisResult.Proceed;
             }
 
             //TODO: throw for any other method - database probably cannot handle such call
             dataContext.Logger.Write(Level.Error, "L274: Unprepared to map method {0} ({1}) to SQL", methodName, expr);
             throw new ApplicationException("L274");
             //_result.AppendString(expr.Method.Name);
+            return AnalysisResult.Proceed;
         }
 
         /// <summary>
         /// handle Sum(), Contains(), Count() and other beasts from System.Linq.Enumerable/Queryable.
         /// </summary>
-        internal void AnalyzeMethodCall_Queryable(RecurData recurData, MethodCallExpression expr)
+        internal AnalysisResult AnalyzeMethodCall_Queryable(RecurData recurData, MethodCallExpression expr)
         {
             if (expr.Method.DeclaringType == typeof(System.Linq.Queryable) || expr.Method.DeclaringType == typeof(System.Linq.Enumerable))
             {
@@ -125,7 +139,6 @@ namespace DbLinq.Linq.Clause
             {
             case "Contains":
                 {
-                    #region Contains()
                     AnalyzeExpression(recurData, expr.Arguments[1]); //p.ProductID
                     _result.AppendString(" IN ( ");
                     //AnalyzeExpression(recurData, expr.Arguments[0]); //{value(<>c__DisplayClass2).ids}
@@ -165,8 +178,7 @@ namespace DbLinq.Linq.Clause
                         separator = ",";
                     }
                     _result.AppendString(" ) ");
-                    return;
-                    #endregion
+                    return AnalysisResult.Proceed;
                 }
 
             case "Sum":
@@ -189,13 +201,13 @@ namespace DbLinq.Linq.Clause
                     }
                     var column = _parent._vars.Context.Vendor.GetSqlFieldSafeName(AttribHelper.GetColumnAttribute(sumExpr2.Member).Name);
                     _result.AppendString("SUM(" + column + ")");
-                    return;
+                    return AnalysisResult.Proceed;
                 }
             case "Count":
                 {
                     //given expr='{g.Count()}', produce Count expression
                     _result.AppendString("COUNT(*)");
-                    return;
+                    return AnalysisResult.Proceed;
                 }
             case "Concat":
                 {
@@ -236,27 +248,48 @@ namespace DbLinq.Linq.Clause
                 //detailed error will be thrown below
                 throw new NotImplementedException("L210: unprepared for method " + expr.Method);
             }
+            return AnalysisResult.Proceed;
         }
 
         /// <summary>
         /// handle string.Length, string.StartsWith etc
         /// </summary>
-        internal void AnalyzeMethodCall_String(RecurData recurData, MethodCallExpression expr)
+        internal AnalysisResult AnalyzeMethodCall_String(RecurData recurData, MethodCallExpression expr)
         {
-            if (expr.Method.DeclaringType != typeof(string))
+            if (!IsStringMethod(expr.Method))
                 throw new ArgumentException("Only string.X method allowed, not: " + expr.Method);
 
             switch (expr.Method.Name)
             {
+            case "CompareString":
+                {
+                    AnalyzeExpression(recurData, expr.Arguments[0]);
+                    _result.AppendString(" = ");
+                    AnalyzeExpression(recurData, expr.Arguments[1]);
+                }
+                return AnalysisResult.SkipRight;
+            case "LikeString":
             case "StartsWith":
             case "EndsWith":
             case "Contains":
                 {
+                    Expression arg0, arg1;
+                    // TODO: automate this
+                    if (expr.Method.IsStatic)
+                    {
+                        arg0 = expr.Arguments[0];
+                        arg1 = expr.Arguments[1];
+                    }
+                    else
+                    {
+                        arg0 = expr.Object;
+                        arg1 = expr.Arguments[0];
+                    }
                     //turn "e.Name.StartsWith("X")" -> "e.Name LIKE 'X%'
                     //turn "e.Name.Contains("X")" -> "e.Name LIKE '%X%'
-                    AnalyzeExpression(recurData, expr.Object);
+                    AnalyzeExpression(recurData, arg0);
                     _result.AppendString(" LIKE ");
-                    AnalyzeExpression(recurData, expr.Arguments[0]);
+                    AnalyzeExpression(recurData, arg1);
                     string paramName = _parent.lastParamName;
                     string lastParam = _parent.paramMap[paramName] as string;
                     if (lastParam != null)
@@ -265,14 +298,18 @@ namespace DbLinq.Linq.Clause
                         string modParam = "";
                         switch (expr.Method.Name)
                         {
-                        case "StartsWith": modParam = lastParam + "%"; break;
-                        case "EndsWith": modParam = "%" + lastParam; break;
-                        case "Contains": modParam = "%" + lastParam + "%"; break;
+                        case "LikeString":
+                        case "StartsWith":
+                            modParam = lastParam + "%"; break;
+                        case "EndsWith":
+                            modParam = "%" + lastParam; break;
+                        case "Contains":
+                            modParam = "%" + lastParam + "%"; break;
                         }
                         _parent.paramMap[paramName] = modParam;
                     }
                 }
-                return;
+                return AnalysisResult.Proceed;
             case "Concat":
                 {
                     //this was discontinued after Linq 20006 preview
@@ -285,7 +322,7 @@ namespace DbLinq.Linq.Clause
                     _result.AppendString(sqlFctName);
                     AnalyzeExpression(recurData, expr.Object);
                     _result.AppendString(")");
-                    return;
+                    return AnalysisResult.Proceed;
                 }
 
             default:
@@ -297,7 +334,7 @@ namespace DbLinq.Linq.Clause
         /// <summary>
         /// handle string.Length, string.StartsWith etc
         /// </summary>
-        internal void AnalyzeMethodCall_DateTime(RecurData recurData, MethodCallExpression expr)
+        internal AnalysisResult AnalyzeMethodCall_DateTime(RecurData recurData, MethodCallExpression expr)
         {
             if (expr.Method.DeclaringType != typeof(DateTime))
                 throw new ArgumentException("Only string.X method allowed, not: " + expr.Method);
@@ -310,7 +347,7 @@ namespace DbLinq.Linq.Clause
                     _result.AppendString("CAST(");
                     AnalyzeExpression(recurData, expr.Arguments[0]); //it's a static fct - don't pass expr.Object
                     _result.AppendString(" as smalldatetime)");
-                    return;
+                    return AnalysisResult.Proceed;
                 }
             case "ParseExact":
                 {
@@ -324,7 +361,7 @@ namespace DbLinq.Linq.Clause
                     funcReturningObj = delg as FunctionReturningObject;
                     string paramName = _parent.storeFunctionParam(funcReturningObj);
                     _result.AppendString(paramName);
-                    return;
+                    return AnalysisResult.Proceed;
                 }
             default:
                 throw new ApplicationException("L333 Unprepared to map DateTime method " + expr.Method.Name);
