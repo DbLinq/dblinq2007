@@ -417,6 +417,7 @@ namespace DbLinq.Linq
 
                 case ExpressionType.Add: //{new <>f__AnonymousType16`2(CustomerID = c.CustomerID, Location = ((c.City + ", ") + c.Country))}
                 case ExpressionType.Convert: //'select (CategoryEnum)o.EmployeeCategory'
+                case ExpressionType.Constant: //eg C5_ConstantProperty
                     break;
 
                 case ExpressionType.Call:

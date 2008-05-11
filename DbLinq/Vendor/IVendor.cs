@@ -240,4 +240,40 @@ namespace DbLinq.Vendor
         [Obsolete("Use MappingContext")]
         event EventHandler<ValueConversionEventArgs> ConvertValue;
     }
+
+    public static class VendorEx
+    {
+        /// <summary>
+        /// given Type 'OrderDetails', produce TableSpec{ '[Order Details]', 'o$' }
+        /// </summary>
+        public static TableSpec FormatTableSpec(this IVendor vendor, Type tableType, string nickname)
+        {
+            TableAttribute tAttrib = AttribHelper.GetTableAttrib(tableType);
+            if (tAttrib == null)
+                throw new ArgumentException("type does not have [Table] attribute:" + tableType);
+            return FormatTableSpec(vendor, tAttrib, nickname);
+        }
+
+        /// <summary>
+        /// given parameter 'o', produce TableSpec{ '[Order Details]', 'o$' }
+        /// </summary>
+        public static TableSpec FormatTableSpec(this IVendor vendor, ParameterExpression paramExpr)
+        {
+            //string nickname = vendor.GetSqlFieldSafeName(paramExpr.Name);
+            string nickname = VarName.GetSqlName(paramExpr.Name); // "o$"
+            return FormatTableSpec(vendor, paramExpr.Type, nickname);
+        }
+
+        /// <summary>
+        /// given [TableAttribute(Order Details)], produce TableSpec{ '[Order Details]', 'o$' }
+        /// </summary>
+        public static TableSpec FormatTableSpec(this IVendor vendor, TableAttribute tAttrib, string nickname)
+        {
+            //prepare fragment: "[order details] o$"
+            string tableName = vendor.GetSqlFieldSafeName(tAttrib.Name);
+            //string nickName = RemoveTransparentId(nickname);
+            return new TableSpec { TableName = tableName, NickName = nickname };
+        }
+
+    }
 }

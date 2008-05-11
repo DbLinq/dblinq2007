@@ -226,7 +226,7 @@ namespace DbLinq.Linq.Clause
                     var prevTablesUsed = _result.tablesUsed;
                     _result.tablesUsed = new Dictionary<Type, string>();
                     var prevJoins = _result.joins;
-                    _result.joins = new List<string>();
+                    _result.joins = new List<JoinSpec>();
 
                     recurData.allowSelectAllFields = false;
                     AnalyzeExpression(recurData, arg0);
@@ -236,7 +236,8 @@ namespace DbLinq.Linq.Clause
                     string tablename = tableAttrib.Name;
                     string nickname = tablesUsedKv.Value;
 
-                    string clause = "( SELECT COUNT(*) FROM " + tablename + " AS " + nickname + " WHERE " + _result.joins[0] + " ) > 0";
+                    string joinStr = _result.joins[0].LeftField + "=" + _result.joins[0].RightField;
+                    string clause = "( SELECT COUNT(*) FROM " + tablename + " AS " + nickname + " WHERE " + joinStr + " ) > 0";
                     _result.AppendString(clause);
                     _result.tablesUsed = prevTablesUsed;
                     _result.joins = prevJoins;

@@ -30,6 +30,7 @@ using DbLinq.Linq.Clause;
 using DbLinq.Logging;
 using DbLinq.Util;
 using DbLinq.Util.ExprVisitor;
+using DbLinq.Vendor;
 
 namespace DbLinq.Linq
 {
@@ -48,7 +49,21 @@ namespace DbLinq.Linq
                 return;
             }
 
-            ParseResult result = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, lambda.Body);
+            Expression whereExpr = lambda.Body;
+            if (_expressionModifiers.Count > 0)
+            {
+                //previous GroupJoin requires renaming of '<>h_TransparentId.x' to 'o'
+                foreach (IExpressionModifier modifier in _expressionModifiers)
+                {
+                    Expression whereExpr2 = modifier.Modify(whereExpr);
+                    whereExpr = whereExpr2;
+                }
+            }
+
+            if (lambda.Parameters.Count == 1)
+                _expressionModifiers.Add(new ParamReplacer(lambda.Parameters[0]));
+
+            ParseResult result = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, whereExpr);
 
             if (GroupHelper.IsGrouping(lambda.Parameters[0].Type))
             {
@@ -98,8 +113,9 @@ namespace DbLinq.Linq
             string nicknameOk = tablesUsed3.Value;
             string nicknameBad = result1.tablesUsed.First().Value;
 
-            string join1 = result1.joins[0];
-            string join2 = join1.Replace(nicknameBad, nicknameOk);
+            //string join1 = result1.joins[0];
+            //string join2 = join1.Replace(nicknameBad, nicknameOk);
+            string join2 = result1.joins[0].LeftField + "=" + result1.joins[0].RightField;
 
             string whereClause = string.Format(whereClauseFmt, tableName, nicknameOk
                                         , join2
@@ -111,6 +127,15 @@ namespace DbLinq.Linq
 
         void ProcessSelectClause(LambdaExpression selectExpr)
         {
+            if (_expressionModifiers.Count > 0)
+            {
+                foreach (IExpressionModifier modifier in _expressionModifiers)
+                {
+                    LambdaExpression selectExpr2 = (LambdaExpression)modifier.Modify(selectExpr);
+                    selectExpr = selectExpr2;
+                }
+            }
+
             this.selectExpr = selectExpr; //store for GroupBy & friends
 
             //necesary for projections?
@@ -120,6 +145,13 @@ namespace DbLinq.Linq
             }
             else
             {
+                bool ignoreFirstSelect = selectExpr.Body.NodeType == ExpressionType.Parameter;
+                    //&& HasAnotherSelect(callExpr);
+                if (ignoreFirstSelect)
+                {
+                    //we are doing "select g", afterwards will do "from g select new ..."
+                    return;
+                }
                 _vars.ProjectionData = ProjectionData.FromSelectGroupByExpr(selectExpr, _vars.GroupByExpression, _vars.SqlParts);
             }
 
@@ -127,9 +159,13 @@ namespace DbLinq.Linq
 
             body = body.StripTransparentID(); //only does something in Joins - see LinqToSqlJoin01()
 
-            if (body.NodeType == ExpressionType.Parameter)
+            bool isTableType = AttribHelper.GetTableAttrib(body.Type) != null;
+            if (body.NodeType == ExpressionType.Parameter && isTableType)
             {
                 //'from p in Products select p' - do nothing, will result in SelectAllFields() later
+                ParameterExpression paramExpr = body.XParam();
+                string paramName = VarName.GetSqlName(paramExpr.Name);
+                FromClauseBuilder.SelectAllFields(_vars, _vars.SqlParts, paramExpr.Type, paramName);
             }
             else
             {
@@ -159,6 +195,7 @@ namespace DbLinq.Linq
             Expression arg4 = joinExpr.Arguments[4]; //{(p, o) => new <>f__AnonymousType9`2(ProductName = p.ProductName, CustomerID = o.CustomerID)}
 
             string joinField1, joinField2;
+            TableSpec joinTable1 = null, joinTable2 = null;
             //processSelectClause(arg2.XLambda());
             {
                 result = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, arg2.XLambda().Body);
@@ -168,8 +205,22 @@ namespace DbLinq.Linq
             {
                 result = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, arg3.XLambda().Body);
                 joinField2 = result.columns[0]; // "p$.ProductID"
+
+                //joinTable2 = result.tablesUsed.First();
+                KeyValuePair<Type, string> joinTbl2 = result.tablesUsed.First();
+                joinTable2 = _vars.Context.Vendor.FormatTableSpec(joinTbl2.Key, joinTbl2.Value);
+                result.tablesUsed.Clear();
+
                 result.CopyInto(this, _vars.SqlParts); //transfer params and tablesUsed
             }
+
+            JoinSpec joinSpec = new JoinSpec()
+            {
+                RightSpec = joinTable2,
+                LeftField = joinField1,
+                RightField = joinField2
+            };
+            _vars.SqlParts.AddJoin(joinSpec);
 
             bool doPermFields = DoesJoinAssignPermanentFields(arg4.XLambda());
             if (doPermFields)
@@ -181,8 +232,6 @@ namespace DbLinq.Linq
                 //skip processing - only mentions temp objects
                 //e.g. '{(m, u) => new <>f__AnonymousType0`2(m = m, u = u)}'
             }
-
-            _vars.SqlParts.JoinList.Add(joinField1 + "=" + joinField2);
         }
 
         /// <summary>
@@ -210,7 +259,7 @@ namespace DbLinq.Linq
 
         private void ProcessSelectMany(MethodCallExpression exprCall)
         {
-            if (_didGroupJoin)
+            if (_prevGroupJoinExpression != null)
             {
                 ProcessSelectMany_PostJoin(exprCall);
                 return;
@@ -245,41 +294,6 @@ namespace DbLinq.Linq
             }
         }
 
-        private void ProcessSelectMany_PostJoin(MethodCallExpression exprCall)
-        {
-            //see ReadTest.D07_OrdersFromLondon_Alt(), or Join.LinqToSqlJoin01() for example
-            //special case: SelectMany can come with 2 or 3 params
-            switch (exprCall.Arguments.Count)
-            {
-                case 2: //???
-                    ProcessSelectManyLambdaSimple(exprCall.Arguments[1].XLambda());
-                    return;
-                case 3:
-                    //(A) subsequent SelectMany contains:
-                    //[0]{value(DbLinq.Linq.MTable_Projected`1[<>f__AnonymousType1a`2[nwind.Order,IEnumerable`1[nwind.Employee]]])}
-                    //[1]{<>h__TransparentIdentifier4 => <>h__TransparentIdentifier4.emps}
-                    //[2]{(<>h__TransparentIdentifier4, e) 
-                    //=> new <>f__AnonymousType1b`2(OrderID = <>h__TransparentIdentifier4.o.OrderID, FirstName = e.FirstName)}
-
-                    //(B) subsequent SelectMany for LeftOuterJoin_DefaultIfEmpty
-                    //[0]{value(DbLinq.Linq.MTable_Projected`1[<>f__AnonymousType1c`2[nwind.Customer,System.Collections.Generic.IEnumerable`1[nwind.Order]]])}
-                    //[1]{<>h__TransparentIdentifier6 => <>h__TransparentIdentifier6.oc.DefaultIfEmpty()}
-                    //[2]{(<>h__TransparentIdentifier6, x) => new <>f__AnonymousType1d`2(<>h__TransparentIdentifier6 = <>h__TransparentIdentifier6, x = x)}
-
-                    LambdaExpression lambda1 = exprCall.Arguments[1].XLambda();
-                    LambdaExpression lambda2 = exprCall.Arguments[2].XLambda();
-                    {
-                        //ParameterExpression paramExpression = lambda2.Parameters[1];
-                        ParseResult result = ExpressionTreeParser.Parse(_vars.Context.Vendor, this, lambda2.Body);
-                        _vars.SqlParts.AddSelect(result.columns);
-                    }
-
-                    //processSelectClause(lambda2);
-                    return;
-                default:
-                    throw new ApplicationException("processSelectMany: Prepared only for 2 or 3 param GroupBys");
-            }
-        }
 
         private void ProcessSelectManyLambdaSimple(LambdaExpression selectExpr)
         {
@@ -396,50 +410,6 @@ namespace DbLinq.Linq
                 _vars.SqlParts.AddSelect(result.columns);
                 result.CopyInto(this, _vars.SqlParts); //transfer params and tablesUsed
             }
-        }
-
-        void ProcessGroupJoin(MethodCallExpression exprCall)
-        {
-            _didGroupJoin = true;
-            //our test case: occurs in LinqToSqlJoin10()
-
-            //reading materials for GroupJoin:
-            //http://blogs.msdn.com/vbteam/rss_tag_LINQ_2F00_VB9.xml by Bill Horst
-            //http://www.developer.com/db/article.php/3739391 by Paul Kimmel
-            //http://weblogs.asp.net/fbouma/archive/2007/11/23/developing-linq-to-llblgen-pro-part-9.aspx by Frans Brouma
-
-            //Bart-De-Smet's Linq-To-SQO (to learn how operators work internally)
-            //http://community.bartdesmet.net/blogs/bart/archive/2007/07/28/linq-sqo-v0-9-2-for-orcas-beta-2-rtw.aspx
-
-            switch (exprCall.Arguments.Count)
-            {
-                case 5:
-                    //arg[0]: {value(DbLinq.Linq.Table`1[nwind.Order])}
-                    //arg[1]: {value(DbLinq.Linq.Table`1[nwind.Employee])}
-                    //arg[2]: {o => o.EmployeeID}
-                    //arg[3]: {e => Convert(e.EmployeeID)}
-                    //arg[4]: {(o, emps) => new <>f__AnonymousType1a`2(o = o, emps = emps)}
-
-                    //(A) subsequent SelectMany contains:
-                    //[0]{value(DbLinq.Linq.MTable_Projected`1[<>f__AnonymousType1a`2[nwind.Order,IEnumerable`1[nwind.Employee]]])}
-                    //[1]{<>h__TransparentIdentifier4 => <>h__TransparentIdentifier4.emps}
-                    //[2]{(<>h__TransparentIdentifier4, e) 
-                    //=> new <>f__AnonymousType1b`2(OrderID = <>h__TransparentIdentifier4.o.OrderID, FirstName = e.FirstName)}
-
-                    //(B) subsequent SelectMany for LeftOuterJoin_DefaultIfEmpty
-                    //[0]{value(DbLinq.Linq.MTable_Projected`1[<>f__AnonymousType1c`2[nwind.Customer,System.Collections.Generic.IEnumerable`1[nwind.Order]]])}
-                    //[1]{<>h__TransparentIdentifier6 => <>h__TransparentIdentifier6.oc.DefaultIfEmpty()}
-                    //[2]{(<>h__TransparentIdentifier6, x) => new <>f__AnonymousType1d`2(<>h__TransparentIdentifier6 = <>h__TransparentIdentifier6, x = x)}
-
-                    LambdaExpression l1 = exprCall.Arguments[1].XLambda();
-                    LambdaExpression l2 = exprCall.Arguments[2].XLambda();
-                    LambdaExpression l4 = exprCall.Arguments[4].XUnary().Operand.XLambda();
-                    ProcessJoinClause(exprCall);
-                    break;
-                default:
-                    throw new ApplicationException("processGroupJoin: Prepared only for 5 param GroupBys");
-            }
-            Logger.Write(Level.Error, "TODO L299 Support GroupJoin()");
         }
 
         void ProcessUnionClause(MethodCallExpression unionExpr)

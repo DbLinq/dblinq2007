@@ -41,7 +41,7 @@ namespace DbLinq.Linq
         /// <summary>
         /// eg. {'Customers $c','Orders $o'}
         /// </summary>
-        public List<string> FromTableList { get; private set; }
+        public List<TableSpec> FromTableList { get; private set; }
 
         /// <summary>
         /// eg. {'$c.CustomerID','$o.Quantity'}
@@ -51,7 +51,7 @@ namespace DbLinq.Linq
         /// <summary>
         /// eg. {'$c.CustomerID==$o.CustomerID', ...}
         /// </summary>
-        public List<string> JoinList { get; private set; }
+        public List<JoinSpec> JoinList { get; private set; }
 
         /// <summary>
         /// keep track of which nickNames were already added via GetClause(), eg. {'$c','$o'}.
@@ -104,16 +104,39 @@ namespace DbLinq.Linq
         /// add 'Employee $e' FROM clause
         /// </summary>
         /// <param name="fromTable"></param>
-        public void AddFrom(string fromTable)
+        public void AddFrom(TableSpec fromTable)
         {
             //Martin Raucher reports a MySql problem with incorrect case
             //update: to see case-sensitivity, you must be on Linux?!
             //string fromLower = fromTable.ToLower(); 
-            string fromLower = fromTable;
+            TableSpec fromLower = fromTable;
 
-            if (FromTableList.Contains(fromLower))
-                return; //prevent dupes
+            foreach (TableSpec existingTable in FromTableList)
+                if (existingTable.Matches(fromLower))
+                    return; //prevent dupes
+            //if (FromTableList.Contains(fromLower))
+            //    return; //prevent dupes
+            if (JoinList.Count > 0)
+            {
+                foreach (JoinSpec js in JoinList)
+                {
+                    if (js.RightSpec != null && js.RightSpec.Matches(fromLower))
+                        //string rightSpec = js.RightSpec.ToString();
+                        //if (fromTable == rightSpec)
+                        return; //prevent dupes
+                }
+            }
             FromTableList.Add(fromLower);
+        }
+
+        public void AddJoin(JoinSpec js)
+        {
+            foreach (JoinSpec prevJs in JoinList)
+            {
+                if (prevJs.Matches(js))
+                    return; //ignore duplicate
+            }
+            this.JoinList.Add(js);
         }
 
         public void AddSelect(string column)
@@ -134,9 +157,9 @@ namespace DbLinq.Linq
         {
             _vendor = vendor;
 
-            FromTableList = new List<string>();
+            FromTableList = new List<TableSpec>();
             SelectFieldList = new List<string>();
-            JoinList = new List<string>();
+            JoinList = new List<JoinSpec>();
             DoneClauses = new List<string>();
             WhereList = new List<string>();
             GroupByList = new List<string>();
@@ -221,6 +244,72 @@ namespace DbLinq.Linq
                     yield return param2;
             }
             #endregion
+        }
+    }
+
+    /// <summary>
+    /// holds table name and nickname, e.g. TableSpec{ '[Order Details]', 'o$' }
+    /// </summary>
+    public class TableSpec
+    {
+        public string TableName;
+        public string NickName;
+
+        /// <summary>
+        /// during LEFT JOINs, we have 'x' and 'o' refer to the same thing, mark one of them as hidden
+        /// </summary>
+        public bool isHidden = false;
+
+        public bool Matches(TableSpec ts2) { return ts2.TableName == TableName && ts2.NickName == NickName; }
+        public override string ToString() { return "" + TableName + " " + NickName; }
+    }
+
+    /// <summary>
+    /// holds information for a JOIN - the left and right table specs, left and right fields
+    /// </summary>
+    public class JoinSpec
+    {
+        /// <summary>
+        /// note: OUTER JOIN is not supported in LINQ.
+        /// </summary>
+        public enum JoinTypeEnum { Plain, Left }
+
+        public JoinTypeEnum JoinType = JoinTypeEnum.Plain;
+
+        /// <summary>
+        /// eg. {Order,'o$'}
+        /// </summary>
+        public TableSpec LeftSpec;
+
+        /// <summary>
+        /// eg. {Product,'o$'}
+        /// </summary>
+        public TableSpec RightSpec;
+
+        /// <summary>
+        /// eg. 'o$.ProductID'
+        /// </summary>
+        public string LeftField;
+
+        public string RightField;
+
+        public override string ToString()
+        {
+            string joinTypeStr = JoinType == JoinTypeEnum.Plain ? "JOIN" : "LEFT JOIN";
+            return "\n " + joinTypeStr + " " + RightSpec + " ON " + LeftField + " = " + RightField + " ";
+        }
+
+        public bool Matches(JoinSpec js2)
+        {
+            bool same1 = LeftSpec.Matches(js2.LeftSpec) && RightSpec.Matches(js2.RightSpec) 
+                && LeftField==js2.LeftField && RightField==js2.RightField;
+            if (same1)
+                return true;
+            bool same2 = LeftSpec.Matches(js2.RightSpec) && RightSpec.Matches(js2.LeftSpec)
+                && LeftField == js2.RightField && RightField == js2.LeftField;
+            if (same2)
+                return true;
+            return false;
         }
     }
 }

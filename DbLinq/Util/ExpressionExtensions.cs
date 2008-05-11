@@ -128,6 +128,8 @@ namespace DbLinq.Util
         /// <summary>
         /// given '<>h__TransparentIdentifier.p.ProductID', return 'p.ProductID'
         /// given '<>h__TransparentIdentifier.p', return 'p'
+        /// given {<>h__TransparentIdentifier7.<>h__TransparentIdentifier6.c}, return {c}
+        /// given {<>h__TransparentIdentifier2.et.Territory.TerritoryDescription}, return {et.Territory.TerritoryDescription}
         /// (or null)
         /// </summary>
         public static Expression StripTransparentID(this Expression ex)
@@ -135,6 +137,7 @@ namespace DbLinq.Util
             if (ex == null || ex.NodeType != ExpressionType.MemberAccess)
                 return ex;
 
+#if OLD_SKOOL
             MemberExpression exprOuter = ex as MemberExpression;
             Expression exprLeft = exprOuter.Expression;
             string leftName = exprLeft.ToString();
@@ -148,6 +151,22 @@ namespace DbLinq.Util
                     //the 'p' used to be a ParameterExpression - not anymore
                     {
                         MemberExpression member1 = exprOuter.Expression.XMember(); //'<>h__TransparentIdentifier.p
+                        if (member1.Member.Name.StartsWith("<>h__Transparent"))
+                        {
+                            //turn '<>h__TransparentIdentifier1.<>h__TransparentIdentifier2.p' into 'p'
+                            string nameP1 = exprOuter.Member.Name; //'p'
+                            System.Reflection.PropertyInfo propInfoP1 = exprOuter.Member as System.Reflection.PropertyInfo;
+                            Type typeP1 = propInfoP1.PropertyType; //typeof(Product)
+                            ParameterExpression fakeParam1 = Expression.Parameter(typeP1, nameP1);
+                            return fakeParam1;
+                        }
+
+                        if (member1.Expression.NodeType == ExpressionType.MemberAccess)
+                        {
+                            //member1            = {<>h__TransparentIdentifier2.et.Territory}
+                            //member1.Expression = {<>h__TransparentIdentifier2.et}
+                            MemberExpression member2 = member1.Expression.XMember();
+                        }
 
                         //turn '<>h__TransparentIdentifier.p.ProductID' into 'p.ProductID'
                         string nameP = member1.Member.Name; //'p'
@@ -162,7 +181,7 @@ namespace DbLinq.Util
                     {
                         ParameterExpression param1 = exprOuter.Expression as ParameterExpression; //'<>h__TransparentIdentifier.p
 
-                        //turn '<>h__TransparentIdentifier.p.ProductID' into 'p.ProductID'
+                        //turn '<>h__TransparentIdentifier.p' into 'p'
                         string nameP = exprOuter.Member.Name; //'p'
                         System.Reflection.PropertyInfo propInfoP = exprOuter.Member as System.Reflection.PropertyInfo;
                         Type typeP = propInfoP.PropertyType; //typeof(Product)
@@ -173,7 +192,11 @@ namespace DbLinq.Util
                 default:
                     return exprLeft;
             }
-
+#else
+            DbLinq.Util.ExprVisitor.StripTransparentId stripper = new DbLinq.Util.ExprVisitor.StripTransparentId();
+            Expression modified = stripper.Modify(ex);
+            return modified;
+#endif
         }
 
         [DebuggerStepThrough]
