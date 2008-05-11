@@ -187,12 +187,28 @@ namespace DbLinq.Vendor.Implementation
                 }
             }
             //if(sb.Length>80){ sb.Append("\n"); } //for legibility, append a newline for long expressions
-            AppendList(sql, "\n FROM ", parts.FromTableList, ", ");
+            //AppendList(sql, "\n FROM ", parts.FromTableList, ", ");
+            string from_separator = "\n FROM ";
+            foreach (TableSpec fromTable in parts.FromTableList)
+            {
+                if (fromTable.isHidden)
+                    continue; //during LEFT JOIN, we have multiple nicknames, keep only one
+                sql.Append(from_separator);
+                sql.Append(fromTable.ToString());
+                from_separator = ", ";
+            }
 
             //MySql docs for JOIN:
             //http://dev.mysql.com/doc/refman/4.1/en/join.html
             //for now, we will not be using the JOIN keyword
-            List<string> whereAndjoins = new List<string>(parts.JoinList);
+            //List<string> whereAndjoins = new List<string>(parts.JoinList);
+            foreach (JoinSpec js in parts.JoinList)
+            {
+                //sql.Append(" JOIN " + js.RightSpec + " ON " + js.LeftField + " = " + js.RightField + " ");
+                sql.Append(js.ToString()); //js.ToString handles LEFT JOIN also
+            }
+
+            List<string> whereAndjoins = new List<string>();
             whereAndjoins.AddRange(parts.WhereList);
 
             AddEarlyLimits(parts, whereAndjoins);

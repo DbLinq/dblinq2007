@@ -81,6 +81,7 @@
     <Compile Include="Schema\Case.cs" />
     <Compile Include="Schema\WordsExtraction.cs" />
     <Compile Include="Schema\NameFormat.cs" />
+    <Compile Include="Linq\QueryProcessor_Join.cs" />
     <Compile Include="Logging\ILogger.cs" />
     <Compile Include="Logging\Implementation\ConsoleDebugLogger.cs" />
     <Compile Include="Logging\Implementation\Logger.cs" />
@@ -116,8 +117,14 @@
     <Compile Include="Schema\SchemaName.cs" />
     <Compile Include="Schema\TableName.cs" />
     <Compile Include="Util\ExprVisitor\CountExpressionModifier.cs" />
+    <Compile Include="Util\ExprVisitor\ExpressionRegex.cs" />
+    <Compile Include="Util\ExprVisitor\ExpressionTreeComparer.cs" />
     <Compile Include="Util\ExprVisitor\ExpressionVisitor.cs" />
+    <Compile Include="Util\ExprVisitor\IExpressionModifier.cs" />
     <Compile Include="Util\ExprVisitor\LocalExpressionChecker.cs" />
+    <Compile Include="Util\ExprVisitor\ParamReplacer.cs" />
+    <Compile Include="Util\ExprVisitor\ParentExpressionRemover.cs" />
+    <Compile Include="Util\ExprVisitor\StripTransparentId.cs" />
     <Compile Include="Util\IDataRecordExtensions.cs" />
     <Compile Include="Util\IDataTypeExtensions.cs" />
     <Compile Include="Language\ILanguages.cs" />

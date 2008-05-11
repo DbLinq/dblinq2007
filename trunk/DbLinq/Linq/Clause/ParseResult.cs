@@ -39,7 +39,7 @@ namespace DbLinq.Linq.Clause
     /// </summary>
     public class ParseResult
     {
-        public List<string> joins = new List<string>();
+        public List<JoinSpec> joins = new List<JoinSpec>();
         readonly StringBuilder sb = new StringBuilder(200);
         public List<string> columns = new List<string>();
 
@@ -50,11 +50,28 @@ namespace DbLinq.Linq.Clause
             _vendor = vendor;
         }
 
-        public void addJoin(string joinStr)
+        //public void addJoin(TableSpec left, TableSpec right)
+        //{
+        //    int prevCount = joins.Count(js => js.Left == left && js.Right == right);
+        //    if (prevCount == 0)
+        //        joins.Add(new JoinSpec() { Left = left, Right = right });
+        //}
+        //public void addJoin(string left, string right)
+        //{
+        //    int prevCount = joins.Count(js => js.LeftField == left && js.RightField == right);
+        //    if (prevCount == 0)
+        //        joins.Add(new JoinSpec() { LeftField = left, RightField = right });
+        //    //if (!joins.Contains(joinStr))
+        //    //    joins.Add(joinStr);
+        //}
+
+        public void addJoin(JoinSpec joinSpec)
         {
-            if (!joins.Contains(joinStr))
-                joins.Add(joinStr);
+            int prevCount = joins.Count(js => js.LeftField == joinSpec.LeftField && js.RightField == joinSpec.RightField);
+            if (prevCount == 0)
+                joins.Add(joinSpec);
         }
+
         public Dictionary<Type, string> tablesUsed = new Dictionary<Type, string>();
 
         public int MarkSbPosition() { return sb.Length; }
@@ -102,20 +119,14 @@ namespace DbLinq.Linq.Clause
             }
             qp.paramMap2.Clear();
 
+            foreach (JoinSpec joinSpec in joins)
+            {
+                sqlParts.AddJoin(joinSpec);
+            }
             foreach (var t1 in tablesUsed)
             {
-                TableAttribute tAttrib = AttribHelper.GetTableAttrib(t1.Key);
-                if (tAttrib != null)
-                {
-                    //prepare fragment: "[order details] o$"
-                    string fromClause = _vendor.GetSqlFieldSafeName(tAttrib.Name) + " " + RemoveTransparentId(t1.Value);
-
-                    sqlParts.AddFrom(fromClause);
-                }
-            }
-            foreach (string joinStr in joins)
-            {
-                sqlParts.JoinList.Add(joinStr);
+                TableSpec fromClause = _vendor.FormatTableSpec(t1.Key, t1.Value);
+                sqlParts.AddFrom(fromClause);
             }
         }
 

@@ -87,8 +87,9 @@ namespace DbLinq.Linq.Clause
             }
 
             //build string '[Order Details] o$'
-            string tableName2 = vars.Context.Vendor.GetSqlFieldSafeName(tAttrib.Name) + " " + nick;
-            selectParts.AddFrom(tableName2);
+            //string tableName2 = vars.Context.Vendor.GetSqlFieldSafeName(tAttrib.Name) + " " + nick;
+            TableSpec tableSpec = vars.Context.Vendor.FormatTableSpec(tAttrib, nick);
+            selectParts.AddFrom(tableSpec);
         }
 
     }

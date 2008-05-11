@@ -54,6 +54,8 @@ namespace DbLinq.Util
             bool isBuiltinType = typeof(T).IsPrimitive() || typeof(T).IsEnum || typeof(T) == typeof(byte[]);
             bool isTableType = typeof(T).IsTable();
             bool isProjectedType = typeof(T).IsProjection();
+            Type dynamicClassType;
+            bool isDynamicType = typeof(T).IsDynamicClass(out dynamicClassType);
 
             if (projData == null && !isBuiltinType && isTableType)
             {
@@ -79,7 +81,7 @@ namespace DbLinq.Util
                 //and compile the sucker
                 objFromRow = CompileProjectedRowDelegate(vars, projData2);
             }
-            else if (isProjectedType)
+            else if (isProjectedType || isDynamicType)
             {
                 objFromRow = CompileProjectedRowDelegate(vars, projData);
             }

@@ -337,6 +337,11 @@ namespace DbLinq.Linq.Clause
             if (_isInTransparentIdBlock)
             {
                 //don't use remembered var names during self-join
+                if (recurData.allowSelectAllFields && AttribHelper.GetTableAttrib(expr.Type) != null)
+                {
+                    FromClauseBuilder.SelectAllFields(_parent._vars, this._parent._vars.SqlParts, expr.Type, expr.Name);
+                    return AnalysisResult.Proceed;
+                }
             }
             else if (_parent.currentVarNames.TryGetValue(expr.Type, out sqlParamName))
             {
@@ -455,6 +460,7 @@ namespace DbLinq.Linq.Clause
 
             int pos1 = _result.MarkSbPosition();
 
+            recurData.allowSelectAllFields = false;
             AnalyzeExpression(recurData, expr.Expression);
 
             string varName = _result.Substring(pos1);

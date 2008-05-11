@@ -325,7 +325,7 @@ namespace DbLinq.Util
             AssociationAttribute result = q.FirstOrDefault();
             if (result == null)
             {
-                throw new ApplicationException("Failed to find reverse assoc for " + assoc1.Name + " among " + assocs.Length);
+                throw new ApplicationException("L328 Failed to find reverse assoc for " + assoc1.Name + " among " + assocs.Length);
             }
             return result;
         }

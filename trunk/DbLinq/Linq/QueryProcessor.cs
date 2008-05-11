@@ -81,7 +81,12 @@ namespace DbLinq.Linq
 
         public ILogger Logger { get; set; }
 
-        bool _didGroupJoin;
+        LambdaExpression _prevGroupJoinExpression = null;
+        
+        /// <summary>
+        /// after a GroupJoin, we may wish to edit any subsequent Select or Where 
+        /// </summary>
+        public readonly List<IExpressionModifier> _expressionModifiers = new List<IExpressionModifier>();
 
         internal QueryProcessor(SessionVarsParsed vars)
         {
@@ -249,7 +254,7 @@ namespace DbLinq.Linq
         public string NicknameRequest(MemberExpression memberExpr)
         {
             string nick;
-            if (memberExprNickames.TryGetValue(memberExpr, out nick))
+            if (memberExprNickames.TryGetValueEx(memberExpr, out nick))
                 return nick;
             return "join";
         }
