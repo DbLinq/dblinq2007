@@ -136,7 +136,6 @@ namespace DbLinq.Util
             Func<IDataRecord, MappingContext, T>
             CompileColumnRowDelegate_TableType(ProjectionData projData, ref int fieldID)
         {
-            #region CompileColumnRowDelegate
             if (projData == null)
                 throw new ArgumentException("CompileColumnRow: need projData");
 
@@ -146,11 +145,35 @@ namespace DbLinq.Util
             ParameterExpression rdr = Expression.Parameter(typeof(IDataRecord), "rdr");
             ParameterExpression mappgingContext = Expression.Parameter(typeof(MappingContext), "mappingContext");
 
+            MemberInitExpression newExprInit = BuildNewExpression_TableType(projData, mappgingContext, rdr, ref fieldID);
+
+            List<ParameterExpression> paramListRdr = new List<ParameterExpression>();
+            paramListRdr.Add(rdr);
+            paramListRdr.Add(mappgingContext);
+
+            LambdaExpression lambda = Expression.Lambda<Func<IDataRecord, MappingContext, T>>(newExprInit, paramListRdr);
+            Func<IDataRecord, MappingContext, T> func_t = (Func<IDataRecord, MappingContext, T>)lambda.Compile();
+
+            //lambda.BuildString(sb);
+            //Console.WriteLine("  RowEnumCompiler(Column): Compiled "+sb);
+
+            return func_t;
+        }
+
+        public static
+            MemberInitExpression
+            BuildNewExpression_TableType(ProjectionData projData, ParameterExpression mappgingContext
+            , ParameterExpression rdr, ref int fieldID)
+        {
+            #region CompileColumnRowDelegate
+
             List<Expression> ctorArgs = new List<Expression>();
             //Andrus points out that order of projData.fields is not reliable after an exception - switch to ctor params
 
             //given type Customer, find protected fields: _CustomerID,_CompanyName,...
             Type t = typeof(T);
+            if (projData.type != typeof(T))
+                t = projData.type; //nested select?
 
             //MemberInfo[] fields1 = t.FindMembers(MemberTypes.Field
             //    , BindingFlags.NonPublic | BindingFlags.Instance
@@ -165,38 +188,44 @@ namespace DbLinq.Util
             foreach (ProjectionData.ProjectionField projFld in projData.fields)
             {
                 Type fieldType = projFld.FieldType;
-                Expression arg_i = GetFieldMethodCall(fieldType, rdr, mappgingContext, fieldID++);
 
-                //bake expression: "CustomerID = rdr.GetString(0)"
-                string errorIntro = "Cannot retrieve type " + typeof(T) + " from DB, because [Column";
-                if (projFld.columnAttribute == null)
-                    throw new ApplicationException("L162: " + errorIntro + "] is missing for field " + fieldID + ": " + projFld.MemberInfo.Name);
-                if (projFld.columnAttribute.Storage == null)
-                    throw new ApplicationException("L164: " + errorIntro + " Storage=xx] is missing for col=" + projFld.columnAttribute.Name);
+                Expression arg_i;
+                MemberAssignment bindEx;
+                if (projFld.nestedTableProjData != null)
+                {
+                    //nested table type
+                    arg_i = BuildNewExpression_TableType(projFld.nestedTableProjData, mappgingContext, rdr, ref fieldID);
+                    PropertyInfo propInfo = projFld.MemberInfo as PropertyInfo;
+                    MethodInfo methodInfo = propInfo.GetSetMethod();
+                    bindEx = Expression.Bind(methodInfo, arg_i);
+                }
+                else
+                {
+                    //plain field
+                    arg_i = GetFieldMethodCall(fieldType, rdr, mappgingContext, fieldID++);
 
-                string storage = projFld.columnAttribute.Storage; //'_customerID'
-                FieldInfo fieldInfo;
-                if (!fieldNameMap.TryGetValue(storage, out fieldInfo))
-                    throw new ApplicationException("L169: " + errorIntro + "Storage=" + storage + "] refers to a non-existent field for col=" + projFld.columnAttribute.Name);
+                    string errorIntro = "Cannot retrieve type " + typeof(T) + " from DB, because [Column";
+                    if (projFld.columnAttribute == null)
+                        throw new ApplicationException("L162: " + errorIntro + "] is missing for field " + fieldID + ": " + projFld.MemberInfo.Name);
+                    if (projFld.columnAttribute.Storage == null)
+                        throw new ApplicationException("L164: " + errorIntro + " Storage=xx] is missing for col=" + projFld.columnAttribute.Name);
 
-                MemberAssignment bindEx = Expression.Bind(fieldInfo, arg_i);
+                    string storage = projFld.columnAttribute.Storage; //'_customerID'
+                    
+                    FieldInfo fieldInfo;
+                    if (!fieldNameMap.TryGetValue(storage, out fieldInfo))
+                        throw new ApplicationException("L169: " + errorIntro + "Storage=" + storage + "] refers to a non-existent field for col=" + projFld.columnAttribute.Name);
+
+                    //bake expression: "CustomerID = rdr.GetString(0)"
+                    bindEx = Expression.Bind(fieldInfo, arg_i);
+                }
                 bindList.Add(bindEx);
             }
 
             NewExpression newExpr1 = Expression.New(projData.ctor); //2008Jan: changed to default ctor
-            List<ParameterExpression> paramListRdr = new List<ParameterExpression>();
-            paramListRdr.Add(rdr);
-            paramListRdr.Add(mappgingContext);
 
-            Expression newExprInit = Expression.MemberInit(newExpr1, bindList.ToArray());
-
-
-            LambdaExpression lambda = Expression.Lambda<Func<IDataRecord, MappingContext, T>>(newExprInit, paramListRdr);
-            Func<IDataRecord, MappingContext, T> func_t = (Func<IDataRecord, MappingContext, T>)lambda.Compile();
-
-            //lambda.BuildString(sb);
-            //Console.WriteLine("  RowEnumCompiler(Column): Compiled "+sb);
-            return func_t;
+            MemberInitExpression newExprInit = Expression.MemberInit(newExpr1, bindList.ToArray());
+            return newExprInit;
             #endregion
         }
 
