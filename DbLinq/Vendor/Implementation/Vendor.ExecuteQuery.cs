@@ -563,7 +563,7 @@ public IEnumerable<T> ExecuteQuery<T>(string command, params object[] parameters
                 DbParameter param = cmd.CreateParameter();
                 param.ParameterName = paramNames[i];
                 param.Value = parameters[i] ?? DBNull.Value;
-                cmd.Parameters.Add(param);
+                cmd = AddParameter(cmd, param);
             }
             cmd.CommandType = CommandType.Text; 
             cmd.CommandText = string.Format(command, paramNames);

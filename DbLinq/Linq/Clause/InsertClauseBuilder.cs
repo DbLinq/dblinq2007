@@ -115,7 +115,7 @@ namespace DbLinq.Linq.Clause
             cmd.CommandText = sql;
             foreach (IDbDataParameter param in paramList)
             {
-                cmd.Parameters.Add(param);
+                cmd = vendor.AddParameter(cmd, param);
             }
             return cmd;
         }
@@ -267,7 +267,7 @@ namespace DbLinq.Linq.Clause
             cmd.CommandText = sql;
             foreach (IDbDataParameter param in paramList)
             {
-                cmd.Parameters.Add(param);
+                cmd = vars.Context.Vendor.AddParameter(cmd, param);
             }
             return cmd;
         }
