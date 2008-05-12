@@ -167,6 +167,7 @@ namespace Test_NUnit_PostgreSql
         [Test]
         public void C6_NullParentEmplyee()
         {
+            //'ParentEmployee' is generated incorrectly - should be 'ReportsToEmployees'
             Northwind db = CreateDB();
             var query = from e in db.Employees
                         select new

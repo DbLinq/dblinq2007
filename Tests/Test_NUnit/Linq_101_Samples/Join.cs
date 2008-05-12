@@ -157,6 +157,8 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
 
             var list = q.ToList();
             Assert.IsTrue(list.Count > 0);
+            int countALFKI = list.Count(item => item.CustomerID == "ALFKI");
+            Assert.IsTrue(countALFKI == 1);
         }
 
         [Test]
@@ -210,8 +212,10 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
         }
 
         [Test]
-        public void RetrieveParentAssociationProperty()
+        public void RetrieveParentAssociationProperty(bool andrus_must_fix)
         {
+            //Andrus - same problem here - the CustomerShipCity relationship is only half defined - 
+            //of the two attributes required, you only defined one
             Northwind dbo = CreateDB();
             Northwind1 db = new Northwind1(dbo.DatabaseContext.Connection);
             var t = db.GetTable<Northwind1.ExtendedOrder>();
@@ -226,8 +230,13 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
         }
 
         [Test]
-        public void DifferentParentAndAssociationPropertyNames()
+        public void DifferentParentAndAssociationPropertyNames
+            (bool disabled_until_Andrus_adds_explanation)
         {
+            //Andrus - how should this work?
+            //in class ExtendedOrder, you added [Association(ThisKey = "ShipCity"...)]
+            //but there is no counterpart [Association(OtherKey = "ShipCity")] - 
+            //you only defined half the relationship!
             Northwind dbo = CreateDB();
             Northwind1 db = new Northwind1(dbo.DatabaseContext.Connection);
             var query = db.GetTable<Northwind1.ExtendedOrder>() as IQueryable<Northwind1.ExtendedOrder>;

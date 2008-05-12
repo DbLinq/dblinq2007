@@ -39,11 +39,11 @@ using Id = System.Int32;
 #if MYSQL
 namespace Test_NUnit_MySql
 #elif ORACLE
-    #if ODP
+#if ODP
         namespace Test_NUnit_OracleODP
-    #else
+#else
         namespace Test_NUnit_Oracle
-    #endif
+#endif
 #elif POSTGRES
     namespace Test_NUnit_PostgreSql
 #elif SQLITE
@@ -62,7 +62,7 @@ namespace Test_NUnit_MySql
         public ReadTest_Complex()
         {
             db = CreateDB();
-            
+
         }
 
         #region 'D' tests exercise 'local object constants'
@@ -106,7 +106,7 @@ namespace Test_NUnit_MySql
                     select p;
             List<Product> products = q.ToList();
             int productCount = products.Count;
-            Assert.AreEqual(1, productCount, "Expected one pen, got count=" +productCount);
+            Assert.AreEqual(1, productCount, "Expected one pen, got count=" + productCount);
         }
 
         [Test]
@@ -323,13 +323,23 @@ namespace Test_NUnit_MySql
 
 
         [Test]
-        public void F15_OrderByCoalesce() {
-          Northwind db = CreateDB();
-          var q = from c in db.Customers
-                   orderby c.ContactName ?? ""
+        public void F15_OrderByCoalesce()
+        {
+            Northwind db = CreateDB();
+            var q = from c in db.Customers
+                    orderby c.ContactName ?? ""
                     select c;
-          var list = q.ToList();
-          Assert.Greater(list.Count(), 0, "Expected list");
+            var list = q.ToList();
+            Assert.Greater(list.Count(), 0, "Expected list");
+        }
+
+        [Test(Description = "Non-dynamic version of DL5_NestedObjectSelect")]
+        public void F16_NestedObjectSelect()
+        {
+            Northwind db = CreateDB();
+            var q = from o in db.Orders
+                    select new Order() {OrderID = o.OrderID, Customer = new Customer() {ContactName = o.Customer.ContactName}};
+            var list = q.ToList();
         }
 
         /// <summary>
@@ -398,6 +408,6 @@ namespace Test_NUnit_MySql
 
         }
 
-    
+
     }
 }

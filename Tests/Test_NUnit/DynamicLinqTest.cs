@@ -33,13 +33,13 @@ using System.Linq.Expressions;
 using System.Reflection;
 
 #if MYSQL
-    namespace Test_NUnit_MySql
+namespace Test_NUnit_MySql
 #elif ORACLE
-    #if ODP
+#if ODP
         namespace Test_NUnit_OracleODP
-    #else
+#else
         namespace Test_NUnit_Oracle
-    #endif
+#endif
 #elif POSTGRES
     namespace Test_NUnit_PostgreSql
 #elif SQLITE
@@ -101,10 +101,9 @@ using System.Reflection;
         }
 
 
-        [Test]
-        public void DL5_DynamicAssociatonWithExtensionMethod()
+        [Test(Description = "dynamic version of F16_NestedObjectSelect")]
+        public void DL5_NestedObjectSelect()
         {
-
             Northwind db = CreateDB();
             var orders = db.GetTable<Order>();
             var res = orders.SelectDynamic(new string[] { "OrderID", "Customer.ContactName" });
