@@ -2,7 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+#if ODP
+using Test_NUnit_OracleODP;
+#else
 using Test_NUnit_Oracle;
+#endif
 
 namespace Test_NUnit
 {

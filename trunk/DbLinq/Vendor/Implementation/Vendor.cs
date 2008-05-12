@@ -148,16 +148,16 @@ namespace DbLinq.Vendor.Implementation
             return sql2;
         }
 
-        public virtual bool CanBulkInsert<T>(DbLinq.Linq.Table<T> table)
+        public virtual bool CanBulkInsert<T>(Linq.Table<T> table)
         {
             return false;
         }
 
-        public virtual void SetBulkInsert<T>(DbLinq.Linq.Table<T> table, int pageSize)
+        public virtual void SetBulkInsert<T>(Linq.Table<T> table, int pageSize)
         {
         }
 
-        public virtual void DoBulkInsert<T>(DbLinq.Linq.Table<T> table, List<T> rows, IDbConnection conn)
+        public virtual void DoBulkInsert<T>(Linq.Table<T> table, List<T> rows, IDbConnection conn)
         {
             throw new NotImplementedException();
         }
