@@ -35,7 +35,8 @@ namespace DbLinq.Schema
         TableName GetTableName(string dbName, WordsExtraction extraction, NameFormat nameFormat);
         ColumnName GetColumnName(string dbName, WordsExtraction extraction, NameFormat nameFormat);
         AssociationName GetAssociationName(string dbManyName, string dbOneName,
-                                           string dbConstraintName, WordsExtraction extraction, NameFormat nameFormat);
+                                           string dbConstraintName, string foreignKeyName,
+                                            WordsExtraction extraction, NameFormat nameFormat);
         // reformats a name by adjusting its case
         string Format(string words, Case newCase);
     }

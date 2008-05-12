@@ -37,17 +37,21 @@ using Id = System.Int32;
 #endif
 
 #if MYSQL
-namespace Test_NUnit_MySql
+    namespace Test_NUnit_MySql
 #elif ORACLE
-    namespace Test_NUnit_Oracle
+    #if ODP
+        namespace Test_NUnit_OracleODP
+    #else
+        namespace Test_NUnit_Oracle
+    #endif
 #elif POSTGRES
-namespace Test_NUnit_PostgreSql
+    namespace Test_NUnit_PostgreSql
 #elif SQLITE
     namespace Test_NUnit_Sqlite
 #elif INGRES
     namespace Test_NUnit_Ingres
 #else
-#error unknown target
+    #error unknown target
 #endif
 {
     [SetUpFixture]

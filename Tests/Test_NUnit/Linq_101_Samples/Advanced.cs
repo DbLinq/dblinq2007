@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -10,7 +11,11 @@ using Test_NUnit;
 #if MYSQL
     namespace Test_NUnit_MySql.Linq_101_Samples
 #elif ORACLE
-    namespace Test_NUnit_Oracle.Linq_101_Samples
+    #if ODP
+        namespace Test_NUnit_OracleODP.Linq_101_Samples
+    #else
+        namespace Test_NUnit_Oracle.Linq_101_Samples
+    #endif
 #elif POSTGRES
     namespace Test_NUnit_PostgreSql.Linq_101_Samples
 #elif SQLITE

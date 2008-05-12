@@ -32,7 +32,11 @@ using Test_NUnit;
 #if MYSQL
     namespace Test_NUnit_MySql
 #elif ORACLE
-    namespace Test_NUnit_Oracle
+    #if ODP
+        namespace Test_NUnit_OracleODP
+    #else
+        namespace Test_NUnit_Oracle
+    #endif
 #elif POSTGRES
     namespace Test_NUnit_PostgreSql
 #elif SQLITE

@@ -264,7 +264,8 @@ namespace DbLinq.Schema.Implementation
             return columnName;
         }
 
-        public AssociationName GetAssociationName(string dbManyName, string dbOneName, string dbConstraintName, WordsExtraction extraction, NameFormat nameFormat)
+        public AssociationName GetAssociationName(string dbManyName, string dbOneName, string dbConstraintName, 
+            string foreignKeyName, WordsExtraction extraction, NameFormat nameFormat)
         {
             var words = GetLanguageWords(nameFormat.Culture);
             var associationName = new AssociationName { DbName = dbManyName };
@@ -272,7 +273,7 @@ namespace DbLinq.Schema.Implementation
             associationName.ManyToOneMemberName = Format(words, dbOneName, nameFormat.Case, GetSingularization(Singularization.Singular, nameFormat));
             // TODO: this works only for PascalCase
             if (dbManyName == dbOneName)
-                associationName.ManyToOneMemberName = "Parent" + associationName.ManyToOneMemberName;
+                associationName.ManyToOneMemberName = foreignKeyName + associationName.ManyToOneMemberName;
             // TODO: support new extraction
             associationName.OneToManyMemberName = Format(words, dbManyName, nameFormat.Case, GetSingularization(Singularization.Plural, nameFormat));
             return associationName;

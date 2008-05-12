@@ -1,4 +1,4 @@
-#region Auto-generated classes for Northwind database on 2008-05-06 11:28:20Z
+#region Auto-generated classes for Northwind database on 2008-05-12 16:51:04Z
 
 //
 //  ____  _     __  __      _        _
@@ -7,7 +7,7 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from Northwind on 2008-05-06 11:28:20Z
+// Auto-generated from Northwind on 2008-05-12 16:51:04Z
 // Please visit http://linq.to/db for more information
 
 #endregion
@@ -51,7 +51,7 @@ namespace nwind
 
 	}
 
-	[Table(Name = "categories")]
+	[Table(Name = "linquser.categories")]
 	public partial class Category
 	{
 		#region int CategoryID
@@ -161,7 +161,7 @@ namespace nwind
 
 	}
 
-	[Table(Name = "customers")]
+	[Table(Name = "linquser.customers")]
 	public partial class Customer
 	{
 		#region string Address
@@ -424,7 +424,7 @@ namespace nwind
 
 	}
 
-	[Table(Name = "employees")]
+	[Table(Name = "linquser.employees")]
 	public partial class Employee
 	{
 		#region string Address
@@ -798,18 +798,18 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Employee> linqUserEmployeesReportsToLinqUserEmployeesEmployeeID;
-		[Association(Storage = "linqUserEmployeesReportsToLinqUserEmployeesEmployeeID", ThisKey = "ReportsTo", Name = "linquser_employees_reportsto_linquser_employees_employeeid")]
+		private System.Data.Linq.EntityRef<Employee> reportsToEmployee;
+		[Association(Storage = "reportsToEmployee", ThisKey = "ReportsTo", Name = "linquser_employees_reportsto_linquser_employees_employeeid")]
 		[DebuggerNonUserCode]
-		public Employee ParentEmployee
+		public Employee ReportsToEmployee
 		{
 			get
 			{
-				return linqUserEmployeesReportsToLinqUserEmployeesEmployeeID.Entity;
+				return reportsToEmployee.Entity;
 			}
 			set
 			{
-				linqUserEmployeesReportsToLinqUserEmployeesEmployeeID.Entity = value;
+				reportsToEmployee.Entity = value;
 			}
 		}
 
@@ -818,7 +818,7 @@ namespace nwind
 
 	}
 
-	[Table(Name = "employeeterritories")]
+	[Table(Name = "linquser.employeeterritories")]
 	public partial class EmployeeTerritory
 	{
 		#region int EmployeeID
@@ -867,33 +867,33 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Employee> linqUserEmployeeTerritoriesEmployeeIDLinqUserEmployeesEmployeeID;
-		[Association(Storage = "linqUserEmployeeTerritoriesEmployeeIDLinqUserEmployeesEmployeeID", ThisKey = "EmployeeID", Name = "linquser_employeeterritories_employeeid_linquser_employees_employeeid")]
+		private System.Data.Linq.EntityRef<Employee> employee;
+		[Association(Storage = "employee", ThisKey = "EmployeeID", Name = "linquser_employeeterritories_employeeid_linquser_employees_employeeid")]
 		[DebuggerNonUserCode]
 		public Employee Employee
 		{
 			get
 			{
-				return linqUserEmployeeTerritoriesEmployeeIDLinqUserEmployeesEmployeeID.Entity;
+				return employee.Entity;
 			}
 			set
 			{
-				linqUserEmployeeTerritoriesEmployeeIDLinqUserEmployeesEmployeeID.Entity = value;
+				employee.Entity = value;
 			}
 		}
 
-		private System.Data.Linq.EntityRef<Territory> linqUserEmployeeTerritoriesTerritoryIDLinqUserTerritoriesTerritoryID;
-		[Association(Storage = "linqUserEmployeeTerritoriesTerritoryIDLinqUserTerritoriesTerritoryID", ThisKey = "TerritoryID", Name = "linquser_employeeterritories_territoryid_linquser_territories_territoryid")]
+		private System.Data.Linq.EntityRef<Territory> territory;
+		[Association(Storage = "territory", ThisKey = "TerritoryID", Name = "linquser_employeeterritories_territoryid_linquser_territories_territoryid")]
 		[DebuggerNonUserCode]
 		public Territory Territory
 		{
 			get
 			{
-				return linqUserEmployeeTerritoriesTerritoryIDLinqUserTerritoriesTerritoryID.Entity;
+				return territory.Entity;
 			}
 			set
 			{
-				linqUserEmployeeTerritoriesTerritoryIDLinqUserTerritoriesTerritoryID.Entity = value;
+				territory.Entity = value;
 			}
 		}
 
@@ -902,7 +902,7 @@ namespace nwind
 
 	}
 
-	[Table(Name = "orders")]
+	[Table(Name = "linquser.orders")]
 	public partial class Order
 	{
 		#region string CustomerID
@@ -1232,33 +1232,33 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Customer> linqUserOrdersCustomerIDLinqUserCustomersCustomerID;
-		[Association(Storage = "linqUserOrdersCustomerIDLinqUserCustomersCustomerID", ThisKey = "CustomerID", Name = "linquser_orders_customerid_linquser_customers_customerid")]
+		private System.Data.Linq.EntityRef<Customer> customer;
+		[Association(Storage = "customer", ThisKey = "CustomerID", Name = "linquser_orders_customerid_linquser_customers_customerid")]
 		[DebuggerNonUserCode]
 		public Customer Customer
 		{
 			get
 			{
-				return linqUserOrdersCustomerIDLinqUserCustomersCustomerID.Entity;
+				return customer.Entity;
 			}
 			set
 			{
-				linqUserOrdersCustomerIDLinqUserCustomersCustomerID.Entity = value;
+				customer.Entity = value;
 			}
 		}
 
-		private System.Data.Linq.EntityRef<Employee> linqUserOrdersEmployeeIDLinqUserEmployeesEmployeeID;
-		[Association(Storage = "linqUserOrdersEmployeeIDLinqUserEmployeesEmployeeID", ThisKey = "EmployeeID", Name = "linquser_orders_employeeid_linquser_employees_employeeid")]
+		private System.Data.Linq.EntityRef<Employee> employee;
+		[Association(Storage = "employee", ThisKey = "EmployeeID", Name = "linquser_orders_employeeid_linquser_employees_employeeid")]
 		[DebuggerNonUserCode]
 		public Employee Employee
 		{
 			get
 			{
-				return linqUserOrdersEmployeeIDLinqUserEmployeesEmployeeID.Entity;
+				return employee.Entity;
 			}
 			set
 			{
-				linqUserOrdersEmployeeIDLinqUserEmployeesEmployeeID.Entity = value;
+				employee.Entity = value;
 			}
 		}
 
@@ -1267,7 +1267,7 @@ namespace nwind
 
 	}
 
-	[Table(Name = "orderdetails")]
+	[Table(Name = "linquser.orderdetails")]
 	public partial class OrderDetail
 	{
 		#region double Discount
@@ -1382,33 +1382,33 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Order> linqUserOrderDetailsOrderIDLinqUserOrdersOrderID;
-		[Association(Storage = "linqUserOrderDetailsOrderIDLinqUserOrdersOrderID", ThisKey = "OrderID", Name = "linquser_orderdetails_orderid_linquser_orders_orderid")]
+		private System.Data.Linq.EntityRef<Order> order;
+		[Association(Storage = "order", ThisKey = "OrderID", Name = "linquser_orderdetails_orderid_linquser_orders_orderid")]
 		[DebuggerNonUserCode]
 		public Order Order
 		{
 			get
 			{
-				return linqUserOrderDetailsOrderIDLinqUserOrdersOrderID.Entity;
+				return order.Entity;
 			}
 			set
 			{
-				linqUserOrderDetailsOrderIDLinqUserOrdersOrderID.Entity = value;
+				order.Entity = value;
 			}
 		}
 
-		private System.Data.Linq.EntityRef<Product> linqUserOrderDetailsProductIDLinqUserProductsProductID;
-		[Association(Storage = "linqUserOrderDetailsProductIDLinqUserProductsProductID", ThisKey = "ProductID", Name = "linquser_orderdetails_productid_linquser_products_productid")]
+		private System.Data.Linq.EntityRef<Product> product;
+		[Association(Storage = "product", ThisKey = "ProductID", Name = "linquser_orderdetails_productid_linquser_products_productid")]
 		[DebuggerNonUserCode]
 		public Product Product
 		{
 			get
 			{
-				return linqUserOrderDetailsProductIDLinqUserProductsProductID.Entity;
+				return product.Entity;
 			}
 			set
 			{
-				linqUserOrderDetailsProductIDLinqUserProductsProductID.Entity = value;
+				product.Entity = value;
 			}
 		}
 
@@ -1417,7 +1417,7 @@ namespace nwind
 
 	}
 
-	[Table(Name = "products")]
+	[Table(Name = "linquser.products")]
 	public partial class Product
 	{
 		#region int? CategoryID
@@ -1659,33 +1659,33 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Supplier> linqUserProductsSupplierIDLinqUserSuppliersSupplierID;
-		[Association(Storage = "linqUserProductsSupplierIDLinqUserSuppliersSupplierID", ThisKey = "SupplierID", Name = "linquser_products_supplierid_linquser_suppliers_supplierid")]
+		private System.Data.Linq.EntityRef<Supplier> supplier;
+		[Association(Storage = "supplier", ThisKey = "SupplierID", Name = "linquser_products_supplierid_linquser_suppliers_supplierid")]
 		[DebuggerNonUserCode]
 		public Supplier Supplier
 		{
 			get
 			{
-				return linqUserProductsSupplierIDLinqUserSuppliersSupplierID.Entity;
+				return supplier.Entity;
 			}
 			set
 			{
-				linqUserProductsSupplierIDLinqUserSuppliersSupplierID.Entity = value;
+				supplier.Entity = value;
 			}
 		}
 
-		private System.Data.Linq.EntityRef<Category> linqUserProductsCategoryIDLinqUserCategoriesCategoryID;
-		[Association(Storage = "linqUserProductsCategoryIDLinqUserCategoriesCategoryID", ThisKey = "CategoryID", Name = "linquser_products_categoryid_linquser_categories_categoryid")]
+		private System.Data.Linq.EntityRef<Category> category;
+		[Association(Storage = "category", ThisKey = "CategoryID", Name = "linquser_products_categoryid_linquser_categories_categoryid")]
 		[DebuggerNonUserCode]
 		public Category Category
 		{
 			get
 			{
-				return linqUserProductsCategoryIDLinqUserCategoriesCategoryID.Entity;
+				return category.Entity;
 			}
 			set
 			{
-				linqUserProductsCategoryIDLinqUserCategoriesCategoryID.Entity = value;
+				category.Entity = value;
 			}
 		}
 
@@ -1694,7 +1694,7 @@ namespace nwind
 
 	}
 
-	[Table(Name = "region")]
+	[Table(Name = "linquser.region")]
 	public partial class Region
 	{
 		#region string RegionDescription
@@ -1760,7 +1760,7 @@ namespace nwind
 
 	}
 
-	[Table(Name = "suppliers")]
+	[Table(Name = "linquser.suppliers")]
 	public partial class Supplier
 	{
 		#region string Address
@@ -2024,7 +2024,7 @@ namespace nwind
 
 	}
 
-	[Table(Name = "territories")]
+	[Table(Name = "linquser.territories")]
 	public partial class Territory
 	{
 		#region int RegionID
@@ -2111,18 +2111,18 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Region> linqUserTerritoriesRegionIDLinqUserRegionRegionID;
-		[Association(Storage = "linqUserTerritoriesRegionIDLinqUserRegionRegionID", ThisKey = "RegionID", Name = "linquser_territories_regionid_linquser_region_regionid")]
+		private System.Data.Linq.EntityRef<Region> region;
+		[Association(Storage = "region", ThisKey = "RegionID", Name = "linquser_territories_regionid_linquser_region_regionid")]
 		[DebuggerNonUserCode]
 		public Region Region
 		{
 			get
 			{
-				return linqUserTerritoriesRegionIDLinqUserRegionRegionID.Entity;
+				return region.Entity;
 			}
 			set
 			{
-				linqUserTerritoriesRegionIDLinqUserRegionRegionID.Entity = value;
+				region.Entity = value;
 			}
 		}
 

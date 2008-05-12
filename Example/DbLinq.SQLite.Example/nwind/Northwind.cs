@@ -1,4 +1,4 @@
-#region Auto-generated classes for Northwind database on 2008-05-06 11:28:14Z
+#region Auto-generated classes for Northwind database on 2008-05-12 16:50:58Z
 
 //
 //  ____  _     __  __      _        _
@@ -7,7 +7,7 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from Northwind on 2008-05-06 11:28:14Z
+// Auto-generated from Northwind on 2008-05-12 16:50:58Z
 // Please visit http://linq.to/db for more information
 
 #endregion
@@ -52,7 +52,7 @@ namespace nwind
 
 	}
 
-	[Table(Name = "Categories")]
+	[Table(Name = "main.Categories")]
 	public partial class Category
 	{
 		#region int CategoryID
@@ -146,7 +146,7 @@ namespace nwind
 
 	}
 
-	[Table(Name = "Customers")]
+	[Table(Name = "main.Customers")]
 	public partial class Customer
 	{
 		#region string Address
@@ -409,7 +409,7 @@ namespace nwind
 
 	}
 
-	[Table(Name = "Employees")]
+	[Table(Name = "main.Employees")]
 	public partial class Employee
 	{
 		#region string Address
@@ -783,18 +783,18 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Employee> fkEmployees0;
-		[Association(Storage = "fkEmployees0", ThisKey = "ReportsTo", Name = "fk_Employees_0")]
+		private System.Data.Linq.EntityRef<Employee> reportsToEmployee;
+		[Association(Storage = "reportsToEmployee", ThisKey = "ReportsTo", Name = "fk_Employees_0")]
 		[DebuggerNonUserCode]
-		public Employee ParentEmployee
+		public Employee ReportsToEmployee
 		{
 			get
 			{
-				return fkEmployees0.Entity;
+				return reportsToEmployee.Entity;
 			}
 			set
 			{
-				fkEmployees0.Entity = value;
+				reportsToEmployee.Entity = value;
 			}
 		}
 
@@ -803,7 +803,7 @@ namespace nwind
 
 	}
 
-	[Table(Name = "EmployeeTerritories")]
+	[Table(Name = "main.EmployeeTerritories")]
 	public partial class EmployeeTerritory
 	{
 		#region int EmployeeID
@@ -853,33 +853,33 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Territory> fkEmployeeTerritories0;
-		[Association(Storage = "fkEmployeeTerritories0", ThisKey = "TerritoryID", Name = "fk_EmployeeTerritories_0")]
+		private System.Data.Linq.EntityRef<Territory> territory;
+		[Association(Storage = "territory", ThisKey = "TerritoryID", Name = "fk_EmployeeTerritories_0")]
 		[DebuggerNonUserCode]
 		public Territory Territory
 		{
 			get
 			{
-				return fkEmployeeTerritories0.Entity;
+				return territory.Entity;
 			}
 			set
 			{
-				fkEmployeeTerritories0.Entity = value;
+				territory.Entity = value;
 			}
 		}
 
-		private System.Data.Linq.EntityRef<Employee> fkEmployeeTerritories1;
-		[Association(Storage = "fkEmployeeTerritories1", ThisKey = "EmployeeID", Name = "fk_EmployeeTerritories_1")]
+		private System.Data.Linq.EntityRef<Employee> employee;
+		[Association(Storage = "employee", ThisKey = "EmployeeID", Name = "fk_EmployeeTerritories_1")]
 		[DebuggerNonUserCode]
 		public Employee Employee
 		{
 			get
 			{
-				return fkEmployeeTerritories1.Entity;
+				return employee.Entity;
 			}
 			set
 			{
-				fkEmployeeTerritories1.Entity = value;
+				employee.Entity = value;
 			}
 		}
 
@@ -888,7 +888,7 @@ namespace nwind
 
 	}
 
-	[Table(Name = "Orders")]
+	[Table(Name = "main.Orders")]
 	public partial class Order
 	{
 		#region string CustomerID
@@ -1218,33 +1218,33 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Employee> fkOrders0;
-		[Association(Storage = "fkOrders0", ThisKey = "EmployeeID", Name = "fk_Orders_0")]
+		private System.Data.Linq.EntityRef<Employee> employee;
+		[Association(Storage = "employee", ThisKey = "EmployeeID", Name = "fk_Orders_0")]
 		[DebuggerNonUserCode]
 		public Employee Employee
 		{
 			get
 			{
-				return fkOrders0.Entity;
+				return employee.Entity;
 			}
 			set
 			{
-				fkOrders0.Entity = value;
+				employee.Entity = value;
 			}
 		}
 
-		private System.Data.Linq.EntityRef<Customer> fkOrders1;
-		[Association(Storage = "fkOrders1", ThisKey = "CustomerID", Name = "fk_Orders_1")]
+		private System.Data.Linq.EntityRef<Customer> customer;
+		[Association(Storage = "customer", ThisKey = "CustomerID", Name = "fk_Orders_1")]
 		[DebuggerNonUserCode]
 		public Customer Customer
 		{
 			get
 			{
-				return fkOrders1.Entity;
+				return customer.Entity;
 			}
 			set
 			{
-				fkOrders1.Entity = value;
+				customer.Entity = value;
 			}
 		}
 
@@ -1253,7 +1253,7 @@ namespace nwind
 
 	}
 
-	[Table(Name = "\"Order Details\"")]
+	[Table(Name = "main.\"Order Details\"")]
 	public partial class OrderDetail
 	{
 		#region float Discount
@@ -1370,33 +1370,33 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Product> fkOrderDetails0;
-		[Association(Storage = "fkOrderDetails0", ThisKey = "ProductID", Name = "\"fk_Order Details_0\"")]
+		private System.Data.Linq.EntityRef<Product> product;
+		[Association(Storage = "product", ThisKey = "ProductID", Name = "\"fk_Order Details_0\"")]
 		[DebuggerNonUserCode]
 		public Product Product
 		{
 			get
 			{
-				return fkOrderDetails0.Entity;
+				return product.Entity;
 			}
 			set
 			{
-				fkOrderDetails0.Entity = value;
+				product.Entity = value;
 			}
 		}
 
-		private System.Data.Linq.EntityRef<Order> fkOrderDetails1;
-		[Association(Storage = "fkOrderDetails1", ThisKey = "OrderID", Name = "\"fk_Order Details_1\"")]
+		private System.Data.Linq.EntityRef<Order> order;
+		[Association(Storage = "order", ThisKey = "OrderID", Name = "\"fk_Order Details_1\"")]
 		[DebuggerNonUserCode]
 		public Order Order
 		{
 			get
 			{
-				return fkOrderDetails1.Entity;
+				return order.Entity;
 			}
 			set
 			{
-				fkOrderDetails1.Entity = value;
+				order.Entity = value;
 			}
 		}
 
@@ -1405,7 +1405,7 @@ namespace nwind
 
 	}
 
-	[Table(Name = "Products")]
+	[Table(Name = "main.Products")]
 	public partial class Product
 	{
 		#region int? CategoryID
@@ -1647,18 +1647,18 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Supplier> fkProducts0;
-		[Association(Storage = "fkProducts0", ThisKey = "SupplierID", Name = "fk_Products_0")]
+		private System.Data.Linq.EntityRef<Supplier> supplier;
+		[Association(Storage = "supplier", ThisKey = "SupplierID", Name = "fk_Products_0")]
 		[DebuggerNonUserCode]
 		public Supplier Supplier
 		{
 			get
 			{
-				return fkProducts0.Entity;
+				return supplier.Entity;
 			}
 			set
 			{
-				fkProducts0.Entity = value;
+				supplier.Entity = value;
 			}
 		}
 
@@ -1667,7 +1667,7 @@ namespace nwind
 
 	}
 
-	[Table(Name = "Regions")]
+	[Table(Name = "main.Regions")]
 	public partial class Region
 	{
 		#region string RegionDescription
@@ -1733,7 +1733,7 @@ namespace nwind
 
 	}
 
-	[Table(Name = "Shippers")]
+	[Table(Name = "main.Shippers")]
 	public partial class Shipper
 	{
 		#region string CompanyName
@@ -1805,7 +1805,7 @@ namespace nwind
 
 	}
 
-	[Table(Name = "Suppliers")]
+	[Table(Name = "main.Suppliers")]
 	public partial class Supplier
 	{
 		#region string Address
@@ -2069,7 +2069,7 @@ namespace nwind
 
 	}
 
-	[Table(Name = "Territories")]
+	[Table(Name = "main.Territories")]
 	public partial class Territory
 	{
 		#region int RegionID
@@ -2156,18 +2156,18 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Region> fkTerritories0;
-		[Association(Storage = "fkTerritories0", ThisKey = "RegionID", Name = "fk_Territories_0")]
+		private System.Data.Linq.EntityRef<Region> region;
+		[Association(Storage = "region", ThisKey = "RegionID", Name = "fk_Territories_0")]
 		[DebuggerNonUserCode]
 		public Region Region
 		{
 			get
 			{
-				return fkTerritories0.Entity;
+				return region.Entity;
 			}
 			set
 			{
-				fkTerritories0.Entity = value;
+				region.Entity = value;
 			}
 		}
 

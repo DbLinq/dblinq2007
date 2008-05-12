@@ -160,10 +160,10 @@ namespace DbLinq.Vendor.Implementation
         }
 
         protected virtual AssociationName CreateAssociationName(string dbManyName, string dbManySchema,
-            string dbOneName, string dbOneSchema, string dbConstraintName, NameFormat nameFormat)
+            string dbOneName, string dbOneSchema, string dbConstraintName, string foreignKeyName, NameFormat nameFormat)
         {
             var associationName = NameFormatter.GetAssociationName(dbManyName, dbOneName,
-                dbConstraintName, GetExtraction(dbManyName), nameFormat);
+                dbConstraintName, foreignKeyName, GetExtraction(dbManyName), nameFormat);
             associationName.DbName = GetFullDbName(dbManyName, dbManySchema);
             return associationName;
         }

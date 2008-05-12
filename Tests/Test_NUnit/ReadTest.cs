@@ -30,9 +30,13 @@ using nwind;
 using Test_NUnit;
 
 #if MYSQL
-namespace Test_NUnit_MySql
+    namespace Test_NUnit_MySql
 #elif ORACLE
-namespace Test_NUnit_Oracle
+    #if ODP
+        namespace Test_NUnit_OracleODP
+    #else
+        namespace Test_NUnit_Oracle
+    #endif
 #elif POSTGRES
 namespace Test_NUnit_PostgreSql
 #elif SQLITE
@@ -168,7 +172,7 @@ namespace Test_NUnit_PostgreSql
                         select new
                         {
                             Name = e.FirstName,
-                            ReportsTo = e.ParentEmployee.FirstName
+                            ReportsTo = e.ReportsToEmployee.FirstName
                         };
 
             var list = query.ToList();
