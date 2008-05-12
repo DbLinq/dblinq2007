@@ -97,6 +97,13 @@ namespace DbLinq.Vendor.Implementation
             return "LENGTH";
         }
 
+        public virtual IDbCommand AddParameter(IDbCommand cmd, IDbDataParameter param)
+        {
+            // only Ingres does something special here...
+            cmd.Parameters.Add(param);
+            return cmd;
+        }
+
         public virtual int ExecuteCommand(DbLinq.Linq.DataContext context, string sql, params object[] parameters)
         {
             using (IDbCommand command = context.DatabaseContext.CreateCommand())
@@ -132,7 +139,7 @@ namespace DbLinq.Vendor.Implementation
                 IDbDataParameter sqlParam = command.CreateParameter();
                 sqlParam.ParameterName = paramName;
                 sqlParam.Value = paramValue;
-                command.Parameters.Add(sqlParam);
+                command = AddParameter(command, sqlParam);
                 paramNames.Add(paramName);
             }
 

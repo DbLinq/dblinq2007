@@ -92,7 +92,7 @@ namespace DbLinq.Util
                         parameter.ParameterName = _vars.Context.Vendor.GetFinalParameterName(paramNameValue.Key);
                         cmd.CommandText = _vars.Context.Vendor.ReplaceParamNameInSql(paramNameValue.Key, cmd.CommandText);
                         parameter.Value = paramNameValue.Value;
-                        cmd.Parameters.Add(parameter);
+                        cmd = _vars.Context.Vendor.AddParameter(cmd, parameter);
                     }
                 }
                 catch (Exception ex)

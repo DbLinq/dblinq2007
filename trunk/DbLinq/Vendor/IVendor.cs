@@ -174,6 +174,14 @@ namespace DbLinq.Vendor
         string GetSqlStringLengthFunction();
 
         /// <summary>
+        /// Adds a Parameter to a DbCommand.
+        /// </summary>
+        /// <param name="cmd">The DbCommand Object</param>
+        /// <param name="param">The Parameter to be added</param>
+        /// <returns>DbCommand with the added Parameter</returns>
+        IDbCommand AddParameter(IDbCommand cmd, IDbDataParameter param);
+
+        /// <summary>
         /// Generates the SQL request, based on provided parts
         /// </summary>
         /// <param name="parts">The request, expressed as objects</param>
