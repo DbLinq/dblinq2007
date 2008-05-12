@@ -42,31 +42,8 @@ namespace Test_NUnit_Ingres
     {
         static void Main()
         {
-            /*==========================================================================*/
-            /* All failing Tests are recorded here. They will be removed, once they run */
-            /*==========================================================================*/
-
-            /*==================================================================*/
-            /* The following failing tests are investigated, but not solved yet */
-            /*==================================================================*/
-
-            // NullRef exception in FromClausebuilder
-            //new Linq_101_Samples.Join().LinqToSqlJoin10();
-
-            // Generates faulty SQL
-            //new Linq_101_Samples.Join().OuterJoin_DefaultIfEmpty();
-
-            // Enumeration has no entries
-            //new Linq_101_Samples.Object_Identity().MSDN_ObjectIdentity2();
-
-            // Param before FROM
-            //new Linq_101_Samples.String_Date_functions().LinqToSqlString01();
-
-            // Bug in DbLinq
-            //new ReadTest().D14_ProjectedProductList();
-
-            // Param before FROM
-            //new ReadTest_Operands().H1_SelectConcat();
+            // The current test status can be found at
+            // http://linq.to/db/Tests
         }
     }
 }
