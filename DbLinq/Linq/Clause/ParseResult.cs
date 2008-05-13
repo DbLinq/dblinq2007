@@ -50,21 +50,6 @@ namespace DbLinq.Linq.Clause
             _vendor = vendor;
         }
 
-        //public void addJoin(TableSpec left, TableSpec right)
-        //{
-        //    int prevCount = joins.Count(js => js.Left == left && js.Right == right);
-        //    if (prevCount == 0)
-        //        joins.Add(new JoinSpec() { Left = left, Right = right });
-        //}
-        //public void addJoin(string left, string right)
-        //{
-        //    int prevCount = joins.Count(js => js.LeftField == left && js.RightField == right);
-        //    if (prevCount == 0)
-        //        joins.Add(new JoinSpec() { LeftField = left, RightField = right });
-        //    //if (!joins.Contains(joinStr))
-        //    //    joins.Add(joinStr);
-        //}
-
         public void addJoin(JoinSpec joinSpec)
         {
             int prevCount = joins.Count(js => js.LeftField == joinSpec.LeftField && js.RightField == joinSpec.RightField);
@@ -119,6 +104,7 @@ namespace DbLinq.Linq.Clause
             }
             qp.paramMap2.Clear();
 
+            //order matters: add tablesUsed before joins
             foreach (JoinSpec joinSpec in joins)
             {
                 sqlParts.AddJoin(joinSpec);

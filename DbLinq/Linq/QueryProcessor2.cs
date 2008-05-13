@@ -181,6 +181,8 @@ namespace DbLinq.Linq
             string orderByFields = string.Join(",", result.columns.ToArray());
             _vars.SqlParts.OrderByList.Add(orderByFields);
             _vars.SqlParts.OrderDirection = orderDirection; //copy 'DESC' specifier
+
+            result.CopyInto(this, _vars.SqlParts);
         }
 
         void ProcessJoinClause(MethodCallExpression joinExpr)

@@ -234,8 +234,11 @@ namespace DbLinq.Linq.Clause
                 JoinSpec js = new JoinSpec() { LeftSpec = tblLeft, LeftField = joinLeft, RightSpec = tblRight, RightField = joinRight };
                 result.addJoin(js);
             }
-            result.tablesUsed[type2] = nick2;    //tablesUsed[Order] = $o
+
+            //order matters: 
+            //for self join, this order of statements loses tablesUsed[Employee]='join$' but preserves tablesUsed[Employee]='e$'
             result.tablesUsed[type1] = nick1;    //tablesUsed[Customer] = $join
+            result.tablesUsed[type2] = nick2;    //tablesUsed[Order] = $o
 
         }
     }

@@ -338,8 +338,26 @@ namespace Test_NUnit_MySql
         {
             Northwind db = CreateDB();
             var q = from o in db.Orders
-                    select new Order() {OrderID = o.OrderID, Customer = new Customer() {ContactName = o.Customer.ContactName}};
+                    select new Order() { OrderID = o.OrderID, Customer = new Customer() { ContactName = o.Customer.ContactName } };
             var list = q.ToList();
+        }
+
+        [Test(Description = "Non-dynamic version of DL5_NestedObjectSelect")]
+        public void F17_NestedObjectSelect_Ver2()
+        {
+            Northwind db = CreateDB();
+            var query = from order in db.Orders
+                        select new Order
+                        {
+                            OrderID = order.OrderID,
+                            Customer = new Customer
+                            {
+                                ContactName = order.Customer.ContactName,
+                                ContactTitle = order.Customer.ContactTitle
+                            }
+                        };
+            var list = query.ToList();
+            Assert.IsTrue(list.Count > 0);
         }
 
         /// <summary>

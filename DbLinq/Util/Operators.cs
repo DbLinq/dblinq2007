@@ -39,6 +39,8 @@ namespace DbLinq.Util
         {
             switch(nodeType)
             {
+                case ExpressionType.Coalesce:
+                    return 1; //this is a function all
                 case ExpressionType.OrElse:
                 case ExpressionType.ExclusiveOr:
                     return 11;

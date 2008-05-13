@@ -99,6 +99,7 @@ namespace DbLinq.Linq.Clause
                 case ExpressionType.MultiplyChecked:
                 case ExpressionType.Add:
                 case ExpressionType.AddChecked:
+                case ExpressionType.Coalesce:
                     return AnalyzeBinary(recurData, (BinaryExpression)expr);
                 case ExpressionType.Call:
                     //case ExpressionType.MethodCallVirtual:
@@ -596,6 +597,16 @@ namespace DbLinq.Linq.Clause
                     _result.AppendString(opString);
                     return AnalysisResult.Proceed;
                 }
+            }
+
+            if (expr.NodeType == ExpressionType.Coalesce)
+            {
+                _result.AppendString("COALESCE(");
+                this.AnalyzeExpression(recurData, expr.Left);
+                _result.AppendString(" , ");
+                this.AnalyzeExpression(recurData, expr.Right);
+                _result.AppendString(")");
+                return AnalysisResult.Proceed;
             }
 
             int precedence = Operators.GetPrecedence(expr.NodeType);
