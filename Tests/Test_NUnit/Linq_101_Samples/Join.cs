@@ -8,13 +8,13 @@ using nwind;
 using Test_NUnit;
 
 #if MYSQL
-    namespace Test_NUnit_MySql.Linq_101_Samples
+namespace Test_NUnit_MySql.Linq_101_Samples
 #elif ORACLE
-    #if ODP
+#if ODP
         namespace Test_NUnit_OracleODP.Linq_101_Samples
-    #else
+#else
         namespace Test_NUnit_Oracle.Linq_101_Samples
-    #endif
+#endif
 #elif POSTGRES
 namespace Test_NUnit_PostgreSql.Linq_101_Samples
 #elif SQLITE
@@ -212,8 +212,12 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
         }
 
         [Test]
-        public void RetrieveParentAssociationProperty()
+        public void RetrieveParentAssociationProperty(bool defer)
         {
+            //note: this fails on Microsoft Linq-to-Sql:
+            //System.InvalidOperationException: The type 'Northwind1+ExtendedOrder' is not mapped as a Table.
+            //   at System.Data.Linq.DataContext.GetTable[TEntity]()
+
             Northwind dbo = CreateDB();
             Northwind1 db = new Northwind1(dbo.DatabaseContext.Connection);
             var t = db.GetTable<Northwind1.ExtendedOrder>();
