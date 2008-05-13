@@ -26,7 +26,7 @@ CREATE TABLE "Categories" (
   PRIMARY KEY("CategoryID")
 );
 
-CREATE TABLE Suppliers (
+CREATE TABLE "Suppliers" (
   "SupplierID" INTEGER  NOT NULL,
   "CompanyName" VARCHAR(40) NOT NULL,
   "ContactName" VARCHAR(30) NULL,
@@ -145,11 +145,11 @@ CREATE SEQUENCE Employees_seq  START WITH 1    INCREMENT BY 1;
  
 
 --####################################################################
-Insert INTO "Categories" ("CategoryID, "CategoryName","Description")
+Insert INTO "Categories" ("CategoryID", "CategoryName","Description")
 values (Categories_seq.NextVal, 'Beverages',	'Soft drinks, coffees, teas, beers, and ales');
-Insert INTO "Categories" ("CategoryID, "CategoryName","Description")
+Insert INTO "Categories" ("CategoryID", "CategoryName","Description")
 values (Categories_seq.NextVal, 'Condiments','Sweet and savory sauces, relishes, spreads, and seasonings');
-Insert INTO "Categories" ("CategoryID, "CategoryName","Description")
+Insert INTO "Categories" ("CategoryID", "CategoryName","Description")
 values (Categories_seq.NextVal, 'Seafood','Seaweed and fish');
 
 --####################################################################
@@ -183,23 +183,23 @@ INSERT INTO "Suppliers" ("SupplierID", "CompanyName", "ContactName", "ContactTit
 VALUES (Suppliers_seq.Nextval, 'Pavlova, Ltd.', 'Ian Devling', 'Marketing Manager', '74 Rose St. Moonie Ponds', 'Melbourne', 'Victoria', '3058', 'Australia', '(03) 444-2343', '(03) 444-6588');
 
 
-insert INTO "Products" ("ProductId", "ProductName","SupplierID", "QuantityPerUnit","UnitsInStock","UnitsOnOrder","Discontinued")
+insert INTO "Products" ("ProductID", "ProductName","SupplierID", "QuantityPerUnit","UnitsInStock","UnitsOnOrder","Discontinued")
 VALUES (Products_seq.nextval, 'Pen',1, 10,     12, 2,  0);
-insert INTO "Products" ("ProductId", "ProductName","SupplierID", "QuantityPerUnit","UnitsInStock","UnitsOnOrder","Discontinued")
+insert INTO "Products" ("ProductID", "ProductName","SupplierID", "QuantityPerUnit","UnitsInStock","UnitsOnOrder","Discontinued")
 VALUES (Products_seq.nextval, 'Bicycle',1, 1,  6, 0,  0);
-insert INTO "Products" ("ProductId", "ProductName","QuantityPerUnit","UnitsInStock","UnitsOnOrder","Discontinued")
+insert INTO "Products" ("ProductID", "ProductName","QuantityPerUnit","UnitsInStock","UnitsOnOrder","Discontinued")
 VALUES (Products_seq.nextval, 'Phone',3,    7, 0,  0);
-insert INTO "Products" ("ProductId", "ProductName","QuantityPerUnit","UnitsInStock","UnitsOnOrder","Discontinued")
+insert INTO "Products" ("ProductID", "ProductName","QuantityPerUnit","UnitsInStock","UnitsOnOrder","Discontinued")
 VALUES (Products_seq.nextval, 'SAM',1,      51, 11, 0);
-insert INTO "Products" ("ProductId", "ProductName","QuantityPerUnit","UnitsInStock","UnitsOnOrder","Discontinued")
+insert INTO "Products" ("ProductID", "ProductName","QuantityPerUnit","UnitsInStock","UnitsOnOrder","Discontinued")
 VALUES (Products_seq.nextval, 'iPod',0,     11, 0, 0);
-insert INTO "Products" ("ProductId", "ProductName","QuantityPerUnit","UnitsInStock","UnitsOnOrder","Discontinued")
+insert INTO "Products" ("ProductID", "ProductName","QuantityPerUnit","UnitsInStock","UnitsOnOrder","Discontinued")
 VALUES (Products_seq.nextval, 'Toilet Paper',2,  0, 3, 1);
-insert INTO "Products" ("ProductId", "ProductName","QuantityPerUnit","UnitsInStock","UnitsOnOrder","Discontinued")
+insert INTO "Products" ("ProductID", "ProductName","QuantityPerUnit","UnitsInStock","UnitsOnOrder","Discontinued")
 VALUES (Products_seq.nextval, 'Fork',5,   111, 0, 0);
-insert INTO "Products" ("ProductId", "ProductName","SupplierID", "QuantityPerUnit","UnitsInStock","UnitsOnOrder","Discontinued")
+insert INTO "Products" ("ProductID", "ProductName","SupplierID", "QuantityPerUnit","UnitsInStock","UnitsOnOrder","Discontinued")
 VALUES (Products_seq.nextval, 'Linq Book',2, 1, 0, 26, 0);
-INSERT INTO "Products" ("ProductId", "ProductName","SupplierID", "QuantityPerUnit","UnitPrice",  "UnitsInStock","UnitsOnOrder","Discontinued")
+INSERT INTO "Products" ("ProductID", "ProductName","SupplierID", "QuantityPerUnit","UnitPrice",  "UnitsInStock","UnitsOnOrder","Discontinued")
 VALUES (Products_seq.nextval, 'Carnarvon Tigers', 3,'16 kg pkg.',62.50,  42, 0, 0);
 
 --####################################################################
@@ -230,10 +230,10 @@ Values (Orders_seq.NextVal, 'UKMOD', 1, sysdate, 32.5);
 insert INTO "Orders" ("OrderID", "CustomerID", "EmployeeID", "OrderDate", "RequiredDate", "ShippedDate", "Freight", "ShipName", "ShipAddress", "ShipCity", "ShipCountry")
 Values (Orders_seq.NextVal, 'BONAP', 1, to_date('1996-10-16', 'yyyy-mm-dd'), to_date('1996-11-27', 'yyyy-mm-dd'), to_date('1996-10-21', 'yyyy-mm-dd'), 10.21, 'Bon app''', '12, rue des Bouchers', 'Marseille', 'France' );
 
-INSERT INTO OrderDetails ("OrderID", "ProductID", "UnitPrice", "Quantity", "Discount")
+INSERT INTO "OrderDetails" ("OrderID", "ProductID", "UnitPrice", "Quantity", "Discount")
 VALUES (1,2, 33, 5, 11);
 
-INSERT INTO OrderDetails ("OrderID", "ProductID", "UnitPrice", "Quantity",   "Discount")
+INSERT INTO "OrderDetails" ("OrderID", "ProductID", "UnitPrice", "Quantity",   "Discount")
 VALUES (5,9, 50, 20,   0.05); --## CanarvonTigers for customer BONAP
 
 

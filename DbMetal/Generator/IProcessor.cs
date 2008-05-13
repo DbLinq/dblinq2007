@@ -63,8 +63,9 @@ namespace DbMetal.Generator
         /// Loads a schema from a given file
         /// </summary>
         /// <param name="filename"></param>
+        /// <param name="parameters"></param>
         /// <returns></returns>
-		Database ReadSchema(string filename);
+		Database ReadSchema(Parameters parameters, string filename);
         /// <summary>
         /// Lists all code generators available in DbMetal
         /// </summary>

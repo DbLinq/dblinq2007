@@ -47,14 +47,15 @@ namespace DbLinq.Logging.Implementation
             default:
                 throw new ArgumentOutOfRangeException("level");
             }
-            //Console.WriteLine(text);
-            //Debug.WriteLine(string.Format("{0:u} {1}", DateTime.Now, text));
+            Console.WriteLine(text);
+            // picrap --> jiri: this is probably not the right place, maybe shall we find something else?
             text = text.Replace("System.String", "string");
             text = text.Replace("System.Int32", "int");
             text = text.Replace("DbLinq.Linq.", "");
             text = text.Replace("System.Linq.", "");
             text = text.Replace("nwind.", "");
-            Debug.WriteLine(text);
+            Debug.WriteLine(string.Format("{0:u} {1}", DateTime.Now, text));
+            //Debug.WriteLine(text);
         }
     }
 }
