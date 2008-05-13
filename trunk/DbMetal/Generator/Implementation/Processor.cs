@@ -108,7 +108,7 @@ namespace DbMetal.Generator.Implementation
             if (parameters.Dbml != null)
             {
                 //we are supposed to write out a DBML file and exit
-                Logger.Write(Level.Information, "<<< Writing file '{0}'", parameters.Dbml);
+                parameters.Write("<<< Writing file '{0}'", parameters.Dbml);
                 using (Stream dbmlFile = File.Create(parameters.Dbml))
                 {
                     DbmlSerializer.Write(dbmlFile, dbSchema);
@@ -126,7 +126,7 @@ namespace DbMetal.Generator.Implementation
                 if (string.IsNullOrEmpty(filename))
                     filename = dbSchema.Name;
 
-                Logger.Write(Level.Information, "<<< writing C# classes in file '{0}'", filename);
+                parameters.Write("<<< writing C# classes in file '{0}'", filename);
                 GenerateCode(parameters, dbSchema, schemaLoader, filename);
 
             }
@@ -196,9 +196,9 @@ namespace DbMetal.Generator.Implementation
             {
                 schemaLoader = SchemaLoaderFactory.Load(parameters);
 
-                Logger.Write(Level.Information, ">>> Reading schema from {0} database", schemaLoader.VendorName);
+                parameters.Write(">>> Reading schema from {0} database", schemaLoader.VendorName);
                 dbSchema = schemaLoader.Load(parameters.Database, nameAliases,
-                    new NameFormat (parameters.Pluralize, Case.PascalCase, new CultureInfo(parameters.Culture)),
+                    new NameFormat(parameters.Pluralize, Case.PascalCase, new CultureInfo(parameters.Culture)),
                     parameters.Sprocs, parameters.Namespace, parameters.Namespace);
                 dbSchema.Provider = parameters.Provider;
                 dbSchema.Tables.Sort(new LambdaComparer<Table>((x, y) => (x.Type.Name.CompareTo(y.Type.Name))));
@@ -209,7 +209,7 @@ namespace DbMetal.Generator.Implementation
             }
             else // load DBML
             {
-                dbSchema = ReadSchema(parameters.SchemaXmlFile);
+                dbSchema = ReadSchema(parameters, parameters.SchemaXmlFile);
                 schemaLoader = SchemaLoaderFactory.Load(dbSchema.Provider);
             }
 
@@ -219,9 +219,9 @@ namespace DbMetal.Generator.Implementation
             return dbSchema;
         }
 
-        public Database ReadSchema(string filename)
+        public Database ReadSchema(Parameters parameters, string filename)
         {
-            Logger.Write(Level.Information, ">>> Reading schema from DBML file '{0}'", filename);
+            parameters.Write(">>> Reading schema from DBML file '{0}'", filename);
             using (Stream dbmlFile = File.OpenRead(filename))
             {
                 return DbmlSerializer.Read(dbmlFile);

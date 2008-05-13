@@ -1,3 +1,4 @@
+-- Old case insensitive versions... Just in case
 DROP TABLE OrderDetails;
 DROP TABLE Orders;
 DROP TABLE Products;
@@ -8,6 +9,17 @@ DROP TABLE Suppliers;
 DROP TABLE Categories;
 DROP TABLE Territories;
 DROP TABLE Region;
+-- New version
+DROP TABLE "OrderDetails";
+DROP TABLE "Orders";
+DROP TABLE "Products";
+DROP TABLE "Customers";
+DROP TABLE "EmployeeTerritories";
+DROP TABLE "Employees";
+DROP TABLE "Suppliers";
+DROP TABLE "Categories";
+DROP TABLE "Territories";
+DROP TABLE "Region";
 
 DROP SEQUENCE Suppliers_seq;
 DROP SEQUENCE Products_seq;

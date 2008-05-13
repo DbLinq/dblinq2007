@@ -101,7 +101,7 @@ namespace VisualMetal
             dialog.Filter = "Database markup files (*.dbml)|*.dbml|All files (*.*)|*.*";
             if (dialog.ShowDialog() != System.Windows.Forms.DialogResult.Cancel)
             {
-                Database = Program.ReadSchema(dialog.FileName);
+                Database = Program.ReadSchema(Parameters, dialog.FileName);
             }
         }
 
