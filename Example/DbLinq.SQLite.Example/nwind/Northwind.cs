@@ -1,4 +1,4 @@
-#region Auto-generated classes for Northwind database on 2008-05-13 11:45:43Z
+#region Auto-generated classes for Northwind database on 2008-05-13 12:07:57Z
 
 //
 //  ____  _     __  __      _        _
@@ -7,7 +7,7 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from Northwind on 2008-05-13 11:45:43Z
+// Auto-generated from Northwind on 2008-05-13 12:07:57Z
 // Please visit http://linq.to/db for more information
 
 #endregion
@@ -756,7 +756,7 @@ namespace nwind
 			}
 		}
 
-		[Association(Storage = null, OtherKey = "ReportsTo", Name = "fk_Employees_0")]
+		[Association(Storage = null, OtherKey = "EmployeeID", Name = "fk_Employees_0")]
 		[DebuggerNonUserCode]
 		public EntityMSet<Employee> Employees
 		{
