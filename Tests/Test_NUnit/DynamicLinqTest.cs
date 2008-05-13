@@ -113,8 +113,13 @@ namespace Test_NUnit_MySql
         }
 
         [Test]
-        public void DL6_StaticVersionOfDynamicAssociatonWithExtensionMethodTest()
+        public void DL6_StaticVersionOfDynamicAssociatonWithExtensionMethodTest(bool bug_in_dynamic_linq)
         {
+            //is this maybe a bug in DynamicLinq?
+            //from DynamicLinq, we receive this query which has ContactName but misses ContactTitle:
+            //MTable.CreateQuery: value(Table`1[Order]).Select(o => new Order() {OrderID = o.OrderID, Customer = new Customer() {ContactName = o.Customer.ContactName}})
+
+            //Also - the non-dynamic version F17_NestedObjectSelect_Ver2 succeeds.
 
             Northwind db = CreateDB();
             var orders = db.GetTable<Order>().ToArray().AsQueryable();
@@ -134,8 +139,15 @@ namespace Test_NUnit_MySql
         }
 
         [Test]
-        public void DL7_DynamicAssociatonUsingDoubleProjection()
+        public void DL7_DynamicAssociatonUsingDoubleProjection(bool bug_in_dynamic_linq)
         {
+            //this fails - but not in our code:
+            //A first chance exception of type 'System.NullReferenceException' occurred in Unknown Module.
+            //System.Transactions Critical: 0 : <TraceRecord xmlns="http://schemas.microsoft.com/2004/10/E2ETraceEvent/TraceRecord" Severity="Critical"><TraceIdentifier>http://msdn.microsoft.com/TraceCodes/System/ActivityTracing/2004/07/Reliability/Exception/Unhandled</TraceIdentifier><Description>Unhandled exception</Description><AppDomain>Test_NUnit_Mysql.vshost.exe</AppDomain><Exception><ExceptionType>System.NullReferenceException, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ExceptionType><Message>Object reference not set to an instance of an object.</Message><StackTrace>   at lambda_method(ExecutionScope , Order )
+            //   at System.Linq.Enumerable.&amp;lt;SelectIterator&amp;gt;d__d`2.MoveNext()
+            //   at System.Collections.Generic.List`1..ctor(IEnumerable`1 collection)
+            //   at System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+            //   at Test_NUnit_MySql.DynamicLinqTest.DL7_DynamicAssociatonUsingDoubleProjection() in E:\ggprj\dbLinq\dblinq2007\Tests\Test_NUnit\DynamicLinqTest.cs:line 150
 
             Northwind db = CreateDB();
 
