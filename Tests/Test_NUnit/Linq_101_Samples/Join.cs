@@ -212,10 +212,8 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
         }
 
         [Test]
-        public void RetrieveParentAssociationProperty(bool andrus_must_fix)
+        public void RetrieveParentAssociationProperty()
         {
-            //Andrus - same problem here - the CustomerShipCity relationship is only half defined - 
-            //of the two attributes required, you only defined one
             Northwind dbo = CreateDB();
             Northwind1 db = new Northwind1(dbo.DatabaseContext.Connection);
             var t = db.GetTable<Northwind1.ExtendedOrder>();
@@ -230,13 +228,8 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
         }
 
         [Test]
-        public void DifferentParentAndAssociationPropertyNames
-            (bool disabled_until_Andrus_adds_explanation)
+        public void DifferentParentAndAssociationPropertyNames()
         {
-            //Andrus - how should this work?
-            //in class ExtendedOrder, you added [Association(ThisKey = "ShipCity"...)]
-            //but there is no counterpart [Association(OtherKey = "ShipCity")] - 
-            //you only defined half the relationship!
             Northwind dbo = CreateDB();
             Northwind1 db = new Northwind1(dbo.DatabaseContext.Connection);
             var query = db.GetTable<Northwind1.ExtendedOrder>() as IQueryable<Northwind1.ExtendedOrder>;
@@ -279,7 +272,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
                 System.Data.Linq.EntityRef<Customer> _x_Customer;
 
                 [System.Data.Linq.Mapping.Association(Storage = "_x_Customer",
-                    ThisKey = "ShipCity", Name = "fk_order_customer")]
+                    ThisKey = "CustomerID", Name = "fk_order_customer")]
                 public Customer CustomerShipCity
                 {
                     get { return _x_Customer.Entity; }
@@ -315,7 +308,6 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
                 OrderID = dok.OrderID,
                 OrderDate = dok.OrderDate,
                 ShipCity = dok.Customer.ContactName,
-                //Shippostalcode = dok.Shippostalcode,
                 Freight = dok.Freight
             });
             var list = query.ToList();
