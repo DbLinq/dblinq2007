@@ -129,6 +129,7 @@
     <Compile Include="Util\IDataTypeExtensions.cs" />
     <Compile Include="Language\ILanguages.cs" />
     <Compile Include="Language\ILanguageWords.cs" />
+    <Compile Include="Util\ILoggerExtension.cs" />
     <Compile Include="Util\LambdaComparer.cs" />
     <Compile Include="Util\DataCommand.cs" />
     <Compile Include="Util\ExpressionAndType.cs" />
@@ -195,6 +196,9 @@
     <None Include="Schema\Dbml\DbmlSchema.bat" />
     <EmbeddedResource Include="Schema\Dbml\DbmlSchema.xsd">
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Linq\Data\ReadMe.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

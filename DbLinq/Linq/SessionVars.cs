@@ -24,6 +24,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using DbLinq.Logging;
+using DbLinq.Util;
 
 namespace DbLinq.Linq
 {
@@ -69,6 +71,7 @@ namespace DbLinq.Linq
         /// </summary>
         public SessionVars Add(Expression expressionToAdd)
         {
+            //Context.Logger.WriteExpression(Level.Debug, expressionToAdd);
             MethodCallExpression exprCall = expressionToAdd as MethodCallExpression;
             if (exprCall == null)
                 throw new ArgumentException("L77 Expression must be a MethodCall");
@@ -81,6 +84,7 @@ namespace DbLinq.Linq
         /// </summary>
         public SessionVars AddScalar(Expression expression)
         {
+            //Context.Logger.WriteExpression(Level.Debug, expression);
             MethodCallExpression exprCall = expression as MethodCallExpression;
             if (exprCall == null)
                 throw new ArgumentException("L85 Expression must be a MethodCall");
