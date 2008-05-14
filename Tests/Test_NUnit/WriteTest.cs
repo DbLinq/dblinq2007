@@ -534,6 +534,23 @@ dummy text
         }
 
 
+        [Test]
+        public void G15_CustomerIdUpdate()
+        {
+            Northwind db = CreateDB();
+            Customer c1 = (from c in db.Customers
+                           where c.CustomerID == "AIRBU"
+                           select c).Single();
+            c1.CustomerID = "TEMP";
+            db.SubmitChanges();
+            Customer c2 = (from c in db.Customers
+                           where c.CustomerID == "TEMP"
+                           select c).Single();
+
+            c2.CustomerID = "AIRBU";
+            db.SubmitChanges();
+        }
+
         #endregion
     }
 }
