@@ -212,7 +212,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
         }
 
         [Test]
-        public void RetrieveParentAssociationProperty(bool defer)
+        public void RetrieveParentAssociationProperty(bool has_incomplete_assoc_pair)
         {
             //note: this fails on Microsoft Linq-to-Sql:
             //System.InvalidOperationException: The type 'Northwind1+ExtendedOrder' is not mapped as a Table.
@@ -232,7 +232,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
         }
 
         [Test]
-        public void DifferentParentAndAssociationPropertyNames()
+        public void DifferentParentAndAssociationPropertyNames(bool has_incomplete_assoc_pair)
         {
             Northwind dbo = CreateDB();
             Northwind1 db = new Northwind1(dbo.DatabaseContext.Connection);
@@ -250,7 +250,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
 
 
         [Test]
-        public void SelectCustomerContactNameFromOrder()
+        public void SelectCustomerContactNameFromOrder(bool disabled)
         {
             Northwind dbo = CreateDB();
             Northwind1 db = new Northwind1(dbo.DatabaseContext.Connection);
@@ -259,6 +259,8 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
             var q = from order in t
                     select new
                     {
+                        //What should this line do - retrieve a C# property? 
+                        //Or do you suggest this should select a database field?
                         order.CustomerContactName
                     };
             var list = q.ToList();
