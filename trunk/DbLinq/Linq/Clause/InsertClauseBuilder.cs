@@ -262,6 +262,8 @@ namespace DbLinq.Linq.Clause
 
             string sql = sb.ToString();
 
+            Debug.WriteLine("SQL UPDATE: " + sql);
+
             //if (!s_logOnceMap.ContainsKey(sql))
             //{
             //    Console.WriteLine("SQL UPDATE L175: " + sql);
@@ -272,7 +274,9 @@ namespace DbLinq.Linq.Clause
             foreach (IDbDataParameter param in paramList)
             {
                 cmd = vars.Context.Vendor.AddParameter(cmd, param);
+                Debug.Write(", " + param.ParameterName + " = " + param.Value.ToString());
             }
+            Debug.WriteLine("");
             return cmd;
         }
 
