@@ -168,7 +168,10 @@ namespace DbLinq.Util
 
         public static ColumnAttribute GetColumnAttribute(Type t, string memberName)
         {
-            return GetColumnAttribute(t.GetMember(memberName)[0]);
+            MemberInfo[] member = t.GetMember(memberName);
+            if (member.Count() == 0)
+                throw new ArgumentException("Type "+t.FullName + " does not contain member " + memberName);
+            return GetColumnAttribute(member[0]);
         }
 
         /// <summary>
