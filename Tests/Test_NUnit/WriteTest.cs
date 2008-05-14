@@ -61,7 +61,7 @@ using Id = System.Int32;
         public void TestSetup()
         {
             Northwind db = CreateDB();
-            db.ExecuteCommand("DELETE FROM Products WHERE ProductName like 'temp%'");
+            db.ExecuteCommand("DELETE FROM <<Products>> WHERE <<ProductName>> like 'temp%'");
         }
     }
 
