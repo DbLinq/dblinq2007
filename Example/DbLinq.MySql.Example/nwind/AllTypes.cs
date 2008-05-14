@@ -1,4 +1,4 @@
-#region Auto-generated classes for AllTypes database on 2008-04-28 21:26:17Z
+#region Auto-generated classes for AllTypes database on 2008-05-14 21:14:00Z
 
 //
 //  ____  _     __  __      _        _
@@ -7,7 +7,7 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from AllTypes on 2008-04-28 21:26:17Z
+// Auto-generated from AllTypes on 2008-05-14 21:14:00Z
 // Please visit http://linq.to/db for more information
 
 #endregion
@@ -38,14 +38,15 @@ namespace AllTypesExample
 		{
 		}
 
-		public Table<Allinttypes> Allinttypes { get { return GetTable<Allinttypes>(); } }
-		public Table<Floattypes> Floattypes { get { return GetTable<Floattypes>(); } }
-		public Table<Othertypes> Othertypes { get { return GetTable<Othertypes>(); } }
+		public Table<AllIntTypes> AllIntTypes { get { return GetTable<AllIntTypes>(); } }
+		public Table<FloatTypes> FloatTypes { get { return GetTable<FloatTypes>(); } }
+		public Table<OtherTypes> OtherTypes { get { return GetTable<OtherTypes>(); } }
+		public Table<ParsingData> ParsingData { get { return GetTable<ParsingData>(); } }
 
 	}
 
 	[Table(Name = "AllTypes.allinttypes")]
-	public partial class Allinttypes : INotifyPropertyChanged
+	public partial class AllIntTypes : INotifyPropertyChanged
 	{
 		#region INotifyPropertyChanged handling
 
@@ -227,7 +228,7 @@ namespace AllTypesExample
 		[AutoGenId]
 		private uint @int;
 		[DebuggerNonUserCode]
-		[Column(Storage = "int", Name = "int", DbType = "int unsigned", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null)]
+		[Column(Storage = "int", Name = "`int`", DbType = "int unsigned", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null)]
 		public uint Int
 		{
 			get
@@ -319,7 +320,7 @@ namespace AllTypesExample
 
 		private ushort smallInt;
 		[DebuggerNonUserCode]
-		[Column(Storage = "smallInt", Name = "smallInt", DbType = "smallint(5) unsigned", CanBeNull = false, Expression = null)]
+		[Column(Storage = "smallInt", Name = "`smallInt`", DbType = "smallint(5) unsigned", CanBeNull = false, Expression = null)]
 		public ushort SmallInt
 		{
 			get
@@ -433,7 +434,7 @@ namespace AllTypesExample
 	}
 
 	[Table(Name = "AllTypes.floattypes")]
-	public partial class Floattypes : INotifyPropertyChanged
+	public partial class FloatTypes : INotifyPropertyChanged
 	{
 		#region INotifyPropertyChanged handling
 
@@ -453,7 +454,7 @@ namespace AllTypesExample
 
 		private decimal @decimal;
 		[DebuggerNonUserCode]
-		[Column(Storage = "decimal", Name = "decimal", DbType = "decimal", CanBeNull = false, Expression = null)]
+		[Column(Storage = "decimal", Name = "`decimal`", DbType = "decimal", CanBeNull = false, Expression = null)]
 		public decimal Decimal
 		{
 			get
@@ -499,7 +500,7 @@ namespace AllTypesExample
 
 		private double @double;
 		[DebuggerNonUserCode]
-		[Column(Storage = "double", Name = "double", DbType = "double", CanBeNull = false, Expression = null)]
+		[Column(Storage = "double", Name = "`double`", DbType = "double", CanBeNull = false, Expression = null)]
 		public double Double
 		{
 			get
@@ -545,7 +546,7 @@ namespace AllTypesExample
 
 		private float @float;
 		[DebuggerNonUserCode]
-		[Column(Storage = "float", Name = "float", DbType = "float", CanBeNull = false, Expression = null)]
+		[Column(Storage = "float", Name = "`float`", DbType = "float", CanBeNull = false, Expression = null)]
 		public float Float
 		{
 			get
@@ -587,13 +588,13 @@ namespace AllTypesExample
 
 		#endregion
 
-		#region int Id1
+		#region int ID1
 
 		[AutoGenId]
 		private int id1;
 		[DebuggerNonUserCode]
 		[Column(Storage = "id1", Name = "id1", DbType = "int", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null)]
-		public int Id1
+		public int ID1
 		{
 			get
 			{
@@ -604,7 +605,7 @@ namespace AllTypesExample
 				if (value != id1)
 				{
 					id1 = value;
-					OnPropertyChanged("Id1");
+					OnPropertyChanged("ID1");
 				}
 			}
 		}
@@ -615,7 +616,7 @@ namespace AllTypesExample
 
 		private decimal numeric;
 		[DebuggerNonUserCode]
-		[Column(Storage = "numeric", Name = "numeric", DbType = "decimal", CanBeNull = false, Expression = null)]
+		[Column(Storage = "numeric", Name = "`numeric`", DbType = "decimal", CanBeNull = false, Expression = null)]
 		public decimal Numeric
 		{
 			get
@@ -661,7 +662,7 @@ namespace AllTypesExample
 
 		private double real;
 		[DebuggerNonUserCode]
-		[Column(Storage = "real", Name = "real", DbType = "double", CanBeNull = false, Expression = null)]
+		[Column(Storage = "real", Name = "`real`", DbType = "double", CanBeNull = false, Expression = null)]
 		public double Real
 		{
 			get
@@ -706,7 +707,7 @@ namespace AllTypesExample
 	}
 
 	[Table(Name = "AllTypes.othertypes")]
-	public partial class Othertypes : INotifyPropertyChanged
+	public partial class OtherTypes : INotifyPropertyChanged
 	{
 		#region INotifyPropertyChanged handling
 
@@ -737,7 +738,7 @@ namespace AllTypesExample
 
 		private System.Byte[] blob;
 		[DebuggerNonUserCode]
-		[Column(Storage = "blob", Name = "blob", DbType = "blob", CanBeNull = false, Expression = null)]
+		[Column(Storage = "blob", Name = "`blob`", DbType = "blob", CanBeNull = false, Expression = null)]
 		public System.Byte[] Blob
 		{
 			get
@@ -783,7 +784,7 @@ namespace AllTypesExample
 
 		private string @char;
 		[DebuggerNonUserCode]
-		[Column(Storage = "char", Name = "char", DbType = "char(1)", CanBeNull = false, Expression = null)]
+		[Column(Storage = "char", Name = "`char`", DbType = "char(1)", CanBeNull = false, Expression = null)]
 		public string Char
 		{
 			get
@@ -829,7 +830,7 @@ namespace AllTypesExample
 
 		private System.DateTime dateTime;
 		[DebuggerNonUserCode]
-		[Column(Storage = "dateTime", Name = "DateTime", DbType = "datetime", CanBeNull = false, Expression = null)]
+		[Column(Storage = "dateTime", Name = "`DateTime`", DbType = "datetime", CanBeNull = false, Expression = null)]
 		public System.DateTime @DateTime
 		{
 			get
@@ -871,13 +872,13 @@ namespace AllTypesExample
 
 		#endregion
 
-		#region int Id1
+		#region int ID1
 
 		[AutoGenId]
 		private int id1;
 		[DebuggerNonUserCode]
 		[Column(Storage = "id1", Name = "id1", DbType = "int", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null)]
-		public int Id1
+		public int ID1
 		{
 			get
 			{
@@ -888,7 +889,7 @@ namespace AllTypesExample
 				if (value != id1)
 				{
 					id1 = value;
-					OnPropertyChanged("Id1");
+					OnPropertyChanged("ID1");
 				}
 			}
 		}
@@ -922,7 +923,7 @@ namespace AllTypesExample
 
 		private string text;
 		[DebuggerNonUserCode]
-		[Column(Storage = "text", Name = "text", DbType = "text", CanBeNull = false, Expression = null)]
+		[Column(Storage = "text", Name = "`text`", DbType = "text", CanBeNull = false, Expression = null)]
 		public string Text
 		{
 			get
@@ -958,6 +959,72 @@ namespace AllTypesExample
 				{
 					textN = value;
 					OnPropertyChanged("TextN");
+				}
+			}
+		}
+
+		#endregion
+
+	}
+
+	[Table(Name = "AllTypes.parsingdata")]
+	public partial class ParsingData : INotifyPropertyChanged
+	{
+		#region INotifyPropertyChanged handling
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		protected virtual void OnPropertyChanged(string propertyName)
+		{
+			if (PropertyChanged != null)
+			{
+				PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+
+		#endregion
+
+		#region string DateTimeStr
+
+		private string dateTimeStr;
+		[DebuggerNonUserCode]
+		[Column(Storage = "dateTimeStr", Name = "dateTimeStr", DbType = "varchar(20)", Expression = null)]
+		public string DateTimeStr
+		{
+			get
+			{
+				return dateTimeStr;
+			}
+			set
+			{
+				if (value != dateTimeStr)
+				{
+					dateTimeStr = value;
+					OnPropertyChanged("DateTimeStr");
+				}
+			}
+		}
+
+		#endregion
+
+		#region int ID1
+
+		[AutoGenId]
+		private int id1;
+		[DebuggerNonUserCode]
+		[Column(Storage = "id1", Name = "id1", DbType = "int", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null)]
+		public int ID1
+		{
+			get
+			{
+				return id1;
+			}
+			set
+			{
+				if (value != id1)
+				{
+					id1 = value;
+					OnPropertyChanged("ID1");
 				}
 			}
 		}
