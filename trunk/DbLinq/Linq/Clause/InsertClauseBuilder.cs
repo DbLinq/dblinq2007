@@ -35,6 +35,7 @@ using DbLinq.Linq;
 using DbLinq.Linq.Database;
 using DbLinq.Vendor;
 using DbLinq.Util;
+using System.Diagnostics;
 
 namespace DbLinq.Linq.Clause
 {
@@ -111,12 +112,15 @@ namespace DbLinq.Linq.Clause
             //    Console.WriteLine("SQL INSERT L60: " + sql);
             //    s_logOnceMap[sql] = "unused"; //log once only
             //}
+            Debug.WriteLine("SQL INSERT: " + sql);
 
             cmd.CommandText = sql;
             foreach (IDbDataParameter param in paramList)
             {
                 cmd = vendor.AddParameter(cmd, param);
+                Debug.Write(", "+param.ParameterName + " = " + param.Value.ToString());
             }
+            Debug.WriteLine("");
             return cmd;
         }
 
