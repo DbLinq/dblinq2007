@@ -228,7 +228,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
         }
 
         [Test]
-        public void DifferentParentAndAssociationPropertyNames(bool has_incomplete_assoc_pair)
+        public void DifferentParentAndAssociationPropertyNames()
         {
             Northwind dbo = CreateDB();
             Northwind1 db = new Northwind1(dbo.DatabaseContext.Connection);
@@ -246,7 +246,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
 
 
         [Test]
-        public void SelectCustomerContactNameFromOrder(bool disabled)
+        public void SelectCustomerContactNameFromOrder()
         {
             Northwind dbo = CreateDB();
             Northwind1 db = new Northwind1(dbo.DatabaseContext.Connection);
@@ -255,12 +255,12 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
             var q = from order in t
                     select new
                     {
-                        //What should this line do - retrieve a C# property? 
-                        //Or do you suggest this should select a database field?
                         order.CustomerContactName
                     };
             var list = q.ToList();
-            Assert.IsTrue(list.Count > 0);
+            Assert.AreEqual(db.Orders.Count(), list.Count());
+            foreach (var s in list)
+                Assert.AreEqual("Test", s);
         }
 
         public class Northwind1 : Northwind
@@ -268,14 +268,14 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
             public Northwind1(System.Data.IDbConnection connection)
                 : base(connection) { }
 
-            [System.Data.Linq.Mapping.Table(Name = "orders")]
+            // Linq-SQL requires this: [System.Data.Linq.Mapping.Table(Name = "orders")]
             public class ExtendedOrder : Order
             {
 
                 System.Data.Linq.EntityRef<Customer> _x_Customer;
 
                 [System.Data.Linq.Mapping.Association(Storage = "_x_Customer",
-                    ThisKey = "CustomerID", Name =
+                    ThisKey = "ShipCity", Name =
 #if MYSQL
 "orders_ibfk_1"
 #elif ORACLE
