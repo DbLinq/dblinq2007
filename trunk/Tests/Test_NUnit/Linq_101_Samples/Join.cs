@@ -212,12 +212,8 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
         }
 
         [Test]
-        public void RetrieveParentAssociationProperty(bool has_incomplete_assoc_pair)
+        public void RetrieveParentAssociationProperty()
         {
-            //note: this fails on Microsoft Linq-to-Sql:
-            //System.InvalidOperationException: The type 'Northwind1+ExtendedOrder' is not mapped as a Table.
-            //   at System.Data.Linq.DataContext.GetTable[TEntity]()
-
             Northwind dbo = CreateDB();
             Northwind1 db = new Northwind1(dbo.DatabaseContext.Connection);
             var t = db.GetTable<Northwind1.ExtendedOrder>();
@@ -272,13 +268,28 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
             public Northwind1(System.Data.IDbConnection connection)
                 : base(connection) { }
 
+            [System.Data.Linq.Mapping.Table(Name = "orders")]
             public class ExtendedOrder : Order
             {
 
                 System.Data.Linq.EntityRef<Customer> _x_Customer;
 
                 [System.Data.Linq.Mapping.Association(Storage = "_x_Customer",
-                    ThisKey = "CustomerID", Name = "fk_order_customer")]
+                    ThisKey = "CustomerID", Name =
+#if MYSQL
+"orders_ibfk_1"
+#elif ORACLE
+ "SYS_C004742"
+#elif POSTGRES
+ "fk_order_customer"
+#elif SQLITE
+ "fk_Orders_1"
+#elif INGRES
+ "fk_order_customer"
+#else
+#error unknown target
+#endif
+)]
                 public Customer CustomerShipCity
                 {
                     get { return _x_Customer.Entity; }
