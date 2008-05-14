@@ -128,8 +128,12 @@ namespace DbLinq.Vendor.Implementation
         private string ExecuteCommand_PrepareParams(IDbCommand command, string sql, object[] parameters)
         {
             sql = GetSqlCaseSafeQuery(sql);
+
             if (parameters.Length == 0)
+            {
+                Logger.Write(Level.Debug, "SQL1: " + sql);
                 return sql; //nothing to do
+            }
 
             int iParam = 0;
             List<string> paramNames = new List<string>();
@@ -145,6 +149,7 @@ namespace DbLinq.Vendor.Implementation
 
             //replace "SET ProductName={0}" -> "SET ProductName=:P0"
             string sql2 = string.Format(sql, paramNames.ToArray());
+            Logger.Write(Level.Debug, "SQL2: " + sql2);
             return sql2;
         }
 
