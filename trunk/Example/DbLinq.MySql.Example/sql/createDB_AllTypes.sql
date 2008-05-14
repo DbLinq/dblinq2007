@@ -70,6 +70,16 @@ CREATE TABLE `OtherTypes` (
 ENGINE = InnoDB
 COMMENT = 'Tests mapping of many MySQL types to CSharp types';
 
+####################################################################
+CREATE TABLE ParsingData (
+ id1 INTEGER NOT NULL AUTO_INCREMENT,
+ dateTimeStr VARCHAR(20),
+ PRIMARY KEY(id1)
+)
+ENGINE = InnoDB
+COMMENT = 'Tests DateTime.ParseExact on DB varchars';
+  
+
 INSERT INTO AllIntTypes (`intN`,`boolean`, `BIGINT`, `byte`, `DbLinq_EnumTest`)
 VALUES (1,'2', -9223372036854775808, 7, 2);
 
@@ -78,3 +88,5 @@ VALUES (1.1, 2.2, 3.3);
 
 INSERT INTO OtherTypes (`blob`,`text`, rainbow)
 VALUES ( REPEAT("\0",(8)), 'text', 'red' );
+
+INSERT INTO ParsingData (dateTimeStr) VALUES ('2008.12.31');

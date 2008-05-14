@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using System.Globalization;
 using NUnit.Framework;
 using AllTypesExample;
 
@@ -32,7 +33,7 @@ namespace Test_NUnit_MySql
         {
             AllTypes db = CreateDB();
 
-            var q = from p in db.Allinttypes select p;
+            var q = from p in db.AllIntTypes select p;
             int count = q.ToList().Count;
             Assert.IsTrue(count > 0, "Expected some entries in AllIntTypes, got none");
         }
@@ -42,7 +43,7 @@ namespace Test_NUnit_MySql
         {
             AllTypes db = CreateDB();
 
-            var q = from p in db.Floattypes select p;
+            var q = from p in db.FloatTypes select p;
             int count = q.ToList().Count;
             Assert.IsTrue(count > 0, "Expected some entries in FloatTypes, got none");
         }
@@ -52,7 +53,7 @@ namespace Test_NUnit_MySql
         {
             AllTypes db = CreateDB();
 
-            var q = from p in db.Othertypes select p.DateTimeN;
+            var q = from p in db.OtherTypes select p.DateTimeN;
             int count = q.ToList().Count;
             Assert.IsTrue(count > 0, "Expected some entries in AllTypes, got none");
         }
@@ -62,7 +63,7 @@ namespace Test_NUnit_MySql
         {
             AllTypes db = CreateDB();
 
-            var q = from p in db.Floattypes select p.DecimalN;
+            var q = from p in db.FloatTypes select p.DecimalN;
             int count = q.ToList().Count;
             Assert.IsTrue(count > 0, "Expected some entries in AllTypes, got none");
         }
@@ -100,7 +101,7 @@ namespace Test_NUnit_MySql
             Console.WriteLine("from p in db.Othertypes orderby p.DateTime_ select p.blob;");
             AllTypes db = CreateDB();
 
-            var result = from p in db.Othertypes orderby p.DateTime select p.Blob;
+            var result = from p in db.OtherTypes orderby p.DateTime select p.Blob;
             foreach (var blob in result)
             {
                 Console.WriteLine("blob[{0}]", blob.Length);
@@ -113,7 +114,7 @@ namespace Test_NUnit_MySql
         {
             AllTypes db = CreateDB();
 
-            var result = from p in db.Othertypes
+            var result = from p in db.OtherTypes
                          orderby p.DateTime
                          select
                              p.Blob;
@@ -122,5 +123,16 @@ namespace Test_NUnit_MySql
                 Console.WriteLine("blob[{0}]", blob.Length);
             }
         }
+
+        [Test]
+        public void Test_Select_DateTime_ParseExact()
+        {
+            AllTypes db = CreateDB();
+            var result = from p in db.ParsingData
+                         select DateTime.ParseExact(p.DateTimeStr, "yyyy.MM.dd", CultureInfo.InvariantCulture);
+            DateTime dt1 = result.First();
+            Assert.IsTrue(dt1.Year == 2008);
+        }
+
     }
 }
