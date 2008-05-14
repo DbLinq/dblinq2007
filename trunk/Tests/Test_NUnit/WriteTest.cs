@@ -29,29 +29,31 @@ using System.Linq.Expressions;
 using NUnit.Framework;
 using nwind;
 using Test_NUnit;
+using System.ComponentModel;
 
 #if ORACLE
 using Id = System.Decimal;
 #else
 using Id = System.Int32;
+using System.Data.Linq.Mapping;
 #endif
 
 #if MYSQL
     namespace Test_NUnit_MySql
 #elif ORACLE
-    #if ODP
+#if ODP
         namespace Test_NUnit_OracleODP
-    #else
+#else
         namespace Test_NUnit_Oracle
-    #endif
+#endif
 #elif POSTGRES
-    namespace Test_NUnit_PostgreSql
+namespace Test_NUnit_PostgreSql
 #elif SQLITE
     namespace Test_NUnit_Sqlite
 #elif INGRES
     namespace Test_NUnit_Ingres
 #else
-    #error unknown target
+#error unknown target
 #endif
 {
     [SetUpFixture]
@@ -366,8 +368,10 @@ dummy text
             }
             finally
             {
-                try { db.ExecuteCommand("drop table cust1;"); } catch { }
-                try { db.ExecuteCommand("drop sequence seq8;"); } catch { }
+                try { db.ExecuteCommand("drop table cust1;"); }
+                catch { }
+                try { db.ExecuteCommand("drop sequence seq8;"); }
+                catch { }
             }
         }
 #endif
@@ -377,11 +381,9 @@ dummy text
             public NorthwindG11(System.Data.IDbConnection connection)
                 : base(connection) { }
 
-            [System.Data.Linq.Mapping.Table(Name = "rid")]
-            public class Rid : DbLinq.Linq.IModified
+            [Table(Name = "rid")]
+            public class Rid : INotifyPropertyChanged
             {
-
-
                 [DbLinq.Linq.Mapping.AutoGenId]
                 protected int _id;
                 [DbLinq.Linq.Mapping.AutoGenId]
@@ -389,27 +391,46 @@ dummy text
 
 
 #if INGRES
-          [System.Data.Linq.Mapping.Column(Storage = "_id", Name = "id", DbType = "integer(32,0)", IsPrimaryKey = true, IsDbGenerated = true, Expression = "next value for rid_id1_seq")]
+          [System.Data.Linq.Mapping.Column(Storage = "_id", Name = "id", DbType = "integer", IsPrimaryKey = true, IsDbGenerated = true, Expression = "next value for rid_id1_seq")]
 #else
-                [System.Data.Linq.Mapping.Column(Storage = "_id", Name = "id", DbType = "integer(32,0)", IsPrimaryKey = true, IsDbGenerated = true, Expression = "nextval('rid_id1_seq')")]
+                [System.Data.Linq.Mapping.Column(Storage = "_id", Name = "id", DbType = "integer", IsPrimaryKey = true, IsDbGenerated = true, Expression = "nextval('rid_id1_seq')")]
 #endif
                 public int Id
                 {
                     get { return _id; }
-                    set { _id = value; IsModified = true; }
+                    set
+                    {
+                        _id = value;
+                        OnPropertyChanged("Id");
+                    }
                 }
 
 #if INGRES
-          [System.Data.Linq.Mapping.Column(Storage = "_reanr", Name = "reanr", DbType = "integer(32,0)", IsDbGenerated = true, CanBeNull = false, Expression = "next value for rid_reanr_seq")]
+          [System.Data.Linq.Mapping.Column(Storage = "_reanr", Name = "reanr", DbType = "integer", IsDbGenerated = true, CanBeNull = false, Expression = "next value for rid_reanr_seq")]
 #else
-                [System.Data.Linq.Mapping.Column(Storage = "_reanr", Name = "reanr", DbType = "integer(32,0)", IsDbGenerated = true, CanBeNull = false, Expression = "nextval('rid_reanr_seq')")]
+                [System.Data.Linq.Mapping.Column(Storage = "_reanr", Name = "reanr", DbType = "integer", IsDbGenerated = true, CanBeNull = false, Expression = "nextval('rid_reanr_seq')")]
 #endif
                 public int Reanr
                 {
                     get { return _reanr; }
-                    set { _reanr = value; IsModified = true; }
+                    set
+                    {
+                        _reanr = value;
+                        OnPropertyChanged("Reanr");
+                    }
                 }
-                public bool IsModified { get; set; }
+
+
+                #region INotifyPropertyChanged handling
+                public event PropertyChangedEventHandler PropertyChanged;
+                protected virtual void OnPropertyChanged(string propertyName)
+                {
+                    if (PropertyChanged != null)
+                    {
+                        PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                    }
+                }
+                #endregion
 
             }
 
@@ -429,6 +450,7 @@ dummy text
         {
             Northwind dbo = CreateDB();
             NorthwindG11 db = new NorthwindG11(dbo.DatabaseContext.Connection);
+
             db.ExecuteCommand(@"create sequence rid_id1_seq");
             db.ExecuteCommand(@"create sequence rid_reanr_seq");
 #if INGRES
@@ -436,17 +458,16 @@ dummy text
 #else
             db.ExecuteCommand(@"create temp table Rid ( id int primary key DEFAULT nextval('rid_id1_seq'), reanr int DEFAULT nextval('rid_reanr_seq'))");
 #endif
-            DbLinq.Linq.Table<NorthwindG11.Rid> Rids =
-            db.GetTable<NorthwindG11.Rid>();
+            DbLinq.Linq.Table<NorthwindG11.Rid> Rids = db.GetTable<NorthwindG11.Rid>();
 
             var Rid = new NorthwindG11.Rid();
             Rid.Reanr = 22;
             Exception e = null;
-            db.Rids.Add(Rid);
+            db.Rids.InsertOnSubmit(Rid);
 
             Rid = new NorthwindG11.Rid();
             Rid.Reanr = 23;
-            db.Rids.Add(Rid);
+            db.Rids.InsertOnSubmit(Rid);
             try
             {
                 db.SubmitChanges();
