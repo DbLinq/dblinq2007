@@ -131,8 +131,8 @@ namespace DbLinq.Linq
 
                 if (pattern != null)
                 {
-                    throw new ApplicationException("Hardcoded OOO");
-                    ParameterExpression replacementExpr = Expression.Parameter(pattern.Type, "o");
+                    //throw new ApplicationException("Hardcoded OOO");
+                    ParameterExpression replacementExpr = Expression.Parameter(pattern.Type, "name_not_used");
                     Expression selectExpr2 = ExpressionRegex.Replace(selectExpr, pattern, replacementExpr);
                     selectExpr = selectExpr2;
                 }

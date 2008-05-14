@@ -231,10 +231,14 @@ namespace DbLinq.Linq.Clause
                     recurData.allowSelectAllFields = false;
                     AnalyzeExpression(recurData, arg0);
 
-                    KeyValuePair<Type, string> tablesUsedKv = _result.tablesUsed.First();
-                    TableAttribute tableAttrib = AttribHelper.GetTableAttrib(tablesUsedKv.Key);
+                    if (_result.tablesUsed.Count != 2)
+                        throw new ArgumentException("Expected 'Any' expression joining two tables");
+
+                    //tablesUsed holds list {Customer c$, Order o94$}
+                    KeyValuePair<Type, string> tableUsed1 = _result.tablesUsed.ToList()[1]; //grab {Order o94$}
+                    TableAttribute tableAttrib = AttribHelper.GetTableAttrib(tableUsed1.Key);
                     string tablename = tableAttrib.Name;
-                    string nickname = tablesUsedKv.Value;
+                    string nickname = tableUsed1.Value;
 
                     string joinStr = _result.joins[0].LeftField + "=" + _result.joins[0].RightField;
                     string clause = "( SELECT COUNT(*) FROM " + tablename + " AS " + nickname + " WHERE " + joinStr + " ) > 0";

@@ -90,7 +90,16 @@ namespace DbLinq.Linq
             Expression arg0 = call.Arguments[0]; //{c.Orders.Select(o => o)}
             Expression arg1 = call.Arguments[1]; //{o => (o.ShipCity = c.City)}
             MethodCallExpression sel0 = arg0.XMethodCall(); //it's a Select()
-            Expression sel0arg0 = sel0.Arguments[0]; //Member
+            Expression sel0arg0 = sel0.Arguments[0]; //Member {c.Orders}
+            Expression sel0arg1 = sel0.Arguments[1]; //Member {o=>o}
+
+            if(sel0arg0.NodeType==ExpressionType.MemberAccess && sel0arg1.NodeType==ExpressionType.Quote)
+            {
+                UnaryExpression quote = (UnaryExpression)sel0arg1;
+                ParameterExpression o = quote.Operand.XLambda().Parameters[0];
+                this.memberExprNickames[sel0arg0 as MemberExpression] = o.Name;
+            }
+
             //Expression sel0arg1 = sel0.Arguments[1]; //Quote of Lambda - ignore
             Expression arg1B = arg1.XLambda().Body;
             //Console.WriteLine("" + arg0);
