@@ -193,6 +193,21 @@ namespace Test_NUnit_PostgreSql
             Assert.AreEqual(1, list.Count);
         }
 
+
+        [Test]
+        public void C8_SelectPenByLocalVariable()
+        {
+            Northwind db = CreateDB();
+            string pen = "Pen";
+
+            var q = from p in db.Products 
+                    where (p.ProductName == pen)
+                    select p;
+            var productIDs = q.ToList();
+            int productCount = productIDs.Count;
+            Assert.AreEqual(productCount, 1, "Expected one pen, got count=" + productCount);
+        }
+
         #endregion
 
         #region region D - select first or last - calls IQueryable.Execute instead of GetEnumerator
