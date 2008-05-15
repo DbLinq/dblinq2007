@@ -127,6 +127,18 @@ namespace Test_NUnit_PostgreSql
         }
 
         [Test]
+        public void C2b_SelectPenId()
+        {
+            Northwind db = CreateDB();
+
+            var pen = "Pen";
+            var q = from p in db.Products where p.ProductName == pen select p.ProductID;
+            var productIDs = q.ToList();
+            int productCount = productIDs.Count;
+            Assert.AreEqual(productCount, 1, "Expected one pen, got count=" + productCount);
+        }
+
+        [Test]
         public void C3_SelectPenIdName()
         {
             Northwind db = CreateDB();
