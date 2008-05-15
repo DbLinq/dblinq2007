@@ -1,0 +1,6 @@
+# note that databaserver can be specified in %DbLinqServer%, and is localhost by default (if not specified)
+/code=Example\DbLinq.SQLite.Example\nwind\Northwind.cs /provider=Sqlite     /conn="data source=Northwind.db3"
+/code=Example\DbLinq.Ora.Example\nwind\Northwind.cs    /provider=Oracle     /user=Northwind
+/code=Example\DbLinq.Pgsql.Example\nwind\Northwind.cs  /provider=PostgreSQL
+/code=Example\DbLinq.Ingres.Example\nwind\Northwind.cs /provider=Ingres     
+/code=Example\DbLinq.MySql.Example\nwind\Northwind.cs  /provider=MySQL      
