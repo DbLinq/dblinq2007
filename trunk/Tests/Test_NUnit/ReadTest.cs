@@ -188,7 +188,7 @@ namespace Test_NUnit_PostgreSql
                         };
 
             var list = query.ToList();
-            Assert.AreEqual(2, list.Count);
+            Assert.AreEqual(3, list.Count);
         }
 
 
