@@ -217,6 +217,7 @@ namespace DbLinq.Linq.Clause
                 TableSpec tblLeft = vendor.FormatTableSpec(type2, nick2);
                 TableSpec tblRight = vendor.FormatTableSpec(type1, nick1);
                 JoinSpec js = new JoinSpec() { LeftSpec = tblLeft, LeftField = joinLeft, RightSpec = tblRight, RightField = joinRight };
+                js.JoinType = JoinSpec.JoinTypeEnum.Left;
                 result.addJoin(js);
 
             }
