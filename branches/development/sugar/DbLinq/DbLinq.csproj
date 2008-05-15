@@ -59,6 +59,17 @@
     <Compile Include="Linq\Database\Implementation\DatabaseContext.cs" />
     <Compile Include="Linq\Database\Implementation\DatabaseConnection.cs" />
     <Compile Include="Linq\Database\Implementation\DatabaseTransaction.cs" />
+    <Compile Include="Linq\Data\Sugar\AbstractQuery.cs" />
+    <Compile Include="Linq\Data\Sugar\ExpressionChain.cs" />
+    <Compile Include="Linq\Data\Sugar\QueryContext.cs" />
+    <Compile Include="Linq\Data\Sugar\LinqToSql.cs" />
+    <Compile Include="Linq\Data\Sugar\ExpressionQuery.cs" />
+    <Compile Include="Linq\Data\Sugar\Entities\QueryColumn.cs" />
+    <Compile Include="Linq\Data\Sugar\Entities\- Expressions\QueryExpression.cs" />
+    <Compile Include="Linq\Data\Sugar\QueryGenerator.cs" />
+    <Compile Include="Linq\Data\Sugar\Entities\QueryParameter.cs" />
+    <Compile Include="Linq\Data\Sugar\Entities\QueryTable.cs" />
+    <Compile Include="Linq\Data\Sugar\SqlQuery.cs" />
     <Compile Include="Linq\Identity\IdentityKey.cs" />
     <Compile Include="Linq\Identity\IIdentityProvider.cs" />
     <Compile Include="Linq\Identity\IIdentityReader.cs" />
