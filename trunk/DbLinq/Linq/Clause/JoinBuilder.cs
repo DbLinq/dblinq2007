@@ -208,7 +208,8 @@ namespace DbLinq.Linq.Clause
             if (assoc1.OtherKey != null && assoc2.ThisKey != null)
             {
                 var otherKeyColumn = vendor.GetSqlFieldSafeName(AttribHelper.GetColumnAttribute(type1, assoc1.OtherKey).Name);
-                var thisKeyColumn = vendor.GetSqlFieldSafeName(AttribHelper.GetColumnAttribute(type2, assoc2.ThisKey).Name);
+                var thisKeyColumn = vendor.GetSqlFieldSafeName(AttribHelper.GetColumnAttribute(type2, assoc2.OtherKey).Name);
+                //var thisKeyColumn = vendor.GetSqlFieldSafeName(AttribHelper.GetColumnAttribute(type2, assoc2.ThisKey).Name);
                 
                 //string joinString = "$c.CustomerID=$o.CustomerID"
                 string joinLeft = nick1 + "." + otherKeyColumn;
