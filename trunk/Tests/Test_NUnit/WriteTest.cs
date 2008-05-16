@@ -551,6 +551,37 @@ dummy text
             db.SubmitChanges();
         }
 
+        /// <summary>
+        /// Quote from MSDN:
+        /// If the object requested by the query is easily identifiable as one
+        /// already retrieved, no query is executed. The identity table acts as a cache
+        /// of all previously retrieved objects
+
+        /// From Matt Warren: http://forums.microsoft.com/MSDN/ShowPost.aspx?PostID=345635&SiteID=1
+        /// The cache is checked when the query is a simple table.Where(pred) or table.First(pred) where the 
+        /// predicate refers only to the primary key.  Otherwise the query is always sent and the cache only checked 
+        /// after the results are retrieved. 
+        /// The DLINQ cache is not distributed or shared, it is local and contained within the context.  It is only a 
+        /// referential identity cache used to guarantee that two reads of the same entity return the same instance. 
+        /// You are not expected to hold the cache for an extended duration (except possibly for a client scenario), 
+        /// or share it across threads, processes, or machines in a cluster. 
+        /// </summary>
+        [Test]
+        public void G16_CustomerCacheHit()
+        {
+            Northwind db = CreateDB();
+            Customer c1 = new Customer() { CustomerID = "temp", CompanyName="Test", ContactName="Test" };
+            db.Customers.InsertOnSubmit(c1);
+            db.SubmitChanges();
+            db.ExecuteCommand("delete from customers WHERE CustomerID='temp'");
+
+            var res = (from c in db.Customers
+                       where c.CustomerID == "temp"
+                       select c).Single();
+        }
         #endregion
+
+
+
     }
 }
