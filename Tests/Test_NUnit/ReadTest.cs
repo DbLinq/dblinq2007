@@ -32,11 +32,11 @@ using Test_NUnit;
 #if MYSQL
     namespace Test_NUnit_MySql
 #elif ORACLE
-    #if ODP
+#if ODP
         namespace Test_NUnit_OracleODP
-    #else
+#else
         namespace Test_NUnit_Oracle
-    #endif
+#endif
 #elif POSTGRES
 namespace Test_NUnit_PostgreSql
 #elif SQLITE
@@ -188,7 +188,7 @@ namespace Test_NUnit_PostgreSql
                         };
 
             var list = query.ToList();
-            Assert.AreEqual(3, list.Count);
+            Assert.AreEqual(2, list.Count);
         }
 
 
@@ -212,7 +212,7 @@ namespace Test_NUnit_PostgreSql
             Northwind db = CreateDB();
             string pen = "Pen";
 
-            var q = from p in db.Products 
+            var q = from p in db.Products
                     where (p.ProductName == pen)
                     select p;
             var productIDs = q.ToList();
