@@ -37,6 +37,7 @@ using Id = System.Decimal;
 using Id = System.Int32;
 using System.Data.Linq.Mapping;
 #endif
+using TableAttribute = System.Data.Linq.Mapping.TableAttribute;
 
 #if MYSQL
     namespace Test_NUnit_MySql
