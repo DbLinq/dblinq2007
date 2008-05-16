@@ -100,13 +100,14 @@ namespace Test_NUnit_PostgreSql
             Assert.IsTrue(list.Count > 0);
         }
 
+        #region NestedPropertiesDynamicSelect
 
         [Test(Description = "dynamic version of F16_NestedObjectSelect")]
         public void DL5_NestedObjectSelect()
         {
             Northwind db = CreateDB();
             var orders = db.GetTable<Order>();
-            var res = orders.SelectDynamic(new string[] { "OrderID", "Customer.ContactName" });
+            var res = orders.SelectNested(new string[] { "OrderID", "Customer.ContactName" });
 
             List<Order> list = res.ToList();
             Assert.IsTrue(list.Count > 0);
@@ -154,10 +155,14 @@ namespace Test_NUnit_PostgreSql
 
             // Double projection works in Linq-SQL:
             var orders = db.GetTable<Order>().ToArray().AsQueryable();
-            var query = orders.SelectDynamic(new string[] { "OrderID", "Customer.ContactName" });
+            var query = orders.SelectNested(new string[] { "OrderID", "Customer.ContactName" });
             var list = query.ToList();
             Assert.IsTrue(list.Count > 0);
         }
+
+        #endregion
+
+        #region Predicates
 
         /// <summary>
         /// Reported by pwy.mail in issue http://code.google.com/p/dblinq2007/issues/detail?id=68
@@ -171,28 +176,56 @@ namespace Test_NUnit_PostgreSql
             Assert.AreEqual(1, count);
         }
 
+        /// <summary>
+        /// Reported by pwy.mail in issue http://code.google.com/p/dblinq2007/issues/detail?id=69
+        /// </summary>
+        [Test]
+        public void DL9_PredicateBuilderCount()
+        {
+            Northwind db = CreateDB();
+            var predicate = PredicateBuilder.True<Customer>();
+            predicate = predicate.And(m => m.City == "Paris");
+            int count = db.Customers.Count(predicate);
+            Assert.AreEqual(1, count);
+        }
 
-        //[Test]
-        //public void DLX()
-        //{
-        //    Northwind db = CreateDB();
-        //    var q = db.Products.Where("ProductID>1")
-        //        .OrderBy("ProductID");
-        //    var q2 = q.Count();
-        //    var list = q.ToList();
-        //    System.Windows.Forms.Form frm = new System.Windows.Forms.Form() { Text = "DynLinq" };
-        //    System.Windows.Forms.DataGridView grd = new System.Windows.Forms.DataGridView();
-        //    frm.Controls.Add(grd);
-        //    grd.DataSource = list;
-        //    System.Windows.Forms.Application.Run(frm);
-        //}
+
+        /// <summary>
+        /// Reported by pwy.mail in issue http://code.google.com/p/dblinq2007/issues/detail?id=69
+        /// </summary>
+        [Test]
+        public void DL10_PredicateBuilderWhere()
+        {
+            Northwind db = CreateDB();
+            var predicate = PredicateBuilder.True<Customer>();
+
+            predicate = predicate.And(m => m.City == "Paris");
+            predicate = predicate.And(n => n.CompanyName == "Around the Horn");
+            IList<Customer> list = db.Customers.AsQueryable().Where(predicate).ToList();
+        }
+
+
+        /// <summary>
+        /// Build predicate expressions dynamically.
+        /// </summary>
+        static class PredicateBuilder
+        {
+            public static Expression<Func<T, bool>> True<T>() { return f => true; }
+            public static Expression<Func<T, bool>> False<T>() { return f => false; }
+        }
 
     }
+        #endregion
 
-    // Extension method written by Marc Gravell
-    public static class SelectUsingSingleProjection
+    #region ExtensionMethods
+
+    /// <summary>
+    /// Extension written by Marc Gravell.
+    /// Traverses nested properties
+    /// </summary>
+    static class SelectUsingSingleProjection
     {
-        public static IQueryable<T> SelectDynamic<T>(this IQueryable<T> source, params string[] propertyNames)
+        internal static IQueryable<T> SelectNested<T>(this IQueryable<T> source, params string[] propertyNames)
             where T : new()
         {
             Type type = typeof(T);
@@ -236,8 +269,27 @@ namespace Test_NUnit_PostgreSql
             }
             return Expression.MemberInit(newExpr, bindings);
         }
+
+
+        /// <summary>
+        /// Extension method provided by pwy.mail in issue http://code.google.com/p/dblinq2007/issues/detail?id=69
+        /// </summary>
+        internal static Expression<Func<T, bool>> Or<T>(this Expression<Func<T, bool>> expr1,
+                                                        Expression<Func<T, bool>> expr2)
+        {
+            var invokedExpr = Expression.Invoke(expr2, expr1.Parameters.Cast<Expression>());
+            return Expression.Lambda<Func<T, bool>>
+                  (Expression.Or(expr1.Body, invokedExpr), expr1.Parameters);
+        }
+
+        internal static Expression<Func<T, bool>> And<T>(this Expression<Func<T, bool>> expr1,
+            Expression<Func<T, bool>> expr2)
+        {
+            var invokedExpr = Expression.Invoke(expr2, expr1.Parameters.Cast<Expression>());
+            return Expression.Lambda<Func<T, bool>>
+                  (Expression.And(expr1.Body, invokedExpr), expr1.Parameters);
+        }
     }
-
-
+    #endregion
 
 }
