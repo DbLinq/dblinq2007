@@ -207,17 +207,29 @@ namespace DbLinq.Linq.Clause
             // picrap: this test is probably inaccurate, it should rely on other properties (... to be determined)
             if (assoc1.OtherKey != null && assoc2.ThisKey != null)
             {
-                var otherKeyColumn = vendor.GetSqlFieldSafeName(AttribHelper.GetColumnAttribute(type1, assoc1.OtherKey).Name);
-                var thisKeyColumn = vendor.GetSqlFieldSafeName(AttribHelper.GetColumnAttribute(type2, assoc2.OtherKey).Name);
-                //var thisKeyColumn = vendor.GetSqlFieldSafeName(AttribHelper.GetColumnAttribute(type2, assoc2.ThisKey).Name);
-                
+                string otherKeyColumn, thisKeyColumn;
+                otherKeyColumn = vendor.GetSqlFieldSafeName(AttribHelper.GetColumnAttribute(type1, assoc1.OtherKey).Name);
+                JoinSpec js = new JoinSpec();
+
+                if (assoc2.OtherKey == null)
+                    // O2_OperatorAny() and O1_OperatorAll() tests.
+                    thisKeyColumn = vendor.GetSqlFieldSafeName(AttribHelper.GetColumnAttribute(type2, assoc2.ThisKey).Name);
+                else
+                {
+                    // used to retrieve associated propery if column names are different in both sides of association
+                    thisKeyColumn = vendor.GetSqlFieldSafeName(AttribHelper.GetColumnAttribute(type2, assoc2.OtherKey).Name);
+                    js.JoinType = JoinSpec.JoinTypeEnum.Left;
+                }
+
                 //string joinString = "$c.CustomerID=$o.CustomerID"
                 string joinLeft = nick1 + "." + otherKeyColumn;
                 string joinRight = nick2 + "." + thisKeyColumn;
                 TableSpec tblLeft = vendor.FormatTableSpec(type2, nick2);
                 TableSpec tblRight = vendor.FormatTableSpec(type1, nick1);
-                JoinSpec js = new JoinSpec() { LeftSpec = tblLeft, LeftField = joinLeft, RightSpec = tblRight, RightField = joinRight };
-                js.JoinType = JoinSpec.JoinTypeEnum.Left;
+                js.LeftSpec = tblLeft;
+                js.LeftField = joinLeft;
+                js.RightSpec = tblRight;
+                js.RightField = joinRight;
                 result.addJoin(js);
 
             }
@@ -234,9 +246,43 @@ namespace DbLinq.Linq.Clause
                 TableSpec tblLeft = vendor.FormatTableSpec(type2, nick2);
                 TableSpec tblRight = vendor.FormatTableSpec(type1, nick1);
                 JoinSpec js = new JoinSpec() { LeftSpec = tblLeft, LeftField = joinLeft, RightSpec = tblRight, RightField = joinRight };
-                js.JoinType = JoinSpec.JoinTypeEnum.Left;
+                //js.JoinType = JoinSpec.JoinTypeEnum.Left;
                 result.addJoin(js);
             }
+
+#if FailsIfAssociatonSideColumnNamesAreDifferent
+            if (assoc1.OtherKey != null && assoc2.ThisKey != null)
+                {
+                var otherKeyColumn = vendor.GetSqlFieldSafeName(AttribHelper.GetColumnAttribute(type1, assoc1.OtherKey).Name);
+                var thisKeyColumn = vendor.GetSqlFieldSafeName(AttribHelper.GetColumnAttribute(type2, assoc2.ThisKey).Name);
+                
+                //string joinString = "$c.CustomerID=$o.CustomerID"
+                string joinLeft = nick1 + "." + otherKeyColumn;
+                string joinRight = nick2 + "." + thisKeyColumn;
+                TableSpec tblLeft = vendor.FormatTableSpec(type2, nick2);
+                TableSpec tblRight = vendor.FormatTableSpec(type1, nick1);
+                JoinSpec js = new JoinSpec() { LeftSpec = tblLeft, LeftField = joinLeft, RightSpec = tblRight, RightField = joinRight };
+                //js.JoinType = JoinSpec.JoinTypeEnum.Left;
+                result.addJoin(js);
+
+            }
+            else
+            {
+                var thisKeyColumn = vendor.GetSqlFieldSafeName(AttribHelper.GetColumnAttribute(type2, assoc1.ThisKey).Name);
+                var otherKeyColumn = vendor.GetSqlFieldSafeName(AttribHelper.GetColumnAttribute(type1, assoc2.OtherKey).Name);
+                //string joinString = "$c.CustomerID=$o.CustomerID"
+                //string joinString = nick1 + "." + thisKeyColumn + "=" + nick2 + "." + otherKeyColumn;
+                //result.addJoin(nick1 + "." + thisKeyColumn, nick2 + "." + otherKeyColumn);
+
+                string joinLeft = nick1 + "." + thisKeyColumn;
+                string joinRight = nick2 + "." + otherKeyColumn;
+                TableSpec tblLeft = vendor.FormatTableSpec(type2, nick2);
+                TableSpec tblRight = vendor.FormatTableSpec(type1, nick1);
+                JoinSpec js = new JoinSpec() { LeftSpec = tblLeft, LeftField = joinLeft, RightSpec = tblRight, RightField = joinRight };
+                //js.JoinType = JoinSpec.JoinTypeEnum.Left;
+                result.addJoin(js);
+            }
+#endif
 
             //order matters: 
             //for self join, this order of statements loses tablesUsed[Employee]='join$' but preserves tablesUsed[Employee]='e$'
