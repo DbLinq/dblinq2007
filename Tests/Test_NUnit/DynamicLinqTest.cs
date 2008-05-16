@@ -41,7 +41,7 @@ namespace Test_NUnit_MySql
         namespace Test_NUnit_Oracle
 #endif
 #elif POSTGRES
-    namespace Test_NUnit_PostgreSql
+namespace Test_NUnit_PostgreSql
 #elif SQLITE
     namespace Test_NUnit_Sqlite
 #elif INGRES
@@ -125,6 +125,7 @@ namespace Test_NUnit_MySql
             var orders = db.GetTable<Order>().ToArray().AsQueryable();
 
             var query = from order in orders
+                        //where order.Customer != null
                         select new Order
                         {
                             OrderID = order.OrderID,
@@ -156,6 +157,18 @@ namespace Test_NUnit_MySql
             var query = orders.SelectDynamic(new string[] { "OrderID", "Customer.ContactName" });
             var list = query.ToList();
             Assert.IsTrue(list.Count > 0);
+        }
+
+        /// <summary>
+        /// Reported by pwy.mail in issue http://code.google.com/p/dblinq2007/issues/detail?id=68
+        /// </summary>
+        [Test]
+        public void DL8_CountTest2()
+        {
+            Northwind db = CreateDB();
+            Expression<Func<Customer, bool>> predicate = c => c.City == "Paris";
+            int count = db.Customers.Count(predicate);
+            Assert.AreEqual(1, count);
         }
 
 
