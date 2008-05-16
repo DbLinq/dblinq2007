@@ -206,6 +206,21 @@ namespace Test_NUnit_PostgreSql
         }
 
 
+        /// <summary>
+        /// from http://www.agilior.pt/blogs/pedro.rainho/archive/2008/04/11/4271.aspx
+        /// </summary>
+        [Test(Description = "Using LIKE operator from linq query")]
+        public void C7B_LikeOperator()
+        {
+            Northwind db = CreateDB();
+
+            var query = (from c in db.Customers
+                          where System.Data.Linq.SqlClient.SqlMethods.Like(c.CompanyName, "HE%U")
+                          select c).ToList();
+            var list = query.ToList();
+            Assert.AreEqual(1, list.Count);
+        }
+
         [Test]
         public void C8_SelectPenByLocalVariable()
         {
