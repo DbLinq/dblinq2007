@@ -235,6 +235,10 @@ namespace DbLinq.Linq.Clause
             }
             else
             {
+                JoinSpec.JoinTypeEnum joinType = JoinSpec.JoinTypeEnum.Plain;
+                if(attribAndProp1!=null && attribAndProp1.columnAttribute!=null && attribAndProp1.columnAttribute.CanBeNull)
+                    joinType = JoinSpec.JoinTypeEnum.Left;
+
                 var thisKeyColumn = vendor.GetSqlFieldSafeName(AttribHelper.GetColumnAttribute(type2, assoc1.ThisKey).Name);
                 var otherKeyColumn = vendor.GetSqlFieldSafeName(AttribHelper.GetColumnAttribute(type1, assoc2.OtherKey).Name);
                 //string joinString = "$c.CustomerID=$o.CustomerID"
@@ -245,7 +249,8 @@ namespace DbLinq.Linq.Clause
                 string joinRight = nick2 + "." + otherKeyColumn;
                 TableSpec tblLeft = vendor.FormatTableSpec(type2, nick2);
                 TableSpec tblRight = vendor.FormatTableSpec(type1, nick1);
-                JoinSpec js = new JoinSpec() { LeftSpec = tblLeft, LeftField = joinLeft, RightSpec = tblRight, RightField = joinRight };
+
+                JoinSpec js = new JoinSpec() { LeftSpec = tblLeft, LeftField = joinLeft, RightSpec = tblRight, RightField = joinRight, JoinType = joinType };
                 //js.JoinType = JoinSpec.JoinTypeEnum.Left;
                 result.addJoin(js);
             }

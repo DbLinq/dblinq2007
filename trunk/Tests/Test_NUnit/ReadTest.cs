@@ -179,6 +179,7 @@ namespace Test_NUnit_PostgreSql
         [Test]
         public void C6_NullParentEmplyee()
         {
+            //this should generate a LEFT JOIN statement, but currently does not.
             Northwind db = CreateDB();
             var query = from e in db.Employees
                         select new
@@ -188,7 +189,7 @@ namespace Test_NUnit_PostgreSql
                         };
 
             var list = query.ToList();
-            Assert.AreEqual(2, list.Count);
+            Assert.AreEqual(3, list.Count);
         }
 
 
