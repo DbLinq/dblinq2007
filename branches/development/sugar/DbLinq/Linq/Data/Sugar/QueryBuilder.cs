@@ -22,13 +22,38 @@
 // 
 #endregion
 
-using System.Collections.Generic;
-using DbLinq.Linq.Data.Sugar.Expressions;
-
 namespace DbLinq.Linq.Data.Sugar
 {
-    public class AbstractQuery
+    public partial class QueryBuilder
     {
-        public IList<QueryParameterExpression> Parameters { get; protected set; }
+        protected virtual SqlQuery BuildSqlQuery(ExpressionQuery expressionQuery, QueryContext queryContext)
+        {
+            var sql = "";
+            var sqlQuery = new SqlQuery(sql, expressionQuery.Parameters);
+            return sqlQuery;
+        }
+
+        [DbLinqToDo]
+        protected virtual SqlQuery GetFromCache(ExpressionChain expressions)
+        {
+            return null;
+        }
+
+        [DbLinqToDo]
+        protected virtual void SetInCache(ExpressionChain expressions, SqlQuery sqlQuery)
+        {
+        }
+
+        public SqlQuery GetQuery(ExpressionChain expressions, QueryContext queryContext)
+        {
+            var sqlQuery = GetFromCache(expressions);
+            if (sqlQuery == null)
+            {
+                var expressionsQuery = BuildExpressionQuery(expressions, queryContext);
+                sqlQuery = BuildSqlQuery(expressionsQuery, queryContext);
+                SetInCache(expressions, sqlQuery);
+            }
+            return sqlQuery;
+        }
     }
 }

@@ -25,10 +25,20 @@
 using System.Collections.Generic;
 using DbLinq.Linq.Data.Sugar.Expressions;
 
-namespace DbLinq.Linq.Data.Sugar
+namespace DbLinq.Linq.Data.Sugar.Expressions
 {
-    public class AbstractQuery
+    public class QueryExpression
     {
-        public IList<QueryParameterExpression> Parameters { get; protected set; }
+        public IList<QueryExpression> Operands { get; private set; }
+
+        protected QueryExpression()
+        {
+            Operands = new List<QueryExpression>();
+        }
+
+        protected QueryExpression(IList<QueryExpression> operands)
+        {
+            Operands = operands;
+        }
     }
 }

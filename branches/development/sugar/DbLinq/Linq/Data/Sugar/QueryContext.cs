@@ -22,9 +22,18 @@
 // 
 #endregion
 
+using System.Data.Linq.Mapping;
+
 namespace DbLinq.Linq.Data.Sugar
 {
     public class QueryContext
     {
+        public DataContext DataContext { get; private set; }
+        public MetaModel MetaModel { get { return DataContext.Mapping; } }
+
+        public QueryContext(DataContext dataContext)
+        {
+            DataContext = dataContext;
+        }
     }
 }

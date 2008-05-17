@@ -23,13 +23,24 @@
 #endregion
 
 using System.Collections.Generic;
-using DbLinq.Linq.Data.Sugar.Entities;
+using DbLinq.Linq.Data.Sugar.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar
 {
-    public class ExpressionQuery: AbstractQuery
+    /// <summary>
+    /// Represents the first step Expression analysis result
+    /// All QueryExpressions are sorted by category
+    /// </summary>
+    public class ExpressionQuery : AbstractQuery
     {
-        public IList<QueryTable> Tables { get; private set; }
+        public IList<QueryTableExpression> Tables { get; private set; }
         public IList<QueryExpression> Where { get; private set; }
+
+        public ExpressionQuery()
+        {
+            Parameters = new List<QueryParameterExpression>();
+            Tables = new List<QueryTableExpression>();
+            Where = new List<QueryExpression>();
+        }
     }
 }

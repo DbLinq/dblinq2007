@@ -22,13 +22,31 @@
 // 
 #endregion
 
-using System.Collections.Generic;
-using DbLinq.Linq.Data.Sugar.Expressions;
-
-namespace DbLinq.Linq.Data.Sugar
+namespace DbLinq.Linq.Data.Sugar.Expressions
 {
-    public class AbstractQuery
+    public class QueryTableExpression : QueryExpression
     {
-        public IList<QueryParameterExpression> Parameters { get; protected set; }
+        public enum JoinType
+        {
+            Default,
+            Inner,
+            LeftOuter,
+            RightOuter,
+            FullOuter,
+        }
+
+        public JoinType Join;
+        public string Name;
+
+        public QueryTableExpression(string name, JoinType join)
+        {
+            Name = name;
+            Join = join;
+        }
+
+        public QueryTableExpression(string name)
+            : this(name, JoinType.Default)
+        {
+        }
     }
 }

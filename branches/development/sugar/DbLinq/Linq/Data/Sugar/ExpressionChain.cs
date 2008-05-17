@@ -22,18 +22,27 @@
 // 
 #endregion
 
+using System.Linq;
+using System.Collections;
 using System.Linq.Expressions;
 using System.Collections.Generic;
 
 namespace DbLinq.Linq.Data.Sugar
 {
-    public class ExpressionChain
+    public class ExpressionChain : IEnumerable<Expression>
     {
         public IList<Expression> Expressions { get; private set; }
 
         public ExpressionChain(IList<Expression> expressions)
         {
             Expressions = expressions;
+        }
+
+        public ExpressionChain(IEnumerable expressions)
+        {
+            Expressions = new List<Expression>();
+            foreach (Expression e in expressions)
+                Expressions.Add(e);
         }
 
         public override bool Equals(object obj)
@@ -57,6 +66,16 @@ namespace DbLinq.Linq.Data.Sugar
             foreach (var expression in Expressions)
                 hash ^= expression.GetHashCode();
             return hash;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable<Expression>)this).GetEnumerator();
+        }
+
+        public IEnumerator<Expression> GetEnumerator()
+        {
+            return Expressions.GetEnumerator();
         }
     }
 }

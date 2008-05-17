@@ -87,7 +87,8 @@ namespace DbLinq.Linq
 
             ResultMapper = ObjectFactory.Get<IResultMapper>();
             ModificationHandler = ObjectFactory.Create<IModificationHandler>(); // not a singleton: object is stateful
-            QueryGenerator = ObjectFactory.Get<QueryGenerator>();
+            //QueryGenerator = ObjectFactory.Get<QueryGenerator>();
+            QueryGenerator = ObjectFactory.Get<Data.Sugar.QueryGenerator>();
 
             EntityMap = ObjectFactory.Create<IEntityMap>();
             identityReaderFactory = ObjectFactory.Get<IIdentityReaderFactory>();
