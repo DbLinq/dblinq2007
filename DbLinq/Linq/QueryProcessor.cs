@@ -82,7 +82,7 @@ namespace DbLinq.Linq
         public ILogger Logger { get; set; }
 
         LambdaExpression _prevGroupJoinExpression = null;
-        
+
         /// <summary>
         /// after a GroupJoin, we may wish to edit any subsequent Select or Where 
         /// </summary>
@@ -112,7 +112,7 @@ namespace DbLinq.Linq
                 case "Max":
                 case "Min":
                 case "Sum":
-                    if (lambdaParam != null)
+                    if (lambdaParam != null && _vars.ExpressionChain.Count > 0)
                     {
                         MethodCallExpression precedingSelectCall = _vars.ExpressionChain[_vars.ExpressionChain.Count - 1];
                         LambdaExpression precedingSelect = precedingSelectCall.Arguments[1].XLambda();
