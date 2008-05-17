@@ -98,7 +98,9 @@ namespace DbLinq.Util
                 case ExpressionType.NotEqual: 
                     return "<>";  //Thanks to Laurent Morisseau for spotting the omission
 
-                case ExpressionType.AndAlso: return "AND";
+                case ExpressionType.And:
+                case ExpressionType.AndAlso:
+                    return "AND";
                 case ExpressionType.OrElse: return "OR";
 
                 case ExpressionType.Multiply:
