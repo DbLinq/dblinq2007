@@ -182,6 +182,8 @@ namespace Test_NUnit_PostgreSql
         [Test]
         public void DL9_PredicateBuilderCount()
         {
+            //2008.May.17: breaks because we are not handling an 'InvocationExpression' in ExpressionTreeParser.
+            //possibily a tree rewrite is needed.
             Northwind db = CreateDB();
             var predicate = PredicateBuilder.True<Customer>();
             predicate = predicate.And(m => m.City == "Paris");

@@ -100,6 +100,7 @@ namespace DbLinq.Linq.Clause
                 case ExpressionType.Add:
                 case ExpressionType.AddChecked:
                 case ExpressionType.Coalesce:
+                case ExpressionType.And:
                     return AnalyzeBinary(recurData, (BinaryExpression)expr);
                 case ExpressionType.Call:
                     //case ExpressionType.MethodCallVirtual:
@@ -117,6 +118,9 @@ namespace DbLinq.Linq.Clause
                 case ExpressionType.Quote:
                     //case ExpressionType.Cast: //Cast disappeared in Bet2?!
                     return AnalyzeUnary(recurData, (UnaryExpression)expr);
+                case ExpressionType.Invoke:
+                    //case ExpressionType.Cast: //Cast disappeared in Bet2?!
+                    return AnalyzeInvocation(recurData, (InvocationExpression)expr);
                 case ExpressionType.New:
                     {
                         //new case in Beta2 - route into MemberInit
@@ -132,6 +136,17 @@ namespace DbLinq.Linq.Clause
             }
         }
 
+        private AnalysisResult AnalyzeInvocation(RecurData recurData, InvocationExpression expr)
+        {
+            if (expr.Arguments.Any(arg => arg.NodeType != ExpressionType.Parameter))
+                throw new ArgumentException("L142 TODO: rewrite Invocation to replace Lambda args");
+            
+            //if we get here, all Invoke params are plain parameters, and we can ignore them
+            if(expr.Expression.NodeType!=ExpressionType.Lambda)
+                throw new ArgumentException("L146 Invocation: only prepared for a lambda");
+
+            return AnalyzeExpression(recurData, expr.Expression.XLambda().Body);
+        }
 
         private AnalysisResult AnalyzeConstant(RecurData recurData, ConstantExpression expr)
         {
