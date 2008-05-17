@@ -22,13 +22,15 @@
 // 
 #endregion
 
-using System.Collections.Generic;
 using DbLinq.Linq.Data.Sugar.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar
 {
-    public class AbstractQuery
+    public static class QueryExpressionMatchExtensions
     {
-        public IList<QueryParameterExpression> Parameters { get; protected set; }
+        public static QueryExpressionMatch Parse(this QueryExpression queryExpression)
+        {
+            return new QueryExpressionMatch(queryExpression);
+        }
     }
 }

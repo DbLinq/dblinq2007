@@ -22,13 +22,20 @@
 // 
 #endregion
 
-using System.Collections.Generic;
 using DbLinq.Linq.Data.Sugar.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar
 {
-    public class AbstractQuery
+    partial class QueryBuilder
     {
-        public IList<QueryParameterExpression> Parameters { get; protected set; }
+        protected virtual QueryExpression AnalyzeLanguagePatterns(QueryExpression queryExpression, BuilderContext builderContext)
+        {
+            return AnalyzePatterns(queryExpression, AnalyzeLanguagePattern, builderContext);
+        }
+
+        protected virtual QueryExpression AnalyzeLanguagePattern(QueryExpression queryExpression, BuilderContext builderContext)
+        {
+            return queryExpression;
+        }
     }
 }

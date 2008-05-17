@@ -28,9 +28,14 @@ namespace DbLinq.Linq.Data.Sugar
 {
     public class QueryGenerator: IQueryGenerator
     {
+        // TODO: injection?
+        protected QueryBuilder QueryBuilder = new QueryBuilder();
+
         public SessionVarsParsed GenerateQuery(SessionVars vars, Type T)
         {
-            throw new NotImplementedException();
+            QueryBuilder.GetQuery(new ExpressionChain(vars.ExpressionChain),
+                                  new QueryContext(vars.Context));
+            return new SessionVarsParsed(vars);
         }
     }
 }

@@ -23,12 +23,27 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq.Expressions;
 using DbLinq.Linq.Data.Sugar.Expressions;
 
-namespace DbLinq.Linq.Data.Sugar
+namespace DbLinq.Linq.Data.Sugar.Expressions
 {
-    public class AbstractQuery
+    [DebuggerDisplay("QueryOperationExpression {Operation}")]
+    public class QueryOperationExpression : QueryExpression
     {
-        public IList<QueryParameterExpression> Parameters { get; protected set; }
+        public ExpressionType Operation { get; private set; }
+
+        public QueryOperationExpression(ExpressionType operation, params QueryExpression[] operands)
+            : base(operands)
+        {
+            Operation = operation;
+        }
+
+        public QueryOperationExpression(ExpressionType operation, IList<QueryExpression> operands)
+            : base(operands)
+        {
+            Operation = operation;
+        }
     }
 }

@@ -22,41 +22,37 @@
 // 
 #endregion
 
+using System;
 using System.Linq.Expressions;
+using DbLinq.Linq.Data.Sugar.Expressions;
 
-namespace DbLinq.Linq.Data.Sugar
+namespace DbLinq.Linq.Data.Sugar.Expressions
 {
-    public class LinqToSql
+    /// <summary>
+    /// This class provides an external parameter value
+    /// </summary>
+    public class QueryParameterExpression : QueryExpression
     {
-        protected virtual ExpressionQuery BuildExpressionQuery(ExpressionChain expressions, QueryContext queryContext)
-        {
+        private Delegate getValueDelegate;
 
+        /// <summary>
+        /// Name is a friendly name, without any guaranty to be used
+        /// </summary>
+        public string Name { get; private set; }
+        /// <summary>
+        /// Returns the outer parameter value
+        /// </summary>
+        /// <returns></returns>
+        public object GetValue()
+        {
+            return getValueDelegate.DynamicInvoke();
         }
 
-        protected virtual SqlQuery BuildSqlQuery(ExpressionQuery expressionQuery, QueryContext queryContext)
+        public QueryParameterExpression(Expression expression, string name)
         {
-
-        }
-
-        protected virtual SqlQuery GetFromCache(ExpressionChain expressions)
-        {
-            return null;
-        }
-
-        protected virtual void SetInCache(ExpressionChain expressions, SqlQuery sqlQuery)
-        {
-        }
-
-        public SqlQuery GetQuery(ExpressionChain expressions, QueryContext queryContext)
-        {
-            var sqlQuery = GetFromCache(expressions);
-            if (sqlQuery == null)
-            {
-                var expressionsQuery = BuildExpressionQuery(expressions, queryContext);
-                sqlQuery = BuildSqlQuery(expressionsQuery, queryContext);
-                SetInCache(expressions, sqlQuery);
-            }
-            return sqlQuery;
+            Name = name;
+            var lambda = Expression.Lambda(expression);
+            getValueDelegate = lambda.Compile();
         }
     }
 }

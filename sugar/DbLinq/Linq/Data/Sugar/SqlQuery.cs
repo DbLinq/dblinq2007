@@ -22,10 +22,19 @@
 // 
 #endregion
 
+using System.Collections.Generic;
+using DbLinq.Linq.Data.Sugar.Expressions;
+
 namespace DbLinq.Linq.Data.Sugar
 {
     public class SqlQuery: AbstractQuery
     {
         public string Sql { get; private set; }
+
+        public SqlQuery (string sql, IList<QueryParameterExpression> parameters)
+        {
+            Parameters = parameters;
+            Sql = sql;
+        }
     }
 }

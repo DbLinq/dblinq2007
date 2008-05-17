@@ -22,13 +22,18 @@
 // 
 #endregion
 
-using System.Collections.Generic;
-using DbLinq.Linq.Data.Sugar.Expressions;
+using System;
 
 namespace DbLinq.Linq.Data.Sugar
 {
-    public class AbstractQuery
+    partial class QueryBuilder
     {
-        public IList<QueryParameterExpression> Parameters { get; protected set; }
+        protected string GetTableName(Type tableType, DataContext dataContext)
+        {
+            var tableDescription = dataContext.Mapping.GetTable(tableType);
+            if (tableDescription != null)
+                return tableDescription.TableName;
+            return null;
+        }
     }
 }
