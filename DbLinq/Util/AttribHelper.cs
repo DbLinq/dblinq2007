@@ -170,7 +170,7 @@ namespace DbLinq.Util
         {
             MemberInfo[] member = t.GetMember(memberName);
             if (member.Count() == 0)
-                throw new ArgumentException("Type "+t.FullName + " does not contain member " + memberName);
+                throw new ArgumentException("Type " + t.FullName + " does not contain member " + memberName);
             return GetColumnAttribute(member[0]);
         }
 
@@ -276,8 +276,21 @@ namespace DbLinq.Util
             if (propInfo == null)
                 return false;
             AssociationAttribute assoc1;
-            bool ok = IsAssociation(propInfo, out assoc1);
+            ColumnAttribute column1;
+            bool ok = IsAssociation(propInfo, out assoc1, out column1);
             attribAndProp = new AttribAndProp { assoc = assoc1, propInfo = propInfo };
+            if (ok && assoc1.ThisKey != null)
+            {
+                //given {e.ReportsToEmployee} - 
+                //find also storage column for our association - 'int? ReportsTo {get,set}'
+                //if it reads CanBeNull=true, it's a left join (otherwise regular join)
+                Type tableType = propInfo.DeclaringType;
+                attribAndProp.columnPropInfo = tableType.GetProperty(assoc1.ThisKey);
+                if (attribAndProp.columnPropInfo != null)
+                {
+                    attribAndProp.columnAttribute = GetColumnAttribute(attribAndProp.columnPropInfo);
+                }
+            }
             return ok;
         }
 
@@ -288,8 +301,17 @@ namespace DbLinq.Util
         {
             object[] objs = propInfo.GetCustomAttributes(typeof(AssociationAttribute), false);
             assoc = objs.OfType<AssociationAttribute>().FirstOrDefault();
-            //if (assoc != null && !s_knownAssocs.ContainsKey(assoc))
-            //    s_knownAssocs.Add(assoc, propInfo);
+            return assoc != null;
+        }
+
+        /// <summary>
+        /// given field Order.Customer, check whether it has [Association] attribute
+        /// </summary>
+        public static bool IsAssociation(PropertyInfo propInfo, out AssociationAttribute assoc, out ColumnAttribute col)
+        {
+            object[] attribs = propInfo.GetCustomAttributes(false);
+            assoc = attribs.OfType<AssociationAttribute>().FirstOrDefault();
+            col = attribs.OfType<ColumnAttribute>().FirstOrDefault();
             return assoc != null;
         }
 
@@ -357,7 +379,24 @@ namespace DbLinq.Util
 
     public class AttribAndProp
     {
+        /// <summary>
+        /// eg. Employee.ReportsToEmployee property
+        /// </summary>
         public PropertyInfo propInfo;
+
+        /// <summary>
+        /// eg. [Association(Storage = 'reportsToEmployee', ThisKey = 'ReportsTo')]
+        /// </summary>
         public AssociationAttribute assoc;
+
+        /// <summary>
+        /// eg. field 'int? Employee.ReportsTo'
+        /// </summary>
+        public PropertyInfo columnPropInfo;
+        /// <summary>
+        /// the attribute on columnPropInfo, 
+        /// eg. [Column(Storage = 'reportsTo', Name = 'ReportsTo')]
+        /// </summary>
+        public ColumnAttribute columnAttribute;
     }
 }
