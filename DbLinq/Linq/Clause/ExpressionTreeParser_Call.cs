@@ -47,7 +47,8 @@ namespace DbLinq.Linq.Clause
                 return true;
             if (methodInfo.IsStatic
                 && (methodInfo.DeclaringType.FullName == "Microsoft.VisualBasic.CompilerServices.Operators"
-                 || methodInfo.DeclaringType.FullName == "Microsoft.VisualBasic.CompilerServices.LikeOperator"))
+                 || methodInfo.DeclaringType.FullName == "Microsoft.VisualBasic.CompilerServices.LikeOperator"
+                 || methodInfo.DeclaringType.FullName == "System.Data.Linq.SqlClient.SqlMethods"))
             {
                 var parameters = methodInfo.GetParameters();
                 if (parameters.Length > 0 && parameters[0].ParameterType == typeof(string))
@@ -274,6 +275,7 @@ namespace DbLinq.Linq.Clause
                     }
                     return AnalysisResult.SkipRight;
 
+                case "Like": //System.Data.
                 case "LikeString":
                 case "StartsWith":
                 case "EndsWith":

@@ -215,8 +215,10 @@ namespace Test_NUnit_PostgreSql
         {
             Northwind db = CreateDB();
 
+            //this used to read "Like(HU%F)" but I don't think we have that company.
+
             var query = (from c in db.Customers
-                          where System.Data.Linq.SqlClient.SqlMethods.Like(c.CompanyName, "HE%U")
+                          where System.Data.Linq.SqlClient.SqlMethods.Like(c.CompanyName, "Alfre%")
                           select c).ToList();
             var list = query.ToList();
             Assert.AreEqual(1, list.Count);
