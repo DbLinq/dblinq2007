@@ -536,8 +536,14 @@ dummy text
 
 
         [Test]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void G15_CustomerIdUpdate()
         {
+            //if you run this against Microsoft Linq-to-Sql, it throws an InvalidOperationEx:
+            //{"Value of member 'CustomerID' of an object of type 'Customers' changed. 
+            //A member defining the identity of the object cannot be changed.
+            //Consider adding a new object with new identity and deleting the existing one instead."}
+
             Northwind db = CreateDB();
             Customer c1 = (from c in db.Customers
                            where c.CustomerID == "AIRBU"

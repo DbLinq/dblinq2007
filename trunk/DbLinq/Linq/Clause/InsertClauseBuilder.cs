@@ -226,6 +226,8 @@ namespace DbLinq.Linq.Clause
                 if (colAtt.IsPrimaryKey)
                 {
                     //Primary Key field: skip, WHERE clause is already prepared
+                    string errorMsg = "PrimaryKey field " + projFld.MemberInfo.Name + " was modified. Instead, DELETE previous row and INSERT another one";
+                    throw new InvalidOperationException(errorMsg);
                 }
                 else
                 {

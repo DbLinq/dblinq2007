@@ -281,7 +281,7 @@ namespace Test_NUnit_PostgreSql
         {
             var invokedExpr = Expression.Invoke(expr2, expr1.Parameters.Cast<Expression>());
             return Expression.Lambda<Func<T, bool>>
-                  (Expression.Or(expr1.Body, invokedExpr), expr1.Parameters);
+                  (Expression.OrElse(expr1.Body, invokedExpr), expr1.Parameters);
         }
 
         internal static Expression<Func<T, bool>> And<T>(this Expression<Func<T, bool>> expr1,
@@ -289,7 +289,7 @@ namespace Test_NUnit_PostgreSql
         {
             var invokedExpr = Expression.Invoke(expr2, expr1.Parameters.Cast<Expression>());
             return Expression.Lambda<Func<T, bool>>
-                  (Expression.And(expr1.Body, invokedExpr), expr1.Parameters);
+                  (Expression.AndAlso(expr1.Body, invokedExpr), expr1.Parameters);
         }
     }
     #endregion
