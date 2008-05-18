@@ -327,7 +327,6 @@ namespace DbLinq.Linq
                         {
                             Logger.Write(Level.Error, "L227 Failed on SetObjectIdField: " + ex);
                         }
-                        //cmd.CommandText = 
                         //TODO: use reflection to assign the field ID - that way the _isModified flag will not get set
 
                         //Logger.Write("MTable insert TODO: populate ID field ");

@@ -151,6 +151,14 @@ namespace DbLinq.Util
                     //LambdaExpression lambdaParam = expression.XMethodCall().XParam(1).XLambda();
                     //MTable<T> table2 = _parentTable as MTable<T>;
                     //IEnumerator<T> enumerator;
+
+                    if (exprCall.Method.Name == "Single" || exprCall.Method.Name == "SingleOrDefault" || exprCall.Method.Name == "First")
+                    {
+                        S cachedRow;
+                        if (CacheChecker.TryRetrieveFromCache(_vars, expression, out cachedRow))
+                            return cachedRow;
+                    }
+
                     var rowEnumerator = new RowEnumerator<T>(_vars);
                     using (IEnumerator<T> enumerator = rowEnumerator.GetEnumerator())
                     {
