@@ -23,16 +23,33 @@
 #endregion
 
 using System;
+using System.Reflection;
+using DbLinq.Linq.Data.Sugar.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar
 {
     partial class QueryBuilder
     {
+        /// <summary>
+        /// Returns a table given a type, or null if the type is not mapped
+        /// </summary>
+        /// <param name="tableType"></param>
+        /// <param name="dataContext"></param>
+        /// <returns></returns>
         protected string GetTableName(Type tableType, DataContext dataContext)
         {
             var tableDescription = dataContext.Mapping.GetTable(tableType);
             if (tableDescription != null)
                 return tableDescription.TableName;
+            return null;
+        }
+
+        protected string GetColumnName(QueryTableExpression tableExpression, MemberInfo memberInfo, DataContext dataContext)
+        {
+            var tableDescription = dataContext.Mapping.GetTable(tableExpression.Type);
+            var columnDescription = tableDescription.RowType.GetDataMember(memberInfo);
+            if(columnDescription!=null)
+                return columnDescription.MappedName;
             return null;
         }
     }

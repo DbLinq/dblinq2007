@@ -61,9 +61,13 @@
     <Compile Include="Linq\Database\Implementation\DatabaseTransaction.cs" />
     <Compile Include="Linq\Data\Sugar\AbstractQuery.cs" />
     <Compile Include="Linq\Data\Sugar\BuilderContext.cs" />
+    <Compile Include="Linq\Data\Sugar\Expressions\IExpressionEvaluationSource.cs" />
+    <Compile Include="Linq\Data\Sugar\Expressions\IExpressionEvaluationSourceExtensions.cs" />
     <Compile Include="Linq\Data\Sugar\Expressions\QueryConstantExpression.cs" />
+    <Compile Include="Linq\Data\Sugar\Expressions\QueryExpressionEvalution.cs" />
     <Compile Include="Linq\Data\Sugar\Expressions\QueryOperationExpression.cs" />
     <Compile Include="Linq\Data\Sugar\ExpressionChain.cs" />
+    <Compile Include="Linq\Data\Sugar\QueryBuilder.Column.cs" />
     <Compile Include="Linq\Data\Sugar\QueryBuilder.Expression.Creation.cs" />
     <Compile Include="Linq\Data\Sugar\QueryBuilder.Expression.cs" />
     <Compile Include="Linq\Data\Sugar\QueryBuilder.Expression.Language.cs" />
@@ -73,10 +77,8 @@
     <Compile Include="Linq\Data\Sugar\QueryContext.cs" />
     <Compile Include="Linq\Data\Sugar\QueryBuilder.cs" />
     <Compile Include="Linq\Data\Sugar\ExpressionQuery.cs" />
-    <Compile Include="Linq\Data\Sugar\Expressions\QueryColumn.cs" />
+    <Compile Include="Linq\Data\Sugar\Expressions\QueryColumnExpression.cs" />
     <Compile Include="Linq\Data\Sugar\Expressions\QueryExpression.cs" />
-    <Compile Include="Linq\Data\Sugar\QueryExpressionMatch.cs" />
-    <Compile Include="Linq\Data\Sugar\QueryExpressionMatchExtensions.cs" />
     <Compile Include="Linq\Data\Sugar\QueryGenerator.cs" />
     <Compile Include="Linq\Data\Sugar\Expressions\QueryParameterExpression.cs" />
     <Compile Include="Linq\Data\Sugar\Expressions\QueryTableExpression.cs" />

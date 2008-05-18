@@ -22,6 +22,8 @@
 // 
 #endregion
 
+using System;
+
 namespace DbLinq.Linq.Data.Sugar
 {
     public partial class QueryBuilder
@@ -53,6 +55,7 @@ namespace DbLinq.Linq.Data.Sugar
                 sqlQuery = BuildSqlQuery(expressionsQuery, queryContext);
                 SetInCache(expressions, sqlQuery);
             }
+            throw new Exception("Can't go further anyway...");
             return sqlQuery;
         }
     }

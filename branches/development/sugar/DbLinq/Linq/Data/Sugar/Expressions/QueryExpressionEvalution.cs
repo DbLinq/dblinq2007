@@ -24,48 +24,33 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using DbLinq.Linq.Data.Sugar.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar.Expressions
 {
-    public class QueryExpression : IExpressionEvaluationSource
+    public class QueryExpressionEvalution : IExpressionEvaluationSource
     {
-        public IList<QueryExpression> Operands { get; private set; }
-
-        protected QueryExpression()
+        public QueryExpressionEvalution GetEvaluationSource()
         {
-            Operands = new List<QueryExpression>();
+            return this;
         }
 
-        protected QueryExpression(IList<QueryExpression> operands)
+        public QueryExpressionEvalution CloneEvaluationSource()
         {
-            Operands = operands;
+            return new QueryExpressionEvalution
+                       {
+                           IsEvaluationValid = IsEvaluationValid,
+                           EvaluatedExpression = EvaluatedExpression
+                       };
         }
 
-        #region IExpressionEvaluationSource Members
+        public QueryExpression EvaluatedExpression { get; set; }
+        public bool IsEvaluationValid { get; set; }
 
-        QueryExpressionEvalution IExpressionEvaluationSource.GetEvaluationSource()
+        public static implicit operator bool(QueryExpressionEvalution sourceEvaluation)
         {
-            return new QueryExpressionEvalution { EvaluatedExpression = this, IsEvaluationValid = true };
+            return sourceEvaluation.IsEvaluationValid;
         }
-
-        QueryExpressionEvalution IExpressionEvaluationSource.CloneEvaluationSource()
-        {
-            return new QueryExpressionEvalution { EvaluatedExpression = this, IsEvaluationValid = true };
-        }
-
-        QueryExpression IExpressionEvaluationSource.EvaluatedExpression
-        {
-            get { return this; }
-            set { throw new Exception("No dude. Not here."); }
-        }
-
-        bool IExpressionEvaluationSource.IsEvaluationValid
-        {
-            get { return true; }
-            set { throw new Exception("No dude. Not here."); }
-        }
-
-        #endregion
     }
 }

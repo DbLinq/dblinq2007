@@ -22,15 +22,16 @@
 // 
 #endregion
 
-using DbLinq.Linq.Data.Sugar.Expressions;
-
-namespace DbLinq.Linq.Data.Sugar
+namespace DbLinq.Linq.Data.Sugar.Expressions
 {
-    public static class QueryExpressionMatchExtensions
+    /// <summary>
+    /// Base interface to evaluate QueryExpressions
+    /// </summary>
+    public interface IExpressionEvaluationSource
     {
-        public static QueryExpressionMatch Parse(this QueryExpression queryExpression)
-        {
-            return new QueryExpressionMatch(queryExpression);
-        }
+        QueryExpressionEvalution GetEvaluationSource();
+        QueryExpressionEvalution CloneEvaluationSource();
+        QueryExpression EvaluatedExpression { get; set; }
+        bool IsEvaluationValid { get; set; }
     }
 }

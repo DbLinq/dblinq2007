@@ -27,8 +27,18 @@ using DbLinq.Linq.Data.Sugar.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar
 {
-    public class AbstractQuery
+    public abstract class AbstractQuery
     {
-        public IList<QueryParameterExpression> Parameters { get; protected set; }
+        public IList<QueryParameterExpression> Parameters { get; private set; }
+
+        protected AbstractQuery(IList<QueryParameterExpression> parameters)
+        {
+            Parameters = parameters;
+        }
+
+        protected AbstractQuery()
+        {
+            Parameters = new List<QueryParameterExpression>();
+        }
     }
 }
