@@ -307,7 +307,10 @@ namespace DbLinq.Linq
                         object objID = cmd.ExecuteScalar();
 
                         if (!proj.AutoGen)
+                        {
+                            _modificationHandler.ClearModified(obj); //we just saved it - it's not 'dirty'
                             continue; //ID was already assigned by user, not from a DB sequence.
+                        }
 
                         //Oracle unpacks objID from an out-param:
                         _vars.Context.Vendor.ProcessInsertedId(cmd, ref objID);
