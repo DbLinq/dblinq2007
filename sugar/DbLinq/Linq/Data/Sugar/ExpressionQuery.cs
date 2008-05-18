@@ -22,6 +22,7 @@
 // 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using DbLinq.Linq.Data.Sugar.Expressions;
 
@@ -33,13 +34,19 @@ namespace DbLinq.Linq.Data.Sugar
     /// </summary>
     public class ExpressionQuery : AbstractQuery
     {
+        // Involved entities
+        public IDictionary<Type, IDictionary<string, QueryTableExpression>> MetaTables { get; private set; }
         public IList<QueryTableExpression> Tables { get; private set; }
+        public IList<QueryColumnExpression> Columns { get; private set; }
+
+        // Clauses
         public IList<QueryExpression> Where { get; private set; }
 
         public ExpressionQuery()
         {
-            Parameters = new List<QueryParameterExpression>();
+            MetaTables = new Dictionary<Type, IDictionary<string, QueryTableExpression>>();
             Tables = new List<QueryTableExpression>();
+            Columns = new List<QueryColumnExpression>();
             Where = new List<QueryExpression>();
         }
     }

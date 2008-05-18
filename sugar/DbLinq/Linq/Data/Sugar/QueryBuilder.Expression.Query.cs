@@ -42,14 +42,14 @@ namespace DbLinq.Linq.Data.Sugar
         /// <returns></returns>
         protected virtual QueryExpression AnalyzeQueryPatterns(QueryExpression queryExpression, BuilderContext builderContext)
         {
-            if (queryExpression.Parse().Is(ExpressionType.Call))
+            if (queryExpression.Is(ExpressionType.Call))
             {
                 return AnalyzeQuery(GetMethodInfo(queryExpression.Operands[0]).Name,
                              GetQueriedType(queryExpression.Operands[2]),
                              new List<QueryExpression>((from q in queryExpression.Operands select q).Skip(3)),
                              builderContext);
             }
-            return queryExpression;
+            throw new ArgumentException(string.Format("S6: Don't know what to do with top-level expression {0}", queryExpression));
         }
 
         /// <summary>
@@ -59,10 +59,30 @@ namespace DbLinq.Linq.Data.Sugar
         /// <returns></returns>
         protected virtual MethodInfo GetMethodInfo(QueryExpression queryExpression)
         {
-            var constantExpression = queryExpression as QueryConstantExpression;
-            if (constantExpression != null)
-                return constantExpression.Value as MethodInfo;
-            return null;
+            return queryExpression.GetConstantOrDefault<MethodInfo>();
+        }
+
+        /// <summary>
+        /// Returns a MemberInfo from a given expression, or null on unrelated types
+        /// </summary>
+        /// <param name="queryExpression"></param>
+        /// <returns></returns>
+        protected virtual MemberInfo GetMemberInfo(QueryExpression queryExpression)
+        {
+            return queryExpression.GetConstantOrDefault<MemberInfo>();
+        }
+
+        /// <summary>
+        /// Returns a member name, from a given expression, or null if it can not be extracted
+        /// </summary>
+        /// <param name="queryExpression"></param>
+        /// <returns></returns>
+        protected virtual string GetMemberName(QueryExpression queryExpression)
+        {
+            var memberInfo = GetMemberInfo(queryExpression);
+            if (memberInfo != null)
+                return memberInfo.Name;
+            return queryExpression.GetConstantOrDefault<string>();
         }
 
         /// <summary>
@@ -123,9 +143,12 @@ namespace DbLinq.Linq.Data.Sugar
         /// <returns></returns>
         protected virtual QueryExpression AnalyzeSelectQuery(Type queriedType, IList<QueryExpression> parameters, BuilderContext builderContext)
         {
-            var queryExpression = AnalyzeTableQuery(queriedType, parameters, builderContext);
-            // do something with the select
-            return queryExpression;
+            using (builderContext.ColumnRequester())
+            {
+                var queryExpression = AnalyzeTableQuery(queriedType, parameters, builderContext);
+                // do something with the select
+                return queryExpression;
+            }
         }
 
         /// <summary>
@@ -165,13 +188,13 @@ namespace DbLinq.Linq.Data.Sugar
 
         protected virtual QueryExpression AnalyzeQuerySubPatterns(QueryExpression queryExpression, BuilderContext builderContext)
         {
-            return AnalyzePatterns(queryExpression, AnalyzeQuerySubPattern, builderContext);
+            return Recurse(queryExpression, AnalyzeQuerySubPattern, Recursion.TopDown, builderContext);
         }
 
         protected virtual string GetParameterName(QueryExpression queryExpression)
         {
             string name = null;
-            queryExpression.Parse().Is(ExpressionType.Parameter).LoadOperand(0, m => m.GetConstant(out name));
+            queryExpression.Is(ExpressionType.Parameter).LoadOperand(0, m => m.GetConstant(out name));
             return name;
         }
 
@@ -235,8 +258,46 @@ namespace DbLinq.Linq.Data.Sugar
             return unaliasedExpression;
         }
 
+        /// <summary>
+        /// Analyzes a member access.
+        /// This analyzis is down to top: the highest identifier is at bottom
+        /// </summary>
+        /// <param name="queryExpression"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
         protected virtual QueryExpression AnalyzeQueryMember(QueryExpression queryExpression, BuilderContext builderContext)
         {
+            return Recurse(queryExpression, AnalyzeQuerySubMember, Recursion.DownTop, builderContext);
+        }
+
+        protected virtual QueryExpression AnalyzeQuerySubMember(QueryExpression queryExpression, BuilderContext builderContext)
+        {
+            // then, we treat member access and try to identify if the object is a
+            // MetaTable, Table, Association
+            if (queryExpression.Is(ExpressionType.MemberAccess))
+            {
+                // first parameter is object, second is member
+                var objectExpression = queryExpression.Operands[0];
+                var memberExpression = GetMemberInfo(queryExpression.Operands[1]);
+                // then see what we can do, depending on object type
+                // - MetaTable --> then the result is a table
+                // - Table --> the result may be a column or a join
+                // - Object --> external parameter or table (can this happen here? probably not... to be checked)
+
+                // if object is a table, then we need a column
+                if (objectExpression.Is<QueryTableExpression>())
+                {
+                    var queryColumnExpression = RegisterColumn((QueryTableExpression)objectExpression, memberExpression, builderContext);
+                    if (queryColumnExpression != null)
+                        return queryColumnExpression;
+                    throw new ArgumentException("S5: Column must be mapped. Non-mapped columns are not handled by now.");
+                }
+            }
+            else
+            {
+                // here, we're at the bottom: we replace parameters with tables
+                queryExpression = AnalyzeQuerySubPatterns(queryExpression, builderContext);
+            }
             return queryExpression;
         }
     }

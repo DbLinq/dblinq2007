@@ -22,6 +22,8 @@
 // 
 #endregion
 
+using System;
+
 namespace DbLinq.Linq.Data.Sugar.Expressions
 {
     public class QueryTableExpression : QueryExpression
@@ -35,17 +37,19 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
             FullOuter,
         }
 
-        public JoinType Join;
-        public string Name;
+        public JoinType Join { get; private set; }
+        public string Name { get; private set; }
+        public Type Type { get; private set; }
 
-        public QueryTableExpression(string name, JoinType join)
+        public QueryTableExpression(Type type, string name, JoinType join)
         {
+            Type = type;
             Name = name;
             Join = join;
         }
 
-        public QueryTableExpression(string name)
-            : this(name, JoinType.Default)
+        public QueryTableExpression(Type type, string name)
+            : this(type, name, JoinType.Default)
         {
         }
     }

@@ -26,6 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using DbLinq.Linq.Data.Sugar.Expressions;
+using DbLinq.Logging;
+using DbLinq.Util;
 
 namespace DbLinq.Linq.Data.Sugar
 {
@@ -48,6 +50,7 @@ namespace DbLinq.Linq.Data.Sugar
         {
             foreach (var expression in expressions)
             {
+                builderContext.QueryContext.DataContext.Logger.WriteExpression(Level.Debug, expression);
                 // Convert linq Expressions to QueryOperationExpressions and QueryConstantExpressions 
                 var queryExpression = CreateQueryExpression(expression, builderContext);
                 // Query expressions language identification 
@@ -57,30 +60,48 @@ namespace DbLinq.Linq.Data.Sugar
             }
         }
 
+        protected enum Recursion
+        {
+            TopDown,
+            DownTop,
+        }
+
         /// <summary>
         /// Top-down pattern analysis.
         /// From here, we convert common QueryExpressions to tables, columns, parameters.
         /// </summary>
         /// <param name="queryExpression">The original expression</param>
+        /// <param name="recursion"></param>
+        /// <param name="analyzer"></param>
         /// <param name="builderContext">The operation specific context</param>
         /// <returns>A new QueryExpression or the original one</returns>
-        protected virtual QueryExpression AnalyzePatterns(QueryExpression queryExpression, Func<QueryExpression, BuilderContext, QueryExpression> analyzer, BuilderContext builderContext)
+        protected virtual QueryExpression Recurse(QueryExpression queryExpression,
+            Func<QueryExpression, BuilderContext, QueryExpression> analyzer,
+            Recursion recursion,
+            BuilderContext builderContext)
         {
             // we first may replace the current expression
             QueryExpression previousQueryExpression;
             do
             {
                 previousQueryExpression = queryExpression;
-                queryExpression = analyzer(previousQueryExpression, builderContext);
+
+                if (recursion == Recursion.TopDown)
+                    queryExpression = analyzer(previousQueryExpression, builderContext);
+
                 // and then, eventually replace its children
                 // important: evaluations are right to left, since parameters are pushed left to right
                 // and lambda bodies are at first position
                 for (int operandIndex = queryExpression.Operands.Count - 1; operandIndex >= 0; operandIndex--)
                 {
                     // the new child takes the original place
-                    queryExpression.Operands[operandIndex] = AnalyzePatterns(
-                        queryExpression.Operands[operandIndex], analyzer, builderContext);
+                    queryExpression.Operands[operandIndex] = Recurse(
+                        queryExpression.Operands[operandIndex], analyzer, recursion, builderContext);
                 }
+
+                if (recursion == Recursion.DownTop)
+                    queryExpression = analyzer(previousQueryExpression, builderContext);
+
                 // the loop is repeated until there's nothing new
             } while (queryExpression != previousQueryExpression);
             return queryExpression;

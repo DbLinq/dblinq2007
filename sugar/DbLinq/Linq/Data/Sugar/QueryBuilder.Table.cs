@@ -48,10 +48,11 @@ namespace DbLinq.Linq.Data.Sugar
         /// Registers a table by its name, and returns the registered table
         /// If the tableName parameter is null, returns null
         /// </summary>
+        /// <param name="tableType"></param>
         /// <param name="tableName"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        protected virtual QueryTableExpression RegisterTable(string tableName, BuilderContext builderContext)
+        protected virtual QueryTableExpression RegisterTable(Type tableType, string tableName, BuilderContext builderContext)
         {
             if (tableName == null)
                 return null;
@@ -60,7 +61,7 @@ namespace DbLinq.Linq.Data.Sugar
             if (queryTable == null)
             {
                 // TODO joins
-                queryTable = new QueryTableExpression(tableName);
+                queryTable = new QueryTableExpression(tableType, tableName);
                 builderContext.ExpressionQuery.Tables.Add(queryTable);
             }
             return queryTable;
@@ -75,7 +76,7 @@ namespace DbLinq.Linq.Data.Sugar
         /// <returns></returns>
         protected virtual QueryTableExpression RegisterTable(Type tableType, BuilderContext builderContext)
         {
-            return RegisterTable(GetTableName(tableType, builderContext.QueryContext.DataContext), builderContext);
+            return RegisterTable(tableType, GetTableName(tableType, builderContext.QueryContext.DataContext), builderContext);
         }
     }
 }

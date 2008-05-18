@@ -30,7 +30,7 @@ namespace DbLinq.Linq.Data.Sugar
     {
         protected virtual QueryExpression AnalyzeLanguagePatterns(QueryExpression queryExpression, BuilderContext builderContext)
         {
-            return AnalyzePatterns(queryExpression, AnalyzeLanguagePattern, builderContext);
+            return Recurse(queryExpression, AnalyzeLanguagePattern, Recursion.TopDown, builderContext);
         }
 
         protected virtual QueryExpression AnalyzeLanguagePattern(QueryExpression queryExpression, BuilderContext builderContext)
