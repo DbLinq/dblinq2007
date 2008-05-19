@@ -59,31 +59,36 @@
     <Compile Include="Linq\Database\Implementation\DatabaseContext.cs" />
     <Compile Include="Linq\Database\Implementation\DatabaseConnection.cs" />
     <Compile Include="Linq\Database\Implementation\DatabaseTransaction.cs" />
-    <Compile Include="Linq\Data\Sugar\AbstractQuery.cs" />
     <Compile Include="Linq\Data\Sugar\BuilderContext.cs" />
-    <Compile Include="Linq\Data\Sugar\Expressions\IExpressionEvaluationSource.cs" />
-    <Compile Include="Linq\Data\Sugar\Expressions\IExpressionEvaluationSourceExtensions.cs" />
-    <Compile Include="Linq\Data\Sugar\Expressions\QueryConstantExpression.cs" />
-    <Compile Include="Linq\Data\Sugar\Expressions\QueryExpressionEvalution.cs" />
-    <Compile Include="Linq\Data\Sugar\Expressions\QueryOperationExpression.cs" />
+    <Compile Include="Linq\Data\Sugar\Error.cs" />
+    <Compile Include="Linq\Data\Sugar\IMapper.cs" />
+    <Compile Include="Linq\Data\Sugar\IPiecesQueryService.cs" />
+    <Compile Include="Linq\Data\Sugar\IPiecesBuilder.cs" />
+    <Compile Include="Linq\Data\Sugar\IPiecesDispatcher.cs" />
+    <Compile Include="Linq\Data\Sugar\IPiecesLanguageOptimizer.cs" />
+    <Compile Include="Linq\Data\Sugar\IPiecesLanguageParser.cs" />
+    <Compile Include="Linq\Data\Sugar\Implementation\Mapper.cs" />
+    <Compile Include="Linq\Data\Sugar\Implementation\PiecesBuilder.cs" />
+    <Compile Include="Linq\Data\Sugar\Implementation\PiecesDispatcher.cs" />
+    <Compile Include="Linq\Data\Sugar\Implementation\PiecesLanguageOptimizer.cs" />
+    <Compile Include="Linq\Data\Sugar\Implementation\PiecesLanguageParser.cs" />
+    <Compile Include="Linq\Data\Sugar\Implementation\PiecesParser.cs" />
+    <Compile Include="Linq\Data\Sugar\Implementation\PiecesQueryService.cs" />
+    <Compile Include="Linq\Data\Sugar\Pieces\IPieceEvaluationSource.cs" />
+    <Compile Include="Linq\Data\Sugar\Pieces\IPieceEvaluationSourceExtensions.cs" />
+    <Compile Include="Linq\Data\Sugar\Pieces\ConstantPiece.cs" />
+    <Compile Include="Linq\Data\Sugar\Pieces\PieceEvalutionSource.cs" />
+    <Compile Include="Linq\Data\Sugar\Pieces\OperationPiece.cs" />
     <Compile Include="Linq\Data\Sugar\ExpressionChain.cs" />
-    <Compile Include="Linq\Data\Sugar\QueryBuilder.Column.cs" />
-    <Compile Include="Linq\Data\Sugar\QueryBuilder.Expression.Creation.cs" />
-    <Compile Include="Linq\Data\Sugar\QueryBuilder.Expression.cs" />
-    <Compile Include="Linq\Data\Sugar\QueryBuilder.Expression.Language.cs" />
-    <Compile Include="Linq\Data\Sugar\QueryBuilder.Expression.Query.cs" />
-    <Compile Include="Linq\Data\Sugar\QueryBuilder.Parameter.cs" />
-    <Compile Include="Linq\Data\Sugar\QueryBuilder.Table.cs" />
-    <Compile Include="Linq\Data\Sugar\QueryBuilder.Mapping.cs" />
     <Compile Include="Linq\Data\Sugar\QueryContext.cs" />
     <Compile Include="Linq\Data\Sugar\QueryBuilder.cs" />
-    <Compile Include="Linq\Data\Sugar\ExpressionQuery.cs" />
-    <Compile Include="Linq\Data\Sugar\Expressions\QueryColumnExpression.cs" />
-    <Compile Include="Linq\Data\Sugar\Expressions\QueryExpression.cs" />
+    <Compile Include="Linq\Data\Sugar\PiecesQuery.cs" />
+    <Compile Include="Linq\Data\Sugar\Pieces\ColumnPiece.cs" />
+    <Compile Include="Linq\Data\Sugar\Pieces\Piece.cs" />
     <Compile Include="Linq\Data\Sugar\QueryGenerator.cs" />
-    <Compile Include="Linq\Data\Sugar\Expressions\QueryParameterExpression.cs" />
-    <Compile Include="Linq\Data\Sugar\Expressions\QueryTableExpression.cs" />
-    <Compile Include="Linq\Data\Sugar\SqlQuery.cs" />
+    <Compile Include="Linq\Data\Sugar\Pieces\ParameterPiece.cs" />
+    <Compile Include="Linq\Data\Sugar\Pieces\TablePiece.cs" />
+    <Compile Include="Linq\Data\Sugar\Query.cs" />
     <Compile Include="Linq\Identity\IdentityKey.cs" />
     <Compile Include="Linq\Identity\IIdentityProvider.cs" />
     <Compile Include="Linq\Identity\IIdentityReader.cs" />
@@ -224,6 +229,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Linq\Data\ReadMe.txt" />
+    <Content Include="Linq\Data\Sugar\Notes.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

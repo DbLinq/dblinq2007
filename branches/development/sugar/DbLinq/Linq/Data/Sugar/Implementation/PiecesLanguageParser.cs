@@ -22,19 +22,20 @@
 // 
 #endregion
 
-using System.Collections.Generic;
-using DbLinq.Linq.Data.Sugar.Expressions;
+using DbLinq.Linq.Data.Sugar.Pieces;
 
-namespace DbLinq.Linq.Data.Sugar
+namespace DbLinq.Linq.Data.Sugar.Implementation
 {
-    public class SqlQuery : AbstractQuery
+    public class PiecesLanguageParser: PiecesParser, IPiecesLanguageParser
     {
-        public string Sql { get; private set; }
-
-        public SqlQuery(string sql, IList<QueryParameterExpression> parameters)
-            : base(parameters)
+        public virtual Piece AnalyzeLanguagePatterns(Piece piece, BuilderContext builderContext)
         {
-            Sql = sql;
+            return Recurse(piece, AnalyzeLanguagePattern, Recursion.TopDown, builderContext);
+        }
+
+        protected virtual Piece AnalyzeLanguagePattern(Piece piece, BuilderContext builderContext)
+        {
+            return piece;
         }
     }
 }

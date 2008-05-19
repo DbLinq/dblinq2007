@@ -22,20 +22,32 @@
 // 
 #endregion
 
-using DbLinq.Linq.Data.Sugar.Expressions;
+using System;
+using System.Linq.Expressions;
+using System.Reflection;
+using DbLinq.Linq.Data.Sugar.Pieces;
 
-namespace DbLinq.Linq.Data.Sugar
+namespace DbLinq.Linq.Data.Sugar.Pieces
 {
-    partial class QueryBuilder
+    /// <summary>
+    /// This class provides an external parameter value
+    /// </summary>
+    public class ParameterPiece : Piece
     {
-        protected virtual QueryExpression AnalyzeLanguagePatterns(QueryExpression queryExpression, BuilderContext builderContext)
+        private readonly Delegate getValueDelegate;
+        /// <summary>
+        /// Returns the outer parameter value
+        /// </summary>
+        /// <returns></returns>
+        public object GetValue()
         {
-            return Recurse(queryExpression, AnalyzeLanguagePattern, Recursion.TopDown, builderContext);
+            return getValueDelegate.DynamicInvoke();
         }
 
-        protected virtual QueryExpression AnalyzeLanguagePattern(QueryExpression queryExpression, BuilderContext builderContext)
+        public ParameterPiece(Expression expression)
         {
-            return queryExpression;
+            var lambda = Expression.Lambda(expression);
+            getValueDelegate = lambda.Compile();
         }
     }
 }

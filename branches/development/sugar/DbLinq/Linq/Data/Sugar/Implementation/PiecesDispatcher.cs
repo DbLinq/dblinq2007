@@ -24,75 +24,83 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Linq;
-using DbLinq.Linq.Data.Sugar.Expressions;
+using DbLinq.Factory;
+using DbLinq.Linq.Data.Sugar.Pieces;
 
-namespace DbLinq.Linq.Data.Sugar
+namespace DbLinq.Linq.Data.Sugar.Implementation
 {
-    partial class QueryBuilder
+    public class PiecesDispatcher: PiecesParser, IPiecesDispatcher
     {
+        public IPiecesQueryService PiecesQueryService { get; set; }
+
+        public PiecesDispatcher()
+        {
+            PiecesQueryService = ObjectFactory.Get<IPiecesQueryService>();
+        }
+
         /// <summary>
         /// Entry point to analyze query related patterns.
         /// They start by a method, like Where(), Select()
         /// </summary>
-        /// <param name="queryExpression"></param>
+        /// <param name="piece"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        protected virtual QueryExpression AnalyzeQueryPatterns(QueryExpression queryExpression, BuilderContext builderContext)
+        public virtual Piece AnalyzeQueryPatterns(Piece piece, BuilderContext builderContext)
         {
-            if (queryExpression.Is(ExpressionType.Call))
+            if (piece.Is(ExpressionType.Call))
             {
-                return AnalyzeQuery(GetMethodInfo(queryExpression.Operands[0]).Name,
-                             GetQueriedType(queryExpression.Operands[2]),
-                             new List<QueryExpression>((from q in queryExpression.Operands select q).Skip(3)),
-                             builderContext);
+                return AnalyzeQuery(GetMethodInfo(piece.Operands[0]).Name,
+                                    GetQueriedType(piece.Operands[2]),
+                                    new List<Piece>((from q in piece.Operands select q).Skip(3)),
+                                    builderContext);
             }
-            throw BadArgument(string.Format("S0052: Don't know what to do with top-level expression {0}", queryExpression));
+            throw Error.BadArgument(string.Format("S0052: Don't know what to do with top-level expression {0}", piece));
         }
 
         /// <summary>
         /// Returns a MethodInfo from a given expression, or null if the types are not related
         /// </summary>
-        /// <param name="queryExpression"></param>
+        /// <param name="piece"></param>
         /// <returns></returns>
-        protected virtual MethodInfo GetMethodInfo(QueryExpression queryExpression)
+        protected virtual MethodInfo GetMethodInfo(Piece piece)
         {
-            return queryExpression.GetConstantOrDefault<MethodInfo>();
+            return piece.GetConstantOrDefault<MethodInfo>();
         }
 
         /// <summary>
         /// Returns a MemberInfo from a given expression, or null on unrelated types
         /// </summary>
-        /// <param name="queryExpression"></param>
+        /// <param name="piece"></param>
         /// <returns></returns>
-        protected virtual MemberInfo GetMemberInfo(QueryExpression queryExpression)
+        protected virtual MemberInfo GetMemberInfo(Piece piece)
         {
-            return queryExpression.GetConstantOrDefault<MemberInfo>();
+            return piece.GetConstantOrDefault<MemberInfo>();
         }
 
         /// <summary>
         /// Returns a member name, from a given expression, or null if it can not be extracted
         /// </summary>
-        /// <param name="queryExpression"></param>
+        /// <param name="piece"></param>
         /// <returns></returns>
-        protected virtual string GetMemberName(QueryExpression queryExpression)
+        protected virtual string GetMemberName(Piece piece)
         {
-            var memberInfo = GetMemberInfo(queryExpression);
+            var memberInfo = GetMemberInfo(piece);
             if (memberInfo != null)
                 return memberInfo.Name;
-            return queryExpression.GetConstantOrDefault<string>();
+            return piece.GetConstantOrDefault<string>();
         }
 
         /// <summary>
         /// Returns a queried type from a given expression, or null if no type can be found
         /// </summary>
-        /// <param name="queryExpression"></param>
+        /// <param name="piece"></param>
         /// <returns></returns>
-        protected virtual Type GetQueriedType(QueryExpression queryExpression)
+        protected virtual Type GetQueriedType(Piece piece)
         {
-            var constantExpression = queryExpression as QueryConstantExpression;
+            var constantExpression = piece as ConstantPiece;
             if (constantExpression != null)
                 return GetQueriedType(constantExpression.Value.GetType());
             return null;
@@ -121,24 +129,24 @@ namespace DbLinq.Linq.Data.Sugar
         /// <param name="parameters"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        protected virtual QueryExpression AnalyzeQuery(string name, Type queriedType, IList<QueryExpression> parameters, BuilderContext builderContext)
+        protected virtual Piece AnalyzeQuery(string name, Type queriedType, IList<Piece> parameters, BuilderContext builderContext)
         {
             // all methods to handle are listed here:
             // ms-help://MS.VSCC.v90/MS.MSDNQTR.v90.en/fxref_system.core/html/2a54ce9d-76f2-81e2-95bb-59740c85386b.htm
             switch (name)
             {
-            case "Select":
-                return AnalyzeSelectQuery(queriedType, parameters, builderContext);
-            case "Where":
-                return AnalyzeWhereQuery(queriedType, parameters, builderContext);
-            case "Average":
-            case "Count":
-            case "Max":
-            case "Min":
-            case "Sum":
-                return AnalyzeProjectionQuery(queriedType, name, builderContext);
-            default:
-                throw BadArgument("S0133: Implement QueryMethod '{0}'", name);
+                case "Select":
+                    return AnalyzeSelectQuery(queriedType, parameters, builderContext);
+                case "Where":
+                    return AnalyzeWhereQuery(queriedType, parameters, builderContext);
+                case "Average":
+                case "Count":
+                case "Max":
+                case "Min":
+                case "Sum":
+                    return AnalyzeProjectionQuery(queriedType, name, builderContext);
+                default:
+                    throw Error.BadArgument("S0133: Implement QueryMethod '{0}'", name);
             }
         }
 
@@ -149,12 +157,12 @@ namespace DbLinq.Linq.Data.Sugar
         /// <param name="name"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        protected virtual QueryExpression AnalyzeProjectionQuery(Type queriedType, string name, BuilderContext builderContext)
+        protected virtual Piece AnalyzeProjectionQuery(Type queriedType, string name, BuilderContext builderContext)
         {
-            return new QueryOperationExpression(ExpressionType.Call,
-                                                new QueryConstantExpression(name), // method name
-                                                new QueryConstantExpression(null), // method object (null for static/extension methods)
-                                                builderContext.ExpressionQuery.Select); // we project on previous request (hope there is one)
+            return new OperationPiece(ExpressionType.Call,
+                                      new ConstantPiece(name), // method name
+                                      new ConstantPiece(null), // method object (null for static/extension methods)
+                                      builderContext.ExpressionQuery.Select); // we project on previous request (hope there is one)
         }
 
         /// <summary>
@@ -164,7 +172,7 @@ namespace DbLinq.Linq.Data.Sugar
         /// <param name="parameters"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        protected virtual QueryExpression AnalyzeSelectQuery(Type queriedType, IList<QueryExpression> parameters, BuilderContext builderContext)
+        protected virtual Piece AnalyzeSelectQuery(Type queriedType, IList<Piece> parameters, BuilderContext builderContext)
         {
             var queryExpression = AnalyzeTableQuery(queriedType, parameters, builderContext);
             // do something with the select
@@ -178,7 +186,7 @@ namespace DbLinq.Linq.Data.Sugar
         /// <param name="parameters"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        protected virtual QueryExpression AnalyzeWhereQuery(Type queriedType, IList<QueryExpression> parameters, BuilderContext builderContext)
+        protected virtual Piece AnalyzeWhereQuery(Type queriedType, IList<Piece> parameters, BuilderContext builderContext)
         {
             var queryExpression = AnalyzeTableQuery(queriedType, parameters, builderContext);
             builderContext.ExpressionQuery.Where.Add(queryExpression);
@@ -194,49 +202,49 @@ namespace DbLinq.Linq.Data.Sugar
         /// <param name="parameters"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        protected virtual QueryExpression AnalyzeTableQuery(Type queriedType, IList<QueryExpression> parameters, BuilderContext builderContext)
+        protected virtual Piece AnalyzeTableQuery(Type queriedType, IList<Piece> parameters, BuilderContext builderContext)
         {
             // the input table is the parameter to the lambda following this,
             // so we register it, in case it wouldn't be already registered and push it as lambda parameter
-            var queryTable = RegisterTable(queriedType, builderContext);
+            var queryTable = PiecesQueryService.RegisterTable(queriedType, builderContext);
             builderContext.CallStack.Push(queryTable);
             // we should have only one QueryExpression here, which is the query to parse
             if (parameters.Count != 1)
-                throw BadArgument("S0185: wrong number of arguments ({0})", parameters.Count);
+                throw Error.BadArgument("S0185: wrong number of arguments ({0})", parameters.Count);
             return AnalyzeQuerySubPatterns(parameters[0], builderContext);
         }
 
-        protected virtual QueryExpression AnalyzeQuerySubPatterns(QueryExpression queryExpression, BuilderContext builderContext)
+        protected virtual Piece AnalyzeQuerySubPatterns(Piece piece, BuilderContext builderContext)
         {
-            return Recurse(queryExpression, AnalyzeQuerySubPattern, Recursion.TopDown, builderContext);
+            return Recurse(piece, AnalyzeQuerySubPattern, Recursion.TopDown, builderContext);
         }
 
-        protected virtual string GetParameterName(QueryExpression queryExpression)
+        protected virtual string GetParameterName(Piece piece)
         {
             string name = null;
-            queryExpression.Is(ExpressionType.Parameter).LoadOperand(0, m => m.GetConstant(out name));
+            piece.Is(ExpressionType.Parameter).LoadOperand(0, m => m.GetConstant(out name));
             return name;
         }
 
-        protected virtual QueryExpression AnalyzeQuerySubPattern(QueryExpression queryExpression, BuilderContext builderContext)
+        protected virtual Piece AnalyzeQuerySubPattern(Piece piece, BuilderContext builderContext)
         {
-            if (queryExpression is QueryOperationExpression)
+            if (piece is OperationPiece)
             {
-                var queryOperationExpression = (QueryOperationExpression)queryExpression;
+                var queryOperationExpression = (OperationPiece)piece;
                 switch (queryOperationExpression.Operation)
                 {
-                case ExpressionType.Lambda:
-                    return AnalyzeQueryLambda(queryExpression, builderContext);
-                case ExpressionType.Parameter:
-                    return AnalyzeQueryParameter(queryExpression, builderContext);
-                case ExpressionType.Quote:
-                    // TODO: save local variables and restore previous state at exit
-                    return queryExpression;
-                case ExpressionType.MemberAccess:
-                    return AnalyzeQueryMember(queryExpression, builderContext);
+                    case ExpressionType.Lambda:
+                        return AnalyzeQueryLambda(piece, builderContext);
+                    case ExpressionType.Parameter:
+                        return AnalyzeQueryParameter(piece, builderContext);
+                    case ExpressionType.Quote:
+                        // TODO: save local variables and restore previous state at exit
+                        return piece;
+                    case ExpressionType.MemberAccess:
+                        return AnalyzeQueryMember(piece, builderContext);
                 }
             }
-            return queryExpression;
+            return piece;
         }
 
         /// <summary>
@@ -244,18 +252,18 @@ namespace DbLinq.Linq.Data.Sugar
         /// - filling its input parameters with what's on the stack
         /// - using the body (parameters are registered in the context)
         /// </summary>
-        /// <param name="queryExpression"></param>
+        /// <param name="piece"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        protected virtual QueryExpression AnalyzeQueryLambda(QueryExpression queryExpression, BuilderContext builderContext)
+        protected virtual Piece AnalyzeQueryLambda(Piece piece, BuilderContext builderContext)
         {
-            var lambdaExpression = (QueryOperationExpression)queryExpression;
+            var lambdaExpression = (OperationPiece)piece;
             // for a lambda, first parameter is body, others are input parameters
             for (int parameterIndex = 1; parameterIndex < lambdaExpression.Operands.Count; parameterIndex++)
             {
                 var parameter = GetParameterName(lambdaExpression.Operands[parameterIndex]);
                 if (parameter == null)
-                    throw BadArgument("S0238: unknown argument type ({0})", lambdaExpression.Operands[parameterIndex]);
+                    throw Error.BadArgument("S0238: unknown argument type ({0})", lambdaExpression.Operands[parameterIndex]);
                 builderContext.Parameters[parameter] = builderContext.CallStack.Pop();
             }
             // we keep only the body, the header is now useless
@@ -265,77 +273,77 @@ namespace DbLinq.Linq.Data.Sugar
         /// <summary>
         /// When a parameter is used, we replace it with its original value
         /// </summary>
-        /// <param name="queryExpression"></param>
+        /// <param name="piece"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        protected virtual QueryExpression AnalyzeQueryParameter(QueryExpression queryExpression, BuilderContext builderContext)
+        protected virtual Piece AnalyzeQueryParameter(Piece piece, BuilderContext builderContext)
         {
-            QueryExpression unaliasedExpression;
-            var parameterName = GetParameterName(queryExpression);
-            builderContext.Parameters.TryGetValue(parameterName, out unaliasedExpression);
-            if (unaliasedExpression == null)
-                throw BadArgument("S0257: can not find parameter '{0}'", parameterName);
-            return unaliasedExpression;
+            Piece unaliasedPiece;
+            var parameterName = GetParameterName(piece);
+            builderContext.Parameters.TryGetValue(parameterName, out unaliasedPiece);
+            if (unaliasedPiece == null)
+                throw Error.BadArgument("S0257: can not find parameter '{0}'", parameterName);
+            return unaliasedPiece;
         }
 
         /// <summary>
         /// Analyzes a member access.
         /// This analyzis is down to top: the highest identifier is at bottom
         /// </summary>
-        /// <param name="queryExpression"></param>
+        /// <param name="piece"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        protected virtual QueryExpression AnalyzeQueryMember(QueryExpression queryExpression, BuilderContext builderContext)
+        protected virtual Piece AnalyzeQueryMember(Piece piece, BuilderContext builderContext)
         {
-            return Recurse(queryExpression, AnalyzeQuerySubMember, Recursion.DownTop, builderContext);
+            return Recurse(piece, AnalyzeQuerySubMember, Recursion.DownTop, builderContext);
         }
 
-        protected virtual QueryExpression AnalyzeQuerySubMember(QueryExpression queryExpression, BuilderContext builderContext)
+        protected virtual Piece AnalyzeQuerySubMember(Piece piece, BuilderContext builderContext)
         {
             // then, we treat member access and try to identify if the object is a
             // MetaTable, Table, Association
-            if (queryExpression.Is(ExpressionType.MemberAccess))
+            if (piece.Is(ExpressionType.MemberAccess))
             {
                 // first parameter is object, second is member
-                var objectExpression = queryExpression.Operands[0];
-                var memberExpression = GetMemberInfo(queryExpression.Operands[1]);
+                var objectExpression = piece.Operands[0];
+                var memberExpression = GetMemberInfo(piece.Operands[1]);
                 // then see what we can do, depending on object type
                 // - MetaTable --> then the result is a table
                 // - Table --> the result may be a column or a join
                 // - Object --> external parameter or table (can this happen here? probably not... to be checked)
 
                 // if object is a table, then we need a column, or an association
-                if (objectExpression.Is<QueryTableExpression>())
+                if (objectExpression.Is<TablePiece>())
                 {
-                    var queryTableExpression = (QueryTableExpression)objectExpression;
+                    var queryTableExpression = (TablePiece)objectExpression;
                     // first of all, then, try to find the association
-                    var queryAssociationExpression = RegisterAssociation(queryTableExpression, memberExpression,
-                                                                         builderContext);
+                    var queryAssociationExpression = PiecesQueryService.RegisterAssociation(queryTableExpression, memberExpression,
+                                                                                            builderContext);
                     if (queryAssociationExpression != null)
                         return queryAssociationExpression;
                     // then, try the column
-                    var queryColumnExpression = RegisterColumn(queryTableExpression, memberExpression, builderContext);
+                    var queryColumnExpression = PiecesQueryService.RegisterColumn(queryTableExpression, memberExpression, builderContext);
                     if (queryColumnExpression != null)
                         return queryColumnExpression;
                     // then, cry
-                    throw BadArgument("S0293: Column must be mapped. Non-mapped columns are not handled by now.");
+                    throw Error.BadArgument("S0293: Column must be mapped. Non-mapped columns are not handled by now.");
                 }
 
                 // if object is still an object (== a constant), then we have an external parameter
                 if (objectExpression.Is(ExpressionType.Constant))
                 {
-                    var queryParameterExpression = RegisterParameter(queryExpression, builderContext);
+                    var queryParameterExpression = PiecesQueryService.RegisterParameter(piece, builderContext);
                     if (queryParameterExpression != null)
                         return queryParameterExpression;
-                    throw BadArgument("S0302: Can not created parameter from expression '{0}'", queryExpression);
+                    throw Error.BadArgument("S0302: Can not created parameter from expression '{0}'", piece);
                 }
             }
             else
             {
                 // here, we're at the bottom: we replace parameters with tables
-                queryExpression = AnalyzeQuerySubPatterns(queryExpression, builderContext);
+                piece = AnalyzeQuerySubPatterns(piece, builderContext);
             }
-            return queryExpression;
+            return piece;
         }
     }
 }

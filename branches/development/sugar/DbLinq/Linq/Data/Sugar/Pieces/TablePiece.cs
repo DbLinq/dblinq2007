@@ -22,29 +22,36 @@
 // 
 #endregion
 
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq.Expressions;
-using DbLinq.Linq.Data.Sugar.Expressions;
+using System;
+using DbLinq.Linq.Data.Sugar.Pieces;
 
-namespace DbLinq.Linq.Data.Sugar.Expressions
+namespace DbLinq.Linq.Data.Sugar.Pieces
 {
-    [DebuggerDisplay("QueryOperationExpression {Operation}")]
-    public class QueryOperationExpression : QueryExpression
+    public class TablePiece : Piece
     {
-        public ExpressionType Operation { get; private set; }
-        public Expression OriginalExpression { get; set; }
-
-        public QueryOperationExpression(ExpressionType operation, params QueryExpression[] operands)
-            : base(operands)
+        public enum JoinType
         {
-            Operation = operation;
+            Default,
+            Inner,
+            LeftOuter,
+            RightOuter,
+            FullOuter,
         }
 
-        public QueryOperationExpression(ExpressionType operation, IList<QueryExpression> operands)
-            : base(operands)
+        public JoinType Join { get; private set; }
+        public string Name { get; private set; }
+        public Type Type { get; private set; }
+
+        public TablePiece(Type type, string name, JoinType join)
         {
-            Operation = operation;
+            Type = type;
+            Name = name;
+            Join = join;
+        }
+
+        public TablePiece(Type type, string name)
+            : this(type, name, JoinType.Default)
+        {
         }
     }
 }

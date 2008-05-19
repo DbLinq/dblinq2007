@@ -24,13 +24,13 @@
 
 using System.Linq.Expressions;
 
-namespace DbLinq.Linq.Data.Sugar.Expressions
+namespace DbLinq.Linq.Data.Sugar.Pieces
 {
-    public class QueryConstantExpression : QueryOperationExpression
+    public class ConstantPiece : OperationPiece
     {
         public object Value { get; private set; }
 
-        public QueryConstantExpression(object value)
+        public ConstantPiece(object value)
             : base(ExpressionType.Constant)
         {
             Value = value;

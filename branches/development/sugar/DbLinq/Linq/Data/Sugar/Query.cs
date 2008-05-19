@@ -22,29 +22,20 @@
 // 
 #endregion
 
-using DbLinq.Linq.Data.Sugar.Expressions;
+using System.Collections.Generic;
+using DbLinq.Linq.Data.Sugar.Pieces;
 
 namespace DbLinq.Linq.Data.Sugar
 {
-    partial class QueryBuilder
+    public class Query
     {
-        /// <summary>
-        /// Registers an external parameter
-        /// Since these can be complex expressions, we don't try to identify them
-        /// and push them every time
-        /// The only loss may be a small memory loss (if anyone can prove me that the same Expression can be used twice)
-        /// </summary>
-        /// <param name="queryExpression"></param>
-        /// <param name="builderContext"></param>
-        /// <returns></returns>
-        protected virtual QueryParameterExpression RegisterParameter(QueryExpression queryExpression, BuilderContext builderContext)
+        public string Sql { get; private set; }
+        public IList<ParameterPiece> Parameters { get; private set; }
+
+        public Query(string sql, IList<ParameterPiece> parameters)
         {
-            if (!queryExpression.Is<QueryOperationExpression>())
-                return null;
-            var queryParameterExpression =
-                new QueryParameterExpression(((QueryOperationExpression)queryExpression).OriginalExpression);
-            builderContext.ExpressionQuery.Parameters.Add(queryParameterExpression);
-            return queryParameterExpression;
+            Sql = sql;
+            Parameters = parameters;
         }
     }
 }

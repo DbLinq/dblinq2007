@@ -22,16 +22,20 @@
 // 
 #endregion
 
-namespace DbLinq.Linq.Data.Sugar.Expressions
+using DbLinq.Linq.Data.Sugar.Pieces;
+
+namespace DbLinq.Linq.Data.Sugar.Implementation
 {
-    /// <summary>
-    /// Base interface to evaluate QueryExpressions
-    /// </summary>
-    public interface IExpressionEvaluationSource
+    public class PiecesLanguageOptimizer: PiecesParser, IPiecesLanguageOptimizer
     {
-        QueryExpressionEvalution GetEvaluationSource();
-        QueryExpressionEvalution CloneEvaluationSource();
-        QueryExpression EvaluatedExpression { get; set; }
-        bool IsEvaluationValid { get; set; }
+        public virtual Piece AnalyzeLanguagePatterns(Piece piece, BuilderContext builderContext)
+        {
+            return Recurse(piece, AnalyzeLanguagePattern, Recursion.TopDown, builderContext);
+        }
+
+        protected virtual Piece AnalyzeLanguagePattern(Piece piece, BuilderContext builderContext)
+        {
+            return piece;
+        }
     }
 }

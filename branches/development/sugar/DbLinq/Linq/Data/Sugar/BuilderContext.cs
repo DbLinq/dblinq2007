@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using DbLinq.Linq.Data.Sugar.Expressions;
+using DbLinq.Linq.Data.Sugar.Pieces;
 
 namespace DbLinq.Linq.Data.Sugar
 {
@@ -38,19 +38,19 @@ namespace DbLinq.Linq.Data.Sugar
         public bool RequestColumns { get; set; }
 
         // current expression being built
-        public ExpressionQuery ExpressionQuery { get; private set; }
+        public PiecesQuery ExpressionQuery { get; private set; }
 
         // parameters are pushed here and pulled when required
-        public Stack<QueryExpression> CallStack { get; private set; }
+        public Stack<Piece> CallStack { get; private set; }
 
-        public IDictionary<string, QueryExpression> Parameters { get; private set; }
+        public IDictionary<string, Piece> Parameters { get; private set; }
 
         public BuilderContext(QueryContext queryContext)
         {
             QueryContext = queryContext;
-            ExpressionQuery = new ExpressionQuery();
-            CallStack = new Stack<QueryExpression>();
-            Parameters = new Dictionary<string, QueryExpression>();
+            ExpressionQuery = new PiecesQuery();
+            CallStack = new Stack<Piece>();
+            Parameters = new Dictionary<string, Piece>();
         }
 
         private BuilderContext()
@@ -64,7 +64,7 @@ namespace DbLinq.Linq.Data.Sugar
             builderContext.ExpressionQuery = ExpressionQuery;
             builderContext.CallStack = CallStack;
             // scope dependent parts
-            builderContext.Parameters = new Dictionary<string, QueryExpression>(Parameters);
+            builderContext.Parameters = new Dictionary<string, Piece>(Parameters);
             return builderContext;
         }
 

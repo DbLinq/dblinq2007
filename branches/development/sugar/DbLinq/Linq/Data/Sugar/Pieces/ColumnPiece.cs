@@ -23,31 +23,24 @@
 #endregion
 
 using System;
-using System.Linq.Expressions;
-using System.Reflection;
-using DbLinq.Linq.Data.Sugar.Expressions;
+using DbLinq.Linq.Data.Sugar.Pieces;
 
-namespace DbLinq.Linq.Data.Sugar.Expressions
+namespace DbLinq.Linq.Data.Sugar.Pieces
 {
-    /// <summary>
-    /// This class provides an external parameter value
-    /// </summary>
-    public class QueryParameterExpression : QueryExpression
+    public class ColumnPiece : Piece
     {
-        private Delegate getValueDelegate;
-        /// <summary>
-        /// Returns the outer parameter value
-        /// </summary>
-        /// <returns></returns>
-        public object GetValue()
-        {
-            return getValueDelegate.DynamicInvoke();
-        }
+        public TablePiece Table { get; private set; }
+        public string Name { get; private set; }
+        public Type Type { get; private set; }
 
-        public QueryParameterExpression(Expression expression)
+        public bool Request { get; set; }
+        public int RequestIndex { get; set; }
+
+        public ColumnPiece(TablePiece table, string name, Type type)
         {
-            var lambda = Expression.Lambda(expression);
-            getValueDelegate = lambda.Compile();
+            Table = table;
+            Name = name;
+            Type = type;
         }
     }
 }

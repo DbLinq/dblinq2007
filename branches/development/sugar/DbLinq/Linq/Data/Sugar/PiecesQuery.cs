@@ -22,15 +22,37 @@
 // 
 #endregion
 
+using System;
+using System.Collections.Generic;
+using DbLinq.Linq.Data.Sugar.Pieces;
+
 namespace DbLinq.Linq.Data.Sugar
 {
-    public class QueryContext
+    /// <summary>
+    /// Represents the first step Expression analysis result
+    /// All QueryExpressions are sorted by category
+    /// </summary>
+    public class PiecesQuery
     {
-        public DataContext DataContext { get; private set; }
+        // Involved entities
+        public IDictionary<Type, IDictionary<string, TablePiece>> MetaTables { get; private set; }
+        public IList<TablePiece> Tables { get; private set; }
+        public IList<ColumnPiece> Columns { get; private set; }
+        public IDictionary<TablePiece, Piece> Associations { get; private set; } // the key is the associated table
+        public IList<ParameterPiece> Parameters { get; private set; }
 
-        public QueryContext(DataContext dataContext)
+        // Clauses
+        public IList<Piece> Where { get; private set; }
+        public Piece Select { get; set; } // the Select clause may be nested
+
+        public PiecesQuery()
         {
-            DataContext = dataContext;
+            MetaTables = new Dictionary<Type, IDictionary<string, TablePiece>>();
+            Tables = new List<TablePiece>();
+            Columns = new List<ColumnPiece>();
+            Associations = new Dictionary<TablePiece, Piece>();
+            Parameters = new List<ParameterPiece>();
+            Where = new List<Piece>();
         }
     }
 }

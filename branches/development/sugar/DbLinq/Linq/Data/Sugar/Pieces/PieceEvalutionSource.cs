@@ -25,30 +25,30 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using DbLinq.Linq.Data.Sugar.Expressions;
+using DbLinq.Linq.Data.Sugar.Pieces;
 
-namespace DbLinq.Linq.Data.Sugar.Expressions
+namespace DbLinq.Linq.Data.Sugar.Pieces
 {
-    public class QueryExpressionEvalution : IExpressionEvaluationSource
+    public class PieceEvaluationSource : IPieceEvaluationSource
     {
-        public QueryExpressionEvalution GetEvaluationSource()
+        public PieceEvaluationSource GetEvaluationSource()
         {
             return this;
         }
 
-        public QueryExpressionEvalution CloneEvaluationSource()
+        public PieceEvaluationSource CloneEvaluationSource()
         {
-            return new QueryExpressionEvalution
+            return new PieceEvaluationSource
                        {
                            IsEvaluationValid = IsEvaluationValid,
-                           EvaluatedExpression = EvaluatedExpression
+                           EvaluatedPiece = EvaluatedPiece
                        };
         }
 
-        public QueryExpression EvaluatedExpression { get; set; }
+        public Piece EvaluatedPiece { get; set; }
         public bool IsEvaluationValid { get; set; }
 
-        public static implicit operator bool(QueryExpressionEvalution sourceEvaluation)
+        public static implicit operator bool(PieceEvaluationSource sourceEvaluation)
         {
             return sourceEvaluation.IsEvaluationValid;
         }

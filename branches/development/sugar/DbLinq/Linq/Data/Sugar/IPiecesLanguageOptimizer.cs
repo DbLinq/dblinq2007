@@ -1,4 +1,4 @@
-﻿#region MIT license
+#region MIT license
 // 
 // Copyright (c) 2007-2008 Jiri Moudry
 // 
@@ -22,25 +22,12 @@
 // 
 #endregion
 
-using System;
-using DbLinq.Linq.Data.Sugar.Expressions;
+using DbLinq.Linq.Data.Sugar.Pieces;
 
-namespace DbLinq.Linq.Data.Sugar.Expressions
+namespace DbLinq.Linq.Data.Sugar
 {
-    public class QueryColumnExpression : QueryExpression
+    public interface IPiecesLanguageOptimizer
     {
-        public QueryTableExpression Table { get; private set; }
-        public string Name { get; private set; }
-        public Type Type { get; private set; }
-
-        public bool Request { get; set; }
-        public int RequestIndex { get; set; }
-
-        public QueryColumnExpression(QueryTableExpression table, string name, Type type)
-        {
-            Table = table;
-            Name = name;
-            Type = type;
-        }
+        Piece AnalyzeLanguagePatterns(Piece piece, BuilderContext builderContext);
     }
 }

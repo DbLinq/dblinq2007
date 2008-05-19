@@ -24,43 +24,43 @@
 
 using System;
 using System.Collections.Generic;
-using DbLinq.Linq.Data.Sugar.Expressions;
+using DbLinq.Linq.Data.Sugar.Pieces;
 
-namespace DbLinq.Linq.Data.Sugar.Expressions
+namespace DbLinq.Linq.Data.Sugar.Pieces
 {
-    public class QueryExpression : IExpressionEvaluationSource
+    public class Piece : IPieceEvaluationSource
     {
-        public IList<QueryExpression> Operands { get; private set; }
+        public IList<Piece> Operands { get; private set; }
 
-        protected QueryExpression()
+        protected Piece()
         {
-            Operands = new List<QueryExpression>();
+            Operands = new List<Piece>();
         }
 
-        protected QueryExpression(IList<QueryExpression> operands)
+        protected Piece(IList<Piece> operands)
         {
             Operands = operands;
         }
 
         #region IExpressionEvaluationSource Members
 
-        QueryExpressionEvalution IExpressionEvaluationSource.GetEvaluationSource()
+        PieceEvaluationSource IPieceEvaluationSource.GetEvaluationSource()
         {
-            return new QueryExpressionEvalution { EvaluatedExpression = this, IsEvaluationValid = true };
+            return new PieceEvaluationSource { EvaluatedPiece = this, IsEvaluationValid = true };
         }
 
-        QueryExpressionEvalution IExpressionEvaluationSource.CloneEvaluationSource()
+        PieceEvaluationSource IPieceEvaluationSource.CloneEvaluationSource()
         {
-            return new QueryExpressionEvalution { EvaluatedExpression = this, IsEvaluationValid = true };
+            return new PieceEvaluationSource { EvaluatedPiece = this, IsEvaluationValid = true };
         }
 
-        QueryExpression IExpressionEvaluationSource.EvaluatedExpression
+        Piece IPieceEvaluationSource.EvaluatedPiece
         {
             get { return this; }
             set { throw new Exception("No dude. Not here."); }
         }
 
-        bool IExpressionEvaluationSource.IsEvaluationValid
+        bool IPieceEvaluationSource.IsEvaluationValid
         {
             get { return true; }
             set { throw new Exception("No dude. Not here."); }

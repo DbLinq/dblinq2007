@@ -22,15 +22,16 @@
 // 
 #endregion
 
-namespace DbLinq.Linq.Data.Sugar
+namespace DbLinq.Linq.Data.Sugar.Pieces
 {
-    public class QueryContext
+    /// <summary>
+    /// Base interface to evaluate Pieces
+    /// </summary>
+    public interface IPieceEvaluationSource
     {
-        public DataContext DataContext { get; private set; }
-
-        public QueryContext(DataContext dataContext)
-        {
-            DataContext = dataContext;
-        }
+        PieceEvaluationSource GetEvaluationSource();
+        PieceEvaluationSource CloneEvaluationSource();
+        Piece EvaluatedPiece { get; set; }
+        bool IsEvaluationValid { get; set; }
     }
 }
