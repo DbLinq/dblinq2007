@@ -162,7 +162,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             return new OperationPiece(ExpressionType.Call,
                                       new ConstantPiece(name), // method name
                                       new ConstantPiece(null), // method object (null for static/extension methods)
-                                      builderContext.ExpressionQuery.Select); // we project on previous request (hope there is one)
+                                      builderContext.PiecesQuery.Select); // we project on previous request (hope there is one)
         }
 
         /// <summary>
@@ -189,7 +189,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         protected virtual Piece AnalyzeWhereQuery(Type queriedType, IList<Piece> parameters, BuilderContext builderContext)
         {
             var queryExpression = AnalyzeTableQuery(queriedType, parameters, builderContext);
-            builderContext.ExpressionQuery.Where.Add(queryExpression);
+            builderContext.PiecesQuery.Where.Add(queryExpression);
             return queryExpression;
         }
 
@@ -242,6 +242,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                         return piece;
                     case ExpressionType.MemberAccess:
                         return AnalyzeQueryMember(piece, builderContext);
+                case ExpressionType.Call:
+                        return AnalyzeQueryCall(piece, builderContext);
                 }
             }
             return piece;
@@ -344,6 +346,11 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 piece = AnalyzeQuerySubPatterns(piece, builderContext);
             }
             return piece;
+        }
+ 
+        protected virtual Piece AnalyzeQueryLambda(Piece piece, BuilderContext builderContext)
+        {
+            
         }
     }
 }

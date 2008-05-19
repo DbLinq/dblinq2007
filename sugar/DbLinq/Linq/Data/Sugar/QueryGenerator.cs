@@ -23,13 +23,18 @@
 #endregion
 
 using System;
+using DbLinq.Factory;
 
 namespace DbLinq.Linq.Data.Sugar
 {
     public class QueryGenerator: IQueryGenerator
     {
-        // TODO: injection?
-        protected QueryBuilder QueryBuilder = new QueryBuilder();
+        public IQueryBuilder QueryBuilder { get; set; }
+
+        public QueryGenerator()
+        {
+            QueryBuilder = ObjectFactory.Get<IQueryBuilder>();
+        }
 
         public SessionVarsParsed GenerateQuery(SessionVars vars, Type T)
         {

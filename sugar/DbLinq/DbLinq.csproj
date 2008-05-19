@@ -62,6 +62,7 @@
     <Compile Include="Linq\Data\Sugar\BuilderContext.cs" />
     <Compile Include="Linq\Data\Sugar\Error.cs" />
     <Compile Include="Linq\Data\Sugar\IMapper.cs" />
+    <Compile Include="Linq\Data\Sugar\IQueryBuilder.cs" />
     <Compile Include="Linq\Data\Sugar\IPiecesQueryService.cs" />
     <Compile Include="Linq\Data\Sugar\IPiecesBuilder.cs" />
     <Compile Include="Linq\Data\Sugar\IPiecesDispatcher.cs" />
@@ -81,7 +82,7 @@
     <Compile Include="Linq\Data\Sugar\Pieces\OperationPiece.cs" />
     <Compile Include="Linq\Data\Sugar\ExpressionChain.cs" />
     <Compile Include="Linq\Data\Sugar\QueryContext.cs" />
-    <Compile Include="Linq\Data\Sugar\QueryBuilder.cs" />
+    <Compile Include="Linq\Data\Sugar\Implementation\QueryBuilder.cs" />
     <Compile Include="Linq\Data\Sugar\PiecesQuery.cs" />
     <Compile Include="Linq\Data\Sugar\Pieces\ColumnPiece.cs" />
     <Compile Include="Linq\Data\Sugar\Pieces\Piece.cs" />

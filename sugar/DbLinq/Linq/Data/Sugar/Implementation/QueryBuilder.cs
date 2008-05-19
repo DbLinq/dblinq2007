@@ -24,13 +24,12 @@
 
 using System;
 using DbLinq.Factory;
-using DbLinq.Linq.Data.Sugar.Implementation;
 using DbLinq.Logging;
 using DbLinq.Util;
 
-namespace DbLinq.Linq.Data.Sugar
+namespace DbLinq.Linq.Data.Sugar.Implementation
 {
-    public class QueryBuilder
+    public class QueryBuilder : IQueryBuilder
     {
         public IPiecesBuilder PiecesBuilder { get; set; }
         public IPiecesLanguageParser PiecesLanguageParser { get; set; }
@@ -41,7 +40,7 @@ namespace DbLinq.Linq.Data.Sugar
         {
             var builderContext = new BuilderContext(queryContext);
             BuildExpressionQuery(expressions, builderContext);
-            return builderContext.ExpressionQuery;
+            return builderContext.PiecesQuery;
         }
 
         protected virtual void BuildExpressionQuery(ExpressionChain expressions, BuilderContext builderContext)
