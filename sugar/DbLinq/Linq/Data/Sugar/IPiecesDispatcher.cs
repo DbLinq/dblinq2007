@@ -1,4 +1,4 @@
-﻿#region MIT license
+#region MIT license
 // 
 // Copyright (c) 2007-2008 Jiri Moudry
 // 
@@ -22,15 +22,19 @@
 // 
 #endregion
 
+using DbLinq.Linq.Data.Sugar.Pieces;
+
 namespace DbLinq.Linq.Data.Sugar
 {
-    public class QueryContext
+    public interface IPiecesDispatcher
     {
-        public DataContext DataContext { get; private set; }
-
-        public QueryContext(DataContext dataContext)
-        {
-            DataContext = dataContext;
-        }
+        /// <summary>
+        /// Entry point to analyze query related patterns.
+        /// They start by a method, like Where(), Select()
+        /// </summary>
+        /// <param name="piece"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        Piece AnalyzeQueryPatterns(Piece piece, BuilderContext builderContext);
     }
 }

@@ -27,11 +27,12 @@ using System.Collections.Generic;
 using System.Data.Linq.Mapping;
 using System.Linq;
 using System.Reflection;
-using DbLinq.Linq.Data.Sugar.Expressions;
+using DbLinq.Linq.Data.Sugar.Pieces;
+using DbLinq.Util;
 
-namespace DbLinq.Linq.Data.Sugar
+namespace DbLinq.Linq.Data.Sugar.Implementation
 {
-    partial class QueryBuilder
+    public class Mapper : IMapper
     {
         /// <summary>
         /// Returns a table given a type, or null if the type is not mapped
@@ -39,7 +40,7 @@ namespace DbLinq.Linq.Data.Sugar
         /// <param name="tableType"></param>
         /// <param name="dataContext"></param>
         /// <returns></returns>
-        protected virtual string GetTableName(Type tableType, DataContext dataContext)
+        public virtual string GetTableName(Type tableType, DataContext dataContext)
         {
             var tableDescription = dataContext.Mapping.GetTable(tableType);
             if (tableDescription != null)
@@ -47,24 +48,24 @@ namespace DbLinq.Linq.Data.Sugar
             return null;
         }
 
-        protected virtual string GetColumnName(QueryTableExpression tableExpression, MemberInfo memberInfo, DataContext dataContext)
+        public virtual string GetColumnName(TablePiece tablePiece, MemberInfo memberInfo, DataContext dataContext)
         {
-            var tableDescription = dataContext.Mapping.GetTable(tableExpression.Type);
+            var tableDescription = dataContext.Mapping.GetTable(tablePiece.Type);
             var columnDescription = tableDescription.RowType.GetDataMember(memberInfo);
             if (columnDescription != null)
                 return columnDescription.MappedName;
             return null;
         }
 
-        protected virtual IList<MemberInfo> GetPrimaryKeys(QueryTableExpression tableExpression, DataContext dataContext)
+        public virtual IList<MemberInfo> GetPrimaryKeys(TablePiece tablePiece, DataContext dataContext)
         {
-            var tableDescription = dataContext.Mapping.GetTable(tableExpression.Type);
+            var tableDescription = dataContext.Mapping.GetTable(tablePiece.Type);
             if (tableDescription != null)
                 return GetPrimaryKeys(tableDescription);
             return null;
         }
 
-        protected virtual IList<MemberInfo> GetPrimaryKeys(MetaTable tableDescription)
+        public virtual IList<MemberInfo> GetPrimaryKeys(MetaTable tableDescription)
         {
             return
                 (from column in tableDescription.RowType.PersistentDataMembers
@@ -72,11 +73,11 @@ namespace DbLinq.Linq.Data.Sugar
                  select column.Member).ToList();
         }
 
-        protected virtual Type GetAssociation(QueryTableExpression tableExpression, MemberInfo memberInfo,
-            out IList<MemberInfo> foreignKey, out IList<MemberInfo> referencedKey, out QueryTableExpression.JoinType joinType,
-            DataContext dataContext)
+        public virtual Type GetAssociation(TablePiece tablePiece, MemberInfo memberInfo,
+                                           out IList<MemberInfo> foreignKey, out IList<MemberInfo> referencedKey, out TablePiece.JoinType joinType,
+                                           DataContext dataContext)
         {
-            var tableDescription = dataContext.Mapping.GetTable(tableExpression.Type);
+            var tableDescription = dataContext.Mapping.GetTable(tablePiece.Type);
             var columnDescription = tableDescription.RowType.GetDataMember(memberInfo);
             var associationDescription =
                 (from association in tableDescription.RowType.Associations
@@ -91,12 +92,12 @@ namespace DbLinq.Linq.Data.Sugar
                     referencedKey = GetPrimaryKeys(associationDescription.OtherType.Table);
                 else
                     referencedKey = (from key in associationDescription.OtherKey select key.Member).ToList();
-                joinType = QueryTableExpression.JoinType.Inner;
+                joinType = TablePiece.JoinType.Inner;
                 return referencedTableType;
             }
             foreignKey = null;
             referencedKey = null;
-            joinType = QueryTableExpression.JoinType.Default;
+            joinType = TablePiece.JoinType.Default;
             return null;
         }
     }

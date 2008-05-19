@@ -23,22 +23,28 @@
 #endregion
 
 using System.Collections.Generic;
-using DbLinq.Linq.Data.Sugar.Expressions;
+using System.Diagnostics;
+using System.Linq.Expressions;
+using DbLinq.Linq.Data.Sugar.Pieces;
 
-namespace DbLinq.Linq.Data.Sugar
+namespace DbLinq.Linq.Data.Sugar.Pieces
 {
-    public abstract class AbstractQuery
+    [DebuggerDisplay("OperationPiece {Operation}")]
+    public class OperationPiece : Piece
     {
-        public IList<QueryParameterExpression> Parameters { get; private set; }
+        public ExpressionType Operation { get; private set; }
+        public Expression OriginalExpression { get; set; }
 
-        protected AbstractQuery(IList<QueryParameterExpression> parameters)
+        public OperationPiece(ExpressionType operation, params Piece[] operands)
+            : base(operands)
         {
-            Parameters = parameters;
+            Operation = operation;
         }
 
-        protected AbstractQuery()
+        public OperationPiece(ExpressionType operation, IList<Piece> operands)
+            : base(operands)
         {
-            Parameters = new List<QueryParameterExpression>();
+            Operation = operation;
         }
     }
 }

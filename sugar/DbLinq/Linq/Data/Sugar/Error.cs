@@ -23,34 +23,18 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using DbLinq.Linq.Data.Sugar.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar
 {
     /// <summary>
-    /// Represents the first step Expression analysis result
-    /// All QueryExpressions are sorted by category
+    /// Shortcuts to generate exceptions (with formatted strings)
+    /// This is for internal use only
     /// </summary>
-    public class ExpressionQuery : AbstractQuery
+    public class Error
     {
-        // Involved entities
-        public IDictionary<Type, IDictionary<string, QueryTableExpression>> MetaTables { get; private set; }
-        public IList<QueryTableExpression> Tables { get; private set; }
-        public IList<QueryColumnExpression> Columns { get; private set; }
-        public IDictionary<QueryTableExpression, QueryExpression> Associations { get; private set; } // the key is the associated table
-
-        // Clauses
-        public IList<QueryExpression> Where { get; private set; }
-        public QueryExpression Select { get; set; } // the Select clause may be nested
-
-        public ExpressionQuery()
+        public static Exception BadArgument(string format, params object[] parameters)
         {
-            MetaTables = new Dictionary<Type, IDictionary<string, QueryTableExpression>>();
-            Tables = new List<QueryTableExpression>();
-            Columns = new List<QueryColumnExpression>();
-            Associations = new Dictionary<QueryTableExpression, QueryExpression>();
-            Where = new List<QueryExpression>();
+            return new ArgumentException(string.Format(format, parameters));
         }
     }
 }

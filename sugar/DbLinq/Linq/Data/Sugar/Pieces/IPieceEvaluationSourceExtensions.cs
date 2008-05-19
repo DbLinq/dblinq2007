@@ -26,64 +26,64 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-namespace DbLinq.Linq.Data.Sugar.Expressions
+namespace DbLinq.Linq.Data.Sugar.Pieces
 {
-    public static class IExpressionEvaluationSourceExtensions
+    public static class IPieceEvaluationSourceExtensions
     {
         // Match public methods
-        public static QueryExpressionEvalution Is(this IExpressionEvaluationSource sourceEvaluation, ExpressionType expressionType)
+        public static PieceEvaluationSource Is(this IPieceEvaluationSource sourceEvaluation, ExpressionType expressionType)
         {
             var source = sourceEvaluation.GetEvaluationSource();
-            Is<QueryOperationExpression>(source);
-            source.IsEvaluationValid = source.IsEvaluationValid && ((QueryOperationExpression)source.EvaluatedExpression).Operation == expressionType;
+            Is<OperationPiece>(source);
+            source.IsEvaluationValid = source.IsEvaluationValid && ((OperationPiece)source.EvaluatedPiece).Operation == expressionType;
             return source;
         }
 
-        public static QueryExpressionEvalution Is<T>(this IExpressionEvaluationSource sourceEvaluation)
-            where T : QueryExpression
+        public static PieceEvaluationSource Is<T>(this IPieceEvaluationSource sourceEvaluation)
+            where T : Piece
         {
             var source = sourceEvaluation.GetEvaluationSource();
-            source.IsEvaluationValid = source.IsEvaluationValid && source.EvaluatedExpression is T;
+            source.IsEvaluationValid = source.IsEvaluationValid && source.EvaluatedPiece is T;
             return source;
         }
 
-        public static QueryExpressionEvalution IsConstant(this IExpressionEvaluationSource sourceEvaluation, object value)
+        public static PieceEvaluationSource IsConstant(this IPieceEvaluationSource sourceEvaluation, object value)
         {
             var source = sourceEvaluation.GetEvaluationSource();
-            Is<QueryConstantExpression>(source);
-            source.IsEvaluationValid = source.IsEvaluationValid && ((QueryConstantExpression)source.EvaluatedExpression).Value == value;
+            Is<ConstantPiece>(source);
+            source.IsEvaluationValid = source.IsEvaluationValid && ((ConstantPiece)source.EvaluatedPiece).Value == value;
             return source;
         }
 
-        public static QueryExpressionEvalution GetConstant<T>(this IExpressionEvaluationSource sourceEvaluation, out T value)
+        public static PieceEvaluationSource GetConstant<T>(this IPieceEvaluationSource sourceEvaluation, out T value)
         {
             var source = sourceEvaluation.GetEvaluationSource();
             value = default(T);
-            Is<QueryConstantExpression>(source);
+            Is<ConstantPiece>(source);
             if (source.IsEvaluationValid)
             {
-                if (((QueryConstantExpression)source.EvaluatedExpression).Value is T)
-                    value = (T)((QueryConstantExpression)source.EvaluatedExpression).Value;
+                if (((ConstantPiece)source.EvaluatedPiece).Value is T)
+                    value = (T)((ConstantPiece)source.EvaluatedPiece).Value;
                 else
                     source.IsEvaluationValid = false;
             }
             return source;
         }
 
-        public static T GetConstantOrDefault<T>(this IExpressionEvaluationSource sourceEvaluation)
+        public static T GetConstantOrDefault<T>(this IPieceEvaluationSource sourceEvaluation)
         {
             T value;
             GetConstant(sourceEvaluation, out value);
             return value;
         }
 
-        public static QueryExpressionEvalution IsFunction(this IExpressionEvaluationSource sourceEvaluation, string functionName)
+        public static PieceEvaluationSource IsFunction(this IPieceEvaluationSource sourceEvaluation, string functionName)
         {
-            return Is<QueryConstantExpression>(sourceEvaluation).LoadOperand(0, match => match.IsConstant(functionName));
+            return Is<ConstantPiece>(sourceEvaluation).LoadOperand(0, match => match.IsConstant(functionName));
         }
 
-        public static QueryExpressionEvalution Or(this IExpressionEvaluationSource sourceEvaluation,
-            IEnumerable<Action<IExpressionEvaluationSource>> evaluations)
+        public static PieceEvaluationSource Or(this IPieceEvaluationSource sourceEvaluation,
+                                                  IEnumerable<Action<IPieceEvaluationSource>> evaluations)
         {
             var source = sourceEvaluation.GetEvaluationSource();
             if (source.IsEvaluationValid)
@@ -105,26 +105,26 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
             return source;
         }
 
-        public static QueryExpressionEvalution LoadOperand(this IExpressionEvaluationSource sourceEvaluation, int index,
-            Action<IExpressionEvaluationSource> evaluation)
+        public static PieceEvaluationSource LoadOperand(this IPieceEvaluationSource sourceEvaluation, int index,
+                                                           Action<IPieceEvaluationSource> evaluation)
         {
             var source = sourceEvaluation.GetEvaluationSource();
             if (source.IsEvaluationValid)
             {
                 if (index < 0)
-                    index = source.EvaluatedExpression.Operands.Count - index;
+                    index = source.EvaluatedPiece.Operands.Count - index;
                 var newMatch = source.CloneEvaluationSource();
-                newMatch.EvaluatedExpression = source.EvaluatedExpression.Operands[index];
+                newMatch.EvaluatedPiece = source.EvaluatedPiece.Operands[index];
                 evaluation(newMatch);
                 source.IsEvaluationValid = newMatch.IsEvaluationValid;
             }
             return source;
         }
 
-        public static QueryExpressionEvalution Process(this IExpressionEvaluationSource sourceEvaluation, Func<QueryExpression, bool> evaluationPart)
+        public static PieceEvaluationSource Process(this IPieceEvaluationSource sourceEvaluation, Func<Piece, bool> evaluationPart)
         {
             var source = sourceEvaluation.GetEvaluationSource();
-            source.IsEvaluationValid = source.IsEvaluationValid && evaluationPart(source.EvaluatedExpression);
+            source.IsEvaluationValid = source.IsEvaluationValid && evaluationPart(source.EvaluatedPiece);
             return source;
         }
     }

@@ -1,4 +1,4 @@
-﻿#region MIT license
+#region MIT license
 // 
 // Copyright (c) 2007-2008 Jiri Moudry
 // 
@@ -22,35 +22,12 @@
 // 
 #endregion
 
-using System;
+using DbLinq.Linq.Data.Sugar.Pieces;
 
-namespace DbLinq.Linq.Data.Sugar.Expressions
+namespace DbLinq.Linq.Data.Sugar
 {
-    public class QueryTableExpression : QueryExpression
+    public interface IPiecesLanguageParser
     {
-        public enum JoinType
-        {
-            Default,
-            Inner,
-            LeftOuter,
-            RightOuter,
-            FullOuter,
-        }
-
-        public JoinType Join { get; private set; }
-        public string Name { get; private set; }
-        public Type Type { get; private set; }
-
-        public QueryTableExpression(Type type, string name, JoinType join)
-        {
-            Type = type;
-            Name = name;
-            Join = join;
-        }
-
-        public QueryTableExpression(Type type, string name)
-            : this(type, name, JoinType.Default)
-        {
-        }
+        Piece AnalyzeLanguagePatterns(Piece piece, BuilderContext builderContext);
     }
 }

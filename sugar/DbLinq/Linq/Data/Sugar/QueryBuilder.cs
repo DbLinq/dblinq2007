@@ -23,35 +23,61 @@
 #endregion
 
 using System;
+using DbLinq.Factory;
+using DbLinq.Linq.Data.Sugar.Implementation;
+using DbLinq.Logging;
+using DbLinq.Util;
 
 namespace DbLinq.Linq.Data.Sugar
 {
-    public partial class QueryBuilder
+    public class QueryBuilder
     {
-        protected virtual SqlQuery BuildSqlQuery(ExpressionQuery expressionQuery, QueryContext queryContext)
+        public IPiecesBuilder PiecesBuilder { get; set; }
+        public IPiecesLanguageParser PiecesLanguageParser { get; set; }
+        public IPiecesLanguageOptimizer PiecesLanguageOptimizer { get; set; }
+        public IPiecesDispatcher PiecesDispatcher { get; set; }
+
+        protected virtual PiecesQuery BuildExpressionQuery(ExpressionChain expressions, QueryContext queryContext)
+        {
+            var builderContext = new BuilderContext(queryContext);
+            BuildExpressionQuery(expressions, builderContext);
+            return builderContext.ExpressionQuery;
+        }
+
+        protected virtual void BuildExpressionQuery(ExpressionChain expressions, BuilderContext builderContext)
+        {
+            foreach (var expression in expressions)
+            {
+                builderContext.QueryContext.DataContext.Logger.WriteExpression(Level.Debug, expression);
+                // Convert linq Expressions to QueryOperationExpressions and QueryConstantExpressions 
+                var queryExpression = PiecesBuilder.CreateQueryExpression(expression, builderContext);
+                // Query expressions language identification and optimization
+                queryExpression = PiecesLanguageParser.AnalyzeLanguagePatterns(queryExpression, builderContext);
+                queryExpression = PiecesLanguageOptimizer.AnalyzeLanguagePatterns(queryExpression, builderContext);
+                // Query expressions query identification 
+                queryExpression = PiecesDispatcher.AnalyzeQueryPatterns(queryExpression, builderContext);
+            }
+        }
+
+        protected virtual Query BuildSqlQuery(PiecesQuery expressionQuery, QueryContext queryContext)
         {
             var sql = "";
-            var sqlQuery = new SqlQuery(sql, expressionQuery.Parameters);
+            var sqlQuery = new Query(sql, expressionQuery.Parameters);
             return sqlQuery;
         }
 
-        protected Exception BadArgument(string format, params object[] parameters)
-        {
-            return new ArgumentException(string.Format(format, parameters));
-        }
-
         [DbLinqToDo]
-        protected virtual SqlQuery GetFromCache(ExpressionChain expressions)
+        protected virtual Query GetFromCache(ExpressionChain expressions)
         {
             return null;
         }
 
         [DbLinqToDo]
-        protected virtual void SetInCache(ExpressionChain expressions, SqlQuery sqlQuery)
+        protected virtual void SetInCache(ExpressionChain expressions, Query sqlQuery)
         {
         }
 
-        public SqlQuery GetQuery(ExpressionChain expressions, QueryContext queryContext)
+        public Query GetQuery(ExpressionChain expressions, QueryContext queryContext)
         {
             var sqlQuery = GetFromCache(expressions);
             if (sqlQuery == null)
@@ -62,6 +88,14 @@ namespace DbLinq.Linq.Data.Sugar
             }
             throw new Exception("Can't go further anyway...");
             return sqlQuery;
+        }
+
+        public QueryBuilder()
+        {
+            PiecesBuilder = ObjectFactory.Get<IPiecesBuilder>();
+            PiecesLanguageParser = ObjectFactory.Get<IPiecesLanguageParser>();
+            PiecesLanguageOptimizer = ObjectFactory.Get<IPiecesLanguageOptimizer>();
+            PiecesDispatcher = ObjectFactory.Get<IPiecesDispatcher>();
         }
     }
 }

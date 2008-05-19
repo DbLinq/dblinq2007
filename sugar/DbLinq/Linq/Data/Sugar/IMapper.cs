@@ -1,4 +1,4 @@
-﻿#region MIT license
+#region MIT license
 // 
 // Copyright (c) 2007-2008 Jiri Moudry
 // 
@@ -22,15 +22,30 @@
 // 
 #endregion
 
+using System;
+using System.Collections.Generic;
+using System.Data.Linq.Mapping;
+using System.Reflection;
+using DbLinq.Linq.Data.Sugar.Pieces;
+
 namespace DbLinq.Linq.Data.Sugar
 {
-    public class QueryContext
+    public interface IMapper
     {
-        public DataContext DataContext { get; private set; }
+        /// <summary>
+        /// Returns a table given a type, or null if the type is not mapped
+        /// </summary>
+        /// <param name="tableType"></param>
+        /// <param name="dataContext"></param>
+        /// <returns></returns>
+        string GetTableName(Type tableType, DataContext dataContext);
 
-        public QueryContext(DataContext dataContext)
-        {
-            DataContext = dataContext;
-        }
+        string GetColumnName(TablePiece tablePiece, MemberInfo memberInfo, DataContext dataContext);
+        IList<MemberInfo> GetPrimaryKeys(TablePiece tablePiece, DataContext dataContext);
+        IList<MemberInfo> GetPrimaryKeys(MetaTable tableDescription);
+
+        Type GetAssociation(TablePiece tablePiece, MemberInfo memberInfo,
+                                            out IList<MemberInfo> foreignKey, out IList<MemberInfo> referencedKey, out TablePiece.JoinType joinType,
+                                            DataContext dataContext);
     }
 }
