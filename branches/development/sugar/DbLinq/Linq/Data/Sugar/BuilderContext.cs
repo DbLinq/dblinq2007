@@ -34,11 +34,8 @@ namespace DbLinq.Linq.Data.Sugar
         // global context
         public QueryContext QueryContext { get; private set; }
 
-        // true if the columns are part of the select (or similar statement)
-        public bool RequestColumns { get; set; }
-
         // current expression being built
-        public PiecesQuery ExpressionQuery { get; private set; }
+        public PiecesQuery PiecesQuery { get; private set; }
 
         // parameters are pushed here and pulled when required
         public Stack<Piece> CallStack { get; private set; }
@@ -48,7 +45,7 @@ namespace DbLinq.Linq.Data.Sugar
         public BuilderContext(QueryContext queryContext)
         {
             QueryContext = queryContext;
-            ExpressionQuery = new PiecesQuery();
+            PiecesQuery = new PiecesQuery();
             CallStack = new Stack<Piece>();
             Parameters = new Dictionary<string, Piece>();
         }
@@ -61,34 +58,11 @@ namespace DbLinq.Linq.Data.Sugar
             var builderContext = new BuilderContext();
             // scope independent parts
             builderContext.QueryContext = QueryContext;
-            builderContext.ExpressionQuery = ExpressionQuery;
+            builderContext.PiecesQuery = PiecesQuery;
             builderContext.CallStack = CallStack;
             // scope dependent parts
             builderContext.Parameters = new Dictionary<string, Piece>(Parameters);
             return builderContext;
-        }
-
-        private class ColumnRequesterHolder : IDisposable
-        {
-            protected bool PreviousRequestColumns;
-            protected BuilderContext BuilderContext;
-
-            public void Dispose()
-            {
-                BuilderContext.RequestColumns = PreviousRequestColumns;
-            }
-
-            public ColumnRequesterHolder(BuilderContext builderContext)
-            {
-                BuilderContext = builderContext;
-                PreviousRequestColumns = BuilderContext.RequestColumns;
-                BuilderContext.RequestColumns = true;
-            }
-        }
-
-        public IDisposable ColumnRequester()
-        {
-            return new ColumnRequesterHolder(this);
         }
     }
 }

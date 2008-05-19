@@ -55,7 +55,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                                                BuilderContext builderContext)
         {
             return
-                (from queryColumn in builderContext.ExpressionQuery.Columns
+                (from queryColumn in builderContext.PiecesQuery.Columns
                  where queryColumn.Table == table && queryColumn.Name == name
                  select queryColumn).SingleOrDefault();
         }
@@ -79,10 +79,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             if (queryColumn == null)
             {
                 queryColumn = new ColumnPiece(table, name, memberInfo.GetMemberType());
-                builderContext.ExpressionQuery.Columns.Add(queryColumn);
+                builderContext.PiecesQuery.Columns.Add(queryColumn);
             }
-            if (builderContext.RequestColumns)
-                queryColumn.Request = true;
             return queryColumn;
         }
 
@@ -112,7 +110,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         public virtual TablePiece GetRegisteredTable(string tableName, BuilderContext builderContext)
         {
             return
-                (from queryTable in builderContext.ExpressionQuery.Tables
+                (from queryTable in builderContext.PiecesQuery.Tables
                  where queryTable.Name == tableName
                  select queryTable).SingleOrDefault();
         }
@@ -135,7 +133,10 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             if (queryTable == null)
             {
                 queryTable = new TablePiece(tableType, tableName, joinType);
-                builderContext.ExpressionQuery.Tables.Add(queryTable);
+                builderContext.PiecesQuery.Tables.Add(queryTable);
+                if (builderContext.PiecesQuery.Select != null)
+                    throw Error.BadArgument("S0140: builderContext.PiecesQuery.Select should be null here");
+                builderContext.PiecesQuery.Select = queryTable;
             }
             return queryTable;
         }
@@ -204,7 +205,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                     joinPiece = referenceExpression;
             }
 
-            builderContext.ExpressionQuery.Associations[referencedTableExpression] = joinPiece;
+            builderContext.PiecesQuery.Associations[referencedTableExpression] = joinPiece;
 
             return referencedTableExpression;
         }
@@ -224,7 +225,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 return null;
             var queryParameterExpression =
                 new ParameterPiece(((OperationPiece)piece).OriginalExpression);
-            builderContext.ExpressionQuery.Parameters.Add(queryParameterExpression);
+            builderContext.PiecesQuery.Parameters.Add(queryParameterExpression);
             return queryParameterExpression;
         }
     }
