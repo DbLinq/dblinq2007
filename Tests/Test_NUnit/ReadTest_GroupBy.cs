@@ -33,19 +33,19 @@ using Test_NUnit;
 #if MYSQL
     namespace Test_NUnit_MySql
 #elif ORACLE
-    #if ODP
+#if ODP
         namespace Test_NUnit_OracleODP
-    #else
+#else
         namespace Test_NUnit_Oracle
-    #endif
+#endif
 #elif POSTGRES
-    namespace Test_NUnit_PostgreSql
+namespace Test_NUnit_PostgreSql
 #elif SQLITE
     namespace Test_NUnit_Sqlite
 #elif INGRES
     namespace Test_NUnit_Ingres
 #else
-    #error unknown target
+#error unknown target
 #endif
 {
     [TestFixture]
@@ -237,6 +237,38 @@ using Test_NUnit;
                 Assert.Greater(result.OrderSum, 0, "OrderSum must be > 0");
             }
             //select new { g.Key , SumPerCustomer = g.Sum(o2=>o2.OrderID) };
+        }
+
+        /// <summary>
+        /// Reported by  pwy.mail in http://code.google.com/p/dblinq2007/issues/detail?id=64
+        /// </summary>
+        [Test]
+        public void G09_UnitPriceGreaterThan10()
+        {
+            Northwind db = base.CreateDB();
+
+            var priceQuery =
+                from prod in db.Products
+                group prod by new
+                {
+                    Criterion = prod.UnitPrice > 10
+                }
+                    into grouping
+                    select grouping;
+
+            foreach (var prodObj in priceQuery)
+            {
+                if (prodObj.Key.Criterion == false)
+                    Console.WriteLine("Prices 10 or less:");
+                else
+                    Console.WriteLine("\nPrices greater than 10");
+                foreach (var listing in prodObj)
+                {
+                    Console.WriteLine("{0}, {1}", listing.ProductName,
+                        listing.UnitPrice);
+                }
+            }
+
         }
 
 
