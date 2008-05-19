@@ -49,7 +49,7 @@ namespace DbLinq.Linq.Data.Sugar
                              new List<QueryExpression>((from q in queryExpression.Operands select q).Skip(3)),
                              builderContext);
             }
-            throw new ArgumentException(string.Format("S6: Don't know what to do with top-level expression {0}", queryExpression));
+            throw BadArgument(string.Format("S0052: Don't know what to do with top-level expression {0}", queryExpression));
         }
 
         /// <summary>
@@ -123,15 +123,38 @@ namespace DbLinq.Linq.Data.Sugar
         /// <returns></returns>
         protected virtual QueryExpression AnalyzeQuery(string name, Type queriedType, IList<QueryExpression> parameters, BuilderContext builderContext)
         {
+            // all methods to handle are listed here:
+            // ms-help://MS.VSCC.v90/MS.MSDNQTR.v90.en/fxref_system.core/html/2a54ce9d-76f2-81e2-95bb-59740c85386b.htm
             switch (name)
             {
             case "Select":
                 return AnalyzeSelectQuery(queriedType, parameters, builderContext);
             case "Where":
                 return AnalyzeWhereQuery(queriedType, parameters, builderContext);
+            case "Average":
+            case "Count":
+            case "Max":
+            case "Min":
+            case "Sum":
+                return AnalyzeProjectionQuery(queriedType, name, builderContext);
             default:
-                throw new NotImplementedException(string.Format("S1: Implement QueryMethod '{0}'", name));
+                throw BadArgument("S0133: Implement QueryMethod '{0}'", name);
             }
+        }
+
+        /// <summary>
+        /// Returns a projection method call
+        /// </summary>
+        /// <param name="queriedType"></param>
+        /// <param name="name"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        protected virtual QueryExpression AnalyzeProjectionQuery(Type queriedType, string name, BuilderContext builderContext)
+        {
+            return new QueryOperationExpression(ExpressionType.Call,
+                                                new QueryConstantExpression(name), // method name
+                                                new QueryConstantExpression(null), // method object (null for static/extension methods)
+                                                builderContext.ExpressionQuery.Select); // we project on previous request (hope there is one)
         }
 
         /// <summary>
@@ -143,12 +166,9 @@ namespace DbLinq.Linq.Data.Sugar
         /// <returns></returns>
         protected virtual QueryExpression AnalyzeSelectQuery(Type queriedType, IList<QueryExpression> parameters, BuilderContext builderContext)
         {
-            using (builderContext.ColumnRequester())
-            {
-                var queryExpression = AnalyzeTableQuery(queriedType, parameters, builderContext);
-                // do something with the select
-                return queryExpression;
-            }
+            var queryExpression = AnalyzeTableQuery(queriedType, parameters, builderContext);
+            // do something with the select
+            return queryExpression;
         }
 
         /// <summary>
@@ -182,7 +202,7 @@ namespace DbLinq.Linq.Data.Sugar
             builderContext.CallStack.Push(queryTable);
             // we should have only one QueryExpression here, which is the query to parse
             if (parameters.Count != 1)
-                throw new ArgumentException(string.Format("S2: wrong number of arguments ({0})", parameters.Count));
+                throw BadArgument("S0185: wrong number of arguments ({0})", parameters.Count);
             return AnalyzeQuerySubPatterns(parameters[0], builderContext);
         }
 
@@ -235,7 +255,7 @@ namespace DbLinq.Linq.Data.Sugar
             {
                 var parameter = GetParameterName(lambdaExpression.Operands[parameterIndex]);
                 if (parameter == null)
-                    throw new ArgumentException(string.Format("S3: unknown argument type ({0})", lambdaExpression.Operands[parameterIndex]));
+                    throw BadArgument("S0238: unknown argument type ({0})", lambdaExpression.Operands[parameterIndex]);
                 builderContext.Parameters[parameter] = builderContext.CallStack.Pop();
             }
             // we keep only the body, the header is now useless
@@ -254,7 +274,7 @@ namespace DbLinq.Linq.Data.Sugar
             var parameterName = GetParameterName(queryExpression);
             builderContext.Parameters.TryGetValue(parameterName, out unaliasedExpression);
             if (unaliasedExpression == null)
-                throw new ArgumentException(string.Format("S4: can not find parameter '{0}'", parameterName));
+                throw BadArgument("S0257: can not find parameter '{0}'", parameterName);
             return unaliasedExpression;
         }
 
@@ -284,13 +304,30 @@ namespace DbLinq.Linq.Data.Sugar
                 // - Table --> the result may be a column or a join
                 // - Object --> external parameter or table (can this happen here? probably not... to be checked)
 
-                // if object is a table, then we need a column
+                // if object is a table, then we need a column, or an association
                 if (objectExpression.Is<QueryTableExpression>())
                 {
-                    var queryColumnExpression = RegisterColumn((QueryTableExpression)objectExpression, memberExpression, builderContext);
+                    var queryTableExpression = (QueryTableExpression)objectExpression;
+                    // first of all, then, try to find the association
+                    var queryAssociationExpression = RegisterAssociation(queryTableExpression, memberExpression,
+                                                                         builderContext);
+                    if (queryAssociationExpression != null)
+                        return queryAssociationExpression;
+                    // then, try the column
+                    var queryColumnExpression = RegisterColumn(queryTableExpression, memberExpression, builderContext);
                     if (queryColumnExpression != null)
                         return queryColumnExpression;
-                    throw new ArgumentException("S5: Column must be mapped. Non-mapped columns are not handled by now.");
+                    // then, cry
+                    throw BadArgument("S0293: Column must be mapped. Non-mapped columns are not handled by now.");
+                }
+
+                // if object is still an object (== a constant), then we have an external parameter
+                if (objectExpression.Is(ExpressionType.Constant))
+                {
+                    var queryParameterExpression = RegisterParameter(queryExpression, builderContext);
+                    if (queryParameterExpression != null)
+                        return queryParameterExpression;
+                    throw BadArgument("S0302: Can not created parameter from expression '{0}'", queryExpression);
                 }
             }
             else

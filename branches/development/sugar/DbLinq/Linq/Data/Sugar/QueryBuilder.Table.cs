@@ -23,7 +23,10 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using DbLinq.Linq.Data.Sugar.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar
@@ -52,7 +55,8 @@ namespace DbLinq.Linq.Data.Sugar
         /// <param name="tableName"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        protected virtual QueryTableExpression RegisterTable(Type tableType, string tableName, BuilderContext builderContext)
+        protected virtual QueryTableExpression RegisterTable(Type tableType, string tableName, QueryTableExpression.JoinType joinType,
+                                                            BuilderContext builderContext)
         {
             if (tableName == null)
                 return null;
@@ -60,11 +64,15 @@ namespace DbLinq.Linq.Data.Sugar
             var queryTable = GetRegisteredTable(tableName, builderContext);
             if (queryTable == null)
             {
-                // TODO joins
-                queryTable = new QueryTableExpression(tableType, tableName);
+                queryTable = new QueryTableExpression(tableType, tableName, joinType);
                 builderContext.ExpressionQuery.Tables.Add(queryTable);
             }
             return queryTable;
+        }
+
+        protected virtual QueryTableExpression RegisterTable(Type tableType, string tableName, BuilderContext builderContext)
+        {
+            return RegisterTable(tableType, tableName, QueryTableExpression.JoinType.Default, builderContext);
         }
 
         /// <summary>
@@ -77,6 +85,58 @@ namespace DbLinq.Linq.Data.Sugar
         protected virtual QueryTableExpression RegisterTable(Type tableType, BuilderContext builderContext)
         {
             return RegisterTable(tableType, GetTableName(tableType, builderContext.QueryContext.DataContext), builderContext);
+        }
+
+        /// <summary>
+        /// Registers an association
+        /// </summary>
+        /// <param name="tableExpression"></param>
+        /// <param name="memberInfo"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        protected virtual QueryTableExpression RegisterAssociation(QueryTableExpression tableExpression, MemberInfo memberInfo,
+            BuilderContext builderContext)
+        {
+            IList<MemberInfo> foreignKeys, referencedKeys;
+            QueryTableExpression.JoinType joinType;
+            var referencedTableType = GetAssociation(tableExpression, memberInfo, out foreignKeys, out referencedKeys, out joinType,
+                builderContext.QueryContext.DataContext);
+            // if the memberInfo has no corresponding association, we get a null, that we propagate
+            if (referencedTableType == null)
+                return null;
+
+            // the current table has the foreign key, the other table the referenced (usually primary) key
+            if (foreignKeys.Count != referencedKeys.Count)
+                throw BadArgument("S0128: Association arguments (FK and ref'd PK) don't match");
+
+            var referencedTableExpression = RegisterTable(referencedTableType,
+                GetTableName(referencedTableType, builderContext.QueryContext.DataContext),
+                joinType, builderContext);
+
+            QueryExpression joinExpression = null;
+            for (int referenceIndex = 0; referenceIndex < foreignKeys.Count; referenceIndex++)
+            {
+                var foreignKey = RegisterColumn(tableExpression,
+                                            foreignKeys[referenceIndex],
+                                            builderContext);
+                var referencedKey = RegisterColumn(referencedTableExpression,
+                                            referencedKeys[referenceIndex],
+                                            builderContext);
+                var referenceExpression = new QueryOperationExpression(ExpressionType.Equal, foreignKey, referencedKey);
+                // if we already have a join expression, then we have a double condition here, so "AND" it
+                if (joinExpression != null)
+                {
+                    joinExpression = new QueryOperationExpression(ExpressionType.AndAlso,
+                        joinExpression,
+                        referenceExpression);
+                }
+                else
+                    joinExpression = referenceExpression;
+            }
+
+            builderContext.ExpressionQuery.Associations[referencedTableExpression] = joinExpression;
+
+            return referencedTableExpression;
         }
     }
 }

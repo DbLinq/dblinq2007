@@ -40,9 +40,6 @@ namespace DbLinq.Linq.Data.Sugar
         // current expression being built
         public ExpressionQuery ExpressionQuery { get; private set; }
 
-        // context dependant values
-        public IDictionary<QueryExpression, Expression> ExpressionByQueryExpression { get; private set; }
-
         // parameters are pushed here and pulled when required
         public Stack<QueryExpression> CallStack { get; private set; }
 
@@ -52,7 +49,6 @@ namespace DbLinq.Linq.Data.Sugar
         {
             QueryContext = queryContext;
             ExpressionQuery = new ExpressionQuery();
-            ExpressionByQueryExpression = new Dictionary<QueryExpression, Expression>();
             CallStack = new Stack<QueryExpression>();
             Parameters = new Dictionary<string, QueryExpression>();
         }
@@ -66,7 +62,6 @@ namespace DbLinq.Linq.Data.Sugar
             // scope independent parts
             builderContext.QueryContext = QueryContext;
             builderContext.ExpressionQuery = ExpressionQuery;
-            builderContext.ExpressionByQueryExpression = ExpressionByQueryExpression;
             builderContext.CallStack = CallStack;
             // scope dependent parts
             builderContext.Parameters = new Dictionary<string, QueryExpression>(Parameters);

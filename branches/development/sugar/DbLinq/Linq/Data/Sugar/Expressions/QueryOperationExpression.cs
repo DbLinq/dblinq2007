@@ -33,6 +33,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
     public class QueryOperationExpression : QueryExpression
     {
         public ExpressionType Operation { get; private set; }
+        public Expression OriginalExpression { get; set; }
 
         public QueryOperationExpression(ExpressionType operation, params QueryExpression[] operands)
             : base(operands)
