@@ -218,8 +218,8 @@ namespace Test_NUnit_PostgreSql
             //this used to read "Like(HU%F)" but I don't think we have that company.
 
             var query = (from c in db.Customers
-                          where System.Data.Linq.SqlClient.SqlMethods.Like(c.CompanyName, "Alfre%")
-                          select c).ToList();
+                         where System.Data.Linq.SqlClient.SqlMethods.Like(c.CompanyName, "Alfre%")
+                         select c).ToList();
             var list = query.ToList();
             Assert.AreEqual(1, list.Count);
         }
@@ -250,6 +250,23 @@ namespace Test_NUnit_PostgreSql
             var productID = q.First();
             Assert.Greater(productID, 0, "Expected penID>0, got " + productID);
         }
+
+
+        /// <summary>
+        /// Reported by pwy.mail in http://code.google.com/p/dblinq2007/issues/detail?id=67
+        /// </summary>
+        [Test]
+        public void D01b_SelectFirstOrDefaultCustomer()
+        {
+            Northwind db = CreateDB();
+            var q =
+              from c in db.Customers
+              select c;
+
+            Customer customer = q.FirstOrDefault();
+            Assert.IsNotNull(customer.CustomerID);
+        }
+
 
         [Test]
         public void D02_SelectFirstPen()
