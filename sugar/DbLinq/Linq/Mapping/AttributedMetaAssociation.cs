@@ -150,7 +150,7 @@ namespace DbLinq.Linq.Mapping
 
         public override MetaType OtherType
         {
-            get { throw new System.NotImplementedException(); }
+            get  { return thisMember.DeclaringType; }
         }
 
         private ReadOnlyCollection<MetaDataMember> theseKeys;

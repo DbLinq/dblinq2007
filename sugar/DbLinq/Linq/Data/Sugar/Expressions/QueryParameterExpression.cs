@@ -24,6 +24,7 @@
 
 using System;
 using System.Linq.Expressions;
+using System.Reflection;
 using DbLinq.Linq.Data.Sugar.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar.Expressions
@@ -34,11 +35,6 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
     public class QueryParameterExpression : QueryExpression
     {
         private Delegate getValueDelegate;
-
-        /// <summary>
-        /// Name is a friendly name, without any guaranty to be used
-        /// </summary>
-        public string Name { get; private set; }
         /// <summary>
         /// Returns the outer parameter value
         /// </summary>
@@ -48,9 +44,8 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
             return getValueDelegate.DynamicInvoke();
         }
 
-        public QueryParameterExpression(Expression expression, string name)
+        public QueryParameterExpression(Expression expression)
         {
-            Name = name;
             var lambda = Expression.Lambda(expression);
             getValueDelegate = lambda.Compile();
         }

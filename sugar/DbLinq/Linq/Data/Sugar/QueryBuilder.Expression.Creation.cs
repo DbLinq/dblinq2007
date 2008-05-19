@@ -31,17 +31,15 @@ namespace DbLinq.Linq.Data.Sugar
 {
     partial class QueryBuilder
     {
-
         protected virtual QueryExpression CreateQueryExpression(Expression expression, BuilderContext builderContext)
         {
             var queryExpression = CreateQueryExpressionDispatch(expression, builderContext);
-            // the QueryExpression is registered for further optimizations
-            builderContext.ExpressionByQueryExpression[queryExpression] = expression;
-
+            // also keep track of original expression, it will be directly used when possible
+            queryExpression.OriginalExpression = expression;
             return queryExpression;
         }
 
-        protected virtual QueryExpression CreateQueryExpressionDispatch(Expression expression, BuilderContext builderContext)
+        protected virtual QueryOperationExpression CreateQueryExpressionDispatch(Expression expression, BuilderContext builderContext)
         {
             if (expression == null)
                 return new QueryConstantExpression(null);
@@ -73,10 +71,10 @@ namespace DbLinq.Linq.Data.Sugar
                 return CreateQueryExpressionSpecific((TypeBinaryExpression)expression, builderContext);
             if (expression is UnaryExpression)
                 return CreateQueryExpressionSpecific((UnaryExpression)expression, builderContext);
-            throw new ArgumentException("Unknown Expression type");
+            throw BadArgument("S0074: Unknown Expression type");
         }
 
-        protected virtual QueryExpression CreateQueryExpressionSpecific(BinaryExpression expression, BuilderContext builderContext)
+        protected virtual QueryOperationExpression CreateQueryExpressionSpecific(BinaryExpression expression, BuilderContext builderContext)
         {
             #region // Possible NodeType
             //Add
@@ -115,7 +113,7 @@ namespace DbLinq.Linq.Data.Sugar
                                                 CreateQueryExpression(expression.Right, builderContext));
         }
 
-        protected virtual QueryExpression CreateQueryExpressionSpecific(ConditionalExpression expression, BuilderContext builderContext)
+        protected virtual QueryOperationExpression CreateQueryExpressionSpecific(ConditionalExpression expression, BuilderContext builderContext)
         {
             //  Possible NodeType "Conditional"
             return new QueryOperationExpression(expression.NodeType,
@@ -124,18 +122,18 @@ namespace DbLinq.Linq.Data.Sugar
                                                 CreateQueryExpression(expression.IfFalse, builderContext));
         }
 
-        protected virtual QueryExpression CreateQueryExpressionSpecific(ConstantExpression expression, BuilderContext builderContext)
+        protected virtual QueryOperationExpression CreateQueryExpressionSpecific(ConstantExpression expression, BuilderContext builderContext)
         {
             //  Possible NodeType "Constant"
             return new QueryConstantExpression(expression.Value);
         }
 
-        protected virtual QueryExpression CreateQueryExpressionSpecific(InvocationExpression expression, BuilderContext builderContext)
+        protected virtual QueryOperationExpression CreateQueryExpressionSpecific(InvocationExpression expression, BuilderContext builderContext)
         {
             throw new NotImplementedException();
         }
 
-        protected virtual QueryExpression CreateQueryExpressionSpecific(LambdaExpression expression, BuilderContext builderContext)
+        protected virtual QueryOperationExpression CreateQueryExpressionSpecific(LambdaExpression expression, BuilderContext builderContext)
         {
             //  Possible NodeType "Lambda"
             var parameters = new List<QueryExpression>();
@@ -145,7 +143,7 @@ namespace DbLinq.Linq.Data.Sugar
             return new QueryOperationExpression(expression.NodeType, parameters);
         }
 
-        protected virtual QueryExpression CreateQueryExpressionSpecific(MemberExpression expression, BuilderContext builderContext)
+        protected virtual QueryOperationExpression CreateQueryExpressionSpecific(MemberExpression expression, BuilderContext builderContext)
         {
             // Possible NodeType "MemberAccess"
             return new QueryOperationExpression(expression.NodeType,
@@ -153,7 +151,7 @@ namespace DbLinq.Linq.Data.Sugar
                                                 new QueryConstantExpression(expression.Member));
         }
 
-        protected virtual QueryExpression CreateQueryExpressionSpecific(MethodCallExpression expression, BuilderContext builderContext)
+        protected virtual QueryOperationExpression CreateQueryExpressionSpecific(MethodCallExpression expression, BuilderContext builderContext)
         {
             //  Possible NodeType "Call"
             var parameters = new List<QueryExpression>();
@@ -164,39 +162,39 @@ namespace DbLinq.Linq.Data.Sugar
             return new QueryOperationExpression(expression.NodeType, parameters);
         }
 
-        protected virtual QueryExpression CreateQueryExpressionSpecific(NewExpression expression, BuilderContext builderContext)
+        protected virtual QueryOperationExpression CreateQueryExpressionSpecific(NewExpression expression, BuilderContext builderContext)
         {
             throw new NotImplementedException();
         }
 
-        protected virtual QueryExpression CreateQueryExpressionSpecific(NewArrayExpression expression, BuilderContext builderContext)
+        protected virtual QueryOperationExpression CreateQueryExpressionSpecific(NewArrayExpression expression, BuilderContext builderContext)
         {
             throw new NotImplementedException();
         }
 
-        protected virtual QueryExpression CreateQueryExpressionSpecific(MemberInitExpression expression, BuilderContext builderContext)
+        protected virtual QueryOperationExpression CreateQueryExpressionSpecific(MemberInitExpression expression, BuilderContext builderContext)
         {
             throw new NotImplementedException();
         }
 
-        protected virtual QueryExpression CreateQueryExpressionSpecific(ListInitExpression expression, BuilderContext builderContext)
+        protected virtual QueryOperationExpression CreateQueryExpressionSpecific(ListInitExpression expression, BuilderContext builderContext)
         {
             throw new NotImplementedException();
         }
 
-        protected virtual QueryExpression CreateQueryExpressionSpecific(ParameterExpression expression, BuilderContext builderContext)
+        protected virtual QueryOperationExpression CreateQueryExpressionSpecific(ParameterExpression expression, BuilderContext builderContext)
         {
             // Possible NodeType "Parameter"
             return new QueryOperationExpression(expression.NodeType,
                                                 new QueryConstantExpression(expression.Name));
         }
 
-        protected virtual QueryExpression CreateQueryExpressionSpecific(TypeBinaryExpression expression, BuilderContext builderContext)
+        protected virtual QueryOperationExpression CreateQueryExpressionSpecific(TypeBinaryExpression expression, BuilderContext builderContext)
         {
             throw new NotImplementedException();
         }
 
-        protected virtual QueryExpression CreateQueryExpressionSpecific(UnaryExpression expression, BuilderContext builderContext)
+        protected virtual QueryOperationExpression CreateQueryExpressionSpecific(UnaryExpression expression, BuilderContext builderContext)
         {
             #region // Possible NodeType
             //ArrayLength

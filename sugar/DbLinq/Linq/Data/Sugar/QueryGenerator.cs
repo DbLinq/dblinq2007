@@ -33,8 +33,14 @@ namespace DbLinq.Linq.Data.Sugar
 
         public SessionVarsParsed GenerateQuery(SessionVars vars, Type T)
         {
-            QueryBuilder.GetQuery(new ExpressionChain(vars.ExpressionChain),
-                                  new QueryContext(vars.Context));
+            var expressionChain = new ExpressionChain(vars.ExpressionChain);
+            // the forgotten one: the SessionVars have a list of expressions, and may end with a ScalarExpression
+            // (that we don't differentiate in Sugar)
+            if (vars.ScalarExpression != null)
+                expressionChain.Expressions.Add(vars.ScalarExpression);
+
+            QueryBuilder.GetQuery(expressionChain, new QueryContext(vars.Context));
+
             return new SessionVarsParsed(vars);
         }
     }

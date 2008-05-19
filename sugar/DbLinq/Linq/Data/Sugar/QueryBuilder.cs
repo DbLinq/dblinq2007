@@ -35,6 +35,11 @@ namespace DbLinq.Linq.Data.Sugar
             return sqlQuery;
         }
 
+        protected Exception BadArgument(string format, params object[] parameters)
+        {
+            return new ArgumentException(string.Format(format, parameters));
+        }
+
         [DbLinqToDo]
         protected virtual SqlQuery GetFromCache(ExpressionChain expressions)
         {

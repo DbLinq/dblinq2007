@@ -72,6 +72,7 @@
     <Compile Include="Linq\Data\Sugar\QueryBuilder.Expression.cs" />
     <Compile Include="Linq\Data\Sugar\QueryBuilder.Expression.Language.cs" />
     <Compile Include="Linq\Data\Sugar\QueryBuilder.Expression.Query.cs" />
+    <Compile Include="Linq\Data\Sugar\QueryBuilder.Parameter.cs" />
     <Compile Include="Linq\Data\Sugar\QueryBuilder.Table.cs" />
     <Compile Include="Linq\Data\Sugar\QueryBuilder.Mapping.cs" />
     <Compile Include="Linq\Data\Sugar\QueryContext.cs" />
