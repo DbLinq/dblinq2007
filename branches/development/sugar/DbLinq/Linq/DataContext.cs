@@ -97,7 +97,7 @@ namespace DbLinq.Linq
 
             // initialize the mapping information
             if (mappingSource == null)
-                mappingSource = new AttributeMappingSource();
+                mappingSource = new Mapping.AttributeMappingSource();
             Mapping = mappingSource.GetModel(GetType());
         }
 
