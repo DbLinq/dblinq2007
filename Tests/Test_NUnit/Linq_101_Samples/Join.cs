@@ -331,5 +331,26 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
             Assert.IsTrue(list.Count > 0);
         }
 
+        /// <summary>
+        /// Reported by  pwy.mail in http://code.google.com/p/dblinq2007/issues/detail?id=66
+        /// </summary>
+        [Test]
+        public void OrdersLazyLoad()
+        {
+            Northwind db = CreateDB();
+
+            var q =
+              from c in db.Customers
+              select c;
+
+            foreach (var c in q)
+            {
+                Console.WriteLine(c.Address);
+                foreach (var o in c.Orders)
+                    Console.WriteLine(o.OrderID);
+            }
+
+        }
+
     }
 }
