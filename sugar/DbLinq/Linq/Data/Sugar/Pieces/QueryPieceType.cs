@@ -22,32 +22,11 @@
 // 
 #endregion
 
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq.Expressions;
-using DbLinq.Linq.Data.Sugar.Pieces;
-
 namespace DbLinq.Linq.Data.Sugar.Pieces
 {
-    /// <summary>
-    /// This is the common class for all operations pieces
-    /// </summary>
-    [DebuggerDisplay("OperationPiece {Operation}")]
-    public class OperationPiece : Piece
+    public enum QueryPieceType
     {
-        public ExpressionType Operation { get; private set; }
-        public Expression OriginalExpression { get; set; }
-
-        public OperationPiece(ExpressionType operation, params Piece[] operands)
-            : base(operands)
-        {
-            Operation = operation;
-        }
-
-        public OperationPiece(ExpressionType operation, IList<Piece> operands)
-            : base(operands)
-        {
-            Operation = operation;
-        }
+        Select,
+        Where
     }
 }
