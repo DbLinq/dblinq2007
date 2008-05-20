@@ -26,6 +26,9 @@ using DbLinq.Linq.Data.Sugar.Pieces;
 
 namespace DbLinq.Linq.Data.Sugar.Implementation
 {
+    /// <summary>
+    /// Optimizes expressions (such as constant chains)
+    /// </summary>
     public class PiecesLanguageOptimizer: PiecesParser, IPiecesLanguageOptimizer
     {
         public virtual Piece AnalyzeLanguagePatterns(Piece piece, BuilderContext builderContext)

@@ -26,6 +26,9 @@ using DbLinq.Linq.Data.Sugar.Pieces;
 
 namespace DbLinq.Linq.Data.Sugar.Implementation
 {
+    /// <summary>
+    /// Analyzes language patterns and replace them with standard expressions
+    /// </summary>
     public class PiecesLanguageParser: PiecesParser, IPiecesLanguageParser
     {
         public virtual Piece AnalyzeLanguagePatterns(Piece piece, BuilderContext builderContext)

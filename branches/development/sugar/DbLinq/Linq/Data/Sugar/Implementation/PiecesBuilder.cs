@@ -29,6 +29,9 @@ using DbLinq.Linq.Data.Sugar.Pieces;
 
 namespace DbLinq.Linq.Data.Sugar.Implementation
 {
+    /// <summary>
+    /// Converts an Expression tree to a Piece tree
+    /// </summary>
     public class PiecesBuilder : IPiecesBuilder
     {
         public virtual Piece CreateQueryExpression(Expression expression, BuilderContext builderContext)

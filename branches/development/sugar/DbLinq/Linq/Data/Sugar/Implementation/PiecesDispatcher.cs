@@ -348,9 +348,9 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             return piece;
         }
  
-        protected virtual Piece AnalyzeQueryLambda(Piece piece, BuilderContext builderContext)
+        protected virtual Piece AnalyzeQueryCall(Piece piece, BuilderContext builderContext)
         {
-            
+            return piece;
         }
     }
 }

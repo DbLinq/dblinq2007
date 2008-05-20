@@ -29,9 +29,25 @@ using DbLinq.Linq.Data.Sugar.Pieces;
 
 namespace DbLinq.Linq.Data.Sugar.Pieces
 {
+    /// <summary>
+    /// This is the common class for all operations pieces
+    /// </summary>
     [DebuggerDisplay("OperationPiece {Operation}")]
     public class OperationPiece : Piece
     {
+        //protected virtual T GetMember<T>(bool tSet, T tValue)
+        //{
+        //    if (!tSet)
+        //        throw Error.BadArgument("S0041: Unitialized property");
+        //    return tValue;
+        //}
+
+        //protected virtual void SetMember<T>(ref bool tSet, ref T tValue, T value)
+        //{
+        //    tSet = true;
+        //    tValue = value;
+        //}
+
         public ExpressionType Operation { get; private set; }
         public Expression OriginalExpression { get; set; }
 
