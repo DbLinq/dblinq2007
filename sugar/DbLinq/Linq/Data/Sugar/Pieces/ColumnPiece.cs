@@ -33,6 +33,8 @@ namespace DbLinq.Linq.Data.Sugar.Pieces
         public string Name { get; private set; }
         public Type Type { get; private set; }
 
+        public string Alias { get; set; }
+
         public bool Request { get; set; }
         public int RequestIndex { get; set; }
 

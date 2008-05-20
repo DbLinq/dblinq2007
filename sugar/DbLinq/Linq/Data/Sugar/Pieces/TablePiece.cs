@@ -42,6 +42,8 @@ namespace DbLinq.Linq.Data.Sugar.Pieces
         public string Name { get; private set; }
         public Type Type { get; private set; }
 
+        public string Alias { get; set; }
+
         public TablePiece(Type type, string name, JoinType join)
         {
             Type = type;
