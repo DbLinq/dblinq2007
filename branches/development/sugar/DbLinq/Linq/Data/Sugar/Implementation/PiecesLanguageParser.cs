@@ -29,7 +29,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
     /// <summary>
     /// Analyzes language patterns and replace them with standard expressions
     /// </summary>
-    public class PiecesLanguageParser: PiecesParser, IPiecesLanguageParser
+    public class PiecesLanguageParser : PiecesParser, IPiecesLanguageParser
     {
         public virtual Piece AnalyzeLanguagePatterns(Piece piece, BuilderContext builderContext)
         {
@@ -38,6 +38,18 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
 
         protected virtual Piece AnalyzeLanguagePattern(Piece piece, BuilderContext builderContext)
         {
+            // string Add --> Concat
+            if (piece.Is(OperationType.Add).LoadOperand(0, delegate(IPieceEvaluationSource source)
+                                                              {
+                                                                  var operationPiece = source.EvaluatedPiece as OperationPiece;
+                                                                  source.IsEvaluationValid =
+                                                                             operationPiece != null
+                                                                          && operationPiece.OriginalExpression != null
+                                                                          && operationPiece.OriginalExpression.Type == typeof(string);
+                                                              }))
+            {
+                return new OperationPiece(OperationType.Concat, piece.Operands);
+            }
             return piece;
         }
     }
