@@ -39,14 +39,13 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         protected virtual Piece AnalyzeLanguagePattern(Piece piece, BuilderContext builderContext)
         {
             // string Add --> Concat
-            if (piece.Is(OperationType.Add).LoadOperand(0, delegate(IPieceEvaluationSource source)
+            if (piece.Is(OperationType.Add).LoadOperand(0, m => m.Process(delegate(Piece evaluatedPiece)
                                                               {
-                                                                  var operationPiece = source.EvaluatedPiece as OperationPiece;
-                                                                  source.IsEvaluationValid =
-                                                                             operationPiece != null
+                                                                  var operationPiece = evaluatedPiece as OperationPiece;
+                                                                  return operationPiece != null
                                                                           && operationPiece.OriginalExpression != null
                                                                           && operationPiece.OriginalExpression.Type == typeof(string);
-                                                              }))
+                                                              })))
             {
                 return new OperationPiece(OperationType.Concat, piece.Operands);
             }
