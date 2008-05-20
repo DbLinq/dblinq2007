@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using DbLinq.Linq.Data.Sugar.Pieces;
 
@@ -114,5 +115,23 @@ namespace DbLinq.Linq.Data.Sugar
         /// <param name="builderContext"></param>
         /// <returns></returns>
         ParameterPiece RegisterParameter(Piece piece, BuilderContext builderContext);
+
+        /// <summary>
+        /// Registers a MetaTable
+        /// </summary>
+        /// <param name="metaTableType"></param>
+        /// <param name="aliases"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        MetaTablePiece RegisterMetaTable(Type metaTableType, IDictionary<MemberInfo,TablePiece> aliases, 
+                                                         BuilderContext builderContext);
+
+        /// <summary>
+        /// Returns a registered MetaTable, by Type
+        /// </summary>
+        /// <param name="metaTableType"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        MetaTablePiece GetRegisteredMetaTable(Type metaTableType, BuilderContext builderContext);
     }
 }

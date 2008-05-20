@@ -24,11 +24,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using DbLinq.Factory;
 using DbLinq.Linq.Data.Sugar.Pieces;
+using DbLinq.Util;
 
 namespace DbLinq.Linq.Data.Sugar.Implementation
 {
@@ -56,7 +56,10 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             // ... given the input type
             var entityPieceType = PiecesService.GetQueriedType(piece.Operands[2]);
             // ... we get the table
-            var entityPiece = PiecesQueryService.RegisterTable(entityPieceType, builderContext);
+            Piece entityPiece;
+            entityPiece = PiecesQueryService.GetRegisteredMetaTable(entityPieceType, builderContext);
+            if (entityPiece == null)
+                entityPiece = PiecesQueryService.RegisterTable(entityPieceType, builderContext);
             // and call the full method
             return Analyze(piece, new[] { entityPiece }, builderContext);
         }
@@ -125,6 +128,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 case ExpressionType.UnaryPlus:
                 #endregion
                     return AnalyzeOperator(piece, builderContext);
+                case ExpressionType.New:
+                    return AnalyzeNew(piece, parameters, builderContext);
                 }
                 throw Error.BadArgument(string.Format("S0052: Don't know what to do with expression {0}", piece));
             }
@@ -147,6 +152,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 return AnalyzeSelectQuery(parameters, builderContext);
             case "Where":
                 return AnalyzeWhereQuery(parameters, builderContext);
+            case "SelectMany":
+                return AnalyzeSelectMany(parameters, builderContext);
             case "Average":
             case "Count":
             case "Max":
@@ -210,19 +217,19 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <returns></returns>
         protected virtual Piece AnalyzeLambda(Piece piece, IList<Piece> parameters, BuilderContext builderContext)
         {
-            var lambdaExpression = (OperationPiece)piece;
+            var lambdaPiece = (OperationPiece)piece;
             // for a lambda, first parameter is body, others are input parameters
             // so we create a parameters stack
-            for (int parameterIndex = 1; parameterIndex < lambdaExpression.Operands.Count; parameterIndex++)
+            for (int parameterIndex = 1; parameterIndex < lambdaPiece.Operands.Count; parameterIndex++)
             {
-                var parameter = PiecesService.GetParameterName(lambdaExpression.Operands[parameterIndex]);
+                var parameter = PiecesService.GetParameterName(lambdaPiece.Operands[parameterIndex]);
                 if (parameter == null)
-                    throw Error.BadArgument("S0238: unknown argument type ({0})", lambdaExpression.Operands[parameterIndex]);
+                    throw Error.BadArgument("S0238: unknown argument type ({0})", lambdaPiece.Operands[parameterIndex]);
                 builderContext.Parameters[parameter] = Analyze(parameters[parameterIndex - 1], builderContext);
             }
             // we keep only the body, the header is now useless
             // and once the parameters have been substituted, we don't pass one anymore
-            return Analyze(lambdaExpression.Operands[0], builderContext);
+            return Analyze(lambdaPiece.Operands[0], builderContext);
         }
 
         /// <summary>
@@ -251,24 +258,33 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         protected virtual Piece AnalyzeMember(Piece piece, BuilderContext builderContext)
         {
             // first parameter is object, second is member
-            var objectExpression = Analyze(piece.Operands[0], builderContext);
-            var memberExpression = PiecesService.GetMemberInfo(piece.Operands[1]);
+            var objectPiece = Analyze(piece.Operands[0], builderContext);
+            var memberPiece = PiecesService.GetMemberInfo(piece.Operands[1]);
             // then see what we can do, depending on object type
             // - MetaTable --> then the result is a table
             // - Table --> the result may be a column or a join
             // - Object --> external parameter or table (can this happen here? probably not... to be checked)
 
-            // if object is a table, then we need a column, or an association
-            if (objectExpression.Is<TablePiece>())
+            if (objectPiece.Is<MetaTablePiece>())
             {
-                var queryTableExpression = (TablePiece)objectExpression;
+                var metaTablePiece = (MetaTablePiece)objectPiece;
+                var tablePiece = metaTablePiece.GetTablePiece(memberPiece);
+                if (tablePiece == null)
+                    throw Error.BadArgument("S0270: MemberInfo '{0}' not found in MetaTable", memberPiece.Name);
+                return tablePiece;
+            }
+
+            // if object is a table, then we need a column, or an association
+            if (objectPiece.Is<TablePiece>())
+            {
+                var tablePiece = (TablePiece)objectPiece;
                 // first of all, then, try to find the association
-                var queryAssociationExpression = PiecesQueryService.RegisterAssociation(queryTableExpression, memberExpression,
+                var queryAssociationExpression = PiecesQueryService.RegisterAssociation(tablePiece, memberPiece,
                                                                                         builderContext);
                 if (queryAssociationExpression != null)
                     return queryAssociationExpression;
                 // then, try the column
-                var queryColumnExpression = PiecesQueryService.RegisterColumn(queryTableExpression, memberExpression, builderContext);
+                var queryColumnExpression = PiecesQueryService.RegisterColumn(tablePiece, memberPiece, builderContext);
                 if (queryColumnExpression != null)
                     return queryColumnExpression;
                 // then, cry
@@ -276,11 +292,11 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             }
 
             // if object is still an object (== a constant), then we have an external parameter
-            if (objectExpression.Is(ExpressionType.Constant))
+            if (objectPiece.Is(ExpressionType.Constant))
             {
-                var queryParameterExpression = PiecesQueryService.RegisterParameter(piece, builderContext);
-                if (queryParameterExpression != null)
-                    return queryParameterExpression;
+                var parameterPiece = PiecesQueryService.RegisterParameter(piece, builderContext);
+                if (parameterPiece != null)
+                    return parameterPiece;
                 throw Error.BadArgument("S0302: Can not created parameter from expression '{0}'", piece);
             }
 
@@ -295,9 +311,10 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <param name="parameters"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        public Piece AnalyzeQuote(Piece piece, IList<Piece> parameters, BuilderContext builderContext)
+        protected virtual Piece AnalyzeQuote(Piece piece, IList<Piece> parameters, BuilderContext builderContext)
         {
-            return Analyze(piece.Operands[0], parameters, builderContext.Clone());
+            var builderContextClone = builderContext.Clone();
+            return Analyze(piece.Operands[0], parameters, builderContextClone);
         }
 
         /// <summary>
@@ -306,9 +323,74 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <param name="piece"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        public Piece AnalyzeOperator(Piece piece, BuilderContext builderContext)
+        protected virtual Piece AnalyzeOperator(Piece piece, BuilderContext builderContext)
         {
             for (int operandIndex = 0; operandIndex < piece.Operands.Count; operandIndex++)
+            {
+                var operand = piece.Operands[operandIndex];
+                piece.Operands[operandIndex] = Analyze(operand, builderContext);
+            }
+            return piece;
+        }
+
+        /// <summary>
+        /// SelectMany() joins tables
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        protected virtual Piece AnalyzeSelectMany(IList<Piece> parameters, BuilderContext builderContext)
+        {
+            if (parameters.Count == 3)
+            {
+                // ms-help://MS.VSCC.v90/MS.MSDNQTR.v90.en/fxref_system.core/html/3371348f-7811-b0bc-8c0a-2a595e08e086.htm
+                var tablePiece = parameters[0] as TablePiece;
+                if (tablePiece == null)
+                    throw Error.BadArgument("S0335: Expected a TablePiece for SelectMany()");
+                var projectionPiece = Analyze(parameters[1], new[] { tablePiece }, builderContext);
+                var manyPiece = Analyze(parameters[2], new[] { tablePiece, projectionPiece }, builderContext);
+                // from here, our manyPiece is a MetaTable definition
+                var associations = new Dictionary<MemberInfo, TablePiece>();
+                int ctorParametersCount = (manyPiece.Operands.Count - 1) / 2;
+                Type metaTableType = null;
+                for (int ctorParameterIndex = 0; ctorParameterIndex < ctorParametersCount; ctorParameterIndex++)
+                {
+                    var aliasedTablePiece = manyPiece.Operands[1 + ctorParameterIndex] as TablePiece;
+                    if (aliasedTablePiece == null)
+                        throw Error.BadArgument("S0343: Expected a TablePiece for SelectMany()");
+                    var memberInfo = manyPiece.Operands[ctorParametersCount + 1 + ctorParameterIndex].GetConstantOrDefault<MemberInfo>();
+                    if (memberInfo == null)
+                        throw Error.BadArgument("S0343: Expected a MemberInfo for SelectMany()");
+                    metaTableType = memberInfo.ReflectedType;
+                    // the property info is the reflecting property for the memberInfo, if memberInfo is a get_*
+                    // otherwise we keep the memberInfo as is, since it is a field
+                    var propertyInfo = memberInfo.GetExposingProperty() ?? memberInfo;
+                    associations[propertyInfo] = aliasedTablePiece;
+                }
+                if (metaTableType == null)
+                    throw Error.BadArgument("S0355: Empty MetaTable found"); // this should never happen, otherwise we may simply ignore it or take the type from elsewhere
+                return PiecesQueryService.RegisterMetaTable(metaTableType, associations, builderContext);
+            }
+            throw Error.BadArgument("S0358: Don't know how to handle this SelectMany() overload ({0} parameters)", parameters.Count);
+        }
+
+        /// <summary>
+        /// New returns a new type with two possible uses:
+        /// 1. A projection type for the select
+        /// 2. A MetaTable creation
+        /// There are n*2+1 operands:
+        /// 0: ctor reflection info 
+        /// [1..n]: arguments to ctor
+        /// [n+1..2*n]: ordered memberInfo corresponding to ctor arguments
+        /// </summary>
+        /// <param name="piece"></param>
+        /// <param name="parameters"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        protected virtual Piece AnalyzeNew(Piece piece, IList<Piece> parameters, BuilderContext builderContext)
+        {
+            // parse all arguments, even input parameters
+            for (int operandIndex = 1; operandIndex < piece.Operands.Count; operandIndex++)
             {
                 var operand = piece.Operands[operandIndex];
                 piece.Operands[operandIndex] = Analyze(operand, builderContext);

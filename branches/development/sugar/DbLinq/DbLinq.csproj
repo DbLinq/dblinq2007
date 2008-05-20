@@ -82,6 +82,7 @@
     <Compile Include="Linq\Data\Sugar\Pieces\IPieceEvaluationSource.cs" />
     <Compile Include="Linq\Data\Sugar\Pieces\IPieceEvaluationSourceExtensions.cs" />
     <Compile Include="Linq\Data\Sugar\Pieces\ConstantPiece.cs" />
+    <Compile Include="Linq\Data\Sugar\Pieces\MetaTablePiece.cs" />
     <Compile Include="Linq\Data\Sugar\Pieces\PieceEvalutionSource.cs" />
     <Compile Include="Linq\Data\Sugar\Pieces\OperationPiece.cs" />
     <Compile Include="Linq\Data\Sugar\ExpressionChain.cs" />

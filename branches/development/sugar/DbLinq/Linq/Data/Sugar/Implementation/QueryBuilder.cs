@@ -29,6 +29,11 @@ using DbLinq.Util;
 
 namespace DbLinq.Linq.Data.Sugar.Implementation
 {
+    /// <summary>
+    /// Full query builder, with cache management
+    /// 1. Parses Linq Expression
+    /// 2. Generates SQL
+    /// </summary>
     public class QueryBuilder : IQueryBuilder
     {
         public IPiecesBuilder PiecesBuilder { get; set; }
