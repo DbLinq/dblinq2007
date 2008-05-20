@@ -190,11 +190,11 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 var referencedKey = RegisterColumn(referencedTableExpression,
                                                    referencedKeys[referenceIndex],
                                                    builderContext);
-                var referenceExpression = new OperationPiece(ExpressionType.Equal, foreignKey, referencedKey);
+                var referenceExpression = new OperationPiece(OperationType.Equal, foreignKey, referencedKey);
                 // if we already have a join expression, then we have a double condition here, so "AND" it
                 if (joinPiece != null)
                 {
-                    joinPiece = new OperationPiece(ExpressionType.AndAlso,
+                    joinPiece = new OperationPiece(OperationType.AndAlso,
                                                    joinPiece,
                                                    referenceExpression);
                 }

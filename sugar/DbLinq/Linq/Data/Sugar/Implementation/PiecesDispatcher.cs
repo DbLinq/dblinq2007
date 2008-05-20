@@ -80,55 +80,55 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             {
                 switch (operationPiece.Operation)
                 {
-                case ExpressionType.Call:
+                case OperationType.Call:
                     return AnalyzeCall(PiecesService.GetMethodInfo(piece.Operands[0]).Name,
                                        PiecesService.MergeParameters(parameters,
                                        PiecesService.ExtractParameters(piece.Operands, 3)),
                                        builderContext);
-                case ExpressionType.Lambda:
+                case OperationType.Lambda:
                     return AnalyzeLambda(piece, parameters, builderContext);
-                case ExpressionType.Parameter:
+                case OperationType.Parameter:
                     return AnalyzeParameter(piece, builderContext);
-                case ExpressionType.Quote:
+                case OperationType.Quote:
                     return AnalyzeQuote(piece, parameters, builderContext);
-                case ExpressionType.MemberAccess:
+                case OperationType.MemberAccess:
                     return AnalyzeMember(piece, builderContext);
-                #region case ExpressionType.<Common operators>:
-                case ExpressionType.Add:
-                case ExpressionType.AddChecked:
-                case ExpressionType.Divide:
-                case ExpressionType.Modulo:
-                case ExpressionType.Multiply:
-                case ExpressionType.MultiplyChecked:
-                case ExpressionType.Power:
-                case ExpressionType.Subtract:
-                case ExpressionType.SubtractChecked:
-                case ExpressionType.And:
-                case ExpressionType.Or:
-                case ExpressionType.ExclusiveOr:
-                case ExpressionType.LeftShift:
-                case ExpressionType.RightShift:
-                case ExpressionType.AndAlso:
-                case ExpressionType.OrElse:
-                case ExpressionType.Equal:
-                case ExpressionType.NotEqual:
-                case ExpressionType.GreaterThanOrEqual:
-                case ExpressionType.GreaterThan:
-                case ExpressionType.LessThan:
-                case ExpressionType.LessThanOrEqual:
-                case ExpressionType.Coalesce:
-                //case ExpressionType.ArrayIndex
-                //case ExpressionType.ArrayLength
-                //case ExpressionType.Convert
-                //case ExpressionType.ConvertChecked
-                case ExpressionType.Negate:
-                //case ExpressionType.NegateChecked
-                case ExpressionType.Not:
-                //case ExpressionType.TypeAs
-                case ExpressionType.UnaryPlus:
+                #region case OperationType.<Common operators>:
+                case OperationType.Add:
+                case OperationType.AddChecked:
+                case OperationType.Divide:
+                case OperationType.Modulo:
+                case OperationType.Multiply:
+                case OperationType.MultiplyChecked:
+                case OperationType.Power:
+                case OperationType.Subtract:
+                case OperationType.SubtractChecked:
+                case OperationType.And:
+                case OperationType.Or:
+                case OperationType.ExclusiveOr:
+                case OperationType.LeftShift:
+                case OperationType.RightShift:
+                case OperationType.AndAlso:
+                case OperationType.OrElse:
+                case OperationType.Equal:
+                case OperationType.NotEqual:
+                case OperationType.GreaterThanOrEqual:
+                case OperationType.GreaterThan:
+                case OperationType.LessThan:
+                case OperationType.LessThanOrEqual:
+                case OperationType.Coalesce:
+                //case OperationType.ArrayIndex
+                //case OperationType.ArrayLength
+                //case OperationType.Convert
+                //case OperationType.ConvertChecked
+                case OperationType.Negate:
+                //case OperationType.NegateChecked
+                case OperationType.Not:
+                //case OperationType.TypeAs
+                case OperationType.UnaryPlus:
                 #endregion
                     return AnalyzeOperator(piece, builderContext);
-                case ExpressionType.New:
+                case OperationType.New:
                     return AnalyzeNew(piece, parameters, builderContext);
                 }
                 throw Error.BadArgument(string.Format("S0052: Don't know what to do with expression {0}", piece));
@@ -173,7 +173,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <returns></returns>
         protected virtual Piece AnalyzeProjectionQuery(string name, BuilderContext builderContext)
         {
-            return new OperationPiece(ExpressionType.Call,
+            return new OperationPiece(OperationType.Call,
                                       new ConstantPiece(name), // method name
                                       new ConstantPiece(null), // method object (null for static/extension methods)
                                       builderContext.PiecesQuery.Select); // we project on previous request (hope there is one)
@@ -306,7 +306,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             }
 
             // if object is still an object (== a constant), then we have an external parameter
-            if (objectPiece.Is(ExpressionType.Constant))
+            if (objectPiece.Is(OperationType.Constant))
             {
                 var parameterPiece = PiecesQueryService.RegisterParameter(piece, builderContext);
                 if (parameterPiece != null)

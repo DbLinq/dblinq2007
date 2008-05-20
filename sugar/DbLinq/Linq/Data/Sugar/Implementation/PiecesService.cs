@@ -100,7 +100,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         public virtual string GetParameterName(Piece piece)
         {
             string name = null;
-            piece.Is(ExpressionType.Parameter).LoadOperand(0, m => m.GetConstant(out name));
+            piece.Is(OperationType.Parameter).LoadOperand(0, m => m.GetConstant(out name));
             return name;
         }
 

@@ -31,7 +31,7 @@ namespace DbLinq.Linq.Data.Sugar.Pieces
         public object Value { get; private set; }
 
         public ConstantPiece(object value)
-            : base(ExpressionType.Constant)
+            : base(OperationType.Constant)
         {
             Value = value;
         }

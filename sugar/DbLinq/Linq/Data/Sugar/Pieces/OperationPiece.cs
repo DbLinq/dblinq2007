@@ -35,19 +35,33 @@ namespace DbLinq.Linq.Data.Sugar.Pieces
     [DebuggerDisplay("OperationPiece {Operation}")]
     public class OperationPiece : Piece
     {
-        public ExpressionType Operation { get; private set; }
+        public OperationType Operation { get; private set; }
         public Expression OriginalExpression { get; set; }
 
-        public OperationPiece(ExpressionType operation, params Piece[] operands)
+        public OperationPiece(OperationType operation, params Piece[] operands)
             : base(operands)
         {
             Operation = operation;
+        }
+
+        public OperationPiece(OperationType operation, IList<Piece> operands)
+            : base(operands)
+        {
+            Operation = operation;
+        }
+
+        #region  ctors provided to ease OperationPiece creation
+
+        public OperationPiece(ExpressionType operation, params Piece[] operands)
+            : this((OperationType)operation, operands)
+        {
         }
 
         public OperationPiece(ExpressionType operation, IList<Piece> operands)
-            : base(operands)
+            : this((OperationType)operation, operands)
         {
-            Operation = operation;
         }
+
+        #endregion
     }
 }
