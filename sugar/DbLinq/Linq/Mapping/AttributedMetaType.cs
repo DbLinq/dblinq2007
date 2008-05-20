@@ -53,7 +53,7 @@ namespace DbLinq.Linq.Mapping
                     dataMembersList.Add(new AttributedColumnMetaDataMember(memberInfo, column, this));
             }
             associations = new ReadOnlyCollection<MetaAssociation>(associationsList);
-            dataMembers = new ReadOnlyCollection<MetaDataMember>(dataMembersList);
+            persistentDataMembers = new ReadOnlyCollection<MetaDataMember>(dataMembersList);
         }
 
         internal void SetMetaTable(MetaTable metaTable)
@@ -61,7 +61,7 @@ namespace DbLinq.Linq.Mapping
             table = metaTable;
         }
 
-        private ReadOnlyCollection<MetaAssociation> associations;
+        private readonly ReadOnlyCollection<MetaAssociation> associations;
         public override ReadOnlyCollection<MetaAssociation> Associations
         {
             get { return associations; }
@@ -73,10 +73,9 @@ namespace DbLinq.Linq.Mapping
             get { return true; }
         }
 
-        private ReadOnlyCollection<MetaDataMember> dataMembers;
         public override ReadOnlyCollection<MetaDataMember> DataMembers
         {
-            get { return dataMembers; }
+            get { throw new NotImplementedException(); }
         }
 
         public override MetaDataMember DBGeneratedIdentityMember
@@ -97,10 +96,10 @@ namespace DbLinq.Linq.Mapping
         public override MetaDataMember GetDataMember(MemberInfo member)
         {
             // TODO: optimize?
-            return (from dataMember in DataMembers where dataMember.Member == member select dataMember).SingleOrDefault();
+            return (from dataMember in persistentDataMembers where dataMember.Member == member select dataMember).SingleOrDefault();
         }
 
-        public override MetaType GetInheritanceType(Type type)
+        public override MetaType GetInheritanceType(Type baseType)
         {
             throw new NotImplementedException();
         }
@@ -195,9 +194,10 @@ namespace DbLinq.Linq.Mapping
             get { throw new NotImplementedException(); }
         }
 
+        private readonly ReadOnlyCollection<MetaDataMember> persistentDataMembers;
         public override ReadOnlyCollection<MetaDataMember> PersistentDataMembers
         {
-            get { throw new NotImplementedException(); }
+            get { return persistentDataMembers; }
         }
 
         private MetaTable table;
@@ -206,7 +206,7 @@ namespace DbLinq.Linq.Mapping
             get { return table; }
         }
 
-        private Type type;
+        private readonly Type type;
         public override Type Type
         {
             get { return type; }

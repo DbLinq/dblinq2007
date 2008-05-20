@@ -167,7 +167,14 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
 
         protected virtual OperationPiece CreateQueryExpressionSpecific(NewExpression expression, BuilderContext builderContext)
         {
-            throw new NotImplementedException();
+            //  Possible NodeType "New"
+            var parameters = new List<Piece>();
+            parameters.Add(new ConstantPiece(expression.Constructor));
+            foreach (var argument in expression.Arguments)
+                parameters.Add(CreateQueryExpression(argument, builderContext));
+            foreach (var member in expression.Members)
+                parameters.Add(new ConstantPiece(member));
+            return new OperationPiece(expression.NodeType, parameters);
         }
 
         protected virtual OperationPiece CreateQueryExpressionSpecific(NewArrayExpression expression, BuilderContext builderContext)

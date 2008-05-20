@@ -78,20 +78,21 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                                            DataContext dataContext)
         {
             var tableDescription = dataContext.Mapping.GetTable(tablePiece.Type);
-            var columnDescription = tableDescription.RowType.GetDataMember(memberInfo);
             var associationDescription =
                 (from association in tableDescription.RowType.Associations
-                 where association.ThisMember == columnDescription
+                 where association.ThisMember.Member == memberInfo
                  select association).SingleOrDefault();
             if (associationDescription != null)
             {
-                var referencedTableType = associationDescription.OtherType.Type;
-                // TODO: something if ThisKey is null
-                foreignKey = (from key in associationDescription.ThisKey select key.Member).ToList();
+                if (associationDescription.ThisKey.Count == 0)
+                    foreignKey = GetPrimaryKeys(tableDescription);
+                else
+                    foreignKey = (from key in associationDescription.ThisKey select key.Member).ToList();
                 if (associationDescription.OtherKey.Count == 0)
                     referencedKey = GetPrimaryKeys(associationDescription.OtherType.Table);
                 else
                     referencedKey = (from key in associationDescription.OtherKey select key.Member).ToList();
+                var referencedTableType = referencedKey[0].DeclaringType;
                 joinType = TablePiece.JoinType.Inner;
                 return referencedTableType;
             }

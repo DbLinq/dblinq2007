@@ -51,7 +51,7 @@ namespace nwind
             var metaModel = mappingSource.GetModel(typeof(Northwind));
             foreach (var tableModel in metaModel.GetTables())
             {
-                foreach (var columnModel in tableModel.RowType.DataMembers)
+                foreach (var columnModel in tableModel.RowType.PersistentDataMembers)
                 {
 
                 }

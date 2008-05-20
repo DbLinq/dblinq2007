@@ -134,9 +134,6 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             {
                 queryTable = new TablePiece(tableType, tableName, joinType);
                 builderContext.PiecesQuery.Tables.Add(queryTable);
-                if (builderContext.PiecesQuery.Select != null)
-                    throw Error.BadArgument("S0140: builderContext.PiecesQuery.Select should be null here");
-                builderContext.PiecesQuery.Select = queryTable;
             }
             return queryTable;
         }
@@ -227,6 +224,38 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 new ParameterPiece(((OperationPiece)piece).OriginalExpression);
             builderContext.PiecesQuery.Parameters.Add(queryParameterExpression);
             return queryParameterExpression;
+        }
+
+        /// <summary>
+        /// Returns a registered MetaTable, by Type
+        /// </summary>
+        /// <param name="metaTableType"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        public virtual MetaTablePiece GetRegisteredMetaTable(Type metaTableType, BuilderContext builderContext)
+        {
+            MetaTablePiece metaTablePiece;
+            builderContext.MetaTables.TryGetValue(metaTableType, out metaTablePiece);
+            return metaTablePiece;
+        }
+
+        /// <summary>
+        /// Registers a MetaTable
+        /// </summary>
+        /// <param name="metaTableType"></param>
+        /// <param name="aliases"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        public virtual MetaTablePiece RegisterMetaTable(Type metaTableType, IDictionary<MemberInfo, TablePiece> aliases,
+            BuilderContext builderContext)
+        {
+            MetaTablePiece metaTablePiece;
+            if (!builderContext.MetaTables.TryGetValue(metaTableType, out metaTablePiece))
+            {
+                metaTablePiece = new MetaTablePiece(aliases);
+                builderContext.MetaTables[metaTableType] = metaTablePiece;
+            }
+            return metaTablePiece;
         }
     }
 }

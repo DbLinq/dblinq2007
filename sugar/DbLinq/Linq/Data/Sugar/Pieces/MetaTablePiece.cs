@@ -22,45 +22,28 @@
 // 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
-using DbLinq.Linq.Data.Sugar.Pieces;
+using System.Reflection;
 
-namespace DbLinq.Linq.Data.Sugar
+namespace DbLinq.Linq.Data.Sugar.Pieces
 {
-    public class BuilderContext
+    /// <summary>
+    /// A MetaTablePiece contains aliases for tables (used on joins)
+    /// </summary>
+    public class MetaTablePiece : Piece
     {
-        // global context
-        public QueryContext QueryContext { get; private set; }
+        protected IDictionary<MemberInfo, TablePiece> Aliases;
 
-        // current expression being built
-        public PiecesQuery PiecesQuery { get; private set; }
-
-        public IDictionary<Type, MetaTablePiece> MetaTables { get; private set; }
-        public IDictionary<string, Piece> Parameters { get; private set; }
-
-        public BuilderContext(QueryContext queryContext)
+        public TablePiece GetTablePiece(MemberInfo memberInfo)
         {
-            QueryContext = queryContext;
-            PiecesQuery = new PiecesQuery();
-            MetaTables = new Dictionary<Type, MetaTablePiece>();
-            Parameters = new Dictionary<string, Piece>();
+            TablePiece tablePiece;
+            Aliases.TryGetValue(memberInfo, out tablePiece);
+            return tablePiece;
         }
 
-        private BuilderContext()
-        { }
-
-        public BuilderContext Clone()
+        public MetaTablePiece(IDictionary<MemberInfo, TablePiece> aliases)
         {
-            var builderContext = new BuilderContext();
-            // scope independent parts
-            builderContext.QueryContext = QueryContext;
-            builderContext.PiecesQuery = PiecesQuery;
-            builderContext.MetaTables = MetaTables;
-            // scope dependent parts
-            builderContext.Parameters = new Dictionary<string, Piece>(Parameters);
-            return builderContext;
+            Aliases = aliases;
         }
     }
 }
