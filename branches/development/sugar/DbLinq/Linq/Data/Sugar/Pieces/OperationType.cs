@@ -77,6 +77,8 @@ namespace DbLinq.Linq.Data.Sugar.Pieces
         TypeIs = ExpressionType.TypeIs,
         #endregion
 
+        IsNull,
+        IsNotNull,
         Concat,
     }
 }

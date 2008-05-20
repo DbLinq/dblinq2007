@@ -224,9 +224,11 @@
     <Compile Include="Vendor\Implementation\Vendor.ExecuteQuery.cs" />
     <Compile Include="Vendor\INameAliases.cs" />
     <Compile Include="Vendor\ISchemaLoader.cs" />
+    <Compile Include="Vendor\ISqlBuilder.cs" />
     <Compile Include="Vendor\IVendor.cs" />
     <Compile Include="Vendor\Implementation\SchemaLoader.cs" />
     <Compile Include="Vendor\Implementation\Vendor.cs" />
+    <Compile Include="Vendor\SqlBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\DbLinq.snk">
