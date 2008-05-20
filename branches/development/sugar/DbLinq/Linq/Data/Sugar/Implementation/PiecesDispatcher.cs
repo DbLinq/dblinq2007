@@ -245,6 +245,20 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             builderContext.Parameters.TryGetValue(parameterName, out unaliasedPiece);
             if (unaliasedPiece == null)
                 throw Error.BadArgument("S0257: can not find parameter '{0}'", parameterName);
+
+            #region set alias helper
+
+            // for table...
+            var unaliasedTablePiece = unaliasedPiece as TablePiece;
+            if (unaliasedTablePiece != null && unaliasedTablePiece.Alias == null)
+                unaliasedTablePiece.Alias = parameterName;
+            // .. or column
+            var unaliasedColumnPiece = unaliasedPiece as ColumnPiece;
+            if (unaliasedColumnPiece != null && unaliasedColumnPiece.Alias == null)
+                unaliasedColumnPiece.Alias = parameterName;
+
+            #endregion
+
             return unaliasedPiece;
         }
 

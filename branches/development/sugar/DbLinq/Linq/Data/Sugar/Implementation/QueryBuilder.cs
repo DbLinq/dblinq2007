@@ -84,15 +84,15 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
 
         public Query GetQuery(ExpressionChain expressions, QueryContext queryContext)
         {
-            var sqlQuery = GetFromCache(expressions);
-            if (sqlQuery == null)
+            var query = GetFromCache(expressions);
+            if (query == null)
             {
                 var expressionsQuery = BuildExpressionQuery(expressions, queryContext);
-                sqlQuery = BuildSqlQuery(expressionsQuery, queryContext);
-                SetInCache(expressions, sqlQuery);
+                query = BuildSqlQuery(expressionsQuery, queryContext);
+                SetInCache(expressions, query);
             }
             throw new Exception("Can't go further anyway...");
-            return sqlQuery;
+            return query;
         }
 
         public QueryBuilder()
