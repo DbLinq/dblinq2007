@@ -23,7 +23,10 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using DbLinq.Factory;
+using DbLinq.Linq.Data.Sugar.Pieces;
 using DbLinq.Logging;
 using DbLinq.Util;
 
@@ -45,7 +48,50 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         {
             var builderContext = new BuilderContext(queryContext);
             BuildExpressionQuery(expressions, builderContext);
+            CheckTablesAlias(builderContext);
             return builderContext.PiecesQuery;
+        }
+
+        protected virtual IList<Piece> FindPiecesByName(string name, BuilderContext builderContext)
+        {
+            var pieces = new List<Piece>();
+            pieces.AddRange(from t in builderContext.PiecesQuery.Tables where t.Alias == name select (Piece)t);
+            pieces.AddRange(from c in builderContext.PiecesQuery.Columns where c.Alias == name select (Piece)c);
+            return pieces;
+        }
+
+        protected virtual string GetAnonymousTableName(string aliasBase, int anonymousIndex, BuilderContext builderContext)
+        {
+            if (string.IsNullOrEmpty(aliasBase))
+                aliasBase = "t";
+            return string.Format("{0}{1}", aliasBase, anonymousIndex);
+        }
+
+        /// <summary>
+        /// Give all non-aliased tables a name
+        /// </summary>
+        /// <param name="builderContext"></param>
+        protected virtual void CheckTablesAlias(BuilderContext builderContext)
+        {
+            int anonymousIndex = 0;
+            foreach (TablePiece tablePiece in builderContext.PiecesQuery.Tables)
+            {
+                // if no alias, or duplicate alias
+                if (string.IsNullOrEmpty(tablePiece.Alias) || FindPiecesByName(tablePiece.Alias, builderContext).Count > 1)
+                {
+                    var aliasBase = tablePiece.Alias;
+                    // we try to assign one until we have a unique alias
+                    do
+                    {
+                        tablePiece.Alias = GetAnonymousTableName(aliasBase, ++anonymousIndex, builderContext);
+                    } while (FindPiecesByName(tablePiece.Alias, builderContext).Count != 1);
+                }
+            }
+            // TODO: move down this to IVendor
+            foreach (TablePiece tablePiece in builderContext.PiecesQuery.Tables)
+            {
+                tablePiece.Alias += "$";
+            }
         }
 
         protected virtual void BuildExpressionQuery(ExpressionChain expressions, BuilderContext builderContext)
