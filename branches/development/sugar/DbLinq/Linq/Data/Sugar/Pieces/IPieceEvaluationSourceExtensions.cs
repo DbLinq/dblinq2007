@@ -31,7 +31,7 @@ namespace DbLinq.Linq.Data.Sugar.Pieces
     public static class IPieceEvaluationSourceExtensions
     {
         // Match public methods
-        public static PieceEvaluationSource Is(this IPieceEvaluationSource sourceEvaluation, ExpressionType expressionType)
+        public static PieceEvaluationSource Is(this IPieceEvaluationSource sourceEvaluation, OperationType expressionType)
         {
             var source = sourceEvaluation.GetEvaluationSource();
             Is<OperationPiece>(source);
