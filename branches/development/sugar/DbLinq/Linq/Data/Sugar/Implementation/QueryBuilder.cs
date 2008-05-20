@@ -54,7 +54,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 queryExpression = PiecesLanguageParser.AnalyzeLanguagePatterns(queryExpression, builderContext);
                 queryExpression = PiecesLanguageOptimizer.AnalyzeLanguagePatterns(queryExpression, builderContext);
                 // Query expressions query identification 
-                queryExpression = PiecesDispatcher.AnalyzeQueryPatterns(queryExpression, builderContext);
+                // The last request is the select, whatever the loop count is
+                builderContext.PiecesQuery.Select = PiecesDispatcher.Dispatch(queryExpression, builderContext);
             }
         }
 

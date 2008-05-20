@@ -30,11 +30,10 @@ namespace DbLinq.Linq.Data.Sugar
     {
         /// <summary>
         /// Entry point to analyze query related patterns.
-        /// They start by a method, like Where(), Select()
         /// </summary>
         /// <param name="piece"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        Piece AnalyzeQueryPatterns(Piece piece, BuilderContext builderContext);
+        Piece Dispatch(Piece piece, BuilderContext builderContext);
     }
 }

@@ -37,16 +37,12 @@ namespace DbLinq.Linq.Data.Sugar
         // current expression being built
         public PiecesQuery PiecesQuery { get; private set; }
 
-        // parameters are pushed here and pulled when required
-        public Stack<Piece> CallStack { get; private set; }
-
         public IDictionary<string, Piece> Parameters { get; private set; }
 
         public BuilderContext(QueryContext queryContext)
         {
             QueryContext = queryContext;
             PiecesQuery = new PiecesQuery();
-            CallStack = new Stack<Piece>();
             Parameters = new Dictionary<string, Piece>();
         }
 
@@ -59,7 +55,6 @@ namespace DbLinq.Linq.Data.Sugar
             // scope independent parts
             builderContext.QueryContext = QueryContext;
             builderContext.PiecesQuery = PiecesQuery;
-            builderContext.CallStack = CallStack;
             // scope dependent parts
             builderContext.Parameters = new Dictionary<string, Piece>(Parameters);
             return builderContext;
