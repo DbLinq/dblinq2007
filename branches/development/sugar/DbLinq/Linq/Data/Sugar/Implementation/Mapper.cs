@@ -77,13 +77,13 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// </summary>
         /// <param name="joinedTablePiece">The table referenced by the assocation (the type holding the member)</param>
         /// <param name="memberInfo">The memberInfo related to association</param>
-        /// <param name="joinedKey">The keys in the joined table</param>
-        /// <param name="foreignKey">The keys in the associated table</param>
+        /// <param name="foreignKey">The keys in the joined table</param>
+        /// <param name="joinedKey">The keys in the associated table</param>
         /// <param name="joinType"></param>
         /// <param name="dataContext"></param>
         /// <returns></returns>
         public virtual Type GetAssociation(TablePiece joinedTablePiece, MemberInfo memberInfo,
-                                           out IList<MemberInfo> joinedKey, out IList<MemberInfo> foreignKey, out TableJoinType joinType,
+                                           out IList<MemberInfo> foreignKey, out IList<MemberInfo> joinedKey, out TableJoinType joinType,
                                            DataContext dataContext)
         {
             var joinedTableDescription = dataContext.Mapping.GetTable(joinedTablePiece.Type);
@@ -94,19 +94,19 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             if (associationDescription != null)
             {
                 if (associationDescription.OtherKey.Count == 0)
-                    joinedKey = GetPrimaryKeys(associationDescription.OtherType.Table);
+                    foreignKey = GetPrimaryKeys(associationDescription.OtherType.Table);
                 else
-                    joinedKey = (from key in associationDescription.OtherKey select key.Member).ToList();
+                    foreignKey = (from key in associationDescription.OtherKey select key.Member).ToList();
                 if (associationDescription.ThisKey.Count == 0)
-                    foreignKey = GetPrimaryKeys(joinedTableDescription);
+                    joinedKey = GetPrimaryKeys(joinedTableDescription);
                 else
-                    foreignKey = (from key in associationDescription.ThisKey select key.Member).ToList();
-                var referencedTableType = foreignKey[0].DeclaringType;
+                    joinedKey = (from key in associationDescription.ThisKey select key.Member).ToList();
+                var tableType = foreignKey[0].DeclaringType;
                 joinType = TableJoinType.Inner;
-                return referencedTableType;
+                return tableType;
             }
-            joinedKey = null;
             foreignKey = null;
+            joinedKey = null;
             joinType = TableJoinType.Default;
             return null;
         }

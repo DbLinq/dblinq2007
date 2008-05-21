@@ -175,7 +175,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         {
             IList<MemberInfo> foreignKeys, joinedKeys;
             TableJoinType joinType;
-            var tableType = Mapper.GetAssociation(joinedTablePiece, joinMemberInfo, out joinedKeys, out foreignKeys, out joinType,
+            var tableType = Mapper.GetAssociation(joinedTablePiece, joinMemberInfo, out foreignKeys, out joinedKeys, out joinType,
                                                             builderContext.QueryContext.DataContext);
             // if the memberInfo has no corresponding association, we get a null, that we propagate
             if (tableType == null)
