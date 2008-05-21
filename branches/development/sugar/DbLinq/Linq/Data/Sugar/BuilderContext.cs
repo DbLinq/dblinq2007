@@ -31,17 +31,49 @@ namespace DbLinq.Linq.Data.Sugar
 {
     public class BuilderContext
     {
-        // global context
+        // Global context
         public QueryContext QueryContext { get; private set; }
 
-        // current expression being built
+        // Current expression being built
         public PiecesQuery PiecesQuery { get; private set; }
 
+        // Build context: values here are related to current context, and can change with it
+        public ScopePiece CurrentScope { get; private set; }
+        public IList<ScopePiece> ScopePieces { get; private set; }
         public IDictionary<Type, MetaTablePiece> MetaTables { get; private set; }
         public IDictionary<string, Piece> Parameters { get; private set; }
 
+        /// <summary>
+        /// Helper to enumerate all registered tables
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<TablePiece> EnumerateTables()
+        {
+            foreach (var scopePiece in ScopePieces)
+            {
+                foreach (var table in scopePiece.Tables)
+                    yield return table;
+            }
+        }
+
+        /// <summary>
+        /// Helper to enumerate all registered columns
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<ColumnPiece> EnumerateColumns()
+        {
+            foreach (var scopePiece in ScopePieces)
+            {
+                foreach (var column in scopePiece.Columns)
+                    yield return column;
+            }
+        }
+
         public BuilderContext(QueryContext queryContext)
         {
+            ScopePieces = new List<ScopePiece>();
+            CurrentScope = new ScopePiece();
+            ScopePieces.Add(CurrentScope);
             QueryContext = queryContext;
             PiecesQuery = new PiecesQuery();
             MetaTables = new Dictionary<Type, MetaTablePiece>();
@@ -51,15 +83,47 @@ namespace DbLinq.Linq.Data.Sugar
         private BuilderContext()
         { }
 
-        public BuilderContext Clone()
+        /// <summary>
+        /// Creates a new BuilderContext where parameters have a local scope
+        /// </summary>
+        /// <returns></returns>
+        public BuilderContext NewQuote()
         {
             var builderContext = new BuilderContext();
+
             // scope independent parts
             builderContext.QueryContext = QueryContext;
             builderContext.PiecesQuery = PiecesQuery;
             builderContext.MetaTables = MetaTables;
+            builderContext.CurrentScope = CurrentScope;
+            builderContext.ScopePieces = ScopePieces;
+
             // scope dependent parts
             builderContext.Parameters = new Dictionary<string, Piece>(Parameters);
+
+            return builderContext;
+        }
+
+        /// <summary>
+        /// Creates a new BuilderContext with a new query scope
+        /// </summary>
+        /// <returns></returns>
+        public BuilderContext NewScope()
+        {
+            var builderContext = new BuilderContext();
+
+            // we basically copy everything
+            builderContext.QueryContext = QueryContext;
+            builderContext.PiecesQuery = PiecesQuery;
+            builderContext.MetaTables = MetaTables;
+            builderContext.Parameters = Parameters;
+            builderContext.ScopePieces = ScopePieces;
+
+            // except CurrentScope, of course
+            builderContext.CurrentScope = new ScopePiece(CurrentScope);
+
+            ScopePieces.Add(builderContext.CurrentScope);
+
             return builderContext;
         }
     }

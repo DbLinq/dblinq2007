@@ -22,7 +22,6 @@
 // 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using DbLinq.Linq.Data.Sugar.Pieces;
 
@@ -34,23 +33,16 @@ namespace DbLinq.Linq.Data.Sugar
     /// </summary>
     public class PiecesQuery
     {
-        // Involved entities
-        public IList<TablePiece> Tables { get; private set; }
-        public IList<ColumnPiece> Columns { get; private set; }
-        // public IDictionary<TablePiece, Piece> Associations { get; private set; } // the key is the associated table
+        /// <summary>
+        /// Values coming from outside the request (external parameters)
+        /// </summary>
         public IList<ParameterPiece> Parameters { get; private set; }
 
-        // Clauses
-        public IList<Piece> Where { get; private set; }
-        public Piece Select { get; set; } // the Select clause may be nested
+        public Piece Select { get; set; }
 
         public PiecesQuery()
         {
-            Tables = new List<TablePiece>();
-            Columns = new List<ColumnPiece>();
-            // Associations = new Dictionary<TablePiece, Piece>();
             Parameters = new List<ParameterPiece>();
-            Where = new List<Piece>();
         }
     }
 }

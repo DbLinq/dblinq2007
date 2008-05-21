@@ -55,8 +55,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         protected virtual IList<Piece> FindPiecesByName(string name, BuilderContext builderContext)
         {
             var pieces = new List<Piece>();
-            pieces.AddRange(from t in builderContext.PiecesQuery.Tables where t.Alias == name select (Piece)t);
-            pieces.AddRange(from c in builderContext.PiecesQuery.Columns where c.Alias == name select (Piece)c);
+            pieces.AddRange(from t in builderContext.EnumerateTables() where t.Alias == name select (Piece)t);
+            pieces.AddRange(from c in builderContext.EnumerateColumns() where c.Alias == name select (Piece)c);
             return pieces;
         }
 
@@ -74,10 +74,11 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         protected virtual void CheckTablesAlias(BuilderContext builderContext)
         {
             int anonymousIndex = 0;
-            foreach (TablePiece tablePiece in builderContext.PiecesQuery.Tables)
+            foreach (TablePiece tablePiece in builderContext.EnumerateTables())
             {
                 // if no alias, or duplicate alias
-                if (string.IsNullOrEmpty(tablePiece.Alias) || FindPiecesByName(tablePiece.Alias, builderContext).Count > 1)
+                if (string.IsNullOrEmpty(tablePiece.Alias) ||
+                    FindPiecesByName(tablePiece.Alias, builderContext).Count > 1)
                 {
                     var aliasBase = tablePiece.Alias;
                     // we try to assign one until we have a unique alias
@@ -88,7 +89,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 }
             }
             // TODO: move down this to IVendor
-            foreach (TablePiece tablePiece in builderContext.PiecesQuery.Tables)
+            foreach (TablePiece tablePiece in builderContext.EnumerateTables())
             {
                 tablePiece.Alias += "$";
             }
@@ -96,19 +97,21 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
 
         protected virtual void BuildExpressionQuery(ExpressionChain expressions, BuilderContext builderContext)
         {
-            builderContext.PiecesQuery.Select = PiecesDispatcher.RegisterTable(expressions.Expressions[0], builderContext);
+            var previousPiece = PiecesDispatcher.RegisterTable(expressions.Expressions[0], builderContext);
             foreach (var expression in expressions)
             {
                 builderContext.QueryContext.DataContext.Logger.WriteExpression(Level.Debug, expression);
                 // Convert linq Expressions to QueryOperationExpressions and QueryConstantExpressions 
-                var queryExpression = PiecesBuilder.CreateQueryExpression(expression, builderContext);
+                var piece = PiecesBuilder.CreateQueryExpression(expression, builderContext);
                 // Query expressions language identification and optimization
-                queryExpression = PiecesLanguageParser.AnalyzeLanguagePatterns(queryExpression, builderContext);
-                queryExpression = PiecesLanguageOptimizer.AnalyzeLanguagePatterns(queryExpression, builderContext);
+                piece = PiecesLanguageParser.AnalyzeLanguagePatterns(piece, builderContext);
+                piece = PiecesLanguageOptimizer.AnalyzeLanguagePatterns(piece, builderContext);
                 // Query expressions query identification 
-                // The last request is the select, whatever the loop count is
-                builderContext.PiecesQuery.Select = PiecesDispatcher.Analyze(queryExpression, builderContext.PiecesQuery.Select, builderContext);
+                previousPiece = PiecesDispatcher.Analyze(piece, previousPiece, builderContext);
             }
+            // the last return value becomes the select, with CurrentScope
+            builderContext.CurrentScope.Operands.Add(previousPiece);
+            builderContext.PiecesQuery.Select = builderContext.CurrentScope;
         }
 
         protected virtual Query BuildSqlQuery(PiecesQuery expressionQuery, QueryContext queryContext)

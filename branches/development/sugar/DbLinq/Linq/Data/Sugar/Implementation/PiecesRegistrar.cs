@@ -53,7 +53,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                                                BuilderContext builderContext)
         {
             return
-                (from queryColumn in builderContext.PiecesQuery.Columns
+                (from queryColumn in builderContext.EnumerateColumns()
                  where queryColumn.Table == table && queryColumn.Name == name
                  select queryColumn).SingleOrDefault();
         }
@@ -77,7 +77,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             if (queryColumn == null)
             {
                 queryColumn = new ColumnPiece(table, name, memberInfo.GetMemberType());
-                builderContext.PiecesQuery.Columns.Add(queryColumn);
+                builderContext.CurrentScope.Columns.Add(queryColumn);
             }
             return queryColumn;
         }
@@ -118,7 +118,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         public virtual TablePiece GetRegisteredTable(string tableName, BuilderContext builderContext)
         {
             return
-                (from queryTable in builderContext.PiecesQuery.Tables
+                (from queryTable in builderContext.EnumerateTables()
                  where queryTable.Name == tableName
                  select queryTable).SingleOrDefault();
         }
@@ -145,7 +145,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             if (queryTable == null)
             {
                 queryTable = new TablePiece(tableType, tableName, joinType, joinedTable, joinPiece);
-                builderContext.PiecesQuery.Tables.Add(queryTable);
+                builderContext.CurrentScope.Tables.Add(queryTable);
             }
             return queryTable;
         }
@@ -213,11 +213,11 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
 
             // our table is created, with the expressions
             // now check if we didn't register exactly the same
-            if ((from t in builderContext.PiecesQuery.Tables where t.Equals(tablePiece) select t).SingleOrDefault() == null)
+            if ((from t in builderContext.EnumerateTables() where t.Equals(tablePiece) select t).SingleOrDefault() == null)
             {
-                builderContext.PiecesQuery.Tables.Add(tablePiece);
+                builderContext.CurrentScope.Tables.Add(tablePiece);
                 foreach (var createdColumn in createdColumns)
-                    builderContext.PiecesQuery.Columns.Add(createdColumn);
+                    builderContext.CurrentScope.Columns.Add(createdColumn);
             }
 
             return tablePiece;
@@ -272,6 +272,16 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 builderContext.MetaTables[metaTableType] = metaTablePiece;
             }
             return metaTablePiece;
+        }
+
+        /// <summary>
+        /// Registers a where clause in the current context scope
+        /// </summary>
+        /// <param name="wherePiece"></param>
+        /// <param name="builderContext"></param>
+        public virtual void RegisterWhere(Piece wherePiece, BuilderContext builderContext)
+        {
+            builderContext.CurrentScope.Where.Add(wherePiece);
         }
     }
 }

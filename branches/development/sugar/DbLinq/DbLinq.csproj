@@ -87,6 +87,7 @@
     <Compile Include="Linq\Data\Sugar\Pieces\PieceEvalutionSource.cs" />
     <Compile Include="Linq\Data\Sugar\Pieces\OperationPiece.cs" />
     <Compile Include="Linq\Data\Sugar\ExpressionChain.cs" />
+    <Compile Include="Linq\Data\Sugar\Pieces\ScopePiece.cs" />
     <Compile Include="Linq\Data\Sugar\Pieces\TableJoinType.cs" />
     <Compile Include="Linq\Data\Sugar\QueryContext.cs" />
     <Compile Include="Linq\Data\Sugar\Implementation\QueryBuilder.cs" />
