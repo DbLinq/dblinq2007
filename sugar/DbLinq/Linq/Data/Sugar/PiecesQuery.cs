@@ -35,7 +35,6 @@ namespace DbLinq.Linq.Data.Sugar
     public class PiecesQuery
     {
         // Involved entities
-        public IDictionary<Type, IDictionary<string, TablePiece>> MetaTables { get; private set; }
         public IList<TablePiece> Tables { get; private set; }
         public IList<ColumnPiece> Columns { get; private set; }
         // public IDictionary<TablePiece, Piece> Associations { get; private set; } // the key is the associated table
@@ -47,7 +46,6 @@ namespace DbLinq.Linq.Data.Sugar
 
         public PiecesQuery()
         {
-            MetaTables = new Dictionary<Type, IDictionary<string, TablePiece>>();
             Tables = new List<TablePiece>();
             Columns = new List<ColumnPiece>();
             // Associations = new Dictionary<TablePiece, Piece>();

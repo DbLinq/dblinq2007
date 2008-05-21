@@ -87,7 +87,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 case OperationType.Call:
                     return AnalyzeCall(PiecesService.GetMethodInfo(piece.Operands[0]).Name,
                                        PiecesService.MergeParameters(parameters,
-                                       PiecesService.ExtractParameters(piece.Operands, 3)),
+                                       PiecesService.ExtractParameters(piece.Operands, 2 + parameters.Count)), // 0 is the method call, 1 is the "this" (null for static methods)
+                                                                                // if extra parameters are specified in "parameters", ignore them as Operands
                                        builderContext);
                 case OperationType.Lambda:
                     return AnalyzeLambda(piece, parameters, builderContext);
@@ -153,11 +154,13 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             switch (methodName)
             {
             case "Select":
-                return AnalyzeSelectQuery(parameters, builderContext);
+                return AnalyzeSelect(parameters, builderContext);
             case "Where":
-                return AnalyzeWhereQuery(parameters, builderContext);
+                return AnalyzeWhere(parameters, builderContext);
             case "SelectMany":
                 return AnalyzeSelectMany(parameters, builderContext);
+            case "All":
+                return AnalyzeAll(parameters, builderContext);
             case "Average":
             case "Count":
             case "Max":
@@ -177,6 +180,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <returns></returns>
         protected virtual Piece AnalyzeProjectionQuery(string name, BuilderContext builderContext)
         {
+            // TODO: review this code
             return new OperationPiece(OperationType.Call,
                                       new ConstantPiece(name), // method name
                                       new ConstantPiece(null), // method object (null for static/extension methods)
@@ -190,7 +194,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <param name="parameters"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        protected virtual Piece AnalyzeSelectQuery(IList<Piece> parameters, BuilderContext builderContext)
+        protected virtual Piece AnalyzeSelect(IList<Piece> parameters, BuilderContext builderContext)
         {
             // just call back the underlying lambda (or quote, whatever)
             return Analyze(parameters[1], new[] { parameters[0] }, builderContext);
@@ -203,7 +207,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <param name="parameters"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        protected virtual Piece AnalyzeWhereQuery(IList<Piece> parameters, BuilderContext builderContext)
+        protected virtual Piece AnalyzeWhere(IList<Piece> parameters, BuilderContext builderContext)
         {
             var tablePiece = parameters[0];
             builderContext.PiecesQuery.Where.Add(Analyze(parameters[1], new[] { tablePiece }, builderContext));
@@ -414,6 +418,19 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 piece.Operands[operandIndex] = Analyze(operand, builderContext);
             }
             return piece;
+        }
+
+        /// <summary>
+        /// All() returns true if the given condition satisfies all provided elements
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        protected virtual Piece AnalyzeAll(IList<Piece> parameters, BuilderContext builderContext)
+        {
+            var allTable = Analyze(parameters[0], builderContext);
+            var allClause = Analyze(parameters[1], allTable, builderContext);
+            return allClause;
         }
     }
 }
