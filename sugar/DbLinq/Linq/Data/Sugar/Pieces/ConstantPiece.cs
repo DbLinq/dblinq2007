@@ -22,10 +22,15 @@
 // 
 #endregion
 
+using System.Diagnostics;
 using System.Linq.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar.Pieces
 {
+    /// <summary>
+    /// Represents a constant: number, string, ...
+    /// </summary>
+    [DebuggerDisplay("ConstantPiece {Value}")]
     public class ConstantPiece : OperationPiece
     {
         public object Value { get; private set; }
@@ -34,6 +39,12 @@ namespace DbLinq.Linq.Data.Sugar.Pieces
             : base(OperationType.Constant)
         {
             Value = value;
+        }
+
+        protected override bool InnerEquals(Piece other)
+        {
+            var constantOther = (ConstantPiece)other;
+            return Value == constantOther;
         }
     }
 }

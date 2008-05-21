@@ -25,20 +25,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using DbLinq.Factory;
-using DbLinq.Linq.Data.Sugar.Implementation;
 using DbLinq.Linq.Data.Sugar.Pieces;
 using DbLinq.Util;
 
 namespace DbLinq.Linq.Data.Sugar.Implementation
 {
-    public class PiecesQueryService : IPiecesQueryService
+    public class PiecesRegistrar : IPiecesRegistrar
     {
         public IMapper Mapper { get; set; }
 
-        public PiecesQueryService()
+        public PiecesRegistrar()
         {
             Mapper = ObjectFactory.Get<IMapper>();
         }
@@ -101,6 +99,16 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             return RegisterColumn(table, memberInfo, dataMember.MappedName, builderContext);
         }
 
+        public ColumnPiece CreateColumn(TablePiece table, MemberInfo memberInfo, BuilderContext builderContext)
+        {
+            var dataMember = builderContext.QueryContext.DataContext.Mapping.GetTable(table.Type).RowType
+                .GetDataMember(memberInfo);
+            if (dataMember == null)
+                return null;
+            return new ColumnPiece(table, dataMember.MappedName, memberInfo.GetMemberType());
+        }
+
+        // TODO: check and remove
         /// <summary>
         /// Find a registered table in the current query, or null if none
         /// </summary>
@@ -121,9 +129,13 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// </summary>
         /// <param name="tableType"></param>
         /// <param name="tableName"></param>
+        /// <param name="joinedTable"></param>
+        /// <param name="joinType"></param>
         /// <param name="builderContext"></param>
+        /// <param name="joinPiece"></param>
         /// <returns></returns>
-        public virtual TablePiece RegisterTable(Type tableType, string tableName, TablePiece.JoinType joinType,
+        public virtual TablePiece RegisterTable(Type tableType, string tableName,
+                                                Piece joinPiece, TablePiece joinedTable, TableJoinType joinType,
                                                 BuilderContext builderContext)
         {
             if (tableName == null)
@@ -132,15 +144,10 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             var queryTable = GetRegisteredTable(tableName, builderContext);
             if (queryTable == null)
             {
-                queryTable = new TablePiece(tableType, tableName, joinType);
+                queryTable = new TablePiece(tableType, tableName, joinType, joinedTable, joinPiece);
                 builderContext.PiecesQuery.Tables.Add(queryTable);
             }
             return queryTable;
-        }
-
-        public virtual TablePiece RegisterTable(Type tableType, string tableName, BuilderContext builderContext)
-        {
-            return RegisterTable(tableType, tableName, TablePiece.JoinType.Default, builderContext);
         }
 
         /// <summary>
@@ -152,45 +159,46 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <returns></returns>
         public virtual TablePiece RegisterTable(Type tableType, BuilderContext builderContext)
         {
-            return RegisterTable(tableType, Mapper.GetTableName(tableType, builderContext.QueryContext.DataContext), builderContext);
+            return RegisterTable(tableType, Mapper.GetTableName(tableType, builderContext.QueryContext.DataContext),
+                null, null, TableJoinType.Default, builderContext);
         }
 
         /// <summary>
         /// Registers an association
         /// </summary>
-        /// <param name="tablePiece"></param>
-        /// <param name="memberInfo"></param>
+        /// <param name="joinedTablePiece">The table holding the member, to become the joinedTable</param>
+        /// <param name="joinMemberInfo"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        public virtual TablePiece RegisterAssociation(TablePiece tablePiece, MemberInfo memberInfo,
+        public virtual TablePiece RegisterAssociation(TablePiece joinedTablePiece, MemberInfo joinMemberInfo,
                                                       BuilderContext builderContext)
         {
-            IList<MemberInfo> foreignKeys, referencedKeys;
-            TablePiece.JoinType joinType;
-            var referencedTableType = Mapper.GetAssociation(tablePiece, memberInfo, out foreignKeys, out referencedKeys, out joinType,
+            IList<MemberInfo> foreignKeys, joinedKeys;
+            TableJoinType joinType;
+            var tableType = Mapper.GetAssociation(joinedTablePiece, joinMemberInfo, out joinedKeys, out foreignKeys, out joinType,
                                                             builderContext.QueryContext.DataContext);
             // if the memberInfo has no corresponding association, we get a null, that we propagate
-            if (referencedTableType == null)
+            if (tableType == null)
                 return null;
 
             // the current table has the foreign key, the other table the referenced (usually primary) key
-            if (foreignKeys.Count != referencedKeys.Count)
+            if (foreignKeys.Count != joinedKeys.Count)
                 throw Error.BadArgument("S0128: Association arguments (FK and ref'd PK) don't match");
 
-            var referencedTableExpression = RegisterTable(referencedTableType,
-                                                          Mapper.GetTableName(referencedTableType, builderContext.QueryContext.DataContext),
-                                                          joinType, builderContext);
+            // we first create the table
+            var tablePiece = new TablePiece(tableType, Mapper.GetTableName(tableType, builderContext.QueryContext.DataContext));
 
             Piece joinPiece = null;
-            for (int referenceIndex = 0; referenceIndex < foreignKeys.Count; referenceIndex++)
+            var createdColumns = new List<ColumnPiece>();
+            for (int keyIndex = 0; keyIndex < foreignKeys.Count; keyIndex++)
             {
-                var foreignKey = RegisterColumn(tablePiece,
-                                                foreignKeys[referenceIndex],
-                                                builderContext);
-                var referencedKey = RegisterColumn(referencedTableExpression,
-                                                   referencedKeys[referenceIndex],
-                                                   builderContext);
-                var referenceExpression = new OperationPiece(OperationType.Equal, foreignKey, referencedKey);
+                // joinedKey is registered, even if unused by final select (required columns will be filtered anyway)
+                var joinedKey = RegisterColumn(joinedTablePiece, joinedKeys[keyIndex], builderContext);
+                // foreign is created, we will store it later if this assocation is registered too
+                var foreignKey = CreateColumn(tablePiece, foreignKeys[keyIndex], builderContext);
+                createdColumns.Add(foreignKey);
+
+                var referenceExpression = new OperationPiece(OperationType.Equal, foreignKey, joinedKey);
                 // if we already have a join expression, then we have a double condition here, so "AND" it
                 if (joinPiece != null)
                 {
@@ -201,10 +209,18 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 else
                     joinPiece = referenceExpression;
             }
+            tablePiece.Join(joinType, joinedTablePiece, joinPiece);
 
-            builderContext.PiecesQuery.Associations[referencedTableExpression] = joinPiece;
+            // our table is created, with the expressions
+            // now check if we didn't register exactly the same
+            if ((from t in builderContext.PiecesQuery.Tables where t.Equals(tablePiece) select t).SingleOrDefault() == null)
+            {
+                builderContext.PiecesQuery.Tables.Add(tablePiece);
+                foreach (var createdColumn in createdColumns)
+                    builderContext.PiecesQuery.Columns.Add(createdColumn);
+            }
 
-            return referencedTableExpression;
+            return tablePiece;
         }
 
         /// <summary>

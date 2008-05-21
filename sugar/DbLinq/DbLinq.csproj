@@ -67,7 +67,7 @@
     <Compile Include="Linq\Data\Sugar\IMapper.cs" />
     <Compile Include="Linq\Data\Sugar\Implementation\PiecesService.cs" />
     <Compile Include="Linq\Data\Sugar\IQueryBuilder.cs" />
-    <Compile Include="Linq\Data\Sugar\IPiecesQueryService.cs" />
+    <Compile Include="Linq\Data\Sugar\IPiecesRegistrar.cs" />
     <Compile Include="Linq\Data\Sugar\IPiecesBuilder.cs" />
     <Compile Include="Linq\Data\Sugar\IPiecesDispatcher.cs" />
     <Compile Include="Linq\Data\Sugar\IPiecesLanguageOptimizer.cs" />
@@ -78,7 +78,7 @@
     <Compile Include="Linq\Data\Sugar\Implementation\PiecesLanguageOptimizer.cs" />
     <Compile Include="Linq\Data\Sugar\Implementation\PiecesLanguageParser.cs" />
     <Compile Include="Linq\Data\Sugar\Implementation\PiecesParser.cs" />
-    <Compile Include="Linq\Data\Sugar\Implementation\PiecesQueryService.cs" />
+    <Compile Include="Linq\Data\Sugar\Implementation\PiecesRegistrar.cs" />
     <Compile Include="Linq\Data\Sugar\Pieces\IPieceEvaluationSource.cs" />
     <Compile Include="Linq\Data\Sugar\Pieces\IPieceEvaluationSourceExtensions.cs" />
     <Compile Include="Linq\Data\Sugar\Pieces\ConstantPiece.cs" />
@@ -87,8 +87,7 @@
     <Compile Include="Linq\Data\Sugar\Pieces\PieceEvalutionSource.cs" />
     <Compile Include="Linq\Data\Sugar\Pieces\OperationPiece.cs" />
     <Compile Include="Linq\Data\Sugar\ExpressionChain.cs" />
-    <Compile Include="Linq\Data\Sugar\Pieces\QueryPiece.cs" />
-    <Compile Include="Linq\Data\Sugar\Pieces\QueryPieceType.cs" />
+    <Compile Include="Linq\Data\Sugar\Pieces\TableJoinType.cs" />
     <Compile Include="Linq\Data\Sugar\QueryContext.cs" />
     <Compile Include="Linq\Data\Sugar\Implementation\QueryBuilder.cs" />
     <Compile Include="Linq\Data\Sugar\PiecesQuery.cs" />
@@ -228,7 +227,7 @@
     <Compile Include="Vendor\IVendor.cs" />
     <Compile Include="Vendor\Implementation\SchemaLoader.cs" />
     <Compile Include="Vendor\Implementation\Vendor.cs" />
-    <Compile Include="Vendor\SqlBuilder.cs" />
+    <Compile Include="Vendor\Implementation\SqlBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\DbLinq.snk">

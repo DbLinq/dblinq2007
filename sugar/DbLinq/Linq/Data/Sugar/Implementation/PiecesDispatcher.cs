@@ -34,34 +34,38 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
 {
     public class PiecesDispatcher : IPiecesDispatcher
     {
-        public IPiecesQueryService PiecesQueryService { get; set; }
+        public IPiecesRegistrar PiecesRegistrar { get; set; }
         public PiecesService PiecesService { get; set; } // TODO: use interface when it's stable
 
         public PiecesDispatcher()
         {
-            PiecesQueryService = ObjectFactory.Get<IPiecesQueryService>();
+            PiecesRegistrar = ObjectFactory.Get<IPiecesRegistrar>();
             PiecesService = ObjectFactory.Get<PiecesService>();
         }
 
         /// <summary>
-        /// Entry point to analyze query related patterns.
-        /// They start by a method, like Where(), Select()
+        /// Registers the first table. Extracts the table type and registeres the piece
         /// </summary>
-        /// <param name="piece"></param>
+        /// <param name="requestingExpression"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        public virtual Piece Dispatch(Piece piece, BuilderContext builderContext)
+        public virtual Piece RegisterTable(Expression requestingExpression, BuilderContext builderContext)
         {
-            // our top-level entry parameter is the table
-            // ... given the input type
-            var entityPieceType = PiecesService.GetQueriedType(piece.Operands[2]);
-            // ... we get the table
-            Piece entityPiece;
-            entityPiece = PiecesQueryService.GetRegisteredMetaTable(entityPieceType, builderContext);
-            if (entityPiece == null)
-                entityPiece = PiecesQueryService.RegisterTable(entityPieceType, builderContext);
-            // and call the full method
-            return Analyze(piece, new[] { entityPiece }, builderContext);
+            var callExpression = (MethodCallExpression)requestingExpression;
+            var requestingType = callExpression.Arguments[0].Type;
+            return PiecesRegistrar.RegisterTable(PiecesService.GetQueriedType(requestingType), builderContext);
+        }
+
+        /// <summary>
+        /// Entry point for Analyzis
+        /// </summary>
+        /// <param name="piece"></param>
+        /// <param name="parameter"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        public virtual Piece Analyze(Piece piece, Piece parameter, BuilderContext builderContext)
+        {
+            return Analyze(piece, new[] { parameter }, builderContext);
         }
 
         protected virtual Piece Analyze(Piece piece, BuilderContext builderContext)
@@ -293,12 +297,12 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             {
                 var tablePiece = (TablePiece)objectPiece;
                 // first of all, then, try to find the association
-                var queryAssociationExpression = PiecesQueryService.RegisterAssociation(tablePiece, memberPiece,
+                var queryAssociationExpression = PiecesRegistrar.RegisterAssociation(tablePiece, memberPiece,
                                                                                         builderContext);
                 if (queryAssociationExpression != null)
                     return queryAssociationExpression;
                 // then, try the column
-                var queryColumnExpression = PiecesQueryService.RegisterColumn(tablePiece, memberPiece, builderContext);
+                var queryColumnExpression = PiecesRegistrar.RegisterColumn(tablePiece, memberPiece, builderContext);
                 if (queryColumnExpression != null)
                     return queryColumnExpression;
                 // then, cry
@@ -308,7 +312,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             // if object is still an object (== a constant), then we have an external parameter
             if (objectPiece.Is(OperationType.Constant))
             {
-                var parameterPiece = PiecesQueryService.RegisterParameter(piece, builderContext);
+                var parameterPiece = PiecesRegistrar.RegisterParameter(piece, builderContext);
                 if (parameterPiece != null)
                     return parameterPiece;
                 throw Error.BadArgument("S0302: Can not created parameter from expression '{0}'", piece);
@@ -383,7 +387,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 }
                 if (metaTableType == null)
                     throw Error.BadArgument("S0355: Empty MetaTable found"); // this should never happen, otherwise we may simply ignore it or take the type from elsewhere
-                return PiecesQueryService.RegisterMetaTable(metaTableType, associations, builderContext);
+                return PiecesRegistrar.RegisterMetaTable(metaTableType, associations, builderContext);
             }
             throw Error.BadArgument("S0358: Don't know how to handle this SelectMany() overload ({0} parameters)", parameters.Count);
         }

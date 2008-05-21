@@ -23,37 +23,78 @@
 #endregion
 
 using System;
+using System.Diagnostics;
 using DbLinq.Linq.Data.Sugar.Pieces;
 
 namespace DbLinq.Linq.Data.Sugar.Pieces
 {
+    /// <summary>
+    /// A table is a default table, or a joined table
+    /// Different joins specify different tables
+    /// </summary>
+    [DebuggerDisplay("TablePiece {Name} (as {Alias})")]
     public class TablePiece : Piece
     {
-        public enum JoinType
-        {
-            Default,
-            Inner,
-            LeftOuter,
-            RightOuter,
-            FullOuter,
-        }
-
-        public JoinType Join { get; private set; }
+        // Table idenfitication
         public string Name { get; private set; }
         public Type Type { get; private set; }
 
+        // Join: if this table is related to another, the following informations are filled
+        public Piece JoinPiece { get; private set; } // full information is here, ReferencedTable and Join could be (in theory) extracted from this
+        public TableJoinType JoinType { get; private set; }
+        public TablePiece JoinedTable { get; private set; }
+
         public string Alias { get; set; }
 
-        public TablePiece(Type type, string name, JoinType join)
+        public void Join(TableJoinType joinType, TablePiece joinedTable, Piece joinPiece)
+        {
+            JoinPiece = joinPiece;
+            JoinType = joinType;
+            JoinedTable = joinedTable;
+        }
+
+        /// <summary>
+        /// Ctor for associated table
+        /// </summary>
+        /// <param name="type">.NET type</param>
+        /// <param name="name">Table base name</param>
+        /// <param name="joinType"></param>
+        /// <param name="joinedTable"></param>
+        /// <param name="joinPiece"></param>
+        public TablePiece(Type type, string name, TableJoinType joinType, TablePiece joinedTable, Piece joinPiece)
         {
             Type = type;
             Name = name;
-            Join = join;
+            JoinPiece = joinPiece;
+            JoinType = joinType;
+            JoinedTable = joinedTable;
         }
 
+        /// <summary>
+        /// Ctor for default table
+        /// </summary>
+        /// <param name="type">.NET type</param>
+        /// <param name="name">Table base name</param>
         public TablePiece(Type type, string name)
-            : this(type, name, JoinType.Default)
+            : this(type, name, TableJoinType.Default, null, null)
         {
+        }
+
+        protected virtual bool EquatableEquals<T>(IEquatable<T> a, IEquatable<T> b)
+        {
+            if (a == null)
+                return b == null;
+            return a.Equals(b);
+        }
+
+        protected override bool InnerEquals(Piece other)
+        {
+            var tableOther = (TablePiece)other;
+            return Name == tableOther.Name
+                   && Type == tableOther.Type
+                   && JoinType == tableOther.JoinType
+                   && EquatableEquals(JoinedTable, tableOther.JoinedTable)
+                   && EquatableEquals(JoinPiece, tableOther.JoinPiece);
         }
     }
 }

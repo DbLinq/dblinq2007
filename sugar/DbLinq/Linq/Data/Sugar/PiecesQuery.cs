@@ -38,7 +38,7 @@ namespace DbLinq.Linq.Data.Sugar
         public IDictionary<Type, IDictionary<string, TablePiece>> MetaTables { get; private set; }
         public IList<TablePiece> Tables { get; private set; }
         public IList<ColumnPiece> Columns { get; private set; }
-        public IDictionary<TablePiece, Piece> Associations { get; private set; } // the key is the associated table
+        // public IDictionary<TablePiece, Piece> Associations { get; private set; } // the key is the associated table
         public IList<ParameterPiece> Parameters { get; private set; }
 
         // Clauses
@@ -50,7 +50,7 @@ namespace DbLinq.Linq.Data.Sugar
             MetaTables = new Dictionary<Type, IDictionary<string, TablePiece>>();
             Tables = new List<TablePiece>();
             Columns = new List<ColumnPiece>();
-            Associations = new Dictionary<TablePiece, Piece>();
+            // Associations = new Dictionary<TablePiece, Piece>();
             Parameters = new List<ParameterPiece>();
             Where = new List<Piece>();
         }

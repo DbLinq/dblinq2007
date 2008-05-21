@@ -45,5 +45,20 @@ namespace DbLinq.Linq.Data.Sugar.Pieces
         {
             Aliases = aliases;
         }
+
+        protected override bool InnerEquals(Piece other)
+        {
+            var metaTableOther = (MetaTablePiece)other;
+
+            if (Aliases.Count != metaTableOther.Aliases.Count)
+                return false;
+
+            foreach (var memberInfo in Aliases.Keys)
+            {
+                if (!Aliases[memberInfo].Equals(metaTableOther.GetTablePiece(memberInfo)))
+                    return false;
+            }
+            return true;
+        }
     }
 }

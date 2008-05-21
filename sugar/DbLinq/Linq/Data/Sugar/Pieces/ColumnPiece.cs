@@ -23,10 +23,15 @@
 #endregion
 
 using System;
+using System.Diagnostics;
 using DbLinq.Linq.Data.Sugar.Pieces;
 
 namespace DbLinq.Linq.Data.Sugar.Pieces
 {
+    /// <summary>
+    /// Describes a column, related to a table
+    /// </summary>
+    [DebuggerDisplay("ColumnPiece {Table.Name} (as {Table.Alias}).{Name}")]
     public class ColumnPiece : Piece
     {
         public TablePiece Table { get; private set; }
@@ -43,6 +48,14 @@ namespace DbLinq.Linq.Data.Sugar.Pieces
             Table = table;
             Name = name;
             Type = type;
+        }
+
+        protected override bool InnerEquals(Piece other)
+        {
+            var columnOther = (ColumnPiece) other;
+            return Name == columnOther.Name
+                   && Table.Equals(columnOther.Table)
+                   && Type == columnOther.Type;
         }
     }
 }
