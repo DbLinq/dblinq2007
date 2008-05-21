@@ -44,8 +44,8 @@ namespace DbLinq.Linq.Data.Sugar
         IList<MemberInfo> GetPrimaryKeys(TablePiece tablePiece, DataContext dataContext);
         IList<MemberInfo> GetPrimaryKeys(MetaTable tableDescription);
 
-        Type GetAssociation(TablePiece tablePiece, MemberInfo memberInfo,
-                                            out IList<MemberInfo> foreignKey, out IList<MemberInfo> referencedKey, out TablePiece.JoinType joinType,
+        Type GetAssociation(TablePiece joinedTablePiece, MemberInfo memberInfo,
+                                            out IList<MemberInfo> joinedKey, out IList<MemberInfo> foreignKey, out TableJoinType joinType,
                                             DataContext dataContext);
     }
 }

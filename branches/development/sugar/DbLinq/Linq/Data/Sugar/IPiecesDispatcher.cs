@@ -22,6 +22,8 @@
 // 
 #endregion
 
+using System;
+using System.Linq.Expressions;
 using DbLinq.Linq.Data.Sugar.Pieces;
 
 namespace DbLinq.Linq.Data.Sugar
@@ -29,11 +31,20 @@ namespace DbLinq.Linq.Data.Sugar
     public interface IPiecesDispatcher
     {
         /// <summary>
-        /// Entry point to analyze query related patterns.
+        /// Registers the first table. Extracts the table type and registeres the piece
         /// </summary>
-        /// <param name="piece"></param>
+        /// <param name="requestingExpression"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        Piece Dispatch(Piece piece, BuilderContext builderContext);
+        Piece RegisterTable(Expression requestingExpression, BuilderContext builderContext);
+
+        /// <summary>
+        /// Entry point for Analyzis
+        /// </summary>
+        /// <param name="piece"></param>
+        /// <param name="parameter"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        Piece Analyze(Piece piece, Piece parameter, BuilderContext builderContext);
     }
 }

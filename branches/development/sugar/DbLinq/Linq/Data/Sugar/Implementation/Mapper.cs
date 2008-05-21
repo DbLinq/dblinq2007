@@ -28,7 +28,6 @@ using System.Data.Linq.Mapping;
 using System.Linq;
 using System.Reflection;
 using DbLinq.Linq.Data.Sugar.Pieces;
-using DbLinq.Util;
 
 namespace DbLinq.Linq.Data.Sugar.Implementation
 {
@@ -73,32 +72,42 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                  select column.Member).ToList();
         }
 
-        public virtual Type GetAssociation(TablePiece tablePiece, MemberInfo memberInfo,
-                                           out IList<MemberInfo> foreignKey, out IList<MemberInfo> referencedKey, out TablePiece.JoinType joinType,
+        /// <summary>
+        /// Returns association definition, if any
+        /// </summary>
+        /// <param name="joinedTablePiece">The table referenced by the assocation (the type holding the member)</param>
+        /// <param name="memberInfo">The memberInfo related to association</param>
+        /// <param name="joinedKey">The keys in the joined table</param>
+        /// <param name="foreignKey">The keys in the associated table</param>
+        /// <param name="joinType"></param>
+        /// <param name="dataContext"></param>
+        /// <returns></returns>
+        public virtual Type GetAssociation(TablePiece joinedTablePiece, MemberInfo memberInfo,
+                                           out IList<MemberInfo> joinedKey, out IList<MemberInfo> foreignKey, out TableJoinType joinType,
                                            DataContext dataContext)
         {
-            var tableDescription = dataContext.Mapping.GetTable(tablePiece.Type);
+            var joinedTableDescription = dataContext.Mapping.GetTable(joinedTablePiece.Type);
             var associationDescription =
-                (from association in tableDescription.RowType.Associations
+                (from association in joinedTableDescription.RowType.Associations
                  where association.ThisMember.Member == memberInfo
                  select association).SingleOrDefault();
             if (associationDescription != null)
             {
+                if (associationDescription.OtherKey.Count == 0)
+                    joinedKey = GetPrimaryKeys(associationDescription.OtherType.Table);
+                else
+                    joinedKey = (from key in associationDescription.OtherKey select key.Member).ToList();
                 if (associationDescription.ThisKey.Count == 0)
-                    foreignKey = GetPrimaryKeys(tableDescription);
+                    foreignKey = GetPrimaryKeys(joinedTableDescription);
                 else
                     foreignKey = (from key in associationDescription.ThisKey select key.Member).ToList();
-                if (associationDescription.OtherKey.Count == 0)
-                    referencedKey = GetPrimaryKeys(associationDescription.OtherType.Table);
-                else
-                    referencedKey = (from key in associationDescription.OtherKey select key.Member).ToList();
-                var referencedTableType = referencedKey[0].DeclaringType;
-                joinType = TablePiece.JoinType.Inner;
+                var referencedTableType = foreignKey[0].DeclaringType;
+                joinType = TableJoinType.Inner;
                 return referencedTableType;
             }
+            joinedKey = null;
             foreignKey = null;
-            referencedKey = null;
-            joinType = TablePiece.JoinType.Default;
+            joinType = TableJoinType.Default;
             return null;
         }
     }

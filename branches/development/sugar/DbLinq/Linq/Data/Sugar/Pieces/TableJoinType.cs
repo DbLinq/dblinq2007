@@ -24,9 +24,12 @@
 
 namespace DbLinq.Linq.Data.Sugar.Pieces
 {
-    public enum QueryPieceType
+    public enum TableJoinType
     {
-        Select,
-        Where
+        Default,
+        Inner,
+        LeftOuter,
+        RightOuter,
+        FullOuter,
     }
 }

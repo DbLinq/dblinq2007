@@ -28,7 +28,7 @@ using DbLinq.Linq.Data.Sugar.Pieces;
 
 namespace DbLinq.Linq.Data.Sugar.Pieces
 {
-    public class Piece : IPieceEvaluationSource
+    public class Piece : IPieceEvaluationSource, IEquatable<Piece>
     {
         public IList<Piece> Operands { get; private set; }
 
@@ -64,6 +64,41 @@ namespace DbLinq.Linq.Data.Sugar.Pieces
         {
             get { return true; }
             set { throw new Exception("No dude. Not here."); }
+        }
+
+        #endregion
+
+        #region IEquatable<Piece>
+
+        public bool Equals(Piece other)
+        {
+            if (ReferenceEquals(this, other))
+                return true;
+
+            if (other == null)
+                return false;
+
+            if (GetType() != other.GetType())
+                return false;
+
+            if (!InnerEquals(other))
+                return false;
+
+            if (Operands.Count != other.Operands.Count)
+                return false;
+
+            for (int operandIndex = 0; operandIndex < Operands.Count; operandIndex++)
+            {
+                if (!Operands[operandIndex].Equals(other.Operands[operandIndex]))
+                    return false;
+            }
+
+            return true;
+        }
+
+        protected virtual bool InnerEquals(Piece other)
+        {
+            return true;
         }
 
         #endregion

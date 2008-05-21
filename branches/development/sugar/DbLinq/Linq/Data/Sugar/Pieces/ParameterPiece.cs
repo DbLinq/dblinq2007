@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
 using DbLinq.Linq.Data.Sugar.Pieces;
@@ -32,6 +33,7 @@ namespace DbLinq.Linq.Data.Sugar.Pieces
     /// <summary>
     /// This class provides an external parameter value
     /// </summary>
+    [DebuggerDisplay("ParameterPiece")]
     public class ParameterPiece : Piece
     {
         private readonly Delegate getValueDelegate;

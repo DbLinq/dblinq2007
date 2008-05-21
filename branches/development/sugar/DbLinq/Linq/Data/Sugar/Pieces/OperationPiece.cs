@@ -63,5 +63,11 @@ namespace DbLinq.Linq.Data.Sugar.Pieces
         }
 
         #endregion
+
+        protected override bool InnerEquals(Piece other)
+        {
+            var operationOther = (OperationPiece)other;
+            return Operation == operationOther.Operation;
+        }
     }
 }

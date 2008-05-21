@@ -96,6 +96,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
 
         protected virtual void BuildExpressionQuery(ExpressionChain expressions, BuilderContext builderContext)
         {
+            builderContext.PiecesQuery.Select = PiecesDispatcher.RegisterTable(expressions.Expressions[0], builderContext);
             foreach (var expression in expressions)
             {
                 builderContext.QueryContext.DataContext.Logger.WriteExpression(Level.Debug, expression);
@@ -106,7 +107,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 queryExpression = PiecesLanguageOptimizer.AnalyzeLanguagePatterns(queryExpression, builderContext);
                 // Query expressions query identification 
                 // The last request is the select, whatever the loop count is
-                builderContext.PiecesQuery.Select = PiecesDispatcher.Dispatch(queryExpression, builderContext);
+                builderContext.PiecesQuery.Select = PiecesDispatcher.Analyze(queryExpression, builderContext.PiecesQuery.Select, builderContext);
             }
         }
 
