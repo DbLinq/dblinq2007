@@ -436,11 +436,11 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             // TODO (later...): see if some vendors support native All operator and avoid this substitution
             var wherePiece = new OperationPiece(OperationType.Not, allClause);
             PiecesRegistrar.RegisterWhere(wherePiece, allBuilderContext);
-            var select = new OperationPiece(OperationType.Count, tablePiece);
+            allBuilderContext.CurrentScope.Operands.Add(new OperationPiece(OperationType.Count, tablePiece));
             // TODO: see if we need to register the tablePiece here (we probably don't)
 
             // we now switch back to current context, and compare the result with 0
-            var allPiece = new OperationPiece(OperationType.Equal, select, new ConstantPiece(0));
+            var allPiece = new OperationPiece(OperationType.Equal, allBuilderContext.CurrentScope, new ConstantPiece(0));
             return allPiece;
         }
     }
