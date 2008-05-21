@@ -80,5 +80,12 @@ namespace DbLinq.Linq.Data.Sugar
         /// <returns></returns>
         MetaTablePiece RegisterMetaTable(Type metaTableType, IDictionary<MemberInfo, TablePiece> aliases,
                                                          BuilderContext builderContext);
+
+        /// <summary>
+        /// Registers a where clause in the current context scope
+        /// </summary>
+        /// <param name="wherePiece"></param>
+        /// <param name="builderContext"></param>
+        void RegisterWhere(Piece wherePiece, BuilderContext builderContext);
     }
 }

@@ -88,7 +88,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                     return AnalyzeCall(PiecesService.GetMethodInfo(piece.Operands[0]).Name,
                                        PiecesService.MergeParameters(parameters,
                                        PiecesService.ExtractParameters(piece.Operands, 2 + parameters.Count)), // 0 is the method call, 1 is the "this" (null for static methods)
-                                                                                // if extra parameters are specified in "parameters", ignore them as Operands
+                        // if extra parameters are specified in "parameters", ignore them as Operands
                                        builderContext);
                 case OperationType.Lambda:
                     return AnalyzeLambda(piece, parameters, builderContext);
@@ -210,7 +210,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         protected virtual Piece AnalyzeWhere(IList<Piece> parameters, BuilderContext builderContext)
         {
             var tablePiece = parameters[0];
-            builderContext.PiecesQuery.Where.Add(Analyze(parameters[1], new[] { tablePiece }, builderContext));
+            PiecesRegistrar.RegisterWhere(Analyze(parameters[1], new[] { tablePiece }, builderContext), builderContext);
             return tablePiece;
         }
 
@@ -335,7 +335,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <returns></returns>
         protected virtual Piece AnalyzeQuote(Piece piece, IList<Piece> parameters, BuilderContext builderContext)
         {
-            var builderContextClone = builderContext.Clone();
+            var builderContextClone = builderContext.NewQuote();
             return Analyze(piece.Operands[0], parameters, builderContextClone);
         }
 
@@ -428,9 +428,20 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <returns></returns>
         protected virtual Piece AnalyzeAll(IList<Piece> parameters, BuilderContext builderContext)
         {
-            var allTable = Analyze(parameters[0], builderContext);
-            var allClause = Analyze(parameters[1], allTable, builderContext);
-            return allClause;
+            var allBuilderContext = builderContext.NewScope();
+            var tablePiece = Analyze(parameters[0], allBuilderContext);
+            var allClause = Analyze(parameters[1], tablePiece, allBuilderContext);
+            // from here we build a custom clause:
+            // <allClause> ==> "(select count(*) from <table> where not <allClause>)==0"
+            // TODO (later...): see if some vendors support native All operator and avoid this substitution
+            var wherePiece = new OperationPiece(OperationType.Not, allClause);
+            PiecesRegistrar.RegisterWhere(wherePiece, allBuilderContext);
+            var select = new OperationPiece(OperationType.Count, tablePiece);
+            // TODO: see if we need to register the tablePiece here (we probably don't)
+
+            // we now switch back to current context, and compare the result with 0
+            var allPiece = new OperationPiece(OperationType.Equal, select, new ConstantPiece(0));
+            return allPiece;
         }
     }
 }

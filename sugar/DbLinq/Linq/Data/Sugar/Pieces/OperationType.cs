@@ -80,5 +80,6 @@ namespace DbLinq.Linq.Data.Sugar.Pieces
         IsNull,
         IsNotNull,
         Concat,
+        Count,
     }
 }

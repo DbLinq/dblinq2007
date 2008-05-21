@@ -22,34 +22,43 @@
 // 
 #endregion
 
-using System;
-using System.Diagnostics;
-using System.Linq.Expressions;
-using System.Reflection;
-using DbLinq.Linq.Data.Sugar.Pieces;
+using System.Collections.Generic;
 
 namespace DbLinq.Linq.Data.Sugar.Pieces
 {
     /// <summary>
-    /// This class provides an external parameter value
+    /// Represents a subexpression, with its scope
     /// </summary>
-    [DebuggerDisplay("ParameterPiece (current value={GetValue()})")]
-    public class ParameterPiece : Piece
+    public class ScopePiece: Piece
     {
-        private readonly Delegate getValueDelegate;
-        /// <summary>
-        /// Returns the outer parameter value
-        /// </summary>
-        /// <returns></returns>
-        public object GetValue()
+        // Involved entities
+        public IList<TablePiece> Tables { get; private set; }
+        public IList<ColumnPiece> Columns { get; private set; }
+
+        // Clauses
+        public IList<Piece> Where { get; private set; }
+        public Piece Select { get; set; } 
+
+        // Parent scope: we will climb up to find if we don't find the request table in the current scope
+        public ScopePiece ParentScopePiece { get; private set; }
+
+        public ScopePiece()
         {
-            return getValueDelegate.DynamicInvoke();
+            Tables = new List<TablePiece>();
+            Columns = new List<ColumnPiece>();
+            // Local clauses
+            Where = new List<Piece>();
         }
 
-        public ParameterPiece(Expression expression)
+        public ScopePiece(ScopePiece parentScopePiece)
         {
-            var lambda = Expression.Lambda(expression);
-            getValueDelegate = lambda.Compile();
+            ParentScopePiece = parentScopePiece;
+            // Tables and columns are inherited from parent scope
+            // TODO: are columns necessary to be copied
+            Tables = new List<TablePiece>(parentScopePiece.Tables);
+            Columns = new List<ColumnPiece>(parentScopePiece.Columns);
+            // Local clauses
+            Where = new List<Piece>();
         }
     }
 }
