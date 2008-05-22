@@ -24,32 +24,24 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using DbLinq.Linq.Data.Sugar.Expressions;
 
-namespace DbLinq.Linq.Data.Sugar.ExpressionMutator.Implementation
+namespace DbLinq.Linq.Data.Sugar.Expressions
 {
-    public class ConditionalExpressionMutator : IMutableExpression
+    /// <summary>
+    /// Allows an Expression to enumerator its Operands and be mutated, ie changing its operands
+    /// Depending on the Expression type (such as System.Linq.Expressions), a new copy may be returned
+    /// </summary>
+    public interface IMutableExpression
     {
-        protected ConditionalExpression ConditionalExpression { get; private set; }
-
-        public Expression Mutate(IList<Expression> operands)
-        {
-            return Expression.Condition(operands[0], operands[1], operands[2]);
-        }
-
-        public IEnumerable<Expression> Operands
-        {
-            get
-            {
-                yield return ConditionalExpression.Test;
-                yield return ConditionalExpression.IfTrue;
-                yield return ConditionalExpression.IfFalse;
-            }
-        }
-
-        public ConditionalExpressionMutator(ConditionalExpression expression)
-        {
-            ConditionalExpression = expression;
-        }
+        /// <summary>
+        /// Represents Expression operands, ie anything that is an expression
+        /// </summary>
+        IEnumerable<Expression> Operands { get; }
+        /// <summary>
+        /// Replaces operands and returns a corresponding Expression
+        /// </summary>
+        /// <param name="operands"></param>
+        /// <returns></returns>
+        Expression Mutate(IList<Expression> operands);
     }
 }

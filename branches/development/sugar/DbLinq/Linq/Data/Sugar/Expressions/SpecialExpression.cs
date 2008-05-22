@@ -31,11 +31,21 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
     /// <summary>
     /// Holds new expression types (sql related), all well as their operands
     /// </summary>
-    public class SpecialExpression : MutableExpression
+    public class SpecialExpression : OperandsMutableExpression
     {
         public SpecialExpression(SpecialExpressionType expressionType, Type type, params Expression[] operands)
             : base((ExpressionType)expressionType, type, operands)
         {
+        }
+
+        public SpecialExpression(SpecialExpressionType expressionType, Type type, IList<Expression> operands)
+            : base((ExpressionType)expressionType, type, operands)
+        {
+        }
+
+        protected override Expression Mutate2(IList<Expression> operands)
+        {
+            return new SpecialExpression((SpecialExpressionType)NodeType, Type, operands);
         }
     }
 }

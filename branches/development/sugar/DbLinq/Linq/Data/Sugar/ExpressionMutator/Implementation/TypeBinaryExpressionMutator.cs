@@ -24,10 +24,11 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using DbLinq.Linq.Data.Sugar.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar.ExpressionMutator.Implementation
 {
-    public class TypeBinaryExpressionMutator : IExpressionMutator
+    public class TypeBinaryExpressionMutator : IMutableExpression
     {
         protected TypeBinaryExpression TypeBinaryExpression { get; private set; }
 

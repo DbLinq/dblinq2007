@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using DbLinq.Factory;
+using DbLinq.Linq.Data.Sugar.ExpressionMutator;
 using DbLinq.Linq.Data.Sugar.Expressions;
 using DbLinq.Logging;
 using DbLinq.Util;
@@ -109,7 +110,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 previousExpression = ExpressionDispatcher.Analyze(currentExpression, previousExpression, builderContext);
             }
             // the last return value becomes the select, with CurrentScope
-            builderContext.CurrentScope.Operands.Add(previousExpression);
+            builderContext.CurrentScope = builderContext.CurrentScope.Select(previousExpression);
             builderContext.PiecesQuery.Select = builderContext.CurrentScope;
         }
 

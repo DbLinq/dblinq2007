@@ -24,10 +24,11 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using DbLinq.Linq.Data.Sugar.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar.ExpressionMutator.Implementation
 {
-    public class NewExpressionMutator : IExpressionMutator
+    public class NewExpressionMutator : IMutableExpression
     {
         protected NewExpression NewExpression { get; private set; }
 

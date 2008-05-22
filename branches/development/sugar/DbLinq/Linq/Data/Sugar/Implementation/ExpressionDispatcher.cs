@@ -351,7 +351,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 var operand = operands[operandIndex];
                 operands[operandIndex] = Analyze(operand, builderContext);
             }
-            return piece.Mutate(operands);
+            return piece.ChangeOperands(operands);
         }
 
         /// <summary>
@@ -411,7 +411,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             // TODO (later...): see if some vendors support native All operator and avoid this substitution
             var whereExpression = Expression.Not(allClause);
             ExpressionRegistrar.RegisterWhere(whereExpression, allBuilderContext);
-            allBuilderContext.CurrentScope.Operands.Add(new SpecialExpression(SpecialExpressionType.Count, tableExpression.Type, tableExpression));
+            allBuilderContext.CurrentScope = allBuilderContext.CurrentScope.Select(new SpecialExpression(SpecialExpressionType.Count, tableExpression.Type, tableExpression));
             // TODO: see if we need to register the tablePiece here (we probably don't)
 
             // we now switch back to current context, and compare the result with 0

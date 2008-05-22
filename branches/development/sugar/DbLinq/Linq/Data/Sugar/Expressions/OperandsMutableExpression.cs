@@ -22,15 +22,39 @@
 // 
 #endregion
 
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 
-namespace DbLinq.Linq.Data.Sugar.ExpressionMutator
+namespace DbLinq.Linq.Data.Sugar.Expressions
 {
-    public interface IExpressionMutator
+    public abstract class OperandsMutableExpression : MutableExpression
     {
-        Expression Mutate(IList<Expression> operands);
+        protected OperandsMutableExpression(ExpressionType expressionType, Type type, IList<Expression> operands)
+            : base(expressionType, type)
+        {
+            if(operands==null)
+                operands = new Expression[0];
+            this.operands = new ReadOnlyCollection<Expression>(operands);
+        }
 
-        IEnumerable<Expression> Operands { get; }
+        private ReadOnlyCollection<Expression> operands;
+        public override IEnumerable<Expression> Operands
+        {
+            get { return operands; }
+        }
+
+        /// <summary>
+        /// Must be implemented by inheritors. I had no better name. Suggestions welcome
+        /// </summary>
+        /// <param name="operands"></param>
+        /// <returns></returns>
+        protected abstract Expression Mutate2(IList<Expression> operands);
+
+        public override Expression Mutate(IList<Expression> newOperands)
+        {
+            return Mutate2(newOperands);
+        }
     }
 }
