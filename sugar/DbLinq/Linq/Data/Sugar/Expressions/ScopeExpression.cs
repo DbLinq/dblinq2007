@@ -22,12 +22,13 @@
 // 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar.Expressions
 {
-    public class ScopeExpression : MutableExpression
+    public class ScopeExpression : OperandsMutableExpression
     {
         public static ExpressionType ExpressionType { get { return (ExpressionType)1010; } }
 
@@ -37,13 +38,12 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
 
         // Clauses
         public IList<Expression> Where { get; private set; }
-        public Expression Select { get; set; }
 
         // Parent scope: we will climb up to find if we don't find the request table in the current scope
         public ScopeExpression ParentScopePiece { get; private set; }
 
         public ScopeExpression()
-            : base(ExpressionType, typeof(object))
+            : base(ExpressionType, null, null)
         {
             Tables = new List<TableExpression>();
             Columns = new List<ColumnExpression>();
@@ -52,7 +52,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
         }
 
         public ScopeExpression(ScopeExpression parentScopePiece)
-            : base(ExpressionType, typeof(object))
+            : base(ExpressionType, null, null)
         {
             ParentScopePiece = parentScopePiece;
             // Tables and columns are inherited from parent scope
@@ -61,6 +61,31 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
             Columns = new List<ColumnExpression>(parentScopePiece.Columns);
             // Local clauses
             Where = new List<Expression>();
+        }
+
+        private ScopeExpression(Type type, IList<Expression> operands)
+            : base(ExpressionType, type, operands)
+        {
+        }
+
+        public ScopeExpression Select(Expression expression)
+        {
+            return (ScopeExpression)Mutate(new[] { expression });
+        }
+
+        protected override Expression Mutate2(IList<Expression> newOperands)
+        {
+            Type type;
+            if (newOperands.Count > 0)
+                type = newOperands[0].Type;
+            else
+                type = Type;
+            var scopeExpression = new ScopeExpression(type, newOperands);
+            scopeExpression.Tables = Tables;
+            scopeExpression.Columns = Columns;
+            scopeExpression.Where = Where;
+            scopeExpression.ParentScopePiece = ParentScopePiece;
+            return scopeExpression;
         }
     }
 }

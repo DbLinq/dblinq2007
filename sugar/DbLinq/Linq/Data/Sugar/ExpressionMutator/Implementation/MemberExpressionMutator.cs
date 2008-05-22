@@ -26,10 +26,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using DbLinq.Linq.Data.Sugar.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar.ExpressionMutator.Implementation
 {
-    public class MemberExpressionMutator : IExpressionMutator
+    public class MemberExpressionMutator : IMutableExpression
     {
         protected MemberExpression MemberExpression { get; private set; }
 

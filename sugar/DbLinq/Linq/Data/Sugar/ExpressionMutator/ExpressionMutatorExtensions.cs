@@ -33,19 +33,24 @@ namespace DbLinq.Linq.Data.Sugar.ExpressionMutator
         public static IEnumerable<Expression> GetOperands(this Expression expression)
         {
             if (expression is MutableExpression)
-                return new List<Expression>(((MutableExpression) expression).Operands);
+                return new List<Expression>(((MutableExpression)expression).Operands);
             return ExpressionMutatorFactory.GetMutator(expression).Operands;
         }
 
-        public static Expression Mutate(this Expression expression, IList<Expression> operands)
+        public static T ChangeOperands<T>(this T expression, IList<Expression> operands)
+            where T : Expression
         {
-            var abstractExpression = expression as MutableExpression;
-            if (abstractExpression!=null)
-            {
-                abstractExpression.Operands = operands;
-                return abstractExpression;
-            }
-            return ExpressionMutatorFactory.GetMutator(expression).Mutate(operands);
+            var mutableExpression = expression as IMutableExpression;
+            if (mutableExpression != null)
+                return (T)mutableExpression.Mutate(operands);
+            return (T)ExpressionMutatorFactory.GetMutator(expression).Mutate(operands);
+        }
+
+        public static T ChangeOperands<T>(this T expression, params Expression[] operands)
+            where T : Expression
+        {
+            var operandsList = operands as IList<Expression>;
+            return ChangeOperands(expression, operandsList);
         }
     }
 }

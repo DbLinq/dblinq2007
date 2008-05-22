@@ -25,12 +25,13 @@
 using System;
 using System.Linq.Expressions;
 using DbLinq.Linq.Data.Sugar.ExpressionMutator.Implementation;
+using DbLinq.Linq.Data.Sugar.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar.ExpressionMutator
 {
     public static class ExpressionMutatorFactory
     {
-        public static IExpressionMutator GetMutator(Expression expression)
+        public static IMutableExpression GetMutator(Expression expression)
         {
             if (expression is BinaryExpression)
                 return new BinaryExpressionMutator((BinaryExpression)expression);

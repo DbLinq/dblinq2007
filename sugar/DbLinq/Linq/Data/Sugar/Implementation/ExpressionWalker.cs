@@ -51,7 +51,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 else
                     newOperands.Add(null);
             }
-            return expression.Mutate(newOperands);
+            return expression.ChangeOperands(newOperands);
         }
 
         /// <summary>

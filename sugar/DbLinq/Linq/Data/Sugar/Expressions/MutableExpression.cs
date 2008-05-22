@@ -28,20 +28,23 @@ using System.Linq.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar.Expressions
 {
-    public abstract class MutableExpression : Expression
+    public abstract class MutableExpression : Expression, IMutableExpression
     {
-        public IList<Expression> Operands { get; set; }
-
         protected MutableExpression(ExpressionType expressionType, Type type)
             : base(expressionType, type)
         {
-            Operands = new List<Expression>();
         }
 
-        protected MutableExpression(ExpressionType expressionType, Type type, IList<Expression> operands)
-            : base(expressionType, type)
+        public virtual IEnumerable<Expression> Operands
         {
-            Operands = operands;
+            get { return new Expression[0]; }
+        }
+
+        public virtual Expression Mutate(IList<Expression> newOperands)
+        {
+            if (newOperands.Count > 0)
+                throw Error.BadArgument("S0047: Default MutableExpression does not allow operands");
+            return this;
         }
     }
 }

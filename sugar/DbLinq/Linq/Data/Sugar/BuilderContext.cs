@@ -38,7 +38,7 @@ namespace DbLinq.Linq.Data.Sugar
         public ExpressionQuery PiecesQuery { get; private set; }
 
         // Build context: values here are related to current context, and can change with it
-        public ScopeExpression CurrentScope { get; private set; }
+        public ScopeExpression CurrentScope { get; set; }
         public IList<ScopeExpression> ScopeExpressions { get; private set; }
         public IDictionary<Type, MetaTableExpression> MetaTables { get; private set; }
         public IDictionary<string, Expression> Parameters { get; private set; }

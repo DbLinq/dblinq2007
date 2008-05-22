@@ -64,10 +64,12 @@
     <Compile Include="Linq\Database\Implementation\DatabaseTransaction.cs" />
     <Compile Include="Linq\Data\Sugar\BuilderContext.cs" />
     <Compile Include="Linq\Data\Sugar\Error.cs" />
+    <Compile Include="Linq\Data\Sugar\Expressions\IMutableExpression.cs" />
     <Compile Include="Linq\Data\Sugar\Expressions\MutableExpression.cs" />
     <Compile Include="Linq\Data\Sugar\Expressions\ColumnExpression.cs" />
     <Compile Include="Linq\Data\Sugar\Expressions\ExternalParameterExpression.cs" />
     <Compile Include="Linq\Data\Sugar\Expressions\MetaTableExpression.cs" />
+    <Compile Include="Linq\Data\Sugar\Expressions\OperandsMutableExpression.cs" />
     <Compile Include="Linq\Data\Sugar\Expressions\ScopeExpression.cs" />
     <Compile Include="Linq\Data\Sugar\Expressions\SpecialExpression.cs" />
     <Compile Include="Linq\Data\Sugar\Expressions\SpecialExpressionType.cs" />
@@ -91,7 +93,6 @@
     <Compile Include="Linq\Data\Sugar\ExpressionMutator\Implementation\ConstantExpressionMutator.cs" />
     <Compile Include="Linq\Data\Sugar\ExpressionMutator\ExpressionMutatorExtensions.cs" />
     <Compile Include="Linq\Data\Sugar\ExpressionMutator\ExpressionMutatorFactory.cs" />
-    <Compile Include="Linq\Data\Sugar\ExpressionMutator\IExpressionMutator.cs" />
     <Compile Include="Linq\Data\Sugar\ExpressionMutator\Implementation\InvocationExpressionMutator.cs" />
     <Compile Include="Linq\Data\Sugar\ExpressionMutator\Implementation\LambdaExpressionMutator.cs" />
     <Compile Include="Linq\Data\Sugar\ExpressionMutator\Implementation\ListInitExpressionMutator.cs" />
