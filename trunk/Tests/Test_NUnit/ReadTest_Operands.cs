@@ -174,6 +174,58 @@ using Test_NUnit;
             Assert.IsTrue(count > 0, "Expected some products with ProductID != 1, got none");
         }
 
+        [Test]
+        public void H7_String_StartsWith()
+        {
+            Northwind db = CreateDB();
+
+            var q = from c in db.Customers 
+                    where c.CustomerID.StartsWith("ALF")
+                    select c.CustomerID;
+
+            string custID = q.Single();
+            Assert.IsTrue(custID == "ALFKI");
+        }
+
+        [Test]
+        public void H8_String_StartsWith()
+        {
+            Northwind db = CreateDB();
+
+            var q = from c in db.Customers
+                    where c.CustomerID=="ALFKI"
+                    select c.CustomerID.StartsWith("ALF");
+
+            bool matchStart = q.Single();
+            Assert.IsTrue(matchStart);
+        }
+
+        [Test]
+        public void H9_String_EndsWith()
+        {
+            Northwind db = CreateDB();
+
+            var q = from c in db.Customers
+                    where c.CustomerID.EndsWith("LFKI")
+                    select c.CustomerID;
+
+            string custID = q.Single();
+            Assert.IsTrue(custID == "ALFKI");
+        }
+
+        [Test]
+        public void H10_String_EndsWith()
+        {
+            string param = "LFKI";
+            Northwind db = CreateDB();
+
+            var q = from c in db.Customers
+                    where c.CustomerID.EndsWith(param)
+                    select c.CustomerID;
+
+            string custID = q.Single();
+            Assert.IsTrue(custID == "ALFKI");
+        }
 
         [Test]
         public void I1_GetQueryText()
