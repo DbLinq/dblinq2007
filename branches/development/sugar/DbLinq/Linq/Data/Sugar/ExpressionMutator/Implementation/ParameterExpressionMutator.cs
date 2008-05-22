@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // Copyright (c) 2007-2008 Jiri Moudry
 // 
@@ -22,10 +22,31 @@
 // 
 #endregion
 
-namespace DbLinq.Linq.Data.Sugar
+using System.Collections.Generic;
+using System.Linq.Expressions;
+
+namespace DbLinq.Linq.Data.Sugar.ExpressionMutator.Implementation
 {
-    public interface IQueryBuilder
+    public class ParameterExpressionMutator: IExpressionMutator
     {
-        Query GetQuery(ExpressionChain expressions, QueryContext queryContext);
+        protected ParameterExpression ParameterExpression { get; private set; }
+
+        public Expression Mutate(IList<Expression> operands)
+        {
+            return Expression.Parameter(ParameterExpression.Type, ParameterExpression.Name);
+        }
+
+        public IEnumerable<Expression> Operands
+        {
+            get 
+            { 
+                yield break;
+            }
+        }
+
+        public ParameterExpressionMutator(ParameterExpression expression)
+        {
+            ParameterExpression = expression;
+        }
     }
 }

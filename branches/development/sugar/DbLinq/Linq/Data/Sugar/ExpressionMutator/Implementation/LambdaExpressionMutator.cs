@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // Copyright (c) 2007-2008 Jiri Moudry
 // 
@@ -22,10 +22,35 @@
 // 
 #endregion
 
-namespace DbLinq.Linq.Data.Sugar
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using DbLinq.Linq.Data.Sugar.ExpressionMutator;
+
+namespace DbLinq.Linq.Data.Sugar.ExpressionMutator.Implementation
 {
-    public interface IQueryBuilder
+    public class LambdaExpressionMutator: IExpressionMutator
     {
-        Query GetQuery(ExpressionChain expressions, QueryContext queryContext);
+        protected LambdaExpression LambdaExpression { get; private set; }
+
+        public Expression Mutate(IList<Expression> operands)
+        {
+            return Expression.Lambda(LambdaExpression.Type, operands[0], operands.Skip(1).Cast<ParameterExpression>());
+        }
+
+        public IEnumerable<Expression> Operands
+        {
+            get
+            {
+                yield return LambdaExpression.Body;
+                foreach (var parameter in LambdaExpression.Parameters)
+                    yield return parameter;
+            }
+        }
+
+        public LambdaExpressionMutator(LambdaExpression expression)
+        {
+            LambdaExpression = expression;
+        }
     }
 }

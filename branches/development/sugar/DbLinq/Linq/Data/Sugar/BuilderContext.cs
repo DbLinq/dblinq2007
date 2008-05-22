@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using DbLinq.Linq.Data.Sugar.Pieces;
+using DbLinq.Linq.Data.Sugar.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar
 {
@@ -35,21 +35,21 @@ namespace DbLinq.Linq.Data.Sugar
         public QueryContext QueryContext { get; private set; }
 
         // Current expression being built
-        public PiecesQuery PiecesQuery { get; private set; }
+        public ExpressionQuery PiecesQuery { get; private set; }
 
         // Build context: values here are related to current context, and can change with it
-        public ScopePiece CurrentScope { get; private set; }
-        public IList<ScopePiece> ScopePieces { get; private set; }
-        public IDictionary<Type, MetaTablePiece> MetaTables { get; private set; }
-        public IDictionary<string, Piece> Parameters { get; private set; }
+        public ScopeExpression CurrentScope { get; private set; }
+        public IList<ScopeExpression> ScopeExpressions { get; private set; }
+        public IDictionary<Type, MetaTableExpression> MetaTables { get; private set; }
+        public IDictionary<string, Expression> Parameters { get; private set; }
 
         /// <summary>
         /// Helper to enumerate all registered tables
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<TablePiece> EnumerateTables()
+        public IEnumerable<TableExpression> EnumerateTables()
         {
-            foreach (var scopePiece in ScopePieces)
+            foreach (var scopePiece in ScopeExpressions)
             {
                 foreach (var table in scopePiece.Tables)
                     yield return table;
@@ -60,9 +60,9 @@ namespace DbLinq.Linq.Data.Sugar
         /// Helper to enumerate all registered columns
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<ColumnPiece> EnumerateColumns()
+        public IEnumerable<ColumnExpression> EnumerateColumns()
         {
-            foreach (var scopePiece in ScopePieces)
+            foreach (var scopePiece in ScopeExpressions)
             {
                 foreach (var column in scopePiece.Columns)
                     yield return column;
@@ -71,13 +71,13 @@ namespace DbLinq.Linq.Data.Sugar
 
         public BuilderContext(QueryContext queryContext)
         {
-            ScopePieces = new List<ScopePiece>();
-            CurrentScope = new ScopePiece();
-            ScopePieces.Add(CurrentScope);
+            ScopeExpressions = new List<ScopeExpression>();
+            CurrentScope = new ScopeExpression();
+            ScopeExpressions.Add(CurrentScope);
             QueryContext = queryContext;
-            PiecesQuery = new PiecesQuery();
-            MetaTables = new Dictionary<Type, MetaTablePiece>();
-            Parameters = new Dictionary<string, Piece>();
+            PiecesQuery = new ExpressionQuery();
+            MetaTables = new Dictionary<Type, MetaTableExpression>();
+            Parameters = new Dictionary<string, Expression>();
         }
 
         private BuilderContext()
@@ -96,10 +96,10 @@ namespace DbLinq.Linq.Data.Sugar
             builderContext.PiecesQuery = PiecesQuery;
             builderContext.MetaTables = MetaTables;
             builderContext.CurrentScope = CurrentScope;
-            builderContext.ScopePieces = ScopePieces;
+            builderContext.ScopeExpressions = ScopeExpressions;
 
             // scope dependent parts
-            builderContext.Parameters = new Dictionary<string, Piece>(Parameters);
+            builderContext.Parameters = new Dictionary<string, Expression>(Parameters);
 
             return builderContext;
         }
@@ -117,12 +117,12 @@ namespace DbLinq.Linq.Data.Sugar
             builderContext.PiecesQuery = PiecesQuery;
             builderContext.MetaTables = MetaTables;
             builderContext.Parameters = Parameters;
-            builderContext.ScopePieces = ScopePieces;
+            builderContext.ScopeExpressions = ScopeExpressions;
 
             // except CurrentScope, of course
-            builderContext.CurrentScope = new ScopePiece(CurrentScope);
+            builderContext.CurrentScope = new ScopeExpression(CurrentScope);
 
-            ScopePieces.Add(builderContext.CurrentScope);
+            ScopeExpressions.Add(builderContext.CurrentScope);
 
             return builderContext;
         }

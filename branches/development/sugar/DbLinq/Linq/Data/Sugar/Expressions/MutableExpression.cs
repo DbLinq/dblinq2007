@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // Copyright (c) 2007-2008 Jiri Moudry
 // 
@@ -22,10 +22,26 @@
 // 
 #endregion
 
-namespace DbLinq.Linq.Data.Sugar
+using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+
+namespace DbLinq.Linq.Data.Sugar.Expressions
 {
-    public interface IQueryBuilder
+    public abstract class MutableExpression : Expression
     {
-        Query GetQuery(ExpressionChain expressions, QueryContext queryContext);
+        public IList<Expression> Operands { get; set; }
+
+        protected MutableExpression(ExpressionType expressionType, Type type)
+            : base(expressionType, type)
+        {
+            Operands = new List<Expression>();
+        }
+
+        protected MutableExpression(ExpressionType expressionType, Type type, IList<Expression> operands)
+            : base(expressionType, type)
+        {
+            Operands = operands;
+        }
     }
 }

@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // Copyright (c) 2007-2008 Jiri Moudry
 // 
@@ -22,10 +22,31 @@
 // 
 #endregion
 
-namespace DbLinq.Linq.Data.Sugar
+using System.Collections.Generic;
+using System.Linq.Expressions;
+
+namespace DbLinq.Linq.Data.Sugar.ExpressionMutator.Implementation
 {
-    public interface IQueryBuilder
+    public class TypeBinaryExpressionMutator : IExpressionMutator
     {
-        Query GetQuery(ExpressionChain expressions, QueryContext queryContext);
+        protected TypeBinaryExpression TypeBinaryExpression { get; private set; }
+
+        public Expression Mutate(IList<Expression> operands)
+        {
+            return Expression.TypeIs(operands[0], TypeBinaryExpression.Type);
+        }
+
+        public IEnumerable<Expression> Operands
+        {
+            get
+            {
+                yield return TypeBinaryExpression.Expression;
+            }
+        }
+
+        public TypeBinaryExpressionMutator(TypeBinaryExpression expression)
+        {
+            TypeBinaryExpression = expression;
+        }
     }
 }

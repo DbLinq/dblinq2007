@@ -22,10 +22,12 @@
 // 
 #endregion
 
+using System.Linq.Expressions;
+
 namespace DbLinq.Linq.Data.Sugar
 {
-    public interface IQueryBuilder
+    public interface IExpressionOptimizer
     {
-        Query GetQuery(ExpressionChain expressions, QueryContext queryContext);
+        Expression Optimize(Expression expression, BuilderContext builderContext);
     }
 }

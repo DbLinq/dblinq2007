@@ -22,20 +22,41 @@
 // 
 #endregion
 
-using System.Collections.Generic;
-using DbLinq.Linq.Data.Sugar.Expressions;
+using System;
+using System.Diagnostics;
+using System.Linq.Expressions;
 
-namespace DbLinq.Linq.Data.Sugar
+namespace DbLinq.Linq.Data.Sugar.Expressions
 {
-    public class Query
+    /// <summary>
+    /// Describes a column, related to a table
+    /// </summary>
+    [DebuggerDisplay("ColumnPiece {Table.Name} (as {Table.Alias}).{Name}")]
+    public class ColumnExpression : MutableExpression
     {
-        public string Sql { get; private set; }
-        public IList<ExternalParameterExpression> Parameters { get; private set; }
+        public static ExpressionType ExpressionType { get { return (ExpressionType)1002; } }
 
-        public Query(string sql, IList<ExternalParameterExpression> parameters)
+        public TableExpression Table { get; private set; }
+        public string Name { get; private set; }
+
+        public string Alias { get; set; }
+
+        public bool Request { get; set; }
+        public int RequestIndex { get; set; }
+
+        public ColumnExpression(TableExpression table, string name, Type type)
+            : base(ExpressionType, type)
         {
-            Sql = sql;
-            Parameters = parameters;
+            Table = table;
+            Name = name;
         }
+
+        //protected override bool InnerEquals(Piece other)
+        //{
+        //    var columnOther = (ColumnPiece) other;
+        //    return Name == columnOther.Name
+        //           && Table.Equals(columnOther.Table)
+        //           && Type == columnOther.Type;
+        //}
     }
 }

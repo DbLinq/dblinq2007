@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // Copyright (c) 2007-2008 Jiri Moudry
 // 
@@ -22,10 +22,39 @@
 // 
 #endregion
 
-namespace DbLinq.Linq.Data.Sugar
+using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+
+namespace DbLinq.Linq.Data.Sugar.ExpressionMutator.Implementation
 {
-    public interface IQueryBuilder
+    public class NewArrayExpressionMutator : IExpressionMutator
     {
-        Query GetQuery(ExpressionChain expressions, QueryContext queryContext);
+        protected NewArrayExpression NewArrayExpression { get; private set; }
+
+        public Expression Mutate(IList<Expression> operands)
+        {
+            switch (NewArrayExpression.NodeType)
+            {
+                case ExpressionType.NewArrayBounds:
+                    return Expression.NewArrayBounds(NewArrayExpression.Type, operands);
+                case ExpressionType.NewArrayInit:
+                    return Expression.NewArrayInit(NewArrayExpression.Type, operands);
+            }
+            throw new Exception();
+        }
+
+        public IEnumerable<Expression> Operands
+        {
+            get
+            {
+                return NewArrayExpression.Expressions;
+            }
+        }
+
+        public NewArrayExpressionMutator(NewArrayExpression expression)
+        {
+            NewArrayExpression = expression;
+        }
     }
 }

@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // Copyright (c) 2007-2008 Jiri Moudry
 // 
@@ -22,10 +22,28 @@
 // 
 #endregion
 
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using DbLinq.Linq.Data.Sugar.Expressions;
+
 namespace DbLinq.Linq.Data.Sugar
 {
-    public interface IQueryBuilder
+    /// <summary>
+    /// Represents the first step Expression analysis result
+    /// All QueryExpressions are sorted by category
+    /// </summary>
+    public class ExpressionQuery
     {
-        Query GetQuery(ExpressionChain expressions, QueryContext queryContext);
+        /// <summary>
+        /// Values coming from outside the request (external parameters)
+        /// </summary>
+        public IList<ExternalParameterExpression> Parameters { get; private set; }
+
+        public Expression Select { get; set; }
+
+        public ExpressionQuery()
+        {
+            Parameters = new List<ExternalParameterExpression>();
+        }
     }
 }

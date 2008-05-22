@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // Copyright (c) 2007-2008 Jiri Moudry
 // 
@@ -22,10 +22,23 @@
 // 
 #endregion
 
-namespace DbLinq.Linq.Data.Sugar
+using System.Linq.Expressions;
+
+namespace DbLinq.Linq.Data.Sugar.Implementation
 {
-    public interface IQueryBuilder
+    /// <summary>
+    /// Optimizes expressions (such as constant chains)
+    /// </summary>
+    public class ExpressionOptimizer : ExpressionWalker, IExpressionOptimizer
     {
-        Query GetQuery(ExpressionChain expressions, QueryContext queryContext);
+        public virtual Expression Optimize(Expression expression, BuilderContext builderContext)
+        {
+            return Recurse(expression, builderContext);
+        }
+
+        protected override Expression Analyze(Expression expression, BuilderContext builderContext)
+        {
+            return expression;
+        }
     }
 }
