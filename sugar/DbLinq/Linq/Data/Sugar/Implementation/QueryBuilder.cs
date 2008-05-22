@@ -25,8 +25,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using DbLinq.Factory;
-using DbLinq.Linq.Data.Sugar.Pieces;
+using DbLinq.Linq.Data.Sugar.Expressions;
 using DbLinq.Logging;
 using DbLinq.Util;
 
@@ -39,12 +40,11 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
     /// </summary>
     public class QueryBuilder : IQueryBuilder
     {
-        public IPiecesBuilder PiecesBuilder { get; set; }
-        public IPiecesLanguageParser PiecesLanguageParser { get; set; }
-        public IPiecesLanguageOptimizer PiecesLanguageOptimizer { get; set; }
-        public IPiecesDispatcher PiecesDispatcher { get; set; }
+        public IExpressionLanguageParser ExpressionLanguageParser { get; set; }
+        public IExpressionOptimizer ExpressionOptimizer { get; set; }
+        public IExpressionDispatcher ExpressionDispatcher { get; set; }
 
-        protected virtual PiecesQuery BuildExpressionQuery(ExpressionChain expressions, QueryContext queryContext)
+        protected virtual ExpressionQuery BuildExpressionQuery(ExpressionChain expressions, QueryContext queryContext)
         {
             var builderContext = new BuilderContext(queryContext);
             BuildExpressionQuery(expressions, builderContext);
@@ -52,12 +52,12 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             return builderContext.PiecesQuery;
         }
 
-        protected virtual IList<Piece> FindPiecesByName(string name, BuilderContext builderContext)
+        protected virtual IList<Expression> FindPiecesByName(string name, BuilderContext builderContext)
         {
-            var pieces = new List<Piece>();
-            pieces.AddRange(from t in builderContext.EnumerateTables() where t.Alias == name select (Piece)t);
-            pieces.AddRange(from c in builderContext.EnumerateColumns() where c.Alias == name select (Piece)c);
-            return pieces;
+            var expressions = new List<Expression>();
+            expressions.AddRange(from t in builderContext.EnumerateTables() where t.Alias == name select (Expression)t);
+            expressions.AddRange(from c in builderContext.EnumerateColumns() where c.Alias == name select (Expression)c);
+            return expressions;
         }
 
         protected virtual string GetAnonymousTableName(string aliasBase, int anonymousIndex, BuilderContext builderContext)
@@ -74,22 +74,22 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         protected virtual void CheckTablesAlias(BuilderContext builderContext)
         {
             int anonymousIndex = 0;
-            foreach (TablePiece tablePiece in builderContext.EnumerateTables())
+            foreach (TableExpression tableExpression in builderContext.EnumerateTables())
             {
                 // if no alias, or duplicate alias
-                if (string.IsNullOrEmpty(tablePiece.Alias) ||
-                    FindPiecesByName(tablePiece.Alias, builderContext).Count > 1)
+                if (string.IsNullOrEmpty(tableExpression.Alias) ||
+                    FindPiecesByName(tableExpression.Alias, builderContext).Count > 1)
                 {
-                    var aliasBase = tablePiece.Alias;
+                    var aliasBase = tableExpression.Alias;
                     // we try to assign one until we have a unique alias
                     do
                     {
-                        tablePiece.Alias = GetAnonymousTableName(aliasBase, ++anonymousIndex, builderContext);
-                    } while (FindPiecesByName(tablePiece.Alias, builderContext).Count != 1);
+                        tableExpression.Alias = GetAnonymousTableName(aliasBase, ++anonymousIndex, builderContext);
+                    } while (FindPiecesByName(tableExpression.Alias, builderContext).Count != 1);
                 }
             }
             // TODO: move down this to IVendor
-            foreach (TablePiece tablePiece in builderContext.EnumerateTables())
+            foreach (TableExpression tablePiece in builderContext.EnumerateTables())
             {
                 tablePiece.Alias += "$";
             }
@@ -97,24 +97,23 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
 
         protected virtual void BuildExpressionQuery(ExpressionChain expressions, BuilderContext builderContext)
         {
-            var previousPiece = PiecesDispatcher.RegisterTable(expressions.Expressions[0], builderContext);
+            var previousExpression = ExpressionDispatcher.RegisterTable(expressions.Expressions[0], builderContext);
             foreach (var expression in expressions)
             {
                 builderContext.QueryContext.DataContext.Logger.WriteExpression(Level.Debug, expression);
                 // Convert linq Expressions to QueryOperationExpressions and QueryConstantExpressions 
-                var piece = PiecesBuilder.CreateQueryExpression(expression, builderContext);
                 // Query expressions language identification and optimization
-                piece = PiecesLanguageParser.AnalyzeLanguagePatterns(piece, builderContext);
-                piece = PiecesLanguageOptimizer.AnalyzeLanguagePatterns(piece, builderContext);
+                var currentExpression = ExpressionLanguageParser.Parse(expression, builderContext);
+                currentExpression = ExpressionOptimizer.Optimize(currentExpression, builderContext);
                 // Query expressions query identification 
-                previousPiece = PiecesDispatcher.Analyze(piece, previousPiece, builderContext);
+                previousExpression = ExpressionDispatcher.Analyze(currentExpression, previousExpression, builderContext);
             }
             // the last return value becomes the select, with CurrentScope
-            builderContext.CurrentScope.Operands.Add(previousPiece);
+            builderContext.CurrentScope.Operands.Add(previousExpression);
             builderContext.PiecesQuery.Select = builderContext.CurrentScope;
         }
 
-        protected virtual Query BuildSqlQuery(PiecesQuery expressionQuery, QueryContext queryContext)
+        protected virtual Query BuildSqlQuery(ExpressionQuery expressionQuery, QueryContext queryContext)
         {
             var sql = "";
             var sqlQuery = new Query(sql, expressionQuery.Parameters);
@@ -147,10 +146,9 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
 
         public QueryBuilder()
         {
-            PiecesBuilder = ObjectFactory.Get<IPiecesBuilder>();
-            PiecesLanguageParser = ObjectFactory.Get<IPiecesLanguageParser>();
-            PiecesLanguageOptimizer = ObjectFactory.Get<IPiecesLanguageOptimizer>();
-            PiecesDispatcher = ObjectFactory.Get<IPiecesDispatcher>();
+            ExpressionLanguageParser = ObjectFactory.Get<IExpressionLanguageParser>();
+            ExpressionOptimizer = ObjectFactory.Get<IExpressionOptimizer>();
+            ExpressionDispatcher = ObjectFactory.Get<IExpressionDispatcher>();
         }
     }
 }

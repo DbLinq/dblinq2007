@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // Copyright (c) 2007-2008 Jiri Moudry
 // 
@@ -22,10 +22,34 @@
 // 
 #endregion
 
-namespace DbLinq.Linq.Data.Sugar
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+
+namespace DbLinq.Linq.Data.Sugar.ExpressionMutator.Implementation
 {
-    public interface IQueryBuilder
+    public class InvocationExpressionMutator : IExpressionMutator
     {
-        Query GetQuery(ExpressionChain expressions, QueryContext queryContext);
+        protected InvocationExpression InvocationExpression { get; private set; }
+
+        public Expression Mutate(IList<Expression> operands)
+        {
+            return Expression.Invoke(operands[0], operands.Skip(1));
+        }
+
+        public IEnumerable<Expression> Operands
+        {
+            get
+            {
+                yield return InvocationExpression.Expression;
+                foreach (var argument in InvocationExpression.Arguments)
+                    yield return argument;
+            }
+        }
+
+        public InvocationExpressionMutator(InvocationExpression expression)
+        {
+            InvocationExpression = expression;
+        }
     }
 }

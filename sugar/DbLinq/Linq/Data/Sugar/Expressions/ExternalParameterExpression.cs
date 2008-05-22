@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // Copyright (c) 2007-2008 Jiri Moudry
 // 
@@ -22,10 +22,32 @@
 // 
 #endregion
 
-namespace DbLinq.Linq.Data.Sugar
+using System;
+using System.Diagnostics;
+using System.Linq.Expressions;
+
+namespace DbLinq.Linq.Data.Sugar.Expressions
 {
-    public interface IQueryBuilder
+    [DebuggerDisplay("ParameterPiece (current value={GetValue()})")]
+    public class ExternalParameterExpression : MutableExpression
     {
-        Query GetQuery(ExpressionChain expressions, QueryContext queryContext);
+        public static ExpressionType ExpressionType { get { return (ExpressionType)1020; } }
+
+        private readonly Delegate getValueDelegate;
+        /// <summary>
+        /// Returns the outer parameter value
+        /// </summary>
+        /// <returns></returns>
+        public object GetValue()
+        {
+            return getValueDelegate.DynamicInvoke();
+        }
+
+        public ExternalParameterExpression(Expression expression)
+            : base(ExpressionType, expression.Type)
+        {
+            var lambda = Expression.Lambda(expression);
+            getValueDelegate = lambda.Compile();
+        }
     }
 }

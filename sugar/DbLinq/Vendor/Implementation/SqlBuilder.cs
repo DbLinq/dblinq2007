@@ -24,7 +24,8 @@
 
 using System;
 using System.Globalization;
-using DbLinq.Linq.Data.Sugar.Pieces;
+using System.Linq.Expressions;
+using DbLinq.Linq.Data.Sugar.Expressions;
 
 namespace DbLinq.Vendor.Implementation
 {
@@ -44,108 +45,116 @@ namespace DbLinq.Vendor.Implementation
             return Convert.ToString(literal, CultureInfo.InvariantCulture);
         }
 
-        public virtual string GetLiteral(OperationType operationType, params string[] p)
+        public virtual string GetLiteral(ExpressionType operationType, params string[] p)
         {
             switch (operationType)
             {
-                case OperationType.Add:
-                    return GetLiteralAdd(p[0], p[1]);
-                case OperationType.AddChecked:
-                    return GetLiteralAddChecked(p[0], p[1]);
-                case OperationType.And:
-                    return GetLiteralAnd(p[0], p[1]);
-                case OperationType.AndAlso:
-                    return GetLiteralAndAlso(p[0], p[1]);
-                case OperationType.ArrayLength:
-                    return GetLiteralArrayLength(p[0], p[1]);
-                case OperationType.ArrayIndex:
-                    return GetLiteralArrayIndex(p[0], p[1]);
-                case OperationType.Call:
-                    return GetLiteralCall(p[0]);
-                case OperationType.Coalesce:
-                    return GetLiteralCoalesce(p[0], p[1]);
-                case OperationType.Conditional:
-                    return GetLiteralConditional(p[0], p[1], p[2]);
-                    //case OperationType.Constant:
-                    //break;
-                case OperationType.Convert:
-                    return GetLiteralConvert(p[0], p[1]);
-                case OperationType.ConvertChecked:
-                    return GetLiteralConvertChecked(p[0], p[1]);
-                case OperationType.Divide:
-                    return GetLiteralDivide(p[0], p[1]);
-                case OperationType.Equal:
-                    return GetLiteralEqual(p[0], p[1]);
-                case OperationType.ExclusiveOr:
-                    return GetLiteralExclusiveOr(p[0], p[1]);
-                case OperationType.GreaterThan:
-                    return GetLiteralGreaterThan(p[0], p[1]);
-                case OperationType.GreaterThanOrEqual:
-                    return GetLiteralGreaterThanOrEqual(p[0], p[1]);
-                    //case OperationType.Invoke:
-                    //break;
-                    //case OperationType.Lambda:
-                    //break;
-                case OperationType.LeftShift:
-                    return GetLiteralLeftShift(p[0], p[1]);
-                case OperationType.LessThan:
-                    return GetLiteralLessThan(p[0], p[1]);
-                case OperationType.LessThanOrEqual:
-                    return GetLiteralLessThanOrEqual(p[0], p[1]);
-                    //case OperationType.ListInit:
-                    //break;
-                    //case OperationType.MemberAccess:
-                    //    break;
-                    //case OperationType.MemberInit:
-                    //    break;
-                case OperationType.Modulo:
-                    return GetLiteralModulo(p[0], p[1]);
-                case OperationType.Multiply:
-                    return GetLiteralMultiply(p[0], p[1]);
-                case OperationType.MultiplyChecked:
-                    return GetLiteralMultiplyChecked(p[0], p[1]);
-                case OperationType.Negate:
-                    return GetLiteralNegate(p[0]);
-                case OperationType.UnaryPlus:
-                    return GetLiteralUnaryPlus(p[0]);
-                case OperationType.NegateChecked:
-                    return GetLiteralNegateChecked(p[0]);
-                    //case OperationType.New:
-                    //    break;
-                    //case OperationType.NewArrayInit:
-                    //    break;
-                    //case OperationType.NewArrayBounds:
-                    //    break;
-                case OperationType.Not:
-                    return GetLiteralNot(p[0]);
-                case OperationType.NotEqual:
-                    return GetLiteralNotEqual(p[0], p[1]);
-                case OperationType.Or:
-                    return GetLiteralOr(p[0], p[1]);
-                case OperationType.OrElse:
-                    return GetLiteralOrElse(p[0], p[1]);
-                    //case OperationType.Parameter:
-                    //    break;
-                case OperationType.Power:
-                    return GetLiteralPower(p[0], p[1]);
-                    //case OperationType.Quote:
-                    //    break;
-                case OperationType.RightShift:
-                    return GetLiteralRightShift(p[0], p[1]);
-                case OperationType.Subtract:
-                    return GetLiteralSubtract(p[0], p[1]);
-                case OperationType.SubtractChecked:
-                    return GetLiteralSubtractChecked(p[0], p[1]);
-                    //case OperationType.TypeAs:
-                    //    break;
-                    //case OperationType.TypeIs:
-                    //    break;
-                case OperationType.IsNull:
-                    return GetLiteralIsNull(p[0]);
-                case OperationType.IsNotNull:
-                    return GetLiteralIsNotNull(p[0]);
-                case OperationType.Concat:
-                    return GetLiteralConcat(p[0], p[1]);
+            case ExpressionType.Add:
+                return GetLiteralAdd(p[0], p[1]);
+            case ExpressionType.AddChecked:
+                return GetLiteralAddChecked(p[0], p[1]);
+            case ExpressionType.And:
+                return GetLiteralAnd(p[0], p[1]);
+            case ExpressionType.AndAlso:
+                return GetLiteralAndAlso(p[0], p[1]);
+            case ExpressionType.ArrayLength:
+                return GetLiteralArrayLength(p[0], p[1]);
+            case ExpressionType.ArrayIndex:
+                return GetLiteralArrayIndex(p[0], p[1]);
+            case ExpressionType.Call:
+                return GetLiteralCall(p[0]);
+            case ExpressionType.Coalesce:
+                return GetLiteralCoalesce(p[0], p[1]);
+            case ExpressionType.Conditional:
+                return GetLiteralConditional(p[0], p[1], p[2]);
+            //case ExpressionType.Constant:
+            //break;
+            case ExpressionType.Convert:
+                return GetLiteralConvert(p[0], p[1]);
+            case ExpressionType.ConvertChecked:
+                return GetLiteralConvertChecked(p[0], p[1]);
+            case ExpressionType.Divide:
+                return GetLiteralDivide(p[0], p[1]);
+            case ExpressionType.Equal:
+                return GetLiteralEqual(p[0], p[1]);
+            case ExpressionType.ExclusiveOr:
+                return GetLiteralExclusiveOr(p[0], p[1]);
+            case ExpressionType.GreaterThan:
+                return GetLiteralGreaterThan(p[0], p[1]);
+            case ExpressionType.GreaterThanOrEqual:
+                return GetLiteralGreaterThanOrEqual(p[0], p[1]);
+            //case ExpressionType.Invoke:
+            //break;
+            //case ExpressionType.Lambda:
+            //break;
+            case ExpressionType.LeftShift:
+                return GetLiteralLeftShift(p[0], p[1]);
+            case ExpressionType.LessThan:
+                return GetLiteralLessThan(p[0], p[1]);
+            case ExpressionType.LessThanOrEqual:
+                return GetLiteralLessThanOrEqual(p[0], p[1]);
+            //case ExpressionType.ListInit:
+            //break;
+            //case ExpressionType.MemberAccess:
+            //    break;
+            //case ExpressionType.MemberInit:
+            //    break;
+            case ExpressionType.Modulo:
+                return GetLiteralModulo(p[0], p[1]);
+            case ExpressionType.Multiply:
+                return GetLiteralMultiply(p[0], p[1]);
+            case ExpressionType.MultiplyChecked:
+                return GetLiteralMultiplyChecked(p[0], p[1]);
+            case ExpressionType.Negate:
+                return GetLiteralNegate(p[0]);
+            case ExpressionType.UnaryPlus:
+                return GetLiteralUnaryPlus(p[0]);
+            case ExpressionType.NegateChecked:
+                return GetLiteralNegateChecked(p[0]);
+            //case ExpressionType.New:
+            //    break;
+            //case ExpressionType.NewArrayInit:
+            //    break;
+            //case ExpressionType.NewArrayBounds:
+            //    break;
+            case ExpressionType.Not:
+                return GetLiteralNot(p[0]);
+            case ExpressionType.NotEqual:
+                return GetLiteralNotEqual(p[0], p[1]);
+            case ExpressionType.Or:
+                return GetLiteralOr(p[0], p[1]);
+            case ExpressionType.OrElse:
+                return GetLiteralOrElse(p[0], p[1]);
+            //case ExpressionType.Parameter:
+            //    break;
+            case ExpressionType.Power:
+                return GetLiteralPower(p[0], p[1]);
+            //case ExpressionType.Quote:
+            //    break;
+            case ExpressionType.RightShift:
+                return GetLiteralRightShift(p[0], p[1]);
+            case ExpressionType.Subtract:
+                return GetLiteralSubtract(p[0], p[1]);
+            case ExpressionType.SubtractChecked:
+                return GetLiteralSubtractChecked(p[0], p[1]);
+            //case ExpressionType.TypeAs:
+            //    break;
+            //case ExpressionType.TypeIs:
+            //    break;
+            }
+            throw new ArgumentException(operationType.ToString());
+        }
+        public virtual string GetLiteral(SpecialExpressionType operationType, params string[] p)
+        {
+            switch (operationType)
+            {
+
+            case SpecialExpressionType.IsNull:
+                return GetLiteralIsNull(p[0]);
+            case SpecialExpressionType.IsNotNull:
+                return GetLiteralIsNotNull(p[0]);
+            case SpecialExpressionType.Concat:
+                return GetLiteralConcat(p[0], p[1]);
             }
             throw new ArgumentException(operationType.ToString());
         }

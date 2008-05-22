@@ -22,10 +22,30 @@
 // 
 #endregion
 
+using System;
+using System.Collections.Generic;
+using System.Data.Linq.Mapping;
+using System.Reflection;
+using DbLinq.Linq.Data.Sugar.Expressions;
+
 namespace DbLinq.Linq.Data.Sugar
 {
-    public interface IQueryBuilder
+    public interface IDataMapper
     {
-        Query GetQuery(ExpressionChain expressions, QueryContext queryContext);
+        /// <summary>
+        /// Returns a table given a type, or null if the type is not mapped
+        /// </summary>
+        /// <param name="tableType"></param>
+        /// <param name="dataContext"></param>
+        /// <returns></returns>
+        string GetTableName(Type tableType, DataContext dataContext);
+
+        string GetColumnName(TableExpression tableExpression, MemberInfo memberInfo, DataContext dataContext);
+        IList<MemberInfo> GetPrimaryKeys(TableExpression tableExpression, DataContext dataContext);
+        IList<MemberInfo> GetPrimaryKeys(MetaTable tableDescription);
+
+        Type GetAssociation(TableExpression joinedTableExpression, MemberInfo memberInfo,
+                                            out IList<MemberInfo> foreignKey, out IList<MemberInfo> joinedKey, out TableJoinType joinType,
+                                            DataContext dataContext);
     }
 }

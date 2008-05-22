@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // Copyright (c) 2007-2008 Jiri Moudry
 // 
@@ -22,10 +22,33 @@
 // 
 #endregion
 
-namespace DbLinq.Linq.Data.Sugar
+using System.Collections.Generic;
+using System.Linq.Expressions;
+
+namespace DbLinq.Linq.Data.Sugar.ExpressionMutator.Implementation
 {
-    public interface IQueryBuilder
+    public class ConditionalExpressionMutator : IExpressionMutator
     {
-        Query GetQuery(ExpressionChain expressions, QueryContext queryContext);
+        protected ConditionalExpression ConditionalExpression { get; private set; }
+
+        public Expression Mutate(IList<Expression> operands)
+        {
+            return Expression.Condition(operands[0], operands[1], operands[2]);
+        }
+
+        public IEnumerable<Expression> Operands
+        {
+            get
+            {
+                yield return ConditionalExpression.Test;
+                yield return ConditionalExpression.IfTrue;
+                yield return ConditionalExpression.IfFalse;
+            }
+        }
+
+        public ConditionalExpressionMutator(ConditionalExpression expression)
+        {
+            ConditionalExpression = expression;
+        }
     }
 }

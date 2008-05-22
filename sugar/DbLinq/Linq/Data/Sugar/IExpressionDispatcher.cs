@@ -22,10 +22,27 @@
 // 
 #endregion
 
+using System.Linq.Expressions;
+
 namespace DbLinq.Linq.Data.Sugar
 {
-    public interface IQueryBuilder
+    public interface IExpressionDispatcher
     {
-        Query GetQuery(ExpressionChain expressions, QueryContext queryContext);
+        /// <summary>
+        /// Registers the first table. Extracts the table type and registeres the piece
+        /// </summary>
+        /// <param name="requestingExpression"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        Expression RegisterTable(Expression requestingExpression, BuilderContext builderContext);
+
+        /// <summary>
+        /// Entry point for Analyzis
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <param name="parameter"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        Expression Analyze(Expression expression, Expression parameter, BuilderContext builderContext);
     }
 }

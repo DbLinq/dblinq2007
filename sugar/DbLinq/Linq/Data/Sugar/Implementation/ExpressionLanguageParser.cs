@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // Copyright (c) 2007-2008 Jiri Moudry
 // 
@@ -22,10 +22,30 @@
 // 
 #endregion
 
-namespace DbLinq.Linq.Data.Sugar
+using System.Linq.Expressions;
+using DbLinq.Linq.Data.Sugar.Expressions;
+
+namespace DbLinq.Linq.Data.Sugar.Implementation
 {
-    public interface IQueryBuilder
+    /// <summary>
+    /// Analyzes language patterns and replace them with standard expressions
+    /// </summary>
+    public class ExpressionLanguageParser : ExpressionWalker, IExpressionLanguageParser
     {
-        Query GetQuery(ExpressionChain expressions, QueryContext queryContext);
+        public virtual Expression Parse(Expression expression, BuilderContext builderContext)
+        {
+            return Recurse(expression, builderContext);
+        }
+
+        protected override Expression Analyze(Expression expression, BuilderContext builderContext)
+        {
+            // string Add --> Concat
+            var binaryExpression = expression as BinaryExpression;
+            if (expression.NodeType == ExpressionType.Add && binaryExpression != null && binaryExpression.Left.Type is string)
+            {
+                return new SpecialExpression(SpecialExpressionType.Concat, expression.Type, binaryExpression.Left, binaryExpression.Right);
+            }
+            return expression;
+        }
     }
 }
