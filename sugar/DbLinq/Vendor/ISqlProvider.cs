@@ -30,6 +30,8 @@ namespace DbLinq.Vendor
 {
     public interface ISqlProvider
     {
+        string NewLine { get; }
+
         /// <summary>
         /// Converts a constant value to a literal representation
         /// </summary>

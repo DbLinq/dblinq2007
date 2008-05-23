@@ -86,5 +86,10 @@ namespace DbLinq.Linq.Data.Sugar
         /// =  *=  /=  %=  +=  -=  <<=  >>=  &=  ^=  |=
         /// </summary>
         Assignment,
+
+        /// <summary>
+        /// A SQL clause, FROM, WHERE, etc.
+        /// </summary>
+        Clause
     }
 }

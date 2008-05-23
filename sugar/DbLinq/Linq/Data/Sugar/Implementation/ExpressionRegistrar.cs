@@ -63,17 +63,71 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// Returns an existing table or registers the current one
         /// </summary>
         /// <param name="tableExpression"></param>
-        /// <param name="buildContext"></param>
+        /// <param name="builderContext"></param>
         /// <returns>A registered table or the current newly registered one</returns>
-        protected virtual TableExpression RegisterTable(TableExpression tableExpression, BuilderContext buildContext)
+        protected virtual TableExpression RegisterTable(TableExpression tableExpression, BuilderContext builderContext)
         {
-            var foundTableExpression = (from t in buildContext.EnumerateScopeTables()
+            // 1. Find the table in current scope
+            var foundTableExpression = (from t in builderContext.EnumerateScopeTables()
                                         where t.IsEqualTo(tableExpression)
                                         select t).SingleOrDefault();
             if (foundTableExpression != null)
                 return foundTableExpression;
-            buildContext.CurrentScope.Tables.Add(tableExpression);
+            // 2. Find it in all scopes, and promote it to current scope.
+            foundTableExpression = PromoteTable(tableExpression, builderContext);
+            if (foundTableExpression != null)
+                return foundTableExpression;
+            // 3. Add it
+            builderContext.CurrentScope.Tables.Add(tableExpression);
             return tableExpression;
+        }
+
+        /// <summary>
+        /// Promotes a table to a common parent between its current scope and our current scope
+        /// </summary>
+        /// <param name="tableExpression"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        protected virtual TableExpression PromoteTable(TableExpression tableExpression, BuilderContext builderContext)
+        {
+            // 1. Find the table ScopeExpression
+            ScopeExpression oldScope = FindTableScope(ref tableExpression, builderContext);
+            if (oldScope == null)
+                return null;
+            // 2. Find a common ScopeExpression
+            var commonScope = FindCommonScope(oldScope, builderContext.CurrentScope);
+            commonScope.Tables.Add(tableExpression);
+            return tableExpression;
+        }
+
+        protected virtual ScopeExpression FindTableScope(ref TableExpression tableExpression, BuilderContext builderContext)
+        {
+            foreach (var scope in builderContext.ScopeExpressions)
+            {
+                for (int tableIndex = 0; tableIndex < scope.Tables.Count; tableIndex++)
+                {
+                    if (scope.Tables[tableIndex].IsEqualTo(tableExpression))
+                    {
+                        tableExpression = scope.Tables[tableIndex];
+                        scope.Tables.RemoveAt(tableIndex);
+                        return scope;
+                    }
+                }
+            }
+            return null;
+        }
+
+        protected virtual ScopeExpression FindCommonScope(ScopeExpression a, ScopeExpression b)
+        {
+            for (var aScope = a; aScope != null; aScope = aScope.ParentScopePiece)
+            {
+                for (var bScope = b; bScope != null; bScope = bScope.ParentScopePiece)
+                {
+                    if (aScope == bScope)
+                        return aScope;
+                }
+            }
+            throw Error.BadArgument("S0127: No common ScopeExpression found");
         }
 
         /// <summary>

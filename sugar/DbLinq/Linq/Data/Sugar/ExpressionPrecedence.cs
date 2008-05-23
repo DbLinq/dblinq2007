@@ -50,6 +50,8 @@ namespace DbLinq.Linq.Data.Sugar
                     throw Error.BadArgument("S0050: Unhandled SpecialExpressionType {0}", specialNodeType);
                 }
             }
+            if (expression is ScopeExpression)
+                return OperatorPrecedence.Clause;
             switch (expression.NodeType)
             {
             case ExpressionType.Add:

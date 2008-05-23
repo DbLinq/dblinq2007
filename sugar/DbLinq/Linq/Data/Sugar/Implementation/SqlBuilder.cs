@@ -55,7 +55,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             string from = BuildFrom(scopeExpression.Tables, queryContext);
             string where = BuildWhere(scopeExpression.Tables, scopeExpression.Where, queryContext);
             string select = "";
-            return string.Format("{0}\n{1}\n{2}", select, from, where);
+            return string.Format("{0}{3}{1}{3}{2}", select, from, where,
+                                queryContext.DataContext.Vendor.SqlProvider.NewLine);
         }
 
         /// <summary>
@@ -94,7 +95,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             if (expression is ExternalParameterExpression)
                 return sqlProvider.GetParameterName(((ExternalParameterExpression)expression).Alias);
             if (expression is ScopeExpression)
-                return sqlProvider.GetParenthesis(Build((ScopeExpression)expression, queryContext));
+                return Build((ScopeExpression)expression, queryContext);
             if (expression is ConstantExpression)
                 return sqlProvider.GetLiteral(((ConstantExpression)expression).Value);
             return sqlProvider.GetLiteral(expression.NodeType, literalOperands);
