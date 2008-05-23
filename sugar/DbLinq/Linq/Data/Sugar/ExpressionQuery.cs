@@ -39,7 +39,7 @@ namespace DbLinq.Linq.Data.Sugar
         /// </summary>
         public IList<ExternalParameterExpression> Parameters { get; private set; }
 
-        public Expression Select { get; set; }
+        public ScopeExpression Select { get; set; }
 
         public ExpressionQuery()
         {

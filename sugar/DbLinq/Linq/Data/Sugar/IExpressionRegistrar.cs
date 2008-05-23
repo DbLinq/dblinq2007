@@ -58,9 +58,10 @@ namespace DbLinq.Linq.Data.Sugar
         /// The only loss may be a small memory loss (if anyone can prove me that the same Expression can be used twice)
         /// </summary>
         /// <param name="expression"></param>
+        /// <param name="alias"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        ExternalParameterExpression RegisterParameter(Expression expression, BuilderContext builderContext);
+        ExternalParameterExpression RegisterParameter(Expression expression, string alias, BuilderContext builderContext);
 
         /// <summary>
         /// Registers a column with only a table and a MemberInfo (this is the preferred method overload)

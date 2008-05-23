@@ -33,6 +33,8 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
     {
         public static ExpressionType ExpressionType { get { return (ExpressionType)1020; } }
 
+        public string Alias { get; set; }
+
         private readonly Delegate getValueDelegate;
         /// <summary>
         /// Returns the outer parameter value
@@ -43,11 +45,12 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
             return getValueDelegate.DynamicInvoke();
         }
 
-        public ExternalParameterExpression(Expression expression)
+        public ExternalParameterExpression(Expression expression, string alias)
             : base(ExpressionType, expression.Type)
         {
             var lambda = Expression.Lambda(expression);
             getValueDelegate = lambda.Compile();
+            Alias = alias;
         }
     }
 }

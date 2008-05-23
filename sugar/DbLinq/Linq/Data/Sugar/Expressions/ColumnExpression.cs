@@ -41,7 +41,6 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
 
         public string Alias { get; set; }
 
-        public bool Request { get; set; }
         public int RequestIndex { get; set; }
 
         public ColumnExpression(TableExpression table, string name, Type type)
@@ -49,14 +48,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
         {
             Table = table;
             Name = name;
+            RequestIndex = -1; // unused
         }
-
-        //protected override bool InnerEquals(Piece other)
-        //{
-        //    var columnOther = (ColumnPiece) other;
-        //    return Name == columnOther.Name
-        //           && Table.Equals(columnOther.Table)
-        //           && Type == columnOther.Type;
-        //}
     }
 }

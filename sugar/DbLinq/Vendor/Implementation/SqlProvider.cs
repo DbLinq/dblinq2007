@@ -23,13 +23,14 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq.Expressions;
 using DbLinq.Linq.Data.Sugar.Expressions;
 
 namespace DbLinq.Vendor.Implementation
 {
-    public class SqlBuilder : ISqlBuilder
+    public class SqlProvider : ISqlProvider
     {
         /// <summary>
         /// Converts a constant value to a literal representation
@@ -45,7 +46,13 @@ namespace DbLinq.Vendor.Implementation
             return Convert.ToString(literal, CultureInfo.InvariantCulture);
         }
 
-        public virtual string GetLiteral(ExpressionType operationType, params string[] p)
+        /// <summary>
+        /// Converts a standard operator to an expression
+        /// </summary>
+        /// <param name="operationType"></param>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        public virtual string GetLiteral(ExpressionType operationType, IList<string> p)
         {
             switch (operationType)
             {
@@ -70,9 +77,9 @@ namespace DbLinq.Vendor.Implementation
             //case ExpressionType.Constant:
             //break;
             case ExpressionType.Convert:
-                return GetLiteralConvert(p[0], p[1]);
+                return GetLiteralConvert(p[0]);
             case ExpressionType.ConvertChecked:
-                return GetLiteralConvertChecked(p[0], p[1]);
+                return GetLiteralConvertChecked(p[0]);
             case ExpressionType.Divide:
                 return GetLiteralDivide(p[0], p[1]);
             case ExpressionType.Equal:
@@ -144,7 +151,14 @@ namespace DbLinq.Vendor.Implementation
             }
             throw new ArgumentException(operationType.ToString());
         }
-        public virtual string GetLiteral(SpecialExpressionType operationType, params string[] p)
+
+        /// <summary>
+        /// Converts a special expression type to literal
+        /// </summary>
+        /// <param name="operationType"></param>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        public virtual string GetLiteral(SpecialExpressionType operationType, IList<string> p)
         {
             switch (operationType)
             {
@@ -155,28 +169,125 @@ namespace DbLinq.Vendor.Implementation
                 return GetLiteralIsNotNull(p[0]);
             case SpecialExpressionType.Concat:
                 return GetLiteralConcat(p[0], p[1]);
+            case SpecialExpressionType.Count:
+                return GetLiteralCount(p[0]);
+            case SpecialExpressionType.Like:
+                return GetLiteralLike(p[0], p[1]);
             }
             throw new ArgumentException(operationType.ToString());
         }
 
+        /// <summary>
+        /// Places the expression into parenthesis
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        public virtual string GetParenthesis(string a)
+        {
+            return string.Format("({0})", a);
+        }
+
+        /// <summary>
+        /// Returns a column related to a table.
+        /// Ensures about the right case
+        /// </summary>
+        /// <param name="table"></param>
+        /// <param name="column"></param>
+        /// <returns></returns>
+        public virtual string GetColumn(string table, string column)
+        {
+            return string.Format("{0}.{1}", table, column);
+        }
+
+        /// <summary>
+        /// Returns a table alias
+        /// Ensures about the right case
+        /// </summary>
+        /// <param name="table"></param>
+        /// <param name="alias"></param>
+        /// <returns></returns>
+        public virtual string GetTableAsAlias(string table, string alias)
+        {
+            return string.Format("{0} AS {1}", table, GetTableAlias(alias));
+        }
+
+        /// <summary>
+        /// Returns a table alias
+        /// </summary>
+        /// <param name="table"></param>
+        /// <returns></returns>
+        public virtual string GetTable(string table)
+        {
+            return table;
+        }
+
+        /// <summary>
+        /// Joins a list of table selection to make a FROM clause
+        /// </summary>
+        /// <param name="tables"></param>
+        /// <returns></returns>
+        public virtual string GetFromClause(string[] tables)
+        {
+            return string.Format("FROM {0}", string.Join(", ", tables));
+        }
+
+        /// <summary>
+        /// Joins a list of conditions to make a WHERE clause
+        /// </summary>
+        /// <param name="wheres"></param>
+        /// <returns></returns>
+        public virtual string GetWhereClause(string[] wheres)
+        {
+            return string.Format("WHERE {0}", string.Join(" AND ", wheres));
+        }
+
+        /// <summary>
+        /// Returns all table colums (*)
+        /// </summary>
+        /// <param name="tableAlias"></param>
+        /// <returns></returns>
+        public virtual string GetColumns(string tableAlias)
+        {
+            return string.Format("{0}.*", GetTableAlias(tableAlias));
+        }
+
+        /// <summary>
+        /// Returns a literal parameter name
+        /// </summary>
+        /// <returns></returns>
+        public virtual string GetParameterName(string nameBase)
+        {
+            return string.Format(":{0}", nameBase);
+        }
+
+        /// <summary>
+        /// Returns a valid alias syntax for the given table
+        /// </summary>
+        /// <param name="nameBase"></param>
+        /// <returns></returns>
+        public virtual string GetTableAlias(string nameBase)
+        {
+            return string.Format("{0}$", nameBase);
+        }
+
         protected virtual string GetLiteralAdd(string a, string b)
         {
-            throw new NotImplementedException();
+            return string.Format("{0} + {1}", a, b);
         }
 
         protected virtual string GetLiteralAddChecked(string a, string b)
         {
-            throw new NotImplementedException();
+            return GetLiteralAdd(a, b);
         }
 
         protected virtual string GetLiteralAnd(string a, string b)
         {
-            throw new NotImplementedException();
+            return string.Format("{0} AND {1}", a, b);
         }
 
         protected virtual string GetLiteralAndAlso(string a, string b)
         {
-            throw new NotImplementedException();
+            return string.Format("{0} AND {1}", a, b);
         }
 
         protected virtual string GetLiteralArrayLength(string a, string b)
@@ -196,7 +307,7 @@ namespace DbLinq.Vendor.Implementation
 
         protected virtual string GetLiteralCoalesce(string a, string b)
         {
-            throw new NotImplementedException();
+            return string.Format("COALESCE({0}, {1})", a, b);
         }
 
         protected virtual string GetLiteralConditional(string a, string b, string c)
@@ -204,39 +315,39 @@ namespace DbLinq.Vendor.Implementation
             throw new NotImplementedException();
         }
 
-        protected virtual string GetLiteralConvert(string a, string b)
+        protected virtual string GetLiteralConvert(string a)
         {
-            throw new NotImplementedException();
+            return a;
         }
 
-        protected virtual string GetLiteralConvertChecked(string a, string b)
+        protected virtual string GetLiteralConvertChecked(string a)
         {
-            throw new NotImplementedException();
+            return GetLiteralConvert(a);
         }
 
         protected virtual string GetLiteralDivide(string a, string b)
         {
-            throw new NotImplementedException();
+            return string.Format("{0} / {1}", a, b);
         }
 
         protected virtual string GetLiteralEqual(string a, string b)
         {
-            throw new NotImplementedException();
+            return string.Format("{0} = {1}", a, b);
         }
 
         protected virtual string GetLiteralExclusiveOr(string a, string b)
         {
-            throw new NotImplementedException();
+            return string.Format("{0} XOR {1}", a, b);
         }
 
         protected virtual string GetLiteralGreaterThan(string a, string b)
         {
-            throw new NotImplementedException();
+            return string.Format("{0} > {1}", a, b);
         }
 
         protected virtual string GetLiteralGreaterThanOrEqual(string a, string b)
         {
-            throw new NotImplementedException();
+            return string.Format("{0} >= {1}", a, b);
         }
 
         protected virtual string GetLiteralLeftShift(string a, string b)
@@ -246,67 +357,67 @@ namespace DbLinq.Vendor.Implementation
 
         protected virtual string GetLiteralLessThan(string a, string b)
         {
-            throw new NotImplementedException();
+            return string.Format("{0} < {1}", a, b);
         }
 
         protected virtual string GetLiteralLessThanOrEqual(string a, string b)
         {
-            throw new NotImplementedException();
+            return string.Format("{0} <= {1}", a, b);
         }
 
         protected virtual string GetLiteralModulo(string a, string b)
         {
-            throw new NotImplementedException();
+            return string.Format("{0} % {1}", a, b);
         }
 
         protected virtual string GetLiteralMultiply(string a, string b)
         {
-            throw new NotImplementedException();
+            return string.Format("{0} * {1}", a, b);
         }
 
         protected virtual string GetLiteralMultiplyChecked(string a, string b)
         {
-            throw new NotImplementedException();
+            return GetLiteralMultiply(a, b);
         }
 
         protected virtual string GetLiteralNegate(string a)
         {
-            throw new NotImplementedException();
+            return string.Format("-{0}", a);
         }
 
         protected virtual string GetLiteralUnaryPlus(string a)
         {
-            throw new NotImplementedException();
+            return string.Format("+{0}", a);
         }
 
         protected virtual string GetLiteralNegateChecked(string a)
         {
-            throw new NotImplementedException();
+            return GetLiteralNegate(a);
         }
 
         protected virtual string GetLiteralNot(string a)
         {
-            throw new NotImplementedException();
+            return string.Format("NOT {0}", a);
         }
 
         protected virtual string GetLiteralNotEqual(string a, string b)
         {
-            throw new NotImplementedException();
+            return string.Format("{0} <> {1}", a, b);
         }
 
         protected virtual string GetLiteralOr(string a, string b)
         {
-            throw new NotImplementedException();
+            return string.Format("{0} OR {1}", a, b);
         }
 
         protected virtual string GetLiteralOrElse(string a, string b)
         {
-            throw new NotImplementedException();
+            return GetLiteralOr(a, b);
         }
 
         protected virtual string GetLiteralPower(string a, string b)
         {
-            throw new NotImplementedException();
+            return string.Format("POWER ({0}, {1})", a, b);
         }
 
         protected virtual string GetLiteralRightShift(string a, string b)
@@ -316,32 +427,43 @@ namespace DbLinq.Vendor.Implementation
 
         protected virtual string GetLiteralSubtract(string a, string b)
         {
-            throw new NotImplementedException();
+            return string.Format("{0} - {1}", a, b);
         }
 
         protected virtual string GetLiteralSubtractChecked(string a, string b)
         {
-            throw new NotImplementedException();
+            return GetLiteralSubtract(a, b);
         }
 
         protected virtual string GetLiteralIsNull(string a)
         {
-            throw new NotImplementedException();
+            return string.Format("{0} IS NULL", a);
         }
 
         protected virtual string GetLiteralIsNotNull(string a)
         {
-            throw new NotImplementedException();
+            return string.Format("{0} IS NOT NULL", a);
         }
 
         protected virtual string GetLiteralConcat(string a, string b)
         {
-            throw new NotImplementedException();
+            // for some vendors, it is "CONCAT(a,b)"
+            return string.Format("{0} || {1}", a, b);
+        }
+
+        protected virtual string GetLiteralLike(string a, string b)
+        {
+            return string.Format("{0} LIKE {1}", a, b);
+        }
+
+        protected virtual string GetLiteralCount(string a)
+        {
+            return string.Format("COUNT({0})", a);
         }
 
         protected virtual string GetNullLiteral()
         {
-            return "null";
+            return "NULL";
         }
 
         protected virtual string GetLiteral(string literal)

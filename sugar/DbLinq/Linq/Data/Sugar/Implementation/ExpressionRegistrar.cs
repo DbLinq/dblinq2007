@@ -228,11 +228,12 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// The only loss may be a small memory loss (if anyone can prove me that the same Expression can be used twice)
         /// </summary>
         /// <param name="expression"></param>
+        /// <param name="alias"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        public virtual ExternalParameterExpression RegisterParameter(Expression expression, BuilderContext builderContext)
+        public virtual ExternalParameterExpression RegisterParameter(Expression expression, string alias, BuilderContext builderContext)
         {
-            var queryParameterExpression = new ExternalParameterExpression(expression);
+            var queryParameterExpression = new ExternalParameterExpression(expression, alias);
             builderContext.PiecesQuery.Parameters.Add(queryParameterExpression);
             return queryParameterExpression;
         }
