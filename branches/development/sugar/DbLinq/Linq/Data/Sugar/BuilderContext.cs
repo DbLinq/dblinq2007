@@ -35,7 +35,7 @@ namespace DbLinq.Linq.Data.Sugar
         public QueryContext QueryContext { get; private set; }
 
         // Current expression being built
-        public ExpressionQuery PiecesQuery { get; private set; }
+        public ExpressionQuery ExpressionQuery { get; private set; }
 
         // Build context: values here are related to current context, and can change with it
         public ScopeExpression CurrentScope { get; set; }
@@ -88,7 +88,7 @@ namespace DbLinq.Linq.Data.Sugar
             CurrentScope = new ScopeExpression();
             ScopeExpressions.Add(CurrentScope);
             QueryContext = queryContext;
-            PiecesQuery = new ExpressionQuery();
+            ExpressionQuery = new ExpressionQuery();
             MetaTables = new Dictionary<Type, MetaTableExpression>();
             Parameters = new Dictionary<string, Expression>();
         }
@@ -106,7 +106,7 @@ namespace DbLinq.Linq.Data.Sugar
 
             // scope independent parts
             builderContext.QueryContext = QueryContext;
-            builderContext.PiecesQuery = PiecesQuery;
+            builderContext.ExpressionQuery = ExpressionQuery;
             builderContext.MetaTables = MetaTables;
             builderContext.CurrentScope = CurrentScope;
             builderContext.ScopeExpressions = ScopeExpressions;
@@ -127,7 +127,7 @@ namespace DbLinq.Linq.Data.Sugar
 
             // we basically copy everything
             builderContext.QueryContext = QueryContext;
-            builderContext.PiecesQuery = PiecesQuery;
+            builderContext.ExpressionQuery = ExpressionQuery;
             builderContext.MetaTables = MetaTables;
             builderContext.Parameters = Parameters;
             builderContext.ScopeExpressions = ScopeExpressions;

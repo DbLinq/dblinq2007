@@ -59,7 +59,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             BuildExpressionQuery(expressions, builderContext);
             CheckTablesAlias(builderContext);
             CheckParametersAlias(builderContext);
-            return builderContext.PiecesQuery;
+            return builderContext.ExpressionQuery;
         }
 
         protected virtual IList<Expression> FindPiecesByName(string name, BuilderContext builderContext)
@@ -112,12 +112,12 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
 
         protected virtual IList<ExternalParameterExpression> FindParametersByName(string name, BuilderContext builderContext)
         {
-            return (from p in builderContext.PiecesQuery.Parameters where p.Alias == name select p).ToList();
+            return (from p in builderContext.ExpressionQuery.Parameters where p.Alias == name select p).ToList();
         }
 
         protected virtual void CheckParametersAlias(BuilderContext builderContext)
         {
-            foreach (var externalParameterEpxression in builderContext.PiecesQuery.Parameters)
+            foreach (var externalParameterEpxression in builderContext.ExpressionQuery.Parameters)
             {
                 if (string.IsNullOrEmpty(externalParameterEpxression.Alias)
                     || FindParametersByName(externalParameterEpxression.Alias, builderContext).Count > 1)
@@ -149,7 +149,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             }
             // the last return value becomes the select, with CurrentScope
             builderContext.CurrentScope = builderContext.CurrentScope.Select(previousExpression);
-            builderContext.PiecesQuery.Select = builderContext.CurrentScope;
+            builderContext.ExpressionQuery.Select = builderContext.CurrentScope;
             // for now, we optimize anything we can
             OptimizeQuery(builderContext);
         }
@@ -166,7 +166,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 }
                 builderContext.ScopeExpressions[scopeExpressionIndex] = (ScopeExpression)ExpressionOptimizer.Optimize(scopeExpression, builderContext);
             }
-            builderContext.PiecesQuery.Select = (ScopeExpression)ExpressionOptimizer.Optimize(builderContext.PiecesQuery.Select, builderContext);
+            builderContext.ExpressionQuery.Select = (ScopeExpression)ExpressionOptimizer.Optimize(builderContext.ExpressionQuery.Select, builderContext);
         }
 
         protected virtual Query BuildSqlQuery(ExpressionQuery expressionQuery, QueryContext queryContext)
