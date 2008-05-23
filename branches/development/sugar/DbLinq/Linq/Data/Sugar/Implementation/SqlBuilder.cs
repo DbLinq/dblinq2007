@@ -25,6 +25,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
+using DbLinq.Factory;
 using DbLinq.Linq.Data.Sugar.ExpressionMutator;
 using DbLinq.Linq.Data.Sugar.Expressions;
 
@@ -32,6 +33,13 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
 {
     public class SqlBuilder
     {
+        public ExpressionPrecedence ExpressionPrecedence { get; set; }
+
+        public SqlBuilder()
+        {
+            ExpressionPrecedence = ObjectFactory.Get<ExpressionPrecedence>();
+        }
+
         public string Build(ExpressionQuery expressionQuery, QueryContext queryContext)
         {
             return Build(expressionQuery.Select, queryContext);
@@ -59,14 +67,21 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <returns></returns>
         protected virtual string BuildExpression(Expression expression, QueryContext queryContext)
         {
+            var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
+            var currentPrecedence = ExpressionPrecedence.Get(expression);
             // first convert operands
             var operands = expression.GetOperands();
             var literalOperands = new List<string>();
             foreach (var operand in operands)
-                literalOperands.Add(BuildExpression(operand, queryContext));
+            {
+                var operandPrecedence = ExpressionPrecedence.Get(operand);
+                string literalOperand = BuildExpression(operand, queryContext);
+                if (operandPrecedence > currentPrecedence)
+                    literalOperand = sqlProvider.GetParenthesis(literalOperand);
+                literalOperands.Add(literalOperand);
+            }
 
             // then converts expression
-            var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
             if (expression is SpecialExpression)
                 return sqlProvider.GetLiteral(((SpecialExpression)expression).SpecialNodeType, literalOperands);
             if (expression is TableExpression)
@@ -81,7 +96,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             if (expression is ScopeExpression)
                 return sqlProvider.GetParenthesis(Build((ScopeExpression)expression, queryContext));
             if (expression is ConstantExpression)
-                return sqlProvider.GetLiteral(((ConstantExpression) expression).Value);
+                return sqlProvider.GetLiteral(((ConstantExpression)expression).Value);
             return sqlProvider.GetLiteral(expression.NodeType, literalOperands);
         }
 
