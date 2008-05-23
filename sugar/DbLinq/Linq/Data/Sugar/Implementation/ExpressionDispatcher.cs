@@ -51,11 +51,24 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <param name="requestingExpression"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        public virtual Expression RegisterTable(Expression requestingExpression, BuilderContext builderContext)
+        public virtual Expression CreateTableExpression(Expression requestingExpression, BuilderContext builderContext)
         {
             var callExpression = (MethodCallExpression)requestingExpression;
             var requestingType = callExpression.Arguments[0].Type;
-            return ExpressionRegistrar.RegisterTable(ExpressionService.GetQueriedType(requestingType), builderContext);
+            return ExpressionRegistrar.CreateTable(ExpressionService.GetQueriedType(requestingType), builderContext);
+        }
+
+        /// <summary>
+        /// Registers the first table. Extracts the table type and registeres the piece
+        /// </summary>
+        /// <param name="requestingExpression"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        public virtual Expression GetTable(Expression requestingExpression, BuilderContext builderContext)
+        {
+            var callExpression = (MethodCallExpression)requestingExpression;
+            var requestingType = callExpression.Arguments[0].Type;
+            return ExpressionRegistrar.CreateTable(ExpressionService.GetQueriedType(requestingType), builderContext);
         }
 
         /// <summary>

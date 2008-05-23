@@ -228,6 +228,8 @@ namespace DbLinq.Vendor.Implementation
         /// <returns></returns>
         public virtual string GetFromClause(string[] tables)
         {
+            if (tables.Length == 0)
+                return string.Empty;
             return string.Format("FROM {0}", string.Join(", ", tables));
         }
 
@@ -238,6 +240,8 @@ namespace DbLinq.Vendor.Implementation
         /// <returns></returns>
         public virtual string GetWhereClause(string[] wheres)
         {
+            if (wheres.Length == 0)
+                return string.Empty;
             return string.Format("WHERE {0}", string.Join(" AND ", wheres));
         }
 

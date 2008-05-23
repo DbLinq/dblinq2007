@@ -55,8 +55,25 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         {
             return
                 (from queryColumn in builderContext.EnumerateScopeColumns()
-                 where queryColumn.Table == table && queryColumn.Name == name
+                 where queryColumn.Table.IsEqualTo(table) && queryColumn.Name == name
                  select queryColumn).SingleOrDefault();
+        }
+
+        /// <summary>
+        /// Returns an existing table or registers the current one
+        /// </summary>
+        /// <param name="tableExpression"></param>
+        /// <param name="buildContext"></param>
+        /// <returns>A registered table or the current newly registered one</returns>
+        protected virtual TableExpression RegisterTable(TableExpression tableExpression, BuilderContext buildContext)
+        {
+            var foundTableExpression = (from t in buildContext.EnumerateScopeTables()
+                                        where t.IsEqualTo(tableExpression)
+                                        select t).SingleOrDefault();
+            if (foundTableExpression != null)
+                return foundTableExpression;
+            buildContext.CurrentScope.Tables.Add(tableExpression);
+            return tableExpression;
         }
 
         /// <summary>
@@ -77,6 +94,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             var queryColumn = GetRegisteredColumn(table, name, builderContext);
             if (queryColumn == null)
             {
+                table = RegisterTable(table, builderContext);
                 queryColumn = new ColumnExpression(table, name, memberInfo.GetMemberType());
                 builderContext.CurrentScope.Columns.Add(queryColumn);
             }
@@ -125,43 +143,14 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         }
 
         /// <summary>
-        /// Registers a table by its name, and returns the registered table
-        /// If the tableName parameter is null, returns null
-        /// </summary>
-        /// <param name="tableType"></param>
-        /// <param name="tableName"></param>
-        /// <param name="joinedTable"></param>
-        /// <param name="joinType"></param>
-        /// <param name="builderContext"></param>
-        /// <param name="joinExpression"></param>
-        /// <returns></returns>
-        public virtual TableExpression RegisterTable(Type tableType, string tableName,
-                                                Expression joinExpression, TableExpression joinedTable, TableJoinType joinType, string joinID,
-                                                BuilderContext builderContext)
-        {
-            if (tableName == null)
-                return null;
-            // Is it possible to have a table twice in a request for different reasons?
-            var queryTable = GetRegisteredTable(tableName, builderContext);
-            if (queryTable == null)
-            {
-                queryTable = new TableExpression(tableType, tableName, joinType, joinID, joinedTable, joinExpression);
-                builderContext.CurrentScope.Tables.Add(queryTable);
-            }
-            return queryTable;
-        }
-
-        /// <summary>
-        /// Registers a table by its type, or the current registered table.
-        /// If the tableType is not a table type, then returns null
+        /// Creates a default TableExpression
         /// </summary>
         /// <param name="tableType"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        public virtual TableExpression RegisterTable(Type tableType, BuilderContext builderContext)
+        public virtual TableExpression CreateTable(Type tableType, BuilderContext builderContext)
         {
-            return RegisterTable(tableType, DataMapper.GetTableName(tableType, builderContext.QueryContext.DataContext),
-                null, null, TableJoinType.Default, null, builderContext);
+            return new TableExpression(tableType, DataMapper.GetTableName(tableType, builderContext.QueryContext.DataContext));
         }
 
         /// <summary>
