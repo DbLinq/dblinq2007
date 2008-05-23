@@ -174,6 +174,18 @@ using Test_NUnit;
             Assert.IsTrue(count > 0, "Expected some products with ProductID != 1, got none");
         }
 
+        [Test]
+        public void H7_String_StartsWith()
+        {
+            Northwind db = CreateDB();
+
+            var q = from c in db.Customers
+                    where c.CustomerID.StartsWith("ALF")
+                    select c.CustomerID;
+
+            string custID = q.ToList()[0];
+            Assert.IsTrue(custID == "ALFKI");
+        }
 
         [Test]
         public void I1_GetQueryText()

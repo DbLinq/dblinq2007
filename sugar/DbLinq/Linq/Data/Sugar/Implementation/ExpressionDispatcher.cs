@@ -163,6 +163,15 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             case "Min":
             case "Sum":
                 return AnalyzeProjectionQuery(methodName, builderContext);
+            case "StartsWith":
+                return AnalyzeLikeStart(parameters, builderContext);
+            case "EndsWith":
+                return AnalyzeLikeEnd(parameters, builderContext);
+            case "Contains":
+                if (parameters[0].Type is string)
+                    return AnalyzeLike(parameters, builderContext);
+                else
+                    return AnalyzeContains(parameters, builderContext);
             default:
                 throw Error.BadArgument("S0133: Implement QueryMethod '{0}'", methodName);
             }
@@ -417,6 +426,30 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             // we now switch back to current context, and compare the result with 0
             var allPiece = Expression.Equal(allBuilderContext.CurrentScope, Expression.Constant(0));
             return allPiece;
+        }
+
+        protected virtual Expression AnalyzeLikeStart(IList<Expression> parameters, BuilderContext builderContext)
+        {
+            return new SpecialExpression(SpecialExpressionType.Concat, Analyze(parameters[0], builderContext), Expression.Constant("%"));
+        }
+
+        protected virtual Expression AnalyzeLikeEnd(IList<Expression> parameters, BuilderContext builderContext)
+        {
+            return new SpecialExpression(SpecialExpressionType.Concat, Expression.Constant("%"), Analyze(parameters[0], builderContext));
+        }
+
+        protected virtual Expression AnalyzeLike(IList<Expression> parameters, BuilderContext builderContext)
+        {
+            return new SpecialExpression(SpecialExpressionType.Concat,
+                                         new SpecialExpression(SpecialExpressionType.Concat, Expression.Constant("%"),
+                                                               Analyze(parameters[0], builderContext)),
+                                         Expression.Constant("%"));
+        }
+
+        protected virtual Expression AnalyzeContains(IList<Expression> parameters, BuilderContext builderContext)
+        {
+            // TODO
+            return null;
         }
     }
 }
