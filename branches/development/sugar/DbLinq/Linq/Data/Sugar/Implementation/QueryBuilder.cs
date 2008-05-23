@@ -135,7 +135,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
 
         protected virtual void BuildExpressionQuery(ExpressionChain expressions, BuilderContext builderContext)
         {
-            var previousExpression = ExpressionDispatcher.RegisterTable(expressions.Expressions[0], builderContext);
+            var previousExpression = ExpressionDispatcher.CreateTableExpression(expressions.Expressions[0], builderContext);
             foreach (var expression in expressions)
             {
                 builderContext.QueryContext.DataContext.Logger.WriteExpression(Level.Debug, expression);
@@ -166,6 +166,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 }
                 builderContext.ScopeExpressions[scopeExpressionIndex] = (ScopeExpression)ExpressionOptimizer.Optimize(scopeExpression, builderContext);
             }
+            builderContext.PiecesQuery.Select = (ScopeExpression)ExpressionOptimizer.Optimize(builderContext.PiecesQuery.Select, builderContext);
         }
 
         protected virtual Query BuildSqlQuery(ExpressionQuery expressionQuery, QueryContext queryContext)

@@ -34,7 +34,7 @@ namespace DbLinq.Linq.Data.Sugar
         /// <param name="requestingExpression"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        Expression RegisterTable(Expression requestingExpression, BuilderContext builderContext);
+        Expression CreateTableExpression(Expression requestingExpression, BuilderContext builderContext);
 
         /// <summary>
         /// Entry point for Analyzis

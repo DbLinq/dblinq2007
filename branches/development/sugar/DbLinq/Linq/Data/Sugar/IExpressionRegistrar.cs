@@ -33,13 +33,12 @@ namespace DbLinq.Linq.Data.Sugar
     public interface IExpressionRegistrar
     {
         /// <summary>
-        /// Registers a table by its type, or the current registered table.
-        /// If the tableType is not a table type, then returns null
+        /// Creates a default TableExpression
         /// </summary>
         /// <param name="tableType"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        TableExpression RegisterTable(Type tableType, BuilderContext builderContext);
+        TableExpression CreateTable(Type tableType, BuilderContext builderContext);
 
         /// <summary>
         /// Registers an association

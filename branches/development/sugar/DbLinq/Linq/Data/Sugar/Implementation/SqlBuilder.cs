@@ -104,8 +104,6 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                                                                 tableExpression.Alias));
                 }
             }
-            if (fromClauses.Count == 0)
-                return string.Empty;
             return sqlProvider.GetFromClause(fromClauses.ToArray());
         }
 
