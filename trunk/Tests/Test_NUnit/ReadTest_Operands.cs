@@ -34,13 +34,13 @@ using Test_NUnit;
 #if MYSQL
     namespace Test_NUnit_MySql
 #elif ORACLE
-    #if ODP
+#if ODP
         namespace Test_NUnit_OracleODP
-    #else
+#else
         namespace Test_NUnit_Oracle
-    #endif
+#endif
 #elif POSTGRES
-    namespace Test_NUnit_PostgreSql
+namespace Test_NUnit_PostgreSql
 #elif SQLITE
     namespace Test_NUnit_Sqlite
 #elif INGRES
@@ -179,7 +179,7 @@ using Test_NUnit;
         {
             Northwind db = CreateDB();
 
-            var q = from c in db.Customers 
+            var q = from c in db.Customers
                     where c.CustomerID.StartsWith("ALF")
                     select c.CustomerID;
 
@@ -193,7 +193,7 @@ using Test_NUnit;
             Northwind db = CreateDB();
 
             var q = from c in db.Customers
-                    where c.CustomerID=="ALFKI"
+                    where c.CustomerID == "ALFKI"
                     select c.CustomerID.StartsWith("ALF");
 
             bool matchStart = q.Single();
@@ -225,6 +225,21 @@ using Test_NUnit;
 
             string custID = q.Single();
             Assert.IsTrue(custID == "ALFKI");
+        }
+
+
+        [Test]
+        public void H11_String_StartsWithPercent()
+        {
+            string param = "%";
+            Northwind db = CreateDB();
+
+            var q = from c in db.Customers
+                    where c.CustomerID.StartsWith(param)
+                    select c.CustomerID;
+
+            int cnt = q.Count();
+            Assert.AreEqual(0, cnt);
         }
 
         [Test]
