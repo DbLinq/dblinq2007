@@ -23,9 +23,12 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq.Expressions;
+using DbLinq.Linq.Data.Sugar.ExpressionMutator;
 
 namespace DbLinq.Linq.Data.Sugar.Expressions
 {
@@ -33,7 +36,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
     /// Holds new expression types (sql related), all well as their operands
     /// </summary>
     [DebuggerDisplay("SpecialExpression {SpecialNodeType}")]
-    public class SpecialExpression : OperandsMutableExpression
+    public class SpecialExpression : OperandsMutableExpression, IExecutableExpression
     {
         public SpecialExpressionType SpecialNodeType { get { return (SpecialExpressionType)NodeType; } }
 
@@ -69,9 +72,49 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
         {
         }
 
-        protected override Expression Mutate2(IList<Expression> operands)
+        protected override Expression Mutate2(IList<Expression> newOperands)
         {
-            return new SpecialExpression((SpecialExpressionType)NodeType, operands);
+            return new SpecialExpression((SpecialExpressionType)NodeType, newOperands);
+        }
+
+        public object Execute()
+        {
+            switch (SpecialNodeType)
+            {
+            case SpecialExpressionType.IsNull:
+                return operands[0].Evaluate() == null;
+            case SpecialExpressionType.IsNotNull:
+                return operands[0].Evaluate() != null;
+            case SpecialExpressionType.Concat:
+                {
+                    var values = new List<string>();
+                    foreach (var operand in operands)
+                    {
+                        var value = operand.Evaluate();
+                        if (value != null)
+                            values.Add(System.Convert.ToString(value, CultureInfo.InvariantCulture));
+                        else
+                            values.Add(null);
+                    }
+                    return string.Concat(values.ToArray());
+                }
+            case SpecialExpressionType.Count:
+                {
+                    var value = operands[0].Evaluate();
+                    // TODO: string is IEnumerable. See what we do here
+                    if (value is IEnumerable)
+                    {
+                        int count = 0;
+                        foreach (var dontCare in (IEnumerable)value)
+                            count++;
+                        return count;
+                    }
+                    // TODO: by default, shall we answer 1 or throw an exception?
+                    return 1;
+                }
+            default:
+                throw Error.BadArgument("S0116: Unknown SpecialExpressionType ({0})", SpecialNodeType);
+            }
         }
     }
 }

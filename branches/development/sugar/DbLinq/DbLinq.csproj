@@ -64,6 +64,8 @@
     <Compile Include="Linq\Database\Implementation\DatabaseTransaction.cs" />
     <Compile Include="Linq\Data\Sugar\BuilderContext.cs" />
     <Compile Include="Linq\Data\Sugar\Error.cs" />
+    <Compile Include="Linq\Data\Sugar\ExpressionMutator\Implementation\ExpressionMutator.cs" />
+    <Compile Include="Linq\Data\Sugar\Expressions\IExecutableExpression.cs" />
     <Compile Include="Linq\Data\Sugar\Expressions\IMutableExpression.cs" />
     <Compile Include="Linq\Data\Sugar\Expressions\MutableExpression.cs" />
     <Compile Include="Linq\Data\Sugar\Expressions\ColumnExpression.cs" />

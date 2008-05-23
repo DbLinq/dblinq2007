@@ -22,7 +22,11 @@
 // 
 #endregion
 
+using System;
+using System.Linq;
 using System.Linq.Expressions;
+using DbLinq.Linq.Data.Sugar.ExpressionMutator;
+using DbLinq.Linq.Data.Sugar.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar.Implementation
 {
@@ -38,6 +42,88 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
 
         protected override Expression Analyze(Expression expression, BuilderContext builderContext)
         {
+            // small optimization
+            if (expression is ConstantExpression)
+                return expression;
+
+            expression = AnalyzeNull(expression, builderContext);
+            expression = AnalyzeNot(expression, builderContext);
+            expression = AnalyzeConstant(expression, builderContext);
+            return expression;
+        }
+
+        protected virtual Expression AnalyzeConstant(Expression expression, BuilderContext builderContext)
+        {
+            // we try to find a non-constant operand, and if we do, we won't change this expression
+            foreach (var operand in expression.GetOperands())
+            {
+                if (!(operand is ConstantExpression))
+                    return expression;
+            }
+            // now, we just simply return a constant with new value
+            try
+            {
+                return Expression.Constant(expression.Evaluate());
+            }
+            // if we fail to evaluate the expression, then just return it
+            catch (ArgumentException)
+            {
+                return expression;
+            }
+        }
+
+        protected virtual Expression AnalyzeNot(Expression expression, BuilderContext builderContext)
+        {
+            if (expression.NodeType == ExpressionType.Not)
+            {
+                var notExpression = expression as UnaryExpression;
+                var subExpression = notExpression.Operand;
+                var subOperands = subExpression.GetOperands().ToList();
+                switch (subExpression.NodeType)
+                {
+                case ExpressionType.Equal:
+                    return Expression.NotEqual(subOperands[0], subOperands[1]);
+                case ExpressionType.GreaterThan:
+                    return Expression.LessThanOrEqual(subOperands[0], subOperands[1]);
+                case ExpressionType.GreaterThanOrEqual:
+                    return Expression.LessThan(subOperands[0], subOperands[1]);
+                case ExpressionType.LessThan:
+                    return Expression.GreaterThanOrEqual(subOperands[0], subOperands[1]);
+                case ExpressionType.LessThanOrEqual:
+                    return Expression.GreaterThan(subOperands[0], subOperands[1]);
+                case ExpressionType.Not:
+                    return subOperands[0]; // not not x -> x :)
+                case ExpressionType.NotEqual:
+                    return Expression.Equal(subOperands[0], subOperands[1]);
+                case (ExpressionType)SpecialExpressionType.IsNotNull: // is this dirty work?
+                    return new SpecialExpression(SpecialExpressionType.IsNull, subOperands);
+                case (ExpressionType)SpecialExpressionType.IsNull:
+                    return new SpecialExpression(SpecialExpressionType.IsNotNull, subOperands);
+                }
+            }
+            return expression;
+        }
+
+        protected virtual Expression AnalyzeNull(Expression expression, BuilderContext builderContext)
+        {
+            // this first test only to speed up things a little
+            if (expression.NodeType == ExpressionType.Equal || expression.NodeType == ExpressionType.NotEqual)
+            {
+                var operands = expression.GetOperands().ToList();
+                if (operands[0] is ColumnExpression || operands[0] is ExternalParameterExpression)
+                {
+                    if (operands[1] is ConstantExpression && ((ConstantExpression)operands[1]).Value == null)
+                    {
+                        switch (expression.NodeType)
+                        {
+                        case ExpressionType.Equal:
+                            return new SpecialExpression(SpecialExpressionType.IsNull, operands[0]);
+                        case ExpressionType.NotEqual:
+                            return new SpecialExpression(SpecialExpressionType.IsNotNull, operands[0]);
+                        }
+                    }
+                }
+            }
             return expression;
         }
     }

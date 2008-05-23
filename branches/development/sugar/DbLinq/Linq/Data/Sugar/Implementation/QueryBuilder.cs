@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using DbLinq.Factory;
-using DbLinq.Linq.Data.Sugar.ExpressionMutator;
 using DbLinq.Linq.Data.Sugar.Expressions;
 using DbLinq.Logging;
 using DbLinq.Util;
@@ -103,15 +102,32 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             {
                 builderContext.QueryContext.DataContext.Logger.WriteExpression(Level.Debug, expression);
                 // Convert linq Expressions to QueryOperationExpressions and QueryConstantExpressions 
-                // Query expressions language identification and optimization
+                // Query expressions language identification
                 var currentExpression = ExpressionLanguageParser.Parse(expression, builderContext);
-                currentExpression = ExpressionOptimizer.Optimize(currentExpression, builderContext);
                 // Query expressions query identification 
-                previousExpression = ExpressionDispatcher.Analyze(currentExpression, previousExpression, builderContext);
+                currentExpression = ExpressionDispatcher.Analyze(currentExpression, previousExpression, builderContext);
+
+                previousExpression = currentExpression;
             }
             // the last return value becomes the select, with CurrentScope
             builderContext.CurrentScope = builderContext.CurrentScope.Select(previousExpression);
             builderContext.PiecesQuery.Select = builderContext.CurrentScope;
+            // for now, we optimize anything we can
+            OptimizeQuery(builderContext);
+        }
+
+        protected virtual void OptimizeQuery(BuilderContext builderContext)
+        {
+            for (int scopeExpressionIndex = 0; scopeExpressionIndex < builderContext.ScopeExpressions.Count; scopeExpressionIndex++)
+            {
+                var scopeExpression = builderContext.ScopeExpressions[scopeExpressionIndex];
+                for (int whereIndex = 0; whereIndex < scopeExpression.Where.Count; whereIndex++)
+                {
+                    scopeExpression.Where[whereIndex] = ExpressionOptimizer.Optimize(scopeExpression.Where[whereIndex],
+                                                                                     builderContext);
+                }
+                builderContext.ScopeExpressions[scopeExpressionIndex] = (ScopeExpression)ExpressionOptimizer.Optimize(scopeExpression, builderContext);
+            }
         }
 
         protected virtual Query BuildSqlQuery(ExpressionQuery expressionQuery, QueryContext queryContext)
