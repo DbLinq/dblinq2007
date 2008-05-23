@@ -323,7 +323,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             // if object is still an object (== a constant), then we have an external parameter
             if (objectExpression is ConstantExpression)
             {
-                var parameterExpression = ExpressionRegistrar.RegisterParameter(expression, builderContext);
+                // the memberInfo.Name is provided here only to ease the SQL reading
+                var parameterExpression = ExpressionRegistrar.RegisterParameter(expression, memberInfo.Name, builderContext);
                 if (parameterExpression != null)
                     return parameterExpression;
                 throw Error.BadArgument("S0302: Can not created parameter from expression '{0}'", expression);

@@ -43,12 +43,22 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         public IExpressionLanguageParser ExpressionLanguageParser { get; set; }
         public IExpressionOptimizer ExpressionOptimizer { get; set; }
         public IExpressionDispatcher ExpressionDispatcher { get; set; }
+        public SqlBuilder SqlBuilder { get; set; }
+
+        public QueryBuilder()
+        {
+            ExpressionLanguageParser = ObjectFactory.Get<IExpressionLanguageParser>();
+            ExpressionOptimizer = ObjectFactory.Get<IExpressionOptimizer>();
+            ExpressionDispatcher = ObjectFactory.Get<IExpressionDispatcher>();
+            SqlBuilder = ObjectFactory.Get<SqlBuilder>();
+        }
 
         protected virtual ExpressionQuery BuildExpressionQuery(ExpressionChain expressions, QueryContext queryContext)
         {
             var builderContext = new BuilderContext(queryContext);
             BuildExpressionQuery(expressions, builderContext);
             CheckTablesAlias(builderContext);
+            CheckParametersAlias(builderContext);
             return builderContext.PiecesQuery;
         }
 
@@ -60,11 +70,21 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             return expressions;
         }
 
-        protected virtual string GetAnonymousTableName(string aliasBase, int anonymousIndex, BuilderContext builderContext)
+        protected virtual string MakeName(string aliasBase, int index, string anonymousBase, BuilderContext builderContext)
         {
             if (string.IsNullOrEmpty(aliasBase))
-                aliasBase = "t";
-            return string.Format("{0}{1}", aliasBase, anonymousIndex);
+                aliasBase = anonymousBase;
+            return string.Format("{0}{1}", aliasBase, index);
+        }
+
+        protected virtual string MakeTableName(string aliasBase, int index, BuilderContext builderContext)
+        {
+            return MakeName(aliasBase, index, "t", builderContext);
+        }
+
+        protected virtual string MakeParameterName(string aliasBase, int index, BuilderContext builderContext)
+        {
+            return MakeName(aliasBase, index, "p", builderContext);
         }
 
         /// <summary>
@@ -73,25 +93,43 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <param name="builderContext"></param>
         protected virtual void CheckTablesAlias(BuilderContext builderContext)
         {
-            int anonymousIndex = 0;
-            foreach (TableExpression tableExpression in builderContext.EnumerateAllTables())
+            foreach (var tableExpression in builderContext.EnumerateAllTables())
             {
                 // if no alias, or duplicate alias
                 if (string.IsNullOrEmpty(tableExpression.Alias) ||
                     FindPiecesByName(tableExpression.Alias, builderContext).Count > 1)
                 {
+                    int anonymousIndex = 0;
                     var aliasBase = tableExpression.Alias;
                     // we try to assign one until we have a unique alias
                     do
                     {
-                        tableExpression.Alias = GetAnonymousTableName(aliasBase, ++anonymousIndex, builderContext);
+                        tableExpression.Alias = MakeTableName(aliasBase, ++anonymousIndex, builderContext);
                     } while (FindPiecesByName(tableExpression.Alias, builderContext).Count != 1);
                 }
             }
-            // TODO: move down this to IVendor
-            foreach (TableExpression tablePiece in builderContext.EnumerateAllTables())
+        }
+
+        protected virtual IList<ExternalParameterExpression> FindParametersByName(string name, BuilderContext builderContext)
+        {
+            return (from p in builderContext.PiecesQuery.Parameters where p.Alias == name select p).ToList();
+        }
+
+        protected virtual void CheckParametersAlias(BuilderContext builderContext)
+        {
+            foreach (var externalParameterEpxression in builderContext.PiecesQuery.Parameters)
             {
-                tablePiece.Alias += "$";
+                if (string.IsNullOrEmpty(externalParameterEpxression.Alias)
+                    || FindParametersByName(externalParameterEpxression.Alias, builderContext).Count > 1)
+                {
+                    int anonymousIndex = 0;
+                    var aliasBase = externalParameterEpxression.Alias;
+                    // we try to assign one until we have a unique alias
+                    do
+                    {
+                        externalParameterEpxression.Alias = MakeTableName(aliasBase, ++anonymousIndex, builderContext);
+                    } while (FindPiecesByName(externalParameterEpxression.Alias, builderContext).Count != 1);
+                }
             }
         }
 
@@ -132,7 +170,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
 
         protected virtual Query BuildSqlQuery(ExpressionQuery expressionQuery, QueryContext queryContext)
         {
-            var sql = "";
+            var sql = SqlBuilder.Build(expressionQuery, queryContext);
             var sqlQuery = new Query(sql, expressionQuery.Parameters);
             return sqlQuery;
         }
@@ -159,13 +197,6 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             }
             throw new Exception("Can't go further anyway...");
             return query;
-        }
-
-        public QueryBuilder()
-        {
-            ExpressionLanguageParser = ObjectFactory.Get<IExpressionLanguageParser>();
-            ExpressionOptimizer = ObjectFactory.Get<IExpressionOptimizer>();
-            ExpressionDispatcher = ObjectFactory.Get<IExpressionDispatcher>();
         }
     }
 }

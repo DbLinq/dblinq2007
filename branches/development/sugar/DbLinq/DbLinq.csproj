@@ -79,6 +79,7 @@
     <Compile Include="Linq\Data\Sugar\Expressions\TableJoinType.cs" />
     <Compile Include="Linq\Data\Sugar\IDataMapper.cs" />
     <Compile Include="Linq\Data\Sugar\Implementation\ExpressionService.cs" />
+    <Compile Include="Linq\Data\Sugar\Implementation\SqlBuilder.cs" />
     <Compile Include="Linq\Data\Sugar\IQueryBuilder.cs" />
     <Compile Include="Linq\Data\Sugar\IExpressionRegistrar.cs" />
     <Compile Include="Linq\Data\Sugar\IExpressionDispatcher.cs" />
@@ -238,11 +239,11 @@
     <Compile Include="Vendor\Implementation\Vendor.ExecuteQuery.cs" />
     <Compile Include="Vendor\INameAliases.cs" />
     <Compile Include="Vendor\ISchemaLoader.cs" />
-    <Compile Include="Vendor\ISqlBuilder.cs" />
+    <Compile Include="Vendor\ISqlProvider.cs" />
     <Compile Include="Vendor\IVendor.cs" />
     <Compile Include="Vendor\Implementation\SchemaLoader.cs" />
     <Compile Include="Vendor\Implementation\Vendor.cs" />
-    <Compile Include="Vendor\Implementation\SqlBuilder.cs" />
+    <Compile Include="Vendor\Implementation\SqlProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\DbLinq.snk">

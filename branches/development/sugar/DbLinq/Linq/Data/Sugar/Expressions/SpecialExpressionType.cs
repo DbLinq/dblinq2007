@@ -30,5 +30,6 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
         IsNotNull,
         Concat,
         Count,
+        Like,
     }
 }

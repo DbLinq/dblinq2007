@@ -91,16 +91,6 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
             return a.Equals(b);
         }
 
-        //protected override bool InnerEquals(Piece other)
-        //{
-        //    var tableOther = (TablePiece)other;
-        //    return Name == tableOther.Name
-        //           && Type == tableOther.Type
-        //           && JoinType == tableOther.JoinType
-        //           && EquatableEquals(JoinedTable, tableOther.JoinedTable)
-        //           && EquatableEquals(JoinPiece, tableOther.JoinPiece);
-        //}
-
         public bool IsEqualTo(TableExpression expression)
         {
             return Name == expression.Name && JoinID == expression.JoinID;
