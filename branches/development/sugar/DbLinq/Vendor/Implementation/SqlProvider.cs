@@ -32,6 +32,10 @@ namespace DbLinq.Vendor.Implementation
 {
     public class SqlProvider : ISqlProvider
     {
+        public string NewLine
+        {
+            get { return Environment.NewLine; }
+        }
         /// <summary>
         /// Converts a constant value to a literal representation
         /// </summary>
