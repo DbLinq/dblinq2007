@@ -277,7 +277,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         public virtual ExternalParameterExpression RegisterParameter(Expression expression, string alias, BuilderContext builderContext)
         {
             var queryParameterExpression = new ExternalParameterExpression(expression, alias);
-            builderContext.PiecesQuery.Parameters.Add(queryParameterExpression);
+            builderContext.ExpressionQuery.Parameters.Add(queryParameterExpression);
             return queryParameterExpression;
         }
 
