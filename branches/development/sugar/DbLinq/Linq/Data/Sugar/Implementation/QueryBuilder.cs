@@ -56,8 +56,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         protected virtual IList<Expression> FindPiecesByName(string name, BuilderContext builderContext)
         {
             var expressions = new List<Expression>();
-            expressions.AddRange(from t in builderContext.EnumerateTables() where t.Alias == name select (Expression)t);
-            expressions.AddRange(from c in builderContext.EnumerateColumns() where c.Alias == name select (Expression)c);
+            expressions.AddRange(from t in builderContext.EnumerateAllTables() where t.Alias == name select (Expression)t);
+            expressions.AddRange(from c in builderContext.EnumerateScopeColumns() where c.Alias == name select (Expression)c);
             return expressions;
         }
 
@@ -75,7 +75,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         protected virtual void CheckTablesAlias(BuilderContext builderContext)
         {
             int anonymousIndex = 0;
-            foreach (TableExpression tableExpression in builderContext.EnumerateTables())
+            foreach (TableExpression tableExpression in builderContext.EnumerateAllTables())
             {
                 // if no alias, or duplicate alias
                 if (string.IsNullOrEmpty(tableExpression.Alias) ||
@@ -90,7 +90,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 }
             }
             // TODO: move down this to IVendor
-            foreach (TableExpression tablePiece in builderContext.EnumerateTables())
+            foreach (TableExpression tablePiece in builderContext.EnumerateAllTables())
             {
                 tablePiece.Alias += "$";
             }

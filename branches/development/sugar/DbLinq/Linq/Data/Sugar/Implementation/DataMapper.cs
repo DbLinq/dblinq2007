@@ -84,7 +84,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <returns></returns>
         public virtual Type GetAssociation(TableExpression joinedTableExpression, MemberInfo memberInfo,
                                            out IList<MemberInfo> foreignKey, out IList<MemberInfo> joinedKey, out TableJoinType joinType,
-                                           DataContext dataContext)
+                                           out string joinID, DataContext dataContext)
         {
             var joinedTableDescription = dataContext.Mapping.GetTable(joinedTableExpression.Type);
             var associationDescription =
@@ -103,11 +103,15 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                     joinedKey = (from key in associationDescription.ThisKey select key.Member).ToList();
                 var tableType = foreignKey[0].DeclaringType;
                 joinType = TableJoinType.Inner;
+                joinID = associationDescription.ThisMember.MappedName;
+                if (string.IsNullOrEmpty(joinID))
+                    throw Error.BadArgument("S0108: Association name is required to ensure join uniqueness");
                 return tableType;
             }
             foreignKey = null;
             joinedKey = null;
             joinType = TableJoinType.Default;
+            joinID = null;
             return null;
         }
     }

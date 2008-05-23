@@ -46,6 +46,6 @@ namespace DbLinq.Linq.Data.Sugar
 
         Type GetAssociation(TableExpression joinedTableExpression, MemberInfo memberInfo,
                                             out IList<MemberInfo> foreignKey, out IList<MemberInfo> joinedKey, out TableJoinType joinType,
-                                            DataContext dataContext);
+                                            out string joinID, DataContext dataContext);
     }
 }

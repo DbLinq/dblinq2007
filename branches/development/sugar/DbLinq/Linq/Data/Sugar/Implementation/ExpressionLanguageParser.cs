@@ -43,7 +43,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             var binaryExpression = expression as BinaryExpression;
             if (expression.NodeType == ExpressionType.Add && binaryExpression != null && binaryExpression.Left.Type is string)
             {
-                return new SpecialExpression(SpecialExpressionType.Concat, expression.Type, binaryExpression.Left, binaryExpression.Right);
+                return new SpecialExpression(SpecialExpressionType.Concat, binaryExpression.Left, binaryExpression.Right);
             }
             return expression;
         }
