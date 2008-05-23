@@ -55,10 +55,9 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
             : base(ExpressionType, null, null)
         {
             ParentScopePiece = parentScopePiece;
-            // Tables and columns are inherited from parent scope
-            // TODO: are columns necessary to be copied
-            Tables = new List<TableExpression>(parentScopePiece.Tables);
-            Columns = new List<ColumnExpression>(parentScopePiece.Columns);
+            // Tables and columns are empty, since the table/column lookup recurses to parentScopePiece
+            Tables = new List<TableExpression>();
+            Columns = new List<ColumnExpression>();
             // Local clauses
             Where = new List<Expression>();
         }

@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar.Expressions
@@ -31,21 +32,46 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
     /// <summary>
     /// Holds new expression types (sql related), all well as their operands
     /// </summary>
+    [DebuggerDisplay("SpecialExpression {SpecialNodeType}")]
     public class SpecialExpression : OperandsMutableExpression
     {
-        public SpecialExpression(SpecialExpressionType expressionType, Type type, params Expression[] operands)
-            : base((ExpressionType)expressionType, type, operands)
+        public SpecialExpressionType SpecialNodeType { get { return (SpecialExpressionType)NodeType; } }
+
+        protected static Type GetSpecialExpressionTypeType(SpecialExpressionType specialExpressionType, IList<Expression> operands)
+        {
+            // unused by now, may be used later
+            //Type defaultType;
+            //if (operands.Count > 0)
+            //    defaultType = operands[0].Type;
+            //else
+            //    defaultType = null;
+            switch (specialExpressionType)
+            {
+            case SpecialExpressionType.IsNull:
+            case SpecialExpressionType.IsNotNull:
+                return typeof(bool);
+            case SpecialExpressionType.Concat:
+                return typeof(string);
+            case SpecialExpressionType.Count:
+                return typeof(int);
+            default:
+                throw Error.BadArgument("S0058: Unknown SpecialExpressionType value {0}", specialExpressionType);
+            }
+        }
+
+        public SpecialExpression(SpecialExpressionType expressionType, params Expression[] operands)
+            : base((ExpressionType)expressionType, GetSpecialExpressionTypeType(expressionType, operands), operands)
         {
         }
 
-        public SpecialExpression(SpecialExpressionType expressionType, Type type, IList<Expression> operands)
-            : base((ExpressionType)expressionType, type, operands)
+        public SpecialExpression(SpecialExpressionType expressionType, IList<Expression> operands)
+            : base((ExpressionType)expressionType, GetSpecialExpressionTypeType(expressionType, operands), operands)
         {
         }
 
         protected override Expression Mutate2(IList<Expression> operands)
         {
-            return new SpecialExpression((SpecialExpressionType)NodeType, Type, operands);
+            return new SpecialExpression((SpecialExpressionType)NodeType, operands);
         }
     }
 }

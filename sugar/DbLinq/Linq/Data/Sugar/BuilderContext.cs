@@ -47,7 +47,7 @@ namespace DbLinq.Linq.Data.Sugar
         /// Helper to enumerate all registered tables
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<TableExpression> EnumerateTables()
+        public IEnumerable<TableExpression> EnumerateAllTables()
         {
             foreach (var scopePiece in ScopeExpressions)
             {
@@ -60,11 +60,24 @@ namespace DbLinq.Linq.Data.Sugar
         /// Helper to enumerate all registered columns
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<ColumnExpression> EnumerateColumns()
+        public IEnumerable<TableExpression> EnumerateScopeTables()
         {
-            foreach (var scopePiece in ScopeExpressions)
+            for (ScopeExpression currentScope = CurrentScope; currentScope != null; currentScope = currentScope.ParentScopePiece)
             {
-                foreach (var column in scopePiece.Columns)
+                foreach (var table in currentScope.Tables)
+                    yield return table;
+            }
+        }
+
+        /// <summary>
+        /// Helper to enumerate all registered columns
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<ColumnExpression> EnumerateScopeColumns()
+        {
+            for (ScopeExpression currentScope = CurrentScope; currentScope != null; currentScope = currentScope.ParentScopePiece)
+            {
+                foreach (var column in currentScope.Columns)
                     yield return column;
             }
         }

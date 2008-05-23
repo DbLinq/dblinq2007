@@ -35,7 +35,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
     [DebuggerDisplay("TablePiece {Name} (as {Alias})")]
     public class TableExpression : MutableExpression
     {
-        public static ExpressionType ExpressionType { get { return (ExpressionType) 1001; } }
+        public static ExpressionType ExpressionType { get { return (ExpressionType)1001; } }
 
         // Table idenfitication
         public string Name { get; private set; }
@@ -43,15 +43,17 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
         // Join: if this table is related to another, the following informations are filled
         public Expression JoinExpression { get; private set; } // full information is here, ReferencedTable and Join could be (in theory) extracted from this
         public TableJoinType JoinType { get; private set; }
+        public string JoinID { get; private set; }
         public TableExpression JoinedTable { get; private set; }
 
         public string Alias { get; set; }
 
-        public void Join(TableJoinType joinType, TableExpression joinedTable, Expression joinExpression)
+        public void Join(TableJoinType joinType, TableExpression joinedTable, Expression joinExpression, string joinID)
         {
             JoinExpression = joinExpression;
             JoinType = joinType;
             JoinedTable = joinedTable;
+            JoinID = joinID;
         }
 
         /// <summary>
@@ -62,12 +64,13 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
         /// <param name="joinType"></param>
         /// <param name="joinedTable"></param>
         /// <param name="joinExpression"></param>
-        public TableExpression(Type type, string name, TableJoinType joinType, TableExpression joinedTable, Expression joinExpression)
+        public TableExpression(Type type, string name, TableJoinType joinType, string joinID, TableExpression joinedTable, Expression joinExpression)
             : base(ExpressionType, type)
         {
             Name = name;
             JoinExpression = joinExpression;
             JoinType = joinType;
+            JoinID = joinID;
             JoinedTable = joinedTable;
         }
 
@@ -77,7 +80,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
         /// <param name="type">.NET type</param>
         /// <param name="name">Table base name</param>
         public TableExpression(Type type, string name)
-            : this(type, name, TableJoinType.Default, null, null)
+            : this(type, name, TableJoinType.Default, null, null, null)
         {
         }
 
@@ -97,5 +100,10 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
         //           && EquatableEquals(JoinedTable, tableOther.JoinedTable)
         //           && EquatableEquals(JoinPiece, tableOther.JoinPiece);
         //}
+
+        public bool IsEqualTo(TableExpression expression)
+        {
+            return Name == expression.Name && JoinID == expression.JoinID;
+        }
     }
 }

@@ -54,7 +54,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                                                BuilderContext builderContext)
         {
             return
-                (from queryColumn in builderContext.EnumerateColumns()
+                (from queryColumn in builderContext.EnumerateScopeColumns()
                  where queryColumn.Table == table && queryColumn.Name == name
                  select queryColumn).SingleOrDefault();
         }
@@ -119,7 +119,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         public virtual TableExpression GetRegisteredTable(string tableName, BuilderContext builderContext)
         {
             return
-                (from queryTable in builderContext.EnumerateTables()
+                (from queryTable in builderContext.EnumerateScopeTables()
                  where queryTable.Name == tableName
                  select queryTable).SingleOrDefault();
         }
@@ -136,7 +136,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <param name="joinExpression"></param>
         /// <returns></returns>
         public virtual TableExpression RegisterTable(Type tableType, string tableName,
-                                                Expression joinExpression, TableExpression joinedTable, TableJoinType joinType,
+                                                Expression joinExpression, TableExpression joinedTable, TableJoinType joinType, string joinID,
                                                 BuilderContext builderContext)
         {
             if (tableName == null)
@@ -145,7 +145,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             var queryTable = GetRegisteredTable(tableName, builderContext);
             if (queryTable == null)
             {
-                queryTable = new TableExpression(tableType, tableName, joinType, joinedTable, joinExpression);
+                queryTable = new TableExpression(tableType, tableName, joinType, joinID, joinedTable, joinExpression);
                 builderContext.CurrentScope.Tables.Add(queryTable);
             }
             return queryTable;
@@ -161,7 +161,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         public virtual TableExpression RegisterTable(Type tableType, BuilderContext builderContext)
         {
             return RegisterTable(tableType, DataMapper.GetTableName(tableType, builderContext.QueryContext.DataContext),
-                null, null, TableJoinType.Default, builderContext);
+                null, null, TableJoinType.Default, null, builderContext);
         }
 
         /// <summary>
@@ -176,8 +176,9 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         {
             IList<MemberInfo> foreignKeys, joinedKeys;
             TableJoinType joinType;
+            string joinID;
             var tableType = DataMapper.GetAssociation(joinedTableExpression, joinMemberInfo, out foreignKeys, out joinedKeys, out joinType,
-                                                            builderContext.QueryContext.DataContext);
+                                                      out joinID, builderContext.QueryContext.DataContext);
             // if the memberInfo has no corresponding association, we get a null, that we propagate
             if (tableType == null)
                 return null;
@@ -206,11 +207,11 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 else
                     joinExpression = referenceExpression;
             }
-            tableExpression.Join(joinType, joinedTableExpression, joinExpression);
+            tableExpression.Join(joinType, joinedTableExpression, joinExpression, joinID);
 
             // our table is created, with the expressions
             // now check if we didn't register exactly the same
-            if ((from t in builderContext.EnumerateTables() where t.Equals(tableExpression) select t).SingleOrDefault() == null)
+            if ((from t in builderContext.EnumerateScopeTables() where t.IsEqualTo(tableExpression) select t).SingleOrDefault() == null)
             {
                 builderContext.CurrentScope.Tables.Add(tableExpression);
                 foreach (var createdColumn in createdColumns)
