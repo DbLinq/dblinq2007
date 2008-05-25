@@ -47,7 +47,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
                 defaultType = operands[0].Type;
             else
                 defaultType = null;
-            switch (specialExpressionType)
+            switch (specialExpressionType) // SETuse
             {
             case SpecialExpressionType.IsNull:
             case SpecialExpressionType.IsNotNull:
@@ -58,6 +58,12 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
                 return typeof(int);
             case SpecialExpressionType.Like:
                 return defaultType;
+            case SpecialExpressionType.Min:
+            case SpecialExpressionType.Max:
+            case SpecialExpressionType.Sum:
+                return defaultType; // for such methods, the type is related to the operands type
+            case SpecialExpressionType.Average:
+                return typeof(decimal); // got no better idea
             default:
                 throw Error.BadArgument("S0058: Unknown SpecialExpressionType value {0}", specialExpressionType);
             }
@@ -80,7 +86,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
 
         public object Execute()
         {
-            switch (SpecialNodeType)
+            switch (SpecialNodeType) // SETuse
             {
             case SpecialExpressionType.IsNull:
                 return operands[0].Evaluate() == null;
@@ -112,6 +118,42 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
                     }
                     // TODO: by default, shall we answer 1 or throw an exception?
                     return 1;
+                }
+            case SpecialExpressionType.Min:
+                {
+                    decimal? min = null;
+                    foreach (var operand in operands)
+                    {
+                        var value = System.Convert.ToDecimal(operand.Evaluate());
+                        if (!min.HasValue || value < min.Value)
+                            min = value;
+                    }
+                    return System.Convert.ChangeType(min.Value, operands[0].Type);
+                }
+            case SpecialExpressionType.Max:
+                {
+                    decimal? max = null;
+                    foreach (var operand in operands)
+                    {
+                        var value = System.Convert.ToDecimal(operand.Evaluate());
+                        if (!max.HasValue || value > max.Value)
+                            max = value;
+                    }
+                    return System.Convert.ChangeType(max.Value, operands[0].Type);
+                }
+            case SpecialExpressionType.Sum:
+                {
+                    decimal sum = 0;
+                    foreach (var operand in operands)
+                        sum += System.Convert.ToDecimal(operand.Evaluate());
+                    return System.Convert.ChangeType(sum, operands[0].Type);
+                }
+            case SpecialExpressionType.Average:
+                {
+                    decimal sum = 0;
+                    foreach (var operand in operands)
+                        sum += System.Convert.ToDecimal(operand.Evaluate());
+                    return sum / operands.Count;
                 }
             default:
                 throw Error.BadArgument("S0116: Unknown SpecialExpressionType ({0})", SpecialNodeType);

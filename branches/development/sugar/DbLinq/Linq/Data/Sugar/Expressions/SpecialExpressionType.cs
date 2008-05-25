@@ -24,6 +24,11 @@
 
 namespace DbLinq.Linq.Data.Sugar.Expressions
 {
+    /// <summary>
+    /// SQL specific (and DBlinq required) custom expression types.
+    /// To add a new value here, please be sure to handle it everywhere
+    /// For this, search for "// SETuse" comment in project
+    /// </summary>
     public enum SpecialExpressionType
     {
         IsNull = 100,
@@ -31,5 +36,9 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
         Concat,
         Count,
         Like,
+        Min,
+        Max,
+        Sum,
+        Average
     }
 }

@@ -164,7 +164,7 @@ namespace DbLinq.Vendor.Implementation
         /// <returns></returns>
         public virtual string GetLiteral(SpecialExpressionType operationType, IList<string> p)
         {
-            switch (operationType)
+            switch (operationType) // SETuse
             {
 
             case SpecialExpressionType.IsNull:
@@ -177,6 +177,14 @@ namespace DbLinq.Vendor.Implementation
                 return GetLiteralCount(p[0]);
             case SpecialExpressionType.Like:
                 return GetLiteralLike(p[0], p[1]);
+            case SpecialExpressionType.Min:
+                return GetLiteralMin(p[0]);
+            case SpecialExpressionType.Max:
+                return GetLiteralMax(p[0]);
+            case SpecialExpressionType.Sum:
+                return GetLiteralSum(p[0]);
+            case SpecialExpressionType.Average:
+                return GetLiteralAverage(p[0]);
             }
             throw new ArgumentException(operationType.ToString());
         }
@@ -479,6 +487,26 @@ namespace DbLinq.Vendor.Implementation
         protected virtual string GetLiteralCount(string a)
         {
             return string.Format("COUNT({0})", a);
+        }
+
+        protected virtual string GetLiteralMin(string a)
+        {
+            return string.Format("MIN({0})", a);
+        }
+
+        protected virtual string GetLiteralMax(string a)
+        {
+            return string.Format("MAX({0})", a);
+        }
+
+        protected virtual string GetLiteralSum(string a)
+        {
+            return string.Format("SUM({0})", a);
+        }
+
+        protected virtual string GetLiteralAverage(string a)
+        {
+            return string.Format("AVG({0})", a);
         }
 
         protected virtual string GetNullLiteral()
