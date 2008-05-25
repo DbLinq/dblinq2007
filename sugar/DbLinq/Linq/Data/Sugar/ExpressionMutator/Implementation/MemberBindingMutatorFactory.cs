@@ -23,36 +23,21 @@
 #endregion
 
 using System;
-using System.Diagnostics;
 using System.Linq.Expressions;
-using System.Reflection;
-using DbLinq.Util;
 
-namespace DbLinq.Linq.Data.Sugar.Expressions
+namespace DbLinq.Linq.Data.Sugar.ExpressionMutator.Implementation
 {
-    /// <summary>
-    /// Describes a column, related to a table
-    /// </summary>
-    [DebuggerDisplay("ColumnPiece {Table.Name} (as {Table.Alias}).{Name}")]
-    public class ColumnExpression : MutableExpression
+    public static class MemberBindingMutatorFactory
     {
-        public static ExpressionType ExpressionType { get { return (ExpressionType)1002; } }
-
-        public TableExpression Table { get; private set; }
-        public string Name { get; private set; }
-        public MemberInfo MemberInfo { get; private set; }
-
-        public string Alias { get; set; }
-
-        public int RequestIndex { get; set; }
-
-        public ColumnExpression(TableExpression table, string name, MemberInfo memberInfo)
-            : base(ExpressionType, memberInfo.GetMemberType())
+        public static IMemberBindingMutator GetMutator(MemberBinding memberBinding)
         {
-            Table = table;
-            Name = name;
-            MemberInfo = memberInfo;
-            RequestIndex = -1; // unused
+            if (memberBinding is MemberAssignment)
+                return new MemberAssignmentMutator((MemberAssignment)memberBinding);
+            if (memberBinding is MemberMemberBinding)
+                return new MemberMemberBindingMutator((MemberMemberBinding)memberBinding);
+            if (memberBinding is MemberListBinding)
+                return new MemberListBindingMutator((MemberListBinding)memberBinding);
+            throw Error.BadArgument("S0040: Unknown Expression Type '{0}'", memberBinding.GetType());
         }
     }
 }

@@ -33,14 +33,14 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
     /// <summary>
     /// Optimizes expressions (such as constant chains)
     /// </summary>
-    public class ExpressionOptimizer : ExpressionWalker, IExpressionOptimizer
+    public class ExpressionOptimizer : IExpressionOptimizer
     {
         public virtual Expression Optimize(Expression expression, BuilderContext builderContext)
         {
-            return Recurse(expression, builderContext);
+            return expression.Recurse(e => Analyze(e, builderContext));
         }
 
-        protected override Expression Analyze(Expression expression, BuilderContext builderContext)
+        protected Expression Analyze(Expression expression, BuilderContext builderContext)
         {
             // small optimization
             if (expression is ConstantExpression)

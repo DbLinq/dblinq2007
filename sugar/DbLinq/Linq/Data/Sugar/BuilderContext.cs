@@ -62,7 +62,7 @@ namespace DbLinq.Linq.Data.Sugar
         /// <returns></returns>
         public IEnumerable<TableExpression> EnumerateScopeTables()
         {
-            for (ScopeExpression currentScope = CurrentScope; currentScope != null; currentScope = currentScope.ParentScopePiece)
+            for (ScopeExpression currentScope = CurrentScope; currentScope != null; currentScope = currentScope.Parent)
             {
                 foreach (var table in currentScope.Tables)
                     yield return table;
@@ -75,7 +75,7 @@ namespace DbLinq.Linq.Data.Sugar
         /// <returns></returns>
         public IEnumerable<ColumnExpression> EnumerateScopeColumns()
         {
-            for (ScopeExpression currentScope = CurrentScope; currentScope != null; currentScope = currentScope.ParentScopePiece)
+            for (ScopeExpression currentScope = CurrentScope; currentScope != null; currentScope = currentScope.Parent)
             {
                 foreach (var column in currentScope.Columns)
                     yield return column;

@@ -23,36 +23,14 @@
 #endregion
 
 using System;
-using System.Diagnostics;
-using System.Linq.Expressions;
-using System.Reflection;
-using DbLinq.Util;
 
-namespace DbLinq.Linq.Data.Sugar.Expressions
+namespace DbLinq.Linq.Data.Sugar
 {
-    /// <summary>
-    /// Describes a column, related to a table
-    /// </summary>
-    [DebuggerDisplay("ColumnPiece {Table.Name} (as {Table.Alias}).{Name}")]
-    public class ColumnExpression : MutableExpression
+    [Flags]
+    public enum ExpressionTier
     {
-        public static ExpressionType ExpressionType { get { return (ExpressionType)1002; } }
-
-        public TableExpression Table { get; private set; }
-        public string Name { get; private set; }
-        public MemberInfo MemberInfo { get; private set; }
-
-        public string Alias { get; set; }
-
-        public int RequestIndex { get; set; }
-
-        public ColumnExpression(TableExpression table, string name, MemberInfo memberInfo)
-            : base(ExpressionType, memberInfo.GetMemberType())
-        {
-            Table = table;
-            Name = name;
-            MemberInfo = memberInfo;
-            RequestIndex = -1; // unused
-        }
+        Sql = 0x0001,
+        Clr = 0x0002,
+        Any = Sql | Clr,
     }
 }

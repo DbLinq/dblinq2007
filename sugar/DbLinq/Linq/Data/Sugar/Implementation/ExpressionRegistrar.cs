@@ -50,7 +50,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <param name="name"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        public ColumnExpression GetRegisteredColumn(TableExpression table, string name,
+        protected virtual ColumnExpression GetRegisteredColumn(TableExpression table, string name,
                                                BuilderContext builderContext)
         {
             return
@@ -117,11 +117,17 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             return null;
         }
 
+        /// <summary>
+        /// Find the common ancestor between two ScopeExpressions
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
         protected virtual ScopeExpression FindCommonScope(ScopeExpression a, ScopeExpression b)
         {
-            for (var aScope = a; aScope != null; aScope = aScope.ParentScopePiece)
+            for (var aScope = a; aScope != null; aScope = aScope.Parent)
             {
-                for (var bScope = b; bScope != null; bScope = bScope.ParentScopePiece)
+                for (var bScope = b; bScope != null; bScope = bScope.Parent)
                 {
                     if (aScope == bScope)
                         return aScope;
@@ -149,7 +155,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             if (queryColumn == null)
             {
                 table = RegisterTable(table, builderContext);
-                queryColumn = new ColumnExpression(table, name, memberInfo.GetMemberType());
+                queryColumn = new ColumnExpression(table, name, memberInfo);
                 builderContext.CurrentScope.Columns.Add(queryColumn);
             }
             return queryColumn;
@@ -178,22 +184,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 .GetDataMember(memberInfo);
             if (dataMember == null)
                 return null;
-            return new ColumnExpression(table, dataMember.MappedName, memberInfo.GetMemberType());
-        }
-
-        // TODO: check and remove
-        /// <summary>
-        /// Find a registered table in the current query, or null if none
-        /// </summary>
-        /// <param name="tableName"></param>
-        /// <param name="builderContext"></param>
-        /// <returns></returns>
-        public virtual TableExpression GetRegisteredTable(string tableName, BuilderContext builderContext)
-        {
-            return
-                (from queryTable in builderContext.EnumerateScopeTables()
-                 where queryTable.Name == tableName
-                 select queryTable).SingleOrDefault();
+            return new ColumnExpression(table, dataMember.MappedName, memberInfo);
         }
 
         /// <summary>
@@ -282,19 +273,6 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         }
 
         /// <summary>
-        /// Returns a registered MetaTable, by Type
-        /// </summary>
-        /// <param name="metaTableType"></param>
-        /// <param name="builderContext"></param>
-        /// <returns></returns>
-        public virtual MetaTableExpression GetRegisteredMetaTable(Type metaTableType, BuilderContext builderContext)
-        {
-            MetaTableExpression metaTableExpression;
-            builderContext.MetaTables.TryGetValue(metaTableType, out metaTableExpression);
-            return metaTableExpression;
-        }
-
-        /// <summary>
         /// Registers a MetaTable
         /// </summary>
         /// <param name="metaTableType"></param>
@@ -321,6 +299,47 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         public virtual void RegisterWhere(Expression whereExpression, BuilderContext builderContext)
         {
             builderContext.CurrentScope.Where.Add(whereExpression);
+        }
+
+        /// <summary>
+        /// Registers all columns of a table.
+        /// </summary>
+        /// <param name="tableExpression"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        public virtual IEnumerable<ColumnExpression> RegisterAllColumns(TableExpression tableExpression, BuilderContext builderContext)
+        {
+            foreach (var metaMember in builderContext.QueryContext.DataContext.Mapping.GetTable(tableExpression.Type).RowType.PersistentDataMembers)
+            {
+                yield return RegisterColumn(tableExpression, metaMember.Member, builderContext);
+            }
+        }
+
+        /// <summary>
+        /// Registers an expression to be returned by main request.
+        /// The strategy is to try to find it in the already registered parameters, and if not found, add it
+        /// </summary>
+        /// <param name="expression">The expression to be registered</param>
+        /// <param name="builderContext"></param>
+        /// <returns>Expression index</returns>
+        public virtual int RegisterSelectOperand(Expression expression, BuilderContext builderContext)
+        {
+            var scope = builderContext.CurrentScope;
+            var operands = scope.Operands.ToList();
+            for (int index = 0; index < operands.Count; index++)
+            {
+                if (ExpressionEquals(operands[index], expression))
+                    return index;
+            }
+            operands.Add(expression);
+            builderContext.CurrentScope = (ScopeExpression)scope.Mutate(operands);
+            return operands.Count - 1;
+        }
+
+        protected virtual bool ExpressionEquals(Expression a, Expression b)
+        {
+            // TODO: something smarter, to compare contents and not only references (works fine only for columns)
+            return a == b;
         }
     }
 }

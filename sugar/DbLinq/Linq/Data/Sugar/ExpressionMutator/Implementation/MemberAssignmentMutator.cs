@@ -22,37 +22,28 @@
 // 
 #endregion
 
-using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Reflection;
-using DbLinq.Util;
 
-namespace DbLinq.Linq.Data.Sugar.Expressions
+namespace DbLinq.Linq.Data.Sugar.ExpressionMutator.Implementation
 {
-    /// <summary>
-    /// Describes a column, related to a table
-    /// </summary>
-    [DebuggerDisplay("ColumnPiece {Table.Name} (as {Table.Alias}).{Name}")]
-    public class ColumnExpression : MutableExpression
+    public class MemberAssignmentMutator : IMemberBindingMutator
     {
-        public static ExpressionType ExpressionType { get { return (ExpressionType)1002; } }
+        protected MemberAssignment MemberAssignment { get; private set; }
 
-        public TableExpression Table { get; private set; }
-        public string Name { get; private set; }
-        public MemberInfo MemberInfo { get; private set; }
-
-        public string Alias { get; set; }
-
-        public int RequestIndex { get; set; }
-
-        public ColumnExpression(TableExpression table, string name, MemberInfo memberInfo)
-            : base(ExpressionType, memberInfo.GetMemberType())
+        public IEnumerable<Expression> Operands
         {
-            Table = table;
-            Name = name;
-            MemberInfo = memberInfo;
-            RequestIndex = -1; // unused
+            get { yield return MemberAssignment.Expression; }
+        }
+
+        public MemberBinding Mutate(IList<Expression> operands)
+        {
+            return Expression.Bind(MemberAssignment.Member, operands[0]);
+        }
+
+        public MemberAssignmentMutator(MemberAssignment memberAssignment)
+        {
+            MemberAssignment = memberAssignment;
         }
     }
 }

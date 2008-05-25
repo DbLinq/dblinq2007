@@ -25,45 +25,44 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using DbLinq.Linq.Data.Sugar.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar.ExpressionMutator.Implementation
 {
-    public class MemberInitExpressionMutator : IMutableExpression
+    public class MemberMemberBindingMutator : IMemberBindingMutator
     {
-        protected MemberInitExpression MemberInitExpression { get; private set; }
-
-        public Expression Mutate(IList<Expression> operands)
-        {
-            var bindings = new List<MemberBinding>();
-            int operandIndex = 1;
-            foreach (var memberBinding in MemberInitExpression.Bindings)
-            {
-                var memberBindingMutator = MemberBindingMutatorFactory.GetMutator(memberBinding);
-                int operandsCount = memberBindingMutator.Operands.Count();
-                var subOperands = operands.Skip(operandIndex).Take(operandsCount).ToList();
-                bindings.Add(memberBindingMutator.Mutate(subOperands));
-                operandIndex += operandsCount;
-            }
-            return Expression.MemberInit((NewExpression)operands[0], bindings);
-        }
+        protected MemberMemberBinding MemberMemberBinding { get; private set; }
 
         public IEnumerable<Expression> Operands
         {
             get
             {
-                yield return MemberInitExpression.NewExpression;
-                foreach (var memberBinding in MemberInitExpression.Bindings)
+                // a MemberMemberBindings is recursive, so let's recurse
+                foreach (var memberBinding in MemberMemberBinding.Bindings)
                 {
-                    foreach (var expression in MemberBindingMutatorFactory.GetMutator(memberBinding).Operands)
-                        yield return expression;
+                    foreach (Expression operand in MemberBindingMutatorFactory.GetMutator(memberBinding).Operands)
+                        yield return operand;
                 }
             }
         }
 
-        public MemberInitExpressionMutator(MemberInitExpression expression)
+        public MemberBinding Mutate(IList<Expression> operands)
         {
-            MemberInitExpression = expression;
+            var bindings = new List<MemberBinding>();
+            int operandsIndex = 0;
+            // same thing here. The difficulty is that we have to split out operands
+            foreach (var memberBinding in MemberMemberBinding.Bindings)
+            {
+                int operandsCount = MemberBindingMutatorFactory.GetMutator(memberBinding).Operands.Count();
+                var subOperands = operands.Skip(operandsIndex).Take(operandsCount).ToList();
+                bindings.Add(MemberBindingMutatorFactory.GetMutator(memberBinding).Mutate(subOperands));
+                operandsIndex += operandsCount;
+            }
+            return Expression.MemberBind(MemberMemberBinding.Member, bindings);
+        }
+
+        public MemberMemberBindingMutator(MemberMemberBinding memberMemberBinding)
+        {
+            MemberMemberBinding = memberMemberBinding;
         }
     }
 }

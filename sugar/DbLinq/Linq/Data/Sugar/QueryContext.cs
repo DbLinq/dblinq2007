@@ -28,6 +28,12 @@ namespace DbLinq.Linq.Data.Sugar
     {
         public DataContext DataContext { get; private set; }
 
+        /// <summary>
+        /// if true, tells the tier splitter that we want the maximum on database side
+        /// (which is probably never a good choice)
+        /// </summary>
+        public bool MaximumDatabaseLoad { get; set; }
+
         public QueryContext(DataContext dataContext)
         {
             DataContext = dataContext;

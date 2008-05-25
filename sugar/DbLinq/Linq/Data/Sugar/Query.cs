@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using DbLinq.Linq.Data.Sugar.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar
@@ -32,10 +33,13 @@ namespace DbLinq.Linq.Data.Sugar
         public string Sql { get; private set; }
         public IList<ExternalParameterExpression> Parameters { get; private set; }
 
-        public Query(string sql, IList<ExternalParameterExpression> parameters)
+        public Expression RowCreator { get; private set; }
+
+        public Query(string sql, IList<ExternalParameterExpression> parameters, Expression rowCreator)
         {
             Sql = sql;
             Parameters = parameters;
+            RowCreator = rowCreator;
         }
     }
 }

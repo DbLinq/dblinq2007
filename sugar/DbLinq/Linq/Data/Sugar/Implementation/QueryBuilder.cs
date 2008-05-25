@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using DbLinq.Factory;
+using DbLinq.Linq.Data.Sugar.ExpressionMutator;
 using DbLinq.Linq.Data.Sugar.Expressions;
 using DbLinq.Logging;
 using DbLinq.Util;
@@ -147,13 +148,15 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
 
                 previousExpression = currentExpression;
             }
-            // the last return value becomes the select, with CurrentScope
-            builderContext.CurrentScope = builderContext.CurrentScope.Select(previousExpression);
-            builderContext.ExpressionQuery.Select = builderContext.CurrentScope;
-            // for now, we optimize anything we can
+            ExpressionDispatcher.BuildSelect(previousExpression, builderContext);
+            // now, we optimize anything we can
             OptimizeQuery(builderContext);
         }
 
+        /// <summary>
+        /// Optimizes the query by optimizing subexpressions, and preparsing constant expressions
+        /// </summary>
+        /// <param name="builderContext"></param>
         protected virtual void OptimizeQuery(BuilderContext builderContext)
         {
             for (int scopeExpressionIndex = 0; scopeExpressionIndex < builderContext.ScopeExpressions.Count; scopeExpressionIndex++)
@@ -172,7 +175,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         protected virtual Query BuildSqlQuery(ExpressionQuery expressionQuery, QueryContext queryContext)
         {
             var sql = SqlBuilder.Build(expressionQuery, queryContext);
-            var sqlQuery = new Query(sql, expressionQuery.Parameters);
+            var sqlQuery = new Query(sql, expressionQuery.Parameters, expressionQuery.Select.Select);
             return sqlQuery;
         }
 

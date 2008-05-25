@@ -28,6 +28,10 @@ using System.Linq.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar.Expressions
 {
+    /// <summary>
+    /// ScopeExpression describes a selection.
+    /// It can be present at top-level or as subexpressions
+    /// </summary>
     public class ScopeExpression : OperandsMutableExpression
     {
         public static ExpressionType ExpressionType { get { return (ExpressionType)1010; } }
@@ -38,9 +42,10 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
 
         // Clauses
         public IList<Expression> Where { get; private set; }
+        public Expression Select { get; set; } // Func<IDataRecord,T> --> creates an object from data record
 
         // Parent scope: we will climb up to find if we don't find the request table in the current scope
-        public ScopeExpression ParentScopePiece { get; private set; }
+        public ScopeExpression Parent { get; private set; }
 
         public ScopeExpression()
             : base(ExpressionType, null, null)
@@ -54,7 +59,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
         public ScopeExpression(ScopeExpression parentScopePiece)
             : base(ExpressionType, null, null)
         {
-            ParentScopePiece = parentScopePiece;
+            Parent = parentScopePiece;
             // Tables and columns are empty, since the table/column lookup recurses to parentScopePiece
             Tables = new List<TableExpression>();
             Columns = new List<ColumnExpression>();
@@ -65,11 +70,6 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
         private ScopeExpression(Type type, IList<Expression> operands)
             : base(ExpressionType, type, operands)
         {
-        }
-
-        public ScopeExpression Select(Expression expression)
-        {
-            return (ScopeExpression)Mutate(new[] { expression });
         }
 
         protected override Expression Mutate2(IList<Expression> newOperands)
@@ -83,7 +83,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
             scopeExpression.Tables = Tables;
             scopeExpression.Columns = Columns;
             scopeExpression.Where = Where;
-            scopeExpression.ParentScopePiece = ParentScopePiece;
+            scopeExpression.Parent = Parent;
             return scopeExpression;
         }
     }

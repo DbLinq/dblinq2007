@@ -23,6 +23,7 @@
 #endregion
 
 using System.Linq.Expressions;
+using DbLinq.Linq.Data.Sugar.ExpressionMutator;
 using DbLinq.Linq.Data.Sugar.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar.Implementation
@@ -30,18 +31,19 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
     /// <summary>
     /// Analyzes language patterns and replace them with standard expressions
     /// </summary>
-    public class ExpressionLanguageParser : ExpressionWalker, IExpressionLanguageParser
+    public class ExpressionLanguageParser : IExpressionLanguageParser
     {
         public virtual Expression Parse(Expression expression, BuilderContext builderContext)
         {
-            return Recurse(expression, builderContext);
+            return expression.Recurse(e => Analyze(e, builderContext));
         }
 
-        protected override Expression Analyze(Expression expression, BuilderContext builderContext)
+        protected Expression Analyze(Expression expression, BuilderContext builderContext)
         {
             // string Add --> Concat
             var binaryExpression = expression as BinaryExpression;
-            if (expression.NodeType == ExpressionType.Add && binaryExpression != null && binaryExpression.Left.Type is string)
+            if (expression.NodeType == ExpressionType.Add
+                && binaryExpression != null && binaryExpression.Left.Type is string)
             {
                 return new SpecialExpression(SpecialExpressionType.Concat, binaryExpression.Left, binaryExpression.Right);
             }
