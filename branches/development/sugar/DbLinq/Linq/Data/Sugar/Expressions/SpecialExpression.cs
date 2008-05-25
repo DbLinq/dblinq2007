@@ -42,12 +42,11 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
 
         protected static Type GetSpecialExpressionTypeType(SpecialExpressionType specialExpressionType, IList<Expression> operands)
         {
-            // unused by now, may be used later
-            //Type defaultType;
-            //if (operands.Count > 0)
-            //    defaultType = operands[0].Type;
-            //else
-            //    defaultType = null;
+            Type defaultType;
+            if (operands.Count > 0)
+                defaultType = operands[0].Type;
+            else
+                defaultType = null;
             switch (specialExpressionType)
             {
             case SpecialExpressionType.IsNull:
@@ -57,6 +56,8 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
                 return typeof(string);
             case SpecialExpressionType.Count:
                 return typeof(int);
+            case SpecialExpressionType.Like:
+                return defaultType;
             default:
                 throw Error.BadArgument("S0058: Unknown SpecialExpressionType value {0}", specialExpressionType);
             }

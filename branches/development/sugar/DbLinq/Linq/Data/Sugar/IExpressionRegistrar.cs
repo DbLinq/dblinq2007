@@ -88,5 +88,21 @@ namespace DbLinq.Linq.Data.Sugar
         /// <param name="whereExpression"></param>
         /// <param name="builderContext"></param>
         void RegisterWhere(Expression whereExpression, BuilderContext builderContext);
+
+        /// <summary>
+        /// Registers all columns of a table.
+        /// </summary>
+        /// <param name="tableExpression"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        IEnumerable<ColumnExpression> RegisterAllColumns(TableExpression tableExpression, BuilderContext builderContext);
+
+        /// <summary>
+        /// Registers an expression to be returned by main request.
+        /// </summary>
+        /// <param name="expression">The expression to be registered</param>
+        /// <param name="builderContext"></param>
+        /// <returns>Expression index</returns>
+        int RegisterSelectOperand(Expression expression, BuilderContext builderContext);
     }
 }

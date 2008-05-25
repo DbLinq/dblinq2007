@@ -22,114 +22,74 @@
 // 
 #endregion
 
-using System;
-using System.Linq.Expressions;
-using DbLinq.Linq.Data.Sugar.Expressions;
-
 namespace DbLinq.Linq.Data.Sugar
 {
-    public class ExpressionPrecedence
+    public enum ExpressionPrecedence
     {
-        public OperatorPrecedence Get(Expression expression)
-        {
-            if (expression is SpecialExpression)
-            {
-                var specialNodeType = ((SpecialExpression)expression).SpecialNodeType;
-                switch (specialNodeType)
-                {
-                case SpecialExpressionType.IsNull:
-                case SpecialExpressionType.IsNotNull:
-                    return OperatorPrecedence.Equality;
-                case SpecialExpressionType.Concat:
-                    return OperatorPrecedence.Additive;
-                case SpecialExpressionType.Count:
-                    return OperatorPrecedence.Primary;
-                case SpecialExpressionType.Like:
-                    return OperatorPrecedence.Equality;
-                default:
-                    throw Error.BadArgument("S0050: Unhandled SpecialExpressionType {0}", specialNodeType);
-                }
-            }
-            if (expression is ScopeExpression)
-                return OperatorPrecedence.Clause;
-            switch (expression.NodeType)
-            {
-            case ExpressionType.Add:
-            case ExpressionType.AddChecked:
-                return OperatorPrecedence.Additive;
-            case ExpressionType.And:
-            case ExpressionType.AndAlso:
-                return OperatorPrecedence.ConditionalAnd;
-            case ExpressionType.ArrayLength:
-            case ExpressionType.ArrayIndex:
-            case ExpressionType.Call:
-                return OperatorPrecedence.Primary;
-            case ExpressionType.Coalesce:
-                return OperatorPrecedence.NullCoalescing;
-            case ExpressionType.Conditional:
-                return OperatorPrecedence.Conditional;
-            case ExpressionType.Constant:
-                return OperatorPrecedence.Primary;
-            case ExpressionType.Convert:
-            case ExpressionType.ConvertChecked:
-                return OperatorPrecedence.Primary;
-            case ExpressionType.Divide:
-                return OperatorPrecedence.Multiplicative;
-            case ExpressionType.Equal:
-                return OperatorPrecedence.Equality;
-            case ExpressionType.ExclusiveOr:
-                return OperatorPrecedence.LogicalXor;
-            case ExpressionType.GreaterThan:
-            case ExpressionType.GreaterThanOrEqual:
-                return OperatorPrecedence.RelationalAndTypeTest;
-            case ExpressionType.Invoke:
-                return OperatorPrecedence.Primary;
-            case ExpressionType.Lambda:
-                return OperatorPrecedence.Primary;
-            case ExpressionType.LeftShift:
-                return OperatorPrecedence.Shift;
-            case ExpressionType.LessThan:
-            case ExpressionType.LessThanOrEqual:
-                return OperatorPrecedence.RelationalAndTypeTest;
-            case ExpressionType.ListInit:
-            case ExpressionType.MemberAccess:
-            case ExpressionType.MemberInit:
-                return OperatorPrecedence.Primary;
-            case ExpressionType.Modulo:
-            case ExpressionType.Multiply:
-            case ExpressionType.MultiplyChecked:
-                return OperatorPrecedence.Multiplicative;
-            case ExpressionType.Negate:
-            case ExpressionType.UnaryPlus:
-            case ExpressionType.NegateChecked:
-                return OperatorPrecedence.Unary;
-            case ExpressionType.New:
-            case ExpressionType.NewArrayInit:
-            case ExpressionType.NewArrayBounds:
-                return OperatorPrecedence.Primary;
-            case ExpressionType.Not:
-                return OperatorPrecedence.Unary;
-            case ExpressionType.NotEqual:
-                return OperatorPrecedence.Equality;
-            case ExpressionType.Or:
-            case ExpressionType.OrElse:
-                return OperatorPrecedence.ConditionalOr;
-            case ExpressionType.Parameter:
-                return OperatorPrecedence.Primary;
-            case ExpressionType.Power:
-                return OperatorPrecedence.Primary;
-            case ExpressionType.Quote:
-                return OperatorPrecedence.Primary;
-            case ExpressionType.RightShift:
-                return OperatorPrecedence.Shift;
-            case ExpressionType.Subtract:
-            case ExpressionType.SubtractChecked:
-                return OperatorPrecedence.Additive;
-            case ExpressionType.TypeAs:
-            case ExpressionType.TypeIs:
-                return OperatorPrecedence.RelationalAndTypeTest;
-            }
-            return OperatorPrecedence.Primary;
-        }
+        /// <summary>
+        /// x.y  f(x)  a[x]  x++  x--  new typeof  checked  unchecked
+        /// </summary>
+        Primary,
+        /// <summary>
+        /// +  -  !  ~  ++x  --x  (T)x
+        /// </summary>
+        Unary,
+        /// <summary>
+        /// *  /  %
+        /// </summary>
+        Multiplicative,
+        /// <summary>
+        /// +  -
+        /// </summary>
+        Additive,
+        /// <summary>
+        /// &lt;&lt;  >>
+        /// </summary>
+        Shift,
+        /// <summary>
+        /// &lt;  >  &lt;=  >=  is  as
+        /// </summary>
+        RelationalAndTypeTest,
+        /// <summary>
+        /// ==  !=
+        /// </summary>
+        Equality,
+        /// <summary>
+        /// &amp;
+        /// </summary>
+        LogicalAnd,
+        /// <summary>
+        /// ^
+        /// </summary>
+        LogicalXor,
+        /// <summary>
+        /// |
+        /// </summary>
+        LogicalOr,
+        /// <summary>
+        /// &amp;&amp,
+        /// </summary>
+        ConditionalAnd,
+        /// <summary>
+        /// ||
+        /// </summary>
+        ConditionalOr,
+        /// <summary>
+        /// ??
+        /// </summary>
+        NullCoalescing,
+        /// <summary>
+        /// ?:
+        /// </summary>
+        Conditional,
+        /// <summary>
+        /// =  *=  /=  %=  +=  -=  <<=  >>=  &=  ^=  |=
+        /// </summary>
+        Assignment,
+
+        /// <summary>
+        /// A SQL clause, FROM, WHERE, etc.
+        /// </summary>
+        Clause
     }
 }

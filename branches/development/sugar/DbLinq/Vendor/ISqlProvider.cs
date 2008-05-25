@@ -115,5 +115,12 @@ namespace DbLinq.Vendor
         /// <param name="nameBase"></param>
         /// <returns></returns>
         string GetTableAlias(string nameBase);
+
+        /// <summary>
+        /// Joins a list of operands to make a SELECT clause
+        /// </summary>
+        /// <param name="selects"></param>
+        /// <returns></returns>
+        string GetSelectClause(string[] selects);
     }
 }

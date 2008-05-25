@@ -23,36 +23,21 @@
 #endregion
 
 using System;
-using System.Diagnostics;
 using System.Linq.Expressions;
-using System.Reflection;
-using DbLinq.Util;
 
-namespace DbLinq.Linq.Data.Sugar.Expressions
+namespace DbLinq.Linq.Data.Sugar
 {
-    /// <summary>
-    /// Describes a column, related to a table
-    /// </summary>
-    [DebuggerDisplay("ColumnPiece {Table.Name} (as {Table.Alias}).{Name}")]
-    public class ColumnExpression : MutableExpression
+    public interface IDataRecordReader
     {
-        public static ExpressionType ExpressionType { get { return (ExpressionType)1002; } }
-
-        public TableExpression Table { get; private set; }
-        public string Name { get; private set; }
-        public MemberInfo MemberInfo { get; private set; }
-
-        public string Alias { get; set; }
-
-        public int RequestIndex { get; set; }
-
-        public ColumnExpression(TableExpression table, string name, MemberInfo memberInfo)
-            : base(ExpressionType, memberInfo.GetMemberType())
-        {
-            Table = table;
-            Name = name;
-            MemberInfo = memberInfo;
-            RequestIndex = -1; // unused
-        }
+        /// <summary>
+        /// Returns a Expression reading a property from a IDataRecord, at the specified index
+        /// </summary>
+        /// <param name="dataRecordParameter">The IDataRecord as ParameterExpression</param>
+        /// <param name="mappingContextParameter">The MappingContext, as ParameterExpression</param>
+        /// <param name="returnType">The expected return type (to be mapped to the property)</param>
+        /// <param name="valueIndex">Field index in IDataRecord</param>
+        /// <returns>An expression returning the field value</returns>
+        Expression GetPropertyReader(Expression dataRecordParameter, Expression mappingContextParameter,
+            Type returnType, int valueIndex);
     }
 }

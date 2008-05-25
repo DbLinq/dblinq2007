@@ -24,7 +24,6 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Text;
 using DbLinq.Factory;
 using DbLinq.Linq.Data.Sugar.ExpressionMutator;
 using DbLinq.Linq.Data.Sugar.Expressions;
@@ -33,11 +32,11 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
 {
     public class SqlBuilder
     {
-        public ExpressionPrecedence ExpressionPrecedence { get; set; }
+        public ExpressionQualifier ExpressionQualifier { get; set; }
 
         public SqlBuilder()
         {
-            ExpressionPrecedence = ObjectFactory.Get<ExpressionPrecedence>();
+            ExpressionQualifier = ObjectFactory.Get<ExpressionQualifier>();
         }
 
         public string Build(ExpressionQuery expressionQuery, QueryContext queryContext)
@@ -54,7 +53,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             // TODO: all other clauses
             string from = BuildFrom(scopeExpression.Tables, queryContext);
             string where = BuildWhere(scopeExpression.Tables, scopeExpression.Where, queryContext);
-            string select = "";
+            string select = BuildSelect(scopeExpression, queryContext);
             return string.Format("{0}{3}{1}{3}{2}", select, from, where,
                                 queryContext.DataContext.Vendor.SqlProvider.NewLine);
         }
@@ -69,13 +68,13 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         protected virtual string BuildExpression(Expression expression, QueryContext queryContext)
         {
             var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
-            var currentPrecedence = ExpressionPrecedence.Get(expression);
+            var currentPrecedence = ExpressionQualifier.GetPrecedence(expression);
             // first convert operands
             var operands = expression.GetOperands();
             var literalOperands = new List<string>();
             foreach (var operand in operands)
             {
-                var operandPrecedence = ExpressionPrecedence.Get(operand);
+                var operandPrecedence = ExpressionQualifier.GetPrecedence(operand);
                 string literalOperand = BuildExpression(operand, queryContext);
                 if (operandPrecedence > currentPrecedence)
                     literalOperand = sqlProvider.GetParenthesis(literalOperand);
@@ -137,6 +136,17 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 whereClauses.Add(BuildExpression(whereExpression, queryContext));
             }
             return sqlProvider.GetWhereClause(whereClauses.ToArray());
+        }
+
+        protected virtual string BuildSelect(Expression select, QueryContext queryContext)
+        {
+            var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
+            var selectClauses = new List<string>();
+            foreach(var selectExpression in select.GetOperands())
+            {
+                selectClauses.Add(BuildExpression(selectExpression, queryContext));
+            }
+            return sqlProvider.GetSelectClause(selectClauses.ToArray());
         }
     }
 }

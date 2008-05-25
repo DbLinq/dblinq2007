@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -38,11 +39,15 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
     {
         public IExpressionRegistrar ExpressionRegistrar { get; set; }
         public ExpressionService ExpressionService { get; set; } // TODO: use interface when it's stable
+        public ExpressionQualifier ExpressionQualifier { get; set; } // TODO: the same
+        public IDataRecordReader DataRecordReader { get; set; }
 
         public ExpressionDispatcher()
         {
             ExpressionRegistrar = ObjectFactory.Get<IExpressionRegistrar>();
             ExpressionService = ObjectFactory.Get<ExpressionService>();
+            ExpressionQualifier = ObjectFactory.Get<ExpressionQualifier>();
+            DataRecordReader = ObjectFactory.Get<IDataRecordReader>();
         }
 
         /// <summary>
@@ -96,11 +101,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             switch (expression.NodeType)
             {
             case ExpressionType.Call:
-                return AnalyzeCall(((MethodCallExpression)expression).Method.Name,
-                                   ExpressionService.MergeParameters(parameters,
-                                   ExpressionService.ExtractParameters(expression.GetOperands(), 1 + parameters.Count)), // 0 is the "this" (null for static methods)
-                    // if extra parameters are specified in "parameters", ignore them as Operands
-                                   builderContext);
+                return AnalyzeCall((MethodCallExpression)expression, parameters, builderContext);
             case ExpressionType.Lambda:
                 return AnalyzeLambda(expression, parameters, builderContext);
             case ExpressionType.Parameter:
@@ -146,14 +147,17 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             #endregion
                 return AnalyzeOperator(expression, builderContext);
             }
-            //    throw Error.BadArgument(string.Format("S0052: Don't know what to do with expression {0}", piece));
-            //if (parameters.Count != 0)
-            //{
-            //    throw Error.BadArgument(
-            //        "S0088: There should be no parameter to a non-OperationPiece Piece (found {0} parameter(s))",
-            //        parameters.Count);
-            //}
             return expression;
+        }
+
+        protected virtual Expression AnalyzeCall(MethodCallExpression expression, IList<Expression> parameters, BuilderContext builderContext)
+        {
+            var operands = expression.GetOperands().ToList();
+            var operarandsToSkip = expression.Method.IsStatic ? 1 : 0;
+            return AnalyzeCall(expression.Method.Name, ExpressionService.MergeParameters(parameters,
+                                                                           ExpressionService.ExtractParameters(
+                                                                               operands, parameters.Count + operarandsToSkip)),
+                                                                                   builderContext);
         }
 
         protected virtual Expression AnalyzeCall(string methodName, IList<Expression> parameters, BuilderContext builderContext)
@@ -434,7 +438,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             // TODO (later...): see if some vendors support native All operator and avoid this substitution
             var whereExpression = Expression.Not(allClause);
             ExpressionRegistrar.RegisterWhere(whereExpression, allBuilderContext);
-            allBuilderContext.CurrentScope = allBuilderContext.CurrentScope.Select(new SpecialExpression(SpecialExpressionType.Count, tableExpression));
+            allBuilderContext.CurrentScope = allBuilderContext.CurrentScope.ChangeOperands(new SpecialExpression(SpecialExpressionType.Count, tableExpression));
             // TODO: see if we need to register the tablePiece here (we probably don't)
 
             // we now switch back to current context, and compare the result with 0
@@ -444,26 +448,142 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
 
         protected virtual Expression AnalyzeLikeStart(IList<Expression> parameters, BuilderContext builderContext)
         {
-            return new SpecialExpression(SpecialExpressionType.Concat, Analyze(parameters[0], builderContext), Expression.Constant("%"));
+            return AnalyzeLike(parameters[0], null, parameters[1], "%", builderContext);
         }
 
         protected virtual Expression AnalyzeLikeEnd(IList<Expression> parameters, BuilderContext builderContext)
         {
-            return new SpecialExpression(SpecialExpressionType.Concat, Expression.Constant("%"), Analyze(parameters[0], builderContext));
+            return AnalyzeLike(parameters[0], "%", parameters[1], null, builderContext);
         }
 
         protected virtual Expression AnalyzeLike(IList<Expression> parameters, BuilderContext builderContext)
         {
-            return new SpecialExpression(SpecialExpressionType.Concat,
-                                         new SpecialExpression(SpecialExpressionType.Concat, Expression.Constant("%"),
-                                                               Analyze(parameters[0], builderContext)),
-                                         Expression.Constant("%"));
+            return AnalyzeLike(parameters[0], "%", parameters[1], "%", builderContext);
+        }
+
+        protected virtual Expression AnalyzeLike(Expression value, string before, Expression operand, string after, BuilderContext builderContext)
+        {
+            operand = Analyze(operand, builderContext);
+            if (before != null)
+                operand = new SpecialExpression(SpecialExpressionType.Concat, Expression.Constant(before), operand);
+            if (after != null)
+                operand = new SpecialExpression(SpecialExpressionType.Concat, operand, Expression.Constant(after));
+            return new SpecialExpression(SpecialExpressionType.Like, Analyze(value, builderContext), operand);
         }
 
         protected virtual Expression AnalyzeContains(IList<Expression> parameters, BuilderContext builderContext)
         {
             // TODO
             return null;
+        }
+
+        /// <summary>
+        /// Builds the upper select clause
+        /// </summary>
+        /// <param name="selectExpression"></param>
+        /// <param name="builderContext"></param>
+        public virtual void BuildSelect(Expression selectExpression, BuilderContext builderContext)
+        {
+            // first thing, look for tables and use columns instead
+            selectExpression = selectExpression.Recurse(e => CheckTableExpression(e, builderContext));
+            // then collect columns, split Expression in
+            // - things we will do in CLR
+            // - things we will do in SQL
+            selectExpression = CutOutOperands(selectExpression, builderContext);
+            // the last return value becomes the select, with CurrentScope
+            builderContext.CurrentScope.Select = selectExpression;
+            builderContext.ExpressionQuery.Select = builderContext.CurrentScope;
+        }
+
+        /// <summary>
+        /// Cuts Expressions between CLR and SQL:
+        /// - Replaces Expressions moved to SQL by calls to DataRecord values reader
+        /// - SQL expressions are placed into Operands
+        /// - Return value creator is the returned Expression
+        /// </summary>
+        /// <param name="selectExpression"></param>
+        /// <param name="builderContext"></param>
+        protected virtual Expression CutOutOperands(Expression selectExpression, BuilderContext builderContext)
+        {
+            var dataRecordParameter = Expression.Parameter(typeof(IDataRecord), "rdr");
+            var mappingContextParameter = Expression.Parameter(typeof(MappingContext), "mapping");
+            return selectExpression.Recurse(e => CutOutOperand(e, dataRecordParameter, mappingContextParameter,
+                                                                builderContext));
+        }
+
+        /// <summary>
+        /// If we operand is an SQL operand, then cut it out and return a DataRecord value reader instead
+        /// </summary>
+        /// <param name="operand"></param>
+        /// <param name="mappingContextParameter"></param>
+        /// <param name="builderContext"></param>
+        /// <param name="dataRecordParameter"></param>
+        /// <returns></returns>
+        protected virtual Expression CutOutOperand(Expression operand,
+            ParameterExpression dataRecordParameter, ParameterExpression mappingContextParameter,
+            BuilderContext builderContext)
+        {
+            if (GetCutOutOperand(operand, builderContext))
+            {
+                int valueIndex = ExpressionRegistrar.RegisterSelectOperand(operand, builderContext);
+                var propertyReader = DataRecordReader.GetPropertyReader(dataRecordParameter, mappingContextParameter, operand.Type,
+                                                   valueIndex);
+                return propertyReader;
+            }
+            return operand;
+        }
+
+        /// <summary>
+        /// Returns true if we must cut out the given Expression
+        /// </summary>
+        /// <param name="operand"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        private bool GetCutOutOperand(Expression operand, BuilderContext builderContext)
+        {
+            bool cutOut = false;
+            var tier = ExpressionQualifier.GetTier(operand);
+            if ((tier & ExpressionTier.Sql) != 0) // we can cut out only if the following expressiong can go to SQL
+            {
+                // then we have two possible strategies, load the DB at max, then it's always true from here
+                if (builderContext.QueryContext.MaximumDatabaseLoad)
+                    cutOut = true;
+                else // if no max database load then it's min: we switch to SQL only when CLR doesn't support the Expression
+                    cutOut = (tier & ExpressionTier.Clr) == 0;
+            }
+            return cutOut;
+        }
+
+        /// <summary>
+        /// Checks any expression for a TableExpression, and eventually replaces it with the convenient columns selection
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        protected virtual Expression CheckTableExpression(Expression expression, BuilderContext builderContext)
+        {
+            if (expression is TableExpression)
+                return GetSelectTableExpression((TableExpression)expression, builderContext);
+            return expression;
+        }
+
+        /// <summary>
+        /// Replaces a table selection by a selection of all mapped columns (ColumnExpressions).
+        /// ColumnExpressions will be replaced at a later time by the tier splitter
+        /// </summary>
+        /// <param name="tableExpression"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        protected virtual Expression GetSelectTableExpression(TableExpression tableExpression, BuilderContext builderContext)
+        {
+            var bindings = new List<MemberBinding>();
+            foreach (var columnExpression in ExpressionRegistrar.RegisterAllColumns(tableExpression, builderContext))
+            {
+                var binding = Expression.Bind(columnExpression.MemberInfo, columnExpression);
+                bindings.Add(binding);
+            }
+            var newExpression = Expression.New(tableExpression.Type);
+            return Expression.MemberInit(newExpression, bindings);
         }
     }
 }

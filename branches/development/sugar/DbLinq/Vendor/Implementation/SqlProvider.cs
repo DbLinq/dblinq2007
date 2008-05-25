@@ -212,7 +212,7 @@ namespace DbLinq.Vendor.Implementation
         /// <returns></returns>
         public virtual string GetTableAsAlias(string table, string alias)
         {
-            return string.Format("{0} AS {1}", table, GetTableAlias(alias));
+            return string.Format("{0} {1}", table, GetTableAlias(alias));
         }
 
         /// <summary>
@@ -247,6 +247,18 @@ namespace DbLinq.Vendor.Implementation
             if (wheres.Length == 0)
                 return string.Empty;
             return string.Format("WHERE {0}", string.Join(" AND ", wheres));
+        }
+
+        /// <summary>
+        /// Joins a list of operands to make a SELECT clause
+        /// </summary>
+        /// <param name="selects"></param>
+        /// <returns></returns>
+        public virtual string GetSelectClause(string[] selects)
+        {
+            if (selects.Length == 0)
+                return string.Empty;
+            return string.Format("SELECT {0}", string.Join(", ", selects));
         }
 
         /// <summary>
@@ -295,7 +307,7 @@ namespace DbLinq.Vendor.Implementation
 
         protected virtual string GetLiteralAndAlso(string a, string b)
         {
-            return string.Format("{0} AND {1}", a, b);
+            return GetLiteralAnd(a, b);
         }
 
         protected virtual string GetLiteralArrayLength(string a, string b)
