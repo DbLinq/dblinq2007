@@ -36,7 +36,9 @@ namespace DbLinq.Linq.Data.Sugar.ExpressionMutator.Implementation
         public Expression Mutate(IList<Expression> operands)
         {
             var bindings = new List<MemberBinding>();
-            int operandIndex = 1;
+            int operandIndex = MemberInitExpression.NewExpression.Arguments.Count();
+            var newNewExpression = Expression.New(MemberInitExpression.NewExpression.Constructor,
+                                                  operands.Take(operandIndex));
             foreach (var memberBinding in MemberInitExpression.Bindings)
             {
                 var memberBindingMutator = MemberBindingMutatorFactory.GetMutator(memberBinding);
@@ -45,14 +47,15 @@ namespace DbLinq.Linq.Data.Sugar.ExpressionMutator.Implementation
                 bindings.Add(memberBindingMutator.Mutate(subOperands));
                 operandIndex += operandsCount;
             }
-            return Expression.MemberInit((NewExpression)operands[0], bindings);
+            return Expression.MemberInit(newNewExpression, bindings);
         }
 
         public IEnumerable<Expression> Operands
         {
             get
             {
-                yield return MemberInitExpression.NewExpression;
+                foreach (var newExpressionArgument in MemberInitExpression.NewExpression.Arguments)
+                    yield return newExpressionArgument;
                 foreach (var memberBinding in MemberInitExpression.Bindings)
                 {
                     foreach (var expression in MemberBindingMutatorFactory.GetMutator(memberBinding).Operands)

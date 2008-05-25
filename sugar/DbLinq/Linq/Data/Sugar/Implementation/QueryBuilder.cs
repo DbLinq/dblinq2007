@@ -197,6 +197,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             {
                 var expressionsQuery = BuildExpressionQuery(expressions, queryContext);
                 query = BuildSqlQuery(expressionsQuery, queryContext);
+                queryContext.DataContext.Logger.Write(Level.Debug, "SQL: {0}", query.Sql);
                 SetInCache(expressions, query);
             }
             throw new Exception("Can't go further anyway...");
