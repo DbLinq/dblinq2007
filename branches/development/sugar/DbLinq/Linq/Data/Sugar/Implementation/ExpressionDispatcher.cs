@@ -95,9 +95,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
 
         protected virtual Expression Analyze(Expression expression, IList<Expression> parameters, BuilderContext builderContext)
         {
-            // for constants, there's nothing we can do
-            //if (piece is ConstantPiece)
-            //    return piece;
+            if (expression is TableExpression)
+                return AnalyzeTable((TableExpression)expression, builderContext);
             switch (expression.NodeType)
             {
             case ExpressionType.Call:
@@ -150,14 +149,18 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             return expression;
         }
 
+        private Expression AnalyzeTable(TableExpression tableExpression, BuilderContext builderContext)
+        {
+            return ExpressionRegistrar.RegisterTable(tableExpression, builderContext);
+        }
+
         protected virtual Expression AnalyzeCall(MethodCallExpression expression, IList<Expression> parameters, BuilderContext builderContext)
         {
             var operands = expression.GetOperands().ToList();
             var operarandsToSkip = expression.Method.IsStatic ? 1 : 0;
-            return AnalyzeCall(expression.Method.Name, ExpressionService.MergeParameters(parameters,
-                                                                           ExpressionService.ExtractParameters(
-                                                                               operands, parameters.Count + operarandsToSkip)),
-                                                                                   builderContext);
+            var originalParameters = ExpressionService.ExtractParameters(operands, parameters.Count + operarandsToSkip);
+            var newParameters = ExpressionService.MergeParameters(parameters, originalParameters);
+            return AnalyzeCall(expression.Method.Name, newParameters, builderContext);
         }
 
         protected virtual Expression AnalyzeCall(string methodName, IList<Expression> parameters, BuilderContext builderContext)
@@ -485,12 +488,13 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <param name="builderContext"></param>
         public virtual void BuildSelect(Expression selectExpression, BuilderContext builderContext)
         {
-            // first thing, look for tables and use columns instead
-            selectExpression = selectExpression.Recurse(e => CheckTableExpression(e, builderContext));
-            // then collect columns, split Expression in
+            // collect columns, split Expression in
             // - things we will do in CLR
             // - things we will do in SQL
             selectExpression = CutOutOperands(selectExpression, builderContext);
+            // look for tables and use columns instead
+            // (this is done after cut, because the part that went to SQL must not be converted)
+            //selectExpression = selectExpression.Recurse(e => CheckTableExpression(e, builderContext));
             // the last return value becomes the select, with CurrentScope
             builderContext.CurrentScope.Select = selectExpression;
             builderContext.ExpressionQuery.Select = builderContext.CurrentScope;
@@ -527,10 +531,15 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             // two options: we cut and return
             if (GetCutOutOperand(expression, builderContext))
             {
-                int valueIndex = ExpressionRegistrar.RegisterSelectOperand(expression, builderContext);
-                var propertyReader = DataRecordReader.GetPropertyReader(dataRecordParameter, mappingContextParameter, expression.Type,
-                                                   valueIndex);
-                return propertyReader;
+                // before cutting out, we check that we're not cutting a table
+                // in this case, we convert it into its declared columns
+                if (expression is TableExpression)
+                {
+                    return RegisterParameterTable((TableExpression) expression, dataRecordParameter,
+                                                  mappingContextParameter, builderContext);
+                }
+                // then, the result is registered
+                return RegisterParameterColumn(expression, dataRecordParameter, mappingContextParameter, builderContext);
             }
             // or we dig down
             var operands = new List<Expression>();
@@ -539,6 +548,28 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 operands.Add(CutOutOperands(operand, dataRecordParameter, mappingContextParameter, builderContext));
             }
             return expression.ChangeOperands(operands);
+        }
+
+        protected virtual Expression RegisterParameterTable(TableExpression tableExpression, ParameterExpression dataRecordParameter, ParameterExpression mappingContextParameter, BuilderContext builderContext)
+        {
+            var bindings = new List<MemberBinding>();
+            foreach (var columnExpression in ExpressionRegistrar.RegisterAllColumns(tableExpression, builderContext))
+            {
+                var binding = Expression.Bind(columnExpression.MemberInfo,
+                                              RegisterParameterColumn(columnExpression, dataRecordParameter,
+                                                                      mappingContextParameter, builderContext));
+                bindings.Add(binding);
+            }
+            var newExpression = Expression.New(tableExpression.Type);
+            return Expression.MemberInit(newExpression, bindings);
+        }
+
+        protected virtual Expression RegisterParameterColumn(Expression expression, ParameterExpression dataRecordParameter, ParameterExpression mappingContextParameter, BuilderContext builderContext)
+        {
+            int valueIndex = ExpressionRegistrar.RegisterSelectOperand(expression, builderContext);
+            var propertyReader = DataRecordReader.GetPropertyReader(dataRecordParameter, mappingContextParameter, expression.Type,
+                                                                    valueIndex);
+            return propertyReader;
         }
 
         /// <summary>

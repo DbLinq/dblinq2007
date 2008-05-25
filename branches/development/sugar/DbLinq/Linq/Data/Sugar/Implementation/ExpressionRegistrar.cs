@@ -65,7 +65,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <param name="tableExpression"></param>
         /// <param name="builderContext"></param>
         /// <returns>A registered table or the current newly registered one</returns>
-        protected virtual TableExpression RegisterTable(TableExpression tableExpression, BuilderContext builderContext)
+        public virtual TableExpression RegisterTable(TableExpression tableExpression, BuilderContext builderContext)
         {
             // 1. Find the table in current scope
             var foundTableExpression = (from t in builderContext.EnumerateScopeTables()

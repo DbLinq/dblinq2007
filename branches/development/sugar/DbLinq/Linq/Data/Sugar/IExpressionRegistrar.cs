@@ -104,5 +104,13 @@ namespace DbLinq.Linq.Data.Sugar
         /// <param name="builderContext"></param>
         /// <returns>Expression index</returns>
         int RegisterSelectOperand(Expression expression, BuilderContext builderContext);
+
+        /// <summary>
+        /// Returns an existing table or registers the current one
+        /// </summary>
+        /// <param name="tableExpression"></param>
+        /// <param name="builderContext"></param>
+        /// <returns>A registered table or the current newly registered one</returns>
+        TableExpression RegisterTable(TableExpression tableExpression, BuilderContext builderContext);
     }
 }

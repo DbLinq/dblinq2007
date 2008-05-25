@@ -182,8 +182,10 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 //s_rdr.GetFloat();
                 string msg = "RowEnum TODO L381: add support for type " + returnType;
                 Console.WriteLine(msg);
-                propertyReader = null;
-                throw new ApplicationException(msg);
+//                propertyReader = null;
+  //              throw new ApplicationException(msg);
+                propertyReader = (Expression<Func<IDataRecord, MappingContext, object>>)((dataReader, mappingContext)
+                    => GetAsObject(dataReader, valueIndex, mappingContext));
             }
             //if (propertyReader == null)
             //{
