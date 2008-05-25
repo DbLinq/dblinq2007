@@ -41,17 +41,22 @@ namespace DbLinq.Linq.Data.Sugar
             if (expression is SpecialExpression)
             {
                 var specialNodeType = ((SpecialExpression)expression).SpecialNodeType;
-                switch (specialNodeType)
+                switch (specialNodeType) // SETuse
                 {
                 case SpecialExpressionType.IsNull:
                 case SpecialExpressionType.IsNotNull:
                     return ExpressionPrecedence.Equality;
                 case SpecialExpressionType.Concat:
                     return ExpressionPrecedence.Additive;
-                case SpecialExpressionType.Count:
-                    return ExpressionPrecedence.Primary;
                 case SpecialExpressionType.Like:
                     return ExpressionPrecedence.Equality;
+                // the following are methods
+                case SpecialExpressionType.Min:
+                case SpecialExpressionType.Max:
+                case SpecialExpressionType.Sum:
+                case SpecialExpressionType.Average:
+                case SpecialExpressionType.Count:
+                    return ExpressionPrecedence.Primary;
                 default:
                     throw Error.BadArgument("S0050: Unhandled SpecialExpressionType {0}", specialNodeType);
                 }
@@ -162,17 +167,21 @@ namespace DbLinq.Linq.Data.Sugar
             if (expression is SpecialExpression)
             {
                 var specialExpressionType = ((SpecialExpression)expression).SpecialNodeType;
-                switch (specialExpressionType)
+                switch (specialExpressionType) // SETuse
                 {
                 case SpecialExpressionType.IsNull:
                 case SpecialExpressionType.IsNotNull:
                     return ExpressionTier.Any;
                 case SpecialExpressionType.Concat:
                     return ExpressionTier.Any;
-                case SpecialExpressionType.Count:
-                    return ExpressionTier.Sql;
                 case SpecialExpressionType.Like:
                     return ExpressionTier.Sql;
+                case SpecialExpressionType.Min:
+                case SpecialExpressionType.Max:
+                case SpecialExpressionType.Sum:
+                case SpecialExpressionType.Average:
+                case SpecialExpressionType.Count:
+                    return ExpressionTier.Sql; // don't tell anyone, but we can do it on both tiers, anyway this is significantly faster in SQL anyway
                 default:
                     throw Error.BadArgument("S0157: Unhandled node type {0}", specialExpressionType);
                 }

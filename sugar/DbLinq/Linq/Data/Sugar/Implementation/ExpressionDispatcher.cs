@@ -175,11 +175,15 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             case "All":
                 return AnalyzeAll(parameters, builderContext);
             case "Average":
+                return AnalyzeProjectionQuery(SpecialExpressionType.Average, parameters, builderContext);
             case "Count":
+                return AnalyzeProjectionQuery(SpecialExpressionType.Count, parameters, builderContext);
             case "Max":
+                return AnalyzeProjectionQuery(SpecialExpressionType.Max, parameters, builderContext);
             case "Min":
+                return AnalyzeProjectionQuery(SpecialExpressionType.Min, parameters, builderContext);
             case "Sum":
-                return AnalyzeProjectionQuery(methodName, builderContext);
+                return AnalyzeProjectionQuery(SpecialExpressionType.Sum, parameters, builderContext);
             case "StartsWith":
                 return AnalyzeLikeStart(parameters, builderContext);
             case "EndsWith":
@@ -197,17 +201,14 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <summary>
         /// Returns a projection method call
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="specialExpressionType"></param>
+        /// <param name="parameters"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        protected virtual Expression AnalyzeProjectionQuery(string name, BuilderContext builderContext)
+        protected virtual Expression AnalyzeProjectionQuery(SpecialExpressionType specialExpressionType, IList<Expression> parameters,
+            BuilderContext builderContext)
         {
-            // TODO: review this code
-            //return new OperationPiece(OperationType.Call,
-            //                          new ConstantPiece(name), // method name
-            //                          new ConstantPiece(null), // method object (null for static/extension methods)
-            //                          builderContext.PiecesQuery.Select); // we project on previous request (hope there is one)
-            return null;
+            return new SpecialExpression(specialExpressionType, Analyze(parameters[0], builderContext));
         }
 
         /// <summary>
@@ -507,30 +508,37 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         {
             var dataRecordParameter = Expression.Parameter(typeof(IDataRecord), "rdr");
             var mappingContextParameter = Expression.Parameter(typeof(MappingContext), "mapping");
-            return selectExpression.Recurse(e => CutOutOperand(e, dataRecordParameter, mappingContextParameter,
-                                                                builderContext));
+            return CutOutOperands(selectExpression, dataRecordParameter, mappingContextParameter, builderContext);
         }
 
         /// <summary>
-        /// If we operand is an SQL operand, then cut it out and return a DataRecord value reader instead
+        /// Cuts tiers in CLR / SQL.
+        /// The search for cut is top-down
         /// </summary>
-        /// <param name="operand"></param>
+        /// <param name="expression"></param>
+        /// <param name="dataRecordParameter"></param>
         /// <param name="mappingContextParameter"></param>
         /// <param name="builderContext"></param>
-        /// <param name="dataRecordParameter"></param>
         /// <returns></returns>
-        protected virtual Expression CutOutOperand(Expression operand,
+        protected virtual Expression CutOutOperands(Expression expression,
             ParameterExpression dataRecordParameter, ParameterExpression mappingContextParameter,
             BuilderContext builderContext)
         {
-            if (GetCutOutOperand(operand, builderContext))
+            // two options: we cut and return
+            if (GetCutOutOperand(expression, builderContext))
             {
-                int valueIndex = ExpressionRegistrar.RegisterSelectOperand(operand, builderContext);
-                var propertyReader = DataRecordReader.GetPropertyReader(dataRecordParameter, mappingContextParameter, operand.Type,
+                int valueIndex = ExpressionRegistrar.RegisterSelectOperand(expression, builderContext);
+                var propertyReader = DataRecordReader.GetPropertyReader(dataRecordParameter, mappingContextParameter, expression.Type,
                                                    valueIndex);
                 return propertyReader;
             }
-            return operand;
+            // or we dig down
+            var operands = new List<Expression>();
+            foreach (var operand in expression.GetOperands())
+            {
+                operands.Add(CutOutOperands(operand, dataRecordParameter, mappingContextParameter, builderContext));
+            }
+            return expression.ChangeOperands(operands);
         }
 
         /// <summary>
