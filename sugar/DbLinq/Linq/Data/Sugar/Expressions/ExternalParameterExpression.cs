@@ -31,7 +31,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
     [DebuggerDisplay("ParameterPiece (current value={GetValue()})")]
     public class ExternalParameterExpression : MutableExpression
     {
-        public static ExpressionType ExpressionType { get { return (ExpressionType)1020; } }
+        public const ExpressionType ExpressionType = (ExpressionType)1020;
 
         public string Alias { get; set; }
 

@@ -96,7 +96,8 @@ namespace DbLinq.Linq.Mapping
         public override MetaDataMember GetDataMember(MemberInfo member)
         {
             // TODO: optimize?
-            return (from dataMember in persistentDataMembers where dataMember.Member == member select dataMember).SingleOrDefault();
+            // A tip to know the MemberInfo for the same member is not the same when declared from a class and its inheritor
+            return (from dataMember in persistentDataMembers where dataMember.Member.Name == member.Name select dataMember).SingleOrDefault();
         }
 
         public override MetaType GetInheritanceType(Type baseType)

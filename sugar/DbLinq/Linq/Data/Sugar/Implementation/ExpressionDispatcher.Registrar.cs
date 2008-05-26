@@ -28,6 +28,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using DbLinq.Linq.Data.Sugar.Expressions;
+using DbLinq.Util;
 
 namespace DbLinq.Linq.Data.Sugar.Implementation
 {
@@ -221,11 +222,15 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             for (int keyIndex = 0; keyIndex < foreignKeys.Count; keyIndex++)
             {
                 // joinedKey is registered, even if unused by final select (required columns will be filtered anyway)
-                var joinedKey = RegisterColumn(joinedTableExpression, joinedKeys[keyIndex], builderContext);
+                Expression joinedKey = RegisterColumn(joinedTableExpression, joinedKeys[keyIndex], builderContext);
                 // foreign is created, we will store it later if this assocation is registered too
                 var foreignKey = CreateColumn(tableExpression, foreignKeys[keyIndex], builderContext);
                 createdColumns.Add(foreignKey);
 
+                // if the key is nullable, then convert it
+                // TODO: this will probably need to be changed
+                if (joinedKey.Type.IsNullable())
+                    joinedKey = Expression.Convert(joinedKey, joinedKey.Type.GetNullableType());
                 var referenceExpression = Expression.Equal(foreignKey, joinedKey);
                 // if we already have a join expression, then we have a double condition here, so "AND" it
                 if (joinExpression != null)
