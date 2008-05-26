@@ -92,10 +92,10 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             case ExpressionType.Coalesce:
             //case ExpressionType.ArrayIndex
             //case ExpressionType.ArrayLength
-            //case ExpressionType.Convert
-            //case ExpressionType.ConvertChecked
+            case ExpressionType.Convert:
+            case ExpressionType.ConvertChecked:
             case ExpressionType.Negate:
-            //case ExpressionType.NegateChecked
+            case ExpressionType.NegateChecked:
             case ExpressionType.Not:
             //case ExpressionType.TypeAs
             case ExpressionType.UnaryPlus:
@@ -303,6 +303,13 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 if (parameterExpression != null)
                     return parameterExpression;
                 throw Error.BadArgument("S0302: Can not created parameter from expression '{0}'", expression);
+            }
+
+            // we have here a special case for nullables, where we simply ignore the "Value" property
+            // TODO: check this works if we stay on server side (it works for client side)
+            if (objectExpression.Type.IsNullable() && memberInfo.Name == "Value")
+            {
+                return objectExpression;
             }
 
             throw Error.BadArgument("S0238: Don't know how to handle Piece");
