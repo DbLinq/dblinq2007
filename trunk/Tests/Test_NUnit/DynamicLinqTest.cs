@@ -206,6 +206,18 @@ namespace Test_NUnit_PostgreSql
             IList<Customer> list = db.Customers.AsQueryable().Where(predicate).ToList();
         }
 
+        /// <summary>
+        /// Reported by pwy.mail in issue http://code.google.com/p/dblinq2007/issues/detail?id=73
+        /// </summary>
+        [Test]
+        public void DL11_ThenByDescending()
+        {
+            Northwind db = CreateDB();
+            var q = db.Products.Where("SupplierID=1 And UnitsInStock>2")
+                .OrderBy(" ProductName asc,ProductID desc");
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0, "Expected results from dynamic query");
+        }
 
         /// <summary>
         /// Build predicate expressions dynamically.
