@@ -34,7 +34,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
     /// </summary>
     public class ScopeExpression : OperandsMutableExpression
     {
-        public static ExpressionType ExpressionType { get { return (ExpressionType)1010; } }
+        public const ExpressionType ExpressionType = (ExpressionType)1010;
 
         // Involved entities
         public IList<TableExpression> Tables { get; private set; }

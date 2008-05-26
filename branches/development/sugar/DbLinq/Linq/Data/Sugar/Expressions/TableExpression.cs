@@ -35,7 +35,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
     [DebuggerDisplay("TablePiece {Name} (as {Alias})")]
     public class TableExpression : MutableExpression
     {
-        public static ExpressionType ExpressionType { get { return (ExpressionType)1001; } }
+        public const ExpressionType ExpressionType = (ExpressionType)1001;
 
         // Table idenfitication
         public string Name { get; private set; }
@@ -82,13 +82,6 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
         public TableExpression(Type type, string name)
             : this(type, name, TableJoinType.Default, null, null, null)
         {
-        }
-
-        protected virtual bool EquatableEquals<T>(IEquatable<T> a, IEquatable<T> b)
-        {
-            if (a == null)
-                return b == null;
-            return a.Equals(b);
         }
 
         public bool IsEqualTo(TableExpression expression)

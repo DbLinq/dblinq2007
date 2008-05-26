@@ -33,7 +33,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
     /// </summary>
     public class MetaTableExpression : MutableExpression
     {
-        public static ExpressionType ExpressionType { get { return (ExpressionType)1000; } }
+        public const ExpressionType ExpressionType = (ExpressionType)1000;
 
         protected IDictionary<MemberInfo, TableExpression> Aliases;
 

@@ -180,9 +180,25 @@ namespace DbLinq.Util
             return null;
         }
 
+        /// <summary>
+        /// Determines if a Type is specified as nullable
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
         public static bool IsNullable(this Type t)
         {
-            return t.IsGenericType && t.GetGenericTypeDefinition() == typeof (Nullable<>);
+            return t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>);
+        }
+
+        /// <summary>
+        /// If the type is nullable, returns the underlying type
+        /// Undefined behavior otherwise (it's user responsibility to check for Nullable first)
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        public static Type GetNullableType(this Type t)
+        {
+            return t.GetGenericArguments()[0];
         }
     }
 }
