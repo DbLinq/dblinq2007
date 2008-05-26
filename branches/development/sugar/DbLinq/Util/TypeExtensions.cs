@@ -179,5 +179,10 @@ namespace DbLinq.Util
                 return members[0];
             return null;
         }
+
+        public static bool IsNullable(this Type t)
+        {
+            return t.IsGenericType && t.GetGenericTypeDefinition() == typeof (Nullable<>);
+        }
     }
 }
