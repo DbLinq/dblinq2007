@@ -305,14 +305,31 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 throw Error.BadArgument("S0302: Can not created parameter from expression '{0}'", expression);
             }
 
-            // we have here a special case for nullables, where we simply ignore the "Value" property
-            // TODO: check this works if we stay on server side (it works for client side)
-            if (objectExpression.Type.IsNullable() && memberInfo.Name == "Value")
+            // we have here a special cases for nullables
+            if (objectExpression.Type.IsNullable())
             {
-                return objectExpression;
+                // Value means we convert the nullable to a value --> use Convert instead (works both on CLR and SQL, too)
+                if (memberInfo.Name == "Value")
+                    return Expression.Convert(objectExpression, memberInfo.GetMemberType());
+                // HasValue means not null (works both on CLR and SQL, too)
+                if (memberInfo.Name == "HasValue")
+                    return new SpecialExpression(SpecialExpressionType.IsNotNull, objectExpression);
             }
 
-            throw Error.BadArgument("S0238: Don't know how to handle Piece");
+            return AnalyzeCommonMember(objectExpression, memberInfo, builderContext);
+        }
+
+        private Expression AnalyzeCommonMember(Expression objectExpression, MemberInfo memberInfo, BuilderContext builderContext)
+        {
+            if (typeof(string).IsAssignableFrom(objectExpression.Type))
+            {
+                switch (memberInfo.Name)
+                {
+                case "Length":
+                    return new SpecialExpression(SpecialExpressionType.StringLength, objectExpression);
+                }
+            }
+            throw Error.BadArgument("S0324: Don't know how to handle Piece");
         }
 
         /// <summary>

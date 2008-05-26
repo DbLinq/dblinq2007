@@ -72,6 +72,14 @@ namespace DbLinq.Vendor
         string GetColumn(string table, string column);
 
         /// <summary>
+        /// Returns a column related to a table.
+        /// Ensures about the right case
+        /// </summary>
+        /// <param name="column"></param>
+        /// <returns></returns>
+        string GetColumn(string column);
+
+        /// <summary>
         /// Returns a table alias
         /// Ensures about the right case
         /// </summary>
@@ -86,13 +94,6 @@ namespace DbLinq.Vendor
         /// <param name="table"></param>
         /// <returns></returns>
         string GetTable(string table);
-
-        /// <summary>
-        /// Returns all table colums (*)
-        /// </summary>
-        /// <param name="tableAlias"></param>
-        /// <returns></returns>
-        string GetColumns(string tableAlias);
 
         /// <summary>
         /// Returns a literal parameter name
@@ -122,5 +123,11 @@ namespace DbLinq.Vendor
         /// <param name="selects"></param>
         /// <returns></returns>
         string GetSelectClause(string[] selects);
+
+        /// <summary>
+        /// Returns all table columns (*)
+        /// </summary>
+        /// <returns></returns>
+        string GetColumns();
     }
 }

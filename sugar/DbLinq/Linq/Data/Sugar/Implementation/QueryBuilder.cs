@@ -94,19 +94,28 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <param name="builderContext"></param>
         protected virtual void CheckTablesAlias(BuilderContext builderContext)
         {
-            foreach (var tableExpression in builderContext.EnumerateAllTables())
+            var tables = builderContext.EnumerateAllTables().ToList();
+            // just to be nice: if we have only one table involved, there's no need to alias it
+            if (tables.Count == 1)
             {
-                // if no alias, or duplicate alias
-                if (string.IsNullOrEmpty(tableExpression.Alias) ||
-                    FindPiecesByName(tableExpression.Alias, builderContext).Count > 1)
+                tables[0].Alias = null;
+            }
+            else
+            {
+                foreach (var tableExpression in tables)
                 {
-                    int anonymousIndex = 0;
-                    var aliasBase = tableExpression.Alias;
-                    // we try to assign one until we have a unique alias
-                    do
+                    // if no alias, or duplicate alias
+                    if (string.IsNullOrEmpty(tableExpression.Alias) ||
+                        FindPiecesByName(tableExpression.Alias, builderContext).Count > 1)
                     {
-                        tableExpression.Alias = MakeTableName(aliasBase, ++anonymousIndex, builderContext);
-                    } while (FindPiecesByName(tableExpression.Alias, builderContext).Count != 1);
+                        int anonymousIndex = 0;
+                        var aliasBase = tableExpression.Alias;
+                        // we try to assign one until we have a unique alias
+                        do
+                        {
+                            tableExpression.Alias = MakeTableName(aliasBase, ++anonymousIndex, builderContext);
+                        } while (FindPiecesByName(tableExpression.Alias, builderContext).Count != 1);
+                    }
                 }
             }
         }

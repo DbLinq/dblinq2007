@@ -110,21 +110,32 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             if (expression.NodeType == ExpressionType.Equal || expression.NodeType == ExpressionType.NotEqual)
             {
                 var operands = expression.GetOperands().ToList();
-                if (operands[0] is ColumnExpression || operands[0] is ExternalParameterExpression)
+                var nullComparison = GetNullComparison(expression.NodeType, operands[0], operands[1]);
+                if (nullComparison == null)
+                    nullComparison = GetNullComparison(expression.NodeType, operands[1], operands[0]);
+                if (nullComparison != null)
+                    return nullComparison;
+                return expression;
+            }
+            return expression;
+        }
+
+        protected virtual Expression GetNullComparison(ExpressionType nodeType, Expression columnExpression, Expression nullExpression)
+        {
+            if (columnExpression is ColumnExpression || columnExpression is ExternalParameterExpression)
+            {
+                if (nullExpression is ConstantExpression && ((ConstantExpression)nullExpression).Value == null)
                 {
-                    if (operands[1] is ConstantExpression && ((ConstantExpression)operands[1]).Value == null)
+                    switch (nodeType)
                     {
-                        switch (expression.NodeType)
-                        {
-                        case ExpressionType.Equal:
-                            return new SpecialExpression(SpecialExpressionType.IsNull, operands[0]);
-                        case ExpressionType.NotEqual:
-                            return new SpecialExpression(SpecialExpressionType.IsNotNull, operands[0]);
-                        }
+                    case ExpressionType.Equal:
+                        return new SpecialExpression(SpecialExpressionType.IsNull, columnExpression);
+                    case ExpressionType.NotEqual:
+                        return new SpecialExpression(SpecialExpressionType.IsNotNull, columnExpression);
                     }
                 }
             }
-            return expression;
+            return null;
         }
     }
 }
