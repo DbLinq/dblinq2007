@@ -47,7 +47,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         public string Build(ScopeExpression scopeExpression, QueryContext queryContext)
         {
             // A scope usually has:
-            // - a SELECT: TODO
+            // - a SELECT: the operation creating a CLR object with data coming from SQL tier
             // - a FROM: list of tables
             // - a WHERE: list of conditions
             // TODO: all other clauses
@@ -85,11 +85,24 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             if (expression is SpecialExpression)
                 return sqlProvider.GetLiteral(((SpecialExpression)expression).SpecialNodeType, literalOperands);
             if (expression is TableExpression)
-                return sqlProvider.GetColumns(((TableExpression)expression).Alias);
+            {
+                var tableExpression = (TableExpression)expression;
+                if (tableExpression.Alias != null) // if we have an alias, use it
+                {
+                    return sqlProvider.GetColumn(sqlProvider.GetTableAlias(tableExpression.Alias),
+                                                 sqlProvider.GetColumns());
+                }
+                return sqlProvider.GetColumns();
+            }
             if (expression is ColumnExpression)
             {
                 var columnExpression = (ColumnExpression)expression;
-                return sqlProvider.GetColumn(sqlProvider.GetTableAlias(columnExpression.Table.Alias), columnExpression.Name);
+                if (columnExpression.Table.Alias != null)
+                {
+                    return sqlProvider.GetColumn(sqlProvider.GetTableAlias(columnExpression.Table.Alias),
+                                                 columnExpression.Name);
+                }
+                return sqlProvider.GetColumn(columnExpression.Name);
             }
             if (expression is ExternalParameterExpression)
                 return sqlProvider.GetParameterName(((ExternalParameterExpression)expression).Alias);
@@ -115,8 +128,15 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             {
                 if (!MustDeclareAsJoin(tableExpression))
                 {
-                    fromClauses.Add(sqlProvider.GetTableAsAlias(sqlProvider.GetTable(tableExpression.Name),
-                                                                tableExpression.Alias));
+                    if (tableExpression.Alias != null)
+                    {
+                        fromClauses.Add(sqlProvider.GetTableAsAlias(sqlProvider.GetTable(tableExpression.Name),
+                                                                    tableExpression.Alias));
+                    }
+                    else
+                    {
+                        fromClauses.Add(sqlProvider.GetTable(tableExpression.Name));
+                    }
                 }
             }
             return sqlProvider.GetFromClause(fromClauses.ToArray());
@@ -142,7 +162,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         {
             var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
             var selectClauses = new List<string>();
-            foreach(var selectExpression in select.GetOperands())
+            foreach (var selectExpression in select.GetOperands())
             {
                 selectClauses.Add(BuildExpression(selectExpression, queryContext));
             }

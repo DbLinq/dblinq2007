@@ -27,7 +27,7 @@ using DbLinq.Linq.Data.Sugar.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar.Implementation
 {
-    public class ExpressionQualifier: IExpressionQualifier
+    public class ExpressionQualifier : IExpressionQualifier
     {
         /// <summary>
         /// Returns Expression precedence. Higher value means lower precedence.
@@ -43,102 +43,103 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 var specialNodeType = ((SpecialExpression)expression).SpecialNodeType;
                 switch (specialNodeType) // SETuse
                 {
-                    case SpecialExpressionType.IsNull:
-                    case SpecialExpressionType.IsNotNull:
-                        return ExpressionPrecedence.Equality;
-                    case SpecialExpressionType.Concat:
-                        return ExpressionPrecedence.Additive;
-                    case SpecialExpressionType.Like:
-                        return ExpressionPrecedence.Equality;
-                        // the following are methods
-                    case SpecialExpressionType.Min:
-                    case SpecialExpressionType.Max:
-                    case SpecialExpressionType.Sum:
-                    case SpecialExpressionType.Average:
-                    case SpecialExpressionType.Count:
-                        return ExpressionPrecedence.Primary;
-                    default:
-                        throw Error.BadArgument("S0050: Unhandled SpecialExpressionType {0}", specialNodeType);
+                case SpecialExpressionType.IsNull:
+                case SpecialExpressionType.IsNotNull:
+                    return ExpressionPrecedence.Equality;
+                case SpecialExpressionType.Concat:
+                    return ExpressionPrecedence.Additive;
+                case SpecialExpressionType.Like:
+                    return ExpressionPrecedence.Equality;
+                // the following are methods
+                case SpecialExpressionType.Min:
+                case SpecialExpressionType.Max:
+                case SpecialExpressionType.Sum:
+                case SpecialExpressionType.Average:
+                case SpecialExpressionType.Count:
+                case SpecialExpressionType.StringLength:
+                    return ExpressionPrecedence.Primary;
+                default:
+                    throw Error.BadArgument("S0050: Unhandled SpecialExpressionType {0}", specialNodeType);
                 }
             }
             if (expression is ScopeExpression)
                 return ExpressionPrecedence.Clause;
             switch (expression.NodeType)
             {
-                case ExpressionType.Add:
-                case ExpressionType.AddChecked:
-                    return ExpressionPrecedence.Additive;
-                case ExpressionType.And:
-                case ExpressionType.AndAlso:
-                    return ExpressionPrecedence.ConditionalAnd;
-                case ExpressionType.ArrayLength:
-                case ExpressionType.ArrayIndex:
-                case ExpressionType.Call:
-                    return ExpressionPrecedence.Primary;
-                case ExpressionType.Coalesce:
-                    return ExpressionPrecedence.NullCoalescing;
-                case ExpressionType.Conditional:
-                    return ExpressionPrecedence.Conditional;
-                case ExpressionType.Constant:
-                    return ExpressionPrecedence.Primary;
-                case ExpressionType.Convert:
-                case ExpressionType.ConvertChecked:
-                    return ExpressionPrecedence.Primary;
-                case ExpressionType.Divide:
-                    return ExpressionPrecedence.Multiplicative;
-                case ExpressionType.Equal:
-                    return ExpressionPrecedence.Equality;
-                case ExpressionType.ExclusiveOr:
-                    return ExpressionPrecedence.LogicalXor;
-                case ExpressionType.GreaterThan:
-                case ExpressionType.GreaterThanOrEqual:
-                    return ExpressionPrecedence.RelationalAndTypeTest;
-                case ExpressionType.Invoke:
-                    return ExpressionPrecedence.Primary;
-                case ExpressionType.Lambda:
-                    return ExpressionPrecedence.Primary;
-                case ExpressionType.LeftShift:
-                    return ExpressionPrecedence.Shift;
-                case ExpressionType.LessThan:
-                case ExpressionType.LessThanOrEqual:
-                    return ExpressionPrecedence.RelationalAndTypeTest;
-                case ExpressionType.ListInit:
-                case ExpressionType.MemberAccess:
-                case ExpressionType.MemberInit:
-                    return ExpressionPrecedence.Primary;
-                case ExpressionType.Modulo:
-                case ExpressionType.Multiply:
-                case ExpressionType.MultiplyChecked:
-                    return ExpressionPrecedence.Multiplicative;
-                case ExpressionType.Negate:
-                case ExpressionType.UnaryPlus:
-                case ExpressionType.NegateChecked:
-                    return ExpressionPrecedence.Unary;
-                case ExpressionType.New:
-                case ExpressionType.NewArrayInit:
-                case ExpressionType.NewArrayBounds:
-                    return ExpressionPrecedence.Primary;
-                case ExpressionType.Not:
-                    return ExpressionPrecedence.Unary;
-                case ExpressionType.NotEqual:
-                    return ExpressionPrecedence.Equality;
-                case ExpressionType.Or:
-                case ExpressionType.OrElse:
-                    return ExpressionPrecedence.ConditionalOr;
-                case ExpressionType.Parameter:
-                    return ExpressionPrecedence.Primary;
-                case ExpressionType.Power:
-                    return ExpressionPrecedence.Primary;
-                case ExpressionType.Quote:
-                    return ExpressionPrecedence.Primary;
-                case ExpressionType.RightShift:
-                    return ExpressionPrecedence.Shift;
-                case ExpressionType.Subtract:
-                case ExpressionType.SubtractChecked:
-                    return ExpressionPrecedence.Additive;
-                case ExpressionType.TypeAs:
-                case ExpressionType.TypeIs:
-                    return ExpressionPrecedence.RelationalAndTypeTest;
+            case ExpressionType.Add:
+            case ExpressionType.AddChecked:
+                return ExpressionPrecedence.Additive;
+            case ExpressionType.And:
+            case ExpressionType.AndAlso:
+                return ExpressionPrecedence.ConditionalAnd;
+            case ExpressionType.ArrayLength:
+            case ExpressionType.ArrayIndex:
+            case ExpressionType.Call:
+                return ExpressionPrecedence.Primary;
+            case ExpressionType.Coalesce:
+                return ExpressionPrecedence.NullCoalescing;
+            case ExpressionType.Conditional:
+                return ExpressionPrecedence.Conditional;
+            case ExpressionType.Constant:
+                return ExpressionPrecedence.Primary;
+            case ExpressionType.Convert:
+            case ExpressionType.ConvertChecked:
+                return ExpressionPrecedence.Primary;
+            case ExpressionType.Divide:
+                return ExpressionPrecedence.Multiplicative;
+            case ExpressionType.Equal:
+                return ExpressionPrecedence.Equality;
+            case ExpressionType.ExclusiveOr:
+                return ExpressionPrecedence.LogicalXor;
+            case ExpressionType.GreaterThan:
+            case ExpressionType.GreaterThanOrEqual:
+                return ExpressionPrecedence.RelationalAndTypeTest;
+            case ExpressionType.Invoke:
+                return ExpressionPrecedence.Primary;
+            case ExpressionType.Lambda:
+                return ExpressionPrecedence.Primary;
+            case ExpressionType.LeftShift:
+                return ExpressionPrecedence.Shift;
+            case ExpressionType.LessThan:
+            case ExpressionType.LessThanOrEqual:
+                return ExpressionPrecedence.RelationalAndTypeTest;
+            case ExpressionType.ListInit:
+            case ExpressionType.MemberAccess:
+            case ExpressionType.MemberInit:
+                return ExpressionPrecedence.Primary;
+            case ExpressionType.Modulo:
+            case ExpressionType.Multiply:
+            case ExpressionType.MultiplyChecked:
+                return ExpressionPrecedence.Multiplicative;
+            case ExpressionType.Negate:
+            case ExpressionType.UnaryPlus:
+            case ExpressionType.NegateChecked:
+                return ExpressionPrecedence.Unary;
+            case ExpressionType.New:
+            case ExpressionType.NewArrayInit:
+            case ExpressionType.NewArrayBounds:
+                return ExpressionPrecedence.Primary;
+            case ExpressionType.Not:
+                return ExpressionPrecedence.Unary;
+            case ExpressionType.NotEqual:
+                return ExpressionPrecedence.Equality;
+            case ExpressionType.Or:
+            case ExpressionType.OrElse:
+                return ExpressionPrecedence.ConditionalOr;
+            case ExpressionType.Parameter:
+                return ExpressionPrecedence.Primary;
+            case ExpressionType.Power:
+                return ExpressionPrecedence.Primary;
+            case ExpressionType.Quote:
+                return ExpressionPrecedence.Primary;
+            case ExpressionType.RightShift:
+                return ExpressionPrecedence.Shift;
+            case ExpressionType.Subtract:
+            case ExpressionType.SubtractChecked:
+                return ExpressionPrecedence.Additive;
+            case ExpressionType.TypeAs:
+            case ExpressionType.TypeIs:
+                return ExpressionPrecedence.RelationalAndTypeTest;
             }
             return ExpressionPrecedence.Primary;
         }
@@ -169,45 +170,47 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 var specialExpressionType = ((SpecialExpression)expression).SpecialNodeType;
                 switch (specialExpressionType) // SETuse
                 {
-                    case SpecialExpressionType.IsNull:
-                    case SpecialExpressionType.IsNotNull:
-                        return ExpressionTier.Any;
-                    case SpecialExpressionType.Concat:
-                        return ExpressionTier.Any;
-                    case SpecialExpressionType.Like:
-                        return ExpressionTier.Sql;
-                    case SpecialExpressionType.Min:
-                    case SpecialExpressionType.Max:
-                    case SpecialExpressionType.Sum:
-                    case SpecialExpressionType.Average:
-                    case SpecialExpressionType.Count:
-                        return ExpressionTier.Sql; // don't tell anyone, but we can do it on both tiers, anyway this is significantly faster in SQL anyway
-                    default:
-                        throw Error.BadArgument("S0157: Unhandled node type {0}", specialExpressionType);
+                case SpecialExpressionType.IsNull:
+                case SpecialExpressionType.IsNotNull:
+                case SpecialExpressionType.Concat:
+                case SpecialExpressionType.StringLength:
+                    return ExpressionTier.Any;
+
+                case SpecialExpressionType.Like:
+                    return ExpressionTier.Sql;
+
+                case SpecialExpressionType.Min:
+                case SpecialExpressionType.Max:
+                case SpecialExpressionType.Sum:
+                case SpecialExpressionType.Average:
+                case SpecialExpressionType.Count:
+                    return ExpressionTier.Sql; // don't tell anyone, but we can do it on both tiers, anyway this is significantly faster in SQL anyway
+                default:
+                    throw Error.BadArgument("S0157: Unhandled node type {0}", specialExpressionType);
                 }
             }
             switch (expression.NodeType)
             {
-                case ExpressionType.ArrayLength:
-                case ExpressionType.ArrayIndex:
-                case ExpressionType.Call:
-                case ExpressionType.Convert:
-                case ExpressionType.ConvertChecked:
-                case ExpressionType.Invoke:
-                case ExpressionType.Lambda:
-                case ExpressionType.ListInit:
-                case ExpressionType.MemberAccess:
-                case ExpressionType.MemberInit:
-                case ExpressionType.New:
-                case ExpressionType.NewArrayInit:
-                case ExpressionType.NewArrayBounds:
-                case ExpressionType.Parameter:
-                case ExpressionType.SubtractChecked:
-                case ExpressionType.TypeAs:
-                case ExpressionType.TypeIs:
-                    return ExpressionTier.Clr;
-                default:
-                    return ExpressionTier.Any;
+            case ExpressionType.ArrayLength:
+            case ExpressionType.ArrayIndex:
+            case ExpressionType.Call:
+            case ExpressionType.Convert:
+            case ExpressionType.ConvertChecked:
+            case ExpressionType.Invoke:
+            case ExpressionType.Lambda:
+            case ExpressionType.ListInit:
+            case ExpressionType.MemberAccess:
+            case ExpressionType.MemberInit:
+            case ExpressionType.New:
+            case ExpressionType.NewArrayInit:
+            case ExpressionType.NewArrayBounds:
+            case ExpressionType.Parameter:
+            case ExpressionType.SubtractChecked:
+            case ExpressionType.TypeAs:
+            case ExpressionType.TypeIs:
+                return ExpressionTier.Clr;
+            default:
+                return ExpressionTier.Any;
             }
         }
     }

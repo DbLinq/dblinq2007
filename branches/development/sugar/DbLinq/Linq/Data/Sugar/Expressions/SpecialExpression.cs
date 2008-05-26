@@ -64,6 +64,8 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
                 return defaultType; // for such methods, the type is related to the operands type
             case SpecialExpressionType.Average:
                 return typeof(decimal); // got no better idea
+            case SpecialExpressionType.StringLength:
+                return typeof(int);
             default:
                 throw Error.BadArgument("S0058: Unknown SpecialExpressionType value {0}", specialExpressionType);
             }
@@ -155,6 +157,8 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
                         sum += System.Convert.ToDecimal(operand.Evaluate());
                     return sum / operands.Count;
                 }
+            case SpecialExpressionType.StringLength:
+                return operands[0].Evaluate().ToString().Length;
             default:
                 throw Error.BadArgument("S0116: Unknown SpecialExpressionType ({0})", SpecialNodeType);
             }

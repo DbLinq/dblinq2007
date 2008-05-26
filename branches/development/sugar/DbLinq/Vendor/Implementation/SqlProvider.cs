@@ -185,6 +185,8 @@ namespace DbLinq.Vendor.Implementation
                 return GetLiteralSum(p[0]);
             case SpecialExpressionType.Average:
                 return GetLiteralAverage(p[0]);
+            case SpecialExpressionType.StringLength:
+                return GetLiteralStringLength(p[0]);
             }
             throw new ArgumentException(operationType.ToString());
         }
@@ -208,7 +210,19 @@ namespace DbLinq.Vendor.Implementation
         /// <returns></returns>
         public virtual string GetColumn(string table, string column)
         {
-            return string.Format("{0}.{1}", table, column);
+            return string.Format("{0}.{1}", table, GetColumn(column));
+        }
+
+        /// <summary>
+        /// Returns a column related to a table.
+        /// Ensures about the right case
+        /// </summary>
+        /// <param name="column"></param>
+        /// <returns></returns>
+        public string GetColumn(string column)
+        {
+            // TODO: case check
+            return column;
         }
 
         /// <summary>
@@ -270,13 +284,12 @@ namespace DbLinq.Vendor.Implementation
         }
 
         /// <summary>
-        /// Returns all table colums (*)
+        /// Returns all table columns (*)
         /// </summary>
-        /// <param name="tableAlias"></param>
         /// <returns></returns>
-        public virtual string GetColumns(string tableAlias)
+        public virtual string GetColumns()
         {
-            return string.Format("{0}.*", GetTableAlias(tableAlias));
+            return "*";
         }
 
         /// <summary>
@@ -477,6 +490,11 @@ namespace DbLinq.Vendor.Implementation
         {
             // for some vendors, it is "CONCAT(a,b)"
             return string.Format("{0} || {1}", a, b);
+        }
+
+        protected virtual string GetLiteralStringLength(string a)
+        {
+            return string.Format("CHARACTER_LENGTH({0})", a);
         }
 
         protected virtual string GetLiteralLike(string a, string b)
