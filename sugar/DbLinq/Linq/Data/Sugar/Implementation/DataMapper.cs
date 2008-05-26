@@ -80,6 +80,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <param name="foreignKey">The keys in the joined table</param>
         /// <param name="joinedKey">The keys in the associated table</param>
         /// <param name="joinType"></param>
+        /// <param name="joinID"></param>
         /// <param name="dataContext"></param>
         /// <returns></returns>
         public virtual Type GetAssociation(TableExpression joinedTableExpression, MemberInfo memberInfo,
@@ -93,15 +94,22 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                  select association).SingleOrDefault();
             if (associationDescription != null)
             {
+                Type tableType;
                 if (associationDescription.OtherKey.Count == 0)
-                    foreignKey = GetPrimaryKeys(associationDescription.OtherType.Table);
+                {
+                    tableType = associationDescription.ThisMember.Type;
+                    var metaTableType = dataContext.Mapping.GetTable(tableType);
+                    foreignKey = GetPrimaryKeys(metaTableType);
+                }
                 else
+                {
                     foreignKey = (from key in associationDescription.OtherKey select key.Member).ToList();
+                    tableType = foreignKey[0].DeclaringType;
+                }
                 if (associationDescription.ThisKey.Count == 0)
                     joinedKey = GetPrimaryKeys(joinedTableDescription);
                 else
                     joinedKey = (from key in associationDescription.ThisKey select key.Member).ToList();
-                var tableType = foreignKey[0].DeclaringType;
                 joinType = TableJoinType.Inner;
                 joinID = associationDescription.ThisMember.MappedName;
                 if (string.IsNullOrEmpty(joinID))
