@@ -95,8 +95,6 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
 
         protected virtual Expression Analyze(Expression expression, IList<Expression> parameters, BuilderContext builderContext)
         {
-            if (expression is TableExpression)
-                return AnalyzeTable((TableExpression)expression, builderContext);
             switch (expression.NodeType)
             {
             case ExpressionType.Call:
@@ -147,11 +145,6 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 return AnalyzeOperator(expression, builderContext);
             }
             return expression;
-        }
-
-        private Expression AnalyzeTable(TableExpression tableExpression, BuilderContext builderContext)
-        {
-            return ExpressionRegistrar.RegisterTable(tableExpression, builderContext);
         }
 
         protected virtual Expression AnalyzeCall(MethodCallExpression expression, IList<Expression> parameters, BuilderContext builderContext)
@@ -211,7 +204,10 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         protected virtual Expression AnalyzeProjectionQuery(SpecialExpressionType specialExpressionType, IList<Expression> parameters,
             BuilderContext builderContext)
         {
-            return new SpecialExpression(specialExpressionType, Analyze(parameters[0], builderContext));
+            var projectionOperand = Analyze(parameters[0], builderContext);
+            if (projectionOperand is TableExpression)
+                projectionOperand = ExpressionRegistrar.RegisterTable((TableExpression)projectionOperand, builderContext);
+            return new SpecialExpression(specialExpressionType, projectionOperand);
         }
 
         /// <summary>
@@ -535,7 +531,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 // in this case, we convert it into its declared columns
                 if (expression is TableExpression)
                 {
-                    return RegisterParameterTable((TableExpression) expression, dataRecordParameter,
+                    return RegisterParameterTable((TableExpression)expression, dataRecordParameter,
                                                   mappingContextParameter, builderContext);
                 }
                 // then, the result is registered
