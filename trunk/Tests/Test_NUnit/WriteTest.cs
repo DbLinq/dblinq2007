@@ -38,6 +38,7 @@ using Id = System.Int32;
 using System.Data.Linq.Mapping;
 #endif
 using TableAttribute = System.Data.Linq.Mapping.TableAttribute;
+using DbLinq.Linq;
 
 #if MYSQL
     namespace Test_NUnit_MySql
@@ -577,7 +578,7 @@ dummy text
         public void G16_CustomerCacheHit()
         {
             Northwind db = CreateDB();
-            Customer c1 = new Customer() { CustomerID = "temp", CompanyName="Test", ContactName="Test" };
+            Customer c1 = new Customer() { CustomerID = "temp", CompanyName = "Test", ContactName = "Test" };
             db.Customers.InsertOnSubmit(c1);
             db.SubmitChanges();
             db.ExecuteCommand("delete from customers WHERE CustomerID='temp'");
@@ -586,6 +587,61 @@ dummy text
                        where c.CustomerID == "temp"
                        select c).Single();
         }
+
+
+
+        [Test]
+        public void G17_LocalPropertyUpdate()
+        {
+            Northwind dbo = CreateDB();
+            NorthwindLocalProperty db = new NorthwindLocalProperty(dbo.DatabaseContext.Connection);
+            var det = db.OrderDetailWithSums.First();
+            det.ChangeQuantity();
+            Assert.AreEqual(0, db.GetChangeSet().Updates.Count);
+            db.SubmitChanges();
+        }
+
+        class NorthwindLocalProperty : Northwind
+        {
+            internal NorthwindLocalProperty(System.Data.IDbConnection connection)
+                : base(connection) { }
+
+            internal Table<OrderDetailWithSum> OrderDetailWithSums
+            {
+                get
+                {
+                    return GetTable<OrderDetailWithSum>();
+                }
+            }
+
+        }
+
+        class OrderDetailWithSum : OrderDetail, INotifyPropertyChanged
+        {
+            public event PropertyChangedEventHandler PropertyChanged;
+            protected virtual void OnPropertyChanged(string propertyName)
+            {
+                if (PropertyChanged != null)
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                }
+            }
+
+            internal decimal? Sum
+            {
+                get
+                {
+                    return Quantity * UnitPrice;
+                }
+            }
+
+            internal void ChangeQuantity()
+            {
+                OnPropertyChanged("Sum");
+            }
+        }
+
+
         #endregion
 
 
