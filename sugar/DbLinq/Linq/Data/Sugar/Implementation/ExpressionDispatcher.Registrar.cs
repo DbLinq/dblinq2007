@@ -27,20 +27,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using DbLinq.Factory;
 using DbLinq.Linq.Data.Sugar.Expressions;
-using DbLinq.Util;
 
 namespace DbLinq.Linq.Data.Sugar.Implementation
 {
-    public class ExpressionRegistrar : IExpressionRegistrar
+    public partial class ExpressionDispatcher
     {
-        public IDataMapper DataMapper { get; set; }
-
-        public ExpressionRegistrar()
-        {
-            DataMapper = ObjectFactory.Get<IDataMapper>();
-        }
 
         /// <summary>
         /// Returns a registered column, or null if not found
@@ -341,5 +333,28 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             // TODO: something smarter, to compare contents and not only references (works fine only for columns)
             return a == b;
         }
+
+        protected virtual Expression RegisterParameterTable(TableExpression tableExpression, ParameterExpression dataRecordParameter, ParameterExpression mappingContextParameter, BuilderContext builderContext)
+        {
+            var bindings = new List<MemberBinding>();
+            foreach (var columnExpression in RegisterAllColumns(tableExpression, builderContext))
+            {
+                var binding = Expression.Bind(columnExpression.MemberInfo,
+                                              RegisterParameterColumn(columnExpression, dataRecordParameter,
+                                                                      mappingContextParameter, builderContext));
+                bindings.Add(binding);
+            }
+            var newExpression = Expression.New(tableExpression.Type);
+            return Expression.MemberInit(newExpression, bindings);
+        }
+
+        protected virtual Expression RegisterParameterColumn(Expression expression, ParameterExpression dataRecordParameter, ParameterExpression mappingContextParameter, BuilderContext builderContext)
+        {
+            int valueIndex = RegisterSelectOperand(expression, builderContext);
+            var propertyReader = DataRecordReader.GetPropertyReader(dataRecordParameter, mappingContextParameter, expression.Type,
+                                                                    valueIndex);
+            return propertyReader;
+        }
+
     }
 }

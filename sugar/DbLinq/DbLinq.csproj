@@ -70,7 +70,8 @@
     <Compile Include="Linq\Data\Sugar\ExpressionMutator\Implementation\MemberBindingMutatorFactory.cs" />
     <Compile Include="Linq\Data\Sugar\ExpressionMutator\Implementation\MemberListBindingMutator.cs" />
     <Compile Include="Linq\Data\Sugar\ExpressionMutator\Implementation\MemberMemberBindingMutator.cs" />
-    <Compile Include="Linq\Data\Sugar\ExpressionQualifier.cs" />
+    <Compile Include="Linq\Data\Sugar\IExpressionQualifier.cs" />
+    <Compile Include="Linq\Data\Sugar\Implementation\ExpressionQualifier.cs" />
     <Compile Include="Linq\Data\Sugar\Expressions\IExecutableExpression.cs" />
     <Compile Include="Linq\Data\Sugar\Expressions\IMutableExpression.cs" />
     <Compile Include="Linq\Data\Sugar\Expressions\MutableExpression.cs" />
@@ -87,10 +88,10 @@
     <Compile Include="Linq\Data\Sugar\IDataMapper.cs" />
     <Compile Include="Linq\Data\Sugar\IDataRecordReader.cs" />
     <Compile Include="Linq\Data\Sugar\Implementation\DataRecordReader.cs" />
-    <Compile Include="Linq\Data\Sugar\Implementation\ExpressionService.cs" />
+    <Compile Include="Linq\Data\Sugar\Implementation\ExpressionDispatcher.Analyzer.cs" />
+    <Compile Include="Linq\Data\Sugar\Implementation\ExpressionDispatcher.Registrar.cs" />
     <Compile Include="Linq\Data\Sugar\Implementation\SqlBuilder.cs" />
     <Compile Include="Linq\Data\Sugar\IQueryBuilder.cs" />
-    <Compile Include="Linq\Data\Sugar\IExpressionRegistrar.cs" />
     <Compile Include="Linq\Data\Sugar\IExpressionDispatcher.cs" />
     <Compile Include="Linq\Data\Sugar\IExpressionOptimizer.cs" />
     <Compile Include="Linq\Data\Sugar\IExpressionLanguageParser.cs" />
@@ -98,7 +99,6 @@
     <Compile Include="Linq\Data\Sugar\Implementation\ExpressionDispatcher.cs" />
     <Compile Include="Linq\Data\Sugar\Implementation\ExpressionOptimizer.cs" />
     <Compile Include="Linq\Data\Sugar\Implementation\ExpressionLanguageParser.cs" />
-    <Compile Include="Linq\Data\Sugar\Implementation\ExpressionRegistrar.cs" />
     <Compile Include="Linq\Data\Sugar\ExpressionMutator\Implementation\BinaryExpressionMutator.cs" />
     <Compile Include="Linq\Data\Sugar\ExpressionMutator\Implementation\ConditionalExpressionMutator.cs" />
     <Compile Include="Linq\Data\Sugar\ExpressionMutator\Implementation\ConstantExpressionMutator.cs" />
