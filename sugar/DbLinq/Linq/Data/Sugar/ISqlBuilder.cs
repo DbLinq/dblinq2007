@@ -22,36 +22,17 @@
 // 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using DbLinq.Linq.Data.Sugar.Expressions;
-
 namespace DbLinq.Linq.Data.Sugar
 {
-    /// <summary>
-    /// Represents the first step Expression analysis result
-    /// </summary>
-    public class ExpressionQuery
+    public interface ISqlBuilder
     {
         /// <summary>
-        /// Values coming from outside the request (external parameters)
-        /// Those parameters are filled at each request
+        /// Builds a SQL string, based on a QueryContext
+        /// The build indirectly depends on ISqlProvider which provides all SQL parts.
         /// </summary>
-        public IList<ExternalParameterExpression> Parameters { get; private set; }
-
-        /// <summary>
-        /// The SELECT expression itself
-        /// </summary>
-        public ScopeExpression Select { get; set; }
-
-        /// <summary>
-        /// Expression that creates a row object
-        /// </summary>
-        public Delegate RowObjectCreator { get; set; }
-
-        public ExpressionQuery()
-        {
-            Parameters = new List<ExternalParameterExpression>();
-        }
+        /// <param name="expressionQuery"></param>
+        /// <param name="queryContext"></param>
+        /// <returns></returns>
+        string Build(ExpressionQuery expressionQuery, QueryContext queryContext);
     }
 }

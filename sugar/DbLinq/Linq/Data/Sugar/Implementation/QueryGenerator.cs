@@ -25,9 +25,12 @@
 using System;
 using DbLinq.Factory;
 
-namespace DbLinq.Linq.Data.Sugar
+namespace DbLinq.Linq.Data.Sugar.Implementation
 {
-    public class QueryGenerator: IQueryGenerator
+    /// <summary>
+    /// This class will be removed when fully switching to Sugar
+    /// </summary>
+    public class QueryGenerator : IQueryGenerator
     {
         public IQueryBuilder QueryBuilder { get; set; }
 
@@ -44,9 +47,10 @@ namespace DbLinq.Linq.Data.Sugar
             if (vars.ScalarExpression != null)
                 expressionChain.Expressions.Add(vars.ScalarExpression);
 
-            QueryBuilder.GetQuery(expressionChain, new QueryContext(vars.Context));
+            var varsParsed = new SessionVarsParsed(vars);
+            varsParsed.Query = QueryBuilder.GetQuery(expressionChain, new QueryContext(vars.Context));
 
-            return new SessionVarsParsed(vars);
+            return varsParsed;
         }
     }
 }

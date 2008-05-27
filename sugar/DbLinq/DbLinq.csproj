@@ -90,6 +90,7 @@
     <Compile Include="Linq\Data\Sugar\Implementation\DataRecordReader.cs" />
     <Compile Include="Linq\Data\Sugar\Implementation\ExpressionDispatcher.Analyzer.cs" />
     <Compile Include="Linq\Data\Sugar\Implementation\ExpressionDispatcher.Registrar.cs" />
+    <Compile Include="Linq\Data\Sugar\Implementation\QueryRunner.cs" />
     <Compile Include="Linq\Data\Sugar\Implementation\SqlBuilder.cs" />
     <Compile Include="Linq\Data\Sugar\IQueryBuilder.cs" />
     <Compile Include="Linq\Data\Sugar\IExpressionDispatcher.cs" />
@@ -117,10 +118,12 @@
     <Compile Include="Linq\Data\Sugar\ExpressionMutator\Implementation\UnaryExpressionMutator.cs" />
     <Compile Include="Linq\Data\Sugar\ExpressionChain.cs" />
     <Compile Include="Linq\Data\Sugar\ExpressionPrecedence.cs" />
+    <Compile Include="Linq\Data\Sugar\IQueryRunner.cs" />
+    <Compile Include="Linq\Data\Sugar\ISqlBuilder.cs" />
     <Compile Include="Linq\Data\Sugar\QueryContext.cs" />
     <Compile Include="Linq\Data\Sugar\Implementation\QueryBuilder.cs" />
     <Compile Include="Linq\Data\Sugar\ExpressionQuery.cs" />
-    <Compile Include="Linq\Data\Sugar\QueryGenerator.cs" />
+    <Compile Include="Linq\Data\Sugar\Implementation\QueryGenerator.cs" />
     <Compile Include="Linq\Data\Sugar\Query.cs" />
     <Compile Include="Linq\Identity\IdentityKey.cs" />
     <Compile Include="Linq\Identity\IIdentityProvider.cs" />
