@@ -151,7 +151,7 @@ namespace DbLinq.Util
         /// <returns></returns>
         public static bool CanBeNull(this Type t)
         {
-            return !t.IsValueType;
+            return IsNullable(t) || !t.IsValueType;
         }
 
         /// <summary>
@@ -199,6 +199,16 @@ namespace DbLinq.Util
         public static Type GetNullableType(this Type t)
         {
             return t.GetGenericArguments()[0];
+        }
+
+        /// <summary>
+        /// Returns default value for provided type
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        public static object GetDefault(this Type t)
+        {
+            return TypeConvert.GetDefault(t);
         }
     }
 }

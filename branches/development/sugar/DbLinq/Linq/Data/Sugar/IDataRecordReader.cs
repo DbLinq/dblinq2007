@@ -1,4 +1,4 @@
-﻿#region MIT license
+#region MIT license
 // 
 // Copyright (c) 2007-2008 Jiri Moudry
 // 
@@ -32,12 +32,8 @@ namespace DbLinq.Linq.Data.Sugar
         /// <summary>
         /// Returns a Expression reading a property from a IDataRecord, at the specified index
         /// </summary>
-        /// <param name="dataRecordParameter">The IDataRecord as ParameterExpression</param>
-        /// <param name="mappingContextParameter">The MappingContext, as ParameterExpression</param>
         /// <param name="returnType">The expected return type (to be mapped to the property)</param>
-        /// <param name="valueIndex">Field index in IDataRecord</param>
-        /// <returns>An expression returning the field value</returns>
-        Expression GetPropertyReader(Expression dataRecordParameter, Expression mappingContextParameter,
-            Type returnType, int valueIndex);
+        /// <returns>A lambda(IDataRecord,MappingColumn,fieldIndex) returning the field value</returns>
+        LambdaExpression GetPropertyReader(Type returnType);
     }
 }

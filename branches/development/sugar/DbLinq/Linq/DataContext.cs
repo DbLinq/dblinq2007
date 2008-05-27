@@ -39,6 +39,7 @@ using DbLinq.Linq.Implementation;
 using DbLinq.Logging;
 using DbLinq.Vendor;
 using DbLinq.Util;
+using QueryGenerator=DbLinq.Linq.Data.Sugar.Implementation.QueryGenerator;
 
 namespace DbLinq.Linq
 {
@@ -88,7 +89,7 @@ namespace DbLinq.Linq
             ResultMapper = ObjectFactory.Get<IResultMapper>();
             ModificationHandler = ObjectFactory.Create<IModificationHandler>(); // not a singleton: object is stateful
             //QueryGenerator = ObjectFactory.Get<QueryGenerator>();
-            QueryGenerator = ObjectFactory.Get<Data.Sugar.QueryGenerator>();
+            QueryGenerator = ObjectFactory.Get<QueryGenerator>();
 
             EntityMap = ObjectFactory.Create<IEntityMap>();
             identityReaderFactory = ObjectFactory.Get<IIdentityReaderFactory>();

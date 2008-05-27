@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using DbLinq.Factory;
@@ -44,16 +45,24 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         public IExpressionLanguageParser ExpressionLanguageParser { get; set; }
         public IExpressionOptimizer ExpressionOptimizer { get; set; }
         public IExpressionDispatcher ExpressionDispatcher { get; set; }
-        public SqlBuilder SqlBuilder { get; set; }
+        public ISqlBuilder SqlBuilder { get; set; }
 
         public QueryBuilder()
         {
             ExpressionLanguageParser = ObjectFactory.Get<IExpressionLanguageParser>();
             ExpressionOptimizer = ObjectFactory.Get<IExpressionOptimizer>();
             ExpressionDispatcher = ObjectFactory.Get<IExpressionDispatcher>();
-            SqlBuilder = ObjectFactory.Get<SqlBuilder>();
+            SqlBuilder = ObjectFactory.Get<ISqlBuilder>();
         }
 
+        /// <summary>
+        /// Builds the ExpressionQuery:
+        /// - parses Expressions and builds row creator
+        /// - checks names unicity
+        /// </summary>
+        /// <param name="expressions"></param>
+        /// <param name="queryContext"></param>
+        /// <returns></returns>
         protected virtual ExpressionQuery BuildExpressionQuery(ExpressionChain expressions, QueryContext queryContext)
         {
             var builderContext = new BuilderContext(queryContext);
@@ -63,7 +72,14 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             return builderContext.ExpressionQuery;
         }
 
-        protected virtual IList<Expression> FindPiecesByName(string name, BuilderContext builderContext)
+        /// <summary>
+        /// Finds all registered tables or columns with the given name.
+        /// We exclude parameter because they won't be prefixed/suffixed the same way (well, that's a guess, I hope it's a good one)
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        protected virtual IList<Expression> FindExpressionsByName(string name, BuilderContext builderContext)
         {
             var expressions = new List<Expression>();
             expressions.AddRange(from t in builderContext.EnumerateAllTables() where t.Alias == name select (Expression)t);
@@ -106,7 +122,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 {
                     // if no alias, or duplicate alias
                     if (string.IsNullOrEmpty(tableExpression.Alias) ||
-                        FindPiecesByName(tableExpression.Alias, builderContext).Count > 1)
+                        FindExpressionsByName(tableExpression.Alias, builderContext).Count > 1)
                     {
                         int anonymousIndex = 0;
                         var aliasBase = tableExpression.Alias;
@@ -114,7 +130,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                         do
                         {
                             tableExpression.Alias = MakeTableName(aliasBase, ++anonymousIndex, builderContext);
-                        } while (FindPiecesByName(tableExpression.Alias, builderContext).Count != 1);
+                        } while (FindExpressionsByName(tableExpression.Alias, builderContext).Count != 1);
                     }
                 }
             }
@@ -125,6 +141,11 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             return (from p in builderContext.ExpressionQuery.Parameters where p.Alias == name select p).ToList();
         }
 
+        /// <summary>
+        /// Gives anonymous parameters a name and checks for names unicity
+        /// The fact of giving a nice name just helps for readability
+        /// </summary>
+        /// <param name="builderContext"></param>
         protected virtual void CheckParametersAlias(BuilderContext builderContext)
         {
             foreach (var externalParameterEpxression in builderContext.ExpressionQuery.Parameters)
@@ -138,11 +159,16 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                     do
                     {
                         externalParameterEpxression.Alias = MakeTableName(aliasBase, ++anonymousIndex, builderContext);
-                    } while (FindPiecesByName(externalParameterEpxression.Alias, builderContext).Count != 1);
+                    } while (FindExpressionsByName(externalParameterEpxression.Alias, builderContext).Count != 1);
                 }
             }
         }
 
+        /// <summary>
+        /// Builds and chains the provided Expressions
+        /// </summary>
+        /// <param name="expressions"></param>
+        /// <param name="builderContext"></param>
         protected virtual void BuildExpressionQuery(ExpressionChain expressions, BuilderContext builderContext)
         {
             var previousExpression = ExpressionDispatcher.CreateTableExpression(expressions.Expressions[0], builderContext);
@@ -160,6 +186,22 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             ExpressionDispatcher.BuildSelect(previousExpression, builderContext);
             // now, we optimize anything we can
             OptimizeQuery(builderContext);
+            // finally, compile our object creation method
+            CompileRowCreator(builderContext);
+        }
+
+        /// <summary>
+        /// Builds the delegate to create a row
+        /// </summary>
+        /// <param name="builderContext"></param>
+        protected virtual void CompileRowCreator(BuilderContext builderContext)
+        {
+            ParameterExpression dataRecordParameter = Expression.Parameter(typeof(IDataRecord), "dataRecord");
+            ParameterExpression mappingContextParameter = Expression.Parameter(typeof(MappingContext), "mappingContext");
+            // if the Select is already a lambda, then we have a lambda calling the same lambda. This is a bit stupid
+            // and can probably be optimized.
+            var lambda = Expression.Lambda(builderContext.ExpressionQuery.Select.Select, dataRecordParameter, mappingContextParameter);
+            builderContext.ExpressionQuery.RowObjectCreator = lambda.Compile();
         }
 
         /// <summary>
@@ -184,7 +226,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         protected virtual Query BuildSqlQuery(ExpressionQuery expressionQuery, QueryContext queryContext)
         {
             var sql = SqlBuilder.Build(expressionQuery, queryContext);
-            var sqlQuery = new Query(sql, expressionQuery.Parameters, expressionQuery.Select.Select);
+            var sqlQuery = new Query(queryContext.DataContext, sql, expressionQuery.Parameters, expressionQuery.RowObjectCreator);
             return sqlQuery;
         }
 
@@ -199,6 +241,12 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         {
         }
 
+        /// <summary>
+        /// Main entry point for the class. Builds or retrive from cache a SQL query corresponding to given Expressions
+        /// </summary>
+        /// <param name="expressions"></param>
+        /// <param name="queryContext"></param>
+        /// <returns></returns>
         public Query GetQuery(ExpressionChain expressions, QueryContext queryContext)
         {
             var query = GetFromCache(expressions);
@@ -209,7 +257,6 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 queryContext.DataContext.Logger.Write(Level.Debug, "SQL: {0}", query.Sql);
                 SetInCache(expressions, query);
             }
-            throw new Exception("Can't go further anyway...");
             return query;
         }
     }

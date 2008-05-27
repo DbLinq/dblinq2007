@@ -29,169 +29,127 @@ using DbLinq.Util;
 
 namespace DbLinq.Linq.Data.Sugar.Implementation
 {
-    public class DataRecordReader: IDataRecordReader
+    public class DataRecordReader : IDataRecordReader
     {
         /// <summary>
         /// Returns a Expression reading a property from a IDataRecord, at the specified index
         /// </summary>
-        /// <param name="dataRecordParameter">The IDataRecord as ParameterExpression</param>
-        /// <param name="mappingContextParameter">The MappingContext, as ParameterExpression</param>
         /// <param name="returnType">The expected return type (to be mapped to the property)</param>
-        /// <param name="valueIndex">Field index in IDataRecord</param>
         /// <returns>An expression returning the field value</returns>
-        public virtual Expression GetPropertyReader(Expression dataRecordParameter, Expression mappingContextParameter, Type returnType, int valueIndex)
+        public virtual LambdaExpression GetPropertyReader(Type returnType)
         {
-            Expression propertyReader;
-            Type nullableValueType = GetNullableTypeArgument(returnType);
-            if (nullableValueType != null)
+            // if we have a nullable, then use its inner type
+            if (returnType.IsNullable())
             {
-                Expression simplePropertyReader = Expression.Convert(
-                GetSimplePropertyReader(nullableValueType, valueIndex, dataRecordParameter, mappingContextParameter), returnType);
-                Expression zero = Expression.Constant(null, returnType);
-                propertyReader = Expression.Condition(
-                    Expression.Invoke((Expression<Func<IDataRecord, MappingContext, bool>>)((dataReader, context) => dataReader.IsDBNull(valueIndex)), dataRecordParameter, mappingContextParameter),
-                    zero, simplePropertyReader);
+                var nonNullableReturnType = returnType.GetNullableType();
+                return GetNullablePropertyReader(nonNullableReturnType);
             }
-            else
-            {
-                propertyReader = GetSimplePropertyReader(returnType, valueIndex, dataRecordParameter, mappingContextParameter);
-            }
-            return propertyReader;
+            // otherwise, it's simple
+            return GetNullablePropertyReader(returnType);
         }
 
-        protected virtual Type GetNullableTypeArgument(Type type)
+        protected virtual LambdaExpression GetNullablePropertyReader(Type simpleReturnType)
         {
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            if (simpleReturnType == typeof(string))
             {
-                return type.GetGenericArguments()[0];
+                return (Expression<Func<IDataRecord, MappingContext, int, string>>)((dataRecord, mappingContext, valueIndex)
+                    => GetAsString(dataRecord, valueIndex, mappingContext));
             }
-            return null;
-        }
-
-        protected virtual Expression GetSimplePropertyReader(Type returnType, int valueIndex,
-            Expression reader, Expression mappingContext)
-        {
-            bool cast;
-            var propertyReader = GetSimplePropertyReader(returnType, valueIndex, out cast);
-            propertyReader = Expression.Invoke(propertyReader, reader, mappingContext);
-            if (cast)
-                propertyReader = Expression.Convert(propertyReader, returnType);
-            return propertyReader;
-        }
-
-        protected virtual Expression GetSimplePropertyReader(Type returnType, int valueIndex,
-            out bool cast)
-        {
-            cast = false;
-            Expression propertyReader;
-            if (returnType == typeof(string))
+            if (simpleReturnType == typeof(bool))
             {
-                propertyReader = (Expression<Func<IDataRecord, MappingContext, string>>)((dataReader, mappingContext)
-                    => GetAsString(dataReader, valueIndex, mappingContext));
+                return (Expression<Func<IDataRecord, MappingContext, int, bool?>>)((dataRecord, mappingContext, valueIndex)
+                    => dataRecord.GetAsNullableBool(valueIndex));
             }
-            else if (returnType == typeof(bool))
+            if (simpleReturnType == typeof(char))
             {
-                propertyReader = (Expression<Func<IDataRecord, MappingContext, bool>>)((dataReader, mappingContext)
-                    => dataReader.GetAsBool(valueIndex));
+                return (Expression<Func<IDataRecord, MappingContext, int, char?>>)((dataRecord, mappingContext, valueIndex)
+                    => dataRecord.GetAsNullableChar(valueIndex));
             }
-            else if (returnType == typeof(char))
+            if (simpleReturnType == typeof(byte))
             {
-                propertyReader = (Expression<Func<IDataRecord, MappingContext, char>>)((dataReader, mappingContext)
-                    => dataReader.GetAsChar(valueIndex));
+                return (Expression<Func<IDataRecord, MappingContext, int, byte?>>)((dataRecord, mappingContext, valueIndex)
+                    => dataRecord.GetAsNullableNumeric<byte>(valueIndex));
             }
-            else if (returnType == typeof(byte))
+            if (simpleReturnType == typeof(sbyte))
             {
-                propertyReader = (Expression<Func<IDataRecord, MappingContext, byte>>)((dataReader, mappingContext)
-                    => dataReader.GetAsNumeric<byte>(valueIndex));
+                return (Expression<Func<IDataRecord, MappingContext, int, sbyte?>>)((dataRecord, mappingContext, valueIndex)
+                    => dataRecord.GetAsNullableNumeric<sbyte>(valueIndex));
             }
-            else if (returnType == typeof(sbyte))
+            if (simpleReturnType == typeof(short))
             {
-                propertyReader = (Expression<Func<IDataRecord, MappingContext, sbyte>>)((dataReader, mappingContext)
-                    => dataReader.GetAsNumeric<sbyte>(valueIndex));
+                return (Expression<Func<IDataRecord, MappingContext, int, short?>>)((dataRecord, mappingContext, valueIndex)
+                    => dataRecord.GetAsNullableNumeric<short>(valueIndex));
             }
-            else if (returnType == typeof(short))
+            if (simpleReturnType == typeof(ushort))
             {
-                propertyReader = (Expression<Func<IDataRecord, MappingContext, short>>)((dataReader, mappingContext)
-                    => dataReader.GetAsNumeric<short>(valueIndex));
+                return (Expression<Func<IDataRecord, MappingContext, int, ushort?>>)((dataRecord, mappingContext, valueIndex)
+                    => dataRecord.GetAsNullableNumeric<ushort>(valueIndex));
             }
-            else if (returnType == typeof(ushort))
+            if (simpleReturnType == typeof(int))
             {
-                propertyReader = (Expression<Func<IDataRecord, MappingContext, ushort>>)((dataReader, mappingContext)
-                    => dataReader.GetAsNumeric<ushort>(valueIndex));
+                return (Expression<Func<IDataRecord, MappingContext, int, int?>>)((dataRecord, mappingContext, valueIndex)
+                    => dataRecord.GetAsNullableNumeric<int>(valueIndex));
             }
-            else if (returnType == typeof(int))
+            if (simpleReturnType == typeof(uint))
             {
-                propertyReader = (Expression<Func<IDataRecord, MappingContext, int>>)((dataReader, mappingContext)
-                    => dataReader.GetAsNumeric<int>(valueIndex));
+                return (Expression<Func<IDataRecord, MappingContext, int, uint?>>)((dataRecord, mappingContext, valueIndex)
+                    => dataRecord.GetAsNullableNumeric<uint>(valueIndex));
             }
-            else if (returnType == typeof(uint))
+            if (simpleReturnType == typeof(long))
             {
-                propertyReader = (Expression<Func<IDataRecord, MappingContext, uint>>)((dataReader, mappingContext)
-                    => dataReader.GetAsNumeric<uint>(valueIndex));
+                return (Expression<Func<IDataRecord, MappingContext, int, long?>>)((dataRecord, mappingContext, valueIndex)
+                    => dataRecord.GetAsNullableNumeric<long>(valueIndex));
             }
-            else if (returnType == typeof(long))
+            if (simpleReturnType == typeof(ulong))
             {
-                propertyReader = (Expression<Func<IDataRecord, MappingContext, long>>)((dataReader, mappingContext)
-                    => dataReader.GetAsNumeric<long>(valueIndex));
+                return (Expression<Func<IDataRecord, MappingContext, int, ulong?>>)((dataRecord, mappingContext, valueIndex)
+                    => dataRecord.GetAsNullableNumeric<ulong>(valueIndex));
             }
-            else if (returnType == typeof(ulong))
+            if (simpleReturnType == typeof(float))
             {
-                propertyReader = (Expression<Func<IDataRecord, MappingContext, ulong>>)((dataReader, mappingContext)
-                    => dataReader.GetAsNumeric<ulong>(valueIndex));
+                return (Expression<Func<IDataRecord, MappingContext, int, float?>>)((dataRecord, mappingContext, valueIndex)
+                    => dataRecord.GetAsNullableNumeric<float>(valueIndex));
             }
-            else if (returnType == typeof(float))
+            if (simpleReturnType == typeof(double))
             {
-                propertyReader = (Expression<Func<IDataRecord, MappingContext, float>>)((dataReader, mappingContext)
-                    => dataReader.GetAsNumeric<float>(valueIndex));
+                return (Expression<Func<IDataRecord, MappingContext, int, double?>>)((dataRecord, mappingContext, valueIndex)
+                    => dataRecord.GetAsNullableNumeric<double>(valueIndex));
             }
-            else if (returnType == typeof(double))
+            if (simpleReturnType == typeof(decimal))
             {
-                propertyReader = (Expression<Func<IDataRecord, MappingContext, double>>)((dataReader, mappingContext)
-                    => dataReader.GetAsNumeric<double>(valueIndex));
+                return (Expression<Func<IDataRecord, MappingContext, int, decimal?>>)((dataRecord, mappingContext, valueIndex)
+                    => dataRecord.GetAsNullableNumeric<decimal>(valueIndex));
             }
-            else if (returnType == typeof(decimal))
+            if (simpleReturnType == typeof(DateTime))
             {
-                propertyReader = (Expression<Func<IDataRecord, MappingContext, decimal>>)((dataReader, mappingContext)
-                    => dataReader.GetAsNumeric<decimal>(valueIndex));
+                return (Expression<Func<IDataRecord, MappingContext, int, DateTime?>>)((dataRecord, mappingContext, valueIndex)
+                    => dataRecord.GetAsNullableDateTime(valueIndex));
             }
-            else if (returnType == typeof(DateTime))
+            if (simpleReturnType == typeof(byte[]))
             {
-                propertyReader = (Expression<Func<IDataRecord, MappingContext, DateTime>>)((dataReader, mappingContext)
-                    => dataReader.GetDateTime(valueIndex));
+                return (Expression<Func<IDataRecord, MappingContext, int, byte[]>>)((dataRecord, mappingContext, valueIndex)
+                    => dataRecord.GetAsBytes(valueIndex));
             }
-            else if (returnType == typeof(byte[]))
+            if (simpleReturnType.IsEnum)
             {
-                propertyReader = (Expression<Func<IDataRecord, MappingContext, byte[]>>)((dataReader, mappingContext)
-                    => dataReader.GetAsBytes(valueIndex));
-            }
-            else if (returnType.IsEnum)
-            {
-                cast = true;
-                propertyReader = (Expression<Func<IDataRecord, MappingContext, int>>)((dataReader, mappingContext)
-                    => dataReader.GetAsEnum(returnType, valueIndex));
+                return (Expression<Func<IDataRecord, MappingContext, int, int?>>)((dataRecord, mappingContext, valueIndex)
+                    => dataRecord.GetAsNullableNumeric<int>(valueIndex));
             }
             // for polymorphic types especially for ExecuteQuery<>()
-            else if (returnType == typeof(object))
+            if (simpleReturnType == typeof(object))
             {
-                propertyReader = (Expression<Func<IDataRecord, MappingContext, object>>)((dataReader, mappingContext)
-                    => GetAsObject(dataReader, valueIndex, mappingContext));
+                return (Expression<Func<IDataRecord, MappingContext, int, object>>)((dataRecord, mappingContext, valueIndex)
+                    => GetAsObject(dataRecord, valueIndex, mappingContext));
             }
-            else
-            {
-                //s_rdr.GetUInt32();
-                //s_rdr.GetFloat();
-                string msg = "RowEnum TODO L381: add support for type " + returnType;
-                Console.WriteLine(msg);
-//                propertyReader = null;
-  //              throw new ApplicationException(msg);
-                propertyReader = (Expression<Func<IDataRecord, MappingContext, object>>)((dataReader, mappingContext)
-                    => GetAsObject(dataReader, valueIndex, mappingContext));
-            }
-            //if (propertyReader == null)
-            //{
-            //    Console.WriteLine("L298: Reference to invalid function name");
-            //}
-            return propertyReader;
+            //s_rdr.GetUInt32();
+            //s_rdr.GetFloat();
+            string msg = "RowEnum TODO L381: add support for type " + simpleReturnType;
+            Console.WriteLine(msg);
+            //                propertyReader = null;
+            //              throw new ApplicationException(msg);
+            // TODO: 
+            return (Expression<Func<IDataRecord, MappingContext, int, object>>)((dataRecord, mappingContext, valueIndex)
+                => GetAsObject(dataRecord, valueIndex, mappingContext));
         }
 
         /// <summary>
@@ -205,7 +163,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         {
             var value = dataRecord.GetAsString(columnIndex);
             mappingContext.OnGetAsString(dataRecord, ref value, null, columnIndex); // return type null here, expression can be a little more complex than a known type
-                                                                                    // TODO: see if we keep this type
+            // TODO: see if we keep this type
             return value;
         }
 

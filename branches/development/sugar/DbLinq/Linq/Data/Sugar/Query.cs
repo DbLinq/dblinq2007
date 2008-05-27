@@ -22,24 +22,56 @@
 // 
 #endregion
 
+using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
+using System.Data;
 using DbLinq.Linq.Data.Sugar.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar
 {
+    /// <summary>
+    /// Represents a linq query, parsed and compiled, to be sent to database
+    /// This instance is immutable, since it can be stored in a cache
+    /// </summary>
     public class Query
     {
+        /// <summary>
+        /// The DataContext from which the request originates
+        /// </summary>
+        public DataContext DataContext { get; private set; }
+
+        /// <summary>
+        /// SQL command
+        /// </summary>
         public string Sql { get; private set; }
+
+        /// <summary>
+        /// Parameters to be sent as SQL parameters
+        /// </summary>
         public IList<ExternalParameterExpression> Parameters { get; private set; }
 
-        public Expression RowCreator { get; private set; }
+        /// <summary>
+        /// Expression that creates a row object
+        /// Use GetRowObjectCreator() to access the object with type safety
+        /// </summary>
+        public Delegate RowObjectCreator { get; private set; }
 
-        public Query(string sql, IList<ExternalParameterExpression> parameters, Expression rowCreator)
+        /// <summary>
+        /// Returns the row object creator, strongly typed
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public Func<IDataRecord, MappingContext, T> GetRowObjectCreator<T>()
         {
+            return (Func<IDataRecord, MappingContext, T>)RowObjectCreator;
+        }
+
+        public Query(DataContext dataContext, string sql, IList<ExternalParameterExpression> parameters, Delegate rowObjectCreator)
+        {
+            DataContext = dataContext;
             Sql = sql;
             Parameters = parameters;
-            RowCreator = rowCreator;
+            RowObjectCreator = rowObjectCreator;
         }
     }
 }

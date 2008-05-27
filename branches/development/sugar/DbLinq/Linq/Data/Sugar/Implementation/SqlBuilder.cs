@@ -30,7 +30,7 @@ using DbLinq.Linq.Data.Sugar.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar.Implementation
 {
-    public class SqlBuilder
+    public class SqlBuilder: ISqlBuilder
     {
         public ExpressionQualifier ExpressionQualifier { get; set; }
 
@@ -39,6 +39,13 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             ExpressionQualifier = ObjectFactory.Get<ExpressionQualifier>();
         }
 
+        /// <summary>
+        /// Builds a SQL string, based on a QueryContext
+        /// The build indirectly depends on ISqlProvider which provides all SQL parts.
+        /// </summary>
+        /// <param name="expressionQuery"></param>
+        /// <param name="queryContext"></param>
+        /// <returns></returns>
         public string Build(ExpressionQuery expressionQuery, QueryContext queryContext)
         {
             return Build(expressionQuery.Select, queryContext);

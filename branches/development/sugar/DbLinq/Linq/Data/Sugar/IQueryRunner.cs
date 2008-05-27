@@ -22,36 +22,18 @@
 // 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using DbLinq.Linq.Data.Sugar.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar
 {
-    /// <summary>
-    /// Represents the first step Expression analysis result
-    /// </summary>
-    public class ExpressionQuery
+    public interface IQueryRunner
     {
         /// <summary>
-        /// Values coming from outside the request (external parameters)
-        /// Those parameters are filled at each request
+        /// Enumerates all records return by SQL request
         /// </summary>
-        public IList<ExternalParameterExpression> Parameters { get; private set; }
-
-        /// <summary>
-        /// The SELECT expression itself
-        /// </summary>
-        public ScopeExpression Select { get; set; }
-
-        /// <summary>
-        /// Expression that creates a row object
-        /// </summary>
-        public Delegate RowObjectCreator { get; set; }
-
-        public ExpressionQuery()
-        {
-            Parameters = new List<ExternalParameterExpression>();
-        }
+        /// <typeparam name="T"></typeparam>
+        /// <param name="query"></param>
+        /// <returns></returns>
+        IEnumerable<T> GetEnumerator<T>(Query query);
     }
 }

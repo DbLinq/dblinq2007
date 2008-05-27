@@ -27,11 +27,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using DbLinq.Factory;
 using DbLinq.Linq.Data.Sugar.ExpressionMutator;
 using DbLinq.Linq.Data.Sugar.Expressions;
-using DbLinq.Util;
 
 namespace DbLinq.Linq.Data.Sugar.Implementation
 {
@@ -103,8 +101,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <param name="builderContext"></param>
         protected virtual Expression CutOutOperands(Expression selectExpression, BuilderContext builderContext)
         {
-            var dataRecordParameter = Expression.Parameter(typeof(IDataRecord), "rdr");
-            var mappingContextParameter = Expression.Parameter(typeof(MappingContext), "mapping");
+            var dataRecordParameter = Expression.Parameter(typeof(IDataRecord), "dataRecord");
+            var mappingContextParameter = Expression.Parameter(typeof(MappingContext), "mappingContext");
             return CutOutOperands(selectExpression, dataRecordParameter, mappingContextParameter, builderContext);
         }
 

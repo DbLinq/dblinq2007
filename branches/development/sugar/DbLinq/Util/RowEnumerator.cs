@@ -26,6 +26,7 @@ using System.Diagnostics;
 using System.Data;
 using System.Collections.Generic;
 using DbLinq.Factory;
+using DbLinq.Linq.Data.Sugar;
 using DbLinq.Linq.Identity;
 using DbLinq.Linq.Identity.Implementation;
 using DbLinq.Logging;
@@ -42,6 +43,7 @@ namespace DbLinq.Util
     /// <typeparam name="T">the type of the row object</typeparam>
     public class RowEnumerator<T> : IEnumerable<T>, IQueryText
     {
+        public IQueryRunner QueryRunner { get; set; }
         public IIdentityReaderFactory IdentityProviderFactory { get; set; }
         public ILogger Logger { get; set; }
 
@@ -54,10 +56,14 @@ namespace DbLinq.Util
 
         public RowEnumerator(SessionVarsParsed vars)
         {
+            QueryRunner = ObjectFactory.Get<IQueryRunner>();
             Logger = ObjectFactory.Get<ILogger>();
             IdentityProviderFactory = ObjectFactory.Get<IIdentityReaderFactory>();
 
             _vars = vars;
+
+            if (vars.Query != null)
+                return;
 
             CompileReaderFct();
 
@@ -117,6 +123,13 @@ namespace DbLinq.Util
         /// </summary>
         public virtual IEnumerator<T> GetEnumerator()
         {
+            if (_vars.Query != null)
+            {
+                foreach (var t in QueryRunner.GetEnumerator<T>(_vars.Query))
+                    yield return t;
+                yield break;
+            }
+
             if (_objFromRow2 == null)
             {
                 throw new ApplicationException("Internal error, missing _objFromRow compiled func");
