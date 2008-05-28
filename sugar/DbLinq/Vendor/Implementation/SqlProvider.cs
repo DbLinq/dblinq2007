@@ -187,6 +187,10 @@ namespace DbLinq.Vendor.Implementation
                 return GetLiteralAverage(p[0]);
             case SpecialExpressionType.StringLength:
                 return GetLiteralStringLength(p[0]);
+            case SpecialExpressionType.ToUpper:
+                return GetLiteralStringToUpper(p[0]);
+            case SpecialExpressionType.ToLower:
+                return GetLiteralStringToLower(p[0]);
             }
             throw new ArgumentException(operationType.ToString());
         }
@@ -495,6 +499,18 @@ namespace DbLinq.Vendor.Implementation
         protected virtual string GetLiteralStringLength(string a)
         {
             return string.Format("CHARACTER_LENGTH({0})", a);
+        }
+
+        protected virtual string GetLiteralStringToUpper(string a)
+        {
+            return string.Format("UPPER({0})", a);
+            return string.Format("UCASE({0})", a);
+        }
+
+        protected virtual string GetLiteralStringToLower(string a)
+        {
+            return string.Format("LOWER({0})", a);
+            return string.Format("LCASE({0})", a);
         }
 
         protected virtual string GetLiteralLike(string a, string b)

@@ -295,10 +295,6 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <param name="builderContext"></param>
         public virtual void RegisterWhere(Expression whereExpression, BuilderContext builderContext)
         {
-            if(whereExpression==null)
-            {
-                int e = 0;
-            }
             builderContext.CurrentScope.Where.Add(whereExpression);
         }
 
