@@ -41,7 +41,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             var rowObjectCreator = query.GetRowObjectCreator<T>();
 
             // handle the special case where the query is empty, meaning we don't need the DB
-            if(string.IsNullOrEmpty(query.Sql))
+            if (string.IsNullOrEmpty(query.Sql))
             {
                 yield return rowObjectCreator(null, null);
                 yield break;
@@ -86,6 +86,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         {
             switch (query.ExecuteMethodName)
             {
+            case null: // some calls, like Count() generate SQL and the resulting projection method name is null (never initialized)
+                return ExecuteSingle<S>(query, false); // Single() for safety, but First() should work
             case "First":
                 return ExecuteFirst<S>(query, false);
             case "FirstOrDefault":

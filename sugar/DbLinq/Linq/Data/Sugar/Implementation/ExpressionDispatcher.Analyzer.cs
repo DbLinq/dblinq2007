@@ -100,6 +100,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             //case ExpressionType.TypeAs
             case ExpressionType.UnaryPlus:
             case ExpressionType.New: // Yes dude, new is an operator
+            case ExpressionType.MemberInit:
             #endregion
                 return AnalyzeOperator(expression, builderContext);
             }
@@ -224,7 +225,10 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             builderContext.CurrentScope.ExecuteMethodName = methodName;
             if (limit.HasValue)
                 AddLimit(Expression.Constant(limit.Value), builderContext);
-            return Analyze(parameters[0], builderContext);
+            var table = Analyze(parameters[0], builderContext);
+            if (parameters.Count > 1)
+                RegisterWhere(Analyze(parameters[1], table, builderContext), builderContext);
+            return table;
         }
 
         /// <summary>
