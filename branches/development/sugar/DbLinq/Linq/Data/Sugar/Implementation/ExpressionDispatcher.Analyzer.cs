@@ -395,7 +395,18 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                     return new SpecialExpression(SpecialExpressionType.IsNotNull, objectExpression);
             }
 
+            if (objectExpression is ExternalParameterExpression)
+            {
+                return AnalyzeExternalParameterMember((ExternalParameterExpression)objectExpression, memberInfo, builderContext);
+            }
+
             return AnalyzeCommonMember(objectExpression, memberInfo, builderContext);
+        }
+
+        protected virtual Expression AnalyzeExternalParameterMember(ExternalParameterExpression expression, MemberInfo memberInfo, BuilderContext builderContext)
+        {
+            UnregisterParameter(expression, builderContext);
+            return RegisterParameter(Expression.MakeMemberAccess(expression.Expression, memberInfo), memberInfo.Name, builderContext);
         }
 
         private Expression AnalyzeCommonMember(Expression objectExpression, MemberInfo memberInfo, BuilderContext builderContext)

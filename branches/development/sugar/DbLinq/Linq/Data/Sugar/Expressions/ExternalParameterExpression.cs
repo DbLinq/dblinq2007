@@ -28,10 +28,12 @@ using System.Linq.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar.Expressions
 {
-    [DebuggerDisplay("ParameterPiece (current value={GetValue()})")]
+    [DebuggerDisplay("ExternalParameterExpression (current value={GetValue()})")]
     public class ExternalParameterExpression : MutableExpression
     {
         public const ExpressionType ExpressionType = (ExpressionType)1020;
+
+        public Expression Expression { get; private set; }
 
         public string Alias { get; set; }
 
@@ -48,6 +50,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
         public ExternalParameterExpression(Expression expression, string alias)
             : base(ExpressionType, expression.Type)
         {
+            Expression = expression;
             var lambda = Expression.Lambda(expression);
             getValueDelegate = lambda.Compile();
             Alias = alias;

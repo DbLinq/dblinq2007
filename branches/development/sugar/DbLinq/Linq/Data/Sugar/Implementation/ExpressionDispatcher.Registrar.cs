@@ -269,6 +269,11 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             return queryParameterExpression;
         }
 
+        public virtual void UnregisterParameter(ExternalParameterExpression expression, BuilderContext builderContext)
+        {
+            builderContext.ExpressionQuery.Parameters.Remove(expression);
+        }
+
         /// <summary>
         /// Registers a MetaTable
         /// </summary>
