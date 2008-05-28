@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using DbLinq.Factory;
 using DbLinq.Linq.Data.Sugar.ExpressionMutator;
@@ -30,7 +31,7 @@ using DbLinq.Linq.Data.Sugar.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar.Implementation
 {
-    public class SqlBuilder: ISqlBuilder
+    public class SqlBuilder : ISqlBuilder
     {
         public ExpressionQualifier ExpressionQualifier { get; set; }
 
@@ -61,8 +62,15 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             string from = BuildFrom(scopeExpression.Tables, queryContext);
             string where = BuildWhere(scopeExpression.Tables, scopeExpression.Where, queryContext);
             string select = BuildSelect(scopeExpression, queryContext);
-            return string.Format("{0}{3}{1}{3}{2}", select, from, where,
-                                queryContext.DataContext.Vendor.SqlProvider.NewLine);
+            select = Join(queryContext, select, from, where);
+            select = BuildLimit(scopeExpression, select, queryContext);
+            return select;
+        }
+
+        public string Join(QueryContext queryContext, params string[] clauses)
+        {
+            return string.Join(queryContext.DataContext.Vendor.SqlProvider.NewLine,
+                               (from clause in clauses where !string.IsNullOrEmpty(clause) select clause).ToArray());
         }
 
         /// <summary>
@@ -174,6 +182,24 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 selectClauses.Add(BuildExpression(selectExpression, queryContext));
             }
             return sqlProvider.GetSelectClause(selectClauses.ToArray());
+        }
+
+        protected virtual string BuildLimit(ScopeExpression select, string literalSelect, QueryContext queryContext)
+        {
+            if (select.Limit != null)
+            {
+                var literalLimit = BuildExpression(select.Limit, queryContext);
+                if (select.Offset != null)
+                {
+                    var literalOffset = BuildExpression(select.Offset, queryContext);
+                    var literalOffsetAndLimit = BuildExpression(select.OffsetAndLimit, queryContext);
+                    return queryContext.DataContext.Vendor.SqlProvider.GetLiteralLimit(literalSelect, literalLimit,
+                                                                                       literalOffset,
+                                                                                       literalOffsetAndLimit);
+                }
+                return queryContext.DataContext.Vendor.SqlProvider.GetLiteralLimit(literalSelect, literalLimit);
+            }
+            return literalSelect;
         }
     }
 }

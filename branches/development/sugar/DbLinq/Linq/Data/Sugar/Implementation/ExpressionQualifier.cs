@@ -184,7 +184,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 case SpecialExpressionType.Sum:
                 case SpecialExpressionType.Average:
                 case SpecialExpressionType.Count:
-                    return ExpressionTier.Sql; // don't tell anyone, but we can do it on both tiers, anyway this is significantly faster in SQL anyway
+                    return ExpressionTier.Sql; // don't tell anyone, but we can do it on both tiers, anyway this is significantly faster/efficient in SQL anyway
                 default:
                     throw Error.BadArgument("S0157: Unhandled node type {0}", specialExpressionType);
                 }

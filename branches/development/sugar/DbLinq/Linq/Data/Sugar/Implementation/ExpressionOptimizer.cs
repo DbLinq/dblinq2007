@@ -48,6 +48,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
 
             expression = AnalyzeNull(expression, builderContext);
             expression = AnalyzeNot(expression, builderContext);
+            // constant optimization at last, because the previous optimizations may generate constant expressions
             expression = AnalyzeConstant(expression, builderContext);
             return expression;
         }

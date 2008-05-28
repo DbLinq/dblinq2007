@@ -22,6 +22,7 @@
 // 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Data;
 
@@ -35,7 +36,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <typeparam name="T"></typeparam>
         /// <param name="query"></param>
         /// <returns></returns>
-        public IEnumerable<T> GetEnumerator<T>(Query query)
+        public virtual IEnumerable<T> GetEnumerator<T>(Query query)
         {
             var rowObjectCreator = query.GetRowObjectCreator<T>();
             using (query.DataContext.DatabaseContext.OpenConnection())
@@ -71,6 +72,87 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 dbCommand.Parameters.Add(dbParameter);
             }
             return dbCommand;
+        }
+
+        public virtual S Execute<S>(Query query)
+        {
+            switch (query.ExecuteMethodName)
+            {
+            case "First":
+                return ExecuteFirst<S>(query, false);
+            case "FirstOrDefault":
+                return ExecuteFirst<S>(query, true);
+            case "Single":
+                return ExecuteSingle<S>(query, false);
+            case "SingleOrDefault":
+                return ExecuteSingle<S>(query, true);
+            case "Last":
+                return ExecuteLast<S>(query, false);
+            }
+            throw Error.BadArgument("S0077: Unhandled method '{0}'", query.ExecuteMethodName);
+        }
+
+        /// <summary>
+        /// Returns first item in query.
+        /// If no row is found then if default allowed returns default(S), throws exception otherwise
+        /// </summary>
+        /// <typeparam name="S"></typeparam>
+        /// <param name="query"></param>
+        /// <param name="allowDefault"></param>
+        /// <returns></returns>
+        protected virtual S ExecuteFirst<S>(Query query, bool allowDefault)
+        {
+            foreach (var row in GetEnumerator<S>(query))
+                return row;
+            if (!allowDefault)
+                throw new InvalidOperationException();
+            return default(S);
+        }
+
+        /// <summary>
+        /// Returns single item in query
+        /// If more than one item is found, throws an exception
+        /// If no row is found then if default allowed returns default(S), throws exception otherwise
+        /// </summary>
+        /// <typeparam name="S"></typeparam>
+        /// <param name="query"></param>
+        /// <param name="allowDefault"></param>
+        /// <returns></returns>
+        protected virtual S ExecuteSingle<S>(Query query, bool allowDefault)
+        {
+            S firstRow = default(S);
+            int rowCount = 0;
+            foreach (var row in GetEnumerator<S>(query))
+            {
+                if (rowCount > 1)
+                    throw new InvalidOperationException();
+                firstRow = row;
+                rowCount++;
+            }
+            if (!allowDefault && rowCount == 0)
+                throw new InvalidOperationException();
+            return firstRow;
+        }
+
+        /// <summary>
+        /// Returns last item in query
+        /// </summary>
+        /// <typeparam name="S"></typeparam>
+        /// <param name="query"></param>
+        /// <param name="allowDefault"></param>
+        /// <returns></returns>
+        protected virtual S ExecuteLast<S>(Query query, bool allowDefault)
+        {
+            S lastRow = default(S);
+            int rowCount = 0;
+            foreach (var row in GetEnumerator<S>(query))
+            {
+                lastRow = row;
+                rowCount++;
+            }
+            if (!allowDefault && rowCount == 0)
+                throw new InvalidOperationException();
+            return lastRow;
         }
     }
 }

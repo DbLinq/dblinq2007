@@ -147,9 +147,80 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 if (parameters[0].Type is string)
                     return AnalyzeLike(parameters, builderContext);
                 return AnalyzeContains(parameters, builderContext);
+            case "First":
+            case "FirstOrDefault":
+                return AnalyzeScalar(methodName, 1, parameters, builderContext);
+            case "Single":
+            case "SingleOrDefault":
+                return AnalyzeScalar(methodName, 2, parameters, builderContext);
+            case "Last":
+                return AnalyzeScalar(methodName, null, parameters, builderContext);
+            case "Take":
+                return AnalyzeTake(parameters, builderContext);
+            case "Skip":
+                return AnalyzeSkip(parameters, builderContext);
             default:
                 throw Error.BadArgument("S0133: Implement QueryMethod '{0}'", methodName);
             }
+        }
+
+        /// <summary>
+        /// Limits selection count
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        protected virtual Expression AnalyzeTake(IList<Expression> parameters, BuilderContext builderContext)
+        {
+            AddLimit(Analyze(parameters[1], builderContext), builderContext);
+            return Analyze(parameters[0], builderContext);
+        }
+
+        protected virtual void AddLimit(Expression limit, BuilderContext builderContext)
+        {
+            var previousLimit = builderContext.CurrentScope.Limit;
+            if (previousLimit != null)
+                builderContext.CurrentScope.Limit = Expression.Condition(Expression.LessThan(previousLimit, limit),
+                                                                         previousLimit, limit);
+            else
+                builderContext.CurrentScope.Limit = limit;
+        }
+
+        /// <summary>
+        /// Skip selection items
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        protected virtual Expression AnalyzeSkip(IList<Expression> parameters, BuilderContext builderContext)
+        {
+            AddOffset(Analyze(parameters[1], builderContext), builderContext);
+            return Analyze(parameters[0], builderContext);
+        }
+
+        protected virtual void AddOffset(Expression offset, BuilderContext builderContext)
+        {
+            var previousOffset = builderContext.CurrentScope.Offset;
+            if (previousOffset != null)
+                builderContext.CurrentScope.Offset = Expression.Add(offset, previousOffset);
+            else
+                builderContext.CurrentScope.Offset = offset;
+        }
+
+        /// <summary>
+        /// Registers a scalar method call for result
+        /// </summary>
+        /// <param name="methodName"></param>
+        /// <param name="limit"></param>
+        /// <param name="parameters"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        protected virtual Expression AnalyzeScalar(string methodName, int? limit, IList<Expression> parameters, BuilderContext builderContext)
+        {
+            builderContext.CurrentScope.ExecuteMethodName = methodName;
+            if (limit.HasValue)
+                AddLimit(Expression.Constant(limit.Value), builderContext);
+            return Analyze(parameters[0], builderContext);
         }
 
         /// <summary>

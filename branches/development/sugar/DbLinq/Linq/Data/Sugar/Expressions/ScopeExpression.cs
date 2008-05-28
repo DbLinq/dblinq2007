@@ -43,6 +43,11 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
         // Clauses
         public IList<Expression> Where { get; private set; }
         public LambdaExpression Select { get; set; } // Func<IDataRecord,T> --> creates an object from data record
+        public string ExecuteMethodName { get; set; } // for Execute<> calls, this member is filled with the method name
+
+        public Expression Offset { get; set; }
+        public Expression Limit { get; set; }
+        public Expression OffsetAndLimit { get; set; }
 
         // Parent scope: we will climb up to find if we don't find the request table in the current scope
         public ScopeExpression Parent { get; private set; }
@@ -84,6 +89,10 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
             scopeExpression.Columns = Columns;
             scopeExpression.Where = Where;
             scopeExpression.Parent = Parent;
+            scopeExpression.ExecuteMethodName = ExecuteMethodName;
+            scopeExpression.Limit = Limit;
+            scopeExpression.Offset = Offset;
+            scopeExpression.OffsetAndLimit = OffsetAndLimit;
             return scopeExpression;
         }
     }
