@@ -159,6 +159,10 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 return AnalyzeTake(parameters, builderContext);
             case "Skip":
                 return AnalyzeSkip(parameters, builderContext);
+            case "ToUpper":
+                return AnalyzeToUpper(parameters, builderContext);
+            case "ToLower":
+                return AnalyzeToLower(parameters, builderContext);
             default:
                 throw Error.BadArgument("S0133: Implement QueryMethod '{0}'", methodName);
             }
@@ -526,8 +530,17 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
 
         protected virtual Expression AnalyzeContains(IList<Expression> parameters, BuilderContext builderContext)
         {
-            // TODO
-            return null;
+            return AnalyzeLike(parameters, builderContext);
+        }
+
+        protected virtual Expression AnalyzeToUpper(IList<Expression> parameters, BuilderContext builderContext)
+        {
+            return new SpecialExpression(SpecialExpressionType.ToUpper, Analyze(parameters[0], builderContext));
+        }
+
+        protected virtual Expression AnalyzeToLower(IList<Expression> parameters, BuilderContext builderContext)
+        {
+            return new SpecialExpression(SpecialExpressionType.ToLower, Analyze(parameters[0], builderContext));
         }
     }
 }

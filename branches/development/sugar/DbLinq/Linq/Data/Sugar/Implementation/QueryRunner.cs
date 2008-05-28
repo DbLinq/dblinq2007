@@ -39,6 +39,14 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         public virtual IEnumerable<T> GetEnumerator<T>(Query query)
         {
             var rowObjectCreator = query.GetRowObjectCreator<T>();
+
+            // handle the special case where the query is empty, meaning we don't need the DB
+            if(string.IsNullOrEmpty(query.Sql))
+            {
+                yield return rowObjectCreator(null, null);
+                yield break;
+            }
+
             using (query.DataContext.DatabaseContext.OpenConnection())
             using (var dbCommand = Createcommand(query))
             using (var dbDataReader = dbCommand.ExecuteReader())

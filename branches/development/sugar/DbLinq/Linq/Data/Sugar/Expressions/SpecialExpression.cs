@@ -66,6 +66,9 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
                 return typeof(decimal); // got no better idea
             case SpecialExpressionType.StringLength:
                 return typeof(int);
+            case SpecialExpressionType.ToUpper:
+            case SpecialExpressionType.ToLower:
+                return typeof(string);
             default:
                 throw Error.BadArgument("S0058: Unknown SpecialExpressionType value {0}", specialExpressionType);
             }
@@ -159,6 +162,10 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
                 }
             case SpecialExpressionType.StringLength:
                 return operands[0].Evaluate().ToString().Length;
+            case SpecialExpressionType.ToUpper:
+                return operands[0].Evaluate().ToString().ToUpper();
+            case SpecialExpressionType.ToLower:
+                return operands[0].Evaluate().ToString().ToLower();
             default:
                 throw Error.BadArgument("S0116: Unknown SpecialExpressionType ({0})", SpecialNodeType);
             }

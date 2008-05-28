@@ -57,6 +57,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 case SpecialExpressionType.Average:
                 case SpecialExpressionType.Count:
                 case SpecialExpressionType.StringLength:
+                case SpecialExpressionType.ToUpper:
+                case SpecialExpressionType.ToLower:
                     return ExpressionPrecedence.Primary;
                 default:
                     throw Error.BadArgument("S0050: Unhandled SpecialExpressionType {0}", specialNodeType);
@@ -174,6 +176,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 case SpecialExpressionType.IsNotNull:
                 case SpecialExpressionType.Concat:
                 case SpecialExpressionType.StringLength:
+                case SpecialExpressionType.ToUpper:
+                case SpecialExpressionType.ToLower:
                     return ExpressionTier.Any;
 
                 case SpecialExpressionType.Like:
