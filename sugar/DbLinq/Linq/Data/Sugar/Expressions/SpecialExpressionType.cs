@@ -40,6 +40,6 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
         Max,
         Sum,
         Average,
-        StringLength
+        StringLength,
     }
 }

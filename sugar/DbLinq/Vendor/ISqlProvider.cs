@@ -129,5 +129,23 @@ namespace DbLinq.Vendor
         /// </summary>
         /// <returns></returns>
         string GetColumns();
+
+        /// <summary>
+        /// Returns a LIMIT clause around a SELECT clause
+        /// </summary>
+        /// <param name="select">SELECT clause</param>
+        /// <param name="limit">limit value (number of columns to be returned)</param>
+        /// <returns></returns>
+        string GetLiteralLimit(string select, string limit);
+
+        /// <summary>
+        /// Returns a LIMIT clause around a SELECT clause, with offset
+        /// </summary>
+        /// <param name="select">SELECT clause</param>
+        /// <param name="limit">limit value (number of columns to be returned)</param>
+        /// <param name="offset">first row to be returned (starting from 0)</param>
+        /// <param name="offsetAndLimit">limit+offset</param>
+        /// <returns></returns>
+        string GetLiteralLimit(string select, string limit, string offset, string offsetAndLimit);
     }
 }

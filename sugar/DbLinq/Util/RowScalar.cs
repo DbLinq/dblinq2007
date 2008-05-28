@@ -28,6 +28,7 @@ using System.Linq.Expressions;
 using DbLinq.Factory;
 using DbLinq.Linq;
 using DbLinq.Linq.Clause;
+using DbLinq.Linq.Data.Sugar;
 using DbLinq.Logging;
 using DbLinq.Vendor;
 
@@ -38,6 +39,7 @@ namespace DbLinq.Util
     /// </summary>
     public class RowScalar<T>
     {
+        public IQueryRunner QueryRunner { get; set; }
         SessionVarsParsed _vars;
         IEnumerable<T> _parentTable;
 
@@ -45,6 +47,7 @@ namespace DbLinq.Util
 
         public RowScalar(SessionVarsParsed vars, IEnumerable<T> parentTable)
         {
+            QueryRunner = ObjectFactory.Get<IQueryRunner>();
             Logger = vars.Context.Logger;
             //don't modify the parent query with any additional clauses:
             _vars = vars;
@@ -53,6 +56,9 @@ namespace DbLinq.Util
 
         public S GetScalar<S>(Expression expression)
         {
+            if (_vars.Query != null)
+                return QueryRunner.Execute<S>(_vars.Query);
+
             MethodCallExpression exprCall = expression as MethodCallExpression;
             if (exprCall == null)
                 throw new ApplicationException("L35: GetScalar<S> only prepared for MethodCall, not " + expression.NodeType);

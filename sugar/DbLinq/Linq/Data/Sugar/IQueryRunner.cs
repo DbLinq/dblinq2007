@@ -35,5 +35,7 @@ namespace DbLinq.Linq.Data.Sugar
         /// <param name="query"></param>
         /// <returns></returns>
         IEnumerable<T> GetEnumerator<T>(Query query);
+
+        S Execute<S>(Query query);
     }
 }

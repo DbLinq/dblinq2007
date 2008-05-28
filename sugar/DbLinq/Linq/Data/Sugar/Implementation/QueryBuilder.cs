@@ -208,12 +208,30 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             for (int scopeExpressionIndex = 0; scopeExpressionIndex < builderContext.ScopeExpressions.Count; scopeExpressionIndex++)
             {
                 var scopeExpression = builderContext.ScopeExpressions[scopeExpressionIndex];
+
+                // where clauses
                 for (int whereIndex = 0; whereIndex < scopeExpression.Where.Count; whereIndex++)
                 {
                     scopeExpression.Where[whereIndex] = ExpressionOptimizer.Optimize(scopeExpression.Where[whereIndex],
                                                                                      builderContext);
                 }
-                builderContext.ScopeExpressions[scopeExpressionIndex] = (ScopeExpression)ExpressionOptimizer.Optimize(scopeExpression, builderContext);
+
+                // select clause
+                scopeExpression = (ScopeExpression)ExpressionOptimizer.Optimize(scopeExpression, builderContext);
+
+                // limit clauses
+                if (scopeExpression.Offset != null)
+                    scopeExpression.Offset = ExpressionOptimizer.Optimize(scopeExpression.Offset, builderContext);
+                if (scopeExpression.Limit != null)
+                    scopeExpression.Limit = ExpressionOptimizer.Optimize(scopeExpression.Limit, builderContext);
+                if (scopeExpression.Offset != null && scopeExpression.Limit != null)
+                {
+                    scopeExpression.OffsetAndLimit = ExpressionOptimizer.Optimize(
+                        Expression.Add(scopeExpression.Offset, scopeExpression.Limit),
+                        builderContext);
+                }
+
+                builderContext.ScopeExpressions[scopeExpressionIndex] = scopeExpression;
             }
             builderContext.ExpressionQuery.Select = (ScopeExpression)ExpressionOptimizer.Optimize(builderContext.ExpressionQuery.Select, builderContext);
         }
@@ -221,7 +239,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         protected virtual Query BuildSqlQuery(ExpressionQuery expressionQuery, QueryContext queryContext)
         {
             var sql = SqlBuilder.Build(expressionQuery, queryContext);
-            var sqlQuery = new Query(queryContext.DataContext, sql, expressionQuery.Parameters, expressionQuery.RowObjectCreator);
+            var sqlQuery = new Query(queryContext.DataContext, sql, expressionQuery.Parameters, expressionQuery.RowObjectCreator, expressionQuery.Select.ExecuteMethodName);
             return sqlQuery;
         }
 

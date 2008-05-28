@@ -66,12 +66,16 @@ namespace DbLinq.Linq.Data.Sugar
             return (Func<IDataRecord, MappingContext, T>)RowObjectCreator;
         }
 
-        public Query(DataContext dataContext, string sql, IList<ExternalParameterExpression> parameters, Delegate rowObjectCreator)
+        public string ExecuteMethodName { get; private set; }
+
+        public Query(DataContext dataContext, string sql, IList<ExternalParameterExpression> parameters,
+            Delegate rowObjectCreator, string executeMethodName)
         {
             DataContext = dataContext;
             Sql = sql;
             Parameters = parameters;
             RowObjectCreator = rowObjectCreator;
+            ExecuteMethodName = executeMethodName;
         }
     }
 }
