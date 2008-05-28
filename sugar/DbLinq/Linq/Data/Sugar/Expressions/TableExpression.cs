@@ -32,7 +32,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
     /// A table is a default table, or a joined table
     /// Different joins specify different tables
     /// </summary>
-    [DebuggerDisplay("TablePiece {Name} (as {Alias})")]
+    [DebuggerDisplay("TableExpression {Name} (as {Alias})")]
     public class TableExpression : MutableExpression
     {
         public const ExpressionType ExpressionType = (ExpressionType)1001;

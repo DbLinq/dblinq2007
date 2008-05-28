@@ -33,7 +33,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
     /// <summary>
     /// Describes a column, related to a table
     /// </summary>
-    [DebuggerDisplay("ColumnPiece {Table.Name} (as {Table.Alias}).{Name}")]
+    [DebuggerDisplay("ColumnExpression {Table.Name} (as {Table.Alias}).{Name}")]
     public class ColumnExpression : MutableExpression
     {
         public const ExpressionType ExpressionType = (ExpressionType)1002;
