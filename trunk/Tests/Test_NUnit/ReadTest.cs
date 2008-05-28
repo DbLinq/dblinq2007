@@ -28,6 +28,7 @@ using System.Linq;
 using NUnit.Framework;
 using nwind;
 using Test_NUnit;
+using System.Data.Linq.Mapping;
 
 #if MYSQL
     namespace Test_NUnit_MySql
@@ -462,7 +463,6 @@ namespace Test_NUnit_PostgreSql
             internal int PenId;
         }
 
-
         [Test]
         public void D14_ProjectedProductList()
         {
@@ -484,6 +484,53 @@ namespace Test_NUnit_PostgreSql
             foreach (var item in list)
             {
                 Assert.IsTrue(item.Supplier != null);
+            }
+        }
+
+
+        [Test]
+        public void D15_DuplicateProperty()
+        {
+            Northwind dbo = CreateDB();
+            NorthwindDupl db = new NorthwindDupl(dbo.DatabaseContext.Connection);
+            var derivedCustomer = (from c in db.ChildCustomers
+                                   where c.City == "London"
+                                   select c).First();
+            Assert.IsTrue(derivedCustomer.City == "London");
+        }
+
+        public class NorthwindDupl : Northwind
+        {
+            public NorthwindDupl(System.Data.IDbConnection connection)
+                : base(connection)
+            { }
+
+            public class CustomerDerivedClass : Customer
+            {
+
+                private string city;
+                [Column(Storage = "city", Name = "city")]
+                public new string City
+                {
+                    get
+                    {
+                        return city;
+                    }
+                    set
+                    {
+                        if (value != city)
+                        {
+                            city = value;
+                        }
+                    }
+                }
+
+            }
+            public class CustomerDerivedClass2 : CustomerDerivedClass { }
+
+            public DbLinq.Linq.Table<CustomerDerivedClass> ChildCustomers
+            {
+                get { return base.GetTable<CustomerDerivedClass>(); }
             }
         }
 
