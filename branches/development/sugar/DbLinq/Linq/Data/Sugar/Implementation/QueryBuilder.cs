@@ -196,12 +196,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <param name="builderContext"></param>
         protected virtual void CompileRowCreator(BuilderContext builderContext)
         {
-            ParameterExpression dataRecordParameter = Expression.Parameter(typeof(IDataRecord), "dataRecord");
-            ParameterExpression mappingContextParameter = Expression.Parameter(typeof(MappingContext), "mappingContext");
-            // if the Select is already a lambda, then we have a lambda calling the same lambda. This is a bit stupid
-            // and can probably be optimized.
-            var lambda = Expression.Lambda(builderContext.ExpressionQuery.Select.Select, dataRecordParameter, mappingContextParameter);
-            builderContext.ExpressionQuery.RowObjectCreator = lambda.Compile();
+            builderContext.ExpressionQuery.RowObjectCreator = builderContext.ExpressionQuery.Select.Select.Compile();
         }
 
         /// <summary>

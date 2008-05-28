@@ -42,7 +42,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
 
         // Clauses
         public IList<Expression> Where { get; private set; }
-        public Expression Select { get; set; } // Func<IDataRecord,T> --> creates an object from data record
+        public LambdaExpression Select { get; set; } // Func<IDataRecord,T> --> creates an object from data record
 
         // Parent scope: we will climb up to find if we don't find the request table in the current scope
         public ScopeExpression Parent { get; private set; }
