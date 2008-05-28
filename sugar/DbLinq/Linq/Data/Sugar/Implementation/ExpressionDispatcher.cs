@@ -82,12 +82,12 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             // collect columns, split Expression in
             // - things we will do in CLR
             // - things we will do in SQL
-            selectExpression = CutOutOperands(selectExpression, builderContext);
+            var lambdaSelectExpression = CutOutOperands(selectExpression, builderContext);
             // look for tables and use columns instead
             // (this is done after cut, because the part that went to SQL must not be converted)
             //selectExpression = selectExpression.Recurse(e => CheckTableExpression(e, builderContext));
             // the last return value becomes the select, with CurrentScope
-            builderContext.CurrentScope.Select = selectExpression;
+            builderContext.CurrentScope.Select = lambdaSelectExpression;
             builderContext.ExpressionQuery.Select = builderContext.CurrentScope;
         }
 
@@ -99,11 +99,12 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// </summary>
         /// <param name="selectExpression"></param>
         /// <param name="builderContext"></param>
-        protected virtual Expression CutOutOperands(Expression selectExpression, BuilderContext builderContext)
+        protected virtual LambdaExpression CutOutOperands(Expression selectExpression, BuilderContext builderContext)
         {
             var dataRecordParameter = Expression.Parameter(typeof(IDataRecord), "dataRecord");
             var mappingContextParameter = Expression.Parameter(typeof(MappingContext), "mappingContext");
-            return CutOutOperands(selectExpression, dataRecordParameter, mappingContextParameter, builderContext);
+            var expression = CutOutOperands(selectExpression, dataRecordParameter, mappingContextParameter, builderContext);
+            return Expression.Lambda(expression, dataRecordParameter, mappingContextParameter);
         }
 
         /// <summary>
@@ -130,7 +131,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                                                   mappingContextParameter, builderContext);
                 }
                 // then, the result is registered
-                return RegisterParameterColumn(expression, dataRecordParameter, mappingContextParameter, builderContext);
+                return RegisterParameterColumnInvoke(expression, dataRecordParameter, mappingContextParameter, builderContext);
             }
             // or we dig down
             var operands = new List<Expression>();

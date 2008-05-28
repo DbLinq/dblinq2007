@@ -344,34 +344,27 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             var bindings = new List<MemberBinding>();
             foreach (var columnExpression in RegisterAllColumns(tableExpression, builderContext))
             {
-                var parameterColumn = RegisterParameterColumn(columnExpression, dataRecordParameter, mappingContextParameter, builderContext);
+                var parameterColumn = RegisterParameterColumnInvoke(columnExpression,
+                                                    dataRecordParameter, mappingContextParameter, builderContext);
                 var binding = Expression.Bind(columnExpression.MemberInfo, parameterColumn);
                 bindings.Add(binding);
             }
             var newExpression = Expression.New(tableExpression.Type);
-            return Expression.MemberInit(newExpression, bindings);
+            var initExpression = Expression.MemberInit(newExpression, bindings);
+            return initExpression;
         }
 
-        /// <summary>
-        /// Returns a lambda returning a given field from a IDataRecord
-        /// </summary>
-        /// <param name="expression">The Expression that will be returned by SQL tier</param>
-        /// <param name="dataRecordParameter">the IDataRecord</param>
-        /// <param name="mappingContextParameter"></param>
-        /// <param name="builderContext"></param>
-        /// <returns></returns>
-        protected virtual LambdaExpression RegisterParameterColumn(Expression expression, ParameterExpression dataRecordParameter, ParameterExpression mappingContextParameter, BuilderContext builderContext)
+        protected virtual Expression RegisterParameterColumnInvoke(Expression expression,
+            ParameterExpression dataRecordParameter, ParameterExpression mappingContextParameter,
+            BuilderContext builderContext)
         {
             int valueIndex = RegisterSelectOperand(expression, builderContext);
             var propertyReaderLambda = DataRecordReader.GetPropertyReader(expression.Type);
-            var dataRecordInvokeParameter = Expression.Parameter(propertyReaderLambda.Parameters[0].Type, "dr");
-            var mappingContextInvokeParameter = Expression.Parameter(propertyReaderLambda.Parameters[1].Type, "mc");
-            Expression invoke = Expression.Invoke(propertyReaderLambda, dataRecordInvokeParameter,
-                                           mappingContextInvokeParameter, Expression.Constant(valueIndex));
+            Expression invoke = Expression.Invoke(propertyReaderLambda, dataRecordParameter,
+                                                  mappingContextParameter, Expression.Constant(valueIndex));
             if (!expression.Type.IsNullable())
                 invoke = Expression.Convert(invoke, expression.Type);
-            var lambda = Expression.Lambda(invoke, dataRecordInvokeParameter, mappingContextInvokeParameter);
-            return lambda;
+            return invoke;
         }
     }
 }

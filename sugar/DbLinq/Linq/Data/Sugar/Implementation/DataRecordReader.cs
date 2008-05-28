@@ -33,6 +33,10 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
     {
         /// <summary>
         /// Returns a Expression reading a property from a IDataRecord, at the specified index
+        /// The lambda parameters are:
+        /// - IDataRecord
+        /// - MappingContext
+        /// - int (field index)
         /// </summary>
         /// <param name="returnType">The expected return type (to be mapped to the property)</param>
         /// <returns>An expression returning the field value</returns>
