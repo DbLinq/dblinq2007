@@ -139,7 +139,7 @@ namespace DbLinq.Linq.Data.Sugar
 
             // except CurrentScope, of course
             builderContext.currentScopeIndex = ScopeExpressions.Count;
-            ScopeExpressions.Add(builderContext.CurrentScope);
+            ScopeExpressions.Add(new ScopeExpression(CurrentScope));
 
             return builderContext;
         }
