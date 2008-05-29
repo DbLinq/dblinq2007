@@ -38,12 +38,12 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             return expression.Recurse(e => Analyze(e, builderContext));
         }
 
-        protected Expression Analyze(Expression expression, BuilderContext builderContext)
+        protected virtual Expression Analyze(Expression expression, BuilderContext builderContext)
         {
             // string Add --> Concat
             var binaryExpression = expression as BinaryExpression;
             if (expression.NodeType == ExpressionType.Add
-                && binaryExpression != null && binaryExpression.Left.Type is string)
+                && binaryExpression != null && typeof(string).IsAssignableFrom(binaryExpression.Left.Type))
             {
                 return new SpecialExpression(SpecialExpressionType.Concat, binaryExpression.Left, binaryExpression.Right);
             }

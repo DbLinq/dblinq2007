@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Linq.Expressions;
 using DbLinq.Linq.Data.Sugar.Expressions;
 
@@ -47,6 +48,8 @@ namespace DbLinq.Vendor.Implementation
                 return GetNullLiteral();
             if (literal is string)
                 return GetLiteral((string)literal);
+            if (literal.GetType().IsArray)
+                return GetLiteral((Array)literal);
             return Convert.ToString(literal, CultureInfo.InvariantCulture);
         }
 
@@ -191,6 +194,8 @@ namespace DbLinq.Vendor.Implementation
                 return GetLiteralStringToUpper(p[0]);
             case SpecialExpressionType.ToLower:
                 return GetLiteralStringToLower(p[0]);
+            case SpecialExpressionType.In:
+                return GetLiteralIn(p[0], p[1]);
             }
             throw new ArgumentException(operationType.ToString());
         }
@@ -543,6 +548,11 @@ namespace DbLinq.Vendor.Implementation
             return string.Format("AVG({0})", a);
         }
 
+        protected virtual string GetLiteralIn(string a, string b)
+        {
+            return string.Format("{0} IN {1}", a, b);
+        }
+
         protected virtual string GetNullLiteral()
         {
             return "NULL";
@@ -573,9 +583,17 @@ namespace DbLinq.Vendor.Implementation
             return string.Format("{0} LIMIT {1} OFFSET {2}", select, limit, offset);
         }
 
-        protected virtual string GetLiteral(string literal)
+        protected virtual string GetLiteral(string str)
         {
-            return string.Format("'{0}'", literal.Replace("'", "''"));
+            return string.Format("'{0}'", str.Replace("'", "''"));
+        }
+
+        protected virtual string GetLiteral(Array array)
+        {
+            var listItems = new List<string>();
+            foreach (object o in array)
+                listItems.Add(GetLiteral(o));
+            return string.Format("({0})", string.Join(", ", listItems.ToArray()));
         }
     }
 }

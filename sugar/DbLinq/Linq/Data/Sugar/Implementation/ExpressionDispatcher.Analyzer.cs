@@ -145,7 +145,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             case "EndsWith":
                 return AnalyzeLikeEnd(parameters, builderContext);
             case "Contains":
-                if (parameters[0].Type is string)
+                if (typeof(string).IsAssignableFrom(parameters[0].Type))
                     return AnalyzeLike(parameters, builderContext);
                 return AnalyzeContains(parameters, builderContext);
             case "First":
@@ -226,9 +226,21 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             if (limit.HasValue)
                 AddLimit(Expression.Constant(limit.Value), builderContext);
             var table = Analyze(parameters[0], builderContext);
-            if (parameters.Count > 1)
-                RegisterWhere(Analyze(parameters[1], table, builderContext), builderContext);
+            CheckWhere(table, parameters, builderContext);
             return table;
+        }
+
+        /// <summary>
+        /// Some methods, like Single(), Count(), etc. can get an extra parameter, specifying a restriction.
+        /// This method checks if the parameter is specified, and adds it to the WHERE clauses
+        /// </summary>
+        /// <param name="table"></param>
+        /// <param name="parameters"></param>
+        /// <param name="builderContext"></param>
+        private void CheckWhere(Expression table, IList<Expression> parameters, BuilderContext builderContext)
+        {
+            if (parameters.Count > 1) // a lambda can be specified here, this is a restriction
+                RegisterWhere(Analyze(parameters[1], table, builderContext), builderContext);
         }
 
         /// <summary>
@@ -244,6 +256,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             var projectionOperand = Analyze(parameters[0], builderContext);
             if (projectionOperand is TableExpression)
                 projectionOperand = RegisterTable((TableExpression)projectionOperand, builderContext);
+            CheckWhere(projectionOperand, parameters, builderContext);
             return new SpecialExpression(specialExpressionType, projectionOperand);
         }
 
@@ -409,7 +422,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             return RegisterParameter(Expression.MakeMemberAccess(expression.Expression, memberInfo), memberInfo.Name, builderContext);
         }
 
-        private Expression AnalyzeCommonMember(Expression objectExpression, MemberInfo memberInfo, BuilderContext builderContext)
+        protected virtual Expression AnalyzeCommonMember(Expression objectExpression, MemberInfo memberInfo, BuilderContext builderContext)
         {
             if (typeof(string).IsAssignableFrom(objectExpression.Type))
             {
@@ -545,7 +558,13 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
 
         protected virtual Expression AnalyzeContains(IList<Expression> parameters, BuilderContext builderContext)
         {
-            return AnalyzeLike(parameters, builderContext);
+            if(parameters[0].Type.IsArray)
+            {
+                var array = Analyze(parameters[0], builderContext);
+                var expression = Analyze(parameters[1], builderContext);
+                return new SpecialExpression(SpecialExpressionType.In, expression, array);
+            }
+            throw Error.BadArgument("S0548: Can't analyze Contains() method");
         }
 
         protected virtual Expression AnalyzeToUpper(IList<Expression> parameters, BuilderContext builderContext)
