@@ -324,7 +324,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <param name="expression">The expression to be registered</param>
         /// <param name="builderContext"></param>
         /// <returns>Expression index</returns>
-        public virtual int RegisterSelectOperand(Expression expression, BuilderContext builderContext)
+        public virtual int RegisterOutputParameter(Expression expression, BuilderContext builderContext)
         {
             var scope = builderContext.CurrentScope;
             var operands = scope.Operands.ToList();
@@ -344,12 +344,23 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             return a == b;
         }
 
-        protected virtual Expression RegisterParameterTable(TableExpression tableExpression, ParameterExpression dataRecordParameter, ParameterExpression mappingContextParameter, BuilderContext builderContext)
+        /// <summary>
+        /// Registers the table as returned by the SQL request.
+        /// Actually, the table is split into its columns.
+        /// </summary>
+        /// <param name="tableExpression"></param>
+        /// <param name="dataRecordParameter"></param>
+        /// <param name="mappingContextParameter"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        protected virtual Expression GetOutputTableReader(TableExpression tableExpression,
+            ParameterExpression dataRecordParameter, ParameterExpression mappingContextParameter,
+            BuilderContext builderContext)
         {
             var bindings = new List<MemberBinding>();
             foreach (var columnExpression in RegisterAllColumns(tableExpression, builderContext))
             {
-                var parameterColumn = RegisterParameterColumnInvoke(columnExpression,
+                var parameterColumn = GetOutputValueReader(columnExpression,
                                                     dataRecordParameter, mappingContextParameter, builderContext);
                 var binding = Expression.Bind(columnExpression.MemberInfo, parameterColumn);
                 bindings.Add(binding);
@@ -359,11 +370,19 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             return initExpression;
         }
 
-        protected virtual Expression RegisterParameterColumnInvoke(Expression expression,
+        /// <summary>
+        /// Registers the expression as returned by the SQL request.
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <param name="dataRecordParameter"></param>
+        /// <param name="mappingContextParameter"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        protected virtual Expression GetOutputValueReader(Expression expression,
             ParameterExpression dataRecordParameter, ParameterExpression mappingContextParameter,
             BuilderContext builderContext)
         {
-            int valueIndex = RegisterSelectOperand(expression, builderContext);
+            int valueIndex = RegisterOutputParameter(expression, builderContext);
             var propertyReaderLambda = DataRecordReader.GetPropertyReader(expression.Type);
             Expression invoke = Expression.Invoke(propertyReaderLambda, dataRecordParameter,
                                                   mappingContextParameter, Expression.Constant(valueIndex));

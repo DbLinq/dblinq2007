@@ -123,15 +123,16 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             // two options: we cut and return
             if (GetCutOutOperand(expression, builderContext))
             {
+                // "cutting out" means we replace the current expression by a SQL result reader
                 // before cutting out, we check that we're not cutting a table
                 // in this case, we convert it into its declared columns
                 if (expression is TableExpression)
                 {
-                    return RegisterParameterTable((TableExpression)expression, dataRecordParameter,
+                    return GetOutputTableReader((TableExpression)expression, dataRecordParameter,
                                                   mappingContextParameter, builderContext);
                 }
                 // then, the result is registered
-                return RegisterParameterColumnInvoke(expression, dataRecordParameter, mappingContextParameter, builderContext);
+                return GetOutputValueReader(expression, dataRecordParameter, mappingContextParameter, builderContext);
             }
             // or we dig down
             var operands = new List<Expression>();

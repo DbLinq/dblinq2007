@@ -23,25 +23,17 @@
 #endregion
 
 using System.Linq.Expressions;
-using DbLinq.Linq.Data.Sugar.ExpressionMutator;
-using DbLinq.Linq.Data.Sugar.Expressions;
 
-namespace DbLinq.Linq.Data.Sugar.Implementation
+namespace DbLinq.Linq.Data.Sugar
 {
-    /// <summary>
-    /// Analyzes language patterns and replace them with standard expressions
-    /// </summary>
-    public class ExpressionLanguageParser : IExpressionLanguageParser
+    public interface IPrequelAnalyzer
     {
-        public virtual Expression Parse(Expression expression, BuilderContext builderContext)
-        {
-            return expression.Recurse(e => Analyze(e, builderContext));
-        }
-
-        protected virtual Expression Analyze(Expression expression, BuilderContext builderContext)
-        {
-            // TODO here: VB patterns, for example
-            return expression;
-        }
+        /// <summary>
+        /// Translates some generic CLR patterns to specific preSQL patterns
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        Expression Analyze(Expression expression, BuilderContext builderContext);
     }
 }
