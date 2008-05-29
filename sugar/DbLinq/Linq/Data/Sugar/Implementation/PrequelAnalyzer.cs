@@ -29,18 +29,31 @@ using DbLinq.Linq.Data.Sugar.Expressions;
 namespace DbLinq.Linq.Data.Sugar.Implementation
 {
     /// <summary>
-    /// Analyzes language patterns and replace them with standard expressions
+    /// Analyzes Expressions before translation to SQL, to help the translator
+    /// "Prequel" stands, of course, for "PreSQL"
     /// </summary>
-    public class ExpressionLanguageParser : IExpressionLanguageParser
+    public class PrequelAnalyzer : IPrequelAnalyzer
     {
-        public virtual Expression Parse(Expression expression, BuilderContext builderContext)
+        /// <summary>
+        /// Translates some generic CLR patterns to specific preSQL patterns
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        public virtual Expression Analyze(Expression expression, BuilderContext builderContext)
         {
-            return expression.Recurse(e => Analyze(e, builderContext));
+            return expression.Recurse(e => AnalyzeExpression(e, builderContext));
         }
 
-        protected virtual Expression Analyze(Expression expression, BuilderContext builderContext)
+        protected virtual Expression AnalyzeExpression(Expression expression, BuilderContext builderContext)
         {
-            // TODO here: VB patterns, for example
+            // string Add --> Concat
+            var binaryExpression = expression as BinaryExpression;
+            if (expression.NodeType == ExpressionType.Add
+                && binaryExpression != null && typeof(string).IsAssignableFrom(binaryExpression.Left.Type))
+            {
+                return new SpecialExpression(SpecialExpressionType.Concat, binaryExpression.Left, binaryExpression.Right);
+            }
             return expression;
         }
     }

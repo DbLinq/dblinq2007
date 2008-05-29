@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using DbLinq.Factory;
@@ -43,15 +42,17 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
     public class QueryBuilder : IQueryBuilder
     {
         public IExpressionLanguageParser ExpressionLanguageParser { get; set; }
-        public IExpressionOptimizer ExpressionOptimizer { get; set; }
         public IExpressionDispatcher ExpressionDispatcher { get; set; }
+        public IPrequelAnalyzer PrequelAnalyzer { get; set; }
+        public IExpressionOptimizer ExpressionOptimizer { get; set; }
         public ISqlBuilder SqlBuilder { get; set; }
 
         public QueryBuilder()
         {
             ExpressionLanguageParser = ObjectFactory.Get<IExpressionLanguageParser>();
-            ExpressionOptimizer = ObjectFactory.Get<IExpressionOptimizer>();
             ExpressionDispatcher = ObjectFactory.Get<IExpressionDispatcher>();
+            PrequelAnalyzer = ObjectFactory.Get<IPrequelAnalyzer>();
+            ExpressionOptimizer = ObjectFactory.Get<IExpressionOptimizer>();
             SqlBuilder = ObjectFactory.Get<ISqlBuilder>();
         }
 
@@ -184,6 +185,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 previousExpression = currentExpression;
             }
             ExpressionDispatcher.BuildSelect(previousExpression, builderContext);
+            // then prepare parts for SQL translation
+            PrepareSqlOperands(builderContext);
             // now, we optimize anything we can
             OptimizeQuery(builderContext);
             // finally, compile our object creation method
@@ -200,40 +203,72 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         }
 
         /// <summary>
-        /// Optimizes the query by optimizing subexpressions, and preparsing constant expressions
+        /// Prepares SELECT operands to help SQL transaltion
         /// </summary>
         /// <param name="builderContext"></param>
-        protected virtual void OptimizeQuery(BuilderContext builderContext)
+        protected virtual void PrepareSqlOperands(BuilderContext builderContext)
+        {
+            ProcessExpressions(PrequelAnalyzer.Analyze, true, builderContext);
+        }
+
+        /// <summary>
+        /// Processes all expressions in query, with the option to process only SQL targetting expressions
+        /// </summary>
+        /// <param name="processor"></param>
+        /// <param name="processOnlySqlParts"></param>
+        /// <param name="builderContext"></param>
+        protected virtual void ProcessExpressions(Func<Expression, BuilderContext, Expression> processor,
+            bool processOnlySqlParts, BuilderContext builderContext)
         {
             for (int scopeExpressionIndex = 0; scopeExpressionIndex < builderContext.ScopeExpressions.Count; scopeExpressionIndex++)
             {
+                // no need to process the select itself here, all ScopeExpressions that are operands are processed as operands
+                // and the main ScopeExpression (the SELECT) is processed below
                 var scopeExpression = builderContext.ScopeExpressions[scopeExpressionIndex];
 
                 // where clauses
                 for (int whereIndex = 0; whereIndex < scopeExpression.Where.Count; whereIndex++)
                 {
-                    scopeExpression.Where[whereIndex] = ExpressionOptimizer.Optimize(scopeExpression.Where[whereIndex],
-                                                                                     builderContext);
+                    scopeExpression.Where[whereIndex] = processor(scopeExpression.Where[whereIndex], builderContext);
                 }
-
-                // select clause
-                scopeExpression = (ScopeExpression)ExpressionOptimizer.Optimize(scopeExpression, builderContext);
 
                 // limit clauses
                 if (scopeExpression.Offset != null)
-                    scopeExpression.Offset = ExpressionOptimizer.Optimize(scopeExpression.Offset, builderContext);
+                    scopeExpression.Offset = processor(scopeExpression.Offset, builderContext);
                 if (scopeExpression.Limit != null)
-                    scopeExpression.Limit = ExpressionOptimizer.Optimize(scopeExpression.Limit, builderContext);
+                    scopeExpression.Limit = processor(scopeExpression.Limit, builderContext);
                 if (scopeExpression.Offset != null && scopeExpression.Limit != null)
                 {
-                    scopeExpression.OffsetAndLimit = ExpressionOptimizer.Optimize(
+                    scopeExpression.OffsetAndLimit = processor(
                         Expression.Add(scopeExpression.Offset, scopeExpression.Limit),
                         builderContext);
                 }
 
                 builderContext.ScopeExpressions[scopeExpressionIndex] = scopeExpression;
             }
-            builderContext.ExpressionQuery.Select = (ScopeExpression)ExpressionOptimizer.Optimize(builderContext.ExpressionQuery.Select, builderContext);
+            // now process the main SELECT
+            if (processOnlySqlParts)
+            {
+                // if we process only the SQL parts, these are the operands
+                var newOperands = new List<Expression>();
+                foreach (var operand in builderContext.ExpressionQuery.Select.Operands)
+                    newOperands.Add(processor(operand, builderContext));
+                builderContext.ExpressionQuery.Select = builderContext.ExpressionQuery.Select.ChangeOperands(newOperands);
+            }
+            else
+            {
+                // the output parameters and result builder
+                builderContext.ExpressionQuery.Select = (ScopeExpression)processor(builderContext.ExpressionQuery.Select, builderContext);
+            }
+        }
+
+        /// <summary>
+        /// Optimizes the query by optimizing subexpressions, and preparsing constant expressions
+        /// </summary>
+        /// <param name="builderContext"></param>
+        protected virtual void OptimizeQuery(BuilderContext builderContext)
+        {
+            ProcessExpressions(ExpressionOptimizer.Optimize, false, builderContext);
         }
 
         protected virtual Query BuildSqlQuery(ExpressionQuery expressionQuery, QueryContext queryContext)
