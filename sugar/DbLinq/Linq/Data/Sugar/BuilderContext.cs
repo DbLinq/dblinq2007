@@ -38,7 +38,12 @@ namespace DbLinq.Linq.Data.Sugar
         public ExpressionQuery ExpressionQuery { get; private set; }
 
         // Build context: values here are related to current context, and can change with it
-        public ScopeExpression CurrentScope { get; set; }
+        private int currentScopeIndex;
+        public ScopeExpression CurrentScope
+        {
+            get { return ScopeExpressions[currentScopeIndex]; }
+            set { ScopeExpressions[currentScopeIndex] = value; }
+        }
         public IList<ScopeExpression> ScopeExpressions { get; private set; }
         public IDictionary<Type, MetaTableExpression> MetaTables { get; private set; }
         public IDictionary<string, Expression> Parameters { get; private set; }
@@ -85,8 +90,8 @@ namespace DbLinq.Linq.Data.Sugar
         public BuilderContext(QueryContext queryContext)
         {
             ScopeExpressions = new List<ScopeExpression>();
-            CurrentScope = new ScopeExpression();
-            ScopeExpressions.Add(CurrentScope);
+            currentScopeIndex = ScopeExpressions.Count;
+            ScopeExpressions.Add(new ScopeExpression());
             QueryContext = queryContext;
             ExpressionQuery = new ExpressionQuery();
             MetaTables = new Dictionary<Type, MetaTableExpression>();
@@ -108,7 +113,7 @@ namespace DbLinq.Linq.Data.Sugar
             builderContext.QueryContext = QueryContext;
             builderContext.ExpressionQuery = ExpressionQuery;
             builderContext.MetaTables = MetaTables;
-            builderContext.CurrentScope = CurrentScope;
+            builderContext.currentScopeIndex = currentScopeIndex;
             builderContext.ScopeExpressions = ScopeExpressions;
 
             // scope dependent parts
@@ -133,8 +138,7 @@ namespace DbLinq.Linq.Data.Sugar
             builderContext.ScopeExpressions = ScopeExpressions;
 
             // except CurrentScope, of course
-            builderContext.CurrentScope = new ScopeExpression(CurrentScope);
-
+            builderContext.currentScopeIndex = ScopeExpressions.Count;
             ScopeExpressions.Add(builderContext.CurrentScope);
 
             return builderContext;

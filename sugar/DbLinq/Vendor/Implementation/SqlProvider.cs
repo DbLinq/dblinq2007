@@ -503,6 +503,7 @@ namespace DbLinq.Vendor.Implementation
 
         protected virtual string GetLiteralStringLength(string a)
         {
+            return string.Format("LENGTH({0})", a);
             return string.Format("CHARACTER_LENGTH({0})", a);
         }
 
