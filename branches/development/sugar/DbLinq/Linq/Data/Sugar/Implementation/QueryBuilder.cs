@@ -185,12 +185,30 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 previousExpression = currentExpression;
             }
             ExpressionDispatcher.BuildSelect(previousExpression, builderContext);
+            BuildOffsetsAndLimits(builderContext);
             // then prepare parts for SQL translation
             PrepareSqlOperands(builderContext);
             // now, we optimize anything we can
             OptimizeQuery(builderContext);
             // finally, compile our object creation method
             CompileRowCreator(builderContext);
+            // in the very end, we keep the SELECT clause
+            builderContext.ExpressionQuery.Select = builderContext.CurrentScope;
+        }
+
+        /// <summary>
+        /// This is a hint for SQL generations
+        /// </summary>
+        /// <param name="builderContext"></param>
+        protected virtual void BuildOffsetsAndLimits(BuilderContext builderContext)
+        {
+            foreach(var scopeExpression in builderContext.ScopeExpressions)
+            {
+                if (scopeExpression.Offset != null && scopeExpression.Limit != null)
+                {
+                    scopeExpression.OffsetAndLimit = Expression.Add(scopeExpression.Offset, scopeExpression.Limit);
+                }
+            }
         }
 
         /// <summary>
@@ -199,7 +217,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <param name="builderContext"></param>
         protected virtual void CompileRowCreator(BuilderContext builderContext)
         {
-            builderContext.ExpressionQuery.RowObjectCreator = builderContext.ExpressionQuery.Select.Select.Compile();
+            builderContext.ExpressionQuery.RowObjectCreator = builderContext.CurrentScope.Select.Compile();
         }
 
         /// <summary>
@@ -237,12 +255,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                     scopeExpression.Offset = processor(scopeExpression.Offset, builderContext);
                 if (scopeExpression.Limit != null)
                     scopeExpression.Limit = processor(scopeExpression.Limit, builderContext);
-                if (scopeExpression.Offset != null && scopeExpression.Limit != null)
-                {
-                    scopeExpression.OffsetAndLimit = processor(
-                        Expression.Add(scopeExpression.Offset, scopeExpression.Limit),
-                        builderContext);
-                }
+                if(scopeExpression.OffsetAndLimit!=null)
+                    scopeExpression.OffsetAndLimit = processor(scopeExpression.OffsetAndLimit, builderContext);
 
                 builderContext.ScopeExpressions[scopeExpressionIndex] = scopeExpression;
             }
@@ -251,14 +265,14 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             {
                 // if we process only the SQL parts, these are the operands
                 var newOperands = new List<Expression>();
-                foreach (var operand in builderContext.ExpressionQuery.Select.Operands)
+                foreach (var operand in builderContext.CurrentScope.Operands)
                     newOperands.Add(processor(operand, builderContext));
-                builderContext.ExpressionQuery.Select = builderContext.ExpressionQuery.Select.ChangeOperands(newOperands);
+                builderContext.CurrentScope = builderContext.CurrentScope.ChangeOperands(newOperands);
             }
             else
             {
                 // the output parameters and result builder
-                builderContext.ExpressionQuery.Select = (ScopeExpression)processor(builderContext.ExpressionQuery.Select, builderContext);
+                builderContext.CurrentScope = (ScopeExpression)processor(builderContext.CurrentScope, builderContext);
             }
         }
 
