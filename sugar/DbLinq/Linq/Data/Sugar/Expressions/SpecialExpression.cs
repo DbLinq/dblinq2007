@@ -63,7 +63,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
             case SpecialExpressionType.Sum:
                 return defaultType; // for such methods, the type is related to the operands type
             case SpecialExpressionType.Average:
-                return typeof(decimal); // got no better idea
+                return typeof(double);
             case SpecialExpressionType.StringLength:
                 return typeof(int);
             case SpecialExpressionType.ToUpper:

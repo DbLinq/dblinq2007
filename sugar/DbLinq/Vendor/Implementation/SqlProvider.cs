@@ -526,6 +526,7 @@ namespace DbLinq.Vendor.Implementation
 
         protected virtual string GetLiteralCount(string a)
         {
+            return "COUNT(*)";
             return string.Format("COUNT({0})", a);
         }
 
