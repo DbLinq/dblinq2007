@@ -507,7 +507,6 @@ namespace Test_NUnit_PostgreSql
 
             public class CustomerDerivedClass : Customer
             {
-
                 private string city;
                 [Column(Storage = "city", Name = "city")]
                 public new string City
@@ -524,15 +523,62 @@ namespace Test_NUnit_PostgreSql
                         }
                     }
                 }
-
             }
-            public class CustomerDerivedClass2 : CustomerDerivedClass { }
 
             public DbLinq.Linq.Table<CustomerDerivedClass> ChildCustomers
             {
                 get { return base.GetTable<CustomerDerivedClass>(); }
             }
         }
+
+        /// <summary>
+        /// DbLinq must use field and should not look to setter.
+        /// </summary>
+        [Test]
+        public void D16_CustomerWithoutSetter()
+        {
+            Northwind dbo = CreateDB();
+            NorthwindAbstractBaseClass db = new NorthwindAbstractBaseClass(dbo.DatabaseContext.Connection);
+            var Customer = (from c in db.ChildCustomers
+                            where c.City == "London"
+                            select c).First();
+            Assert.IsTrue(Customer.City == "London");
+        }
+
+
+        abstract class AbstractCustomer
+        {
+            public abstract string City { get; }
+        }
+
+        class NorthwindAbstractBaseClass : Northwind
+        {
+            public NorthwindAbstractBaseClass(System.Data.IDbConnection connection)
+                : base(connection) { }
+
+            [Table(Name = "customers")]
+            public class Customer : AbstractCustomer
+            {
+                string city;
+                [Column(Storage = "city", Name = "city")]
+                public override string City
+                {
+                    get
+                    {
+                        return city;
+                    }
+                }
+            }
+
+            [Table(Name = "customers")]
+            public class Customer2 : Customer { }
+
+            public DbLinq.Linq.Table<Customer2> ChildCustomers
+            {
+                get { return base.GetTable<Customer2>(); }
+            }
+        }
+
 
         #endregion
 
