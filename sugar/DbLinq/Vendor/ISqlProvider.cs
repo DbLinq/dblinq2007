@@ -147,5 +147,20 @@ namespace DbLinq.Vendor
         /// <param name="offsetAndLimit">limit+offset</param>
         /// <returns></returns>
         string GetLiteralLimit(string select, string limit, string offset, string offsetAndLimit);
+
+        /// <summary>
+        /// Returns an ORDER criterium
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <param name="descending"></param>
+        /// <returns></returns>
+        string GetOrderByColumn(string expression, bool descending);
+
+        /// <summary>
+        /// Joins a list of conditions to make a ORDER BY clause
+        /// </summary>
+        /// <param name="orderBy"></param>
+        /// <returns></returns>
+        string GetOrderByClause(string[] orderBy);
     }
 }

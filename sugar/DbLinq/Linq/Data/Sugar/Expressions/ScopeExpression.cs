@@ -41,9 +41,10 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
         public IList<ColumnExpression> Columns { get; private set; }
 
         // Clauses
-        public IList<Expression> Where { get; private set; }
-        public LambdaExpression Select { get; set; } // Func<IDataRecord,T> --> creates an object from data record
         public string ExecuteMethodName { get; set; } // for Execute<> calls, this member is filled with the method name
+        public LambdaExpression Select { get; set; } // Func<IDataRecord,T> --> creates an object from data record
+        public IList<Expression> Where { get; private set; }
+        public IList<OrderByExpression> OrderBy { get; private set; }
 
         public Expression Offset { get; set; }
         public Expression Limit { get; set; }
@@ -59,6 +60,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
             Columns = new List<ColumnExpression>();
             // Local clauses
             Where = new List<Expression>();
+            OrderBy = new List<OrderByExpression>();
         }
 
         public ScopeExpression(ScopeExpression parentScopePiece)
@@ -70,6 +72,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
             Columns = new List<ColumnExpression>();
             // Local clauses
             Where = new List<Expression>();
+            OrderBy = new List<OrderByExpression>();
         }
 
         private ScopeExpression(Type type, IList<Expression> operands)
@@ -88,6 +91,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
             scopeExpression.Tables = Tables;
             scopeExpression.Columns = Columns;
             scopeExpression.Where = Where;
+            scopeExpression.OrderBy = OrderBy;
             scopeExpression.Parent = Parent;
             scopeExpression.ExecuteMethodName = ExecuteMethodName;
             scopeExpression.Limit = Limit;

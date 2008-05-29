@@ -300,8 +300,14 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             var query = GetFromCache(expressions);
             if (query == null)
             {
+                var t0 = DateTime.Now;
                 var expressionsQuery = BuildExpressionQuery(expressions, queryContext);
+                var t1 = DateTime.Now;
                 query = BuildSqlQuery(expressionsQuery, queryContext);
+                var t2 = DateTime.Now;
+                var ticksPerMs = TimeSpan.FromSeconds(1).Ticks / 1e3;
+                queryContext.DataContext.Logger.Write(Level.Debug, "Expression build: {0}ms", (t1 - t0).Ticks / ticksPerMs);
+                queryContext.DataContext.Logger.Write(Level.Debug, "SQL build:        {0}ms", (t2 - t1).Ticks / ticksPerMs);
                 queryContext.DataContext.Logger.Write(Level.Debug, "SQL: {0}", query.Sql);
                 SetInCache(expressions, query);
             }

@@ -59,10 +59,11 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             // - a FROM: list of tables
             // - a WHERE: list of conditions
             // TODO: all other clauses
-            string from = BuildFrom(scopeExpression.Tables, queryContext);
-            string where = BuildWhere(scopeExpression.Tables, scopeExpression.Where, queryContext);
-            string select = BuildSelect(scopeExpression, queryContext);
-            select = Join(queryContext, select, from, where);
+            var from = BuildFrom(scopeExpression.Tables, queryContext);
+            var where = BuildWhere(scopeExpression.Tables, scopeExpression.Where, queryContext);
+            var select = BuildSelect(scopeExpression, queryContext);
+            var orderBy = BuildOrderBy(scopeExpression.OrderBy, queryContext);
+            select = Join(queryContext, select, from, where, orderBy);
             select = BuildLimit(scopeExpression, select, queryContext);
             return select;
         }
@@ -171,6 +172,18 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 whereClauses.Add(BuildExpression(whereExpression, queryContext));
             }
             return sqlProvider.GetWhereClause(whereClauses.ToArray());
+        }
+
+        protected virtual string BuildOrderBy(IList<OrderByExpression> orderByExpressions, QueryContext queryContext)
+        {
+            var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
+            var orderByClauses = new List<string>();
+            foreach (var clause in orderByExpressions)
+            {
+                orderByClauses.Add(sqlProvider.GetOrderByColumn(BuildExpression(clause.ColumnExpression, queryContext),
+                                                                clause.Descending));
+            }
+            return sqlProvider.GetOrderByClause(orderByClauses.ToArray());
         }
 
         protected virtual string BuildSelect(Expression select, QueryContext queryContext)

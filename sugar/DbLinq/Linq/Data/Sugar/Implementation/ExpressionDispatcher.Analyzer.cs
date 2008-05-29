@@ -164,6 +164,12 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 return AnalyzeToUpper(parameters, builderContext);
             case "ToLower":
                 return AnalyzeToLower(parameters, builderContext);
+            case "OrderBy":
+            case "ThenBy":
+                return AnalyzeOrderBy(parameters, false, builderContext);
+            case "OrderByDescending":
+            case "ThenByDescending":
+                return AnalyzeOrderBy(parameters, true, builderContext);
             default:
                 throw Error.BadArgument("S0133: Implement QueryMethod '{0}'", methodName);
             }
@@ -558,7 +564,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
 
         protected virtual Expression AnalyzeContains(IList<Expression> parameters, BuilderContext builderContext)
         {
-            if(parameters[0].Type.IsArray)
+            if (parameters[0].Type.IsArray)
             {
                 var array = Analyze(parameters[0], builderContext);
                 var expression = Analyze(parameters[1], builderContext);
@@ -575,6 +581,22 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         protected virtual Expression AnalyzeToLower(IList<Expression> parameters, BuilderContext builderContext)
         {
             return new SpecialExpression(SpecialExpressionType.ToLower, Analyze(parameters[0], builderContext));
+        }
+
+        /// <summary>
+        /// Registers ordering request
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <param name="descending"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        protected virtual Expression AnalyzeOrderBy(IList<Expression> parameters, bool descending, BuilderContext builderContext)
+        {
+            var table = Analyze(parameters[0], builderContext);
+            // the column is related to table
+            var column = Analyze(parameters[1], table, builderContext);
+            builderContext.CurrentScope.OrderBy.Add(new OrderByExpression(descending, column));
+            return table;
         }
     }
 }

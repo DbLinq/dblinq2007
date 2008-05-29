@@ -595,5 +595,31 @@ namespace DbLinq.Vendor.Implementation
                 listItems.Add(GetLiteral(o));
             return string.Format("({0})", string.Join(", ", listItems.ToArray()));
         }
+
+        /// <summary>
+        /// Returns an ORDER criterium
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <param name="descending"></param>
+        /// <returns></returns>
+        public virtual string GetOrderByColumn(string expression, bool descending)
+        {
+            if (!descending)
+                return expression;
+            return string.Format("{0} DESC", expression);
+        }
+
+        /// <summary>
+        /// Joins a list of conditions to make a ORDER BY clause
+        /// </summary>
+        /// <param name="orderBy"></param>
+        /// <returns></returns>
+        public virtual string GetOrderByClause(string[] orderBy)
+        {
+            if (orderBy.Length == 0)
+                return string.Empty;
+            return string.Format("ORDER BY {0}", string.Join(", ", orderBy));
+        }
+
     }
 }
