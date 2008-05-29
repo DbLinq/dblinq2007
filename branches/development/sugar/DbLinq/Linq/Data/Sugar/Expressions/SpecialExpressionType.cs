@@ -42,6 +42,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
         Average,
         StringLength,
         ToUpper,
-        ToLower
+        ToLower,
+        In
     }
 }

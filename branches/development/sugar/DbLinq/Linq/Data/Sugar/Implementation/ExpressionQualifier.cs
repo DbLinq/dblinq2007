@@ -60,6 +60,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 case SpecialExpressionType.ToUpper:
                 case SpecialExpressionType.ToLower:
                     return ExpressionPrecedence.Primary;
+                case SpecialExpressionType.In:
+                    return ExpressionPrecedence.Equality; // not sure for this one
                 default:
                     throw Error.BadArgument("S0050: Unhandled SpecialExpressionType {0}", specialNodeType);
                 }
@@ -181,13 +183,12 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                     return ExpressionTier.Any;
 
                 case SpecialExpressionType.Like:
-                    return ExpressionTier.Sql;
-
                 case SpecialExpressionType.Min:
                 case SpecialExpressionType.Max:
                 case SpecialExpressionType.Sum:
                 case SpecialExpressionType.Average:
                 case SpecialExpressionType.Count:
+                case SpecialExpressionType.In:
                     return ExpressionTier.Sql; // don't tell anyone, but we can do it on both tiers, anyway this is significantly faster/efficient in SQL anyway
                 default:
                     throw Error.BadArgument("S0157: Unhandled node type {0}", specialExpressionType);
