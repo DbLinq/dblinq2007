@@ -55,6 +55,11 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
             JoinedTable = joinedTable;
         }
 
+        public void Join(TableJoinType joinType, TableExpression joinedTable, Expression joinExpression, string joinID)
+        {
+            Join(joinType, joinedTable, joinExpression);
+            JoinID = joinID;
+        }
         /// <summary>
         /// Ctor for associated table
         /// </summary>
