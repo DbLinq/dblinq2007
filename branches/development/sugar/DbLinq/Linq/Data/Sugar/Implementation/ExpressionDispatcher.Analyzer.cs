@@ -132,6 +132,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 return AnalyzeSelectMany(parameters, builderContext);
             case "Join":
                 return AnalyzeJoin(parameters, builderContext);
+            case "GroupJoin":
+                return AnalyzeGroupJoin(parameters, builderContext);
             case "All":
                 return AnalyzeAll(parameters, builderContext);
             case "Average":
@@ -540,7 +542,34 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 // last part is lambda, with two tables as parameters
                 return Analyze(parameters[4], new[] { table1, table2 }, builderContext);
             }
-            throw Error.BadArgument("S0530: Don't know how to handle Join() with {0} parameters", parameters.Count);
+            throw Error.BadArgument("S0543: Don't know how to handle Join() with {0} parameters", parameters.Count);
+        }
+
+        /// <summary>
+        /// Analyzes a Join statement (explicit join)
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        protected virtual Expression AnalyzeGroupJoin(IList<Expression> parameters, BuilderContext builderContext)
+        {
+            if (parameters.Count == 5)
+            {
+                var table1 = Analyze(parameters[0], builderContext) as TableExpression;
+                if (table1 == null)
+                    throw Error.BadArgument("S0532: Expected a TableExpression for Join");
+                var table2 = Analyze(parameters[1], builderContext) as TableExpression;
+                if (table2 == null)
+                    throw Error.BadArgument("S0536: Expected a TableExpression for Join");
+                var join1 = Analyze(parameters[2], table1, builderContext);
+                var join2 = Analyze(parameters[3], table2, builderContext);
+                table2.Join(TableJoinType.Inner, table1, Expression.Equal(join1, join2),
+                            string.Format("join{0}", builderContext.EnumerateAllTables().Count()));
+                // last part is lambda, with two tables as parameters
+                throw Error.BadArgument("S0569: Finish GroupJoin");
+                return Analyze(parameters[4], new[] { table1, table2 }, builderContext);
+            }
+            throw Error.BadArgument("S0530: Don't know how to handle GroupJoin() with {0} parameters", parameters.Count);
         }
 
         /// <summary>
