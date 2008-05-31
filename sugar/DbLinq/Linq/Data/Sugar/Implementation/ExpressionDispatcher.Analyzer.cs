@@ -103,6 +103,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             case ExpressionType.MemberInit:
             #endregion
                 return AnalyzeOperator(expression, builderContext);
+            case ExpressionType.Constant:
+                return AnalyzeConstant(expression, builderContext);
             }
             return expression;
         }
@@ -128,6 +130,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 return AnalyzeWhere(parameters, builderContext);
             case "SelectMany":
                 return AnalyzeSelectMany(parameters, builderContext);
+            case "Join":
+                return AnalyzeJoin(parameters, builderContext);
             case "All":
                 return AnalyzeAll(parameters, builderContext);
             case "Average":
@@ -514,6 +518,32 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         }
 
         /// <summary>
+        /// Analyzes a Join statement (explicit join)
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        protected virtual Expression AnalyzeJoin(IList<Expression> parameters, BuilderContext builderContext)
+        {
+            if (parameters.Count == 5)
+            {
+                var table1 = Analyze(parameters[0], builderContext) as TableExpression;
+                if (table1 == null)
+                    throw Error.BadArgument("S0532: Expected a TableExpression for Join");
+                var table2 = Analyze(parameters[1], builderContext) as TableExpression;
+                if (table2 == null)
+                    throw Error.BadArgument("S0536: Expected a TableExpression for Join");
+                var join1 = Analyze(parameters[2], table1, builderContext);
+                var join2 = Analyze(parameters[3], table2, builderContext);
+                table2.Join(TableJoinType.Inner, table1, Expression.Equal(join1, join2),
+                            string.Format("join{0}", builderContext.EnumerateAllTables().Count()));
+                // last part is lambda, with two tables as parameters
+                return Analyze(parameters[4], new[] { table1, table2 }, builderContext);
+            }
+            throw Error.BadArgument("S0530: Don't know how to handle Join() with {0} parameters", parameters.Count);
+        }
+
+        /// <summary>
         /// All() returns true if the given condition satisfies all provided elements
         /// </summary>
         /// <param name="parameters"></param>
@@ -597,6 +627,26 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             var column = Analyze(parameters[1], table, builderContext);
             builderContext.CurrentScope.OrderBy.Add(new OrderByExpression(descending, column));
             return table;
+        }
+
+        /// <summary>
+        /// Analyzes constant expression value, and eventually extracts a table
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        protected virtual Expression AnalyzeConstant(Expression expression, BuilderContext builderContext)
+        {
+            var constantExpression = expression as ConstantExpression;
+            if (constantExpression != null)
+            {
+                if (constantExpression.Value is IMTable)
+                {
+                    var tableType = constantExpression.Type.GetGenericArguments()[0];
+                    return new TableExpression(tableType, DataMapper.GetTableName(tableType, builderContext.QueryContext.DataContext));
+                }
+            }
+            return expression;
         }
     }
 }
