@@ -72,6 +72,28 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                  select column.Member).ToList();
         }
 
+        protected virtual void GetAssociation(MetaAssociation child, out IList<MemberInfo> foreignKey,
+            out IList<MemberInfo> referencedKey, DataContext dataContext)
+        {
+            // the parent type is a Set<Table>, we keep the Table
+            var parent = child.OtherMember.Association;
+
+            if (child.ThisKey.Count == 0) // which sounds odd
+                foreignKey = GetPrimaryKeys(dataContext.Mapping.GetTable(child.ThisMember.Type));
+            else
+                foreignKey = (from key in child.ThisKey select key.Member).ToList();
+
+            if (parent.OtherKey.Count == 0)
+                referencedKey = GetPrimaryKeys(dataContext.Mapping.GetTable(parent.OtherMember.Type));
+            else
+                referencedKey = (from key in parent.OtherKey select key.Member).ToList();
+        }
+
+        protected virtual bool IsChild(MetaAssociation association)
+        {
+            return !typeof(IQueryable).IsAssignableFrom(association.ThisMember.Type);
+        }
+
         /// <summary>
         /// Returns association definition, if any
         /// </summary>
@@ -88,33 +110,30 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                                            out string joinID, DataContext dataContext)
         {
             var joinedTableDescription = dataContext.Mapping.GetTable(joinedTableExpression.Type);
-            var associationDescription =
+            var joinedAssociation =
                 (from association in joinedTableDescription.RowType.Associations
                  where association.ThisMember.Member == memberInfo
                  select association).SingleOrDefault();
-            if (associationDescription != null)
+            if (joinedAssociation != null)
             {
-                Type tableType;
-                if (associationDescription.OtherKey.Count == 0)
-                {
-                    tableType = associationDescription.ThisMember.Type;
-                    var metaTableType = dataContext.Mapping.GetTable(tableType);
-                    foreignKey = GetPrimaryKeys(metaTableType);
-                }
-                else
-                {
-                    foreignKey = (from key in associationDescription.OtherKey select key.Member).ToList();
-                    tableType = foreignKey[0].DeclaringType;
-                }
-                if (associationDescription.ThisKey.Count == 0)
-                    joinedKey = GetPrimaryKeys(joinedTableDescription);
-                else
-                    joinedKey = (from key in associationDescription.ThisKey select key.Member).ToList();
                 joinType = TableJoinType.Inner;
-                joinID = associationDescription.ThisMember.MappedName;
+                joinID = joinedAssociation.ThisMember.MappedName;
                 if (string.IsNullOrEmpty(joinID))
                     throw Error.BadArgument("S0108: Association name is required to ensure join uniqueness");
-                return tableType;
+
+                Type referencedType;
+                if (IsChild(joinedAssociation))
+                {
+                    GetAssociation(joinedAssociation, out foreignKey, out joinedKey, dataContext);
+                    referencedType = joinedAssociation.ThisMember.Type; // the parent type is the type returned by the member
+                }
+                else
+                {
+                    GetAssociation(joinedAssociation.OtherMember.Association, out joinedKey, out foreignKey, dataContext);
+                    referencedType = joinedAssociation.ThisMember.Type.GetGenericArguments()[0];
+                }
+
+                return referencedType;
             }
             foreignKey = null;
             joinedKey = null;
