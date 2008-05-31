@@ -48,12 +48,11 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
 
         public string Alias { get; set; }
 
-        public void Join(TableJoinType joinType, TableExpression joinedTable, Expression joinExpression, string joinID)
+        public void Join(TableJoinType joinType, TableExpression joinedTable, Expression joinExpression)
         {
             JoinExpression = joinExpression;
             JoinType = joinType;
             JoinedTable = joinedTable;
-            JoinID = joinID;
         }
 
         /// <summary>
@@ -61,17 +60,12 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
         /// </summary>
         /// <param name="type">.NET type</param>
         /// <param name="name">Table base name</param>
-        /// <param name="joinType"></param>
-        /// <param name="joinedTable"></param>
-        /// <param name="joinExpression"></param>
-        public TableExpression(Type type, string name, TableJoinType joinType, string joinID, TableExpression joinedTable, Expression joinExpression)
+        /// <param name="joinID"></param>
+        public TableExpression(Type type, string name, string joinID)
             : base(ExpressionType, type)
         {
             Name = name;
-            JoinExpression = joinExpression;
-            JoinType = joinType;
             JoinID = joinID;
-            JoinedTable = joinedTable;
         }
 
         /// <summary>
@@ -80,7 +74,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
         /// <param name="type">.NET type</param>
         /// <param name="name">Table base name</param>
         public TableExpression(Type type, string name)
-            : this(type, name, TableJoinType.Default, null, null, null)
+            : this(type, name, null)
         {
         }
 
