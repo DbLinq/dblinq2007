@@ -64,13 +64,14 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             // now, we just simply return a constant with new value
             try
             {
-                return Expression.Constant(expression.Evaluate());
+                var optimizedExpression = Expression.Constant(expression.Evaluate());
+                // sometimes, optimizing an expression changes its type, and we just can't allow this.
+                if (optimizedExpression.Type == expression.Type)
+                    return optimizedExpression;
             }
             // if we fail to evaluate the expression, then just return it
-            catch (ArgumentException)
-            {
-                return expression;
-            }
+            catch (ArgumentException) { }
+            return expression;
         }
 
         protected virtual Expression AnalyzeNot(Expression expression, BuilderContext builderContext)
