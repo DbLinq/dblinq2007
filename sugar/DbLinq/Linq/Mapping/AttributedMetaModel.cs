@@ -95,16 +95,21 @@ namespace DbLinq.Linq.Mapping
                         foreach (var member in otherTableType.GetMembers())
                         {
                             var otherAssociationAttribute = member.GetAttribute<AssociationAttribute>();
-                            if (otherAssociationAttribute != null && otherAssociationAttribute.ThisKey == associationAttribute.OtherKey)
+                            if (otherAssociationAttribute != null && otherAssociationAttribute.Name == associationAttribute.Name)
                             {
                                 otherAssociationMember =
                                     (from a in otherTable.RowType.Associations
                                      where a.ThisMember.Member == member
                                      select a.ThisMember).SingleOrDefault();
+                                if (otherAssociationMember == attributedAssociation.ThisMember)
+                                {
+                                    otherAssociationMember = null;
+                                    continue;
+                                }
                                 break;
                             }
                         }
-                        attributedAssociation.SetOtherKey(associationAttribute.OtherKey, otherTable, otherAssociationMember);
+                        attributedAssociation.SetOtherKey(associationAttribute.OtherKey, table, otherTable, otherAssociationMember);
                     }
                 }
             }

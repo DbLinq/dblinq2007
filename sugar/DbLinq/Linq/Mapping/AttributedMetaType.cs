@@ -47,7 +47,12 @@ namespace DbLinq.Linq.Mapping
             {
                 var association = memberInfo.GetAttribute<AssociationAttribute>();
                 if (association != null)
-                    associationsList.Add(new AttributedMetaAssociation(memberInfo, association, new AttributedAssociationMetaDataMember(memberInfo, association, this)));
+                {
+                    var dataMember = new AttributedAssociationMetaDataMember(memberInfo, association, this);
+                    var metaAssociation = new AttributedMetaAssociation(memberInfo, association, dataMember);
+                    associationsList.Add(metaAssociation);
+                    dataMember.SetAssociation(metaAssociation);
+                }
                 var column = memberInfo.GetAttribute<ColumnAttribute>();
                 if (column != null)
                     dataMembersList.Add(new AttributedColumnMetaDataMember(memberInfo, column, this));
