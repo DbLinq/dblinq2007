@@ -36,14 +36,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DbLinq, Version=0.15.3007.27303, Culture=neutral, PublicKeyToken=61e015a67077348b, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\DbLinq.PostgreSql\bin\Debug\DbLinq.dll</HintPath>
-    </Reference>
-    <Reference Include="DbLinq.PostgreSql, Version=0.15.3007.27303, Culture=neutral, PublicKeyToken=61e015a67077348b, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\DbLinq.PostgreSql\bin\Debug\DbLinq.PostgreSql.dll</HintPath>
-    </Reference>
     <Reference Include="Npgsql, Version=1.0.0.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Npgsql.dll</HintPath>
@@ -71,6 +63,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="sql\install_readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\DbLinq.PostgreSql\DbLinq.PostgreSql.csproj">
+      <Project>{32824F7E-9260-413C-B174-F3E315936FA7}</Project>
+      <Name>DbLinq.PostgreSql</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\DbLinq\DbLinq.csproj">
+      <Project>{97305421-3071-4175-AA3C-9A432CC28121}</Project>
+      <Name>DbLinq</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
