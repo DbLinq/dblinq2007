@@ -465,7 +465,39 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 return AnalyzeExternalParameterMember((ExternalParameterExpression)objectExpression, memberInfo, builderContext);
             }
 
+            if (objectExpression is MemberInitExpression)
+            {
+                var foundExpression = AnalyzeMemberInit((MemberInitExpression)objectExpression, memberInfo, builderContext);
+                if (foundExpression != null)
+                    return foundExpression;
+            }
+
             return AnalyzeCommonMember(objectExpression, memberInfo, builderContext);
+        }
+
+        /// <summary>
+        /// This method analyzes the case of a new followed by a member access
+        /// for example new "A(M = value).M", where the Expression can be reduced to "value"
+        /// Caution: it may return null if no result is found
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <param name="memberInfo"></param>
+        /// <param name="builderContext"></param>
+        /// <returns>A member initializer or null</returns>
+        protected virtual Expression AnalyzeMemberInit(MemberInitExpression expression, MemberInfo memberInfo,
+                                                        BuilderContext builderContext)
+        {
+            // TODO: a method for NewExpression that we will use directly from AnalyzeMember and indirectly from here
+            foreach (var binding in expression.Bindings)
+            {
+                var memberAssignment = binding as MemberAssignment;
+                if (memberAssignment != null)
+                {
+                    if (memberAssignment.Member == memberInfo)
+                        return memberAssignment.Expression;
+                }
+            }
+            return null;
         }
 
         protected virtual Expression AnalyzeExternalParameterMember(ExternalParameterExpression expression, MemberInfo memberInfo, BuilderContext builderContext)
