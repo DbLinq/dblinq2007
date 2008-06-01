@@ -100,7 +100,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             // (this is done after cut, because the part that went to SQL must not be converted)
             //selectExpression = selectExpression.Recurse(e => CheckTableExpression(e, builderContext));
             // the last return value becomes the select, with CurrentScope
-            builderContext.CurrentScope.Select = lambdaSelectExpression;
+            builderContext.CurrentScope.SelectExpression = lambdaSelectExpression;
         }
 
         /// <summary>
