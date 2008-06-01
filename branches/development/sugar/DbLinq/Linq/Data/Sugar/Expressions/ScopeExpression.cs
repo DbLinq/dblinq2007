@@ -42,7 +42,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
 
         // Clauses
         public string ExecuteMethodName { get; set; } // for Execute<> calls, this member is filled with the method name
-        public LambdaExpression Select { get; set; } // Func<IDataRecord,T> --> creates an object from data record
+        public LambdaExpression SelectExpression { get; set; } // Func<IDataRecord,T> --> creates an object from data record
         public IList<Expression> Where { get; private set; }
         public IList<OrderByExpression> OrderBy { get; private set; }
         public IList<GroupExpression> Group { get; private set; }

@@ -217,7 +217,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <param name="builderContext"></param>
         protected virtual void CompileRowCreator(BuilderContext builderContext)
         {
-            builderContext.ExpressionQuery.RowObjectCreator = builderContext.CurrentScope.Select.Compile();
+            builderContext.ExpressionQuery.RowObjectCreator = builderContext.CurrentScope.SelectExpression.Compile();
         }
 
         /// <summary>
