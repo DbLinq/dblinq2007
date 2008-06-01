@@ -623,5 +623,16 @@ namespace DbLinq.Vendor.Implementation
             return string.Format("ORDER BY {0}", string.Join(", ", orderBy));
         }
 
+        /// <summary>
+        /// Joins a list of conditions to make a GROUP BY clause
+        /// </summary>
+        /// <param name="groupBy"></param>
+        /// <returns></returns>
+        public virtual string GetGroupByClause(string[] groupBy)
+        {
+            if (groupBy.Length == 0)
+                return string.Empty;
+            return string.Format("GROUP BY {0}", string.Join(", ", groupBy));
+        }
     }
 }

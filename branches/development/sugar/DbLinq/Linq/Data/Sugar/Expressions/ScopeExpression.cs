@@ -34,7 +34,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
     /// </summary>
     public class ScopeExpression : OperandsMutableExpression
     {
-        public const ExpressionType ExpressionType = (ExpressionType)1010;
+        public const ExpressionType ExpressionType = (ExpressionType)CustomExpressionType.Scope;
 
         // Involved entities
         public IList<TableExpression> Tables { get; private set; }
@@ -45,6 +45,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
         public LambdaExpression Select { get; set; } // Func<IDataRecord,T> --> creates an object from data record
         public IList<Expression> Where { get; private set; }
         public IList<OrderByExpression> OrderBy { get; private set; }
+        public IList<GroupByExpression> GroupBy { get; private set; }
 
         public Expression Offset { get; set; }
         public Expression Limit { get; set; }
@@ -61,6 +62,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
             // Local clauses
             Where = new List<Expression>();
             OrderBy = new List<OrderByExpression>();
+            GroupBy = new List<GroupByExpression>();
         }
 
         public ScopeExpression(ScopeExpression parentScopePiece)
@@ -73,6 +75,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
             // Local clauses
             Where = new List<Expression>();
             OrderBy = new List<OrderByExpression>();
+            GroupBy = new List<GroupByExpression>();
         }
 
         private ScopeExpression(Type type, IList<Expression> operands)
@@ -92,6 +95,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
             scopeExpression.Columns = Columns;
             scopeExpression.Where = Where;
             scopeExpression.OrderBy = OrderBy;
+            scopeExpression.GroupBy = GroupBy;
             scopeExpression.Parent = Parent;
             scopeExpression.ExecuteMethodName = ExecuteMethodName;
             scopeExpression.Limit = Limit;

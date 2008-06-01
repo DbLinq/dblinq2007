@@ -115,6 +115,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             var operarandsToSkip = expression.Method.IsStatic ? 1 : 0;
             var originalParameters = ExtractParameters(operands, parameters.Count + operarandsToSkip);
             var newParameters = MergeParameters(parameters, originalParameters);
+
             return AnalyzeCall(expression.Method.Name, newParameters, builderContext);
         }
 
@@ -134,6 +135,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 return AnalyzeJoin(parameters, builderContext);
             case "GroupJoin":
                 return AnalyzeGroupJoin(parameters, builderContext);
+            case "GroupBy":
+                return AnalyzeGroupBy(parameters, builderContext);
             case "All":
                 return AnalyzeAll(parameters, builderContext);
             case "Average":
@@ -333,26 +336,30 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <returns></returns>
         protected virtual Expression AnalyzeParameter(Expression expression, BuilderContext builderContext)
         {
-            Expression unaliasedPiece;
+            Expression unaliasedExpression;
             var parameterName = GetParameterName(expression);
-            builderContext.Parameters.TryGetValue(parameterName, out unaliasedPiece);
-            if (unaliasedPiece == null)
+            builderContext.Parameters.TryGetValue(parameterName, out unaliasedExpression);
+            if (unaliasedExpression == null)
                 throw Error.BadArgument("S0257: can not find parameter '{0}'", parameterName);
 
             #region set alias helper
 
             // for table...
-            var unaliasedTablePiece = unaliasedPiece as TableExpression;
-            if (unaliasedTablePiece != null && unaliasedTablePiece.Alias == null)
-                unaliasedTablePiece.Alias = parameterName;
+            var unaliasedTableExpression = unaliasedExpression as TableExpression;
+            if (unaliasedTableExpression != null && unaliasedTableExpression.Alias == null)
+                unaliasedTableExpression.Alias = parameterName;
             // .. or column
-            var unaliasedColumnPiece = unaliasedPiece as ColumnExpression;
-            if (unaliasedColumnPiece != null && unaliasedColumnPiece.Alias == null)
-                unaliasedColumnPiece.Alias = parameterName;
+            var unaliasedColumnExpression = unaliasedExpression as ColumnExpression;
+            if (unaliasedColumnExpression != null && unaliasedColumnExpression.Alias == null)
+                unaliasedColumnExpression.Alias = parameterName;
 
             #endregion
 
-            return unaliasedPiece;
+            //var groupByExpression = unaliasedExpression as GroupByExpression;
+            //if (groupByExpression != null)
+            //    unaliasedExpression = groupByExpression.ColumnExpression.Table;
+
+            return unaliasedExpression;
         }
 
         /// <summary>
@@ -380,6 +387,11 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 if (tableExpression == null)
                     throw Error.BadArgument("S0270: MemberInfo '{0}' not found in MetaTable", memberInfo.Name);
                 return tableExpression;
+            }
+
+            if(objectExpression is GroupByExpression)
+            {
+                return ((GroupByExpression) objectExpression).GetMember(memberInfo);
             }
 
             // if object is a table, then we need a column, or an association
@@ -410,7 +422,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             }
 
             // we have here a special cases for nullables
-            if (objectExpression.Type.IsNullable())
+            if (objectExpression.Type != null && objectExpression.Type.IsNullable())
             {
                 // Value means we convert the nullable to a value --> use Convert instead (works both on CLR and SQL, too)
                 if (memberInfo.Name == "Value")
@@ -495,28 +507,44 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 var projectionExpression = Analyze(parameters[1], new[] { tableExpression }, builderContext);
                 var manyPiece = Analyze(parameters[2], new[] { tableExpression, projectionExpression }, builderContext);
                 // from here, our manyPiece is a MetaTable definition
-                var associations = new Dictionary<MemberInfo, TableExpression>();
                 var newExpression = manyPiece as NewExpression;
                 if (newExpression == null)
                     throw Error.BadArgument("S0377: Expected a NewExpression as SelectMany() return value");
-                Type metaTableType = null;
-                for (int ctorParameterIndex = 0; ctorParameterIndex < newExpression.Arguments.Count; ctorParameterIndex++)
-                {
-                    var aliasedTableExpression = newExpression.Arguments[ctorParameterIndex] as TableExpression;
-                    if (aliasedTableExpression == null)
-                        throw Error.BadArgument("S0343: Expected a TablePiece for SelectMany()");
-                    var memberInfo = newExpression.Members[ctorParameterIndex];
-                    metaTableType = memberInfo.ReflectedType;
-                    // the property info is the reflecting property for the memberInfo, if memberInfo is a get_*
-                    // otherwise we keep the memberInfo as is, since it is a field
-                    var propertyInfo = memberInfo.GetExposingProperty() ?? memberInfo;
-                    associations[propertyInfo] = aliasedTableExpression;
-                }
-                if (metaTableType == null)
-                    throw Error.BadArgument("S0355: Empty MetaTable found"); // this should never happen, otherwise we may simply ignore it or take the type from elsewhere
+                Type metaTableType;
+                var associations = GetTypeInitializers<TableExpression>(newExpression, out metaTableType);
                 return RegisterMetaTable(metaTableType, associations, builderContext);
             }
             throw Error.BadArgument("S0358: Don't know how to handle this SelectMany() overload ({0} parameters)", parameters.Count);
+        }
+
+        protected virtual IDictionary<MemberInfo, E> GetTypeInitializers<E>(NewExpression newExpression,
+                                                                                        out Type metaType)
+            where E : Expression
+        {
+            var associations = new Dictionary<MemberInfo, E>();
+            metaType = null;
+            for (int ctorParameterIndex = 0; ctorParameterIndex < newExpression.Arguments.Count; ctorParameterIndex++)
+            {
+                var aliasedExpression = newExpression.Arguments[ctorParameterIndex] as E;
+                if (aliasedExpression == null)
+                    throw Error.BadArgument("S0541: Expected an specific Expression type for GetTypeInitializers()");
+                var memberInfo = newExpression.Members[ctorParameterIndex];
+                metaType = memberInfo.ReflectedType;
+                // the property info is the reflecting property for the memberInfo, if memberInfo is a get_*
+                // otherwise we keep the memberInfo as is, since it is a field
+                var propertyInfo = memberInfo.GetExposingProperty() ?? memberInfo;
+                associations[propertyInfo] = aliasedExpression;
+            }
+            if (metaType == null)
+                throw Error.BadArgument("S0550: Empty NewExpression found"); // this should never happen, otherwise we may simply ignore it or take the type from elsewhere
+            return associations;
+        }
+
+        protected virtual IDictionary<MemberInfo, E> GetTypeInitializers<E>(NewExpression newExpression)
+            where E : Expression
+        {
+            Type metaType;
+            return GetTypeInitializers<E>(newExpression, out metaType);
         }
 
         /// <summary>
@@ -570,6 +598,28 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 return Analyze(parameters[4], new[] { table1, table2 }, builderContext);
             }
             throw Error.BadArgument("S0530: Don't know how to handle GroupJoin() with {0} parameters", parameters.Count);
+        }
+
+        /// <summary>
+        /// Creates a group by clause
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        protected virtual Expression AnalyzeGroupBy(IList<Expression> parameters, BuilderContext builderContext)
+        {
+            var table = Analyze(parameters[0], builderContext);
+            var groupBy = Analyze(parameters[1], table, builderContext);
+            // we have mainly two options here: a scalar or a new anonymous table
+            // as we are nice people, we handle both
+            if (groupBy is NewExpression)
+            {
+                var groups = GetTypeInitializers<ColumnExpression>((NewExpression)groupBy);
+                return RegisterGroupBy(groups, builderContext);
+            }
+            if (groupBy is ColumnExpression)
+                return RegisterGroupBy((ColumnExpression)groupBy, builderContext);
+            throw Error.BadArgument("S0620: Don't know how to handle Expression to group by");
         }
 
         /// <summary>

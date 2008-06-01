@@ -58,12 +58,15 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             // - a SELECT: the operation creating a CLR object with data coming from SQL tier
             // - a FROM: list of tables
             // - a WHERE: list of conditions
+            // - a GROUP BY: grouping by selected columns
+            // - a ORDER BY: sort
             // TODO: all other clauses
             var from = BuildFrom(scopeExpression.Tables, queryContext);
             var where = BuildWhere(scopeExpression.Tables, scopeExpression.Where, queryContext);
             var select = BuildSelect(scopeExpression, queryContext);
+            var groupBy = BuildGroupBy(scopeExpression.GroupBy, queryContext);
             var orderBy = BuildOrderBy(scopeExpression.OrderBy, queryContext);
-            select = Join(queryContext, select, from, where, orderBy);
+            select = Join(queryContext, select, from, where, groupBy, orderBy);
             select = BuildLimit(scopeExpression, select, queryContext);
             return select;
         }
@@ -172,6 +175,31 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 whereClauses.Add(BuildExpression(whereExpression, queryContext));
             }
             return sqlProvider.GetWhereClause(whereClauses.ToArray());
+        }
+
+        protected virtual string GetGroupByClause(ColumnExpression columnExpression, QueryContext queryContext)
+        {
+            var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
+            if (columnExpression.Table.Alias != null)
+            {
+                return sqlProvider.GetColumn(sqlProvider.GetTableAlias(columnExpression.Table.Alias),
+                                             columnExpression.Name);
+            }
+            return sqlProvider.GetColumn(columnExpression.Name);
+        }
+
+        protected virtual string BuildGroupBy(IList<GroupByExpression> groupByExpressions, QueryContext queryContext)
+        {
+            var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
+            var groupByClauses = new List<string>();
+            foreach (var clause in groupByExpressions)
+            {
+                if (clause.SimpleGroup != null)
+                    groupByClauses.Add(GetGroupByClause(clause.SimpleGroup, queryContext));
+                else foreach (var group in clause.MultipleGroup.Values)
+                        groupByClauses.Add(GetGroupByClause(group, queryContext));
+            }
+            return sqlProvider.GetGroupByClause(groupByClauses.ToArray());
         }
 
         protected virtual string BuildOrderBy(IList<OrderByExpression> orderByExpressions, QueryContext queryContext)
