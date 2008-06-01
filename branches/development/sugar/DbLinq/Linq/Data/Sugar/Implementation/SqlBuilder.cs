@@ -64,7 +64,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             var from = BuildFrom(scopeExpression.Tables, queryContext);
             var where = BuildWhere(scopeExpression.Tables, scopeExpression.Where, queryContext);
             var select = BuildSelect(scopeExpression, queryContext);
-            var groupBy = BuildGroupBy(scopeExpression.GroupBy, queryContext);
+            var groupBy = BuildGroupBy(scopeExpression.Group, queryContext);
             var orderBy = BuildOrderBy(scopeExpression.OrderBy, queryContext);
             select = Join(queryContext, select, from, where, groupBy, orderBy);
             select = BuildLimit(scopeExpression, select, queryContext);
@@ -129,6 +129,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 return Build((ScopeExpression)expression, queryContext);
             if (expression is ConstantExpression)
                 return sqlProvider.GetLiteral(((ConstantExpression)expression).Value);
+            if (expression is GroupExpression)
+                return BuildExpression(((GroupExpression)expression).GroupedExpression, queryContext);
             return sqlProvider.GetLiteral(expression.NodeType, literalOperands);
         }
 
@@ -188,16 +190,19 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             return sqlProvider.GetColumn(columnExpression.Name);
         }
 
-        protected virtual string BuildGroupBy(IList<GroupByExpression> groupByExpressions, QueryContext queryContext)
+        protected virtual string BuildGroupBy(IList<GroupExpression> groupByExpressions, QueryContext queryContext)
         {
             var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
             var groupByClauses = new List<string>();
-            foreach (var clause in groupByExpressions)
+            foreach (var groupByExpression in groupByExpressions)
             {
-                if (clause.SimpleGroup != null)
-                    groupByClauses.Add(GetGroupByClause(clause.SimpleGroup, queryContext));
-                else foreach (var group in clause.MultipleGroup.Values)
-                        groupByClauses.Add(GetGroupByClause(group, queryContext));
+                foreach (var operand in groupByExpression.Clauses)
+                {
+                    var columnOperand = operand as ColumnExpression;
+                    if (columnOperand == null)
+                        throw Error.BadArgument("S0201: Groupby argument must be a ColumnExpression");
+                    groupByClauses.Add(GetGroupByClause(columnOperand, queryContext));
+                }
             }
             return sqlProvider.GetGroupByClause(groupByClauses.ToArray());
         }

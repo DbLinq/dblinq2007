@@ -60,13 +60,6 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <returns>A registered table or the current newly registered one</returns>
         public virtual TableExpression RegisterTable(TableExpression tableExpression, BuilderContext builderContext)
         {
-            // we don't register GroupByTables, we only register inner tables
-            var groupByExpression = tableExpression as GroupByExpression;
-            if (groupByExpression != null)
-            {
-                groupByExpression.Table = RegisterTable(groupByExpression.Table, builderContext);
-                return groupByExpression;
-            }
             // 1. Find the table in current scope
             var foundTableExpression = (from t in builderContext.EnumerateScopeTables()
                                         where t.IsEqualTo(tableExpression)
@@ -155,7 +148,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             if (queryColumn == null)
             {
                 table = RegisterTable(table, builderContext);
-                queryColumn = new ColumnExpression(table, name, memberInfo);
+                queryColumn = CreateColumn(table, memberInfo, builderContext);
                 builderContext.CurrentScope.Columns.Add(queryColumn);
             }
             return queryColumn;
@@ -401,16 +394,17 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 invoke = Expression.Convert(invoke, expression.Type);
             return invoke;
         }
-
+/*
         /// <summary>
         /// Registers a GROUP BY clause, based on a column
         /// </summary>
         /// <param name="columnExpression"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        public virtual GroupByExpression RegisterGroupBy(ColumnExpression columnExpression, BuilderContext builderContext)
+        public virtual GroupByExpression RegisterGroupBy(ColumnExpression columnExpression, Expression keyExpression, 
+            BuilderContext builderContext)
         {
-            var groupByExpression = new GroupByExpression(columnExpression);
+            var groupByExpression = new GroupByExpression(columnExpression, keyExpression);
             builderContext.CurrentScope.GroupBy.Add(groupByExpression);
             return groupByExpression;
         }
@@ -421,11 +415,12 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <param name="columnExpressions"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        public virtual GroupByExpression RegisterGroupBy(IDictionary<MemberInfo, ColumnExpression> columnExpressions, BuilderContext builderContext)
+        public virtual GroupByExpression RegisterGroupBy(IDictionary<MemberInfo, ColumnExpression> columnExpressions, 
+            Expression keyExpression, BuilderContext builderContext)
         {
-            var groupByExpression = new GroupByExpression(columnExpressions);
+            var groupByExpression = new GroupByExpression(columnExpressions, keyExpression);
             builderContext.CurrentScope.GroupBy.Add(groupByExpression);
             return groupByExpression;
-        }
+        }*/
     }
 }

@@ -67,6 +67,11 @@ namespace DbLinq.Util
 
         public static bool IsOrHasGroupField(SessionVarsParsed vars, out Type groupType)
         {
+            if (vars.Query != null) // we don't make any special treatment for groups
+            {
+                groupType = null;
+                return false;
+            }
             //## don't judge based on presence of GroupByExpression - 
             //## in case of GroupBy(City).Select(new{g.Key,g.Count}) the user never sees the GroupBy
             //## so it behaves like a regular select

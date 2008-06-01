@@ -169,7 +169,6 @@ namespace DbLinq.Vendor.Implementation
         {
             switch (operationType) // SETuse
             {
-
             case SpecialExpressionType.IsNull:
                 return GetLiteralIsNull(p[0]);
             case SpecialExpressionType.IsNotNull:

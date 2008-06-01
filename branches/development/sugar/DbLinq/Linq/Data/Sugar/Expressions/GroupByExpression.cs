@@ -41,23 +41,26 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
 
         public ColumnExpression SimpleGroup { get; private set; }
         public IDictionary<MemberInfo, ColumnExpression> MultipleGroup { get; private set; }
+        public Expression KeyExpression { get; private set; }
         public TableExpression Table { get; set; }
 
         protected bool HasKey { get; private set; }
 
-        public GroupByExpression(ColumnExpression simpleGroup)
+        public GroupByExpression(ColumnExpression simpleGroup, Expression keyExpression)
             : base(ExpressionType, simpleGroup.Table)
         {
             SimpleGroup = simpleGroup;
             HasKey = false;
+            KeyExpression = keyExpression;
             Table = SimpleGroup.Table;
         }
 
-        public GroupByExpression(IDictionary<MemberInfo, ColumnExpression> multipleGroup)
+        public GroupByExpression(IDictionary<MemberInfo, ColumnExpression> multipleGroup, Expression keyExpression)
             : base(ExpressionType, multipleGroup.Values.First().Table)
         {
             MultipleGroup = new Dictionary<MemberInfo, ColumnExpression>(multipleGroup);
             HasKey = true;
+            KeyExpression = keyExpression;
             Table = MultipleGroup.Values.First().Table;
         }
 
@@ -116,9 +119,25 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
                                  {
                                      SimpleGroup = SimpleGroup,
                                      MultipleGroup = MultipleGroup,
-                                     HasKey = false
+                                     HasKey = false,
+                                     Table = Table,
+                                     KeyExpression = KeyExpression,
                                  };
             return newGroupBy;
+        }
+
+        public IEnumerable<ColumnExpression> Columns
+        {
+            get
+            {
+                if (SimpleGroup != null)
+                    yield return SimpleGroup;
+                else
+                {
+                    foreach (var column in MultipleGroup.Values)
+                        yield return column;
+                }
+            }
         }
 
         #region Expression mutation

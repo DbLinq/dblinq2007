@@ -22,17 +22,36 @@
 // 
 #endregion
 
-namespace DbLinq.Linq.Data.Sugar.Expressions
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace DbLinq.Linq.Data.Sugar.Implementation
 {
-    public enum CustomExpressionType
+    public class LineGrouping<K, T> : IGrouping<K, T>
     {
-        Scope = 1000,
-        MetaTable = 1010,
-        Table,
-        Column,
-        ExternalParameter = 1020,
-        OrderBy = 1030,
-        GroupBy,
-        Group = 1040,
+        protected T Line { get; private set; }
+
+        public LineGrouping(K key, T line)
+        {
+            this.key = key;
+            Line = line;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable<T>)this).GetEnumerator();
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            yield return Line;
+        }
+
+        private readonly K key;
+        public K Key
+        {
+            get { return key; }
+        }
     }
 }

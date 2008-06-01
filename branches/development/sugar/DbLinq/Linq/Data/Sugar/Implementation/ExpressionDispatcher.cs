@@ -82,12 +82,80 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             // collect columns, split Expression in
             // - things we will do in CLR
             // - things we will do in SQL
-            var lambdaSelectExpression = CutOutOperands(selectExpression, builderContext);
+            LambdaExpression lambdaSelectExpression;
+            // if we have a GroupByExpression, the result type is not the same:
+            // - we need to read what is going to be the Key expression
+            // - the final row generator builds a IGrouping<K,T> instead of T
+            var selectGroupExpression = selectExpression as GroupExpression;
+            if (selectGroupExpression != null)
+            {
+                lambdaSelectExpression = CutOutOperands(selectGroupExpression.GroupedExpression, builderContext);
+                var lambdaSelectKeyExpression = BuildSelectKey(selectGroupExpression, builderContext);
+                lambdaSelectExpression = BuildSelectGroup(lambdaSelectExpression, lambdaSelectKeyExpression,
+                                                          builderContext);
+            }
+            else
+                lambdaSelectExpression = CutOutOperands(selectExpression, builderContext);
             // look for tables and use columns instead
             // (this is done after cut, because the part that went to SQL must not be converted)
             //selectExpression = selectExpression.Recurse(e => CheckTableExpression(e, builderContext));
             // the last return value becomes the select, with CurrentScope
             builderContext.CurrentScope.Select = lambdaSelectExpression;
+        }
+
+        /// <summary>
+        /// Builds a select key depending on 
+        /// </summary>
+        /// <param name="groupExpression"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        protected virtual LambdaExpression BuildSelectKey(GroupExpression groupExpression, BuilderContext builderContext)
+        {
+            return CutOutOperands(groupExpression.KeyExpression, builderContext);
+            //var dataRecordParameter = Expression.Parameter(typeof(IDataRecord), "dataRecord");
+            //var mappingContextParameter = Expression.Parameter(typeof(MappingContext), "mappingContext");
+            //if (groupExpression.SimpleGroup != null)
+            //{
+            //    var outputValueReader = GetOutputValueReader(groupExpression.SimpleGroup, dataRecordParameter, mappingContextParameter, builderContext);
+            //    var simpleLambda = Expression.Lambda(outputValueReader, dataRecordParameter, mappingContextParameter);
+            //    return simpleLambda;
+            //}
+            //// TODO: find a test to get here
+            //var outputValueReaders = new List<Expression>();
+            //foreach (var column in groupExpression.MultipleGroup.Values)
+            //{
+            //    var outputValueReader = GetOutputValueReader(column, dataRecordParameter, mappingContextParameter, builderContext);
+            //    outputValueReaders.Add(outputValueReader);
+            //}
+            //var newKeyExpression = groupExpression.KeyExpression.ChangeOperands(outputValueReaders);
+            //var multipleLambda = Expression.Lambda(newKeyExpression, dataRecordParameter, mappingContextParameter);
+            //return multipleLambda;
+        }
+
+        /// <summary>
+        /// Builds the lambda as:
+        /// (dr, mc) => new LineGrouping<K,T>(selectKey(dr,mc),select(dr,mc))
+        /// </summary>
+        /// <param name="select"></param>
+        /// <param name="selectKey"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        protected virtual LambdaExpression BuildSelectGroup(LambdaExpression select, LambdaExpression selectKey,
+            BuilderContext builderContext)
+        {
+            var dataRecordParameter = Expression.Parameter(typeof(IDataRecord), "dataRecord");
+            var mappingContextParameter = Expression.Parameter(typeof(MappingContext), "mappingContext");
+            var kType = selectKey.Body.Type;
+            var lType = select.Body.Type;
+            var groupingType = typeof(LineGrouping<,>).MakeGenericType(kType, lType);
+            var groupingCtor = groupingType.GetConstructor(new[] { kType, lType });
+            var invokeSelectKey = Expression.Invoke(selectKey, dataRecordParameter, mappingContextParameter);
+            var invokeSelect = Expression.Invoke(select, dataRecordParameter, mappingContextParameter);
+            var newLineGrouping = Expression.New(groupingCtor, invokeSelectKey, invokeSelect);
+            var iGroupingType = typeof(IGrouping<,>).MakeGenericType(kType, lType);
+            var newIGrouping = Expression.Convert(newLineGrouping, iGroupingType);
+            var lambda = Expression.Lambda(newIGrouping, dataRecordParameter, mappingContextParameter);
+            return lambda;
         }
 
         /// <summary>
