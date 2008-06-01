@@ -35,7 +35,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
     [DebuggerDisplay("TableExpression {Name} (as {Alias})")]
     public class TableExpression : MutableExpression
     {
-        public const ExpressionType ExpressionType = (ExpressionType)1001;
+        public const ExpressionType ExpressionType = (ExpressionType)CustomExpressionType.Table;
 
         // Table idenfitication
         public string Name { get; private set; }
@@ -81,6 +81,12 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
         public TableExpression(Type type, string name)
             : this(type, name, null)
         {
+        }
+
+        protected TableExpression(ExpressionType expressionType, TableExpression tableExpression)
+            : base(expressionType, tableExpression.Type)
+        {
+            Name = tableExpression.Name;
         }
 
         public bool IsEqualTo(TableExpression expression)

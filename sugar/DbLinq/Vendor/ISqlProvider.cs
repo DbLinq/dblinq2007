@@ -162,5 +162,12 @@ namespace DbLinq.Vendor
         /// <param name="orderBy"></param>
         /// <returns></returns>
         string GetOrderByClause(string[] orderBy);
+
+        /// <summary>
+        /// Joins a list of conditions to make a GROUP BY clause
+        /// </summary>
+        /// <param name="groupBy"></param>
+        /// <returns></returns>
+        string GetGroupByClause(string[] groupBy);
     }
 }

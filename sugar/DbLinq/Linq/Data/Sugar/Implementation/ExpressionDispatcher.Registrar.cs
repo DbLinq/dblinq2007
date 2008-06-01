@@ -60,6 +60,13 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <returns>A registered table or the current newly registered one</returns>
         public virtual TableExpression RegisterTable(TableExpression tableExpression, BuilderContext builderContext)
         {
+            // we don't register GroupByTables, we only register inner tables
+            var groupByExpression = tableExpression as GroupByExpression;
+            if (groupByExpression != null)
+            {
+                groupByExpression.Table = RegisterTable(groupByExpression.Table, builderContext);
+                return groupByExpression;
+            }
             // 1. Find the table in current scope
             var foundTableExpression = (from t in builderContext.EnumerateScopeTables()
                                         where t.IsEqualTo(tableExpression)
@@ -393,6 +400,32 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             if (!expression.Type.IsNullable())
                 invoke = Expression.Convert(invoke, expression.Type);
             return invoke;
+        }
+
+        /// <summary>
+        /// Registers a GROUP BY clause, based on a column
+        /// </summary>
+        /// <param name="columnExpression"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        public virtual GroupByExpression RegisterGroupBy(ColumnExpression columnExpression, BuilderContext builderContext)
+        {
+            var groupByExpression = new GroupByExpression(columnExpression);
+            builderContext.CurrentScope.GroupBy.Add(groupByExpression);
+            return groupByExpression;
+        }
+
+        /// <summary>
+        /// Registers a GROUP BY clause, based on a column list
+        /// </summary>
+        /// <param name="columnExpressions"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        public virtual GroupByExpression RegisterGroupBy(IDictionary<MemberInfo, ColumnExpression> columnExpressions, BuilderContext builderContext)
+        {
+            var groupByExpression = new GroupByExpression(columnExpressions);
+            builderContext.CurrentScope.GroupBy.Add(groupByExpression);
+            return groupByExpression;
         }
     }
 }

@@ -22,7 +22,6 @@
 // 
 #endregion
 
-using System;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -36,7 +35,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
     [DebuggerDisplay("ColumnExpression {Table.Name} (as {Table.Alias}).{Name}")]
     public class ColumnExpression : MutableExpression
     {
-        public const ExpressionType ExpressionType = (ExpressionType)1002;
+        public const ExpressionType ExpressionType = (ExpressionType)CustomExpressionType.Column;
 
         public TableExpression Table { get; private set; }
         public string Name { get; private set; }

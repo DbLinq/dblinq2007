@@ -31,7 +31,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
     /// </summary>
     public class OrderByExpression : MutableExpression
     {
-        public const ExpressionType ExpressionType = (ExpressionType)1030;
+        public const ExpressionType ExpressionType = (ExpressionType)CustomExpressionType.OrderBy;
 
         public bool Descending { get; set; }
         public Expression ColumnExpression { get; set; }

@@ -70,6 +70,8 @@
     <Compile Include="Linq\Data\Sugar\ExpressionMutator\Implementation\MemberBindingMutatorFactory.cs" />
     <Compile Include="Linq\Data\Sugar\ExpressionMutator\Implementation\MemberListBindingMutator.cs" />
     <Compile Include="Linq\Data\Sugar\ExpressionMutator\Implementation\MemberMemberBindingMutator.cs" />
+    <Compile Include="Linq\Data\Sugar\Expressions\GroupByExpression.cs" />
+    <Compile Include="Linq\Data\Sugar\Expressions\CustomExpressionType.cs" />
     <Compile Include="Linq\Data\Sugar\Expressions\OrderByExpression.cs" />
     <Compile Include="Linq\Data\Sugar\IExpressionQualifier.cs" />
     <Compile Include="Linq\Data\Sugar\Implementation\PrequelAnalyzer.cs" />

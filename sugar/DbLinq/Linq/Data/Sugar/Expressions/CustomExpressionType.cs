@@ -22,32 +22,16 @@
 // 
 #endregion
 
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Reflection;
-
 namespace DbLinq.Linq.Data.Sugar.Expressions
 {
-    /// <summary>
-    /// A MetaTablePiece contains aliases for tables (used on joins)
-    /// </summary>
-    public class MetaTableExpression : MutableExpression
+    public enum CustomExpressionType
     {
-        public const ExpressionType ExpressionType = (ExpressionType)CustomExpressionType.MetaTable;
-
-        protected IDictionary<MemberInfo, TableExpression> Aliases;
-
-        public TableExpression GetTableExpression(MemberInfo memberInfo)
-        {
-            TableExpression tablePiece;
-            Aliases.TryGetValue(memberInfo, out tablePiece);
-            return tablePiece;
-        }
-
-        public MetaTableExpression(IDictionary<MemberInfo, TableExpression> aliases)
-            : base(ExpressionType, null)
-        {
-            Aliases = aliases;
-        }
+        Scope = 1000,
+        MetaTable = 1010,
+        Table,
+        Column,
+        ExternalParameter = 1020,
+        OrderBy = 1030,
+        GroupBy,
     }
 }
