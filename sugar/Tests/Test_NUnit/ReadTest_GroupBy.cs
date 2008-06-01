@@ -72,7 +72,7 @@ using Test_NUnit;
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException))]
+        //[ExpectedException(typeof(InvalidOperationException))]
         public void G02_SimpleGroup_First()
         {
             //Note: this SQL is allowed in Mysql but illegal on Postgres 
@@ -91,7 +91,7 @@ using Test_NUnit;
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException))]
+        //[ExpectedException(typeof(InvalidOperationException))]
         public void G03_SimpleGroup_WithSelector_Invalid()
         {
             //Note: this SQL is allowed in Mysql but illegal on Postgres 
@@ -138,7 +138,7 @@ using Test_NUnit;
 
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException))]
+        //[ExpectedException(typeof(InvalidOperationException))]
         public void G04_SimpleGroup_WithSelector()
         {
             //Note: this SQL is allowed in Mysql but illegal on Postgres 

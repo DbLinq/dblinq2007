@@ -161,6 +161,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <returns></returns>
         public ExpressionTier GetTier(Expression expression)
         {
+            if (expression is GroupExpression)
+                return ExpressionTier.Clr;
             if (expression is ScopeExpression)
                 return ExpressionTier.Sql;
             if (expression is ColumnExpression)

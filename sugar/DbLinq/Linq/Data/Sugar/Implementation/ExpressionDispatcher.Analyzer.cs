@@ -389,9 +389,10 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 return tableExpression;
             }
 
-            if(objectExpression is GroupByExpression)
+            if (objectExpression is GroupExpression)
             {
-                return ((GroupByExpression) objectExpression).GetMember(memberInfo);
+                if (memberInfo.Name == "Key")
+                    return ((GroupExpression)objectExpression).KeyExpression;
             }
 
             // if object is a table, then we need a column, or an association
@@ -456,7 +457,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                     return new SpecialExpression(SpecialExpressionType.StringLength, objectExpression);
                 }
             }
-            throw Error.BadArgument("S0324: Don't know how to handle Piece");
+            //throw Error.BadArgument("S0324: Don't know how to handle Piece");
+            return Expression.MakeMemberAccess(objectExpression, memberInfo);
         }
 
         /// <summary>
@@ -609,17 +611,31 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         protected virtual Expression AnalyzeGroupBy(IList<Expression> parameters, BuilderContext builderContext)
         {
             var table = Analyze(parameters[0], builderContext);
-            var groupBy = Analyze(parameters[1], table, builderContext);
+            var keyExpression = Analyze(parameters[1], table, builderContext);
             // we have mainly two options here: a scalar or a new anonymous table
             // as we are nice people, we handle both
-            if (groupBy is NewExpression)
-            {
-                var groups = GetTypeInitializers<ColumnExpression>((NewExpression)groupBy);
-                return RegisterGroupBy(groups, builderContext);
-            }
-            if (groupBy is ColumnExpression)
-                return RegisterGroupBy((ColumnExpression)groupBy, builderContext);
-            throw Error.BadArgument("S0620: Don't know how to handle Expression to group by");
+            //GroupByExpression groupBy;
+            //if (groupByResult is NewExpression)
+            //{
+            //    var groups = GetTypeInitializers<ColumnExpression>((NewExpression)groupByResult);
+            //    groupBy = RegisterGroupBy(groups, groupByResult, builderContext);
+            //}
+            //else if (groupByResult is ColumnExpression)
+            //    groupBy = RegisterGroupBy((ColumnExpression)groupByResult, groupByResult, builderContext);
+            //else
+            //    throw Error.BadArgument("S0624: Don't know how to handle Expression to group by");
+
+            Expression result;
+            if (parameters.Count == 2)
+                result = table; // we return the whole table
+            else if (parameters.Count == 3)
+                result = Analyze(parameters[2], table, builderContext); // 3 parameters for a projection expression
+            else
+                throw Error.BadArgument("S0629: Don't know how to handle Expression to group by with {0} parameters", parameters.Count);
+
+            var group = new GroupExpression(result, keyExpression);
+            builderContext.CurrentScope.Group.Add(group);
+            return group;
         }
 
         /// <summary>
