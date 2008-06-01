@@ -65,8 +65,9 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             var where = BuildWhere(scopeExpression.Tables, scopeExpression.Where, queryContext);
             var select = BuildSelect(scopeExpression, queryContext);
             var groupBy = BuildGroupBy(scopeExpression.Group, queryContext);
+            var having = BuildHaving(scopeExpression.Where, queryContext);
             var orderBy = BuildOrderBy(scopeExpression.OrderBy, queryContext);
-            select = Join(queryContext, select, from, where, groupBy, orderBy);
+            select = Join(queryContext, select, from, where, groupBy, having, orderBy);
             select = BuildLimit(scopeExpression, select, queryContext);
             return select;
         }
@@ -163,6 +164,18 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             return sqlProvider.GetFromClause(fromClauses.ToArray());
         }
 
+        protected virtual bool IsHavingClause(Expression expression)
+        {
+            bool isHaving = false;
+            expression.Recurse(delegate(Expression e)
+                                   {
+                                       if (e is GroupExpression)
+                                           isHaving = true;
+                                       return e;
+                                   });
+            return isHaving;
+        }
+
         protected virtual string BuildWhere(IList<TableExpression> tables, IList<Expression> wheres, QueryContext queryContext)
         {
             var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
@@ -174,9 +187,22 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             }
             foreach (var whereExpression in wheres)
             {
-                whereClauses.Add(BuildExpression(whereExpression, queryContext));
+                if (!IsHavingClause(whereExpression))
+                    whereClauses.Add(BuildExpression(whereExpression, queryContext));
             }
             return sqlProvider.GetWhereClause(whereClauses.ToArray());
+        }
+
+        protected virtual string BuildHaving(IList<Expression> wheres, QueryContext queryContext)
+        {
+            var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
+            var havingClauses = new List<string>();
+            foreach (var whereExpression in wheres)
+            {
+                if (IsHavingClause(whereExpression))
+                    havingClauses.Add(BuildExpression(whereExpression, queryContext));
+            }
+            return sqlProvider.GetHavingClause(havingClauses.ToArray());
         }
 
         protected virtual string GetGroupByClause(ColumnExpression columnExpression, QueryContext queryContext)

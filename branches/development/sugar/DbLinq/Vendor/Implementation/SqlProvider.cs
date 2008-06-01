@@ -280,6 +280,18 @@ namespace DbLinq.Vendor.Implementation
         }
 
         /// <summary>
+        /// Joins a list of conditions to make a HAVING clause
+        /// </summary>
+        /// <param name="havings"></param>
+        /// <returns></returns>
+        public virtual string GetHavingClause(string[] havings)
+        {
+            if (havings.Length == 0)
+                return string.Empty;
+            return string.Format("HAVING {0}", string.Join(" AND ", havings));
+        }
+
+        /// <summary>
         /// Joins a list of operands to make a SELECT clause
         /// </summary>
         /// <param name="selects"></param>
