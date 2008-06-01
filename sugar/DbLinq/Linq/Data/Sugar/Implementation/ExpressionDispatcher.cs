@@ -90,7 +90,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             if (selectGroupExpression != null)
             {
                 lambdaSelectExpression = CutOutOperands(selectGroupExpression.GroupedExpression, builderContext);
-                var lambdaSelectKeyExpression = BuildSelectKey(selectGroupExpression, builderContext);
+                var lambdaSelectKeyExpression = CutOutOperands(selectGroupExpression.KeyExpression, builderContext);
                 lambdaSelectExpression = BuildSelectGroup(lambdaSelectExpression, lambdaSelectKeyExpression,
                                                           builderContext);
             }
@@ -101,35 +101,6 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             //selectExpression = selectExpression.Recurse(e => CheckTableExpression(e, builderContext));
             // the last return value becomes the select, with CurrentScope
             builderContext.CurrentScope.Select = lambdaSelectExpression;
-        }
-
-        /// <summary>
-        /// Builds a select key depending on 
-        /// </summary>
-        /// <param name="groupExpression"></param>
-        /// <param name="builderContext"></param>
-        /// <returns></returns>
-        protected virtual LambdaExpression BuildSelectKey(GroupExpression groupExpression, BuilderContext builderContext)
-        {
-            return CutOutOperands(groupExpression.KeyExpression, builderContext);
-            //var dataRecordParameter = Expression.Parameter(typeof(IDataRecord), "dataRecord");
-            //var mappingContextParameter = Expression.Parameter(typeof(MappingContext), "mappingContext");
-            //if (groupExpression.SimpleGroup != null)
-            //{
-            //    var outputValueReader = GetOutputValueReader(groupExpression.SimpleGroup, dataRecordParameter, mappingContextParameter, builderContext);
-            //    var simpleLambda = Expression.Lambda(outputValueReader, dataRecordParameter, mappingContextParameter);
-            //    return simpleLambda;
-            //}
-            //// TODO: find a test to get here
-            //var outputValueReaders = new List<Expression>();
-            //foreach (var column in groupExpression.MultipleGroup.Values)
-            //{
-            //    var outputValueReader = GetOutputValueReader(column, dataRecordParameter, mappingContextParameter, builderContext);
-            //    outputValueReaders.Add(outputValueReader);
-            //}
-            //var newKeyExpression = groupExpression.KeyExpression.ChangeOperands(outputValueReaders);
-            //var multipleLambda = Expression.Lambda(newKeyExpression, dataRecordParameter, mappingContextParameter);
-            //return multipleLambda;
         }
 
         /// <summary>

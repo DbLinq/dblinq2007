@@ -169,5 +169,12 @@ namespace DbLinq.Vendor
         /// <param name="groupBy"></param>
         /// <returns></returns>
         string GetGroupByClause(string[] groupBy);
+
+        /// <summary>
+        /// Joins a list of conditions to make a HAVING clause
+        /// </summary>
+        /// <param name="havings"></param>
+        /// <returns></returns>
+        string GetHavingClause(string[] havings);
     }
 }

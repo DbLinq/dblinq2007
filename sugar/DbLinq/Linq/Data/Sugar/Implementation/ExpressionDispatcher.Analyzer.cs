@@ -241,7 +241,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             if (limit.HasValue)
                 AddLimit(Expression.Constant(limit.Value), builderContext);
             var table = Analyze(parameters[0], builderContext);
-            CheckWhere(table, parameters, builderContext);
+            CheckWhere(table, parameters, 1, builderContext);
             return table;
         }
 
@@ -251,11 +251,12 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// </summary>
         /// <param name="table"></param>
         /// <param name="parameters"></param>
+        /// <param name="extraParameterIndex"></param>
         /// <param name="builderContext"></param>
-        private void CheckWhere(Expression table, IList<Expression> parameters, BuilderContext builderContext)
+        private void CheckWhere(Expression table, IList<Expression> parameters, int extraParameterIndex, BuilderContext builderContext)
         {
-            if (parameters.Count > 1) // a lambda can be specified here, this is a restriction
-                RegisterWhere(Analyze(parameters[1], table, builderContext), builderContext);
+            if (parameters.Count > extraParameterIndex) // a lambda can be specified here, this is a restriction
+                RegisterWhere(Analyze(parameters[extraParameterIndex], table, builderContext), builderContext);
         }
 
         /// <summary>
@@ -268,10 +269,36 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         protected virtual Expression AnalyzeProjectionQuery(SpecialExpressionType specialExpressionType, IList<Expression> parameters,
             BuilderContext builderContext)
         {
-            var projectionOperand = Analyze(parameters[0], builderContext);
+            var operand0 = Analyze(parameters[0], builderContext);
+            Expression projectionOperand;
+
+            // basically, we have three options for projection methods:
+            // - projection on grouped table (1 operand, a GroupExpression)
+            // - projection on grouped column (2 operands, GroupExpression and ColumnExpression)
+            // - projection on table/column, with optional restriction
+            var groupOperand0 = operand0 as GroupExpression;
+            if (groupOperand0 != null)
+            {
+                if (parameters.Count > 1)
+                {
+                    projectionOperand = Analyze(parameters[1], groupOperand0.GroupedExpression,
+                                                builderContext);
+                }
+                else
+                    projectionOperand = Analyze(groupOperand0.GroupedExpression, builderContext);
+            }
+            else
+            {
+                projectionOperand = operand0;
+                CheckWhere(projectionOperand, parameters, 1, builderContext);
+            }
+
             if (projectionOperand is TableExpression)
                 projectionOperand = RegisterTable((TableExpression)projectionOperand, builderContext);
-            CheckWhere(projectionOperand, parameters, builderContext);
+
+            if (groupOperand0 != null)
+                projectionOperand = new GroupExpression(projectionOperand, groupOperand0.KeyExpression);
+
             return new SpecialExpression(specialExpressionType, projectionOperand);
         }
 
