@@ -89,7 +89,7 @@ namespace DbLinq.Linq.Clause
                 sb.Append(colAtt.Name);
 
                 //get either ":p0" or "?p0"
-                string paramName = vendor.GetFinalParameterName(vendor.GetOrderableParameterName(numFieldsAdded));
+                string paramName = vendor.GetOrderableParameterName(numFieldsAdded);
                 sbValues.Append(paramName);
 
                 IDbDataParameter param = vendor.CreateDbDataParameter(cmd, colAtt.DbType, paramName);
@@ -117,6 +117,8 @@ namespace DbLinq.Linq.Clause
             cmd.CommandText = sql;
             foreach (IDbDataParameter param in paramList)
             {
+                cmd.CommandText = vendor.ReplaceParamNameInSql(param.ParameterName, cmd.CommandText);
+                param.ParameterName = vendor.GetFinalParameterName(param.ParameterName);
                 cmd = vendor.AddParameter(cmd, param);
                 Debug.Write(", "+param.ParameterName + " = " + param.Value.ToString());
             }
