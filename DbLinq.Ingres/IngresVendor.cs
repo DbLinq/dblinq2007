@@ -106,24 +106,52 @@ namespace DbLinq.Ingres
             return sql.Replace(orderableName, "?");
         }
 
+        private bool isReplaceable(IDbDataParameter param)
+        {
+            switch (param.DbType)
+            {
+                case DbType.String:
+                case DbType.Int16:
+                case DbType.Int32:
+                case DbType.Int64:
+                case DbType.Double:
+                    return true;
+            }
+            return false;
+        }
+
+        private string getParamValueAsString(IDbDataParameter param)
+        {
+            switch (param.DbType)
+            {
+                case DbType.String:
+                    return " '" + param.Value.ToString() + "' ";
+                case DbType.Int16:
+                case DbType.Int32:
+                case DbType.Int64:
+                case DbType.Double:
+                    return param.Value.ToString();
+            }
+            throw new Exception("Not prepared to convert " + param.DbType.ToString());
+        }
+
         public override IDbCommand AddParameter(IDbCommand cmd, IDbDataParameter param)
         {
             if (!cmd.CommandText.Contains("?")) return base.AddParameter(cmd, param);
-            if (!cmd.CommandText.ToLower().Contains("from")) return base.AddParameter(cmd, param);
 
-            // The last "?" is the param in question...
+            // Experimental: insert some (or most) parameters as literals
+            if (!isReplaceable(param)) return base.AddParameter(cmd, param);
+
+            // The last "?" is the param in question because
+            // the other parameters have still their orderable name
             int qIdx = cmd.CommandText.LastIndexOf("?");
-            int fromIdx = cmd.CommandText.ToLower().IndexOf("from");
-
-            if (fromIdx < qIdx) return base.AddParameter(cmd, param);
 
             // Cut out the "?"...
             string firstPartSQL = cmd.CommandText.Substring(0, qIdx);
             string secondPartSQL = cmd.CommandText.Substring(qIdx + 1);
 
             // ...and replace it with the actual value.
-            // TODO: This might need improvement at a later stage...
-            cmd.CommandText = firstPartSQL + " '" + param.Value.ToString() + "' " + secondPartSQL;
+            cmd.CommandText = firstPartSQL + getParamValueAsString(param) + secondPartSQL;
             return cmd;
         }
 
