@@ -21,10 +21,12 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
     namespace Test_NUnit_Sqlite.Linq_101_Samples
 #elif INGRES
     namespace Test_NUnit_Ingres.Linq_101_Samples
+#elif MSSQL
+    namespace Test_NUnit_MsSql.Linq_101_Samples
 #else
 #error unknown target
 #endif
-{
+    {
     /// <summary>
     /// Source:  http://msdn2.microsoft.com/en-us/vbasic/bb737929.aspx
     /// manually translated from VB into C#.
@@ -36,7 +38,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
         public void LinqToSqlJoin01()
         {
             Northwind db = CreateDB();
-
+            
             var q = from c in db.Customers
                     from o in c.Orders
                     where c.City == "London"
@@ -115,7 +117,85 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
             }
         }
 
-        //TODO 5 - 9
+        [Test(Description = "GroupJoin - Two-way join. This sample explictly joins two tables and projects results from both tables.")]
+        public void LinqToSqlJoin05()
+        {
+            Northwind db = CreateDB();
+
+            var q = from c in db.Customers
+                    join o in db.Orders on c.CustomerID equals o.CustomerID into orders
+                    select new { c.ContactName, OrderCount = orders.Count() };
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+
+        }
+
+        [Test(Description = "GroupJoin - Three-way join. This sample explictly joins three tables and projects results from each of them.")]
+        public void LinqToSqlJoin06()
+        {
+            Northwind db = CreateDB();
+
+            var q = from c in db.Customers
+                    join o in db.Orders on c.CustomerID equals o.CustomerID into ords
+                    join e in db.Employees on c.City equals e.City into emps
+                    select new { c.ContactName, ords = ords.Count(), emps = emps.Count() };
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+        }
+
+        [Test(Description = "GroupJoin - LEFT OUTER JOIN. This sample shows how to get LEFT OUTER JOIN by using DefaultIfEmpty(). The DefaultIfEmpty() method returns null when there is no Order for the Employee.")]
+        public void LinqToSqlJoin07()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    join o in db.Orders on e equals o.Employee into ords
+                    from o in ords.DefaultIfEmpty()
+                    select new { e.FirstName, e.LastName, Order = o };
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+        }
+
+        [Test(Description = "GroupJoin - Projected let assignment. This sample projects a 'let' expression resulting from a join.")]
+        public void LinqToSqlJoin08()
+        {
+            Northwind db = CreateDB();
+
+            var q = from c in db.Customers
+                    join o in db.Orders on c.CustomerID equals o.CustomerID into ords
+                    let z = c.City + c.Country
+                    from o in ords
+                    select new { c.ContactName, o.OrderID, z };
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+        }
+
+        [Test(Description = "GroupJoin - Composite Key.This sample shows a join with a composite key.")]
+        public void LinqToSqlJoin09()
+        {
+            Northwind db = CreateDB();
+
+            var q = from o in db.Orders
+                    from p in db.Products
+                    join d in db.OrderDetails
+                        on new { o.OrderID, p.ProductID }
+                        equals new { d.OrderID, d.ProductID }
+                    into details
+                    from d in details
+                    select new { o.OrderID, p.ProductID, d.UnitPrice };
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+        }
+
+
+
+
+
         /// <summary>
         /// This sample shows how to construct a join where one side is nullable and the other isn't.
         /// </summary>
@@ -286,6 +366,8 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
  "fk_Orders_1"
 #elif INGRES
  "fk_order_customer"
+#elif MSSQL
+"fk_order_customer"
 #else
 #error unknown target
 #endif

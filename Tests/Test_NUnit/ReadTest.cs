@@ -41,9 +41,11 @@ using System.Data.Linq.Mapping;
 #elif POSTGRES
 namespace Test_NUnit_PostgreSql
 #elif SQLITE
-    namespace Test_NUnit_Sqlite
+namespace Test_NUnit_Sqlite
 #elif INGRES
-    namespace Test_NUnit_Ingres
+namespace Test_NUnit_Ingres
+#elif MSSQL
+namespace Test_NUnit_MsSql.Linq_101_Samples
 #else
 #error unknown target
 #endif
