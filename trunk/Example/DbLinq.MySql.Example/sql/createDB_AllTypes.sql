@@ -66,6 +66,7 @@ CREATE TABLE `OtherTypes` (
   `textN` TEXT,
   `rainbow` ENUM ('red', 'orange', 'yellow') NOT NULL,
   `DbLinq_guid_test` CHAR(36),
+  `DbLinq_guid_test2` BINARY(16) NOT NULL,
   PRIMARY KEY(`id1`)
 )
 ENGINE = InnoDB
@@ -87,7 +88,7 @@ VALUES (1,'2', -9223372036854775808, 7, 2);
 INSERT INTO FloatTypes (`double`,`decimal`,`float`)
 VALUES (1.1, 2.2, 3.3);
 
-INSERT INTO OtherTypes (`blob`,`text`, rainbow, DbLinq_guid_test)
-VALUES ( REPEAT("\0",(8)), 'text', 'red', 'E5F61BB0-38BA-4116-841D-C7E5AAA137A2' );
+INSERT INTO OtherTypes (`blob`,`text`, rainbow, DbLinq_guid_test, DbLinq_guid_test2)
+VALUES ( REPEAT("\0",(8)), 'text', 'red', 'E5F61BB0-38BA-4116-841D-C7E5AAA137A2', REPEAT("\0\1",8) );
 
 INSERT INTO ParsingData (dateTimeStr) VALUES ('2008.12.31');

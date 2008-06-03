@@ -1,4 +1,4 @@
-#region Auto-generated classes for AllTypes database on 2008-05-14 21:14:00Z
+#region Auto-generated classes for AllTypes database on 2008-06-03 22:18:39Z
 
 //
 //  ____  _     __  __      _        _
@@ -7,7 +7,7 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from AllTypes on 2008-05-14 21:14:00Z
+// Auto-generated from AllTypes on 2008-06-03 22:18:39Z
 // Please visit http://linq.to/db for more information
 
 #endregion
@@ -866,6 +866,52 @@ namespace AllTypesExample
 				{
 					dateTimeN = value;
 					OnPropertyChanged("DateTimeN");
+				}
+			}
+		}
+
+		#endregion
+
+		#region System.Guid? DbLinqGuidTest
+
+		private System.Guid? dbLinqGuidTest;
+		[DebuggerNonUserCode]
+		[Column(Storage = "dbLinqGuidTest", Name = "DbLinq_guid_test", DbType = "char(36)", Expression = null)]
+		public System.Guid? DbLinqGuidTest
+		{
+			get
+			{
+				return dbLinqGuidTest;
+			}
+			set
+			{
+				if (value != dbLinqGuidTest)
+				{
+					dbLinqGuidTest = value;
+					OnPropertyChanged("DbLinqGuidTest");
+				}
+			}
+		}
+
+		#endregion
+
+		#region System.Guid DbLinqGuidTest2
+
+		private System.Guid dbLinqGuidTest2;
+		[DebuggerNonUserCode]
+		[Column(Storage = "dbLinqGuidTest2", Name = "DbLinq_guid_test2", DbType = "binary(16)", CanBeNull = false, Expression = null)]
+		public System.Guid DbLinqGuidTest2
+		{
+			get
+			{
+				return dbLinqGuidTest2;
+			}
+			set
+			{
+				if (value != dbLinqGuidTest2)
+				{
+					dbLinqGuidTest2 = value;
+					OnPropertyChanged("DbLinqGuidTest2");
 				}
 			}
 		}

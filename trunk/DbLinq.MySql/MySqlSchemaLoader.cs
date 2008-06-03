@@ -126,7 +126,7 @@ namespace DbLinq.MySql
             {
                 var paramRet = new Return();
                 paramRet.DbType = inputData.returns;
-                paramRet.Type = ParseDbType(inputData.returns);
+                paramRet.Type = ParseDbType(null, inputData.returns);
                 outputFunc.Return = paramRet;
             }
         }
@@ -168,7 +168,7 @@ namespace DbLinq.MySql
             paramObj.Direction = inOut;
             paramObj.Name = varName;
             paramObj.DbType = varType;
-            paramObj.Type = ParseDbType(varType);
+            paramObj.Type = ParseDbType(varName, varType);
 
             return paramObj;
         }
@@ -177,13 +177,13 @@ namespace DbLinq.MySql
         /// <summary>
         /// given 'CHAR(30)', return 'string'
         /// </summary>
-        protected string ParseDbType(string dbType1)
+        protected string ParseDbType(string columnName, string dbType1)
         {
             //strip 'CHARSET latin1' from the end
             string dbType2 = re_CHARSET.Replace(dbType1, "");
             var dataType = new DataType();
             dataType.UnpackRawDbType(dbType2);
-            return MapDbType(dataType).ToString();
+            return MapDbType(columnName, dataType).ToString();
         }
     }
 }
