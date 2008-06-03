@@ -54,12 +54,27 @@ namespace DbLinq.Vendor.Implementation
             public string FullType { get; set; }
         }
 
-        protected virtual Type MapDbType(IDataType dataType)
+        protected virtual Type MapDbType(string columnName, IDataType dataType)
         {
             if (dataType == null)
                 return typeof(UnknownType);
+            string dataTypeL = dataType.Type.ToLower();
 
-            switch (dataType.Type.ToLower())
+            if (columnName != null && columnName.ToLower().Contains("guid"))
+            {
+                bool correctTypeAndLen =
+                    ((dataTypeL == "char" || dataTypeL == "varchar") && dataType.Length == 36)
+                    || ((dataTypeL == "binary") && dataType.Length == 16);
+
+                if (correctTypeAndLen)
+                {
+                    Console.WriteLine("experimental support for guid--");
+                    return typeof(System.Guid);
+                }
+            }
+
+
+            switch (dataTypeL)
             {
             // string
             case "c":
