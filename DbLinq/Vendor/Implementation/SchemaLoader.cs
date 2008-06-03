@@ -250,7 +250,7 @@ namespace DbLinq.Vendor.Implementation
 
                 column.CanBeNull = columnRow.Nullable;
 
-                var columnType = MapDbType(columnRow);
+                var columnType = MapDbType(columnName.DbName, columnRow);
 
                 var columnEnumType = columnType as EnumType;
                 if (columnEnumType != null)

@@ -82,7 +82,8 @@ namespace DbLinq.Util
                 || t == typeof(char)
                 || t == typeof(byte)
                 || t == typeof(bool)
-                || t == typeof(DateTime); //DateTime: not strictly a primitive time
+                || t == typeof(DateTime) //DateTime: not strictly a primitive time
+                || t == typeof(Guid); //Guid: not strictly a primitive time
             return isBuiltinType;
             #endregion
         }

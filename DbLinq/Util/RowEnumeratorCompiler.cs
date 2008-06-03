@@ -720,6 +720,11 @@ namespace DbLinq.Util
                 propertyReader = (Expression<Func<IDataRecord, MappingContext, DateTime>>)((dataReader, mappingContext)
                     => dataReader.GetDateTime(valueIndex));
             }
+            else if (returnType == typeof(Guid))
+            {
+                propertyReader = (Expression<Func<IDataRecord, MappingContext, Guid>>)((dataReader, mappingContext)
+                    => dataReader.GetGuid(valueIndex));
+            }
             else if (returnType == typeof(byte[]))
             {
                 propertyReader = (Expression<Func<IDataRecord, MappingContext, byte[]>>)((dataReader, mappingContext)
