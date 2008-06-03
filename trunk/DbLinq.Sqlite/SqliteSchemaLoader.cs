@@ -134,7 +134,7 @@ namespace DbLinq.Sqlite
 
             var dataType = new DataType();
             dataType.UnpackRawDbType(dbType2);
-            return MapDbType(dataType).ToString();
+            return MapDbType(null, dataType).ToString();
         }
     }
 }

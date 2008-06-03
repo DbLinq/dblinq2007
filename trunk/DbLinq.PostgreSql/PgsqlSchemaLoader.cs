@@ -157,7 +157,7 @@ namespace DbLinq.PostgreSql
             {
                 var dbml_param = new Return();
                 dbml_param.DbType = pg_proc.formatted_prorettype;
-                dbml_param.Type = MapDbType(new DataType { Type = pg_proc.formatted_prorettype }).ToString();
+                dbml_param.Type = MapDbType(null, new DataType { Type = pg_proc.formatted_prorettype }).ToString();
                 dbml_func.Return = dbml_param;
                 dbml_func.IsComposable = true;
             }
@@ -191,7 +191,7 @@ namespace DbLinq.PostgreSql
                     long argTypeOid = argTypes2[i];
                     dbml_param.DbType = typeOidToName[argTypeOid];
                     dbml_param.Name = argNames[i];
-                    dbml_param.Type = MapDbType(new DataType { Type = dbml_param.DbType }).ToString();
+                    dbml_param.Type = MapDbType(argNames[i], new DataType { Type = dbml_param.DbType }).ToString();
                     string inOut = argModes == null ? "i" : argModes[i];
                     dbml_param.Direction = ParseInOut(inOut);
                     dbml_func.Parameters.Add(dbml_param);

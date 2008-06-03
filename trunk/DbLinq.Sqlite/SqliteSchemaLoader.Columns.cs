@@ -41,7 +41,7 @@ namespace DbLinq.Sqlite
             column.Nullable = dataReader.GetInt64(3) == 0;
             column.PrimaryKey = dataReader.GetInt64(5) == 1;
             // SQLite says: if it is a primary key of integer type, then it is automatically generated
-            column.Generated = column.PrimaryKey.Value && MapDbType(column) == typeof(int);
+            column.Generated = column.PrimaryKey.Value && MapDbType(column.ColumnName, column) == typeof(int);
             return column;
         }
 
