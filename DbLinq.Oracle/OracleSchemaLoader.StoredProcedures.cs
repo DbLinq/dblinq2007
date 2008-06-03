@@ -87,7 +87,7 @@ from all_arguments where lower(owner) = :db order by object_id, position";
                 {
                     var returnParameter = new Return();
                     returnParameter.DbType = parameter.Type.Type;
-                    returnParameter.Type = MapDbType(parameter.Type).ToString();
+                    returnParameter.Type = MapDbType(parameter.Name, parameter.Type).ToString();
 
                     function.IsComposable = true;
                     function.Return = returnParameter;
@@ -96,7 +96,7 @@ from all_arguments where lower(owner) = :db order by object_id, position";
                 {
                     var functionParameter = new Parameter();
                     functionParameter.DbType = parameter.Type.Type;
-                    functionParameter.Type = MapDbType(parameter.Type).ToString();
+                    functionParameter.Type = MapDbType(parameter.Name, parameter.Type).ToString();
                     if (parameter.In)
                     {
                         if (parameter.Out)
