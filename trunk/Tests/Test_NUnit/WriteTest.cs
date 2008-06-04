@@ -30,15 +30,14 @@ using NUnit.Framework;
 using nwind;
 using Test_NUnit;
 using System.ComponentModel;
+using System.Data.Linq.Mapping;
+using DbLinq.Linq;
 
 #if ORACLE
 using Id = System.Decimal;
 #else
 using Id = System.Int32;
-using System.Data.Linq.Mapping;
 #endif
-using TableAttribute = System.Data.Linq.Mapping.TableAttribute;
-using DbLinq.Linq;
 
 #if MYSQL
     namespace Test_NUnit_MySql
