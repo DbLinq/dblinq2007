@@ -92,6 +92,9 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
             var expr = Expression.Call(typeof(Queryable), "Where", new Type[] { typeof(Customer) }, Expression.Constant(custs), pred);
             expr = Expression.Call(typeof(Queryable), "OrderBy", new Type[] { typeof(Customer), typeof(String) }, custs.Expression, Expression.Lambda(Expression.Property(param, "ContactName"), param));
             var query = db.Customers.AsQueryable().Provider.CreateQuery<Customer>(expr);
+
+            var list = query.ToList();
+            Assert.IsTrue(list.Count > 0);
         }
 
 
