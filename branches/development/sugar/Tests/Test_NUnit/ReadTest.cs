@@ -28,21 +28,24 @@ using System.Linq;
 using NUnit.Framework;
 using nwind;
 using Test_NUnit;
+using System.Data.Linq.Mapping;
 
 #if MYSQL
     namespace Test_NUnit_MySql
 #elif ORACLE
-    #if ODP
+#if ODP
         namespace Test_NUnit_OracleODP
-    #else
+#else
         namespace Test_NUnit_Oracle
-    #endif
+#endif
 #elif POSTGRES
 namespace Test_NUnit_PostgreSql
 #elif SQLITE
-    namespace Test_NUnit_Sqlite
+namespace Test_NUnit_Sqlite
 #elif INGRES
-    namespace Test_NUnit_Ingres
+namespace Test_NUnit_Ingres
+#elif MSSQL
+namespace Test_NUnit_MsSql.Linq_101_Samples
 #else
 #error unknown target
 #endif
@@ -179,6 +182,7 @@ namespace Test_NUnit_PostgreSql
         [Test]
         public void C6_NullParentEmplyee()
         {
+            //this should generate a LEFT JOIN statement, but currently does not.
             Northwind db = CreateDB();
             var query = from e in db.Employees
                         select new
@@ -188,7 +192,7 @@ namespace Test_NUnit_PostgreSql
                         };
 
             var list = query.ToList();
-            Assert.AreEqual(2, list.Count);
+            Assert.AreEqual(3, list.Count);
         }
 
 
@@ -206,13 +210,30 @@ namespace Test_NUnit_PostgreSql
         }
 
 
+        /// <summary>
+        /// from http://www.agilior.pt/blogs/pedro.rainho/archive/2008/04/11/4271.aspx
+        /// </summary>
+        [Test(Description = "Using LIKE operator from linq query")]
+        public void C7B_LikeOperator()
+        {
+            Northwind db = CreateDB();
+
+            //this used to read "Like(HU%F)" but I don't think we have that company.
+
+            var query = (from c in db.Customers
+                         where System.Data.Linq.SqlClient.SqlMethods.Like(c.CompanyName, "Alfre%")
+                         select c).ToList();
+            var list = query.ToList();
+            Assert.AreEqual(1, list.Count);
+        }
+
         [Test]
         public void C8_SelectPenByLocalVariable()
         {
             Northwind db = CreateDB();
             string pen = "Pen";
 
-            var q = from p in db.Products 
+            var q = from p in db.Products
                     where (p.ProductName == pen)
                     select p;
             var productIDs = q.ToList();
@@ -232,6 +253,23 @@ namespace Test_NUnit_PostgreSql
             var productID = q.First();
             Assert.Greater(productID, 0, "Expected penID>0, got " + productID);
         }
+
+
+        /// <summary>
+        /// Reported by pwy.mail in http://code.google.com/p/dblinq2007/issues/detail?id=67
+        /// </summary>
+        [Test]
+        public void D01b_SelectFirstOrDefaultCustomer()
+        {
+            Northwind db = CreateDB();
+            var q =
+              from c in db.Customers
+              select c;
+
+            Customer customer = q.FirstOrDefault();
+            Assert.IsNotNull(customer.CustomerID);
+        }
+
 
         [Test]
         public void D02_SelectFirstPen()
@@ -427,7 +465,6 @@ namespace Test_NUnit_PostgreSql
             internal int PenId;
         }
 
-
         [Test]
         public void D14_ProjectedProductList()
         {
@@ -451,6 +488,99 @@ namespace Test_NUnit_PostgreSql
                 Assert.IsTrue(item.Supplier != null);
             }
         }
+
+
+        [Test]
+        public void D15_DuplicateProperty()
+        {
+            Northwind dbo = CreateDB();
+            NorthwindDupl db = new NorthwindDupl(dbo.DatabaseContext.Connection);
+            var derivedCustomer = (from c in db.ChildCustomers
+                                   where c.City == "London"
+                                   select c).First();
+            Assert.IsTrue(derivedCustomer.City == "London");
+        }
+
+        public class NorthwindDupl : Northwind
+        {
+            public NorthwindDupl(System.Data.IDbConnection connection)
+                : base(connection)
+            { }
+
+            public class CustomerDerivedClass : Customer
+            {
+                private string city;
+                [Column(Storage = "city", Name = "city")]
+                public new string City
+                {
+                    get
+                    {
+                        return city;
+                    }
+                    set
+                    {
+                        if (value != city)
+                        {
+                            city = value;
+                        }
+                    }
+                }
+            }
+
+            public DbLinq.Linq.Table<CustomerDerivedClass> ChildCustomers
+            {
+                get { return base.GetTable<CustomerDerivedClass>(); }
+            }
+        }
+
+        /// <summary>
+        /// DbLinq must use field and should not look to setter.
+        /// </summary>
+        [Test]
+        public void D16_CustomerWithoutSetter()
+        {
+            Northwind dbo = CreateDB();
+            NorthwindAbstractBaseClass db = new NorthwindAbstractBaseClass(dbo.DatabaseContext.Connection);
+            var Customer = (from c in db.ChildCustomers
+                            where c.City == "London"
+                            select c).First();
+            Assert.IsTrue(Customer.City == "London");
+        }
+
+
+        abstract class AbstractCustomer
+        {
+            public abstract string City { get; }
+        }
+
+        class NorthwindAbstractBaseClass : Northwind
+        {
+            public NorthwindAbstractBaseClass(System.Data.IDbConnection connection)
+                : base(connection) { }
+
+            [Table(Name = "customers")]
+            public class Customer : AbstractCustomer
+            {
+                string city;
+                [Column(Storage = "city", Name = "city")]
+                public override string City
+                {
+                    get
+                    {
+                        return city;
+                    }
+                }
+            }
+
+            [Table(Name = "customers")]
+            public class Customer2 : Customer { }
+
+            public DbLinq.Linq.Table<Customer2> ChildCustomers
+            {
+                get { return base.GetTable<Customer2>(); }
+            }
+        }
+
 
         #endregion
 

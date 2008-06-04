@@ -34,17 +34,19 @@ using Test_NUnit;
 #if MYSQL
     namespace Test_NUnit_MySql
 #elif ORACLE
-    #if ODP
+#if ODP
         namespace Test_NUnit_OracleODP
-    #else
+#else
         namespace Test_NUnit_Oracle
-    #endif
+#endif
 #elif POSTGRES
-    namespace Test_NUnit_PostgreSql
+namespace Test_NUnit_PostgreSql
 #elif SQLITE
     namespace Test_NUnit_Sqlite
 #elif INGRES
     namespace Test_NUnit_Ingres
+#elif MSSQL
+namespace Test_NUnit_MsSql.Linq_101_Samples
 #else
 #error unknown target
 #endif
@@ -183,8 +185,63 @@ using Test_NUnit;
                     where c.CustomerID.StartsWith("ALF")
                     select c.CustomerID;
 
-            string custID = q.ToList()[0];
+            string custID = q.Single();
             Assert.IsTrue(custID == "ALFKI");
+        }
+
+        [Test]
+        public void H8_String_StartsWith()
+        {
+            Northwind db = CreateDB();
+
+            var q = from c in db.Customers
+                    where c.CustomerID == "ALFKI"
+                    select c.CustomerID.StartsWith("ALF");
+
+            bool matchStart = q.Single();
+            Assert.IsTrue(matchStart);
+        }
+
+        [Test]
+        public void H9_String_EndsWith()
+        {
+            Northwind db = CreateDB();
+
+            var q = from c in db.Customers
+                    where c.CustomerID.EndsWith("LFKI")
+                    select c.CustomerID;
+
+            string custID = q.Single();
+            Assert.IsTrue(custID == "ALFKI");
+        }
+
+        [Test]
+        public void H10_String_EndsWith()
+        {
+            string param = "LFKI";
+            Northwind db = CreateDB();
+
+            var q = from c in db.Customers
+                    where c.CustomerID.EndsWith(param)
+                    select c.CustomerID;
+
+            string custID = q.Single();
+            Assert.IsTrue(custID == "ALFKI");
+        }
+
+
+        [Test]
+        public void H11_String_StartsWithPercent()
+        {
+            string param = "%";
+            Northwind db = CreateDB();
+
+            var q = from c in db.Customers
+                    where c.CustomerID.StartsWith(param)
+                    select c.CustomerID;
+
+            int cnt = q.Count();
+            Assert.AreEqual(0, cnt);
         }
 
         [Test]

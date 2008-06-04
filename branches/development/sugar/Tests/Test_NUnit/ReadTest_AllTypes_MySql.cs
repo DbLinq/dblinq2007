@@ -24,7 +24,7 @@ namespace Test_NUnit_MySql
 
             //return CreateDB(System.Data.ConnectionState.Closed);
             AllTypes db = new AllTypes(new MySql.Data.MySqlClient.MySqlConnection(connStr));
-            
+
             return db;
         }
 
@@ -107,6 +107,29 @@ namespace Test_NUnit_MySql
                 Console.WriteLine("blob[{0}]", blob.Length);
             }
             Console.WriteLine("Press enter to continue.");
+        }
+
+        [Test]
+        public void AT7_ReadGuidFromVarchar()
+        {
+            Console.WriteLine("from p in db.Othertypes orderby p.DateTime_ select p.blob;");
+            AllTypes db = CreateDB();
+
+            var query = from p in db.OtherTypes orderby p.DateTime select p.DbLinqGuidTest;
+            Guid? guid = query.First();
+            Assert.IsTrue(guid != null);
+        }
+
+        [Test]
+        public void AT8_ReadGuidFromVarbinary()
+        {
+            Console.WriteLine("from p in db.Othertypes orderby p.DateTime_ select p.blob;");
+            AllTypes db = CreateDB();
+
+            var query = from p in db.OtherTypes orderby p.DateTime select p.DbLinqGuidTest2;
+            Guid guid = query.First();
+            string guidStr = guid.ToString();
+            Assert.IsTrue(guidStr == "{0101}");
         }
 
         [Test]
