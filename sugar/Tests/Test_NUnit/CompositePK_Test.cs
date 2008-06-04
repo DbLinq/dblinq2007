@@ -43,6 +43,8 @@ using Test_NUnit;
     namespace Test_NUnit_Sqlite
 #elif INGRES
     namespace Test_NUnit_Ingres
+#elif MSSQL
+namespace Test_NUnit_MsSql.Linq_101_Samples
 #else
 #error unknown target
 #endif

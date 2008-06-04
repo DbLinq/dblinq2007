@@ -9,21 +9,23 @@ using Test_NUnit;
 #if MYSQL
     namespace Test_NUnit_MySql.Linq_101_Samples
 #elif ORACLE
-    #if ODP
+#if ODP
         namespace Test_NUnit_OracleODP.Linq_101_Samples
-    #else
+#else
         namespace Test_NUnit_Oracle.Linq_101_Samples
-    #endif
+#endif
 #elif POSTGRES
-    namespace Test_NUnit_PostgreSql.Linq_101_Samples
+namespace Test_NUnit_PostgreSql.Linq_101_Samples
 #elif SQLITE
     namespace Test_NUnit_Sqlite.Linq_101_Samples
 #elif INGRES
     namespace Test_NUnit_Ingres.Linq_101_Samples
+#elif MSSQL
+    namespace Test_NUnit_MsSql.Linq_101_Samples
 #else
-    #error unknown target
+#error unknown target
 #endif
-{
+    {
     /// <summary>
     /// Source:  http://msdn2.microsoft.com/en-us/vbasic/bb737922.aspx
     /// manually translated from VB into C#.
@@ -193,6 +195,54 @@ WHERE ([t0].[UnitPrice] = @x2) AND (((@x1 IS NULL) AND ([t0].[CategoryID] IS NUL
             var list = q.ToList();
             Assert.IsTrue(list.Count > 0, "Got most expensive items > 0");
         }
+
+
+
+        [Test(Description = "This sample uses Average to find the average freight of all Orders.")]
+        public void LinqToSqlCount11()
+        {
+            Northwind db = CreateDB();
+            var q = (from o in db.Orders
+                     select o.Freight).Average();
+
+            Console.WriteLine(q);
+            Assert.IsTrue(q > 0, "Avg orders'freight must be > 0");
+        }
+
+        [Test(Description = "This sample uses Average to find the average unit price of all Products.")]
+        public void LinqToSqlCount12()
+        {
+            Northwind db = CreateDB();
+            var q = (from p in db.Products
+                     select p.UnitPrice).Average();
+
+            Console.WriteLine(q);
+
+            Console.WriteLine(q);
+            Assert.IsTrue(q > 0, "Avg products'unitPrice must be > 0");
+        }
+
+
+        [Test(Description = "This sample uses Average to find the Products that have unit price higher than the average unit price of the category for each category.")]
+        public void LinqToSqlCount13()
+        {
+            Northwind db = CreateDB();
+            var categories = from p in db.Products
+                             group p by p.CategoryID into g
+                             select new
+                                {
+                                    g,
+                                    ExpensiveProducts = from p2 in g
+                                                        where (p2.UnitPrice > g.Average(p3 => p3.UnitPrice))
+                                                        select p2
+                                };
+
+
+            var list = categories.ToList();
+            Assert.IsTrue(list.Count > 0, "Got categorized products > 0");
+        }
+
+
 
     }
 }

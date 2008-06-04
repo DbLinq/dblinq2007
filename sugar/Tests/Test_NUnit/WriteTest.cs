@@ -31,6 +31,7 @@ using nwind;
 using Test_NUnit;
 using System.ComponentModel;
 using System.Data.Linq.Mapping;
+using DbLinq.Linq;
 
 #if ORACLE
 using Id = System.Decimal;
@@ -52,6 +53,8 @@ namespace Test_NUnit_PostgreSql
     namespace Test_NUnit_Sqlite
 #elif INGRES
     namespace Test_NUnit_Ingres
+#elif MSSQL
+namespace Test_NUnit_MsSql.Linq_101_Samples
 #else
 #error unknown target
 #endif
@@ -535,8 +538,14 @@ dummy text
 
 
         [Test]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void G15_CustomerIdUpdate()
         {
+            //if you run this against Microsoft Linq-to-Sql, it throws an InvalidOperationEx:
+            //{"Value of member 'CustomerID' of an object of type 'Customers' changed. 
+            //A member defining the identity of the object cannot be changed.
+            //Consider adding a new object with new identity and deleting the existing one instead."}
+
             Northwind db = CreateDB();
             Customer c1 = (from c in db.Customers
                            where c.CustomerID == "AIRBU"
@@ -551,6 +560,126 @@ dummy text
             db.SubmitChanges();
         }
 
+        /// <summary>
+        /// Quote from MSDN:
+        /// If the object requested by the query is easily identifiable as one
+        /// already retrieved, no query is executed. The identity table acts as a cache
+        /// of all previously retrieved objects
+
+        /// From Matt Warren: http://forums.microsoft.com/MSDN/ShowPost.aspx?PostID=345635&SiteID=1
+        /// The cache is checked when the query is a simple table.Where(pred) or table.First(pred) where the 
+        /// predicate refers only to the primary key.  Otherwise the query is always sent and the cache only checked 
+        /// after the results are retrieved. 
+        /// The DLINQ cache is not distributed or shared, it is local and contained within the context.  It is only a 
+        /// referential identity cache used to guarantee that two reads of the same entity return the same instance. 
+        /// You are not expected to hold the cache for an extended duration (except possibly for a client scenario), 
+        /// or share it across threads, processes, or machines in a cluster. 
+        /// </summary>
+        [Test]
+        public void G16_CustomerCacheHit()
+        {
+            Northwind db = CreateDB();
+            Customer c1 = new Customer() { CustomerID = "temp", CompanyName = "Test", ContactName = "Test" };
+            db.Customers.InsertOnSubmit(c1);
+            db.SubmitChanges();
+            db.ExecuteCommand("delete from customers WHERE CustomerID='temp'");
+
+            var res = (from c in db.Customers
+                       where c.CustomerID == "temp"
+                       select c).Single();
+        }
+
+
+
+        [Test]
+        public void G17_LocalPropertyUpdate()
+        {
+            Northwind dbo = CreateDB();
+            NorthwindLocalProperty db = new NorthwindLocalProperty(dbo.DatabaseContext.Connection);
+            var det = db.OrderDetailWithSums.First();
+            det.ChangeQuantity();
+            Assert.AreEqual(0, db.GetChangeSet().Updates.Count);
+            db.SubmitChanges();
+        }
+
+        class NorthwindLocalProperty : Northwind
+        {
+            internal NorthwindLocalProperty(System.Data.IDbConnection connection)
+                : base(connection) { }
+
+            internal Table<OrderDetailWithSum> OrderDetailWithSums
+            {
+                get
+                {
+                    return GetTable<OrderDetailWithSum>();
+                }
+            }
+
+        }
+
+        class OrderDetailWithSum : OrderDetail, INotifyPropertyChanged
+        {
+            public event PropertyChangedEventHandler PropertyChanged;
+            protected virtual void OnPropertyChanged(string propertyName)
+            {
+                if (PropertyChanged != null)
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                }
+            }
+
+            internal decimal? Sum
+            {
+                get
+                {
+                    return Quantity * UnitPrice;
+                }
+            }
+
+            internal void ChangeQuantity()
+            {
+                OnPropertyChanged("Sum");
+            }
+        }
+
+
+        [Test]
+        public void G18_UpdateWithAttach()
+        {
+            List<Order> list;
+            using (Northwind db = CreateDB())
+                list = db.Orders.ToList();
+
+            using (Northwind db = CreateDB())
+            {
+                var tbl = db.GetTable<Order>();
+                foreach (var order in list)
+                {
+                    if (order.Freight == null)
+                        continue;
+                    tbl.Attach(order);
+                    order.Freight += 1;
+                }
+                db.SubmitChanges();
+            }
+
+            using (Northwind db = CreateDB())
+            {
+                var tbl = db.GetTable<Order>();
+                foreach (var order in list)
+                {
+                    if (order.Freight == null)
+                        continue;
+                    tbl.Attach(order);
+                    order.Freight -= 1;
+                }
+                db.SubmitChanges();
+            }
+        }
+
         #endregion
+
+
+
     }
 }

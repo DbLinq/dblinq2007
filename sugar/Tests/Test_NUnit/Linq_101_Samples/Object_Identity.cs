@@ -20,6 +20,8 @@ using Test_NUnit;
     namespace Test_NUnit_Sqlite.Linq_101_Samples
 #elif INGRES
     namespace Test_NUnit_Ingres.Linq_101_Samples
+#elif MSSQL
+    namespace Test_NUnit_MsSql.Linq_101_Samples
 #else
     #error unknown target
 #endif
