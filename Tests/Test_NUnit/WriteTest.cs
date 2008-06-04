@@ -644,6 +644,40 @@ dummy text
         }
 
 
+        [Test]
+        public void G18_UpdateWithAttach()
+        {
+            List<Order> list;
+            using (Northwind db = CreateDB())
+                list = db.Orders.ToList();
+
+            using (Northwind db = CreateDB())
+            {
+                var tbl = db.GetTable<Order>();
+                foreach (var order in list)
+                {
+                    if (order.Freight == null)
+                        continue;
+                    tbl.Attach(order);
+                    order.Freight += 1;
+                }
+                db.SubmitChanges();
+            }
+
+            using (Northwind db = CreateDB())
+            {
+                var tbl = db.GetTable<Order>();
+                foreach (var order in list)
+                {
+                    if (order.Freight == null)
+                        continue;
+                    tbl.Attach(order);
+                    order.Freight -= 1;
+                }
+                db.SubmitChanges();
+            }
+        }
+
         #endregion
 
 
