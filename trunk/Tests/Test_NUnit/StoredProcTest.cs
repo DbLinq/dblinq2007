@@ -26,7 +26,7 @@ namespace Test_NUnit_MsSql.Linq_101_Samples
     public class StoredProcTest : TestBase
     {
 
-#if !SQLITE
+#if !SQLITE && !MSSQL
         [Test]
         public void SP1_CallHello0()
         {

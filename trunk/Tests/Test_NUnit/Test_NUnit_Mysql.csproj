@@ -78,7 +78,9 @@
     <Compile Include="Linq_101_Samples\Advanced.cs" />
     <Compile Include="Linq_101_Samples\Conversion_Operators.cs" />
     <Compile Include="Linq_101_Samples\Count_Sum_Min_Max_Avg.cs" />
+    <Compile Include="Linq_101_Samples\ExsistIn_Any_All.cs" />
     <Compile Include="Linq_101_Samples\GroupBy_Having.cs" />
+    <Compile Include="Linq_101_Samples\Inheritance.cs" />
     <Compile Include="Linq_101_Samples\Insert_Update_Delete.cs" />
     <Compile Include="Linq_101_Samples\Join.cs" />
     <Compile Include="Linq_101_Samples\Linq101SamplesModifiedAttribute.cs" />
@@ -90,6 +92,9 @@
     <Compile Include="Linq_101_Samples\Select_Distinct.cs" />
     <Compile Include="Linq_101_Samples\String_Date_functions.cs" />
     <Compile Include="Linq_101_Samples\Top_Bottom.cs" />
+    <Compile Include="Linq_101_Samples\UnionAll_Union_Intersect.cs" />
+    <Compile Include="Linq_101_Samples\Views.cs" />
+    <Compile Include="Linq_101_Samples\Where.cs" />
     <Compile Include="MetalTest.cs" />
     <Compile Include="Program2Mysql.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
