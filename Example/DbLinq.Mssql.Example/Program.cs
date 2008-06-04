@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Data.SqlClient;
 using nwind;
 
 namespace DbLinq.Mssql.Example
@@ -34,8 +35,15 @@ namespace DbLinq.Mssql.Example
         static void Main(string[] args)
         {
             string connStr = "Data Source=.\\SQLExpress;Integrated Security=True;Initial Catalog=Northwind";
-            Northwind db = new Northwind(connStr);
+             Northwind db = new Northwind(new SqlConnection(connStr));
 
+
+            var res = from cust in db.Customers
+                      select cust.CompanyName;
+
+
+            foreach (var r in res.ToList())
+                Console.WriteLine(r);
             //var regions = db.Regions.ToList();
 
             //Vendor.UseBulkInsert[db.Regions] = true;
