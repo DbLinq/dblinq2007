@@ -63,7 +63,7 @@ using Test_NUnit;
             Northwind db = CreateDB();
 
             var q = from e in db.Employees 
-                    where !e.ReportsTo.HasValue 
+                    where e.ReportsTo.HasValue 
                     select new { e.FirstName, e.LastName, ReportsTo = e.ReportsTo.Value };
 
             var list = q.ToList();
