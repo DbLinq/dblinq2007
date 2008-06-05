@@ -6,6 +6,7 @@
     <assembly path="bin\Test_NUnit_Ora.exe" />
     <assembly path="bin\Test_NUnit_SQLite.dll" />
     <assembly path="bin\Test_NUnit_Pgsql.exe" />
+    <assembly path="bin\Test_NUnit_MsSql.dll" />
   </Config>
   <Config name="Release" binpathtype="Auto" />
 </NUnitProject>

@@ -46,7 +46,10 @@ namespace Test_NUnit_PostgreSql
     namespace Test_NUnit_Sqlite
 #elif INGRES
     namespace Test_NUnit_Ingres
+#elif MSSQL
+namespace Test_NUnit_MsSql
 #else
+
 #error unknown target
 #endif
 {
