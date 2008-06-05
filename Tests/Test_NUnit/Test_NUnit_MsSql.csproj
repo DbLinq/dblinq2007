@@ -55,8 +55,13 @@
     <Compile Include="..\..\Example\DbLinq.MsSql.Example\nwind\Northwind.cs">
       <Link>nwind\Northwind.cs</Link>
     </Compile>
+    <Compile Include="..\..\lib\DynamicLinq.cs">
+      <Link>lib\DynamicLinq.cs</Link>
+    </Compile>
     <Compile Include="CompositePK_Test.cs" />
+    <Compile Include="DynamicLinqTest.cs" />
     <Compile Include="ExecuteCommand_Test.cs" />
+    <Compile Include="ExecuteQuery_Test.cs" />
     <Compile Include="Linq_101_Samples\Advanced.cs" />
     <Compile Include="Linq_101_Samples\Conversion_Operators.cs" />
     <Compile Include="Linq_101_Samples\Count_Sum_Min_Max_Avg.cs" />
@@ -100,6 +105,9 @@
       <Project>{97305421-3071-4175-AA3C-9A432CC28121}</Project>
       <Name>DbLinq</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="lib\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
