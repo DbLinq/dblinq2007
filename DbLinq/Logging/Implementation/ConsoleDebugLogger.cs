@@ -26,27 +26,44 @@ using System.Diagnostics;
 
 namespace DbLinq.Logging.Implementation
 {
-    class ConsoleDebugLogger : Logger
+    public class ConsoleLogger : Logger
     {
         public override void Write(Level level, string text)
         {
+            ConsoleColor prevColor = Console.ForegroundColor;
             switch (level)
             {
-            case Level.Debug:
-                Console.ForegroundColor = ConsoleColor.Blue;
-                break;
-            case Level.Information:
-                Console.ResetColor();
-                break;
-            case Level.Warning:
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                break;
-            case Level.Error:
-                Console.ForegroundColor = ConsoleColor.Red;
-                break;
-            default:
-                throw new ArgumentOutOfRangeException("level");
+                case Level.Debug:
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    break;
+                case Level.Information:
+                    Console.ResetColor();
+                    break;
+                case Level.Warning:
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    break;
+                case Level.Error:
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("level");
             }
+            Console.WriteLine(text);
+            Console.ForegroundColor = prevColor;
+            // picrap --> jiri: this is probably not the right place, maybe shall we find something else?
+            text = text.Replace("System.String", "string");
+            text = text.Replace("System.Int32", "int");
+            text = text.Replace("DbLinq.Linq.", "");
+            text = text.Replace("System.Linq.", "");
+            text = text.Replace("nwind.", "");
+            Debug.WriteLine(string.Format("{0:u} {1}", DateTime.Now, text));
+            //Debug.WriteLine(text);
+        }
+    }
+    class DebugLogger : Logger
+    {
+        public override void Write(Level level, string text)
+        {
             //Console.WriteLine(text);
             // picrap --> jiri: this is probably not the right place, maybe shall we find something else?
             text = text.Replace("System.String", "string");

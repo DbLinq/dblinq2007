@@ -25,6 +25,7 @@
 using DbLinq;
 using DbLinq.Factory;
 using DbMetal.Generator;
+using DbMetal.Generator.Implementation;
 
 namespace DbMetal
 {
@@ -33,7 +34,8 @@ namespace DbMetal
         static void Main(string[] args)
         {
             Reference.DbLinqLocalizations();
-            var processor = ObjectFactory.Get<IProcessor>();
+            //var processor = ObjectFactory.Get<IProcessor>(); //this is generic but does not work
+            var processor = new Processor(); //non-generic but reliable
             processor.Process(args);
         }
     }

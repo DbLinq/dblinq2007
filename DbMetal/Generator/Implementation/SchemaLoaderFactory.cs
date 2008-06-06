@@ -32,16 +32,24 @@ using DbLinq.Vendor;
 using DbMetal;
 using DbMetal.Configuration;
 using DbMetal.Generator;
+using DbLinq.Logging;
 
 namespace DbMetal
 {
     public class SchemaLoaderFactory : ISchemaLoaderFactory
     {
+        ILogger Logger = null;
+
         /// <summary>
         /// the 'main entry point' into this class
         /// </summary>
         public ISchemaLoader Load(Parameters parameters)
         {
+            if (Logger == null)
+            {
+                Logger = DbLinq.Factory.ObjectFactory.Get<ILogger>();
+            }
+
             string dbLinqSchemaLoaderType;
             string databaseConnectionType;
             GetLoaderAndConnection(out dbLinqSchemaLoaderType, out databaseConnectionType, parameters);
@@ -212,7 +220,16 @@ namespace DbMetal
         protected void GetLoaderAndConnection(out string dbLinqSchemaLoaderType, out string databaseConnectionType, string provider)
         {
             var configuration = (ProvidersSection)ConfigurationManager.GetSection("providers");
-            var element = configuration.Providers.GetProvider(provider);
+
+            ProvidersSection.ProviderElement element;
+            string errorMsg;
+            if (!configuration.Providers.TryGetProvider(provider, out element, out errorMsg))
+            {
+                Logger.Write(Level.Error, "Failed to load provider " + provider + ": " + errorMsg);
+                throw new ApplicationException("Failed to load provider " + provider);
+            }
+
+            //var element = configuration.Providers.GetProvider(provider);
             //databaseConnectionType = types[1].Trim();
             dbLinqSchemaLoaderType = element.DbLinqSchemaLoader;
             databaseConnectionType = element.DatabaseConnection;
