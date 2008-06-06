@@ -21,6 +21,9 @@
 // THE SOFTWARE.
 // 
 #endregion
+using System;
+using System.Linq;
+using System.Collections.Generic;
 using System.Configuration;
 
 namespace DbMetal.Configuration
@@ -70,6 +73,24 @@ namespace DbMetal.Configuration
             public ProviderElement GetProvider(string name)
             {
                 return (ProviderElement)BaseGet(name.ToLower());
+            }
+            public bool TryGetProvider(string name, out ProviderElement element, out string error)
+            {
+                //use Configuration namespace to get our config
+                object[] allKeys = base.BaseGetAllKeys();
+                if (Array.IndexOf(allKeys, name)<0)
+                {
+                    string[] allKeyStrings = allKeys.OfType<string>().ToArray();
+                    
+                    element = null;
+                    error = allKeys.Length == 0 
+                        ? "There are no <provider> entries in your app.config"
+                        : "Key " + name + " not found among " + allKeys.Length + " config entries {" + string.Join(",",allKeyStrings) + "}";
+                    return false;
+                }
+                element = (ProviderElement)BaseGet(name.ToLower());
+                error = null;
+                return true;
             }
         }
 

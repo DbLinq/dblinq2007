@@ -33,12 +33,20 @@ namespace DbLinq.Factory.Implementation
             return (T)GetInstance(typeof(T), false);
         }
 
+        public virtual T Get<T>(T suggestedInstance)
+        {
+            return GetInstance(suggestedInstance);
+        }
+
         public virtual T Create<T>()
         {
             return (T)GetInstance(typeof(T), true);
         }
 
         public abstract object GetInstance(Type t, bool newInstanceRequired);
+        
+        public abstract T GetInstance<T>(T suggestedInstance);
+
         public abstract IEnumerable<Type> GetImplementations(Type interfaceType);
     }
 }

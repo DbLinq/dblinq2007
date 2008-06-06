@@ -43,7 +43,10 @@ namespace DbMetal.Generator.Implementation
 
         public Processor()
         {
-            Logger = ObjectFactory.Get<ILogger>();
+            //for DbMetal for want to log to console
+            //for VisualMetal we want to log to log4net
+            //Logger = ObjectFactory.Get<ILogger>();
+            Logger = ObjectFactory.Get<ILogger>(new DbLinq.Logging.Implementation.ConsoleLogger());
             SchemaLoaderFactory = ObjectFactory.Get<ISchemaLoaderFactory>();
         }
 
@@ -158,9 +161,7 @@ namespace DbMetal.Generator.Implementation
 
         protected virtual ICodeGenerator FindCodeGeneratorByExtension(string extension)
         {
-            return (from codeGenerator in EnumerateCodeGenerators()
-                    where codeGenerator.Extension == extension
-                    select codeGenerator).SingleOrDefault();
+            return EnumerateCodeGenerators().SingleOrDefault(gen=>gen.Extension==extension);
         }
 
         public virtual ICodeGenerator FindCodeGenerator(Parameters parameters, string filename)

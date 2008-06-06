@@ -39,6 +39,12 @@ namespace DbLinq.Factory
             return Current.Get<T>();
         }
 
+        public static T Get<T>(T suggestedInstance)
+        {
+            //return Current.Get<T>(suggestedInstance);
+            return Current.GetInstance(suggestedInstance);
+        }
+
         public static T Create<T>()
         {
             return Current.Create<T>();

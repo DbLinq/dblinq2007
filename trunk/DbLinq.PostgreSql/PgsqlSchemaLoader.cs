@@ -89,7 +89,7 @@ namespace DbLinq.PostgreSql
 
             var allKeys2 = ReadForeignConstraints(conn, schemaName.DbName);
             var foreignKeys = allKeys2.Where(k => k.ConstraintType == "FOREIGN KEY");//.ToList();
-            //var primaryKeys = allKeys2.Where(k => k.ConstraintType == "PRIMARY KEY").ToList();
+            var primaryKeys = allKeys2.Where(k => k.ConstraintType == "PRIMARY KEY").ToList();
 
 
             foreach (DataConstraint keyColRow in constraints)
@@ -103,7 +103,8 @@ namespace DbLinq.PostgreSql
                     continue;
                 }
 
-                if (keyColRow.ConstraintName.EndsWith("_pkey")) //MYSQL reads 'PRIMARY'
+                bool isPrimaryKey = primaryKeys.Count(k => k.ConstraintName == keyColRow.ConstraintName) == 1;
+                if (isPrimaryKey)
                 {
                     //A) add primary key
                     DbLinq.Schema.Dbml.Column primaryKeyCol = table.Type.Columns.First(c => c.Name == keyColRow.ColumnName);
@@ -205,10 +206,10 @@ namespace DbLinq.PostgreSql
         {
             switch (inOut)
             {
-            case "i": return DbLinq.Schema.Dbml.ParameterDirection.In;
-            case "o": return DbLinq.Schema.Dbml.ParameterDirection.Out;
-            case "b": return DbLinq.Schema.Dbml.ParameterDirection.InOut;
-            default: return DbLinq.Schema.Dbml.ParameterDirection.InOut;
+                case "i": return DbLinq.Schema.Dbml.ParameterDirection.In;
+                case "o": return DbLinq.Schema.Dbml.ParameterDirection.Out;
+                case "b": return DbLinq.Schema.Dbml.ParameterDirection.InOut;
+                default: return DbLinq.Schema.Dbml.ParameterDirection.InOut;
             }
         }
 
