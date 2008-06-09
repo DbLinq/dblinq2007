@@ -42,7 +42,7 @@ namespace DbLinq.Linq.Data.Sugar
         /// <summary>
         /// The SELECT expression itself
         /// </summary>
-        public ScopeExpression Select { get; set; }
+        public SelectExpression Select { get; set; }
 
         /// <summary>
         /// Expression that creates a row object

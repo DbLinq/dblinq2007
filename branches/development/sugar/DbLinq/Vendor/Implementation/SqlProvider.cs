@@ -200,6 +200,30 @@ namespace DbLinq.Vendor.Implementation
         }
 
         /// <summary>
+        /// Returns an operation between two SELECT clauses (UNION, UNION ALL, etc.)
+        /// </summary>
+        /// <param name="selectOperator"></param>
+        /// <param name="selectA"></param>
+        /// <param name="selectB"></param>
+        /// <returns></returns>
+        public virtual string GetLiteral(SelectOperatorType selectOperator, string selectA, string selectB)
+        {
+            switch (selectOperator)
+            {
+            case SelectOperatorType.Union:
+                return GetLiteralUnion(selectA, selectB);
+            case SelectOperatorType.UnionAll:
+                return GetLiteralUnionAll(selectA, selectB);
+            case SelectOperatorType.Intersection:
+                return GetLiteralIntersect(selectA, selectB);
+            case SelectOperatorType.Exception:
+                return GetLiteralExcept(selectA, selectB);
+            default:
+                throw new ArgumentOutOfRangeException(selectOperator.ToString());
+            }
+        }
+
+        /// <summary>
         /// Places the expression into parenthesis
         /// </summary>
         /// <param name="a"></param>
@@ -644,6 +668,26 @@ namespace DbLinq.Vendor.Implementation
             if (groupBy.Length == 0)
                 return string.Empty;
             return string.Format("GROUP BY {0}", string.Join(", ", groupBy));
+        }
+
+        protected virtual string GetLiteralUnion(string selectA, string selectB)
+        {
+            return string.Format("{0}{2}UNION{2}{1}", selectA, selectB, NewLine);
+        }
+
+        protected virtual string GetLiteralUnionAll(string selectA, string selectB)
+        {
+            return string.Format("{0}{2}UNION ALL{2}{1}", selectA, selectB, NewLine);
+        }
+
+        protected virtual string GetLiteralIntersect(string selectA, string selectB)
+        {
+            return string.Format("{0}{2}INTERSECT{2}{1}", selectA, selectB, NewLine);
+        }
+
+        protected virtual string GetLiteralExcept(string selectA, string selectB)
+        {
+            return string.Format("{0}{2}EXCEPT{2}{1}", selectA, selectB, NewLine);
         }
     }
 }

@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using DbLinq.Factory;
 using DbLinq.Linq.Data.Sugar.ExpressionMutator;
 using DbLinq.Linq.Data.Sugar.Expressions;
 using DbLinq.Util;
@@ -179,6 +180,14 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             case "OrderByDescending":
             case "ThenByDescending":
                 return AnalyzeOrderBy(parameters, true, builderContext);
+            case "Union":
+                return AnalyzeSelectOperation(SelectOperatorType.Union, parameters, builderContext);
+            case "Concat":
+                return AnalyzeSelectOperation(SelectOperatorType.UnionAll, parameters, builderContext);
+            case "Intersect":
+                return AnalyzeSelectOperation(SelectOperatorType.Intersection, parameters, builderContext);
+            case "Except":
+                return AnalyzeSelectOperation(SelectOperatorType.Exception, parameters, builderContext);
             default:
                 throw Error.BadArgument("S0133: Implement QueryMethod '{0}'", methodName);
             }
@@ -198,12 +207,12 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
 
         protected virtual void AddLimit(Expression limit, BuilderContext builderContext)
         {
-            var previousLimit = builderContext.CurrentScope.Limit;
+            var previousLimit = builderContext.CurrentSelect.Limit;
             if (previousLimit != null)
-                builderContext.CurrentScope.Limit = Expression.Condition(Expression.LessThan(previousLimit, limit),
+                builderContext.CurrentSelect.Limit = Expression.Condition(Expression.LessThan(previousLimit, limit),
                                                                          previousLimit, limit);
             else
-                builderContext.CurrentScope.Limit = limit;
+                builderContext.CurrentSelect.Limit = limit;
         }
 
         /// <summary>
@@ -220,11 +229,11 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
 
         protected virtual void AddOffset(Expression offset, BuilderContext builderContext)
         {
-            var previousOffset = builderContext.CurrentScope.Offset;
+            var previousOffset = builderContext.CurrentSelect.Offset;
             if (previousOffset != null)
-                builderContext.CurrentScope.Offset = Expression.Add(offset, previousOffset);
+                builderContext.CurrentSelect.Offset = Expression.Add(offset, previousOffset);
             else
-                builderContext.CurrentScope.Offset = offset;
+                builderContext.CurrentSelect.Offset = offset;
         }
 
         /// <summary>
@@ -237,7 +246,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <returns></returns>
         protected virtual Expression AnalyzeScalar(string methodName, int? limit, IList<Expression> parameters, BuilderContext builderContext)
         {
-            builderContext.CurrentScope.ExecuteMethodName = methodName;
+            builderContext.CurrentSelect.ExecuteMethodName = methodName;
             if (limit.HasValue)
                 AddLimit(Expression.Constant(limit.Value), builderContext);
             var table = Analyze(parameters[0], builderContext);
@@ -531,7 +540,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         protected virtual Expression AnalyzeQuote(Expression piece, IList<Expression> parameters, BuilderContext builderContext)
         {
             var builderContextClone = builderContext.NewQuote();
-            return Analyze(piece.GetOperands().First(), parameters, builderContextClone);
+            var firstExpression = piece.GetOperands().First();
+            return Analyze(firstExpression, parameters, builderContextClone);
         }
 
         /// <summary>
@@ -693,7 +703,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 throw Error.BadArgument("S0629: Don't know how to handle Expression to group by with {0} parameters", parameters.Count);
 
             var group = new GroupExpression(result, keyExpression);
-            builderContext.CurrentScope.Group.Add(group);
+            builderContext.CurrentSelect.Group.Add(group);
             return group;
         }
 
@@ -705,7 +715,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <returns></returns>
         protected virtual Expression AnalyzeAll(IList<Expression> parameters, BuilderContext builderContext)
         {
-            var allBuilderContext = builderContext.NewScope();
+            var allBuilderContext = builderContext.NewSelect();
             var tableExpression = Analyze(parameters[0], allBuilderContext);
             var allClause = Analyze(parameters[1], tableExpression, allBuilderContext);
             // from here we build a custom clause:
@@ -713,11 +723,11 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             // TODO (later...): see if some vendors support native All operator and avoid this substitution
             var whereExpression = Expression.Not(allClause);
             RegisterWhere(whereExpression, allBuilderContext);
-            allBuilderContext.CurrentScope = allBuilderContext.CurrentScope.ChangeOperands(new SpecialExpression(SpecialExpressionType.Count, tableExpression));
+            allBuilderContext.CurrentSelect = allBuilderContext.CurrentSelect.ChangeOperands(new SpecialExpression(SpecialExpressionType.Count, tableExpression));
             // TODO: see if we need to register the tablePiece here (we probably don't)
 
             // we now switch back to current context, and compare the result with 0
-            var allPiece = Expression.Equal(allBuilderContext.CurrentScope, Expression.Constant(0));
+            var allPiece = Expression.Equal(allBuilderContext.CurrentSelect, Expression.Constant(0));
             return allPiece;
         }
 
@@ -779,7 +789,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             var table = Analyze(parameters[0], builderContext);
             // the column is related to table
             var column = Analyze(parameters[1], table, builderContext);
-            builderContext.CurrentScope.OrderBy.Add(new OrderByExpression(descending, column));
+            builderContext.CurrentSelect.OrderBy.Add(new OrderByExpression(descending, column));
             return table;
         }
 
@@ -794,6 +804,11 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             var constantExpression = expression as ConstantExpression;
             if (constantExpression != null)
             {
+                var queriedType = GetQueriedType(expression);
+                if (queriedType != null)
+                {
+
+                }
                 if (constantExpression.Value is IMTable)
                 {
                     var tableType = constantExpression.Type.GetGenericArguments()[0];
@@ -801,6 +816,40 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 }
             }
             return expression;
+        }
+
+        protected virtual Expression AnalyzeSelectOperation(SelectOperatorType operatorType, IList<Expression> parameters, BuilderContext builderContext)
+        {
+
+            // a special case: if we have several SELECT expressions linked together,
+            // we maximize the load to the database, since the result must use the same parameters
+            // types and count.
+            builderContext.QueryContext.MaximumDatabaseLoad = true; // all select expression goes to SQL tier
+
+            var currentSelect = builderContext.CurrentSelect;
+            var nextSelect = new SelectExpression(currentSelect.Parent);
+            builderContext.CurrentSelect = nextSelect;
+
+            // TODO: this is very dirty code, unreliable, unstable, and unlovable
+            var constantExpression = parameters[1] as ConstantExpression;
+            var sessionVarsHolder = constantExpression.Value as IGetSessionVars;
+
+            var expressionChain = new ExpressionChain(sessionVarsHolder.SessionVars.ExpressionChain);
+            var table = GetQueriedType(sessionVarsHolder.SessionVars.Table.GetType());// GetQueriedType(expressionChain.Expressions[0]);
+            var queryBuilder = ObjectFactory.Get<QueryBuilder>();
+            var tableExpression = new TableExpression(table,
+                                                      DataMapper.GetTableName(table,
+                                                                              builderContext.QueryContext.DataContext));
+            // /TODO
+            var selectOperandExpression = queryBuilder.BuildSelectExpression(expressionChain, tableExpression, builderContext);
+            builderContext.SelectExpressions.Add(selectOperandExpression);
+
+            nextSelect = builderContext.CurrentSelect;
+            builderContext.CurrentSelect = currentSelect;
+            currentSelect.NextSelectExpression = nextSelect;
+            currentSelect.NextSelectExpressionOperator = operatorType;
+
+            return Analyze(parameters[0], builderContext);
         }
     }
 }

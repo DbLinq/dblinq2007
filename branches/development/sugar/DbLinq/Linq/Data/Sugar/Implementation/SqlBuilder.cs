@@ -52,7 +52,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             return Build(expressionQuery.Select, queryContext);
         }
 
-        public string Build(ScopeExpression scopeExpression, QueryContext queryContext)
+        public string Build(SelectExpression selectExpression, QueryContext queryContext)
         {
             // A scope usually has:
             // - a SELECT: the operation creating a CLR object with data coming from SQL tier
@@ -60,15 +60,23 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             // - a WHERE: list of conditions
             // - a GROUP BY: grouping by selected columns
             // - a ORDER BY: sort
-            // TODO: all other clauses
-            var from = BuildFrom(scopeExpression.Tables, queryContext);
-            var where = BuildWhere(scopeExpression.Tables, scopeExpression.Where, queryContext);
-            var select = BuildSelect(scopeExpression, queryContext);
-            var groupBy = BuildGroupBy(scopeExpression.Group, queryContext);
-            var having = BuildHaving(scopeExpression.Where, queryContext);
-            var orderBy = BuildOrderBy(scopeExpression.OrderBy, queryContext);
+            var from = BuildFrom(selectExpression.Tables, queryContext);
+            var where = BuildWhere(selectExpression.Tables, selectExpression.Where, queryContext);
+            var select = BuildSelect(selectExpression, queryContext);
+            var groupBy = BuildGroupBy(selectExpression.Group, queryContext);
+            var having = BuildHaving(selectExpression.Where, queryContext);
+            var orderBy = BuildOrderBy(selectExpression.OrderBy, queryContext);
             select = Join(queryContext, select, from, where, groupBy, having, orderBy);
-            select = BuildLimit(scopeExpression, select, queryContext);
+            select = BuildLimit(selectExpression, select, queryContext);
+
+            if (selectExpression.NextSelectExpression != null)
+            {
+                var nextLiteralSelect = Build(selectExpression.NextSelectExpression, queryContext);
+                select = queryContext.DataContext.Vendor.SqlProvider.GetLiteral(
+                    selectExpression.NextSelectExpressionOperator,
+                    select, nextLiteralSelect);
+            }
+
             return select;
         }
 
@@ -126,8 +134,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             }
             if (expression is ExternalParameterExpression)
                 return sqlProvider.GetParameterName(((ExternalParameterExpression)expression).Alias);
-            if (expression is ScopeExpression)
-                return Build((ScopeExpression)expression, queryContext);
+            if (expression is SelectExpression)
+                return Build((SelectExpression)expression, queryContext);
             if (expression is ConstantExpression)
                 return sqlProvider.GetLiteral(((ConstantExpression)expression).Value);
             if (expression is GroupExpression)
@@ -256,7 +264,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             return sqlProvider.GetSelectClause(selectClauses.ToArray());
         }
 
-        protected virtual string BuildLimit(ScopeExpression select, string literalSelect, QueryContext queryContext)
+        protected virtual string BuildLimit(SelectExpression select, string literalSelect, QueryContext queryContext)
         {
             if (select.Limit != null)
             {

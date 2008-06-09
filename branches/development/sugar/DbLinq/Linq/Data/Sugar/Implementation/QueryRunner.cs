@@ -58,10 +58,13 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                         continue;
 
                     var row = rowObjectCreator(dbDataReader, query.DataContext.MappingContext);
-                    row = (T)query.DataContext.GetOrRegisterEntity(row);
-                    // TODO: place updates in DataContext
-                    //_vars.Table.CheckAttachment(current); // registers the object to be watched for updates
-                    query.DataContext.ModificationHandler.Register(row);
+                    if (row != null)
+                    {
+                        row = (T) query.DataContext.GetOrRegisterEntity(row);
+                        // TODO: place updates in DataContext
+                        //_vars.Table.CheckAttachment(current); // registers the object to be watched for updates
+                        query.DataContext.ModificationHandler.Register(row);
+                    }
 
                     yield return row;
                 }

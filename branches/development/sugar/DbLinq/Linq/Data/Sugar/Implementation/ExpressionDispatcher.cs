@@ -100,7 +100,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             // (this is done after cut, because the part that went to SQL must not be converted)
             //selectExpression = selectExpression.Recurse(e => CheckTableExpression(e, builderContext));
             // the last return value becomes the select, with CurrentScope
-            builderContext.CurrentScope.SelectExpression = lambdaSelectExpression;
+            builderContext.CurrentSelect.Reader = lambdaSelectExpression;
         }
 
         /// <summary>
@@ -236,11 +236,11 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <summary>
         /// Returns a queried type from a given expression, or null if no type can be found
         /// </summary>
-        /// <param name="piece"></param>
+        /// <param name="expression"></param>
         /// <returns></returns>
-        public virtual Type GetQueriedType(Expression piece)
+        public virtual Type GetQueriedType(Expression expression)
         {
-            return GetQueriedType(piece.Type);
+            return GetQueriedType(expression.Type);
         }
 
         /// <summary>
@@ -261,12 +261,12 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <summary>
         /// Returns the parameter name, if the Expression is a ParameterExpression, null otherwise
         /// </summary>
-        /// <param name="piece"></param>
+        /// <param name="expression"></param>
         /// <returns></returns>
-        public virtual string GetParameterName(Expression piece)
+        public virtual string GetParameterName(Expression expression)
         {
-            if (piece is ParameterExpression)
-                return ((ParameterExpression)piece).Name;
+            if (expression is ParameterExpression)
+                return ((ParameterExpression)expression).Name;
             return null;
         }
 
@@ -300,12 +300,12 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <summary>
         /// Extracts a subset of a parameters list
         /// </summary>
-        /// <param name="pieces"></param>
+        /// <param name="expressions"></param>
         /// <param name="first">The index for the first parameter to be kept</param>
         /// <returns></returns>
-        public virtual IList<Expression> ExtractParameters(IEnumerable<Expression> pieces, int first)
+        public virtual IList<Expression> ExtractParameters(IEnumerable<Expression> expressions, int first)
         {
-            return new List<Expression>((from q in pieces select q).Skip(first));
+            return new List<Expression>(expressions.Skip(first));
         }
     }
 }
