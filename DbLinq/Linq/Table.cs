@@ -49,14 +49,20 @@ namespace DbLinq.Linq
     public class Table<T> :
         IQueryable<T>
         , IOrderedQueryable<T> //this is cheating ... we pretend to be always ordered
+        , System.Data.Linq.ITable
         , IMTable
         , IQueryText
         , IQueryProvider //new as of Beta2
+        where T : class
     {
         /// <summary>
         /// the parent MContext holds our connection etc
         /// </summary>
         public DataContext DataContext { get; private set; }
+
+        [Obsolete("NOT IMPLEMENTED - Use DataContext instead of Context")]
+        public System.Data.Linq.DataContext Context { get { throw new NotImplementedException("TODO L63"); } }
+
         private readonly List<T> _insertList = new List<T>();
         private readonly List<T> _deleteList = new List<T>();
 
@@ -151,7 +157,7 @@ namespace DbLinq.Linq
         /// </summary>
         public S Execute<S>(Expression expression)
         {
-            _vars.Context.Logger.Write(Level.Debug, "MTable.Execute<{0}>: {1}", typeof(S) , expression);
+            _vars.Context.Logger.Write(Level.Debug, "MTable.Execute<{0}>: {1}", typeof(S), expression);
             SessionVars vars2 = new SessionVars(_vars).AddScalar(expression); //clone and append Expr
             SessionVarsParsed varsFin = _vars.Context.QueryGenerator.GenerateQuery(vars2, typeof(T)); //parse all
             return new RowScalar<T>(varsFin, this).GetScalar<S>(expression);
@@ -193,6 +199,15 @@ namespace DbLinq.Linq
             throw new ApplicationException("L205 Not implemented");
         }
 
+        #region Insert functions
+        public void InsertOnSubmit(object entity)
+        {
+            T te = entity as T;
+            if (te == null)
+                throw new ArgumentException("Cannot insert this object");
+            InsertOnSubmit(te);
+        }
+
         [Obsolete("Replace with InsertOnSubmit")]
         public void Add(T newObject)
         {
@@ -204,17 +219,40 @@ namespace DbLinq.Linq
             _insertList.Add(newObject);
         }
 
+        public void InsertAllOnSubmit(IEnumerable entities)
+        {
+            foreach (object entity in entities)
+            {
+                T te = entity as T;
+                if (te == null)
+                    throw new ArgumentException("Cannot insert this object");
+                _insertList.Add(te);
+            }
+        }
+
         public void InsertAllOnSubmit<TSubEntity>(IEnumerable<TSubEntity> entities) where TSubEntity : T
         {
             foreach (TSubEntity newObject in entities)
                 _insertList.Add(newObject);
         }
+        #endregion
 
-        [Obsolete("Replace with DeleteOnSubmit")]
-        public void Remove(T objectToDelete)
+        #region Delete functions
+        public void DeleteAllOnSubmit(IEnumerable entities)
         {
-            DeleteOnSubmit(objectToDelete);
+            throw new NotImplementedException();
         }
+
+        public void DeleteOnSubmit(object entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        //[Obsolete("Replace with DeleteOnSubmit")]
+        //public void Remove(T objectToDelete)
+        //{
+        //    DeleteOnSubmit(objectToDelete);
+        //}
 
         public void DeleteOnSubmit(T objectToDelete)
         {
@@ -229,6 +267,41 @@ namespace DbLinq.Linq
         {
             foreach (TSubEntity row in entities)
                 DeleteOnSubmit(row);
+        }
+        #endregion
+
+        #region Attach functions
+
+        /// <summary>
+        /// required for ITable
+        /// </summary>
+        /// <param name="obj"></param>
+        public void Attach(object entity)
+        {
+            T te = entity as T;
+            if (te == null)
+                throw new ArgumentException("Cannot attach this object");
+            Attach(te);
+        }
+        public void Attach(object entity, object original)
+        {
+            T te = entity as T;
+            T to = original as T;
+            if (te == null || to == null)
+                throw new ArgumentException("Cannot attach this object");
+            Attach(te, to);
+        }
+        public void Attach(object entity, bool asModified)
+        {
+            throw new NotImplementedException();
+        }
+        public void AttachAll(IEnumerable entities)
+        {
+            throw new NotImplementedException();
+        }
+        public void AttachAll(IEnumerable entities, bool asModified)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -256,7 +329,7 @@ namespace DbLinq.Linq
         /// </summary>
         /// <param name="entity">live entity added to change tracking</param>
         /// <param name="original">original unchanged property values</param>
-        public void Attach(T entity, T original) 
+        public void Attach(T entity, T original)
         {
             throw new NotImplementedException();
         }
@@ -265,7 +338,9 @@ namespace DbLinq.Linq
         {
             DataContext.GetOrRegisterEntity(entity);
         }
+        #endregion
 
+        #region Save functions
         public void SaveAll()
         {
             SaveAll(System.Data.Linq.ConflictMode.FailOnFirstConflict);
@@ -336,11 +411,11 @@ namespace DbLinq.Linq
                 {
                     switch (failureMode)
                     {
-                    case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                        excepts.Add(ex);
-                        break;
-                    case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                        throw ex;
+                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                            excepts.Add(ex);
+                            break;
+                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                            throw ex;
                     }
                 }
 
@@ -374,11 +449,11 @@ namespace DbLinq.Linq
                     Trace.WriteLine("Table.SubmitChanges failed: " + ex);
                     switch (failureMode)
                     {
-                    case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                        excepts.Add(ex);
-                        break;
-                    case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                        throw ex;
+                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                            excepts.Add(ex);
+                            break;
+                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                            throw ex;
                     }
                 }
             }
@@ -416,11 +491,11 @@ namespace DbLinq.Linq
                     {
                         switch (failureMode)
                         {
-                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                            excepts.Add(ex);
-                            break;
-                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                            throw ex;
+                            case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                                excepts.Add(ex);
+                                break;
+                            case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                                throw ex;
                         }
                     }
                 }
@@ -445,6 +520,7 @@ namespace DbLinq.Linq
 
             return excepts;
         }
+        #endregion
 
         public string GetQueryText()
         {
@@ -494,6 +570,20 @@ namespace DbLinq.Linq
             {
                 return _deleteList.Cast<object>();
             }
+        }
+
+        public bool IsReadOnly { get { return false; } }
+
+        [Obsolete("NOT IMPLEMENTED YET")]
+        public System.Data.Linq.ModifiedMemberInfo[] GetModifiedMembers(object entity)
+        {
+            throw new ApplicationException("L579 Not implemented");
+        }
+
+        [Obsolete("NOT IMPLEMENTED YET")]
+        public object GetOriginalEntityState(object entity)
+        {
+            throw new ApplicationException("L585 Not implemented");
         }
 
     }

@@ -46,7 +46,8 @@ namespace DbLinq.Vendor.Implementation
 
         public Vendor()
         {
-            Logger = ObjectFactory.Get<ILogger>();
+            //Logger = ObjectFactory.Get<ILogger>(); //throws exception "there is more than implementation of ILogger"
+            Logger = ObjectFactory.Get<ILogger>(new DbLinq.Logging.Implementation.DebugLogger());
         }
 
         public virtual string SqlPingCommand
@@ -153,16 +154,16 @@ namespace DbLinq.Vendor.Implementation
             return sql2;
         }
 
-        public virtual bool CanBulkInsert<T>(Linq.Table<T> table)
+        public virtual bool CanBulkInsert<T>(Linq.Table<T> table) where T : class
         {
             return false;
         }
 
-        public virtual void SetBulkInsert<T>(Linq.Table<T> table, int pageSize)
+        public virtual void SetBulkInsert<T>(Linq.Table<T> table, int pageSize) where T : class
         {
         }
 
-        public virtual void DoBulkInsert<T>(Linq.Table<T> table, List<T> rows, IDbConnection conn)
+        public virtual void DoBulkInsert<T>(Linq.Table<T> table, List<T> rows, IDbConnection conn) where T : class
         {
             throw new NotImplementedException();
         }
