@@ -71,6 +71,8 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
                 return typeof(string);
             case SpecialExpressionType.In:
                 return typeof(bool);
+            case SpecialExpressionType.SubString:
+                return defaultType;
             default:
                 throw Error.BadArgument("S0058: Unknown SpecialExpressionType value {0}", specialExpressionType);
             }
@@ -168,8 +170,19 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
                 return operands[0].Evaluate().ToString().ToUpper();
             case SpecialExpressionType.ToLower:
                 return operands[0].Evaluate().ToString().ToLower();
+            case SpecialExpressionType.SubString:
+                {
+                    var str = operands[0].Evaluate().ToString();
+                    var start = (int)operands[1].Evaluate();
+                    if (operands.Count > 2)
+                    {
+                        var length = (int)operands[2].Evaluate();
+                        return str.Substring(start, length);
+                    }
+                    return str.Substring(start);
+                }
             case SpecialExpressionType.In:
-                // TODO
+            // TODO
             default:
                 throw Error.BadArgument("S0116: Unknown SpecialExpressionType ({0})", SpecialNodeType);
             }

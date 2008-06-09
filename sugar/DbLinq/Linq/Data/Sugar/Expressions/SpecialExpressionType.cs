@@ -43,6 +43,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
         StringLength,
         ToUpper,
         ToLower,
-        In
+        In,
+        SubString
     }
 }

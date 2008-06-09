@@ -158,6 +158,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 if (typeof(string).IsAssignableFrom(parameters[0].Type))
                     return AnalyzeLike(parameters, builderContext);
                 return AnalyzeContains(parameters, builderContext);
+            case "Substring":
+                return AnalyzeSubString(parameters, builderContext);
             case "First":
             case "FirstOrDefault":
                 return AnalyzeScalar(methodName, 1, parameters, builderContext);
@@ -754,6 +756,18 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             if (after != null)
                 operand = new SpecialExpression(SpecialExpressionType.Concat, operand, Expression.Constant(after));
             return new SpecialExpression(SpecialExpressionType.Like, Analyze(value, builderContext), operand);
+        }
+
+        protected virtual Expression AnalyzeSubString(IList<Expression> parameters, BuilderContext builderContext)
+        {
+            var stringExpression = Analyze(parameters[0], builderContext);
+            var startExpression = Analyze(parameters[1], builderContext);
+            if (parameters.Count > 2)
+            {
+                var endExpression = parameters[2];
+                return new SpecialExpression(SpecialExpressionType.SubString, stringExpression, startExpression, endExpression);
+            }
+            return new SpecialExpression(SpecialExpressionType.SubString, stringExpression, startExpression);
         }
 
         protected virtual Expression AnalyzeContains(IList<Expression> parameters, BuilderContext builderContext)
