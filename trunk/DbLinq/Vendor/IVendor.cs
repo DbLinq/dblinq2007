@@ -198,7 +198,7 @@ namespace DbLinq.Vendor
         /// <typeparam name="T"></typeparam>
         /// <param name="table"></param>
         /// <returns></returns>
-        bool CanBulkInsert<T>(Linq.Table<T> table);
+        bool CanBulkInsert<T>(Linq.Table<T> table) where T : class;
         /// <summary>
         /// Sets the bulk insert capability for a given table
         /// If the vendor doesn't support bulk insert, then this method is ignored and the CanBulkInsert() method always return false.
@@ -206,7 +206,7 @@ namespace DbLinq.Vendor
         /// <typeparam name="T"></typeparam>
         /// <param name="table"></param>
         /// <param name="pageSize"></param>
-        void SetBulkInsert<T>(Linq.Table<T> table, int pageSize);
+        void SetBulkInsert<T>(Linq.Table<T> table, int pageSize) where T : class;
         /// <summary>
         /// Performs bulk insert.
         /// Please note that PKs may not be updated
@@ -215,7 +215,7 @@ namespace DbLinq.Vendor
         /// <param name="table"></param>
         /// <param name="rows"></param>
         /// <param name="connection"></param>
-        void DoBulkInsert<T>(Linq.Table<T> table, List<T> rows, IDbConnection connection);
+        void DoBulkInsert<T>(Linq.Table<T> table, List<T> rows, IDbConnection connection) where T : class;
 
         /// <summary>
         /// On Oracle, we have to insert a primary key manually.

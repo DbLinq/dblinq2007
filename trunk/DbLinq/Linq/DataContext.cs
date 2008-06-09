@@ -136,7 +136,7 @@ namespace DbLinq.Linq
             }
         }
 
-        public Table<T> GetTable<T>(string tableName)
+        public Table<T> GetTable<T>(string tableName) where T : class
         {
             lock (this)
             {
@@ -149,7 +149,7 @@ namespace DbLinq.Linq
             }
         }
 
-        public Table<T> GetTable<T>()
+        public Table<T> GetTable<T>() where T : class
         {
             return GetTable<T>(typeof(T).FullName);
         }
