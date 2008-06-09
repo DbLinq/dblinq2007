@@ -56,6 +56,18 @@ namespace Test_NUnit_MsSql.Linq_101_Samples
             Assert.IsTrue(list.Count > 0);
         }
 
+        [Test(Description="Where - 5. This sample calls WHERE twice to filter out Products that UnitPrice is greater than 10 and is discontinued.")]
+        public void LinqToSqlWhere05()
+        {
+            Northwind db = CreateDB();
+
+            var q = db.Products.Where(p => p.UnitPrice > 10.0m)
+                               .Where(p => Convert.ToBoolean(p.Discontinued));
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+        }
+
         [Linq101SamplesModified("Strange casting, It seems like original northwind discontinued were boolean")]
         [Test(Description = "where - 3. This sample uses where to filter for Products that have stock below their reorder level and are not discontinued.")]
         public void LinqToSqlWhere03()
@@ -91,13 +103,11 @@ namespace Test_NUnit_MsSql.Linq_101_Samples
             Northwind db = CreateDB();
 
             Shipper shipper = db.Shippers.First();
-            
+
 #else
-    #warning this precomipiled stentence must be deleted earlier as possible, when Ingress and Oracle Northwind have a Supplier Table.
+#warning this precomipiled stentence must be deleted earlier as possible, when Ingress and Oracle Northwind have a Supplier Table.
             Assert.Ignore();
 #endif
-
-
         }
 
         [Test(Description = "First - Element. This sample uses Take to select the first Customer with CustomerID 'BONAP'.")]
