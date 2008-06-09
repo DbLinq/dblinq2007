@@ -176,5 +176,14 @@ namespace DbLinq.Vendor
         /// <param name="havings"></param>
         /// <returns></returns>
         string GetHavingClause(string[] havings);
+
+        /// <summary>
+        /// Returns an operation between two SELECT clauses (UNION, UNION ALL, etc.)
+        /// </summary>
+        /// <param name="selectOperator"></param>
+        /// <param name="selectA"></param>
+        /// <param name="selectB"></param>
+        /// <returns></returns>
+        string GetLiteral(SelectOperatorType selectOperator, string selectA, string selectB);
     }
 }

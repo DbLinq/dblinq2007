@@ -149,18 +149,18 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <param name="builderContext"></param>
         protected virtual void CheckParametersAlias(BuilderContext builderContext)
         {
-            foreach (var externalParameterEpxression in builderContext.ExpressionQuery.Parameters)
+            foreach (var externalParameterExpression in builderContext.ExpressionQuery.Parameters)
             {
-                if (string.IsNullOrEmpty(externalParameterEpxression.Alias)
-                    || FindParametersByName(externalParameterEpxression.Alias, builderContext).Count > 1)
+                if (string.IsNullOrEmpty(externalParameterExpression.Alias)
+                    || FindParametersByName(externalParameterExpression.Alias, builderContext).Count > 1)
                 {
                     int anonymousIndex = 0;
-                    var aliasBase = externalParameterEpxression.Alias;
+                    var aliasBase = externalParameterExpression.Alias;
                     // we try to assign one until we have a unique alias
                     do
                     {
-                        externalParameterEpxression.Alias = MakeTableName(aliasBase, ++anonymousIndex, builderContext);
-                    } while (FindExpressionsByName(externalParameterEpxression.Alias, builderContext).Count != 1);
+                        externalParameterExpression.Alias = MakeTableName(aliasBase, ++anonymousIndex, builderContext);
+                    } while (FindExpressionsByName(externalParameterExpression.Alias, builderContext).Count != 1);
                 }
             }
         }
@@ -173,18 +173,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         protected virtual void BuildExpressionQuery(ExpressionChain expressions, BuilderContext builderContext)
         {
             var previousExpression = ExpressionDispatcher.CreateTableExpression(expressions.Expressions[0], builderContext);
-            foreach (var expression in expressions)
-            {
-                builderContext.QueryContext.DataContext.Logger.WriteExpression(Level.Debug, expression);
-                // Convert linq Expressions to QueryOperationExpressions and QueryConstantExpressions 
-                // Query expressions language identification
-                var currentExpression = ExpressionLanguageParser.Parse(expression, builderContext);
-                // Query expressions query identification 
-                currentExpression = ExpressionDispatcher.Analyze(currentExpression, previousExpression, builderContext);
-
-                previousExpression = currentExpression;
-            }
-            ExpressionDispatcher.BuildSelect(previousExpression, builderContext);
+            previousExpression = BuildExpressionQuery(expressions, previousExpression, builderContext);
             BuildOffsetsAndLimits(builderContext);
             // then prepare parts for SQL translation
             PrepareSqlOperands(builderContext);
@@ -193,7 +182,37 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             // finally, compile our object creation method
             CompileRowCreator(builderContext);
             // in the very end, we keep the SELECT clause
-            builderContext.ExpressionQuery.Select = builderContext.CurrentScope;
+            builderContext.ExpressionQuery.Select = builderContext.CurrentSelect;
+        }
+
+        /// <summary>
+        /// Builds the ExpressionQuery main Expression, given a Table (or projection) expression
+        /// </summary>
+        /// <param name="expressions"></param>
+        /// <param name="tableExpression"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        protected Expression BuildExpressionQuery(ExpressionChain expressions, Expression tableExpression, BuilderContext builderContext)
+        {
+            foreach (var expression in expressions)
+            {
+                builderContext.QueryContext.DataContext.Logger.WriteExpression(Level.Debug, expression);
+                // Convert linq Expressions to QueryOperationExpressions and QueryConstantExpressions 
+                // Query expressions language identification
+                var currentExpression = ExpressionLanguageParser.Parse(expression, builderContext);
+                // Query expressions query identification 
+                currentExpression = ExpressionDispatcher.Analyze(currentExpression, tableExpression, builderContext);
+
+                tableExpression = currentExpression;
+            }
+            ExpressionDispatcher.BuildSelect(tableExpression, builderContext);
+            return tableExpression;
+        }
+
+        public virtual SelectExpression BuildSelectExpression(ExpressionChain expressions, Expression tableExpression , BuilderContext builderContext)
+        {
+            BuildExpressionQuery(expressions, tableExpression, builderContext);
+            return builderContext.CurrentSelect;
         }
 
         /// <summary>
@@ -202,11 +221,11 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <param name="builderContext"></param>
         protected virtual void BuildOffsetsAndLimits(BuilderContext builderContext)
         {
-            foreach(var scopeExpression in builderContext.ScopeExpressions)
+            foreach (var selectExpression in builderContext.SelectExpressions)
             {
-                if (scopeExpression.Offset != null && scopeExpression.Limit != null)
+                if (selectExpression.Offset != null && selectExpression.Limit != null)
                 {
-                    scopeExpression.OffsetAndLimit = Expression.Add(scopeExpression.Offset, scopeExpression.Limit);
+                    selectExpression.OffsetAndLimit = Expression.Add(selectExpression.Offset, selectExpression.Limit);
                 }
             }
         }
@@ -217,7 +236,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <param name="builderContext"></param>
         protected virtual void CompileRowCreator(BuilderContext builderContext)
         {
-            builderContext.ExpressionQuery.RowObjectCreator = builderContext.CurrentScope.SelectExpression.Compile();
+            builderContext.ExpressionQuery.RowObjectCreator = builderContext.CurrentSelect.Reader.Compile();
         }
 
         /// <summary>
@@ -231,6 +250,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
 
         /// <summary>
         /// Processes all expressions in query, with the option to process only SQL targetting expressions
+        /// This method is generic, it receives a delegate which does the real processing
         /// </summary>
         /// <param name="processor"></param>
         /// <param name="processOnlySqlParts"></param>
@@ -238,11 +258,11 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         protected virtual void ProcessExpressions(Func<Expression, BuilderContext, Expression> processor,
             bool processOnlySqlParts, BuilderContext builderContext)
         {
-            for (int scopeExpressionIndex = 0; scopeExpressionIndex < builderContext.ScopeExpressions.Count; scopeExpressionIndex++)
+            for (int scopeExpressionIndex = 0; scopeExpressionIndex < builderContext.SelectExpressions.Count; scopeExpressionIndex++)
             {
                 // no need to process the select itself here, all ScopeExpressions that are operands are processed as operands
                 // and the main ScopeExpression (the SELECT) is processed below
-                var scopeExpression = builderContext.ScopeExpressions[scopeExpressionIndex];
+                var scopeExpression = builderContext.SelectExpressions[scopeExpressionIndex];
 
                 // where clauses
                 for (int whereIndex = 0; whereIndex < scopeExpression.Where.Count; whereIndex++)
@@ -255,24 +275,24 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                     scopeExpression.Offset = processor(scopeExpression.Offset, builderContext);
                 if (scopeExpression.Limit != null)
                     scopeExpression.Limit = processor(scopeExpression.Limit, builderContext);
-                if(scopeExpression.OffsetAndLimit!=null)
+                if (scopeExpression.OffsetAndLimit != null)
                     scopeExpression.OffsetAndLimit = processor(scopeExpression.OffsetAndLimit, builderContext);
 
-                builderContext.ScopeExpressions[scopeExpressionIndex] = scopeExpression;
+                builderContext.SelectExpressions[scopeExpressionIndex] = scopeExpression;
             }
             // now process the main SELECT
             if (processOnlySqlParts)
             {
                 // if we process only the SQL parts, these are the operands
                 var newOperands = new List<Expression>();
-                foreach (var operand in builderContext.CurrentScope.Operands)
+                foreach (var operand in builderContext.CurrentSelect.Operands)
                     newOperands.Add(processor(operand, builderContext));
-                builderContext.CurrentScope = builderContext.CurrentScope.ChangeOperands(newOperands);
+                builderContext.CurrentSelect = builderContext.CurrentSelect.ChangeOperands(newOperands);
             }
             else
             {
                 // the output parameters and result builder
-                builderContext.CurrentScope = (ScopeExpression)processor(builderContext.CurrentScope, builderContext);
+                builderContext.CurrentSelect = (SelectExpression)processor(builderContext.CurrentSelect, builderContext);
             }
         }
 

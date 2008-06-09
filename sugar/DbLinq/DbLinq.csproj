@@ -73,6 +73,7 @@
     <Compile Include="Linq\Data\Sugar\Expressions\CustomExpressionType.cs" />
     <Compile Include="Linq\Data\Sugar\Expressions\GroupExpression.cs" />
     <Compile Include="Linq\Data\Sugar\Expressions\OrderByExpression.cs" />
+    <Compile Include="Linq\Data\Sugar\Expressions\SelectOperatorType.cs" />
     <Compile Include="Linq\Data\Sugar\IExpressionQualifier.cs" />
     <Compile Include="Linq\Data\Sugar\Implementation\LineGrouping.cs" />
     <Compile Include="Linq\Data\Sugar\Implementation\PrequelAnalyzer.cs" />
@@ -84,7 +85,7 @@
     <Compile Include="Linq\Data\Sugar\Expressions\ExternalParameterExpression.cs" />
     <Compile Include="Linq\Data\Sugar\Expressions\MetaTableExpression.cs" />
     <Compile Include="Linq\Data\Sugar\Expressions\OperandsMutableExpression.cs" />
-    <Compile Include="Linq\Data\Sugar\Expressions\ScopeExpression.cs" />
+    <Compile Include="Linq\Data\Sugar\Expressions\SelectExpression.cs" />
     <Compile Include="Linq\Data\Sugar\Expressions\SpecialExpression.cs" />
     <Compile Include="Linq\Data\Sugar\Expressions\SpecialExpressionType.cs" />
     <Compile Include="Linq\Data\Sugar\Expressions\TableExpression.cs" />

@@ -39,12 +39,12 @@ namespace DbLinq.Linq.Data.Sugar
 
         // Build context: values here are related to current context, and can change with it
         private int currentScopeIndex;
-        public ScopeExpression CurrentScope
+        public SelectExpression CurrentSelect
         {
-            get { return ScopeExpressions[currentScopeIndex]; }
-            set { ScopeExpressions[currentScopeIndex] = value; }
+            get { return SelectExpressions[currentScopeIndex]; }
+            set { SelectExpressions[currentScopeIndex] = value; }
         }
-        public IList<ScopeExpression> ScopeExpressions { get; private set; }
+        public IList<SelectExpression> SelectExpressions { get; private set; }
         public IDictionary<Type, MetaTableExpression> MetaTables { get; private set; }
         public IDictionary<string, Expression> Parameters { get; private set; }
 
@@ -54,7 +54,7 @@ namespace DbLinq.Linq.Data.Sugar
         /// <returns></returns>
         public IEnumerable<TableExpression> EnumerateAllTables()
         {
-            foreach (var scopePiece in ScopeExpressions)
+            foreach (var scopePiece in SelectExpressions)
             {
                 foreach (var table in scopePiece.Tables)
                     yield return table;
@@ -67,9 +67,9 @@ namespace DbLinq.Linq.Data.Sugar
         /// <returns></returns>
         public IEnumerable<TableExpression> EnumerateScopeTables()
         {
-            for (ScopeExpression currentScope = CurrentScope; currentScope != null; currentScope = currentScope.Parent)
+            for (SelectExpression currentSelect = CurrentSelect; currentSelect != null; currentSelect = currentSelect.Parent)
             {
-                foreach (var table in currentScope.Tables)
+                foreach (var table in currentSelect.Tables)
                     yield return table;
             }
         }
@@ -80,18 +80,18 @@ namespace DbLinq.Linq.Data.Sugar
         /// <returns></returns>
         public IEnumerable<ColumnExpression> EnumerateScopeColumns()
         {
-            for (ScopeExpression currentScope = CurrentScope; currentScope != null; currentScope = currentScope.Parent)
+            for (SelectExpression currentSelect = CurrentSelect; currentSelect != null; currentSelect = currentSelect.Parent)
             {
-                foreach (var column in currentScope.Columns)
+                foreach (var column in currentSelect.Columns)
                     yield return column;
             }
         }
 
         public BuilderContext(QueryContext queryContext)
         {
-            ScopeExpressions = new List<ScopeExpression>();
-            currentScopeIndex = ScopeExpressions.Count;
-            ScopeExpressions.Add(new ScopeExpression());
+            SelectExpressions = new List<SelectExpression>();
+            currentScopeIndex = SelectExpressions.Count;
+            SelectExpressions.Add(new SelectExpression());
             QueryContext = queryContext;
             ExpressionQuery = new ExpressionQuery();
             MetaTables = new Dictionary<Type, MetaTableExpression>();
@@ -114,7 +114,7 @@ namespace DbLinq.Linq.Data.Sugar
             builderContext.ExpressionQuery = ExpressionQuery;
             builderContext.MetaTables = MetaTables;
             builderContext.currentScopeIndex = currentScopeIndex;
-            builderContext.ScopeExpressions = ScopeExpressions;
+            builderContext.SelectExpressions = SelectExpressions;
 
             // scope dependent parts
             builderContext.Parameters = new Dictionary<string, Expression>(Parameters);
@@ -126,7 +126,7 @@ namespace DbLinq.Linq.Data.Sugar
         /// Creates a new BuilderContext with a new query scope
         /// </summary>
         /// <returns></returns>
-        public BuilderContext NewScope()
+        public BuilderContext NewSelect()
         {
             var builderContext = new BuilderContext();
 
@@ -135,11 +135,11 @@ namespace DbLinq.Linq.Data.Sugar
             builderContext.ExpressionQuery = ExpressionQuery;
             builderContext.MetaTables = MetaTables;
             builderContext.Parameters = Parameters;
-            builderContext.ScopeExpressions = ScopeExpressions;
+            builderContext.SelectExpressions = SelectExpressions;
 
             // except CurrentScope, of course
-            builderContext.currentScopeIndex = ScopeExpressions.Count;
-            ScopeExpressions.Add(new ScopeExpression(CurrentScope));
+            builderContext.currentScopeIndex = SelectExpressions.Count;
+            SelectExpressions.Add(new SelectExpression(CurrentSelect));
 
             return builderContext;
         }

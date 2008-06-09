@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // Copyright (c) 2007-2008 Jiri Moudry
 // 
@@ -22,10 +22,13 @@
 // 
 #endregion
 
-namespace DbLinq.Linq.Data.Sugar
+namespace DbLinq.Linq.Data.Sugar.Expressions
 {
-    public interface IQueryBuilder
+    public enum SelectOperatorType
     {
-        Query GetQuery(ExpressionChain expressions, QueryContext queryContext);
+        Union,
+        UnionAll,
+        Intersection,
+        Exception,
     }
 }

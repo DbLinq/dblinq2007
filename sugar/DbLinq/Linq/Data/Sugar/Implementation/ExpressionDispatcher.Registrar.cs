@@ -71,7 +71,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             if (foundTableExpression != null)
                 return foundTableExpression;
             // 3. Add it
-            builderContext.CurrentScope.Tables.Add(tableExpression);
+            builderContext.CurrentSelect.Tables.Add(tableExpression);
             return tableExpression;
         }
 
@@ -84,18 +84,18 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         protected virtual TableExpression PromoteTable(TableExpression tableExpression, BuilderContext builderContext)
         {
             // 1. Find the table ScopeExpression
-            ScopeExpression oldScope = FindTableScope(ref tableExpression, builderContext);
-            if (oldScope == null)
+            SelectExpression oldSelect = FindTableScope(ref tableExpression, builderContext);
+            if (oldSelect == null)
                 return null;
             // 2. Find a common ScopeExpression
-            var commonScope = FindCommonScope(oldScope, builderContext.CurrentScope);
+            var commonScope = FindCommonScope(oldSelect, builderContext.CurrentSelect);
             commonScope.Tables.Add(tableExpression);
             return tableExpression;
         }
 
-        protected virtual ScopeExpression FindTableScope(ref TableExpression tableExpression, BuilderContext builderContext)
+        protected virtual SelectExpression FindTableScope(ref TableExpression tableExpression, BuilderContext builderContext)
         {
-            foreach (var scope in builderContext.ScopeExpressions)
+            foreach (var scope in builderContext.SelectExpressions)
             {
                 for (int tableIndex = 0; tableIndex < scope.Tables.Count; tableIndex++)
                 {
@@ -116,7 +116,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <param name="a"></param>
         /// <param name="b"></param>
         /// <returns></returns>
-        protected virtual ScopeExpression FindCommonScope(ScopeExpression a, ScopeExpression b)
+        protected virtual SelectExpression FindCommonScope(SelectExpression a, SelectExpression b)
         {
             for (var aScope = a; aScope != null; aScope = aScope.Parent)
             {
@@ -149,7 +149,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             {
                 table = RegisterTable(table, builderContext);
                 queryColumn = CreateColumn(table, memberInfo, builderContext);
-                builderContext.CurrentScope.Columns.Add(queryColumn);
+                builderContext.CurrentSelect.Columns.Add(queryColumn);
             }
             return queryColumn;
         }
@@ -248,9 +248,9 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             // now check if we didn't register exactly the same
             if ((from t in builderContext.EnumerateScopeTables() where t.IsEqualTo(referencedTableExpression) select t).SingleOrDefault() == null)
             {
-                builderContext.CurrentScope.Tables.Add(referencedTableExpression);
+                builderContext.CurrentSelect.Tables.Add(referencedTableExpression);
                 foreach (var createdColumn in createdColumns)
-                    builderContext.CurrentScope.Columns.Add(createdColumn);
+                    builderContext.CurrentSelect.Columns.Add(createdColumn);
             }
 
             return referencedTableExpression;
@@ -304,7 +304,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <param name="builderContext"></param>
         public virtual void RegisterWhere(Expression whereExpression, BuilderContext builderContext)
         {
-            builderContext.CurrentScope.Where.Add(whereExpression);
+            builderContext.CurrentSelect.Where.Add(whereExpression);
         }
 
         /// <summary>
@@ -330,7 +330,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <returns>Expression index</returns>
         public virtual int RegisterOutputParameter(Expression expression, BuilderContext builderContext)
         {
-            var scope = builderContext.CurrentScope;
+            var scope = builderContext.CurrentSelect;
             var operands = scope.Operands.ToList();
             for (int index = 0; index < operands.Count; index++)
             {
@@ -338,7 +338,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                     return index;
             }
             operands.Add(expression);
-            builderContext.CurrentScope = (ScopeExpression)scope.Mutate(operands);
+            builderContext.CurrentSelect = (SelectExpression)scope.Mutate(operands);
             return operands.Count - 1;
         }
 

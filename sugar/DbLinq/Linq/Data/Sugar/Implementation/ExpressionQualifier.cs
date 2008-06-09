@@ -66,7 +66,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                     throw Error.BadArgument("S0050: Unhandled SpecialExpressionType {0}", specialNodeType);
                 }
             }
-            if (expression is ScopeExpression)
+            if (expression is SelectExpression)
                 return ExpressionPrecedence.Clause;
             switch (expression.NodeType)
             {
@@ -163,7 +163,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         {
             if (expression is GroupExpression)
                 return ExpressionTier.Clr;
-            if (expression is ScopeExpression)
+            if (expression is SelectExpression)
                 return ExpressionTier.Sql;
             if (expression is ColumnExpression)
                 return ExpressionTier.Sql;
