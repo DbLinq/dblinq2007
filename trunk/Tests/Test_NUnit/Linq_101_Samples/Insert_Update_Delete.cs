@@ -208,7 +208,11 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
                                  where c.OrderID == 10255 && c.ProductID == 36
                                  select c).First();
 
-            db.OrderDetails.Remove(order);
+            //what happened to Table.Remove()?
+            //The Add and AddAll methods are now InsertOnSubmit and InsertAllOnSubmit. The Remove and RemoveAll are now DeleteOnSubmit and DeleteAllOnSubmit.
+            //http://blogs.vertigo.com/personal/petar/Blog/Lists/Posts/Post.aspx?List=9441ab3e%2Df290%2D4a5b%2Da591%2D49a8226de525&ID=3
+
+            db.OrderDetails.DeleteOnSubmit(order); //formerly Remove(order);
             db.SubmitChanges();
 
             Assert.IsFalse(db.OrderDetails.Any(od => od.OrderID == 10255 && od.ProductID == 36));
@@ -232,9 +236,11 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
              select o).First();
 
             foreach (var od in orderDetails)
-                db.OrderDetails.Remove(od);
+            {
+                db.OrderDetails.DeleteOnSubmit(od); //formerly Remove(od);
+            }
 
-            db.Orders.Remove(order);
+            db.Orders.DeleteOnSubmit(order); //formerly Remove(order);
             db.SubmitChanges();
 
             Assert.IsFalse(db.OrderDetails.Any(od => od.Order.Customer.CustomerID == "WARTH" && od.Order.EmployeeID == 3));
