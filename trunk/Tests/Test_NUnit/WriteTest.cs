@@ -677,6 +677,34 @@ dummy text
             }
         }
 
+        [Test]
+        public void G19_ExistingCustomerCacheHit()
+        {
+            Northwind db = CreateDB();
+            string id = "AIRBU";
+            Customer c1 = (from c in db.Customers
+                           where id ==c.CustomerID 
+                           select c).Single();
+            db.DatabaseContext.Connection.ConnectionString = null;
+
+            var x = db.Customers.Single(c => id == c.CustomerID );
+        }
+
+        [Test]
+        public void G20_CustomerCacheHitComparingToLocalVariable()
+        {
+            Northwind db = CreateDB();
+            Customer c1 = new Customer() { CustomerID = "temp", CompanyName = "Test", ContactName = "Test" };
+            db.Customers.InsertOnSubmit(c1);
+            db.SubmitChanges();
+            db.ExecuteCommand("delete from customers WHERE CustomerID='temp'");
+
+            string id = "temp";
+            var res = (from c in db.Customers
+                       where c.CustomerID == id
+                       select c).Single();
+        }
+
         #endregion
 
 
