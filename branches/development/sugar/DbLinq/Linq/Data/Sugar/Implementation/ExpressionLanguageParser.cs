@@ -24,7 +24,6 @@
 
 using System.Linq.Expressions;
 using DbLinq.Linq.Data.Sugar.ExpressionMutator;
-using DbLinq.Linq.Data.Sugar.Expressions;
 
 namespace DbLinq.Linq.Data.Sugar.Implementation
 {
@@ -40,7 +39,15 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
 
         protected virtual Expression Analyze(Expression expression, BuilderContext builderContext)
         {
-            // TODO here: VB patterns, for example
+            var methodCallExpression = expression as MethodCallExpression;
+            if(methodCallExpression!=null)
+            {
+                if(methodCallExpression.Method.DeclaringType.Name=="Convert")
+                {
+                    if (methodCallExpression.Method.Name == "ToBoolean")
+                        return Expression.Convert(methodCallExpression.Arguments[0], methodCallExpression.Type);
+                }
+            }
             return expression;
         }
     }
