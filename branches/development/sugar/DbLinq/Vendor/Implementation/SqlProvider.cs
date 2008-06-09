@@ -195,6 +195,10 @@ namespace DbLinq.Vendor.Implementation
                 return GetLiteralStringToLower(p[0]);
             case SpecialExpressionType.In:
                 return GetLiteralIn(p[0], p[1]);
+            case SpecialExpressionType.SubString:
+                if (p.Count > 2)
+                    return GetLiteralSubString(p[0], p[1], p[2]);
+                return GetLiteralSubString(p[0], p[1]);
             }
             throw new ArgumentException(operationType.ToString());
         }
@@ -552,6 +556,16 @@ namespace DbLinq.Vendor.Implementation
         {
             return string.Format("LOWER({0})", a);
             return string.Format("LCASE({0})", a);
+        }
+
+        protected virtual string GetLiteralSubString(string a, string s, string l)
+        {
+            return string.Format("SUBSTR({0}, {1}, {2})", a, s, l);
+        }
+
+        protected virtual string GetLiteralSubString(string a, string s)
+        {
+            return string.Format("SUBSTR({0}, {1})", a, s);
         }
 
         protected virtual string GetLiteralLike(string a, string b)
