@@ -45,6 +45,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         public IExpressionDispatcher ExpressionDispatcher { get; set; }
         public IPrequelAnalyzer PrequelAnalyzer { get; set; }
         public IExpressionOptimizer ExpressionOptimizer { get; set; }
+        public ISpecialExpressionTranslator SpecialExpressionTranslator { get; set; }
         public ISqlBuilder SqlBuilder { get; set; }
 
         public QueryBuilder()
@@ -53,6 +54,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             ExpressionDispatcher = ObjectFactory.Get<IExpressionDispatcher>();
             PrequelAnalyzer = ObjectFactory.Get<IPrequelAnalyzer>();
             ExpressionOptimizer = ObjectFactory.Get<IExpressionOptimizer>();
+            SpecialExpressionTranslator = ObjectFactory.Get<ISpecialExpressionTranslator>();
             SqlBuilder = ObjectFactory.Get<ISqlBuilder>();
         }
 
@@ -209,7 +211,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             return tableExpression;
         }
 
-        public virtual SelectExpression BuildSelectExpression(ExpressionChain expressions, Expression tableExpression , BuilderContext builderContext)
+        public virtual SelectExpression BuildSelectExpression(ExpressionChain expressions, Expression tableExpression, BuilderContext builderContext)
         {
             BuildExpressionQuery(expressions, tableExpression, builderContext);
             return builderContext.CurrentSelect;
@@ -236,7 +238,10 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <param name="builderContext"></param>
         protected virtual void CompileRowCreator(BuilderContext builderContext)
         {
-            builderContext.ExpressionQuery.RowObjectCreator = builderContext.CurrentSelect.Reader.Compile();
+            var reader = builderContext.CurrentSelect.Reader;
+            reader = (LambdaExpression) SpecialExpressionTranslator.Translate(reader);
+            reader = (LambdaExpression)ExpressionOptimizer.Optimize(reader, builderContext);
+            builderContext.ExpressionQuery.RowObjectCreator = reader.Compile();
         }
 
         /// <summary>

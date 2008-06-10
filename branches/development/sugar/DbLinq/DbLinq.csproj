@@ -97,6 +97,7 @@
     <Compile Include="Linq\Data\Sugar\Implementation\ExpressionDispatcher.Analyzer.cs" />
     <Compile Include="Linq\Data\Sugar\Implementation\ExpressionDispatcher.Registrar.cs" />
     <Compile Include="Linq\Data\Sugar\Implementation\QueryRunner.cs" />
+    <Compile Include="Linq\Data\Sugar\Implementation\SpecialExpressionTranslator.cs" />
     <Compile Include="Linq\Data\Sugar\Implementation\SqlBuilder.cs" />
     <Compile Include="Linq\Data\Sugar\IPrequelAnalyzer.cs" />
     <Compile Include="Linq\Data\Sugar\IQueryBuilder.cs" />
@@ -126,6 +127,7 @@
     <Compile Include="Linq\Data\Sugar\ExpressionChain.cs" />
     <Compile Include="Linq\Data\Sugar\ExpressionPrecedence.cs" />
     <Compile Include="Linq\Data\Sugar\IQueryRunner.cs" />
+    <Compile Include="Linq\Data\Sugar\ISpecialExpressionTranslator.cs" />
     <Compile Include="Linq\Data\Sugar\ISqlBuilder.cs" />
     <Compile Include="Linq\Data\Sugar\QueryContext.cs" />
     <Compile Include="Linq\Data\Sugar\Implementation\QueryBuilder.cs" />

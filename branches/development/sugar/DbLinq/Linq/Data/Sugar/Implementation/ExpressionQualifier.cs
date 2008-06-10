@@ -184,7 +184,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 case SpecialExpressionType.ToUpper:
                 case SpecialExpressionType.ToLower:
                 case SpecialExpressionType.SubString:
-                    return ExpressionTier.Sql;
+                    return ExpressionTier.Any;
 
                 case SpecialExpressionType.Like:
                 case SpecialExpressionType.Min:
