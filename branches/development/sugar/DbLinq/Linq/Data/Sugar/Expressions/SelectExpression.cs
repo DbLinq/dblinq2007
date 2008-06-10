@@ -102,6 +102,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
             scopeExpression.Group = Group;
             scopeExpression.Parent = Parent;
             scopeExpression.ExecuteMethodName = ExecuteMethodName;
+            scopeExpression.Reader = Reader;
             scopeExpression.Limit = Limit;
             scopeExpression.Offset = Offset;
             scopeExpression.OffsetAndLimit = OffsetAndLimit;

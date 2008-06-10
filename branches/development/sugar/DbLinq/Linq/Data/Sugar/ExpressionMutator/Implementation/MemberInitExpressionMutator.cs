@@ -37,8 +37,16 @@ namespace DbLinq.Linq.Data.Sugar.ExpressionMutator.Implementation
         {
             var bindings = new List<MemberBinding>();
             int operandIndex = MemberInitExpression.NewExpression.Arguments.Count();
-            var newNewExpression = Expression.New(MemberInitExpression.NewExpression.Constructor,
+            NewExpression newNewExpression;
+            if (MemberInitExpression.NewExpression.Constructor != null)
+            {
+                newNewExpression = Expression.New(MemberInitExpression.NewExpression.Constructor,
                                                   operands.Take(operandIndex));
+            }
+            else
+            {
+                newNewExpression = Expression.New(MemberInitExpression.NewExpression.Type);
+            }
             foreach (var memberBinding in MemberInitExpression.Bindings)
             {
                 var memberBindingMutator = MemberBindingMutatorFactory.GetMutator(memberBinding);

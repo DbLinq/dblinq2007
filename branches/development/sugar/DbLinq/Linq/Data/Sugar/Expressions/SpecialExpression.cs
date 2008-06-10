@@ -57,7 +57,7 @@ namespace DbLinq.Linq.Data.Sugar.Expressions
             case SpecialExpressionType.Count:
                 return typeof(int);
             case SpecialExpressionType.Like:
-                return defaultType;
+                return typeof(bool);
             case SpecialExpressionType.Min:
             case SpecialExpressionType.Max:
             case SpecialExpressionType.Sum:
