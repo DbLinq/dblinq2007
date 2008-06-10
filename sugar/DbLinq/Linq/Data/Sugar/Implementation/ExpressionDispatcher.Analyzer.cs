@@ -142,6 +142,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 return AnalyzeGroupBy(parameters, builderContext);
             case "All":
                 return AnalyzeAll(parameters, builderContext);
+            case "Any":
+                return AnalyzeAny(parameters, builderContext);
             case "Average":
                 return AnalyzeProjectionQuery(SpecialExpressionType.Average, parameters, builderContext);
             case "Count":
@@ -737,8 +739,34 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             // TODO: see if we need to register the tablePiece here (we probably don't)
 
             // we now switch back to current context, and compare the result with 0
-            var allPiece = Expression.Equal(allBuilderContext.CurrentSelect, Expression.Constant(0));
-            return allPiece;
+            var allExpression = Expression.Equal(allBuilderContext.CurrentSelect, Expression.Constant(0));
+            return allExpression;
+        }
+
+        /// <summary>
+        /// Any() returns true if the given condition satisfies at least one of provided elements
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        protected virtual Expression AnalyzeAny(IList<Expression> parameters, BuilderContext builderContext)
+        {
+            var anyBuilderContext = builderContext.NewSelect();
+            var tableExpression = Analyze(parameters[0], anyBuilderContext);
+            // from here we build a custom clause:
+            // <anyClause> ==> "(select count(*) from <table> where <anyClause>)>0"
+            // TODO (later...): see if some vendors support native Any operator and avoid this substitution
+            if (parameters.Count > 1)
+            {
+                var anyClause = Analyze(parameters[1], tableExpression, anyBuilderContext);
+                RegisterWhere(anyClause, anyBuilderContext);
+            }
+            anyBuilderContext.CurrentSelect = anyBuilderContext.CurrentSelect.ChangeOperands(new SpecialExpression(SpecialExpressionType.Count, tableExpression));
+            // TODO: see if we need to register the tablePiece here (we probably don't)
+
+            // we now switch back to current context, and compare the result with 0
+            var anyExpression = Expression.GreaterThan(anyBuilderContext.CurrentSelect, Expression.Constant(0));
+            return anyExpression;
         }
 
         protected virtual Expression AnalyzeLikeStart(IList<Expression> parameters, BuilderContext builderContext)
