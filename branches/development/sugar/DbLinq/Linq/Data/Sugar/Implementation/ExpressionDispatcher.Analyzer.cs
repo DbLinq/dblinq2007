@@ -136,6 +136,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 return AnalyzeJoin(parameters, builderContext);
             case "GroupJoin":
                 return AnalyzeGroupJoin(parameters, builderContext);
+            case "Distinct":
+                return AnalyzeDistinct(parameters, builderContext);
             case "GroupBy":
                 return AnalyzeGroupBy(parameters, builderContext);
             case "All":
@@ -674,6 +676,24 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         }
 
         /// <summary>
+        /// "Distinct" means select X group by X
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        protected virtual Expression AnalyzeDistinct(IList<Expression> parameters, BuilderContext builderContext)
+        {
+            var expression = Analyze(parameters[0], builderContext);
+            // we select and group by the same criterion
+            var group = new GroupExpression(expression, expression);
+            builderContext.CurrentSelect.Group.Add(group);
+            // "Distinct" method is equivalent to a GroupBy
+            // but for some obscure reasons, Linq expects a IQueryable instead of an IGrouping
+            // so we return the column, not the group
+            return expression;
+        }
+
+        /// <summary>
         /// Creates a group by clause
         /// </summary>
         /// <param name="parameters"></param>
@@ -683,18 +703,6 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         {
             var table = Analyze(parameters[0], builderContext);
             var keyExpression = Analyze(parameters[1], table, builderContext);
-            // we have mainly two options here: a scalar or a new anonymous table
-            // as we are nice people, we handle both
-            //GroupByExpression groupBy;
-            //if (groupByResult is NewExpression)
-            //{
-            //    var groups = GetTypeInitializers<ColumnExpression>((NewExpression)groupByResult);
-            //    groupBy = RegisterGroupBy(groups, groupByResult, builderContext);
-            //}
-            //else if (groupByResult is ColumnExpression)
-            //    groupBy = RegisterGroupBy((ColumnExpression)groupByResult, groupByResult, builderContext);
-            //else
-            //    throw Error.BadArgument("S0624: Don't know how to handle Expression to group by");
 
             Expression result;
             if (parameters.Count == 2)
