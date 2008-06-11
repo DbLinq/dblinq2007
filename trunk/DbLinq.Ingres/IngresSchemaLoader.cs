@@ -87,29 +87,5 @@ namespace DbLinq.Ingres
 
             }
         }
-
-        protected override System.Type MapDbType(string columnName, IDataType dataType)
-        {
-            switch (dataType.Type.ToLower())
-            {
-            case "float":
-                return typeof(Double);
-            case "integer":
-                switch (dataType.Length)
-                {
-                case 1:
-                    return typeof(Byte);
-                case 2:
-                    return typeof(Int16);
-                case 4:
-                    return typeof(Int32);
-                case 8:
-                    return typeof(Int64);
-                }
-                return MapDbType(columnName, null);
-            default:
-                return base.MapDbType(columnName, dataType);
-            }
-        }
     }
 }
