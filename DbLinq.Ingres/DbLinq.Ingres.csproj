@@ -51,6 +51,7 @@
     <Compile Include="IngresSchemaLoader.Constraints.cs" />
     <Compile Include="IngresSchemaLoader.cs" />
     <Compile Include="IngresDataContext.cs" />
+    <Compile Include="IngresSchemaLoader.StoredProcedures.cs" />
     <Compile Include="IngresSchemaLoader.Tables.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IngresVendor.cs" />
