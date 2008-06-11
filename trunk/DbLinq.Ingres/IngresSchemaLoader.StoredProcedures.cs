@@ -21,34 +21,46 @@
 // THE SOFTWARE.
 // 
 #endregion
+using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
+using System.Text;
 using DbLinq.Util;
-using DbLinq.Vendor;
 
 namespace DbLinq.Ingres
 {
-    public partial class IngresSchemaLoader
+    partial class IngresSchemaLoader
     {
-        public override IList<IDataName> ReadTables(IDbConnection connectionString, string databaseName)
+        /// <summary>
+        /// represents one row from pg_proc table
+        /// </summary>
+        protected class DataStoredProcedure
         {
-            List<IDataName> result = new List<IDataName>();
+            public string procedure_name;
+            public string procedure_owner;
+            public string text_segment;
 
-            DataTable tab = (DataTable)connectionString
-                .GetType()
-                .GetMethod("GetSchema", new System.Type[] { typeof(string) })
-                .Invoke(connectionString, new string[] { "Tables" });
+            public override string ToString() { return "Ing_Proc " + procedure_name; }
+        }
 
-            foreach (DataRow table in tab.Rows)
-            {
-                result.Add(new DataName
-                {
-                    Name = table["TABLE_NAME"].ToString(),
-                    Schema = table["TABLE_SCHEMA"].ToString()
-                });
-            }
+        protected virtual DataStoredProcedure ReadProcedure(IDataReader rdr)
+        {
+            DataStoredProcedure procedure = new DataStoredProcedure();
+            int field = 0;
+            procedure.procedure_name = rdr.GetAsString(field++);
+            procedure.procedure_owner = rdr.GetAsString(field++);
+            procedure.text_segment = rdr.GetAsString(field++);
+            return procedure;
+        }
 
-            return result;
+        protected virtual List<DataStoredProcedure> ReadProcedures(IDbConnection conn, string db)
+        {
+            string sql = @"select procedure_name, procedure_owner, text_segment " +
+                "from iiprocedures where system_use='U' and " +
+                "procedure_owner!='$ingres' and text_sequence=1";
+
+            return DataCommand.Find<DataStoredProcedure>(conn, sql, ":db", db, ReadProcedure);
         }
     }
 }

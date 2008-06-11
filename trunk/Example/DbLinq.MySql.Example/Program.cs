@@ -150,7 +150,7 @@ namespace DbLinq.MySql.Example
 
             Console.Clear();
             logger.Write(Level.Debug, "db.Orders.Remove(db.Orders.First());");
-            db.Orders.Remove(db.Orders.First());
+            db.Orders.DeleteOnSubmit(db.Orders.First());
             db.SubmitChanges();
             foreach (var v in db.Orders)
                 ObjectDumper.Write(v);

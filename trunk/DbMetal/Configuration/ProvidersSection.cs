@@ -78,7 +78,7 @@ namespace DbMetal.Configuration
             {
                 //use Configuration namespace to get our config
                 object[] allKeys = base.BaseGetAllKeys();
-                if (Array.IndexOf(allKeys, name)<0)
+                if (Array.IndexOf(allKeys, name.ToLower())<0)
                 {
                     string[] allKeyStrings = allKeys.OfType<string>().ToArray();
                     
