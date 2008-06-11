@@ -109,6 +109,8 @@ namespace Test_NUnit_MySql
             Console.WriteLine("Press enter to continue.");
         }
 
+#if DbLinqGuidTest
+
         [Test]
         public void AT7_ReadGuidFromVarchar()
         {
@@ -131,7 +133,7 @@ namespace Test_NUnit_MySql
             string guidStr = guid.ToString();
             Assert.IsTrue(guidStr == "{0101}");
         }
-
+#endif
         [Test]
         public void Test_Unknown()
         {

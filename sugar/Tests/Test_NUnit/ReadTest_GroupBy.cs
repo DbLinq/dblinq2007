@@ -74,44 +74,56 @@ namespace Test_NUnit_MsSql.Linq_101_Samples
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void G02_SimpleGroup_First()
         {
-            //Note: this SQL is allowed in Mysql but illegal on Postgres 
-            //(PostgreSql ERROR: column "c$.customerid" must appear in the GROUP BY clause or be used in an aggregate function - SQL state: 42803)
-            //"SELECT City, customerid FROM customer GROUP BY City"
-            //that's why DbLinq disallows it
-            Northwind db = base.CreateDB();
-            var q2 = db.Customers.GroupBy(c => c.City);
-            var q3 = q2.First();
-
-            Assert.IsTrue(q3 != null && q3.Key != null, "Must have result with Key");
-            foreach (var c in q3)
+            try
             {
-                Assert.IsTrue(c.City != null, "City must be non-null");
+                //Note: this SQL is allowed in Mysql but illegal on Postgres 
+                //(PostgreSql ERROR: column "c$.customerid" must appear in the GROUP BY clause or be used in an aggregate function - SQL state: 42803)
+                //"SELECT City, customerid FROM customer GROUP BY City"
+                //that's why DbLinq disallows it
+                Northwind db = base.CreateDB();
+                var q2 = db.Customers.GroupBy(c => c.City);
+                var q3 = q2.First();
+
+                Assert.IsTrue(q3 != null && q3.Key != null, "Must have result with Key");
+                foreach (var c in q3)
+                {
+                    Assert.IsTrue(c.City != null, "City must be non-null");
+                }
+            }
+            catch(InvalidOperationException)
+            {
+                Assert.Ignore("Some vendors don't support this request (which doesn't make sense anyway)");
             }
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void G03_SimpleGroup_WithSelector_Invalid()
         {
-            //Note: this SQL is allowed in Mysql but illegal on Postgres 
-            //(PostgreSql ERROR: column "c$.customerid" must appear in the GROUP BY clause or be used in an aggregate function - SQL state: 42803)
-            //"SELECT City, customerid FROM customer GROUP BY City"
-            Northwind db = base.CreateDB();
-
-            var q2 = db.Customers.GroupBy(c => c.City, c => new { c.City, c.CustomerID });
-
-            foreach (var g in q2)
+            try
             {
-                int entryCount = 0;
-                foreach (var c in g)
+                //Note: this SQL is allowed in Mysql but illegal on Postgres 
+                //(PostgreSql ERROR: column "c$.customerid" must appear in the GROUP BY clause or be used in an aggregate function - SQL state: 42803)
+                //"SELECT City, customerid FROM customer GROUP BY City"
+                Northwind db = base.CreateDB();
+
+                var q2 = db.Customers.GroupBy(c => c.City, c => new {c.City, c.CustomerID});
+
+                foreach (var g in q2)
                 {
-                    Assert.IsTrue(c.City != null, "City must be non-null");
-                    entryCount++;
+                    int entryCount = 0;
+                    foreach (var c in g)
+                    {
+                        Assert.IsTrue(c.City != null, "City must be non-null");
+                        entryCount++;
+                    }
+                    Assert.IsTrue(entryCount > 0, "Must have some entries in group");
                 }
-                Assert.IsTrue(entryCount > 0, "Must have some entries in group");
+            }
+            catch (InvalidOperationException)
+            {
+                Assert.Ignore("Some vendors don't support this request (which doesn't make sense anyway)");
             }
         }
 
@@ -140,24 +152,30 @@ namespace Test_NUnit_MsSql.Linq_101_Samples
 
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void G04_SimpleGroup_WithSelector()
         {
-            //Note: this SQL is allowed in Mysql but illegal on Postgres 
-            //(PostgreSql ERROR: column "c$.customerid" must appear in the GROUP BY clause or be used in an aggregate function - SQL state: 42803)
-            //"SELECT City, customerid FROM customer GROUP BY City"
-            Northwind db = base.CreateDB();
-            var q2 = db.Customers.GroupBy(c => c.City, c => c.CustomerID);
-
-            foreach (var g in q2)
+            try
             {
-                int entryCount = 0;
-                foreach (var c in g)
+                //Note: this SQL is allowed in Mysql but illegal on Postgres 
+                //(PostgreSql ERROR: column "c$.customerid" must appear in the GROUP BY clause or be used in an aggregate function - SQL state: 42803)
+                //"SELECT City, customerid FROM customer GROUP BY City"
+                Northwind db = base.CreateDB();
+                var q2 = db.Customers.GroupBy(c => c.City, c => c.CustomerID);
+
+                foreach (var g in q2)
                 {
-                    Assert.IsTrue(c != null, "CustomerID must be non-null");
-                    entryCount++;
+                    int entryCount = 0;
+                    foreach (var c in g)
+                    {
+                        Assert.IsTrue(c != null, "CustomerID must be non-null");
+                        entryCount++;
+                    }
+                    Assert.IsTrue(entryCount > 0, "Must have some entries in group");
                 }
-                Assert.IsTrue(entryCount > 0, "Must have some entries in group");
+            }
+            catch (InvalidOperationException)
+            {
+                Assert.Ignore("Some vendors don't support this request (which doesn't make sense anyway)");
             }
         }
 
