@@ -632,22 +632,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <returns></returns>
         protected virtual Expression AnalyzeJoin(IList<Expression> parameters, BuilderContext builderContext)
         {
-            if (parameters.Count == 5)
-            {
-                var table1 = Analyze(parameters[0], builderContext) as TableExpression;
-                if (table1 == null)
-                    throw Error.BadArgument("S0532: Expected a TableExpression for Join");
-                var table2 = Analyze(parameters[1], builderContext) as TableExpression;
-                if (table2 == null)
-                    throw Error.BadArgument("S0536: Expected a TableExpression for Join");
-                var join1 = Analyze(parameters[2], table1, builderContext);
-                var join2 = Analyze(parameters[3], table2, builderContext);
-                table2.Join(TableJoinType.Inner, table1, Expression.Equal(join1, join2),
-                            string.Format("join{0}", builderContext.EnumerateAllTables().Count()));
-                // last part is lambda, with two tables as parameters
-                return Analyze(parameters[4], new[] { table1, table2 }, builderContext);
-            }
-            throw Error.BadArgument("S0543: Don't know how to handle Join() with {0} parameters", parameters.Count);
+            return AnalyzeJoin(parameters, TableJoinType.Inner, builderContext);
         }
 
         /// <summary>
@@ -658,21 +643,26 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <returns></returns>
         protected virtual Expression AnalyzeGroupJoin(IList<Expression> parameters, BuilderContext builderContext)
         {
+            return AnalyzeJoin(parameters, TableJoinType.Inner, builderContext);
+        }
+
+        private Expression AnalyzeJoin(IList<Expression> parameters, TableJoinType joinType, BuilderContext builderContext)
+        {
             if (parameters.Count == 5)
             {
-                var table1 = Analyze(parameters[0], builderContext) as TableExpression;
-                if (table1 == null)
+                var leftTable = Analyze(parameters[0], builderContext) as TableExpression;
+                if (leftTable == null)
                     throw Error.BadArgument("S0532: Expected a TableExpression for Join");
-                var table2 = Analyze(parameters[1], builderContext) as TableExpression;
-                if (table2 == null)
+                var rightTable = Analyze(parameters[1], builderContext) as TableExpression;
+                if (rightTable == null)
                     throw Error.BadArgument("S0536: Expected a TableExpression for Join");
-                var join1 = Analyze(parameters[2], table1, builderContext);
-                var join2 = Analyze(parameters[3], table2, builderContext);
-                table2.Join(TableJoinType.Inner, table1, Expression.Equal(join1, join2),
-                            string.Format("join{0}", builderContext.EnumerateAllTables().Count()));
+                var leftJoin = Analyze(parameters[2], leftTable, builderContext);
+                var rightJoin = Analyze(parameters[3], rightTable, builderContext);
+                rightTable.Join(joinType, leftTable, Expression.Equal(leftJoin, rightJoin),
+                                string.Format("join{0}", builderContext.EnumerateAllTables().Count()));
                 // last part is lambda, with two tables as parameters
-                throw Error.BadArgument("S0569: Finish GroupJoin");
-                return Analyze(parameters[4], new[] { table1, table2 }, builderContext);
+                // TODO: make the difference between a return expression and a metatable
+                return Analyze(parameters[4], new[] { leftTable, rightTable }, builderContext);
             }
             throw Error.BadArgument("S0530: Don't know how to handle GroupJoin() with {0} parameters", parameters.Count);
         }
