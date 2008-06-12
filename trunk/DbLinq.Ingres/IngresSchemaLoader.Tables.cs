@@ -30,25 +30,23 @@ namespace DbLinq.Ingres
 {
     public partial class IngresSchemaLoader
     {
+        protected override IDataName ReadDataNameAndSchema(IDataRecord dataRecord)
+        {
+            var dataName = new DataName { Name = dataRecord.GetAsString(0).TrimEnd(), Schema = dataRecord.GetAsString(1).TrimEnd() };
+            return dataName;
+        }
+
         public override IList<IDataName> ReadTables(IDbConnection connectionString, string databaseName)
         {
-            List<IDataName> result = new List<IDataName>();
+            // note: the ReadDataNameAndSchema relies on information order
+            const string sql = @"
+SELECT table_name, table_owner
+FROM iitables 
+WHERE table_owner <> '$ingres' 
+            AND table_type in ('T', 'V')
+            AND table_name NOT LIKE 'iietab_%'";
 
-            DataTable tab = (DataTable)connectionString
-                .GetType()
-                .GetMethod("GetSchema", new System.Type[] { typeof(string) })
-                .Invoke(connectionString, new string[] { "Tables" });
-
-            foreach (DataRow table in tab.Rows)
-            {
-                result.Add(new DataName
-                {
-                    Name = table["TABLE_NAME"].ToString(),
-                    Schema = table["TABLE_SCHEMA"].ToString()
-                });
-            }
-
-            return result;
+            return DataCommand.Find<IDataName>(connectionString, sql, ReadDataNameAndSchema);
         }
     }
 }

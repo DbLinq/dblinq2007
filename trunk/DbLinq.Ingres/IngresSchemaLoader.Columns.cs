@@ -30,9 +30,9 @@ namespace DbLinq.Ingres
 {
     partial class IngresSchemaLoader
     {
-        protected virtual string GetFullType(string columnType, object columnLength, object columnPrecision, object columnScale)
+        protected virtual string GetFullType(IDataTableColumn column)
         {
-            switch (columnType.ToLower())
+            switch (column.Type.ToLower())
             {
             case "c":
             case "char":
@@ -41,46 +41,49 @@ namespace DbLinq.Ingres
             case "nvarchar":
             case "long varchar":
             case "text":
-            //case "integer":
-                return columnType + "(" + columnLength.ToString() + ")";
+            case "integer":
+                return column.Type + "(" + column.Length + ")";
 
             case "decimal":
-                return columnType + "(" + columnPrecision.ToString() + ", " + columnScale.ToString() + ")";
+                return column.Type + "(" + column.Length + ", " + column.Scale + ")";
 
             default:
-                return columnType;
+                return column.Type;
             }
+        }
+
+        protected virtual IDataTableColumn ReadColumn(IDataRecord rdr)
+        {
+            var column = new DataTableColumn();
+            int field = 0;
+            column.TableSchema = rdr.GetAsString(field++).Trim();
+            column.TableName = rdr.GetAsString(field++).Trim();
+            column.ColumnName = rdr.GetAsString(field++).Trim();
+            string nullableStr = rdr.GetAsString(field++);
+            column.Nullable = nullableStr == "Y";
+            column.Type = rdr.GetAsString(field++).Trim();
+            column.DefaultValue = rdr.GetAsString(field++);
+            column.Generated = column.DefaultValue != null && column.DefaultValue.StartsWith("next value for");
+
+            column.Length = rdr.GetAsNullableNumeric<long>(field++);
+            column.Scale = rdr.GetAsNullableNumeric<int>(field++);
+            column.FullType = GetFullType(column);
+            return column;
         }
 
         protected override IList<IDataTableColumn> ReadColumns(IDbConnection connectionString, string databaseName)
         {
-            List<IDataTableColumn> result = new List<IDataTableColumn>();
+            const string sql = @"
+SELECT t.table_owner, t.table_name, column_name
+    ,column_nulls, column_datatype, column_default_val
+    ,column_length, column_scale
+FROM iicolumns c join iitables t on (c.table_name=t.table_name and c.table_owner=t.table_owner) 
+            WHERE t.table_owner <> '$ingres' and t.table_type in ('T', 'V')
+            AND t.table_name NOT LIKE 'iietab_%'
+ORDER BY column_sequence
+";
 
-            DataTable tab = (DataTable)connectionString
-                .GetType()
-                .GetMethod("GetSchema", new System.Type[] { typeof(string) })
-                .Invoke(connectionString, new string[] { "Columns" });
-
-            foreach (DataRow table in tab.Rows)
-            {
-                string colTableSchema = table["TABLE_SCHEMA"].ToString();
-                if (colTableSchema == "$ingres") continue;
-                DataTableColumn col = new DataTableColumn();
-                col.TableSchema = colTableSchema;
-                col.TableName = table["TABLE_NAME"].ToString();
-                col.ColumnName = table["COLUMN_NAME"].ToString();
-                col.Type = table["DATA_TYPE"].ToString();
-                col.DefaultValue = table["COLUMN_DEFAULT"].ToString();
-                col.Length = (table["CHARACTER_MAXIMUM_LENGTH"] is System.DBNull ? null : (long?)(int)table["CHARACTER_MAXIMUM_LENGTH"]);
-                col.Scale = (table["NUMERIC_SCALE"] is System.DBNull ? null : (int?)table["NUMERIC_SCALE"]);
-                col.Precision = (table["NUMERIC_PRECISION"] is System.DBNull ? null : (int?)(byte?)table["NUMERIC_PRECISION"]);
-                col.FullType = GetFullType(col.Type, col.Length, col.Precision, col.Scale);
-                col.Generated = col.DefaultValue != null && col.DefaultValue.StartsWith("next value for");
-                col.Nullable = table["IS_NULLABLE"].ToString() == "YES";
-                result.Add(col);
-            }
-
-            return result;
+            return DataCommand.Find<IDataTableColumn>(connectionString, sql, ReadColumn);
         }
     }
 }
