@@ -48,6 +48,8 @@ namespace DbLinq.Linq.Data.Sugar
         public IDictionary<Type, MetaTableExpression> MetaTables { get; private set; }
         public IDictionary<string, Expression> Parameters { get; private set; }
 
+        public bool ExpectMetaTableDefinition { get; set; }
+
         /// <summary>
         /// Helper to enumerate all registered tables
         /// </summary>
@@ -115,6 +117,7 @@ namespace DbLinq.Linq.Data.Sugar
             builderContext.MetaTables = MetaTables;
             builderContext.currentScopeIndex = currentScopeIndex;
             builderContext.SelectExpressions = SelectExpressions;
+            builderContext.ExpectMetaTableDefinition = ExpectMetaTableDefinition;
 
             // scope dependent parts
             builderContext.Parameters = new Dictionary<string, Expression>(Parameters);
@@ -136,10 +139,26 @@ namespace DbLinq.Linq.Data.Sugar
             builderContext.MetaTables = MetaTables;
             builderContext.Parameters = Parameters;
             builderContext.SelectExpressions = SelectExpressions;
+            builderContext.ExpectMetaTableDefinition = ExpectMetaTableDefinition;
 
             // except CurrentScope, of course
             builderContext.currentScopeIndex = SelectExpressions.Count;
             SelectExpressions.Add(new SelectExpression(CurrentSelect));
+
+            return builderContext;
+        }
+
+        public BuilderContext Clone()
+        {
+            var builderContext = new BuilderContext();
+
+            builderContext.QueryContext = QueryContext;
+            builderContext.ExpressionQuery = ExpressionQuery;
+            builderContext.MetaTables = MetaTables;
+            builderContext.Parameters = Parameters;
+            builderContext.SelectExpressions = SelectExpressions;
+            builderContext.currentScopeIndex = currentScopeIndex;
+            builderContext.ExpectMetaTableDefinition = ExpectMetaTableDefinition;
 
             return builderContext;
         }
