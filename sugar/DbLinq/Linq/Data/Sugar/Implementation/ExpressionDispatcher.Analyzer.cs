@@ -100,10 +100,11 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             case ExpressionType.Not:
             //case ExpressionType.TypeAs
             case ExpressionType.UnaryPlus:
-            case ExpressionType.New: // Yes dude, new is an operator
             case ExpressionType.MemberInit:
             #endregion
                 return AnalyzeOperator(expression, builderContext);
+            case ExpressionType.New:
+                return AnalyzeNewOperator(expression, builderContext);
             case ExpressionType.Constant:
                 return AnalyzeConstant(expression, builderContext);
             }
@@ -136,6 +137,8 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 return AnalyzeJoin(parameters, builderContext);
             case "GroupJoin":
                 return AnalyzeGroupJoin(parameters, builderContext);
+            case "DefaultIfEmpty":
+                return AnalyzeOuterJoin(parameters, builderContext);
             case "Distinct":
                 return AnalyzeDistinct(parameters, builderContext);
             case "GroupBy":
@@ -553,18 +556,49 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
         /// <summary>
         /// Operator analysis consists in anlyzing all operands
         /// </summary>
-        /// <param name="piece"></param>
+        /// <param name="expression"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        protected virtual Expression AnalyzeOperator(Expression piece, BuilderContext builderContext)
+        protected virtual Expression AnalyzeOperator(Expression expression, BuilderContext builderContext)
         {
-            var operands = piece.GetOperands().ToList();
+            var operands = expression.GetOperands().ToList();
             for (int operandIndex = 0; operandIndex < operands.Count; operandIndex++)
             {
                 var operand = operands[operandIndex];
                 operands[operandIndex] = Analyze(operand, builderContext);
             }
-            return piece.ChangeOperands(operands);
+            return expression.ChangeOperands(operands);
+        }
+
+        protected virtual Expression AnalyzeNewOperator(Expression expression, BuilderContext builderContext)
+        {
+            if (builderContext.ExpectMetaTableDefinition)
+            {
+                // first, check if we have a MetaTable definition
+                Type metaType;
+                var typeInitializers = GetTypeInitializers<Expression>((NewExpression)expression, true, out metaType);
+                var aliases = new Dictionary<MemberInfo, TableExpression>();
+                foreach (var memberInfo in typeInitializers.Keys)
+                {
+                    var tableExpression = Analyze(typeInitializers[memberInfo], builderContext) as TableExpression;
+                    aliases[memberInfo] = tableExpression;
+                }
+                if (IsMetaTableDefinition(aliases))
+                    return RegisterMetaTable(metaType, aliases, builderContext);
+            }
+            return AnalyzeOperator(expression, builderContext);
+        }
+
+        protected virtual bool IsMetaTableDefinition(IDictionary<MemberInfo, TableExpression> aliases)
+        {
+            if (aliases.Count != 2)
+                return false;
+            foreach (var tableExpression in aliases.Values)
+            {
+                if (tableExpression == null)
+                    return false;
+            }
+            return true;
         }
 
         /// <summary>
@@ -578,24 +612,27 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             if (parameters.Count == 3)
             {
                 // ms-help://MS.VSCC.v90/MS.MSDNQTR.v90.en/fxref_system.core/html/3371348f-7811-b0bc-8c0a-2a595e08e086.htm
-                var tableExpression = parameters[0] as TableExpression;
-                if (tableExpression == null)
-                    throw Error.BadArgument("S0335: Expected a TablePiece for SelectMany()");
+                var tableExpression = parameters[0];
                 var projectionExpression = Analyze(parameters[1], new[] { tableExpression }, builderContext);
-                var manyPiece = Analyze(parameters[2], new[] { tableExpression, projectionExpression }, builderContext);
+                //var manyPiece = Analyze(parameters[2], new[] { tableExpression, projectionExpression }, builderContext);
                 // from here, our manyPiece is a MetaTable definition
-                var newExpression = manyPiece as NewExpression;
-                if (newExpression == null)
-                    throw Error.BadArgument("S0377: Expected a NewExpression as SelectMany() return value");
-                Type metaTableType;
-                var associations = GetTypeInitializers<TableExpression>(newExpression, out metaTableType);
-                return RegisterMetaTable(metaTableType, associations, builderContext);
+                //var newExpression = manyPiece as NewExpression;
+                //if (newExpression == null)
+                //    throw Error.BadArgument("S0377: Expected a NewExpression as SelectMany() return value");
+                //Type metaTableType;
+                //var associations = GetTypeInitializers<TableExpression>(newExpression, true, out metaTableType);
+                //return RegisterMetaTable(metaTableType, associations, builderContext);
+                var metaTableDefinitionBuilderContext = builderContext.Clone();
+                metaTableDefinitionBuilderContext.ExpectMetaTableDefinition = true;
+                var expression = Analyze(parameters[2], new[] {tableExpression, projectionExpression},
+                                         metaTableDefinitionBuilderContext);
+                return expression;
             }
             throw Error.BadArgument("S0358: Don't know how to handle this SelectMany() overload ({0} parameters)", parameters.Count);
         }
 
         protected virtual IDictionary<MemberInfo, E> GetTypeInitializers<E>(NewExpression newExpression,
-                                                                                        out Type metaType)
+                                                                            bool checkCast, out Type metaType)
             where E : Expression
         {
             var associations = new Dictionary<MemberInfo, E>();
@@ -603,7 +640,7 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             for (int ctorParameterIndex = 0; ctorParameterIndex < newExpression.Arguments.Count; ctorParameterIndex++)
             {
                 var aliasedExpression = newExpression.Arguments[ctorParameterIndex] as E;
-                if (aliasedExpression == null)
+                if (aliasedExpression == null && checkCast)
                     throw Error.BadArgument("S0541: Expected an specific Expression type for GetTypeInitializers()");
                 var memberInfo = newExpression.Members[ctorParameterIndex];
                 metaType = memberInfo.ReflectedType;
@@ -612,17 +649,17 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
                 var propertyInfo = memberInfo.GetExposingProperty() ?? memberInfo;
                 associations[propertyInfo] = aliasedExpression;
             }
-            if (metaType == null)
+            if (metaType == null && checkCast)
                 throw Error.BadArgument("S0550: Empty NewExpression found"); // this should never happen, otherwise we may simply ignore it or take the type from elsewhere
             return associations;
         }
 
-        protected virtual IDictionary<MemberInfo, E> GetTypeInitializers<E>(NewExpression newExpression)
-            where E : Expression
-        {
-            Type metaType;
-            return GetTypeInitializers<E>(newExpression, out metaType);
-        }
+        //protected virtual IDictionary<MemberInfo, E> GetTypeInitializers<E>(NewExpression newExpression)
+        //    where E : Expression
+        //{
+        //    Type metaType;
+        //    return GetTypeInitializers<E>(newExpression, out metaType);
+        //}
 
         /// <summary>
         /// Analyzes a Join statement (explicit join)
@@ -646,23 +683,45 @@ namespace DbLinq.Linq.Data.Sugar.Implementation
             return AnalyzeJoin(parameters, TableJoinType.Inner, builderContext);
         }
 
+        protected virtual Expression AnalyzeOuterJoin(IList<Expression> parameters, BuilderContext builderContext)
+        {
+            var expression = Analyze(parameters[0], builderContext);
+            var tableExpression = expression as TableExpression;
+            if (tableExpression != null)
+            {
+                // tableExpression.JoinType = TableJoinType.LeftOuter;
+            }
+            return expression;
+        }
+
         private Expression AnalyzeJoin(IList<Expression> parameters, TableJoinType joinType, BuilderContext builderContext)
         {
             if (parameters.Count == 5)
             {
-                var leftTable = Analyze(parameters[0], builderContext) as TableExpression;
-                if (leftTable == null)
-                    throw Error.BadArgument("S0532: Expected a TableExpression for Join");
+                var leftExpression = Analyze(parameters[0], builderContext);
                 var rightTable = Analyze(parameters[1], builderContext) as TableExpression;
                 if (rightTable == null)
                     throw Error.BadArgument("S0536: Expected a TableExpression for Join");
-                var leftJoin = Analyze(parameters[2], leftTable, builderContext);
+                var leftJoin = Analyze(parameters[2], leftExpression, builderContext);
                 var rightJoin = Analyze(parameters[3], rightTable, builderContext);
+                // from here, we have two options to join:
+                // 1. left and right are tables, we can use generic expressions (most common)
+                // 2. left is something else (a meta table)
+                var leftTable = leftExpression as TableExpression;
+                if (leftTable == null)
+                {
+                    var leftColumn = leftJoin as ColumnExpression;
+                    if (leftColumn == null)
+                        throw Error.BadArgument("S0701: No way to find left table for Join");
+                    leftTable = leftColumn.Table;
+                }
                 rightTable.Join(joinType, leftTable, Expression.Equal(leftJoin, rightJoin),
                                 string.Format("join{0}", builderContext.EnumerateAllTables().Count()));
                 // last part is lambda, with two tables as parameters
-                // TODO: make the difference between a return expression and a metatable
-                return Analyze(parameters[4], new[] { leftTable, rightTable }, builderContext);
+                var metaTableDefinitionBuilderContext = builderContext.Clone();
+                metaTableDefinitionBuilderContext.ExpectMetaTableDefinition = true;
+                var expression = Analyze(parameters[4], new[] { leftExpression, rightTable }, metaTableDefinitionBuilderContext);
+                return expression;
             }
             throw Error.BadArgument("S0530: Don't know how to handle GroupJoin() with {0} parameters", parameters.Count);
         }
