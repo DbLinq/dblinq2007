@@ -41,7 +41,7 @@ namespace DbLinq.Linq.Mapping
             Load();
         }
 
-        public virtual void SetOtherKey(string literalOtherKey, MetaTable otherTable, MetaDataMember otherAssociationMember)
+        public virtual void SetOtherKey(string literalOtherKey, MetaTable thisTable, MetaTable otherTable, MetaDataMember otherAssociationMember)
         {
             var comma = new[] { ',' };
             var otherKeysList = new List<MetaDataMember>();
@@ -50,9 +50,9 @@ namespace DbLinq.Linq.Mapping
                 foreach (var otherKeyRaw in literalOtherKey.Split(comma, StringSplitOptions.RemoveEmptyEntries))
                 {
                     var otherKey = otherKeyRaw.Trim();
-                    var keyMember = otherTable.RowType.Type.GetMember(otherKey)[0];
+                    var keyMember = thisTable.RowType.Type.GetMember(otherKey)[0];
                     otherKeysList.Add(new AttributedColumnMetaDataMember(keyMember, GetColumnAttribute(keyMember),
-                                                                 otherTable.RowType));
+                                                                 thisTable.RowType));
                 }
             }
             otherKeys = new ReadOnlyCollection<MetaDataMember>(otherKeysList);
@@ -150,7 +150,7 @@ namespace DbLinq.Linq.Mapping
 
         public override MetaType OtherType
         {
-            get { throw new System.NotImplementedException(); }
+            get  { return thisMember.DeclaringType; }
         }
 
         private ReadOnlyCollection<MetaDataMember> theseKeys;

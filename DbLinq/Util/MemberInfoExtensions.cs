@@ -47,6 +47,8 @@ namespace DbLinq.Util
                 return ((MethodInfo)memberInfo).ReturnType;
             if (memberInfo is ConstructorInfo)
                 return null;
+            if (memberInfo is Type)
+                return (Type)memberInfo;
             throw new ArgumentException();
         }
 
@@ -77,6 +79,22 @@ namespace DbLinq.Util
             else if (memberInfo is PropertyInfo)
                 ((PropertyInfo)memberInfo).GetSetMethod().Invoke(o, new[] { value });
             else throw new ArgumentException();
+        }
+
+        /// <summary>
+        /// If memberInfo is a method related to a property, returns the PropertyInfo
+        /// </summary>
+        /// <param name="memberInfo"></param>
+        /// <returns></returns>
+        public static PropertyInfo GetExposingProperty(this MemberInfo memberInfo)
+        {
+            var reflectedType = memberInfo.ReflectedType;
+            foreach (var propertyInfo in reflectedType.GetProperties())
+            {
+                if (propertyInfo.GetGetMethod() == memberInfo || propertyInfo.GetSetMethod() == memberInfo)
+                    return propertyInfo;
+            }
+            return null;
         }
     }
 }

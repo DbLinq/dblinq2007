@@ -95,16 +95,21 @@ namespace DbLinq.Linq.Mapping
                         foreach (var member in otherTableType.GetMembers())
                         {
                             var otherAssociationAttribute = member.GetAttribute<AssociationAttribute>();
-                            if (otherAssociationAttribute != null && otherAssociationAttribute.ThisKey == associationAttribute.OtherKey)
+                            if (otherAssociationAttribute != null && otherAssociationAttribute.Name == associationAttribute.Name)
                             {
                                 otherAssociationMember =
                                     (from a in otherTable.RowType.Associations
                                      where a.ThisMember.Member == member
                                      select a.ThisMember).SingleOrDefault();
+                                if (otherAssociationMember == attributedAssociation.ThisMember)
+                                {
+                                    otherAssociationMember = null;
+                                    continue;
+                                }
                                 break;
                             }
                         }
-                        attributedAssociation.SetOtherKey(associationAttribute.OtherKey, otherTable, otherAssociationMember);
+                        attributedAssociation.SetOtherKey(associationAttribute.OtherKey, table, otherTable, otherAssociationMember);
                     }
                 }
             }
@@ -118,7 +123,7 @@ namespace DbLinq.Linq.Mapping
         protected virtual IDictionary<MethodInfo, FunctionAttribute> GetFunctionsAttributes()
         {
             var functionAttributes = new Dictionary<MethodInfo, FunctionAttribute>();
-            foreach (var methodInfo in contextType.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
+            foreach (var methodInfo in contextType.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance))
             {
                 var function = methodInfo.GetAttribute<FunctionAttribute>();
                 if (function != null)
@@ -132,7 +137,7 @@ namespace DbLinq.Linq.Mapping
             var tableAttributes = new Dictionary<Type, TableAttribute>();
             // to find the tables, we list all properties/fields contained in the DataContext inheritor
             // if the return type has a TableAttribute, then it is ours (muhahahah!)
-            foreach (var memberInfo in contextType.GetMembers(BindingFlags.GetField | BindingFlags.GetProperty | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
+            foreach (var memberInfo in contextType.GetMembers(BindingFlags.GetField | BindingFlags.GetProperty | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance))
             {
                 var memberType = memberInfo.GetMemberType();
                 if (memberType == null)
@@ -140,18 +145,28 @@ namespace DbLinq.Linq.Mapping
                 var classType = GetClassType(memberType);
                 if (classType == null)
                     continue;
-                var table = classType.GetAttribute<TableAttribute>();
-                if (table != null)
-                    tableAttributes[classType] = table;
+                // if somebody someday can explain why the GetCustomAttributes(true) does not return inherited attributes, I'd be very glad to hear him
+                TableAttribute tableAttribute = null;
+                for (var testType = classType; testType != null; testType = testType.BaseType)
+                {
+                    tableAttribute = testType.GetAttribute<TableAttribute>();
+                    if (tableAttribute != null)
+                        break;
+                }
+                // finally, we have something here, keep it
+                if (tableAttribute != null)
+                    tableAttributes[classType] = tableAttribute;
             }
             return tableAttributes;
         }
 
         protected virtual Type GetClassType(Type t)
         {
+            // for property get, it is a IQueryable<T>, so we want T
             if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Table<>))
                 return t.GetGenericArguments()[0];
-            return null;
+            // for non property get, we may also have a direct inner type, so return it directly
+            return t;
         }
 
         private Type contextType;

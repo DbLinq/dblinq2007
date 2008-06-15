@@ -22,6 +22,7 @@
 // 
 #endregion
 using System.Linq.Expressions;
+using DbLinq.Linq.Data.Sugar;
 
 namespace DbLinq.Linq
 {
@@ -33,6 +34,11 @@ namespace DbLinq.Linq
     /// </summary>
     public sealed class SessionVarsParsed : SessionVars
     {
+        /// <summary>
+        /// Sugar.Query: this will replace the rest
+        /// </summary>
+        public Query Query;
+
         /// <summary>
         /// components of SQL expression (where clause, order, select ...)
         /// </summary>
