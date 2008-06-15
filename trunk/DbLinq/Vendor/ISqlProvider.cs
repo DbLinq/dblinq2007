@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using DbLinq.Linq.Data.Sugar.Expressions;
+using DbLinq.Data.Linq.Sugar.Expressions;
 
 namespace DbLinq.Vendor
 {

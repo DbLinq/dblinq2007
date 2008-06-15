@@ -21,53 +21,75 @@
 // THE SOFTWARE.
 // 
 #endregion
-using System.Linq.Expressions;
-using DbLinq.Data.Linq.Sugar;
 
-namespace DbLinq.Linq
+namespace DbLinq.Data.Linq.Sugar
 {
-    /// <summary>
-    /// the 'finalized' SessionVars.
-    /// (meaning expressions have been parsed, after enumeration has started).
-    /// 
-    /// You create an instance via QueryProcessor.GenerateQuery()
-    /// </summary>
-    public sealed class SessionVarsParsed : SessionVars
+    public enum ExpressionPrecedence
     {
         /// <summary>
-        /// Sugar.Query: this will replace the rest
+        /// x.y  f(x)  a[x]  x++  x--  new typeof  checked  unchecked
         /// </summary>
-        public Query Query;
+        Primary,
+        /// <summary>
+        /// +  -  !  ~  ++x  --x  (T)x
+        /// </summary>
+        Unary,
+        /// <summary>
+        /// *  /  %
+        /// </summary>
+        Multiplicative,
+        /// <summary>
+        /// +  -
+        /// </summary>
+        Additive,
+        /// <summary>
+        /// &lt;&lt;  >>
+        /// </summary>
+        Shift,
+        /// <summary>
+        /// &lt;  >  &lt;=  >=  is  as
+        /// </summary>
+        RelationalAndTypeTest,
+        /// <summary>
+        /// ==  !=
+        /// </summary>
+        Equality,
+        /// <summary>
+        /// &amp;
+        /// </summary>
+        LogicalAnd,
+        /// <summary>
+        /// ^
+        /// </summary>
+        LogicalXor,
+        /// <summary>
+        /// |
+        /// </summary>
+        LogicalOr,
+        /// <summary>
+        /// &amp;&amp,
+        /// </summary>
+        ConditionalAnd,
+        /// <summary>
+        /// ||
+        /// </summary>
+        ConditionalOr,
+        /// <summary>
+        /// ??
+        /// </summary>
+        NullCoalescing,
+        /// <summary>
+        /// ?:
+        /// </summary>
+        Conditional,
+        /// <summary>
+        /// =  *=  /=  %=  +=  -=  <<=  >>=  &=  ^=  |=
+        /// </summary>
+        Assignment,
 
         /// <summary>
-        /// components of SQL expression (where clause, order, select ...)
+        /// A SQL clause, FROM, WHERE, etc.
         /// </summary>
-        public SqlExpressionParts SqlParts;
-
-        public LambdaExpression GroupByExpression;
-        public LambdaExpression GroupByNewExpression;
-
-        /// <summary>
-        /// list of reflected fields - this will be used to compile a row reader method
-        /// </summary>
-        public ProjectionData ProjectionData;
-
-        /// <summary>
-        /// in SelectMany, there is mapping c.Orders => o
-        /// </summary>
-        //public Dictionary<MemberExpression,string> memberExprNickames = new Dictionary<MemberExpression,string>();
-
-        /// <summary>
-        /// created by post-processing in QueryProcessor.BuildSqlString(), used in RowEnumerator
-        /// </summary>
-        public string SqlString;
-
-        public int numParameters;
-
-        public SessionVarsParsed(SessionVars vars)
-            : base(vars)
-        {
-            SqlParts = new SqlExpressionParts(vars.Context.Vendor);
-        }
+        Clause
     }
 }

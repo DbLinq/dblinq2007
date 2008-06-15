@@ -25,10 +25,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq.Expressions;
+using DbLinq.Data.Linq.Sugar;
 using DbLinq.Factory;
 using DbLinq.Linq;
 using DbLinq.Linq.Clause;
-using DbLinq.Linq.Data.Sugar;
 using DbLinq.Logging;
 using DbLinq.Vendor;
 
