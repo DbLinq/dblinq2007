@@ -88,7 +88,7 @@ namespace DbLinq.PostgreSql
             var constraints = ReadConstraints(conn, schemaName.DbName);
 
             var allKeys2 = ReadForeignConstraints(conn, schemaName.DbName);
-            var foreignKeys = allKeys2.Where(k => k.ConstraintType == "FOREIGN KEY");//.ToList();
+            var foreignKeys = allKeys2.Where(k => k.ConstraintType == "FOREIGN KEY").ToList();
             var primaryKeys = allKeys2.Where(k => k.ConstraintType == "PRIMARY KEY").ToList();
 
 
