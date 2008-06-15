@@ -102,6 +102,7 @@
     <Compile Include="Program2Mysql.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadTest.cs" />
+    <Compile Include="ReadTests_Join.cs" />
     <Compile Include="ReadTest_AllTypes_MySql.cs" />
     <Compile Include="ReadTest_Complex.cs" />
     <Compile Include="ReadTest_GroupBy.cs" />
