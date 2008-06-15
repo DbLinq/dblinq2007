@@ -239,7 +239,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         protected virtual void CompileRowCreator(BuilderContext builderContext)
         {
             var reader = builderContext.CurrentSelect.Reader;
-            reader = (LambdaExpression) SpecialExpressionTranslator.Translate(reader);
+            reader = (LambdaExpression)SpecialExpressionTranslator.Translate(reader);
             reader = (LambdaExpression)ExpressionOptimizer.Optimize(reader, builderContext);
             builderContext.ExpressionQuery.RowObjectCreator = reader.Compile();
         }
@@ -317,15 +317,31 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             return sqlQuery;
         }
 
+        private static IQueryCache queryCache;
+        protected IQueryCache QueryCache
+        {
+            get
+            {
+                if (queryCache == null)
+                    queryCache = ObjectFactory.Get<IQueryCache>();
+                return queryCache;
+            }
+        }
+
         [DbLinqToDo]
         protected virtual Query GetFromCache(ExpressionChain expressions)
         {
-            return null;
+            var cache = QueryCache;
+            lock (cache)
+                return cache.GetFromCache(expressions);
         }
 
         [DbLinqToDo]
         protected virtual void SetInCache(ExpressionChain expressions, Query sqlQuery)
         {
+            var cache = QueryCache;
+            lock (cache)
+                cache.SetInCache(expressions, sqlQuery);
         }
 
         /// <summary>
