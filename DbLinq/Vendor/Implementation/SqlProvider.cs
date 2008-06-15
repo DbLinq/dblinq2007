@@ -25,9 +25,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Linq.Expressions;
-using DbLinq.Linq.Data.Sugar.Expressions;
+using DbLinq.Data.Linq.Sugar.Expressions;
 
 namespace DbLinq.Vendor.Implementation
 {

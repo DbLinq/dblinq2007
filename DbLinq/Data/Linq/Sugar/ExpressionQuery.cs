@@ -21,53 +21,37 @@
 // THE SOFTWARE.
 // 
 #endregion
-using System.Linq.Expressions;
-using DbLinq.Data.Linq.Sugar;
 
-namespace DbLinq.Linq
+using System;
+using System.Collections.Generic;
+using DbLinq.Data.Linq.Sugar.Expressions;
+
+namespace DbLinq.Data.Linq.Sugar
 {
     /// <summary>
-    /// the 'finalized' SessionVars.
-    /// (meaning expressions have been parsed, after enumeration has started).
-    /// 
-    /// You create an instance via QueryProcessor.GenerateQuery()
+    /// Represents the first step Expression analysis result
     /// </summary>
-    public sealed class SessionVarsParsed : SessionVars
+    public class ExpressionQuery
     {
         /// <summary>
-        /// Sugar.Query: this will replace the rest
+        /// Values coming from outside the request (external parameters)
+        /// Those parameters are filled at each request
         /// </summary>
-        public Query Query;
+        public IList<ExternalParameterExpression> Parameters { get; private set; }
 
         /// <summary>
-        /// components of SQL expression (where clause, order, select ...)
+        /// The SELECT expression itself
         /// </summary>
-        public SqlExpressionParts SqlParts;
-
-        public LambdaExpression GroupByExpression;
-        public LambdaExpression GroupByNewExpression;
+        public SelectExpression Select { get; set; }
 
         /// <summary>
-        /// list of reflected fields - this will be used to compile a row reader method
+        /// Expression that creates a row object
         /// </summary>
-        public ProjectionData ProjectionData;
+        public Delegate RowObjectCreator { get; set; }
 
-        /// <summary>
-        /// in SelectMany, there is mapping c.Orders => o
-        /// </summary>
-        //public Dictionary<MemberExpression,string> memberExprNickames = new Dictionary<MemberExpression,string>();
-
-        /// <summary>
-        /// created by post-processing in QueryProcessor.BuildSqlString(), used in RowEnumerator
-        /// </summary>
-        public string SqlString;
-
-        public int numParameters;
-
-        public SessionVarsParsed(SessionVars vars)
-            : base(vars)
+        public ExpressionQuery()
         {
-            SqlParts = new SqlExpressionParts(vars.Context.Vendor);
+            Parameters = new List<ExternalParameterExpression>();
         }
     }
 }

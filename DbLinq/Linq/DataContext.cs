@@ -26,20 +26,15 @@ using System;
 using System.Data;
 using System.Data.Linq.Mapping;
 using System.Diagnostics;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using System.Linq;
 using DbLinq.Factory;
 using DbLinq.Linq.Database;
 using DbLinq.Linq.Database.Implementation;
 using DbLinq.Linq.Identity;
-using DbLinq.Linq.Implementation;
 using DbLinq.Logging;
 using DbLinq.Vendor;
-using DbLinq.Util;
-using QueryGenerator=DbLinq.Linq.Data.Sugar.Implementation.QueryGenerator;
+using QueryGenerator=DbLinq.Data.Linq.Sugar.Implementation.QueryGenerator;
 
 namespace DbLinq.Linq
 {
