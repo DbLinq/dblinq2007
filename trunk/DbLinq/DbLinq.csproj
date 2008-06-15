@@ -106,9 +106,11 @@
     <Compile Include="Data\Linq\Sugar\Implementation\ExpressionLanguageParser.cs" />
     <Compile Include="Data\Linq\Sugar\Implementation\ExpressionOptimizer.cs" />
     <Compile Include="Data\Linq\Sugar\Implementation\ExpressionQualifier.cs" />
+    <Compile Include="Data\Linq\Sugar\IQueryCache.cs" />
     <Compile Include="Data\Linq\Sugar\Implementation\LineGrouping.cs" />
     <Compile Include="Data\Linq\Sugar\Implementation\PrequelAnalyzer.cs" />
     <Compile Include="Data\Linq\Sugar\Implementation\QueryBuilder.cs" />
+    <Compile Include="Data\Linq\Sugar\Implementation\QueryCache.cs" />
     <Compile Include="Data\Linq\Sugar\Implementation\QueryGenerator.cs" />
     <Compile Include="Data\Linq\Sugar\Implementation\QueryRunner.cs" />
     <Compile Include="Data\Linq\Sugar\Implementation\SpecialExpressionTranslator.cs" />
