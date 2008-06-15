@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Connections>
+  <Connection assembly="Test_NUnit_MsSql">Data Source={0}\SQLExpress;Integrated Security=True;Initial Catalog=Northwind</Connection>
+  <Connection assembly="Test_NUnit_SQLite">Data Source=Northwind.db3</Connection>
+  <Connection assembly="Test_NUnit_OraODP">Data Source = (DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = {0})(PORT = 1521)))(CONNECT_DATA = (SERVER = DEDICATED))); User Id = Northwind; Password = linq2</Connection>
+  <Connection assembly="Test_NUnit_Ora">Data Source = (DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = {0})(PORT = 1521)))(CONNECT_DATA = (SERVER = DEDICATED))); User Id = Northwind; Password = linq2</Connection>
+  <Connection assembly="Test_NUnit_Mysql">server=hasselhoff.eii.us.es;user id=LinqUser; password=linq2; database=Northwind</Connection>
+  <Connection assembly="Test_NUnit_Pgsql">server=hasselhoff.eii.us.es;user id=LinqUser; password=linq2; database=postgreNorthwind</Connection>
+  <Connection assembly="Test_NUnit_Ingres"></Connection>
+</Connections>
+
+<!--
+<Connection assembly="Test_NUnit_Mysql">server=hasselhoff.eii.us.es;user id=LinqUser; password=linq2; database=Northwind</Connection>
+<Connection assembly="Test_NUnit_Pgsql">server=hasselhoff.eii.us.es;user id=LinqUser; password=linq2; database=postgreNorthwind</Connection>
+
+  <Connection assembly="Test_NUnit_Mysql">server={0};user id=LinqUser; password=linq2; database=Northwind</Connection>
+  <Connection assembly="Test_NUnit_Pgsql">server={0};user id=LinqUser; password=linq2; database=postgreNorthwind</Connection>
+-->
