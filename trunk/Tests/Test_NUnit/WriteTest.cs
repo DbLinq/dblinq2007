@@ -73,6 +73,8 @@ namespace Test_NUnit_MsSql
         {
             Northwind db = CreateDB();
 #if !MONO_STRICT
+            // "<<Products>>" gets converted to "Products".
+            //This is a DbLinq-defined escape sequence, by Pascal.
             db.ExecuteCommand("DELETE FROM <<Products>> WHERE <<ProductName>> like 'temp%'");
 #endif
         }
