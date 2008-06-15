@@ -22,11 +22,28 @@
 // 
 #endregion
 
+using System;
 using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.Ingres
 {
     public class IngresSqlProvider : SqlProvider
     {
+        public override string GetLiteralLimit(string select, string limit)
+        {
+            string trimSelect = "SELECT ";
+            if (select.StartsWith(trimSelect))
+            {
+                string remaining = select.Substring(trimSelect.Length);
+                return string.Format("SELECT FIRST {0} {1}", limit, remaining);
+            }
+            throw new ArgumentException("Invalid SELECT format");
+        }
+
+        public override string GetLiteralLimit(string select, string limit, string offset, string offsetAndLimit)
+        {
+            // TODO: this is for you, Thomas...
+            throw new NotImplementedException("OFFSET clause is not supported on Ingres");
+        }
     }
 }
