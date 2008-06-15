@@ -44,6 +44,8 @@ namespace DbLinq.Mssql.Example
 
             foreach (var r in res.ToList())
                 Console.WriteLine(r);
+
+            
             //var regions = db.Regions.ToList();
 
             //Vendor.UseBulkInsert[db.Regions] = true;

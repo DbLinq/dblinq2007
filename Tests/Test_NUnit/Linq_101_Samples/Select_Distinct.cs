@@ -3,9 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
-using nwind;
 using Test_NUnit;
 using Test_NUnit.Linq_101_Samples;
+
+#if !MONO_STRICT
+using nwind;
+using DbLinq.Linq;
+#else
+using MsNorthwind;
+using System.Data.Linq;
+#endif
 
 #if MYSQL
 namespace Test_NUnit_MySql.Linq_101_Samples
@@ -78,7 +85,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
             Assert.IsTrue(list.Count > 0);
         }
 
-        [Linq101SamplesModified("c# does not have that syntax capability. Symple proyection instead")]
+        [Linq101SamplesModified("c# does not have that syntax capability. Symple projection instead")]
         [Test(Description = "select - Named Type. This sample uses SELECT and a known type to return a sequence of employees' names.")]
         public void LinqToSqlSelect06()
         {

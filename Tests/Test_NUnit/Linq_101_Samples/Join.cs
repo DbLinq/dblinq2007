@@ -4,8 +4,15 @@ using System.Linq;
 using System.Text;
 using DbLinq.Logging;
 using NUnit.Framework;
-using nwind;
 using Test_NUnit;
+
+#if !MONO_STRICT
+using nwind;
+using DbLinq.Linq;
+#else
+using MsNorthwind;
+using System.Data.Linq;
+#endif
 
 #if MYSQL
 namespace Test_NUnit_MySql.Linq_101_Samples
@@ -290,7 +297,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
 
             Assert.IsTrue(q1.Count > 0);
         }
-
+#if !MONO_STRICT
         [Test]
         public void RetrieveParentAssociationProperty()
         {
@@ -306,7 +313,9 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
             var list = q.ToList();
             Assert.IsTrue(list.Count > 0);
         }
+#endif
 
+#if !MONO_STRICT
         [Test]
         public void DifferentParentAndAssociationPropertyNames()
         {
@@ -322,9 +331,9 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
             var list = q2.ToList();
             Assert.IsTrue(list.Count > 0);
         }
+#endif
 
-
-
+#if !MONO_STRICT
         [Test]
         public void SelectCustomerContactNameFromOrder()
         {
@@ -342,6 +351,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
             foreach (var s in list)
                 Assert.AreEqual("Test", s);
         }
+#endif
 
         public class Northwind1 : Northwind
         {
@@ -387,8 +397,11 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
                 }
 
             }
-
+#if !MONO_STRICT
             public DbLinq.Linq.Table<ExtendedOrder> ExtendedOrders
+#else
+            public System.Data.Linq.Table<ExtendedOrder> ExtendedOrders
+#endif
             {
                 get { return base.GetTable<ExtendedOrder>(); }
             }

@@ -3,8 +3,15 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using NUnit.Framework;
-using nwind;
 using Test_NUnit;
+
+#if !MONO_STRICT
+using nwind;
+using DbLinq.Linq;
+#else
+using MsNorthwind;
+using System.Data.Linq;
+#endif
 
 #if MYSQL
     namespace Test_NUnit_MySql
@@ -26,7 +33,7 @@ namespace Test_NUnit_MsSql.Linq_101_Samples
     public class StoredProcTest : TestBase
     {
 
-#if !SQLITE && !MSSQL
+#if !SQLITE && !MSSQL && !MONO_STRICT
         [Test]
         public void SP1_CallHello0()
         {

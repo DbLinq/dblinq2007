@@ -39,7 +39,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Npgsql.dll</HintPath>
     </Reference>
-    <Reference Include="nunit.framework, Version=2.2.9.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+    <Reference Include="nunit.framework, Version=2.4.7.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\nunit.framework.dll</HintPath>
     </Reference>
@@ -60,6 +60,9 @@
     </Compile>
     <Compile Include="..\..\lib\DynamicLinq.cs">
       <Link>lib\DynamicLinq.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Example\DbLinq.MsSql.Example\nwind\originalMSNorthwind.designer.cs">
+      <Link>nwind\NorthwindTESTDOTNET.cs</Link>
     </Compile>
     <Compile Include="CompositePK_Test.cs" />
     <Compile Include="DynamicLinqTest.cs" />

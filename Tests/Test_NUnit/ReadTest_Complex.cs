@@ -27,8 +27,13 @@ using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
-using nwind;
 using Test_NUnit;
+
+#if !MONO_STRICT
+using nwind;
+#else
+using MsNorthwind;
+#endif
 
 #if ORACLE
 using Id = System.Decimal;
