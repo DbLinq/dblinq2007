@@ -25,11 +25,20 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Xml;
+using System.Reflection;
 using System.Linq;
 using DbLinq.Factory;
 using DbLinq.Logging;
 using NUnit.Framework;
+
+#if !MONO_STRICT
 using nwind;
+using DbLinq.Linq;
+#else
+using MsNorthwind;
+using System.Data.Linq;
+#endif
 
 #if ORACLE
 #if ODP
@@ -53,6 +62,7 @@ using XSqlCommand = System.Data.SQLite.SQLiteCommand;
 using XSqlConnection = System.Data.SqlClient.SqlConnection;
 using XSqlCommand = System.Data.SqlClient.SqlCommand;
 using xint = System.UInt32;
+
 #elif INGRES
 using XSqlConnection = Ingres.Client.IngresConnection;
 using XSqlCommand = Ingres.Client.IngresCommand;
@@ -61,6 +71,8 @@ using xint = System.UInt32;
 using XSqlConnection = MySql.Data.MySqlClient.MySqlConnection;
 using XSqlCommand = MySql.Data.MySqlClient.MySqlCommand;
 using xint = System.UInt32;
+
+
 #endif
 
 namespace Test_NUnit
@@ -72,7 +84,6 @@ namespace Test_NUnit
     public abstract class TestBase
     {
         public ILogger Logger { get; set; }
-
         static bool doRecreate = true;
 
         public TestBase()
@@ -82,48 +93,24 @@ namespace Test_NUnit
 
         public string DbServer
         {
-            get 
+            get
             {
                 return Environment.GetEnvironmentVariable("DbLinqServer") ?? "localhost";
             }
         }
-#if ORACLE
         public string connStr
         {
             get
             {
-                //return string.Format("data source={0};user id=Northwind; password=linq2", DbServer);
-                const string fmt =
-@"Data Source = (DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = {0})(PORT = 1521)))
-(CONNECT_DATA = (SERVER = DEDICATED))); User Id = Northwind; Password = linq2";
-                return string.Format(fmt, DbServer);
+                XmlDocument xConnectionStringsDoc = new XmlDocument();
+                xConnectionStringsDoc.Load("../ConnectionStrings.xml");
+                XmlNode currentAssemblyNode = xConnectionStringsDoc.SelectSingleNode(string.Format("//Connection[@assembly=\"{0}\"]", Assembly.GetCallingAssembly().GetName().Name));
+                string stringConnection = currentAssemblyNode.FirstChild.Value.Replace(@"\\",@"\");
+                if (stringConnection.Contains("{0}"))
+                    stringConnection = string.Format(stringConnection, DbServer);
+                return stringConnection;
             }
         }
-#elif SQLITE
-        const string connStr = "Data Source=Northwind.db3";
-#elif MSSQL
-        const string connStr = "Data Source=.\\SQLExpress;Integrated Security=True;Initial Catalog=Northwind";
-#elif POSTGRES
-
-        //Postgres
-        public string connStr
-        {
-            get
-            {
-                return string.Format("server={0};user id=LinqUser; password=linq2; database=Northwind", DbServer);
-            }
-        }
-#else      
-        //Mysql
-        public string connStr
-        {
-            get
-            {
-                return string.Format("server={0};user id=LinqUser; password=linq2; database=Northwind", DbServer);
-            }
-        }
-
-#endif
         XSqlConnection _conn;
         public XSqlConnection Conn
         {
@@ -167,7 +154,7 @@ namespace Test_NUnit
         {
             CheckRecreateSqlite();
             XSqlConnection conn = new XSqlConnection(connStr);
-            if (state==System.Data.ConnectionState.Open)
+            if (state == System.Data.ConnectionState.Open)
                 conn.Open();
             Northwind db = new Northwind(conn);
             return db;

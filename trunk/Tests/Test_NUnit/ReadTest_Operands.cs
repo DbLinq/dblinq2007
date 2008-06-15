@@ -28,8 +28,15 @@ using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
-using nwind;
 using Test_NUnit;
+
+#if !MONO_STRICT
+using nwind;
+using DbLinq.Linq;
+#else
+using MsNorthwind;
+using System.Data.Linq;
+#endif
 
 #if MYSQL
     namespace Test_NUnit_MySql
@@ -244,6 +251,7 @@ namespace Test_NUnit_MsSql.Linq_101_Samples
             Assert.AreEqual(0, cnt);
         }
 
+#if !MONO_STRICT
         [Test]
         public void I1_GetQueryText()
         {
@@ -261,6 +269,7 @@ namespace Test_NUnit_MsSql.Linq_101_Samples
             var q = from p in db.Products select p.ProductName;
             string s = db.GetQueryText(q); //MTable_Projected.GetQueryText()
         }
+#endif
 
         [Test]
         public void J1_LocalFunction_DateTime_ParseExact()

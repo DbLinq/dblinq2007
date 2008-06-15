@@ -5,9 +5,16 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using NUnit.Framework;
-using nwind;
 using Test_NUnit;
 using Test_NUnit.Linq_101_Samples;
+
+#if !MONO_STRICT
+using nwind;
+using DbLinq.Linq;
+#else
+using MsNorthwind;
+using System.Data.Linq;
+#endif
 
 #if MYSQL
     namespace Test_NUnit_MySql.Linq_101_Samples
@@ -136,7 +143,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
             Console.WriteLine("ContactID is marked as an identity column");
             var con = new Customer() { CompanyName = "New Era", Phone = "(123)-456-7890" };
 
-            db.Customers.Add(con);
+            db.Customers.InsertOnSubmit(con);
             db.SubmitChanges();
 
             Console.WriteLine();
@@ -152,7 +159,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
         public void LinqToSqlAdvanced06()
         {
             Northwind db = CreateDB();
-#if INGRES
+#if INGRES && !MONO_STRICT
             var prods = from p in db.Products.OrderByDescending(p=> p.UnitPrice).Take(10) 
                        where p.Discontinued == 1 select p;
 #else

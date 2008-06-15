@@ -27,11 +27,17 @@ using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
-using nwind;
 using Test_NUnit;
 using System.ComponentModel;
 using System.Data.Linq.Mapping;
+
+#if !MONO_STRICT
+using nwind;
 using DbLinq.Linq;
+#else
+using MsNorthwind;
+using System.Data.Linq;
+#endif
 
 #if ORACLE
 using Id = System.Decimal;
@@ -66,7 +72,9 @@ namespace Test_NUnit_MsSql.Linq_101_Samples
         public void TestSetup()
         {
             Northwind db = CreateDB();
+#if !MONO_STRICT
             db.ExecuteCommand("DELETE FROM <<Products>> WHERE <<ProductName>> like 'temp%'");
+#endif
         }
     }
 
@@ -193,7 +201,7 @@ namespace Test_NUnit_MsSql.Linq_101_Samples
         {
             Northwind db = CreateDB();
             int productCount1 = db.Products.Count();
-#if INGRES
+#if INGRES && !MONO_STRICT
             Product p_temp = new Product { ProductName = "temp_g4", Discontinued = 0 };
 #else
             Product p_temp = new Product { ProductName = "temp_g4", Discontinued = false };
@@ -216,7 +224,7 @@ namespace Test_NUnit_MsSql.Linq_101_Samples
 #if ORACLE
             //todo fix Oracle
             Product p1 = new Product { ProductName = productName, Discontinued = false, UnitPrice = 11 };
-#elif INGRES
+#elif INGRES && !MONO_STRICT
             Product p1 = new Product { ProductName = productName, Discontinued = 0, UnitPrice = 11m };
 #else
             Product p1 = new Product { ProductName = productName, Discontinued = false, UnitPrice = 11m };
@@ -437,7 +445,11 @@ dummy text
 
             }
 
+#if !MONO_STRICT
             public DbLinq.Linq.Table<Rid> Rids
+#else
+            public System.Data.Linq.Table<Rid> Rids
+#endif
             {
                 get
                 {
@@ -446,7 +458,7 @@ dummy text
             }
         }
 
-#if POSTGRES || INGRES
+#if (POSTGRES || INGRES) && !MONO_STRICT
 
         [Test]
         public void G11_TwoSequencesInTable()
@@ -590,7 +602,7 @@ dummy text
         }
 
 
-
+#if !MONO_STRICT
         [Test]
         public void G17_LocalPropertyUpdate()
         {
@@ -601,6 +613,7 @@ dummy text
             Assert.AreEqual(0, db.GetChangeSet().Updates.Count);
             db.SubmitChanges();
         }
+#endif
 
         class NorthwindLocalProperty : Northwind
         {
@@ -677,6 +690,7 @@ dummy text
             }
         }
 
+#if !MONO_STRICT
         [Test]
         public void G19_ExistingCustomerCacheHit()
         {
@@ -685,10 +699,12 @@ dummy text
             Customer c1 = (from c in db.Customers
                            where id ==c.CustomerID 
                            select c).Single();
+
             db.DatabaseContext.Connection.ConnectionString = null;
 
             var x = db.Customers.Single(c => id == c.CustomerID );
         }
+#endif
 
         [Test]
         public void G20_CustomerCacheHitComparingToLocalVariable()

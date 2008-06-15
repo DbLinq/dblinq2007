@@ -4,7 +4,14 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using Test_NUnit;
+
+#if !MONO_STRICT
 using nwind;
+using DbLinq.Linq;
+#else
+using MsNorthwind;
+using System.Data.Linq;
+#endif
 
 #if MYSQL
 namespace Test_NUnit_MySql.Linq_101_Samples

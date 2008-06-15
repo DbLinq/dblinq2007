@@ -26,9 +26,16 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using NUnit.Framework;
-using nwind;
 using Test_NUnit;
 using System.Data.Linq.Mapping;
+
+#if !MONO_STRICT
+using nwind;
+using DbLinq.Linq;
+#else
+using MsNorthwind;
+using System.Data.Linq;
+#endif
 
 #if MYSQL
     namespace Test_NUnit_MySql
@@ -179,11 +186,13 @@ namespace Test_NUnit_MsSql.Linq_101_Samples
             Assert.IsTrue(list.Count > 0);
         }
 
+#if !MONO_STRICT
         [Test]
         public void C6_NullParentEmplyee()
         {
             //this should generate a LEFT JOIN statement, but currently does not.
             Northwind db = CreateDB();
+            
             var query = from e in db.Employees
                         select new
                         {
@@ -194,6 +203,7 @@ namespace Test_NUnit_MsSql.Linq_101_Samples
             var list = query.ToList();
             Assert.IsTrue(list.Count >= 2); // PC: differences on databases
         }
+#endif
 
 
         [Test]
@@ -421,6 +431,7 @@ namespace Test_NUnit_MsSql.Linq_101_Samples
             int count1 = q1.Count();
         }
 
+#if !MONO_STRICT
         [Test]
         public void D12_SelectDerivedClass()
         {
@@ -432,6 +443,7 @@ namespace Test_NUnit_MsSql.Linq_101_Samples
                                    select c).First();
             Assert.IsTrue(derivedCustomer.City == "London");
         }
+#endif
 
         public class Northwind1 : Northwind
         {
@@ -442,7 +454,11 @@ namespace Test_NUnit_MsSql.Linq_101_Samples
             public class CustomerDerivedClass : Customer { }
             public class CustomerDerivedClass2 : CustomerDerivedClass { }
 
+#if !MONO_STRICT
             public DbLinq.Linq.Table<CustomerDerivedClass> ChildCustomers
+#else
+            public System.Data.Linq.Table<CustomerDerivedClass> ChildCustomers
+#endif
             {
                 get { return base.GetTable<CustomerDerivedClass>(); }
             }
@@ -490,6 +506,7 @@ namespace Test_NUnit_MsSql.Linq_101_Samples
         }
 
 
+#if !MONO_STRICT
         [Test]
         public void D15_DuplicateProperty()
         {
@@ -500,6 +517,7 @@ namespace Test_NUnit_MsSql.Linq_101_Samples
                                    select c).First();
             Assert.IsTrue(derivedCustomer.City == "London");
         }
+#endif
 
         public class NorthwindDupl : Northwind
         {
@@ -526,13 +544,18 @@ namespace Test_NUnit_MsSql.Linq_101_Samples
                     }
                 }
             }
-
+#if !MONO_STRICT
             public DbLinq.Linq.Table<CustomerDerivedClass> ChildCustomers
+#else
+            public System.Data.Linq.Table<CustomerDerivedClass> ChildCustomers
+#endif
             {
                 get { return base.GetTable<CustomerDerivedClass>(); }
             }
         }
 
+
+#if !MONO_STRICT
         /// <summary>
         /// DbLinq must use field and should not look to setter.
         /// </summary>
@@ -548,6 +571,7 @@ namespace Test_NUnit_MsSql.Linq_101_Samples
                             select c).First();
             Assert.IsTrue(Customer.City == "London");
         }
+#endif
 
 
         abstract class AbstractCustomer
@@ -577,7 +601,11 @@ namespace Test_NUnit_MsSql.Linq_101_Samples
             [Table(Name = "customers")]
             public class Customer2 : Customer { }
 
+#if !MONO_STRICT
             public DbLinq.Linq.Table<Customer2> ChildCustomers
+#else
+            public System.Data.Linq.Table<Customer2> ChildCustomers
+#endif
             {
                 get { return base.GetTable<Customer2>(); }
             }

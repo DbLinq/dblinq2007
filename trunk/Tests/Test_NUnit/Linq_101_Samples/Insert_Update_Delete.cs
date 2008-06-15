@@ -4,9 +4,15 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using Test_NUnit;
-using nwind;
 using Test_NUnit.Linq_101_Samples;
+
+#if !MONO_STRICT
+using nwind;
+using DbLinq.Linq;
+#else
+using MsNorthwind;
 using System.Data.Linq;
+#endif
 
 #if MYSQL
 namespace Test_NUnit_MySql.Linq_101_Samples
@@ -56,7 +62,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
                 Fax = null
             };
 
-            db.Customers.Add(newCustomer);
+            db.Customers.InsertOnSubmit(newCustomer);
             db.SubmitChanges();
 
             var reloadedCustomer = db.Customers.First(c => c.CustomerID == newCustomer.CustomerID);
@@ -81,7 +87,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
         {
             Northwind db = CreateDB();
 
-            var ds = new DataLoadOptions();
+            var ds = new System.Data.Linq.DataLoadOptions();
             
             ds.LoadWith<Category>(c => c.Products);
             db.LoadOptions = ds;
@@ -102,7 +108,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
                 UnitPrice = 34.56m,
                 Category = newCategory
             };
-            db.Categories.Add(newCategory);
+            db.Categories.InsertOnSubmit(newCategory);
             db.SubmitChanges();
 
             var reloadedProduct = db.Products.First(p => p.ProductID == newProduct.ProductID);
@@ -125,7 +131,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
         {
             Northwind db = CreateDB();
 
-            var ds = new DataLoadOptions();
+            var ds = new System.Data.Linq.DataLoadOptions();
             ds.LoadWith<Employee>(p => p.EmployeeTerritories);
             ds.LoadWith<EmployeeTerritory>(p => p.Territory);
 
@@ -142,9 +148,9 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
             };
 
             var newEmployeeTerritory = new EmployeeTerritory { Employee = newEmployee, Territory = newTerritory };
-            db.Employees.Add(newEmployee);
-            db.Territories.Add(newTerritory);
-            db.EmployeeTerritories.Add(newEmployeeTerritory);
+            db.Employees.InsertOnSubmit(newEmployee);
+            db.Territories.InsertOnSubmit(newTerritory);
+            db.EmployeeTerritories.InsertOnSubmit(newEmployeeTerritory);
             db.SubmitChanges();
         }
 

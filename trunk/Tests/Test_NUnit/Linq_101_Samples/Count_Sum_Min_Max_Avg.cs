@@ -3,8 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
-using nwind;
 using Test_NUnit;
+
+#if !MONO_STRICT
+using nwind;
+using DbLinq.Linq;
+#else
+using MsNorthwind;
+using System.Data.Linq;
+#endif
 
 #if MYSQL
     namespace Test_NUnit_MySql.Linq_101_Samples
@@ -46,7 +53,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
         public void LinqToSqlCount02()
         {
             Northwind db = CreateDB();
-#if INGRES
+#if INGRES && !MONO_STRICT
             var q = (from p in db.Products where p.Discontinued == 0 select p)
                 .Count();
 #else
