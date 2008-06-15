@@ -86,6 +86,7 @@
     <Compile Include="Linq_101_Samples\Views.cs" />
     <Compile Include="Linq_101_Samples\Where.cs" />
     <Compile Include="Program3Ora.cs" />
+    <Compile Include="ReadTests_Join.cs" />
     <Compile Include="ReadTest_Complex.cs" />
     <Compile Include="ReadTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

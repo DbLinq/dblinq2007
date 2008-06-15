@@ -53,7 +53,7 @@ namespace Test_NUnit_PostgreSql
 #elif INGRES
     namespace Test_NUnit_Ingres
 #elif MSSQL
-namespace Test_NUnit_MsSql.Linq_101_Samples
+namespace Test_NUnit_MsSql
 #else
 #error unknown target
 #endif
@@ -61,237 +61,237 @@ namespace Test_NUnit_MsSql.Linq_101_Samples
     /// <summary>
     /// this test class will exercise various operands, such as 'a&&b', 'a>=b', ""+a, etc.
     /// </summary>
-    [TestFixture]
-    public class ReadTest_Operands : TestBase
-    {
-
-        [Test]
-        public void H1_SelectConcat()
+        [TestFixture]
+        public class ReadTest_Operands : TestBase
         {
-            Northwind db = CreateDB();
 
-            var q = from p in db.Products select p.ProductName + " " + p.SupplierID;
-            int count = 0;
-            foreach (string s in q)
+            [Test]
+            public void H1_SelectConcat()
             {
-                if (s == null)
-                    continue; //concat('X',NULL) -> NULL 
+                Northwind db = CreateDB();
 
-                bool ok = Char.IsLetterOrDigit(s[0]) && s.Contains(' ');
-                Assert.IsTrue(ok, "Concat string should start with product name, instead got:" + s);
-                count++;
+                var q = from p in db.Products select p.ProductName + " " + p.SupplierID;
+                int count = 0;
+                foreach (string s in q)
+                {
+                    if (s == null)
+                        continue; //concat('X',NULL) -> NULL 
+
+                    bool ok = Char.IsLetterOrDigit(s[0]) && s.Contains(' ');
+                    Assert.IsTrue(ok, "Concat string should start with product name, instead got:" + s);
+                    count++;
+                }
+                Assert.IsTrue(count > 0, "Expected concat strings, got none");
             }
-            Assert.IsTrue(count > 0, "Expected concat strings, got none");
-        }
 
-        [Test]
-        public void H2_SelectGreaterOrEqual()
-        {
-            Northwind db = CreateDB();
-
-            var q = db.Products.Where(p => p.ProductID >= 5);
-            int count = 0;
-            foreach (Product p in q)
+            [Test]
+            public void H2_SelectGreaterOrEqual()
             {
-                Assert.IsTrue(p.ProductID >= 5, "Failed on ProductID>=20");
-                count++;
+                Northwind db = CreateDB();
+
+                var q = db.Products.Where(p => p.ProductID >= 5);
+                int count = 0;
+                foreach (Product p in q)
+                {
+                    Assert.IsTrue(p.ProductID >= 5, "Failed on ProductID>=20");
+                    count++;
+                }
+                Assert.IsTrue(count > 0, "Expected some products with ProductID>=5, got none");
             }
-            Assert.IsTrue(count > 0, "Expected some products with ProductID>=5, got none");
-        }
 
-        public struct ProductWrapper1
-        {
-            public int ProductID { get; set; }
-            public int? SupplierID { get; set; }
-        }
-
-        public class ProductWrapper2
-        {
-            public int ProductID { get; set; }
-            public int? SupplierID { get; set; }
-        }
-
-        public class ProductWrapper3
-        {
-            public int ProductID { get; set; }
-            public int? SupplierID { get; set; }
-            public ProductWrapper3(int p, int? s) { ProductID = p; SupplierID = s; }
-            public ProductWrapper3(int p, int? s, bool unused) { ProductID = p; SupplierID = s; }
-        }
-
-        [Test]
-        public void H3_Select_MemberInit_Struct()
-        {
-            Northwind db = CreateDB();
-            var q = from p in db.Products
-                    where p.ProductID > 5
-                    select new ProductWrapper1 { ProductID = (int)p.ProductID, SupplierID = (int?)p.SupplierID };
-            int count = 0;
-            foreach (ProductWrapper1 p in q)
+            public struct ProductWrapper1
             {
-                Assert.IsTrue(p.ProductID > 5, "Failed on ProductID>=20");
-                count++;
+                public int ProductID { get; set; }
+                public int? SupplierID { get; set; }
             }
-            Assert.IsTrue(count > 0, "Expected some products with ProductID>5, got none");
-        }
 
-        [Test]
-        public void H4_Select_MemberInit_Class()
-        {
-            Northwind db = CreateDB();
-            var q = from p in db.Products
-                    where p.ProductID > 5
-                    select new ProductWrapper2 { ProductID = (int)p.ProductID, SupplierID = (int?)p.SupplierID };
-            int count = 0;
-            foreach (ProductWrapper2 p in q)
+            public class ProductWrapper2
             {
-                Assert.IsTrue(p.ProductID > 5, "Failed on ProductID>=20");
-                count++;
+                public int ProductID { get; set; }
+                public int? SupplierID { get; set; }
             }
-            Assert.IsTrue(count > 0, "Expected some products with ProductID>5, got none");
-        }
 
-        [Test]
-        public void H5_Select_MemberInit_Class2()
-        {
-            Northwind db = CreateDB();
-            var q = from p in db.Products
-                    where p.ProductID > 5
-                    select new ProductWrapper3((int)p.ProductID, (int?)p.SupplierID);
-            int count = 0;
-            foreach (ProductWrapper3 p in q)
+            public class ProductWrapper3
             {
-                Assert.IsTrue(p.ProductID > 5, "Failed on ProductID>=20");
-                count++;
+                public int ProductID { get; set; }
+                public int? SupplierID { get; set; }
+                public ProductWrapper3(int p, int? s) { ProductID = p; SupplierID = s; }
+                public ProductWrapper3(int p, int? s, bool unused) { ProductID = p; SupplierID = s; }
             }
-            Assert.IsTrue(count > 0, "Expected some products with ProductID>5, got none");
-        }
 
-        [Test]
-        public void H6_SelectNotEqual()
-        {
-            Northwind db = CreateDB();
-            var q = from p in db.Products
-                    where p.ProductID != 1
-                    select p;
-            int count = 0;
-            foreach (Product p in q)
+            [Test]
+            public void H3_Select_MemberInit_Struct()
             {
-                Assert.IsFalse(p.ProductID == 1, "Failed on ProductID != 1");
-                count++;
+                Northwind db = CreateDB();
+                var q = from p in db.Products
+                        where p.ProductID > 5
+                        select new ProductWrapper1 { ProductID = (int)p.ProductID, SupplierID = (int?)p.SupplierID };
+                int count = 0;
+                foreach (ProductWrapper1 p in q)
+                {
+                    Assert.IsTrue(p.ProductID > 5, "Failed on ProductID>=20");
+                    count++;
+                }
+                Assert.IsTrue(count > 0, "Expected some products with ProductID>5, got none");
             }
-            Assert.IsTrue(count > 0, "Expected some products with ProductID != 1, got none");
-        }
 
-        [Test]
-        public void H7_String_StartsWith()
-        {
-            Northwind db = CreateDB();
+            [Test]
+            public void H4_Select_MemberInit_Class()
+            {
+                Northwind db = CreateDB();
+                var q = from p in db.Products
+                        where p.ProductID > 5
+                        select new ProductWrapper2 { ProductID = (int)p.ProductID, SupplierID = (int?)p.SupplierID };
+                int count = 0;
+                foreach (ProductWrapper2 p in q)
+                {
+                    Assert.IsTrue(p.ProductID > 5, "Failed on ProductID>=20");
+                    count++;
+                }
+                Assert.IsTrue(count > 0, "Expected some products with ProductID>5, got none");
+            }
 
-            var q = from c in db.Customers
-                    where c.CustomerID.StartsWith("ALF")
-                    select c.CustomerID;
+            [Test]
+            public void H5_Select_MemberInit_Class2()
+            {
+                Northwind db = CreateDB();
+                var q = from p in db.Products
+                        where p.ProductID > 5
+                        select new ProductWrapper3((int)p.ProductID, (int?)p.SupplierID);
+                int count = 0;
+                foreach (ProductWrapper3 p in q)
+                {
+                    Assert.IsTrue(p.ProductID > 5, "Failed on ProductID>=20");
+                    count++;
+                }
+                Assert.IsTrue(count > 0, "Expected some products with ProductID>5, got none");
+            }
 
-            string custID = q.Single();
-            Assert.IsTrue(custID == "ALFKI");
-        }
+            [Test]
+            public void H6_SelectNotEqual()
+            {
+                Northwind db = CreateDB();
+                var q = from p in db.Products
+                        where p.ProductID != 1
+                        select p;
+                int count = 0;
+                foreach (Product p in q)
+                {
+                    Assert.IsFalse(p.ProductID == 1, "Failed on ProductID != 1");
+                    count++;
+                }
+                Assert.IsTrue(count > 0, "Expected some products with ProductID != 1, got none");
+            }
 
-        [Test]
-        public void H8_String_StartsWith()
-        {
-            Northwind db = CreateDB();
+            [Test]
+            public void H7_String_StartsWith()
+            {
+                Northwind db = CreateDB();
 
-            var q = from c in db.Customers
-                    where c.CustomerID == "ALFKI"
-                    select c.CustomerID.StartsWith("ALF");
+                var q = from c in db.Customers
+                        where c.CustomerID.StartsWith("ALF")
+                        select c.CustomerID;
 
-            bool matchStart = q.Single();
-            Assert.IsTrue(matchStart);
-        }
+                string custID = q.Single();
+                Assert.IsTrue(custID == "ALFKI");
+            }
 
-        [Test]
-        public void H9_String_EndsWith()
-        {
-            Northwind db = CreateDB();
+            [Test]
+            public void H8_String_StartsWith()
+            {
+                Northwind db = CreateDB();
 
-            var q = from c in db.Customers
-                    where c.CustomerID.EndsWith("LFKI")
-                    select c.CustomerID;
+                var q = from c in db.Customers
+                        where c.CustomerID == "ALFKI"
+                        select c.CustomerID.StartsWith("ALF");
 
-            string custID = q.Single();
-            Assert.IsTrue(custID == "ALFKI");
-        }
+                bool matchStart = q.Single();
+                Assert.IsTrue(matchStart);
+            }
 
-        [Test]
-        public void H10_String_EndsWith()
-        {
-            string param = "LFKI";
-            Northwind db = CreateDB();
+            [Test]
+            public void H9_String_EndsWith()
+            {
+                Northwind db = CreateDB();
 
-            var q = from c in db.Customers
-                    where c.CustomerID.EndsWith(param)
-                    select c.CustomerID;
+                var q = from c in db.Customers
+                        where c.CustomerID.EndsWith("LFKI")
+                        select c.CustomerID;
 
-            string custID = q.Single();
-            Assert.IsTrue(custID == "ALFKI");
-        }
+                string custID = q.Single();
+                Assert.IsTrue(custID == "ALFKI");
+            }
+
+            [Test]
+            public void H10_String_EndsWith()
+            {
+                string param = "LFKI";
+                Northwind db = CreateDB();
+
+                var q = from c in db.Customers
+                        where c.CustomerID.EndsWith(param)
+                        select c.CustomerID;
+
+                string custID = q.Single();
+                Assert.IsTrue(custID == "ALFKI");
+            }
 
 
-        [Test]
-        public void H11_String_StartsWithPercent()
-        {
-            string param = "%";
-            Northwind db = CreateDB();
+            [Test]
+            public void H11_String_StartsWithPercent()
+            {
+                string param = "%";
+                Northwind db = CreateDB();
 
-            var q = from c in db.Customers
-                    where c.CustomerID.StartsWith(param)
-                    select c.CustomerID;
+                var q = from c in db.Customers
+                        where c.CustomerID.StartsWith(param)
+                        select c.CustomerID;
 
-            int cnt = q.Count();
-            Assert.AreEqual(0, cnt);
-        }
+                int cnt = q.Count();
+                Assert.AreEqual(0, cnt);
+            }
 
 #if !MONO_STRICT
-        [Test]
-        public void I1_GetQueryText()
-        {
-            Northwind db = CreateDB();
+            [Test]
+            public void I1_GetQueryText()
+            {
+                Northwind db = CreateDB();
 
-            var q = from p in db.Products where p.ProductID > 1 select p;
-            string s = db.GetQueryText(q); //MTable.GetQueryText()
-        }
+                var q = from p in db.Products where p.ProductID > 1 select p;
+                string s = db.GetQueryText(q); //MTable.GetQueryText()
+            }
 
-        [Test]
-        public void I2_GetQueryText()
-        {
-            Northwind db = CreateDB();
+            [Test]
+            public void I2_GetQueryText()
+            {
+                Northwind db = CreateDB();
 
-            var q = from p in db.Products select p.ProductName;
-            string s = db.GetQueryText(q); //MTable_Projected.GetQueryText()
-        }
+                var q = from p in db.Products select p.ProductName;
+                string s = db.GetQueryText(q); //MTable_Projected.GetQueryText()
+            }
 #endif
 
-        [Test]
-        public void J1_LocalFunction_DateTime_ParseExact()
-        {
-            Northwind db = CreateDB();
+            [Test]
+            public void J1_LocalFunction_DateTime_ParseExact()
+            {
+                Northwind db = CreateDB();
 
-            //Lookup EmployeeID 1:
-            //Andy Fuller - HireDate: 1989-01-01 00:00:00
+                //Lookup EmployeeID 1:
+                //Andy Fuller - HireDate: 1989-01-01 00:00:00
 
-            string hireDate = "1989.01.01";
+                string hireDate = "1989.01.01";
 
-            // Ingres assumes UTC on all date queries
-            var q = from e in db.Employees
+                // Ingres assumes UTC on all date queries
+                var q = from e in db.Employees
 #if INGRES
                     where e.HireDate == DateTime.ParseExact(hireDate, "yyyy.MM.dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal)
 #else
-                    where e.HireDate == DateTime.ParseExact(hireDate, "yyyy.MM.dd", CultureInfo.InvariantCulture)
+                        where e.HireDate == DateTime.ParseExact(hireDate, "yyyy.MM.dd", CultureInfo.InvariantCulture)
 #endif
-                    select e.EmployeeID;
-            var empID = q.Single(); //MTable_Projected.GetQueryText()
-            Assert.IsTrue(empID == 1);
-        }
+                        select e.EmployeeID;
+                var empID = q.Single(); //MTable_Projected.GetQueryText()
+                Assert.IsTrue(empID == 1);
+            }
 
-    }
+        }
 }
