@@ -271,6 +271,7 @@
       <Link>Properties\DbLinq.snk</Link>
     </None>
     <None Include="Schema\Dbml\DbmlSchema.bat" />
+    <None Include="Schema\Dbml\DbmlSchema.bat" />
     <EmbeddedResource Include="Schema\Dbml\DbmlSchema.xsd">
     </EmbeddedResource>
   </ItemGroup>
