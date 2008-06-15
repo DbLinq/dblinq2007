@@ -5,7 +5,8 @@
   <Connection assembly="Test_NUnit_OraODP">Data Source = (DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = {0})(PORT = 1521)))(CONNECT_DATA = (SERVER = DEDICATED))); User Id = Northwind; Password = linq2</Connection>
   <Connection assembly="Test_NUnit_Ora">Data Source = (DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = {0})(PORT = 1521)))(CONNECT_DATA = (SERVER = DEDICATED))); User Id = Northwind; Password = linq2</Connection>
   <Connection assembly="Test_NUnit_Mysql">server={0};user id=LinqUser; password=linq2; database=Northwind</Connection>
-  <Connection assembly="Test_NUnit_Pgsql">server={0};user id=LinqUser; password=linq2; database=Northwind</Connection>  <Connection assembly="Test_NUnit_Ingres"></Connection>
+  <Connection assembly="Test_NUnit_Pgsql">server={0};user id=LinqUser; password=linq2; database=Northwind</Connection>  
+  <Connection assembly="Test_NUnit_Ingres">server={0};user id=LinqUser; password=linq2; database=Northwind</Connection>
 </Connections>
 
 <!--
