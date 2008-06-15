@@ -46,6 +46,10 @@ namespace DbLinq.PostgreSql
     {
         public override string VendorName { get { return "PostgreSql"; } }
 
+        public PgsqlVendor()
+            : base(new PgsqlSqlProvider())
+        { }
+
         public override IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
                                                , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
         {

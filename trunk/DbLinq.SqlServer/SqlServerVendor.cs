@@ -31,7 +31,6 @@ using System.Data;
 using System.Data.Linq.Mapping;
 using DbLinq.Util;
 using DbLinq.Linq;
-using DbLinq.Vendor;
 
 namespace DbLinq.SqlServer
 {
@@ -41,6 +40,10 @@ namespace DbLinq.SqlServer
 
         public override string VendorName { get { return "MsSqlServer"; } }
         //public const string SQL_PING_COMMAND = "SELECT 11";
+
+        public SqlServerVendor()
+            : base(new SqlServerSqlProvider())
+        { }
 
         /// <summary>
         /// Postgres string concatenation, eg 'a||b'

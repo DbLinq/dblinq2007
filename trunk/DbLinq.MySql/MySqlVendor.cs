@@ -31,7 +31,6 @@ using System.Reflection;
 using System.Data;
 using DbLinq.Linq;
 using DbLinq.Linq.Clause;
-using DbLinq.Linq.Mapping;
 using DbLinq.Logging;
 using DbLinq.Util;
 using DbLinq.Linq.Database;
@@ -44,6 +43,11 @@ namespace DbLinq.MySql
         /// Client code needs to specify: 'Vendor.UserBulkInsert[db.Products]=10' to enable bulk insert, 10 rows at a time.
         /// </summary>
         public readonly Dictionary<IMTable, int> UseBulkInsert = new Dictionary<IMTable, int>();
+
+        public MySqlVendor()
+            : base(new MySqlSqlProvider())
+        {
+        }
 
         public override string VendorName { get { return "MySQL"; } }
 
