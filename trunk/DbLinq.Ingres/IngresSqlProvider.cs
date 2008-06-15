@@ -29,8 +29,24 @@ namespace DbLinq.Ingres
 {
     public class IngresSqlProvider : SqlProvider
     {
+        protected override string GetLiteralCount(string a)
+        {
+            return "COUNT(*)";
+        }
+
+        protected override string GetLiteralStringToLower(string a)
+        {
+            return string.Format("LOWER({0})", a);
+        }
+
+        protected override string GetLiteralStringToUpper(string a)
+        {
+            return string.Format("UPPER({0})", a);
+        }
+
         public override string GetLiteralLimit(string select, string limit)
         {
+            // return string.Format("SELECT FIRST {0} FROM ({1})", limit, select);
             string trimSelect = "SELECT ";
             if (select.StartsWith(trimSelect))
             {
