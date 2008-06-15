@@ -1,4 +1,4 @@
-#region Auto-generated classes for Northwind database on 2008-06-15 17:41:03Z
+#region Auto-generated classes for Northwind database on 2008-06-15 22:31:00Z
 
 //
 //  ____  _     __  __      _        _
@@ -7,7 +7,7 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from Northwind on 2008-06-15 17:41:03Z
+// Auto-generated from Northwind on 2008-06-15 22:31:00Z
 // Please visit http://linq.to/db for more information
 
 #endregion
