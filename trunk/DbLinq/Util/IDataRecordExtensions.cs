@@ -66,6 +66,13 @@ namespace DbLinq.Util
             return dataRecord.GetAsNumeric<int>(index) != 0;
         }
 
+        public static bool? GetAsNullableBool(this IDataRecord dataRecord, int index)
+        {
+            if (dataRecord.IsDBNull(index))
+                return null;
+            return GetAsBool(dataRecord, index);
+        }
+
         public static char GetAsChar(this IDataRecord dataRecord, int index)
         {
             object c = dataRecord.GetValue(index);
@@ -82,6 +89,13 @@ namespace DbLinq.Util
             throw new InvalidCastException(string.Format("Can't convert type {0} in GetAsChar()", c.GetType().Name));
         }
 
+        public static char? GetAsNullableChar(this IDataRecord dataRecord, int index)
+        {
+            if (dataRecord.IsDBNull(index))
+                return null;
+            return GetAsChar(dataRecord, index);
+        }
+
         public static U GetAsNumeric<U>(this IDataRecord dataRecord, int index)
         {
             if (dataRecord.IsDBNull(index))
@@ -90,7 +104,7 @@ namespace DbLinq.Util
         }
 
         public static U? GetAsNullableNumeric<U>(this IDataRecord dataRecord, int index)
-            where U: struct
+            where U : struct
         {
             if (dataRecord.IsDBNull(index))
                 return null;
@@ -131,6 +145,18 @@ namespace DbLinq.Util
                 return null;
             object obj = dataRecord.GetValue(index);
             return obj;
+        }
+
+        public static DateTime GetAsDateTime(this IDataRecord dataRecord, int index)
+        {
+            return dataRecord.GetDateTime(index);
+        }
+
+        public static DateTime? GetAsNullableDateTime(this IDataRecord dataRecord, int index)
+        {
+            if (dataRecord.IsDBNull(index))
+                return null;
+            return GetAsDateTime(dataRecord, index);
         }
     }
 }

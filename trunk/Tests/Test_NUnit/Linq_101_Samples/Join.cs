@@ -434,5 +434,19 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
 
         }
 
+        [Test]
+        public void JoinWhere()
+        {
+            Northwind db = CreateDB();
+
+            var custID = "BT___";
+
+            var custOderInfos = from o in db.Orders
+                                join em in db.Employees on o.EmployeeID equals em.EmployeeID
+                                where o.CustomerID == custID
+                                select new {o, em};
+								
+			var l = custOderInfos.ToList();
+        }
     }
 }

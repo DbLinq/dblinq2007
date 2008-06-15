@@ -152,7 +152,7 @@ namespace DbLinq.Util
         /// <returns></returns>
         public static bool CanBeNull(this Type t)
         {
-            return !t.IsValueType;
+            return IsNullable(t) || !t.IsValueType;
         }
 
         /// <summary>
@@ -179,6 +179,37 @@ namespace DbLinq.Util
             if (members.Length > 0)
                 return members[0];
             return null;
+        }
+
+        /// <summary>
+        /// Determines if a Type is specified as nullable
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        public static bool IsNullable(this Type t)
+        {
+            return t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>);
+        }
+
+        /// <summary>
+        /// If the type is nullable, returns the underlying type
+        /// Undefined behavior otherwise (it's user responsibility to check for Nullable first)
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        public static Type GetNullableType(this Type t)
+        {
+            return t.GetGenericArguments()[0];
+        }
+
+        /// <summary>
+        /// Returns default value for provided type
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        public static object GetDefault(this Type t)
+        {
+            return TypeConvert.GetDefault(t);
         }
     }
 }

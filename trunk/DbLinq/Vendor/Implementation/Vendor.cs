@@ -44,16 +44,25 @@ namespace DbLinq.Vendor.Implementation
     {
         public ILogger Logger { get; set; }
 
-        public Vendor()
+        protected Vendor()
+            : this(ObjectFactory.Get<ISqlProvider>())
         {
-            //Logger = ObjectFactory.Get<ILogger>(); //throws exception "there is more than implementation of ILogger"
-            Logger = ObjectFactory.Get<ILogger>(new DbLinq.Logging.Implementation.DebugLogger());
+        }
+
+        protected Vendor(ISqlProvider sqlProvider)
+        {
+            Logger = ObjectFactory.Get<ILogger>();
+            this.sqlProvider = sqlProvider;
         }
 
         public virtual string SqlPingCommand
         {
             get { return "SELECT 11"; }
         }
+
+        private ISqlProvider sqlProvider;
+        public ISqlProvider SqlProvider { get { return sqlProvider; } }
+
 
         /// <summary>
         /// string concatenation, eg 'a||b' on Oracle.

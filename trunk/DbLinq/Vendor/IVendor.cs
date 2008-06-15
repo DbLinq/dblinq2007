@@ -124,6 +124,8 @@ namespace DbLinq.Vendor
 
         #endregion
 
+        ISqlProvider SqlProvider { get; }
+
         #region SQL generator
 
         /// <summary>

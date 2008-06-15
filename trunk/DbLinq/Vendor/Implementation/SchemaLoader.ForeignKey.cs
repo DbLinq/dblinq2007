@@ -45,8 +45,6 @@ namespace DbLinq.Vendor.Implementation
             var associationName = CreateAssociationName(tableName, tableSchema,
                 referencedTableName, referencedTableSchema, constraintName, foreignKey, nameFormat);
 
-            bool isSelfReference = tableName == referencedTableName && tableSchema == referencedTableSchema;
-
             //both parent and child table get an [Association]
             var assoc = new Association();
             assoc.IsForeignKey = true;
@@ -65,10 +63,7 @@ namespace DbLinq.Vendor.Implementation
             reverseAssociation.Member = associationName.OneToManyMemberName;
             reverseAssociation.Cardinality = Cardinality.One;
             //reverseAssociation.ThisKey = reverseForeignKey;
-            if (isSelfReference)
-                reverseAssociation.OtherKey = reverseForeignKey;
-            else
-                reverseAssociation.OtherKey = foreignKey;
+            reverseAssociation.OtherKey = reverseForeignKey;
             reverseAssociation.DeleteRule = "NO ACTION";
 
             string referencedFullDbName = GetFullDbName(referencedTableName, referencedTableSchema);
