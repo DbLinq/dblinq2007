@@ -51,6 +51,10 @@ namespace DbLinq.Sqlite
         public static readonly Dictionary<DbLinq.Linq.IMTable, int> UseBulkInsert = new Dictionary<DbLinq.Linq.IMTable, int>();
 
 
+        public SqliteVendor()
+            : base(new SqliteSqlProvider())
+        { }
+
         public override IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
                                                , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
         {
@@ -64,7 +68,7 @@ namespace DbLinq.Sqlite
         /// </summary>
         public override string GetOrderableParameterName(int index)
         {
-            return "@P"+index;
+            return "@P" + index;
         }
 
         /// <summary>
@@ -231,7 +235,7 @@ namespace DbLinq.Sqlite
             //strange hack to determine what's a ref, out parameter:
             //http://lists.ximian.com/pipermain/mono-list/2003-March/012751.html
             bool hasAmpersand = paramInfo.ParameterType.FullName.Contains('&');
-            if(paramInfo.IsOut)
+            if (paramInfo.IsOut)
                 return System.Data.ParameterDirection.Output;
             if (hasAmpersand)
                 return System.Data.ParameterDirection.InputOutput;
@@ -245,7 +249,7 @@ namespace DbLinq.Sqlite
         {
             List<object> outParamValues = new List<object>();
             //Type type_t = typeof(T);
-            int i=-1;
+            int i = -1;
             foreach (IDataParameter param in paramSet)
             {
                 i++;
@@ -263,7 +267,7 @@ namespace DbLinq.Sqlite
                     //for ref and out parameters, we need to tweak ref types, e.g.
                     // "System.Int32&, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
                     string fullName1 = desired_type.AssemblyQualifiedName;
-                    string fullName2 = fullName1.Replace("&", ""); 
+                    string fullName2 = fullName1.Replace("&", "");
                     desired_type = Type.GetType(fullName2);
                 }
                 try

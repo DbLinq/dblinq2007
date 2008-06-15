@@ -53,6 +53,7 @@
     <Compile Include="MySqlSchemaLoader.cs" />
     <Compile Include="MySqlSchemaLoader.StoredProcedures.cs" />
     <Compile Include="MySqlSchemaLoader.Tables.cs" />
+    <Compile Include="MySqlSqlProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MySqlVendor.cs" />
   </ItemGroup>

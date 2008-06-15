@@ -29,13 +29,16 @@ using System.Text;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using DbLinq.Linq;
-using DbLinq.Util;
 
 namespace DbLinq.Oracle
 {
     public class OracleVendor : Vendor.Implementation.Vendor
     {
         public override string VendorName { get { return "Oracle"; } }
+
+        public OracleVendor()
+            : base(new OracleSqlProvider())
+        { }
 
         public override string SqlPingCommand
         {

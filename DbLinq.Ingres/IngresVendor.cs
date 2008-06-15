@@ -21,19 +21,16 @@
 // THE SOFTWARE.
 // 
 #endregion
+
 using System;
 using System.Data;
-using System.Data.Common;
 using System.Linq;
 using System.Data.Linq.Mapping;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
-using DbLinq.Linq.Mapping;
-using DbLinq.Ingres;
 using DbLinq.Util;
 using DbLinq.Linq;
-using DbLinq.Vendor;
 using DbLinq.Linq.Database;
 
 namespace DbLinq.Ingres
@@ -46,6 +43,11 @@ namespace DbLinq.Ingres
         public override string VendorName { get { return "Ingres"; } }
 
         private string lastIdExpression = null;
+
+        public IngresVendor()
+            : base(new IngresSqlProvider())
+        {
+        }
 
         public override IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
                                                , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)

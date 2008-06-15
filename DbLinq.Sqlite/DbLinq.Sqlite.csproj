@@ -54,6 +54,7 @@
     <Compile Include="SqliteDataContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqliteSchemaLoader.Tables.cs" />
+    <Compile Include="SqliteSqlProvider.cs" />
     <Compile Include="SqliteVendor.cs" />
   </ItemGroup>
   <ItemGroup>

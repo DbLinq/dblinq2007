@@ -541,19 +541,16 @@ namespace DbLinq.Vendor.Implementation
 
         protected virtual string GetLiteralStringLength(string a)
         {
-            return string.Format("LENGTH({0})", a);
             return string.Format("CHARACTER_LENGTH({0})", a);
         }
 
         protected virtual string GetLiteralStringToUpper(string a)
         {
-            return string.Format("UPPER({0})", a);
             return string.Format("UCASE({0})", a);
         }
 
         protected virtual string GetLiteralStringToLower(string a)
         {
-            return string.Format("LOWER({0})", a);
             return string.Format("LCASE({0})", a);
         }
 
@@ -574,7 +571,6 @@ namespace DbLinq.Vendor.Implementation
 
         protected virtual string GetLiteralCount(string a)
         {
-            return "COUNT(*)";
             return string.Format("COUNT({0})", a);
         }
 
