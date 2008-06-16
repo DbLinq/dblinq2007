@@ -22,7 +22,11 @@
 // 
 #endregion
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using DbLinq.Data.Linq.Sugar;
 using DbLinq.Data.Linq.Sugar.ExpressionMutator;
 
@@ -38,18 +42,114 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             return expression.Recurse(e => Analyze(e, builderContext));
         }
 
+        protected delegate Expression Analyzer(Expression expression);
+
+        protected IEnumerable<Analyzer> Analyzers;
+        private readonly object analyzersLock = new object();
+
+        protected virtual IEnumerable<Analyzer> GetAnalyzers()
+        {
+            lock (analyzersLock)
+            {
+                if (Analyzers == null)
+                {
+                    // man, this is the kind of line I'm proud of :)
+                    Analyzers = from method in GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                                let m = (Analyzer)Delegate.CreateDelegate(typeof(Analyzer), this, method, false)
+                                where m != null
+                                select m;
+                    Analyzers = Analyzers.ToList(); // result is faster from here
+                }
+                return Analyzers;
+            }
+        }
+
         protected virtual Expression Analyze(Expression expression, BuilderContext builderContext)
         {
-            var methodCallExpression = expression as MethodCallExpression;
-            if(methodCallExpression!=null)
+            foreach (var analyze in GetAnalyzers())
             {
-                if(methodCallExpression.Method.DeclaringType.Name=="Convert")
+                var e = analyze(expression);
+                if (e != null)
+                    return e;
+            }
+            return expression;
+        }
+
+        /// <summary>
+        /// Tests for Convert.ToBoolean()
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        protected virtual Expression AnalyzeConvertToBoolean(Expression expression)
+        {
+            var methodCallExpression = expression as MethodCallExpression;
+            if (methodCallExpression != null)
+            {
+                if (methodCallExpression.Method.DeclaringType.Name == "Convert")
                 {
                     if (methodCallExpression.Method.Name == "ToBoolean")
                         return Expression.Convert(methodCallExpression.Arguments[0], methodCallExpression.Type);
                 }
             }
-            return expression;
+            return null;
+        }
+
+        /// <summary>
+        /// Used to determine if the Expression is a VB CompareString
+        /// Returns an equivalent Expression if true
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        protected virtual Expression AnalyzeCompareString(Expression expression)
+        {
+            bool equals;
+            var testedExpression = GetComparedToZero(expression, out equals);
+            if (testedExpression != null)
+            {
+                var methodExpression = testedExpression as MethodCallExpression;
+                if (methodExpression != null
+                    && methodExpression.Method.DeclaringType.FullName == "Microsoft.VisualBasic.CompilerServices.Operators"
+                    && methodExpression.Method.Name == "CompareString")
+                {
+                    return Expression.Equal(methodExpression.Arguments[0], methodExpression.Arguments[1]);
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Determines if an expression is a comparison to 0
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <param name="equals">True if ==, False if !=</param>
+        /// <returns>The compared Expression or null</returns>
+        protected static Expression GetComparedToZero(Expression expression, out bool equals)
+        {
+            equals = expression.NodeType == ExpressionType.Equal;
+            if (equals || expression.NodeType == ExpressionType.NotEqual)
+            {
+                var binaryExpression = (BinaryExpression)expression;
+                if (IsZero(binaryExpression.Right))
+                    return binaryExpression.Left;
+                if (IsZero(binaryExpression.Left))
+                    return binaryExpression.Right;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Determines if an expression is constant value 0
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        protected static bool IsZero(Expression expression)
+        {
+            if (expression.NodeType == ExpressionType.Constant)
+            {
+                var unaryExpression = (ConstantExpression)expression;
+                return (unaryExpression.Value as int? ?? 0) == 0; // you too, have fun with C# operators
+            }
+            return false;
         }
     }
 }
