@@ -103,7 +103,12 @@ namespace DbLinq.PostgreSql
                     continue;
                 }
 
-                bool isPrimaryKey = primaryKeys.Count(k => k.ConstraintName == keyColRow.ConstraintName) == 1;
+                //todo: must understand better how PKEYs are encoded.
+                //In Sasha's DB, they don't end with "_pkey", you need to rely on ReadForeignConstraints().
+                //In Northwind, they do end with "_pkey".
+                bool isPrimaryKey = keyColRow.ConstraintName.EndsWith("_pkey")
+                    || primaryKeys.Count(k => k.ConstraintName == keyColRow.ConstraintName) == 1;
+
                 if (isPrimaryKey)
                 {
                     //A) add primary key
@@ -113,6 +118,7 @@ namespace DbLinq.PostgreSql
                 else
                 {
                     DataForeignConstraint dataForeignConstraint = foreignKeys.FirstOrDefault(f => f.ConstraintName == keyColRow.ConstraintName);
+
                     if (dataForeignConstraint == null)
                     {
                         string msg = "Missing data from 'constraint_column_usage' for foreign key " + keyColRow.ConstraintName;
