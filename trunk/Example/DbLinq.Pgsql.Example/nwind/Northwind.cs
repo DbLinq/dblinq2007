@@ -1,4 +1,4 @@
-#region Auto-generated classes for "Northwind" database on 2008-06-15 22:30:56Z
+#region Auto-generated classes for "Northwind" database on 2008-06-16 23:35:24Z
 
 //
 //  ____  _     __  __      _        _
@@ -7,7 +7,7 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from "Northwind" on 2008-06-15 22:30:56Z
+// Auto-generated from "Northwind" on 2008-06-16 23:35:24Z
 // Please visit http://linq.to/db for more information
 
 #endregion
@@ -854,7 +854,7 @@ namespace nwind
 
 		private int employeeID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "employeeID", Name = "\"EmployeeID\"", DbType = "integer(32,0)", CanBeNull = false, Expression = null)]
+		[Column(Storage = "employeeID", Name = "\"EmployeeID\"", DbType = "integer(32,0)", IsPrimaryKey = true, CanBeNull = false, Expression = null)]
 		public int EmployeeID
 		{
 			get
@@ -876,7 +876,7 @@ namespace nwind
 
 		private string territoryID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "territoryID", Name = "\"TerritoryID\"", DbType = "character varying(20)", CanBeNull = false, Expression = null)]
+		[Column(Storage = "territoryID", Name = "\"TerritoryID\"", DbType = "character varying(20)", IsPrimaryKey = true, CanBeNull = false, Expression = null)]
 		public string TerritoryID
 		{
 			get
@@ -1325,7 +1325,7 @@ namespace nwind
 
 		private int orderID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "orderID", Name = "\"OrderID\"", DbType = "integer(32,0)", CanBeNull = false, Expression = null)]
+		[Column(Storage = "orderID", Name = "\"OrderID\"", DbType = "integer(32,0)", IsPrimaryKey = true, CanBeNull = false, Expression = null)]
 		public int OrderID
 		{
 			get
@@ -1347,7 +1347,7 @@ namespace nwind
 
 		private int productID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "productID", Name = "\"ProductID\"", DbType = "integer(32,0)", CanBeNull = false, Expression = null)]
+		[Column(Storage = "productID", Name = "\"ProductID\"", DbType = "integer(32,0)", IsPrimaryKey = true, CanBeNull = false, Expression = null)]
 		public int ProductID
 		{
 			get
