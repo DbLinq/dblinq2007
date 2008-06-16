@@ -117,6 +117,19 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             return null;
         }
 
+        protected virtual Expression AnalyzeLikeString(Expression expression)
+        {
+            var methodExpression = expression as MethodCallExpression;
+            if (methodExpression != null
+                && methodExpression.Method.DeclaringType.FullName == "Microsoft.VisualBasic.CompilerServices.LikeOperator"
+                && methodExpression.Method.Name == "LikeString")
+            {
+                var lambda = (Expression<Func<string, string, bool>>)((a, b) => a.StartsWith(b));
+                return Expression.Invoke(lambda, methodExpression.Arguments[0], methodExpression.Arguments[1]);
+            }
+            return null;
+        }
+
         /// <summary>
         /// Determines if an expression is a comparison to 0
         /// </summary>
