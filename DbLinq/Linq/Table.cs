@@ -39,6 +39,7 @@ using DbLinq.Linq.Implementation;
 using DbLinq.Logging;
 using DbLinq.Util;
 using DbLinq.Vendor;
+using ITable = System.Data.Linq.ITable;
 
 namespace DbLinq.Linq
 {
@@ -49,7 +50,7 @@ namespace DbLinq.Linq
     public class Table<T> :
         IQueryable<T>
         , IOrderedQueryable<T> //this is cheating ... we pretend to be always ordered
-        , System.Data.Linq.ITable
+        , ITable
         , IMTable
         , IQueryText
         , IQueryProvider //new as of Beta2
@@ -200,7 +201,7 @@ namespace DbLinq.Linq
         }
 
         #region Insert functions
-        public void InsertOnSubmit(object entity)
+        void ITable.InsertOnSubmit(object entity)
         {
             T te = entity as T;
             if (te == null)
@@ -219,7 +220,7 @@ namespace DbLinq.Linq
             _insertList.Add(newObject);
         }
 
-        public void InsertAllOnSubmit(IEnumerable entities)
+        void ITable.InsertAllOnSubmit(IEnumerable entities)
         {
             foreach (object entity in entities)
             {
@@ -243,7 +244,11 @@ namespace DbLinq.Linq
             throw new NotImplementedException();
         }
 
-        public void DeleteOnSubmit(object entity)
+        /// <summary>
+        /// required by ITable interface
+        /// </summary>
+        /// <param name="entity"></param>
+        void ITable.DeleteOnSubmit(object entity)
         {
             throw new NotImplementedException();
         }
@@ -276,14 +281,14 @@ namespace DbLinq.Linq
         /// required for ITable
         /// </summary>
         /// <param name="obj"></param>
-        public void Attach(object entity)
+        void ITable.Attach(object entity)
         {
             T te = entity as T;
             if (te == null)
                 throw new ArgumentException("Cannot attach this object");
             Attach(te);
         }
-        public void Attach(object entity, object original)
+        void ITable.Attach(object entity, object original)
         {
             T te = entity as T;
             T to = original as T;
@@ -291,15 +296,15 @@ namespace DbLinq.Linq
                 throw new ArgumentException("Cannot attach this object");
             Attach(te, to);
         }
-        public void Attach(object entity, bool asModified)
+        void ITable.Attach(object entity, bool asModified)
         {
             throw new NotImplementedException();
         }
-        public void AttachAll(IEnumerable entities)
+        void ITable.AttachAll(IEnumerable entities)
         {
             throw new NotImplementedException();
         }
-        public void AttachAll(IEnumerable entities, bool asModified)
+        void ITable.AttachAll(IEnumerable entities, bool asModified)
         {
             throw new NotImplementedException();
         }
@@ -581,7 +586,7 @@ namespace DbLinq.Linq
         }
 
         [Obsolete("NOT IMPLEMENTED YET")]
-        public object GetOriginalEntityState(object entity)
+        object ITable.GetOriginalEntityState(object entity)
         {
             throw new ApplicationException("L585 Not implemented");
         }
