@@ -49,6 +49,9 @@
     <Compile Include="..\DbLinq.ProductInfo.cs">
       <Link>Properties\DbLinq.ProductInfo.cs</Link>
     </Compile>
+    <Compile Include="Data\Linq\ChangeSet.cs" />
+    <Compile Include="Data\Linq\DataContext.cs" />
+    <Compile Include="Data\Linq\EntityMSet.cs" />
     <Compile Include="Data\Linq\Sugar\BuilderContext.cs" />
     <Compile Include="Data\Linq\Sugar\Error.cs" />
     <Compile Include="Data\Linq\Sugar\ExpressionChain.cs" />
@@ -122,13 +125,13 @@
     <Compile Include="Data\Linq\Sugar\ISqlBuilder.cs" />
     <Compile Include="Data\Linq\Sugar\Query.cs" />
     <Compile Include="Data\Linq\Sugar\QueryContext.cs" />
+    <Compile Include="Data\Linq\Table.cs" />
     <Compile Include="DbLinqToDoAttribute.cs" />
     <Compile Include="Factory\DbLinqAttribute.cs" />
     <Compile Include="Factory\Implementation\AbstractObjectFactory.cs" />
     <Compile Include="Factory\Implementation\ReflectionObjectFactory.cs" />
     <Compile Include="Factory\IObjectFactory.cs" />
     <Compile Include="Factory\ObjectFactory.cs" />
-    <Compile Include="Linq\ChangeSet.cs" />
     <Compile Include="Linq\Clause\ExpressionTreeParser_Call.cs" />
     <Compile Include="Linq\Database\DatabaseContextExtensions.cs" />
     <Compile Include="Linq\Database\IDatabaseTransaction.cs" />
@@ -177,7 +180,6 @@
     <Compile Include="Linq\Database\IDatabaseContext.cs" />
     <Compile Include="Linq\IModificationHandler.cs" />
     <Compile Include="Linq\Implementation\ResultMapper.cs" />
-    <Compile Include="Linq\EntityMSet.cs" />
     <Compile Include="Linq\IResultMapper.cs" />
     <Compile Include="Linq\IModified.cs" />
     <Compile Include="Linq\Implementation\QueryGenerator.cs" />
@@ -231,8 +233,6 @@
     <Compile Include="Util\RowEnumeratorCompiler.cs" />
     <Compile Include="Util\RowEnumerator.cs" />
     <Compile Include="Linq\Clause\FromClauseBuilder.cs" />
-    <Compile Include="Linq\DataContext.cs" />
-    <Compile Include="Linq\Table.cs" />
     <Compile Include="Linq\Table_Projected.cs" />
     <Compile Include="Linq\ProjectionData.cs" />
     <Compile Include="Linq\SessionVars.cs" />
