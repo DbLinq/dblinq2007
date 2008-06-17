@@ -50,7 +50,7 @@ namespace DbLinq.Linq.Mapping
                 foreach (var otherKeyRaw in literalOtherKey.Split(comma, StringSplitOptions.RemoveEmptyEntries))
                 {
                     var otherKey = otherKeyRaw.Trim();
-                    var keyMember = thisTable.RowType.Type.GetMember(otherKey)[0];
+                    var keyMember = otherTable.RowType.Type.GetMember(otherKey)[0];
                     otherKeysList.Add(new AttributedColumnMetaDataMember(keyMember, GetColumnAttribute(keyMember),
                                                                  thisTable.RowType));
                 }
