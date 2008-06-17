@@ -37,6 +37,8 @@ namespace DbLinq.Linq.Mapping
             : base(member, declaringType, member.DeclaringType.GetSingleMember(attribute.Storage))
         {
             columnAttribute = attribute;
+            if (columnAttribute.Name == null)
+                columnAttribute.Name = memberInfo.Name;
         }
 
         private ColumnAttribute columnAttribute;
