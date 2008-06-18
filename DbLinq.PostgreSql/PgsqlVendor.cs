@@ -38,6 +38,7 @@ using DbLinq.Util;
 using DbLinq.Linq;
 using DbLinq.Vendor;
 using DbLinq.Linq.Database;
+using DataContext=DbLinq.Data.Linq.DataContext;
 
 namespace DbLinq.PostgreSql
 {
@@ -143,7 +144,7 @@ namespace DbLinq.PostgreSql
         /// call mysql stored proc or stored function, 
         /// optionally return DataSet, and collect return params.
         /// </summary>
-        public override System.Data.Linq.IExecuteResult ExecuteMethodCall(DbLinq.Linq.DataContext context, MethodInfo method
+        public override System.Data.Linq.IExecuteResult ExecuteMethodCall(DataContext context, MethodInfo method
                                                                  , params object[] inputValues)
         {
             if (method == null)

@@ -24,8 +24,6 @@
 // 
 #endregion
 
-using DbLinq.Linq;
-
 namespace DbLinq.Data.Linq.Sugar
 {
     public class QueryContext

@@ -21,12 +21,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using DbLinq.Linq;
+using DbLinq.Data.Linq;
 using DbLinq.Linq.Mapping;
 
 namespace AllTypesExample
 {
-	public partial class AllTypes : DbLinq.Linq.DataContext
+	public partial class AllTypes : DataContext
 	{
 		public AllTypes(System.Data.IDbConnection connection)
 		: base(connection, new DbLinq.MySql.MySqlVendor())

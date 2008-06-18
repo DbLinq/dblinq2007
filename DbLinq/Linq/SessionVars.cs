@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using DbLinq.Data.Linq;
 using DbLinq.Logging;
 using DbLinq.Util;
 

@@ -23,6 +23,7 @@
 // THE SOFTWARE.
 // 
 #endregion
+
 using System;
 using System.Data;
 using System.Reflection;
@@ -35,7 +36,7 @@ using System.Linq;
 using System.Linq.Expressions;
 
 //using System.Data.DLinq;
-
+using DbLinq.Linq;
 using DbLinq.Linq.Clause;
 using DbLinq.Linq.Implementation;
 using DbLinq.Logging;
@@ -43,7 +44,11 @@ using DbLinq.Util;
 using DbLinq.Vendor;
 using ITable = System.Data.Linq.ITable;
 
-namespace DbLinq.Linq
+#if MONO_STRICT
+namespace System.Data.Linq
+#else
+namespace DbLinq.Data.Linq
+#endif
 {
     /// <summary>
     /// T may be eg. class Employee or string - the output
@@ -371,7 +376,7 @@ namespace DbLinq.Linq
             //object[] indices = new object[0];
             ProjectionData proj = ProjectionData.FromDbType(typeof(T));
 
-            if (_vars.Context.Vendor.CanBulkInsert(this))
+            if (_vars.Context.Vendor.CanBulkInsert<T>(this))
             {
                 _vars.Context.Vendor.DoBulkInsert(this, _insertList, _vars.Context.DatabaseContext.Connection);
                 _insertList.Clear();

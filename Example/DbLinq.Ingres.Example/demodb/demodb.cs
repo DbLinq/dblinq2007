@@ -21,7 +21,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using DbLinq.Linq;
+using DbLinq.Data.Linq;
 using DbLinq.Linq.Mapping;
 
 public partial class Demodb : DbLinq.Ingres.IngresDataContext

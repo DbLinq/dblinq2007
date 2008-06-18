@@ -31,6 +31,7 @@ using System.Text;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using DbLinq.Linq;
+using DataContext=DbLinq.Data.Linq.DataContext;
 
 namespace DbLinq.Oracle
 {
@@ -93,7 +94,7 @@ namespace DbLinq.Oracle
             }
         }
 
-        public override IExecuteResult ExecuteMethodCall(DbLinq.Linq.DataContext context, MethodInfo method
+        public override IExecuteResult ExecuteMethodCall(DataContext context, MethodInfo method
                                                                  , params object[] inputValues)
         {
             throw new NotImplementedException();

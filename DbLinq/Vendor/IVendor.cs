@@ -35,6 +35,7 @@ using System.Data.Linq.Mapping;
 //using System.Data.OracleClient;
 using DbLinq.Util;
 using DbLinq.Linq;
+using DataContext=DbLinq.Data.Linq.DataContext;
 
 namespace DbLinq.Vendor
 {
@@ -88,7 +89,7 @@ namespace DbLinq.Vendor
         /// <param name="sql"></param>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        int ExecuteCommand(Linq.DataContext context, string sql, params object[] parameters);
+        int ExecuteCommand(DataContext context, string sql, params object[] parameters);
 
         /// <summary>
         /// Executes a stored procedure/function call
@@ -97,7 +98,7 @@ namespace DbLinq.Vendor
         /// <param name="method"></param>
         /// <param name="sqlParams"></param>
         /// <returns></returns>
-        IExecuteResult ExecuteMethodCall(Linq.DataContext context, MethodInfo method, params object[] sqlParams);
+        IExecuteResult ExecuteMethodCall(DataContext context, MethodInfo method, params object[] sqlParams);
 
         /// <summary>
         /// Executes query. Stores matching columns in instance fields and properties.
@@ -112,7 +113,7 @@ namespace DbLinq.Vendor
         /// <param name="command">Server query returning table</param>
         /// <param name="parameters">query parameters</param>
         /// <returns>Entity with matching properties and fields filled</returns>
-        IEnumerable<TResult> ExecuteQuery<TResult>(Linq.DataContext dataContext, string command, object[] parameters);
+        IEnumerable<TResult> ExecuteQuery<TResult>(DataContext dataContext, string command, object[] parameters);
 
         /// <summary>
         /// Creates a parameter for use with IDbCommand.
@@ -202,7 +203,7 @@ namespace DbLinq.Vendor
         /// <typeparam name="T"></typeparam>
         /// <param name="table"></param>
         /// <returns></returns>
-        bool CanBulkInsert<T>(Linq.Table<T> table) where T : class;
+        bool CanBulkInsert<T>(Data.Linq.Table<T> table) where T : class;
         /// <summary>
         /// Sets the bulk insert capability for a given table
         /// If the vendor doesn't support bulk insert, then this method is ignored and the CanBulkInsert() method always return false.
@@ -210,7 +211,7 @@ namespace DbLinq.Vendor
         /// <typeparam name="T"></typeparam>
         /// <param name="table"></param>
         /// <param name="pageSize"></param>
-        void SetBulkInsert<T>(Linq.Table<T> table, int pageSize) where T : class;
+        void SetBulkInsert<T>(Data.Linq.Table<T> table, int pageSize) where T : class;
         /// <summary>
         /// Performs bulk insert.
         /// Please note that PKs may not be updated
@@ -219,7 +220,7 @@ namespace DbLinq.Vendor
         /// <param name="table"></param>
         /// <param name="rows"></param>
         /// <param name="connection"></param>
-        void DoBulkInsert<T>(Linq.Table<T> table, List<T> rows, IDbConnection connection) where T : class;
+        void DoBulkInsert<T>(Data.Linq.Table<T> table, List<T> rows, IDbConnection connection) where T : class;
 
         /// <summary>
         /// On Oracle, we have to insert a primary key manually.

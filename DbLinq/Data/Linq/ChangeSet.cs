@@ -23,11 +23,16 @@
 // THE SOFTWARE.
 // 
 #endregion
+
 using System.Collections.Generic;
+using DbLinq.Data.Linq;
 
-namespace DbLinq.Linq
+#if MONO_STRICT
+namespace System.Data.Linq
+#else
+namespace DbLinq.Data.Linq
+#endif
 {
-
     /// <summary>
     /// Contains list of datacontext entities to be deleted, inserted and updated.
     /// Merges table separate lists into single one.
@@ -85,7 +90,7 @@ namespace DbLinq.Linq
         public override string ToString()
         {
             return string.Format("Total changes: {{Added: {0}, Removed: {1}, Modified: {2}}}",
-              Inserts.Count, Deletes.Count, Updates.Count);
+                                 Inserts.Count, Deletes.Count, Updates.Count);
         }
     };
 }

@@ -1,17 +1,5 @@
-﻿#region MIT license
+#region MIT license
 // 
-// MIT license
-//
-// MIT license
-//
-// MIT license
-//
-// MIT license
-//
-// MIT license
-//
-// MIT license
-//
 // MIT license
 //
 // Copyright (c) 2007-2008 Jiri Moudry
@@ -250,7 +238,7 @@ namespace Test_NUnit_MsSql
 
             }
 #if !MONO_STRICT
-            public DbLinq.Linq.Table<ExtendedOrder> ExtendedOrders
+            public DbLinq.Data.Linq.Table<ExtendedOrder> ExtendedOrders
 #else
             public System.Data.Linq.Table<ExtendedOrder> ExtendedOrders
 #endif

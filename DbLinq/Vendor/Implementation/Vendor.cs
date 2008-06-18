@@ -35,6 +35,7 @@ using DbLinq.Factory;
 using DbLinq.Linq;
 using DbLinq.Logging;
 using DbLinq.Util;
+using DataContext=DbLinq.Data.Linq.DataContext;
 
 namespace DbLinq.Vendor.Implementation
 {
@@ -116,7 +117,7 @@ namespace DbLinq.Vendor.Implementation
             return cmd;
         }
 
-        public virtual int ExecuteCommand(DbLinq.Linq.DataContext context, string sql, params object[] parameters)
+        public virtual int ExecuteCommand(DataContext context, string sql, params object[] parameters)
         {
             using (IDbCommand command = context.DatabaseContext.CreateCommand())
             {
@@ -165,16 +166,16 @@ namespace DbLinq.Vendor.Implementation
             return sql2;
         }
 
-        public virtual bool CanBulkInsert<T>(Linq.Table<T> table) where T : class
+        public virtual bool CanBulkInsert<T>(Data.Linq.Table<T> table) where T : class
         {
             return false;
         }
 
-        public virtual void SetBulkInsert<T>(Linq.Table<T> table, int pageSize) where T : class
+        public virtual void SetBulkInsert<T>(Data.Linq.Table<T> table, int pageSize) where T : class
         {
         }
 
-        public virtual void DoBulkInsert<T>(Linq.Table<T> table, List<T> rows, IDbConnection conn) where T : class
+        public virtual void DoBulkInsert<T>(Data.Linq.Table<T> table, List<T> rows, IDbConnection conn) where T : class
         {
             throw new NotImplementedException();
         }
@@ -291,7 +292,7 @@ namespace DbLinq.Vendor.Implementation
         public abstract string VendorName { get; }
 
         public abstract IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt, StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded);
-        public abstract IExecuteResult ExecuteMethodCall(Linq.DataContext context, MethodInfo method, params object[] sqlParams);
+        public abstract IExecuteResult ExecuteMethodCall(DataContext context, MethodInfo method, params object[] sqlParams);
 
         public virtual IDbDataParameter CreateDbDataParameter(IDbCommand cmd, string dbTypeName, string paramName)
         {

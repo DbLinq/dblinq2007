@@ -24,13 +24,14 @@
 // 
 #endregion
 using System.Data;
+using DataContext=DbLinq.Data.Linq.DataContext;
 
 namespace DbLinq.Ingres
 {
     /// <summary>
     /// PgsqlDataContext allows easier one-parameter creation of a data context.
     /// </summary>
-    public class IngresDataContext : Linq.DataContext
+    public class IngresDataContext : DataContext
     {
         public IngresDataContext(IDbConnection conn)
             : base(conn, new IngresVendor())

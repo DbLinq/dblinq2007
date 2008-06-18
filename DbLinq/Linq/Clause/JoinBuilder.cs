@@ -30,6 +30,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
+using DbLinq.Data.Linq;
 using DbLinq.Util;
 using DbLinq.Vendor;
 using DbLinq.Util.ExprVisitor;

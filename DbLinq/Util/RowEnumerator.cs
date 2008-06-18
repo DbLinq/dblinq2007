@@ -27,6 +27,7 @@ using System;
 using System.Diagnostics;
 using System.Data;
 using System.Collections.Generic;
+using DbLinq.Data.Linq;
 using DbLinq.Data.Linq.Sugar;
 using DbLinq.Factory;
 using DbLinq.Linq.Identity;

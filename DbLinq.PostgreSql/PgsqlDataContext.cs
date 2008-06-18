@@ -24,13 +24,14 @@
 // 
 #endregion
 using System.Data;
+using DataContext=DbLinq.Data.Linq.DataContext;
 
 namespace DbLinq.PostgreSql
 {
     /// <summary>
     /// PgsqlDataContext allows easier one-parameter creation of a data context.
     /// </summary>
-    public class PgsqlDataContext : Linq.DataContext
+    public class PgsqlDataContext : DataContext
     {
 #if POSTGRESQL_IS_REFERENCED
         public PgsqlDataContext(string connStr)

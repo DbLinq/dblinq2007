@@ -30,15 +30,21 @@ using System.Data.Linq.Mapping;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
+using DbLinq.Data.Linq;
 using DbLinq.Factory;
+using DbLinq.Linq;
 using DbLinq.Linq.Database;
 using DbLinq.Linq.Database.Implementation;
 using DbLinq.Linq.Identity;
 using DbLinq.Logging;
 using DbLinq.Vendor;
-using QueryGenerator=DbLinq.Data.Linq.Sugar.Implementation.QueryGenerator;
+using QueryGenerator = DbLinq.Data.Linq.Sugar.Implementation.QueryGenerator;
 
-namespace DbLinq.Linq
+#if MONO_STRICT
+namespace System.Data.Linq
+#else
+namespace DbLinq.Data.Linq
+#endif
 {
     public class DataContext : IDisposable
     {
@@ -95,7 +101,7 @@ namespace DbLinq.Linq
 
             // initialize the mapping information
             if (mappingSource == null)
-                mappingSource = new Mapping.AttributeMappingSource();
+                mappingSource = new DbLinq.Linq.Mapping.AttributeMappingSource();
             Mapping = mappingSource.GetModel(GetType());
         }
 
@@ -195,7 +201,7 @@ namespace DbLinq.Linq
                     }
                 }
                 bool doCommit = failureMode == System.Data.Linq.ConflictMode.FailOnFirstConflict
-                    && exceptions.Count == 0;
+                                && exceptions.Count == 0;
                 if (doCommit)
                     transactionMgr.Commit();
             }
@@ -346,7 +352,7 @@ namespace DbLinq.Linq
         /// Execute raw SQL query and return object
         /// </summary>
         public IEnumerable<TResult> ExecuteQuery<TResult>(string command,
-          params object[] parameters) where TResult : new()
+                                                          params object[] parameters) where TResult : new()
         {
 
             using (DatabaseContext.OpenConnection())
@@ -401,5 +407,4 @@ namespace DbLinq.Linq
     {
         string GetQueryText();
     }
-
 }

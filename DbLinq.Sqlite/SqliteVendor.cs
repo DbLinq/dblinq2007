@@ -30,6 +30,7 @@ using System.Text;
 using System.Data;
 using System.Data.Linq.Mapping;
 using System.Reflection;
+using DbLinq.Data.Linq;
 using DbLinq.Logging;
 using DbLinq.Sqlite;
 using DbLinq.Util;
@@ -50,7 +51,7 @@ namespace DbLinq.Sqlite
         /// <summary>
         /// Client code needs to specify: 'Vendor.UserBulkInsert[db.Products]=10' to enable bulk insert, 10 rows at a time.
         /// </summary>
-        public static readonly Dictionary<DbLinq.Linq.IMTable, int> UseBulkInsert = new Dictionary<DbLinq.Linq.IMTable, int>();
+        public static readonly Dictionary<IMTable, int> UseBulkInsert = new Dictionary<IMTable, int>();
 
 
         public SqliteVendor()
@@ -95,12 +96,12 @@ namespace DbLinq.Sqlite
             return sb.ToString();
         }
 
-        public override bool CanBulkInsert<T>(DbLinq.Linq.Table<T> table)
+        public override bool CanBulkInsert<T>(Data.Linq.Table<T> table)
         {
             return UseBulkInsert.ContainsKey(table);
         }
 
-        public override void SetBulkInsert<T>(DbLinq.Linq.Table<T> table, int pageSize)
+        public override void SetBulkInsert<T>(Data.Linq.Table<T> table, int pageSize)
         {
             UseBulkInsert[table] = pageSize;
         }
@@ -150,7 +151,7 @@ namespace DbLinq.Sqlite
         /// call SQLite stored proc or stored function, 
         /// optionally return DataSet, and collect return params.
         /// </summary>
-        public override System.Data.Linq.IExecuteResult ExecuteMethodCall(DbLinq.Linq.DataContext context, MethodInfo method
+        public override System.Data.Linq.IExecuteResult ExecuteMethodCall(DataContext context, MethodInfo method
                                                                  , params object[] inputValues)
         {
             if (method == null)

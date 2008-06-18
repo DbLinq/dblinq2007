@@ -24,10 +24,11 @@
 // 
 #endregion
 using System.Data;
+using DataContext=DbLinq.Data.Linq.DataContext;
 
 namespace DbLinq.Oracle
 {
-    public class OracleDataContext : Linq.DataContext
+    public class OracleDataContext : DataContext
     {
 #if ORACLE_IS_REFERENCED
         public OracleDataContext(string connStr)

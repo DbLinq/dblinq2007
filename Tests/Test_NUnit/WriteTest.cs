@@ -1,17 +1,5 @@
-﻿#region MIT license
+#region MIT license
 // 
-// MIT license
-//
-// MIT license
-//
-// MIT license
-//
-// MIT license
-//
-// MIT license
-//
-// MIT license
-//
 // MIT license
 //
 // Copyright (c) 2007-2008 Jiri Moudry
@@ -35,19 +23,26 @@
 // THE SOFTWARE.
 // 
 #endregion
+
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
+using DbLinq.Data.Linq;
 using NUnit.Framework;
 using Test_NUnit;
 using System.ComponentModel;
 using System.Data.Linq.Mapping;
 
+#if MSSQL
+using DataLinq = System.Data.Linq;
+#else
+using DataLinq = DbLinq.Data.Linq;
+#endif
+
 #if !MONO_STRICT
 using nwind;
-using DbLinq.Linq;
 #else
 using MsNorthwind;
 using System.Data.Linq;
@@ -74,7 +69,7 @@ namespace Test_NUnit_PostgreSql
 #elif INGRES
     namespace Test_NUnit_Ingres
 #elif MSSQL
-namespace Test_NUnit_MsSql
+    namespace Test_NUnit_MsSql
 #else
 #error unknown target
 #endif
@@ -360,7 +355,7 @@ namespace Test_NUnit_MsSql
 
             }
 
-            public DbLinq.Linq.Table<Cust1> Cust1s
+            public Table<Cust1> Cust1s
             {
 
                 get
@@ -384,7 +379,7 @@ dummy text
 );
 ");
 
-                DbLinq.Linq.Table<Northwind1.Cust1> cust1s =
+                DataLinq.Table<Northwind1.Cust1> cust1s =
                     db.GetTable<Northwind1.Cust1>();
 
                 var cust1 = new Northwind1.Cust1();
@@ -462,7 +457,7 @@ dummy text
             }
 
 #if !MONO_STRICT
-            public DbLinq.Linq.Table<Rid> Rids
+            public DbLinq.Data.Linq.Table<Rid> Rids
 #else
             public System.Data.Linq.Table<Rid> Rids
 #endif
@@ -489,7 +484,7 @@ dummy text
 #else
             db.ExecuteCommand(@"create temp table Rid ( id int primary key DEFAULT nextval('rid_id1_seq'), reanr int DEFAULT nextval('rid_reanr_seq'))");
 #endif
-            DbLinq.Linq.Table<NorthwindG11.Rid> Rids = db.GetTable<NorthwindG11.Rid>();
+            DbLinq.Data.Linq.Table<NorthwindG11.Rid> Rids = db.GetTable<NorthwindG11.Rid>();
 
             var Rid = new NorthwindG11.Rid();
             Rid.Reanr = 22;
@@ -636,7 +631,7 @@ dummy text
             internal NorthwindLocalProperty(System.Data.IDbConnection connection)
                 : base(connection) { }
 
-            internal Table<OrderDetailWithSum> OrderDetailWithSums
+            internal DataLinq.Table<OrderDetailWithSum> OrderDetailWithSums
             {
                 get
                 {

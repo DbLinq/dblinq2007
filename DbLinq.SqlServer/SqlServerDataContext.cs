@@ -29,10 +29,11 @@ using System.Linq;
 using System.Text;
 using System.Data;
 using System.Data.SqlClient;
+using DataContext=DbLinq.Data.Linq.DataContext;
 
 namespace DbLinq.SqlServer
 {
-    public class SqlServerDataContext : DbLinq.Linq.DataContext
+    public class SqlServerDataContext : DataContext
     {
         public SqlServerDataContext(string connStr)
             : base(new SqlConnection(connStr), new SqlServerVendor())
