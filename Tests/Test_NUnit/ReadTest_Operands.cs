@@ -253,26 +253,6 @@ namespace Test_NUnit_MsSql
                 Assert.AreEqual(0, cnt);
             }
 
-#if !MONO_STRICT
-            [Test]
-            public void I1_GetQueryText()
-            {
-                Northwind db = CreateDB();
-
-                var q = from p in db.Products where p.ProductID > 1 select p;
-                string s = db.GetQueryText(q); //MTable.GetQueryText()
-            }
-
-            [Test]
-            public void I2_GetQueryText()
-            {
-                Northwind db = CreateDB();
-
-                var q = from p in db.Products select p.ProductName;
-                string s = db.GetQueryText(q); //MTable_Projected.GetQueryText()
-            }
-#endif
-
             [Test]
             public void J1_LocalFunction_DateTime_ParseExact()
             {

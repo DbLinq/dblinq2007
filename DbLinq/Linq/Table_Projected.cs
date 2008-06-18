@@ -92,9 +92,10 @@ namespace DbLinq.Linq
         {
             _vars.Context.Logger.Write(Level.Debug, "MTable_Proj.Execute<{0}>: {1}", typeof(S), expression);
 
-            SessionVars vars = new SessionVars(_vars).AddScalar(expression); //clone and append Expr
-            SessionVarsParsed varsFin = _vars.Context.QueryGenerator.GenerateQuery(vars, null); //parse all
-            return new RowScalar<T>(varsFin, this).GetScalar<S>(expression);
+            throw new Exception("Dead");
+            //SessionVars vars = new SessionVars(_vars).AddScalar(expression); //clone and append Expr
+            //SessionVarsParsed varsFin = _vars.Context.QueryGenerator.GenerateQuery(vars, null); //parse all
+            //return new RowScalar<T>(varsFin, this).GetScalar<S>(expression);
         }
 
         /// <summary>
@@ -102,15 +103,16 @@ namespace DbLinq.Linq
         /// </summary>
         public IEnumerator<T> GetEnumerator()
         {
-            //we don't keep projections in cache, pass cache=null
-            _vars.Context.Logger.Write(Level.Debug, "MTable_Proj.GetEnumerator <{0}>", typeof (T));
+            throw new Exception("Dead");
+            ////we don't keep projections in cache, pass cache=null
+            //_vars.Context.Logger.Write(Level.Debug, "MTable_Proj.GetEnumerator <{0}>", typeof (T));
 
-            //SessionVars vars = _vars.Clone();
-            SessionVarsParsed varsFin = _vars.Context.QueryGenerator.GenerateQuery(_vars, typeof(T)); //for test D7, already done in MTable.CreateQ?
+            ////SessionVars vars = _vars.Clone();
+            //SessionVarsParsed varsFin = _vars.Context.QueryGenerator.GenerateQuery(_vars, typeof(T)); //for test D7, already done in MTable.CreateQ?
 
-            RowEnumerator<T> rowEnumerator = RowEnumFactory<T>.Create(varsFin);
+            //RowEnumerator<T> rowEnumerator = RowEnumFactory<T>.Create(varsFin);
 
-            return rowEnumerator.GetEnumerator();
+            //return rowEnumerator.GetEnumerator();
         }
 
         [Obsolete("COMPLETELY UNTESTED")]
@@ -156,8 +158,9 @@ namespace DbLinq.Linq
 
         public string GetQueryText()
         {
-            SessionVarsParsed varsFin = _vars.Context.QueryGenerator.GenerateQuery(_vars, typeof(T));
-            return varsFin.SqlString;
+            throw new Exception("Dead");
+            //SessionVarsParsed varsFin = _vars.Context.QueryGenerator.GenerateQuery(_vars, typeof(T));
+            //return varsFin.SqlString;
         }
 
         public void Dispose()

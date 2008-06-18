@@ -31,6 +31,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using DbLinq.Data.Linq;
+using DbLinq.Data.Linq.Sugar;
 using DbLinq.Factory;
 using DbLinq.Linq;
 using DbLinq.Linq.Database;
@@ -56,7 +57,8 @@ namespace DbLinq.Data.Linq
         // all properties below are set public to optionally be injected
         // TODO check if 'internal' works
         public IVendor Vendor { get; set; }
-        public IQueryGenerator QueryGenerator { get; set; }
+        public IQueryBuilder QueryBuilder { get; set; }
+        public IQueryRunner QueryRunner { get; set; }
         public IResultMapper ResultMapper { get; set; }
         public IModificationHandler ModificationHandler { get; set; }
         public IDatabaseContext DatabaseContext { get; private set; }
@@ -91,8 +93,8 @@ namespace DbLinq.Data.Linq
 
             ResultMapper = ObjectFactory.Get<IResultMapper>();
             ModificationHandler = ObjectFactory.Create<IModificationHandler>(); // not a singleton: object is stateful
-            //QueryGenerator = ObjectFactory.Get<QueryGenerator>();
-            QueryGenerator = ObjectFactory.Get<QueryGenerator>();
+            QueryBuilder = ObjectFactory.Get<IQueryBuilder>();
+            QueryRunner = ObjectFactory.Get<IQueryRunner>();
 
             EntityMap = ObjectFactory.Create<IEntityMap>();
             identityReaderFactory = ObjectFactory.Get<IIdentityReaderFactory>();

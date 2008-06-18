@@ -29,10 +29,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using System.Data;
-
+using DbLinq.Data.Linq;
 using DbLinq.Linq;
 using DbLinq.Linq.Database;
 using DbLinq.Vendor;
@@ -122,7 +121,7 @@ namespace DbLinq.Linq.Clause
                 cmd.CommandText = vendor.ReplaceParamNameInSql(param.ParameterName, cmd.CommandText);
                 param.ParameterName = vendor.GetFinalParameterName(param.ParameterName);
                 cmd = vendor.AddParameter(cmd, param);
-                Debug.Write(", "+param.ParameterName + " = " + param.Value.ToString());
+                Debug.Write(", " + param.ParameterName + " = " + param.Value.ToString());
             }
             Debug.WriteLine("");
             return cmd;
@@ -191,17 +190,17 @@ namespace DbLinq.Linq.Clause
         /// given type Employee, return 'UPDATE Employee (Name) VALUES (?p1) WHERE ID='ALFKI' '
         /// (by examining [Table] and [Column] attribs)
         /// </summary>
-        public static IDbCommand GetUpdateCommand(SessionVars vars, object objectToUpdate
+        public static IDbCommand GetUpdateCommand(DataContext dataContext, object objectToUpdate
             , ProjectionData projData, string[] IDs_to_update, IList<PropertyInfo> modifiedProperties)
         {
-            if (vars == null || objectToUpdate == null || projData == null)
+            if (dataContext == null || objectToUpdate == null || projData == null)
                 throw new ArgumentNullException("InsertClauseBuilder has null args");
             if (projData.fields.Count < 1 || projData.fields[0].columnAttribute == null)
                 throw new ApplicationException("InsertClauseBuilder need to receive types that have ColumnAttributes");
 
-            IDbCommand cmd = vars.Context.DatabaseContext.CreateCommand();
+            IDbCommand cmd = dataContext.DatabaseContext.CreateCommand();
 
-            string tableName_safe = vars.Context.Vendor.GetSqlFieldSafeName(projData.tableAttribute.Name); //eg. "[Order Details]"
+            string tableName_safe = dataContext.Vendor.GetSqlFieldSafeName(projData.tableAttribute.Name); //eg. "[Order Details]"
 
             StringBuilder sb = new StringBuilder("UPDATE ");
             sb.Append(tableName_safe).Append(" SET ");
@@ -211,7 +210,7 @@ namespace DbLinq.Linq.Clause
             int paramIndex = 0;
             string separator = "";
 
-            string whereClause = GetPrimaryKeyWhereClause(vars, objectToUpdate, projData, IDs_to_update);
+            string whereClause = GetPrimaryKeyWhereClause(dataContext, objectToUpdate, projData, IDs_to_update);
 
             foreach (ProjectionData.ProjectionField projFld in projData.fields)
             {
@@ -221,7 +220,7 @@ namespace DbLinq.Linq.Clause
 
                 ColumnAttribute colAtt = projFld.columnAttribute;
 
-                string columnName_safe = vars.Context.Vendor.GetSqlFieldSafeName(colAtt.Name); //turn 'User' into '[User]'
+                string columnName_safe = dataContext.Vendor.GetSqlFieldSafeName(colAtt.Name); //turn 'User' into '[User]'
 
                 //Toncho, this edit is PostgreSql-specific and breaks MySql,
                 //please move this into Vendor.IsFieldNameSafe / MakeFieldNameSafe
@@ -244,7 +243,7 @@ namespace DbLinq.Linq.Clause
                     }
                     else
                     {
-                        paramName = vars.Context.Vendor.GetFinalParameterName(vars.Context.Vendor.GetOrderableParameterName(paramIndex++));
+                        paramName = dataContext.Vendor.GetFinalParameterName(dataContext.Vendor.GetOrderableParameterName(paramIndex++));
                     }
 
                     //append string, eg. ",Name=:p0"
@@ -257,7 +256,7 @@ namespace DbLinq.Linq.Clause
                     }
                     else
                     {
-                        IDbDataParameter param = vars.Context.Vendor.CreateDbDataParameter(cmd, colAtt.DbType, paramName);
+                        IDbDataParameter param = dataContext.Vendor.CreateDbDataParameter(cmd, colAtt.DbType, paramName);
                         param.Value = paramValue;
                         paramList.Add(param);
                     }
@@ -279,7 +278,7 @@ namespace DbLinq.Linq.Clause
             cmd.CommandText = sql;
             foreach (IDbDataParameter param in paramList)
             {
-                cmd = vars.Context.Vendor.AddParameter(cmd, param);
+                cmd = dataContext.Vendor.AddParameter(cmd, param);
                 Debug.Write(", " + param.ParameterName + " = " + param.Value.ToString());
             }
             Debug.WriteLine("");
@@ -291,10 +290,10 @@ namespace DbLinq.Linq.Clause
         /// ' (OrderID=1 AND ProductID=3) '
         /// (by examining [Table] and [Column] attribs)
         /// </summary>
-        public static string GetPrimaryKeyWhereClause(SessionVars vars, object objectToUpdate
+        public static string GetPrimaryKeyWhereClause(DataContext dataContext, object objectToUpdate
             , ProjectionData projData, string[] IDs_to_update)
         {
-            if (vars == null || objectToUpdate == null || projData == null)
+            if (dataContext == null || objectToUpdate == null || projData == null)
                 throw new ArgumentNullException("InsertClauseBuilder has null args");
             if (projData.fields.Count < 1 || projData.fields[0].columnAttribute == null)
                 throw new ApplicationException("InsertClauseBuilder need to receive types that have ColumnAttributes");
@@ -310,7 +309,7 @@ namespace DbLinq.Linq.Clause
 
                 if (colAtt.IsPrimaryKey)
                 {
-                    string columnName_safe = vars.Context.Vendor.GetSqlFieldSafeName(colAtt.Name); //turn 'User' into '[User]'
+                    string columnName_safe = dataContext.Vendor.GetSqlFieldSafeName(colAtt.Name); //turn 'User' into '[User]'
 
                     //Primary Key field: build WHERE clause
                     string primaryKeyName = columnName_safe;
@@ -336,8 +335,5 @@ namespace DbLinq.Linq.Clause
             sbPrimaryKeys.Append(")");
             return sbPrimaryKeys.ToString();
         }
-
-
-
     }
 }
