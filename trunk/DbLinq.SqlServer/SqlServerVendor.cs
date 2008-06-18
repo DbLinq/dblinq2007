@@ -33,12 +33,14 @@ using System.Data;
 using System.Data.Linq.Mapping;
 using DbLinq.Util;
 using DbLinq.Linq;
+using DataContext=DbLinq.Data.Linq.DataContext;
+using IMTable=DbLinq.Data.Linq.IMTable;
 
 namespace DbLinq.SqlServer
 {
     public class SqlServerVendor : Vendor.Implementation.Vendor
     {
-        public readonly Dictionary<DbLinq.Linq.IMTable, int> UseBulkInsert = new Dictionary<DbLinq.Linq.IMTable, int>();
+        public readonly Dictionary<IMTable, int> UseBulkInsert = new Dictionary<IMTable, int>();
 
         public override string VendorName { get { return "MsSqlServer"; } }
         //public const string SQL_PING_COMMAND = "SELECT 11";
@@ -91,7 +93,7 @@ namespace DbLinq.SqlServer
         /// because it does not fill up the translation log.
         /// This is enabled for tables where Vendor.UserBulkInsert[db.Table] is true.
         /// </summary>
-        public override void DoBulkInsert<T>(DbLinq.Linq.Table<T> table, List<T> rows, IDbConnection connection)
+        public override void DoBulkInsert<T>(Data.Linq.Table<T> table, List<T> rows, IDbConnection connection)
         {
             //use TableLock for speed:
             SqlBulkCopy bulkCopy = new SqlBulkCopy((SqlConnection)connection, SqlBulkCopyOptions.TableLock, null);
@@ -133,7 +135,7 @@ namespace DbLinq.SqlServer
 
         }
 
-        public override System.Data.Linq.IExecuteResult ExecuteMethodCall(DbLinq.Linq.DataContext context, System.Reflection.MethodInfo method, params object[] sqlParams)
+        public override System.Data.Linq.IExecuteResult ExecuteMethodCall(DataContext context, System.Reflection.MethodInfo method, params object[] sqlParams)
         {
             throw new NotImplementedException();
         }
@@ -143,12 +145,12 @@ namespace DbLinq.SqlServer
         /// </summary>
         //public static readonly Dictionary<DbLinq.Linq.IMTable, bool> UseBulkInsert = new Dictionary<DbLinq.Linq.IMTable, bool>();
 
-        public override bool CanBulkInsert<T>(DbLinq.Linq.Table<T> table)
+        public override bool CanBulkInsert<T>(Data.Linq.Table<T> table)
         {
             return UseBulkInsert.ContainsKey(table);
         }
 
-        public override void SetBulkInsert<T>(DbLinq.Linq.Table<T> table, int pageSize)
+        public override void SetBulkInsert<T>(Data.Linq.Table<T> table, int pageSize)
         {
             UseBulkInsert[table] = pageSize;
         }

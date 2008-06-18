@@ -31,6 +31,7 @@ using System.Text;
 using System.Data.Linq.Mapping;
 using System.Reflection;
 using System.Data;
+using DbLinq.Data.Linq;
 using DbLinq.Linq;
 using DbLinq.Linq.Clause;
 using DbLinq.Logging;

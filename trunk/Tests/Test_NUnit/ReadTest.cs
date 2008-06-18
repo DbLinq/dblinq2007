@@ -2,18 +2,6 @@
 // 
 // MIT license
 //
-// MIT license
-//
-// MIT license
-//
-// MIT license
-//
-// MIT license
-//
-// MIT license
-//
-// MIT license
-//
 // Copyright (c) 2007-2008 Jiri Moudry
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -469,7 +457,7 @@ namespace Test_NUnit_MsSql
             public class CustomerDerivedClass2 : CustomerDerivedClass { }
 
 #if !MONO_STRICT
-            public DbLinq.Linq.Table<CustomerDerivedClass> ChildCustomers
+            public DbLinq.Data.Linq.Table<CustomerDerivedClass> ChildCustomers
 #else
             public System.Data.Linq.Table<CustomerDerivedClass> ChildCustomers
 #endif
@@ -559,7 +547,7 @@ namespace Test_NUnit_MsSql
                 }
             }
 #if !MONO_STRICT
-            public DbLinq.Linq.Table<CustomerDerivedClass> ChildCustomers
+            public DbLinq.Data.Linq.Table<CustomerDerivedClass> ChildCustomers
 #else
             public System.Data.Linq.Table<CustomerDerivedClass> ChildCustomers
 #endif
@@ -616,7 +604,7 @@ namespace Test_NUnit_MsSql
             public class Customer2 : Customer { }
 
 #if !MONO_STRICT
-            public DbLinq.Linq.Table<Customer2> ChildCustomers
+            public DbLinq.Data.Linq.Table<Customer2> ChildCustomers
 #else
             public System.Data.Linq.Table<Customer2> ChildCustomers
 #endif

@@ -30,6 +30,7 @@ using System.Data.Linq.Mapping;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using DbLinq.Data.Linq;
 using DbLinq.Util;
 using System.Collections.Generic;
 

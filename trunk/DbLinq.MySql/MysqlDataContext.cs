@@ -24,10 +24,11 @@
 // 
 #endregion
 using System.Data;
+using DataContext=DbLinq.Data.Linq.DataContext;
 
 namespace DbLinq.MySql
 {
-    public class MySqlDataContext : Linq.DataContext
+    public class MySqlDataContext : DataContext
     {
 #if MYSQL_IS_REFERENCED
         public MySqlDataContext(string connStr)

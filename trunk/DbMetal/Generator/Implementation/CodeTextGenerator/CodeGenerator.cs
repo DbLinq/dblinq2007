@@ -27,7 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using DbLinq.Linq;
+using DbLinq.Data.Linq;
 using DbLinq.Logging;
 using DbLinq.Schema;
 using DbLinq.Schema.Dbml;
@@ -132,6 +132,11 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             writer.WriteUsingNamespace("System.Linq");
             writer.WriteUsingNamespace("System.Reflection");
             writer.WriteUsingNamespace("System.Text");
+#if MONO_STRICT
+            writer.WriteUsingNamespace("System.Data.Linq");
+#else
+            writer.WriteUsingNamespace("DbLinq.Data.Linq");
+#endif
             writer.WriteUsingNamespace("DbLinq.Linq");
             writer.WriteUsingNamespace("DbLinq.Linq.Mapping");
             writer.WriteLine();

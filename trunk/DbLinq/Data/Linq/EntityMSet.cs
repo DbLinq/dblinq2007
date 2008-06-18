@@ -23,6 +23,7 @@
 // THE SOFTWARE.
 // 
 #endregion
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -30,10 +31,14 @@ using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace DbLinq.Linq
+#if MONO_STRICT
+namespace System.Data.Linq
+#else
+namespace DbLinq.Data.Linq
+#endif
 {
     public class EntityMSet<T> : IQueryable<T>
-        , IQueryProvider //new as of Beta2
+                                 , IQueryProvider //new as of Beta2
     {
 
         /// <summary>
@@ -80,7 +85,7 @@ namespace DbLinq.Linq
             //copied from RdfProvider
             get { return Expression.Constant(this); }
         }
- 
+
 
         public IQueryable CreateQuery(Expression expression)
         {
@@ -112,5 +117,4 @@ namespace DbLinq.Linq
     public struct EntityMRef
     {
     }
-
 }

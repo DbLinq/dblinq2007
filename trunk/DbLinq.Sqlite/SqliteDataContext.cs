@@ -24,10 +24,11 @@
 // 
 #endregion
 using System.Data;
+using DataContext=DbLinq.Data.Linq.DataContext;
 
 namespace DbLinq.Sqlite
 {
-    public class SqliteDataContext : Linq.DataContext
+    public class SqliteDataContext : DataContext
     {
 #if SQLITE_IS_REFERENCED
         public SqliteDataContext(string connStr)

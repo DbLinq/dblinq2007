@@ -36,6 +36,8 @@ using DbLinq.Util;
 using DbLinq.Util.ExprVisitor;
 using DbLinq.Linq.Mapping;
 using DbLinq.Vendor;
+using DataContext=DbLinq.Data.Linq.DataContext;
+
 namespace DbLinq.Linq.Clause
 {
     /// <summary>

@@ -32,6 +32,7 @@ using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Data.Common;
+using DbLinq.Data.Linq;
 using DbLinq.Linq;
 using DbLinq.Util;
 

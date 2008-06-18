@@ -1,4 +1,4 @@
-#region Auto-generated classes for "Northwind" database on 2008-06-16 23:35:20Z
+#region Auto-generated classes for "Northwind" database on 2008-06-18 21:55:57Z
 
 //
 //  ____  _     __  __      _        _
@@ -7,7 +7,7 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from "Northwind" on 2008-06-16 23:35:20Z
+// Auto-generated from "Northwind" on 2008-06-18 21:55:57Z
 // Please visit http://linq.to/db for more information
 
 #endregion
@@ -21,12 +21,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using DbLinq.Data.Linq;
 using DbLinq.Linq;
 using DbLinq.Linq.Mapping;
 
 namespace nwind
 {
-	public partial class Northwind : DbLinq.Linq.DataContext
+	public partial class Northwind : DbLinq.Data.Linq.DataContext
 	{
 		public Northwind(System.Data.IDbConnection connection)
 		: base(connection, new DbLinq.Oracle.OracleVendor())

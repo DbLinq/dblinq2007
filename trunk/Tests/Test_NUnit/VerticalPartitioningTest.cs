@@ -2,12 +2,6 @@
 // 
 // MIT license
 //
-// MIT license
-//
-// MIT license
-//
-// MIT license
-//
 // Copyright (c) 2007-2008 Jiri Moudry
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy

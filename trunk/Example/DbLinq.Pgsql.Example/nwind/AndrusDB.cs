@@ -10,6 +10,7 @@ using System.Linq;
 //using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using System.Reflection;
+using DbLinq.Data.Linq;
 using DbLinq.Linq;
 using DbLinq.Linq.Mapping;
 using DbLinq.PostgreSql;

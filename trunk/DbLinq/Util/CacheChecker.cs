@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Data.Linq.Mapping;
 using System.Text;
+using DbLinq.Data.Linq;
 using DbLinq.Linq;
 using DbLinq.Util;
 using DbLinq.Linq.Identity;
