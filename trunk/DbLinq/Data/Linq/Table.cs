@@ -27,21 +27,19 @@
 using System;
 using System.Data;
 using System.Reflection;
-using System.IO;
 using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
 
 //using System.Data.DLinq;
+using DbLinq.Data.Linq.Implementation;
+using DbLinq.Data.Linq.Sugar;
 using DbLinq.Linq;
 using DbLinq.Linq.Clause;
-using DbLinq.Linq.Implementation;
 using DbLinq.Logging;
 using DbLinq.Util;
-using DbLinq.Vendor;
 using ITable = System.Data.Linq.ITable;
 
 #if MONO_STRICT
@@ -59,7 +57,6 @@ namespace DbLinq.Data.Linq
         , IOrderedQueryable<T> //this is cheating ... we pretend to be always ordered
         , ITable
         , IMTable
-        , IQueryText
         , IQueryProvider //new as of Beta2
         where T : class
     {
@@ -73,8 +70,7 @@ namespace DbLinq.Data.Linq
 
         private readonly List<T> _insertList = new List<T>();
         private readonly List<T> _deleteList = new List<T>();
-
-        private readonly SessionVars _vars;
+        private QueryProvider<T> _queryProvider;
 
         public ILogger Logger { get; set; }
 
@@ -84,18 +80,7 @@ namespace DbLinq.Data.Linq
         {
             DataContext = parent;
             DataContext.RegisterChild(this);
-            _vars = new SessionVars(parent, this);
-        }
-
-        /// <summary>
-        /// this is used when we call CreateQuery to create a copy of orig table object
-        /// </summary>
-        public Table(Table<T> parent, SessionVars vars)
-        {
-            _insertList = parent._insertList;
-            _deleteList = parent._deleteList;
-            DataContext = parent.DataContext;
-            _vars = vars;
+            _queryProvider = new QueryProvider<T>(parent);
         }
 
         /// <summary>
@@ -104,26 +89,7 @@ namespace DbLinq.Data.Linq
         /// </summary>
         public IQueryable<S> CreateQuery<S>(Expression expr)
         {
-            DataContext.Logger.Write(Level.Debug, "MTable.CreateQuery: {0}", expr);
-
-            SessionVars vars = new SessionVars(_vars).Add(expr);
-
-            //if (this is IQueryable<S>)
-            if (typeof(S) == typeof(T))
-            {
-                //this occurs if we are not projecting
-                //(meaning that we are selecting entire row object)
-                Table<T> clonedThis = new Table<T>(this, vars);
-                IQueryable<S> this_S = (IQueryable<S>)clonedThis;
-                return this_S;
-            }
-            else
-            {
-                //if we get here, we are projecting.
-                //(eg. you select only a few fields: "select name from employee")
-                MTable_Projected<S> projectedQ = new MTable_Projected<S>(vars);
-                return projectedQ;
-            }
+            return _queryProvider.CreateQuery<S>(expr);
         }
 
         /// <summary>
@@ -132,32 +98,7 @@ namespace DbLinq.Data.Linq
         [Obsolete("COMPLETELY UNTESTED - Use CreateQuery<S>")]
         public IQueryable CreateQuery(Expression expression)
         {
-            DataContext.Logger.Write(Level.Debug, "MTable.CreateQuery: {0}", expression);
-
-            Type S = expression.Type;
-            SessionVars vars = new SessionVars(_vars).Add(expression);
-
-            //if (this is IQueryable<S>)
-            bool sameType = (S == typeof(IQueryable<T>)) || (S == typeof(IOrderedQueryable<T>));
-            if (sameType)
-            {
-                //this occurs if we are not projecting
-                //(meaning that we are selecting entire row object)
-                Table<T> clonedThis = new Table<T>(this, vars);
-                //IQueryable<S> this_S = (IQueryable<S>)clonedThis;
-                IQueryable this_S = (IQueryable)clonedThis;
-                return this_S;
-            }
-            else
-            {
-                //if we get here, we are projecting.
-                //(eg. you select only a few fields: "select name from employee")
-                //MTable_Projected<S> projectedQ = new MTable_Projected<S>(vars);
-                Type TArg2 = S;
-                Type mtableProjectedType2 = typeof(MTable_Projected<>).MakeGenericType(TArg2);
-                object projectedQ = Activator.CreateInstance(mtableProjectedType2, vars);
-                return projectedQ as IQueryable;
-            }
+            return _queryProvider.CreateQuery(expression);
         }
 
         /// <summary>
@@ -165,10 +106,12 @@ namespace DbLinq.Data.Linq
         /// </summary>
         public S Execute<S>(Expression expression)
         {
-            _vars.Context.Logger.Write(Level.Debug, "MTable.Execute<{0}>: {1}", typeof(S), expression);
-            SessionVars vars2 = new SessionVars(_vars).AddScalar(expression); //clone and append Expr
-            SessionVarsParsed varsFin = _vars.Context.QueryGenerator.GenerateQuery(vars2, typeof(T)); //parse all
-            return new RowScalar<T>(varsFin, this).GetScalar<S>(expression);
+            return _queryProvider.Execute<S>(expression);
+        }
+
+        public object Execute(Expression expression)
+        {
+            return _queryProvider.Execute(expression);
         }
 
         /// <summary>
@@ -176,11 +119,8 @@ namespace DbLinq.Data.Linq
         /// </summary>
         public IEnumerator<T> GetEnumerator()
         {
-            SessionVarsParsed varsFin = _vars.Context.QueryGenerator.GenerateQuery(_vars, typeof(T));
-            RowEnumerator<T> rowEnumerator = new RowEnumerator<T>(varsFin);
-            return rowEnumerator.GetEnumerator();
+            return _queryProvider.GetEnumerator();
         }
-
 
         IEnumerator IEnumerable.GetEnumerator()
         {
@@ -188,23 +128,19 @@ namespace DbLinq.Data.Linq
             return enumT;
         }
 
-        [Obsolete("NOT IMPLEMENTED YET")]
         public Type ElementType
         {
-            //we have no clue what to return here ...
-            get { return typeof(T); }
+            get { return _queryProvider.ElementType; }
         }
 
         public Expression Expression
         {
-            //copied from RdfProvider
-            get { return Expression.Constant(this); }
+            get { return Expression.Constant(this); } // do not change this to _queryProvider.Expression, Sugar doesn't fully handle QueryProviders by now
         }
 
-        [Obsolete("NOT IMPLEMENTED YET - Use Execute<S>")]
-        public object Execute(Expression expression)
+        public IQueryProvider Provider
         {
-            throw new ApplicationException("L205 Not implemented");
+            get { return _queryProvider.Provider; }
         }
 
         #region Insert functions
@@ -287,7 +223,7 @@ namespace DbLinq.Data.Linq
         /// <summary>
         /// required for ITable
         /// </summary>
-        /// <param name="obj"></param>
+        /// <param name="entity"></param>
         void ITable.Attach(object entity)
         {
             T te = entity as T;
@@ -376,9 +312,9 @@ namespace DbLinq.Data.Linq
             //object[] indices = new object[0];
             ProjectionData proj = ProjectionData.FromDbType(typeof(T));
 
-            if (_vars.Context.Vendor.CanBulkInsert<T>(this))
+            if (DataContext.Vendor.CanBulkInsert<T>(this))
             {
-                _vars.Context.Vendor.DoBulkInsert(this, _insertList, _vars.Context.DatabaseContext.Connection);
+                DataContext.Vendor.DoBulkInsert(this, _insertList, DataContext.DatabaseContext.Connection);
                 _insertList.Clear();
             }
 
@@ -389,7 +325,7 @@ namespace DbLinq.Data.Linq
                 //INSERT INTO EMPLOYEES (EmpId, Name, DateStarted) VALUES (EmpID_SEQ.NextVal,?p1,?p2); SELECT EmpID_SEQ.CurrVal
                 try
                 {
-                    using (IDbCommand cmd = InsertClauseBuilder.GetClause(_vars.Context.Vendor, _vars.Context.DatabaseContext, obj, proj))
+                    using (IDbCommand cmd = InsertClauseBuilder.GetClause(DataContext.Vendor, DataContext.DatabaseContext, obj, proj))
                     {
                         object objID = cmd.ExecuteScalar();
 
@@ -400,7 +336,7 @@ namespace DbLinq.Data.Linq
                         }
 
                         //Oracle unpacks objID from an out-param:
-                        _vars.Context.Vendor.ProcessInsertedId(cmd, ref objID);
+                        DataContext.Vendor.ProcessInsertedId(cmd, ref objID);
 
                         try
                         {
@@ -423,11 +359,11 @@ namespace DbLinq.Data.Linq
                 {
                     switch (failureMode)
                     {
-                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                            excepts.Add(ex);
-                            break;
-                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                            throw ex;
+                    case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                        excepts.Add(ex);
+                        break;
+                    case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                        throw ex;
                     }
                 }
 
@@ -448,7 +384,7 @@ namespace DbLinq.Data.Linq
 
                     IList<PropertyInfo> modifiedProperties = _modificationHandler.GetModifiedProperties(obj);
 
-                    using (IDbCommand cmd = InsertClauseBuilder.GetUpdateCommand(_vars, obj, proj, ID_to_update, modifiedProperties))
+                    using (IDbCommand cmd = InsertClauseBuilder.GetUpdateCommand(DataContext, obj, proj, ID_to_update, modifiedProperties))
                     {
                         int result = cmd.ExecuteNonQuery();
                         Trace.WriteLine("MTable SaveAll.Update returned:" + result);
@@ -461,11 +397,11 @@ namespace DbLinq.Data.Linq
                     Trace.WriteLine("Table.SubmitChanges failed: " + ex);
                     switch (failureMode)
                     {
-                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                            excepts.Add(ex);
-                            break;
-                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                            throw ex;
+                    case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                        excepts.Add(ex);
+                        break;
+                    case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                        throw ex;
                     }
                 }
             }
@@ -495,7 +431,7 @@ namespace DbLinq.Data.Linq
                     {
                         string[] ID_to_delete = getObjectID(obj);
 
-                        string whereClause = InsertClauseBuilder.GetPrimaryKeyWhereClause(_vars, obj, proj, ID_to_delete);
+                        string whereClause = InsertClauseBuilder.GetPrimaryKeyWhereClause(DataContext, obj, proj, ID_to_delete);
 
                         idsToDelete.Add(whereClause);
                     }
@@ -503,15 +439,15 @@ namespace DbLinq.Data.Linq
                     {
                         switch (failureMode)
                         {
-                            case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                                excepts.Add(ex);
-                                break;
-                            case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                                throw ex;
+                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                            excepts.Add(ex);
+                            break;
+                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                            throw ex;
                         }
                     }
                 }
-                string tableName = _vars.Context.Vendor.GetSqlFieldSafeName(proj.tableAttribute.Name);
+                string tableName = DataContext.Vendor.GetSqlFieldSafeName(proj.tableAttribute.Name);
 
                 //this does not work with CompositePKs:
                 //string sql = "DELETE FROM " + tableName + " WHERE " + proj.keyColumnName + " in (" + sbDeleteIDs + ")";
@@ -533,18 +469,6 @@ namespace DbLinq.Data.Linq
             return excepts;
         }
         #endregion
-
-        public string GetQueryText()
-        {
-            SessionVarsParsed varsFin = _vars.Context.QueryGenerator.GenerateQuery(_vars, typeof(T));
-            return varsFin.SqlString;
-        }
-
-        //New as of Orcas Beta2 - what does it do?
-        public IQueryProvider Provider
-        {
-            get { return this; }
-        }
 
         /// <summary>
         /// TODO: RemoveAll(where_clause)

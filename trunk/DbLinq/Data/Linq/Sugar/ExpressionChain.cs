@@ -25,18 +25,25 @@
 #endregion
 
 using System.Collections;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Collections.Generic;
 
 namespace DbLinq.Data.Linq.Sugar
 {
+    [DebuggerDisplay("ExpressionChain {Expressions.Count} Expression(s)")]
     public class ExpressionChain : IEnumerable<Expression>
     {
-        public IList<Expression> Expressions { get; private set; }
+        public List<Expression> Expressions { get; private set; }
 
-        public ExpressionChain(IList<Expression> expressions)
+        public ExpressionChain()
         {
-            Expressions = expressions;
+            Expressions = new List<Expression>();
+        }
+
+        public ExpressionChain(IEnumerable<Expression> expressions)
+        {
+            Expressions = new List<Expression>(expressions);
         }
 
         public ExpressionChain(IEnumerable expressions)
@@ -44,6 +51,18 @@ namespace DbLinq.Data.Linq.Sugar
             Expressions = new List<Expression>();
             foreach (Expression e in expressions)
                 Expressions.Add(e);
+        }
+
+        public ExpressionChain(IEnumerable expressions, Expression expression)
+            : this(expressions)
+        {
+            Expressions.Add(expression);
+        }
+
+        public ExpressionChain(IEnumerable expressions, IEnumerable<Expression> expressions2)
+            : this(expressions)
+        {
+            Expressions.AddRange(expressions2);
         }
 
         public override bool Equals(object obj)

@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using DbLinq.Data.Linq.Implementation;
 using DbLinq.Data.Linq.Sugar;
 using DbLinq.Data.Linq.Sugar.ExpressionMutator;
 using DbLinq.Data.Linq.Sugar.Expressions;
@@ -926,7 +927,6 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
 
         protected virtual Expression AnalyzeSelectOperation(SelectOperatorType operatorType, IList<Expression> parameters, BuilderContext builderContext)
         {
-
             // a special case: if we have several SELECT expressions linked together,
             // we maximize the load to the database, since the result must use the same parameters
             // types and count.
@@ -938,10 +938,21 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
 
             // TODO: this is very dirty code, unreliable, unstable, and unlovable
             var constantExpression = parameters[1] as ConstantExpression;
+            ExpressionChain expressionChain;
+            Type table;
             var sessionVarsHolder = constantExpression.Value as IGetSessionVars;
-
-            var expressionChain = new ExpressionChain(sessionVarsHolder.SessionVars.ExpressionChain);
-            var table = GetQueriedType(sessionVarsHolder.SessionVars.Table.GetType());// GetQueriedType(expressionChain.Expressions[0]);
+            if (sessionVarsHolder != null)
+            {
+                expressionChain = new ExpressionChain(sessionVarsHolder.SessionVars.ExpressionChain);
+                table = GetQueriedType(sessionVarsHolder.SessionVars.Table.GetType());
+                // GetQueriedType(expressionChain.Expressions[0]);
+            }
+            else
+            {
+                var queryProvider = (QueryProvider)constantExpression.Value;
+                expressionChain = queryProvider.ExpressionChain;
+                table = queryProvider.TableType;
+            }
             var queryBuilder = ObjectFactory.Get<QueryBuilder>();
             var tableExpression = new TableExpression(table,
                                                       DataMapper.GetTableName(table,
