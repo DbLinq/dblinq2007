@@ -2,7 +2,7 @@
 // 
 // MIT license
 //
-// Copyright (c) 2007-2008 Jiri Moudry, Pascal Craponne
+// Copyright (c) 2007-2008 Jiri Moudry
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,16 +24,17 @@
 // 
 #endregion
 
-namespace DbLinq.Linq.Identity.Implementation
+using System;
+using System.Data.Linq.Mapping;
+
+namespace DbLinq.Data.Linq.Mapping
 {
-    /// <summary>
-    /// Returns an Identity from an IdentityKey self-provider (an entity implementing IIdentityProvider)
-    /// </summary>
-    class IdentityProviderReader : IIdentityReader
+    public class AttributeMappingSource : MappingSource
     {
-        public IdentityKey GetIdentityKey(object entity)
+        protected override MetaModel CreateModel(Type dataContextType)
         {
-            return ((IIdentityProvider)entity).GetIdentity();
+            var metaModel = new AttributedMetaModel(dataContextType, this);
+            return metaModel;
         }
     }
 }

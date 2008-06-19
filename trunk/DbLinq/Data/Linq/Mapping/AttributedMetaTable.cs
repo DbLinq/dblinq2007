@@ -2,7 +2,7 @@
 // 
 // MIT license
 //
-// Copyright (c) 2007-2008 Jiri Moudry, Pascal Craponne
+// Copyright (c) 2007-2008 Jiri Moudry
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,7 @@ using System.Data.Linq.Mapping;
 using System.Diagnostics;
 using System.Reflection;
 
-namespace DbLinq.Linq.Mapping
+namespace DbLinq.Data.Linq.Mapping
 {
     [DebuggerDisplay("MetaTable for {TableName}")]
     internal class AttributedMetaTable : MetaTable

@@ -24,44 +24,13 @@
 // 
 #endregion
 
-using System;
-using System.Reflection;
-using System.Collections.Generic;
-using DbLinq.Util;
-
-namespace DbLinq.Linq.Identity.Implementation
+namespace DbLinq.Data.Linq.Identity
 {
-    public class IdentityReader : IIdentityReader
+    /// <summary>
+    /// This interface may be used by identities to provide a quick access to keys
+    /// </summary>
+    public interface IIdentityProvider
     {
-        private Type type;
-        private IList<MemberInfo> keyMembers = new List<MemberInfo>();
-
-        public IdentityKey GetIdentityKey(object entity)
-        {
-            // no PK? --> null as identity (==we can not collect it)
-            if (keyMembers.Count == 0)
-                return null;
-            var keys = new List<object>();
-            foreach (var keyMember in keyMembers)
-            {
-                var key = keyMember.GetMemberValue(entity);
-                keys.Add(key);
-            }
-            return new IdentityKey(type, keys);
-        }
-
-        public IdentityReader(Type t)
-        {
-            type = t;
-            foreach (var memberInfo in t.GetMembers())
-            {
-                var columnAttribute = AttribHelper.GetColumnAttribute(memberInfo);
-                if (columnAttribute != null)
-                {
-                    if (columnAttribute.IsPrimaryKey)
-                        keyMembers.Add(memberInfo);
-                }
-            }
-        }
+        IdentityKey GetIdentity();
     }
 }

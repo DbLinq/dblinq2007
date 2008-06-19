@@ -2,7 +2,7 @@
 // 
 // MIT license
 //
-// Copyright (c) 2007-2008 Jiri Moudry, Pascal Craponne
+// Copyright (c) 2007-2008 Jiri Moudry
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -33,7 +33,7 @@ using System.Reflection;
 using DbLinq.Util;
 using System.Collections.Generic;
 
-namespace DbLinq.Linq.Mapping
+namespace DbLinq.Data.Linq.Mapping
 {
     [DebuggerDisplay("MetaType for {Name}")]
     internal class AttributedMetaType : MetaType

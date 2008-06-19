@@ -25,10 +25,9 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
-namespace DbLinq.Linq.Identity
+namespace DbLinq.Data.Linq.Identity
 {
     /// <summary>
     /// Identifies an object in a unique way (think Primay Keys in a database table)

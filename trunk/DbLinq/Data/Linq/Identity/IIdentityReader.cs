@@ -24,17 +24,15 @@
 // 
 #endregion
 
-using System;
-using System.Data.Linq.Mapping;
-
-namespace DbLinq.Linq.Mapping
+namespace DbLinq.Data.Linq.Identity
 {
-    public class AttributeMappingSource : MappingSource
+    public interface IIdentityReader
     {
-        protected override MetaModel CreateModel(Type dataContextType)
-        {
-            var metaModel = new AttributedMetaModel(dataContextType, this);
-            return metaModel;
-        }
+        /// <summary>
+        /// Gets an object identity
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        IdentityKey GetIdentityKey(object entity);
     }
 }

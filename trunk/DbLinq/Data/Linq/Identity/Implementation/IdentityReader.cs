@@ -25,20 +25,44 @@
 #endregion
 
 using System;
+using System.Reflection;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using DbLinq.Data.Linq.Identity;
+using DbLinq.Util;
 
-namespace DbLinq.Linq.Identity
+namespace DbLinq.Data.Linq.Identity.Implementation
 {
-    public interface IIdentityReaderFactory
+    public class IdentityReader : IIdentityReader
     {
-        /// <summary>
-        /// Returns an IIdentityReader specific to the requested type
-        /// (this allows to precompile the reader)
-        /// </summary>
-        /// <param name="t"></param>
-        /// <returns></returns>
-        IIdentityReader GetReader(Type t);
+        private Type type;
+        private IList<MemberInfo> keyMembers = new List<MemberInfo>();
+
+        public IdentityKey GetIdentityKey(object entity)
+        {
+            // no PK? --> null as identity (==we can not collect it)
+            if (keyMembers.Count == 0)
+                return null;
+            var keys = new List<object>();
+            foreach (var keyMember in keyMembers)
+            {
+                var key = keyMember.GetMemberValue(entity);
+                keys.Add(key);
+            }
+            return new IdentityKey(type, keys);
+        }
+
+        public IdentityReader(Type t)
+        {
+            type = t;
+            foreach (var memberInfo in t.GetMembers())
+            {
+                var columnAttribute = AttribHelper.GetColumnAttribute(memberInfo);
+                if (columnAttribute != null)
+                {
+                    if (columnAttribute.IsPrimaryKey)
+                        keyMembers.Add(memberInfo);
+                }
+            }
+        }
     }
 }

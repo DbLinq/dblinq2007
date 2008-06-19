@@ -24,17 +24,18 @@
 // 
 #endregion
 
-using System;
+using DbLinq.Data.Linq.Identity;
 
-namespace DbLinq.Linq.Identity.Implementation
+namespace DbLinq.Data.Linq.Identity.Implementation
 {
-    public class IdentityReaderFactory : IIdentityReaderFactory
+    /// <summary>
+    /// Returns an Identity from an IdentityKey self-provider (an entity implementing IIdentityProvider)
+    /// </summary>
+    class IdentityProviderReader : IIdentityReader
     {
-        public IIdentityReader GetReader(Type t)
+        public IdentityKey GetIdentityKey(object entity)
         {
-            if (typeof(IIdentityProvider).IsAssignableFrom(t))
-                return new IdentityProviderReader();
-            return new IdentityReader(t);
+            return ((IIdentityProvider)entity).GetIdentity();
         }
     }
 }

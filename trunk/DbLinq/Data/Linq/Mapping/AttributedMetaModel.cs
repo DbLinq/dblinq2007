@@ -2,7 +2,7 @@
 // 
 // MIT license
 //
-// Copyright (c) 2007-2008 Jiri Moudry, Pascal Craponne
+// Copyright (c) 2007-2008 Jiri Moudry
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,16 +25,16 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Data.Linq.Mapping;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using DbLinq.Data.Linq;
+using DbLinq.Data.Linq.Mapping;
 using DbLinq.Util;
 using System.Collections.Generic;
 
-namespace DbLinq.Linq.Mapping
+namespace DbLinq.Data.Linq.Mapping
 {
     /// <summary>
     /// This class is a stateless attribute meta model (it does not depend on any provider)
