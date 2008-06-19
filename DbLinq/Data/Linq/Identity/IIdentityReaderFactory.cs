@@ -24,13 +24,18 @@
 // 
 #endregion
 
-namespace DbLinq.Linq.Identity
+using System;
+
+namespace DbLinq.Data.Linq.Identity
 {
-    /// <summary>
-    /// This interface may be used by identities to provide a quick access to keys
-    /// </summary>
-    public interface IIdentityProvider
+    public interface IIdentityReaderFactory
     {
-        IdentityKey GetIdentity();
+        /// <summary>
+        /// Returns an IIdentityReader specific to the requested type
+        /// (this allows to precompile the reader)
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        IIdentityReader GetReader(Type t);
     }
 }

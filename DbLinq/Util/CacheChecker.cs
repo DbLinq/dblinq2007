@@ -6,9 +6,9 @@ using System.Linq.Expressions;
 using System.Data.Linq.Mapping;
 using System.Text;
 using DbLinq.Data.Linq;
+using DbLinq.Data.Linq.Identity;
 using DbLinq.Linq;
 using DbLinq.Util;
-using DbLinq.Linq.Identity;
 
 namespace DbLinq.Util
 {

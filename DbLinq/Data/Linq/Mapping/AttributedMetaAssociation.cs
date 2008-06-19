@@ -2,7 +2,7 @@
 // 
 // MIT license
 //
-// Copyright (c) 2007-2008 Jiri Moudry, Pascal Craponne
+// Copyright (c) 2007-2008 Jiri Moudry
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -31,7 +31,7 @@ using System.Reflection;
 using DbLinq.Util;
 using System.Collections.Generic;
 
-namespace DbLinq.Linq.Mapping
+namespace DbLinq.Data.Linq.Mapping
 {
     internal class AttributedMetaAssociation : MetaAssociation
     {
@@ -54,7 +54,7 @@ namespace DbLinq.Linq.Mapping
                     var otherKey = otherKeyRaw.Trim();
                     var keyMember = otherTable.RowType.Type.GetMember(otherKey)[0];
                     otherKeysList.Add(new AttributedColumnMetaDataMember(keyMember, GetColumnAttribute(keyMember),
-                                                                 thisTable.RowType));
+                                                                         thisTable.RowType));
                 }
             }
             otherKeys = new ReadOnlyCollection<MetaDataMember>(otherKeysList);
@@ -78,7 +78,7 @@ namespace DbLinq.Linq.Mapping
                     var thisKey = thisKeyRaw.Trim();
                     var keyMember = memberInfo.DeclaringType.GetSingleMember(thisKey);
                     thisKeyList.Add(new AttributedColumnMetaDataMember(keyMember, GetColumnAttribute(keyMember),
-                                                                 ThisMember.DeclaringType));
+                                                                       ThisMember.DeclaringType));
                 }
             }
             theseKeys = new ReadOnlyCollection<MetaDataMember>(thisKeyList);

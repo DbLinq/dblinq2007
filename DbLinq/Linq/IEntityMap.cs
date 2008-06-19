@@ -24,7 +24,7 @@
 // 
 #endregion
 
-using DbLinq.Linq.Identity;
+using DbLinq.Data.Linq.Identity;
 using System.Collections.Generic;
 
 namespace DbLinq.Linq

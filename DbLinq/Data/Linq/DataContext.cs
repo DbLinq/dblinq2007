@@ -31,15 +31,15 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using DbLinq.Data.Linq;
+using DbLinq.Data.Linq.Identity;
 using DbLinq.Data.Linq.Sugar;
 using DbLinq.Factory;
 using DbLinq.Linq;
 using DbLinq.Linq.Database;
 using DbLinq.Linq.Database.Implementation;
-using DbLinq.Linq.Identity;
 using DbLinq.Logging;
 using DbLinq.Vendor;
-using QueryGenerator = DbLinq.Data.Linq.Sugar.Implementation.QueryGenerator;
+using AttributeMappingSource = DbLinq.Data.Linq.Mapping.AttributeMappingSource;
 
 #if MONO_STRICT
 namespace System.Data.Linq
@@ -103,7 +103,7 @@ namespace DbLinq.Data.Linq
 
             // initialize the mapping information
             if (mappingSource == null)
-                mappingSource = new DbLinq.Linq.Mapping.AttributeMappingSource();
+                mappingSource = new AttributeMappingSource();
             Mapping = mappingSource.GetModel(GetType());
         }
 

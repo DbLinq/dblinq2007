@@ -25,19 +25,18 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using DbLinq.Data.Linq.Identity;
+using DbLinq.Data.Linq.Identity.Implementation;
 
-namespace DbLinq.Linq.Identity
+namespace DbLinq.Data.Linq.Identity.Implementation
 {
-    public interface IIdentityReader
+    public class IdentityReaderFactory : IIdentityReaderFactory
     {
-        /// <summary>
-        /// Gets an object identity
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
-        IdentityKey GetIdentityKey(object entity);
+        public IIdentityReader GetReader(Type t)
+        {
+            if (typeof(IIdentityProvider).IsAssignableFrom(t))
+                return new IdentityProviderReader();
+            return new IdentityReader(t);
+        }
     }
 }
