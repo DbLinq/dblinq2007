@@ -35,7 +35,7 @@ using Test_NUnit;
 using System.ComponentModel;
 using System.Data.Linq.Mapping;
 
-#if MSSQL
+#if MONO_STRICT
 using DataLinq = System.Data.Linq;
 #else
 using DataLinq = DbLinq.Data.Linq;
