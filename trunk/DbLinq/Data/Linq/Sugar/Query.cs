@@ -69,6 +69,9 @@ namespace DbLinq.Data.Linq.Sugar
             return (Func<IDataRecord, MappingContext, T>)RowObjectCreator;
         }
 
+        /// <summary>
+        /// Used on scalar calls, like First()
+        /// </summary>
         public string ExecuteMethodName { get; private set; }
 
         public Query(DataContext dataContext, string sql, IList<ExternalParameterExpression> parameters,
@@ -79,6 +82,13 @@ namespace DbLinq.Data.Linq.Sugar
             Parameters = parameters;
             RowObjectCreator = rowObjectCreator;
             ExecuteMethodName = executeMethodName;
+        }
+
+        public Query(DataContext dataContext, string sql, IList<ExternalParameterExpression> parameters)
+        {
+            DataContext = dataContext;
+            Sql = sql;
+            Parameters = parameters;
         }
     }
 }

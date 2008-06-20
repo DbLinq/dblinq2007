@@ -34,7 +34,7 @@ using DbLinq.Factory;
 
 namespace DbLinq.Data.Linq.Sugar.Implementation
 {
-    public class SqlBuilder : ISqlBuilder
+    public partial class SqlBuilder : ISqlBuilder
     {
         public ExpressionQualifier ExpressionQualifier { get; set; }
 
@@ -50,7 +50,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         /// <param name="expressionQuery"></param>
         /// <param name="queryContext"></param>
         /// <returns></returns>
-        public string Build(ExpressionQuery expressionQuery, QueryContext queryContext)
+        public string BuildSelect(ExpressionQuery expressionQuery, QueryContext queryContext)
         {
             return Build(expressionQuery.Select, queryContext);
         }

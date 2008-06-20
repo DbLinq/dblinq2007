@@ -37,6 +37,6 @@ namespace DbLinq.Data.Linq.Sugar
         /// <param name="expressionQuery"></param>
         /// <param name="queryContext"></param>
         /// <returns></returns>
-        string Build(ExpressionQuery expressionQuery, QueryContext queryContext);
+        string BuildSelect(ExpressionQuery expressionQuery, QueryContext queryContext);
     }
 }

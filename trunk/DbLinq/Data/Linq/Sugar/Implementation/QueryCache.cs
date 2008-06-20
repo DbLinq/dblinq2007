@@ -32,14 +32,14 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
     {
         private readonly IDictionary<ExpressionChain, Query> queries = new Dictionary<ExpressionChain, Query>();
 
-        public Query GetFromCache(ExpressionChain expressions)
+        public Query GetFromSelectCache(ExpressionChain expressions)
         {
             Query query;
             queries.TryGetValue(expressions, out query);
             return query;
         }
 
-        public void SetInCache(ExpressionChain expressions, Query sqlQuery)
+        public void SetInSelectCache(ExpressionChain expressions, Query sqlQuery)
         {
             queries[expressions] = sqlQuery;
         }

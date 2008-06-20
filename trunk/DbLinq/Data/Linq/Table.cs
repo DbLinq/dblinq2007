@@ -26,6 +26,7 @@
 
 using System;
 using System.Data;
+using System.Data.Linq;
 using System.Reflection;
 using System.Diagnostics;
 using System.Collections;
@@ -307,11 +308,21 @@ namespace DbLinq.Data.Linq
 
         private List<Exception> SaveAll_unsafe(System.Data.Linq.ConflictMode failureMode)
         {
-            List<Exception> excepts = new List<Exception>();
+            var exceptions = new List<Exception>();
             //TODO: process deleteList, insertList, liveObjectList
             //object[] indices = new object[0];
             ProjectionData proj = ProjectionData.FromDbType(typeof(T));
+            Func<T, string[]> getObjectID = RowEnumeratorCompiler<T>.CompileIDRetrieval(proj);
 
+            ProcessInsert(proj, failureMode, exceptions);
+            ProcessUpdate(proj, failureMode, exceptions, getObjectID);
+            ProcessDelete(proj, failureMode, exceptions, getObjectID);
+
+            return exceptions;
+        }
+
+        private void ProcessInsert(ProjectionData proj, ConflictMode failureMode, List<Exception> excepts)
+        {
             if (DataContext.Vendor.CanBulkInsert<T>(this))
             {
                 DataContext.Vendor.DoBulkInsert(this, _insertList, DataContext.DatabaseContext.Connection);
@@ -359,19 +370,28 @@ namespace DbLinq.Data.Linq
                 {
                     switch (failureMode)
                     {
-                    case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                        excepts.Add(ex);
-                        break;
-                    case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                        throw ex;
+                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                            excepts.Add(ex);
+                            break;
+                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                            throw ex;
                     }
                 }
 
             }
 
-            Func<T, string[]> getObjectID = RowEnumeratorCompiler<T>.CompileIDRetrieval(proj);
+            foreach (T insertedT in _insertList)
+            {
+                //inserted objects are now live:
+                DataContext.RegisterEntity(insertedT);
+            }
+            //thanks to Martin Rauscher for spotting that I forgot to clear the list:
+            _insertList.Clear();
+        }
 
-            //todo: check object is not in two lists
+        private void ProcessUpdate(ProjectionData proj, ConflictMode failureMode, List<Exception> excepts, Func<T, string[]> getObjectID)
+        {
+//todo: check object is not in two lists
             foreach (T obj in DataContext.GetRegisteredEntities<T>())
             {
                 try
@@ -397,23 +417,18 @@ namespace DbLinq.Data.Linq
                     Trace.WriteLine("Table.SubmitChanges failed: " + ex);
                     switch (failureMode)
                     {
-                    case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                        excepts.Add(ex);
-                        break;
-                    case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                        throw ex;
+                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                            excepts.Add(ex);
+                            break;
+                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                            throw ex;
                     }
                 }
             }
+        }
 
-            foreach (T insertedT in _insertList)
-            {
-                //inserted objects are now live:
-                DataContext.RegisterEntity(insertedT);
-            }
-            //thanks to Martin Rauscher for spotting that I forgot to clear the list:
-            _insertList.Clear();
-
+        private void ProcessDelete(ProjectionData proj, ConflictMode failureMode, List<Exception> excepts, Func<T, string[]> getObjectID)
+        {
             if (_deleteList.Count > 0)
             {
                 //Func<T,string> getObjectID = RowEnumeratorCompiler<T>.CompileIDRetrieval(proj);
@@ -439,11 +454,11 @@ namespace DbLinq.Data.Linq
                     {
                         switch (failureMode)
                         {
-                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                            excepts.Add(ex);
-                            break;
-                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                            throw ex;
+                            case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                                excepts.Add(ex);
+                                break;
+                            case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                                throw ex;
                         }
                     }
                 }
@@ -465,9 +480,8 @@ namespace DbLinq.Data.Linq
             }
 
             _deleteList.Clear();
-
-            return excepts;
         }
+
         #endregion
 
         /// <summary>
