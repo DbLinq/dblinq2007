@@ -89,7 +89,7 @@ namespace DbLinq.Data.Linq.Implementation
             var expressionChain = ExpressionChain;
             if (expression != null)
                 expressionChain = new ExpressionChain(expressionChain, expression);
-            return _dataContext.QueryBuilder.GetQuery(expressionChain, new QueryContext(_dataContext));
+            return _dataContext.QueryBuilder.GetSelectQuery(expressionChain, new QueryContext(_dataContext));
         }
 
         public object Execute(Expression expression)

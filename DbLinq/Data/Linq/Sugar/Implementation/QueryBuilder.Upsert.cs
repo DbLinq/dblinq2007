@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // MIT license
 //
@@ -24,10 +24,28 @@
 // 
 #endregion
 
-namespace DbLinq.Data.Linq.Sugar
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using DbLinq.Data.Linq.Sugar.Expressions;
+
+namespace DbLinq.Data.Linq.Sugar.Implementation
 {
-    public interface IQueryBuilder
+    partial class QueryBuilder
     {
-        Query GetSelectQuery(ExpressionChain expressions, QueryContext queryContext);
+        public Query GetInsertQuery(object objectToInsert, QueryContext queryContext)
+        {
+            // TODO: cache (this probably requires changes in Query structure, since ExternalParameterExpression is not convenient)
+            var rowType = objectToInsert.GetType();
+            var table = queryContext.DataContext.Mapping.GetTable(rowType);
+            var parameters = new List<ExternalParameterExpression>();
+            foreach (var column in table.RowType.PersistentDataMembers)
+            {
+                var parameter = new ExternalParameterExpression(
+                                        Expression.MakeMemberAccess(Expression.Constant(objectToInsert), column.Member), 
+                                        column.Name);
+                parameters.Add(parameter);
+            }
+            return new Query(queryContext.DataContext, null, parameters);
+        }
     }
 }

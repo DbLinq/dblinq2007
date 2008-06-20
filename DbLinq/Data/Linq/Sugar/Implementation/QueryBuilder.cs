@@ -41,7 +41,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
     /// 1. Parses Linq Expression
     /// 2. Generates SQL
     /// </summary>
-    public class QueryBuilder : IQueryBuilder
+    public partial class QueryBuilder : IQueryBuilder
     {
         public IExpressionLanguageParser ExpressionLanguageParser { get; set; }
         public IExpressionDispatcher ExpressionDispatcher { get; set; }
@@ -314,7 +314,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
 
         protected virtual Query BuildSqlQuery(ExpressionQuery expressionQuery, QueryContext queryContext)
         {
-            var sql = SqlBuilder.Build(expressionQuery, queryContext);
+            var sql = SqlBuilder.BuildSelect(expressionQuery, queryContext);
             var sqlQuery = new Query(queryContext.DataContext, sql, expressionQuery.Parameters, expressionQuery.RowObjectCreator, expressionQuery.Select.ExecuteMethodName);
             return sqlQuery;
         }
@@ -335,7 +335,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         {
             var cache = QueryCache;
             lock (cache)
-                return cache.GetFromCache(expressions);
+                return cache.GetFromSelectCache(expressions);
         }
 
         [DbLinqToDo]
@@ -343,7 +343,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         {
             var cache = QueryCache;
             lock (cache)
-                cache.SetInCache(expressions, sqlQuery);
+                cache.SetInSelectCache(expressions, sqlQuery);
         }
 
         /// <summary>
@@ -352,7 +352,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         /// <param name="expressions"></param>
         /// <param name="queryContext"></param>
         /// <returns></returns>
-        public Query GetQuery(ExpressionChain expressions, QueryContext queryContext)
+        public Query GetSelectQuery(ExpressionChain expressions, QueryContext queryContext)
         {
             var query = GetFromCache(expressions);
             if (query == null)
