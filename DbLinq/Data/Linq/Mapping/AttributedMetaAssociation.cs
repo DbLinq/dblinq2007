@@ -52,7 +52,17 @@ namespace DbLinq.Data.Linq.Mapping
                 foreach (var otherKeyRaw in literalOtherKey.Split(comma, StringSplitOptions.RemoveEmptyEntries))
                 {
                     var otherKey = otherKeyRaw.Trim();
-                    var keyMember = otherTable.RowType.Type.GetMember(otherKey)[0];
+                    //we need to revisit this code - it has caused problems on both MySql and Pgsql
+                    MemberInfo[] otherKeyFields = otherTable.RowType.Type.GetMember(otherKey);
+                    if (otherKeyFields.Length == 0)
+                    {
+                        string msg = "ERROR L57 Database contains broken join information."
+                            + " thisTable=" + thisTable.TableName
+                            + " otherTable=" + otherTable.TableName
+                            + " orphanKey=" + literalOtherKey;
+                        throw new InvalidOperationException(msg);
+                    }
+                    var keyMember = otherKeyFields[0];
                     otherKeysList.Add(new AttributedColumnMetaDataMember(keyMember, GetColumnAttribute(keyMember),
                                                                          thisTable.RowType));
                 }
@@ -152,7 +162,7 @@ namespace DbLinq.Data.Linq.Mapping
 
         public override MetaType OtherType
         {
-            get  { return thisMember.DeclaringType; }
+            get { return thisMember.DeclaringType; }
         }
 
         private ReadOnlyCollection<MetaDataMember> theseKeys;
