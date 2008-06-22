@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // MIT license
 //
@@ -24,18 +24,37 @@
 // 
 #endregion
 
-namespace DbLinq.Data.Linq.Sugar
-{
-    public interface IQueryBuilder
-    {
-        SelectQuery GetSelectQuery(ExpressionChain expressions, QueryContext queryContext);
+using System;
+using System.Diagnostics;
+using System.Linq.Expressions;
+using DbLinq.Data.Linq.Sugar.Expressions;
 
+namespace DbLinq.Data.Linq.Sugar.Expressions
+{
+    [DebuggerDisplay("ObjectInputParameterExpression")]
+    public class ObjectInputParameterExpression : MutableExpression
+    {
+        public const ExpressionType ExpressionType = (ExpressionType)CustomExpressionType.ObjectInputParameter;
+
+        public string Alias { get; set; }
+
+        private readonly Delegate getValueDelegate;
         /// <summary>
-        /// Creates a query for insertion
+        /// Returns the outer parameter value
         /// </summary>
-        /// <param name="objectToInsert"></param>
-        /// <param name="queryContext"></param>
         /// <returns></returns>
-        InsertQuery GetInsertQuery(object objectToInsert, QueryContext queryContext);
+        public object GetValue(object o)
+        {
+            return getValueDelegate.DynamicInvoke(o);
+        }
+
+        public ObjectInputParameterExpression(LambdaExpression lambda, string alias)
+            : base(ExpressionType, lambda.Type)
+        {
+            if (lambda.Parameters.Count != 1)
+                throw Error.BadArgument("S0055: Lambda must take 1 argument");
+            getValueDelegate = lambda.Compile();
+            Alias = alias;
+        }
     }
 }

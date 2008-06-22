@@ -39,7 +39,7 @@ namespace DbLinq.Linq
         /// <summary>
         /// Sugar.Query: this will replace the rest
         /// </summary>
-        public Query Query;
+        public SelectQuery selectQuery;
 
         /// <summary>
         /// components of SQL expression (where clause, order, select ...)

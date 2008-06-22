@@ -187,5 +187,17 @@ namespace DbLinq.Vendor
         /// <param name="selectB"></param>
         /// <returns></returns>
         string GetLiteral(SelectOperatorType selectOperator, string selectA, string selectB);
+
+        /// <summary>
+        /// Builds an insert clause
+        /// </summary>
+        /// <param name="table">Table name</param>
+        /// <param name="columns">Columns to be inserted</param>
+        /// <param name="values">Values to be inserted into columns</param>
+        /// <param name="outputParameters">Expected output parameters</param>
+        /// <param name="outputExpressions">Expressions (to help generate output parameters)</param>
+        /// <returns></returns>
+        string GetInsert(string table, IList<string> columns, IList<string> values,
+                                         IList<string> outputParameters, IList<string> outputExpressions);
     }
 }

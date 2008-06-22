@@ -135,8 +135,8 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 }
                 return sqlProvider.GetColumn(columnExpression.Name);
             }
-            if (expression is ExternalParameterExpression)
-                return sqlProvider.GetParameterName(((ExternalParameterExpression)expression).Alias);
+            if (expression is InputParameterExpression)
+                return sqlProvider.GetParameterName(((InputParameterExpression)expression).Alias);
             if (expression is SelectExpression)
                 return Build((SelectExpression)expression, queryContext);
             if (expression is ConstantExpression)

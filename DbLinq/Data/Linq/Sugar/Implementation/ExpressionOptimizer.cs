@@ -127,7 +127,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
 
         protected virtual Expression GetNullComparison(ExpressionType nodeType, Expression columnExpression, Expression nullExpression)
         {
-            if (columnExpression is ColumnExpression || columnExpression is ExternalParameterExpression)
+            if (columnExpression is ColumnExpression || columnExpression is InputParameterExpression)
             {
                 if (nullExpression is ConstantExpression && ((ConstantExpression)nullExpression).Value == null)
                 {

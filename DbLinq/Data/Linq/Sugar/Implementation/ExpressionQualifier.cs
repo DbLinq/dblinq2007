@@ -173,7 +173,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 return ExpressionTier.Sql;
             if (expression is TableExpression)
                 return ExpressionTier.Sql;
-            if (expression is ExternalParameterExpression)
+            if (expression is InputParameterExpression)
                 return ExpressionTier.Sql;
             if (expression is SpecialExpression)
             {

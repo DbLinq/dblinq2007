@@ -84,7 +84,7 @@ namespace DbLinq.Data.Linq.Implementation
             return new QueryProvider<TElement>(TableType, _dataContext, ExpressionChain, expression);
         }
 
-        protected Query GetQuery(Expression expression)
+        protected SelectQuery GetQuery(Expression expression)
         {
             var expressionChain = ExpressionChain;
             if (expression != null)

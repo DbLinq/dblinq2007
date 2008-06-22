@@ -69,7 +69,7 @@ namespace DbLinq.Util
 
         public static bool IsOrHasGroupField(SessionVarsParsed vars, out Type groupType)
         {
-            if (vars.Query != null) // we don't make any special treatment for groups
+            if (vars.selectQuery != null) // we don't make any special treatment for groups
             {
                 groupType = null;
                 return false;

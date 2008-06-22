@@ -486,9 +486,9 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     return new SpecialExpression(SpecialExpressionType.IsNotNull, objectExpression);
             }
 
-            if (objectExpression is ExternalParameterExpression)
+            if (objectExpression is InputParameterExpression)
             {
-                return AnalyzeExternalParameterMember((ExternalParameterExpression)objectExpression, memberInfo, builderContext);
+                return AnalyzeExternalParameterMember((InputParameterExpression)objectExpression, memberInfo, builderContext);
             }
 
             if (objectExpression is MemberInitExpression)
@@ -526,7 +526,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             return null;
         }
 
-        protected virtual Expression AnalyzeExternalParameterMember(ExternalParameterExpression expression, MemberInfo memberInfo, BuilderContext builderContext)
+        protected virtual Expression AnalyzeExternalParameterMember(InputParameterExpression expression, MemberInfo memberInfo, BuilderContext builderContext)
         {
             UnregisterParameter(expression, builderContext);
             return RegisterParameter(Expression.MakeMemberAccess(expression.Expression, memberInfo), memberInfo.Name, builderContext);

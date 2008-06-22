@@ -111,8 +111,10 @@
     <Compile Include="Data\Linq\Sugar\ExpressionPrecedence.cs" />
     <Compile Include="Data\Linq\Sugar\ExpressionQuery.cs" />
     <Compile Include="Data\Linq\Sugar\Expressions\ColumnExpression.cs" />
+    <Compile Include="Data\Linq\Sugar\Expressions\ObjectInputParameterExpression.cs" />
+    <Compile Include="Data\Linq\Sugar\Expressions\ObjectOutputParameterExpression.cs" />
     <Compile Include="Data\Linq\Sugar\Expressions\CustomExpressionType.cs" />
-    <Compile Include="Data\Linq\Sugar\Expressions\ExternalParameterExpression.cs" />
+    <Compile Include="Data\Linq\Sugar\Expressions\InputParameterExpression.cs" />
     <Compile Include="Data\Linq\Sugar\Expressions\GroupExpression.cs" />
     <Compile Include="Data\Linq\Sugar\Expressions\IExecutableExpression.cs" />
     <Compile Include="Data\Linq\Sugar\Expressions\IMutableExpression.cs" />
@@ -143,6 +145,7 @@
     <Compile Include="Data\Linq\Sugar\Implementation\ExpressionQualifier.cs" />
     <Compile Include="Data\Linq\Sugar\Implementation\QueryBuilder.Upsert.cs" />
     <Compile Include="Data\Linq\Sugar\Implementation\SqlBuilder.Upsert.cs" />
+    <Compile Include="Data\Linq\Sugar\InsertQuery.cs" />
     <Compile Include="Data\Linq\Sugar\IQueryCache.cs" />
     <Compile Include="Data\Linq\Sugar\Implementation\LineGrouping.cs" />
     <Compile Include="Data\Linq\Sugar\Implementation\PrequelAnalyzer.cs" />
@@ -157,7 +160,8 @@
     <Compile Include="Data\Linq\Sugar\IQueryRunner.cs" />
     <Compile Include="Data\Linq\Sugar\ISpecialExpressionTranslator.cs" />
     <Compile Include="Data\Linq\Sugar\ISqlBuilder.cs" />
-    <Compile Include="Data\Linq\Sugar\Query.cs" />
+    <Compile Include="Data\Linq\Sugar\AbstractQuery.cs" />
+    <Compile Include="Data\Linq\Sugar\SelectQuery.cs" />
     <Compile Include="Data\Linq\Sugar\QueryContext.cs" />
     <Compile Include="Data\Linq\Table.cs" />
     <Compile Include="DbLinqToDoAttribute.cs" />

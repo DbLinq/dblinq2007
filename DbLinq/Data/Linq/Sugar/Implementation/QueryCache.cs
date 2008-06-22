@@ -30,18 +30,18 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
 {
     public class QueryCache : IQueryCache
     {
-        private readonly IDictionary<ExpressionChain, Query> queries = new Dictionary<ExpressionChain, Query>();
+        private readonly IDictionary<ExpressionChain, SelectQuery> queries = new Dictionary<ExpressionChain, SelectQuery>();
 
-        public Query GetFromSelectCache(ExpressionChain expressions)
+        public SelectQuery GetFromSelectCache(ExpressionChain expressions)
         {
-            Query query;
-            queries.TryGetValue(expressions, out query);
-            return query;
+            SelectQuery selectQuery;
+            queries.TryGetValue(expressions, out selectQuery);
+            return selectQuery;
         }
 
-        public void SetInSelectCache(ExpressionChain expressions, Query sqlQuery)
+        public void SetInSelectCache(ExpressionChain expressions, SelectQuery sqlSelectQuery)
         {
-            queries[expressions] = sqlQuery;
+            queries[expressions] = sqlSelectQuery;
         }
     }
 }

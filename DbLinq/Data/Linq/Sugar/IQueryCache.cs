@@ -28,7 +28,7 @@ namespace DbLinq.Data.Linq.Sugar
 {
     public interface IQueryCache
     {
-        Query GetFromSelectCache(ExpressionChain expressions);
-        void SetInSelectCache(ExpressionChain expressions, Query sqlQuery);
+        SelectQuery GetFromSelectCache(ExpressionChain expressions);
+        void SetInSelectCache(ExpressionChain expressions, SelectQuery sqlSelectQuery);
     }
 }

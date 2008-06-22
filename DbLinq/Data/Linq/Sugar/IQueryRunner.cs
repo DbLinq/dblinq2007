@@ -35,10 +35,10 @@ namespace DbLinq.Data.Linq.Sugar
         /// Enumerates all records return by SQL request
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="query"></param>
+        /// <param name="selectQuery"></param>
         /// <returns></returns>
-        IEnumerable<T> GetEnumerator<T>(Query query);
+        IEnumerable<T> GetEnumerator<T>(SelectQuery selectQuery);
 
-        S Execute<S>(Query query);
+        S Execute<S>(SelectQuery selectQuery);
     }
 }

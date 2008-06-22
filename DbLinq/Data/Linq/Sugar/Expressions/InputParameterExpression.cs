@@ -31,10 +31,10 @@ using DbLinq.Data.Linq.Sugar.Expressions;
 
 namespace DbLinq.Data.Linq.Sugar.Expressions
 {
-    [DebuggerDisplay("ExternalParameterExpression (current value={GetValue()})")]
-    public class ExternalParameterExpression : MutableExpression
+    [DebuggerDisplay("InputParameterExpression (current value={GetValue()})")]
+    public class InputParameterExpression : MutableExpression
     {
-        public const ExpressionType ExpressionType = (ExpressionType)CustomExpressionType.ExternalParameter;
+        public const ExpressionType ExpressionType = (ExpressionType)CustomExpressionType.InputParameter;
 
         public Expression Expression { get; private set; }
 
@@ -50,7 +50,7 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
             return getValueDelegate.DynamicInvoke();
         }
 
-        public ExternalParameterExpression(Expression expression, string alias)
+        public InputParameterExpression(Expression expression, string alias)
             : base(ExpressionType, expression.Type)
         {
             Expression = expression;

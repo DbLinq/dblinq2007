@@ -39,7 +39,7 @@ namespace DbLinq.Data.Linq.Sugar
         /// Values coming from outside the request (external parameters)
         /// Those parameters are filled at each request
         /// </summary>
-        public IList<ExternalParameterExpression> Parameters { get; private set; }
+        public IList<InputParameterExpression> Parameters { get; private set; }
 
         /// <summary>
         /// The SELECT expression itself
@@ -53,7 +53,7 @@ namespace DbLinq.Data.Linq.Sugar
 
         public ExpressionQuery()
         {
-            Parameters = new List<ExternalParameterExpression>();
+            Parameters = new List<InputParameterExpression>();
         }
     }
 }

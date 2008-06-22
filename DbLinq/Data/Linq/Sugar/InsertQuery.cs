@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // MIT license
 //
@@ -24,18 +24,22 @@
 // 
 #endregion
 
+using System.Collections.Generic;
+using DbLinq.Data.Linq.Sugar.Expressions;
+
 namespace DbLinq.Data.Linq.Sugar
 {
-    public interface IQueryBuilder
+    public class InsertQuery : AbstractQuery
     {
-        SelectQuery GetSelectQuery(ExpressionChain expressions, QueryContext queryContext);
+        public IList<ObjectInputParameterExpression> InputParameters { get; private set; }
+        public IList<ObjectOutputParameterExpression> OutputParameters { get; private set; }
 
-        /// <summary>
-        /// Creates a query for insertion
-        /// </summary>
-        /// <param name="objectToInsert"></param>
-        /// <param name="queryContext"></param>
-        /// <returns></returns>
-        InsertQuery GetInsertQuery(object objectToInsert, QueryContext queryContext);
+        public InsertQuery(DataContext dataContext, string sql, IList<ObjectInputParameterExpression> inputParameters,
+            IList<ObjectOutputParameterExpression> outputParameters)
+            : base(dataContext, sql)
+        {
+            InputParameters = inputParameters;
+            OutputParameters = outputParameters;
+        }
     }
 }

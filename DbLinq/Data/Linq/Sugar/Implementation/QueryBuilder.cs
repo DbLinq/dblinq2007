@@ -141,7 +141,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             }
         }
 
-        protected virtual IList<ExternalParameterExpression> FindParametersByName(string name, BuilderContext builderContext)
+        protected virtual IList<InputParameterExpression> FindParametersByName(string name, BuilderContext builderContext)
         {
             return (from p in builderContext.ExpressionQuery.Parameters where p.Alias == name select p).ToList();
         }
@@ -312,10 +312,10 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             ProcessExpressions(ExpressionOptimizer.Optimize, false, builderContext);
         }
 
-        protected virtual Query BuildSqlQuery(ExpressionQuery expressionQuery, QueryContext queryContext)
+        protected virtual SelectQuery BuildSqlQuery(ExpressionQuery expressionQuery, QueryContext queryContext)
         {
             var sql = SqlBuilder.BuildSelect(expressionQuery, queryContext);
-            var sqlQuery = new Query(queryContext.DataContext, sql, expressionQuery.Parameters, expressionQuery.RowObjectCreator, expressionQuery.Select.ExecuteMethodName);
+            var sqlQuery = new SelectQuery(queryContext.DataContext, sql, expressionQuery.Parameters, expressionQuery.RowObjectCreator, expressionQuery.Select.ExecuteMethodName);
             return sqlQuery;
         }
 
@@ -331,7 +331,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         }
 
         [DbLinqToDo]
-        protected virtual Query GetFromCache(ExpressionChain expressions)
+        protected virtual SelectQuery GetFromCache(ExpressionChain expressions)
         {
             var cache = QueryCache;
             lock (cache)
@@ -339,11 +339,11 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         }
 
         [DbLinqToDo]
-        protected virtual void SetInCache(ExpressionChain expressions, Query sqlQuery)
+        protected virtual void SetInCache(ExpressionChain expressions, SelectQuery sqlSelectQuery)
         {
             var cache = QueryCache;
             lock (cache)
-                cache.SetInSelectCache(expressions, sqlQuery);
+                cache.SetInSelectCache(expressions, sqlSelectQuery);
         }
 
         /// <summary>
@@ -352,7 +352,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         /// <param name="expressions"></param>
         /// <param name="queryContext"></param>
         /// <returns></returns>
-        public Query GetSelectQuery(ExpressionChain expressions, QueryContext queryContext)
+        public SelectQuery GetSelectQuery(ExpressionChain expressions, QueryContext queryContext)
         {
             var query = GetFromCache(expressions);
             if (query == null)
