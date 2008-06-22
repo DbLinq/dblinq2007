@@ -336,6 +336,7 @@ namespace DbLinq.Data.Linq
                 //INSERT INTO EMPLOYEES (EmpId, Name, DateStarted) VALUES (EmpID_SEQ.NextVal,?p1,?p2); SELECT EmpID_SEQ.CurrVal
                 try
                 {
+                    //var insertQuery = DataContext.QueryBuilder.GetInsertQuery(obj, new QueryContext(DataContext));
                     using (IDbCommand cmd = InsertClauseBuilder.GetClause(DataContext.Vendor, DataContext.DatabaseContext, obj, proj))
                     {
                         object objID = cmd.ExecuteScalar();

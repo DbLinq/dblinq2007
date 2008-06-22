@@ -36,22 +36,12 @@ namespace DbLinq.Data.Linq.Sugar
     /// Represents a linq query, parsed and compiled, to be sent to database
     /// This instance is immutable, since it can be stored in a cache
     /// </summary>
-    public class Query
+    public class SelectQuery: AbstractQuery
     {
-        /// <summary>
-        /// The DataContext from which the request originates
-        /// </summary>
-        public DataContext DataContext { get; private set; }
-
-        /// <summary>
-        /// SQL command
-        /// </summary>
-        public string Sql { get; private set; }
-
         /// <summary>
         /// Parameters to be sent as SQL parameters
         /// </summary>
-        public IList<ExternalParameterExpression> Parameters { get; private set; }
+        public IList<InputParameterExpression> InputParameters { get; private set; }
 
         /// <summary>
         /// Expression that creates a row object
@@ -74,21 +64,13 @@ namespace DbLinq.Data.Linq.Sugar
         /// </summary>
         public string ExecuteMethodName { get; private set; }
 
-        public Query(DataContext dataContext, string sql, IList<ExternalParameterExpression> parameters,
+        public SelectQuery(DataContext dataContext, string sql, IList<InputParameterExpression> parameters,
                      Delegate rowObjectCreator, string executeMethodName)
+            : base(dataContext,sql)
         {
-            DataContext = dataContext;
-            Sql = sql;
-            Parameters = parameters;
+            InputParameters = parameters;
             RowObjectCreator = rowObjectCreator;
             ExecuteMethodName = executeMethodName;
-        }
-
-        public Query(DataContext dataContext, string sql, IList<ExternalParameterExpression> parameters)
-        {
-            DataContext = dataContext;
-            Sql = sql;
-            Parameters = parameters;
         }
     }
 }

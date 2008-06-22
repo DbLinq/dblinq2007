@@ -58,8 +58,8 @@ namespace DbLinq.Util
 
         public S GetScalar<S>(Expression expression)
         {
-            if (_vars.Query != null)
-                return QueryRunner.Execute<S>(_vars.Query);
+            if (_vars.selectQuery != null)
+                return QueryRunner.Execute<S>(_vars.selectQuery);
 
             MethodCallExpression exprCall = expression as MethodCallExpression;
             if (exprCall == null)

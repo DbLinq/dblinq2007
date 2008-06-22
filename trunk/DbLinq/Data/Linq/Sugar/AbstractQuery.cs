@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // MIT license
 //
@@ -26,16 +26,22 @@
 
 namespace DbLinq.Data.Linq.Sugar
 {
-    public interface IQueryBuilder
+    public abstract class AbstractQuery
     {
-        SelectQuery GetSelectQuery(ExpressionChain expressions, QueryContext queryContext);
+        /// <summary>
+        /// The DataContext from which the request originates
+        /// </summary>
+        public DataContext DataContext { get; private set; }
 
         /// <summary>
-        /// Creates a query for insertion
+        /// SQL command
         /// </summary>
-        /// <param name="objectToInsert"></param>
-        /// <param name="queryContext"></param>
-        /// <returns></returns>
-        InsertQuery GetInsertQuery(object objectToInsert, QueryContext queryContext);
+        public string Sql { get; private set; }
+
+        protected AbstractQuery(DataContext dataContext, string sql)
+        {
+            DataContext = dataContext;
+            Sql = sql;
+        }
     }
 }

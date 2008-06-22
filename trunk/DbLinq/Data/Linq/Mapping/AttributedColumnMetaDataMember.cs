@@ -91,7 +91,7 @@ namespace DbLinq.Data.Linq.Mapping
 
         public override string MappedName
         {
-            get { return columnAttribute.Name; }
+            get { return columnAttribute.Name ?? Member.Name; }
         }
     }
 }

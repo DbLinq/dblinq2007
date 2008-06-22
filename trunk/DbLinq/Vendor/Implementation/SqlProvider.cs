@@ -27,13 +27,48 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Text;
 using DbLinq.Data.Linq.Sugar.Expressions;
 
 namespace DbLinq.Vendor.Implementation
 {
     public class SqlProvider : ISqlProvider
     {
+        /// <summary>
+        /// Builds an insert clause
+        /// </summary>
+        /// <param name="table">Table name</param>
+        /// <param name="columns">Columns to be inserted</param>
+        /// <param name="values">Values to be inserted into columns</param>
+        /// <param name="outputParameters">Expected output parameters</param>
+        /// <param name="outputExpressions">Expressions (to help generate output parameters)</param>
+        /// <returns></returns>
+        public string GetInsert(string table, IList<string> columns, IList<string> values,
+            IList<string> outputParameters, IList<string> outputExpressions)
+        {
+            return GetInsertWrapper(GetInsert(table, columns, values), outputExpressions, outputExpressions);
+        }
+
+        protected virtual string GetInsert(string table, IList<string> columns, IList<string> values)
+        {
+            if (columns.Count == 0)
+                return string.Empty;
+
+            var insertBuilder = new StringBuilder("INSERT INTO ");
+            insertBuilder.Append(table);
+            insertBuilder.AppendFormat(" ({0})", string.Join(", ", columns.ToArray()));
+            insertBuilder.Append(" VALUES");
+            insertBuilder.AppendFormat(" ({0})", string.Join(", ", values.ToArray()));
+            return insertBuilder.ToString();
+        }
+
+        protected virtual string GetInsertWrapper(string insert, IList<string> outputParameters, IList<string> outputExpressions)
+        {
+            return string.Format("{0}; SELECT @@IDENTITY", insert);
+        }
+
         public string NewLine
         {
             get { return Environment.NewLine; }

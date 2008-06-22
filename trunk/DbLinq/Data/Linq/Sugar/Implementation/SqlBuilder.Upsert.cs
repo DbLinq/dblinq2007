@@ -26,24 +26,15 @@
 
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Linq.Mapping;
+using System.Linq.Expressions;
 using System.Text;
+using DbLinq.Data.Linq.Sugar.Expressions;
 
 namespace DbLinq.Data.Linq.Sugar.Implementation
 {
     partial class SqlBuilder
     {
-        // SQLite: INSERT INTO main.Products (CategoryID, Discontinued, ProductName, QuantityPerUnit) 
-        //                  VALUES (@P1, @P2, @P3, @P4) ;SELECT last_insert_rowid()
-        // Ingres: INSERT INTO linquser.products (categoryid, discontinued, productid, productname, quantityperunit) 
-        //                  VALUES ($param_000001_param$, $param_000002_param$, 
-        //                          next value for "linquser"."products_seq", $param_000004_param$, $param_000005_param$) 
-        // Oracle: BEGIN 
-        //         INSERT INTO NORTHWIND."Products" ("CategoryID", "Discontinued", "ProductID", "ProductName", "QuantityPerUnit") 
-        //                  VALUES (:P1, :P2, NORTHWIND."Products_SEQ.NextVal, :P4, :P5)
-        //               ;SELECT NORTHWIND."Products_SEQ.CurrVal INTO :P3 FROM DUAL; END;
-        // PostgreSQL: INSERT INTO public."Products" ("CategoryID", "Discontinued", "ProductName", "QuantityPerUnit") 
-        //                  VALUES (:P1, :P2, :P3, :P4) 
-        //               ;SELECT currval('"Products_ProductID_seq"')
 #if NO
         /// <summary>
         /// given type Employee, return 'INSERT Employee (ID, Name) VALUES (?p1,?p2)'

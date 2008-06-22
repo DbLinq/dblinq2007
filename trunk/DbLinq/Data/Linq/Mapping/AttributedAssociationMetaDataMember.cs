@@ -95,7 +95,7 @@ namespace DbLinq.Data.Linq.Mapping
 
         public override string MappedName
         {
-            get { return associationAttribute.Name; }
+            get { return associationAttribute.Name ?? Member.Name; }
         }
     }
 }

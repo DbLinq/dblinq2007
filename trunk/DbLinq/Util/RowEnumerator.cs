@@ -64,7 +64,7 @@ namespace DbLinq.Util
 
             _vars = vars;
 
-            if (vars.Query != null)
+            if (vars.selectQuery != null)
                 return;
 
             CompileReaderFct();
@@ -125,9 +125,9 @@ namespace DbLinq.Util
         /// </summary>
         public virtual IEnumerator<T> GetEnumerator()
         {
-            if (_vars.Query != null)
+            if (_vars.selectQuery != null)
             {
-                foreach (var t in QueryRunner.GetEnumerator<T>(_vars.Query))
+                foreach (var t in QueryRunner.GetEnumerator<T>(_vars.selectQuery))
                     yield return t;
                 yield break;
             }

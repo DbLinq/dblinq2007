@@ -52,7 +52,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 expressionChain.Expressions.Add(vars.ScalarExpression);
 
             var varsParsed = new SessionVarsParsed(vars);
-            varsParsed.Query = QueryBuilder.GetSelectQuery(expressionChain, new QueryContext(vars.Context));
+            varsParsed.selectQuery = QueryBuilder.GetSelectQuery(expressionChain, new QueryContext(vars.Context));
 
             return varsParsed;
         }

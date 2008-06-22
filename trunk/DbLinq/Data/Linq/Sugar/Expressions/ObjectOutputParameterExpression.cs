@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // MIT license
 //
@@ -24,18 +24,37 @@
 // 
 #endregion
 
-namespace DbLinq.Data.Linq.Sugar
-{
-    public interface IQueryBuilder
-    {
-        SelectQuery GetSelectQuery(ExpressionChain expressions, QueryContext queryContext);
+using System;
+using System.Diagnostics;
+using System.Linq.Expressions;
+using DbLinq.Data.Linq.Sugar.Expressions;
 
+namespace DbLinq.Data.Linq.Sugar.Expressions
+{
+    [DebuggerDisplay("ObjectOutputParameterExpression")]
+    public class ObjectOutputParameterExpression : MutableExpression
+    {
+        public const ExpressionType ExpressionType = (ExpressionType)CustomExpressionType.ObjectOutputParameter;
+
+        public string Alias { get; set; }
+
+        private readonly Delegate setValueDelegate;
         /// <summary>
-        /// Creates a query for insertion
+        /// Returns the outer parameter value
         /// </summary>
-        /// <param name="objectToInsert"></param>
-        /// <param name="queryContext"></param>
         /// <returns></returns>
-        InsertQuery GetInsertQuery(object objectToInsert, QueryContext queryContext);
+        public object SetValue(object o, object v)
+        {
+            return setValueDelegate.DynamicInvoke(o, v);
+        }
+
+        public ObjectOutputParameterExpression(LambdaExpression lambda, string alias)
+            : base(ExpressionType, lambda.Type)
+        {
+            if (lambda.Parameters.Count != 2)
+                throw Error.BadArgument("S0055: Lambda must have 2 arguments");
+            setValueDelegate = lambda.Compile();
+            Alias = alias;
+        }
     }
 }

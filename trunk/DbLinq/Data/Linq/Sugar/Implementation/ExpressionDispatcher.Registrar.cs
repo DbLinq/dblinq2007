@@ -269,14 +269,14 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         /// <param name="alias"></param>
         /// <param name="builderContext"></param>
         /// <returns></returns>
-        public virtual ExternalParameterExpression RegisterParameter(Expression expression, string alias, BuilderContext builderContext)
+        public virtual InputParameterExpression RegisterParameter(Expression expression, string alias, BuilderContext builderContext)
         {
-            var queryParameterExpression = new ExternalParameterExpression(expression, alias);
+            var queryParameterExpression = new InputParameterExpression(expression, alias);
             builderContext.ExpressionQuery.Parameters.Add(queryParameterExpression);
             return queryParameterExpression;
         }
 
-        public virtual void UnregisterParameter(ExternalParameterExpression expression, BuilderContext builderContext)
+        public virtual void UnregisterParameter(InputParameterExpression expression, BuilderContext builderContext)
         {
             builderContext.ExpressionQuery.Parameters.Remove(expression);
         }
