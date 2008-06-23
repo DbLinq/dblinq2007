@@ -30,7 +30,11 @@ using System.Linq.Expressions;
 using System.Reflection;
 using DbLinq.Data.Linq.Sugar.Expressions;
 
+#if MONO_STRICT
+namespace System.Data.Linq.Sugar.ExpressionMutator.Implementation
+#else
 namespace DbLinq.Data.Linq.Sugar.ExpressionMutator.Implementation
+#endif
 {
     public class MemberExpressionMutator : IMutableExpression
     {

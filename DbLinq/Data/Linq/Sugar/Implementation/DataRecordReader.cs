@@ -31,7 +31,11 @@ using DbLinq.Data.Linq.Sugar;
 using DbLinq.Linq;
 using DbLinq.Util;
 
+#if MONO_STRICT
+namespace System.Data.Linq.Sugar.Implementation
+#else
 namespace DbLinq.Data.Linq.Sugar.Implementation
+#endif
 {
     public class DataRecordReader : IDataRecordReader
     {

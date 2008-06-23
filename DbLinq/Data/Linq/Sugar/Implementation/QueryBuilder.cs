@@ -34,7 +34,11 @@ using DbLinq.Factory;
 using DbLinq.Logging;
 using DbLinq.Util;
 
+#if MONO_STRICT
+namespace System.Data.Linq.Sugar.Implementation
+#else
 namespace DbLinq.Data.Linq.Sugar.Implementation
+#endif
 {
     /// <summary>
     /// Full query builder, with cache management

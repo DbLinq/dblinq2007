@@ -32,7 +32,11 @@ using System.Reflection;
 using DbLinq.Data.Linq.Sugar;
 using DbLinq.Data.Linq.Sugar.ExpressionMutator;
 
+#if MONO_STRICT
+namespace System.Data.Linq.Sugar.Implementation
+#else
 namespace DbLinq.Data.Linq.Sugar.Implementation
+#endif
 {
     /// <summary>
     /// Analyzes language patterns and replace them with standard expressions

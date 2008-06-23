@@ -28,7 +28,11 @@ using System;
 using DbLinq.Data.Linq.Identity;
 using DbLinq.Data.Linq.Identity.Implementation;
 
+#if MONO_STRICT
+namespace System.Data.Linq.Identity.Implementation
+#else
 namespace DbLinq.Data.Linq.Identity.Implementation
+#endif
 {
     public class IdentityReaderFactory : IIdentityReaderFactory
     {

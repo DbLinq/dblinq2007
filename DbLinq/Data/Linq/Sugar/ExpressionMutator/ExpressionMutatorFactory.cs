@@ -29,7 +29,11 @@ using System.Linq.Expressions;
 using DbLinq.Data.Linq.Sugar.ExpressionMutator.Implementation;
 using DbLinq.Data.Linq.Sugar.Expressions;
 
+#if MONO_STRICT
+namespace System.Data.Linq.Sugar.ExpressionMutator
+#else
 namespace DbLinq.Data.Linq.Sugar.ExpressionMutator
+#endif
 {
     public static class ExpressionMutatorFactory
     {

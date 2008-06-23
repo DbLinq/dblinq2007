@@ -29,7 +29,11 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using DbLinq.Data.Linq.Sugar;
 
+#if MONO_STRICT
+namespace System.Data.Linq.Sugar.Expressions
+#else
 namespace DbLinq.Data.Linq.Sugar.Expressions
+#endif
 {
     public abstract class MutableExpression : Expression, IMutableExpression
     {

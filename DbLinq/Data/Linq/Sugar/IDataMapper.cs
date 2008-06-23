@@ -30,7 +30,11 @@ using System.Data.Linq.Mapping;
 using System.Reflection;
 using DbLinq.Data.Linq.Sugar.Expressions;
 
+#if MONO_STRICT
+namespace System.Data.Linq.Sugar
+#else
 namespace DbLinq.Data.Linq.Sugar
+#endif
 {
     public interface IDataMapper
     {

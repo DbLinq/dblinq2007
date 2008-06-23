@@ -24,7 +24,11 @@
 // 
 #endregion
 
+#if MONO_STRICT
+namespace System.Data.Linq.Identity
+#else
 namespace DbLinq.Data.Linq.Identity
+#endif
 {
     /// <summary>
     /// This interface may be used by identities to provide a quick access to keys

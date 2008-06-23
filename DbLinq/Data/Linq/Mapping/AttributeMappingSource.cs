@@ -27,7 +27,11 @@
 using System;
 using System.Data.Linq.Mapping;
 
+#if MONO_STRICT
+namespace System.Data.Linq.Mapping
+#else
 namespace DbLinq.Data.Linq.Mapping
+#endif
 {
     public class AttributeMappingSource : MappingSource
     {

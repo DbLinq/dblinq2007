@@ -30,7 +30,11 @@ using System.Collections.Generic;
 using DbLinq.Data.Linq.Identity;
 using DbLinq.Util;
 
+#if MONO_STRICT
+namespace System.Data.Linq.Identity.Implementation
+#else
 namespace DbLinq.Data.Linq.Identity.Implementation
+#endif
 {
     public class IdentityReader : IIdentityReader
     {

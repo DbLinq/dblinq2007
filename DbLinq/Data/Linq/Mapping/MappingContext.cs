@@ -26,7 +26,11 @@
 
 using System;
 
+#if MONO_STRICT
+namespace System.Data.Linq.Mapping
+#else
 namespace DbLinq.Data.Linq.Mapping
+#endif
 {
     /// <summary>
     /// MappingContext is used during the mapping process

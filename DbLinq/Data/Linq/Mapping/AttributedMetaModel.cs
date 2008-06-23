@@ -34,7 +34,11 @@ using DbLinq.Data.Linq.Mapping;
 using DbLinq.Util;
 using System.Collections.Generic;
 
+#if MONO_STRICT
+namespace System.Data.Linq.Mapping
+#else
 namespace DbLinq.Data.Linq.Mapping
+#endif
 {
     /// <summary>
     /// This class is a stateless attribute meta model (it does not depend on any provider)

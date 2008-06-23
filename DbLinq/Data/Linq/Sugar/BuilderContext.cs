@@ -30,7 +30,11 @@ using System.Linq.Expressions;
 using DbLinq.Data.Linq.Sugar;
 using DbLinq.Data.Linq.Sugar.Expressions;
 
+#if MONO_STRICT
+namespace System.Data.Linq.Sugar
+#else
 namespace DbLinq.Data.Linq.Sugar
+#endif
 {
     public class BuilderContext
     {
