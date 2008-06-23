@@ -72,6 +72,13 @@ namespace DbLinq.Vendor.Implementation
             var referencedTable = schema.Tables.FirstOrDefault(t => referencedFullDbName == t.Name);
             if (referencedTable == null)
             {
+                //try case-insensitive match 
+                //reason: MySql's Key_Column_Usage table contains both 'Northwind' and 'northwind'
+                referencedTable = schema.Tables.FirstOrDefault(t => referencedFullDbName.ToLower() == t.Name.ToLower());
+            }
+
+            if (referencedTable == null)
+            {
                 ReportForeignKeyError(schema, referencedFullDbName);
             }
             else
