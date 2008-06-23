@@ -29,7 +29,11 @@ using System.Collections.Generic;
 using System.Data;
 using DbLinq.Data.Linq.Sugar;
 
+#if MONO_STRICT
+namespace System.Data.Linq.Sugar.Implementation
+#else
 namespace DbLinq.Data.Linq.Sugar.Implementation
+#endif
 {
     public class QueryRunner : IQueryRunner
     {

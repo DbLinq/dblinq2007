@@ -31,7 +31,11 @@ using DbLinq.Data.Linq.Sugar;
 using DbLinq.Data.Linq.Sugar.ExpressionMutator;
 using DbLinq.Data.Linq.Sugar.Expressions;
 
+#if MONO_STRICT
+namespace System.Data.Linq.Sugar.Implementation
+#else
 namespace DbLinq.Data.Linq.Sugar.Implementation
+#endif
 {
     /// <summary>
     /// Optimizes expressions (such as constant chains)

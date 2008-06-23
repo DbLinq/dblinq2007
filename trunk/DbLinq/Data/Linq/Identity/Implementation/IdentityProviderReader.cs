@@ -26,7 +26,11 @@
 
 using DbLinq.Data.Linq.Identity;
 
+#if MONO_STRICT
+namespace System.Data.Linq.Identity.Implementation
+#else
 namespace DbLinq.Data.Linq.Identity.Implementation
+#endif
 {
     /// <summary>
     /// Returns an Identity from an IdentityKey self-provider (an entity implementing IIdentityProvider)

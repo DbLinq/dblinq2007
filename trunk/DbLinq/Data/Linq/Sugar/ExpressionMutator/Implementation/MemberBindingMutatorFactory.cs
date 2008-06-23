@@ -28,7 +28,11 @@ using System.Linq.Expressions;
 using DbLinq.Data.Linq.Sugar;
 using DbLinq.Data.Linq.Sugar.ExpressionMutator.Implementation;
 
+#if MONO_STRICT
+namespace System.Data.Linq.Sugar.ExpressionMutator.Implementation
+#else
 namespace DbLinq.Data.Linq.Sugar.ExpressionMutator.Implementation
+#endif
 {
     public static class MemberBindingMutatorFactory
     {

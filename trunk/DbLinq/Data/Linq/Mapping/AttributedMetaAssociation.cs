@@ -31,7 +31,11 @@ using System.Reflection;
 using DbLinq.Util;
 using System.Collections.Generic;
 
+#if MONO_STRICT
+namespace System.Data.Linq.Mapping
+#else
 namespace DbLinq.Data.Linq.Mapping
+#endif
 {
     internal class AttributedMetaAssociation : MetaAssociation
     {

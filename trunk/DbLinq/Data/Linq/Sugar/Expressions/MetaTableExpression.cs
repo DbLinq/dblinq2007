@@ -29,7 +29,11 @@ using System.Linq.Expressions;
 using System.Reflection;
 using DbLinq.Data.Linq.Sugar.Expressions;
 
+#if MONO_STRICT
+namespace System.Data.Linq.Sugar.Expressions
+#else
 namespace DbLinq.Data.Linq.Sugar.Expressions
+#endif
 {
     /// <summary>
     /// A MetaTablePiece contains aliases for tables (used on joins)

@@ -27,7 +27,11 @@
 using System;
 using System.Collections.Generic;
 
+#if MONO_STRICT
+namespace System.Data.Linq.Identity
+#else
 namespace DbLinq.Data.Linq.Identity
+#endif
 {
     /// <summary>
     /// Identifies an object in a unique way (think Primay Keys in a database table)

@@ -29,7 +29,11 @@ using System.Diagnostics;
 using System.Linq.Expressions;
 using DbLinq.Data.Linq.Sugar.ExpressionMutator;
 
+#if MONO_STRICT
+namespace System.Data.Linq.Sugar.Expressions
+#else
 namespace DbLinq.Data.Linq.Sugar.Expressions
+#endif
 {
     /// <summary>
     /// A GroupExpression holds a grouped result

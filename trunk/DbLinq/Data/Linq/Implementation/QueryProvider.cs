@@ -31,7 +31,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using DbLinq.Data.Linq.Sugar;
 
+#if MONO_STRICT
+namespace System.Data.Linq.Implementation
+#else
 namespace DbLinq.Data.Linq.Implementation
+#endif
 {
     internal class QueryProvider
     {

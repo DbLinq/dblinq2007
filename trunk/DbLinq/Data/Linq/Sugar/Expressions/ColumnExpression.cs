@@ -30,7 +30,11 @@ using System.Reflection;
 using DbLinq.Data.Linq.Sugar.Expressions;
 using DbLinq.Util;
 
+#if MONO_STRICT
+namespace System.Data.Linq.Sugar.Expressions
+#else
 namespace DbLinq.Data.Linq.Sugar.Expressions
+#endif
 {
     /// <summary>
     /// Describes a column, related to a table

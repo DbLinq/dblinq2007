@@ -30,7 +30,11 @@ using System.Data;
 using DbLinq.Data.Linq.Sugar.Expressions;
 using DbLinq.Linq;
 
+#if MONO_STRICT
+namespace System.Data.Linq.Sugar
+#else
 namespace DbLinq.Data.Linq.Sugar
+#endif
 {
     /// <summary>
     /// Represents a linq query, parsed and compiled, to be sent to database

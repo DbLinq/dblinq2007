@@ -29,7 +29,11 @@ using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Collections.Generic;
 
+#if MONO_STRICT
+namespace System.Data.Linq.Sugar
+#else
 namespace DbLinq.Data.Linq.Sugar
+#endif
 {
     [DebuggerDisplay("ExpressionChain {Expressions.Count} Expression(s)")]
     public class ExpressionChain : IEnumerable<Expression>
