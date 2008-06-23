@@ -200,6 +200,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
 
         protected virtual void WriteClassPropertyAccessors(CodeWriter writer, Column property, GenerationContext context)
         {
+            //generate [Column(...)] attribute
             var column = NewAttributeDefinition<ColumnAttribute>();
             column["Storage"] = property.Storage;
             column["Name"] = property.Name;
@@ -212,7 +213,8 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                 column["IsDbGenerated"] = property.IsDbGenerated;
             if (property.CanBeNull != columnAttribute.CanBeNull)
                 column["CanBeNull"] = property.CanBeNull;
-            column["Expression"] = property.Expression;
+            if (property.Expression != null)
+                column["Expression"] = property.Expression;
 
             var specifications = property.AccessModifierSpecified
                                      ? GetSpecificationDefinition(property.AccessModifier)

@@ -105,7 +105,8 @@ namespace DbLinq.Vendor.Implementation
         {
             GenerateStorageFields(schema, delegate(string name)
                                               {
-                                                  var storage = NameFormatter.Format(name, Case.camelCase);
+                                                  //jgm 2008June: pre-pended underscore to have same storage format as MS
+                                                  var storage = "_" + NameFormatter.Format(name, Case.camelCase);
                                                   if (storage == name)
                                                       storage = "_" + storage;
                                                   return storage;
