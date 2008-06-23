@@ -71,12 +71,31 @@ namespace DbLinq.Vendor.Implementation
             string referencedFullDbName = GetFullDbName(referencedTableName, referencedTableSchema);
             var referencedTable = schema.Tables.FirstOrDefault(t => referencedFullDbName == t.Name);
             if (referencedTable == null)
-                Logger.Write(Level.Error, "ERROR L151: parent table not found: " + referencedTableName);
+            {
+                ReportForeignKeyError(schema, referencedFullDbName);
+            }
             else
             {
                 referencedTable.Type.Associations.Add(reverseAssociation);
                 assoc.Type = referencedTable.Type.Name;
             }
+        }
+
+        void ReportForeignKeyError(Database schema, string referencedTableFull)
+        {
+            var tablesMap = schema.Tables.ToDictionary(t => t.Name.ToLower());
+            var referencedTableFullL = referencedTableFull.ToLower();
+
+            string msg = "ERROR L91: parent table not found: " + referencedTableFull;
+            Table matchedTable;
+            if (tablesMap.TryGetValue(referencedTableFullL, out matchedTable))
+            {
+                //case problems arise from various reasons,
+                //e.g. different capitalization on WIndows vs Linux,
+                //bugs in DbLinq etc
+                msg += " - however, schema lists a table spelled as " + matchedTable.Name;
+            }
+            Logger.Write(Level.Error, msg);
         }
     }
 }
