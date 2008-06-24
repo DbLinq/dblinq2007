@@ -24,12 +24,18 @@
 // 
 #endregion
 
+using System.Collections.Generic;
 using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.Sqlite
 {
     public class SqliteSqlProvider : SqlProvider
     {
+        protected override string GetInsertWrapper(string insert, IList<string> outputParameters, IList<string> outputExpressions)
+        {
+            return string.Format("{0}; SELECT last_insert_rowid()", insert);
+        }
+
         protected override string GetLiteralStringLength(string a)
         {
             return string.Format("LENGTH({0})", a);

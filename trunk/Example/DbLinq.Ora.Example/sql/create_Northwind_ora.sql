@@ -143,6 +143,67 @@ CREATE SEQUENCE Products_seq   START WITH 1    INCREMENT BY 1;
 CREATE SEQUENCE Orders_seq     START WITH 1    INCREMENT BY 1;
 CREATE SEQUENCE Employees_seq  START WITH 1    INCREMENT BY 1;
  
+--####################################################################
+
+CREATE OR REPLACE TRIGGER Employees_Trigger
+BEFORE INSERT ON "Employees" 
+FOR EACH ROW
+BEGIN
+   IF (:new."EmployeeID" IS NULL) THEN
+        SELECT Employees_seq.NEXTVAL INTO :new."EmployeeID" FROM DUAL;
+   END IF;
+END;
+/
+
+CREATE OR REPLACE TRIGGER Products_Trigger
+BEFORE INSERT ON "Products" 
+FOR EACH ROW
+BEGIN
+   IF (:new."ProductID" IS NULL) THEN
+        SELECT Products_seq.NEXTVAL INTO :new."ProductID" FROM DUAL;
+   END IF;
+END;
+/
+
+CREATE OR REPLACE TRIGGER Categories_Trigger
+BEFORE INSERT ON "Categories" 
+FOR EACH ROW
+BEGIN
+   IF (:new."CategoryID" IS NULL) THEN
+        SELECT Categories_seq.NEXTVAL INTO :new."CategoryID" FROM DUAL;
+   END IF;
+END;
+/
+
+CREATE OR REPLACE TRIGGER Region_Trigger
+BEFORE INSERT ON "Region" 
+FOR EACH ROW
+BEGIN
+   IF (:new."RegionID" IS NULL) THEN
+        SELECT Region_seq.NEXTVAL INTO :new."RegionID" FROM DUAL;
+   END IF;
+END;
+/
+
+CREATE OR REPLACE TRIGGER Suppliers_Trigger
+BEFORE INSERT ON "Suppliers" 
+FOR EACH ROW
+BEGIN
+   IF (:new."SupplierID" IS NULL) THEN
+        SELECT Suppliers_seq.NEXTVAL INTO :new."SupplierID" FROM DUAL;
+   END IF;
+END;
+/
+
+CREATE OR REPLACE TRIGGER Orders_Trigger
+BEFORE INSERT ON "Orders" 
+FOR EACH ROW
+BEGIN
+   IF (:new."OrderID" IS NULL) THEN
+        SELECT Orders_seq.NEXTVAL INTO :new."OrderID" FROM DUAL;
+   END IF;
+END;
+/
 
 --####################################################################
 Insert INTO "Categories" ("CategoryID", "CategoryName","Description")
@@ -245,6 +306,7 @@ RETURN varchar
 BEGIN
   return 'hello0';
 END;
+/
 
 CREATE OR REPLACE FUNCTION NORTHWIND.HELLO1
 (s varchar)
@@ -253,6 +315,7 @@ RETURN varchar
 BEGIN
   return 'Hello, ' || s || '!';
 END;
+/
 
 CREATE OR REPLACE FUNCTION NORTHWIND.HELLO2
 (s varchar, s2 number)
@@ -261,6 +324,7 @@ RETURN varchar
 BEGIN
   return 'Hello, ' || s || '!';
 END;
+/
 
 CREATE OR REPLACE FUNCTION NORTHWIND.GETORDERCOUNT
 (custId varchar)
@@ -271,6 +335,7 @@ BEGIN
 SELECT COUNT(*) INTO count1 FROM "Orders" WHERE "CustomerID"=custId;
 RETURN count1;
 END;
+/
 
 CREATE OR REPLACE PROCEDURE NORTHWIND.SP_SELORDERS
 (s varchar, s2 out number)
@@ -278,10 +343,9 @@ CREATE OR REPLACE PROCEDURE NORTHWIND.SP_SELORDERS
 BEGIN
 select 22 into s2 from dual;
 END;
-
+/
 
 COMMIT;
 
-
-
+EXIT
 

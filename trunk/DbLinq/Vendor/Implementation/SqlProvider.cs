@@ -48,7 +48,7 @@ namespace DbLinq.Vendor.Implementation
         public string GetInsert(string table, IList<string> columns, IList<string> values,
             IList<string> outputParameters, IList<string> outputExpressions)
         {
-            return GetInsertWrapper(GetInsert(table, columns, values), outputExpressions, outputExpressions);
+            return GetInsertWrapper(GetInsert(table, columns, values), outputParameters, outputExpressions);
         }
 
         protected virtual string GetInsert(string table, IList<string> columns, IList<string> values)
@@ -382,7 +382,7 @@ namespace DbLinq.Vendor.Implementation
         /// <returns></returns>
         public virtual string GetParameterName(string nameBase)
         {
-            return string.Format(":{0}", nameBase);
+            return string.Format(":{0}", nameBase.Trim('"'));
         }
 
         /// <summary>

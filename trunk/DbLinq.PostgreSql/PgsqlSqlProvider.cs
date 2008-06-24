@@ -24,11 +24,25 @@
 // 
 #endregion
 
+using System.Collections.Generic;
+using System.Linq;
+using DbLinq.Util;
 using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.PostgreSql
 {
     public class PgsqlSqlProvider : SqlProvider
     {
+        protected override string GetInsertWrapper(string insert, IList<string> outputParameters, IList<string> outputExpressions)
+        {
+            // no parameters? no need to get them back
+            if (outputParameters.Count == 0)
+                return insert;
+            // otherwise we keep track of the new values
+            return string.Format("{0}; SELECT {1}",
+                insert,
+                string.Join(", ", (from outputExpression in outputExpressions select outputExpression.ReplaceCase("nextval(", "currval(", true)).ToArray())
+                );
+        }
     }
 }

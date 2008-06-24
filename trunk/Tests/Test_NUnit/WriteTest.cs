@@ -69,11 +69,15 @@ namespace Test_NUnit_PostgreSql
 #elif INGRES
     namespace Test_NUnit_Ingres
 #elif MSSQL
+#if MONO_STRICT
+    namespace Test_NUnit_MsSql_Strict
+#else
     namespace Test_NUnit_MsSql
+#endif
 #else
 #error unknown target
 #endif
-{
+    {
     [SetUpFixture]
     public class WriteTestSetup : TestBase
     {

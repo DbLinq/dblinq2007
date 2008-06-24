@@ -125,6 +125,8 @@ namespace DbLinq.Vendor
         /// <returns></returns>
         IDbDataParameter CreateDbDataParameter(IDbCommand cmd, string dbTypeName, string paramName);
 
+        bool SupportsOutputParameter { get; }
+
         #endregion
 
         ISqlProvider SqlProvider { get; }

@@ -44,5 +44,12 @@ namespace DbLinq.Data.Linq.Sugar
         IEnumerable<T> GetEnumerator<T>(SelectQuery selectQuery);
 
         S Execute<S>(SelectQuery selectQuery);
+
+        /// <summary>
+        /// Runs an InsertQuery on a provided object
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="insertquery"></param>
+        void Insert(object target, InsertQuery insertquery);
     }
 }

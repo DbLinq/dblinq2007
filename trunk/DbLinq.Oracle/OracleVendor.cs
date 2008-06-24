@@ -31,7 +31,7 @@ using System.Text;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using DbLinq.Linq;
-using DataContext=DbLinq.Data.Linq.DataContext;
+using DataContext = DbLinq.Data.Linq.DataContext;
 
 namespace DbLinq.Oracle
 {

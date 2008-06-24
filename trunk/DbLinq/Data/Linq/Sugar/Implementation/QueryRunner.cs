@@ -28,6 +28,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using DbLinq.Data.Linq.Sugar;
+using DbLinq.Data.Linq.Sugar.Expressions;
+using DbLinq.Util;
 
 #if MONO_STRICT
 namespace System.Data.Linq.Sugar.Implementation
@@ -67,7 +69,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     var row = rowObjectCreator(dbDataReader, selectQuery.DataContext.MappingContext);
                     if (row != null)
                     {
-                        row = (T) selectQuery.DataContext.GetOrRegisterEntity(row);
+                        row = (T)selectQuery.DataContext.GetOrRegisterEntity(row);
                         // TODO: place updates in DataContext
                         //_vars.Table.CheckAttachment(current); // registers the object to be watched for updates
                         selectQuery.DataContext.ModificationHandler.Register(row);
@@ -96,18 +98,18 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         {
             switch (selectQuery.ExecuteMethodName)
             {
-                case null: // some calls, like Count() generate SQL and the resulting projection method name is null (never initialized)
-                    return ExecuteSingle<S>(selectQuery, false); // Single() for safety, but First() should work
-                case "First":
-                    return ExecuteFirst<S>(selectQuery, false);
-                case "FirstOrDefault":
-                    return ExecuteFirst<S>(selectQuery, true);
-                case "Single":
-                    return ExecuteSingle<S>(selectQuery, false);
-                case "SingleOrDefault":
-                    return ExecuteSingle<S>(selectQuery, true);
-                case "Last":
-                    return ExecuteLast<S>(selectQuery, false);
+            case null: // some calls, like Count() generate SQL and the resulting projection method name is null (never initialized)
+                return ExecuteSingle<S>(selectQuery, false); // Single() for safety, but First() should work
+            case "First":
+                return ExecuteFirst<S>(selectQuery, false);
+            case "FirstOrDefault":
+                return ExecuteFirst<S>(selectQuery, true);
+            case "Single":
+                return ExecuteSingle<S>(selectQuery, false);
+            case "SingleOrDefault":
+                return ExecuteSingle<S>(selectQuery, true);
+            case "Last":
+                return ExecuteLast<S>(selectQuery, false);
             }
             throw Error.BadArgument("S0077: Unhandled method '{0}'", selectQuery.ExecuteMethodName);
         }
@@ -173,6 +175,82 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             if (!allowDefault && rowCount == 0)
                 throw new InvalidOperationException();
             return lastRow;
+        }
+
+        /// <summary>
+        /// Runs an InsertQuery on a provided object
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="insertQuery"></param>
+        public void Insert(object target, InsertQuery insertQuery)
+        {
+            var sqlProvider = insertQuery.DataContext.Vendor.SqlProvider;
+            using (var dbTransaction = insertQuery.DataContext.DatabaseContext.Transaction())
+            using (var dbCommand = insertQuery.DataContext.DatabaseContext.Connection.CreateCommand())
+            {
+                dbCommand.CommandText = insertQuery.Sql;
+                dbCommand.Transaction = dbTransaction.Transaction;
+                foreach (var inputParameter in insertQuery.InputParameters)
+                {
+                    var dbParameter = dbCommand.CreateParameter();
+                    dbParameter.ParameterName = sqlProvider.GetParameterName(inputParameter.Alias);
+                    //dbParameter.Value = inputParameter.GetValue(target);
+                    dbParameter.SetValue(inputParameter.GetValue(target), inputParameter.ValueType);
+                    dbCommand.Parameters.Add(dbParameter);
+                }
+                if (insertQuery.DataContext.Vendor.SupportsOutputParameter)
+                {
+                    int outputStart = insertQuery.InputParameters.Count;
+                    foreach (var outputParameter in insertQuery.OutputParameters)
+                    {
+                        var dbParameter = dbCommand.CreateParameter();
+                        dbParameter.ParameterName = sqlProvider.GetParameterName(outputParameter.Alias);
+                        // Oracle is lost if output variables are unitialized. Another winner story.
+                        dbParameter.SetValue(null, outputParameter.ValueType);
+                        dbParameter.Size = 100;
+                        dbParameter.Direction = /*outputParameter.IsReturn ? ParameterDirection.ReturnValue :*/ ParameterDirection.Output;
+                        dbCommand.Parameters.Add(dbParameter);
+                    }
+                    int rowsCount = dbCommand.ExecuteNonQuery();
+                    for (int outputParameterIndex = 0;
+                         outputParameterIndex < insertQuery.OutputParameters.Count;
+                         outputParameterIndex++)
+                    {
+                        var outputParameter = insertQuery.OutputParameters[outputParameterIndex];
+                        var outputDbParameter =
+                            (IDbDataParameter)dbCommand.Parameters[outputParameterIndex + outputStart];
+                        SetOutputParameterValue(target, outputParameter, outputDbParameter.Value);
+                    }
+                }
+                else
+                {
+                    object result = dbCommand.ExecuteScalar();
+                    if (insertQuery.OutputParameters.Count > 1)
+                        throw new ArgumentException();
+                    if (insertQuery.OutputParameters.Count == 1)
+                        SetOutputParameterValue(target, insertQuery.OutputParameters[0], result);
+                }
+            }
+        }
+
+        protected virtual void SetOutputParameterValue(object target, ObjectOutputParameterExpression outputParameter, object value)
+        {
+            if (value is DBNull)
+                outputParameter.SetValue(target, null);
+            else
+                outputParameter.SetValue(target, TypeConvert.To(value, outputParameter.ValueType));
+        }
+
+        protected virtual void SetDbParameterValue(IDbDataParameter parameter, object value, Type valueType)
+        {
+            if (value == null)
+                parameter.Value = GetDefault(valueType);
+            parameter.Value = value;
+        }
+
+        protected virtual object GetDefault(Type t)
+        {
+            return Activator.CreateInstance(t);
         }
     }
 }

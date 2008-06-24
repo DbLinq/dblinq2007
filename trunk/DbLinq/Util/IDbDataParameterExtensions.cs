@@ -23,25 +23,31 @@
 // THE SOFTWARE.
 // 
 #endregion
+
 using System;
 using System.Data;
 
-namespace DbLinq.Linq.Database
+namespace DbLinq.Util
 {
-    /// <summary>
-    /// Transaction block.
-    /// </summary>
-    public interface IDatabaseTransaction : IDisposable
+    public static class IDbDataParameterExtensions
     {
-        /// <summary>
-        /// Call Commit() before Dispose() to save changes.
-        /// All unCommit()ed changes will be rolled back
-        /// </summary>
-        void Commit();
+        public static void SetValue(this IDbDataParameter dbParameter, object value, Type type)
+        {
+            if (value == null)
+            {
+                if (type.IsNullable())
+                    dbParameter.Value = TypeConvert.GetDefault(type.GetNullableType());
+                else if (type.IsValueType)
+                    dbParameter.Value = TypeConvert.GetDefault(type);
+                dbParameter.Value = DBNull.Value;
+            }
+            else
+                dbParameter.Value = value;
+        }
 
-        /// <summary>
-        /// Returns current transaction (if any)
-        /// </summary>
-        IDbTransaction Transaction { get; }
+        public static void SetValue<T>(this IDbDataParameter dbParameter, T value)
+        {
+            SetValue(dbParameter, value, typeof(T));
+        }
     }
 }

@@ -63,7 +63,9 @@ namespace DbLinq.Util
                     List<T> list = new List<T>();
                     while (rdr.Read())
                     {
-                        list.Add(readDelegate(rdr));
+                        var t = readDelegate(rdr);
+                        if (t != null)
+                            list.Add(t);
                     }
                     return list;
                 }

@@ -25,12 +25,18 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.Ingres
 {
     public class IngresSqlProvider : SqlProvider
     {
+        protected override string GetInsertWrapper(string insert, IList<string> outputParameters, IList<string> outputExpressions)
+        {
+            return insert;
+        }
+
         protected override string GetLiteralCount(string a)
         {
             return "COUNT(*)";

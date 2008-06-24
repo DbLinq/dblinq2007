@@ -28,7 +28,7 @@ using System.Data;
 
 namespace DbLinq.Linq.Database.Implementation
 {
-    public class DatabaseTransaction: IDatabaseTransaction
+    public class DatabaseTransaction : IDatabaseTransaction
     {
         [ThreadStatic]
         private static DatabaseTransaction _currentTransaction;
@@ -37,13 +37,15 @@ namespace DbLinq.Linq.Database.Implementation
 
         public static IDbTransaction CurrentDbTransaction
         {
-            get 
+            get
             {
                 if (_currentTransaction != null)
                     return _currentTransaction._transaction;
                 return null;
             }
         }
+
+        public IDbTransaction Transaction { get { return CurrentDbTransaction; } }
 
         public DatabaseTransaction(IDbConnection connection)
         {
