@@ -84,9 +84,16 @@ namespace DbLinq.Oracle
                                    constraint.ConstraintName, nameFormat, names);
 
                 }
+                // custom type, this is a trigger
+                else if (constraint.ConstraintType == "T")
+                {
+                    var column = table.Type.Columns.Where(c => c.Name == constraint.ColumnName).First();
+                    column.Expression = constraint.Expression;
+                    column.IsDbGenerated = true;
+                }
             }
 
-            GuessSequencePopulatedFields(schema);
+            //GuessSequencePopulatedFields(schema);
         }
 
         /// <summary>

@@ -25,6 +25,7 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Data;
 using System.Data.Linq.Mapping;
 using System.Diagnostics;
@@ -65,6 +66,9 @@ namespace DbLinq.Data.Linq
         public ILogger Logger { get; set; }
         public IEntityMap EntityMap { get; set; }
         // /all properties...
+
+        internal readonly EntityList InsertList = new EntityList();
+        internal readonly EntityList DeleteList = new EntityList();
 
         private IIdentityReaderFactory identityReaderFactory;
         private IDictionary<Type, IIdentityReader> identityReaders = new Dictionary<Type, IIdentityReader>();

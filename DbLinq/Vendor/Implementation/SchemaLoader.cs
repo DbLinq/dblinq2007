@@ -247,7 +247,11 @@ namespace DbLinq.Vendor.Implementation
                 if (columnRow.Generated.HasValue)
                     column.IsDbGenerated = columnRow.Generated.Value;
 
-                if (column.IsDbGenerated)
+                // the Expression can originate from two sources:
+                // 1. DefaultValue
+                // 2. Expression
+                // we use any valid source (we can't have both)
+                if (column.IsDbGenerated && columnRow.DefaultValue != null)
                     column.Expression = columnRow.DefaultValue;
 
                 column.CanBeNull = columnRow.Nullable;

@@ -35,7 +35,7 @@ using DbLinq.Factory;
 using DbLinq.Linq;
 using DbLinq.Logging;
 using DbLinq.Util;
-using DataContext=DbLinq.Data.Linq.DataContext;
+using DataContext = DbLinq.Data.Linq.DataContext;
 
 namespace DbLinq.Vendor.Implementation
 {
@@ -300,6 +300,8 @@ namespace DbLinq.Vendor.Implementation
             param.ParameterName = paramName;
             return param;
         }
+
+        public virtual bool SupportsOutputParameter { get { return true; } }
 
         protected FunctionAttribute GetFunctionAttribute(MethodInfo methodInfo)
         {

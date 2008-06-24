@@ -34,7 +34,7 @@ using System.Text;
 using DbLinq.Util;
 using DbLinq.Linq;
 using DbLinq.Linq.Database;
-using DataContext=DbLinq.Data.Linq.DataContext;
+using DataContext = DbLinq.Data.Linq.DataContext;
 
 namespace DbLinq.Ingres
 {
@@ -115,12 +115,12 @@ namespace DbLinq.Ingres
         {
             switch (param.DbType)
             {
-                case DbType.String:
-                case DbType.Int16:
-                case DbType.Int32:
-                case DbType.Int64:
-                case DbType.Double:
-                    return true;
+            case DbType.String:
+            case DbType.Int16:
+            case DbType.Int32:
+            case DbType.Int64:
+            case DbType.Double:
+                return true;
             }
             return false;
         }
@@ -129,13 +129,13 @@ namespace DbLinq.Ingres
         {
             switch (param.DbType)
             {
-                case DbType.String:
-                    return " '" + param.Value.ToString() + "' ";
-                case DbType.Int16:
-                case DbType.Int32:
-                case DbType.Int64:
-                case DbType.Double:
-                    return param.Value.ToString();
+            case DbType.String:
+                return " '" + param.Value.ToString() + "' ";
+            case DbType.Int16:
+            case DbType.Int32:
+            case DbType.Int64:
+            case DbType.Double:
+                return param.Value.ToString();
             }
             throw new Exception("Not prepared to convert " + param.DbType.ToString());
         }
@@ -194,7 +194,7 @@ namespace DbLinq.Ingres
 
         protected void SetParameterType(IDbDataParameter parameter, PropertyInfo property, string literal)
         {
-            object dbType= Enum.Parse(property.PropertyType, literal);
+            object dbType = Enum.Parse(property.PropertyType, literal);
             property.GetSetMethod().Invoke(parameter, new object[] { dbType });
         }
 
@@ -208,7 +208,7 @@ namespace DbLinq.Ingres
             // --> how is a special field escaped?
             return name;
         }
-        
+
         public override IDbDataParameter CreateDbDataParameter(IDbCommand cmd, string dbTypeName, string paramName)
         {
             IDbDataParameter param = cmd.CreateParameter();

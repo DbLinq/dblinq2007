@@ -25,8 +25,6 @@
 #endregion
 using System;
 using System.Data;
-using System.Reflection;
-using DbLinq.Linq;
 
 namespace DbLinq.Util
 {
@@ -48,24 +46,7 @@ namespace DbLinq.Util
         public static bool GetAsBool(this IDataRecord dataRecord, int index)
         {
             object b = dataRecord.GetValue(index);
-            // first check: this may be a boolean
-            if (b is bool)
-                return (bool)b;
-            // if it is a string, we may have "T"/"F" or "True"/"False"
-            if (b is string)
-            {
-                // regular literals
-                var lb = (string)b;
-                bool ob;
-                if (bool.TryParse(lb, out ob))
-                    return ob;
-                // alternative literals
-                if (lb == "T" || lb == "F")
-                    return lb == "T";
-                if (lb == "Y" || lb == "N")
-                    return lb == "Y";
-            }
-            return dataRecord.GetAsNumeric<int>(index) != 0;
+            return TypeConvert.ToBoolean(b);
         }
 
         public static bool? GetAsNullableBool(this IDataRecord dataRecord, int index)
@@ -78,17 +59,7 @@ namespace DbLinq.Util
         public static char GetAsChar(this IDataRecord dataRecord, int index)
         {
             object c = dataRecord.GetValue(index);
-            if (c is char)
-                return (char)c;
-            if (c is string)
-            {
-                string sc = (string)c;
-                if (sc.Length == 1)
-                    return sc[0];
-            }
-            if (c == null || c is DBNull)
-                return '\0';
-            throw new InvalidCastException(string.Format("Can't convert type {0} in GetAsChar()", c.GetType().Name));
+            return TypeConvert.ToChar(c);
         }
 
         public static char? GetAsNullableChar(this IDataRecord dataRecord, int index)

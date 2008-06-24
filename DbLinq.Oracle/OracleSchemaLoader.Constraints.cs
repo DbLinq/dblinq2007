@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
+using System.Text.RegularExpressions;
 using DbLinq.Util;
 
 namespace DbLinq.Oracle
@@ -41,6 +42,7 @@ namespace DbLinq.Oracle
             public string ColumnName;
             public string ConstraintType;
             public string ReverseConstraintName;
+            public string Expression;
 
             public override string ToString()
             {
@@ -61,8 +63,50 @@ namespace DbLinq.Oracle
             return constraint;
         }
 
+        private static Regex TriggerMatch1 = new Regex(@".*SELECT\s+(?<exp>\S+)\s+INTO\s+\:new.(?<col>\S+)\s+FROM\s+DUAL.*",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+        protected bool MatchTrigger(Regex regex, string fullText, out string expression, out string column)
+        {
+            var match = regex.Match(fullText);
+            if (match.Success)
+            {
+                expression = match.Groups["exp"].Value;
+                column = match.Groups["col"].Value;
+                return true;
+            }
+            expression = null;
+            column = null;
+            return false;
+        }
+
+        protected virtual DataConstraint ReadTrigger(IDataReader rdr)
+        {
+            var constraint = new DataConstraint();
+            int field = 0;
+            constraint.ConstraintName = rdr.GetAsString(field++);
+            constraint.TableSchema = rdr.GetAsString(field++);
+            constraint.TableName = rdr.GetAsString(field++);
+            constraint.ConstraintType = "T";
+            string body = rdr.GetAsString(field++);
+            //BEGIN
+            //   IF (:new."EmployeeID" IS NULL) THEN
+            //        SELECT Employees_seq.NEXTVAL INTO :new."EmployeeID" FROM DUAL;
+            //   END IF;
+            //END;
+            string expression, column;
+            if (MatchTrigger(TriggerMatch1, body, out expression, out column))
+            {
+                constraint.ColumnName = column.Trim('"');
+                constraint.Expression = expression;
+            }
+            return constraint;
+        }
+
         protected virtual List<DataConstraint> ReadConstraints(IDbConnection conn, string db)
         {
+            var constraints = new List<DataConstraint>();
+
             string sql = @"
 SELECT UCC.owner, UCC.constraint_name, UCC.table_name, UCC.column_name, UC.constraint_type, UC.R_constraint_name
 FROM all_cons_columns UCC, all_constraints UC
@@ -72,7 +116,18 @@ AND UCC.TABLE_NAME NOT LIKE '%$%' AND UCC.TABLE_NAME NOT LIKE 'LOGMNR%' AND UCC.
 AND UC.CONSTRAINT_TYPE!='C'
 and lower(UCC.owner) = :owner";
 
-            return DataCommand.Find<DataConstraint>(conn, sql, ":owner", db.ToLower(), ReadConstraint);
+            constraints.AddRange(DataCommand.Find<DataConstraint>(conn, sql, ":owner", db.ToLower(), ReadConstraint));
+
+            string sql2 =
+                @"
+select t.TRIGGER_NAME, t.TABLE_OWNER, t.TABLE_NAME, t.TRIGGER_BODY from ALL_TRIGGERS t
+where t.status = 'ENABLED'
+ and t.TRIGGERING_EVENT = 'INSERT'
+ and t.TRIGGER_TYPE='BEFORE EACH ROW'
+ and lower(t.owner) = :owner";
+
+            constraints.AddRange(DataCommand.Find<DataConstraint>(conn, sql2, ":owner", db.ToLower(), ReadTrigger));
+            return constraints;
         }
     }
 }

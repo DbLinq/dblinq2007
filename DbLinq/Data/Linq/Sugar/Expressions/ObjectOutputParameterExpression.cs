@@ -41,6 +41,7 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
         public const ExpressionType ExpressionType = (ExpressionType)CustomExpressionType.ObjectOutputParameter;
 
         public string Alias { get; set; }
+        public Type ValueType { get; private set; }
 
         private readonly Delegate setValueDelegate;
         /// <summary>
@@ -52,13 +53,14 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
             return setValueDelegate.DynamicInvoke(o, v);
         }
 
-        public ObjectOutputParameterExpression(LambdaExpression lambda, string alias)
+        public ObjectOutputParameterExpression(LambdaExpression lambda, Type valueType, string alias)
             : base(ExpressionType, lambda.Type)
         {
             if (lambda.Parameters.Count != 2)
                 throw Error.BadArgument("S0055: Lambda must have 2 arguments");
             setValueDelegate = lambda.Compile();
             Alias = alias;
+            ValueType = valueType;
         }
     }
 }

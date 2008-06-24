@@ -27,7 +27,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using DbLinq.Data.Linq.Sugar.Expressions;
+using DbLinq.Logging;
 using DbLinq.Util;
 
 #if MONO_STRICT
@@ -54,8 +56,8 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         // IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null
         // BEGIN 
         // INSERT INTO NORTHWIND."Products" ("CategoryID", "Discontinued", "ProductID", "ProductName", "QuantityPerUnit") 
-        //                  VALUES (:P1, :P2, NORTHWIND."Products_SEQ.NextVal, :P4, :P5)
-        //               ;SELECT NORTHWIND."Products_SEQ.CurrVal INTO :P3 FROM DUAL; END;
+        //                  VALUES (:P1, :P2, NORTHWIND."Products_SEQ".NextVal, :P4, :P5)
+        //               ;SELECT NORTHWIND."Products_SEQ".CurrVal INTO :P3 FROM DUAL; END;
         //
         // PostgreSQL:
         // IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = "nextval('\"Products_ProductID_seq\"')"
@@ -72,6 +74,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         //          PK: Expression !null --> use parameter (Oracle is wrong here)
         //              Expression  null --> ignore
         // SQL: wrap clause with PK information
+
 
         /// <summary>
         /// Creates a query for insertion
@@ -93,42 +96,57 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             foreach (var dataMember in table.RowType.PersistentDataMembers)
             {
                 var column = sqlProvider.GetColumn(dataMember.MappedName);
-                // if the column is generated, we may have:
+                var memberInfo = dataMember.Member;
+                // if the column is generated AND not specified, we may have:
                 // - an explicit generation (Expression property is not null, so we add the column)
                 // - an implicit generation (Expression property is null
                 // in all cases, we want to get the value back
-                if (dataMember.IsDbGenerated)
+                if (dataMember.IsDbGenerated
+                    && !IsSpecified(objectToInsert, memberInfo))
                 {
                     if (dataMember.Expression != null)
                     {
                         columns.Add(column);
                         columnsValues.Add(dataMember.Expression);
                     }
-                    var setObjectParameter = Expression.Parameter(dataMember.Type, "obj");
-                    var setValueParameter = Expression.Parameter(dataMember.Type, "value");
-                    var memberInfo = dataMember.Member;
                     var setter = (Expression<Action<object, object>>)((o, v) => memberInfo.SetMemberValue(o, v));
-                    var writeLambda = Expression.Lambda(setter, setObjectParameter, setValueParameter);
-                    var outputParameter = new ObjectOutputParameterExpression(writeLambda, dataMember.MappedName);
-                    outputValues.Add(outputParameter.Alias);
+                    var outputParameter = new ObjectOutputParameterExpression(setter,
+                                                                              memberInfo.GetMemberType(),
+                                                                              dataMember.MappedName);
+                    outputParameters.Add(outputParameter);
+                    outputValues.Add(sqlProvider.GetParameterName(outputParameter.Alias));
                     outputExpressions.Add(dataMember.Expression);
                 }
                 else // standard column
                 {
-                    var getObjectParameter = Expression.Parameter(dataMember.Type, "obj");
-                    var memberInfo = dataMember.Member;
                     var getter = (Expression<Func<object, object>>)(o => memberInfo.GetMemberValue(o));
-                    var readLambda = Expression.Lambda(getter, getObjectParameter);
                     var inputParameter = new ObjectInputParameterExpression(
-                        readLambda,
-                        sqlProvider.GetParameterName(dataMember.Name));
+                        getter,
+                        memberInfo.GetMemberType(), dataMember.Name);
                     columns.Add(column);
-                    columnsValues.Add(inputParameter.Alias);
+                    columnsValues.Add(sqlProvider.GetParameterName(inputParameter.Alias));
                     inputParameters.Add(inputParameter);
                 }
             }
             var insertSql = sqlProvider.GetInsert(sqlProvider.GetTable(table.TableName), columns, columnsValues, outputValues, outputExpressions);
+            queryContext.DataContext.Logger.Write(Level.Debug, "Insert SQL: {0}", insertSql);
             return new InsertQuery(queryContext.DataContext, insertSql, inputParameters, outputParameters);
+        }
+
+        /// <summary>
+        /// Determines if a property is different from its default value
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="memberInfo"></param>
+        /// <returns></returns>
+        protected virtual bool IsSpecified(object target, MemberInfo memberInfo)
+        {
+            object value = memberInfo.GetMemberValue(target);
+            if (value == null)
+                return false;
+            if (Equals(value, TypeConvert.GetDefault(memberInfo.GetMemberType())))
+                return false;
+            return true;
         }
     }
 }

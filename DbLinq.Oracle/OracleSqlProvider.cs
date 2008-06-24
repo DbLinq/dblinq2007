@@ -24,12 +24,28 @@
 // 
 #endregion
 
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using DbLinq.Util;
 using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.Oracle
 {
     public class OracleSqlProvider : SqlProvider
     {
+        protected override string GetInsertWrapper(string insert, IList<string> outputParameters, IList<string> outputExpressions)
+        {
+            // no parameters? no need to get them back
+            if (outputParameters.Count == 0)
+                return insert;
+            // otherwise we keep track of the new values
+            return string.Format("BEGIN {0};SELECT {1} INTO {2} FROM DUAL;END;",
+                insert,
+                string.Join(", ", (from outputExpression in outputExpressions select outputExpression.ReplaceCase(".NextVal", ".CurrVal", true)).ToArray()),
+                string.Join(", ", outputParameters.ToArray()));
+        }
+
         protected override string GetLiteralCount(string a)
         {
             return "COUNT(*)";

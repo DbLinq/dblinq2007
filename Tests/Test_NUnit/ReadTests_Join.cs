@@ -57,7 +57,11 @@ using DbLinq.Logging;
 #elif INGRES
     namespace Test_NUnit_Ingres
 #elif MSSQL
-namespace Test_NUnit_MsSql
+#if MONO_STRICT
+    namespace Test_NUnit_MsSql_Strict
+#else
+    namespace Test_NUnit_MsSql
+#endif
 #else
 #error unknown target
 #endif

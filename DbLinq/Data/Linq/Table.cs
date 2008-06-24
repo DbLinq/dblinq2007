@@ -69,8 +69,6 @@ namespace DbLinq.Data.Linq
         [Obsolete("NOT IMPLEMENTED - Use DataContext instead of Context")]
         public System.Data.Linq.DataContext Context { get { throw new NotImplementedException("TODO L63"); } }
 
-        private readonly List<T> _insertList = new List<T>();
-        private readonly List<T> _deleteList = new List<T>();
         private QueryProvider<T> _queryProvider;
 
         public ILogger Logger { get; set; }
@@ -161,7 +159,7 @@ namespace DbLinq.Data.Linq
 
         public void InsertOnSubmit(T newObject)
         {
-            _insertList.Add(newObject);
+            DataContext.InsertList.Add(newObject);
         }
 
         void ITable.InsertAllOnSubmit(IEnumerable entities)
@@ -171,14 +169,14 @@ namespace DbLinq.Data.Linq
                 T te = entity as T;
                 if (te == null)
                     throw new ArgumentException("Cannot insert this object");
-                _insertList.Add(te);
+                DataContext.InsertList.Add((T)entity);
             }
         }
 
         public void InsertAllOnSubmit<TSubEntity>(IEnumerable<TSubEntity> entities) where TSubEntity : T
         {
             foreach (TSubEntity newObject in entities)
-                _insertList.Add(newObject);
+                DataContext.InsertList.Add((T)newObject);
         }
         #endregion
 
@@ -205,11 +203,11 @@ namespace DbLinq.Data.Linq
 
         public void DeleteOnSubmit(T objectToDelete)
         {
-            if (_insertList.Contains(objectToDelete))
-                _insertList.Remove(objectToDelete);
+            if (DataContext.InsertList.Contains(objectToDelete))
+                DataContext.InsertList.Remove(objectToDelete);
             else
                 //TODO: queue an object for SQL DELETE
-                _deleteList.Add(objectToDelete);
+                DataContext.DeleteList.Add(objectToDelete);
         }
 
         public void DeleteAllOnSubmit<TSubEntity>(IEnumerable<TSubEntity> entities) where TSubEntity : T
@@ -297,7 +295,9 @@ namespace DbLinq.Data.Linq
 
         public List<Exception> SaveAll(System.Data.Linq.ConflictMode failureMode)
         {
-            if (_insertList.Count == 0 && _deleteList.Count == 0 && !DataContext.HasRegisteredEntities<T>())
+            if (DataContext.InsertList.Count<T>() == 0
+                && DataContext.DeleteList.Count<T>() == 0
+                && !DataContext.HasRegisteredEntities<T>())
                 return new List<Exception>(); //nothing to do
 
             using (DataContext.DatabaseContext.OpenConnection())
@@ -314,14 +314,50 @@ namespace DbLinq.Data.Linq
             ProjectionData proj = ProjectionData.FromDbType(typeof(T));
             Func<T, string[]> getObjectID = RowEnumeratorCompiler<T>.CompileIDRetrieval(proj);
 
-            ProcessInsert(proj, failureMode, exceptions);
+            ProcessInsert(failureMode, exceptions);
             ProcessUpdate(proj, failureMode, exceptions, getObjectID);
             ProcessDelete(proj, failureMode, exceptions, getObjectID);
 
             return exceptions;
         }
 
-        private void ProcessInsert(ProjectionData proj, ConflictMode failureMode, List<Exception> excepts)
+        private void ProcessInsert(ConflictMode failureMode, IList<Exception> exceptions)
+        {
+            var toInsert = new List<T>(DataContext.InsertList.Enumerate<T>());
+            if (DataContext.Vendor.CanBulkInsert<T>(this))
+            {
+                DataContext.Vendor.DoBulkInsert(this, toInsert, DataContext.DatabaseContext.Connection);
+                DataContext.InsertList.RemoveRange(toInsert);
+            }
+            else
+            {
+                var queryContext = new QueryContext(DataContext);
+                foreach (var t in toInsert)
+                {
+                    var insertQuery = DataContext.QueryBuilder.GetInsertQuery(t, queryContext);
+                    try
+                    {
+                        DataContext.QueryRunner.Insert(t, insertQuery);
+                        DataContext.InsertList.Remove(t);
+                        DataContext.ModificationHandler.ClearModified(t);
+                        DataContext.RegisterEntity(t);
+                    }
+                    catch(Exception e)
+                    {
+                        switch (failureMode)
+                        {
+                        case ConflictMode.ContinueOnConflict:
+                            exceptions.Add(e);
+                            break;
+                        case ConflictMode.FailOnFirstConflict:
+                            throw;
+                        }
+                    }
+                }
+            }
+        }
+#if NO
+        private void ProcessInsert1(ProjectionData proj, ConflictMode failureMode, IList<Exception> excepts)
         {
             if (DataContext.Vendor.CanBulkInsert<T>(this))
             {
@@ -389,10 +425,10 @@ namespace DbLinq.Data.Linq
             //thanks to Martin Rauscher for spotting that I forgot to clear the list:
             _insertList.Clear();
         }
-
+#endif
         private void ProcessUpdate(ProjectionData proj, ConflictMode failureMode, List<Exception> excepts, Func<T, string[]> getObjectID)
         {
-//todo: check object is not in two lists
+            //todo: check object is not in two lists
             foreach (T obj in DataContext.GetRegisteredEntities<T>())
             {
                 try
@@ -418,11 +454,11 @@ namespace DbLinq.Data.Linq
                     Trace.WriteLine("Table.SubmitChanges failed: " + ex);
                     switch (failureMode)
                     {
-                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                            excepts.Add(ex);
-                            break;
-                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                            throw ex;
+                    case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                        excepts.Add(ex);
+                        break;
+                    case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                        throw ex;
                     }
                 }
             }
@@ -430,7 +466,8 @@ namespace DbLinq.Data.Linq
 
         private void ProcessDelete(ProjectionData proj, ConflictMode failureMode, List<Exception> excepts, Func<T, string[]> getObjectID)
         {
-            if (_deleteList.Count > 0)
+            var toDelete = new List<T>(DataContext.DeleteList.Enumerate<T>());
+            if (toDelete.Count > 0)
             {
                 //Func<T,string> getObjectID = RowEnumeratorCompiler<T>.CompileIDRetrieval(proj);
 
@@ -441,7 +478,7 @@ namespace DbLinq.Data.Linq
                 //bool mustQuoteIds = primaryKeyType == typeof(string) || primaryKeyType == typeof(char);
 
                 List<string> idsToDelete = new List<string>();
-                foreach (T obj in _deleteList)
+                foreach (T obj in toDelete)
                 {
                     try
                     {
@@ -455,11 +492,11 @@ namespace DbLinq.Data.Linq
                     {
                         switch (failureMode)
                         {
-                            case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                                excepts.Add(ex);
-                                break;
-                            case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                                throw ex;
+                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                            excepts.Add(ex);
+                            break;
+                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
+                            throw ex;
                         }
                     }
                 }
@@ -480,7 +517,7 @@ namespace DbLinq.Data.Linq
                 }
             }
 
-            _deleteList.Clear();
+            DataContext.DeleteList.Remove(toDelete);
         }
 
         #endregion
@@ -497,7 +534,7 @@ namespace DbLinq.Data.Linq
 
         public IEnumerable<object> Inserts
         {
-            get { return _insertList.Cast<object>(); }
+            get { return DataContext.InsertList.Enumerate<T>().Cast<object>(); }
         }
 
         public IEnumerable<object> Updates
@@ -519,7 +556,7 @@ namespace DbLinq.Data.Linq
         {
             get
             {
-                return _deleteList.Cast<object>();
+                return DataContext.DeleteList.Enumerate<T>().Cast<object>();
             }
         }
 

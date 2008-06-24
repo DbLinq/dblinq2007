@@ -24,6 +24,9 @@
 // 
 #endregion
 
+using System;
+using System.Text;
+
 namespace DbLinq.Util
 {
     public static class StringExtensions
@@ -61,6 +64,28 @@ namespace DbLinq.Util
                 }
             }
             return true;
+        }
+
+        public static string ReplaceCase(this string text, string find, string replace, bool ignoreCase)
+        {
+            var result = new StringBuilder();
+            var comparison = ignoreCase ? StringComparison.InvariantCultureIgnoreCase : StringComparison.InvariantCulture;
+            for (int index = 0; ; )
+            {
+                var endIndex = text.IndexOf(find, index, comparison);
+                if (endIndex >= 0)
+                {
+                    result.Append(text.Substring(index, endIndex - index));
+                    result.Append(replace);
+                    index = endIndex + find.Length;
+                }
+                else
+                {
+                    result.Append(text.Substring(index));
+                    break;
+                }
+            }
+            return result.ToString();
         }
     }
 }

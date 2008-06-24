@@ -367,9 +367,9 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 query = BuildSqlQuery(expressionsQuery, queryContext);
                 var t2 = DateTime.Now;
                 var ticksPerMs = TimeSpan.FromSeconds(1).Ticks / 1e3;
-                queryContext.DataContext.Logger.Write(Level.Debug, "Expression build: {0}ms", (t1 - t0).Ticks / ticksPerMs);
-                queryContext.DataContext.Logger.Write(Level.Debug, "SQL build:        {0}ms", (t2 - t1).Ticks / ticksPerMs);
-                queryContext.DataContext.Logger.Write(Level.Debug, "SQL: {0}", query.Sql);
+                queryContext.DataContext.Logger.Write(Level.Debug, "Select Expression build: {0}ms", (t1 - t0).Ticks / ticksPerMs);
+                queryContext.DataContext.Logger.Write(Level.Debug, "Select SQL build:        {0}ms", (t2 - t1).Ticks / ticksPerMs);
+                queryContext.DataContext.Logger.Write(Level.Debug, "Select SQL: {0}", query.Sql);
                 SetInCache(expressions, query);
             }
             return query;

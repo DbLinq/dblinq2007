@@ -58,6 +58,9 @@ namespace DbLinq.Sqlite
             : base(new SqliteSqlProvider())
         { }
 
+
+        public override bool SupportsOutputParameter { get { return false; } } // poor guy
+
         public override IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
                                                , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
         {
