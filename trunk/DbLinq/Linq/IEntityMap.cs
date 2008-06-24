@@ -24,7 +24,11 @@
 // 
 #endregion
 
+#if MONO_STRICT
+using System.Data.Linq.Identity;
+#else
 using DbLinq.Data.Linq.Identity;
+#endif
 using System.Collections.Generic;
 
 namespace DbLinq.Linq

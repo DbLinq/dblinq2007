@@ -35,7 +35,13 @@ using DbLinq.Factory;
 using DbLinq.Linq;
 using DbLinq.Logging;
 using DbLinq.Util;
-using DataContext = DbLinq.Data.Linq.DataContext;
+#if MONO_STRICT
+using DataContext=System.Data.Linq.DataContext;
+using Data = System.Data;
+#else
+using DataContext=DbLinq.Data.Linq.DataContext;
+using Data = DbLinq.Data;
+#endif
 
 namespace DbLinq.Vendor.Implementation
 {

@@ -28,7 +28,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+#if MONO_STRICT
+using System.Data.Linq.Sugar.Expressions;
+#else
 using DbLinq.Data.Linq.Sugar.Expressions;
+#endif
 using DbLinq.Logging;
 using DbLinq.Util;
 

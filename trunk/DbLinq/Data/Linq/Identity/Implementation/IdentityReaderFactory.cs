@@ -25,8 +25,16 @@
 #endregion
 
 using System;
+#if MONO_STRICT
+using System.Data.Linq.Identity;
+#else
 using DbLinq.Data.Linq.Identity;
+#endif
+#if MONO_STRICT
+using System.Data.Linq.Identity.Implementation;
+#else
 using DbLinq.Data.Linq.Identity.Implementation;
+#endif
 
 #if MONO_STRICT
 namespace System.Data.Linq.Identity.Implementation

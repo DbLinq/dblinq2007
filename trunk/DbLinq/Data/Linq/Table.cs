@@ -35,8 +35,16 @@ using System.Linq;
 using System.Linq.Expressions;
 
 //using System.Data.DLinq;
+#if MONO_STRICT
+using System.Data.Linq.Implementation;
+#else
 using DbLinq.Data.Linq.Implementation;
+#endif
+#if MONO_STRICT
+using System.Data.Linq.Sugar;
+#else
 using DbLinq.Data.Linq.Sugar;
+#endif
 using DbLinq.Linq;
 using DbLinq.Linq.Clause;
 using DbLinq.Logging;

@@ -31,7 +31,11 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
+#if MONO_STRICT
+using System.Data.Linq;
+#else
 using DbLinq.Data.Linq;
+#endif
 using DbLinq.Linq.Clause;
 using DbLinq.Logging;
 using DbLinq.Util;

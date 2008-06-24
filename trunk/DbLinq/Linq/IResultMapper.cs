@@ -25,6 +25,11 @@
 #endregion
 using System;
 using System.Data;
+#if MONO_STRICT
+using MappingContext = System.Data.Linq.Mapping.MappingContext;
+#else
+using MappingContext = DbLinq.Data.Linq.Mapping.MappingContext;
+#endif
 
 namespace DbLinq.Linq
 {

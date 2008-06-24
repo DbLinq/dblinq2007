@@ -28,7 +28,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+#if MONO_STRICT
+using System.Data.Linq.Identity;
+#else
 using DbLinq.Data.Linq.Identity;
+#endif
 
 namespace DbLinq.Linq.Implementation
 {
