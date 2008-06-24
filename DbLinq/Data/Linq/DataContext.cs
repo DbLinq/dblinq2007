@@ -31,16 +31,38 @@ using System.Data.Linq.Mapping;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
+#if MONO_STRICT
+using System.Data.Linq;
+#else
 using DbLinq.Data.Linq;
+#endif
+#if MONO_STRICT
+using System.Data.Linq.Identity;
+#else
 using DbLinq.Data.Linq.Identity;
+#endif
+#if MONO_STRICT
+using System.Data.Linq.Sugar;
+#else
 using DbLinq.Data.Linq.Sugar;
+#endif
 using DbLinq.Factory;
 using DbLinq.Linq;
 using DbLinq.Linq.Database;
 using DbLinq.Linq.Database.Implementation;
 using DbLinq.Logging;
 using DbLinq.Vendor;
+#if MONO_STRICT
+using System.Data.Linq.Sugar;
+using AttributeMappingSource = System.Data.Linq.Mapping.AttributeMappingSource;
+#else
 using AttributeMappingSource = DbLinq.Data.Linq.Mapping.AttributeMappingSource;
+#endif
+#if MONO_STRICT
+using MappingContext = System.Data.Linq.Mapping.MappingContext;
+#else
+using MappingContext = DbLinq.Data.Linq.Mapping.MappingContext;
+#endif
 
 #if MONO_STRICT
 namespace System.Data.Linq

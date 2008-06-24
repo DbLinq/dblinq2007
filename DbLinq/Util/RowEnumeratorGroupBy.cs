@@ -30,6 +30,11 @@ using System.Linq;
 using DbLinq.Logging;
 using DbLinq.Util;
 using DbLinq.Linq;
+#if MONO_STRICT
+using MappingContext = System.Data.Linq.Mapping.MappingContext;
+#else
+using MappingContext = DbLinq.Data.Linq.Mapping.MappingContext;
+#endif
 
 namespace DbLinq.Util
 {

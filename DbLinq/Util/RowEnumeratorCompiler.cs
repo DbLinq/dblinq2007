@@ -29,11 +29,16 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
-
 using DbLinq.Linq;
 using DbLinq.Util;
 using DbLinq.Vendor;
 using System.Data;
+
+#if MONO_STRICT
+using MappingContext = System.Data.Linq.Mapping.MappingContext;
+#else
+using MappingContext = DbLinq.Data.Linq.Mapping.MappingContext;
+#endif
 
 namespace DbLinq.Util
 {

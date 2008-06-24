@@ -25,7 +25,11 @@
 #endregion
 
 using System;
+#if MONO_STRICT
+using System.Data.Linq.Sugar;
+#else
 using DbLinq.Data.Linq.Sugar;
+#endif
 using DbLinq.Factory;
 using DbLinq.Linq;
 

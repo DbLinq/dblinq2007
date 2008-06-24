@@ -27,14 +27,32 @@ using System;
 using System.Diagnostics;
 using System.Data;
 using System.Collections.Generic;
+#if MONO_STRICT
+using System.Data.Linq;
+#else
 using DbLinq.Data.Linq;
+#endif
+#if MONO_STRICT
+using System.Data.Linq.Identity;
+#else
 using DbLinq.Data.Linq.Identity;
+#endif
+#if MONO_STRICT
+using System.Data.Linq.Sugar;
+#else
 using DbLinq.Data.Linq.Sugar;
+#endif
 using DbLinq.Factory;
 using DbLinq.Logging;
 using DbLinq.Util;
 using DbLinq.Util.ExprVisitor;
 using DbLinq.Linq;
+
+#if MONO_STRICT
+using MappingContext = System.Data.Linq.Mapping.MappingContext;
+#else
+using MappingContext = DbLinq.Data.Linq.Mapping.MappingContext;
+#endif
 
 namespace DbLinq.Util
 {

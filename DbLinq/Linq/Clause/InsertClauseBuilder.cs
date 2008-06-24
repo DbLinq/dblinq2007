@@ -31,7 +31,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Data.Linq.Mapping;
 using System.Data;
+#if MONO_STRICT
+using System.Data.Linq;
+#else
 using DbLinq.Data.Linq;
+#endif
 using DbLinq.Linq;
 using DbLinq.Linq.Database;
 using DbLinq.Vendor;

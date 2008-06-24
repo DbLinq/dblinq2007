@@ -5,8 +5,16 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Data.Linq.Mapping;
 using System.Text;
+#if MONO_STRICT
+using System.Data.Linq;
+#else
 using DbLinq.Data.Linq;
+#endif
+#if MONO_STRICT
+using System.Data.Linq.Identity;
+#else
 using DbLinq.Data.Linq.Identity;
+#endif
 using DbLinq.Linq;
 using DbLinq.Util;
 

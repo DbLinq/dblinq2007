@@ -27,7 +27,11 @@
 using System.Collections;
 using System.Collections.Generic;
 
+#if MONO_STRICT
+namespace System.Data.Linq
+#else
 namespace DbLinq.Data.Linq
+#endif
 {
     /// <summary>
     /// The class helps keeping a list of entities, sorted by type, then by list (of same type)

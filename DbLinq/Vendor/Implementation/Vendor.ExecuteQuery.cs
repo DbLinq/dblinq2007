@@ -27,14 +27,22 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Linq.Mapping;
-using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Data.Common;
+#if MONO_STRICT
+using System.Data.Linq;
+#else
 using DbLinq.Data.Linq;
+#endif
 using DbLinq.Linq;
 using DbLinq.Util;
+#if MONO_STRICT
+using MappingContext = System.Data.Linq.Mapping.MappingContext;
+#else
+using MappingContext = DbLinq.Data.Linq.Mapping.MappingContext;
+#endif
 
 namespace DbLinq.Vendor.Implementation
 {
