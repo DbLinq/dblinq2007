@@ -40,6 +40,6 @@ namespace DbLinq.Data.Linq.Sugar
         /// <param name="objectToInsert"></param>
         /// <param name="queryContext"></param>
         /// <returns></returns>
-        InsertQuery GetInsertQuery(object objectToInsert, QueryContext queryContext);
+        UpsertQuery GetInsertQuery(object objectToInsert, QueryContext queryContext);
     }
 }

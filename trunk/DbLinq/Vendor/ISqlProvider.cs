@@ -196,12 +196,27 @@ namespace DbLinq.Vendor
         /// Builds an insert clause
         /// </summary>
         /// <param name="table">Table name</param>
-        /// <param name="columns">Columns to be inserted</param>
-        /// <param name="values">Values to be inserted into columns</param>
+        /// <param name="inputColumns">Columns to be inserted</param>
+        /// <param name="inputValues">Values to be inserted into columns</param>
         /// <param name="outputParameters">Expected output parameters</param>
         /// <param name="outputExpressions">Expressions (to help generate output parameters)</param>
         /// <returns></returns>
-        string GetInsert(string table, IList<string> columns, IList<string> values,
+        string GetInsert(string table, IList<string> inputColumns, IList<string> inputValues,
                                          IList<string> outputParameters, IList<string> outputExpressions);
+
+        /// <summary>
+        /// Builds an update clause
+        /// </summary>
+        /// <param name="table"></param>
+        /// <param name="inputColumns">Columns to be inserted</param>
+        /// <param name="inputValues">Values to be inserted into columns</param>
+        /// <param name="outputParameters">Expected output parameters</param>
+        /// <param name="outputExpressions">Expressions (to help generate output parameters)</param>
+        /// <param name="inputPKColumns">PK columns for reference</param>
+        /// <param name="inputPKValues">PK values for reference</param>
+        /// <returns></returns>
+        string GetUpdate(string table, IList<string> inputColumns, IList<string> inputValues,
+                                         IList<string> outputParameters, IList<string> outputExpressions,
+                                         IList<string> inputPKColumns, IList<string> inputPKValues);
     }
 }

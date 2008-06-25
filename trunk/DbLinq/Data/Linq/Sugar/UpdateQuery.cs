@@ -26,9 +26,9 @@
 
 using System.Collections.Generic;
 #if MONO_STRICT
-using System.Data.Linq.Sugar;
+using System.Data.Linq.Sugar.Expressions;
 #else
-using DbLinq.Data.Linq.Sugar;
+using DbLinq.Data.Linq.Sugar.Expressions;
 #endif
 
 #if MONO_STRICT
@@ -37,23 +37,15 @@ namespace System.Data.Linq.Sugar
 namespace DbLinq.Data.Linq.Sugar
 #endif
 {
-    public interface IQueryRunner
+    public class UpdateQuery : UpsertQuery
     {
-        /// <summary>
-        /// Enumerates all records return by SQL request
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="selectQuery"></param>
-        /// <returns></returns>
-        IEnumerable<T> GetEnumerator<T>(SelectQuery selectQuery);
+        public IList<ObjectInputParameterExpression> PrimaryKey { get; private set; }
 
-        S Execute<S>(SelectQuery selectQuery);
-
-        /// <summary>
-        /// Runs an InsertQuery on a provided object
-        /// </summary>
-        /// <param name="target"></param>
-        /// <param name="insertQuery"></param>
-        void Insert(object target, UpsertQuery insertQuery);
+        public UpdateQuery(DataContext dataContext, string sql, IList<ObjectInputParameterExpression> inputParameters,
+            IList<ObjectOutputParameterExpression> outputParameters, IList<ObjectInputParameterExpression> primaryKey)
+            : base(dataContext, sql, inputParameters, outputParameters)
+        {
+            PrimaryKey = primaryKey;
+        }
     }
 }
