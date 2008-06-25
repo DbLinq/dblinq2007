@@ -44,15 +44,15 @@ namespace DbLinq.Vendor.Implementation
         /// Builds an insert clause
         /// </summary>
         /// <param name="table">Table name</param>
-        /// <param name="columns">Columns to be inserted</param>
-        /// <param name="values">Values to be inserted into columns</param>
+        /// <param name="inputColumns">Columns to be inserted</param>
+        /// <param name="inputValues">Values to be inserted into columns</param>
         /// <param name="outputParameters">Expected output parameters</param>
         /// <param name="outputExpressions">Expressions (to help generate output parameters)</param>
         /// <returns></returns>
-        public string GetInsert(string table, IList<string> columns, IList<string> values,
+        public string GetInsert(string table, IList<string> inputColumns, IList<string> inputValues,
             IList<string> outputParameters, IList<string> outputExpressions)
         {
-            return GetInsertWrapper(GetInsert(table, columns, values), outputParameters, outputExpressions);
+            return GetInsertWrapper(GetInsert(table, inputColumns, inputValues), outputParameters, outputExpressions);
         }
 
         protected virtual string GetInsert(string table, IList<string> columns, IList<string> values)
@@ -72,6 +72,44 @@ namespace DbLinq.Vendor.Implementation
         {
             return string.Format("{0}; SELECT @@IDENTITY", insert);
         }
+
+        /// <summary>
+        /// Builds an update clause
+        /// </summary>
+        /// <param name="table"></param>
+        /// <param name="inputColumns">Columns to be inserted</param>
+        /// <param name="inputValues">Values to be inserted into columns</param>
+        /// <param name="outputParameters">Expected output parameters</param>
+        /// <param name="outputExpressions">Expressions (to help generate output parameters)</param>
+        /// <param name="inputPKColumns">PK columns for reference</param>
+        /// <param name="inputPKValues">PK values for reference</param>
+        /// <returns></returns>
+        public string GetUpdate(string table, IList<string> inputColumns, IList<string> inputValues,
+            IList<string> outputParameters, IList<string> outputExpressions,
+            IList<string> inputPKColumns, IList<string> inputPKValues)
+        {
+            if (inputColumns.Count == 0)
+                return string.Empty;
+
+            var updateBuilder = new StringBuilder("UPDATE ");
+            updateBuilder.Append(table);
+            updateBuilder.Append(" SET ");
+            for(int inputIndex=0;inputIndex<inputColumns.Count;inputIndex++)
+            {
+                if(inputIndex>0)
+                    updateBuilder.Append(", ");
+                updateBuilder.AppendFormat("{0} = {1}", inputColumns[inputIndex], inputValues[inputIndex]);
+            }
+            updateBuilder.Append(" WHERE ");
+            for(int pkIndex=0;pkIndex<inputPKColumns.Count;pkIndex++)
+            {
+                if(pkIndex>0)
+                    updateBuilder.Append(" AND ");
+                updateBuilder.AppendFormat("{0} = {1}", inputPKColumns[pkIndex], inputPKValues[pkIndex]);
+            }
+            return updateBuilder.ToString();
+        }
+
 
         public string NewLine
         {

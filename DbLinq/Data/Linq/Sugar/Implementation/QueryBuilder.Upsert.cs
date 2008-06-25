@@ -26,6 +26,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Linq.Mapping;
 using System.Linq.Expressions;
 using System.Reflection;
 #if MONO_STRICT
@@ -44,6 +45,21 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
 {
     partial class QueryBuilder
     {
+        protected class UpsertParameters
+        {
+            public MetaTable Table;
+            public readonly IList<ObjectInputParameterExpression> InputParameters = new List<ObjectInputParameterExpression>();
+            public readonly IList<ObjectInputParameterExpression> PrimaryKeyParameters = new List<ObjectInputParameterExpression>();
+            public readonly IList<ObjectOutputParameterExpression> OutputParameters = new List<ObjectOutputParameterExpression>();
+            public readonly IList<string> InputColumns = new List<string>();
+            public readonly IList<string> InputValues = new List<string>();
+            public readonly IList<string> OutputValues = new List<string>();
+            public readonly IList<string> OutputExpressions = new List<string>();
+            public readonly IList<string> InputPKColumns = new List<string>();
+            public readonly IList<string> InputPKValues = new List<string>();
+
+        }
+
         // SQLite:
         // IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null
         // INSERT INTO main.Products (CategoryID, Discontinued, ProductName, QuantityPerUnit) 
@@ -86,40 +102,62 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         /// <param name="objectToInsert"></param>
         /// <param name="queryContext"></param>
         /// <returns></returns>
-        public InsertQuery GetInsertQuery(object objectToInsert, QueryContext queryContext)
+        public UpsertQuery GetInsertQuery(object objectToInsert, QueryContext queryContext)
         {
-            var rowType = objectToInsert.GetType();
-            var table = queryContext.DataContext.Mapping.GetTable(rowType);
+            // TODO: cache
+            var upsertParameters = GetUpsertParameters(objectToInsert, queryContext, false);
             var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
-            var inputParameters = new List<ObjectInputParameterExpression>();
-            var outputParameters = new List<ObjectOutputParameterExpression>();
-            var columns = new List<string>();
-            var columnsValues = new List<string>();
-            var outputValues = new List<string>();
-            var outputExpressions = new List<string>();
-            foreach (var dataMember in table.RowType.PersistentDataMembers)
+            var insertSql = sqlProvider.GetInsert(sqlProvider.GetTable(upsertParameters.Table.TableName), upsertParameters.InputColumns, upsertParameters.InputValues, upsertParameters.OutputValues, upsertParameters.OutputExpressions);
+            queryContext.DataContext.Logger.Write(Level.Debug, "Insert SQL: {0}", insertSql);
+            return new UpsertQuery(queryContext.DataContext, insertSql, upsertParameters.InputParameters, upsertParameters.OutputParameters);
+        }
+
+        protected enum ParameterType
+        {
+            Input,
+            InputPK,
+            Output
+        }
+
+        /// <summary>
+        /// Gets values for insert/update
+        /// </summary>
+        /// <param name="objectToUpsert"></param>
+        /// <param name="queryContext"></param>
+        /// <param name="update"></param>
+        /// <returns></returns>
+        protected virtual UpsertParameters GetUpsertParameters(object objectToUpsert, QueryContext queryContext,
+            bool update)
+        {
+            var rowType = objectToUpsert.GetType();
+            var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
+            var upsertParameters = new UpsertParameters
+                                       {
+                                           Table = queryContext.DataContext.Mapping.GetTable(rowType)
+                                       };
+            foreach (var dataMember in upsertParameters.Table.RowType.PersistentDataMembers)
             {
                 var column = sqlProvider.GetColumn(dataMember.MappedName);
+                ParameterType type = GetParameterType(objectToUpsert, dataMember, update);
                 var memberInfo = dataMember.Member;
                 // if the column is generated AND not specified, we may have:
                 // - an explicit generation (Expression property is not null, so we add the column)
                 // - an implicit generation (Expression property is null
                 // in all cases, we want to get the value back
-                if (dataMember.IsDbGenerated
-                    && !IsSpecified(objectToInsert, memberInfo))
+                if (type == ParameterType.Output)
                 {
                     if (dataMember.Expression != null)
                     {
-                        columns.Add(column);
-                        columnsValues.Add(dataMember.Expression);
+                        upsertParameters.InputColumns.Add(column);
+                        upsertParameters.InputValues.Add(dataMember.Expression);
                     }
                     var setter = (Expression<Action<object, object>>)((o, v) => memberInfo.SetMemberValue(o, v));
                     var outputParameter = new ObjectOutputParameterExpression(setter,
                                                                               memberInfo.GetMemberType(),
                                                                               dataMember.MappedName);
-                    outputParameters.Add(outputParameter);
-                    outputValues.Add(sqlProvider.GetParameterName(outputParameter.Alias));
-                    outputExpressions.Add(dataMember.Expression);
+                    upsertParameters.OutputParameters.Add(outputParameter);
+                    upsertParameters.OutputValues.Add(sqlProvider.GetParameterName(outputParameter.Alias));
+                    upsertParameters.OutputExpressions.Add(dataMember.Expression);
                 }
                 else // standard column
                 {
@@ -127,14 +165,68 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     var inputParameter = new ObjectInputParameterExpression(
                         getter,
                         memberInfo.GetMemberType(), dataMember.Name);
-                    columns.Add(column);
-                    columnsValues.Add(sqlProvider.GetParameterName(inputParameter.Alias));
-                    inputParameters.Add(inputParameter);
+                    if (type == ParameterType.InputPK)
+                    {
+                        upsertParameters.PrimaryKeyParameters.Add(inputParameter);
+                        upsertParameters.InputPKColumns.Add(column);
+                        upsertParameters.InputPKValues.Add(sqlProvider.GetParameterName(inputParameter.Alias));
+                    }
+                    else
+                    {
+                        upsertParameters.InputColumns.Add(column);
+                        upsertParameters.InputValues.Add(sqlProvider.GetParameterName(inputParameter.Alias));
+                        upsertParameters.InputParameters.Add(inputParameter);
+                    }
                 }
             }
-            var insertSql = sqlProvider.GetInsert(sqlProvider.GetTable(table.TableName), columns, columnsValues, outputValues, outputExpressions);
-            queryContext.DataContext.Logger.Write(Level.Debug, "Insert SQL: {0}", insertSql);
-            return new InsertQuery(queryContext.DataContext, insertSql, inputParameters, outputParameters);
+            return upsertParameters;
+        }
+
+        /// <summary>
+        /// Provides the parameter type for a given data member
+        /// </summary>
+        /// <param name="objectToUpsert"></param>
+        /// <param name="dataMember"></param>
+        /// <param name="update"></param>
+        /// <returns></returns>
+        protected virtual ParameterType GetParameterType(object objectToUpsert, MetaDataMember dataMember, bool update)
+        {
+            var memberInfo = dataMember.Member;
+            // the deal with columns is:
+            // PK only:  explicit for INSERT, criterion for UPDATE
+            // PK+GEN:   implicit/explicit for INSERT, criterion for UPDATE
+            // GEN only: implicit for both
+            // -:        explicit for both
+            //
+            // explicit is input,
+            // implicit is output, 
+            // criterion is input PK
+            ParameterType type;
+            if (dataMember.IsPrimaryKey)
+            {
+                if (update)
+                    type = ParameterType.InputPK;
+                else
+                {
+                    if (dataMember.IsDbGenerated)
+                    {
+                        if (IsSpecified(objectToUpsert, memberInfo))
+                            type = ParameterType.Input;
+                        else
+                            type = ParameterType.Output;
+                    }
+                    else
+                        type = ParameterType.Input;
+                }
+            }
+            else
+            {
+                if (dataMember.IsDbGenerated)
+                    type = ParameterType.Output;
+                else
+                    type = ParameterType.Input;
+            }
+            return type;
         }
 
         /// <summary>
@@ -151,6 +243,19 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             if (Equals(value, TypeConvert.GetDefault(memberInfo.GetMemberType())))
                 return false;
             return true;
+        }
+
+        public UpdateQuery GetUpdateQuery(object objectToUpdate, QueryContext queryContext)
+        {
+            var upsertParameters = GetUpsertParameters(objectToUpdate, queryContext, true);
+            var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
+            var updateSql = sqlProvider.GetUpdate(sqlProvider.GetTable(upsertParameters.Table.TableName),
+                upsertParameters.InputColumns, upsertParameters.InputValues,
+                upsertParameters.OutputValues, upsertParameters.OutputExpressions,
+                upsertParameters.InputPKColumns, upsertParameters.InputPKValues
+                );
+            queryContext.DataContext.Logger.Write(Level.Debug, "Update SQL: {0}", updateSql);
+            return new UpdateQuery(queryContext.DataContext, updateSql, upsertParameters.InputParameters, upsertParameters.OutputParameters, upsertParameters.PrimaryKeyParameters);
         }
     }
 }

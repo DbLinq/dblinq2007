@@ -190,7 +190,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         /// </summary>
         /// <param name="target"></param>
         /// <param name="insertQuery"></param>
-        public void Insert(object target, InsertQuery insertQuery)
+        public void Insert(object target, UpsertQuery insertQuery)
         {
             var sqlProvider = insertQuery.DataContext.Vendor.SqlProvider;
             using (var dbTransaction = insertQuery.DataContext.DatabaseContext.Transaction())
@@ -249,16 +249,9 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 outputParameter.SetValue(target, TypeConvert.To(value, outputParameter.ValueType));
         }
 
-        protected virtual void SetDbParameterValue(IDbDataParameter parameter, object value, Type valueType)
+        public void Update(object target, UpdateQuery updateQuery)
         {
-            if (value == null)
-                parameter.Value = GetDefault(valueType);
-            parameter.Value = value;
-        }
 
-        protected virtual object GetDefault(Type t)
-        {
-            return Activator.CreateInstance(t);
         }
     }
 }
