@@ -27,6 +27,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Reflection;
 using DbLinq.Util;
 
 #if MONO_STRICT
@@ -75,12 +76,15 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                         continue;
 
                     var row = rowObjectCreator(dbDataReader, selectQuery.DataContext.MappingContext);
-                    if (row != null)
+                    // the conditions to register and watch an entity are:
+                    // - not null (can this happen?)
+                    // - registered in the model
+                    if (row != null && selectQuery.DataContext.Mapping.GetTable(row.GetType()) != null)
                     {
                         row = (T)selectQuery.DataContext.GetOrRegisterEntity(row);
                         // TODO: place updates in DataContext
                         //_vars.Table.CheckAttachment(current); // registers the object to be watched for updates
-                        selectQuery.DataContext.ModificationHandler.Register(row);
+                        selectQuery.DataContext.MemberModificationHandler.Register(row, selectQuery.DataContext.Mapping);
                     }
 
                     yield return row;
@@ -192,6 +196,11 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         /// <param name="insertQuery"></param>
         public void Insert(object target, UpsertQuery insertQuery)
         {
+            Upsert(target, insertQuery);
+        }
+
+        private void Upsert(object target, UpsertQuery insertQuery)
+        {
             var sqlProvider = insertQuery.DataContext.Vendor.SqlProvider;
             using (var dbTransaction = insertQuery.DataContext.DatabaseContext.Transaction())
             using (var dbCommand = insertQuery.DataContext.DatabaseContext.Connection.CreateCommand())
@@ -202,7 +211,6 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 {
                     var dbParameter = dbCommand.CreateParameter();
                     dbParameter.ParameterName = sqlProvider.GetParameterName(inputParameter.Alias);
-                    //dbParameter.Value = inputParameter.GetValue(target);
                     dbParameter.SetValue(inputParameter.GetValue(target), inputParameter.ValueType);
                     dbCommand.Parameters.Add(dbParameter);
                 }
@@ -249,9 +257,15 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 outputParameter.SetValue(target, TypeConvert.To(value, outputParameter.ValueType));
         }
 
-        public void Update(object target, UpdateQuery updateQuery)
+        /// <summary>
+        /// Performans an update
+        /// </summary>
+        /// <param name="target">Entity to be flushed</param>
+        /// <param name="updateQuery">SQL update query</param>
+        /// <param name="modifiedMembers">List of modified members, or null to update all members</param>
+        public void Update(object target, UpsertQuery updateQuery, IList<MemberInfo> modifiedMembers)
         {
-
+            Upsert(target, updateQuery);
         }
     }
 }

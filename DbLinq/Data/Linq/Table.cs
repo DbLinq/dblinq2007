@@ -81,8 +81,6 @@ namespace DbLinq.Data.Linq
 
         public ILogger Logger { get; set; }
 
-        private IModificationHandler _modificationHandler { get { return DataContext.ModificationHandler; } }
-
         public Table(DataContext parent)
         {
             DataContext = parent;
@@ -270,7 +268,7 @@ namespace DbLinq.Data.Linq
                 throw new System.Data.Linq.DuplicateKeyException(entity);
 
             DataContext.RegisterEntity(entity);
-            _modificationHandler.Register(entity);
+            DataContext.MemberModificationHandler.Register(entity, DataContext.Mapping);
         }
 
         public void AttachAll<TSubEntity>(IEnumerable<TSubEntity> entities) where TSubEntity : T
@@ -314,7 +312,7 @@ namespace DbLinq.Data.Linq
             } //Dispose(): close connection, if it was initally closed
         }
 
-        private List<Exception> SaveAll_unsafe(System.Data.Linq.ConflictMode failureMode)
+        private List<Exception> SaveAll_unsafe(ConflictMode failureMode)
         {
             var exceptions = new List<Exception>();
             //TODO: process deleteList, insertList, liveObjectList
@@ -323,7 +321,7 @@ namespace DbLinq.Data.Linq
             Func<T, string[]> getObjectID = RowEnumeratorCompiler<T>.CompileIDRetrieval(proj);
 
             ProcessInsert(failureMode, exceptions);
-            ProcessUpdate(proj, failureMode, exceptions, getObjectID);
+            ProcessUpdate(failureMode, exceptions);
             ProcessDelete(proj, failureMode, exceptions, getObjectID);
 
             return exceptions;
@@ -347,10 +345,10 @@ namespace DbLinq.Data.Linq
                     {
                         DataContext.QueryRunner.Insert(t, insertQuery);
                         DataContext.InsertList.Remove(t);
-                        DataContext.ModificationHandler.ClearModified(t);
+                        DataContext.MemberModificationHandler.ClearModified(t, DataContext.Mapping); // adds a clean copy to modification handler
                         DataContext.RegisterEntity(t);
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         switch (failureMode)
                         {
@@ -360,6 +358,36 @@ namespace DbLinq.Data.Linq
                         case ConflictMode.FailOnFirstConflict:
                             throw;
                         }
+                    }
+                }
+            }
+        }
+
+        protected virtual void ProcessUpdate(ConflictMode failureMode, List<Exception> exceptions)
+        {
+            var queryContext = new QueryContext(DataContext);
+            foreach (var t in DataContext.GetRegisteredEntities<T>())
+            {
+                try
+                {
+                    if (!DataContext.MemberModificationHandler.IsModified(t, DataContext.Mapping))
+                        continue;
+
+                    var modifiedMembers = DataContext.MemberModificationHandler.GetModifiedProperties(t, DataContext.Mapping);
+                    var updateQuery = DataContext.QueryBuilder.GetUpdateQuery(t, modifiedMembers, queryContext);
+                    DataContext.QueryRunner.Update(t, updateQuery, modifiedMembers);
+                    DataContext.MemberModificationHandler.ClearModified(t, DataContext.Mapping); //mark as saved, thanks to Martin Rauscher
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Table.SubmitChanges failed: " + ex);
+                    switch (failureMode)
+                    {
+                    case ConflictMode.ContinueOnConflict:
+                        exceptions.Add(ex);
+                        break;
+                    case ConflictMode.FailOnFirstConflict:
+                        throw;
                     }
                 }
             }
@@ -433,7 +461,6 @@ namespace DbLinq.Data.Linq
             //thanks to Martin Rauscher for spotting that I forgot to clear the list:
             _insertList.Clear();
         }
-#endif
         private void ProcessUpdate(ProjectionData proj, ConflictMode failureMode, List<Exception> excepts, Func<T, string[]> getObjectID)
         {
             //todo: check object is not in two lists
@@ -471,7 +498,7 @@ namespace DbLinq.Data.Linq
                 }
             }
         }
-
+#endif
         private void ProcessDelete(ProjectionData proj, ConflictMode failureMode, List<Exception> excepts, Func<T, string[]> getObjectID)
         {
             var toDelete = new List<T>(DataContext.DeleteList.Enumerate<T>());
@@ -553,7 +580,7 @@ namespace DbLinq.Data.Linq
 
                 foreach (T obj in DataContext.GetRegisteredEntities<T>())
                 {
-                    if (_modificationHandler.IsModified(obj))
+                    if (DataContext.MemberModificationHandler.IsModified(obj, DataContext.Mapping))
                         list.Add(obj);
                 }
                 return list;
