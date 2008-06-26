@@ -72,6 +72,8 @@
     <Compile Include="Data\Linq\Identity\Implementation\IdentityReader.cs" />
     <Compile Include="Data\Linq\Identity\Implementation\IdentityReaderFactory.cs" />
     <Compile Include="Data\Linq\IExecuteResult.cs" />
+    <Compile Include="Data\Linq\IMemberModificationHandler.cs" />
+    <Compile Include="Data\Linq\Implementation\MemberModificationHandler.cs" />
     <Compile Include="Data\Linq\Implementation\QueryProvider.cs" />
     <Compile Include="Data\Linq\ITable.cs" />
     <Compile Include="Data\Linq\Mapping\AttributedAbstractMetaDataMember.cs" />
@@ -146,7 +148,6 @@
     <Compile Include="Data\Linq\Sugar\Implementation\ExpressionQualifier.cs" />
     <Compile Include="Data\Linq\Sugar\Implementation\QueryBuilder.Upsert.cs" />
     <Compile Include="Data\Linq\Sugar\Implementation\SqlBuilder.Upsert.cs" />
-    <Compile Include="Data\Linq\Sugar\UpdateQuery.cs" />
     <Compile Include="Data\Linq\Sugar\UpsertQuery.cs" />
     <Compile Include="Data\Linq\Sugar\IQueryCache.cs" />
     <Compile Include="Data\Linq\Sugar\Implementation\LineGrouping.cs" />

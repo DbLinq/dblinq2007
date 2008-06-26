@@ -24,6 +24,9 @@
 // 
 #endregion
 
+using System.Collections.Generic;
+using System.Reflection;
+
 #if MONO_STRICT
 namespace System.Data.Linq.Sugar
 #else
@@ -41,5 +44,14 @@ namespace DbLinq.Data.Linq.Sugar
         /// <param name="queryContext"></param>
         /// <returns></returns>
         UpsertQuery GetInsertQuery(object objectToInsert, QueryContext queryContext);
+
+        /// <summary>
+        /// Creates or gets an UPDATE query
+        /// </summary>
+        /// <param name="objectToUpdate"></param>
+        /// <param name="modifiedMembers">List of modified members, or NULL</param>
+        /// <param name="queryContext"></param>
+        /// <returns></returns>
+        UpsertQuery GetUpdateQuery(object objectToUpdate, IList<MemberInfo> modifiedMembers, QueryContext queryContext);
     }
 }

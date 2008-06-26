@@ -30,6 +30,7 @@ using System.Data.Linq.Sugar;
 #else
 using DbLinq.Data.Linq.Sugar;
 #endif
+using System.Reflection;
 
 #if MONO_STRICT
 namespace System.Data.Linq.Sugar
@@ -55,5 +56,13 @@ namespace DbLinq.Data.Linq.Sugar
         /// <param name="target"></param>
         /// <param name="insertQuery"></param>
         void Insert(object target, UpsertQuery insertQuery);
+
+        /// <summary>
+        /// Performans an update
+        /// </summary>
+        /// <param name="target">Entity to be flushed</param>
+        /// <param name="updateQuery">SQL update query</param>
+        /// <param name="modifiedMembers">List of modified members, or null to update all members</param>
+        void Update(object target, UpsertQuery updateQuery,IList<MemberInfo> modifiedMembers);
     }
 }

@@ -49,7 +49,6 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         {
             public MetaTable Table;
             public readonly IList<ObjectInputParameterExpression> InputParameters = new List<ObjectInputParameterExpression>();
-            public readonly IList<ObjectInputParameterExpression> PrimaryKeyParameters = new List<ObjectInputParameterExpression>();
             public readonly IList<ObjectOutputParameterExpression> OutputParameters = new List<ObjectOutputParameterExpression>();
             public readonly IList<string> InputColumns = new List<string>();
             public readonly IList<string> InputValues = new List<string>();
@@ -105,7 +104,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         public UpsertQuery GetInsertQuery(object objectToInsert, QueryContext queryContext)
         {
             // TODO: cache
-            var upsertParameters = GetUpsertParameters(objectToInsert, queryContext, false);
+            var upsertParameters = GetUpsertParameters(objectToInsert, false, null, queryContext);
             var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
             var insertSql = sqlProvider.GetInsert(sqlProvider.GetTable(upsertParameters.Table.TableName), upsertParameters.InputColumns, upsertParameters.InputValues, upsertParameters.OutputValues, upsertParameters.OutputExpressions);
             queryContext.DataContext.Logger.Write(Level.Debug, "Insert SQL: {0}", insertSql);
@@ -125,9 +124,9 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         /// <param name="objectToUpsert"></param>
         /// <param name="queryContext"></param>
         /// <param name="update"></param>
+        /// <param name="modifiedMembers"></param>
         /// <returns></returns>
-        protected virtual UpsertParameters GetUpsertParameters(object objectToUpsert, QueryContext queryContext,
-            bool update)
+        protected virtual UpsertParameters GetUpsertParameters(object objectToUpsert, bool update, IList<MemberInfo> modifiedMembers, QueryContext queryContext)
         {
             var rowType = objectToUpsert.GetType();
             var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
@@ -167,11 +166,13 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                         memberInfo.GetMemberType(), dataMember.Name);
                     if (type == ParameterType.InputPK)
                     {
-                        upsertParameters.PrimaryKeyParameters.Add(inputParameter);
                         upsertParameters.InputPKColumns.Add(column);
                         upsertParameters.InputPKValues.Add(sqlProvider.GetParameterName(inputParameter.Alias));
+                        upsertParameters.InputParameters.Add(inputParameter);
                     }
-                    else
+                    // for a standard column, we keep it only if modifiedMembers contains the specified memberInfo
+                    // caution: this makes the cache harder to maintain
+                    else if (modifiedMembers == null || modifiedMembers.Contains(memberInfo))
                     {
                         upsertParameters.InputColumns.Add(column);
                         upsertParameters.InputValues.Add(sqlProvider.GetParameterName(inputParameter.Alias));
@@ -245,9 +246,16 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             return true;
         }
 
-        public UpdateQuery GetUpdateQuery(object objectToUpdate, QueryContext queryContext)
+        /// <summary>
+        /// Creates or gets an UPDATE query
+        /// </summary>
+        /// <param name="objectToUpdate"></param>
+        /// <param name="modifiedMembers">List of modified members, or NULL</param>
+        /// <param name="queryContext"></param>
+        /// <returns></returns>
+        public UpsertQuery GetUpdateQuery(object objectToUpdate, IList<MemberInfo> modifiedMembers, QueryContext queryContext)
         {
-            var upsertParameters = GetUpsertParameters(objectToUpdate, queryContext, true);
+            var upsertParameters = GetUpsertParameters(objectToUpdate, true, modifiedMembers, queryContext);
             var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
             var updateSql = sqlProvider.GetUpdate(sqlProvider.GetTable(upsertParameters.Table.TableName),
                 upsertParameters.InputColumns, upsertParameters.InputValues,
@@ -255,7 +263,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 upsertParameters.InputPKColumns, upsertParameters.InputPKValues
                 );
             queryContext.DataContext.Logger.Write(Level.Debug, "Update SQL: {0}", updateSql);
-            return new UpdateQuery(queryContext.DataContext, updateSql, upsertParameters.InputParameters, upsertParameters.OutputParameters, upsertParameters.PrimaryKeyParameters);
+            return new UpsertQuery(queryContext.DataContext, updateSql, upsertParameters.InputParameters, upsertParameters.OutputParameters);
         }
     }
 }
