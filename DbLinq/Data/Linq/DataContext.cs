@@ -82,7 +82,6 @@ namespace DbLinq.Data.Linq
         public IVendor Vendor { get; set; }
         public IQueryBuilder QueryBuilder { get; set; }
         public IQueryRunner QueryRunner { get; set; }
-        public IResultMapper ResultMapper { get; set; }
         public IModificationHandler ModificationHandler { get; set; }
         internal IMemberModificationHandler MemberModificationHandler { get; set; }
         public IDatabaseContext DatabaseContext { get; private set; }
@@ -118,7 +117,6 @@ namespace DbLinq.Data.Linq
             DatabaseContext = databaseContext;
             Vendor = vendor;
 
-            ResultMapper = ObjectFactory.Get<IResultMapper>();
             ModificationHandler = ObjectFactory.Create<IModificationHandler>(); // not a singleton: object is stateful
             MemberModificationHandler = ObjectFactory.Create<IMemberModificationHandler>(); // not a singleton: object is stateful
             QueryBuilder = ObjectFactory.Get<IQueryBuilder>();
