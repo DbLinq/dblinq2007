@@ -317,17 +317,42 @@ namespace DbLinq.Data.Linq
             var exceptions = new List<Exception>();
             //TODO: process deleteList, insertList, liveObjectList
             //object[] indices = new object[0];
-            ProjectionData proj = ProjectionData.FromDbType(typeof(T));
-            Func<T, string[]> getObjectID = RowEnumeratorCompiler<T>.CompileIDRetrieval(proj);
+            //ProjectionData proj = ProjectionData.FromDbType(typeof(T));
+            //Func<T, string[]> getObjectID = RowEnumeratorCompiler<T>.CompileIDRetrieval(proj);
 
             ProcessInsert(failureMode, exceptions);
             ProcessUpdate(failureMode, exceptions);
-            ProcessDelete(proj, failureMode, exceptions, getObjectID);
+            ProcessDelete(failureMode, exceptions);
 
             return exceptions;
         }
 
-        private void ProcessInsert(ConflictMode failureMode, IList<Exception> exceptions)
+        protected virtual void Process(IEnumerable<T> ts, Action<T, QueryContext> process, ConflictMode failureMode,
+            IList<Exception> exceptions)
+        {
+            var queryContext = new QueryContext(DataContext);
+            foreach (var t in ts)
+            {
+                try
+                {
+                    process(t, queryContext);
+                }
+                catch (Exception e)
+                {
+                    switch (failureMode)
+                    {
+                    case ConflictMode.ContinueOnConflict:
+                        Trace.WriteLine("Table.SubmitChanges failed: " + e);
+                        exceptions.Add(e);
+                        break;
+                    case ConflictMode.FailOnFirstConflict:
+                        throw;
+                    }
+                }
+            }
+        }
+
+        protected virtual void ProcessInsert(ConflictMode failureMode, IList<Exception> exceptions)
         {
             var toInsert = new List<T>(DataContext.InsertList.Enumerate<T>());
             if (DataContext.Vendor.CanBulkInsert<T>(this))
@@ -337,61 +362,47 @@ namespace DbLinq.Data.Linq
             }
             else
             {
-                var queryContext = new QueryContext(DataContext);
-                foreach (var t in toInsert)
-                {
-                    var insertQuery = DataContext.QueryBuilder.GetInsertQuery(t, queryContext);
-                    try
+                Process(toInsert,
+                    delegate(T t, QueryContext queryContext)
                     {
+                        var insertQuery = DataContext.QueryBuilder.GetInsertQuery(t, queryContext);
                         DataContext.QueryRunner.Insert(t, insertQuery);
                         DataContext.InsertList.Remove(t);
                         DataContext.MemberModificationHandler.ClearModified(t, DataContext.Mapping); // adds a clean copy to modification handler
                         DataContext.RegisterEntity(t);
-                    }
-                    catch (Exception e)
-                    {
-                        switch (failureMode)
-                        {
-                        case ConflictMode.ContinueOnConflict:
-                            exceptions.Add(e);
-                            break;
-                        case ConflictMode.FailOnFirstConflict:
-                            throw;
-                        }
-                    }
-                }
+                    }, failureMode, exceptions);
             }
         }
 
         protected virtual void ProcessUpdate(ConflictMode failureMode, List<Exception> exceptions)
         {
-            var queryContext = new QueryContext(DataContext);
-            foreach (var t in DataContext.GetRegisteredEntities<T>())
-            {
-                try
-                {
-                    if (!DataContext.MemberModificationHandler.IsModified(t, DataContext.Mapping))
-                        continue;
-
-                    var modifiedMembers = DataContext.MemberModificationHandler.GetModifiedProperties(t, DataContext.Mapping);
-                    var updateQuery = DataContext.QueryBuilder.GetUpdateQuery(t, modifiedMembers, queryContext);
-                    DataContext.QueryRunner.Update(t, updateQuery, modifiedMembers);
-                    DataContext.MemberModificationHandler.ClearModified(t, DataContext.Mapping); //mark as saved, thanks to Martin Rauscher
-                }
-                catch (Exception ex)
-                {
-                    Trace.WriteLine("Table.SubmitChanges failed: " + ex);
-                    switch (failureMode)
+            Process(DataContext.GetRegisteredEntities<T>(),
+                    delegate(T t, QueryContext queryContext)
                     {
-                    case ConflictMode.ContinueOnConflict:
-                        exceptions.Add(ex);
-                        break;
-                    case ConflictMode.FailOnFirstConflict:
-                        throw;
-                    }
-                }
-            }
+                        if (DataContext.MemberModificationHandler.IsModified(t, DataContext.Mapping))
+                        {
+                            var modifiedMembers = DataContext.MemberModificationHandler.GetModifiedProperties(t, DataContext.Mapping);
+                            var updateQuery = DataContext.QueryBuilder.GetUpdateQuery(t, modifiedMembers, queryContext);
+                            DataContext.QueryRunner.Update(t, updateQuery, modifiedMembers);
+                            DataContext.MemberModificationHandler.ClearModified(t, DataContext.Mapping);
+                        }
+                    }, failureMode, exceptions);
         }
+
+        protected virtual void ProcessDelete(ConflictMode failureMode, List<Exception> exceptions)
+        {
+            var toDelete = new List<T>(DataContext.DeleteList.Enumerate<T>());
+            Process(toDelete,
+                    delegate(T t, QueryContext queryContext)
+                    {
+                        var deleteQuery = DataContext.QueryBuilder.GetDeleteQuery(t, queryContext);
+                        DataContext.QueryRunner.Delete(t, deleteQuery);
+                        DataContext.MemberModificationHandler.ClearModified(t, DataContext.Mapping);
+                        DataContext.DeleteList.Remove(t);
+                        //mark as saved, thanks to Martin Rauscher
+                    }, failureMode, exceptions);
+        }
+
 #if NO
         private void ProcessInsert1(ProjectionData proj, ConflictMode failureMode, IList<Exception> excepts)
         {
@@ -498,7 +509,6 @@ namespace DbLinq.Data.Linq
                 }
             }
         }
-#endif
         private void ProcessDelete(ProjectionData proj, ConflictMode failureMode, List<Exception> excepts, Func<T, string[]> getObjectID)
         {
             var toDelete = new List<T>(DataContext.DeleteList.Enumerate<T>());
@@ -554,6 +564,7 @@ namespace DbLinq.Data.Linq
 
             DataContext.DeleteList.Remove(toDelete);
         }
+#endif
 
         #endregion
 

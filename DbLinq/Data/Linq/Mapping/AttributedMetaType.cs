@@ -49,6 +49,7 @@ namespace DbLinq.Data.Linq.Mapping
             // associations and members
             var associationsList = new List<MetaAssociation>();
             var dataMembersList = new List<MetaDataMember>();
+            var identityMembersList = new List<MetaDataMember>();
             foreach (var memberInfo in classType.GetMembers())
             {
                 var association = memberInfo.GetAttribute<AssociationAttribute>();
@@ -61,10 +62,16 @@ namespace DbLinq.Data.Linq.Mapping
                 }
                 var column = memberInfo.GetAttribute<ColumnAttribute>();
                 if (column != null)
-                    dataMembersList.Add(new AttributedColumnMetaDataMember(memberInfo, column, this));
+                {
+                    var dataMember = new AttributedColumnMetaDataMember(memberInfo, column, this);
+                    dataMembersList.Add(dataMember);
+                    if (dataMember.IsPrimaryKey)
+                        identityMembersList.Add(dataMember);
+                }
             }
             associations = new ReadOnlyCollection<MetaAssociation>(associationsList);
             persistentDataMembers = new ReadOnlyCollection<MetaDataMember>(dataMembersList);
+            identityMembers = new ReadOnlyCollection<MetaDataMember>(identityMembersList);
         }
 
         internal void SetMetaTable(MetaTable metaTable)
@@ -146,9 +153,10 @@ namespace DbLinq.Data.Linq.Mapping
             get { throw new NotImplementedException(); }
         }
 
+        private readonly ReadOnlyCollection<MetaDataMember> identityMembers;
         public override ReadOnlyCollection<MetaDataMember> IdentityMembers
         {
-            get { throw new NotImplementedException(); }
+            get { return identityMembers; }
         }
 
         public override MetaType InheritanceBase

@@ -94,22 +94,45 @@ namespace DbLinq.Vendor.Implementation
             var updateBuilder = new StringBuilder("UPDATE ");
             updateBuilder.Append(table);
             updateBuilder.Append(" SET ");
-            for(int inputIndex=0;inputIndex<inputColumns.Count;inputIndex++)
+            for (int inputIndex = 0; inputIndex < inputColumns.Count; inputIndex++)
             {
-                if(inputIndex>0)
+                if (inputIndex > 0)
                     updateBuilder.Append(", ");
                 updateBuilder.AppendFormat("{0} = {1}", inputColumns[inputIndex], inputValues[inputIndex]);
             }
             updateBuilder.Append(" WHERE ");
-            for(int pkIndex=0;pkIndex<inputPKColumns.Count;pkIndex++)
+            for (int pkIndex = 0; pkIndex < inputPKColumns.Count; pkIndex++)
             {
-                if(pkIndex>0)
+                if (pkIndex > 0)
                     updateBuilder.Append(" AND ");
                 updateBuilder.AppendFormat("{0} = {1}", inputPKColumns[pkIndex], inputPKValues[pkIndex]);
             }
             return updateBuilder.ToString();
         }
 
+        /// <summary>
+        /// Builds a delete clause
+        /// </summary>
+        /// <param name="table"></param>
+        /// <param name="inputPKColumns">PK columns for reference</param>
+        /// <param name="inputPKValues">PK values for reference</param>
+        /// <returns></returns>
+        public string GetDelete(string table, IList<string> inputPKColumns, IList<string> inputPKValues)
+        {
+            if (inputPKColumns.Count == 0)
+                return string.Empty;
+
+            var deleteBuilder = new StringBuilder("DELETE FROM ");
+            deleteBuilder.Append(table);
+            deleteBuilder.Append(" WHERE ");
+            for (int pkIndex = 0; pkIndex < inputPKColumns.Count; pkIndex++)
+            {
+                if (pkIndex > 0)
+                    deleteBuilder.Append(" AND ");
+                deleteBuilder.AppendFormat("{0} = {1}", inputPKColumns[pkIndex], inputPKValues[pkIndex]);
+            }
+            return deleteBuilder.ToString();
+        }
 
         public string NewLine
         {

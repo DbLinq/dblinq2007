@@ -218,5 +218,14 @@ namespace DbLinq.Vendor
         string GetUpdate(string table, IList<string> inputColumns, IList<string> inputValues,
                                          IList<string> outputParameters, IList<string> outputExpressions,
                                          IList<string> inputPKColumns, IList<string> inputPKValues);
+
+        /// <summary>
+        /// Builds a delete clause
+        /// </summary>
+        /// <param name="table"></param>
+        /// <param name="inputPKColumns">PK columns for reference</param>
+        /// <param name="inputPKValues">PK values for reference</param>
+        /// <returns></returns>
+        string GetDelete(string table, IList<string> inputPKColumns, IList<string> inputPKValues);
     }
 }
