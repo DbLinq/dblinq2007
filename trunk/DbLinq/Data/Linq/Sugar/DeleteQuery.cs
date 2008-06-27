@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // MIT license
 //
@@ -25,7 +25,11 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Reflection;
+#if MONO_STRICT
+using System.Data.Linq.Sugar.Expressions;
+#else
+using DbLinq.Data.Linq.Sugar.Expressions;
+#endif
 
 #if MONO_STRICT
 namespace System.Data.Linq.Sugar
@@ -33,33 +37,14 @@ namespace System.Data.Linq.Sugar
 namespace DbLinq.Data.Linq.Sugar
 #endif
 {
-    public interface IQueryBuilder
+    public class DeleteQuery : AbstractQuery
     {
-        SelectQuery GetSelectQuery(ExpressionChain expressions, QueryContext queryContext);
+        public IList<ObjectInputParameterExpression> InputParameters { get; private set; }
 
-        /// <summary>
-        /// Creates a query for insertion
-        /// </summary>
-        /// <param name="objectToInsert"></param>
-        /// <param name="queryContext"></param>
-        /// <returns></returns>
-        UpsertQuery GetInsertQuery(object objectToInsert, QueryContext queryContext);
-
-        /// <summary>
-        /// Creates or gets an UPDATE query
-        /// </summary>
-        /// <param name="objectToUpdate"></param>
-        /// <param name="modifiedMembers">List of modified members, or NULL</param>
-        /// <param name="queryContext"></param>
-        /// <returns></returns>
-        UpsertQuery GetUpdateQuery(object objectToUpdate, IList<MemberInfo> modifiedMembers, QueryContext queryContext);
-
-        /// <summary>
-        /// Creates or gets a DELETE query
-        /// </summary>
-        /// <param name="objectToDelete"></param>
-        /// <param name="queryContext"></param>
-        /// <returns></returns>
-        DeleteQuery GetDeleteQuery(object objectToDelete, QueryContext queryContext);
+        public DeleteQuery(DataContext dataContext, string sql, IList<ObjectInputParameterExpression> inputParameters)
+            : base(dataContext, sql)
+        {
+            InputParameters = inputParameters;
+        }
     }
 }

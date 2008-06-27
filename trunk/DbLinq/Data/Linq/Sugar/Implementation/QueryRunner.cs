@@ -258,7 +258,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         }
 
         /// <summary>
-        /// Performans an update
+        /// Performs an update
         /// </summary>
         /// <param name="target">Entity to be flushed</param>
         /// <param name="updateQuery">SQL update query</param>
@@ -266,6 +266,30 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         public void Update(object target, UpsertQuery updateQuery, IList<MemberInfo> modifiedMembers)
         {
             Upsert(target, updateQuery);
+        }
+
+        /// <summary>
+        /// Performs a delete
+        /// </summary>
+        /// <param name="target">Entity to be deleted</param>
+        /// <param name="deleteQuery">SQL delete query</param>
+        public void Delete(object target, DeleteQuery deleteQuery)
+        {
+            var sqlProvider = deleteQuery.DataContext.Vendor.SqlProvider;
+            using (var dbTransaction = deleteQuery.DataContext.DatabaseContext.Transaction())
+            using (var dbCommand = deleteQuery.DataContext.DatabaseContext.Connection.CreateCommand())
+            {
+                dbCommand.CommandText = deleteQuery.Sql;
+                dbCommand.Transaction = dbTransaction.Transaction;
+                foreach (var inputParameter in deleteQuery.InputParameters)
+                {
+                    var dbParameter = dbCommand.CreateParameter();
+                    dbParameter.ParameterName = sqlProvider.GetParameterName(inputParameter.Alias);
+                    dbParameter.SetValue(inputParameter.GetValue(target), inputParameter.ValueType);
+                    dbCommand.Parameters.Add(dbParameter);
+                }
+                int rowsCount = dbCommand.ExecuteNonQuery();
+            }
         }
     }
 }

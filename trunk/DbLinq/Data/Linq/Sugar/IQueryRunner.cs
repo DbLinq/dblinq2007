@@ -64,5 +64,12 @@ namespace DbLinq.Data.Linq.Sugar
         /// <param name="updateQuery">SQL update query</param>
         /// <param name="modifiedMembers">List of modified members, or null to update all members</param>
         void Update(object target, UpsertQuery updateQuery,IList<MemberInfo> modifiedMembers);
+
+        /// <summary>
+        /// Performs a delete
+        /// </summary>
+        /// <param name="target">Entity to be deleted</param>
+        /// <param name="deleteQuery">SQL delete query</param>
+        void Delete(object target, DeleteQuery deleteQuery);
     }
 }

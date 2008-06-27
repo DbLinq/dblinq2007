@@ -56,7 +56,6 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             public readonly IList<string> OutputExpressions = new List<string>();
             public readonly IList<string> InputPKColumns = new List<string>();
             public readonly IList<string> InputPKValues = new List<string>();
-
         }
 
         // SQLite:
@@ -264,6 +263,37 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 );
             queryContext.DataContext.Logger.Write(Level.Debug, "Update SQL: {0}", updateSql);
             return new UpsertQuery(queryContext.DataContext, updateSql, upsertParameters.InputParameters, upsertParameters.OutputParameters);
+        }
+
+        /// <summary>
+        /// Creates or gets a DELETE query
+        /// </summary>
+        /// <param name="objectToDelete"></param>
+        /// <param name="queryContext"></param>
+        /// <returns></returns>
+        public DeleteQuery GetDeleteQuery(object objectToDelete, QueryContext queryContext)
+        {
+            var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
+            var rowType = objectToDelete.GetType();
+            var table = queryContext.DataContext.Mapping.GetTable(rowType);
+            var deleteParameters = new List<ObjectInputParameterExpression>();
+            var pkColumns = new List<string>();
+            var pkValues = new List<string>();
+            foreach (var pkMember in table.RowType.IdentityMembers)
+            {
+                var memberInfo = pkMember.Member;
+                var getter = (Expression<Func<object, object>>)(o => memberInfo.GetMemberValue(o));
+                var inputParameter = new ObjectInputParameterExpression(
+                    getter,
+                    memberInfo.GetMemberType(), pkMember.Name);
+                var column = sqlProvider.GetColumn(pkMember.MappedName);
+                pkColumns.Add(column);
+                pkValues.Add(sqlProvider.GetParameterName(inputParameter.Alias));
+                deleteParameters.Add(inputParameter);
+            }
+            var deleteSql = sqlProvider.GetDelete(sqlProvider.GetTable(table.TableName), pkColumns, pkValues);
+            queryContext.DataContext.Logger.Write(Level.Debug, "Delete SQL: {0}", deleteSql);
+            return new DeleteQuery(queryContext.DataContext, deleteSql, deleteParameters);
         }
     }
 }
