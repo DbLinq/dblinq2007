@@ -72,6 +72,7 @@
     <Compile Include="Data\Linq\Identity\Implementation\IdentityReader.cs" />
     <Compile Include="Data\Linq\Identity\Implementation\IdentityReaderFactory.cs" />
     <Compile Include="Data\Linq\IExecuteResult.cs" />
+    <Compile Include="Data\Linq\IManagedTable.cs" />
     <Compile Include="Data\Linq\IMemberModificationHandler.cs" />
     <Compile Include="Data\Linq\Implementation\MemberModificationHandler.cs" />
     <Compile Include="Data\Linq\Implementation\QueryProvider.cs" />

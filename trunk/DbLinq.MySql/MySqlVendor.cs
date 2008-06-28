@@ -45,7 +45,7 @@ namespace DbLinq.MySql
         /// <summary>
         /// Client code needs to specify: 'Vendor.UserBulkInsert[db.Products]=10' to enable bulk insert, 10 rows at a time.
         /// </summary>
-        public readonly Dictionary<IMTable, int> UseBulkInsert = new Dictionary<IMTable, int>();
+        public readonly Dictionary<ITable, int> UseBulkInsert = new Dictionary<ITable, int>();
 
         public MySqlVendor()
             : base(new MySqlSqlProvider())
@@ -158,8 +158,9 @@ namespace DbLinq.MySql
             string sp_name = functionAttrib.Name;
 
             // picrap: is there any way to abstract some part of this?
-            using (IDbCommand command = context.DatabaseContext.CreateCommand(sp_name))
+            using (IDbCommand command = context.Connection.CreateCommand())
             {
+                command.CommandText = sp_name;
                 //MySqlCommand command = new MySqlCommand("select hello0()");
                 int currInputIndex = 0;
 
@@ -210,7 +211,7 @@ namespace DbLinq.MySql
                     //unknown shape of resultset:
                     System.Data.DataSet dataSet = new DataSet();
                     //IDataAdapter adapter = new MySqlDataAdapter((MySqlCommand)command);
-                    IDbDataAdapter adapter = context.DatabaseContext.CreateDataAdapter();
+                    IDbDataAdapter adapter = CreateDataAdapter(context);
                     adapter.SelectCommand = command;
                     adapter.Fill(dataSet);
                     List<object> outParamValues = CopyOutParams(paramInfos, command.Parameters);

@@ -25,8 +25,9 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Data;
+using System.Data.Common;
+using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using System.Diagnostics;
 using System.Collections.Generic;
@@ -72,21 +73,22 @@ namespace DbLinq.Data.Linq
 {
     public class DataContext : IDisposable
     {
-        internal /*private*/ readonly List<IMTable> _tableList = new List<IMTable>();
-        private readonly Dictionary<string, IMTable> _tableMap = new Dictionary<string, IMTable>();
+        private readonly Dictionary<string, ITable> _tableMap = new Dictionary<string, ITable>();
 
         public MetaModel Mapping { get; private set; }
+        // PC question: at ctor, we get a IDbConnection and the Connection property exposes a DbConnection
+        //              WTF?
+        public DbConnection Connection { get { return DatabaseContext.Connection as DbConnection; } }
 
         // all properties below are set public to optionally be injected
-        // TODO check if 'internal' works
-        public IVendor Vendor { get; set; }
-        public IQueryBuilder QueryBuilder { get; set; }
-        public IQueryRunner QueryRunner { get; set; }
-        public IModificationHandler ModificationHandler { get; set; }
+        internal IVendor Vendor { get; set; }
+        internal IQueryBuilder QueryBuilder { get; set; }
+        internal IQueryRunner QueryRunner { get; set; }
+        internal IModificationHandler ModificationHandler { get; set; }
         internal IMemberModificationHandler MemberModificationHandler { get; set; }
-        public IDatabaseContext DatabaseContext { get; private set; }
-        public ILogger Logger { get; set; }
-        public IEntityMap EntityMap { get; set; }
+        internal IDatabaseContext DatabaseContext { get; private set; }
+        internal ILogger Logger { get; set; }
+        internal IEntityMap EntityMap { get; set; }
         // /all properties...
 
         internal readonly EntityList InsertList = new EntityList();
@@ -173,7 +175,7 @@ namespace DbLinq.Data.Linq
         {
             lock (this)
             {
-                IMTable tableExisting;
+                ITable tableExisting;
                 if (_tableMap.TryGetValue(tableName, out tableExisting))
                     return tableExisting as Table<T>; //return existing
                 Table<T> tableNew = new Table<T>(this); //create new and store it
@@ -187,32 +189,25 @@ namespace DbLinq.Data.Linq
             return GetTable<T>(typeof(T).FullName);
         }
 
-        public void RegisterChild(IMTable table)
-        {
-            _tableList.Add(table);
-        }
-
         public void SubmitChanges()
         {
-            SubmitChanges(System.Data.Linq.ConflictMode.FailOnFirstConflict);
+            SubmitChanges(ConflictMode.FailOnFirstConflict);
         }
 
-        public virtual List<Exception> SubmitChanges(System.Data.Linq.ConflictMode failureMode)
+        public virtual List<Exception> SubmitChanges(ConflictMode failureMode)
         {
             List<Exception> exceptions = new List<Exception>();
             //TODO: perform all queued up operations - INSERT,DELETE,UPDATE
             //TODO: insert order must be: first parent records, then child records
 
             using (DatabaseContext.OpenConnection()) //ConnMgr will close connection for us
-
-            //TranMgr may start transaction /  commit transaction
             using (IDatabaseTransaction transactionMgr = DatabaseContext.Transaction())
             {
-                foreach (IMTable tbl in _tableList)
+                foreach (IManagedTable table in _tableMap.Values)
                 {
                     try
                     {
-                        List<Exception> innerExceptions = tbl.SaveAll(failureMode);
+                        List<Exception> innerExceptions = table.SaveAll(failureMode);
                         exceptions.AddRange(innerExceptions);
                     }
                     catch (Exception ex)
@@ -220,15 +215,15 @@ namespace DbLinq.Data.Linq
                         Trace.WriteLine("Context.SubmitChanges failed: " + ex.Message);
                         switch (failureMode)
                         {
-                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
+                        case ConflictMode.ContinueOnConflict:
                             exceptions.Add(ex);
                             break;
-                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                            throw ex;
+                        case ConflictMode.FailOnFirstConflict:
+                            throw;
                         }
                     }
                 }
-                bool doCommit = failureMode == System.Data.Linq.ConflictMode.FailOnFirstConflict
+                bool doCommit = failureMode == ConflictMode.FailOnFirstConflict
                                 && exceptions.Count == 0;
                 if (doCommit)
                     transactionMgr.Commit();
@@ -236,36 +231,10 @@ namespace DbLinq.Data.Linq
             return exceptions;
         }
 
-        #region Debugging Support
-        /// <summary>
-        /// Dlinq spec: Returns the query text of the query without of executing it
-        /// </summary>
-        /// <returns></returns>
-        public string GetQueryText(IQueryable query)
-        {
-            if (query == null)
-                return "GetQueryText: null query";
-            IQueryText queryText1 = query as IQueryText;
-            if (queryText1 != null)
-                return queryText1.GetQueryText(); //so far, MTable_Projected has been updated to use this path
-
-            return "ERROR L78 Unexpected type:" + query;
-        }
-
-        /// <summary>
-        /// FA: Returns the text of SQL commands for insert/update/delete without executing them
-        /// </summary>
-        public string GetChangeText()
-        {
-            return "TODO L56 GetChangeText()";
-        }
-
-        #endregion
-
         /// <summary>
         /// TODO - allow generated methods to call into stored procedures
         /// </summary>
-        protected System.Data.Linq.IExecuteResult ExecuteMethodCall(DataContext context, System.Reflection.MethodInfo method, params object[] sqlParams)
+        protected IExecuteResult ExecuteMethodCall(DataContext context, System.Reflection.MethodInfo method, params object[] sqlParams)
         {
             using (DatabaseContext.OpenConnection())
             {
@@ -353,14 +322,17 @@ namespace DbLinq.Data.Linq
         /// <returns>Lists of inserted, updated, deleted objects</returns>
         public ChangeSet GetChangeSet()
         {
-            return new ChangeSet(this);
+            var inserts = InsertList.EnumerateAll().ToList();
+            var updates = (from k in EntityMap.Keys let e = EntityMap[k] where ModificationHandler.IsModified(e) select e).ToList();
+            var deletes = DeleteList.EnumerateAll().ToList();
+            return new ChangeSet(inserts, updates, deletes);
         }
 
         /// <summary>
         /// TODO: conflict detection is not implemented!
         /// </summary>
         [Obsolete("NOT IMPLEMENTED YET")]
-        public System.Data.Linq.ChangeConflictCollection ChangeConflicts
+        public ChangeConflictCollection ChangeConflicts
         {
             get { throw new NotImplementedException(); }
         }
@@ -394,14 +366,14 @@ namespace DbLinq.Data.Linq
         /// TODO: DataLoadOptions ds = new DataLoadOptions(); ds.LoadWith<Customer>(p => p.Orders);
         /// </summary>
         [Obsolete("NOT IMPLEMENTED YET")]
-        public System.Data.Linq.DataLoadOptions LoadOptions
+        public DataLoadOptions LoadOptions
         {
             get { throw new NotImplementedException(); }
             set { throw new NotImplementedException(); }
         }
 
         [Obsolete("NOT IMPLEMENTED YET")]
-        public System.Data.Common.DbTransaction Transaction
+        public DbTransaction Transaction
         {
             get { throw new NotImplementedException(); }
             set { throw new NotImplementedException(); }
@@ -412,27 +384,14 @@ namespace DbLinq.Data.Linq
             //connection closing should not be done here.
             //read: http://msdn2.microsoft.com/en-us/library/bb292288.aspx
         }
-    }
 
-    /// <summary>
-    /// Table has a SaveAll() method that Context needs to call
-    /// </summary>
-    public interface IMTable
-    {
-        void CheckAttachment(object entity);
-        List<Exception> SaveAll(System.Data.Linq.ConflictMode failureMode);
-        void SaveAll();
-
-        IEnumerable<object> Inserts { get; }
-        IEnumerable<object> Updates { get; }
-        IEnumerable<object> Deletes { get; }
-    }
-
-    /// <summary>
-    /// TODO: can we retrieve _sqlString without requiring an interface?
-    /// </summary>
-    public interface IQueryText
-    {
-        string GetQueryText();
+        /// <summary>
+        /// Creates a IDbDataAdapter. Used internally by Vendors
+        /// </summary>
+        /// <returns></returns>
+        internal IDbDataAdapter CreateDataAdapter()
+        {
+            return DatabaseContext.CreateDataAdapter();
+        }
     }
 }

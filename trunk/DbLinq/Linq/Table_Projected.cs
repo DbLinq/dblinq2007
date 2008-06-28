@@ -50,7 +50,6 @@ namespace DbLinq.Linq
     /// <typeparam name="T">eg. 'int' in query 'from e in db.Employees select e.ID'</typeparam>
     class MTable_Projected<T>
         : IOrderedQueryable<T> //projections and joins can still be ordered
-        , IQueryText
         , IQueryProvider //new as of Beta2
         , IGetSessionVars
     {

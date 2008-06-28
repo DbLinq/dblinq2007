@@ -62,29 +62,27 @@ namespace DbLinq.Data.Linq
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class Table<T> :
-        IQueryable<T>
-        , IOrderedQueryable<T> //this is cheating ... we pretend to be always ordered
-        , ITable
-        , IMTable
-        , IQueryProvider //new as of Beta2
+        IQueryable<T>,
+        IOrderedQueryable<T>, //this is cheating ... we pretend to be always ordered
+        ITable,
+        IQueryProvider, //new as of Beta2
+        IManagedTable // internal helper. One day, all data will be processed from DataContext
         where T : class
     {
         /// <summary>
         /// the parent MContext holds our connection etc
         /// </summary>
         public DataContext DataContext { get; private set; }
+        public DataContext Context { get { return DataContext; } }
 
-        [Obsolete("NOT IMPLEMENTED - Use DataContext instead of Context")]
-        public System.Data.Linq.DataContext Context { get { throw new NotImplementedException("TODO L63"); } }
-
-        private QueryProvider<T> _queryProvider;
+        // QueryProvider is the running entity, running through nested Expressions
+        private readonly QueryProvider<T> _queryProvider;
 
         public ILogger Logger { get; set; }
 
-        public Table(DataContext parent)
+        internal Table(DataContext parent)
         {
             DataContext = parent;
-            DataContext.RegisterChild(this);
             _queryProvider = new QueryProvider<T>(parent);
         }
 
@@ -294,12 +292,8 @@ namespace DbLinq.Data.Linq
         #endregion
 
         #region Save functions
-        public void SaveAll()
-        {
-            SaveAll(System.Data.Linq.ConflictMode.FailOnFirstConflict);
-        }
 
-        public List<Exception> SaveAll(System.Data.Linq.ConflictMode failureMode)
+        public List<Exception> SaveAll(ConflictMode failureMode)
         {
             if (DataContext.InsertList.Count<T>() == 0
                 && DataContext.DeleteList.Count<T>() == 0
@@ -402,169 +396,6 @@ namespace DbLinq.Data.Linq
                         //mark as saved, thanks to Martin Rauscher
                     }, failureMode, exceptions);
         }
-
-#if NO
-        private void ProcessInsert1(ProjectionData proj, ConflictMode failureMode, IList<Exception> excepts)
-        {
-            if (DataContext.Vendor.CanBulkInsert<T>(this))
-            {
-                DataContext.Vendor.DoBulkInsert(this, _insertList, DataContext.DatabaseContext.Connection);
-                _insertList.Clear();
-            }
-
-            foreach (T obj in _insertList)
-            {
-                //build command similar to:
-                //INSERT INTO EMPLOYEES (Name, DateStarted) VALUES (?p1,?p2); SELECT @@IDENTITY
-                //INSERT INTO EMPLOYEES (EmpId, Name, DateStarted) VALUES (EmpID_SEQ.NextVal,?p1,?p2); SELECT EmpID_SEQ.CurrVal
-                try
-                {
-                    //var insertQuery = DataContext.QueryBuilder.GetInsertQuery(obj, new QueryContext(DataContext));
-                    using (IDbCommand cmd = InsertClauseBuilder.GetClause(DataContext.Vendor, DataContext.DatabaseContext, obj, proj))
-                    {
-                        object objID = cmd.ExecuteScalar();
-
-                        if (!proj.AutoGen)
-                        {
-                            _modificationHandler.ClearModified(obj); //we just saved it - it's not 'dirty'
-                            continue; //ID was already assigned by user, not from a DB sequence.
-                        }
-
-                        //Oracle unpacks objID from an out-param:
-                        DataContext.Vendor.ProcessInsertedId(cmd, ref objID);
-
-                        try
-                        {
-                            //set the object's ID:
-                            if (!proj.IsAutoGenSpecified(obj))
-                                proj.UpdateAutoGen(obj, objID);
-
-                            _modificationHandler.ClearModified(obj); //we just saved it - it's not 'dirty'
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Write(Level.Error, "L227 Failed on SetObjectIdField: " + ex);
-                        }
-                        //TODO: use reflection to assign the field ID - that way the _isModified flag will not get set
-
-                        //Logger.Write("MTable insert TODO: populate ID field ");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    switch (failureMode)
-                    {
-                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                            excepts.Add(ex);
-                            break;
-                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                            throw ex;
-                    }
-                }
-
-            }
-
-            foreach (T insertedT in _insertList)
-            {
-                //inserted objects are now live:
-                DataContext.RegisterEntity(insertedT);
-            }
-            //thanks to Martin Rauscher for spotting that I forgot to clear the list:
-            _insertList.Clear();
-        }
-        private void ProcessUpdate(ProjectionData proj, ConflictMode failureMode, List<Exception> excepts, Func<T, string[]> getObjectID)
-        {
-            //todo: check object is not in two lists
-            foreach (T obj in DataContext.GetRegisteredEntities<T>())
-            {
-                try
-                {
-                    if (!_modificationHandler.IsModified(obj))
-                        continue;
-
-                    Trace.WriteLine("MTable SaveAll: saving modified object");
-                    string[] ID_to_update = getObjectID(obj);
-
-                    IList<PropertyInfo> modifiedProperties = _modificationHandler.GetModifiedProperties(obj);
-
-                    using (IDbCommand cmd = InsertClauseBuilder.GetUpdateCommand(DataContext, obj, proj, ID_to_update, modifiedProperties))
-                    {
-                        int result = cmd.ExecuteNonQuery();
-                        Trace.WriteLine("MTable SaveAll.Update returned:" + result);
-                    }
-
-                    _modificationHandler.ClearModified(obj); //mark as saved, thanks to Martin Rauscher
-                }
-                catch (Exception ex)
-                {
-                    Trace.WriteLine("Table.SubmitChanges failed: " + ex);
-                    switch (failureMode)
-                    {
-                    case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                        excepts.Add(ex);
-                        break;
-                    case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                        throw ex;
-                    }
-                }
-            }
-        }
-        private void ProcessDelete(ProjectionData proj, ConflictMode failureMode, List<Exception> excepts, Func<T, string[]> getObjectID)
-        {
-            var toDelete = new List<T>(DataContext.DeleteList.Enumerate<T>());
-            if (toDelete.Count > 0)
-            {
-                //Func<T,string> getObjectID = RowEnumeratorCompiler<T>.CompileIDRetrieval(proj);
-
-                KeyValuePair<PropertyInfo, System.Data.Linq.Mapping.ColumnAttribute>[] primaryKeys
-                    = AttribHelper.FindPrimaryKeys(typeof(T));
-
-                //Type primaryKeyType = primaryKeys[0].Key.PropertyType;
-                //bool mustQuoteIds = primaryKeyType == typeof(string) || primaryKeyType == typeof(char);
-
-                List<string> idsToDelete = new List<string>();
-                foreach (T obj in toDelete)
-                {
-                    try
-                    {
-                        string[] ID_to_delete = getObjectID(obj);
-
-                        string whereClause = InsertClauseBuilder.GetPrimaryKeyWhereClause(DataContext, obj, proj, ID_to_delete);
-
-                        idsToDelete.Add(whereClause);
-                    }
-                    catch (Exception ex)
-                    {
-                        switch (failureMode)
-                        {
-                        case System.Data.Linq.ConflictMode.ContinueOnConflict:
-                            excepts.Add(ex);
-                            break;
-                        case System.Data.Linq.ConflictMode.FailOnFirstConflict:
-                            throw ex;
-                        }
-                    }
-                }
-                string tableName = DataContext.Vendor.GetSqlFieldSafeName(proj.tableAttribute.Name);
-
-                //this does not work with CompositePKs:
-                //string sql = "DELETE FROM " + tableName + " WHERE " + proj.keyColumnName + " in (" + sbDeleteIDs + ")";
-
-                //this should work with CompositePKs:
-                string sql = "DELETE FROM " + tableName + " WHERE " + string.Join(" OR ", idsToDelete.ToArray());
-
-                Trace.WriteLine("MTable SaveAll.Delete: " + sql);
-                using (IDbCommand cmd = DataContext.DatabaseContext.CreateCommand())
-                {
-                    cmd.CommandText = sql;
-                    int result = cmd.ExecuteNonQuery();
-                    Trace.WriteLine("MTable SaveAll.Delete returned:" + result);
-                }
-            }
-
-            DataContext.DeleteList.Remove(toDelete);
-        }
-#endif
 
         #endregion
 

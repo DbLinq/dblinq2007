@@ -51,7 +51,7 @@ namespace DbLinq.Sqlite
         /// <summary>
         /// Client code needs to specify: 'Vendor.UserBulkInsert[db.Products]=10' to enable bulk insert, 10 rows at a time.
         /// </summary>
-        public static readonly Dictionary<IMTable, int> UseBulkInsert = new Dictionary<IMTable, int>();
+        public static readonly Dictionary<ITable, int> UseBulkInsert = new Dictionary<ITable, int>();
 
 
         public SqliteVendor()
@@ -170,8 +170,9 @@ namespace DbLinq.Sqlite
 
             string sp_name = functionAttrib.Name;
 
-            using (IDbCommand command = context.DatabaseContext.CreateCommand(sp_name))
+            using (IDbCommand command = context.Connection.CreateCommand())
             {
+                command.CommandText = sp_name;
                 //SQLiteCommand command = new SQLiteCommand("select hello0()");
                 int currInputIndex = 0;
 
@@ -221,7 +222,7 @@ namespace DbLinq.Sqlite
                 {
                     //unknown shape of resultset:
                     System.Data.DataSet dataSet = new DataSet();
-                    IDbDataAdapter adapter = context.DatabaseContext.CreateDataAdapter();
+                    IDbDataAdapter adapter = CreateDataAdapter(context);
                     adapter.SelectCommand = command;
                     adapter.Fill(dataSet);
                     List<object> outParamValues = CopyOutParams(paramInfos, command.Parameters);

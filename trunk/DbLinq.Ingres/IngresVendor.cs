@@ -239,8 +239,9 @@ namespace DbLinq.Ingres
 
             string sp_name = functionAttrib.Name;
 
-            using (IDbCommand command = context.DatabaseContext.CreateCommand(sp_name))
+            using (IDbCommand command = context.Connection.CreateCommand())
             {
+                command.CommandText = sp_name;
                 //MySqlCommand command = new MySqlCommand("select hello0()");
                 int currInputIndex = 0;
 
@@ -291,7 +292,7 @@ namespace DbLinq.Ingres
                 {
                     //unknown shape of resultset:
                     System.Data.DataSet dataSet = new DataSet();
-                    IDbDataAdapter adapter = context.DatabaseContext.CreateDataAdapter();
+                    IDbDataAdapter adapter = CreateDataAdapter(context);
                     adapter.SelectCommand = command;
                     adapter.Fill(dataSet);
                     List<object> outParamValues = CopyOutParams(paramInfos, command.Parameters);

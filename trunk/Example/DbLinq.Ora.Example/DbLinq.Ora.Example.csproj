@@ -62,7 +62,7 @@
       <Name>DbLinq.Oracle</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\DbLinq\DbLinq.csproj">
-      <Project>{97305421-3071-4175-AA3C-9A432CC28121}</Project>
+      <Project>{7950197D-4122-49CB-9FD7-45E666BAFEC2}</Project>
       <Name>DbLinq</Name>
     </ProjectReference>
   </ItemGroup>
