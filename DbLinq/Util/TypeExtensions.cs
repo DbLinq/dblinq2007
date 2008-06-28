@@ -201,7 +201,7 @@ namespace DbLinq.Util
         /// <returns></returns>
         public static Type GetNullableType(this Type t)
         {
-            return t.GetGenericArguments()[0];
+            return Nullable.GetUnderlyingType(t);
         }
 
         /// <summary>

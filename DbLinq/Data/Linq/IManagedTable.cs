@@ -24,12 +24,9 @@
 // 
 #endregion
 
+using System;
 using System.Collections.Generic;
-#if MONO_STRICT
 using System.Data.Linq;
-#else
-using DbLinq.Data.Linq;
-#endif
 
 #if MONO_STRICT
 namespace System.Data.Linq
@@ -37,34 +34,8 @@ namespace System.Data.Linq
 namespace DbLinq.Data.Linq
 #endif
 {
-    /// <summary>
-    /// Contains list of datacontext entities to be deleted, inserted and updated.
-    /// Merges table separate lists into single one.
-    /// Standard DLinq class defined in MSDN.
-    /// Note: this is immutable and reflects a snapshot of the DataContext when calling GetChangeSet
-    /// </summary>
-    public sealed class ChangeSet
+    internal interface IManagedTable
     {
-        private readonly IList<object> inserts;
-        public IList<object> Inserts { get { return inserts; } }
-
-        private readonly IList<object> updates;
-        public IList<object> Updates { get { return updates; } }
-
-        private readonly IList<object> deletes;
-        public IList<object> Deletes { get { return deletes; } }
-
-        public override string ToString()
-        {
-            return string.Format("Total changes: {{Added: {0}, Removed: {1}, Modified: {2}}}",
-                                 Inserts.Count, Deletes.Count, Updates.Count);
-        }
-
-        internal ChangeSet(List<object> inserts, List<object> updates, List<object> deletes)
-        {
-            this.inserts = inserts.AsReadOnly();
-            this.updates = updates.AsReadOnly();
-            this.deletes = deletes.AsReadOnly();
-        }
-    };
+        List<Exception> SaveAll(ConflictMode failureMode);
+    }
 }

@@ -940,7 +940,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 {
 
                 }
-                if (constantExpression.Value is IMTable)
+                if (constantExpression.Value is ITable)
                 {
                     var tableType = constantExpression.Type.GetGenericArguments()[0];
                     return new TableExpression(tableType, DataMapper.GetTableName(tableType, builderContext.QueryContext.DataContext));

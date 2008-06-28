@@ -146,7 +146,7 @@ using DbLinq.Logging;
         public void RetrieveParentAssociationProperty()
         {
             Northwind dbo = CreateDB();
-            Northwind1 db = new Northwind1(dbo.DatabaseContext.Connection);
+            Northwind1 db = new Northwind1(dbo.Connection);
             var t = db.GetTable<Northwind1.ExtendedOrder>();
             var q = from order in t
                     select new
@@ -164,7 +164,7 @@ using DbLinq.Logging;
         public void DifferentParentAndAssociationPropertyNames()
         {
             Northwind dbo = CreateDB();
-            Northwind1 db = new Northwind1(dbo.DatabaseContext.Connection);
+            Northwind1 db = new Northwind1(dbo.Connection);
             var query = db.GetTable<Northwind1.ExtendedOrder>() as IQueryable<Northwind1.ExtendedOrder>;
 
             var q2 = query.Select(e => new Northwind1.ExtendedOrder
@@ -182,7 +182,7 @@ using DbLinq.Logging;
         public void SelectCustomerContactNameFromOrder()
         {
             Northwind dbo = CreateDB();
-            Northwind1 db = new Northwind1(dbo.DatabaseContext.Connection);
+            Northwind1 db = new Northwind1(dbo.Connection);
             var t = db.GetTable<Northwind1.ExtendedOrder>();
 
             var q = from order in t

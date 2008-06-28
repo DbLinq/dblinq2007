@@ -24,14 +24,14 @@
 // 
 #endregion
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Data.Linq;
 
 #if MONO_STRICT
 namespace System.Data.Linq
+#else
+namespace DbLinq.Data.Linq
+#endif
 {
     public interface ITable
     {
@@ -50,4 +50,3 @@ namespace System.Data.Linq
         void InsertOnSubmit(object entity);
     }
 }
-#endif

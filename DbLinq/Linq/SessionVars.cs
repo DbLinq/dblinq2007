@@ -42,7 +42,7 @@ namespace DbLinq.Linq
     public class SessionVars
     {
         public DataContext Context { get; private set; }
-        public IMTable Table { get; private set; }
+        public ITable Table { get; private set; }
 
         /// <summary>
         /// chain of expressions processed so far. 
@@ -56,7 +56,7 @@ namespace DbLinq.Linq
         /// </summary>
         public Expression ScalarExpression { get; set; }
 
-        public SessionVars(DataContext context, IMTable table)
+        public SessionVars(DataContext context, ITable table)
         {
             Context = context;
             Table = table;

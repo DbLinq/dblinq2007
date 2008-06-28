@@ -84,7 +84,7 @@ using System.Data.Linq;
             try
             {
                 // Get the name of the Order Details table properly evaluating the Annotation
-                string tableName = db.Vendor.GetSqlFieldSafeName("order details"); //eg. "[Order Details]"
+                string tableName = null;// db.Vendor.GetSqlFieldSafeName("order details"); //eg. "[Order Details]"
                 foreach (object obj in typeof(OrderDetail).GetCustomAttributes(true))
                 {
                     if (obj is System.Data.Linq.Mapping.TableAttribute)

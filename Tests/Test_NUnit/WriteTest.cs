@@ -373,7 +373,7 @@ namespace Test_NUnit_PostgreSql
         public void G10_InsertCharSerialPrimaryKey()
         {
             Northwind dbo = CreateDB();
-            Northwind1 db = new Northwind1(dbo.DatabaseContext.Connection);
+            Northwind1 db = new Northwind1(dbo.Connection);
             try
             {
                 db.ExecuteCommand(
@@ -479,7 +479,7 @@ dummy text
         public void G11_TwoSequencesInTable()
         {
             Northwind dbo = CreateDB();
-            NorthwindG11 db = new NorthwindG11(dbo.DatabaseContext.Connection);
+            NorthwindG11 db = new NorthwindG11(dbo.Connection);
 
             db.ExecuteCommand(@"create sequence rid_id1_seq");
             db.ExecuteCommand(@"create sequence rid_reanr_seq");
@@ -622,7 +622,7 @@ dummy text
         public void G17_LocalPropertyUpdate()
         {
             Northwind dbo = CreateDB();
-            NorthwindLocalProperty db = new NorthwindLocalProperty(dbo.DatabaseContext.Connection);
+            NorthwindLocalProperty db = new NorthwindLocalProperty(dbo.Connection);
             var det = db.OrderDetailWithSums.First();
             det.ChangeQuantity();
             Assert.AreEqual(0, db.GetChangeSet().Updates.Count);
@@ -715,7 +715,7 @@ dummy text
                            where id ==c.CustomerID 
                            select c).Single();
 
-            db.DatabaseContext.Connection.ConnectionString = null;
+            db.Connection.ConnectionString = null;
 
             var x = db.Customers.Single(c => id == c.CustomerID );
         }

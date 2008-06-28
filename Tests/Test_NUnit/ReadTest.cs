@@ -442,7 +442,7 @@ namespace Test_NUnit_Ingres
         public void D12_SelectDerivedClass()
         {
             Northwind dbo = CreateDB();
-            Northwind1 db = new Northwind1(dbo.DatabaseContext.Connection);
+            Northwind1 db = new Northwind1(dbo.Connection);
 
             var derivedCustomer = (from c in db.ChildCustomers
                                    where c.City == "London"
@@ -517,7 +517,7 @@ namespace Test_NUnit_Ingres
         public void D15_DuplicateProperty()
         {
             Northwind dbo = CreateDB();
-            NorthwindDupl db = new NorthwindDupl(dbo.DatabaseContext.Connection);
+            NorthwindDupl db = new NorthwindDupl(dbo.Connection);
             var derivedCustomer = (from c in db.ChildCustomers
                                    where c.City == "London"
                                    select c).First();
@@ -571,7 +571,7 @@ namespace Test_NUnit_Ingres
         {
             Assert.Ignore("See if this is specified");
             Northwind dbo = CreateDB();
-            NorthwindAbstractBaseClass db = new NorthwindAbstractBaseClass(dbo.DatabaseContext.Connection);
+            NorthwindAbstractBaseClass db = new NorthwindAbstractBaseClass(dbo.Connection);
             var Customer = (from c in db.ChildCustomers
                             where c.City == "London"
                             select c).First();

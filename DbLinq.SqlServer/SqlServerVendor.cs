@@ -33,14 +33,14 @@ using System.Data;
 using System.Data.Linq.Mapping;
 using DbLinq.Util;
 using DbLinq.Linq;
-using DataContext=DbLinq.Data.Linq.DataContext;
-using IMTable=DbLinq.Data.Linq.IMTable;
+using DataContext = DbLinq.Data.Linq.DataContext;
+using ITable = DbLinq.Data.Linq.ITable;
 
 namespace DbLinq.SqlServer
 {
     public class SqlServerVendor : Vendor.Implementation.Vendor
     {
-        public readonly Dictionary<IMTable, int> UseBulkInsert = new Dictionary<IMTable, int>();
+        public readonly Dictionary<ITable, int> UseBulkInsert = new Dictionary<ITable, int>();
 
         public override string VendorName { get { return "MsSqlServer"; } }
         //public const string SQL_PING_COMMAND = "SELECT 11";

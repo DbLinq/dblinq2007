@@ -24,6 +24,7 @@
 // 
 #endregion
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -49,6 +50,20 @@ namespace DbLinq.Data.Linq
                 if (!_entitiesByType.Contains(t))
                     _entitiesByType[t] = new List<T>();
                 return (IList<T>)_entitiesByType[t];
+            }
+        }
+
+        public IEnumerable<object> EnumerateAll()
+        {
+            lock (_lock)
+            {
+                foreach (Type type in _entitiesByType)
+                {
+                    foreach (var o in (IEnumerable)_entitiesByType[type])
+                    {
+                        yield return o;
+                    }
+                }
             }
         }
 

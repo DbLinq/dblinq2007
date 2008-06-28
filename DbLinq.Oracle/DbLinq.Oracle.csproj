@@ -57,15 +57,15 @@
     <Compile Include="OracleVendor.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DbLinq\DbLinq.csproj">
-      <Project>{97305421-3071-4175-AA3C-9A432CC28121}</Project>
-      <Name>DbLinq</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\DbLinq.snk">
       <Link>Properties\DbLinq.snk</Link>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DbLinq\DbLinq.csproj">
+      <Project>{7950197D-4122-49CB-9FD7-45E666BAFEC2}</Project>
+      <Name>DbLinq</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
