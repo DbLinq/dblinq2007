@@ -62,6 +62,7 @@
     <Compile Include="Data\Linq\ChangeAction.cs" />
     <Compile Include="Data\Linq\ChangeSet.cs" />
     <Compile Include="Data\Linq\DataContext.cs" />
+    <Compile Include="Data\Linq\DataContext.Extended.cs" />
     <Compile Include="Data\Linq\EntityList.cs" />
     <Compile Include="Data\Linq\EntityMSet.cs" />
     <Compile Include="Data\Linq\Identity\IdentityKey.cs" />

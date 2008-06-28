@@ -71,7 +71,7 @@ namespace System.Data.Linq
 namespace DbLinq.Data.Linq
 #endif
 {
-    public class DataContext : IDisposable
+    public partial class DataContext : IDisposable
     {
         private readonly Dictionary<string, ITable> _tableMap = new Dictionary<string, ITable>();
 
@@ -149,26 +149,6 @@ namespace DbLinq.Data.Linq
         public DataContext(IDbConnection dbConnection, IVendor vendor)
             : this(new DatabaseContext(dbConnection), vendor)
         {
-        }
-
-        public bool DatabaseExists()
-        {
-            try
-            {
-                using (DatabaseContext.OpenConnection())
-                {
-                    //command: "SELECT 11" (Oracle: "SELECT 11 FROM DUAL")
-                    string SQL = Vendor.SqlPingCommand;
-                    int result = Vendor.ExecuteCommand(this, SQL);
-                    return result == 11;
-                }
-            }
-            catch (Exception ex)
-            {
-                if (true)
-                    Trace.WriteLine("DatabaseExists failed:" + ex);
-                return false;
-            }
         }
 
         public Table<T> GetTable<T>(string tableName) where T : class
