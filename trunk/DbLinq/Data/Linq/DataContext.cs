@@ -84,13 +84,18 @@ namespace DbLinq.Data.Linq
         internal IVendor Vendor { get; set; }
         internal IQueryBuilder QueryBuilder { get; set; }
         internal IQueryRunner QueryRunner { get; set; }
-        internal IModificationHandler ModificationHandler { get; set; }
         internal IMemberModificationHandler MemberModificationHandler { get; set; }
         internal IDatabaseContext DatabaseContext { get; private set; }
         internal ILogger Logger { get; set; }
         internal IEntityMap EntityMap { get; set; }
         // /all properties...
 
+        // entities may be registered in 3 sets: InsertList, EntityMap and DeleteList
+        // InsertList is for new entities
+        // DeleteList is for entities to be deleted
+        // EntityMap is the cache: entities are alive in the DataContext, identified by their PK (IdentityKey)
+        // an entity can only live in one of the three caches, so the DataContext will provide 6 methods:
+        // 3 to register in each list, 3 to unregister
         internal readonly EntityList InsertList = new EntityList();
         internal readonly EntityList DeleteList = new EntityList();
 
@@ -119,7 +124,6 @@ namespace DbLinq.Data.Linq
             DatabaseContext = databaseContext;
             Vendor = vendor;
 
-            ModificationHandler = ObjectFactory.Create<IModificationHandler>(); // not a singleton: object is stateful
             MemberModificationHandler = ObjectFactory.Create<IMemberModificationHandler>(); // not a singleton: object is stateful
             QueryBuilder = ObjectFactory.Get<IQueryBuilder>();
             QueryRunner = ObjectFactory.Get<IQueryRunner>();
@@ -236,7 +240,7 @@ namespace DbLinq.Data.Linq
             return identityReader;
         }
 
-        internal void RegisterEntity(object entity)
+        protected void RegisterEntity(object entity)
         {
             var identityReader = GetIdentityReader(entity.GetType());
             var identityKey = identityReader.GetIdentityKey(entity);
@@ -245,12 +249,7 @@ namespace DbLinq.Data.Linq
             EntityMap[identityKey] = entity;
         }
 
-        internal object GetRegisteredEntityByKey(IdentityKey identityKey)
-        {
-            return EntityMap[identityKey];
-        }
-
-        internal object GetRegisteredEntity(object entity)
+        protected object GetRegisteredEntity(object entity)
         {
             var identityReader = GetIdentityReader(entity.GetType());
             var identityKey = identityReader.GetIdentityKey(entity);
@@ -260,7 +259,12 @@ namespace DbLinq.Data.Linq
             return registeredEntity;
         }
 
-        internal object GetOrRegisterEntity(object entity)
+        internal object GetRegisteredEntityByKey(IdentityKey identityKey)
+        {
+            return EntityMap[identityKey];
+        }
+
+        protected object GetOrRegisterEntity(object entity)
         {
             var identityReader = GetIdentityReader(entity.GetType());
             var identityKey = identityReader.GetIdentityKey(entity);
@@ -284,6 +288,7 @@ namespace DbLinq.Data.Linq
             }
         }
 
+        // TODO: remove this
         internal bool HasRegisteredEntities<T>()
         {
             foreach (IdentityKey key in EntityMap.Keys)
@@ -296,6 +301,144 @@ namespace DbLinq.Data.Linq
 
         #endregion
 
+        #region Insert/Update/Delete management
+
+        protected virtual void CheckNotRegisteredForInsert(object entity, Type asType)
+        {
+            if (InsertList.Contains(entity, asType))
+                throw new ArgumentException("Object already registered for insertion");
+        }
+
+        protected virtual void CheckNotRegisteredForUpdate(object entity, Type asType)
+        {
+            if (GetRegisteredEntity(entity) != null)
+                throw new ArgumentException("Object already attached");
+        }
+
+        protected virtual void CheckRegisteredForUpdate(object entity, Type asType)
+        {
+            if (GetRegisteredEntity(entity) == null)
+                throw new ArgumentException("Object not attached");
+        }
+
+        protected virtual void CheckNotRegisteredForDelete(object entity, Type asType)
+        {
+            if (DeleteList.Contains(entity, asType))
+                throw new ArgumentException("Object already registered for deletion");
+        }
+
+        /// <summary>
+        /// Checks if the entity is not already registered somewhere in some way
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="asType"></param>
+        protected virtual void CheckNotRegistered(object entity, Type asType)
+        {
+            CheckNotRegisteredForInsert(entity, asType);
+            CheckNotRegisteredForUpdate(entity, asType);
+            CheckNotRegisteredForDelete(entity, asType);
+        }
+
+        /// <summary>
+        /// Registers an entity for insert
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="asType"></param>
+        internal void RegisterInsert(object entity, Type asType)
+        {
+            CheckNotRegistered(entity, asType);
+            InsertList.Add(entity, entity.GetType());
+        }
+
+        /// <summary>
+        /// Registers an entity for update
+        /// The entity will be updated only if some of its members have changed after the registration
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="asType"></param>
+        internal void RegisterUpdate(object entity, Type asType)
+        {
+            CheckNotRegistered(entity, asType);
+            Register(entity, asType);
+        }
+
+        /// <summary>
+        /// Registers or re-registers an entity and clears its state
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="asType"></param>
+        /// <returns></returns>
+        internal object Register(object entity, Type asType)
+        {
+            var registeredEntity = GetOrRegisterEntity(entity);
+            // the fact of registering again clears the modified state, so we're... clear with that
+            MemberModificationHandler.Register(registeredEntity, Mapping);
+            return registeredEntity;
+        }
+
+        /// <summary>
+        /// Registers an entity for update
+        /// The entity will be updated only if some of its members have changed after the registration
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="entityOriginalState"></param>
+        /// <param name="asType"></param>
+        internal void RegisterUpdate(object entity, object entityOriginalState, Type asType)
+        {
+            CheckNotRegistered(entity, asType);
+            RegisterEntity(entity);
+            MemberModificationHandler.Register(entity, entityOriginalState, Mapping);
+        }
+
+        /// <summary>
+        /// Clears the current state, and marks the object as clean
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="asType"></param>
+        internal void RegisterUpdateAgain(object entity, Type asType)
+        {
+            MemberModificationHandler.ClearModified(entity, Mapping);
+        }
+
+        /// <summary>
+        /// Registers an entity for delete
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="asType"></param>
+        internal void RegisterDelete(object entity, Type asType)
+        {
+            CheckNotRegisteredForInsert(entity, asType);
+            CheckRegisteredForUpdate(entity, asType);
+            CheckNotRegisteredForDelete(entity, asType);
+            DeleteList.Add(entity, asType);
+        }
+
+        internal void UnregisterInsert(object entity, Type asType)
+        {
+            if (!InsertList.Contains(entity, asType))
+                throw new ArgumentException("Object not registered for insertion");
+            InsertList.Remove(entity, asType);
+        }
+
+        internal void UnregisterUpdate(object entity, Type asType)
+        {
+            var identityReader = GetIdentityReader(entity.GetType());
+            var identityKey = identityReader.GetIdentityKey(entity);
+            if (EntityMap[identityKey] == null)
+                throw new ArgumentException("Object not attached");
+            EntityMap.Remove(identityKey);
+            MemberModificationHandler.Unregister(entity);
+        }
+
+        internal void UnregisterDelete(object entity, Type asType)
+        {
+            if (!DeleteList.Contains(entity, asType))
+                throw new ArgumentException("Object not registered for deletion");
+            DeleteList.Remove(entity, asType);
+        }
+
+        #endregion
+
         /// <summary>
         /// Changed object determine 
         /// </summary>
@@ -303,7 +446,11 @@ namespace DbLinq.Data.Linq
         public ChangeSet GetChangeSet()
         {
             var inserts = InsertList.EnumerateAll().ToList();
-            var updates = (from k in EntityMap.Keys let e = EntityMap[k] where ModificationHandler.IsModified(e) select e).ToList();
+            var updates =
+                (from k in EntityMap.Keys
+                 let e = EntityMap[k]
+                 where MemberModificationHandler.IsModified(e, Mapping)
+                 select e).ToList();
             var deletes = DeleteList.EnumerateAll().ToList();
             return new ChangeSet(inserts, updates, deletes);
         }

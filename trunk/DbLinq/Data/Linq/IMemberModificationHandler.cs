@@ -51,6 +51,14 @@ namespace DbLinq.Data.Linq
         void Register(object entity, MetaModel metaModel);
 
         /// <summary>
+        /// Start to watch an entity. From here, changes will make IsModified() return true
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="entityOriginalState"></param>
+        /// <param name="metaModel"></param>
+        void Register(object entity, object entityOriginalState, MetaModel metaModel);
+
+        /// <summary>
         /// Returns if the entity was modified since it has been Register()ed for the first time
         /// </summary>
         /// <param name="entity"></param>
@@ -72,5 +80,12 @@ namespace DbLinq.Data.Linq
         /// <returns></returns>
         /// <param name="metaModel"></param>
         IList<MemberInfo> GetModifiedProperties(object entity, MetaModel metaModel);
+
+        /// <summary>
+        /// Unregisters an entity.
+        /// This is useful when it is switched from update to delete list
+        /// </summary>
+        /// <param name="entity"></param>
+        void Unregister(object entity);
     }
 }

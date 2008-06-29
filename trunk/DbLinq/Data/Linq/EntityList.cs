@@ -42,14 +42,15 @@ namespace DbLinq.Data.Linq
         private readonly Hashtable _entitiesByType = new Hashtable();
         private readonly object _lock = new object();
 
-        private IList<T> GetList<T>()
+        private IList GetList(Type t)
         {
+            if (t == typeof(object))
+                throw new ArgumentException("L00048: Type must not be object - You omitted the parameter");
             lock (_lock)
             {
-                var t = typeof(T);
                 if (!_entitiesByType.Contains(t))
-                    _entitiesByType[t] = new List<T>();
-                return (IList<T>)_entitiesByType[t];
+                    _entitiesByType[t] = new ArrayList();
+                return (IList)_entitiesByType[t];
             }
         }
 
@@ -76,7 +77,7 @@ namespace DbLinq.Data.Linq
         {
             lock (_lock)
             {
-                foreach (var t in GetList<T>())
+                foreach (T t in GetList(typeof(T)))
                     yield return t;
             }
         }
@@ -88,11 +89,16 @@ namespace DbLinq.Data.Linq
         /// <param name="t"></param>
         public void Add<T>(T t)
         {
+            Add(t, typeof(T));
+        }
+
+        public void Add(object e, Type asType)
+        {
             lock (_lock)
             {
-                var list = GetList<T>();
-                if (!list.Contains(t))
-                    list.Add(t);
+                var list = GetList(asType);
+                if (!list.Contains(e))
+                    list.Add(e);
             }
         }
 
@@ -103,9 +109,14 @@ namespace DbLinq.Data.Linq
         /// <param name="t"></param>
         public void Remove<T>(T t)
         {
+            Remove(t, typeof(T));
+        }
+
+        public void Remove(object e, Type asType)
+        {
             lock (_lock)
             {
-                GetList<T>().Remove(t);
+                GetList(asType).Remove(e);
             }
         }
 
@@ -118,7 +129,7 @@ namespace DbLinq.Data.Linq
         {
             lock (_lock)
             {
-                var list = GetList<T>();
+                var list = GetList(typeof(T));
                 foreach (var t in ts)
                     list.Remove(t);
             }
@@ -133,7 +144,7 @@ namespace DbLinq.Data.Linq
         {
             lock (_lock)
             {
-                return GetList<T>().Count;
+                return GetList(typeof(T)).Count;
             }
         }
 
@@ -145,9 +156,14 @@ namespace DbLinq.Data.Linq
         /// <returns></returns>
         public bool Contains<T>(T t)
         {
+            return Contains(t, typeof(T));
+        }
+
+        public bool Contains(object e, Type asType)
+        {
             lock (_lock)
             {
-                return GetList<T>().Contains(t);
+                return GetList(asType).Contains(e);
             }
         }
     }

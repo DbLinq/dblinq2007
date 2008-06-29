@@ -81,10 +81,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     // - registered in the model
                     if (row != null && selectQuery.DataContext.Mapping.GetTable(row.GetType()) != null)
                     {
-                        row = (T)selectQuery.DataContext.GetOrRegisterEntity(row);
-                        // TODO: place updates in DataContext
-                        //_vars.Table.CheckAttachment(current); // registers the object to be watched for updates
-                        selectQuery.DataContext.MemberModificationHandler.Register(row, selectQuery.DataContext.Mapping);
+                        row = (T)selectQuery.DataContext.Register(row, typeof(T));
                     }
 
                     yield return row;

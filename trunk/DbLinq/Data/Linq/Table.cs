@@ -34,22 +34,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-//using System.Data.DLinq;
 #if MONO_STRICT
 using System.Data.Linq.Implementation;
+using System.Data.Linq.Sugar;
+using ITable = System.Data.Linq.ITable;
 #else
 using DbLinq.Data.Linq.Implementation;
-#endif
-#if MONO_STRICT
-using System.Data.Linq.Sugar;
-#else
 using DbLinq.Data.Linq.Sugar;
+using ITable = DbLinq.Data.Linq.ITable;
 #endif
-using DbLinq.Linq;
-using DbLinq.Linq.Clause;
+
 using DbLinq.Logging;
-using DbLinq.Util;
-using ITable = System.Data.Linq.ITable;
+using DbLinq;
 
 #if MONO_STRICT
 namespace System.Data.Linq
@@ -61,29 +57,29 @@ namespace DbLinq.Data.Linq
     /// T may be eg. class Employee or string - the output
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class Table<T> :
+    public partial class Table<T> :
         IQueryable<T>,
         IOrderedQueryable<T>, //this is cheating ... we pretend to be always ordered
         ITable,
-        IQueryProvider, //new as of Beta2
+        IQueryProvider,
         IManagedTable // internal helper. One day, all data will be processed from DataContext
         where T : class
     {
         /// <summary>
-        /// the parent MContext holds our connection etc
+        /// the parent DataContext holds our connection etc
         /// </summary>
-        public DataContext DataContext { get; private set; }
-        public DataContext Context { get { return DataContext; } }
+        public DataContext Context { get { return _context; } }
+        private readonly DataContext _context;
 
         // QueryProvider is the running entity, running through nested Expressions
         private readonly QueryProvider<T> _queryProvider;
 
         public ILogger Logger { get; set; }
 
-        internal Table(DataContext parent)
+        internal Table(DataContext parentContext)
         {
-            DataContext = parent;
-            _queryProvider = new QueryProvider<T>(parent);
+            _context = parentContext;
+            _queryProvider = new QueryProvider<T>(parentContext);
         }
 
         /// <summary>
@@ -141,53 +137,46 @@ namespace DbLinq.Data.Linq
             get { return Expression.Constant(this); } // do not change this to _queryProvider.Expression, Sugar doesn't fully handle QueryProviders by now
         }
 
+        /// <summary>
+        /// IQueryable.Provider: represents the Table as a IQueryable provider (hence the name)
+        /// </summary>
         public IQueryProvider Provider
         {
             get { return _queryProvider.Provider; }
         }
 
         #region Insert functions
+
         void ITable.InsertOnSubmit(object entity)
         {
-            T te = entity as T;
-            if (te == null)
-                throw new ArgumentException("Cannot insert this object");
-            InsertOnSubmit(te);
-        }
-
-        [Obsolete("Replace with InsertOnSubmit")]
-        public void Add(T newObject)
-        {
-            InsertOnSubmit(newObject);
+            Context.RegisterInsert(entity, typeof(T));
         }
 
         public void InsertOnSubmit(T newObject)
         {
-            DataContext.InsertList.Add(newObject);
+            Context.RegisterInsert(newObject, typeof(T));
         }
 
         void ITable.InsertAllOnSubmit(IEnumerable entities)
         {
-            foreach (object entity in entities)
-            {
-                T te = entity as T;
-                if (te == null)
-                    throw new ArgumentException("Cannot insert this object");
-                DataContext.InsertList.Add((T)entity);
-            }
+            foreach (var entity in entities)
+                Context.RegisterInsert(entity, typeof(T));
         }
 
         public void InsertAllOnSubmit<TSubEntity>(IEnumerable<TSubEntity> entities) where TSubEntity : T
         {
-            foreach (TSubEntity newObject in entities)
-                DataContext.InsertList.Add((T)newObject);
+            foreach (var entity in entities)
+                Context.RegisterInsert(entity, typeof(T));
         }
+
         #endregion
 
         #region Delete functions
-        public void DeleteAllOnSubmit(IEnumerable entities)
+
+        void ITable.DeleteAllOnSubmit(IEnumerable entities)
         {
-            throw new NotImplementedException();
+            foreach (var entity in entities)
+                Context.RegisterDelete(entity, typeof(T));
         }
 
         /// <summary>
@@ -196,29 +185,20 @@ namespace DbLinq.Data.Linq
         /// <param name="entity"></param>
         void ITable.DeleteOnSubmit(object entity)
         {
-            throw new NotImplementedException();
+            Context.RegisterDelete(entity, typeof(T));
         }
-
-        //[Obsolete("Replace with DeleteOnSubmit")]
-        //public void Remove(T objectToDelete)
-        //{
-        //    DeleteOnSubmit(objectToDelete);
-        //}
 
         public void DeleteOnSubmit(T objectToDelete)
         {
-            if (DataContext.InsertList.Contains(objectToDelete))
-                DataContext.InsertList.Remove(objectToDelete);
-            else
-                //TODO: queue an object for SQL DELETE
-                DataContext.DeleteList.Add(objectToDelete);
+            Context.RegisterDelete(objectToDelete, typeof(T));
         }
 
         public void DeleteAllOnSubmit<TSubEntity>(IEnumerable<TSubEntity> entities) where TSubEntity : T
         {
-            foreach (TSubEntity row in entities)
-                DeleteOnSubmit(row);
+            foreach (var row in entities)
+                Context.RegisterDelete(row, typeof(T));
         }
+
         #endregion
 
         #region Attach functions
@@ -229,30 +209,28 @@ namespace DbLinq.Data.Linq
         /// <param name="entity"></param>
         void ITable.Attach(object entity)
         {
-            T te = entity as T;
-            if (te == null)
-                throw new ArgumentException("Cannot attach this object");
-            Attach(te);
+            Context.RegisterUpdate(entity, typeof(T));
         }
+
         void ITable.Attach(object entity, object original)
         {
-            T te = entity as T;
-            T to = original as T;
-            if (te == null || to == null)
-                throw new ArgumentException("Cannot attach this object");
-            Attach(te, to);
+            Context.RegisterUpdate(entity, original, typeof(T));
         }
+
         void ITable.Attach(object entity, bool asModified)
         {
-            throw new NotImplementedException();
+            Context.RegisterUpdate(entity, asModified ? null : entity, typeof(T));
         }
+
         void ITable.AttachAll(IEnumerable entities)
         {
-            throw new NotImplementedException();
+            foreach (var entity in entities)
+                Context.RegisterUpdate(entity, typeof(T));
         }
         void ITable.AttachAll(IEnumerable entities, bool asModified)
         {
-            throw new NotImplementedException();
+            foreach (var entity in entities)
+                Context.RegisterUpdate(entity, typeof(T));
         }
 
         /// <summary>
@@ -262,17 +240,13 @@ namespace DbLinq.Data.Linq
         /// <param name="entity">table row object to attach</param>
         public void Attach(T entity)
         {
-            if (DataContext.GetRegisteredEntity(entity) != null)
-                throw new System.Data.Linq.DuplicateKeyException(entity);
-
-            DataContext.RegisterEntity(entity);
-            DataContext.MemberModificationHandler.Register(entity, DataContext.Mapping);
+            Context.RegisterUpdate(entity, typeof(T));
         }
 
         public void AttachAll<TSubEntity>(IEnumerable<TSubEntity> entities) where TSubEntity : T
         {
-            foreach (TSubEntity row in entities)
-                Attach(row);
+            foreach (var entity in entities)
+                Context.RegisterUpdate(entity, typeof(T));
         }
 
         /// <summary>
@@ -282,49 +256,40 @@ namespace DbLinq.Data.Linq
         /// <param name="original">original unchanged property values</param>
         public void Attach(T entity, T original)
         {
-            throw new NotImplementedException();
+            Context.RegisterUpdate(entity, original, typeof(T));
         }
 
-        public void CheckAttachment(object entity)
-        {
-            DataContext.GetOrRegisterEntity(entity);
-        }
         #endregion
 
         #region Save functions
 
-        public List<Exception> SaveAll(ConflictMode failureMode)
+        /// <summary>
+        /// Saves all contained entities
+        /// This has to move to DataContext (which is the real data pool)
+        /// </summary>
+        /// <param name="failureMode"></param>
+        /// <returns></returns>
+        List<Exception> IManagedTable.SaveAll(ConflictMode failureMode)
         {
-            if (DataContext.InsertList.Count<T>() == 0
-                && DataContext.DeleteList.Count<T>() == 0
-                && !DataContext.HasRegisteredEntities<T>())
+            if (Context.InsertList.Count<T>() == 0
+                && Context.DeleteList.Count<T>() == 0
+                && !Context.HasRegisteredEntities<T>())
                 return new List<Exception>(); //nothing to do
 
-            using (DataContext.DatabaseContext.OpenConnection())
-            {
-                return SaveAll_unsafe(failureMode);
-            } //Dispose(): close connection, if it was initally closed
-        }
-
-        private List<Exception> SaveAll_unsafe(ConflictMode failureMode)
-        {
             var exceptions = new List<Exception>();
-            //TODO: process deleteList, insertList, liveObjectList
-            //object[] indices = new object[0];
-            //ProjectionData proj = ProjectionData.FromDbType(typeof(T));
-            //Func<T, string[]> getObjectID = RowEnumeratorCompiler<T>.CompileIDRetrieval(proj);
-
-            ProcessInsert(failureMode, exceptions);
-            ProcessUpdate(failureMode, exceptions);
-            ProcessDelete(failureMode, exceptions);
-
+            using (Context.DatabaseContext.OpenConnection())
+            {
+                ProcessInsert(failureMode, exceptions);
+                ProcessUpdate(failureMode, exceptions);
+                ProcessDelete(failureMode, exceptions);
+            }
             return exceptions;
         }
 
         protected virtual void Process(IEnumerable<T> ts, Action<T, QueryContext> process, ConflictMode failureMode,
             IList<Exception> exceptions)
         {
-            var queryContext = new QueryContext(DataContext);
+            var queryContext = new QueryContext(Context);
             foreach (var t in ts)
             {
                 try
@@ -348,104 +313,72 @@ namespace DbLinq.Data.Linq
 
         protected virtual void ProcessInsert(ConflictMode failureMode, IList<Exception> exceptions)
         {
-            var toInsert = new List<T>(DataContext.InsertList.Enumerate<T>());
-            if (DataContext.Vendor.CanBulkInsert<T>(this))
+            var toInsert = new List<T>(Context.InsertList.Enumerate<T>());
+            if (Context.Vendor.CanBulkInsert(this))
             {
-                DataContext.Vendor.DoBulkInsert(this, toInsert, DataContext.DatabaseContext.Connection);
-                DataContext.InsertList.RemoveRange(toInsert);
+                Context.Vendor.DoBulkInsert(this, toInsert, Context.Connection);
+                Context.InsertList.RemoveRange(toInsert);
             }
             else
             {
                 Process(toInsert,
                     delegate(T t, QueryContext queryContext)
                     {
-                        var insertQuery = DataContext.QueryBuilder.GetInsertQuery(t, queryContext);
-                        DataContext.QueryRunner.Insert(t, insertQuery);
-                        DataContext.InsertList.Remove(t);
-                        DataContext.MemberModificationHandler.ClearModified(t, DataContext.Mapping); // adds a clean copy to modification handler
-                        DataContext.RegisterEntity(t);
+                        var insertQuery = Context.QueryBuilder.GetInsertQuery(t, queryContext);
+                        Context.QueryRunner.Insert(t, insertQuery);
+
+                        Context.UnregisterInsert(t, typeof(T));
+                        Context.RegisterUpdate(t, typeof(T));
                     }, failureMode, exceptions);
             }
         }
 
         protected virtual void ProcessUpdate(ConflictMode failureMode, List<Exception> exceptions)
         {
-            Process(DataContext.GetRegisteredEntities<T>(),
+            Process(Context.GetRegisteredEntities<T>(),
                     delegate(T t, QueryContext queryContext)
                     {
-                        if (DataContext.MemberModificationHandler.IsModified(t, DataContext.Mapping))
+                        if (Context.MemberModificationHandler.IsModified(t, Context.Mapping))
                         {
-                            var modifiedMembers = DataContext.MemberModificationHandler.GetModifiedProperties(t, DataContext.Mapping);
-                            var updateQuery = DataContext.QueryBuilder.GetUpdateQuery(t, modifiedMembers, queryContext);
-                            DataContext.QueryRunner.Update(t, updateQuery, modifiedMembers);
-                            DataContext.MemberModificationHandler.ClearModified(t, DataContext.Mapping);
+                            var modifiedMembers = Context.MemberModificationHandler.GetModifiedProperties(t, Context.Mapping);
+                            var updateQuery = Context.QueryBuilder.GetUpdateQuery(t, modifiedMembers, queryContext);
+                            Context.QueryRunner.Update(t, updateQuery, modifiedMembers);
+
+                            Context.RegisterUpdateAgain(t, typeof(T));
                         }
                     }, failureMode, exceptions);
         }
 
         protected virtual void ProcessDelete(ConflictMode failureMode, List<Exception> exceptions)
         {
-            var toDelete = new List<T>(DataContext.DeleteList.Enumerate<T>());
+            var toDelete = new List<T>(Context.DeleteList.Enumerate<T>());
             Process(toDelete,
                     delegate(T t, QueryContext queryContext)
                     {
-                        var deleteQuery = DataContext.QueryBuilder.GetDeleteQuery(t, queryContext);
-                        DataContext.QueryRunner.Delete(t, deleteQuery);
-                        DataContext.MemberModificationHandler.ClearModified(t, DataContext.Mapping);
-                        DataContext.DeleteList.Remove(t);
-                        //mark as saved, thanks to Martin Rauscher
+                        var deleteQuery = Context.QueryBuilder.GetDeleteQuery(t, queryContext);
+                        Context.QueryRunner.Delete(t, deleteQuery);
+
+                        Context.UnregisterDelete(t, typeof(T));
                     }, failureMode, exceptions);
         }
 
         #endregion
 
-        /// <summary>
-        /// TODO: RemoveAll(where_clause)
-        /// </summary>
-        [Obsolete("NOT IMPLEMENTED YET")]
-        public void RemoveAll<TSubEntity>(IEnumerable<TSubEntity> entities)
-            where TSubEntity : T
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<object> Inserts
-        {
-            get { return DataContext.InsertList.Enumerate<T>().Cast<object>(); }
-        }
-
-        public IEnumerable<object> Updates
-        {
-            get
-            {
-                List<object> list = new List<object>();
-
-                foreach (T obj in DataContext.GetRegisteredEntities<T>())
-                {
-                    if (DataContext.MemberModificationHandler.IsModified(obj, DataContext.Mapping))
-                        list.Add(obj);
-                }
-                return list;
-            }
-        }
-
-        public IEnumerable<object> Deletes
-        {
-            get
-            {
-                return DataContext.DeleteList.Enumerate<T>().Cast<object>();
-            }
-        }
-
         public bool IsReadOnly { get { return false; } }
 
+        // PC: this will probably required to recreate a new object instance with all original values
+        //     (that we currently do not always store, so we may need to make a differential copy
         [Obsolete("NOT IMPLEMENTED YET")]
-        public System.Data.Linq.ModifiedMemberInfo[] GetModifiedMembers(object entity)
+        [DbLinqToDo]
+        public ModifiedMemberInfo[] GetModifiedMembers(object entity)
         {
             throw new ApplicationException("L579 Not implemented");
         }
 
+        // PC: complementary to GetModifiedMembers(), we probably need a few changes to the IMemberModificationHandler,
+        //     to recall original values
         [Obsolete("NOT IMPLEMENTED YET")]
+        [DbLinqToDo]
         object ITable.GetOriginalEntityState(object entity)
         {
             throw new ApplicationException("L585 Not implemented");

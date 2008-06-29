@@ -71,8 +71,12 @@ using System.Data.Linq;
         {
             //delete any rows from previous testing
             Northwind db = CreateDB();
-            var orderDetail = new OrderDetail { OrderID = 3, ProductID = 2 };
-            db.OrderDetails.DeleteOnSubmit(orderDetail);
+            // PC: this test was wrong, DeleteOnSubmit requires the object to be attached 
+            // (by query result or manually, we chose here the query result)
+            //var orderDetail = new OrderDetail { OrderID = 3, ProductID = 2 };
+            //db.OrderDetails.DeleteOnSubmit(orderDetail);
+            var toDelete = from o in db.OrderDetails where o.OrderID == 3 && o.ProductID == 2 select o;
+            db.OrderDetails.DeleteAllOnSubmit(toDelete);
             db.SubmitChanges();
         }
 
