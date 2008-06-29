@@ -147,7 +147,6 @@
     <Compile Include="Data\Linq\Sugar\Implementation\ExpressionOptimizer.cs" />
     <Compile Include="Data\Linq\Sugar\Implementation\ExpressionQualifier.cs" />
     <Compile Include="Data\Linq\Sugar\Implementation\QueryBuilder.Upsert.cs" />
-    <Compile Include="Data\Linq\Sugar\Implementation\SqlBuilder.Upsert.cs" />
     <Compile Include="Data\Linq\Sugar\IQueryCache.cs" />
     <Compile Include="Data\Linq\Sugar\Implementation\LineGrouping.cs" />
     <Compile Include="Data\Linq\Sugar\Implementation\PrequelAnalyzer.cs" />
