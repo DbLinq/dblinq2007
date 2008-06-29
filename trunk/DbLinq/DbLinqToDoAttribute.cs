@@ -29,23 +29,36 @@ using System;
 namespace DbLinq
 {
     /// <summary>
-    /// This attribute is used to mark unterminated methods
+    /// This attribute is used to mark unterminated methods.
+    /// There are some differences between MONO_STRICT and non-strict modes
+    /// - in MONO_STRICT, we inherit from the MonoTODO attribute, and use its Comment property and ctor()
+    /// - in non-strict, we do our own cook
     /// </summary>
-    public class DbLinqToDoAttribute : Attribute
+    internal class DbLinqToDoAttribute
+#if MONO_STRICT
+        : MonoTODOAttribute
+#else
+ : Attribute
+#endif
     {
-
+#if MONO_STRICT
+        public DbLinqToDoAttribute(string comment)
+            : base(comment)
+        { }
+#else
         /// <summary>
-        /// Optional message (may be null)
+        /// Optional comment (may be null)
         /// </summary>
-        public string Message { get; private set; }
+        public string Comment { get; private set; }
+
+        public DbLinqToDoAttribute(string comment)
+        {
+            Comment = comment;
+        }
+#endif
 
         public DbLinqToDoAttribute()
         {
-        }
-
-        public DbLinqToDoAttribute(string message)
-        {
-            Message = message;
         }
     }
 }
