@@ -146,6 +146,11 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 return (Expression<Func<IDataRecord, MappingContext, int, DateTime?>>)((dataRecord, mappingContext, valueIndex)
                                                                                        => dataRecord.GetAsNullableDateTime(valueIndex));
             }
+            if (simpleReturnType == typeof(Guid))
+            {
+                return (Expression<Func<IDataRecord, MappingContext, int, Guid?>>)((dataRecord, mappingContext, valueIndex)
+                                                                                       => dataRecord.GetAsNullableGuid(valueIndex));
+            }
             if (simpleReturnType == typeof(byte[]))
             {
                 return (Expression<Func<IDataRecord, MappingContext, int, byte[]>>)((dataRecord, mappingContext, valueIndex)

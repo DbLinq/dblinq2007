@@ -131,5 +131,16 @@ namespace DbLinq.Util
                 return null;
             return GetAsDateTime(dataRecord, index);
         }
+
+        public static Guid GetAsGuid(this IDataRecord dataRecord, int index)
+        {
+            return dataRecord.GetGuid(index);
+        }
+        public static Guid? GetAsNullableGuid(this IDataRecord dataRecord, int index)
+        {
+            if (dataRecord.IsDBNull(index))
+                return null;
+            return GetAsGuid(dataRecord, index);
+        }
     }
 }
