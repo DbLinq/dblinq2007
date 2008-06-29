@@ -25,38 +25,58 @@
 #endregion
 
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+#if MONO_STRICT
+using System.Data.Linq.Identity;
+#else
+using DbLinq.Data.Linq.Identity;
+#endif
 
 #if MONO_STRICT
-namespace System.Data.Linq
+namespace System.Data.Linq.Implementation
 #else
-namespace DbLinq.Data.Linq
+namespace DbLinq.Data.Linq.Implementation
 #endif
 {
-    partial class DataContext
+    /// <summary>
+    /// this is the 'live object cache'
+    /// </summary>
+    public class EntityMap : IEntityMap
     {
-        /// <summary>
-        /// Pings database
-        /// </summary>
-        /// <returns></returns>
-        public bool DatabaseExists()
+        private IDictionary<IdentityKey, object> entities = new Dictionary<IdentityKey, object>();
+
+        public IEnumerable<IdentityKey> Keys
         {
-            try
+            get { return entities.Keys; }
+        }
+
+        /// <summary>
+        /// lookup or store an object in the 'live object cache'.
+        /// Example:
+        /// To store Product with ProductID=1, we use the following IdentityKey:
+        ///  IdentityKey{Type=Product, Keys={1}}
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public object this[IdentityKey key]
+        {
+            get
             {
-                using (DatabaseContext.OpenConnection())
-                {
-                    //command: "SELECT 11" (Oracle: "SELECT 11 FROM DUAL")
-                    string SQL = Vendor.SqlPingCommand;
-                    int result = Vendor.ExecuteCommand(this, SQL);
-                    return result == 11;
-                }
+                object o;
+                entities.TryGetValue(key, out o);
+                return o;
             }
-            catch (Exception ex)
+            set
             {
-                if (true)
-                    Trace.WriteLine("DatabaseExists failed:" + ex);
-                return false;
+                entities[key] = value;
             }
+        }
+
+        public void Remove(IdentityKey key)
+        {
+            entities.Remove(key);
         }
     }
 }

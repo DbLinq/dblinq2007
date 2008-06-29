@@ -24,50 +24,40 @@
 // 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 #if MONO_STRICT
 using System.Data.Linq.Identity;
 #else
 using DbLinq.Data.Linq.Identity;
 #endif
+using System.Collections.Generic;
 
-namespace DbLinq.Linq.Implementation
+#if MONO_STRICT
+namespace System.Data.Linq
+#else
+namespace DbLinq.Data.Linq
+#endif
 {
     /// <summary>
-    /// this is the 'live object cache'
+    /// IEntityMap stores entities by key
     /// </summary>
-    public class EntityMap : IEntityMap
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    interface IEntityMap
     {
-        private IDictionary<IdentityKey, object> entities = new Dictionary<IdentityKey, object>();
-
-        public IEnumerable<IdentityKey> Keys
-        {
-            get { return entities.Keys; }
-        }
-
+        IEnumerable<IdentityKey> Keys { get; }
         /// <summary>
-        /// lookup or store an object in the 'live object cache'.
-        /// Example:
-        /// To store Product with ProductID=1, we use the following IdentityKey:
-        ///  IdentityKey{Type=Product, Keys={1}}
+        /// Accessor. Allows to get or set an entity, provided its key.
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public object this[IdentityKey key]
-        {
-            get
-            {
-                object o;
-                entities.TryGetValue(key, out o);
-                return o;
-            }
-            set
-            {
-                entities[key] = value;
-            }
-        }
+        object this[IdentityKey key] { get; set; }
+        /// <summary>
+        /// Removes an entity from cache, provided its key
+        /// </summary>
+        /// <param name="key"></param>
+        void Remove(IdentityKey key);
     }
 }

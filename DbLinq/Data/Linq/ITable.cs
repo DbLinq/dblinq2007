@@ -33,7 +33,7 @@ namespace System.Data.Linq
 namespace DbLinq.Data.Linq
 #endif
 {
-    public interface ITable
+    public partial interface ITable
     {
         DataContext Context { get; }
         bool IsReadOnly { get; }

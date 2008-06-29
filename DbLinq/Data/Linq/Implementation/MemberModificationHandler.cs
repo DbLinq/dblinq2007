@@ -121,33 +121,108 @@ namespace DbLinq.Data.Linq.Implementation
         /// <param name="metaModel"></param>
         public void Register(object entity, MetaModel metaModel)
         {
+            Register(entity, entity, metaModel);
+        }
+
+        /// <summary>
+        /// Start to watch an entity. From here, changes will make IsModified() return true if the entity has changed
+        /// If the entity is already registered, there's no error, but the entity is reset to its original state
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="entityOriginalState"></param>
+        /// <param name="metaModel"></param>
+        public void Register(object entity, object entityOriginalState, MetaModel metaModel)
+        {
             // notifying, we need to wait for changes
             if (IsNotifying(entity))
             {
-                RegisterNotification(entity);
+                RegisterNotification(entity, entityOriginalState, metaModel);
             }
             // raw data, we keep a snapshot of the current state
             else
             {
-                if (!rawDataEntities.ContainsKey(entity))
-                    rawDataEntities[entity] = GetEntityRawData(entity, metaModel);
+                if (!rawDataEntities.ContainsKey(entity) && entityOriginalState != null)
+                    rawDataEntities[entity] = GetEntityRawData(entityOriginalState, metaModel);
             }
         }
 
-        private void RegisterNotification(object entity)
+        private void RegisterNotification(object entity, object entityOriginalState, MetaModel metaModel)
         {
             if (modifiedProperties.ContainsKey(entity))
                 return;
             modifiedProperties[entity] = new Dictionary<string, MemberInfo>();
             if (entity is INotifyPropertyChanging)
             {
-                ((INotifyPropertyChanging)entity).PropertyChanging += ((sender, e) =>
-                                                                       SetPropertyChanged(sender, e.PropertyName));
+                ((INotifyPropertyChanging)entity).PropertyChanging += (OnPropertyChangingEvent);
             }
             else if (entity is INotifyPropertyChanged)
             {
-                ((INotifyPropertyChanged)entity).PropertyChanged += ((sender, e) =>
-                                                                     SetPropertyChanged(sender, e.PropertyName));
+                ((INotifyPropertyChanged)entity).PropertyChanged += (OnPropertyChangedEvent);
+            }
+            // then check all properties, and note them as changed if they already did
+            if (!ReferenceEquals(entity, entityOriginalState)) // only if we specified another original entity
+            {
+                foreach (var dataMember in metaModel.GetTable(entity.GetType()).RowType.PersistentDataMembers)
+                {
+                    var memberInfo = dataMember.Member;
+                    if (entityOriginalState == null ||
+                        IsPropertyModified(memberInfo.GetMemberValue(entity),
+                                           memberInfo.GetMemberValue(entityOriginalState)))
+                    {
+                        SetPropertyChanged(entity, memberInfo.Name);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Occurs on INotifyPropertyChanging.PropertyChanging
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnPropertyChangingEvent(object sender, PropertyChangingEventArgs e)
+        {
+            SetPropertyChanged(sender, e.PropertyName);
+        }
+
+        /// <summary>
+        /// Occurs on INotifyPropertyChanged.PropertyChanged
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnPropertyChangedEvent(object sender, PropertyChangedEventArgs e)
+        {
+            SetPropertyChanged(sender, e.PropertyName);
+        }
+
+        /// <summary>
+        /// Unregisters an entity.
+        /// This is useful when it is switched from update to delete list
+        /// </summary>
+        /// <param name="entity"></param>
+        public void Unregister(object entity)
+        {
+            if (IsNotifying(entity))
+                UnregisterNotification(entity);
+            else
+            {
+                if (rawDataEntities.ContainsKey(entity))
+                    rawDataEntities.Remove(entity);
+            }
+        }
+
+        private void UnregisterNotification(object entity)
+        {
+            if (!modifiedProperties.ContainsKey(entity))
+                return;
+            modifiedProperties.Remove(entity);
+            if (entity is INotifyPropertyChanging)
+            {
+                ((INotifyPropertyChanging)entity).PropertyChanging -= OnPropertyChangingEvent;
+            }
+            else if (entity is INotifyPropertyChanged)
+            {
+                ((INotifyPropertyChanged)entity).PropertyChanged -= OnPropertyChangedEvent;
             }
         }
 
@@ -191,6 +266,7 @@ namespace DbLinq.Data.Linq.Implementation
         private bool IsRawModified(object entity, MetaModel metaModel)
         {
             // if not present, maybe it was inserted (or set to dirty)
+            // TODO: this will be useless when we will support the differential properties
             if (!rawDataEntities.ContainsKey(entity))
                 return true;
 

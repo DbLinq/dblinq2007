@@ -388,7 +388,7 @@ dummy text
 
                 var cust1 = new Northwind1.Cust1();
                 cust1.Dummy = "";
-                db.Cust1s.Add(cust1);
+                db.Cust1s.InsertOnSubmit(cust1);
                 db.SubmitChanges();
                 Assert.IsNotNull(cust1.CustomerId);
             }

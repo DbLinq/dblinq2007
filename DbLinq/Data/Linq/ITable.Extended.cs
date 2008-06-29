@@ -24,18 +24,10 @@
 // 
 #endregion
 
-#if MONO_STRICT
-using System.Data.Linq.Identity;
-#else
-using DbLinq.Data.Linq.Identity;
-#endif
-using System.Collections.Generic;
-
-namespace DbLinq.Linq
+namespace DbLinq.Data.Linq
 {
-    public interface IEntityMap
+    partial interface ITable
     {
-        IEnumerable<IdentityKey> Keys { get; }
-        object this[IdentityKey key] { get; set; }
+        void CancelDeleteOnSubmit(object entity);
     }
 }
