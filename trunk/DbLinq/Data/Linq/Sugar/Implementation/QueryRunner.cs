@@ -54,7 +54,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         /// <typeparam name="T"></typeparam>
         /// <param name="selectQuery"></param>
         /// <returns></returns>
-        public virtual IEnumerable<T> GetEnumerator<T>(SelectQuery selectQuery)
+        public virtual IEnumerable<T> Select<T>(SelectQuery selectQuery)
         {
             var rowObjectCreator = selectQuery.GetRowObjectCreator<T>();
 
@@ -103,22 +103,22 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             return dbCommand;
         }
 
-        public virtual S Execute<S>(SelectQuery selectQuery)
+        public virtual S SelectScalar<S>(SelectQuery selectQuery)
         {
             switch (selectQuery.ExecuteMethodName)
             {
             case null: // some calls, like Count() generate SQL and the resulting projection method name is null (never initialized)
-                return ExecuteSingle<S>(selectQuery, false); // Single() for safety, but First() should work
+                return SelectSingle<S>(selectQuery, false); // Single() for safety, but First() should work
             case "First":
-                return ExecuteFirst<S>(selectQuery, false);
+                return SelectFirst<S>(selectQuery, false);
             case "FirstOrDefault":
-                return ExecuteFirst<S>(selectQuery, true);
+                return SelectFirst<S>(selectQuery, true);
             case "Single":
-                return ExecuteSingle<S>(selectQuery, false);
+                return SelectSingle<S>(selectQuery, false);
             case "SingleOrDefault":
-                return ExecuteSingle<S>(selectQuery, true);
+                return SelectSingle<S>(selectQuery, true);
             case "Last":
-                return ExecuteLast<S>(selectQuery, false);
+                return SelectLast<S>(selectQuery, false);
             }
             throw Error.BadArgument("S0077: Unhandled method '{0}'", selectQuery.ExecuteMethodName);
         }
@@ -131,9 +131,9 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         /// <param name="selectQuery"></param>
         /// <param name="allowDefault"></param>
         /// <returns></returns>
-        protected virtual S ExecuteFirst<S>(SelectQuery selectQuery, bool allowDefault)
+        protected virtual S SelectFirst<S>(SelectQuery selectQuery, bool allowDefault)
         {
-            foreach (var row in GetEnumerator<S>(selectQuery))
+            foreach (var row in Select<S>(selectQuery))
                 return row;
             if (!allowDefault)
                 throw new InvalidOperationException();
@@ -149,11 +149,11 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         /// <param name="selectQuery"></param>
         /// <param name="allowDefault"></param>
         /// <returns></returns>
-        protected virtual S ExecuteSingle<S>(SelectQuery selectQuery, bool allowDefault)
+        protected virtual S SelectSingle<S>(SelectQuery selectQuery, bool allowDefault)
         {
             S firstRow = default(S);
             int rowCount = 0;
-            foreach (var row in GetEnumerator<S>(selectQuery))
+            foreach (var row in Select<S>(selectQuery))
             {
                 if (rowCount > 1)
                     throw new InvalidOperationException();
@@ -172,11 +172,11 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         /// <param name="selectQuery"></param>
         /// <param name="allowDefault"></param>
         /// <returns></returns>
-        protected virtual S ExecuteLast<S>(SelectQuery selectQuery, bool allowDefault)
+        protected virtual S SelectLast<S>(SelectQuery selectQuery, bool allowDefault)
         {
             S lastRow = default(S);
             int rowCount = 0;
-            foreach (var row in GetEnumerator<S>(selectQuery))
+            foreach (var row in Select<S>(selectQuery))
             {
                 lastRow = row;
                 rowCount++;

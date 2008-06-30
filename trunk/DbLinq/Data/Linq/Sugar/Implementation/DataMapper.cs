@@ -64,7 +64,12 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
 
         public virtual string GetColumnName(TableExpression tableExpression, MemberInfo memberInfo, DataContext dataContext)
         {
-            var tableDescription = dataContext.Mapping.GetTable(tableExpression.Type);
+            return GetColumnName(tableExpression.Type, memberInfo, dataContext);
+        }
+
+        public virtual string GetColumnName(Type tableType, MemberInfo memberInfo, DataContext dataContext)
+        {
+            var tableDescription = dataContext.Mapping.GetTable(tableType);
             var columnDescription = tableDescription.RowType.GetDataMember(memberInfo);
             if (columnDescription != null)
                 return columnDescription.MappedName;
@@ -81,10 +86,17 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
 
         public virtual IList<MemberInfo> GetPrimaryKeys(MetaTable tableDescription)
         {
-            return
-                (from column in tableDescription.RowType.PersistentDataMembers
-                 where column.IsPrimaryKey
-                 select column.Member).ToList();
+            return (from column in tableDescription.RowType.IdentityMembers select column.Member).ToList();
+        }
+
+        /// <summary>
+        /// Lists table mapped columns
+        /// </summary>
+        /// <param name="tableDescription"></param>
+        /// <returns></returns>
+        public IList<MemberInfo> GetColumns(MetaTable tableDescription)
+        {
+            return (from column in tableDescription.RowType.PersistentDataMembers select column.Member).ToList();
         }
 
         protected virtual void GetAssociation(MetaAssociation child, out IList<MemberInfo> foreignKey,

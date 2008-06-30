@@ -35,6 +35,12 @@ namespace DbLinq.Data.Linq.Sugar
 {
     public interface IQueryBuilder
     {
+        /// <summary>
+        /// Creates a query for selection
+        /// </summary>
+        /// <param name="expressions"></param>
+        /// <param name="queryContext"></param>
+        /// <returns></returns>
         SelectQuery GetSelectQuery(ExpressionChain expressions, QueryContext queryContext);
 
         /// <summary>
@@ -61,5 +67,7 @@ namespace DbLinq.Data.Linq.Sugar
         /// <param name="queryContext"></param>
         /// <returns></returns>
         DeleteQuery GetDeleteQuery(object objectToDelete, QueryContext queryContext);
+
+
     }
 }

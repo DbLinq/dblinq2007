@@ -50,12 +50,60 @@ namespace DbLinq.Data.Linq.Sugar
         /// <returns></returns>
         string GetTableName(Type tableType, DataContext dataContext);
 
+        /// <summary>
+        /// Returns a column name, provided its table and memberInfo
+        /// </summary>
+        /// <param name="tableExpression"></param>
+        /// <param name="memberInfo"></param>
+        /// <param name="dataContext"></param>
+        /// <returns></returns>
         string GetColumnName(TableExpression tableExpression, MemberInfo memberInfo, DataContext dataContext);
+
+        /// <summary>
+        /// Returns a column name, provided its table type and memberInfo
+        /// </summary>
+        /// <param name="tableType"></param>
+        /// <param name="memberInfo"></param>
+        /// <param name="dataContext"></param>
+        /// <returns></returns>
+        string GetColumnName(Type tableType, MemberInfo memberInfo, DataContext dataContext);
+
+        /// <summary>
+        /// Enumerates PKs
+        /// </summary>
+        /// <param name="tableExpression"></param>
+        /// <param name="dataContext"></param>
+        /// <returns></returns>
         IList<MemberInfo> GetPrimaryKeys(TableExpression tableExpression, DataContext dataContext);
+
+        /// <summary>
+        /// Enumerates PKs
+        /// </summary>
+        /// <param name="tableDescription"></param>
+        /// <returns></returns>
         IList<MemberInfo> GetPrimaryKeys(MetaTable tableDescription);
 
+        /// <summary>
+        /// Lists table mapped columns
+        /// </summary>
+        /// <param name="tableDescription"></param>
+        /// <returns></returns>
+        IList<MemberInfo> GetColumns(MetaTable tableDescription);
+
+        /// <summary>
+        /// Returns associations
+        /// </summary>
+        /// <param name="joinedTableExpression"></param>
+        /// <param name="memberInfo"></param>
+        /// <param name="foreignKey"></param>
+        /// <param name="joinedKey"></param>
+        /// <param name="joinType"></param>
+        /// <param name="joinID"></param>
+        /// <param name="dataContext"></param>
+        /// <returns></returns>
         Type GetAssociation(TableExpression joinedTableExpression, MemberInfo memberInfo,
                             out IList<MemberInfo> foreignKey, out IList<MemberInfo> joinedKey, out TableJoinType joinType,
                             out string joinID, DataContext dataContext);
+
     }
 }

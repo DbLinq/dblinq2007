@@ -108,7 +108,7 @@ namespace DbLinq.Data.Linq.Implementation
         public TResult Execute<TResult>(Expression expression)
         {
             var query = GetQuery(expression);
-            return _dataContext.QueryRunner.Execute<TResult>(query);
+            return _dataContext.QueryRunner.SelectScalar<TResult>(query);
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -120,7 +120,7 @@ namespace DbLinq.Data.Linq.Implementation
         public IEnumerator<T> GetEnumerator()
         {
             var query = GetQuery(null);
-            return _dataContext.QueryRunner.GetEnumerator<T>(query).GetEnumerator();
+            return _dataContext.QueryRunner.Select<T>(query).GetEnumerator();
         }
 
         public Expression Expression
