@@ -26,12 +26,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 #if MONO_STRICT
 using System.Data.Linq.Sugar;
 #else
+using DbLinq.Data.Linq.Mapping;
 using DbLinq.Data.Linq.Sugar;
 #endif
 #if MONO_STRICT
@@ -390,6 +392,49 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         }
 
         /// <summary>
+        /// Builds a Row builder, based on a given list of parameters
+        /// </summary>
+        /// <param name="tableType"></param>
+        /// <param name="parameters"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        public virtual LambdaExpression BuildTableReader(Type tableType, IList<string> parameters, BuilderContext builderContext)
+        {
+            var dataRecordParameter = Expression.Parameter(typeof(IDataRecord), "dataRecord");
+            var mappingContextParameter = Expression.Parameter(typeof(MappingContext), "mappingContext");
+            var table = builderContext.QueryContext.DataContext.Mapping.GetTable(tableType);
+            var bindings = new List<MemberBinding>();
+            foreach (var column in DataMapper.GetColumns(table))
+            {
+                var columnName = DataMapper.GetColumnName(tableType, column, builderContext.QueryContext.DataContext);
+                var invoke = GetOutputValueReader(column.GetMemberType(), GetTableIndex(parameters, columnName),
+                                                  dataRecordParameter, mappingContextParameter);
+                var parameterColumn = GetOutputValueReader(invoke, dataRecordParameter, mappingContextParameter,
+                                                           builderContext);
+                var binding = Expression.Bind(column, parameterColumn);
+                bindings.Add(binding);
+            }
+            var newExpression = Expression.New(tableType);
+            var initExpression = Expression.MemberInit(newExpression, bindings);
+            return Expression.Lambda(initExpression, dataRecordParameter, mappingContextParameter);
+        }
+
+        protected virtual int GetTableIndex(IList<string> parameters, string columnName)
+        {
+            int index = parameters.IndexOf(columnName);
+            if (index >= 0)
+                return index;
+            for (index = 0; index < parameters.Count; index++)
+            {
+                if (string.Compare(parameters[index], columnName, true) == 0)
+                {
+                    return index;
+                }
+            }
+            return -1;
+        }
+
+        /// <summary>
         /// Registers the expression as returned by the SQL request.
         /// </summary>
         /// <param name="expression"></param>
@@ -402,40 +447,26 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                                                           BuilderContext builderContext)
         {
             int valueIndex = RegisterOutputParameter(expression, builderContext);
-            var propertyReaderLambda = DataRecordReader.GetPropertyReader(expression.Type);
-            Expression invoke = Expression.Invoke(propertyReaderLambda, dataRecordParameter,
-                                                  mappingContextParameter, Expression.Constant(valueIndex));
-            if (!expression.Type.IsNullable())
-                invoke = Expression.Convert(invoke, expression.Type);
-            return invoke;
-        }
-/*
-        /// <summary>
-        /// Registers a GROUP BY clause, based on a column
-        /// </summary>
-        /// <param name="columnExpression"></param>
-        /// <param name="builderContext"></param>
-        /// <returns></returns>
-        public virtual GroupByExpression RegisterGroupBy(ColumnExpression columnExpression, Expression keyExpression, 
-            BuilderContext builderContext)
-        {
-            var groupByExpression = new GroupByExpression(columnExpression, keyExpression);
-            builderContext.CurrentScope.GroupBy.Add(groupByExpression);
-            return groupByExpression;
+            return GetOutputValueReader(expression.Type, valueIndex, dataRecordParameter, mappingContextParameter);
         }
 
         /// <summary>
-        /// Registers a GROUP BY clause, based on a column list
+        /// Registers the expression as returned column
         /// </summary>
-        /// <param name="columnExpressions"></param>
-        /// <param name="builderContext"></param>
+        /// <param name="columnType"></param>
+        /// <param name="valueIndex"></param>
+        /// <param name="dataRecordParameter"></param>
+        /// <param name="mappingContextParameter"></param>
         /// <returns></returns>
-        public virtual GroupByExpression RegisterGroupBy(IDictionary<MemberInfo, ColumnExpression> columnExpressions, 
-            Expression keyExpression, BuilderContext builderContext)
+        protected virtual Expression GetOutputValueReader(Type columnType, int valueIndex, ParameterExpression dataRecordParameter,
+                                                          ParameterExpression mappingContextParameter)
         {
-            var groupByExpression = new GroupByExpression(columnExpressions, keyExpression);
-            builderContext.CurrentScope.GroupBy.Add(groupByExpression);
-            return groupByExpression;
-        }*/
+            var propertyReaderLambda = DataRecordReader.GetPropertyReader(columnType);
+            Expression invoke = Expression.Invoke(propertyReaderLambda, dataRecordParameter,
+                                                  mappingContextParameter, Expression.Constant(valueIndex));
+            if (!columnType.IsNullable())
+                invoke = Expression.Convert(invoke, columnType);
+            return invoke;
+        }
     }
 }

@@ -264,6 +264,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             var newExpression = Expression.New(tableExpression.Type);
             return Expression.MemberInit(newExpression, bindings);
         }
+
         /// <summary>
         /// Returns a queried type from a given expression, or null if no type can be found
         /// </summary>

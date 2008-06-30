@@ -25,6 +25,7 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Data;
 using System.Data.Common;
 using System.Data.Linq;
@@ -493,6 +494,7 @@ namespace DbLinq.Data.Linq
         /// TODO: DataLoadOptions ds = new DataLoadOptions(); ds.LoadWith<Customer>(p => p.Orders);
         /// </summary>
         [Obsolete("NOT IMPLEMENTED YET")]
+        [DbLinqToDo]
         public DataLoadOptions LoadOptions
         {
             get { throw new NotImplementedException(); }
@@ -500,10 +502,27 @@ namespace DbLinq.Data.Linq
         }
 
         [Obsolete("NOT IMPLEMENTED YET")]
+        [DbLinqToDo]
         public DbTransaction Transaction
         {
             get { throw new NotImplementedException(); }
             set { throw new NotImplementedException(); }
+        }
+
+        public IEnumerable<TResult> Translate<TResult>(DbDataReader reader)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IMultipleResults Translate(DbDataReader reader)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public IEnumerable Translate(Type elementType, DbDataReader reader)
+        {
+            throw new NotImplementedException();
         }
 
         public void Dispose()

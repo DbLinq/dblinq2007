@@ -46,9 +46,15 @@ namespace DbLinq.Data.Linq.Sugar
         /// <typeparam name="T"></typeparam>
         /// <param name="selectQuery"></param>
         /// <returns></returns>
-        IEnumerable<T> GetEnumerator<T>(SelectQuery selectQuery);
+        IEnumerable<T> Select<T>(SelectQuery selectQuery);
 
-        S Execute<S>(SelectQuery selectQuery);
+        /// <summary>
+        /// Returns at most one result
+        /// </summary>
+        /// <typeparam name="S"></typeparam>
+        /// <param name="selectQuery"></param>
+        /// <returns></returns>
+        S SelectScalar<S>(SelectQuery selectQuery);
 
         /// <summary>
         /// Runs an InsertQuery on a provided object
