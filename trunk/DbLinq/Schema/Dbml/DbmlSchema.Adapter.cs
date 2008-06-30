@@ -523,21 +523,25 @@ namespace DbLinq.Schema.Dbml
     {
         [Browsable(false)]
         [XmlIgnore]
-        public ISimpleList<Column> Columns;
+        public readonly List<Column> Columns = new List<Column>();
+
         [Browsable(false)]
         [XmlIgnore]
-        public ISimpleList<Association> Associations;
+        public readonly List<Association> Associations = new List<Association>();
 
         public Type()
         {
             SpecifiedHelper.Register(this);
-            Columns = new ArrayHelper<Column>(this, "Items");
-            Associations = new ArrayHelper<Association>(this, "Items");
+            //Columns = new ArrayHelper<Column>(this, "Items");
+            //Associations = new ArrayHelper<Association>(this, "Items");
         }
 
         public override string ToString()
         {
-            return Columns.Count + " Columns";
+            string summary = Columns.Count + " Columns";
+            if (Associations.Count > 0)
+                summary += ", " + Associations.Count + " Associations";
+            return summary;
         }
     }
 
