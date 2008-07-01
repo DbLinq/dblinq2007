@@ -24,6 +24,9 @@
 // 
 #endregion
 
+using System;
+using System.Collections.Generic;
+
 #if MONO_STRICT
 namespace System.Data.Linq.Sugar
 #else
@@ -34,5 +37,7 @@ namespace DbLinq.Data.Linq.Sugar
     {
         SelectQuery GetFromSelectCache(ExpressionChain expressions);
         void SetInSelectCache(ExpressionChain expressions, SelectQuery sqlSelectQuery);
+        Delegate GetFromTableReaderCache(Type tableType, IList<string> columns);
+        void SetInTableReaderCache(Type tableType, IList<string> columns, Delegate tableReader);
     }
 }

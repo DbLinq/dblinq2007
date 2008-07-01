@@ -342,20 +342,32 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             }
         }
 
-        [DbLinqToDo]
-        protected virtual SelectQuery GetFromCache(ExpressionChain expressions)
+        protected virtual SelectQuery GetFromSelectCache(ExpressionChain expressions)
         {
             var cache = QueryCache;
             lock (cache)
                 return cache.GetFromSelectCache(expressions);
         }
 
-        [DbLinqToDo]
-        protected virtual void SetInCache(ExpressionChain expressions, SelectQuery sqlSelectQuery)
+        protected virtual void SetInSelectCache(ExpressionChain expressions, SelectQuery sqlSelectQuery)
         {
             var cache = QueryCache;
             lock (cache)
                 cache.SetInSelectCache(expressions, sqlSelectQuery);
+        }
+
+        protected virtual Delegate GetFromTableReaderCache(Type tableType, IList<string> columns)
+        {
+            var cache = QueryCache;
+            lock (cache)
+                return cache.GetFromTableReaderCache(tableType, columns);
+        }
+
+        protected virtual void SetInTableReaderCache(Type tableType, IList<string> columns, Delegate tableReader)
+        {
+            var cache = queryCache;
+            lock (cache)
+                cache.SetInTableReaderCache(tableType, columns, tableReader);
         }
 
         /// <summary>
@@ -366,7 +378,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         /// <returns></returns>
         public SelectQuery GetSelectQuery(ExpressionChain expressions, QueryContext queryContext)
         {
-            var query = GetFromCache(expressions);
+            var query = GetFromSelectCache(expressions);
             if (query == null)
             {
                 var t0 = DateTime.Now;
@@ -378,9 +390,22 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 queryContext.DataContext.Logger.Write(Level.Debug, "Select Expression build: {0}ms", (t1 - t0).Ticks / ticksPerMs);
                 queryContext.DataContext.Logger.Write(Level.Debug, "Select SQL build:        {0}ms", (t2 - t1).Ticks / ticksPerMs);
                 queryContext.DataContext.Logger.Write(Level.Debug, "Select SQL: {0}", query.Sql);
-                SetInCache(expressions, query);
+                SetInSelectCache(expressions, query);
             }
             return query;
+        }
+
+        public virtual Delegate BuildTableReader(Type tableType, IList<string> parameters, QueryContext queryContext)
+        {
+            var reader = GetFromTableReaderCache(tableType, parameters);
+            if (reader == null)
+            {
+                var lambda = ExpressionDispatcher.BuildTableReader(tableType, parameters,
+                                                                   new BuilderContext(queryContext));
+                reader = lambda.Compile();
+                SetInTableReaderCache(tableType, parameters, reader);
+            }
+            return reader;
         }
     }
 }

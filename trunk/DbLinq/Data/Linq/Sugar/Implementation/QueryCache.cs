@@ -24,7 +24,9 @@
 // 
 #endregion
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 #if MONO_STRICT
 namespace System.Data.Linq.Sugar.Implementation
@@ -34,18 +36,61 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
 {
     public class QueryCache : IQueryCache
     {
-        private readonly IDictionary<ExpressionChain, SelectQuery> queries = new Dictionary<ExpressionChain, SelectQuery>();
+        private class TableReaderSignature
+        {
+            private readonly Type tableType;
+            private readonly IList<string> columns;
+
+            public override bool Equals(object obj)
+            {
+                var trs = (TableReaderSignature)obj;
+                if (trs.tableType != tableType)
+                    return false;
+                return trs.columns.SequenceEqual(columns);
+            }
+
+            public override int GetHashCode()
+            {
+                int hash = tableType.GetHashCode();
+                foreach (var column in columns)
+                    hash ^= column.GetHashCode();
+                return hash;
+            }
+
+            public TableReaderSignature(Type tableType, IList<string> columns)
+            {
+                this.tableType = tableType;
+                this.columns = columns;
+            }
+        }
+
+        private readonly IDictionary<ExpressionChain, SelectQuery> selectQueries = new Dictionary<ExpressionChain, SelectQuery>();
+        private readonly IDictionary<TableReaderSignature, Delegate> tableReaders = new Dictionary<TableReaderSignature, Delegate>();
 
         public SelectQuery GetFromSelectCache(ExpressionChain expressions)
         {
             SelectQuery selectQuery;
-            queries.TryGetValue(expressions, out selectQuery);
+            selectQueries.TryGetValue(expressions, out selectQuery);
             return selectQuery;
         }
 
         public void SetInSelectCache(ExpressionChain expressions, SelectQuery sqlSelectQuery)
         {
-            queries[expressions] = sqlSelectQuery;
+            selectQueries[expressions] = sqlSelectQuery;
+        }
+
+        public Delegate GetFromTableReaderCache(Type tableType, IList<string> columns)
+        {
+            var signature = new TableReaderSignature(tableType, columns);
+            Delegate tableReader;
+            tableReaders.TryGetValue(signature, out tableReader);
+            return tableReader;
+        }
+
+        public void SetInTableReaderCache(Type tableType, IList<string> columns, Delegate tableReader)
+        {
+            var signature = new TableReaderSignature(tableType, columns);
+            tableReaders[signature] = tableReader;
         }
     }
 }

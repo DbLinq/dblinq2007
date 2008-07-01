@@ -24,6 +24,8 @@
 // 
 #endregion
 
+using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 #if MONO_STRICT
@@ -57,5 +59,14 @@ namespace DbLinq.Data.Linq.Sugar
         /// <param name="selectExpression"></param>
         /// <param name="builderContext"></param>
         void BuildSelect(Expression selectExpression, BuilderContext builderContext);
+
+        /// <summary>
+        /// Builds a Row builder, based on a given list of parameters
+        /// </summary>
+        /// <param name="tableType"></param>
+        /// <param name="parameters"></param>
+        /// <param name="builderContext"></param>
+        /// <returns></returns>
+        LambdaExpression BuildTableReader(Type tableType, IList<string> parameters, BuilderContext builderContext);
     }
 }
