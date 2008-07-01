@@ -30,11 +30,13 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
+
 #if MONO_STRICT
 using System.Data.Linq;
 #else
 using DbLinq.Data.Linq;
 #endif
+
 using DbLinq.Util;
 using DbLinq.Vendor;
 using DbLinq.Util.ExprVisitor;

@@ -28,12 +28,9 @@ using System;
 using System.Linq.Expressions;
 #if MONO_STRICT
 using System.Data.Linq.Sugar.ExpressionMutator.Implementation;
-#else
-using DbLinq.Data.Linq.Sugar.ExpressionMutator.Implementation;
-#endif
-#if MONO_STRICT
 using System.Data.Linq.Sugar.Expressions;
 #else
+using DbLinq.Data.Linq.Sugar.ExpressionMutator.Implementation;
 using DbLinq.Data.Linq.Sugar.Expressions;
 #endif
 

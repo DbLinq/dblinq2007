@@ -30,6 +30,7 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+
 #if MONO_STRICT
 using System.Data.Linq.Sugar.Expressions;
 #else

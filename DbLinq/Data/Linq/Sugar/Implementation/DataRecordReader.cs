@@ -29,16 +29,13 @@ using System.Data;
 using System.Linq.Expressions;
 #if MONO_STRICT
 using System.Data.Linq.Sugar;
+using MappingContext = System.Data.Linq.Mapping.MappingContext;
 #else
 using DbLinq.Data.Linq.Sugar;
+using MappingContext = DbLinq.Data.Linq.Mapping.MappingContext;
 #endif
 using DbLinq.Linq;
 using DbLinq.Util;
-#if MONO_STRICT
-using MappingContext = System.Data.Linq.Mapping.MappingContext;
-#else
-using MappingContext = DbLinq.Data.Linq.Mapping.MappingContext;
-#endif
 
 #if MONO_STRICT
 namespace System.Data.Linq.Sugar.Implementation

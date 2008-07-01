@@ -33,16 +33,13 @@ using System.Reflection;
 using System.Data.Common;
 #if MONO_STRICT
 using System.Data.Linq;
+using MappingContext = System.Data.Linq.Mapping.MappingContext;
 #else
 using DbLinq.Data.Linq;
+using MappingContext = DbLinq.Data.Linq.Mapping.MappingContext;
 #endif
 using DbLinq.Linq;
 using DbLinq.Util;
-#if MONO_STRICT
-using MappingContext = System.Data.Linq.Mapping.MappingContext;
-#else
-using MappingContext = DbLinq.Data.Linq.Mapping.MappingContext;
-#endif
 
 namespace DbLinq.Vendor.Implementation
 {

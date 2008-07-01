@@ -38,8 +38,6 @@ using DbLinq.Data.Linq.Sugar;
 using DbLinq.Data.Linq.Sugar.Expressions;
 #endif
 
-
-
 #if MONO_STRICT
 namespace System.Data.Linq.Sugar.Implementation
 #else
