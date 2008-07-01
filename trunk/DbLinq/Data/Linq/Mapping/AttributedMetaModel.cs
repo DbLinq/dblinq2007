@@ -29,15 +29,14 @@ using System.Data.Linq.Mapping;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+
 #if MONO_STRICT
 using System.Data.Linq;
 #else
 using DbLinq.Data.Linq;
-#endif
-#if MONO_STRICT
-#else
 using DbLinq.Data.Linq.Mapping;
 #endif
+
 using DbLinq.Util;
 using System.Collections.Generic;
 

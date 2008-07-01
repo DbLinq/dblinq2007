@@ -36,6 +36,7 @@ using DbLinq.Util;
 using DbLinq.Util.ExprVisitor;
 using DbLinq.Linq.Mapping;
 using DbLinq.Vendor;
+
 #if MONO_STRICT
 using DataContext=System.Data.Linq.DataContext;
 #else

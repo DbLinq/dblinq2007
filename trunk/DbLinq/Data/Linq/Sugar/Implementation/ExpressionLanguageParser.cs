@@ -29,14 +29,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+
 #if MONO_STRICT
 using System.Data.Linq.Sugar;
-#else
-using DbLinq.Data.Linq.Sugar;
-#endif
-#if MONO_STRICT
 using System.Data.Linq.Sugar.ExpressionMutator;
 #else
+using DbLinq.Data.Linq.Sugar;
 using DbLinq.Data.Linq.Sugar.ExpressionMutator;
 #endif
 

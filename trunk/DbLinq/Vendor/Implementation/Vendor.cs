@@ -35,6 +35,7 @@ using DbLinq.Factory;
 using DbLinq.Linq;
 using DbLinq.Logging;
 using DbLinq.Util;
+
 #if MONO_STRICT
 using DataContext=System.Data.Linq.DataContext;
 using Data = System.Data;

@@ -24,6 +24,7 @@
 // 
 #endregion
 using System.Linq.Expressions;
+
 #if MONO_STRICT
 using System.Data.Linq.Sugar;
 #else
