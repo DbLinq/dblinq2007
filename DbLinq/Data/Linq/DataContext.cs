@@ -62,6 +62,7 @@ using AttributeMappingSource = DbLinq.Data.Linq.Mapping.AttributeMappingSource;
 #endif
 #if MONO_STRICT
 using MappingContext = System.Data.Linq.Mapping.MappingContext;
+using DbLinq;
 #else
 using MappingContext = DbLinq.Data.Linq.Mapping.MappingContext;
 #endif
