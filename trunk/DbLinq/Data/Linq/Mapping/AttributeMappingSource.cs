@@ -33,7 +33,7 @@ namespace System.Data.Linq.Mapping
 namespace DbLinq.Data.Linq.Mapping
 #endif
 {
-    internal class AttributeMappingSource : MappingSource
+    public class AttributeMappingSource : MappingSource
     {
         protected override MetaModel CreateModel(Type dataContextType)
         {

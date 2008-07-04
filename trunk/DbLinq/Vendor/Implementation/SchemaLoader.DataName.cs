@@ -27,7 +27,12 @@ namespace DbLinq.Vendor.Implementation
 {
     partial class SchemaLoader
     {
-        public class DataName : IDataName
+#if MONO_STRICT
+        internal
+#else
+        public
+#endif
+        class DataName : IDataName
         {
             public string Name { get; set; }
             public string Schema { get; set; }
