@@ -5,6 +5,7 @@ using System.Text;
 using DbLinq.Logging;
 using DbLinq.Data.Linq.Sugar;
 using System.Data.Linq;
+using System.Linq.Expressions;
 
 namespace DbLinq.Data.Linq
 {
@@ -17,7 +18,7 @@ namespace DbLinq.Data.Linq
         public ILogger Logger { get { return _Logger; } set { _Logger = value; } }
         public void CancelDeleteOnSubmit(TEntity entity)
         {
-            
+
         }
 
         void ITable.CancelDeleteOnSubmit(object entity)
@@ -29,6 +30,22 @@ namespace DbLinq.Data.Linq
             IList<Exception> exceptions)
         {
             this._Process(ts, process, failureMode, exceptions);
+        }
+
+        protected virtual void ProcessInsert(ConflictMode failureMode, IList<Exception> exceptions)
+        {
+            this._ProcessInsert(failureMode, exceptions);
+        }
+
+
+        protected virtual void ProcessUpdate(ConflictMode failureMode, List<Exception> exceptions)
+        {
+            this._ProcessUpdate(failureMode, exceptions);
+        }
+
+        protected virtual void ProcessDelete(ConflictMode failureMode, List<Exception> exceptions)
+        {
+            this._ProcessDelete(failureMode, exceptions);
         }
     }
 }

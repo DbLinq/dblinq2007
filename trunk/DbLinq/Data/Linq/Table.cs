@@ -93,7 +93,7 @@ namespace DbLinq.Data.Linq
         /// 'S' is the projected type. If you say 'from e in Employees select e.ID', then type S will be int.
         /// If you say 'select new {e.ID}', then type S will be something like Projection.f__1
         /// </summary>
-        public IQueryable<S> CreateQuery<S>(Expression expr)
+        IQueryable<S> IQueryProvider.CreateQuery<S>(Expression expr)
         {
             return _queryProvider.CreateQuery<S>(expr);
         }
@@ -102,7 +102,7 @@ namespace DbLinq.Data.Linq
         /// this is only called during Dynamic Linq
         /// </summary>
         [Obsolete("COMPLETELY UNTESTED - Use CreateQuery<S>")]
-        public IQueryable CreateQuery(Expression expression)
+        IQueryable IQueryProvider.CreateQuery(Expression expression)
         {
             return _queryProvider.CreateQuery(expression);
         }
@@ -110,12 +110,12 @@ namespace DbLinq.Data.Linq
         /// <summary>
         /// the query '(from o in Orders select o).First()' enters here
         /// </summary>
-        public S Execute<S>(Expression expression)
+        S IQueryProvider.Execute<S>(Expression expression)
         {
             return _queryProvider.Execute<S>(expression);
         }
 
-        public object Execute(Expression expression)
+        object IQueryProvider.Execute(Expression expression)
         {
             return _queryProvider.Execute(expression);
         }
@@ -134,12 +134,13 @@ namespace DbLinq.Data.Linq
             return enumT;
         }
 
-        public Type ElementType
+        Type IQueryable.ElementType
         {
             get { return _queryProvider.ElementType; }
         }
 
-        public Expression Expression
+        
+        Expression IQueryable.Expression
         {
             get { return Expression.Constant(this); } // do not change this to _queryProvider.Expression, Sugar doesn't fully handle QueryProviders by now
         }
@@ -147,7 +148,7 @@ namespace DbLinq.Data.Linq
         /// <summary>
         /// IQueryable.Provider: represents the Table as a IQueryable provider (hence the name)
         /// </summary>
-        public IQueryProvider Provider
+        IQueryProvider IQueryable.Provider
         {
             get { return _queryProvider.Provider; }
         }
@@ -298,9 +299,9 @@ namespace DbLinq.Data.Linq
             var exceptions = new List<Exception>();
             using (Context.DatabaseContext.OpenConnection())
             {
-                ProcessInsert(failureMode, exceptions);
-                ProcessUpdate(failureMode, exceptions);
-                ProcessDelete(failureMode, exceptions);
+                _ProcessInsert(failureMode, exceptions);
+                _ProcessUpdate(failureMode, exceptions);
+                _ProcessDelete(failureMode, exceptions);
             }
             return exceptions;
         }
@@ -331,7 +332,8 @@ namespace DbLinq.Data.Linq
             }
         }
 
-        protected virtual void ProcessInsert(ConflictMode failureMode, IList<Exception> exceptions)
+        [DBLinqExtended]
+        internal void _ProcessInsert(ConflictMode failureMode, IList<Exception> exceptions)
         {
             var toInsert = new List<TEntity>(Context.InsertList.Enumerate<TEntity>());
             if (Context.Vendor.CanBulkInsert(this))
@@ -353,7 +355,8 @@ namespace DbLinq.Data.Linq
             }
         }
 
-        protected virtual void ProcessUpdate(ConflictMode failureMode, List<Exception> exceptions)
+        [DBLinqExtended]
+        internal void _ProcessUpdate(ConflictMode failureMode, List<Exception> exceptions)
         {
             _Process(Context.GetRegisteredEntities<TEntity>(),
                     delegate(TEntity t, QueryContext queryContext)
@@ -369,7 +372,7 @@ namespace DbLinq.Data.Linq
                     }, failureMode, exceptions);
         }
 
-        protected virtual void ProcessDelete(ConflictMode failureMode, List<Exception> exceptions)
+        internal void _ProcessDelete(ConflictMode failureMode, List<Exception> exceptions)
         {
             var toDelete = new List<TEntity>(Context.DeleteList.Enumerate<TEntity>());
             _Process(toDelete,
@@ -390,7 +393,7 @@ namespace DbLinq.Data.Linq
         //     (that we currently do not always store, so we may need to make a differential copy
         [Obsolete("NOT IMPLEMENTED YET")]
         [DbLinqToDo]
-        public ModifiedMemberInfo[] GetModifiedMembers(object entity)
+        ModifiedMemberInfo[] ITable.GetModifiedMembers(object entity)
         {
             throw new ApplicationException("L579 Not implemented");
         }
@@ -404,12 +407,12 @@ namespace DbLinq.Data.Linq
             throw new ApplicationException("L585 Not implemented");
         }
 
-        public bool ContainsListCollection
+        bool IListSource.ContainsListCollection
         {
             get { return true; }
         }
 
-        public IList GetList()
+        IList IListSource.GetList()
         {
             return this.ToList();
         }
