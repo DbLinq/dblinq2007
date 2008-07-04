@@ -255,6 +255,12 @@ namespace DbLinq.Data.Linq
             }
         }
 
+        [DbLinqToDo]
+        protected IExecuteResult ExecuteMethodCall(object instance, System.Reflection.MethodInfo methodInfo, params object[] parameters)
+        {
+            throw new NotImplementedException();
+        }
+
         #region Identity management
 
         internal IIdentityReader _GetIdentityReader(Type t)
@@ -497,15 +503,21 @@ namespace DbLinq.Data.Linq
         /// <summary>
         /// Execute raw SQL query and return object
         /// </summary>
-        public IEnumerable<TResult> ExecuteQuery<TResult>(string command,
+        public IEnumerable<TResult> ExecuteQuery<TResult>(string query,
                                                           params object[] parameters) where TResult : new()
         {
 
             using (DatabaseContext.OpenConnection())
             {
-                IEnumerable<TResult> res = Vendor.ExecuteQuery<TResult>(this, command, parameters);
+                IEnumerable<TResult> res = Vendor.ExecuteQuery<TResult>(this, query, parameters);
                 return res;
             }
+        }
+
+        [DbLinqToDo]
+        public IEnumerable ExecuteQuery(System.Type elementType, string query, params object[] parameters)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -547,6 +559,12 @@ namespace DbLinq.Data.Linq
         {
             //connection closing should not be done here.
             //read: http://msdn2.microsoft.com/en-us/library/bb292288.aspx
+        }
+
+        [DbLinqToDo]
+        protected virtual void Dispose(bool disposing)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -624,6 +642,30 @@ namespace DbLinq.Data.Linq
 
         [DbLinqToDo]
         public void CreateDatabase()
+        {
+            throw new NotImplementedException();
+        }
+
+        [DbLinqToDo]
+        protected internal IQueryable<TResult> CreateMethodCallQuery<TResult>(object instance, System.Reflection.MethodInfo methodInfo, params object[] parameters)
+        {
+            throw new NotImplementedException();
+        }
+
+        [DbLinqToDo]
+        protected internal void ExecuteDynamicDelete(object entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        [DbLinqToDo]
+        protected internal void ExecuteDynamicInsert(object entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        [DbLinqToDo]
+        protected internal void ExecuteDynamicUpdate(object entity)
         {
             throw new NotImplementedException();
         }

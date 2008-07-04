@@ -33,7 +33,7 @@ using System.Text;
 #if MONO_STRICT
 namespace System.Data.Linq
 {
-    public interface IExecuteResult
+    public interface IExecuteResult:IDisposable
     {
         object GetParameterValue(int parameterIndex);
         object ReturnValue { get; }

@@ -33,6 +33,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.ComponentModel;
 
 #if MONO_STRICT
 using System.Data.Linq.Implementation;
@@ -47,6 +48,7 @@ using ITable = DbLinq.Data.Linq.ITable;
 using DbLinq.Logging;
 using DbLinq;
 
+
 #if MONO_STRICT
 namespace System.Data.Linq
 #else
@@ -57,13 +59,17 @@ namespace DbLinq.Data.Linq
     /// T may be eg. class Employee or string - the output
     /// </summary>
     /// <typeparam name="T"></typeparam>
-public partial class Table<T> :
-        IQueryable<T>,
-        IOrderedQueryable<T>, //this is cheating ... we pretend to be always ordered
-        ITable,
-        IQueryProvider,
-        IManagedTable // internal helper. One day, all data will be processed from DataContext
-        where T : class
+    public partial class Table<TEntity> :
+            ITable,
+            IQueryProvider,
+            IListSource,
+            IEnumerable<TEntity>,
+            IEnumerable,
+            IQueryable<TEntity>,
+            IQueryable,
+            IOrderedQueryable<TEntity>, //this is cheating ... we pretend to be always ordered
+            IManagedTable // internal helper. One day, all data will be processed from DataContext
+            where TEntity : class
     {
         /// <summary>
         /// the parent DataContext holds our connection etc
@@ -72,14 +78,14 @@ public partial class Table<T> :
         private readonly DataContext _context;
 
         // QueryProvider is the running entity, running through nested Expressions
-        private readonly QueryProvider<T> _queryProvider;
+        private readonly QueryProvider<TEntity> _queryProvider;
 
         internal ILogger _Logger { get; set; }
 
         internal Table(DataContext parentContext)
         {
             _context = parentContext;
-            _queryProvider = new QueryProvider<T>(parentContext);
+            _queryProvider = new QueryProvider<TEntity>(parentContext);
         }
 
         /// <summary>
@@ -116,14 +122,14 @@ public partial class Table<T> :
         /// <summary>
         /// entry point for 'foreach' statement.
         /// </summary>
-        public IEnumerator<T> GetEnumerator()
+        public IEnumerator<TEntity> GetEnumerator()
         {
             return _queryProvider.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            IEnumerator<T> enumT = GetEnumerator();
+            IEnumerator<TEntity> enumT = GetEnumerator();
             return enumT;
         }
 
@@ -149,24 +155,24 @@ public partial class Table<T> :
 
         void ITable.InsertOnSubmit(object entity)
         {
-            Context.RegisterInsert(entity, typeof(T));
+            Context.RegisterInsert(entity, typeof(TEntity));
         }
 
-        public void InsertOnSubmit(T newObject)
+        public void InsertOnSubmit(TEntity entity)
         {
-            Context.RegisterInsert(newObject, typeof(T));
+            Context.RegisterInsert(entity, typeof(TEntity));
         }
 
         void ITable.InsertAllOnSubmit(IEnumerable entities)
         {
             foreach (var entity in entities)
-                Context.RegisterInsert(entity, typeof(T));
+                Context.RegisterInsert(entity, typeof(TEntity));
         }
 
-        public void InsertAllOnSubmit<TSubEntity>(IEnumerable<TSubEntity> entities) where TSubEntity : T
+        public void InsertAllOnSubmit<TSubEntity>(IEnumerable<TSubEntity> entities) where TSubEntity : TEntity
         {
             foreach (var entity in entities)
-                Context.RegisterInsert(entity, typeof(T));
+                Context.RegisterInsert(entity, typeof(TEntity));
         }
 
         #endregion
@@ -176,7 +182,7 @@ public partial class Table<T> :
         void ITable.DeleteAllOnSubmit(IEnumerable entities)
         {
             foreach (var entity in entities)
-                Context.RegisterDelete(entity, typeof(T));
+                Context.RegisterDelete(entity, typeof(TEntity));
         }
 
         /// <summary>
@@ -185,18 +191,18 @@ public partial class Table<T> :
         /// <param name="entity"></param>
         void ITable.DeleteOnSubmit(object entity)
         {
-            Context.RegisterDelete(entity, typeof(T));
+            Context.RegisterDelete(entity, typeof(TEntity));
         }
 
-        public void DeleteOnSubmit(T objectToDelete)
+        public void DeleteOnSubmit(TEntity entity)
         {
-            Context.RegisterDelete(objectToDelete, typeof(T));
+            Context.RegisterDelete(entity, typeof(TEntity));
         }
 
-        public void DeleteAllOnSubmit<TSubEntity>(IEnumerable<TSubEntity> entities) where TSubEntity : T
+        public void DeleteAllOnSubmit<TSubEntity>(IEnumerable<TSubEntity> entities) where TSubEntity : TEntity
         {
             foreach (var row in entities)
-                Context.RegisterDelete(row, typeof(T));
+                Context.RegisterDelete(row, typeof(TEntity));
         }
 
         #endregion
@@ -209,28 +215,28 @@ public partial class Table<T> :
         /// <param name="entity"></param>
         void ITable.Attach(object entity)
         {
-            Context.RegisterUpdate(entity, typeof(T));
+            Context.RegisterUpdate(entity, typeof(TEntity));
         }
 
         void ITable.Attach(object entity, object original)
         {
-            Context.RegisterUpdate(entity, original, typeof(T));
+            Context.RegisterUpdate(entity, original, typeof(TEntity));
         }
 
         void ITable.Attach(object entity, bool asModified)
         {
-            Context.RegisterUpdate(entity, asModified ? null : entity, typeof(T));
+            Context.RegisterUpdate(entity, asModified ? null : entity, typeof(TEntity));
         }
 
         void ITable.AttachAll(IEnumerable entities)
         {
             foreach (var entity in entities)
-                Context.RegisterUpdate(entity, typeof(T));
+                Context.RegisterUpdate(entity, typeof(TEntity));
         }
         void ITable.AttachAll(IEnumerable entities, bool asModified)
         {
             foreach (var entity in entities)
-                Context.RegisterUpdate(entity, typeof(T));
+                Context.RegisterUpdate(entity, typeof(TEntity));
         }
 
         /// <summary>
@@ -238,15 +244,27 @@ public partial class Table<T> :
         /// with the intention to perform an update or delete operation
         /// </summary>
         /// <param name="entity">table row object to attach</param>
-        public void Attach(T entity)
+        public void Attach(TEntity entity)
         {
-            Context.RegisterUpdate(entity, typeof(T));
+            Context.RegisterUpdate(entity, typeof(TEntity));
         }
 
-        public void AttachAll<TSubEntity>(IEnumerable<TSubEntity> entities) where TSubEntity : T
+        [DbLinqToDo]
+        public void Attach(TEntity entity,bool asModified)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AttachAll<TSubEntity>(IEnumerable<TSubEntity> entities) where TSubEntity : TEntity
         {
             foreach (var entity in entities)
-                Context.RegisterUpdate(entity, typeof(T));
+                Context.RegisterUpdate(entity, typeof(TEntity));
+        }
+
+        [DbLinqToDo]
+        public void AttachAll<TSubEntity>(IEnumerable<TSubEntity> entities, bool asModified) where TSubEntity:TEntity
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -254,9 +272,9 @@ public partial class Table<T> :
         /// </summary>
         /// <param name="entity">live entity added to change tracking</param>
         /// <param name="original">original unchanged property values</param>
-        public void Attach(T entity, T original)
+        public void Attach(TEntity entity, TEntity original)
         {
-            Context.RegisterUpdate(entity, original, typeof(T));
+            Context.RegisterUpdate(entity, original, typeof(TEntity));
         }
 
         #endregion
@@ -271,9 +289,9 @@ public partial class Table<T> :
         /// <returns></returns>
         List<Exception> IManagedTable.SaveAll(ConflictMode failureMode)
         {
-            if (Context.InsertList.Count<T>() == 0
-                && Context.DeleteList.Count<T>() == 0
-                && !Context.HasRegisteredEntities<T>())
+            if (Context.InsertList.Count<TEntity>() == 0
+                && Context.DeleteList.Count<TEntity>() == 0
+                && !Context.HasRegisteredEntities<TEntity>())
                 return new List<Exception>(); //nothing to do
 
             var exceptions = new List<Exception>();
@@ -286,7 +304,7 @@ public partial class Table<T> :
             return exceptions;
         }
 
-        internal virtual void _Process(IEnumerable<T> ts, Action<T, QueryContext> process, ConflictMode failureMode,
+        internal virtual void _Process(IEnumerable<TEntity> ts, Action<TEntity, QueryContext> process, ConflictMode failureMode,
             IList<Exception> exceptions)
         {
             var queryContext = new QueryContext(Context);
@@ -300,12 +318,12 @@ public partial class Table<T> :
                 {
                     switch (failureMode)
                     {
-                    case ConflictMode.ContinueOnConflict:
-                        Trace.WriteLine("Table.SubmitChanges failed: " + e);
-                        exceptions.Add(e);
-                        break;
-                    case ConflictMode.FailOnFirstConflict:
-                        throw;
+                        case ConflictMode.ContinueOnConflict:
+                            Trace.WriteLine("Table.SubmitChanges failed: " + e);
+                            exceptions.Add(e);
+                            break;
+                        case ConflictMode.FailOnFirstConflict:
+                            throw;
                     }
                 }
             }
@@ -313,7 +331,7 @@ public partial class Table<T> :
 
         protected virtual void ProcessInsert(ConflictMode failureMode, IList<Exception> exceptions)
         {
-            var toInsert = new List<T>(Context.InsertList.Enumerate<T>());
+            var toInsert = new List<TEntity>(Context.InsertList.Enumerate<TEntity>());
             if (Context.Vendor.CanBulkInsert(this))
             {
                 Context.Vendor.DoBulkInsert(this, toInsert, Context.Connection);
@@ -322,21 +340,21 @@ public partial class Table<T> :
             else
             {
                 _Process(toInsert,
-                    delegate(T t, QueryContext queryContext)
+                    delegate(TEntity t, QueryContext queryContext)
                     {
                         var insertQuery = Context.QueryBuilder.GetInsertQuery(t, queryContext);
                         Context.QueryRunner.Insert(t, insertQuery);
 
-                        Context.UnregisterInsert(t, typeof(T));
-                        Context.RegisterUpdate(t, typeof(T));
+                        Context.UnregisterInsert(t, typeof(TEntity));
+                        Context.RegisterUpdate(t, typeof(TEntity));
                     }, failureMode, exceptions);
             }
         }
 
         protected virtual void ProcessUpdate(ConflictMode failureMode, List<Exception> exceptions)
         {
-            _Process(Context.GetRegisteredEntities<T>(),
-                    delegate(T t, QueryContext queryContext)
+            _Process(Context.GetRegisteredEntities<TEntity>(),
+                    delegate(TEntity t, QueryContext queryContext)
                     {
                         if (Context.MemberModificationHandler.IsModified(t, Context.Mapping))
                         {
@@ -344,21 +362,21 @@ public partial class Table<T> :
                             var updateQuery = Context.QueryBuilder.GetUpdateQuery(t, modifiedMembers, queryContext);
                             Context.QueryRunner.Update(t, updateQuery, modifiedMembers);
 
-                            Context.RegisterUpdateAgain(t, typeof(T));
+                            Context.RegisterUpdateAgain(t, typeof(TEntity));
                         }
                     }, failureMode, exceptions);
         }
 
         protected virtual void ProcessDelete(ConflictMode failureMode, List<Exception> exceptions)
         {
-            var toDelete = new List<T>(Context.DeleteList.Enumerate<T>());
+            var toDelete = new List<TEntity>(Context.DeleteList.Enumerate<TEntity>());
             _Process(toDelete,
-                    delegate(T t, QueryContext queryContext)
+                    delegate(TEntity t, QueryContext queryContext)
                     {
                         var deleteQuery = Context.QueryBuilder.GetDeleteQuery(t, queryContext);
                         Context.QueryRunner.Delete(t, deleteQuery);
 
-                        Context.UnregisterDelete(t, typeof(T));
+                        Context.UnregisterDelete(t, typeof(TEntity));
                     }, failureMode, exceptions);
         }
 
@@ -383,6 +401,40 @@ public partial class Table<T> :
         {
             throw new ApplicationException("L585 Not implemented");
         }
+
+        public bool ContainsListCollection
+        {
+            get { return true; }
+        }
+
+        public IList GetList()
+        {
+            return this.ToList();
+        }
+
+        [DbLinqToDo]
+        public TEntity GetOriginalEntityState(TEntity entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        [DbLinqToDo]
+        public IBindingList GetNewBindingList()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string ToString()
+        {
+            return base.ToString();
+        }
+
+        [DbLinqToDo]
+        public ModifiedMemberInfo[] GetModifiedMembers(TEntity entity)
+        {
+            throw new NotImplementedException();
+        }
+
 
     }
 }
