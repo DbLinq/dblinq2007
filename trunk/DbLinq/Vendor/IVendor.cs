@@ -212,6 +212,13 @@ namespace DbLinq.Vendor
         /// <returns></returns>
         string BuildSqlString(SqlExpressionParts parts);
 
+        /// <summary>
+        /// Returns a case safe query, converting quoted names &lt;&ltMixedCaseName>> to "MixedCaseName"
+        /// </summary>
+        /// <param name="sqlString"></param>
+        /// <returns></returns>
+        string GetSqlCaseSafeQuery(string sqlString);
+
         #endregion
 
         #region Insert / PK processor

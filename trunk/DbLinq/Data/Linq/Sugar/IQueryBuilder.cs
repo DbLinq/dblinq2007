@@ -24,6 +24,7 @@
 // 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -69,5 +70,22 @@ namespace DbLinq.Data.Linq.Sugar
         DeleteQuery GetDeleteQuery(object objectToDelete, QueryContext queryContext);
 
 
+        /// <summary>
+        /// Converts a direct SQL query to a safe query with named parameters
+        /// </summary>
+        /// <param name="sql">Raw SQL query</param>
+        /// <param name="queryContext"></param>
+        /// <returns></returns>
+        DirectQuery GetDirectQuery(string sql, QueryContext queryContext);
+
+        /// <summary>
+        /// Returns a Delegate to create a row for a given IDataRecord
+        /// The Delegate is Func&lt;IDataRecord,MappingContext,"tableType">
+        /// </summary>
+        /// <param name="tableType">The table type (must be managed by DataContext)</param>
+        /// <param name="parameters"></param>
+        /// <param name="queryContext"></param>
+        /// <returns></returns>
+        Delegate GetTableReader(Type tableType, IList<string> parameters, QueryContext queryContext);
     }
 }

@@ -402,6 +402,38 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         {
             var dataRecordParameter = Expression.Parameter(typeof(IDataRecord), "dataRecord");
             var mappingContextParameter = Expression.Parameter(typeof(MappingContext), "mappingContext");
+            //var table = builderContext.QueryContext.DataContext.Mapping.GetTable(tableType);
+            var bindings = new List<MemberBinding>();
+            for (int parameterIndex = 0; parameterIndex < parameters.Count; parameterIndex++)
+            {
+                var parameter = parameters[parameterIndex];
+                var memberInfo = tableType.GetSingleMember(parameter);
+                if (memberInfo == null)
+                {
+                    memberInfo = tableType.GetSingleMember(parameter, BindingFlags.Public | BindingFlags.NonPublic
+                                                                      | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                }
+                // TODO real error
+                if (memberInfo == null)
+                    throw new ArgumentException(string.Format("Invalid column '{0}'", parameter));
+                //var column = DataMapper.GetColumnName(tableType, memberInfo, builderContext.QueryContext.DataContext);
+                //var columnName = DataMapper.GetColumnName(tableType, memberInfo, builderContext.QueryContext.DataContext);
+                var invoke = GetOutputValueReader(memberInfo.GetMemberType(), parameterIndex, //GetTableIndex(parameters, columnName),
+                                                  dataRecordParameter, mappingContextParameter);
+                var parameterColumn = GetOutputValueReader(invoke, dataRecordParameter, mappingContextParameter,
+                                                           builderContext);
+                var binding = Expression.Bind(memberInfo, parameterColumn);
+                bindings.Add(binding);
+            }
+            var newExpression = Expression.New(tableType);
+            var initExpression = Expression.MemberInit(newExpression, bindings);
+            return Expression.Lambda(initExpression, dataRecordParameter, mappingContextParameter);
+        }
+
+        public virtual LambdaExpression BuildTableReader1(Type tableType, IList<string> parameters, BuilderContext builderContext)
+        {
+            var dataRecordParameter = Expression.Parameter(typeof(IDataRecord), "dataRecord");
+            var mappingContextParameter = Expression.Parameter(typeof(MappingContext), "mappingContext");
             var table = builderContext.QueryContext.DataContext.Mapping.GetTable(tableType);
             var bindings = new List<MemberBinding>();
             foreach (var column in DataMapper.GetColumns(table))
