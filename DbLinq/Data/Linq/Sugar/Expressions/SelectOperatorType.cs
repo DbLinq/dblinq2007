@@ -30,7 +30,12 @@ namespace System.Data.Linq.Sugar.Expressions
 namespace DbLinq.Data.Linq.Sugar.Expressions
 #endif
 {
-    public enum SelectOperatorType
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    enum SelectOperatorType
     {
         Union,
         UnionAll,

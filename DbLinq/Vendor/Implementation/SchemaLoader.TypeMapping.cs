@@ -201,7 +201,7 @@ namespace DbLinq.Vendor.Implementation
 
         protected class EnumType : Type
         {
-            public EnumType()
+            internal EnumType()
             {
                 EnumValues = new Dictionary<string, int>();
             }

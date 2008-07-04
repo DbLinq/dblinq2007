@@ -29,7 +29,12 @@ namespace DbLinq.Schema
     /// <summary>
     /// Represent a case model
     /// </summary>
-    public enum Case
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    enum Case
     {
         /// <summary>
         /// With this value, the case of a give word is unchanged
@@ -47,5 +52,5 @@ namespace DbLinq.Schema
         /// all words capitalized, words with 2 letters or less full uppercase
         /// </summary>
         NetCase,
-    }   
+    }
 }

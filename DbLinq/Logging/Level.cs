@@ -28,7 +28,12 @@ namespace DbLinq.Logging
     /// <summary>
     /// Logging level, used by ILogger.Write
     /// </summary>
-    public enum Level
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    enum Level
     {
         Debug,
         Information,

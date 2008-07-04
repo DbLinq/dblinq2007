@@ -32,7 +32,7 @@ using System.Text;
 #if MONO_STRICT
 namespace System.Data.Linq
 {
-    public enum ChangeAction
+    internal enum ChangeAction
     {
         Delete, Insert, None, Update
     }

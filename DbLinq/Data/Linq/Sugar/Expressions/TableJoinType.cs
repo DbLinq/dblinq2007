@@ -30,7 +30,7 @@ namespace System.Data.Linq.Sugar.Expressions
 namespace DbLinq.Data.Linq.Sugar.Expressions
 #endif
 {
-    public enum TableJoinType
+    internal enum TableJoinType
     {
         Default,
         Inner,

@@ -30,7 +30,7 @@ namespace System.Data.Linq.Sugar.Expressions
 namespace DbLinq.Data.Linq.Sugar.Expressions
 #endif
 {
-    public enum CustomExpressionType
+    internal enum CustomExpressionType
     {
         Scope = 1000,
         MetaTable = 1010,
