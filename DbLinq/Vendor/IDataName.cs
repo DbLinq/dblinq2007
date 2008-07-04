@@ -25,7 +25,12 @@
 #endregion
 namespace DbLinq.Vendor
 {
-    public interface IDataName
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    interface IDataName
     {
         string Name { get; set; }
         string Schema { get; set; }

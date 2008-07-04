@@ -28,7 +28,12 @@ using System.Collections.Generic;
 
 namespace DbLinq.Schema
 {
-    public class Name
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    class Name
     {
         /// <summary>
         /// The original database name, returned directly by database analysis

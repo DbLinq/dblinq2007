@@ -46,7 +46,7 @@ namespace System.Data.Linq.Sugar.Implementation
 namespace DbLinq.Data.Linq.Sugar.Implementation
 #endif
 {
-    public class SqlBuilder : ISqlBuilder
+    internal class SqlBuilder : ISqlBuilder
     {
         public ExpressionQualifier ExpressionQualifier { get; set; }
 

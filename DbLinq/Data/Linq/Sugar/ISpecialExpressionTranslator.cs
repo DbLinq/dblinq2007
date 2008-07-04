@@ -32,7 +32,7 @@ namespace System.Data.Linq.Sugar
 namespace DbLinq.Data.Linq.Sugar
 #endif
 {
-    public interface ISpecialExpressionTranslator
+    internal interface ISpecialExpressionTranslator
     {
         /// <summary>
         /// Translate a hierarchy's SpecialExpressions to Expressions

@@ -39,7 +39,7 @@ namespace DbLinq.Linq.Clause
     /// holds strings parsed out of an expression tree.
     /// The outside user may afterward costruct a SELECT, WHERE, or any other clause with them.
     /// </summary>
-    public class ParseResult
+    internal class ParseResult
     {
         public List<JoinSpec> joins = new List<JoinSpec>();
         readonly StringBuilder sb = new StringBuilder(200);

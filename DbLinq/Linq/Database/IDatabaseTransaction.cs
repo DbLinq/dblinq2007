@@ -31,7 +31,12 @@ namespace DbLinq.Linq.Database
     /// <summary>
     /// Transaction block.
     /// </summary>
-    public interface IDatabaseTransaction : IDisposable
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    interface IDatabaseTransaction : IDisposable
     {
         /// <summary>
         /// Call Commit() before Dispose() to save changes.

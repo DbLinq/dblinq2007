@@ -40,7 +40,7 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
 #endif
 {
     [DebuggerDisplay("ObjectInputParameterExpression")]
-    public class ObjectInputParameterExpression : MutableExpression
+    internal class ObjectInputParameterExpression : MutableExpression
     {
         public const ExpressionType ExpressionType = (ExpressionType)CustomExpressionType.ObjectInputParameter;
 

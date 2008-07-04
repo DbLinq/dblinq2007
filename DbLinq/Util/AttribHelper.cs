@@ -40,7 +40,12 @@ namespace DbLinq.Util
     /// Helper class which does the walking over Types to analyze attributes
     /// TODO: rename this to 'ReflectionHelper'?
     /// </summary>
-    public class AttribHelper
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+ class AttribHelper
     {
 
         /// <summary>
@@ -379,7 +384,12 @@ namespace DbLinq.Util
         }
     }
 
-    public class AttribAndProp
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    class AttribAndProp
     {
         /// <summary>
         /// eg. Employee.ReportsToEmployee property

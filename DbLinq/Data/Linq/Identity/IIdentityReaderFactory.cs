@@ -32,7 +32,7 @@ namespace System.Data.Linq.Identity
 namespace DbLinq.Data.Linq.Identity
 #endif
 {
-    public interface IIdentityReaderFactory
+    internal interface IIdentityReaderFactory
     {
         /// <summary>
         /// Returns an IIdentityReader specific to the requested type

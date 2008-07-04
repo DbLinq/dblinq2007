@@ -33,7 +33,7 @@ namespace DbLinq.Util
     /// central place to convert C# variable names ('c') into SQL variable names ('c$').
     /// In the future, should handle name conflict.
     /// </summary>
-    public static class VarName
+    internal static class VarName
     {
         public static string GetSqlName(string csharpName)
         {

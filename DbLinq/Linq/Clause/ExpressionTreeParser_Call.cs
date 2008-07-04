@@ -48,7 +48,7 @@ namespace DbLinq.Linq.Clause
     /// <summary>
     /// ExpressionTreeParser part2 - MethodCall handling
     /// </summary>
-    public partial class ExpressionTreeParser
+    internal partial class ExpressionTreeParser
     {
         private bool IsStringMethod(MethodInfo methodInfo)
         {

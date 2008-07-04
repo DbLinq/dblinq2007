@@ -50,7 +50,7 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
     /// Holds new expression types (sql related), all well as their operands
     /// </summary>
     [DebuggerDisplay("SpecialExpression {SpecialNodeType}")]
-    public class SpecialExpression : OperandsMutableExpression, IExecutableExpression
+    internal class SpecialExpression : OperandsMutableExpression, IExecutableExpression
     {
         public SpecialExpressionType SpecialNodeType { get { return (SpecialExpressionType)NodeType; } }
 

@@ -26,7 +26,12 @@
 
 namespace DbLinq.Schema
 {
-    public class ParameterName : Name
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    class ParameterName : Name
     {
         /// <summary>
         /// Name to be used from a .NET call

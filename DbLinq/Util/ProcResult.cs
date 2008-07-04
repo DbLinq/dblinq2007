@@ -33,7 +33,12 @@ namespace DbLinq.Util
     /// <summary>
     /// holds result of a stored proc call.
     /// </summary>
-    public class ProcResult : System.Data.Linq.IExecuteResult
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    class ProcResult : System.Data.Linq.IExecuteResult
     {
         object[] outParamValues;
 

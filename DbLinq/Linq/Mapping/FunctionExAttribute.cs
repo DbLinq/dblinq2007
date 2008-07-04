@@ -34,7 +34,7 @@ namespace DbLinq.Linq.Mapping
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     [Obsolete("Please use FunctionAttribute instead")]
-    public class FunctionExAttribute : Attribute
+    internal class FunctionExAttribute : Attribute
     {
         public string Name { get; set; }
 

@@ -19,7 +19,7 @@ using DbLinq.Util;
 
 namespace DbLinq.Util
 {
-    public class CacheChecker
+    internal class CacheChecker
     {
         /// <summary>
         /// Quote from MSDN:

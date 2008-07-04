@@ -28,7 +28,12 @@ using DbLinq.Language.Implementation;
 
 namespace DbLinq.Language.Implementation
 {
-    public abstract class AbstractEndPluralWords: AbstractWords
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    abstract class AbstractEndPluralWords : AbstractWords
     {
         protected class SingularPlural
         {

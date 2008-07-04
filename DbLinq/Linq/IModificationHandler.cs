@@ -35,7 +35,7 @@ namespace DbLinq.Linq
     /// - INotifyPropertyChanging and INotifyPropertyChanged (best choice)
     /// - raw objects (keeps a copy of all entity data)
     /// </summary>
-    public interface IModificationHandler
+    internal interface IModificationHandler
     {
         /// <summary>
         /// Start to watch an entity. From here, changes will make IsModified() return true

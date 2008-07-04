@@ -36,7 +36,7 @@ namespace DbLinq.Data.Linq.Sugar
     /// Shortcuts to generate exceptions (with formatted strings)
     /// This is for internal use only
     /// </summary>
-    public class Error
+    internal class Error
     {
         public static Exception BadArgument(string format, params object[] parameters)
         {

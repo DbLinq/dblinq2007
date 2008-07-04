@@ -35,7 +35,12 @@ using DbLinq.Data.Linq.Sugar.Expressions;
 
 namespace DbLinq.Vendor
 {
-    public interface ISqlProvider
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    interface ISqlProvider
     {
         string NewLine { get; }
 

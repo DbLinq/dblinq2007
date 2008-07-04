@@ -39,7 +39,7 @@ namespace DbLinq.Linq
     /// 
     /// You create an instance via QueryProcessor.GenerateQuery()
     /// </summary>
-    public sealed class SessionVarsParsed : SessionVars
+    internal sealed class SessionVarsParsed : SessionVars
     {
         /// <summary>
         /// Sugar.Query: this will replace the rest

@@ -33,7 +33,7 @@ namespace System.Data.Linq.Sugar
 namespace DbLinq.Data.Linq.Sugar
 #endif
 {
-    public interface IDataRecordReader
+    internal interface IDataRecordReader
     {
         /// <summary>
         /// Returns a Expression reading a property from a IDataRecord, at the specified index

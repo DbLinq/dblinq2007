@@ -39,7 +39,7 @@ namespace System.Data.Linq.Sugar.ExpressionMutator.Implementation
 namespace DbLinq.Data.Linq.Sugar.ExpressionMutator.Implementation
 #endif
 {
-    public class MethodCallExpressionMutator : IMutableExpression
+    internal class MethodCallExpressionMutator : IMutableExpression
     {
         protected MethodCallExpression MethodCallExpression { get; private set; }
 

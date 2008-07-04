@@ -114,7 +114,7 @@ namespace DbLinq.Data.Linq
 
     }
 
-    public struct EntityMRef
+    internal struct EntityMRef
     {
     }
 }

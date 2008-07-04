@@ -33,7 +33,7 @@ namespace System.Data.Linq.Sugar
 namespace DbLinq.Data.Linq.Sugar
 #endif
 {
-    public interface IQueryBuilder
+    internal interface IQueryBuilder
     {
         /// <summary>
         /// Creates a query for selection

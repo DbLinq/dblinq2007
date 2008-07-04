@@ -34,7 +34,12 @@ namespace DbLinq.Util
     /// used in Concat function - we are concatenating a list of expressions,
     /// and we need to know their types
     /// </summary>
-    public class ExpressionAndType
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    class ExpressionAndType
     {
         public string expression;
 

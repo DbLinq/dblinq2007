@@ -44,7 +44,7 @@ using DbLinq.Util;
 namespace DbLinq.Vendor.Implementation
 {
 
-    public abstract partial class Vendor
+    partial class Vendor
     {
 
         // re-use args to minimize GEN0
@@ -370,7 +370,7 @@ namespace DbLinq.Vendor.Implementation
                            ConvertValue != null);
                         do
                         { // walk the data 
-                            yield return objInit(reader, context.MappingContext, this);
+                            yield return objInit(reader, context._MappingContext, this);
                         } while (reader.Read());
                     }
                     while (reader.NextResult()) { } // ensure any trailing errors caught 

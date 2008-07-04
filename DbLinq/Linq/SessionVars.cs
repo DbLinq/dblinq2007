@@ -39,7 +39,7 @@ namespace DbLinq.Linq
     /// <summary>
     /// holds queries as they are passed in via MTable.CreateQuery() and MTable.Execute()
     /// </summary>
-    public class SessionVars
+    internal class SessionVars
     {
         public DataContext Context { get; private set; }
         public ITable Table { get; private set; }

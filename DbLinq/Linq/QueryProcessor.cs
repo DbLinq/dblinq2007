@@ -43,7 +43,7 @@ namespace DbLinq.Linq
     /// This results in a call to QueryProcess.GenerateQuery (below).
     /// QueryProcessor then calls ExpressionTreeParser to build SQL expression from parts
     /// </summary>
-    public partial class QueryProcessor
+    internal partial class QueryProcessor
     {
         internal readonly SessionVarsParsed _vars;
 

@@ -27,7 +27,7 @@ using System.Data;
 
 namespace DbLinq.Linq.Database
 {
-    public static class DatabaseContextExtensions
+    internal static class DatabaseContextExtensions
     {
         public static IDbCommand CreateCommand(this IDatabaseContext context, string sql)
         {

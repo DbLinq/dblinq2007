@@ -9,7 +9,7 @@ namespace DbLinq.Util.ExprVisitor
     /// <summary>
     /// allows modification of expression trees.
     /// </summary>
-    public interface IExpressionModifier
+    internal interface IExpressionModifier
     {
         Expression Modify(Expression expression);
     }

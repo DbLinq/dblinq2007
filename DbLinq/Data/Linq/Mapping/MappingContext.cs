@@ -37,10 +37,25 @@ namespace DbLinq.Data.Linq.Mapping
     /// it contains events and properties give to mapper.
     /// There is one default instance in DataContext.
     /// </summary>
-    public class MappingContext
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+ class MappingContext
     {
-        public delegate void GenerateSqlDelegate(object sender, ref string sql);
-        public delegate void GetAsDelegate<T>(object sender, ref T value, Type tableType, int columnIndex);
+#if MONO_STRICT
+    internal
+#else
+        public
+#endif
+        delegate void GenerateSqlDelegate(object sender, ref string sql);
+#if MONO_STRICT
+    internal
+#else
+        public
+#endif
+        delegate void GetAsDelegate<T>(object sender, ref T value, Type tableType, int columnIndex);
 
         /// <summary>
         /// Called when a genereated SQL command is about to be executed

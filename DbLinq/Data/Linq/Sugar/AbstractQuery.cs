@@ -30,7 +30,7 @@ namespace System.Data.Linq.Sugar
 namespace DbLinq.Data.Linq.Sugar
 #endif
 {
-    public abstract class AbstractQuery
+    internal abstract class AbstractQuery
     {
         /// <summary>
         /// The DataContext from which the request originates

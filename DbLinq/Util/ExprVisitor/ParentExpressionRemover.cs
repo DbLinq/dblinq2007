@@ -11,7 +11,7 @@ namespace DbLinq.Util.ExprVisitor
     /// given param 'c' and input 'H_TransparentIdentifier.x.CustomerID', 
     /// return modified 'c.CustomerID'
     /// </summary>
-    public class ParentExpressionRemover : ExpressionVisitor, IExpressionModifier
+    internal class ParentExpressionRemover : ExpressionVisitor, IExpressionModifier
     {
         PropertyInfo _matchingProperty;
         ParameterExpression _replace;

@@ -25,7 +25,12 @@
 #endregion
 namespace DbLinq.Schema
 {
-    public class TableName: Name
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    class TableName : Name
     {
         /// <summary>
         /// Name of the class representing the table

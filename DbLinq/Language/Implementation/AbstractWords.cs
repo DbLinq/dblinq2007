@@ -33,7 +33,12 @@ using DbLinq.Language;
 
 namespace DbLinq.Language.Implementation
 {
-    public abstract class AbstractWords : ILanguageWords
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    abstract class AbstractWords : ILanguageWords
     {
         protected IDictionary<string, int> WordsWeights;
         protected IDictionary<string, string> SingularToPlural = new Dictionary<string, string>();
@@ -121,7 +126,7 @@ namespace DbLinq.Language.Implementation
 
         private class Context
         {
-            public class Split
+            internal class Split
             {
                 public string Magma;
                 public IList<string> Words;

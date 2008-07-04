@@ -36,7 +36,12 @@ using DbLinq.Util;
 
 namespace DbLinq.Schema.Dbml
 {
-    public interface ISimpleList<T> : IEnumerable<T>
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+ interface ISimpleList<T> : IEnumerable<T>
     {
         // sort of light IList<>
         int Count { get; }
@@ -46,12 +51,22 @@ namespace DbLinq.Schema.Dbml
         List<T> FindAll(Predicate<T> match);
     }
 
-    public interface INamedType
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+ interface INamedType
     {
         string Name { get; set; }
     }
 
-    public class EnumType : IDictionary<string, int>, INamedType
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    class EnumType : IDictionary<string, int>, INamedType
     {
         private string name;
         public string Name
@@ -484,7 +499,7 @@ namespace DbLinq.Schema.Dbml
         }
     }
 
-    public partial class Database
+    partial class Database
     {
         [Browsable(false)]
         [XmlIgnore]
@@ -501,7 +516,7 @@ namespace DbLinq.Schema.Dbml
         }
     }
 
-    public partial class Table
+    partial class Table
     {
         public Table()
         {
@@ -519,7 +534,7 @@ namespace DbLinq.Schema.Dbml
         }
     }
 
-    public partial class Type
+    partial class Type
     {
         [Browsable(false)]
         [XmlIgnore]
@@ -545,7 +560,7 @@ namespace DbLinq.Schema.Dbml
         }
     }
 
-    public partial class Function
+    partial class Function
     {
         [Browsable(false)]
         [XmlIgnore]
@@ -602,24 +617,9 @@ namespace DbLinq.Schema.Dbml
         }
     }
 
-    public partial class Parameter
-    {
-        [Browsable(false)]
-        [XmlIgnore]
-        public bool DirectionIn
-        {
-            get { return Direction == ParameterDirection.In || Direction == ParameterDirection.InOut; }
-        }
 
-        [Browsable(false)]
-        [XmlIgnore]
-        public bool DirectionOut
-        {
-            get { return Direction == ParameterDirection.Out || Direction == ParameterDirection.InOut; }
-        }
-    }
 
-    public partial class Association
+    partial class Association
     {
         public Association()
         {
@@ -632,7 +632,7 @@ namespace DbLinq.Schema.Dbml
         }
     }
 
-    public partial class Column
+    partial class Column
     {
         private INamedType extendedType;
         [Browsable(false)]
@@ -674,7 +674,7 @@ namespace DbLinq.Schema.Dbml
         }
     }
 
-    public partial class Connection
+    partial class Connection
     {
         public Connection()
         {
@@ -682,15 +682,28 @@ namespace DbLinq.Schema.Dbml
         }
     }
 
-    public partial class Parameter
+    partial class Parameter
     {
         public Parameter()
         {
             SpecifiedHelper.Register(this);
         }
+        [Browsable(false)]
+        [XmlIgnore]
+        public bool DirectionIn
+        {
+            get { return Direction == ParameterDirection.In || Direction == ParameterDirection.InOut; }
+        }
+
+        [Browsable(false)]
+        [XmlIgnore]
+        public bool DirectionOut
+        {
+            get { return Direction == ParameterDirection.Out || Direction == ParameterDirection.InOut; }
+        }
     }
 
-    public partial class Return
+    partial class Return
     {
         public Return()
         {
@@ -698,7 +711,7 @@ namespace DbLinq.Schema.Dbml
         }
     }
 
-    public partial class TableFunction
+    partial class TableFunction
     {
         public TableFunction()
         {
@@ -706,7 +719,7 @@ namespace DbLinq.Schema.Dbml
         }
     }
 
-    public partial class TableFunctionParameter
+    partial class TableFunctionParameter
     {
         public TableFunctionParameter()
         {
@@ -714,7 +727,7 @@ namespace DbLinq.Schema.Dbml
         }
     }
 
-    public partial class TableFunctionReturn
+    partial class TableFunctionReturn
     {
         public TableFunctionReturn()
         {

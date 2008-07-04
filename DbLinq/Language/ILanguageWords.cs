@@ -28,7 +28,7 @@ using System.Globalization;
 
 namespace DbLinq.Language
 {
-    public interface ILanguageWords
+    internal interface ILanguageWords
     {
         /// <summary>
         /// using English heuristics, convert 'dogs' to 'dog',

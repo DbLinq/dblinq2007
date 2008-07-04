@@ -32,7 +32,7 @@ namespace System.Data.Linq.Sugar
 namespace DbLinq.Data.Linq.Sugar
 #endif
 {
-    public interface IExpressionOptimizer
+    internal interface IExpressionOptimizer
     {
         /// <summary>
         /// Optimizes expressions:

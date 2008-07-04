@@ -28,7 +28,7 @@ using System.Data;
 
 namespace DbLinq.Vendor.Implementation
 {
-    public partial class SchemaLoader
+    partial class SchemaLoader
     {
         protected abstract IList<IDataTableColumn> ReadColumns(IDbConnection connectionString, string databaseName);
     }

@@ -30,7 +30,7 @@ using System.Runtime.InteropServices;
 
 namespace DbLinq.Util
 {
-    public class ReferenceEqualityComparer<T> : IEqualityComparer<T>
+    internal class ReferenceEqualityComparer<T> : IEqualityComparer<T>
     {
         private MethodInfo objectGetHashCode;
         /// <summary>

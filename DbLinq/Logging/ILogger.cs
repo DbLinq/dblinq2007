@@ -28,7 +28,12 @@ namespace DbLinq.Logging
     /// <summary>
     /// Basic logging. Use this in place of Console, Debug and Trace.
     /// </summary>
-    public interface ILogger
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    interface ILogger
     {
         /// <summary>
         /// Writes a line

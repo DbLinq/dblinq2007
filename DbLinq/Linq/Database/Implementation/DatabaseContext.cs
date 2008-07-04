@@ -30,7 +30,7 @@ using System.Reflection;
 
 namespace DbLinq.Linq.Database.Implementation
 {
-    public class DatabaseContext : IDatabaseContext
+    internal class DatabaseContext : IDatabaseContext
     {
         private bool _connectionOwner;
         private IDbConnection _connection;

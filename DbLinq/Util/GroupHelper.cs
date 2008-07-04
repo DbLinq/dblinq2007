@@ -63,7 +63,7 @@ namespace DbLinq.Util
         }
     }
 
-    public class GroupHelper2<T>
+    internal class GroupHelper2<T>
     {
         /// <summary>
         /// when user is selecting 'new {g.Key,g}', we need to build bindings for the fields so that a row lambda can be created.

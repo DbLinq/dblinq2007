@@ -30,7 +30,12 @@ namespace System.Data.Linq.Identity
 namespace DbLinq.Data.Linq.Identity
 #endif
 {
-    public interface IIdentityReader
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    interface IIdentityReader
     {
         /// <summary>
         /// Gets an object identity

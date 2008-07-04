@@ -38,7 +38,7 @@ namespace System.Data.Linq.Sugar.ExpressionMutator.Implementation
 namespace DbLinq.Data.Linq.Sugar.ExpressionMutator.Implementation
 #endif
 {
-    public class ParameterExpressionMutator : IMutableExpression
+    internal class ParameterExpressionMutator : IMutableExpression
     {
         protected ParameterExpression ParameterExpression { get; private set; }
 

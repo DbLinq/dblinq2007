@@ -37,7 +37,12 @@ namespace DbLinq.Linq.Mapping
     /// Note: on Oracle, this field is comes from a sequence.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
-    public class AutoGenIdAttribute : Attribute
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    class AutoGenIdAttribute : Attribute
     {
     }
 }

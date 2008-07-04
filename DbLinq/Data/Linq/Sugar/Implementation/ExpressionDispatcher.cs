@@ -54,7 +54,7 @@ namespace System.Data.Linq.Sugar.Implementation
 namespace DbLinq.Data.Linq.Sugar.Implementation
 #endif
 {
-    public partial class ExpressionDispatcher : IExpressionDispatcher
+    internal partial class ExpressionDispatcher : IExpressionDispatcher
     {
         public IExpressionQualifier ExpressionQualifier { get; set; }
         public IDataRecordReader DataRecordReader { get; set; }

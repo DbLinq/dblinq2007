@@ -34,7 +34,12 @@ namespace DbLinq.Util
     /// <summary>
     /// Executes a given SQL command, with parameter and delegate
     /// </summary>
-    public static class DataCommand
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    static class DataCommand
     {
         /// <summary>
         /// Executes a provided SQL command, with parameter and callback for each row

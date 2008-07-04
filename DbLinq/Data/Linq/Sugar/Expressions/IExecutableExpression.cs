@@ -30,7 +30,7 @@ namespace System.Data.Linq.Sugar.Expressions
 namespace DbLinq.Data.Linq.Sugar.Expressions
 #endif
 {
-    public interface IExecutableExpression
+    internal interface IExecutableExpression
     {
         /// <summary>
         /// Evaluates the expression value

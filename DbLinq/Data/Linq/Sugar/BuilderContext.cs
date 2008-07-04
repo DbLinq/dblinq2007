@@ -41,7 +41,7 @@ namespace System.Data.Linq.Sugar
 namespace DbLinq.Data.Linq.Sugar
 #endif
 {
-    public class BuilderContext
+    internal class BuilderContext
     {
         // Global context
         public QueryContext QueryContext { get; private set; }

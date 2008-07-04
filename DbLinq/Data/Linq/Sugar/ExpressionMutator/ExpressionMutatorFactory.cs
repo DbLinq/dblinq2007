@@ -40,7 +40,7 @@ namespace System.Data.Linq.Sugar.ExpressionMutator
 namespace DbLinq.Data.Linq.Sugar.ExpressionMutator
 #endif
 {
-    public static class ExpressionMutatorFactory
+    internal static class ExpressionMutatorFactory
     {
         public static IMutableExpression GetMutator(Expression expression)
         {

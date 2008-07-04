@@ -43,7 +43,7 @@ using DbLinq.Util.ExprVisitor;
 
 namespace DbLinq.Linq.Clause
 {
-    public class JoinBuilder
+    internal class JoinBuilder
     {
         /// <summary>
         /// Given memberEx={c.Orders}, and paramExpr={o}, 

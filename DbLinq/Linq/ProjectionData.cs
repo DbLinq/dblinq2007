@@ -47,7 +47,12 @@ namespace DbLinq.Linq
     /// In the special case of 'db.Products.ToList()', 
     /// we use reflection to retrieve all the fields to select - all fields of Product.
     /// </summary>
-    public class ProjectionData
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+ class ProjectionData
     {
         public Type type;
 
@@ -96,7 +101,12 @@ namespace DbLinq.Linq
         /// Field can be either a Property or Field.
         /// e.g. 'select new {ProductId=p.ProductID}' would create one ProjectionField, pointing to ProductId column. 
         /// </summary>
-        public class ProjectionField
+#if MONO_STRICT
+        internal
+#else
+        public
+#endif
+        class ProjectionField
         {
             #region ProjectionField
             public static readonly object[] s_emptyIndices = new object[0];

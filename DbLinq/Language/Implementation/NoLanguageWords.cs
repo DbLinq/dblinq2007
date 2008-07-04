@@ -30,7 +30,7 @@ using DbLinq.Language;
 
 namespace DbLinq.Language.Implementation
 {
-    public class NoLanguageWords : ILanguageWords
+    internal class NoLanguageWords : ILanguageWords
     {
         public string Singularize(string plural)
         {

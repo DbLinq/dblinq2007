@@ -40,7 +40,7 @@ namespace System.Data.Linq.Sugar
 namespace DbLinq.Data.Linq.Sugar
 #endif
 {
-    public interface IDataMapper
+    internal interface IDataMapper
     {
         /// <summary>
         /// Returns a table given a type, or null if the type is not mapped

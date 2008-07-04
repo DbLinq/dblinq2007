@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace DbLinq.Util.ExprVisitor
 {
-    public static class ExpressionTreeComparer
+    internal static class ExpressionTreeComparer
     {
         public static bool TryGetValueEx(this Dictionary<MemberExpression, string> exprNicknames, Expression exprToFind, out string nickname)
         {

@@ -29,7 +29,7 @@ using System.Reflection;
 
 namespace DbLinq.Util
 {
-    public static class TypeExtensions
+    internal static class TypeExtensions
     {
         /// <summary>
         /// Categorize type - this will determine further processing of retrieved types

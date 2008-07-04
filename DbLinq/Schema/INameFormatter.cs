@@ -29,7 +29,12 @@ using DbLinq.Schema;
 
 namespace DbLinq.Schema
 {
-    public interface INameFormatter
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    interface INameFormatter
     {
         SchemaName GetSchemaName(string dbName, WordsExtraction extraction, NameFormat nameFormat);
         ProcedureName GetProcedureName(string dbName, WordsExtraction extraction, NameFormat nameFormat);

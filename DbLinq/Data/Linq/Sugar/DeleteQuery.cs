@@ -37,7 +37,7 @@ namespace System.Data.Linq.Sugar
 namespace DbLinq.Data.Linq.Sugar
 #endif
 {
-    public class DeleteQuery : AbstractQuery
+    internal class DeleteQuery : AbstractQuery
     {
         public IList<ObjectInputParameterExpression> InputParameters { get; private set; }
 

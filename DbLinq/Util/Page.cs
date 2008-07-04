@@ -30,7 +30,12 @@ using System.Text;
 
 namespace DbLinq.Util
 {
-    public class Page
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    class Page
     {
         /// <summary>
         /// break a bigList into pages of size N.
@@ -38,7 +43,7 @@ namespace DbLinq.Util
         public static IEnumerable<List<T>> Paginate<T>(List<T> bigList, int pageSize)
         {
             List<T> smallList = new List<T>();
-            foreach(T t in bigList)
+            foreach (T t in bigList)
             {
                 smallList.Add(t);
                 if (smallList.Count >= pageSize)
@@ -47,7 +52,7 @@ namespace DbLinq.Util
                     smallList.Clear();
                 }
             }
-            if(smallList.Count>0)
+            if (smallList.Count > 0)
                 yield return smallList;
         }
     }

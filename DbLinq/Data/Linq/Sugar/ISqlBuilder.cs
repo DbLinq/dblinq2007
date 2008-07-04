@@ -36,7 +36,7 @@ namespace System.Data.Linq.Sugar
 namespace DbLinq.Data.Linq.Sugar
 #endif
 {
-    public interface ISqlBuilder
+    internal interface ISqlBuilder
     {
         /// <summary>
         /// Builds a SQL string, based on a QueryContext

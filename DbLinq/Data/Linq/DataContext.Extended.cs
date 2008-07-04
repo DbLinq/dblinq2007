@@ -26,6 +26,12 @@
 
 using System;
 using System.Diagnostics;
+using DbLinq.Data.Linq.Mapping;
+using DbLinq.Linq.Database;
+using System.Data.Linq.Mapping;
+using System.Data;
+using DbLinq.Vendor;
+using DbLinq.Linq.Database.Implementation;
 
 #if MONO_STRICT
 namespace System.Data.Linq
@@ -57,6 +63,29 @@ namespace DbLinq.Data.Linq
                     Trace.WriteLine("DatabaseExists failed:" + ex);
                 return false;
             }
+        }
+
+        public virtual MappingContext MappingContext { get { return _MappingContext; } set { _MappingContext = value; } }
+
+        public DataContext(IDatabaseContext databaseContext, MappingSource mappingSource, IVendor vendor)
+        {
+            Init(databaseContext, mappingSource, vendor);
+        }
+
+        public DataContext(IDbConnection dbConnection, MappingSource mappingSource, IVendor vendor)
+            : this(new DatabaseContext(dbConnection), mappingSource, vendor)
+        {
+        }
+
+
+        public DataContext(IDatabaseContext databaseContext, IVendor vendor)
+            : this(databaseContext, null, vendor)
+        {
+        }
+
+        public DataContext(IDbConnection dbConnection, IVendor vendor)
+            : this(new DatabaseContext(dbConnection), vendor)
+        {
         }
     }
 }

@@ -32,7 +32,12 @@ namespace DbLinq.Util
     /// <summary>
     /// Extensions to handle FieldInfo and PropertyInfo as a single class, their MemberInfo class
     /// </summary>
-    public static class MemberInfoExtensions
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    static class MemberInfoExtensions
     {
         /// <summary>
         /// Returns the type of the specified member

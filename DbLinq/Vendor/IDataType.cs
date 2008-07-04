@@ -28,7 +28,12 @@ namespace DbLinq.Vendor
     /// <summary>
     /// Represents a database data type
     /// </summary>
-    public interface IDataType
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    interface IDataType
     {
         /// <summary>
         /// The base type, like 'number', 'varchar'

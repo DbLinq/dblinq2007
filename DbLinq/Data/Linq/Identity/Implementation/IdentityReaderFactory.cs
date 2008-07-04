@@ -39,7 +39,7 @@ namespace System.Data.Linq.Identity.Implementation
 namespace DbLinq.Data.Linq.Identity.Implementation
 #endif
 {
-    public class IdentityReaderFactory : IIdentityReaderFactory
+    internal class IdentityReaderFactory : IIdentityReaderFactory
     {
         public IIdentityReader GetReader(Type t)
         {

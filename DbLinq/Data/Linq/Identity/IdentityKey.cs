@@ -42,7 +42,12 @@ namespace DbLinq.Data.Linq.Identity
     /// Example: to store Product with ProductID=1, we use the following IdentityKey:
     ///  IdentityKey{Type=Product, Keys={1}}
     /// </summary>
-    public class IdentityKey
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    class IdentityKey
     {
         /// <summary>
         /// Entity type
@@ -84,7 +89,7 @@ namespace DbLinq.Data.Linq.Identity
             Keys = new List<object>(keys);
         }
 
-        public IdentityKey(Type type, params object [] keys)
+        public IdentityKey(Type type, params object[] keys)
         {
             Type = type;
             Keys = new List<object>(keys);

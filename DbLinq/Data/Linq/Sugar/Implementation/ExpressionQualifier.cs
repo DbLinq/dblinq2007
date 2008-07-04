@@ -39,7 +39,7 @@ namespace System.Data.Linq.Sugar.Implementation
 namespace DbLinq.Data.Linq.Sugar.Implementation
 #endif
 {
-    public class ExpressionQualifier : IExpressionQualifier
+    internal class ExpressionQualifier : IExpressionQualifier
     {
         /// <summary>
         /// Returns Expression precedence. Higher value means lower precedence.
