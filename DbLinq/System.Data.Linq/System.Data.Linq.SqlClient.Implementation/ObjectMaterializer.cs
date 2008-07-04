@@ -37,6 +37,12 @@ namespace System.Data.Linq.SqlClient.Implementation
 {
 	public abstract class ObjectMaterializer<TDataReader> where TDataReader : DbDataReader
 	{
+        [MonoTODO]
+        public ObjectMaterializer()
+        {
+            throw new NotImplementedException();
+        }
+
 		[MonoTODO]
 		public static IEnumerable<TOutput> Convert<TOutput> (IEnumerable source)
 		{

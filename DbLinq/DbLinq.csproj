@@ -59,7 +59,6 @@
     <Compile Include="..\DbLinq.ProductInfo.cs">
       <Link>Properties\DbLinq.ProductInfo.cs</Link>
     </Compile>
-    <Compile Include="Data\Linq\ChangeAction.cs" />
     <Compile Include="Data\Linq\ChangeSet.cs" />
     <Compile Include="Data\Linq\ITable.Extended.cs" />
     <Compile Include="Data\Linq\DataContext.cs" />
@@ -89,7 +88,6 @@
     <Compile Include="Data\Linq\Mapping\AttributedMetaType.cs" />
     <Compile Include="Data\Linq\Mapping\AttributeMappingSource.cs" />
     <Compile Include="Data\Linq\Mapping\MappingContext.cs" />
-    <Compile Include="Data\Linq\RefreshMode.cs" />
     <Compile Include="Data\Linq\Sugar\BuilderContext.cs" />
     <Compile Include="Data\Linq\Sugar\DeleteQuery.cs" />
     <Compile Include="Data\Linq\Sugar\Error.cs" />

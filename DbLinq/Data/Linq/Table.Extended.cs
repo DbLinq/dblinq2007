@@ -12,10 +12,10 @@ namespace DbLinq.Data.Linq
     /// T may be eg. class Employee or string - the output
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    partial class Table<T>
+    partial class Table<TEntity>
     {
         public ILogger Logger { get { return _Logger; } set { _Logger = value; } }
-        public void CancelDeleteOnSubmit(T entity)
+        public void CancelDeleteOnSubmit(TEntity entity)
         {
             
         }
@@ -25,7 +25,7 @@ namespace DbLinq.Data.Linq
 
         }
 
-        protected virtual void Process(IEnumerable<T> ts, Action<T, QueryContext> process, ConflictMode failureMode,
+        protected virtual void Process(IEnumerable<TEntity> ts, Action<TEntity, QueryContext> process, ConflictMode failureMode,
             IList<Exception> exceptions)
         {
             this._Process(ts, process, failureMode, exceptions);

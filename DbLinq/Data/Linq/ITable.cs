@@ -26,6 +26,7 @@
 
 using System.Collections;
 using System.Data.Linq;
+using System.Linq;
 
 #if MONO_STRICT
 namespace System.Data.Linq
@@ -33,7 +34,7 @@ namespace System.Data.Linq
 namespace DbLinq.Data.Linq
 #endif
 {
-    public partial interface ITable
+    public partial interface ITable : IEnumerable, IQueryable
     {
         DataContext Context { get; }
         bool IsReadOnly { get; }
