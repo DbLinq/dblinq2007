@@ -31,9 +31,14 @@ using System.Linq.Expressions;
 
 namespace DbLinq.Util.ExprVisitor
 {
-    public delegate object FunctionReturningObject();
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    delegate object FunctionReturningObject();
 
-    public class LocalExpressionChecker : ExpressionVisitor
+    internal class LocalExpressionChecker : ExpressionVisitor
     {
         bool _foundParameter = false;
         bool _foundConstant = false;

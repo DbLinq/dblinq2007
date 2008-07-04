@@ -37,7 +37,7 @@ namespace System.Data.Linq.Sugar
 namespace DbLinq.Data.Linq.Sugar
 #endif
 {
-    public class UpsertQuery : AbstractQuery
+    internal class UpsertQuery : AbstractQuery
     {
         public IList<ObjectInputParameterExpression> InputParameters { get; private set; }
         public IList<ObjectOutputParameterExpression> OutputParameters { get; private set; }

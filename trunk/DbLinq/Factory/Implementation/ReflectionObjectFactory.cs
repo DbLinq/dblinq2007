@@ -38,7 +38,7 @@ namespace DbLinq.Factory.Implementation
     /// Object factory. Main objects (most of them are stateless) are created with this class
     /// This may allow later to inject dependencies with a third party injector (I'm a Spring.NET big fan)
     /// </summary>
-    public class ReflectionObjectFactory : AbstractObjectFactory
+    internal class ReflectionObjectFactory : AbstractObjectFactory
     {
         private IDictionary<Type, IList<Type>> implementations;
         protected IDictionary<Type, IList<Type>> Implementations

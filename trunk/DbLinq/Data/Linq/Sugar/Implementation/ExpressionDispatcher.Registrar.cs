@@ -49,7 +49,7 @@ namespace System.Data.Linq.Sugar.Implementation
 namespace DbLinq.Data.Linq.Sugar.Implementation
 #endif
 {
-    public partial class ExpressionDispatcher
+    internal partial class ExpressionDispatcher
     {
 
         /// <summary>

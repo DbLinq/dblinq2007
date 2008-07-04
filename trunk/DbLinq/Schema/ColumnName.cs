@@ -25,7 +25,12 @@
 #endregion
 namespace DbLinq.Schema
 {
-    public class ColumnName: Name
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    class ColumnName : Name
     {
         /// <summary>
         /// Name of the public property

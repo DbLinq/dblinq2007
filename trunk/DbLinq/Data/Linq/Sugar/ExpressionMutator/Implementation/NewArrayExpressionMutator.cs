@@ -39,7 +39,7 @@ namespace System.Data.Linq.Sugar.ExpressionMutator.Implementation
 namespace DbLinq.Data.Linq.Sugar.ExpressionMutator.Implementation
 #endif
 {
-    public class NewArrayExpressionMutator : IMutableExpression
+    internal class NewArrayExpressionMutator : IMutableExpression
     {
         protected NewArrayExpression NewArrayExpression { get; private set; }
 

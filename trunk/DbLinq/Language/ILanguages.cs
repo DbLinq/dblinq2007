@@ -28,7 +28,7 @@ using DbLinq.Language;
 
 namespace DbLinq.Language
 {
-    public interface ILanguages
+    internal interface ILanguages
     {
         ILanguageWords Load(CultureInfo cultureInfo);
     }

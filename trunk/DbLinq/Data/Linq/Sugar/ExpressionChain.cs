@@ -36,7 +36,7 @@ namespace DbLinq.Data.Linq.Sugar
 #endif
 {
     [DebuggerDisplay("ExpressionChain {Expressions.Count} Expression(s)")]
-    public class ExpressionChain : IEnumerable<Expression>
+    internal class ExpressionChain : IEnumerable<Expression>
     {
         public List<Expression> Expressions { get; private set; }
 

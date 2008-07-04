@@ -40,7 +40,7 @@ using DbLinq.Util;
 using DataContext=System.Data.Linq.DataContext;
 using Data = System.Data;
 #else
-using DataContext=DbLinq.Data.Linq.DataContext;
+using DataContext = DbLinq.Data.Linq.DataContext;
 using Data = DbLinq.Data;
 #endif
 
@@ -50,7 +50,12 @@ namespace DbLinq.Vendor.Implementation
     /// some IVendor functionality is the same for many vendors,
     /// implemented here as virtual functions.
     /// </summary>
-    public abstract partial class Vendor : IVendor
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    abstract partial class Vendor : IVendor
     {
         public ILogger Logger { get; set; }
 

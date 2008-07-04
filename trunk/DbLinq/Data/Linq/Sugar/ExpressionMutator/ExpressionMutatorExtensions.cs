@@ -45,7 +45,7 @@ namespace DbLinq.Data.Linq.Sugar.ExpressionMutator
     /// <summary>
     /// Extensions to Expression, to enumerate and dynamically change operands in a uniformized way
     /// </summary>
-    public static class ExpressionMutatorExtensions
+    internal static class ExpressionMutatorExtensions
     {
         /// <summary>
         /// Enumerates all subexpressions related to this one

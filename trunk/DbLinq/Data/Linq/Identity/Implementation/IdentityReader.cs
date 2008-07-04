@@ -40,7 +40,7 @@ namespace System.Data.Linq.Identity.Implementation
 namespace DbLinq.Data.Linq.Identity.Implementation
 #endif
 {
-    public class IdentityReader : IIdentityReader
+    internal class IdentityReader : IIdentityReader
     {
         private Type type;
         private IList<MemberInfo> keyMembers = new List<MemberInfo>();

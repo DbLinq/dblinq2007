@@ -34,7 +34,7 @@ namespace System.Data.Linq.Sugar.Implementation
 namespace DbLinq.Data.Linq.Sugar.Implementation
 #endif
 {
-    public class QueryCache : IQueryCache
+    internal class QueryCache : IQueryCache
     {
         private class TableReaderSignature
         {

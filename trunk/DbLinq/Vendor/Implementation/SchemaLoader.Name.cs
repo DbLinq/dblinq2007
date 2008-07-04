@@ -31,7 +31,7 @@ using DbLinq.Schema.Dbml;
 
 namespace DbLinq.Vendor.Implementation
 {
-    public partial class SchemaLoader
+    partial class SchemaLoader
     {
         protected virtual void CheckNamesCaseSafety(Database schema)
         {

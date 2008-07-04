@@ -36,7 +36,12 @@ namespace DbLinq.Linq
     /// Object which holds the pieces of a SELECT as it's being put together.
     /// The ToString() method is used to produce the final SQL statement.
     /// </summary>
-    public class SqlExpressionParts
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+ class SqlExpressionParts
     {
         private IVendor _vendor;
 
@@ -252,7 +257,12 @@ namespace DbLinq.Linq
     /// <summary>
     /// holds table name and nickname, e.g. TableSpec{ '[Order Details]', 'o$' }
     /// </summary>
-    public class TableSpec
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+ class TableSpec
     {
         public string TableName;
         public string NickName;
@@ -269,7 +279,12 @@ namespace DbLinq.Linq
     /// <summary>
     /// holds information for a JOIN - the left and right table specs, left and right fields
     /// </summary>
-    public class JoinSpec
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    class JoinSpec
     {
         /// <summary>
         /// note: OUTER JOIN is not supported in LINQ.
@@ -303,8 +318,8 @@ namespace DbLinq.Linq
 
         public bool Matches(JoinSpec js2)
         {
-            bool same1 = LeftSpec.Matches(js2.LeftSpec) && RightSpec.Matches(js2.RightSpec) 
-                && LeftField==js2.LeftField && RightField==js2.RightField;
+            bool same1 = LeftSpec.Matches(js2.LeftSpec) && RightSpec.Matches(js2.RightSpec)
+                && LeftField == js2.LeftField && RightField == js2.RightField;
             if (same1)
                 return true;
             bool same2 = LeftSpec.Matches(js2.RightSpec) && RightSpec.Matches(js2.LeftSpec)

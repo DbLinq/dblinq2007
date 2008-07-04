@@ -186,7 +186,7 @@ namespace DbLinq.Linq
 
     }
 
-    public interface IGetSessionVars
+    internal interface IGetSessionVars
     {
         SessionVars SessionVars { get; }
     }

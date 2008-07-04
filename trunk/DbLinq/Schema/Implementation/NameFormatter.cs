@@ -33,7 +33,7 @@ using DbLinq.Schema;
 
 namespace DbLinq.Schema.Implementation
 {
-    public class NameFormatter : INameFormatter
+    internal class NameFormatter : INameFormatter
     {
         public enum Singularization
         {

@@ -30,7 +30,7 @@ using System.Linq.Expressions;
 
 namespace DbLinq.Util
 {
-    public static class Operators
+    internal static class Operators
     {
         /// <summary>
         /// return MySql precedence of an operator.

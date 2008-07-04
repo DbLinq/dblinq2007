@@ -29,7 +29,12 @@ using System.Text;
 
 namespace DbLinq.Util
 {
-    public static class FieldUtils
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    static class FieldUtils
     {
         /// <summary>
         /// assign 'ID' to a field, handles int/uint/long conversions.
@@ -86,9 +91,10 @@ namespace DbLinq.Util
         public static object CastValue(object dbValue, Type desiredType)
         {
 
-             if (desiredType == typeof(string)) {
-                 return dbValue.ToString();
-               }
+            if (desiredType == typeof(string))
+            {
+                return dbValue.ToString();
+            }
 
 
             if (dbValue is long)

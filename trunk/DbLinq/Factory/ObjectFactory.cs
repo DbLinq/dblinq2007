@@ -29,7 +29,12 @@ namespace DbLinq.Factory
     /// Object factory. Main objects (most of them are stateless) are created with this class
     /// This may allow later to inject dependencies with a third party injector (I'm a Spring.NET big fan)
     /// </summary>
-    public static class ObjectFactory
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    static class ObjectFactory
     {
         /// <summary>
         /// Central object factory. If you want to use your own factory, just replace this member.

@@ -44,7 +44,7 @@ namespace System.Data.Linq.Sugar.Implementation
 namespace DbLinq.Data.Linq.Sugar.Implementation
 #endif
 {
-    public class QueryRunner : IQueryRunner
+    internal class QueryRunner : IQueryRunner
     {
         /// <summary>
         /// Enumerates all records return by SQL request
@@ -73,7 +73,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     if (dbDataReader.FieldCount == 0)
                         continue;
 
-                    var row = rowObjectCreator(dbDataReader, selectQuery.DataContext.MappingContext);
+                    var row = rowObjectCreator(dbDataReader, selectQuery.DataContext._MappingContext);
                     // the conditions to register and watch an entity are:
                     // - not null (can this happen?)
                     // - registered in the model

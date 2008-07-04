@@ -33,7 +33,7 @@ namespace DbLinq.Data.Linq.Identity
     /// <summary>
     /// This interface may be used by identities to provide a quick access to keys
     /// </summary>
-    public interface IIdentityProvider
+    internal interface IIdentityProvider
     {
         IdentityKey GetIdentity();
     }

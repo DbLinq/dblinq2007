@@ -30,7 +30,7 @@ using DbLinq.Language;
 
 namespace DbLinq.Language.Implementation
 {
-    public class Languages : ILanguages
+    internal class Languages : ILanguages
     {
         public ILanguageWords Load(CultureInfo cultureInfo)
         {

@@ -28,7 +28,12 @@ using System.Data;
 
 namespace DbLinq.Linq.Database
 {
-    public interface IDatabaseContext: IDisposable
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    interface IDatabaseContext : IDisposable
     {
         // there are two ways to specify a connection:
         // 1. use a provided IDbConnection
@@ -40,7 +45,7 @@ namespace DbLinq.Linq.Database
         // connection and transactions
         IDatabaseTransaction Transaction();
         IDisposable OpenConnection();
-        
+
         // factory
         IDbCommand CreateCommand();
         IDbDataAdapter CreateDataAdapter();

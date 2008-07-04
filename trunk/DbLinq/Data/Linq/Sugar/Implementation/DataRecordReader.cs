@@ -43,7 +43,7 @@ namespace System.Data.Linq.Sugar.Implementation
 namespace DbLinq.Data.Linq.Sugar.Implementation
 #endif
 {
-    public class DataRecordReader : IDataRecordReader
+    internal class DataRecordReader : IDataRecordReader
     {
         /// <summary>
         /// Returns a Expression reading a property from a IDataRecord, at the specified index

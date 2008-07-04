@@ -47,7 +47,7 @@ namespace DbLinq.Data.Linq.Sugar
     /// Represents a linq query, parsed and compiled, to be sent to database
     /// This instance is immutable, since it can be stored in a cache
     /// </summary>
-    public class SelectQuery: AbstractQuery
+    internal class SelectQuery: AbstractQuery
     {
         /// <summary>
         /// Parameters to be sent as SQL parameters
@@ -58,7 +58,7 @@ namespace DbLinq.Data.Linq.Sugar
         /// Expression that creates a row object
         /// Use GetRowObjectCreator() to access the object with type safety
         /// </summary>
-        public Delegate RowObjectCreator { get; private set; }
+        internal Delegate RowObjectCreator { get; private set; }
 
         /// <summary>
         /// Returns the row object creator, strongly typed

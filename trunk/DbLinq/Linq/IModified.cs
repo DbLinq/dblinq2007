@@ -33,7 +33,12 @@ namespace DbLinq.Linq
     /// Simple interface, which allows to query which business objects have been modified.
     /// Only objects with primary keys implement this interface.
     /// </summary>
-    public interface IModified
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    interface IModified
     {
         /// <summary>
         /// after object is saved to database, 

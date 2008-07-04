@@ -43,7 +43,7 @@ namespace DbLinq.Data.Linq.Implementation
     /// <summary>
     /// this is the 'live object cache'
     /// </summary>
-    public class EntityMap : IEntityMap
+    internal class EntityMap : IEntityMap
     {
         private IDictionary<IdentityKey, object> entities = new Dictionary<IdentityKey, object>();
 

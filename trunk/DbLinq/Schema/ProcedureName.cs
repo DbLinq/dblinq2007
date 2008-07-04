@@ -25,7 +25,12 @@
 #endregion
 namespace DbLinq.Schema
 {
-    public class ProcedureName: Name
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    class ProcedureName : Name
     {
         /// <summary>
         /// Name to be used from a .NET call

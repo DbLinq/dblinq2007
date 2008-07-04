@@ -47,7 +47,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
     /// <summary>
     /// Analyzes language patterns and replace them with standard expressions
     /// </summary>
-    public class ExpressionLanguageParser : IExpressionLanguageParser
+    internal class ExpressionLanguageParser : IExpressionLanguageParser
     {
         public virtual Expression Parse(Expression expression, BuilderContext builderContext)
         {

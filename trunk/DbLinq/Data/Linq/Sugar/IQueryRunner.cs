@@ -38,7 +38,7 @@ namespace System.Data.Linq.Sugar
 namespace DbLinq.Data.Linq.Sugar
 #endif
 {
-    public interface IQueryRunner
+    internal interface IQueryRunner
     {
         /// <summary>
         /// Enumerates all records return by SQL request

@@ -31,7 +31,7 @@ using DbLinq.Logging;
 
 namespace DbLinq.Util
 {
-    public static class ILoggerExtension
+    internal static class ILoggerExtension
     {
         public static void WriteExpression(this ILogger logger, Level level, Expression expression)
         {

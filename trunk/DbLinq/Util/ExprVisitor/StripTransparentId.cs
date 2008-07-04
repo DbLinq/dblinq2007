@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace DbLinq.Util.ExprVisitor
 {
-    public class StripTransparentId : ExpressionVisitor
+    internal class StripTransparentId : ExpressionVisitor
     {
         public Expression Modify(Expression expression)
         {

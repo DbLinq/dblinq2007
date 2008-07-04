@@ -40,14 +40,19 @@ using DbLinq.Linq;
 using DataContext=System.Data.Linq.DataContext;
 using Data = System.Data;
 #else
-using DataContext=DbLinq.Data.Linq.DataContext;
+using DataContext = DbLinq.Data.Linq.DataContext;
 using Data = DbLinq.Data;
 #endif
 
 namespace DbLinq.Vendor
 {
 
-    public class ValueConversionEventArgs : EventArgs
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    class ValueConversionEventArgs : EventArgs
     {
         internal void Init(int ordinal, IDataRecord record, object value)
         {
@@ -70,7 +75,12 @@ namespace DbLinq.Vendor
     /// <summary>
     /// Vendor - specific part of DbLinq.
     /// </summary>
-    public interface IVendor
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+ interface IVendor
     {
         #region Database access and generic methods
 
@@ -263,7 +273,7 @@ namespace DbLinq.Vendor
         event EventHandler<ValueConversionEventArgs> ConvertValue;
     }
 
-    public static class VendorEx
+    internal static class VendorEx
     {
         /// <summary>
         /// given Type 'OrderDetails', produce TableSpec{ '[Order Details]', 'o$' }

@@ -38,7 +38,7 @@ namespace System.Data.Linq.Sugar.ExpressionMutator.Implementation
 namespace DbLinq.Data.Linq.Sugar.ExpressionMutator.Implementation
 #endif
 {
-    public class TypeBinaryExpressionMutator : IMutableExpression
+    internal class TypeBinaryExpressionMutator : IMutableExpression
     {
         protected TypeBinaryExpression TypeBinaryExpression { get; private set; }
 

@@ -30,13 +30,18 @@ using DbLinq.Schema.Dbml;
 
 namespace DbLinq.Vendor
 {
-    public interface ISchemaLoader
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    interface ISchemaLoader
     {
         string VendorName { get; }
         IVendor Vendor { get; }
         System.Type DataContextType { get; }
         IDbConnection Connection { get; set; }
-        Database Load(string databaseName, INameAliases nameAliases, NameFormat nameFormat, 
+        Database Load(string databaseName, INameAliases nameAliases, NameFormat nameFormat,
             bool loadStoredProcedures, string contextNamespace, string entityNamespace);
     }
 }

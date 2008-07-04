@@ -30,7 +30,12 @@ using System.Reflection;
 namespace DbLinq.Util
 {
     // This class is untested by now
-    public static class TypeLoader
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    static class TypeLoader
     {
         public static Type Load(string name)
         {

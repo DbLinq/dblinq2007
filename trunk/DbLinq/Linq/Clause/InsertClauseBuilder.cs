@@ -46,7 +46,12 @@ using System.Diagnostics;
 
 namespace DbLinq.Linq.Clause
 {
-    public class InsertClauseBuilder
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    class InsertClauseBuilder
     {
         /// <summary>
         /// given type Employee, return 'INSERT Employee (ID, Name) VALUES (?p1,?p2)'

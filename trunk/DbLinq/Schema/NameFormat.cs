@@ -31,7 +31,12 @@ namespace DbLinq.Schema
     /// <summary>
     /// Determines how names must be formated, when extracting from database
     /// </summary>
-    public class NameFormat
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    class NameFormat
     {
         /// <summary>
         /// True if we allow pluralization/singularization

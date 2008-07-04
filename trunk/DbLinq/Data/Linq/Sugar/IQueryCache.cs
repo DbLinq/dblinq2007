@@ -33,7 +33,7 @@ namespace System.Data.Linq.Sugar
 namespace DbLinq.Data.Linq.Sugar
 #endif
 {
-    public interface IQueryCache
+    internal interface IQueryCache
     {
         SelectQuery GetFromSelectCache(ExpressionChain expressions);
         void SetInSelectCache(ExpressionChain expressions, SelectQuery sqlSelectQuery);

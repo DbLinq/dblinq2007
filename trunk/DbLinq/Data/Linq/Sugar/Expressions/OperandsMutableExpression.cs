@@ -35,7 +35,7 @@ namespace System.Data.Linq.Sugar.Expressions
 namespace DbLinq.Data.Linq.Sugar.Expressions
 #endif
 {
-    public abstract class OperandsMutableExpression : MutableExpression
+    internal abstract class OperandsMutableExpression : MutableExpression
     {
         protected OperandsMutableExpression(ExpressionType expressionType, Type type, IList<Expression> operands)
             : base(expressionType, type)

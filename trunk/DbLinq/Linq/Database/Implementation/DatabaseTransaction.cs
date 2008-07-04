@@ -28,7 +28,7 @@ using System.Data;
 
 namespace DbLinq.Linq.Database.Implementation
 {
-    public class DatabaseTransaction : IDatabaseTransaction
+    internal class DatabaseTransaction : IDatabaseTransaction
     {
         [ThreadStatic]
         private static DatabaseTransaction _currentTransaction;

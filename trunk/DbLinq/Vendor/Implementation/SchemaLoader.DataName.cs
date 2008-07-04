@@ -25,7 +25,7 @@
 #endregion
 namespace DbLinq.Vendor.Implementation
 {
-    public partial class SchemaLoader
+    partial class SchemaLoader
     {
         public class DataName : IDataName
         {

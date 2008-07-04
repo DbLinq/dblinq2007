@@ -40,12 +40,7 @@ namespace DbLinq.Data.Linq
     /// <summary>
     /// IEntityMap stores entities by key
     /// </summary>
-#if MONO_STRICT
-    internal
-#else
-    public
-#endif
-    interface IEntityMap
+    internal interface IEntityMap
     {
         IEnumerable<IdentityKey> Keys { get; }
         /// <summary>

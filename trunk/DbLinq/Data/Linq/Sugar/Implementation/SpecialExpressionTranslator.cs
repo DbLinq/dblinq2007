@@ -45,7 +45,7 @@ namespace System.Data.Linq.Sugar.Implementation
 namespace DbLinq.Data.Linq.Sugar.Implementation
 #endif
 {
-    public class SpecialExpressionTranslator : ISpecialExpressionTranslator
+    internal class SpecialExpressionTranslator : ISpecialExpressionTranslator
     {
         /// <summary>
         /// Translate a hierarchy's SpecialExpressions to Expressions

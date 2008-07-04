@@ -28,7 +28,12 @@ using System.Data;
 
 namespace DbLinq.Util
 {
-    public static class IDataRecordExtensions
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    static class IDataRecordExtensions
     {
         // please note that sometimes (depending on driver), GetValue() returns DBNull instead of null
         // so at this level, we handle both

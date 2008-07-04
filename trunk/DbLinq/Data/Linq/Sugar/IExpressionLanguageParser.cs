@@ -32,7 +32,7 @@ namespace System.Data.Linq.Sugar
 namespace DbLinq.Data.Linq.Sugar
 #endif
 {
-    public interface IExpressionLanguageParser
+    internal interface IExpressionLanguageParser
     {
         /// <summary>
         /// Transforms language specific patterns to simple expressions.

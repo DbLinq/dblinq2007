@@ -12,7 +12,7 @@ namespace DbLinq.Util.ExprVisitor
     /// Modify({c2=>c2.CustomerID}) will return replace each c2 with c, 
     /// and return {c=>c.CustomerID}.
     /// </summary>
-    public class ParamReplacer : ExpressionVisitor, IExpressionModifier
+    internal class ParamReplacer : ExpressionVisitor, IExpressionModifier
     {
         readonly ParameterExpression _paramExpr;
         ParameterExpression _lambdaParamToMatch;

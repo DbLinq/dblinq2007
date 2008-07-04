@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace DbLinq.Util.ExprVisitor
 {
-    public class ExpressionRegex : IExpressionModifier
+    internal class ExpressionRegex : IExpressionModifier
     {
         Expression _pattern;
         ParameterExpression _replacement;
@@ -54,7 +54,7 @@ namespace DbLinq.Util.ExprVisitor
             return modified;
         }
 
-        public class MemberReplacer : ExpressionVisitor, IExpressionModifier
+        internal class MemberReplacer : ExpressionVisitor, IExpressionModifier
         {
             MemberExpression _match;
             ParameterExpression _replace;
@@ -77,7 +77,7 @@ namespace DbLinq.Util.ExprVisitor
             }
         }
 
-        public class ParameterReplacer : ExpressionVisitor, IExpressionModifier
+        internal class ParameterReplacer : ExpressionVisitor, IExpressionModifier
         {
             ParameterExpression _match;
             ParameterExpression _replace;

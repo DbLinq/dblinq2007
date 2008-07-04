@@ -2,19 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DbLinq.Logging;
+using DbLinq.Data.Linq.Sugar;
+using System.Data.Linq;
 
-#if MONO_STRICT
-namespace System.Data.Linq
-#else
 namespace DbLinq.Data.Linq
-#endif
 {
     /// <summary>
     /// T may be eg. class Employee or string - the output
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public partial class Table<T>
+    partial class Table<T>
     {
+        public ILogger Logger { get { return _Logger; } set { _Logger = value; } }
         public void CancelDeleteOnSubmit(T entity)
         {
             
@@ -23,6 +23,12 @@ namespace DbLinq.Data.Linq
         void ITable.CancelDeleteOnSubmit(object entity)
         {
 
+        }
+
+        protected virtual void Process(IEnumerable<T> ts, Action<T, QueryContext> process, ConflictMode failureMode,
+            IList<Exception> exceptions)
+        {
+            this._Process(ts, process, failureMode, exceptions);
         }
     }
 }

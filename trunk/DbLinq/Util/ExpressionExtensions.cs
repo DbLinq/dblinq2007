@@ -35,7 +35,7 @@ namespace DbLinq.Util
     /// extension methods for Expressions.
     /// Allow casting of 'ex' as 'ex.Lambda' etc.
     /// </summary>
-    public static class ExprExtensions
+    internal static class ExprExtensions
     {
         public static MethodCallExpression XMethodCall(this Expression ex)
         {

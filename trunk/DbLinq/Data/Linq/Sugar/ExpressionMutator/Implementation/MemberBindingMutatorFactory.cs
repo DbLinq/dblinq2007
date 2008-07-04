@@ -39,7 +39,7 @@ namespace System.Data.Linq.Sugar.ExpressionMutator.Implementation
 namespace DbLinq.Data.Linq.Sugar.ExpressionMutator.Implementation
 #endif
 {
-    public static class MemberBindingMutatorFactory
+    internal static class MemberBindingMutatorFactory
     {
         public static IMemberBindingMutator GetMutator(MemberBinding memberBinding)
         {

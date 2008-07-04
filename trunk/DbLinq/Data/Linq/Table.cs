@@ -57,7 +57,7 @@ namespace DbLinq.Data.Linq
     /// T may be eg. class Employee or string - the output
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public partial class Table<T> :
+public partial class Table<T> :
         IQueryable<T>,
         IOrderedQueryable<T>, //this is cheating ... we pretend to be always ordered
         ITable,
@@ -74,7 +74,7 @@ namespace DbLinq.Data.Linq
         // QueryProvider is the running entity, running through nested Expressions
         private readonly QueryProvider<T> _queryProvider;
 
-        public ILogger Logger { get; set; }
+        internal ILogger _Logger { get; set; }
 
         internal Table(DataContext parentContext)
         {
@@ -286,7 +286,7 @@ namespace DbLinq.Data.Linq
             return exceptions;
         }
 
-        protected virtual void Process(IEnumerable<T> ts, Action<T, QueryContext> process, ConflictMode failureMode,
+        internal virtual void _Process(IEnumerable<T> ts, Action<T, QueryContext> process, ConflictMode failureMode,
             IList<Exception> exceptions)
         {
             var queryContext = new QueryContext(Context);
@@ -321,7 +321,7 @@ namespace DbLinq.Data.Linq
             }
             else
             {
-                Process(toInsert,
+                _Process(toInsert,
                     delegate(T t, QueryContext queryContext)
                     {
                         var insertQuery = Context.QueryBuilder.GetInsertQuery(t, queryContext);
@@ -335,7 +335,7 @@ namespace DbLinq.Data.Linq
 
         protected virtual void ProcessUpdate(ConflictMode failureMode, List<Exception> exceptions)
         {
-            Process(Context.GetRegisteredEntities<T>(),
+            _Process(Context.GetRegisteredEntities<T>(),
                     delegate(T t, QueryContext queryContext)
                     {
                         if (Context.MemberModificationHandler.IsModified(t, Context.Mapping))
@@ -352,7 +352,7 @@ namespace DbLinq.Data.Linq
         protected virtual void ProcessDelete(ConflictMode failureMode, List<Exception> exceptions)
         {
             var toDelete = new List<T>(Context.DeleteList.Enumerate<T>());
-            Process(toDelete,
+            _Process(toDelete,
                     delegate(T t, QueryContext queryContext)
                     {
                         var deleteQuery = Context.QueryBuilder.GetDeleteQuery(t, queryContext);

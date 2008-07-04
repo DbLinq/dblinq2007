@@ -25,7 +25,12 @@
 #endregion
 namespace DbLinq.Logging.Implementation
 {
-    public abstract class Logger: ILogger
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    abstract class Logger : ILogger
     {
         public abstract void Write(Level level, string text);
 

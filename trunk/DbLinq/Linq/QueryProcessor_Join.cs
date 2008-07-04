@@ -36,7 +36,7 @@ using DbLinq.Vendor;
 
 namespace DbLinq.Linq
 {
-    public partial class QueryProcessor
+    internal partial class QueryProcessor
     {
         void ProcessGroupJoin(MethodCallExpression exprCall)
         {

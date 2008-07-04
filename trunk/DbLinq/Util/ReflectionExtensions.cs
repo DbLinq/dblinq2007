@@ -29,7 +29,7 @@ using System.Reflection;
 
 namespace DbLinq.Util
 {
-    public static class ReflectionExtensions
+    internal static class ReflectionExtensions
     {
         private static A GetSingleAttribute<A>(object[] attributes)
             where A : Attribute

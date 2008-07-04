@@ -25,7 +25,13 @@
 #endregion
 namespace DbLinq.Schema
 {
-    public class AssociationName: Name
+
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    class AssociationName : Name
     {
         public string ManyToOneMemberName { get; set; }
         public string OneToManyMemberName { get; set; }

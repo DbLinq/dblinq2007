@@ -11,7 +11,7 @@ using System.Linq.Expressions;
 
 namespace System.Linq.Expressions
 {
-    public abstract class ExpressionVisitor
+    internal abstract class ExpressionVisitor
     {
         protected ExpressionVisitor()
         {

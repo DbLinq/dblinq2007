@@ -28,7 +28,12 @@ using DbLinq.Vendor;
 
 namespace DbLinq.Util
 {
-    public static class IDataTypeExtensions
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    static class IDataTypeExtensions
     {
         private static Regex rawTypeEx = new Regex(@"(?<type>\w+)(\((?<length>\d+)(,(?<scale>\d+))?\))?( (?<qualifier>\w+))?", RegexOptions.Compiled);
         /// <summary>

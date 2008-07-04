@@ -28,7 +28,12 @@ using System.Diagnostics;
 
 namespace DbLinq.Logging.Implementation
 {
-    public class ConsoleLogger : Logger
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    class ConsoleLogger : Logger
     {
         public override void Write(Level level, string text)
         {

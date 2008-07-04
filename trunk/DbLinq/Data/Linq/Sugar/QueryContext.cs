@@ -30,7 +30,12 @@ namespace System.Data.Linq.Sugar
 namespace DbLinq.Data.Linq.Sugar
 #endif
 {
-    public class QueryContext
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    class QueryContext
     {
         public DataContext DataContext { get; private set; }
 

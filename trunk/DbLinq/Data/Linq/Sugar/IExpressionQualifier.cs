@@ -32,7 +32,7 @@ namespace System.Data.Linq.Sugar
 namespace DbLinq.Data.Linq.Sugar
 #endif
 {
-    public interface IExpressionQualifier
+    internal interface IExpressionQualifier
     {
         /// <summary>
         /// Returns Expression precedence. Higher value means lower precedence.

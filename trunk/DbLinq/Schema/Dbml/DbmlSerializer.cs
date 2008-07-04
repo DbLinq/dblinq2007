@@ -32,7 +32,12 @@ using System.Xml.Serialization;
 
 namespace DbLinq.Schema.Dbml
 {
-    public static class DbmlSerializer
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    static class DbmlSerializer
     {
         private class ValidationException : XmlSchemaValidationException
         {

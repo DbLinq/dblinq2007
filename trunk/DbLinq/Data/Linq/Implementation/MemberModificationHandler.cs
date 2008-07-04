@@ -41,7 +41,7 @@ namespace DbLinq.Data.Linq.Implementation
     /// 1. if entity implements IModifed, uses the interface and its IsModifed flag property
     /// 2. otherwise, the handler keeps a dictionary of raw data per entity
     /// </summary>
-    public class MemberModificationHandler : IMemberModificationHandler
+    internal class MemberModificationHandler : IMemberModificationHandler
     {
         private readonly IDictionary<object, IDictionary<string, object>> rawDataEntities = new Dictionary<object, IDictionary<string, object>>(new ReferenceEqualityComparer<object>());
         private readonly IDictionary<object, IDictionary<string, MemberInfo>> modifiedProperties = new Dictionary<object, IDictionary<string, MemberInfo>>(new ReferenceEqualityComparer<object>());

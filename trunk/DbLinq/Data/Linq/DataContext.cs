@@ -95,7 +95,7 @@ namespace DbLinq.Data.Linq
         /// <summary>
         /// The default behavior creates one MappingContext.
         /// </summary>
-        public virtual MappingContext MappingContext { get; set; }
+        internal virtual MappingContext _MappingContext { get; set; }
 
         /// <summary>
         /// A DataContext opens and closes a database connection as needed 
@@ -104,7 +104,8 @@ namespace DbLinq.Data.Linq
         /// If you provide an open connection, the DataContext will not close it
         /// source: http://msdn2.microsoft.com/en-us/library/bb292288.aspx
         /// </summary>
-        public DataContext(IDatabaseContext databaseContext, MappingSource mappingSource, IVendor vendor)
+
+        private void Init(IDatabaseContext databaseContext, MappingSource mappingSource, IVendor vendor)
         {
             if (databaseContext == null || vendor == null)
                 throw new ArgumentNullException("Null arguments");
@@ -121,29 +122,14 @@ namespace DbLinq.Data.Linq
             EntityMap = ObjectFactory.Create<IEntityMap>();
             identityReaderFactory = ObjectFactory.Get<IIdentityReaderFactory>();
 
-            MappingContext = new MappingContext();
+            _MappingContext = new MappingContext();
 
             // initialize the mapping information
             if (mappingSource == null)
                 mappingSource = new AttributeMappingSource();
             Mapping = mappingSource.GetModel(GetType());
         }
-
-        public DataContext(IDbConnection dbConnection, MappingSource mappingSource, IVendor vendor)
-            : this(new DatabaseContext(dbConnection), mappingSource, vendor)
-        {
-        }
-
-
-        public DataContext(IDatabaseContext databaseContext, IVendor vendor)
-            : this(databaseContext, null, vendor)
-        {
-        }
-
-        public DataContext(IDbConnection dbConnection, IVendor vendor)
-            : this(new DatabaseContext(dbConnection), vendor)
-        {
-        }
+      
 
         public Table<T> GetTable<T>(string tableName) where T : class
         {
@@ -189,11 +175,11 @@ namespace DbLinq.Data.Linq
                         Trace.WriteLine("Context.SubmitChanges failed: " + ex.Message);
                         switch (failureMode)
                         {
-                        case ConflictMode.ContinueOnConflict:
-                            exceptions.Add(ex);
-                            break;
-                        case ConflictMode.FailOnFirstConflict:
-                            throw;
+                            case ConflictMode.ContinueOnConflict:
+                                exceptions.Add(ex);
+                                break;
+                            case ConflictMode.FailOnFirstConflict:
+                                throw;
                         }
                     }
                 }
@@ -219,7 +205,7 @@ namespace DbLinq.Data.Linq
 
         #region Identity management
 
-        protected IIdentityReader GetIdentityReader(Type t)
+        internal IIdentityReader _GetIdentityReader(Type t)
         {
             IIdentityReader identityReader;
             if (!identityReaders.TryGetValue(t, out identityReader))
@@ -232,7 +218,7 @@ namespace DbLinq.Data.Linq
 
         protected void RegisterEntity(object entity)
         {
-            var identityReader = GetIdentityReader(entity.GetType());
+            var identityReader = _GetIdentityReader(entity.GetType());
             var identityKey = identityReader.GetIdentityKey(entity);
             if (identityKey == null)
                 return;
@@ -241,7 +227,7 @@ namespace DbLinq.Data.Linq
 
         protected object GetRegisteredEntity(object entity)
         {
-            var identityReader = GetIdentityReader(entity.GetType());
+            var identityReader = _GetIdentityReader(entity.GetType());
             var identityKey = identityReader.GetIdentityKey(entity);
             if (identityKey == null) // if we don't have an entitykey here, it means that the entity has no PK
                 return entity;
@@ -256,7 +242,7 @@ namespace DbLinq.Data.Linq
 
         protected object GetOrRegisterEntity(object entity)
         {
-            var identityReader = GetIdentityReader(entity.GetType());
+            var identityReader = _GetIdentityReader(entity.GetType());
             var identityKey = identityReader.GetIdentityKey(entity);
             if (identityKey == null)
                 return entity;
@@ -412,7 +398,7 @@ namespace DbLinq.Data.Linq
 
         internal void UnregisterUpdate(object entity, Type asType)
         {
-            var identityReader = GetIdentityReader(entity.GetType());
+            var identityReader = _GetIdentityReader(entity.GetType());
             var identityKey = identityReader.GetIdentityKey(entity);
             if (EntityMap[identityKey] == null)
                 throw new ArgumentException("Object not attached");

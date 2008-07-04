@@ -29,7 +29,7 @@ using DbLinq.Util;
 
 namespace DbLinq.Vendor.Implementation
 {
-    public partial class SchemaLoader
+    partial class SchemaLoader
     {
         protected virtual IDataName ReadDataNameAndSchema(IDataRecord dataRecord)
         {

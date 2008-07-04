@@ -33,7 +33,7 @@ namespace System.Data.Linq.Sugar.ExpressionMutator.Implementation
 namespace DbLinq.Data.Linq.Sugar.ExpressionMutator.Implementation
 #endif
 {
-    public class MemberAssignmentMutator : IMemberBindingMutator
+    internal class MemberAssignmentMutator : IMemberBindingMutator
     {
         protected MemberAssignment MemberAssignment { get; private set; }
 

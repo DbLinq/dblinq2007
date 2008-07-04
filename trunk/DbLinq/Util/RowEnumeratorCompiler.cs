@@ -42,7 +42,7 @@ using MappingContext = DbLinq.Data.Linq.Mapping.MappingContext;
 
 namespace DbLinq.Util
 {
-    public class RowEnumeratorCompiler<T>
+    internal class RowEnumeratorCompiler<T>
     {
         /// <summary>
         /// the entry point - routes your call into special cases for Projection and primitive types
@@ -847,7 +847,7 @@ namespace DbLinq.Util
 
     }
 
-    //public static class RowConverter {
+    //internal static class RowConverter {
 
     //  internal static string OnGetString(object src, Type t, IDataRecord dr,
     //      int index) {

@@ -34,7 +34,7 @@ namespace System.Data.Linq.Sugar
 namespace DbLinq.Data.Linq.Sugar
 #endif
 {
-    public interface IExpressionDispatcher
+    internal interface IExpressionDispatcher
     {
         /// <summary>
         /// Registers the first table. Extracts the table type and registeres the piece

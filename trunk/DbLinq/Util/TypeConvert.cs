@@ -33,7 +33,12 @@ namespace DbLinq.Util
     /// Types conversion.
     /// A "smart" extension to System.Convert (at least that's what we hope)
     /// </summary>
-    public static class TypeConvert
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    static class TypeConvert
     {
         public static object ToNumber(object o, Type numberType)
         {

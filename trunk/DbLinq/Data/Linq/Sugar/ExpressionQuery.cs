@@ -41,7 +41,7 @@ namespace DbLinq.Data.Linq.Sugar
     /// <summary>
     /// Represents the first step Expression analysis result
     /// </summary>
-    public class ExpressionQuery
+    internal class ExpressionQuery
     {
         /// <summary>
         /// Values coming from outside the request (external parameters)
@@ -57,7 +57,7 @@ namespace DbLinq.Data.Linq.Sugar
         /// <summary>
         /// Expression that creates a row object
         /// </summary>
-        public Delegate RowObjectCreator { get; set; }
+        internal Delegate RowObjectCreator { get; set; }
 
         public ExpressionQuery()
         {

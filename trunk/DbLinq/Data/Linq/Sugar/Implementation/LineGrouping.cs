@@ -34,7 +34,7 @@ namespace System.Data.Linq.Sugar.Implementation
 namespace DbLinq.Data.Linq.Sugar.Implementation
 #endif
 {
-    public class LineGrouping<K, T> : IGrouping<K, T>
+    internal class LineGrouping<K, T> : IGrouping<K, T>
     {
         protected T Line { get; private set; }
 

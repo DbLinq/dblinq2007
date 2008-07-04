@@ -29,7 +29,7 @@ using System.Data;
 
 namespace DbLinq.Util
 {
-    public static class IDbDataParameterExtensions
+    internal static class IDbDataParameterExtensions
     {
         public static void SetValue(this IDbDataParameter dbParameter, object value, Type type)
         {

@@ -43,7 +43,7 @@ namespace DbLinq.Linq.Clause
     /// This is used for both Where and Select clauses.
     /// Output: sql clause, sql params, and sql joins
     /// </summary>
-    public partial class ExpressionTreeParser
+    internal partial class ExpressionTreeParser
     {
         static readonly Dictionary<string, string> s_csharpOperatorToSqlMap = new Dictionary<string, string>()
         {
@@ -568,7 +568,7 @@ namespace DbLinq.Linq.Clause
             return AnalysisResult.Proceed;
         }
 
-        public class NameAndType
+        internal class NameAndType
         {
             public string name;
             public Type type;
@@ -652,7 +652,7 @@ namespace DbLinq.Linq.Clause
             return AnalysisResult.Proceed;
         }
 
-        public struct RecurData
+        internal struct RecurData
         {
             public int depth;
             public int operatorPrecedence;

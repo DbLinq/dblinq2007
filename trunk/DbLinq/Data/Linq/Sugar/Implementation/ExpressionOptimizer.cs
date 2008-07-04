@@ -47,7 +47,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
     /// <summary>
     /// Optimizes expressions (such as constant chains)
     /// </summary>
-    public class ExpressionOptimizer : IExpressionOptimizer
+    internal class ExpressionOptimizer : IExpressionOptimizer
     {
         public virtual Expression Optimize(Expression expression, BuilderContext builderContext)
         {

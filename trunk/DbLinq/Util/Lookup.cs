@@ -36,7 +36,7 @@ namespace DbLinq.Util
     /// Lookup: 2nd implementation of IGrouping, as needed in group-by queries.
     /// The original System.Query.Lookup is inaccessible.
     /// </summary>
-    public class Lookup<K, T> : IGrouping<K, T>
+    internal class Lookup<K, T> : IGrouping<K, T>
     {
         K _key;
         public List<T> _elements = new List<T>();

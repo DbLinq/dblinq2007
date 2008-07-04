@@ -37,7 +37,7 @@ namespace DbLinq.Util.ExprVisitor
     /// This helper class edits our expression to put the info back in:
     /// Given 'i=>2', we return 'p=>ProductID>2'
     /// </summary>
-    public class CountExpressionModifier : ExpressionVisitor
+    internal class CountExpressionModifier : ExpressionVisitor
     {
         #region CountExpressionModifier
         LambdaExpression _substituteExpr;

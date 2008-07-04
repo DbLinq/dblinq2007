@@ -28,7 +28,7 @@ using System.Collections.Generic;
 
 namespace DbLinq.Factory.Implementation
 {
-    public abstract class AbstractObjectFactory: IObjectFactory
+    internal abstract class AbstractObjectFactory: IObjectFactory
     {
         public virtual T Get<T>()
         {

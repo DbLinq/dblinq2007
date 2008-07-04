@@ -53,7 +53,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
     /// 1. Parses Linq Expression
     /// 2. Generates SQL
     /// </summary>
-    public partial class QueryBuilder : IQueryBuilder
+    internal partial class QueryBuilder : IQueryBuilder
     {
         public IExpressionLanguageParser ExpressionLanguageParser { get; set; }
         public IExpressionDispatcher ExpressionDispatcher { get; set; }

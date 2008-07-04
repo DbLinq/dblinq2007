@@ -46,7 +46,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
     /// Analyzes Expressions before translation to SQL, to help the translator
     /// "Prequel" stands, of course, for "PreSQL"
     /// </summary>
-    public class PrequelAnalyzer : IPrequelAnalyzer
+    internal class PrequelAnalyzer : IPrequelAnalyzer
     {
         /// <summary>
         /// Translates some generic CLR patterns to specific preSQL patterns

@@ -38,7 +38,7 @@ namespace System.Data.Linq.Sugar.ExpressionMutator.Implementation
 namespace DbLinq.Data.Linq.Sugar.ExpressionMutator.Implementation
 #endif
 {
-    public class ConstantExpressionMutator : IMutableExpression
+    internal class ConstantExpressionMutator : IMutableExpression
     {
         protected ConstantExpression ConstantExpression { get; private set; }
 

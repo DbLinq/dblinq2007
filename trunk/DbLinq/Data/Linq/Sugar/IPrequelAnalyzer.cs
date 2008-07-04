@@ -32,7 +32,7 @@ namespace System.Data.Linq.Sugar
 namespace DbLinq.Data.Linq.Sugar
 #endif
 {
-    public interface IPrequelAnalyzer
+    internal interface IPrequelAnalyzer
     {
         /// <summary>
         /// Translates some generic CLR patterns to specific preSQL patterns
