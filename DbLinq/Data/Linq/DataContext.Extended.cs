@@ -37,7 +37,7 @@ namespace DbLinq.Data.Linq
 {
     partial class DataContext
     {
-        
+
         public virtual MappingContext MappingContext { get { return _MappingContext; } set { _MappingContext = value; } }
 
         public DataContext(IDatabaseContext databaseContext, MappingSource mappingSource, IVendor vendor)
@@ -78,6 +78,36 @@ namespace DbLinq.Data.Linq
         protected object GetOrRegisterEntity(object entity)
         {
             return _GetOrRegisterEntity(entity);
+        }
+
+        protected virtual void CheckNotRegisteredForInsert(object entity, Type asType)
+        {
+            _CheckNotRegisteredForInsert(entity, asType);
+        }
+
+        protected virtual void CheckNotRegisteredForUpdate(object entity, Type asType)
+        {
+            _CheckNotRegisteredForUpdate(entity, asType);
+        }
+
+        protected virtual void CheckRegisteredForUpdate(object entity, Type asType)
+        {
+            _CheckRegisteredForUpdate(entity, asType);
+        }
+
+        protected virtual void CheckNotRegisteredForDelete(object entity, Type asType)
+        {
+            _CheckNotRegisteredForDelete(entity, asType);
+        }
+
+        /// <summary>
+        /// Checks if the entity is not already registered somewhere in some way
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="asType"></param>
+        protected virtual void CheckNotRegistered(object entity, Type asType)
+        {
+            _CheckNotRegistered(entity, asType);
         }
     }
 }

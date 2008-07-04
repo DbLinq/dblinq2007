@@ -60,6 +60,7 @@
       <Link>Properties\DbLinq.ProductInfo.cs</Link>
     </Compile>
     <Compile Include="Data\Linq\ChangeSet.cs" />
+    <Compile Include="Data\Linq\DBLinqExtendedAttributte.cs" />
     <Compile Include="Data\Linq\ITable.Extended.cs" />
     <Compile Include="Data\Linq\DataContext.cs" />
     <Compile Include="Data\Linq\DataContext.Extended.cs" />

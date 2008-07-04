@@ -80,6 +80,7 @@ namespace DbLinq.Data.Linq
         // QueryProvider is the running entity, running through nested Expressions
         private readonly QueryProvider<TEntity> _queryProvider;
 
+        [DBLinqExtended]
         internal ILogger _Logger { get; set; }
 
         internal Table(DataContext parentContext)
@@ -304,6 +305,7 @@ namespace DbLinq.Data.Linq
             return exceptions;
         }
 
+        [DBLinqExtended]
         internal virtual void _Process(IEnumerable<TEntity> ts, Action<TEntity, QueryContext> process, ConflictMode failureMode,
             IList<Exception> exceptions)
         {
