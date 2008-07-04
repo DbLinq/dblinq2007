@@ -32,6 +32,7 @@ using System.Data.Linq.Mapping;
 using System.Data;
 using DbLinq.Vendor;
 using DbLinq.Linq.Database.Implementation;
+using System.Data.Linq;
 
 namespace DbLinq.Data.Linq
 {
@@ -65,5 +66,11 @@ namespace DbLinq.Data.Linq
         {
             return _GetTable(typeof(T)) as Table<T>;
         }
+
+        protected IExecuteResult ExecuteMethodCall(DataContext context, System.Reflection.MethodInfo method, params object[] sqlParams)
+        {
+            return _ExecuteMethodCall(context, method, sqlParams);
+        }
+
     }
 }

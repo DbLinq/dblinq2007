@@ -30,7 +30,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-#if MONO_STRICT
 namespace System.Data.Linq
 {
     public interface IExecuteResult:IDisposable
@@ -39,4 +38,3 @@ namespace System.Data.Linq
         object ReturnValue { get; }
     }
 }
-#endif

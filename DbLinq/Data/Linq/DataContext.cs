@@ -105,12 +105,12 @@ namespace DbLinq.Data.Linq
         [DbLinqToDo]
         public DataContext(System.Data.IDbConnection connection, System.Data.Linq.Mapping.MappingSource mapping)
         {
-            throw new NotImplementedException();
+            Init(new DatabaseContext(connection), mapping, null);
         }
         [DbLinqToDo]
         public DataContext(System.Data.IDbConnection connection)
         {
-            throw new NotImplementedException();
+            Init(new DatabaseContext(connection), null, null);
         }
         [DbLinqToDo]
         public DataContext(string fileOrServerOrConnection, System.Data.Linq.Mapping.MappingSource mapping)
@@ -208,7 +208,7 @@ namespace DbLinq.Data.Linq
             }
         }
 
-        public virtual List<Exception> SubmitChanges(ConflictMode failureMode)
+        public virtual void SubmitChanges(ConflictMode failureMode)
         {
             List<Exception> exceptions = new List<Exception>();
             //TODO: perform all queued up operations - INSERT,DELETE,UPDATE
@@ -242,13 +242,14 @@ namespace DbLinq.Data.Linq
                 if (doCommit)
                     transactionMgr.Commit();
             }
-            return exceptions;
+            return ;
         }
 
         /// <summary>
         /// TODO - allow generated methods to call into stored procedures
         /// </summary>
-        protected IExecuteResult ExecuteMethodCall(DataContext context, System.Reflection.MethodInfo method, params object[] sqlParams)
+        [DBLinqExtended]
+        internal IExecuteResult _ExecuteMethodCall(DataContext context, System.Reflection.MethodInfo method, params object[] sqlParams)
         {
             using (DatabaseContext.OpenConnection())
             {
@@ -583,7 +584,7 @@ namespace DbLinq.Data.Linq
         public DbTransaction Transaction
         {
             get { throw new NotImplementedException(); }
-            internal set { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
         }
 
         public IEnumerable<TResult> Translate<TResult>(DbDataReader reader)
