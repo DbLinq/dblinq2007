@@ -494,7 +494,12 @@ namespace DbLinq.Schema.Dbml
     [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.1432")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://schemas.microsoft.com/linqtosql/dbml/2007")]
-    public enum ConnectionMode
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+ enum ConnectionMode
     {
 
         /// <remarks/>
@@ -699,7 +704,12 @@ namespace DbLinq.Schema.Dbml
     [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.1432")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://schemas.microsoft.com/linqtosql/dbml/2007")]
-    public enum ParameterDirection
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+ enum ParameterDirection
     {
 
         /// <remarks/>
@@ -1510,7 +1520,12 @@ namespace DbLinq.Schema.Dbml
     [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.1432")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://schemas.microsoft.com/linqtosql/dbml/2007")]
-    public enum AccessModifier
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+ enum AccessModifier
     {
 
         /// <remarks/>
@@ -1533,7 +1548,12 @@ namespace DbLinq.Schema.Dbml
     [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.1432")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://schemas.microsoft.com/linqtosql/dbml/2007")]
-    public enum MemberModifier
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+ enum MemberModifier
     {
 
         /// <remarks/>
@@ -1553,7 +1573,12 @@ namespace DbLinq.Schema.Dbml
     [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.1432")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://schemas.microsoft.com/linqtosql/dbml/2007")]
-    public enum Cardinality
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+ enum Cardinality
     {
 
         /// <remarks/>
@@ -2069,7 +2094,12 @@ namespace DbLinq.Schema.Dbml
     [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.1432")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://schemas.microsoft.com/linqtosql/dbml/2007")]
-    public enum UpdateCheck
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+ enum UpdateCheck
     {
 
         /// <remarks/>
@@ -2086,7 +2116,12 @@ namespace DbLinq.Schema.Dbml
     [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.1432")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://schemas.microsoft.com/linqtosql/dbml/2007")]
-    public enum AutoSync
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+ enum AutoSync
     {
 
         /// <remarks/>
@@ -2109,7 +2144,12 @@ namespace DbLinq.Schema.Dbml
     [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.1432")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://schemas.microsoft.com/linqtosql/dbml/2007")]
-    public enum ClassModifier
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+ enum ClassModifier
     {
 
         /// <remarks/>
@@ -2130,7 +2170,7 @@ namespace DbLinq.Schema.Dbml
 #else
     public
 #endif
-    partial class TableFunctionReturn : object, System.ComponentModel.INotifyPropertyChanged
+ partial class TableFunctionReturn : object, System.ComponentModel.INotifyPropertyChanged
     {
 
         private string memberField;
@@ -2260,7 +2300,12 @@ namespace DbLinq.Schema.Dbml
     [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.1432")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://schemas.microsoft.com/linqtosql/dbml/2007")]
-    public enum Version
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    enum Version
     {
 
         /// <remarks/>
@@ -2576,7 +2621,12 @@ namespace DbLinq.Schema.Dbml
     [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "2.0.50727.1432")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://schemas.microsoft.com/linqtosql/dbml/2007")]
-    public enum SerializationMode
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+ enum SerializationMode
     {
 
         /// <remarks/>

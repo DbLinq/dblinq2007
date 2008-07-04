@@ -660,7 +660,7 @@ namespace DbLinq.Linq.Clause
         }
 
         [Flags]
-        public enum AnalysisResult
+        internal enum AnalysisResult
         {
             Proceed = 0,
             SkipRight = 0x2,

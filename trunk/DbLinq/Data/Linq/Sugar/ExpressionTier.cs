@@ -33,7 +33,7 @@ namespace DbLinq.Data.Linq.Sugar
 #endif
 {
     [Flags]
-    public enum ExpressionTier
+    internal enum ExpressionTier
     {
         Sql = 0x0001,
         Clr = 0x0002,

@@ -35,7 +35,7 @@ namespace DbLinq.Schema.Implementation
 {
     internal class NameFormatter : INameFormatter
     {
-        public enum Singularization
+        internal enum Singularization
         {
             DontChange,
             Singular,

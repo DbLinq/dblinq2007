@@ -30,7 +30,7 @@ namespace System.Data.Linq.Sugar
 namespace DbLinq.Data.Linq.Sugar
 #endif
 {
-    public enum ExpressionPrecedence
+    internal enum ExpressionPrecedence
     {
         /// <summary>
         /// x.y  f(x)  a[x]  x++  x--  new typeof  checked  unchecked

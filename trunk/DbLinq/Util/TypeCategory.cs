@@ -33,22 +33,27 @@ namespace DbLinq.Util
     /// TypeEnum: is a type a primitive type, a DB column, or a projection?
     /// Call CSharp.GetCategory(T) to examine a type.
     /// </summary>
-    public enum TypeCategory 
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    enum TypeCategory
     {
         /// <summary>
         /// specifies builtin type, eg. a string or uint.
         /// </summary>
         Primitive,
- 
+
         /// <summary>
         /// specifies DB Columns (entities) marked up with [Table] attribute.
         /// This type, when retrieved, must go into liveObjectCache
         /// </summary>
-        Column, 
+        Column,
 
         /// <summary>
         /// anything else, eg. projection types
         /// </summary>
-        Other 
+        Other
     }
 }

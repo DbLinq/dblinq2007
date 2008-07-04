@@ -284,12 +284,17 @@ namespace DbLinq.Linq
 #else
     public
 #endif
-    class JoinSpec
+ class JoinSpec
     {
         /// <summary>
         /// note: OUTER JOIN is not supported in LINQ.
         /// </summary>
-        public enum JoinTypeEnum { Plain, Left }
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    enum JoinTypeEnum { Plain, Left }
 
         public JoinTypeEnum JoinType = JoinTypeEnum.Plain;
 

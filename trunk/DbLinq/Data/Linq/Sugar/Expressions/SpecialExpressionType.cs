@@ -35,7 +35,12 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
     /// To add a new value here, please be sure to handle it everywhere
     /// For this, search for "// SETuse" comment in project
     /// </summary>
-    public enum SpecialExpressionType
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    enum SpecialExpressionType
     {
         IsNull = 100,
         IsNotNull,
