@@ -28,7 +28,6 @@ using System;
 using System.Collections;
 using System.Data;
 using System.Data.Common;
-using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using System.Diagnostics;
 using System.Collections.Generic;
@@ -46,6 +45,8 @@ using DbLinq.Data.Linq.Sugar;
 using DbLinq.Data.Linq.Identity;
 using AttributeMappingSource = DbLinq.Data.Linq.Mapping.AttributeMappingSource;
 using MappingContext = DbLinq.Data.Linq.Mapping.MappingContext;
+using System.Data.Linq;
+using DataContext = DbLinq.Data.Linq.DataContext;
 #endif
 
 using DbLinq.Factory;
@@ -97,14 +98,27 @@ namespace DbLinq.Data.Linq
         /// </summary>
         internal virtual MappingContext _MappingContext { get; set; }
 
-        /// <summary>
-        /// A DataContext opens and closes a database connection as needed 
-        /// if you provide a closed connection or a connection string. 
-        /// In general, you should never have to call Dispose on a DataContext. 
-        /// If you provide an open connection, the DataContext will not close it
-        /// source: http://msdn2.microsoft.com/en-us/library/bb292288.aspx
-        /// </summary>
 
+        [DbLinqToDo]
+        public DataContext(System.Data.IDbConnection connection, System.Data.Linq.Mapping.MappingSource mapping)
+        {
+            throw new NotImplementedException();
+        }
+        [DbLinqToDo]
+        public DataContext(System.Data.IDbConnection connection)
+        {
+            throw new NotImplementedException();
+        }
+        [DbLinqToDo]
+        public DataContext(string fileOrServerOrConnection, System.Data.Linq.Mapping.MappingSource mapping)
+        {
+            throw new NotImplementedException();
+        }
+        [DbLinqToDo]
+        public DataContext(string fileOrServerOrConnection)
+        {
+            throw new NotImplementedException();
+        }
         private void Init(IDatabaseContext databaseContext, MappingSource mappingSource, IVendor vendor)
         {
             if (databaseContext == null || vendor == null)
@@ -129,29 +143,67 @@ namespace DbLinq.Data.Linq
                 mappingSource = new AttributeMappingSource();
             Mapping = mappingSource.GetModel(GetType());
         }
-      
 
-        public Table<T> GetTable<T>(string tableName) where T : class
+
+
+        internal ITable _GetTable(System.Type type)
         {
             lock (this)
             {
+                string tableName = type.FullName;
                 ITable tableExisting;
                 if (_tableMap.TryGetValue(tableName, out tableExisting))
-                    return tableExisting as Table<T>; //return existing
-                Table<T> tableNew = new Table<T>(this); //create new and store it
+                    return tableExisting as ITable; //return existing
+
+                ITable tableNew = Activator.CreateInstance(
+                                  typeof(Table<>).MakeGenericType(type)
+                                  , System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance
+                                  , null
+                                  , new object[] { this }
+                                  , System.Globalization.CultureInfo.CurrentCulture) as ITable;
+
                 _tableMap[tableName] = tableNew;
                 return tableNew;
             }
         }
 
-        public Table<T> GetTable<T>() where T : class
+        public Table<TEntity> GetTable<TEntity>() where TEntity : class
         {
-            return GetTable<T>(typeof(T).FullName);
+            return _GetTable(typeof(TEntity)) as Table<TEntity>;
+        }
+
+        public ITable GetTable(System.Type type)
+        {
+            return _GetTable(type);
         }
 
         public void SubmitChanges()
         {
             SubmitChanges(ConflictMode.FailOnFirstConflict);
+        }
+
+        /// <summary>
+        /// Pings database
+        /// </summary>
+        /// <returns></returns>
+        public bool DatabaseExists()
+        {
+            try
+            {
+                using (DatabaseContext.OpenConnection())
+                {
+                    //command: "SELECT 11" (Oracle: "SELECT 11 FROM DUAL")
+                    string SQL = Vendor.SqlPingCommand;
+                    int result = Vendor.ExecuteCommand(this, SQL);
+                    return result == 11;
+                }
+            }
+            catch (Exception ex)
+            {
+                if (true)
+                    Trace.WriteLine("DatabaseExists failed:" + ex);
+                return false;
+            }
         }
 
         public virtual List<Exception> SubmitChanges(ConflictMode failureMode)
@@ -216,7 +268,7 @@ namespace DbLinq.Data.Linq
             return identityReader;
         }
 
-        protected void RegisterEntity(object entity)
+        internal void _RegisterEntity(object entity)
         {
             var identityReader = _GetIdentityReader(entity.GetType());
             var identityKey = identityReader.GetIdentityKey(entity);
@@ -225,7 +277,7 @@ namespace DbLinq.Data.Linq
             EntityMap[identityKey] = entity;
         }
 
-        protected object GetRegisteredEntity(object entity)
+        internal object _GetRegisteredEntity(object entity)
         {
             var identityReader = _GetIdentityReader(entity.GetType());
             var identityKey = identityReader.GetIdentityKey(entity);
@@ -240,7 +292,7 @@ namespace DbLinq.Data.Linq
             return EntityMap[identityKey];
         }
 
-        protected object GetOrRegisterEntity(object entity)
+        internal object _GetOrRegisterEntity(object entity)
         {
             var identityReader = _GetIdentityReader(entity.GetType());
             var identityKey = identityReader.GetIdentityKey(entity);
@@ -287,13 +339,13 @@ namespace DbLinq.Data.Linq
 
         protected virtual void CheckNotRegisteredForUpdate(object entity, Type asType)
         {
-            if (GetRegisteredEntity(entity) != null)
+            if (_GetRegisteredEntity(entity) != null)
                 throw new ArgumentException("Object already attached");
         }
 
         protected virtual void CheckRegisteredForUpdate(object entity, Type asType)
         {
-            if (GetRegisteredEntity(entity) == null)
+            if (_GetRegisteredEntity(entity) == null)
                 throw new ArgumentException("Object not attached");
         }
 
@@ -346,7 +398,7 @@ namespace DbLinq.Data.Linq
         /// <returns></returns>
         internal object Register(object entity, Type asType)
         {
-            var registeredEntity = GetOrRegisterEntity(entity);
+            var registeredEntity = _GetOrRegisterEntity(entity);
             // the fact of registering again clears the modified state, so we're... clear with that
             MemberModificationHandler.Register(registeredEntity, Mapping);
             return registeredEntity;
@@ -362,7 +414,7 @@ namespace DbLinq.Data.Linq
         internal void RegisterUpdate(object entity, object entityOriginalState, Type asType)
         {
             CheckNotRegistered(entity, asType);
-            RegisterEntity(entity);
+            _RegisterEntity(entity);
             MemberModificationHandler.Register(entity, entityOriginalState, Mapping);
         }
 
@@ -429,15 +481,6 @@ namespace DbLinq.Data.Linq
                  select e).ToList();
             var deletes = DeleteList.EnumerateAll().ToList();
             return new ChangeSet(inserts, updates, deletes);
-        }
-
-        /// <summary>
-        /// TODO: conflict detection is not implemented!
-        /// </summary>
-        [Obsolete("NOT IMPLEMENTED YET")]
-        public ChangeConflictCollection ChangeConflicts
-        {
-            get { throw new NotImplementedException(); }
         }
 
         /// <summary>
@@ -513,6 +556,76 @@ namespace DbLinq.Data.Linq
         internal IDbDataAdapter CreateDataAdapter()
         {
             return DatabaseContext.CreateDataAdapter();
+        }
+
+        [DbLinqToDo]
+        public System.IO.TextWriter Log
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
+        [DbLinqToDo]
+        public bool ObjectTrackingEnabled
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
+        [DbLinqToDo]
+        public int CommandTimeout
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
+        [DbLinqToDo]
+        public bool DeferredLoadingEnabled
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
+        [DbLinqToDo]
+        public ChangeConflictCollection ChangeConflicts
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        [DbLinqToDo]
+        public DbCommand GetCommand(IQueryable query)
+        {
+            throw new NotImplementedException();
+        }
+
+        [DbLinqToDo]
+        public void Refresh(System.Data.Linq.RefreshMode mode, System.Collections.IEnumerable entities)
+        {
+            throw new NotImplementedException();
+        }
+
+        [DbLinqToDo]
+        public void Refresh(System.Data.Linq.RefreshMode mode, params object[] entities)
+        {
+            throw new NotImplementedException();
+        }
+
+        [DbLinqToDo]
+        public void Refresh(System.Data.Linq.RefreshMode mode, object entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        [DbLinqToDo]
+        public void DeleteDatabase()
+        {
+            throw new NotImplementedException();
+        }
+
+        [DbLinqToDo]
+        public void CreateDatabase()
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -33,38 +33,11 @@ using System.Data;
 using DbLinq.Vendor;
 using DbLinq.Linq.Database.Implementation;
 
-#if MONO_STRICT
-namespace System.Data.Linq
-#else
 namespace DbLinq.Data.Linq
-#endif
 {
     partial class DataContext
     {
-        /// <summary>
-        /// Pings database
-        /// </summary>
-        /// <returns></returns>
-        public bool DatabaseExists()
-        {
-            try
-            {
-                using (DatabaseContext.OpenConnection())
-                {
-                    //command: "SELECT 11" (Oracle: "SELECT 11 FROM DUAL")
-                    string SQL = Vendor.SqlPingCommand;
-                    int result = Vendor.ExecuteCommand(this, SQL);
-                    return result == 11;
-                }
-            }
-            catch (Exception ex)
-            {
-                if (true)
-                    Trace.WriteLine("DatabaseExists failed:" + ex);
-                return false;
-            }
-        }
-
+        
         public virtual MappingContext MappingContext { get { return _MappingContext; } set { _MappingContext = value; } }
 
         public DataContext(IDatabaseContext databaseContext, MappingSource mappingSource, IVendor vendor)
@@ -86,6 +59,25 @@ namespace DbLinq.Data.Linq
         public DataContext(IDbConnection dbConnection, IVendor vendor)
             : this(new DatabaseContext(dbConnection), vendor)
         {
+        }
+
+        public Table<T> GetTable<T>(string tableName) where T : class
+        {
+            return _GetTable(typeof(T)) as Table<T>;
+        }
+
+        protected void RegisterEntity(object entity)
+        {
+            _RegisterEntity(entity);
+        }
+
+        protected object GetRegisteredEntity(object entity)
+        {
+            return _GetRegisteredEntity(entity);
+        }
+        protected object GetOrRegisterEntity(object entity)
+        {
+            return _GetOrRegisterEntity(entity);
         }
     }
 }
