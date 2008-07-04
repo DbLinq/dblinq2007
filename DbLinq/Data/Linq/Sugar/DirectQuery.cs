@@ -24,46 +24,22 @@
 // 
 #endregion
 
-using System;
-using System.Diagnostics;
-using DbLinq.Data.Linq.Mapping;
-using DbLinq.Linq.Database;
-using System.Data.Linq.Mapping;
-using System.Data;
-using DbLinq.Vendor;
-using DbLinq.Linq.Database.Implementation;
+using System.Collections.Generic;
 
-namespace DbLinq.Data.Linq
+#if MONO_STRICT
+namespace System.Data.Linq.Sugar
+#else
+namespace DbLinq.Data.Linq.Sugar
+#endif
 {
-    partial class DataContext
+    internal class DirectQuery : AbstractQuery
     {
+        public IList<string> Parameters { get; private set; }
 
-        public virtual MappingContext MappingContext { get { return _MappingContext; } set { _MappingContext = value; } }
-
-        public DataContext(IDatabaseContext databaseContext, MappingSource mappingSource, IVendor vendor)
+        public DirectQuery(DataContext dataContext, string sql, IList<string> parameters)
+            : base(dataContext, sql)
         {
-            Init(databaseContext, mappingSource, vendor);
-        }
-
-        public DataContext(IDbConnection dbConnection, MappingSource mappingSource, IVendor vendor)
-            : this(new DatabaseContext(dbConnection), mappingSource, vendor)
-        {
-        }
-
-
-        public DataContext(IDatabaseContext databaseContext, IVendor vendor)
-            : this(databaseContext, null, vendor)
-        {
-        }
-
-        public DataContext(IDbConnection dbConnection, IVendor vendor)
-            : this(new DatabaseContext(dbConnection), vendor)
-        {
-        }
-
-        public Table<T> GetTable<T>(string tableName) where T : class
-        {
-            return _GetTable(typeof(T)) as Table<T>;
+            Parameters = parameters;
         }
     }
 }

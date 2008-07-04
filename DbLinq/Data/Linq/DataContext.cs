@@ -36,6 +36,7 @@ using System.Linq;
 #if MONO_STRICT
 using System.Data.Linq.Sugar;
 using System.Data.Linq.Identity;
+using DbLinq.Util;
 using AttributeMappingSource = System.Data.Linq.Mapping.AttributeMappingSource;
 using MappingContext = System.Data.Linq.Mapping.MappingContext;
 using DbLinq;
@@ -43,6 +44,7 @@ using DbLinq;
 using DbLinq.Data.Linq;
 using DbLinq.Data.Linq.Sugar;
 using DbLinq.Data.Linq.Identity;
+using DbLinq.Util;
 using AttributeMappingSource = DbLinq.Data.Linq.Mapping.AttributeMappingSource;
 using MappingContext = DbLinq.Data.Linq.Mapping.MappingContext;
 using System.Data.Linq;
@@ -227,11 +229,11 @@ namespace DbLinq.Data.Linq
                         Trace.WriteLine("Context.SubmitChanges failed: " + ex.Message);
                         switch (failureMode)
                         {
-                            case ConflictMode.ContinueOnConflict:
-                                exceptions.Add(ex);
-                                break;
-                            case ConflictMode.FailOnFirstConflict:
-                                throw;
+                        case ConflictMode.ContinueOnConflict:
+                            exceptions.Add(ex);
+                            break;
+                        case ConflictMode.FailOnFirstConflict:
+                            throw;
                         }
                     }
                 }
@@ -498,14 +500,32 @@ namespace DbLinq.Data.Linq
             return new ChangeSet(inserts, updates, deletes);
         }
 
+        private void FeedParameters(IDbCommand dbCommand, IList<string> parameterNames, IList<object> parameterValues)
+        {
+            for (int parameterIndex = 0; parameterIndex < parameterNames.Count; parameterIndex++)
+            {
+                var dbParameter = dbCommand.CreateParameter();
+                dbParameter.ParameterName = parameterNames[parameterIndex];
+                dbParameter.Value = parameterValues[parameterIndex];
+                dbCommand.Parameters.Add(dbParameter);
+            }
+        }
+
         /// <summary>
         /// use ExecuteCommand to call raw SQL
         /// </summary>
         public int ExecuteCommand(string command, params object[] parameters)
         {
+            var directQuery = QueryBuilder.GetDirectQuery(command, new QueryContext(this));
             using (DatabaseContext.OpenConnection())
+            using (var sqlCommand = DatabaseContext.CreateCommand(directQuery.Sql))
             {
-                return Vendor.ExecuteCommand(this, command, parameters);
+                FeedParameters(sqlCommand, directQuery.Parameters, parameters);
+                var result = sqlCommand.ExecuteScalar();
+                if (result == null || result is DBNull)
+                    return 0;
+                var intResult = TypeConvert.ToNumber<int>(result);
+                return intResult;
             }
         }
 
@@ -515,18 +535,36 @@ namespace DbLinq.Data.Linq
         public IEnumerable<TResult> ExecuteQuery<TResult>(string query,
                                                           params object[] parameters) where TResult : new()
         {
+            foreach (TResult result in ExecuteQuery(typeof(TResult), query, parameters))
+                yield return result;
+        }
 
+        public IEnumerable ExecuteQuery(Type elementType, string query, params object[] parameters)
+        {
+            var queryContext = new QueryContext(this);
+            var directQuery = QueryBuilder.GetDirectQuery(query, queryContext);
             using (DatabaseContext.OpenConnection())
+            using (var sqlCommand = DatabaseContext.CreateCommand(directQuery.Sql))
             {
-                IEnumerable<TResult> res = Vendor.ExecuteQuery<TResult>(this, query, parameters);
-                return res;
+                FeedParameters(sqlCommand, directQuery.Parameters, parameters);
+                using (var dataReader = sqlCommand.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        Delegate tableBuilder = GetTableBuilder(elementType, dataReader, queryContext);
+                        yield return tableBuilder.DynamicInvoke(dataReader, _MappingContext);
+                    }
+                }
             }
         }
 
-        [DbLinqToDo]
-        public IEnumerable ExecuteQuery(System.Type elementType, string query, params object[] parameters)
+        // TODO: change scope
+        internal virtual Delegate GetTableBuilder(Type elementType, IDataReader dataReader, QueryContext queryContext)
         {
-            throw new NotImplementedException();
+            var fields = new List<string>();
+            for (int fieldIndex = 0; fieldIndex < dataReader.FieldCount; fieldIndex++)
+                fields.Add(dataReader.GetName(fieldIndex));
+            return QueryBuilder.GetTableReader(elementType, fields, queryContext);
         }
 
         /// <summary>

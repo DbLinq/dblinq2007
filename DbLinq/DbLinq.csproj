@@ -91,6 +91,7 @@
     <Compile Include="Data\Linq\Mapping\MappingContext.cs" />
     <Compile Include="Data\Linq\Sugar\BuilderContext.cs" />
     <Compile Include="Data\Linq\Sugar\DeleteQuery.cs" />
+    <Compile Include="Data\Linq\Sugar\DirectQuery.cs" />
     <Compile Include="Data\Linq\Sugar\Error.cs" />
     <Compile Include="Data\Linq\Sugar\ExpressionChain.cs" />
     <Compile Include="Data\Linq\Sugar\ExpressionMutator\ExpressionMutatorExtensions.cs" />

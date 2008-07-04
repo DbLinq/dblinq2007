@@ -36,7 +36,7 @@ using System.Data.Linq.Sugar.Expressions;
 using DbLinq.Data.Linq.Sugar.ExpressionMutator;
 using DbLinq.Data.Linq.Sugar.Expressions;
 #endif
-
+using System.Text.RegularExpressions;
 using DbLinq.Factory;
 using DbLinq.Logging;
 using DbLinq.Util;
@@ -395,7 +395,15 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             return query;
         }
 
-        public virtual Delegate BuildTableReader(Type tableType, IList<string> parameters, QueryContext queryContext)
+        /// <summary>
+        /// Returns a Delegate to create a row for a given IDataRecord
+        /// The Delegate is Func&lt;IDataRecord,MappingContext,"tableType">
+        /// </summary>
+        /// <param name="tableType">The table type (must be managed by DataContext)</param>
+        /// <param name="parameters"></param>
+        /// <param name="queryContext"></param>
+        /// <returns></returns>
+        public virtual Delegate GetTableReader(Type tableType, IList<string> parameters, QueryContext queryContext)
         {
             var reader = GetFromTableReaderCache(tableType, parameters);
             if (reader == null)
@@ -406,6 +414,32 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 SetInTableReaderCache(tableType, parameters, reader);
             }
             return reader;
+        }
+
+        private static readonly Regex parameterIdentifierEx = new Regex(@"\{(?<var>[\d.]+)\}", RegexOptions.Singleline | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
+
+        /// <summary>
+        /// Converts a direct SQL query to a safe query with named parameters
+        /// </summary>
+        /// <param name="sql">Raw SQL query</param>
+        /// <param name="queryContext"></param>
+        /// <returns></returns>
+        public virtual DirectQuery GetDirectQuery(string sql, QueryContext queryContext)
+        {
+            // TODO cache
+            var safeSql = queryContext.DataContext.Vendor.GetSqlCaseSafeQuery(sql);
+            var parameters = new List<string>();
+            var parameterizedSql = parameterIdentifierEx.Replace(safeSql, delegate(Match e)
+            {
+                var field = e.Groups[1].Value;
+                var parameterIndex = int.Parse(field);
+                while (parameters.Count <= parameterIndex)
+                    parameters.Add(string.Empty);
+                var literalParameterName = queryContext.DataContext.Vendor.GetOrderableParameterName(parameterIndex);
+                parameters[parameterIndex] = literalParameterName;
+                return literalParameterName;
+            });
+            return new DirectQuery(queryContext.DataContext, parameterizedSql, parameters);
         }
     }
 }
