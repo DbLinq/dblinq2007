@@ -96,6 +96,7 @@ namespace DbLinq.Data.Linq
         /// <summary>
         /// The default behavior creates one MappingContext.
         /// </summary>
+        [DBLinqExtended]
         internal virtual MappingContext _MappingContext { get; set; }
 
 
@@ -144,8 +145,7 @@ namespace DbLinq.Data.Linq
             Mapping = mappingSource.GetModel(GetType());
         }
 
-
-
+        [DBLinqExtended]
         internal ITable _GetTable(System.Type type)
         {
             lock (this)
@@ -263,6 +263,7 @@ namespace DbLinq.Data.Linq
 
         #region Identity management
 
+        [DBLinqExtended]
         internal IIdentityReader _GetIdentityReader(Type t)
         {
             IIdentityReader identityReader;
@@ -274,6 +275,7 @@ namespace DbLinq.Data.Linq
             return identityReader;
         }
 
+        [DBLinqExtended]
         internal void _RegisterEntity(object entity)
         {
             var identityReader = _GetIdentityReader(entity.GetType());
@@ -283,6 +285,7 @@ namespace DbLinq.Data.Linq
             EntityMap[identityKey] = entity;
         }
 
+        [DBLinqExtended]
         internal object _GetRegisteredEntity(object entity)
         {
             var identityReader = _GetIdentityReader(entity.GetType());
@@ -298,6 +301,7 @@ namespace DbLinq.Data.Linq
             return EntityMap[identityKey];
         }
 
+        [DBLinqExtended]
         internal object _GetOrRegisterEntity(object entity)
         {
             var identityReader = _GetIdentityReader(entity.GetType());
@@ -337,25 +341,29 @@ namespace DbLinq.Data.Linq
 
         #region Insert/Update/Delete management
 
-        protected virtual void CheckNotRegisteredForInsert(object entity, Type asType)
+        [DBLinqExtended]
+        internal void _CheckNotRegisteredForInsert(object entity, Type asType)
         {
             if (InsertList.Contains(entity, asType))
                 throw new ArgumentException("Object already registered for insertion");
         }
 
-        protected virtual void CheckNotRegisteredForUpdate(object entity, Type asType)
+        [DBLinqExtended]
+        internal void _CheckNotRegisteredForUpdate(object entity, Type asType)
         {
             if (_GetRegisteredEntity(entity) != null)
                 throw new ArgumentException("Object already attached");
         }
 
-        protected virtual void CheckRegisteredForUpdate(object entity, Type asType)
+        [DBLinqExtended]
+        internal void _CheckRegisteredForUpdate(object entity, Type asType)
         {
             if (_GetRegisteredEntity(entity) == null)
                 throw new ArgumentException("Object not attached");
         }
 
-        protected virtual void CheckNotRegisteredForDelete(object entity, Type asType)
+        [DBLinqExtended]
+        internal void _CheckNotRegisteredForDelete(object entity, Type asType)
         {
             if (DeleteList.Contains(entity, asType))
                 throw new ArgumentException("Object already registered for deletion");
@@ -366,11 +374,12 @@ namespace DbLinq.Data.Linq
         /// </summary>
         /// <param name="entity"></param>
         /// <param name="asType"></param>
-        protected virtual void CheckNotRegistered(object entity, Type asType)
+        [DBLinqExtended]
+        internal void _CheckNotRegistered(object entity, Type asType)
         {
-            CheckNotRegisteredForInsert(entity, asType);
-            CheckNotRegisteredForUpdate(entity, asType);
-            CheckNotRegisteredForDelete(entity, asType);
+            _CheckNotRegisteredForInsert(entity, asType);
+            _CheckNotRegisteredForUpdate(entity, asType);
+            _CheckNotRegisteredForDelete(entity, asType);
         }
 
         /// <summary>
@@ -380,7 +389,7 @@ namespace DbLinq.Data.Linq
         /// <param name="asType"></param>
         internal void RegisterInsert(object entity, Type asType)
         {
-            CheckNotRegistered(entity, asType);
+            _CheckNotRegistered(entity, asType);
             InsertList.Add(entity, entity.GetType());
         }
 
@@ -392,7 +401,7 @@ namespace DbLinq.Data.Linq
         /// <param name="asType"></param>
         internal void RegisterUpdate(object entity, Type asType)
         {
-            CheckNotRegistered(entity, asType);
+            _CheckNotRegistered(entity, asType);
             Register(entity, asType);
         }
 
@@ -419,7 +428,7 @@ namespace DbLinq.Data.Linq
         /// <param name="asType"></param>
         internal void RegisterUpdate(object entity, object entityOriginalState, Type asType)
         {
-            CheckNotRegistered(entity, asType);
+            _CheckNotRegistered(entity, asType);
             _RegisterEntity(entity);
             MemberModificationHandler.Register(entity, entityOriginalState, Mapping);
         }
@@ -441,9 +450,9 @@ namespace DbLinq.Data.Linq
         /// <param name="asType"></param>
         internal void RegisterDelete(object entity, Type asType)
         {
-            CheckNotRegisteredForInsert(entity, asType);
-            CheckRegisteredForUpdate(entity, asType);
-            CheckNotRegisteredForDelete(entity, asType);
+            _CheckNotRegisteredForInsert(entity, asType);
+            _CheckRegisteredForUpdate(entity, asType);
+            _CheckNotRegisteredForDelete(entity, asType);
             DeleteList.Add(entity, asType);
         }
 
@@ -536,7 +545,7 @@ namespace DbLinq.Data.Linq
         public DbTransaction Transaction
         {
             get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            internal set { throw new NotImplementedException(); }
         }
 
         public IEnumerable<TResult> Translate<TResult>(DbDataReader reader)
