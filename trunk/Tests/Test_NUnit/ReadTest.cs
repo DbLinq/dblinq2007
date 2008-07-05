@@ -34,9 +34,11 @@ using System.Data.Linq.Mapping;
 #if !MONO_STRICT
 using nwind;
 using DbLinq.Linq;
+using DataLinq=DbLinq.Data.Linq;
 #else
 using MsNorthwind;
 using System.Data.Linq;
+using DataLinq = System.Data.Linq;
 #endif
 
 #if MYSQL
@@ -192,7 +194,7 @@ namespace Test_NUnit_Ingres
             Assert.IsTrue(list.Count > 0);
         }
 
-#if !MONO_STRICT
+
         [Test]
         public void C6_NullParentEmplyee()
         {
@@ -209,7 +211,7 @@ namespace Test_NUnit_Ingres
             var list = query.ToList();
             Assert.IsTrue(list.Count >= 2); // PC: differences on databases
         }
-#endif
+
 
 
         [Test]
@@ -437,7 +439,7 @@ namespace Test_NUnit_Ingres
             int count1 = q1.Count();
         }
 
-#if !MONO_STRICT
+
         [Test]
         public void D12_SelectDerivedClass()
         {
@@ -449,7 +451,6 @@ namespace Test_NUnit_Ingres
                                    select c).First();
             Assert.IsTrue(derivedCustomer.City == "London");
         }
-#endif
 
         public class Northwind1 : Northwind
         {
@@ -460,11 +461,8 @@ namespace Test_NUnit_Ingres
             public class CustomerDerivedClass : Customer { }
             public class CustomerDerivedClass2 : CustomerDerivedClass { }
 
-#if !MONO_STRICT
-            public DbLinq.Data.Linq.Table<CustomerDerivedClass> ChildCustomers
-#else
-            public System.Data.Linq.Table<CustomerDerivedClass> ChildCustomers
-#endif
+            public DataLinq.Table<CustomerDerivedClass> ChildCustomers
+
             {
                 get { return base.GetTable<CustomerDerivedClass>(); }
             }
@@ -511,8 +509,6 @@ namespace Test_NUnit_Ingres
             }
         }
 
-
-#if !MONO_STRICT
         [Test]
         public void D15_DuplicateProperty()
         {
@@ -523,7 +519,6 @@ namespace Test_NUnit_Ingres
                                    select c).First();
             Assert.IsTrue(derivedCustomer.City == "London");
         }
-#endif
 
         public class NorthwindDupl : Northwind
         {
@@ -550,18 +545,13 @@ namespace Test_NUnit_Ingres
                     }
                 }
             }
-#if !MONO_STRICT
-            public DbLinq.Data.Linq.Table<CustomerDerivedClass> ChildCustomers
-#else
-            public System.Data.Linq.Table<CustomerDerivedClass> ChildCustomers
-#endif
+
+            public DataLinq.Table<CustomerDerivedClass> ChildCustomers
             {
                 get { return base.GetTable<CustomerDerivedClass>(); }
             }
         }
 
-
-#if !MONO_STRICT
         /// <summary>
         /// DbLinq must use field and should not look to setter.
         /// </summary>
@@ -577,7 +567,6 @@ namespace Test_NUnit_Ingres
                             select c).First();
             Assert.IsTrue(Customer.City == "London");
         }
-#endif
 
 
         abstract class AbstractCustomer
@@ -607,11 +596,7 @@ namespace Test_NUnit_Ingres
             [Table(Name = "customers")]
             public class Customer2 : Customer { }
 
-#if !MONO_STRICT
-            public DbLinq.Data.Linq.Table<Customer2> ChildCustomers
-#else
-            public System.Data.Linq.Table<Customer2> ChildCustomers
-#endif
+            public DataLinq.Table<Customer2> ChildCustomers
             {
                 get { return base.GetTable<Customer2>(); }
             }

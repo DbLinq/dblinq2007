@@ -80,7 +80,6 @@ using System.Data.Linq;
             db.SubmitChanges();
         }
 
-#if !MONO_STRICT
         [Test]
         public void CP2_UpdateTableWithCompositePK()
         {
@@ -129,7 +128,7 @@ using System.Data.Linq;
             db.OrderDetails.DeleteOnSubmit(orderDetail);
             db.SubmitChanges();
         }
-#endif
+
 
         [Test]
         public void CP3_DeleteTableWithCompositePK()

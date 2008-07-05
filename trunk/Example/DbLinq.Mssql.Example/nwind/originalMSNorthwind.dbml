@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Database Name="Northwind" EntityNamespace="MsNorthwind" ContextNamespace="MsNorthwind" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
   <Table Name="dbo.Categories" Member="Categories">
     <Type Name="Category">
@@ -64,7 +64,7 @@
       <Association Name="Employee_Employee" Member="Employees" OtherKey="ReportsTo" Type="Employee" />
       <Association Name="Employee_EmployeeTerritory" Member="EmployeeTerritories" OtherKey="EmployeeID" Type="EmployeeTerritory" />
       <Association Name="Employee_Order" Member="Orders" OtherKey="EmployeeID" Type="Order" />
-      <Association Name="Employee_Employee" Member="Employee1" ThisKey="ReportsTo" Type="Employee" IsForeignKey="true" />
+      <Association Name="Employee_Employee" Member="ReportsToEmployee" Storage="_Employee1" ThisKey="ReportsTo" Type="Employee" IsForeignKey="true" />
     </Type>
   </Table>
   <Table Name="dbo.EmployeeTerritories" Member="EmployeeTerritories">

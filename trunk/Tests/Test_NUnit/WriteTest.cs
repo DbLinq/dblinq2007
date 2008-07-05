@@ -460,11 +460,8 @@ dummy text
 
             }
 
-#if !MONO_STRICT
-            public DbLinq.Data.Linq.Table<Rid> Rids
-#else
-            public System.Data.Linq.Table<Rid> Rids
-#endif
+
+            public DataLinq.Table<Rid> Rids
             {
                 get
                 {
@@ -617,7 +614,7 @@ dummy text
         }
 
 
-#if !MONO_STRICT
+
         [Test]
         public void G17_LocalPropertyUpdate()
         {
@@ -628,7 +625,7 @@ dummy text
             Assert.AreEqual(0, db.GetChangeSet().Updates.Count);
             db.SubmitChanges();
         }
-#endif
+
 
         class NorthwindLocalProperty : Northwind
         {
@@ -705,7 +702,7 @@ dummy text
             }
         }
 
-#if !MONO_STRICT
+
         [Test]
         public void G19_ExistingCustomerCacheHit()
         {
@@ -719,7 +716,7 @@ dummy text
 
             var x = db.Customers.Single(c => id == c.CustomerID );
         }
-#endif
+
 
         [Test]
         public void G20_CustomerCacheHitComparingToLocalVariable()
