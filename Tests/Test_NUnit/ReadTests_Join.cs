@@ -37,10 +37,11 @@ using DbLinq.Logging;
 using nwind;
 using DbLinq.Linq;
 using DbLinq.Data.Linq;
+using DataLinq=DbLinq.Data.Linq;
 #else
 using MsNorthwind;
 using System.Data.Linq;
-using DbLinq.Logging;
+using DataLinq = System.Data.Linq;
 #endif
 
 #if MYSQL
@@ -59,7 +60,7 @@ using DbLinq.Logging;
     namespace Test_NUnit_Ingres
 #elif MSSQL
 #if MONO_STRICT
-    namespace Test_NUnit_MsSql_Strict
+namespace Test_NUnit_MsSql_Strict
 #else
     namespace Test_NUnit_MsSql
 #endif
@@ -142,7 +143,7 @@ using DbLinq.Logging;
 
             Assert.IsTrue(q1.Count > 0);
         }
-#if !MONO_STRICT
+
         [Test]
         public void RetrieveParentAssociationProperty()
         {
@@ -158,9 +159,9 @@ using DbLinq.Logging;
             var list = q.ToList();
             Assert.IsTrue(list.Count > 0);
         }
-#endif
 
-#if !MONO_STRICT
+
+
         [Test]
         public void DifferentParentAndAssociationPropertyNames()
         {
@@ -176,9 +177,7 @@ using DbLinq.Logging;
             var list = q2.ToList();
             Assert.IsTrue(list.Count > 0);
         }
-#endif
 
-#if !MONO_STRICT
         [Test]
         public void SelectCustomerContactNameFromOrder()
         {
@@ -196,7 +195,6 @@ using DbLinq.Logging;
             foreach (var s in list)
                 Assert.AreEqual("Test", s);
         }
-#endif
 
         public class Northwind1 : Northwind
         {
@@ -240,13 +238,9 @@ using DbLinq.Logging;
                         return "Test";
                     }
                 }
-
             }
-#if !MONO_STRICT
-            public DbLinq.Data.Linq.Table<ExtendedOrder> ExtendedOrders
-#else
-            public System.Data.Linq.Table<ExtendedOrder> ExtendedOrders
-#endif
+
+            public DataLinq.Table<ExtendedOrder> ExtendedOrders
             {
                 get { return base.GetTable<ExtendedOrder>(); }
             }
