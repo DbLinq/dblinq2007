@@ -38,7 +38,6 @@ namespace DbLinq.Data.Linq
 {
     partial class DataContext
     {
-
         public virtual MappingContext MappingContext { get { return _MappingContext; } set { _MappingContext = value; } }
 
         public DataContext(IDatabaseContext databaseContext, MappingSource mappingSource, IVendor vendor)
@@ -51,7 +50,6 @@ namespace DbLinq.Data.Linq
         {
         }
 
-
         public DataContext(IDatabaseContext databaseContext, IVendor vendor)
             : this(databaseContext, null, vendor)
         {
@@ -62,15 +60,15 @@ namespace DbLinq.Data.Linq
         {
         }
 
+        [Obsolete("Please use the other GetTable() methods")]
         public Table<T> GetTable<T>(string tableName) where T : class
         {
-            return _GetTable(typeof(T)) as Table<T>;
+            return GetTable(typeof(T)) as Table<T>;
         }
 
         protected IExecuteResult ExecuteMethodCall(DataContext context, System.Reflection.MethodInfo method, params object[] sqlParams)
         {
             return _ExecuteMethodCall(context, method, sqlParams);
         }
-
     }
 }
