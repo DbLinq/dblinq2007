@@ -148,7 +148,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "CategoryID", Name = "linquser_products_categoryid_linquser_categories_categoryid")]
 		[DebuggerNonUserCode]
-		public EntityMSet<Product> Products
+		public EntitySet<Product> Products
 		{
 			get
 			{
@@ -411,7 +411,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "CustomerID", Name = "linquser_orders_customerid_linquser_customers_customerid")]
 		[DebuggerNonUserCode]
-		public EntityMSet<Order> Orders
+		public EntitySet<Order> Orders
 		{
 			get
 			{
@@ -763,7 +763,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "EmployeeID", Name = "linquser_employees_reportsto_linquser_employees_employeeid")]
 		[DebuggerNonUserCode]
-		public EntityMSet<Employee> Employees
+		public EntitySet<Employee> Employees
 		{
 			get
 			{
@@ -774,7 +774,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "EmployeeID", Name = "linquser_employeeterritories_employeeid_linquser_employees_employeeid")]
 		[DebuggerNonUserCode]
-		public EntityMSet<EmployeeTerritory> EmployeeTerritories
+		public EntitySet<EmployeeTerritory> EmployeeTerritories
 		{
 			get
 			{
@@ -785,7 +785,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "EmployeeID", Name = "linquser_orders_employeeid_linquser_employees_employeeid")]
 		[DebuggerNonUserCode]
-		public EntityMSet<Order> Orders
+		public EntitySet<Order> Orders
 		{
 			get
 			{
@@ -1219,7 +1219,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "OrderID", Name = "linquser_orderdetails_orderid_linquser_orders_orderid")]
 		[DebuggerNonUserCode]
-		public EntityMSet<OrderDetail> OrderDetails
+		public EntitySet<OrderDetail> OrderDetails
 		{
 			get
 			{
@@ -1646,7 +1646,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "ProductID", Name = "linquser_orderdetails_productid_linquser_products_productid")]
 		[DebuggerNonUserCode]
-		public EntityMSet<OrderDetail> OrderDetails
+		public EntitySet<OrderDetail> OrderDetails
 		{
 			get
 			{
@@ -1747,7 +1747,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "RegionID", Name = "linquser_territories_regionid_linquser_region_regionid")]
 		[DebuggerNonUserCode]
-		public EntityMSet<Territory> Territories
+		public EntitySet<Territory> Territories
 		{
 			get
 			{
@@ -2011,7 +2011,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "SupplierID", Name = "linquser_products_supplierid_linquser_suppliers_supplierid")]
 		[DebuggerNonUserCode]
-		public EntityMSet<Product> Products
+		public EntitySet<Product> Products
 		{
 			get
 			{
@@ -2098,7 +2098,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "TerritoryID", Name = "linquser_employeeterritories_territoryid_linquser_territories_territoryid")]
 		[DebuggerNonUserCode]
-		public EntityMSet<EmployeeTerritory> EmployeeTerritories
+		public EntitySet<EmployeeTerritory> EmployeeTerritories
 		{
 			get
 			{

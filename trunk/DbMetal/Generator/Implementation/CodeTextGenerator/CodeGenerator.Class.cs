@@ -26,7 +26,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using System.Diagnostics;
 using System.Linq;
@@ -36,6 +35,8 @@ using DbLinq.Linq.Mapping;
 using DbLinq.Logging;
 using DbLinq.Schema.Dbml;
 using DbMetal.Generator.EntityInterface;
+using Data = System.Data;
+
 
 namespace DbMetal.Generator.Implementation.CodeTextGenerator
 {
@@ -286,7 +287,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             using (writer.WriteAttribute(storageAttribute))
             using (writer.WriteAttribute(NewAttributeDefinition<DebuggerNonUserCodeAttribute>()))
             using (writer.WriteProperty(specifications, child.Member,
-                                        writer.GetGenericName(typeof(EntityMSet<>).Name.Split('`')[0], child.Type)))
+                                        writer.GetGenericName(typeof(EntitySet<>).Name.Split('`')[0], child.Type)))
             {
                 using (writer.WritePropertyGet())
                 {
@@ -331,7 +332,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             }
 
             writer.WriteField(SpecificationDefinition.Private, storageField,
-                              writer.GetGenericName(typeof(EntityRef<>).FullName.Split('`')[0], targetTable.Type.Name));
+                              writer.GetGenericName(typeof(Data.Linq.EntityRef<>).FullName.Split('`')[0], targetTable.Type.Name));
 
             var storageAttribute = NewAttributeDefinition<AssociationAttribute>();
             storageAttribute["Storage"] = storageField;

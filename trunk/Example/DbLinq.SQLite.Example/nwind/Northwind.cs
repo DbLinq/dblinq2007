@@ -396,7 +396,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "CustomerID", Name = "fk_Orders_1")]
 		[DebuggerNonUserCode]
-		public EntityMSet<Order> Orders
+		public EntitySet<Order> Orders
 		{
 			get
 			{
@@ -748,7 +748,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "EmployeeID", Name = "fk_EmployeeTerritories_1")]
 		[DebuggerNonUserCode]
-		public EntityMSet<EmployeeTerritory> EmployeeTerritories
+		public EntitySet<EmployeeTerritory> EmployeeTerritories
 		{
 			get
 			{
@@ -759,7 +759,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "EmployeeID", Name = "fk_Employees_0")]
 		[DebuggerNonUserCode]
-		public EntityMSet<Employee> Employees
+		public EntitySet<Employee> Employees
 		{
 			get
 			{
@@ -770,7 +770,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "EmployeeID", Name = "fk_Orders_0")]
 		[DebuggerNonUserCode]
-		public EntityMSet<Order> Orders
+		public EntitySet<Order> Orders
 		{
 			get
 			{
@@ -1205,7 +1205,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "OrderID", Name = "\"fk_Order Details_1\"")]
 		[DebuggerNonUserCode]
-		public EntityMSet<OrderDetail> OrderDetails
+		public EntitySet<OrderDetail> OrderDetails
 		{
 			get
 			{
@@ -1634,7 +1634,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "ProductID", Name = "\"fk_Order Details_0\"")]
 		[DebuggerNonUserCode]
-		public EntityMSet<OrderDetail> OrderDetails
+		public EntitySet<OrderDetail> OrderDetails
 		{
 			get
 			{
@@ -1720,7 +1720,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "RegionID", Name = "fk_Territories_0")]
 		[DebuggerNonUserCode]
-		public EntityMSet<Territory> Territories
+		public EntitySet<Territory> Territories
 		{
 			get
 			{
@@ -2056,7 +2056,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "SupplierID", Name = "fk_Products_0")]
 		[DebuggerNonUserCode]
-		public EntityMSet<Product> Products
+		public EntitySet<Product> Products
 		{
 			get
 			{
@@ -2143,7 +2143,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "TerritoryID", Name = "fk_EmployeeTerritories_0")]
 		[DebuggerNonUserCode]
-		public EntityMSet<EmployeeTerritory> EmployeeTerritories
+		public EntitySet<EmployeeTerritory> EmployeeTerritories
 		{
 			get
 			{

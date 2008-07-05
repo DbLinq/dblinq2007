@@ -208,7 +208,7 @@ namespace nwind
 
         private System.Data.Linq.Binary _Picture;
 
-        private EntityMSet<Product> _Products;
+        private EntitySet<Product> _Products;
 
         #region Extensibility Method Definitions
         partial void OnLoaded();
@@ -306,7 +306,7 @@ namespace nwind
         }
 
         [Association(Name = "Category_Product", Storage = "_Products", OtherKey = "CategoryID")]
-        public EntityMSet<Product> Products
+        public EntitySet<Product> Products
         {
             get
             {
@@ -482,7 +482,7 @@ namespace nwind
 
         private string _CustomerDesc;
 
-        private EntityMSet<CustomerCustomerDemo> _CustomerCustomerDemos;
+        private EntitySet<CustomerCustomerDemo> _CustomerCustomerDemos;
 
         #region Extensibility Method Definitions
         partial void OnLoaded();
@@ -537,7 +537,7 @@ namespace nwind
         }
 
         [Association(Name = "CustomerDemographic_CustomerCustomerDemo", Storage = "_CustomerCustomerDemos", OtherKey = "CustomerTypeID")]
-        public EntityMSet<CustomerCustomerDemo> CustomerCustomerDemos
+        public EntitySet<CustomerCustomerDemo> CustomerCustomerDemos
         {
             get
             {
@@ -610,9 +610,9 @@ namespace nwind
 
         private string _Fax;
 
-        private EntityMSet<CustomerCustomerDemo> _CustomerCustomerDemos;
+        private EntitySet<CustomerCustomerDemo> _CustomerCustomerDemos;
 
-        private EntityMSet<Order> _Orders;
+        private EntitySet<Order> _Orders;
 
         #region Extensibility Method Definitions
         partial void OnLoaded();
@@ -865,7 +865,7 @@ namespace nwind
         }
 
         [Association(Name = "Customer_CustomerCustomerDemo", Storage = "_CustomerCustomerDemos", OtherKey = "CustomerID")]
-        public EntityMSet<CustomerCustomerDemo> CustomerCustomerDemos
+        public EntitySet<CustomerCustomerDemo> CustomerCustomerDemos
         {
             get
             {
@@ -878,7 +878,7 @@ namespace nwind
         }
 
         [Association(Name = "Customer_Order", Storage = "_Orders", OtherKey = "CustomerID")]
-        public EntityMSet<Order> Orders
+        public EntitySet<Order> Orders
         {
             get
             {
@@ -977,11 +977,11 @@ namespace nwind
 
         private string _PhotoPath;
 
-        private EntityMSet<Employee> _Employees;
+        private EntitySet<Employee> _Employees;
 
-        private EntityMSet<EmployeeTerritory> _EmployeeTerritories;
+        private EntitySet<EmployeeTerritory> _EmployeeTerritories;
 
-        private EntityMSet<Order> _Orders;
+        private EntitySet<Order> _Orders;
 
         private EntityRef<Employee> _Employee1;
 
@@ -1394,7 +1394,7 @@ namespace nwind
         }
 
         [Association(Name = "Employee_Employee", Storage = "_Employees", OtherKey = "ReportsTo")]
-        public EntityMSet<Employee> Employees
+        public EntitySet<Employee> Employees
         {
             get
             {
@@ -1407,7 +1407,7 @@ namespace nwind
         }
 
         [Association(Name = "Employee_EmployeeTerritory", Storage = "_EmployeeTerritories", OtherKey = "EmployeeID")]
-        public EntityMSet<EmployeeTerritory> EmployeeTerritories
+        public EntitySet<EmployeeTerritory> EmployeeTerritories
         {
             get
             {
@@ -1420,7 +1420,7 @@ namespace nwind
         }
 
         [Association(Name = "Employee_Order", Storage = "_Orders", OtherKey = "EmployeeID")]
-        public EntityMSet<Order> Orders
+        public EntitySet<Order> Orders
         {
             get
             {
@@ -1867,7 +1867,7 @@ namespace nwind
 
         private string _ShipCountry;
 
-        private EntityMSet<OrderDetail> _OrderDetails;
+        private EntitySet<OrderDetail> _OrderDetails;
 
         private EntityRef<Customer> _Customer;
 
@@ -2204,7 +2204,7 @@ namespace nwind
         }
 
         [Association(Name = "Order_OrderDetail", Storage = "_OrderDetails", OtherKey = "OrderID")]
-        public EntityMSet<OrderDetail> OrderDetails
+        public EntitySet<OrderDetail> OrderDetails
         {
 
             get
@@ -2312,7 +2312,7 @@ namespace nwind
 
         private bool _Discontinued;
 
-        private EntityMSet<OrderDetail> _OrderDetails;
+        private EntitySet<OrderDetail> _OrderDetails;
 
         private EntityRef<Category> _Category;
 
@@ -2554,7 +2554,7 @@ namespace nwind
         }
 
         [Association(Name = "Product_OrderDetail", Storage = "_OrderDetails", OtherKey = "ProductID")]
-        public EntityMSet<OrderDetail> OrderDetails
+        public EntitySet<OrderDetail> OrderDetails
         {
             get
             {
@@ -2637,7 +2637,7 @@ namespace nwind
 
         private string _RegionDescription;
 
-        private EntityMSet<Territory> _Territories;
+        private EntitySet<Territory> _Territories;
 
         #region Extensibility Method Definitions
         partial void OnLoaded();
@@ -2692,7 +2692,7 @@ namespace nwind
         }
 
         [Association(Name = "Region_Territory", Storage = "_Territories", OtherKey = "RegionID")]
-        public EntityMSet<Territory> Territories
+        public EntitySet<Territory> Territories
         {
             get
             {
@@ -2746,7 +2746,7 @@ namespace nwind
 
         private string _Phone;
 
-        private EntityMSet<Order> _Orders;
+        private EntitySet<Order> _Orders;
 
         #region Extensibility Method Definitions
         partial void OnLoaded();
@@ -2823,7 +2823,7 @@ namespace nwind
         }
 
         [Association(Name = "Shipper_Order", Storage = "_Orders", OtherKey = "ShipVia")]
-        public EntityMSet<Order> Orders
+        public EntitySet<Order> Orders
         {
             get
             {
@@ -2895,7 +2895,7 @@ namespace nwind
 
         private string _HomePage;
 
-        private EntityMSet<Product> _Products;
+        private EntitySet<Product> _Products;
 
         #region Extensibility Method Definitions
         partial void OnLoaded();
@@ -3170,7 +3170,7 @@ namespace nwind
         }
 
         [Association(Name = "Supplier_Product", Storage = "_Products", OtherKey = "SupplierID")]
-        public EntityMSet<Product> Products
+        public EntitySet<Product> Products
         {
             get
             {
@@ -3224,7 +3224,7 @@ namespace nwind
 
         private int _RegionID;
 
-        private EntityMSet<EmployeeTerritory> _EmployeeTerritories;
+        private EntitySet<EmployeeTerritory> _EmployeeTerritories;
 
         private EntityRef<Region> _Region;
 
@@ -3306,7 +3306,7 @@ namespace nwind
         }
 
         [Association(Name = "Territory_EmployeeTerritory", Storage = "_EmployeeTerritories", OtherKey = "TerritoryID")]
-        public EntityMSet<EmployeeTerritory> EmployeeTerritories
+        public EntitySet<EmployeeTerritory> EmployeeTerritories
         {
             get
             {
