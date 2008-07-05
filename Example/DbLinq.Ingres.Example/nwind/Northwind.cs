@@ -799,7 +799,7 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Employee> reportsToEmployee;
+		private EntityRef<Employee> reportsToEmployee;
 		[Association(Storage = "reportsToEmployee", ThisKey = "ReportsTo", Name = "linquser_employees_reportsto_linquser_employees_employeeid")]
 		[DebuggerNonUserCode]
 		public Employee ReportsToEmployee
@@ -868,7 +868,7 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Employee> employee;
+		private EntityRef<Employee> employee;
 		[Association(Storage = "employee", ThisKey = "EmployeeID", Name = "linquser_employeeterritories_employeeid_linquser_employees_employeeid")]
 		[DebuggerNonUserCode]
 		public Employee Employee
@@ -883,7 +883,7 @@ namespace nwind
 			}
 		}
 
-		private System.Data.Linq.EntityRef<Territory> territory;
+		private EntityRef<Territory> territory;
 		[Association(Storage = "territory", ThisKey = "TerritoryID", Name = "linquser_employeeterritories_territoryid_linquser_territories_territoryid")]
 		[DebuggerNonUserCode]
 		public Territory Territory
@@ -1233,7 +1233,7 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Customer> customer;
+		private EntityRef<Customer> customer;
 		[Association(Storage = "customer", ThisKey = "CustomerID", Name = "linquser_orders_customerid_linquser_customers_customerid")]
 		[DebuggerNonUserCode]
 		public Customer Customer
@@ -1248,7 +1248,7 @@ namespace nwind
 			}
 		}
 
-		private System.Data.Linq.EntityRef<Employee> employee;
+		private EntityRef<Employee> employee;
 		[Association(Storage = "employee", ThisKey = "EmployeeID", Name = "linquser_orders_employeeid_linquser_employees_employeeid")]
 		[DebuggerNonUserCode]
 		public Employee Employee
@@ -1383,7 +1383,7 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Order> order;
+		private EntityRef<Order> order;
 		[Association(Storage = "order", ThisKey = "OrderID", Name = "linquser_orderdetails_orderid_linquser_orders_orderid")]
 		[DebuggerNonUserCode]
 		public Order Order
@@ -1398,7 +1398,7 @@ namespace nwind
 			}
 		}
 
-		private System.Data.Linq.EntityRef<Product> product;
+		private EntityRef<Product> product;
 		[Association(Storage = "product", ThisKey = "ProductID", Name = "linquser_orderdetails_productid_linquser_products_productid")]
 		[DebuggerNonUserCode]
 		public Product Product
@@ -1660,7 +1660,7 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Supplier> supplier;
+		private EntityRef<Supplier> supplier;
 		[Association(Storage = "supplier", ThisKey = "SupplierID", Name = "linquser_products_supplierid_linquser_suppliers_supplierid")]
 		[DebuggerNonUserCode]
 		public Supplier Supplier
@@ -1675,7 +1675,7 @@ namespace nwind
 			}
 		}
 
-		private System.Data.Linq.EntityRef<Category> category;
+		private EntityRef<Category> category;
 		[Association(Storage = "category", ThisKey = "CategoryID", Name = "linquser_products_categoryid_linquser_categories_categoryid")]
 		[DebuggerNonUserCode]
 		public Category Category
@@ -2112,7 +2112,7 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Region> region;
+		private EntityRef<Region> region;
 		[Association(Storage = "region", ThisKey = "RegionID", Name = "linquser_territories_regionid_linquser_region_regionid")]
 		[DebuggerNonUserCode]
 		public Region Region

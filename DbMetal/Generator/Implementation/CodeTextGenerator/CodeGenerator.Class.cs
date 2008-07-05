@@ -35,7 +35,6 @@ using DbLinq.Linq.Mapping;
 using DbLinq.Logging;
 using DbLinq.Schema.Dbml;
 using DbMetal.Generator.EntityInterface;
-using Data = System.Data;
 
 
 namespace DbMetal.Generator.Implementation.CodeTextGenerator
@@ -332,7 +331,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             }
 
             writer.WriteField(SpecificationDefinition.Private, storageField,
-                              writer.GetGenericName(typeof(Data.Linq.EntityRef<>).FullName.Split('`')[0], targetTable.Type.Name));
+                              writer.GetGenericName(typeof(EntityRef<>).FullName.Split('`')[0], targetTable.Type.Name));
 
             var storageAttribute = NewAttributeDefinition<AssociationAttribute>();
             storageAttribute["Storage"] = storageField;

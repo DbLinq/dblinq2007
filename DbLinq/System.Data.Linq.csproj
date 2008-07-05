@@ -219,7 +219,7 @@
     <Compile Include="System.Data.Linq\DataLoadOptions.cs" />
     <Compile Include="System.Data.Linq\DBConvert.cs" />
     <Compile Include="System.Data.Linq\DuplicateKeyException.cs" />
-    <Compile Include="System.Data.Linq\EntityRef.cs" />
+    <Compile Include="Data\Linq\EntityRef.cs" />
     <Compile Include="System.Data.Linq\ForeignKeyReferenceAlreadyHasValueException.cs" />
     <Compile Include="System.Data.Linq\IFunctionResult.cs" />
     <Compile Include="System.Data.Linq\IMultipleResults.cs" />

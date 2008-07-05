@@ -36,6 +36,7 @@ using DbLinq.Logging;
 #if !MONO_STRICT
 using nwind;
 using DbLinq.Linq;
+using DbLinq.Data.Linq;
 #else
 using MsNorthwind;
 using System.Data.Linq;
@@ -206,7 +207,7 @@ using DbLinq.Logging;
             public class ExtendedOrder : Order
             {
 
-                System.Data.Linq.EntityRef<Customer> _x_Customer;
+                EntityRef<Customer> _x_Customer;
 
                 [System.Data.Linq.Mapping.Association(Storage = "_x_Customer",
                     ThisKey = "ShipCity", Name =
