@@ -25,10 +25,10 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
-using DbLinq.Util;
 
 #if MONO_STRICT
 using System.Data.Linq.Sugar;
@@ -38,6 +38,9 @@ using DbLinq.Data.Linq.Sugar;
 using DbLinq.Data.Linq.Sugar.Expressions;
 #endif
 
+using DbLinq.Linq.Database;
+using DbLinq.Util;
+
 #if MONO_STRICT
 namespace System.Data.Linq.Sugar.Implementation
 #else
@@ -46,6 +49,50 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
 {
     internal class QueryRunner : IQueryRunner
     {
+        protected class DbCommand : IDisposable
+        {
+            private IDisposable _connection;
+            private IDatabaseTransaction _transaction;
+            public readonly IDbCommand Command;
+
+            public virtual void Dispose()
+            {
+                Command.Dispose();
+                if (_transaction != null)
+                    _transaction.Dispose();
+                _connection.Dispose();
+            }
+
+            /// <summary>
+            /// Commits the current transaction.
+            /// throws NRE if _transaction is null. Behavior is intentional.
+            /// </summary>
+            public void Commit()
+            {
+                _transaction.Commit();
+            }
+
+            public DbCommand(string commandText, bool createTransaction, DataContext dataContext)
+            {
+                // TODO: check if all this stuff is necessary
+                // the OpenConnection() checks that the connection is already open
+                // TODO: see if we can move this here (in theory the final DataContext shouldn't use)
+                _connection = dataContext.DatabaseContext.OpenConnection();
+                // the transaction is optional
+                if (createTransaction)
+                    _transaction = dataContext.DatabaseContext.Transaction();
+                Command = dataContext.DatabaseContext.CreateCommand();
+                Command.CommandText = commandText;
+                if (createTransaction)
+                    Command.Transaction = _transaction.Transaction;
+            }
+        }
+
+        protected virtual DbCommand UseDbCommand(string commandText, bool createTransaction, DataContext dataContext)
+        {
+            return new DbCommand(commandText, createTransaction, dataContext);
+        }
+
         /// <summary>
         /// Enumerates all records return by SQL request
         /// </summary>
@@ -63,42 +110,61 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 yield break;
             }
 
-            using (selectQuery.DataContext.DatabaseContext.OpenConnection())
-            using (var dbCommand = Createcommand(selectQuery))
-            using (var dbDataReader = dbCommand.ExecuteReader())
+            using (var dbCommand = UseDbCommand(selectQuery.Sql, false, selectQuery.DataContext))
             {
-                while (dbDataReader.Read())
+                foreach (var parameter in selectQuery.InputParameters)
                 {
-                    // someone told me one day this could happen (in SQLite)
-                    if (dbDataReader.FieldCount == 0)
-                        continue;
-
-                    var row = rowObjectCreator(dbDataReader, selectQuery.DataContext._MappingContext);
-                    // the conditions to register and watch an entity are:
-                    // - not null (can this happen?)
-                    // - registered in the model
-                    if (row != null && selectQuery.DataContext.Mapping.GetTable(row.GetType()) != null)
+                    var dbParameter = dbCommand.Command.CreateParameter();
+                    dbParameter.ParameterName = selectQuery.DataContext.Vendor.SqlProvider.GetParameterName(parameter.Alias);
+                    dbParameter.Value = parameter.GetValue();
+                    dbCommand.Command.Parameters.Add(dbParameter);
+                }
+                using (var reader = dbCommand.Command.ExecuteReader())
+                {
+                    while (reader.Read())
                     {
-                        row = (T)selectQuery.DataContext.Register(row, typeof(T));
-                    }
+                        // someone told me one day this could happen (in SQLite)
+                        if (reader.FieldCount == 0)
+                            continue;
 
-                    yield return row;
+                        var row = rowObjectCreator(reader, selectQuery.DataContext._MappingContext);
+                        // the conditions to register and watch an entity are:
+                        // - not null (can this happen?)
+                        // - registered in the model
+                        if (row != null && selectQuery.DataContext.Mapping.GetTable(row.GetType()) != null)
+                        {
+                            row = (T)selectQuery.DataContext.Register(row, typeof(T));
+                        }
+
+                        yield return row;
+                    }
                 }
             }
         }
 
-        protected virtual IDbCommand Createcommand(SelectQuery selectQuery)
+        /// <summary>
+        /// Returns a unique row (common reference)
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="t"></param>
+        /// <param name="dataContext"></param>
+        /// <returns></returns>
+        protected virtual object GetUniqueRow(object row, Type t, DataContext dataContext)
         {
-            var dbCommand = selectQuery.DataContext.DatabaseContext.Connection.CreateCommand();
-            dbCommand.CommandText = selectQuery.Sql;
-            foreach (var parameter in selectQuery.InputParameters)
-            {
-                var dbParameter = dbCommand.CreateParameter();
-                dbParameter.ParameterName = selectQuery.DataContext.Vendor.SqlProvider.GetParameterName(parameter.Alias);
-                dbParameter.Value = parameter.GetValue();
-                dbCommand.Parameters.Add(dbParameter);
-            }
-            return dbCommand;
+            if (row != null && dataContext.Mapping.GetTable(row.GetType()) != null)
+                row = dataContext.Register(row, t);
+            return row;
+        }
+
+        /// <summary>
+        /// Returns a unique row (common reference)
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="dataContext"></param>
+        /// <returns></returns>
+        protected virtual T GetUniqueRow<T>(object row, DataContext dataContext)
+        {
+            return (T)GetUniqueRow(row, typeof(T), dataContext);
         }
 
         public virtual S SelectScalar<S>(SelectQuery selectQuery)
@@ -197,45 +263,42 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         private void Upsert(object target, UpsertQuery insertQuery)
         {
             var sqlProvider = insertQuery.DataContext.Vendor.SqlProvider;
-            using (var dbTransaction = insertQuery.DataContext.DatabaseContext.Transaction())
-            using (var dbCommand = insertQuery.DataContext.DatabaseContext.Connection.CreateCommand())
+            using (var dbCommand = UseDbCommand(insertQuery.Sql, true, insertQuery.DataContext))
             {
-                dbCommand.CommandText = insertQuery.Sql;
-                dbCommand.Transaction = dbTransaction.Transaction;
                 foreach (var inputParameter in insertQuery.InputParameters)
                 {
-                    var dbParameter = dbCommand.CreateParameter();
+                    var dbParameter = dbCommand.Command.CreateParameter();
                     dbParameter.ParameterName = sqlProvider.GetParameterName(inputParameter.Alias);
                     dbParameter.SetValue(inputParameter.GetValue(target), inputParameter.ValueType);
-                    dbCommand.Parameters.Add(dbParameter);
+                    dbCommand.Command.Parameters.Add(dbParameter);
                 }
                 if (insertQuery.DataContext.Vendor.SupportsOutputParameter)
                 {
                     int outputStart = insertQuery.InputParameters.Count;
                     foreach (var outputParameter in insertQuery.OutputParameters)
                     {
-                        var dbParameter = dbCommand.CreateParameter();
+                        var dbParameter = dbCommand.Command.CreateParameter();
                         dbParameter.ParameterName = sqlProvider.GetParameterName(outputParameter.Alias);
-                        // Oracle is lost if output variables are unitialized. Another winner story.
+                        // Oracle is lost if output variables are uninitialized. Another winner story.
                         dbParameter.SetValue(null, outputParameter.ValueType);
                         dbParameter.Size = 100;
                         dbParameter.Direction = /*outputParameter.IsReturn ? ParameterDirection.ReturnValue :*/ ParameterDirection.Output;
-                        dbCommand.Parameters.Add(dbParameter);
+                        dbCommand.Command.Parameters.Add(dbParameter);
                     }
-                    int rowsCount = dbCommand.ExecuteNonQuery();
+                    int rowsCount = dbCommand.Command.ExecuteNonQuery();
                     for (int outputParameterIndex = 0;
                          outputParameterIndex < insertQuery.OutputParameters.Count;
                          outputParameterIndex++)
                     {
                         var outputParameter = insertQuery.OutputParameters[outputParameterIndex];
                         var outputDbParameter =
-                            (IDbDataParameter)dbCommand.Parameters[outputParameterIndex + outputStart];
+                            (IDbDataParameter)dbCommand.Command.Parameters[outputParameterIndex + outputStart];
                         SetOutputParameterValue(target, outputParameter, outputDbParameter.Value);
                     }
                 }
                 else
                 {
-                    object result = dbCommand.ExecuteScalar();
+                    object result = dbCommand.Command.ExecuteScalar();
                     if (insertQuery.OutputParameters.Count > 1)
                         throw new ArgumentException();
                     if (insertQuery.OutputParameters.Count == 1)
@@ -271,19 +334,119 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         public void Delete(object target, DeleteQuery deleteQuery)
         {
             var sqlProvider = deleteQuery.DataContext.Vendor.SqlProvider;
-            using (var dbTransaction = deleteQuery.DataContext.DatabaseContext.Transaction())
-            using (var dbCommand = deleteQuery.DataContext.DatabaseContext.Connection.CreateCommand())
+            using (var dbCommand = UseDbCommand(deleteQuery.Sql, true, deleteQuery.DataContext))
             {
-                dbCommand.CommandText = deleteQuery.Sql;
-                dbCommand.Transaction = dbTransaction.Transaction;
                 foreach (var inputParameter in deleteQuery.InputParameters)
                 {
-                    var dbParameter = dbCommand.CreateParameter();
+                    var dbParameter = dbCommand.Command.CreateParameter();
                     dbParameter.ParameterName = sqlProvider.GetParameterName(inputParameter.Alias);
                     dbParameter.SetValue(inputParameter.GetValue(target), inputParameter.ValueType);
-                    dbCommand.Parameters.Add(dbParameter);
+                    dbCommand.Command.Parameters.Add(dbParameter);
                 }
-                int rowsCount = dbCommand.ExecuteNonQuery();
+                int rowsCount = dbCommand.Command.ExecuteNonQuery();
+            }
+        }
+
+        /// <summary>
+        /// Fills dbCommand parameters, given names and values
+        /// </summary>
+        /// <param name="dbCommand"></param>
+        /// <param name="parameterNames"></param>
+        /// <param name="parameterValues"></param>
+        private void FeedParameters(IDbCommand dbCommand, IList<string> parameterNames, IList<object> parameterValues)
+        {
+            for (int parameterIndex = 0; parameterIndex < parameterNames.Count; parameterIndex++)
+            {
+                var dbParameter = dbCommand.CreateParameter();
+                dbParameter.ParameterName = parameterNames[parameterIndex];
+                dbParameter.SetValue(parameterValues[parameterIndex]);
+                dbCommand.Parameters.Add(dbParameter);
+            }
+        }
+
+        /// <summary>
+        /// Runs a direct scalar command
+        /// </summary>
+        /// <param name="directQuery"></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        public int Execute(DirectQuery directQuery, params object[] parameters)
+        {
+            using (var dbCommand = UseDbCommand(directQuery.Sql, false, directQuery.DataContext))
+            {
+                FeedParameters(dbCommand.Command, directQuery.Parameters, parameters);
+                var result = dbCommand.Command.ExecuteScalar();
+                if (result == null || result is DBNull)
+                    return 0;
+                var intResult = TypeConvert.ToNumber<int>(result);
+                return intResult;
+            }
+        }
+
+        // TODO: move method?
+        protected virtual Delegate GetTableBuilder(Type elementType, IDataReader dataReader, DataContext dataContext)
+        {
+            var fields = new List<string>();
+            for (int fieldIndex = 0; fieldIndex < dataReader.FieldCount; fieldIndex++)
+                fields.Add(dataReader.GetName(fieldIndex));
+            return dataContext.QueryBuilder.GetTableReader(elementType, fields, new QueryContext(dataContext));
+        }
+
+        /// <summary>
+        /// Runs a query with a direct statement
+        /// </summary>
+        /// <param name="tableType"></param>
+        /// <param name="directQuery"></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        public IEnumerable ExecuteSelect(Type tableType, DirectQuery directQuery, params object[] parameters)
+        {
+            var dataContext = directQuery.DataContext;
+            using (var dbCommand = UseDbCommand(directQuery.Sql, false, directQuery.DataContext))
+            {
+                FeedParameters(dbCommand.Command, directQuery.Parameters, parameters);
+                using (var dataReader = dbCommand.Command.ExecuteReader())
+                {
+                    // Did you know? "return EnumerateResult(tableType, dataReader, dataContext);" disposes resources first
+                    // before the enumerator is used
+                    foreach (var result in EnumerateResult(tableType, dataReader, dataContext))
+                        yield return result;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Enumerates results from a request.
+        /// The result shape can change dynamically
+        /// </summary>
+        /// <param name="tableType"></param>
+        /// <param name="dataReader"></param>
+        /// <param name="dataContext"></param>
+        /// <returns></returns>
+        public IEnumerable EnumerateResult(Type tableType, IDataReader dataReader, DataContext dataContext)
+        {
+            return EnumerateResult(tableType, true, dataReader, dataContext);
+        }
+
+        /// <summary>
+        /// Enumerates results from a request.
+        /// The result shape can change dynamically
+        /// </summary>
+        /// <param name="tableType"></param>
+        /// <param name="dynamicallyReadShape">Set True to change reader shape dynamically</param>
+        /// <param name="dataReader"></param>
+        /// <param name="dataContext"></param>
+        /// <returns></returns>
+        protected virtual IEnumerable EnumerateResult(Type tableType, bool dynamicallyReadShape, IDataReader dataReader, DataContext dataContext)
+        {
+            Delegate tableBuilder = null;
+            while (dataReader.Read())
+            {
+                if (tableBuilder == null || dynamicallyReadShape)
+                    tableBuilder = GetTableBuilder(tableType, dataReader, dataContext);
+                var row = tableBuilder.DynamicInvoke(dataReader, dataContext._MappingContext);
+                row = GetUniqueRow(row, tableType, dataContext);
+                yield return row;
             }
         }
     }
