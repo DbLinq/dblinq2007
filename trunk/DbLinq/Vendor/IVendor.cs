@@ -100,15 +100,6 @@ namespace DbLinq.Vendor
         string BuildConnectionString(string host, string databaseName, string userName, string password);
 
         /// <summary>
-        /// Executes an int-returning simple command
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="sql"></param>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
-        int ExecuteCommand(DataContext context, string sql, params object[] parameters);
-
-        /// <summary>
         /// Executes a stored procedure/function call
         /// </summary>
         /// <param name="context"></param>
@@ -116,21 +107,6 @@ namespace DbLinq.Vendor
         /// <param name="sqlParams"></param>
         /// <returns></returns>
         IExecuteResult ExecuteMethodCall(DataContext context, MethodInfo method, params object[] sqlParams);
-
-        /// <summary>
-        /// Executes query. Stores matching columns in instance fields and properties.
-        /// Does 2-pass (case sensitive then insensitive) match. 
-        /// Handles null reference-type values (string, byte[])
-        /// Handles null Nullable<T> value-type values (int? etc)
-        /// Handles (for entity TResult) class, struct and Nullable<struct>
-        /// Caches and re-uses compiled delegates (thread-safe)
-        /// </summary>
-        /// <typeparam name="TResult">Entity type whose instances are returned</typeparam>
-        /// <param name="dataContext">Database to use</param>
-        /// <param name="command">Server query returning table</param>
-        /// <param name="parameters">query parameters</param>
-        /// <returns>Entity with matching properties and fields filled</returns>
-        IEnumerable<TResult> ExecuteQuery<TResult>(DataContext dataContext, string command, object[] parameters);
 
         /// <summary>
         /// Creates a parameter for use with IDbCommand.
@@ -158,11 +134,6 @@ namespace DbLinq.Vendor
         string SqlPingCommand { get; }
 
         /// <summary>
-        /// string concatenation, eg 'a||b' on Postgres 
-        /// </summary>
-        string GetSqlConcat(List<ExpressionAndType> parts);
-
-        /// <summary>
         /// Returns a named parameter based on a given index
         /// This has to be an alphabetically orderable name
         /// </summary>
@@ -171,46 +142,9 @@ namespace DbLinq.Vendor
         string GetOrderableParameterName(int index);
 
         /// <summary>
-        /// Transform the name into the final parameter name
-        /// and patch the SQL accordingly
-        /// </summary>
-        /// <param name="orderableName"></param>
-        /// <param name="sql"></param>
-        /// <returns></returns>
-        string GetFinalParameterName(string orderableName);
-
-        /// <summary>
-        /// Patch the SQL according to the name parameter name
-        /// </summary>
-        /// <param name="orderableName"></param>
-        /// <param name="sql"></param>
-        /// <returns></returns>
-        string ReplaceParamNameInSql(string orderableName, string sql);
-
-        /// <summary>
         /// given 'User', return '[User]' to prevent a SQL keyword conflict
         /// </summary>
         string GetSqlFieldSafeName(string name);
-
-        /// <summary>
-        /// return 'LENGTH' on Oracle,Mysql,PostgreSql, return 'LEN' on MSSql
-        /// </summary>
-        string GetSqlStringLengthFunction();
-
-        /// <summary>
-        /// Adds a Parameter to a DbCommand.
-        /// </summary>
-        /// <param name="cmd">The DbCommand Object</param>
-        /// <param name="param">The Parameter to be added</param>
-        /// <returns>DbCommand with the added Parameter</returns>
-        IDbCommand AddParameter(IDbCommand cmd, IDbDataParameter param);
-
-        /// <summary>
-        /// Generates the SQL request, based on provided parts
-        /// </summary>
-        /// <param name="parts">The request, expressed as objects</param>
-        /// <returns></returns>
-        string BuildSqlString(SqlExpressionParts parts);
 
         /// <summary>
         /// Returns a case safe query, converting quoted names &lt;&ltMixedCaseName>> to "MixedCaseName"
@@ -221,7 +155,7 @@ namespace DbLinq.Vendor
 
         #endregion
 
-        #region Insert / PK processor
+        #region Bulk Insert
 
         /// <summary>
         /// Determines if the current vendor/table can do bulk insert
@@ -248,71 +182,6 @@ namespace DbLinq.Vendor
         /// <param name="connection"></param>
         void DoBulkInsert<T>(Data.Linq.Table<T> table, List<T> rows, IDbConnection connection) where T : class;
 
-        /// <summary>
-        /// On Oracle, we have to insert a primary key manually.
-        /// On MySql/Pgsql/Mssql, we use the IDENTITY clause to populate it automatically.
-        /// </summary>
-        IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
-            , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded);
-
-        /// <summary>
-        /// Gets generated PK from an insert command
-        /// </summary>
-        /// <param name="cmd1"></param>
-        /// <param name="returnedId"></param>
-        void ProcessInsertedId(IDbCommand cmd1, ref object returnedId);
-
         #endregion
-
-        /// <summary>
-        /// Custom conversion of retrieved values.
-        /// Sample:   
-        /// class MyNorthwind : Northwind {
-        ///   public DefaultContext() : base() {
-        ///     Vendor.ConvertValue += (sender, args) => {
-        ///       if (args.Value != null && args.Value is string) {
-        ///         args.Value = ((string)args.Value).TrimEnd();
-        ///       }
-        ///    };
-        ///   }
-        /// </summary>
-        [Obsolete("Use MappingContext")]
-        event EventHandler<ValueConversionEventArgs> ConvertValue;
-    }
-
-    internal static class VendorEx
-    {
-        /// <summary>
-        /// given Type 'OrderDetails', produce TableSpec{ '[Order Details]', 'o$' }
-        /// </summary>
-        public static TableSpec FormatTableSpec(this IVendor vendor, Type tableType, string nickname)
-        {
-            TableAttribute tAttrib = AttribHelper.GetTableAttrib(tableType);
-            if (tAttrib == null)
-                throw new ArgumentException("type does not have [Table] attribute:" + tableType);
-            return FormatTableSpec(vendor, tAttrib, nickname);
-        }
-
-        /// <summary>
-        /// given parameter 'o', produce TableSpec{ '[Order Details]', 'o$' }
-        /// </summary>
-        public static TableSpec FormatTableSpec(this IVendor vendor, ParameterExpression paramExpr)
-        {
-            //string nickname = vendor.GetSqlFieldSafeName(paramExpr.Name);
-            string nickname = VarName.GetSqlName(paramExpr.Name); // "o$"
-            return FormatTableSpec(vendor, paramExpr.Type, nickname);
-        }
-
-        /// <summary>
-        /// given [TableAttribute(Order Details)], produce TableSpec{ '[Order Details]', 'o$' }
-        /// </summary>
-        public static TableSpec FormatTableSpec(this IVendor vendor, TableAttribute tAttrib, string nickname)
-        {
-            //prepare fragment: "[order details] o$"
-            string tableName = vendor.GetSqlFieldSafeName(tAttrib.Name);
-            //string nickName = RemoveTransparentId(nickname);
-            return new TableSpec { TableName = tableName, NickName = nickname };
-        }
-
     }
 }

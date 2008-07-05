@@ -35,7 +35,6 @@ using DbLinq.Data.Linq;
 #endif
 
 using DbLinq.Factory;
-using DbLinq.Linq.Implementation;
 using DbLinq.Logging;
 using DbLinq.Schema;
 using DbLinq.Schema.Dbml;

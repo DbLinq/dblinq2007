@@ -191,11 +191,11 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
 
         protected virtual void WriteClassPropertyBackingField(CodeWriter writer, Column property, GenerationContext context)
         {
-            AttributeDefinition autoGenAttribute = null;
-            if (property.IsDbGenerated)
-                autoGenAttribute = NewAttributeDefinition<AutoGenIdAttribute>();
-            using (writer.WriteAttribute(autoGenAttribute))
-                writer.WriteField(SpecificationDefinition.Private, property.Storage, GetTypeOrExtendedType(writer, property));
+            //AttributeDefinition autoGenAttribute = null;
+            //if (property.IsDbGenerated)
+            //    autoGenAttribute = NewAttributeDefinition<AutoGenIdAttribute>();
+            //using (writer.WriteAttribute(autoGenAttribute))
+            writer.WriteField(SpecificationDefinition.Private, property.Storage, GetTypeOrExtendedType(writer, property));
         }
 
         protected virtual void WriteClassPropertyAccessors(CodeWriter writer, Column property, GenerationContext context)

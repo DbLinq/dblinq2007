@@ -59,18 +59,11 @@ namespace DbLinq.Data.Linq.Identity.Implementation
             return new IdentityKey(type, keys);
         }
 
-        public IdentityReader(Type t)
+        public IdentityReader(Type t, DataContext dataContext)
         {
+            foreach (var member in dataContext.Mapping.GetTable(t).RowType.IdentityMembers)
+                keyMembers.Add(member.Member);
             type = t;
-            foreach (var memberInfo in t.GetMembers())
-            {
-                var columnAttribute = AttribHelper.GetColumnAttribute(memberInfo);
-                if (columnAttribute != null)
-                {
-                    if (columnAttribute.IsPrimaryKey)
-                        keyMembers.Add(memberInfo);
-                }
-            }
         }
     }
 }

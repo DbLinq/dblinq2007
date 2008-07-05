@@ -41,11 +41,11 @@ namespace DbLinq.Data.Linq.Identity.Implementation
 {
     internal class IdentityReaderFactory : IIdentityReaderFactory
     {
-        public IIdentityReader GetReader(Type t)
+        public IIdentityReader GetReader(Type t, DataContext dataContext)
         {
             if (typeof(IIdentityProvider).IsAssignableFrom(t))
                 return new IdentityProviderReader();
-            return new IdentityReader(t);
+            return new IdentityReader(t, dataContext);
         }
     }
 }

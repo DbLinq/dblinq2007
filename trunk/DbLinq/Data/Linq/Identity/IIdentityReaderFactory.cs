@@ -40,6 +40,6 @@ namespace DbLinq.Data.Linq.Identity
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        IIdentityReader GetReader(Type t);
+        IIdentityReader GetReader(Type t, DataContext dataContext);
     }
 }

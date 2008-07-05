@@ -192,17 +192,17 @@ namespace DbLinq.Linq
 
         #region ToString() produces a full SQL statement from parts
 
-        public override string ToString()
-        {
-            string part1 = _vendor.BuildSqlString(this);
-            // picrap to the author --> this should move to the vendor
-            if (UnionPart2 != null)
-            {
-                string part2 = _vendor.BuildSqlString(UnionPart2);
-                return part1 + "\n UNION \n" + part2;
-            }
-            return part1;
-        }
+        //public override string ToString()
+        //{
+        //    string part1 = _vendor.BuildSqlString(this);
+        //    // picrap to the author --> this should move to the vendor
+        //    if (UnionPart2 != null)
+        //    {
+        //        string part2 = _vendor.BuildSqlString(UnionPart2);
+        //        return part1 + "\n UNION \n" + part2;
+        //    }
+        //    return part1;
+        //}
 
         #endregion
 

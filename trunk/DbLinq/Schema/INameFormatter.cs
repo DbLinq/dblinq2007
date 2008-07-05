@@ -24,7 +24,6 @@
 // 
 #endregion
 
-using DbLinq.Linq.Implementation;
 using DbLinq.Schema;
 
 namespace DbLinq.Schema

@@ -50,15 +50,6 @@ namespace DbLinq.SqlServer
         { }
 
         /// <summary>
-        /// Postgres string concatenation, eg 'a||b'
-        /// </summary>
-        public override string GetSqlConcat(List<ExpressionAndType> parts)
-        {
-            string[] arr = parts.Select(p => p.expression).ToArray();
-            return "CONCAT(" + string.Join(",", arr) + ")";
-        }
-
-        /// <summary>
         /// on Postgres or Oracle, return eg. ':P1', on Mysql, '?P1', @P1 for Microsoft
         /// </summary>
         public override string GetOrderableParameterName(int index)
@@ -76,13 +67,6 @@ namespace DbLinq.SqlServer
             System.Data.SqlDbType dbType = SqlServerTypeConversions.ParseType(dbTypeName);
             SqlParameter param = new SqlParameter(paramName, dbType);
             return param;
-        }
-
-        public override IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
-                                               , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
-        {
-            sbIdentity.Append("; SELECT @@IDENTITY");
-            return null;
         }
 
         //NOTE: for Oracle, we want to consider 'Array Binding'
