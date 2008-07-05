@@ -24,10 +24,13 @@
 // 
 #endregion
 
+using System;
+using System.Collections;
 using System.Collections.Generic;
 #if MONO_STRICT
 using System.Data.Linq.Sugar;
 #else
+using System.Data;
 using DbLinq.Data.Linq.Sugar;
 #endif
 using System.Reflection;
@@ -77,5 +80,32 @@ namespace DbLinq.Data.Linq.Sugar
         /// <param name="target">Entity to be deleted</param>
         /// <param name="deleteQuery">SQL delete query</param>
         void Delete(object target, DeleteQuery deleteQuery);
+
+        /// <summary>
+        /// Runs a direct scalar command
+        /// </summary>
+        /// <param name="directQuery"></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        int Execute(DirectQuery directQuery, params object[] parameters);
+
+        /// <summary>
+        /// Runs a query with a direct statement
+        /// </summary>
+        /// <param name="tableType"></param>
+        /// <param name="directQuery"></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        IEnumerable ExecuteSelect(Type tableType, DirectQuery directQuery, params object[] parameters);
+
+        /// <summary>
+        /// Enumerates results from a request.
+        /// The result shape can change dynamically
+        /// </summary>
+        /// <param name="tableType"></param>
+        /// <param name="dataReader"></param>
+        /// <param name="dataContext"></param>
+        /// <returns></returns>
+        IEnumerable EnumerateResult(Type tableType, IDataReader dataReader, DataContext dataContext);
     }
 }
