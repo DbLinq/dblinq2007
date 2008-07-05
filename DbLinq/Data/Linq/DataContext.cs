@@ -147,8 +147,12 @@ namespace DbLinq.Data.Linq
             Mapping = mappingSource.GetModel(GetType());
         }
 
-        [DBLinqExtended]
-        internal ITable _GetTable(Type type)
+        public Table<TEntity> GetTable<TEntity>() where TEntity : class
+        {
+            return (Table<TEntity>)GetTable(typeof(TEntity));
+        }
+
+        public ITable GetTable(Type type)
         {
             lock (this)
             {
@@ -167,16 +171,6 @@ namespace DbLinq.Data.Linq
                 _tableMap[tableName] = tableNew;
                 return tableNew;
             }
-        }
-
-        public Table<TEntity> GetTable<TEntity>() where TEntity : class
-        {
-            return _GetTable(typeof(TEntity)) as Table<TEntity>;
-        }
-
-        public ITable GetTable(Type type)
-        {
-            return _GetTable(type);
         }
 
         public void SubmitChanges()

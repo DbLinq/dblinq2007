@@ -46,32 +46,6 @@ using Data = DbLinq.Data;
 
 namespace DbLinq.Vendor
 {
-
-#if MONO_STRICT
-    internal
-#else
-    public
-#endif
-    class ValueConversionEventArgs : EventArgs
-    {
-        internal void Init(int ordinal, IDataRecord record, object value)
-        {
-            Ordinal = ordinal;
-            Record = record;
-            Value = value;
-        }
-
-        internal ValueConversionEventArgs() { }
-        public ValueConversionEventArgs(int ordinal, IDataRecord record, object value)
-        {
-            Init(ordinal, record, value);
-        }
-
-        public int Ordinal { get; private set; }
-        public object Value { get; set; }
-        public IDataRecord Record { get; private set; }
-    }
-
     /// <summary>
     /// Vendor - specific part of DbLinq.
     /// </summary>
