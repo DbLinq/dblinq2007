@@ -428,13 +428,13 @@ namespace AndrusDB
         #region childtables
 
         [Association(Storage = "null", OtherKey = "f1", Name = "t2_f1_fkey")]
-        public EntityMSet<T2> T2s
+        public EntitySet<T2> T2s
         {
             get { return null; } //L212 - child data available only when part of query
         }
 
         [Association(Storage = "null", OtherKey = "f2", Name = "t2_f2_fkey")]
-        public EntityMSet<T2> T2s_t2_f2_fkey
+        public EntitySet<T2> T2s_t2_f2_fkey
         {
             get { return null; } //L212 - child data available only when part of query
         }

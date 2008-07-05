@@ -59,7 +59,7 @@ namespace DbLinq.Data.Linq
     /// T may be eg. class Employee or string - the output
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public partial class Table<TEntity> :
+    public sealed partial class Table<TEntity> :
             ITable,
             IQueryProvider,
             IListSource,
@@ -67,7 +67,6 @@ namespace DbLinq.Data.Linq
             IEnumerable,
             IQueryable<TEntity>,
             IQueryable,
-            IOrderedQueryable<TEntity>, //this is cheating ... we pretend to be always ordered
             IManagedTable // internal helper. One day, all data will be processed from DataContext
             where TEntity : class
     {
@@ -307,7 +306,7 @@ namespace DbLinq.Data.Linq
         }
 
         [DBLinqExtended]
-        internal virtual void _Process(IEnumerable<TEntity> ts, Action<TEntity, QueryContext> process, ConflictMode failureMode,
+        internal void _Process(IEnumerable<TEntity> ts, Action<TEntity, QueryContext> process, ConflictMode failureMode,
             IList<Exception> exceptions)
         {
             var queryContext = new QueryContext(Context);

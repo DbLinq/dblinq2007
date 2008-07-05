@@ -26,24 +26,24 @@ namespace DbLinq.Data.Linq
 
         }
 
-        protected virtual void Process(IEnumerable<TEntity> ts, Action<TEntity, QueryContext> process, ConflictMode failureMode,
+        protected void Process(IEnumerable<TEntity> ts, Action<TEntity, QueryContext> process, ConflictMode failureMode,
             IList<Exception> exceptions)
         {
             this._Process(ts, process, failureMode, exceptions);
         }
 
-        protected virtual void ProcessInsert(ConflictMode failureMode, IList<Exception> exceptions)
+        protected void ProcessInsert(ConflictMode failureMode, IList<Exception> exceptions)
         {
             this._ProcessInsert(failureMode, exceptions);
         }
 
 
-        protected virtual void ProcessUpdate(ConflictMode failureMode, List<Exception> exceptions)
+        protected void ProcessUpdate(ConflictMode failureMode, List<Exception> exceptions)
         {
             this._ProcessUpdate(failureMode, exceptions);
         }
 
-        protected virtual void ProcessDelete(ConflictMode failureMode, List<Exception> exceptions)
+        protected void ProcessDelete(ConflictMode failureMode, List<Exception> exceptions)
         {
             this._ProcessDelete(failureMode, exceptions);
         }
