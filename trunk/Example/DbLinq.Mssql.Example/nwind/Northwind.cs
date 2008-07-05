@@ -1502,7 +1502,7 @@ namespace nwind
             entity.Employee = null;
         }
 
-        private System.Data.Linq.EntityRef<Employee> reportsToEmployee;
+        private EntityRef<Employee> reportsToEmployee;
         [Association(Storage = "reportsToEmployee", ThisKey = "ReportsTo", Name = "SYS_C004734")]
         [DebuggerNonUserCode]
         public Employee ReportsToEmployee

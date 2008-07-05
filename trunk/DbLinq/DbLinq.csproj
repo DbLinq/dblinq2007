@@ -61,6 +61,7 @@
     </Compile>
     <Compile Include="Data\Linq\ChangeSet.cs" />
     <Compile Include="Data\Linq\DBLinqExtendedAttributte.cs" />
+    <Compile Include="Data\Linq\EntityRef.cs" />
     <Compile Include="Data\Linq\EntitySet.cs" />
     <Compile Include="Data\Linq\ITable.Extended.cs" />
     <Compile Include="Data\Linq\DataContext.cs" />

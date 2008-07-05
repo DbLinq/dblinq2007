@@ -486,7 +486,7 @@ namespace AndrusDB
         #endregion
         #region parenttables
 
-        private System.Data.Linq.EntityRef<T1> _T1;
+        private EntityRef<T1> _T1;
 
         [Association(Storage = "_T1", ThisKey = "f1", Name = "t2_f1_fkey")]
         [DebuggerNonUserCode]
@@ -496,7 +496,7 @@ namespace AndrusDB
             set { this._T1.Entity = value; }
         }
 
-        private System.Data.Linq.EntityRef<T1> _T1_t2_f2_fkey;
+        private EntityRef<T1> _T1_t2_f2_fkey;
 
         [Association(Storage = "_T1_t2_f2_fkey", ThisKey = "f2", Name = "t2_f2_fkey")]
         [DebuggerNonUserCode]

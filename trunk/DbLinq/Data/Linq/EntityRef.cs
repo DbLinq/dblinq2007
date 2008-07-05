@@ -3,6 +3,7 @@
 //
 // Author:
 //   Atsushi Enomoto  <atsushi@ximian.com>
+//   Pablo Íñigo Blasco <pibgeus@gmail.com>
 //
 // Copyright (C) 2008 Novell, Inc.
 //
@@ -29,36 +30,41 @@
 //
 using System;
 using System.Collections.Generic;
+using DbLinq;
 
+#if MONO_STRICT
 namespace System.Data.Linq
+#else
+namespace DbLinq.Data.Linq
+#endif
 {
 	public struct EntityRef<TEntity> where TEntity : class
 	{
-		[MonoTODO]
+        TEntity entity;
+
 		public EntityRef (TEntity entity)
 		{
-			throw new NotImplementedException ();
+            this.entity = entity;
 		}
 
-		[MonoTODO]
+		[DbLinqToDo]
 		public EntityRef (IEnumerable<TEntity> source)
 		{
 			throw new NotImplementedException ();
 		}
 
-		[MonoTODO]
 		public EntityRef (EntityRef<TEntity> entityRef)
 		{
-			throw new NotImplementedException ();
+            this.entity = entityRef.Entity;
 		}
 
-		[MonoTODO]
+		
 		public TEntity Entity {
-			get { throw new NotImplementedException (); }
-			set { throw new NotImplementedException (); }
+            get { return entity; }
+            set { entity = value; }
 		}
 
-		[MonoTODO]
+        [DbLinqToDo]
 		public bool HasLoadedOrAssignedValue {
 			get { throw new NotImplementedException (); }
 		}

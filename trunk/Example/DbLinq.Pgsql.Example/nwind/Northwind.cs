@@ -25,6 +25,7 @@ using DbLinq.Data.Linq;
 using DbLinq.Linq;
 using DbLinq.Linq.Mapping;
 
+
 namespace nwind
 {
 	public partial class Northwind : DbLinq.Data.Linq.DataContext
@@ -828,7 +829,7 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Employee> reportsToEmployee;
+		private EntityRef<Employee> reportsToEmployee;
 		[Association(Storage = "reportsToEmployee", ThisKey = "ReportsTo", Name = "\"FK_Emp_ReportsToEmp\"")]
 		[DebuggerNonUserCode]
 		public Employee ReportsToEmployee
@@ -897,7 +898,7 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Employee> employee;
+		private EntityRef<Employee> employee;
 		[Association(Storage = "employee", ThisKey = "EmployeeID", Name = "\"EmployeeTerritories_EmployeeID_fkey\"")]
 		[DebuggerNonUserCode]
 		public Employee Employee
@@ -912,7 +913,7 @@ namespace nwind
 			}
 		}
 
-		private System.Data.Linq.EntityRef<Territory> territory;
+		private EntityRef<Territory> territory;
 		[Association(Storage = "territory", ThisKey = "TerritoryID", Name = "\"EmployeeTerritories_TerritoryID_fkey\"")]
 		[DebuggerNonUserCode]
 		public Territory Territory
@@ -1262,7 +1263,7 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Customer> customer;
+		private EntityRef<Customer> customer;
 		[Association(Storage = "customer", ThisKey = "CustomerID", Name = "fk_order_customer")]
 		[DebuggerNonUserCode]
 		public Customer Customer
@@ -1277,7 +1278,7 @@ namespace nwind
 			}
 		}
 
-		private System.Data.Linq.EntityRef<Employee> employee;
+		private EntityRef<Employee> employee;
 		[Association(Storage = "employee", ThisKey = "EmployeeID", Name = "fk_order_product")]
 		[DebuggerNonUserCode]
 		public Employee Employee
@@ -1412,7 +1413,7 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Order> order;
+		private EntityRef<Order> order;
 		[Association(Storage = "order", ThisKey = "OrderID", Name = "\"OrderDetails_OrderID_fkey\"")]
 		[DebuggerNonUserCode]
 		public Order Order
@@ -1427,7 +1428,7 @@ namespace nwind
 			}
 		}
 
-		private System.Data.Linq.EntityRef<Product> product;
+		private EntityRef<Product> product;
 		[Association(Storage = "product", ThisKey = "ProductID", Name = "\"OrderDetails_ProductID_fkey\"")]
 		[DebuggerNonUserCode]
 		public Product Product
@@ -1689,7 +1690,7 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Category> category;
+		private EntityRef<Category> category;
 		[Association(Storage = "category", ThisKey = "CategoryID", Name = "\"FK_prod_catg\"")]
 		[DebuggerNonUserCode]
 		public Category Category
@@ -1704,7 +1705,7 @@ namespace nwind
 			}
 		}
 
-		private System.Data.Linq.EntityRef<Supplier> supplier;
+		private EntityRef<Supplier> supplier;
 		[Association(Storage = "supplier", ThisKey = "SupplierID", Name = "\"FK_prod_supp\"")]
 		[DebuggerNonUserCode]
 		public Supplier Supplier
@@ -2213,7 +2214,7 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Region> region;
+		private EntityRef<Region> region;
 		[Association(Storage = "region", ThisKey = "RegionID", Name = "\"FK_Terr_Region\"")]
 		[DebuggerNonUserCode]
 		public Region Region
