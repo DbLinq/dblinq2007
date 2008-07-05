@@ -176,7 +176,6 @@
     <Compile Include="Factory\Implementation\ReflectionObjectFactory.cs" />
     <Compile Include="Factory\IObjectFactory.cs" />
     <Compile Include="Factory\ObjectFactory.cs" />
-    <Compile Include="Linq\Clause\ExpressionTreeParser_Call.cs" />
     <Compile Include="Linq\Database\DatabaseContextExtensions.cs" />
     <Compile Include="Linq\Database\IDatabaseTransaction.cs" />
     <Compile Include="Linq\Database\Implementation\DatabaseContext.cs" />
@@ -187,7 +186,6 @@
     <Compile Include="Schema\Case.cs" />
     <Compile Include="Schema\WordsExtraction.cs" />
     <Compile Include="Schema\NameFormat.cs" />
-    <Compile Include="Linq\QueryProcessor_Join.cs" />
     <Compile Include="Logging\ILogger.cs" />
     <Compile Include="Logging\Implementation\ConsoleDebugLogger.cs" />
     <Compile Include="Logging\Implementation\Logger.cs" />
@@ -200,24 +198,16 @@
       <DependentUpon>DbmlSchema.xsd</DependentUpon>
     </Compile>
     <Compile Include="Schema\Dbml\DbmlSerializer.cs" />
-    <Compile Include="Linq\Clause\ExpressionTreeParser.cs" />
     <Compile Include="Linq\Clause\InsertClauseBuilder.cs" />
-    <Compile Include="Linq\Clause\JoinBuilder.cs" />
-    <Compile Include="Linq\Clause\ParseResult.cs" />
     <Compile Include="Linq\Database\IDatabaseContext.cs" />
-    <Compile Include="Linq\IModificationHandler.cs" />
     <Compile Include="Linq\IModified.cs" />
     <Compile Include="Linq\Mapping\AutoGenIdAttribute.cs" />
     <Compile Include="Linq\Mapping\FunctionExAttribute.cs" />
-    <Compile Include="Linq\Implementation\ModificationHandler.cs" />
-    <Compile Include="Linq\QueryProcessor.cs" />
-    <Compile Include="Linq\QueryProcessor2.cs" />
     <Compile Include="Linq\SessionVarsParsed.cs" />
     <Compile Include="Schema\ProcedureName.cs" />
     <Compile Include="Schema\Name.cs" />
     <Compile Include="Schema\SchemaName.cs" />
     <Compile Include="Schema\TableName.cs" />
-    <Compile Include="Util\CacheChecker.cs" />
     <Compile Include="Util\ExprVisitor\CountExpressionModifier.cs" />
     <Compile Include="Util\ExprVisitor\ExpressionRegex.cs" />
     <Compile Include="Util\ExprVisitor\ExpressionTreeComparer.cs" />
@@ -254,9 +244,6 @@
     <Compile Include="Util\ProcResult.cs" />
     <Compile Include="Util\QuotesHelper.cs" />
     <Compile Include="Util\ReferenceEqualityComparer.cs" />
-    <Compile Include="Util\RowEnumeratorCompiler.cs" />
-    <Compile Include="Linq\Clause\FromClauseBuilder.cs" />
-    <Compile Include="Linq\Table_Projected.cs" />
     <Compile Include="Linq\ProjectionData.cs" />
     <Compile Include="Linq\SessionVars.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -266,7 +253,6 @@
     <Compile Include="Util\Page.cs" />
     <Compile Include="Util\TypeExtensions.cs" />
     <Compile Include="Util\TypeLoader.cs" />
-    <Compile Include="Util\VarName.cs" />
     <Compile Include="Vendor\IDataTableColumn.cs" />
     <Compile Include="Vendor\IDataName.cs" />
     <Compile Include="Vendor\IDataType.cs" />
@@ -279,7 +265,6 @@
     <Compile Include="Vendor\Implementation\SchemaLoader.StoredProcedures.cs" />
     <Compile Include="Vendor\Implementation\SchemaLoader.Tables.cs" />
     <Compile Include="Vendor\Implementation\SchemaLoader.TypeMapping.cs" />
-    <Compile Include="Vendor\Implementation\Vendor.ExecuteQuery.cs" />
     <Compile Include="Vendor\INameAliases.cs" />
     <Compile Include="Vendor\ISchemaLoader.cs" />
     <Compile Include="Vendor\ISqlProvider.cs" />

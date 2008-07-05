@@ -192,13 +192,11 @@ namespace DbLinq.Data.Linq
         {
             try
             {
-                using (DatabaseContext.OpenConnection())
-                {
-                    //command: "SELECT 11" (Oracle: "SELECT 11 FROM DUAL")
-                    string SQL = Vendor.SqlPingCommand;
-                    int result = Vendor.ExecuteCommand(this, SQL);
-                    return result == 11;
-                }
+                // TODO: we should probably put the whole package in Vendor (expected hard-coded 11 here is a bit risky)
+                //command: "SELECT 11" (Oracle: "SELECT 11 FROM DUAL")
+                string SQL = Vendor.SqlPingCommand;
+                int result = ExecuteCommand(SQL);
+                return result == 11;
             }
             catch (Exception ex)
             {
@@ -272,7 +270,7 @@ namespace DbLinq.Data.Linq
             IIdentityReader identityReader;
             if (!identityReaders.TryGetValue(t, out identityReader))
             {
-                identityReader = identityReaderFactory.GetReader(t);
+                identityReader = identityReaderFactory.GetReader(t, this);
                 identityReaders[t] = identityReader;
             }
             return identityReader;

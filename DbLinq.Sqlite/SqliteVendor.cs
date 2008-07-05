@@ -61,42 +61,12 @@ namespace DbLinq.Sqlite
 
         public override bool SupportsOutputParameter { get { return false; } } // poor guy
 
-        public override IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
-                                               , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
-        {
-            //on Oracle, this function does something.
-            //on other DBs, primary keys values are handled by AUTO_INCREMENT            
-            sbIdentity.Append(";\n SELECT last_insert_rowid()");
-            return null;
-        }
         /// <summary>
         /// on Postgres or Oracle, return eg. ':P1', on Mysql, '?P1', on SQLite, '@P1'
         /// </summary>
         public override string GetOrderableParameterName(int index)
         {
             return "@P" + index;
-        }
-
-        /// <summary>
-        /// Postgres and Sqlite string concatenation, eg 'a||b'
-        /// </summary>
-        public override string GetSqlConcat(List<ExpressionAndType> parts)
-        {
-            StringBuilder sb = new StringBuilder();
-            foreach (ExpressionAndType part in parts)
-            {
-                if (sb.Length != 0) { sb.Append("||"); }
-                if (part.type == typeof(string))
-                {
-                    sb.Append(part.expression);
-                }
-                else
-                {
-                    //integers and friends: must CAST before concatenating
-                    sb.Append("CAST(" + part.expression + " AS varchar)");
-                }
-            }
-            return sb.ToString();
         }
 
         public override bool CanBulkInsert<T>(Data.Linq.Table<T> table)

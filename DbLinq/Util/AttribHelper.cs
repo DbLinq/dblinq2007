@@ -106,22 +106,6 @@ namespace DbLinq.Util
             return list;
         }
 
-        /// <summary>
-        /// from class Employee, walk all properties, extract their [Column] attribs
-        /// </summary>
-        public static T[] FindPropertiesWithGivenAttrib<T>(Type t) where T : Attribute
-        {
-            List<T> lst = new List<T>();
-            PropertyInfo[] infos = t.GetProperties();
-
-            foreach (PropertyInfo pi in infos)
-            {
-                object[] objs = pi.GetCustomAttributes(typeof(T), false);
-                List<T> partList = objs.OfType<T>().ToList();
-                lst.AddRange(partList);
-            }
-            return lst.ToArray();
-        }
 
         /// <summary>
         /// from class Employee, walk all properties with [Column] attribs, 
@@ -143,13 +127,6 @@ namespace DbLinq.Util
             return lst.ToArray();
         }
 
-        /// <summary>
-        /// from class Employee, walk all properties, extract their [Column] attribs
-        /// </summary>
-        public static ColumnAttribute[] GetColumnAttribs(Type t)
-        {
-            return FindPropertiesWithGivenAttrib<ColumnAttribute>(t);
-        }
 
         /// <summary>
         /// for Microsoft SQL bulk insert, we need a version of GetColumnAttribs with their PropInfo
@@ -159,36 +136,7 @@ namespace DbLinq.Util
             return FindPropertiesWithGivenAttrib2<ColumnAttribute>(t);
         }
 
-        /// <summary>
-        /// from one column Employee.EmployeeID, extract its [Column] attrib
-        /// </summary>
-        public static ColumnAttribute GetColumnAttribute(MemberInfo memberInfo)
-        {
-            object[] colAttribs = memberInfo.GetCustomAttributes(typeof(ColumnAttribute), false);
-            if (colAttribs.Length != 1)
-            {
-                return null;
-            }
-            ColumnAttribute colAtt0 = colAttribs[0] as ColumnAttribute;
-            return colAtt0;
-        }
 
-        public static ColumnAttribute GetColumnAttribute(Type t, string memberName)
-        {
-            MemberInfo[] member = t.GetMember(memberName);
-            if (member.Count() == 0)
-                throw new ArgumentException("Type " + t.FullName + " does not contain member " + memberName);
-            return GetColumnAttribute(member[0]);
-        }
-
-        /// <summary>
-        /// get name of column in SQL table, given one C# field (MemberInfo).
-        /// </summary>
-        public static string GetSQLColumnName(MemberInfo memberInfo)
-        {
-            ColumnAttribute colAtt0 = GetColumnAttribute(memberInfo);
-            return colAtt0 == null ? null : colAtt0.Name;
-        }
 
         /// <summary>
         /// prepate ProjectionData - which holds ctor and field accessors.
@@ -264,112 +212,7 @@ namespace DbLinq.Util
             return projData;
         }
 
-        public static bool IsAssociation(MemberExpression memberExpr)
-        {
-            AttribAndProp attribAndProp;
-            return IsAssociation(memberExpr, out attribAndProp);
-        }
 
-        /// <summary>
-        /// given expression {o.Customer} (type Order.Customer), check whether it has [Association] attribute
-        /// </summary>
-        public static bool IsAssociation(MemberExpression memberExpr, out AttribAndProp attribAndProp)
-        {
-            attribAndProp = null;
-            if (memberExpr == null)
-                return false;
-            MemberInfo memberInfo = memberExpr.Member;
-            PropertyInfo propInfo = memberInfo as PropertyInfo;
-            if (propInfo == null)
-                return false;
-            AssociationAttribute assoc1;
-            ColumnAttribute column1;
-            bool ok = IsAssociation(propInfo, out assoc1, out column1);
-            attribAndProp = new AttribAndProp { assoc = assoc1, propInfo = propInfo };
-            if (ok && assoc1.ThisKey != null)
-            {
-                //given {e.ReportsToEmployee} - 
-                //find also storage column for our association - 'int? ReportsTo {get,set}'
-                //if it reads CanBeNull=true, it's a left join (otherwise regular join)
-                Type tableType = propInfo.DeclaringType;
-                attribAndProp.columnPropInfo = tableType.GetProperty(assoc1.ThisKey);
-                if (attribAndProp.columnPropInfo != null)
-                {
-                    attribAndProp.columnAttribute = GetColumnAttribute(attribAndProp.columnPropInfo);
-                }
-            }
-            return ok;
-        }
-
-        /// <summary>
-        /// given field Order.Customer, check whether it has [Association] attribute
-        /// </summary>
-        public static bool IsAssociation(PropertyInfo propInfo, out AssociationAttribute assoc)
-        {
-            object[] objs = propInfo.GetCustomAttributes(typeof(AssociationAttribute), false);
-            assoc = objs.OfType<AssociationAttribute>().FirstOrDefault();
-            return assoc != null;
-        }
-
-        /// <summary>
-        /// given field Order.Customer, check whether it has [Association] attribute
-        /// </summary>
-        public static bool IsAssociation(PropertyInfo propInfo, out AssociationAttribute assoc, out ColumnAttribute col)
-        {
-            object[] attribs = propInfo.GetCustomAttributes(false);
-            assoc = attribs.OfType<AssociationAttribute>().FirstOrDefault();
-            col = attribs.OfType<ColumnAttribute>().FirstOrDefault();
-            return assoc != null;
-        }
-
-        /// <summary>
-        /// given type EntityMSet{X}, return X.
-        /// </summary>
-        public static Type ExtractTypeFromMSet(Type t)
-        {
-            if (t.IsGenericType && t.Name.EndsWith("Set`1"))
-            {
-                //EntityMSet
-                Type[] t1 = t.GetGenericArguments();
-                return t1[0]; //Orders
-            }
-            return t;
-        }
-
-        public static AssociationAttribute FindReverseAssociation(AttribAndProp attribAndProp)
-        {
-            //if (!s_knownAssocs.ContainsKey(assoc1))
-            //    throw new ArgumentException("AZrgument assoc1 must come from previous IsAssociation call");
-            //PropertyInfo propInfo = s_knownAssocs[assoc1];
-            AssociationAttribute assoc1 = attribAndProp.assoc;
-            PropertyInfo propInfo = attribAndProp.propInfo;
-
-            Type parentTableType = propInfo.PropertyType;
-            parentTableType = ExtractTypeFromMSet(parentTableType);
-
-            AssociationAttribute[] assocs = FindPropertiesWithGivenAttrib<AssociationAttribute>(parentTableType);
-
-            string assocName = assoc1.Name; //eg. 'FK_Customers_Orders'
-
-            var q = from a in assocs
-                    where a.Name == assocName && a.ThisKey != assoc1.ThisKey
-                    select a;
-            AssociationAttribute result = q.FirstOrDefault();
-            if (result == null)
-            {
-                throw new ApplicationException("L328 Failed to find reverse assoc for " + assoc1.Name + " among " + assocs.Length);
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// given type Customer, return CustomerID.
-        /// </summary>
-        public static KeyValuePair<PropertyInfo, ColumnAttribute>[] FindPrimaryKeys(Type tableType)
-        {
-            KeyValuePair<PropertyInfo, ColumnAttribute>[] columns = GetColumnAttribs2(tableType);
-            return columns.Where(c => c.Value.IsPrimaryKey).ToArray();
-        }
 
         public static FunctionAttribute GetFunctionAttribute(MethodInfo methodInfo)
         {
@@ -384,31 +227,4 @@ namespace DbLinq.Util
         }
     }
 
-#if MONO_STRICT
-    internal
-#else
-    public
-#endif
-    class AttribAndProp
-    {
-        /// <summary>
-        /// eg. Employee.ReportsToEmployee property
-        /// </summary>
-        public PropertyInfo propInfo;
-
-        /// <summary>
-        /// eg. [Association(Storage = 'reportsToEmployee', ThisKey = 'ReportsTo')]
-        /// </summary>
-        public AssociationAttribute assoc;
-
-        /// <summary>
-        /// eg. field 'int? Employee.ReportsTo'
-        /// </summary>
-        public PropertyInfo columnPropInfo;
-        /// <summary>
-        /// the attribute on columnPropInfo, 
-        /// eg. [Column(Storage = 'reportsTo', Name = 'ReportsTo')]
-        /// </summary>
-        public ColumnAttribute columnAttribute;
-    }
 }

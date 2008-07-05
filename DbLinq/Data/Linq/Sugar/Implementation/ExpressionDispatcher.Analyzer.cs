@@ -952,21 +952,9 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
 
             // TODO: this is very dirty code, unreliable, unstable, and unlovable
             var constantExpression = parameters[1] as ConstantExpression;
-            ExpressionChain expressionChain;
-            Type table;
-            var sessionVarsHolder = constantExpression.Value as IGetSessionVars;
-            if (sessionVarsHolder != null)
-            {
-                expressionChain = new ExpressionChain(sessionVarsHolder.SessionVars.ExpressionChain);
-                table = GetQueriedType(sessionVarsHolder.SessionVars.Table.GetType());
-                // GetQueriedType(expressionChain.Expressions[0]);
-            }
-            else
-            {
-                var queryProvider = (QueryProvider)constantExpression.Value;
-                expressionChain = queryProvider.ExpressionChain;
-                table = queryProvider.TableType;
-            }
+            var queryProvider = (QueryProvider)constantExpression.Value;
+            var expressionChain = queryProvider.ExpressionChain;
+            var table = queryProvider.TableType;
             var queryBuilder = ObjectFactory.Get<QueryBuilder>();
             var tableExpression = new TableExpression(table,
                                                       DataMapper.GetTableName(table,

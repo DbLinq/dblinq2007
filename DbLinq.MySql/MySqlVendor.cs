@@ -59,30 +59,12 @@ namespace DbLinq.MySql
             return namePart.Enquote('`');
         }
 
-        public override IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
-                                               , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
-        {
-            //on Oracle, this function does something.
-            //on other DBs, primary keys values are handled by AUTO_INCREMENT            
-            sbIdentity.Append(";\n SELECT @@IDENTITY");
-            return null;
-        }
-
         /// <summary>
         /// on Postgres or Oracle, return eg. ':P1', on Mysql, '?P1'
         /// </summary>
         public override string GetOrderableParameterName(int index)
         {
             return "?P" + index;
-        }
-
-        /// <summary>
-        /// Mysql string concatenation
-        /// </summary>
-        public override string GetSqlConcat(List<ExpressionAndType> parts)
-        {
-            string[] arr = parts.Select(p => p.expression).ToArray();
-            return "CONCAT(" + string.Join(",", arr) + ")";
         }
 
         public override bool CanBulkInsert<T>(Table<T> table)

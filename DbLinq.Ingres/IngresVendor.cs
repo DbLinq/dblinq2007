@@ -52,63 +52,9 @@ namespace DbLinq.Ingres
         {
         }
 
-        public override IDbDataParameter ProcessPkField(IDbCommand cmd, ProjectionData projData, ColumnAttribute colAtt
-                                               , StringBuilder sb, StringBuilder sbValues, StringBuilder sbIdentity, ref int numFieldsAdded)
-        {
-            ColumnAttribute[] colAttribs = AttribHelper.GetColumnAttribs(projData.type);
-            ColumnAttribute idColAttrib = colAttribs.FirstOrDefault(c => c.IsDbGenerated);
-            string idColName = idColAttrib == null ? "ERROR_L93_MissingIdCol" : idColAttrib.Name;
-            if (idColAttrib != null && idColAttrib.Expression != null)
-            {
-                //sequence name is known, is stored in Expression
-                string nextvalExpr = idColAttrib.Expression;                     //eg. "nextval('suppliers_supplierid_seq')"
-                string currvalExpr = nextvalExpr.Replace("next value for", "current value for");  //eg. "currval('suppliers_supplierid_seq')"
-                lastIdExpression = "SELECT " + currvalExpr;
-            }
-
-            if (numFieldsAdded++ > 0) { sb.Append(", "); sbValues.Append(", "); }
-
-            // Ingres needs to have the explicit nextvalue statement in the insert clause
-            // to be able to issue a currval afterwards.
-            // this is a known problem.
-            sb.Append(colAtt.Name);
-            sbValues.Append(idColAttrib.Expression);
-            return null; //we have not created a param object (only Oracle does)
-        }
-
-        public override void ProcessInsertedId(IDbCommand cmd1, ref object returnedId)
-        {
-            if (lastIdExpression == null)
-                return;
-
-            // The current value for the sequence in question is gathered
-            // by issuing a new query to the database.
-            // it can only be done this way, as Ingres allows only one statement
-            // per DbCommand
-            object objID = null;
-            IDbCommand cmd2 = cmd1.Connection.CreateCommand();
-            cmd2.CommandText = lastIdExpression;
-            cmd2.Transaction = cmd1.Transaction;
-
-            objID = cmd2.ExecuteScalar();
-            if (objID != null)
-                returnedId = objID;
-            lastIdExpression = null;
-        }
-
         public override string GetOrderableParameterName(int index)
         {
             return "$param_" + index.ToString("000000") + "_param$";
-        }
-
-        public override string GetFinalParameterName(string orderableName)
-        {
-            return "?";
-        }
-
-        public override string ReplaceParamNameInSql(string orderableName, string sql)
-        {
-            return sql.Replace(orderableName, "?");
         }
 
         private bool isReplaceable(IDbDataParameter param)
@@ -138,58 +84,6 @@ namespace DbLinq.Ingres
                 return param.Value.ToString();
             }
             throw new Exception("Not prepared to convert " + param.DbType.ToString());
-        }
-
-        public override IDbCommand AddParameter(IDbCommand cmd, IDbDataParameter param)
-        {
-            if (!cmd.CommandText.Contains("?")) return base.AddParameter(cmd, param);
-
-            // Experimental: insert some (or most) parameters as literals
-            if (!isReplaceable(param)) return base.AddParameter(cmd, param);
-
-            // The last "?" is the param in question because
-            // the other parameters have still their orderable name
-            int qIdx = cmd.CommandText.LastIndexOf("?");
-
-            // Cut out the "?"...
-            string firstPartSQL = cmd.CommandText.Substring(0, qIdx);
-            string secondPartSQL = cmd.CommandText.Substring(qIdx + 1);
-
-            // ...and replace it with the actual value.
-            cmd.CommandText = firstPartSQL + getParamValueAsString(param) + secondPartSQL;
-            return cmd;
-        }
-
-        protected override void AddLateLimits(StringBuilder sql, SqlExpressionParts parts)
-        {
-            if (parts.LimitClause != null)
-                sql.Replace("SELECT", "SELECT FIRST " + parts.LimitClause.Value);
-
-            if (parts.OffsetClause != null)
-                throw new Exception("There is no OFFEST clause in Ingres. Sorry...");
-        }
-
-        /// <summary>
-        /// Ingres string concatenation, eg 'a||b'
-        /// </summary>
-        public override string GetSqlConcat(List<ExpressionAndType> parts)
-        {
-            StringBuilder sb = new StringBuilder();
-            foreach (ExpressionAndType part in parts)
-            {
-                if (sb.Length != 0) { sb.Append("||"); }
-                if (part.type == typeof(string))
-                {
-                    sb.Append(part.expression);
-                }
-                else
-                {
-                    //integers and friends: must CAST before concatenating
-                    sb.Append("VARCHAR(" + part.expression + ")");
-                }
-            }
-            //If the expression is the left side of any operator, it needs to be wrapped in brackets
-            return "(" + sb.ToString() + ")";
         }
 
         protected void SetParameterType(IDbDataParameter parameter, PropertyInfo property, string literal)

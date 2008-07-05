@@ -23,6 +23,7 @@
 // THE SOFTWARE.
 // 
 #endregion
+
 using System;
 using System.Data.Linq.Mapping;
 using System.Reflection;

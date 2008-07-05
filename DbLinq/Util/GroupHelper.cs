@@ -62,26 +62,4 @@ namespace DbLinq.Util
             return isGrp;
         }
     }
-
-    internal class GroupHelper2<T>
-    {
-        /// <summary>
-        /// when user is selecting 'new {g.Key,g}', we need to build bindings for the fields so that a row lambda can be created.
-        /// Called from BuildProjectedRowLambda().
-        /// </summary>
-        /// <param name="projFld"></param>
-        /// <returns></returns>
-        public static MemberAssignment BuildProjFieldBinding(SessionVarsParsed vars, ProjectionData.ProjectionField projFld,
-            ParameterExpression rdr, ParameterExpression mappingContext, ref int fieldID)
-        {
-            PropertyInfo[] igroupies = projFld.FieldType.GetProperties();
-            ConstructorInfo[] ictos = projFld.FieldType.GetConstructors();
-            ProjectionData projInner = ProjectionData.FromSelectGroupByExpr(vars.GroupByNewExpression, vars.GroupByExpression, vars.SqlParts);
-            //ProjectionData projInner = ProjectionData.FromSelectGroupByExpr(vars.groupByNewExpr,vars.GroupByExpression,vars.SqlParts);
-            LambdaExpression innerLambda = RowEnumeratorCompiler<T>.BuildProjectedRowLambda(vars, projInner, rdr, mappingContext, ref fieldID);
-            MemberAssignment binding = projFld.BuildMemberAssignment(innerLambda.Body);
-
-            return binding;
-        }
-    }
 }
