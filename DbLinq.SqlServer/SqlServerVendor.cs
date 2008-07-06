@@ -45,24 +45,9 @@ namespace DbLinq.SqlServer
         protected readonly SqlServerSqlProvider sqlProvider = new SqlServerSqlProvider();
         public override ISqlProvider SqlProvider { get { return sqlProvider; } }
 
-        /// <summary>
-        /// on Postgres or Oracle, return eg. ':P1', on Mysql, '?P1', @P1 for Microsoft
-        /// </summary>
-        public override string GetOrderableParameterName(int index)
-        {
-            return "@P" + index;
-        }
-
         protected override string MakeNameSafe(string name)
         {
             return name.Enquote('[', ']');
-        }
-
-        public override IDbDataParameter CreateDbDataParameter(IDbCommand cmd, string dbTypeName, string paramName)
-        {
-            System.Data.SqlDbType dbType = SqlServerTypeConversions.ParseType(dbTypeName);
-            SqlParameter param = new SqlParameter(paramName, dbType);
-            return param;
         }
 
         //NOTE: for Oracle, we want to consider 'Array Binding'

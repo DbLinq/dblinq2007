@@ -77,16 +77,6 @@ namespace DbLinq.Vendor
         /// <returns></returns>
         IExecuteResult ExecuteMethodCall(DataContext context, MethodInfo method, params object[] sqlParams);
 
-        /// <summary>
-        /// Creates a parameter for use with IDbCommand.
-        /// To be removed (should be useless)
-        /// </summary>
-        /// <param name="cmd"></param>
-        /// <param name="dbTypeName"></param>
-        /// <param name="paramName"></param>
-        /// <returns></returns>
-        IDbDataParameter CreateDbDataParameter(IDbCommand cmd, string dbTypeName, string paramName);
-
         bool SupportsOutputParameter { get; }
 
         #endregion
@@ -101,14 +91,6 @@ namespace DbLinq.Vendor
         /// 'SELECT 11 FROM DUAL'
         /// </summary>
         string SqlPingCommand { get; }
-
-        /// <summary>
-        /// Returns a named parameter based on a given index
-        /// This has to be an alphabetically orderable name
-        /// </summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
-        string GetOrderableParameterName(int index);
 
         /// <summary>
         /// given 'User', return '[User]' to prevent a SQL keyword conflict
