@@ -218,9 +218,6 @@
     <Compile Include="Language\Implementation\NoLanguageWords.cs" />
     <Compile Include="Schema\Implementation\NameFormatter.cs" />
     <Compile Include="Util\MemberInfoExtensions.cs" />
-    <Compile Include="Util\ProcResult.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Util\ReflectionExtensions.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -246,6 +243,7 @@
     <Compile Include="Vendor\Implementation\SchemaLoader.StoredProcedures.cs" />
     <Compile Include="Vendor\Implementation\SchemaLoader.Tables.cs" />
     <Compile Include="Vendor\Implementation\SchemaLoader.TypeMapping.cs" />
+    <Compile Include="Vendor\Implementation\Vendor.ProcedureResult.cs" />
     <Compile Include="Vendor\INameAliases.cs" />
     <Compile Include="Vendor\ISchemaLoader.cs" />
     <Compile Include="Vendor\ISqlProvider.cs" />

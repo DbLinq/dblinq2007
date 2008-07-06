@@ -23,39 +23,44 @@
 // THE SOFTWARE.
 // 
 #endregion
-using System;
-using System.Collections.Generic;
+
 using System.Linq;
-using System.Text;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using DbLinq.Util;
+using System.Collections.Generic;
 
-namespace DbLinq.Util
+namespace DbLinq.Vendor.Implementation
 {
-    /// <summary>
-    /// holds result of a stored proc call.
-    /// </summary>
-#if MONO_STRICT
-    internal
-#else
-    public
-#endif
-    class ProcResult : System.Data.Linq.IExecuteResult
+    partial class Vendor
     {
-        object[] outParamValues;
-
-        public object GetParameterValue(int parameterIndex)
+        /// <summary>
+        /// holds result of a stored proc call.
+        /// </summary>
+#if MONO_STRICT
+        internal
+#else
+        public
+#endif
+        class ProcedureResult : System.Data.Linq.IExecuteResult
         {
-            object value = outParamValues[parameterIndex];
-            return value;
-        }
+            object[] outParamValues;
 
-        public object ReturnValue { get; set; }
+            public object GetParameterValue(int parameterIndex)
+            {
+                object value = outParamValues[parameterIndex];
+                return value;
+            }
 
-        public void Dispose() { }
+            public object ReturnValue { get; set; }
 
-        public ProcResult(object retVal, object[] outParamValues_)
-        {
-            ReturnValue = retVal;
-            outParamValues = outParamValues_;
+            public void Dispose() { }
+
+            public ProcedureResult(object retVal, object[] outParamValues_)
+            {
+                ReturnValue = retVal;
+                outParamValues = outParamValues_;
+            }
         }
     }
 }

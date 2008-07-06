@@ -258,9 +258,6 @@
     <Compile Include="Language\Implementation\NoLanguageWords.cs" />
     <Compile Include="Schema\Implementation\NameFormatter.cs" />
     <Compile Include="Util\MemberInfoExtensions.cs" />
-    <Compile Include="Util\ProcResult.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Util\ReflectionExtensions.cs" />
     <Compile Include="Util\StringExtensions.cs" />
     <Compile Include="Util\TypeConvert.cs" />
