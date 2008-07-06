@@ -97,6 +97,7 @@
     <Compile Include="ReadTest_Operands.cs" />
     <Compile Include="StoredProcTest.cs" />
     <Compile Include="TestBase.cs" />
+    <Compile Include="Transactions.cs" />
     <Compile Include="WriteTest.cs" />
   </ItemGroup>
   <ItemGroup>

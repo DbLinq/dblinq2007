@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using NUnit.Framework;
 using Test_NUnit;
 using Test_NUnit.Linq_101_Samples;
@@ -11,7 +10,6 @@ using nwind;
 using DbLinq.Linq;
 #else
 using MsNorthwind;
-using System.Data.Linq;
 #endif
 
 #if MYSQL
@@ -29,7 +27,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
 #elif INGRES
     namespace Test_NUnit_Ingres.Linq_101_Samples
 #elif MSSQL
-    namespace Test_NUnit_MsSql.Linq_101_Samples
+namespace Test_NUnit_MsSql.Linq_101_Samples
 #else
 #error unknown target
 #endif
@@ -42,6 +40,20 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
         public void LinqToSqlInsert01()
         {
             Northwind db = CreateDB();
+
+            Customer cust = db.Customers.FirstOrDefault(c => c.CustomerID == "MCSFT");
+            if (cust != null)
+            {
+                try
+                {
+                    db.Customers.DeleteOnSubmit(cust);
+                    db.SubmitChanges();
+                }
+                catch
+                {
+                    Assert.Ignore("Inconclusive: the object already exist. And the couldn't be removed");
+                }
+            }
 
             var q = from c in db.Customers
                     where c.Region == "WA"
@@ -88,7 +100,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
             Northwind db = CreateDB();
 
             var ds = new System.Data.Linq.DataLoadOptions();
-            
+
             ds.LoadWith<Category>(c => c.Products);
             db.LoadOptions = ds;
 
@@ -205,13 +217,17 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
 
         [Linq101SamplesModified("Console and ObjectDummper references deleted")]
         [Test(Description = "Delete - Simple. This sample uses the Remove method to delete an OrderDetail from the OrderDetails Table object. The call to SubmitChanges persists this deletion to the database.")]
-
         public void LinqToSqlInsert06()
         {
             Northwind db = CreateDB();
 
+            OrderDetail ode = db.OrderDetails.FirstOrDefault();
+            decimal orderID = ode.OrderID;
+            decimal productID = ode.ProductID;
+
+
             OrderDetail order = (from c in db.OrderDetails
-                                 where c.OrderID == 10255 && c.ProductID == 36
+                                 where c.OrderID == orderID && c.ProductID == productID
                                  select c).First();
 
             //what happened to Table.Remove()?
@@ -221,36 +237,62 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
             db.OrderDetails.DeleteOnSubmit(order); //formerly Remove(order);
             db.SubmitChanges();
 
-            Assert.IsFalse(db.OrderDetails.Any(od => od.OrderID == 10255 && od.ProductID == 36));
+            Assert.IsFalse(db.OrderDetails.Any(od => od.OrderID == orderID && od.ProductID == productID));
+
+            try
+            {
+                db.OrderDetails.InsertOnSubmit(order);
+                db.SubmitChanges();
+            }
+            catch (Exception ex)
+            {
+                Assert.Ignore("the orderDetail deleted hasn't be restored, so next run over this text will fail: " + ex.Message);
+            }
         }
 
+        [SetUp]
+        public void Setup_LinqToSqlInsert07()
+        {
+            //Northwind db = CreateDB();
+            //var o = new Order { CustomerID = "WARTH", Employee = db.Employees.First() };
+            //o.OrderDetails.Add(new OrderDetail { Discount = 0.1f, Quantity = 1, Product = db.Products.First(p => p.Discontinued) });
+            //o.OrderDetails.Add(new OrderDetail { Discount = 0.2f, Quantity = 1, Product = db.Products.First(p => !p.Discontinued) });
+            //db.Orders.InsertOnSubmit(o);
+            //db.SubmitChanges();
+        }
 
         [Linq101SamplesModified("Console and ObjectDummper references deleted")]
         [Test(Description = "Delete - One-to-Many. This sample uses the Remove method to delete an Order and Order Detail from the Order Details and Orders tables. First deleting Order Details and then deleting from Orders. The call to SubmitChanges persists this deletion to the database.")]
         public void LinqToSqlInsert07()
         {
             Northwind db = CreateDB();
+           
+                var orderDetails =
+                    from o in db.OrderDetails
+                    where o.Order.CustomerID == "WARTH" 
+                    select o;
 
-            var orderDetails =
-            from o in db.OrderDetails
-            where o.Order.CustomerID == "WARTH" && o.Order.EmployeeID == 3
-            select o;
+                var order =
+                    (from o in db.Orders
+                     where o.CustomerID == "WARTH" 
+                     select o).FirstOrDefault();
 
-            var order =
-            (from o in db.Orders
-             where o.CustomerID == "WARTH" && o.EmployeeID == 3
-             select o).First();
+                if (!orderDetails.Any() || order == null)
+                    Assert.Ignore("Preconditions");
+                
 
-            foreach (var od in orderDetails)
-            {
-                db.OrderDetails.DeleteOnSubmit(od); //formerly Remove(od);
-            }
+                foreach (var od in orderDetails)
+                {
+                    db.OrderDetails.DeleteOnSubmit(od); //formerly Remove(od);
+                }
 
-            db.Orders.DeleteOnSubmit(order); //formerly Remove(order);
-            db.SubmitChanges();
+                db.Orders.DeleteOnSubmit(order); //formerly Remove(order);
+                db.SubmitChanges();
 
-            Assert.IsFalse(db.OrderDetails.Any(od => od.Order.Customer.CustomerID == "WARTH" && od.Order.EmployeeID == 3));
-            Assert.IsFalse(db.Orders.Any(ord => ord.OrderID == order.OrderID));
+                Assert.IsFalse(
+                    db.OrderDetails.Any(od => od.Order.Customer.CustomerID == "WARTH" && od.Order.EmployeeID == 3));
+                Assert.IsFalse(db.Orders.Any(ord => ord.OrderID == order.OrderID));
+       
         }
     }
 }
