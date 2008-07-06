@@ -34,7 +34,6 @@ using MappingContext = System.Data.Linq.Mapping.MappingContext;
 using DbLinq.Data.Linq.Sugar;
 using MappingContext = DbLinq.Data.Linq.Mapping.MappingContext;
 #endif
-using DbLinq.Linq;
 using DbLinq.Util;
 
 #if MONO_STRICT

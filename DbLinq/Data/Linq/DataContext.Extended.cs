@@ -26,13 +26,13 @@
 
 using System;
 using System.Diagnostics;
+using DbLinq.Data.Linq.Database;
 using DbLinq.Data.Linq.Mapping;
-using DbLinq.Linq.Database;
 using System.Data.Linq.Mapping;
 using System.Data;
 using DbLinq.Vendor;
-using DbLinq.Linq.Database.Implementation;
 using System.Data.Linq;
+using DbLinq.Data.Linq.Database.Implementation;
 
 namespace DbLinq.Data.Linq
 {

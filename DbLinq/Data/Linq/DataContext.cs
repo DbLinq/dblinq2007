@@ -43,6 +43,7 @@ using MappingContext = System.Data.Linq.Mapping.MappingContext;
 using DbLinq;
 #else
 using DbLinq.Data.Linq;
+using DbLinq.Data.Linq.Database;
 using DbLinq.Data.Linq.Sugar;
 using DbLinq.Data.Linq.Identity;
 using DbLinq.Util;
@@ -53,11 +54,10 @@ using DataContext = DbLinq.Data.Linq.DataContext;
 #endif
 
 using DbLinq.Factory;
-using DbLinq.Linq;
-using DbLinq.Linq.Database;
-using DbLinq.Linq.Database.Implementation;
 using DbLinq.Logging;
 using DbLinq.Vendor;
+using DbLinq.Data.Linq.Database;
+using DbLinq.Data.Linq.Database.Implementation;
 
 #if MONO_STRICT
 namespace System.Data.Linq

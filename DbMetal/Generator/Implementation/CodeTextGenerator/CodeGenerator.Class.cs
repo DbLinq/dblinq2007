@@ -31,7 +31,6 @@ using System.Diagnostics;
 using System.Linq;
 using DbLinq.Data.Linq;
 using DbLinq.Factory;
-using DbLinq.Linq.Mapping;
 using DbLinq.Logging;
 using DbLinq.Schema.Dbml;
 using DbMetal.Generator.EntityInterface;

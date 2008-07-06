@@ -45,7 +45,6 @@ using MappingContext = DbLinq.Data.Linq.Mapping.MappingContext;
 #endif
 
 using DbLinq.Factory;
-using DbLinq.Linq;
 
 
 #if MONO_STRICT

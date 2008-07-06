@@ -35,7 +35,6 @@ using System.Reflection;
 
 #if !MONO_STRICT
 using nwind;
-using DbLinq.Linq;
 #else
 using MsNorthwind;
 using System.Data.Linq;

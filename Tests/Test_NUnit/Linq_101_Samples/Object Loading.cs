@@ -9,7 +9,6 @@ using Test_NUnit.Linq_101_Samples;
 
 #if !MONO_STRICT
 using nwind;
-using DbLinq.Linq;
 #else
 using MsNorthwind;
 using System.Data.Linq;

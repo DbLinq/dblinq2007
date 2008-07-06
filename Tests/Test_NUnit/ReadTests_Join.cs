@@ -35,7 +35,6 @@ using DbLinq.Logging;
 
 #if !MONO_STRICT
 using nwind;
-using DbLinq.Linq;
 using DbLinq.Data.Linq;
 using DataLinq=DbLinq.Data.Linq;
 #else

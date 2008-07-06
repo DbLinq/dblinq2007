@@ -30,7 +30,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
-using DbLinq.Linq;
 using DbLinq.Vendor;
 using DataContext = DbLinq.Data.Linq.DataContext;
 

@@ -24,42 +24,29 @@
 // 
 #endregion
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Linq.Expressions;
+using System.Data;
 
-namespace DbLinq.Util.ExprVisitor
+namespace DbLinq.Data.Linq.Database
 {
     /// <summary>
-    /// when the user calls 'Count(i =&gt; 2)', we lost the information about what 'i' was referring to.
-    /// That info lives in the preceding Select.
-    /// This helper class edits our expression to put the info back in:
-    /// Given 'i=>2', we return 'p=>ProductID>2'
+    /// Transaction block.
     /// </summary>
-    internal class CountExpressionModifier : ExpressionVisitor
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    interface IDatabaseTransaction : IDisposable
     {
-        #region CountExpressionModifier
-        LambdaExpression _substituteExpr;
+        /// <summary>
+        /// Call Commit() before Dispose() to save changes.
+        /// All unCommit()ed changes will be rolled back
+        /// </summary>
+        void Commit();
 
-        public CountExpressionModifier(LambdaExpression substituteExpr)
-        {
-            _substituteExpr = substituteExpr;
-        }
-        public Expression Modify(Expression expression)
-        {
-            return Visit(expression);
-        }
-        protected override Expression VisitLambda(LambdaExpression lambda)
-        {
-            Expression body2 = base.Visit(lambda.Body);
-            Expression lambda2 = Expression.Lambda(body2, _substituteExpr.Parameters[0]);
-            return lambda2;
-        }
-        protected override Expression VisitParameter(ParameterExpression p)
-        {
-            return _substituteExpr.Body;
-        }
-        #endregion
+        /// <summary>
+        /// Returns current transaction (if any)
+        /// </summary>
+        IDbTransaction Transaction { get; }
     }
 }

@@ -54,6 +54,12 @@
   <ItemGroup>
     <Compile Include="Data\Linq\ChangeAction.cs" />
     <Compile Include="Data\Linq\ChangeSet.cs" />
+    <Compile Include="Data\Linq\Database\DatabaseContextExtensions.cs" />
+    <Compile Include="Data\Linq\Database\IDatabaseContext.cs" />
+    <Compile Include="Data\Linq\Database\IDatabaseTransaction.cs" />
+    <Compile Include="Data\Linq\Database\Implementation\DatabaseConnection.cs" />
+    <Compile Include="Data\Linq\Database\Implementation\DatabaseContext.cs" />
+    <Compile Include="Data\Linq\Database\Implementation\DatabaseTransaction.cs" />
     <Compile Include="Data\Linq\DataContext.cs" />
     <Compile Include="Data\Linq\DBLinqExtendedAttributte.cs" />
     <Compile Include="Data\Linq\EntityList.cs" />
@@ -170,11 +176,6 @@
     <Compile Include="Factory\Implementation\ReflectionObjectFactory.cs" />
     <Compile Include="Factory\IObjectFactory.cs" />
     <Compile Include="Factory\ObjectFactory.cs" />
-    <Compile Include="Linq\Database\DatabaseContextExtensions.cs" />
-    <Compile Include="Linq\Database\IDatabaseTransaction.cs" />
-    <Compile Include="Linq\Database\Implementation\DatabaseContext.cs" />
-    <Compile Include="Linq\Database\Implementation\DatabaseConnection.cs" />
-    <Compile Include="Linq\Database\Implementation\DatabaseTransaction.cs" />
     <Compile Include="MonoTODOAttribute.cs" />
     <Compile Include="Schema\Case.cs" />
     <Compile Include="Schema\WordsExtraction.cs" />
@@ -191,12 +192,6 @@
       <DependentUpon>DbmlSchema.xsd</DependentUpon>
     </Compile>
     <Compile Include="Schema\Dbml\DbmlSerializer.cs" />
-    <Compile Include="Linq\Clause\InsertClauseBuilder.cs" />
-    <Compile Include="Linq\Database\IDatabaseContext.cs" />
-    <Compile Include="Linq\IModified.cs" />
-    <Compile Include="Linq\Mapping\AutoGenIdAttribute.cs" />
-    <Compile Include="Linq\Mapping\FunctionExAttribute.cs" />
-    <Compile Include="Linq\SessionVarsParsed.cs" />
     <Compile Include="Schema\ProcedureName.cs" />
     <Compile Include="Schema\Name.cs" />
     <Compile Include="Schema\SchemaName.cs" />
@@ -248,33 +243,6 @@
     <Compile Include="System.Data.Linq\System.Data.Linq.SqlClient\SqlHelpers.cs" />
     <Compile Include="System.Data.Linq\System.Data.Linq.SqlClient\SqlMethods.cs" />
     <Compile Include="System.Data.Linq\System.Data.Linq.SqlClient\SqlProvider.cs" />
-    <Compile Include="Util\ExprVisitor\CountExpressionModifier.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Util\ExprVisitor\ExpressionRegex.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Util\ExprVisitor\ExpressionTreeComparer.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Util\ExprVisitor\ExpressionVisitor.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Util\ExprVisitor\IExpressionModifier.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Util\ExprVisitor\LocalExpressionChecker.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Util\ExprVisitor\ParamReplacer.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Util\ExprVisitor\ParentExpressionRemover.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Util\ExprVisitor\StripTransparentId.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Util\IDataRecordExtensions.cs" />
     <Compile Include="Util\IDataTypeExtensions.cs" />
     <Compile Include="Language\ILanguages.cs" />
@@ -283,30 +251,21 @@
     <Compile Include="Util\ILoggerExtension.cs" />
     <Compile Include="Util\LambdaComparer.cs" />
     <Compile Include="Util\DataCommand.cs" />
-    <Compile Include="Util\ExpressionAndType.cs" />
-    <Compile Include="Util\ExpressionExtensions.cs" />
-    <Compile Include="Util\FieldUtils.cs" />
-    <Compile Include="Util\GroupHelper.cs" />
     <Compile Include="Schema\INameFormatter.cs" />
     <Compile Include="Language\Implementation\AbstractEndPluralWords.cs" />
     <Compile Include="Language\Implementation\AbstractWords.cs" />
     <Compile Include="Language\Implementation\Languages.cs" />
     <Compile Include="Language\Implementation\NoLanguageWords.cs" />
-    <Compile Include="Util\Lookup.cs" />
     <Compile Include="Schema\Implementation\NameFormatter.cs" />
     <Compile Include="Util\MemberInfoExtensions.cs" />
+    <Compile Include="Util\ProcResult.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Util\ReflectionExtensions.cs" />
     <Compile Include="Util\StringExtensions.cs" />
     <Compile Include="Util\TypeConvert.cs" />
-    <Compile Include="Util\Operators.cs" />
-    <Compile Include="Util\ProcResult.cs" />
     <Compile Include="Util\QuotesHelper.cs" />
     <Compile Include="Util\ReferenceEqualityComparer.cs" />
-    <Compile Include="Linq\ProjectionData.cs" />
-    <Compile Include="Linq\SessionVars.cs" />
-    <Compile Include="Util\AttribHelper.cs" />
-    <Compile Include="Linq\SqlExpressionParts.cs" />
-    <Compile Include="Util\TypeCategory.cs" />
     <Compile Include="Util\Page.cs" />
     <Compile Include="Util\TypeExtensions.cs" />
     <Compile Include="Util\TypeLoader.cs" />

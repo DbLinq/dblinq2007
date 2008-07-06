@@ -33,7 +33,6 @@ using System.Data.Linq.Mapping;
 
 #if !MONO_STRICT
 using nwind;
-using DbLinq.Linq;
 using DataLinq=DbLinq.Data.Linq;
 #else
 using MsNorthwind;

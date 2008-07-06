@@ -22,8 +22,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using DbLinq.Data.Linq;
-using DbLinq.Linq;
-using DbLinq.Linq.Mapping;
 
 namespace nwind
 {

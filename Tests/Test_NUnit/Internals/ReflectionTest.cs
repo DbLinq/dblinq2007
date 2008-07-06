@@ -19,7 +19,7 @@ namespace Test_NUnit.Internals
         { 
             protected int intField2; 
         }
-
+#if OBSOLETE
         [Test]
         public void AttribHelper_NoDuplicateFields()
         {
@@ -37,7 +37,7 @@ namespace Test_NUnit.Internals
             System.Reflection.MemberInfo[] members = DbLinq.Util.AttribHelper.GetMemberFields(typeof(Class1));
             Assert.IsTrue(members.Length == 2);
         }
-
+#endif
 
     }
 }

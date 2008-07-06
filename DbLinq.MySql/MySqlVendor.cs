@@ -32,11 +32,8 @@ using System.Data.Linq.Mapping;
 using System.Reflection;
 using System.Data;
 using DbLinq.Data.Linq;
-using DbLinq.Linq;
-using DbLinq.Linq.Clause;
 using DbLinq.Logging;
 using DbLinq.Util;
-using DbLinq.Linq.Database;
 using DbLinq.Vendor;
 
 namespace DbLinq.MySql
@@ -159,14 +156,15 @@ namespace DbLinq.MySql
                 throw new ArgumentNullException("L56 Null 'method' parameter");
 
             //check to make sure there is exactly one [FunctionEx]? that's below.
-            FunctionAttribute functionAttrib = GetFunctionAttribute(method);
+            //FunctionAttribute functionAttrib = GetFunctionAttribute(method);
+            var functionAttrib = context.Mapping.GetFunction(method);
 
             ParameterInfo[] paramInfos = method.GetParameters();
             //int numRequiredParams = paramInfos.Count(p => p.IsIn || p.IsRetval);
             //if (numRequiredParams != inputValues.Length)
             //    throw new ArgumentException("L161 Argument count mismatch");
 
-            string sp_name = functionAttrib.Name;
+            string sp_name = functionAttrib.MappedName;
 
             // picrap: is there any way to abstract some part of this?
             using (IDbCommand command = context.Connection.CreateCommand())
@@ -281,7 +279,8 @@ namespace DbLinq.MySql
                 {
                     //fi.SetValue(t, val); //fails with 'System.Decimal cannot be converted to Int32'
                     //DbLinq.util.FieldUtils.SetObjectIdField(t, fi, val);
-                    object val2 = FieldUtils.CastValue(val, desired_type);
+                    //object val2 = FieldUtils.CastValue(val, desired_type);
+                    object val2 = TypeConvert.To(val, desired_type);
                     outParamValues.Add(val2);
                 }
                 catch (Exception ex)
