@@ -135,13 +135,13 @@ namespace DbLinq.Sqlite
                     adapter.SelectCommand = command;
                     adapter.Fill(dataSet);
                     List<object> outParamValues = CopyOutParams(paramInfos, command.Parameters);
-                    return new ProcResult(dataSet, outParamValues.ToArray());
+                    return new ProcedureResult(dataSet, outParamValues.ToArray());
                 }
                 else
                 {
                     object obj = command.ExecuteScalar();
                     List<object> outParamValues = CopyOutParams(paramInfos, command.Parameters);
-                    return new ProcResult(obj, outParamValues.ToArray());
+                    return new ProcedureResult(obj, outParamValues.ToArray());
                 }
             }
         }

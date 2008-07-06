@@ -43,7 +43,6 @@ using MappingContext = System.Data.Linq.Mapping.MappingContext;
 using DbLinq;
 #else
 using DbLinq.Data.Linq;
-using DbLinq.Data.Linq.Database;
 using DbLinq.Data.Linq.Sugar;
 using DbLinq.Data.Linq.Identity;
 using DbLinq.Util;
