@@ -209,11 +209,16 @@ namespace DbLinq.Vendor
         /// <param name="table">Table name</param>
         /// <param name="inputColumns">Columns to be inserted</param>
         /// <param name="inputValues">Values to be inserted into columns</param>
+        /// <returns></returns>
+        string GetInsert(string table, IList<string> inputColumns, IList<string> inputValues);
+
+        /// <summary>
+        /// Builds the statements that gets back the IDs for the inserted statement
+        /// </summary>
         /// <param name="outputParameters">Expected output parameters</param>
         /// <param name="outputExpressions">Expressions (to help generate output parameters)</param>
         /// <returns></returns>
-        string GetInsert(string table, IList<string> inputColumns, IList<string> inputValues,
-                                         IList<string> outputParameters, IList<string> outputExpressions);
+        string GetInsertIds(IList<string> outputParameters, IList<string> outputExpressions);
 
         /// <summary>
         /// Builds an update clause

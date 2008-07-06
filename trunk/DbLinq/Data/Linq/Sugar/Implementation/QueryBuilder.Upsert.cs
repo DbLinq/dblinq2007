@@ -107,9 +107,15 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             // TODO: cache
             var upsertParameters = GetUpsertParameters(objectToInsert, false, null, queryContext);
             var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
-            var insertSql = sqlProvider.GetInsert(sqlProvider.GetTable(upsertParameters.Table.TableName), upsertParameters.InputColumns, upsertParameters.InputValues, upsertParameters.OutputValues, upsertParameters.OutputExpressions);
+            var insertSql = sqlProvider.GetInsert(
+                sqlProvider.GetTable(upsertParameters.Table.TableName), 
+                upsertParameters.InputColumns, 
+                upsertParameters.InputValues);
+            var insertIdSql = sqlProvider.GetInsertIds(
+                upsertParameters.OutputValues,
+                upsertParameters.OutputExpressions);
             queryContext.DataContext.Logger.Write(Level.Debug, "Insert SQL: {0}", insertSql);
-            return new UpsertQuery(queryContext.DataContext, insertSql, upsertParameters.InputParameters, upsertParameters.OutputParameters);
+            return new UpsertQuery(queryContext.DataContext, insertSql, insertIdSql, upsertParameters.InputParameters, upsertParameters.OutputParameters);
         }
 
         protected enum ParameterType
@@ -264,7 +270,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 upsertParameters.InputPKColumns, upsertParameters.InputPKValues
                 );
             queryContext.DataContext.Logger.Write(Level.Debug, "Update SQL: {0}", updateSql);
-            return new UpsertQuery(queryContext.DataContext, updateSql, upsertParameters.InputParameters, upsertParameters.OutputParameters);
+            return new UpsertQuery(queryContext.DataContext, updateSql, "", upsertParameters.InputParameters, upsertParameters.OutputParameters);
         }
 
         /// <summary>

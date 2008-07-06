@@ -30,15 +30,23 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using DbLinq.Util;
 using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.Ingres
 {
     public class IngresSqlProvider : SqlProvider
     {
-        protected override string GetInsertWrapper(string insert, IList<string> outputParameters, IList<string> outputExpressions)
+        public override string GetInsertIds(IList<string> outputParameters, IList<string> outputExpressions)
         {
-            return insert;
+            // no parameters? no need to get them back
+            if (outputParameters.Count == 0)
+                return "";
+            // otherwise we keep track of the new values
+            return string.Format("SELECT {0}",
+                string.Join(", ", (from outputExpression in outputExpressions
+                                   select outputExpression.ReplaceCase("next value", "current value", true)).ToArray())
+                );
         }
 
         protected override string GetLiteralCount(string a)

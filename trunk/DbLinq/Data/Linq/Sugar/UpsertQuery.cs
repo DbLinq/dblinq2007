@@ -41,13 +41,15 @@ namespace DbLinq.Data.Linq.Sugar
     {
         public IList<ObjectInputParameterExpression> InputParameters { get; private set; }
         public IList<ObjectOutputParameterExpression> OutputParameters { get; private set; }
+        public string IdQuerySql { get; private set; }
 
-        public UpsertQuery(DataContext dataContext, string sql, IList<ObjectInputParameterExpression> inputParameters,
+        public UpsertQuery(DataContext dataContext, string sql, string idQuerySql, IList<ObjectInputParameterExpression> inputParameters,
             IList<ObjectOutputParameterExpression> outputParameters)
             : base(dataContext, sql)
         {
             InputParameters = inputParameters;
             OutputParameters = outputParameters;
+            IdQuerySql = idQuerySql;
         }
     }
 }
