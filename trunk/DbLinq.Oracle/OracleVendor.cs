@@ -31,6 +31,7 @@ using System.Text;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using DbLinq.Linq;
+using DbLinq.Vendor;
 using DataContext = DbLinq.Data.Linq.DataContext;
 
 namespace DbLinq.Oracle
@@ -39,9 +40,8 @@ namespace DbLinq.Oracle
     {
         public override string VendorName { get { return "Oracle"; } }
 
-        public OracleVendor()
-            : base(new OracleSqlProvider())
-        { }
+        protected readonly OracleSqlProvider sqlProvider = new OracleSqlProvider();
+        public override ISqlProvider SqlProvider { get { return sqlProvider; } }
 
         public override string SqlPingCommand
         {

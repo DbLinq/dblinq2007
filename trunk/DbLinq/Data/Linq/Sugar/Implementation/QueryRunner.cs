@@ -69,6 +69,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             /// </summary>
             public void Commit()
             {
+                // TODO: do not commit if participating in a higher transaction
                 _transaction.Commit();
             }
 
@@ -304,6 +305,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     if (insertQuery.OutputParameters.Count == 1)
                         SetOutputParameterValue(target, insertQuery.OutputParameters[0], result);
                 }
+                dbCommand.Commit();
             }
         }
 
@@ -344,6 +346,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     dbCommand.Command.Parameters.Add(dbParameter);
                 }
                 int rowsCount = dbCommand.Command.ExecuteNonQuery();
+                dbCommand.Commit();
             }
         }
 

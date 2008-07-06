@@ -32,6 +32,7 @@ using System.Data.Linq.Mapping;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 #if MONO_STRICT
 using System.Data.Linq.Sugar;
@@ -621,13 +622,13 @@ namespace DbLinq.Data.Linq
         }
 
         [DbLinqToDo]
-        public void Refresh(System.Data.Linq.RefreshMode mode, params object[] entities)
+        public void Refresh(RefreshMode mode, params object[] entities)
         {
             throw new NotImplementedException();
         }
 
         [DbLinqToDo]
-        public void Refresh(System.Data.Linq.RefreshMode mode, object entity)
+        public void Refresh(RefreshMode mode, object entity)
         {
             throw new NotImplementedException();
         }
@@ -645,7 +646,7 @@ namespace DbLinq.Data.Linq
         }
 
         [DbLinqToDo]
-        protected internal IQueryable<TResult> CreateMethodCallQuery<TResult>(object instance, System.Reflection.MethodInfo methodInfo, params object[] parameters)
+        protected internal IQueryable<TResult> CreateMethodCallQuery<TResult>(object instance, MethodInfo methodInfo, params object[] parameters)
         {
             throw new NotImplementedException();
         }

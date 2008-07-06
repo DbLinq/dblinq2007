@@ -48,16 +48,8 @@ namespace DbLinq.Sqlite
     {
         public override string VendorName { get { return "SQLite"; } }
 
-        /// <summary>
-        /// Client code needs to specify: 'Vendor.UserBulkInsert[db.Products]=10' to enable bulk insert, 10 rows at a time.
-        /// </summary>
-        public static readonly Dictionary<ITable, int> UseBulkInsert = new Dictionary<ITable, int>();
-
-
-        public SqliteVendor()
-            : base(new SqliteSqlProvider())
-        { }
-
+        protected readonly SqliteSqlProvider sqlProvider = new SqliteSqlProvider();
+        public override ISqlProvider SqlProvider { get { return sqlProvider; } }
 
         public override bool SupportsOutputParameter { get { return false; } } // poor guy
 
@@ -67,57 +59,6 @@ namespace DbLinq.Sqlite
         public override string GetOrderableParameterName(int index)
         {
             return "@P" + index;
-        }
-
-        public override bool CanBulkInsert<T>(Data.Linq.Table<T> table)
-        {
-            return UseBulkInsert.ContainsKey(table);
-        }
-
-        public override void SetBulkInsert<T>(Data.Linq.Table<T> table, int pageSize)
-        {
-            UseBulkInsert[table] = pageSize;
-        }
-
-        /// <summary>
-        /// for large number of rows, we want to use BULK INSERT, 
-        /// because it does not fill up the translation log.
-        /// This is enabled for tables where Vendor.UserBulkInsert[db.Table] is true.
-        /// </summary>
-        public override void DoBulkInsert<T>(Table<T> table, List<T> rows, IDbConnection connection)
-        {
-            int pageSize = UseBulkInsert[table];
-            //ProjectionData projData = ProjectionData.FromReflectedType(typeof(T));
-            ProjectionData projData = AttribHelper.GetProjectionData(typeof(T));
-            TableAttribute tableAttrib = typeof(T).GetCustomAttributes(false).OfType<TableAttribute>().Single();
-
-            //build "INSERT INTO products (ProductName, SupplierID, CategoryID, QuantityPerUnit)"
-            string header = "INSERT INTO " + tableAttrib.Name + " " + InsertClauseBuilder.InsertRowHeader(projData);
-
-            foreach (List<T> page in Page.Paginate(rows, pageSize))
-            {
-                int numFieldsAdded = 0;
-                StringBuilder sbValues = new StringBuilder(" VALUES ");
-                List<IDbDataParameter> paramList = new List<IDbDataParameter>();
-
-                IDbCommand cmd = connection.CreateCommand();
-
-                //package up all fields in N rows:
-                string separator = "";
-                foreach (T row in page)
-                {
-                    //prepare values = "(?P1, ?P2, ?P3, ?P4)"
-                    string values = InsertClauseBuilder.InsertRowFields(this, cmd, row, projData, paramList, ref numFieldsAdded);
-                    sbValues.Append(separator).Append(values);
-                    separator = ", ";
-                }
-
-                string sql = header + sbValues; //'INSET t1 (field1) VALUES (11),(12)'
-                cmd.CommandText = sql;
-                paramList.ForEach(param => cmd.Parameters.Add(param));
-
-                int result = cmd.ExecuteNonQuery();
-            }
         }
 
         /// <summary>

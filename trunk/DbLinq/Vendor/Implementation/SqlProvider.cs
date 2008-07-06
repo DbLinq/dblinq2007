@@ -58,10 +58,10 @@ namespace DbLinq.Vendor.Implementation
         public string GetInsert(string table, IList<string> inputColumns, IList<string> inputValues,
             IList<string> outputParameters, IList<string> outputExpressions)
         {
-            return GetInsertWrapper(GetInsert(table, inputColumns, inputValues), outputParameters, outputExpressions);
+            return GetInsertWrapper(GetRawInsert(table, inputColumns, inputValues), outputParameters, outputExpressions);
         }
 
-        protected virtual string GetInsert(string table, IList<string> columns, IList<string> values)
+        protected virtual string GetRawInsert(string table, IList<string> columns, IList<string> values)
         {
             if (columns.Count == 0)
                 return string.Empty;

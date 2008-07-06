@@ -33,6 +33,7 @@ using System.Data;
 using System.Data.Linq.Mapping;
 using DbLinq.Util;
 using DbLinq.Linq;
+using DbLinq.Vendor;
 using DataContext = DbLinq.Data.Linq.DataContext;
 using ITable = DbLinq.Data.Linq.ITable;
 
@@ -42,12 +43,10 @@ namespace DbLinq.SqlServer
     {
         public readonly Dictionary<ITable, int> UseBulkInsert = new Dictionary<ITable, int>();
 
-        public override string VendorName { get { return "MsSqlServer"; } }
-        //public const string SQL_PING_COMMAND = "SELECT 11";
+        public override string VendorName { get { return "SqlServer"; } }
 
-        public SqlServerVendor()
-            : base(new SqlServerSqlProvider())
-        { }
+        protected readonly SqlServerSqlProvider sqlProvider = new SqlServerSqlProvider();
+        public override ISqlProvider SqlProvider { get { return sqlProvider; } }
 
         /// <summary>
         /// on Postgres or Oracle, return eg. ':P1', on Mysql, '?P1', @P1 for Microsoft
