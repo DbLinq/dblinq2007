@@ -26,6 +26,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data.Linq.Mapping;
 using System.Linq;
 using System.Reflection;
@@ -96,74 +97,58 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             return (from column in tableDescription.RowType.PersistentDataMembers select column.Member).ToList();
         }
 
-        protected virtual void GetAssociation(MetaAssociation child, out IList<MemberInfo> foreignKey,
-                                              out IList<MemberInfo> referencedKey, DataContext dataContext)
-        {
-            // the parent type is a Set<Table>, we keep the Table
-            var parent = child.OtherMember.Association;
-
-            if (child.ThisKey.Count == 0) // which sounds odd
-                foreignKey = GetPrimaryKeys(dataContext.Mapping.GetTable(child.ThisMember.Type));
-            else
-                foreignKey = (from key in child.ThisKey select key.Member).ToList();
-
-            if (parent.OtherKey.Count == 0)
-                referencedKey = GetPrimaryKeys(dataContext.Mapping.GetTable(parent.OtherMember.Type));
-            else
-                referencedKey = (from key in parent.OtherKey select key.Member).ToList();
-        }
-
-        protected virtual bool IsChild(MetaAssociation association)
-        {
-            return !typeof(IQueryable).IsAssignableFrom(association.ThisMember.Type);
-        }
-
         /// <summary>
         /// Returns association definition, if any
         /// </summary>
-        /// <param name="joinedTableExpression">The table referenced by the assocation (the type holding the member)</param>
+        /// <param name="thisTableExpression">The table referenced by the assocation (the type holding the member)</param>
         /// <param name="memberInfo">The memberInfo related to association</param>
-        /// <param name="foreignKey">The keys in the joined table</param>
-        /// <param name="joinedKey">The keys in the associated table</param>
+        /// <param name="thisKey">The keys in the joined table</param>
+        /// <param name="otherKey">The keys in the associated table</param>
         /// <param name="joinType"></param>
         /// <param name="joinID"></param>
         /// <param name="dataContext"></param>
         /// <returns></returns>
-        public virtual Type GetAssociation(TableExpression joinedTableExpression, MemberInfo memberInfo,
-                                           out IList<MemberInfo> foreignKey, out IList<MemberInfo> joinedKey, out TableJoinType joinType,
-                                           out string joinID, DataContext dataContext)
+        public virtual Type GetAssociation(TableExpression thisTableExpression, MemberInfo memberInfo,
+                                           out IList<MemberInfo> thisKey, out IList<MemberInfo> otherKey,
+                                           out TableJoinType joinType, out string joinID, DataContext dataContext)
         {
-            var joinedTableDescription = dataContext.Mapping.GetTable(joinedTableExpression.Type);
-            var joinedAssociation =
-                (from association in joinedTableDescription.RowType.Associations
+            var thisTableDescription = dataContext.Mapping.GetTable(thisTableExpression.Type);
+            var thisAssociation =
+                (from association in thisTableDescription.RowType.Associations
                  where association.ThisMember.Member == memberInfo
                  select association).SingleOrDefault();
-            if (joinedAssociation != null)
+            if (thisAssociation != null)
             {
                 joinType = TableJoinType.Inner;
-                joinID = joinedAssociation.ThisMember.MappedName;
+                joinID = thisAssociation.ThisMember.MappedName;
                 if (string.IsNullOrEmpty(joinID))
                     throw Error.BadArgument("S0108: Association name is required to ensure join uniqueness");
 
-                Type referencedType;
-                if (IsChild(joinedAssociation))
-                {
-                    GetAssociation(joinedAssociation, out foreignKey, out joinedKey, dataContext);
-                    referencedType = joinedAssociation.ThisMember.Type; // the parent type is the type returned by the member
-                }
-                else
-                {
-                    GetAssociation(joinedAssociation.OtherMember.Association, out joinedKey, out foreignKey, dataContext);
-                    referencedType = joinedAssociation.ThisMember.Type.GetGenericArguments()[0];
-                }
+                var otherType = thisAssociation.ThisMember.Type;
+                if (otherType.IsGenericType) // TODO: something serious here
+                    otherType = otherType.GetGenericArguments()[0];
 
-                return referencedType;
+                var otherTableDescription = dataContext.Mapping.GetTable(otherType);
+                thisKey = GetAssociationKeys(thisTableDescription, thisAssociation.ThisKey, dataContext);
+                otherKey = GetAssociationKeys(otherTableDescription, thisAssociation.OtherKey, dataContext);
+
+                return otherType;
             }
-            foreignKey = null;
-            joinedKey = null;
+            thisKey = null;
+            otherKey = null;
             joinType = TableJoinType.Default;
             joinID = null;
             return null;
+        }
+
+        protected virtual IList<MemberInfo> GetAssociationKeys(MetaTable description, ReadOnlyCollection<MetaDataMember> keys,
+                                                               DataContext dataContext)
+        {
+            var sourceKeys = keys;
+            if (sourceKeys.Count == 0)
+                sourceKeys = description.RowType.IdentityMembers;
+            var members = (from key in sourceKeys select key.Member).ToList();
+            return members;
         }
     }
 }

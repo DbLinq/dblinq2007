@@ -93,16 +93,16 @@ namespace DbLinq.Data.Linq.Sugar
         /// <summary>
         /// Returns associations
         /// </summary>
-        /// <param name="joinedTableExpression"></param>
+        /// <param name="thisTableExpression"></param>
         /// <param name="memberInfo"></param>
-        /// <param name="foreignKey"></param>
-        /// <param name="joinedKey"></param>
+        /// <param name="thisKey"></param>
+        /// <param name="otherKey"></param>
         /// <param name="joinType"></param>
         /// <param name="joinID"></param>
         /// <param name="dataContext"></param>
         /// <returns></returns>
-        Type GetAssociation(TableExpression joinedTableExpression, MemberInfo memberInfo,
-                            out IList<MemberInfo> foreignKey, out IList<MemberInfo> joinedKey, out TableJoinType joinType,
+        Type GetAssociation(TableExpression thisTableExpression, MemberInfo memberInfo,
+                            out IList<MemberInfo> thisKey, out IList<MemberInfo> otherKey, out TableJoinType joinType,
                             out string joinID, DataContext dataContext);
 
     }

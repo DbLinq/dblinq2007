@@ -1,4 +1,4 @@
-#region Auto-generated classes for Northwind database on 2008-06-23 01:24:33Z
+#region Auto-generated classes for Northwind database on 2008-07-06 01:10:53Z
 
 //
 //  ____  _     __  __      _        _
@@ -7,7 +7,7 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from Northwind on 2008-06-23 01:24:33Z
+// Auto-generated from Northwind on 2008-07-06 01:10:53Z
 // Please visit http://linq.to/db for more information
 
 #endregion
@@ -58,21 +58,20 @@ namespace nwind
 	{
 		#region int CategoryID
 
-		[AutoGenId]
-		private int categoryID;
+		private int _categoryID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "categoryID", Name = "CategoryID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
+		[Column(Storage = "_categoryID", Name = "CategoryID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
 		public int CategoryID
 		{
 			get
 			{
-				return categoryID;
+				return _categoryID;
 			}
 			set
 			{
-				if (value != categoryID)
+				if (value != _categoryID)
 				{
-					categoryID = value;
+					_categoryID = value;
 				}
 			}
 		}
@@ -81,20 +80,20 @@ namespace nwind
 
 		#region string CategoryName
 
-		private string categoryName;
+		private string _categoryName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "categoryName", Name = "CategoryName", DbType = "VARCHAR(15)", CanBeNull = false)]
+		[Column(Storage = "_categoryName", Name = "CategoryName", DbType = "VARCHAR(15)", CanBeNull = false)]
 		public string CategoryName
 		{
 			get
 			{
-				return categoryName;
+				return _categoryName;
 			}
 			set
 			{
-				if (value != categoryName)
+				if (value != _categoryName)
 				{
-					categoryName = value;
+					_categoryName = value;
 				}
 			}
 		}
@@ -103,20 +102,20 @@ namespace nwind
 
 		#region string Description
 
-		private string description;
+		private string _description;
 		[DebuggerNonUserCode]
-		[Column(Storage = "description", Name = "Description", DbType = "TEXT")]
+		[Column(Storage = "_description", Name = "Description", DbType = "TEXT")]
 		public string Description
 		{
 			get
 			{
-				return description;
+				return _description;
 			}
 			set
 			{
-				if (value != description)
+				if (value != _description)
 				{
-					description = value;
+					_description = value;
 				}
 			}
 		}
@@ -125,20 +124,20 @@ namespace nwind
 
 		#region System.Byte[] Picture
 
-		private System.Byte[] picture;
+		private System.Byte[] _picture;
 		[DebuggerNonUserCode]
-		[Column(Storage = "picture", Name = "Picture", DbType = "BLOB")]
+		[Column(Storage = "_picture", Name = "Picture", DbType = "BLOB")]
 		public System.Byte[] Picture
 		{
 			get
 			{
-				return picture;
+				return _picture;
 			}
 			set
 			{
-				if (value != picture)
+				if (value != _picture)
 				{
-					picture = value;
+					_picture = value;
 				}
 			}
 		}
@@ -152,20 +151,20 @@ namespace nwind
 	{
 		#region string Address
 
-		private string address;
+		private string _address;
 		[DebuggerNonUserCode]
-		[Column(Storage = "address", Name = "Address", DbType = "VARCHAR(60)")]
+		[Column(Storage = "_address", Name = "Address", DbType = "VARCHAR(60)")]
 		public string Address
 		{
 			get
 			{
-				return address;
+				return _address;
 			}
 			set
 			{
-				if (value != address)
+				if (value != _address)
 				{
-					address = value;
+					_address = value;
 				}
 			}
 		}
@@ -174,20 +173,20 @@ namespace nwind
 
 		#region string City
 
-		private string city;
+		private string _city;
 		[DebuggerNonUserCode]
-		[Column(Storage = "city", Name = "City", DbType = "VARCHAR(15)")]
+		[Column(Storage = "_city", Name = "City", DbType = "VARCHAR(15)")]
 		public string City
 		{
 			get
 			{
-				return city;
+				return _city;
 			}
 			set
 			{
-				if (value != city)
+				if (value != _city)
 				{
-					city = value;
+					_city = value;
 				}
 			}
 		}
@@ -196,20 +195,20 @@ namespace nwind
 
 		#region string CompanyName
 
-		private string companyName;
+		private string _companyName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "companyName", Name = "CompanyName", DbType = "VARCHAR(40)", CanBeNull = false)]
+		[Column(Storage = "_companyName", Name = "CompanyName", DbType = "VARCHAR(40)", CanBeNull = false)]
 		public string CompanyName
 		{
 			get
 			{
-				return companyName;
+				return _companyName;
 			}
 			set
 			{
-				if (value != companyName)
+				if (value != _companyName)
 				{
-					companyName = value;
+					_companyName = value;
 				}
 			}
 		}
@@ -218,20 +217,20 @@ namespace nwind
 
 		#region string ContactName
 
-		private string contactName;
+		private string _contactName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "contactName", Name = "ContactName", DbType = "VARCHAR(30)")]
+		[Column(Storage = "_contactName", Name = "ContactName", DbType = "VARCHAR(30)")]
 		public string ContactName
 		{
 			get
 			{
-				return contactName;
+				return _contactName;
 			}
 			set
 			{
-				if (value != contactName)
+				if (value != _contactName)
 				{
-					contactName = value;
+					_contactName = value;
 				}
 			}
 		}
@@ -240,20 +239,20 @@ namespace nwind
 
 		#region string ContactTitle
 
-		private string contactTitle;
+		private string _contactTitle;
 		[DebuggerNonUserCode]
-		[Column(Storage = "contactTitle", Name = "ContactTitle", DbType = "VARCHAR(30)")]
+		[Column(Storage = "_contactTitle", Name = "ContactTitle", DbType = "VARCHAR(30)")]
 		public string ContactTitle
 		{
 			get
 			{
-				return contactTitle;
+				return _contactTitle;
 			}
 			set
 			{
-				if (value != contactTitle)
+				if (value != _contactTitle)
 				{
-					contactTitle = value;
+					_contactTitle = value;
 				}
 			}
 		}
@@ -262,20 +261,20 @@ namespace nwind
 
 		#region string Country
 
-		private string country;
+		private string _country;
 		[DebuggerNonUserCode]
-		[Column(Storage = "country", Name = "Country", DbType = "VARCHAR(15)")]
+		[Column(Storage = "_country", Name = "Country", DbType = "VARCHAR(15)")]
 		public string Country
 		{
 			get
 			{
-				return country;
+				return _country;
 			}
 			set
 			{
-				if (value != country)
+				if (value != _country)
 				{
-					country = value;
+					_country = value;
 				}
 			}
 		}
@@ -284,20 +283,20 @@ namespace nwind
 
 		#region string CustomerID
 
-		private string customerID;
+		private string _customerID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "customerID", Name = "CustomerID", DbType = "VARCHAR(5)", IsPrimaryKey = true, CanBeNull = false)]
+		[Column(Storage = "_customerID", Name = "CustomerID", DbType = "VARCHAR(5)", IsPrimaryKey = true, CanBeNull = false)]
 		public string CustomerID
 		{
 			get
 			{
-				return customerID;
+				return _customerID;
 			}
 			set
 			{
-				if (value != customerID)
+				if (value != _customerID)
 				{
-					customerID = value;
+					_customerID = value;
 				}
 			}
 		}
@@ -306,20 +305,20 @@ namespace nwind
 
 		#region string Fax
 
-		private string fax;
+		private string _fax;
 		[DebuggerNonUserCode]
-		[Column(Storage = "fax", Name = "Fax", DbType = "VARCHAR(24)")]
+		[Column(Storage = "_fax", Name = "Fax", DbType = "VARCHAR(24)")]
 		public string Fax
 		{
 			get
 			{
-				return fax;
+				return _fax;
 			}
 			set
 			{
-				if (value != fax)
+				if (value != _fax)
 				{
-					fax = value;
+					_fax = value;
 				}
 			}
 		}
@@ -328,20 +327,20 @@ namespace nwind
 
 		#region string Phone
 
-		private string phone;
+		private string _phone;
 		[DebuggerNonUserCode]
-		[Column(Storage = "phone", Name = "Phone", DbType = "VARCHAR(24)")]
+		[Column(Storage = "_phone", Name = "Phone", DbType = "VARCHAR(24)")]
 		public string Phone
 		{
 			get
 			{
-				return phone;
+				return _phone;
 			}
 			set
 			{
-				if (value != phone)
+				if (value != _phone)
 				{
-					phone = value;
+					_phone = value;
 				}
 			}
 		}
@@ -350,20 +349,20 @@ namespace nwind
 
 		#region string PostalCode
 
-		private string postalCode;
+		private string _postalCode;
 		[DebuggerNonUserCode]
-		[Column(Storage = "postalCode", Name = "PostalCode", DbType = "VARCHAR(10)")]
+		[Column(Storage = "_postalCode", Name = "PostalCode", DbType = "VARCHAR(10)")]
 		public string PostalCode
 		{
 			get
 			{
-				return postalCode;
+				return _postalCode;
 			}
 			set
 			{
-				if (value != postalCode)
+				if (value != _postalCode)
 				{
-					postalCode = value;
+					_postalCode = value;
 				}
 			}
 		}
@@ -372,20 +371,20 @@ namespace nwind
 
 		#region string Region
 
-		private string region;
+		private string _region;
 		[DebuggerNonUserCode]
-		[Column(Storage = "region", Name = "Region", DbType = "VARCHAR(15)")]
+		[Column(Storage = "_region", Name = "Region", DbType = "VARCHAR(15)")]
 		public string Region
 		{
 			get
 			{
-				return region;
+				return _region;
 			}
 			set
 			{
-				if (value != region)
+				if (value != _region)
 				{
-					region = value;
+					_region = value;
 				}
 			}
 		}
@@ -415,20 +414,20 @@ namespace nwind
 	{
 		#region string Address
 
-		private string address;
+		private string _address;
 		[DebuggerNonUserCode]
-		[Column(Storage = "address", Name = "Address", DbType = "VARCHAR(60)")]
+		[Column(Storage = "_address", Name = "Address", DbType = "VARCHAR(60)")]
 		public string Address
 		{
 			get
 			{
-				return address;
+				return _address;
 			}
 			set
 			{
-				if (value != address)
+				if (value != _address)
 				{
-					address = value;
+					_address = value;
 				}
 			}
 		}
@@ -437,20 +436,20 @@ namespace nwind
 
 		#region System.DateTime? BirthDate
 
-		private System.DateTime? birthDate;
+		private System.DateTime? _birthDate;
 		[DebuggerNonUserCode]
-		[Column(Storage = "birthDate", Name = "BirthDate", DbType = "DATETIME")]
+		[Column(Storage = "_birthDate", Name = "BirthDate", DbType = "DATETIME")]
 		public System.DateTime? BirthDate
 		{
 			get
 			{
-				return birthDate;
+				return _birthDate;
 			}
 			set
 			{
-				if (value != birthDate)
+				if (value != _birthDate)
 				{
-					birthDate = value;
+					_birthDate = value;
 				}
 			}
 		}
@@ -459,20 +458,20 @@ namespace nwind
 
 		#region string City
 
-		private string city;
+		private string _city;
 		[DebuggerNonUserCode]
-		[Column(Storage = "city", Name = "City", DbType = "VARCHAR(15)")]
+		[Column(Storage = "_city", Name = "City", DbType = "VARCHAR(15)")]
 		public string City
 		{
 			get
 			{
-				return city;
+				return _city;
 			}
 			set
 			{
-				if (value != city)
+				if (value != _city)
 				{
-					city = value;
+					_city = value;
 				}
 			}
 		}
@@ -481,20 +480,20 @@ namespace nwind
 
 		#region string Country
 
-		private string country;
+		private string _country;
 		[DebuggerNonUserCode]
-		[Column(Storage = "country", Name = "Country", DbType = "VARCHAR(15)")]
+		[Column(Storage = "_country", Name = "Country", DbType = "VARCHAR(15)")]
 		public string Country
 		{
 			get
 			{
-				return country;
+				return _country;
 			}
 			set
 			{
-				if (value != country)
+				if (value != _country)
 				{
-					country = value;
+					_country = value;
 				}
 			}
 		}
@@ -503,21 +502,20 @@ namespace nwind
 
 		#region int EmployeeID
 
-		[AutoGenId]
-		private int employeeID;
+		private int _employeeID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "employeeID", Name = "EmployeeID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
+		[Column(Storage = "_employeeID", Name = "EmployeeID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
 		public int EmployeeID
 		{
 			get
 			{
-				return employeeID;
+				return _employeeID;
 			}
 			set
 			{
-				if (value != employeeID)
+				if (value != _employeeID)
 				{
-					employeeID = value;
+					_employeeID = value;
 				}
 			}
 		}
@@ -526,20 +524,20 @@ namespace nwind
 
 		#region string FirstName
 
-		private string firstName;
+		private string _firstName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "firstName", Name = "FirstName", DbType = "VARCHAR(10)", CanBeNull = false)]
+		[Column(Storage = "_firstName", Name = "FirstName", DbType = "VARCHAR(10)", CanBeNull = false)]
 		public string FirstName
 		{
 			get
 			{
-				return firstName;
+				return _firstName;
 			}
 			set
 			{
-				if (value != firstName)
+				if (value != _firstName)
 				{
-					firstName = value;
+					_firstName = value;
 				}
 			}
 		}
@@ -548,20 +546,20 @@ namespace nwind
 
 		#region System.DateTime? HireDate
 
-		private System.DateTime? hireDate;
+		private System.DateTime? _hireDate;
 		[DebuggerNonUserCode]
-		[Column(Storage = "hireDate", Name = "HireDate", DbType = "DATETIME")]
+		[Column(Storage = "_hireDate", Name = "HireDate", DbType = "DATETIME")]
 		public System.DateTime? HireDate
 		{
 			get
 			{
-				return hireDate;
+				return _hireDate;
 			}
 			set
 			{
-				if (value != hireDate)
+				if (value != _hireDate)
 				{
-					hireDate = value;
+					_hireDate = value;
 				}
 			}
 		}
@@ -570,20 +568,20 @@ namespace nwind
 
 		#region string HomePhone
 
-		private string homePhone;
+		private string _homePhone;
 		[DebuggerNonUserCode]
-		[Column(Storage = "homePhone", Name = "HomePhone", DbType = "VARCHAR(24)")]
+		[Column(Storage = "_homePhone", Name = "HomePhone", DbType = "VARCHAR(24)")]
 		public string HomePhone
 		{
 			get
 			{
-				return homePhone;
+				return _homePhone;
 			}
 			set
 			{
-				if (value != homePhone)
+				if (value != _homePhone)
 				{
-					homePhone = value;
+					_homePhone = value;
 				}
 			}
 		}
@@ -592,20 +590,20 @@ namespace nwind
 
 		#region string LastName
 
-		private string lastName;
+		private string _lastName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "lastName", Name = "LastName", DbType = "VARCHAR(20)", CanBeNull = false)]
+		[Column(Storage = "_lastName", Name = "LastName", DbType = "VARCHAR(20)", CanBeNull = false)]
 		public string LastName
 		{
 			get
 			{
-				return lastName;
+				return _lastName;
 			}
 			set
 			{
-				if (value != lastName)
+				if (value != _lastName)
 				{
-					lastName = value;
+					_lastName = value;
 				}
 			}
 		}
@@ -614,20 +612,20 @@ namespace nwind
 
 		#region string Notes
 
-		private string notes;
+		private string _notes;
 		[DebuggerNonUserCode]
-		[Column(Storage = "notes", Name = "Notes", DbType = "TEXT")]
+		[Column(Storage = "_notes", Name = "Notes", DbType = "TEXT")]
 		public string Notes
 		{
 			get
 			{
-				return notes;
+				return _notes;
 			}
 			set
 			{
-				if (value != notes)
+				if (value != _notes)
 				{
-					notes = value;
+					_notes = value;
 				}
 			}
 		}
@@ -636,20 +634,20 @@ namespace nwind
 
 		#region System.Byte[] Photo
 
-		private System.Byte[] photo;
+		private System.Byte[] _photo;
 		[DebuggerNonUserCode]
-		[Column(Storage = "photo", Name = "Photo", DbType = "BLOB")]
+		[Column(Storage = "_photo", Name = "Photo", DbType = "BLOB")]
 		public System.Byte[] Photo
 		{
 			get
 			{
-				return photo;
+				return _photo;
 			}
 			set
 			{
-				if (value != photo)
+				if (value != _photo)
 				{
-					photo = value;
+					_photo = value;
 				}
 			}
 		}
@@ -658,20 +656,20 @@ namespace nwind
 
 		#region string PostalCode
 
-		private string postalCode;
+		private string _postalCode;
 		[DebuggerNonUserCode]
-		[Column(Storage = "postalCode", Name = "PostalCode", DbType = "VARCHAR(10)")]
+		[Column(Storage = "_postalCode", Name = "PostalCode", DbType = "VARCHAR(10)")]
 		public string PostalCode
 		{
 			get
 			{
-				return postalCode;
+				return _postalCode;
 			}
 			set
 			{
-				if (value != postalCode)
+				if (value != _postalCode)
 				{
-					postalCode = value;
+					_postalCode = value;
 				}
 			}
 		}
@@ -680,20 +678,20 @@ namespace nwind
 
 		#region string Region
 
-		private string region;
+		private string _region;
 		[DebuggerNonUserCode]
-		[Column(Storage = "region", Name = "Region", DbType = "VARCHAR(15)")]
+		[Column(Storage = "_region", Name = "Region", DbType = "VARCHAR(15)")]
 		public string Region
 		{
 			get
 			{
-				return region;
+				return _region;
 			}
 			set
 			{
-				if (value != region)
+				if (value != _region)
 				{
-					region = value;
+					_region = value;
 				}
 			}
 		}
@@ -702,20 +700,20 @@ namespace nwind
 
 		#region int? ReportsTo
 
-		private int? reportsTo;
+		private int? _reportsTo;
 		[DebuggerNonUserCode]
-		[Column(Storage = "reportsTo", Name = "ReportsTo", DbType = "INTEGER")]
+		[Column(Storage = "_reportsTo", Name = "ReportsTo", DbType = "INTEGER")]
 		public int? ReportsTo
 		{
 			get
 			{
-				return reportsTo;
+				return _reportsTo;
 			}
 			set
 			{
-				if (value != reportsTo)
+				if (value != _reportsTo)
 				{
-					reportsTo = value;
+					_reportsTo = value;
 				}
 			}
 		}
@@ -724,20 +722,20 @@ namespace nwind
 
 		#region string Title
 
-		private string title;
+		private string _title;
 		[DebuggerNonUserCode]
-		[Column(Storage = "title", Name = "Title", DbType = "VARCHAR(30)")]
+		[Column(Storage = "_title", Name = "Title", DbType = "VARCHAR(30)")]
 		public string Title
 		{
 			get
 			{
-				return title;
+				return _title;
 			}
 			set
 			{
-				if (value != title)
+				if (value != _title)
 				{
-					title = value;
+					_title = value;
 				}
 			}
 		}
@@ -757,7 +755,7 @@ namespace nwind
 			}
 		}
 
-		[Association(Storage = null, OtherKey = "EmployeeID", Name = "fk_Employees_0")]
+		[Association(Storage = null, OtherKey = "ReportsTo", Name = "fk_Employees_0")]
 		[DebuggerNonUserCode]
 		public EntitySet<Employee> Employees
 		{
@@ -784,18 +782,18 @@ namespace nwind
 
 		#region Parents
 
-		private EntityRef<Employee> reportsToEmployee;
-		[Association(Storage = "reportsToEmployee", ThisKey = "ReportsTo", Name = "fk_Employees_0")]
+		private DbLinq.Data.Linq.EntityRef<Employee> _reportsToEmployee;
+		[Association(Storage = "_reportsToEmployee", ThisKey = "ReportsTo", Name = "fk_Employees_0", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Employee ReportsToEmployee
 		{
 			get
 			{
-				return reportsToEmployee.Entity;
+				return _reportsToEmployee.Entity;
 			}
 			set
 			{
-				reportsToEmployee.Entity = value;
+				_reportsToEmployee.Entity = value;
 			}
 		}
 
@@ -809,21 +807,20 @@ namespace nwind
 	{
 		#region int EmployeeID
 
-		[AutoGenId]
-		private int employeeID;
+		private int _employeeID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "employeeID", Name = "EmployeeID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
+		[Column(Storage = "_employeeID", Name = "EmployeeID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
 		public int EmployeeID
 		{
 			get
 			{
-				return employeeID;
+				return _employeeID;
 			}
 			set
 			{
-				if (value != employeeID)
+				if (value != _employeeID)
 				{
-					employeeID = value;
+					_employeeID = value;
 				}
 			}
 		}
@@ -832,20 +829,20 @@ namespace nwind
 
 		#region string TerritoryID
 
-		private string territoryID;
+		private string _territoryID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "territoryID", Name = "TerritoryID", DbType = "VARCHAR(20)", IsPrimaryKey = true, CanBeNull = false)]
+		[Column(Storage = "_territoryID", Name = "TerritoryID", DbType = "VARCHAR(20)", IsPrimaryKey = true, CanBeNull = false)]
 		public string TerritoryID
 		{
 			get
 			{
-				return territoryID;
+				return _territoryID;
 			}
 			set
 			{
-				if (value != territoryID)
+				if (value != _territoryID)
 				{
-					territoryID = value;
+					_territoryID = value;
 				}
 			}
 		}
@@ -854,33 +851,33 @@ namespace nwind
 
 		#region Parents
 
-		private EntityRef<Territory> territory;
-		[Association(Storage = "territory", ThisKey = "TerritoryID", Name = "fk_EmployeeTerritories_0")]
+		private DbLinq.Data.Linq.EntityRef<Territory> _territory;
+		[Association(Storage = "_territory", ThisKey = "TerritoryID", Name = "fk_EmployeeTerritories_0", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Territory Territory
 		{
 			get
 			{
-				return territory.Entity;
+				return _territory.Entity;
 			}
 			set
 			{
-				territory.Entity = value;
+				_territory.Entity = value;
 			}
 		}
 
-		private EntityRef<Employee> employee;
-		[Association(Storage = "employee", ThisKey = "EmployeeID", Name = "fk_EmployeeTerritories_1")]
+		private DbLinq.Data.Linq.EntityRef<Employee> _employee;
+		[Association(Storage = "_employee", ThisKey = "EmployeeID", Name = "fk_EmployeeTerritories_1", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Employee Employee
 		{
 			get
 			{
-				return employee.Entity;
+				return _employee.Entity;
 			}
 			set
 			{
-				employee.Entity = value;
+				_employee.Entity = value;
 			}
 		}
 
@@ -894,20 +891,20 @@ namespace nwind
 	{
 		#region string CustomerID
 
-		private string customerID;
+		private string _customerID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "customerID", Name = "CustomerID", DbType = "VARCHAR(5)")]
+		[Column(Storage = "_customerID", Name = "CustomerID", DbType = "VARCHAR(5)")]
 		public string CustomerID
 		{
 			get
 			{
-				return customerID;
+				return _customerID;
 			}
 			set
 			{
-				if (value != customerID)
+				if (value != _customerID)
 				{
-					customerID = value;
+					_customerID = value;
 				}
 			}
 		}
@@ -916,20 +913,20 @@ namespace nwind
 
 		#region int? EmployeeID
 
-		private int? employeeID;
+		private int? _employeeID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "employeeID", Name = "EmployeeID", DbType = "INTEGER")]
+		[Column(Storage = "_employeeID", Name = "EmployeeID", DbType = "INTEGER")]
 		public int? EmployeeID
 		{
 			get
 			{
-				return employeeID;
+				return _employeeID;
 			}
 			set
 			{
-				if (value != employeeID)
+				if (value != _employeeID)
 				{
-					employeeID = value;
+					_employeeID = value;
 				}
 			}
 		}
@@ -938,20 +935,20 @@ namespace nwind
 
 		#region decimal? Freight
 
-		private decimal? freight;
+		private decimal? _freight;
 		[DebuggerNonUserCode]
-		[Column(Storage = "freight", Name = "Freight", DbType = "DECIMAL")]
+		[Column(Storage = "_freight", Name = "Freight", DbType = "DECIMAL")]
 		public decimal? Freight
 		{
 			get
 			{
-				return freight;
+				return _freight;
 			}
 			set
 			{
-				if (value != freight)
+				if (value != _freight)
 				{
-					freight = value;
+					_freight = value;
 				}
 			}
 		}
@@ -960,20 +957,20 @@ namespace nwind
 
 		#region System.DateTime? OrderDate
 
-		private System.DateTime? orderDate;
+		private System.DateTime? _orderDate;
 		[DebuggerNonUserCode]
-		[Column(Storage = "orderDate", Name = "OrderDate", DbType = "DATETIME")]
+		[Column(Storage = "_orderDate", Name = "OrderDate", DbType = "DATETIME")]
 		public System.DateTime? OrderDate
 		{
 			get
 			{
-				return orderDate;
+				return _orderDate;
 			}
 			set
 			{
-				if (value != orderDate)
+				if (value != _orderDate)
 				{
-					orderDate = value;
+					_orderDate = value;
 				}
 			}
 		}
@@ -982,21 +979,20 @@ namespace nwind
 
 		#region int OrderID
 
-		[AutoGenId]
-		private int orderID;
+		private int _orderID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "orderID", Name = "OrderID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
+		[Column(Storage = "_orderID", Name = "OrderID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
 		public int OrderID
 		{
 			get
 			{
-				return orderID;
+				return _orderID;
 			}
 			set
 			{
-				if (value != orderID)
+				if (value != _orderID)
 				{
-					orderID = value;
+					_orderID = value;
 				}
 			}
 		}
@@ -1005,20 +1001,20 @@ namespace nwind
 
 		#region System.DateTime? RequiredDate
 
-		private System.DateTime? requiredDate;
+		private System.DateTime? _requiredDate;
 		[DebuggerNonUserCode]
-		[Column(Storage = "requiredDate", Name = "RequiredDate", DbType = "DATETIME")]
+		[Column(Storage = "_requiredDate", Name = "RequiredDate", DbType = "DATETIME")]
 		public System.DateTime? RequiredDate
 		{
 			get
 			{
-				return requiredDate;
+				return _requiredDate;
 			}
 			set
 			{
-				if (value != requiredDate)
+				if (value != _requiredDate)
 				{
-					requiredDate = value;
+					_requiredDate = value;
 				}
 			}
 		}
@@ -1027,20 +1023,20 @@ namespace nwind
 
 		#region string ShipAddress
 
-		private string shipAddress;
+		private string _shipAddress;
 		[DebuggerNonUserCode]
-		[Column(Storage = "shipAddress", Name = "ShipAddress", DbType = "VARCHAR(60)")]
+		[Column(Storage = "_shipAddress", Name = "ShipAddress", DbType = "VARCHAR(60)")]
 		public string ShipAddress
 		{
 			get
 			{
-				return shipAddress;
+				return _shipAddress;
 			}
 			set
 			{
-				if (value != shipAddress)
+				if (value != _shipAddress)
 				{
-					shipAddress = value;
+					_shipAddress = value;
 				}
 			}
 		}
@@ -1049,20 +1045,20 @@ namespace nwind
 
 		#region string ShipCity
 
-		private string shipCity;
+		private string _shipCity;
 		[DebuggerNonUserCode]
-		[Column(Storage = "shipCity", Name = "ShipCity", DbType = "VARCHAR(15)")]
+		[Column(Storage = "_shipCity", Name = "ShipCity", DbType = "VARCHAR(15)")]
 		public string ShipCity
 		{
 			get
 			{
-				return shipCity;
+				return _shipCity;
 			}
 			set
 			{
-				if (value != shipCity)
+				if (value != _shipCity)
 				{
-					shipCity = value;
+					_shipCity = value;
 				}
 			}
 		}
@@ -1071,20 +1067,20 @@ namespace nwind
 
 		#region string ShipCountry
 
-		private string shipCountry;
+		private string _shipCountry;
 		[DebuggerNonUserCode]
-		[Column(Storage = "shipCountry", Name = "ShipCountry", DbType = "VARCHAR(15)")]
+		[Column(Storage = "_shipCountry", Name = "ShipCountry", DbType = "VARCHAR(15)")]
 		public string ShipCountry
 		{
 			get
 			{
-				return shipCountry;
+				return _shipCountry;
 			}
 			set
 			{
-				if (value != shipCountry)
+				if (value != _shipCountry)
 				{
-					shipCountry = value;
+					_shipCountry = value;
 				}
 			}
 		}
@@ -1093,20 +1089,20 @@ namespace nwind
 
 		#region string ShipName
 
-		private string shipName;
+		private string _shipName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "shipName", Name = "ShipName", DbType = "VARCHAR(40)")]
+		[Column(Storage = "_shipName", Name = "ShipName", DbType = "VARCHAR(40)")]
 		public string ShipName
 		{
 			get
 			{
-				return shipName;
+				return _shipName;
 			}
 			set
 			{
-				if (value != shipName)
+				if (value != _shipName)
 				{
-					shipName = value;
+					_shipName = value;
 				}
 			}
 		}
@@ -1115,20 +1111,20 @@ namespace nwind
 
 		#region System.DateTime? ShippedDate
 
-		private System.DateTime? shippedDate;
+		private System.DateTime? _shippedDate;
 		[DebuggerNonUserCode]
-		[Column(Storage = "shippedDate", Name = "ShippedDate", DbType = "DATETIME")]
+		[Column(Storage = "_shippedDate", Name = "ShippedDate", DbType = "DATETIME")]
 		public System.DateTime? ShippedDate
 		{
 			get
 			{
-				return shippedDate;
+				return _shippedDate;
 			}
 			set
 			{
-				if (value != shippedDate)
+				if (value != _shippedDate)
 				{
-					shippedDate = value;
+					_shippedDate = value;
 				}
 			}
 		}
@@ -1137,20 +1133,20 @@ namespace nwind
 
 		#region string ShipPostalCode
 
-		private string shipPostalCode;
+		private string _shipPostalCode;
 		[DebuggerNonUserCode]
-		[Column(Storage = "shipPostalCode", Name = "ShipPostalCode", DbType = "VARCHAR(10)")]
+		[Column(Storage = "_shipPostalCode", Name = "ShipPostalCode", DbType = "VARCHAR(10)")]
 		public string ShipPostalCode
 		{
 			get
 			{
-				return shipPostalCode;
+				return _shipPostalCode;
 			}
 			set
 			{
-				if (value != shipPostalCode)
+				if (value != _shipPostalCode)
 				{
-					shipPostalCode = value;
+					_shipPostalCode = value;
 				}
 			}
 		}
@@ -1159,20 +1155,20 @@ namespace nwind
 
 		#region string ShipRegion
 
-		private string shipRegion;
+		private string _shipRegion;
 		[DebuggerNonUserCode]
-		[Column(Storage = "shipRegion", Name = "ShipRegion", DbType = "VARCHAR(15)")]
+		[Column(Storage = "_shipRegion", Name = "ShipRegion", DbType = "VARCHAR(15)")]
 		public string ShipRegion
 		{
 			get
 			{
-				return shipRegion;
+				return _shipRegion;
 			}
 			set
 			{
-				if (value != shipRegion)
+				if (value != _shipRegion)
 				{
-					shipRegion = value;
+					_shipRegion = value;
 				}
 			}
 		}
@@ -1181,20 +1177,20 @@ namespace nwind
 
 		#region int? ShipVia
 
-		private int? shipVia;
+		private int? _shipVia;
 		[DebuggerNonUserCode]
-		[Column(Storage = "shipVia", Name = "ShipVia", DbType = "INT")]
+		[Column(Storage = "_shipVia", Name = "ShipVia", DbType = "INT")]
 		public int? ShipVia
 		{
 			get
 			{
-				return shipVia;
+				return _shipVia;
 			}
 			set
 			{
-				if (value != shipVia)
+				if (value != _shipVia)
 				{
-					shipVia = value;
+					_shipVia = value;
 				}
 			}
 		}
@@ -1219,33 +1215,33 @@ namespace nwind
 
 		#region Parents
 
-		private EntityRef<Employee> employee;
-		[Association(Storage = "employee", ThisKey = "EmployeeID", Name = "fk_Orders_0")]
+		private DbLinq.Data.Linq.EntityRef<Employee> _employee;
+		[Association(Storage = "_employee", ThisKey = "EmployeeID", Name = "fk_Orders_0", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Employee Employee
 		{
 			get
 			{
-				return employee.Entity;
+				return _employee.Entity;
 			}
 			set
 			{
-				employee.Entity = value;
+				_employee.Entity = value;
 			}
 		}
 
-		private EntityRef<Customer> customer;
-		[Association(Storage = "customer", ThisKey = "CustomerID", Name = "fk_Orders_1")]
+		private DbLinq.Data.Linq.EntityRef<Customer> _customer;
+		[Association(Storage = "_customer", ThisKey = "CustomerID", Name = "fk_Orders_1", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Customer Customer
 		{
 			get
 			{
-				return customer.Entity;
+				return _customer.Entity;
 			}
 			set
 			{
-				customer.Entity = value;
+				_customer.Entity = value;
 			}
 		}
 
@@ -1259,20 +1255,20 @@ namespace nwind
 	{
 		#region float Discount
 
-		private float discount;
+		private float _discount;
 		[DebuggerNonUserCode]
-		[Column(Storage = "discount", Name = "Discount", DbType = "FLOAT", CanBeNull = false)]
+		[Column(Storage = "_discount", Name = "Discount", DbType = "FLOAT", CanBeNull = false)]
 		public float Discount
 		{
 			get
 			{
-				return discount;
+				return _discount;
 			}
 			set
 			{
-				if (value != discount)
+				if (value != _discount)
 				{
-					discount = value;
+					_discount = value;
 				}
 			}
 		}
@@ -1281,21 +1277,20 @@ namespace nwind
 
 		#region int OrderID
 
-		[AutoGenId]
-		private int orderID;
+		private int _orderID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "orderID", Name = "OrderID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
+		[Column(Storage = "_orderID", Name = "OrderID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
 		public int OrderID
 		{
 			get
 			{
-				return orderID;
+				return _orderID;
 			}
 			set
 			{
-				if (value != orderID)
+				if (value != _orderID)
 				{
-					orderID = value;
+					_orderID = value;
 				}
 			}
 		}
@@ -1304,21 +1299,20 @@ namespace nwind
 
 		#region int ProductID
 
-		[AutoGenId]
-		private int productID;
+		private int _productID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "productID", Name = "ProductID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
+		[Column(Storage = "_productID", Name = "ProductID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
 		public int ProductID
 		{
 			get
 			{
-				return productID;
+				return _productID;
 			}
 			set
 			{
-				if (value != productID)
+				if (value != _productID)
 				{
-					productID = value;
+					_productID = value;
 				}
 			}
 		}
@@ -1327,20 +1321,20 @@ namespace nwind
 
 		#region short Quantity
 
-		private short quantity;
+		private short _quantity;
 		[DebuggerNonUserCode]
-		[Column(Storage = "quantity", Name = "Quantity", DbType = "SMALLINT", CanBeNull = false)]
+		[Column(Storage = "_quantity", Name = "Quantity", DbType = "SMALLINT", CanBeNull = false)]
 		public short Quantity
 		{
 			get
 			{
-				return quantity;
+				return _quantity;
 			}
 			set
 			{
-				if (value != quantity)
+				if (value != _quantity)
 				{
-					quantity = value;
+					_quantity = value;
 				}
 			}
 		}
@@ -1349,20 +1343,20 @@ namespace nwind
 
 		#region decimal UnitPrice
 
-		private decimal unitPrice;
+		private decimal _unitPrice;
 		[DebuggerNonUserCode]
-		[Column(Storage = "unitPrice", Name = "UnitPrice", DbType = "DECIMAL", CanBeNull = false)]
+		[Column(Storage = "_unitPrice", Name = "UnitPrice", DbType = "DECIMAL", CanBeNull = false)]
 		public decimal UnitPrice
 		{
 			get
 			{
-				return unitPrice;
+				return _unitPrice;
 			}
 			set
 			{
-				if (value != unitPrice)
+				if (value != _unitPrice)
 				{
-					unitPrice = value;
+					_unitPrice = value;
 				}
 			}
 		}
@@ -1371,33 +1365,33 @@ namespace nwind
 
 		#region Parents
 
-		private EntityRef<Product> product;
-		[Association(Storage = "product", ThisKey = "ProductID", Name = "\"fk_Order Details_0\"")]
+		private DbLinq.Data.Linq.EntityRef<Product> _product;
+		[Association(Storage = "_product", ThisKey = "ProductID", Name = "\"fk_Order Details_0\"", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Product Product
 		{
 			get
 			{
-				return product.Entity;
+				return _product.Entity;
 			}
 			set
 			{
-				product.Entity = value;
+				_product.Entity = value;
 			}
 		}
 
-		private EntityRef<Order> order;
-		[Association(Storage = "order", ThisKey = "OrderID", Name = "\"fk_Order Details_1\"")]
+		private DbLinq.Data.Linq.EntityRef<Order> _order;
+		[Association(Storage = "_order", ThisKey = "OrderID", Name = "\"fk_Order Details_1\"", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Order Order
 		{
 			get
 			{
-				return order.Entity;
+				return _order.Entity;
 			}
 			set
 			{
-				order.Entity = value;
+				_order.Entity = value;
 			}
 		}
 
@@ -1411,20 +1405,20 @@ namespace nwind
 	{
 		#region int? CategoryID
 
-		private int? categoryID;
+		private int? _categoryID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "categoryID", Name = "CategoryID", DbType = "INTEGER")]
+		[Column(Storage = "_categoryID", Name = "CategoryID", DbType = "INTEGER")]
 		public int? CategoryID
 		{
 			get
 			{
-				return categoryID;
+				return _categoryID;
 			}
 			set
 			{
-				if (value != categoryID)
+				if (value != _categoryID)
 				{
-					categoryID = value;
+					_categoryID = value;
 				}
 			}
 		}
@@ -1433,20 +1427,20 @@ namespace nwind
 
 		#region bool Discontinued
 
-		private bool discontinued;
+		private bool _discontinued;
 		[DebuggerNonUserCode]
-		[Column(Storage = "discontinued", Name = "Discontinued", DbType = "BIT", CanBeNull = false)]
+		[Column(Storage = "_discontinued", Name = "Discontinued", DbType = "BIT", CanBeNull = false)]
 		public bool Discontinued
 		{
 			get
 			{
-				return discontinued;
+				return _discontinued;
 			}
 			set
 			{
-				if (value != discontinued)
+				if (value != _discontinued)
 				{
-					discontinued = value;
+					_discontinued = value;
 				}
 			}
 		}
@@ -1455,21 +1449,20 @@ namespace nwind
 
 		#region int ProductID
 
-		[AutoGenId]
-		private int productID;
+		private int _productID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "productID", Name = "ProductID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
+		[Column(Storage = "_productID", Name = "ProductID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
 		public int ProductID
 		{
 			get
 			{
-				return productID;
+				return _productID;
 			}
 			set
 			{
-				if (value != productID)
+				if (value != _productID)
 				{
-					productID = value;
+					_productID = value;
 				}
 			}
 		}
@@ -1478,20 +1471,20 @@ namespace nwind
 
 		#region string ProductName
 
-		private string productName;
+		private string _productName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "productName", Name = "ProductName", DbType = "VARCHAR(40)", CanBeNull = false)]
+		[Column(Storage = "_productName", Name = "ProductName", DbType = "VARCHAR(40)", CanBeNull = false)]
 		public string ProductName
 		{
 			get
 			{
-				return productName;
+				return _productName;
 			}
 			set
 			{
-				if (value != productName)
+				if (value != _productName)
 				{
-					productName = value;
+					_productName = value;
 				}
 			}
 		}
@@ -1500,20 +1493,20 @@ namespace nwind
 
 		#region string QuantityPerUnit
 
-		private string quantityPerUnit;
+		private string _quantityPerUnit;
 		[DebuggerNonUserCode]
-		[Column(Storage = "quantityPerUnit", Name = "QuantityPerUnit", DbType = "VARCHAR(20)")]
+		[Column(Storage = "_quantityPerUnit", Name = "QuantityPerUnit", DbType = "VARCHAR(20)")]
 		public string QuantityPerUnit
 		{
 			get
 			{
-				return quantityPerUnit;
+				return _quantityPerUnit;
 			}
 			set
 			{
-				if (value != quantityPerUnit)
+				if (value != _quantityPerUnit)
 				{
-					quantityPerUnit = value;
+					_quantityPerUnit = value;
 				}
 			}
 		}
@@ -1522,20 +1515,20 @@ namespace nwind
 
 		#region short? ReorderLevel
 
-		private short? reorderLevel;
+		private short? _reorderLevel;
 		[DebuggerNonUserCode]
-		[Column(Storage = "reorderLevel", Name = "ReorderLevel", DbType = "SMALLINT")]
+		[Column(Storage = "_reorderLevel", Name = "ReorderLevel", DbType = "SMALLINT")]
 		public short? ReorderLevel
 		{
 			get
 			{
-				return reorderLevel;
+				return _reorderLevel;
 			}
 			set
 			{
-				if (value != reorderLevel)
+				if (value != _reorderLevel)
 				{
-					reorderLevel = value;
+					_reorderLevel = value;
 				}
 			}
 		}
@@ -1544,20 +1537,20 @@ namespace nwind
 
 		#region int? SupplierID
 
-		private int? supplierID;
+		private int? _supplierID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "supplierID", Name = "SupplierID", DbType = "INTEGER")]
+		[Column(Storage = "_supplierID", Name = "SupplierID", DbType = "INTEGER")]
 		public int? SupplierID
 		{
 			get
 			{
-				return supplierID;
+				return _supplierID;
 			}
 			set
 			{
-				if (value != supplierID)
+				if (value != _supplierID)
 				{
-					supplierID = value;
+					_supplierID = value;
 				}
 			}
 		}
@@ -1566,20 +1559,20 @@ namespace nwind
 
 		#region decimal? UnitPrice
 
-		private decimal? unitPrice;
+		private decimal? _unitPrice;
 		[DebuggerNonUserCode]
-		[Column(Storage = "unitPrice", Name = "UnitPrice", DbType = "DECIMAL")]
+		[Column(Storage = "_unitPrice", Name = "UnitPrice", DbType = "DECIMAL")]
 		public decimal? UnitPrice
 		{
 			get
 			{
-				return unitPrice;
+				return _unitPrice;
 			}
 			set
 			{
-				if (value != unitPrice)
+				if (value != _unitPrice)
 				{
-					unitPrice = value;
+					_unitPrice = value;
 				}
 			}
 		}
@@ -1588,20 +1581,20 @@ namespace nwind
 
 		#region short? UnitsInStock
 
-		private short? unitsInStock;
+		private short? _unitsInStock;
 		[DebuggerNonUserCode]
-		[Column(Storage = "unitsInStock", Name = "UnitsInStock", DbType = "SMALLINT")]
+		[Column(Storage = "_unitsInStock", Name = "UnitsInStock", DbType = "SMALLINT")]
 		public short? UnitsInStock
 		{
 			get
 			{
-				return unitsInStock;
+				return _unitsInStock;
 			}
 			set
 			{
-				if (value != unitsInStock)
+				if (value != _unitsInStock)
 				{
-					unitsInStock = value;
+					_unitsInStock = value;
 				}
 			}
 		}
@@ -1610,20 +1603,20 @@ namespace nwind
 
 		#region short? UnitsOnOrder
 
-		private short? unitsOnOrder;
+		private short? _unitsOnOrder;
 		[DebuggerNonUserCode]
-		[Column(Storage = "unitsOnOrder", Name = "UnitsOnOrder", DbType = "SMALLINT")]
+		[Column(Storage = "_unitsOnOrder", Name = "UnitsOnOrder", DbType = "SMALLINT")]
 		public short? UnitsOnOrder
 		{
 			get
 			{
-				return unitsOnOrder;
+				return _unitsOnOrder;
 			}
 			set
 			{
-				if (value != unitsOnOrder)
+				if (value != _unitsOnOrder)
 				{
-					unitsOnOrder = value;
+					_unitsOnOrder = value;
 				}
 			}
 		}
@@ -1648,18 +1641,18 @@ namespace nwind
 
 		#region Parents
 
-		private EntityRef<Supplier> supplier;
-		[Association(Storage = "supplier", ThisKey = "SupplierID", Name = "fk_Products_0")]
+		private DbLinq.Data.Linq.EntityRef<Supplier> _supplier;
+		[Association(Storage = "_supplier", ThisKey = "SupplierID", Name = "fk_Products_0", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Supplier Supplier
 		{
 			get
 			{
-				return supplier.Entity;
+				return _supplier.Entity;
 			}
 			set
 			{
-				supplier.Entity = value;
+				_supplier.Entity = value;
 			}
 		}
 
@@ -1673,20 +1666,20 @@ namespace nwind
 	{
 		#region string RegionDescription
 
-		private string regionDescription;
+		private string _regionDescription;
 		[DebuggerNonUserCode]
-		[Column(Storage = "regionDescription", Name = "RegionDescription", DbType = "VARCHAR(50)", CanBeNull = false)]
+		[Column(Storage = "_regionDescription", Name = "RegionDescription", DbType = "VARCHAR(50)", CanBeNull = false)]
 		public string RegionDescription
 		{
 			get
 			{
-				return regionDescription;
+				return _regionDescription;
 			}
 			set
 			{
-				if (value != regionDescription)
+				if (value != _regionDescription)
 				{
-					regionDescription = value;
+					_regionDescription = value;
 				}
 			}
 		}
@@ -1695,21 +1688,20 @@ namespace nwind
 
 		#region int? RegionID
 
-		[AutoGenId]
-		private int? regionID;
+		private int? _regionID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "regionID", Name = "RegionID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true)]
+		[Column(Storage = "_regionID", Name = "RegionID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true)]
 		public int? RegionID
 		{
 			get
 			{
-				return regionID;
+				return _regionID;
 			}
 			set
 			{
-				if (value != regionID)
+				if (value != _regionID)
 				{
-					regionID = value;
+					_regionID = value;
 				}
 			}
 		}
@@ -1739,20 +1731,20 @@ namespace nwind
 	{
 		#region string CompanyName
 
-		private string companyName;
+		private string _companyName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "companyName", Name = "CompanyName", DbType = "VARCHAR(40)", CanBeNull = false)]
+		[Column(Storage = "_companyName", Name = "CompanyName", DbType = "VARCHAR(40)", CanBeNull = false)]
 		public string CompanyName
 		{
 			get
 			{
-				return companyName;
+				return _companyName;
 			}
 			set
 			{
-				if (value != companyName)
+				if (value != _companyName)
 				{
-					companyName = value;
+					_companyName = value;
 				}
 			}
 		}
@@ -1761,20 +1753,20 @@ namespace nwind
 
 		#region string Phone
 
-		private string phone;
+		private string _phone;
 		[DebuggerNonUserCode]
-		[Column(Storage = "phone", Name = "Phone", DbType = "VARCHAR(24)")]
+		[Column(Storage = "_phone", Name = "Phone", DbType = "VARCHAR(24)")]
 		public string Phone
 		{
 			get
 			{
-				return phone;
+				return _phone;
 			}
 			set
 			{
-				if (value != phone)
+				if (value != _phone)
 				{
-					phone = value;
+					_phone = value;
 				}
 			}
 		}
@@ -1783,21 +1775,20 @@ namespace nwind
 
 		#region int ShipperID
 
-		[AutoGenId]
-		private int shipperID;
+		private int _shipperID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "shipperID", Name = "ShipperID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
+		[Column(Storage = "_shipperID", Name = "ShipperID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
 		public int ShipperID
 		{
 			get
 			{
-				return shipperID;
+				return _shipperID;
 			}
 			set
 			{
-				if (value != shipperID)
+				if (value != _shipperID)
 				{
-					shipperID = value;
+					_shipperID = value;
 				}
 			}
 		}
@@ -1811,20 +1802,20 @@ namespace nwind
 	{
 		#region string Address
 
-		private string address;
+		private string _address;
 		[DebuggerNonUserCode]
-		[Column(Storage = "address", Name = "Address", DbType = "VARCHAR(60)")]
+		[Column(Storage = "_address", Name = "Address", DbType = "VARCHAR(60)")]
 		public string Address
 		{
 			get
 			{
-				return address;
+				return _address;
 			}
 			set
 			{
-				if (value != address)
+				if (value != _address)
 				{
-					address = value;
+					_address = value;
 				}
 			}
 		}
@@ -1833,20 +1824,20 @@ namespace nwind
 
 		#region string City
 
-		private string city;
+		private string _city;
 		[DebuggerNonUserCode]
-		[Column(Storage = "city", Name = "City", DbType = "VARCHAR(15)")]
+		[Column(Storage = "_city", Name = "City", DbType = "VARCHAR(15)")]
 		public string City
 		{
 			get
 			{
-				return city;
+				return _city;
 			}
 			set
 			{
-				if (value != city)
+				if (value != _city)
 				{
-					city = value;
+					_city = value;
 				}
 			}
 		}
@@ -1855,20 +1846,20 @@ namespace nwind
 
 		#region string CompanyName
 
-		private string companyName;
+		private string _companyName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "companyName", Name = "CompanyName", DbType = "VARCHAR(40)", CanBeNull = false)]
+		[Column(Storage = "_companyName", Name = "CompanyName", DbType = "VARCHAR(40)", CanBeNull = false)]
 		public string CompanyName
 		{
 			get
 			{
-				return companyName;
+				return _companyName;
 			}
 			set
 			{
-				if (value != companyName)
+				if (value != _companyName)
 				{
-					companyName = value;
+					_companyName = value;
 				}
 			}
 		}
@@ -1877,20 +1868,20 @@ namespace nwind
 
 		#region string ContactName
 
-		private string contactName;
+		private string _contactName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "contactName", Name = "ContactName", DbType = "VARCHAR(30)")]
+		[Column(Storage = "_contactName", Name = "ContactName", DbType = "VARCHAR(30)")]
 		public string ContactName
 		{
 			get
 			{
-				return contactName;
+				return _contactName;
 			}
 			set
 			{
-				if (value != contactName)
+				if (value != _contactName)
 				{
-					contactName = value;
+					_contactName = value;
 				}
 			}
 		}
@@ -1899,20 +1890,20 @@ namespace nwind
 
 		#region string ContactTitle
 
-		private string contactTitle;
+		private string _contactTitle;
 		[DebuggerNonUserCode]
-		[Column(Storage = "contactTitle", Name = "ContactTitle", DbType = "VARCHAR(30)")]
+		[Column(Storage = "_contactTitle", Name = "ContactTitle", DbType = "VARCHAR(30)")]
 		public string ContactTitle
 		{
 			get
 			{
-				return contactTitle;
+				return _contactTitle;
 			}
 			set
 			{
-				if (value != contactTitle)
+				if (value != _contactTitle)
 				{
-					contactTitle = value;
+					_contactTitle = value;
 				}
 			}
 		}
@@ -1921,20 +1912,20 @@ namespace nwind
 
 		#region string Country
 
-		private string country;
+		private string _country;
 		[DebuggerNonUserCode]
-		[Column(Storage = "country", Name = "Country", DbType = "VARCHAR(15)")]
+		[Column(Storage = "_country", Name = "Country", DbType = "VARCHAR(15)")]
 		public string Country
 		{
 			get
 			{
-				return country;
+				return _country;
 			}
 			set
 			{
-				if (value != country)
+				if (value != _country)
 				{
-					country = value;
+					_country = value;
 				}
 			}
 		}
@@ -1943,20 +1934,20 @@ namespace nwind
 
 		#region string Fax
 
-		private string fax;
+		private string _fax;
 		[DebuggerNonUserCode]
-		[Column(Storage = "fax", Name = "Fax", DbType = "VARCHAR(24)")]
+		[Column(Storage = "_fax", Name = "Fax", DbType = "VARCHAR(24)")]
 		public string Fax
 		{
 			get
 			{
-				return fax;
+				return _fax;
 			}
 			set
 			{
-				if (value != fax)
+				if (value != _fax)
 				{
-					fax = value;
+					_fax = value;
 				}
 			}
 		}
@@ -1965,20 +1956,20 @@ namespace nwind
 
 		#region string Phone
 
-		private string phone;
+		private string _phone;
 		[DebuggerNonUserCode]
-		[Column(Storage = "phone", Name = "Phone", DbType = "VARCHAR(24)")]
+		[Column(Storage = "_phone", Name = "Phone", DbType = "VARCHAR(24)")]
 		public string Phone
 		{
 			get
 			{
-				return phone;
+				return _phone;
 			}
 			set
 			{
-				if (value != phone)
+				if (value != _phone)
 				{
-					phone = value;
+					_phone = value;
 				}
 			}
 		}
@@ -1987,20 +1978,20 @@ namespace nwind
 
 		#region string PostalCode
 
-		private string postalCode;
+		private string _postalCode;
 		[DebuggerNonUserCode]
-		[Column(Storage = "postalCode", Name = "PostalCode", DbType = "VARCHAR(10)")]
+		[Column(Storage = "_postalCode", Name = "PostalCode", DbType = "VARCHAR(10)")]
 		public string PostalCode
 		{
 			get
 			{
-				return postalCode;
+				return _postalCode;
 			}
 			set
 			{
-				if (value != postalCode)
+				if (value != _postalCode)
 				{
-					postalCode = value;
+					_postalCode = value;
 				}
 			}
 		}
@@ -2009,20 +2000,20 @@ namespace nwind
 
 		#region string Region
 
-		private string region;
+		private string _region;
 		[DebuggerNonUserCode]
-		[Column(Storage = "region", Name = "Region", DbType = "VARCHAR(15)")]
+		[Column(Storage = "_region", Name = "Region", DbType = "VARCHAR(15)")]
 		public string Region
 		{
 			get
 			{
-				return region;
+				return _region;
 			}
 			set
 			{
-				if (value != region)
+				if (value != _region)
 				{
-					region = value;
+					_region = value;
 				}
 			}
 		}
@@ -2031,21 +2022,20 @@ namespace nwind
 
 		#region int SupplierID
 
-		[AutoGenId]
-		private int supplierID;
+		private int _supplierID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "supplierID", Name = "SupplierID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
+		[Column(Storage = "_supplierID", Name = "SupplierID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
 		public int SupplierID
 		{
 			get
 			{
-				return supplierID;
+				return _supplierID;
 			}
 			set
 			{
-				if (value != supplierID)
+				if (value != _supplierID)
 				{
-					supplierID = value;
+					_supplierID = value;
 				}
 			}
 		}
@@ -2075,20 +2065,20 @@ namespace nwind
 	{
 		#region int RegionID
 
-		private int regionID;
+		private int _regionID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "regionID", Name = "RegionID", DbType = "INTEGER", CanBeNull = false)]
+		[Column(Storage = "_regionID", Name = "RegionID", DbType = "INTEGER", CanBeNull = false)]
 		public int RegionID
 		{
 			get
 			{
-				return regionID;
+				return _regionID;
 			}
 			set
 			{
-				if (value != regionID)
+				if (value != _regionID)
 				{
-					regionID = value;
+					_regionID = value;
 				}
 			}
 		}
@@ -2097,20 +2087,20 @@ namespace nwind
 
 		#region string TerritoryDescription
 
-		private string territoryDescription;
+		private string _territoryDescription;
 		[DebuggerNonUserCode]
-		[Column(Storage = "territoryDescription", Name = "TerritoryDescription", DbType = "VARCHAR(50)", CanBeNull = false)]
+		[Column(Storage = "_territoryDescription", Name = "TerritoryDescription", DbType = "VARCHAR(50)", CanBeNull = false)]
 		public string TerritoryDescription
 		{
 			get
 			{
-				return territoryDescription;
+				return _territoryDescription;
 			}
 			set
 			{
-				if (value != territoryDescription)
+				if (value != _territoryDescription)
 				{
-					territoryDescription = value;
+					_territoryDescription = value;
 				}
 			}
 		}
@@ -2119,20 +2109,20 @@ namespace nwind
 
 		#region string TerritoryID
 
-		private string territoryID;
+		private string _territoryID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "territoryID", Name = "TerritoryID", DbType = "VARCHAR(20)", IsPrimaryKey = true)]
+		[Column(Storage = "_territoryID", Name = "TerritoryID", DbType = "VARCHAR(20)", IsPrimaryKey = true)]
 		public string TerritoryID
 		{
 			get
 			{
-				return territoryID;
+				return _territoryID;
 			}
 			set
 			{
-				if (value != territoryID)
+				if (value != _territoryID)
 				{
-					territoryID = value;
+					_territoryID = value;
 				}
 			}
 		}
@@ -2157,18 +2147,18 @@ namespace nwind
 
 		#region Parents
 
-		private EntityRef<Region> region;
-		[Association(Storage = "region", ThisKey = "RegionID", Name = "fk_Territories_0")]
+		private DbLinq.Data.Linq.EntityRef<Region> _region;
+		[Association(Storage = "_region", ThisKey = "RegionID", Name = "fk_Territories_0", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Region Region
 		{
 			get
 			{
-				return region.Entity;
+				return _region.Entity;
 			}
 			set
 			{
-				region.Entity = value;
+				_region.Entity = value;
 			}
 		}
 

@@ -30,5 +30,19 @@ namespace DbLinq.MySql
 {
     public class MySqlSqlProvider : SqlProvider
     {
+        public override string GetParameterName(string nameBase)
+        {
+            return string.Format("?{0}", nameBase.Trim('"'));
+        }
+
+        protected override string GetLiteralCount(string a)
+        {
+            return "COUNT(*)";
+        }
+
+        protected override string GetLiteralConcat(string a, string b)
+        {
+            return string.Format("CONCAT({0}, {1})", a, b);
+        }
     }
 }

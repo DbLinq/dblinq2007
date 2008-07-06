@@ -337,6 +337,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             storageAttribute["Storage"] = storageField;
             storageAttribute["ThisKey"] = parent.ThisKey;
             storageAttribute["Name"] = parent.Name;
+            storageAttribute["IsForeignKey"] = parent.IsForeignKey;
 
             SpecificationDefinition specifications;
             if (parent.AccessModifierSpecified)
