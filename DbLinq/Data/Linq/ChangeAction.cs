@@ -24,16 +24,13 @@
 // 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-
 namespace System.Data.Linq
 {
     public enum ChangeAction
     {
-        None, Delete, Insert, Update
+        None, 
+        Delete, 
+        Insert, 
+        Update
     }
 }
