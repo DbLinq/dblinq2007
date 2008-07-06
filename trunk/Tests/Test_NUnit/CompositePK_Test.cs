@@ -65,6 +65,26 @@ using System.Data.Linq;
     [TestFixture]
     public class CompositePK_Test : TestBase
     {
+        protected void cleanup(Northwind db)
+        {
+            try
+            {
+                // Get the name of the Order Details table properly evaluating the Annotation
+                string tableName = null;// db.Vendor.GetSqlFieldSafeName("order details"); //eg. "[Order Details]"
+                foreach (object obj in typeof(OrderDetail).GetCustomAttributes(true))
+                {
+                    if (obj is System.Data.Linq.Mapping.TableAttribute)
+                    {
+                        tableName = ((System.Data.Linq.Mapping.TableAttribute)obj).Name;
+                    }
+                }
+                string sql = string.Format("DELETE FROM {0} WHERE OrderID=3 AND ProductID=2", tableName);
+                db.ExecuteCommand(sql);
+            }
+            catch (Exception)
+            {
+            }
+        }
 
         [Test]
         public void CP1_DeletePreviousRows()
@@ -84,23 +104,7 @@ using System.Data.Linq;
         public void CP2_UpdateTableWithCompositePK()
         {
             Northwind db = CreateDB();
-            try
-            {
-                // Get the name of the Order Details table properly evaluating the Annotation
-                string tableName = null;// db.Vendor.GetSqlFieldSafeName("order details"); //eg. "[Order Details]"
-                foreach (object obj in typeof(OrderDetail).GetCustomAttributes(true))
-                {
-                    if (obj is System.Data.Linq.Mapping.TableAttribute)
-                    {
-                        tableName = ((System.Data.Linq.Mapping.TableAttribute)obj).Name;
-                    }
-                }
-                string sql = string.Format("DELETE FROM {0} WHERE OrderID=3 AND ProductID=2", tableName);
-                db.ExecuteCommand(sql);
-            }
-            catch (Exception)
-            {
-            }
+            cleanup(db);
 
             var orderDetail = new OrderDetail
             {
@@ -134,6 +138,7 @@ using System.Data.Linq;
         public void CP3_DeleteTableWithCompositePK()
         {
             Northwind db = CreateDB();
+            cleanup(db);
             int initialCount = db.OrderDetails.Count();
 
             var orderDetail = new OrderDetail { OrderID = 3, ProductID = 2 };
