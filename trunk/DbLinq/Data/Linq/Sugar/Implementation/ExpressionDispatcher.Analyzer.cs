@@ -45,7 +45,6 @@ using DbLinq.Data.Linq.Sugar.Implementation;
 #endif
 
 using DbLinq.Factory;
-using DbLinq.Linq;
 using DbLinq.Util;
 
 #if MONO_STRICT

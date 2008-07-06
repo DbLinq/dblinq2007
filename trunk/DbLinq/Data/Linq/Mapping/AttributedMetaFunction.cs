@@ -40,9 +40,11 @@ namespace DbLinq.Data.Linq.Mapping
         public AttributedMetaFunction(MethodInfo method, FunctionAttribute attribute)
         {
             functionAttribute = attribute;
+            methodInfo = method;
         }
 
-        private FunctionAttribute functionAttribute;
+        private MethodInfo methodInfo;
+        private readonly FunctionAttribute functionAttribute;
 
         private bool hasMultipleResults;
         public override bool HasMultipleResults
@@ -52,17 +54,17 @@ namespace DbLinq.Data.Linq.Mapping
 
         public override bool IsComposable
         {
-            get { throw new NotImplementedException(); }
+            get { return functionAttribute.IsComposable; }
         }
 
         public override string MappedName
         {
-            get { throw new NotImplementedException(); }
+            get { return functionAttribute.Name; }
         }
 
         public override MethodInfo Method
         {
-            get { throw new NotImplementedException(); }
+            get { return methodInfo; }
         }
 
         public override MetaModel Model
@@ -72,7 +74,7 @@ namespace DbLinq.Data.Linq.Mapping
 
         public override string Name
         {
-            get { throw new NotImplementedException(); }
+            get { return methodInfo.Name; }
         }
 
         public override ReadOnlyCollection<MetaParameter> Parameters

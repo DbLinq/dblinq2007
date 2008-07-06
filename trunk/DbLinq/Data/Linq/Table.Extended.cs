@@ -28,7 +28,11 @@ using System.Collections.Generic;
 using System.Linq;
 using DbLinq.Logging;
 
+#if MONO_STRICT
+namespace System.Data.Linq
+#else
 namespace DbLinq.Data.Linq
+#endif
 {
     /// <summary>
     /// T may be eg. class Employee or string - the output

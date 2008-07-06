@@ -11,8 +11,6 @@ using System.Linq;
 using System.Data.Linq.Mapping;
 using System.Reflection;
 using DbLinq.Data.Linq;
-using DbLinq.Linq;
-using DbLinq.Linq.Mapping;
 using DbLinq.PostgreSql;
 
 namespace AndrusDB
@@ -49,9 +47,9 @@ namespace AndrusDB
 
 
     [Table(Name = "public.t3")]
-    public partial class T3 : IModified
+    public partial class T3
     {
-        [DbLinq.Linq.Mapping.AutoGenId]
+        
         protected int _id1;
         protected int? _f1;
 
@@ -94,7 +92,7 @@ namespace AndrusDB
 
 
     [Table(Name = "public.tcompositepk")]
-    public partial class Tcompositepk : IModified
+    public partial class Tcompositepk
     {
 
         protected int _f1;
@@ -169,9 +167,9 @@ namespace AndrusDB
         Type = typeof(SalariedEmployee))]
     [InheritanceMapping(Code = 2,
         Type = typeof(CommissionedEmployee))]
-    public partial class Employee : IModified
+    public partial class Employee
     {
-        [DbLinq.Linq.Mapping.AutoGenId]
+        
         protected int _employeeid;
         protected int _employeetype;
         protected string _employeename;
@@ -238,7 +236,7 @@ namespace AndrusDB
 
 
     [Table(Name = "public.char_pk")]
-    public partial class Char_Pk : IModified
+    public partial class Char_Pk
     {
 
         protected string _col1;
@@ -297,9 +295,9 @@ namespace AndrusDB
 
 
     [Table(Name = "public.t5")]
-    public partial class T5 : IModified
+    public partial class T5
     {
-        [DbLinq.Linq.Mapping.AutoGenId]
+        
         protected int _myid;
         protected int? _myval;
 
@@ -342,7 +340,7 @@ namespace AndrusDB
 
 
     [Table(Name = "public.t4")]
-    public partial class T4 : IModified
+    public partial class T4
     {
 
         protected decimal? _mydec;
@@ -387,7 +385,7 @@ namespace AndrusDB
 
 
     [Table(Name = "public.t1")]
-    public partial class T1 : IModified
+    public partial class T1
     {
 
         protected int _private;
@@ -448,7 +446,7 @@ namespace AndrusDB
 
 
     [Table(Name = "public.t2")]
-    public partial class T2 : IModified
+    public partial class T2
     {
 
         protected int? _f1;

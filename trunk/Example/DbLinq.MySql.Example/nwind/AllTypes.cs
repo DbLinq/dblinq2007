@@ -22,7 +22,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using DbLinq.Data.Linq;
-using DbLinq.Linq.Mapping;
 
 namespace AllTypesExample
 {
@@ -225,7 +224,7 @@ namespace AllTypesExample
 
 		#region uint Int
 
-		[AutoGenId]
+		
 		private uint @int;
 		[DebuggerNonUserCode]
 		[Column(Storage = "int", Name = "`int`", DbType = "int unsigned", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null)]
@@ -590,7 +589,7 @@ namespace AllTypesExample
 
 		#region int ID1
 
-		[AutoGenId]
+		
 		private int id1;
 		[DebuggerNonUserCode]
 		[Column(Storage = "id1", Name = "id1", DbType = "int", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null)]
@@ -920,7 +919,7 @@ namespace AllTypesExample
 
 		#region int ID1
 
-		[AutoGenId]
+		
 		private int id1;
 		[DebuggerNonUserCode]
 		[Column(Storage = "id1", Name = "id1", DbType = "int", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null)]
@@ -1055,7 +1054,7 @@ namespace AllTypesExample
 
 		#region int ID1
 
-		[AutoGenId]
+		
 		private int id1;
 		[DebuggerNonUserCode]
 		[Column(Storage = "id1", Name = "id1", DbType = "int", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = null)]

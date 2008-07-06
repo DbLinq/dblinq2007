@@ -35,7 +35,6 @@ using MappingContext = System.Data.Linq.Mapping.MappingContext;
 using DbLinq.Data.Linq.Sugar.Expressions;
 using MappingContext = DbLinq.Data.Linq.Mapping.MappingContext;
 #endif
-using DbLinq.Linq;
 
 #if MONO_STRICT
 namespace System.Data.Linq.Sugar

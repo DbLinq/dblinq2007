@@ -38,7 +38,6 @@ using System.Linq;
 using Oracle.DataAccess.Client;
 #else
 using System.Data.OracleClient;
-using DbLinq.Linq.Mapping;
 
 #endif
 

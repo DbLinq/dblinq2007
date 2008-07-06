@@ -26,7 +26,7 @@
 using System;
 using System.Data;
 
-namespace DbLinq.Linq.Database.Implementation
+namespace DbLinq.Data.Linq.Database.Implementation
 {
     internal class DatabaseTransaction : IDatabaseTransaction
     {

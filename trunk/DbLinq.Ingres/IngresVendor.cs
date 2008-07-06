@@ -32,8 +32,6 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
 using DbLinq.Util;
-using DbLinq.Linq;
-using DbLinq.Linq.Database;
 using DataContext = DbLinq.Data.Linq.DataContext;
 using DbLinq.Vendor;
 
@@ -123,14 +121,15 @@ namespace DbLinq.Ingres
                 throw new ArgumentNullException("L56 Null 'method' parameter");
 
             //check to make sure there is exactly one [FunctionEx]? that's below.
-            FunctionAttribute functionAttrib = GetFunctionAttribute(method);
+            //FunctionAttribute functionAttrib = GetFunctionAttribute(method);
+            var functionAttrib = context.Mapping.GetFunction(method);
 
             ParameterInfo[] paramInfos = method.GetParameters();
             //int numRequiredParams = paramInfos.Count(p => p.IsIn || p.IsRetval);
             //if (numRequiredParams != inputValues.Length)
             //    throw new ArgumentException("L161 Argument count mismatch");
 
-            string sp_name = functionAttrib.Name;
+            string sp_name = functionAttrib.MappedName;
 
             using (IDbCommand command = context.Connection.CreateCommand())
             {
@@ -244,7 +243,8 @@ namespace DbLinq.Ingres
                 {
                     //fi.SetValue(t, val); //fails with 'System.Decimal cannot be converted to Int32'
                     //DbLinq.util.FieldUtils.SetObjectIdField(t, fi, val);
-                    object val2 = DbLinq.Util.FieldUtils.CastValue(val, desired_type);
+                    //object val2 = DbLinq.Util.FieldUtils.CastValue(val, desired_type);
+                    object val2 = TypeConvert.To(val, desired_type);
                     outParamValues.Add(val2);
                 }
                 catch (Exception ex)

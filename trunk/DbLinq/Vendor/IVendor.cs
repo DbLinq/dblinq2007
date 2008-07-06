@@ -23,26 +23,21 @@
 // THE SOFTWARE.
 // 
 #endregion
-using System;
+
 using System.Data;
 using System.Reflection;
 using System.Collections.Generic;
-using System.Text;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Data.Linq;
-using System.Data.Linq.Mapping;
-//using System.Data.OracleClient;
-using DbLinq.Util;
-using DbLinq.Linq;
 
 #if MONO_STRICT
-using DataContext=System.Data.Linq.DataContext;
+using DataContext = System.Data.Linq.DataContext;
 using Data = System.Data;
+using System.Data.Linq;
 #else
 using DataContext = DbLinq.Data.Linq.DataContext;
 using Data = DbLinq.Data;
+using DbLinq.Data.Linq;
 #endif
+using IExecuteResult = System.Data.Linq.IExecuteResult;
 
 namespace DbLinq.Vendor
 {
@@ -54,7 +49,7 @@ namespace DbLinq.Vendor
 #else
     public
 #endif
- interface IVendor
+    interface IVendor
     {
         #region Database access and generic methods
 
@@ -137,6 +132,6 @@ namespace DbLinq.Vendor
         /// <param name="table"></param>
         /// <param name="rows"></param>
         /// <param name="transaction"></param>
-        void DoBulkInsert<T>(Data.Linq.Table<T> table, List<T> rows, int pageSize, IDbTransaction transaction) where T : class;
+        void DoBulkInsert<T>(Table<T> table, List<T> rows, int pageSize, IDbTransaction transaction) where T : class;
     }
 }

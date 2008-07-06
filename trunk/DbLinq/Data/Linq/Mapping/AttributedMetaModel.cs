@@ -25,6 +25,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Data.Linq.Mapping;
 using System.Diagnostics;
 using System.Linq;
@@ -38,7 +39,6 @@ using DbLinq.Data.Linq.Mapping;
 #endif
 
 using DbLinq.Util;
-using System.Collections.Generic;
 
 #if MONO_STRICT
 namespace System.Data.Linq.Mapping

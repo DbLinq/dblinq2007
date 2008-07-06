@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // MIT license
 //
@@ -24,31 +24,37 @@
 // 
 #endregion
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Data;
 
-namespace DbLinq.Util
+namespace DbLinq.Data.Linq.Database.Implementation
 {
-    /// <summary>
-    /// TypeEnum: is a type a primitive type, a DB column, or a projection?
-    /// Call CSharp.GetCategory(T) to examine a type.
-    /// </summary>
-    public enum TypeCategory
+    internal class DatabaseConnection: IDisposable
     {
-        /// <summary>
-        /// specifies builtin type, eg. a string or uint.
-        /// </summary>
-        Primitive,
+        private IDbConnection _connection;
+        private bool _mustClose;
 
-        /// <summary>
-        /// specifies DB Columns (entities) marked up with [Table] attribute.
-        /// This type, when retrieved, must go into liveObjectCache
-        /// </summary>
-        Column,
+        public DatabaseConnection(IDbConnection connection)
+        {
+            _connection = connection;
+            switch (_connection.State)
+            {
+            case System.Data.ConnectionState.Open:
+                _mustClose = false;
+                break;
+            case System.Data.ConnectionState.Closed:
+                _mustClose = true;
+                break;
+            default:
+                throw new ApplicationException("L33: Can only handle Open or Closed connection states, not " + _connection.State);
+            }
+            if (_mustClose)
+                _connection.Open();
+        }
 
-        /// <summary>
-        /// anything else, eg. projection types
-        /// </summary>
-        Other
+        public void Dispose()
+        {
+            if (_mustClose)
+                _connection.Close();
+        }
     }
 }

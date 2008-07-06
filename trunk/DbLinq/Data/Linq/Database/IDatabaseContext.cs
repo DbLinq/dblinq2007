@@ -24,31 +24,30 @@
 // 
 #endregion
 using System;
-using System.Data.Linq.Mapping;
+using System.Data;
 
-namespace DbLinq.Linq.Mapping
+namespace DbLinq.Data.Linq.Database
 {
-    /// <summary>
-    /// This is an 'extension' of Microsoft's [Linq.Mapping.Function] attribute.
-    /// We need one extra field to indicate type of code - ProcOrFunction.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    [Obsolete("Please use FunctionAttribute instead")]
-    internal class FunctionExAttribute : Attribute
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    interface IDatabaseContext : IDisposable
     {
-        public string Name { get; set; }
+        // there are two ways to specify a connection:
+        // 1. use a provided IDbConnection
+        IDbConnection Connection { set; get; }
+        // 2. create our own
+        void Connect(string connectionString);
+        void Disconnect();
 
-        /// <summary>
-        /// needed because MySql semantics of invoking a func are different from a proc.
-        /// </summary>
-        public string ProcedureOrFunction { get; set; }
+        // connection and transactions
+        IDatabaseTransaction Transaction();
+        IDisposable OpenConnection();
 
-        internal FunctionAttribute FunctionAttribute
-        {
-            get
-            {
-                return new FunctionAttribute { Name = Name, IsComposable = ProcedureOrFunction != "PROCEDURE" };
-            }
-        }
+        // factory
+        IDbCommand CreateCommand();
+        IDbDataAdapter CreateDataAdapter();
     }
 }

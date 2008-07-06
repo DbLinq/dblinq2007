@@ -332,7 +332,7 @@ namespace Test_NUnit_PostgreSql
             [System.Data.Linq.Mapping.Table(Name = "cust1")]
             public class Cust1
             {
-                [DbLinq.Linq.Mapping.AutoGenId]
+                
                 string _customerid;
 
                 [System.Data.Linq.Mapping.Column(Storage = "_customerid",
@@ -410,9 +410,9 @@ dummy text
             [Table(Name = "rid")]
             public class Rid : INotifyPropertyChanged
             {
-                [DbLinq.Linq.Mapping.AutoGenId]
+                
                 protected int _id;
-                [DbLinq.Linq.Mapping.AutoGenId]
+                
                 protected int _reanr;
 
 

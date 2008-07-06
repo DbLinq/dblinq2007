@@ -23,26 +23,24 @@
 // THE SOFTWARE.
 // 
 #endregion
+
 using System;
 using System.Reflection;
 using System.Collections.Generic;
-using System.Text;
-using System.Linq;
 using System.Data;
-using System.Data.Linq;
-using System.Data.Linq.Mapping;
 using DbLinq.Factory;
-using DbLinq.Linq;
 using DbLinq.Logging;
-using DbLinq.Util;
 
 #if MONO_STRICT
-using DataContext=System.Data.Linq.DataContext;
+using DataContext = System.Data.Linq.DataContext;
 using Data = System.Data;
+using System.Data.Linq;
 #else
 using DataContext = DbLinq.Data.Linq.DataContext;
 using Data = DbLinq.Data;
+using DbLinq.Data.Linq;
 #endif
+using IExecuteResult = System.Data.Linq.IExecuteResult;
 
 namespace DbLinq.Vendor.Implementation
 {
@@ -81,7 +79,7 @@ namespace DbLinq.Vendor.Implementation
             return ":P" + index;
         }
 
-        public virtual void DoBulkInsert<T>(Data.Linq.Table<T> table, List<T> rows, int pageSize, IDbTransaction transaction) where T : class
+        public virtual void DoBulkInsert<T>(Table<T> table, List<T> rows, int pageSize, IDbTransaction transaction) where T : class
         {
             throw new NotImplementedException();
         }
@@ -105,11 +103,6 @@ namespace DbLinq.Vendor.Implementation
         }
 
         public virtual bool SupportsOutputParameter { get { return true; } }
-
-        protected FunctionAttribute GetFunctionAttribute(MethodInfo methodInfo)
-        {
-            return AttribHelper.GetFunctionAttribute(methodInfo);
-        }
 
         protected virtual string ConnectionStringServer { get { return "server"; } }
         protected virtual string ConnectionStringUser { get { return "user id"; } }

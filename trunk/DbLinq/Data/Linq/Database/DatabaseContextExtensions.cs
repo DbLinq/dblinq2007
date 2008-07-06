@@ -23,26 +23,17 @@
 // THE SOFTWARE.
 // 
 #endregion
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Data;
 
-namespace DbLinq.Util
+namespace DbLinq.Data.Linq.Database
 {
-    /// <summary>
-    /// used in Concat function - we are concatenating a list of expressions,
-    /// and we need to know their types
-    /// </summary>
-#if MONO_STRICT
-    internal
-#else
-    public
-#endif
-    class ExpressionAndType
+    internal static class DatabaseContextExtensions
     {
-        public string expression;
-
-        public Type type;
+        public static IDbCommand CreateCommand(this IDatabaseContext context, string sql)
+        {
+            IDbCommand command = context.CreateCommand();
+            command.CommandText = sql;
+            return command;
+        }
     }
 }

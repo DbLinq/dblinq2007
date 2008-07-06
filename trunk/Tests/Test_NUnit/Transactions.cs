@@ -10,7 +10,6 @@ using System.Data.Common;
 
 #if !MONO_STRICT
 using nwind;
-using DbLinq.Linq;
 #else
 using MsNorthwind;
 #endif

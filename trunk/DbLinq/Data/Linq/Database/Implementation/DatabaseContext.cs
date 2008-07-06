@@ -28,7 +28,7 @@ using System.Data;
 using System.Data.Common;
 using System.Reflection;
 
-namespace DbLinq.Linq.Database.Implementation
+namespace DbLinq.Data.Linq.Database.Implementation
 {
     internal class DatabaseContext : IDatabaseContext
     {
