@@ -186,16 +186,10 @@ namespace DbLinq.Data.Linq
         {
             try
             {
-                // TODO: we should probably put the whole package in Vendor (expected hard-coded 11 here is a bit risky)
-                //command: "SELECT 11" (Oracle: "SELECT 11 FROM DUAL")
-                string SQL = Vendor.SqlPingCommand;
-                int result = ExecuteCommand(SQL);
-                return result == 11;
+                return Vendor.Ping(this);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                if (true)
-                    Trace.WriteLine("DatabaseExists failed:" + ex);
                 return false;
             }
         }

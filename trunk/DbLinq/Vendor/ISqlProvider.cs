@@ -113,6 +113,11 @@ namespace DbLinq.Vendor
         /// <returns></returns>
         string GetParameterName(string nameBase);
 
+        /// <summary>
+        /// Joins a list of table selection to make a FROM clause
+        /// </summary>
+        /// <param name="tables"></param>
+        /// <returns></returns>
         string GetFromClause(string[] tables);
 
         /// <summary>

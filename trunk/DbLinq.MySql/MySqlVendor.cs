@@ -56,7 +56,7 @@ namespace DbLinq.MySql
         /// because it does not fill up the translation log.
         /// This is enabled for tables where Vendor.UserBulkInsert[db.Table] is true.
         /// </summary>
-        public override void DoBulkInsert<T>(Table<T> table, List<T> rows, int pageSize, IDbTransaction transaction)
+        public override void BulkInsert<T>(Table<T> table, List<T> rows, int pageSize, IDbTransaction transaction)
         {
             // name parameters we're going to insert
             var members = new Dictionary<string, MemberInfo>();

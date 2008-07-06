@@ -51,8 +51,6 @@ namespace DbLinq.Vendor
 #endif
     interface IVendor
     {
-        #region Database access and generic methods
-
         /// <summary>
         /// VendorName represents the database being handled by this vendor 'Oracle' or 'MySql'
         /// </summary>
@@ -69,6 +67,19 @@ namespace DbLinq.Vendor
         string BuildConnectionString(string host, string databaseName, string userName, string password);
 
         /// <summary>
+        /// Pings requested DB, true is result is OK.
+        /// May throw a connection exception (DataContext.DatabaseExists() handles this)
+        /// </summary>
+        /// <param name="dataContext"></param>
+        /// <returns></returns>
+        bool Ping(DataContext dataContext);
+
+        /// <summary>
+        /// Component used to provide SQL parts
+        /// </summary>
+        ISqlProvider SqlProvider { get; }
+
+        /// <summary>
         /// Executes a stored procedure/function call
         /// </summary>
         /// <param name="context"></param>
@@ -77,20 +88,21 @@ namespace DbLinq.Vendor
         /// <returns></returns>
         IExecuteResult ExecuteMethodCall(DataContext context, MethodInfo method, params object[] sqlParams);
 
-        bool SupportsOutputParameter { get; }
-
-        #endregion
-
-        ISqlProvider SqlProvider { get; }
-
-        #region SQL generator
+        /// <summary>
+        /// Performs bulk insert.
+        /// Please notice that PKs may not be updated
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="table"></param>
+        /// <param name="rows"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="transaction"></param>
+        void BulkInsert<T>(Table<T> table, List<T> rows, int pageSize, IDbTransaction transaction) where T : class;
 
         /// <summary>
-        /// simple command to test round-trip functionality against DB:
-        /// 'SELECT 11' or
-        /// 'SELECT 11 FROM DUAL'
+        /// Some vendors (SQLite) only support input parameter types (ParameterDirection.Input)
         /// </summary>
-        string SqlPingCommand { get; }
+        bool SupportsOutputParameter { get; }
 
         /// <summary>
         /// given 'User', return '[User]' to prevent a SQL keyword conflict
@@ -104,16 +116,5 @@ namespace DbLinq.Vendor
         /// <returns></returns>
         string GetSqlCaseSafeQuery(string sqlString);
 
-        #endregion
-
-        /// <summary>
-        /// Performs bulk insert.
-        /// Please note that PKs may not be updated
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="table"></param>
-        /// <param name="rows"></param>
-        /// <param name="transaction"></param>
-        void DoBulkInsert<T>(Table<T> table, List<T> rows, int pageSize, IDbTransaction transaction) where T : class;
     }
 }

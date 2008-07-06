@@ -64,7 +64,7 @@ namespace DbLinq.Data.Linq
             using (Context.DatabaseContext.OpenConnection())
             using (var transaction = Context.DatabaseContext.Transaction())
             {
-                Context.Vendor.DoBulkInsert(this, entities.ToList(), pageSize, transaction.Transaction);
+                Context.Vendor.BulkInsert(this, entities.ToList(), pageSize, transaction.Transaction);
                 transaction.Commit();
             }
         }

@@ -62,14 +62,14 @@ namespace DbLinq.Vendor.Implementation
             Logger = ObjectFactory.Get<ILogger>();
         }
 
-        public virtual string SqlPingCommand
+        public virtual bool Ping(DataContext dataContext)
         {
-            get { return "SELECT 11"; }
+            return dataContext.ExecuteCommand("SELECT 11") == 11;
         }
 
         public abstract ISqlProvider SqlProvider { get; }
 
-        public virtual void DoBulkInsert<T>(Table<T> table, List<T> rows, int pageSize, IDbTransaction transaction) where T : class
+        public virtual void BulkInsert<T>(Table<T> table, List<T> rows, int pageSize, IDbTransaction transaction) where T : class
         {
             throw new NotImplementedException();
         }

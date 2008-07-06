@@ -58,7 +58,7 @@ namespace DbLinq.SqlServer
         /// because it does not fill up the translation log.
         /// This is enabled for tables where Vendor.UserBulkInsert[db.Table] is true.
         /// </summary>
-        public override void DoBulkInsert<T>(Data.Linq.Table<T> table, List<T> rows, int pageSize, IDbTransaction transaction)
+        public override void BulkInsert<T>(Data.Linq.Table<T> table, List<T> rows, int pageSize, IDbTransaction transaction)
         {
             //use TableLock for speed:
             var bulkCopy = new SqlBulkCopy((SqlConnection)transaction.Connection, SqlBulkCopyOptions.TableLock, null);
