@@ -54,17 +54,18 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
         protected virtual void WriteDataContextCtors(CodeWriter writer, Database schema, Type contextBaseType, GenerationContext context)
         {
             // the two constructors below have the same prototype, so they are mutually exclusive
-            // the base class requires no IVendor
+            // the base class requires a IVendor
             if (!WriteDataContextCtor(writer, schema, contextBaseType,
                                  new[] { new ParameterDefinition { Name = "connection", Type = typeof(IDbConnection) } },
-                                 new[] { "connection" }, new[] { typeof(IDbConnection) },
+                                 new[] { "connection", writer.GetNewExpression(writer.GetMethodCallExpression(context.SchemaLoader.Vendor.GetType().FullName)) },
+                                 new[] { typeof(IDbConnection), typeof(IVendor) },
                                  context))
             {
-                // OR the base class requires a IVendor
+                // OR the base class requires no IVendor
                 WriteDataContextCtor(writer, schema, contextBaseType,
                                      new[] { new ParameterDefinition { Name = "connection", Type = typeof(IDbConnection) } },
-                                     new[] { "connection", writer.GetNewExpression(writer.GetMethodCallExpression(context.SchemaLoader.Vendor.GetType().FullName)) },
-                                     new[] { typeof(IDbConnection), typeof(IVendor) },
+                                     new[] { "connection" },
+                                     new[] { typeof(IDbConnection) },
                                      context);
             }
             // just in case you'd like to specify another vendor than the one who helped generating this file

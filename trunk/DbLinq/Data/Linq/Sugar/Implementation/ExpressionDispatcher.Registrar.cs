@@ -218,59 +218,60 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         public virtual TableExpression RegisterAssociation(TableExpression tableExpression, MemberInfo tableMemberInfo,
                                                            BuilderContext builderContext)
         {
-            IList<MemberInfo> foreignKeys, referencedKeys;
+            IList<MemberInfo> theseKeys, otherKeys;
             TableJoinType joinType;
             string joinID;
-            var tableType = DataMapper.GetAssociation(tableExpression, tableMemberInfo, out foreignKeys, out referencedKeys, out joinType,
-                                                      out joinID, builderContext.QueryContext.DataContext);
+            var otherTableType = DataMapper.GetAssociation(tableExpression, tableMemberInfo, out theseKeys, out otherKeys, 
+                                                      out joinType, out joinID, builderContext.QueryContext.DataContext);
             // if the memberInfo has no corresponding association, we get a null, that we propagate
-            if (tableType == null)
+            if (otherTableType == null)
                 return null;
 
             // the current table has the foreign key, the other table the referenced (usually primary) key
-            if (foreignKeys.Count != referencedKeys.Count)
+            if (theseKeys.Count != otherKeys.Count)
                 throw Error.BadArgument("S0128: Association arguments (FK and ref'd PK) don't match");
 
             // we first create the table, with the JoinID, and we MUST complete the table later, with the Join() method
-            var referencedTableExpression = new TableExpression(tableType, DataMapper.GetTableName(tableType, builderContext.QueryContext.DataContext), joinID);
+            var otherTableExpression = new TableExpression(otherTableType, DataMapper.GetTableName(otherTableType, builderContext.QueryContext.DataContext), joinID);
 
             Expression joinExpression = null;
 
             var createdColumns = new List<ColumnExpression>();
-            for (int keyIndex = 0; keyIndex < foreignKeys.Count; keyIndex++)
+            for (int keyIndex = 0; keyIndex < theseKeys.Count; keyIndex++)
             {
                 // joinedKey is registered, even if unused by final select (required columns will be filtered anyway)
-                Expression referencedKey = RegisterColumn(referencedTableExpression, referencedKeys[keyIndex], builderContext);
+                Expression otherKey = RegisterColumn(otherTableExpression, otherKeys[keyIndex], builderContext);
                 // foreign is created, we will store it later if this assocation is registered too
-                Expression foreignKey = CreateColumn(tableExpression, foreignKeys[keyIndex], builderContext);
-                createdColumns.Add((ColumnExpression)foreignKey);
+                Expression thisKey = CreateColumn(tableExpression, theseKeys[keyIndex], builderContext);
+                createdColumns.Add((ColumnExpression)thisKey);
 
                 // if the key is nullable, then convert it
                 // TODO: this will probably need to be changed
-                if (referencedKey.Type.IsNullable())
-                    referencedKey = Expression.Convert(referencedKey, referencedKey.Type.GetNullableType());
-                if (foreignKey.Type.IsNullable())
-                    foreignKey = Expression.Convert(foreignKey, foreignKey.Type.GetNullableType());
-                var referenceExpression = Expression.Equal(foreignKey, referencedKey);
+                if (otherKey.Type.IsNullable())
+                    otherKey = Expression.Convert(otherKey, otherKey.Type.GetNullableType());
+                if (thisKey.Type.IsNullable())
+                    thisKey = Expression.Convert(thisKey, thisKey.Type.GetNullableType());
+                var referenceExpression = Expression.Equal(thisKey, otherKey);
+
                 // if we already have a join expression, then we have a double condition here, so "AND" it
                 if (joinExpression != null)
-                    joinExpression = Expression.AndAlso(joinExpression, referenceExpression);
+                    joinExpression = Expression.And(joinExpression, referenceExpression);
                 else
                     joinExpression = referenceExpression;
             }
             // we complete the table here, now that we have all join information
-            referencedTableExpression.Join(joinType, tableExpression, joinExpression);
+            otherTableExpression.Join(joinType, tableExpression, joinExpression);
 
             // our table is created, with the expressions
             // now check if we didn't register exactly the same
-            if ((from t in builderContext.EnumerateScopeTables() where t.IsEqualTo(referencedTableExpression) select t).SingleOrDefault() == null)
+            if ((from t in builderContext.EnumerateScopeTables() where t.IsEqualTo(otherTableExpression) select t).SingleOrDefault() == null)
             {
-                builderContext.CurrentSelect.Tables.Add(referencedTableExpression);
+                builderContext.CurrentSelect.Tables.Add(otherTableExpression);
                 foreach (var createdColumn in createdColumns)
                     builderContext.CurrentSelect.Columns.Add(createdColumn);
             }
 
-            return referencedTableExpression;
+            return otherTableExpression;
         }
 
         /// <summary>
