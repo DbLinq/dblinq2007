@@ -283,7 +283,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                         // Oracle is lost if output variables are uninitialized. Another winner story.
                         dbParameter.SetValue(null, outputParameter.ValueType);
                         dbParameter.Size = 100;
-                        dbParameter.Direction = /*outputParameter.IsReturn ? ParameterDirection.ReturnValue :*/ ParameterDirection.Output;
+                        dbParameter.Direction = ParameterDirection.Output;
                         dbCommand.Command.Parameters.Add(dbParameter);
                     }
                     int rowsCount = dbCommand.Command.ExecuteNonQuery();

@@ -42,9 +42,9 @@ namespace DbLinq.Oracle
         protected readonly OracleSqlProvider sqlProvider = new OracleSqlProvider();
         public override ISqlProvider SqlProvider { get { return sqlProvider; } }
 
-        public override string SqlPingCommand
+        public override bool Ping(DataContext dataContext)
         {
-            get { return "SELECT 11 FROM DUAL"; }
+            return dataContext.ExecuteCommand("SELECT 11 FROM DUAL") == 11;
         }
 
         public override IExecuteResult ExecuteMethodCall(DataContext context, MethodInfo method
