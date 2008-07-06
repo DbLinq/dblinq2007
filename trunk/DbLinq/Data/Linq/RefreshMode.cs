@@ -24,15 +24,12 @@
 // 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
 namespace System.Data.Linq
 {
     public enum RefreshMode
     {
-        KeepCurrentValues, KeepChanges, OverwriteCurrentValues
+        KeepCurrentValues, 
+        KeepChanges, 
+        OverwriteCurrentValues
     }
 }
