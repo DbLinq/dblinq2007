@@ -52,31 +52,29 @@ namespace DbLinq.Vendor.Implementation
         /// <param name="table">Table name</param>
         /// <param name="inputColumns">Columns to be inserted</param>
         /// <param name="inputValues">Values to be inserted into columns</param>
-        /// <param name="outputParameters">Expected output parameters</param>
-        /// <param name="outputExpressions">Expressions (to help generate output parameters)</param>
         /// <returns></returns>
-        public string GetInsert(string table, IList<string> inputColumns, IList<string> inputValues,
-            IList<string> outputParameters, IList<string> outputExpressions)
+        public virtual string GetInsert(string table, IList<string> inputColumns, IList<string> inputValues)
         {
-            return GetInsertWrapper(GetRawInsert(table, inputColumns, inputValues), outputParameters, outputExpressions);
-        }
-
-        protected virtual string GetRawInsert(string table, IList<string> columns, IList<string> values)
-        {
-            if (columns.Count == 0)
+            if (inputColumns.Count == 0)
                 return string.Empty;
 
             var insertBuilder = new StringBuilder("INSERT INTO ");
             insertBuilder.Append(table);
-            insertBuilder.AppendFormat(" ({0})", string.Join(", ", columns.ToArray()));
+            insertBuilder.AppendFormat(" ({0})", string.Join(", ", inputColumns.ToArray()));
             insertBuilder.Append(" VALUES");
-            insertBuilder.AppendFormat(" ({0})", string.Join(", ", values.ToArray()));
+            insertBuilder.AppendFormat(" ({0})", string.Join(", ", inputValues.ToArray()));
             return insertBuilder.ToString();
         }
 
-        protected virtual string GetInsertWrapper(string insert, IList<string> outputParameters, IList<string> outputExpressions)
+        /// <summary>
+        /// Builds the statements that gets back the IDs for the inserted statement
+        /// </summary>
+        /// <param name="outputParameters">Expected output parameters</param>
+        /// <param name="outputExpressions">Expressions (to help generate output parameters)</param>
+        /// <returns></returns>
+        public virtual string GetInsertIds(IList<string> outputParameters, IList<string> outputExpressions)
         {
-            return string.Format("{0}; SELECT @@IDENTITY", insert);
+            return string.Format("SELECT @@IDENTITY");
         }
 
         /// <summary>

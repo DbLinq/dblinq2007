@@ -276,7 +276,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 if (insertQuery.DataContext.Vendor.SupportsOutputParameter)
                 {
                     int outputStart = insertQuery.InputParameters.Count;
-                    foreach (var outputParameter in insertQuery.OutputParameters)
+                    /*foreach (var outputParameter in insertQuery.OutputParameters)
                     {
                         var dbParameter = dbCommand.Command.CreateParameter();
                         dbParameter.ParameterName = sqlProvider.GetParameterName(outputParameter.Alias);
@@ -285,8 +285,27 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                         dbParameter.Size = 100;
                         dbParameter.Direction = ParameterDirection.Output;
                         dbCommand.Command.Parameters.Add(dbParameter);
-                    }
+                    }*/
                     int rowsCount = dbCommand.Command.ExecuteNonQuery();
+                    if (!string.IsNullOrEmpty(insertQuery.IdQuerySql))
+                    {
+                        IDbCommand cmd = dbCommand.Command.Connection.CreateCommand();
+                        cmd.Transaction = dbCommand.Command.Transaction;
+                        cmd.CommandText = insertQuery.IdQuerySql;
+                        IDataReader rdr = cmd.ExecuteReader();
+                        rdr.Read();
+                        for (int outputParameterIndex = 0;
+                             outputParameterIndex < insertQuery.OutputParameters.Count;
+                             outputParameterIndex++)
+                        {
+                            var outputParameter = insertQuery.OutputParameters[outputParameterIndex];
+                            var outputDbParameter = rdr.GetValue(outputParameterIndex);
+                            SetOutputParameterValue(target, outputParameter, outputDbParameter);
+                        }
+                        rdr.Close();
+
+                    }
+                    /*
                     for (int outputParameterIndex = 0;
                          outputParameterIndex < insertQuery.OutputParameters.Count;
                          outputParameterIndex++)
@@ -296,6 +315,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                             (IDbDataParameter)dbCommand.Command.Parameters[outputParameterIndex + outputStart];
                         SetOutputParameterValue(target, outputParameter, outputDbParameter.Value);
                     }
+                     */
                 }
                 else
                 {

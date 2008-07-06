@@ -33,14 +33,13 @@ namespace DbLinq.PostgreSql
 {
     public class PgsqlSqlProvider : SqlProvider
     {
-        protected override string GetInsertWrapper(string insert, IList<string> outputParameters, IList<string> outputExpressions)
+        public override string GetInsertIds(IList<string> outputParameters, IList<string> outputExpressions)
         {
             // no parameters? no need to get them back
             if (outputParameters.Count == 0)
-                return insert;
+                return "";
             // otherwise we keep track of the new values
-            return string.Format("{0}; SELECT {1}",
-                insert,
+            return string.Format("SELECT {0}",
                 string.Join(", ", (from outputExpression in outputExpressions select outputExpression.ReplaceCase("nextval(", "currval(", true)).ToArray())
                 );
         }

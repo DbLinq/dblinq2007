@@ -31,9 +31,9 @@ namespace DbLinq.Sqlite
 {
     public class SqliteSqlProvider : SqlProvider
     {
-        protected override string GetInsertWrapper(string insert, IList<string> outputParameters, IList<string> outputExpressions)
+        public override string GetInsertIds(IList<string> outputParameters, IList<string> outputExpressions)
         {
-            return string.Format("{0}; SELECT last_insert_rowid()", insert);
+            return "SELECT last_insert_rowid()";
         }
 
         protected override string GetLiteralStringLength(string a)
