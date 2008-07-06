@@ -44,5 +44,16 @@ namespace DbLinq.PostgreSql
                 string.Join(", ", (from outputExpression in outputExpressions select outputExpression.ReplaceCase("nextval(", "currval(", true)).ToArray())
                 );
         }
+
+        protected override string GetLiteralStringToUpper(string a)
+        {
+            return string.Format("UPPER({0})", a);
+        }
+
+        protected override string GetLiteralStringToLower(string a)
+        {
+            return string.Format("LOWER({0})", a);
+        }
+
     }
 }
