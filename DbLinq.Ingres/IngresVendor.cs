@@ -35,6 +35,7 @@ using DbLinq.Util;
 using DbLinq.Linq;
 using DbLinq.Linq.Database;
 using DataContext = DbLinq.Data.Linq.DataContext;
+using DbLinq.Vendor;
 
 namespace DbLinq.Ingres
 {
@@ -45,12 +46,10 @@ namespace DbLinq.Ingres
     {
         public override string VendorName { get { return "Ingres"; } }
 
-        private string lastIdExpression = null;
+        protected readonly IngresSqlProvider sqlProvider = new IngresSqlProvider();
+        public override ISqlProvider SqlProvider { get { return sqlProvider; } }
 
-        public IngresVendor()
-            : base(new IngresSqlProvider())
-        {
-        }
+        private string lastIdExpression = null;
 
         public override string GetOrderableParameterName(int index)
         {

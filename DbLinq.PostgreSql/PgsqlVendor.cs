@@ -47,11 +47,10 @@ namespace DbLinq.PostgreSql
     /// </summary>
     public class PgsqlVendor : Vendor.Implementation.Vendor
     {
-        public override string VendorName { get { return "PostgreSql"; } }
+        public override string VendorName { get { return "PostgreSQL"; } }
 
-        public PgsqlVendor()
-            : base(new PgsqlSqlProvider())
-        { }
+        protected readonly PgsqlSqlProvider sqlProvider = new PgsqlSqlProvider();
+        public override ISqlProvider SqlProvider { get { return sqlProvider; } }
 
         protected void SetParameterType(IDbDataParameter parameter, PropertyInfo property, string literal)
         {

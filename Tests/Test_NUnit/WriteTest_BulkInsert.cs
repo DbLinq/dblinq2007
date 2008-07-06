@@ -41,7 +41,7 @@ using System.Data.Linq;
 #endif
 
 #if MYSQL
-    namespace Test_NUnit_MySql
+namespace Test_NUnit_MySql
 #elif ORACLE
     namespace Test_NUnit_Oracle
 #elif POSTGRES
@@ -57,16 +57,16 @@ using System.Data.Linq;
     namespace Test_NUnit_MsSql
 #endif
 #else
-    #error unknown target
+#error unknown target
 #endif
 {
+#if !MONO_STRICT
     [TestFixture]
     public class WriteTest_BulkInsert : TestBase
     {
         [Test]
         public void BI01_InsertProducts()
         {
-#if !SQLITE
             int initialCount = 0, countAfterBulkInsert = 0;
 
             Northwind db = CreateDB();
@@ -75,10 +75,13 @@ using System.Data.Linq;
             //DbLinq.vendor.mysql.MySqlVendor.UseBulkInsert[db.Products] = 3; //insert three rows at a time
             // picrap: inject this information in the IVendor (and check this is necessary)
 
-            db.Products.InsertOnSubmit(NewProduct("tmp_ProductA"));
-            db.Products.InsertOnSubmit(NewProduct("tmp_ProductB"));
-            db.Products.InsertOnSubmit(NewProduct("tmp_ProductC"));
-            db.Products.InsertOnSubmit(NewProduct("tmp_ProductD"));
+            db.Products.BulkInsert(new[]
+                                       {
+                                           NewProduct("tmp_ProductA"),
+                                           NewProduct("tmp_ProductB"),
+                                           NewProduct("tmp_ProductC"),
+                                           NewProduct("tmp_ProductD")
+                                       });
             db.SubmitChanges();
 
             //confirm that we indeed inserted four rows:
@@ -88,7 +91,7 @@ using System.Data.Linq;
 
             //clean up
             base.ExecuteNonQuery("DELETE FROM Products WHERE ProductName LIKE 'tmp_%'");
-#endif
         }
     }
+#endif
 }

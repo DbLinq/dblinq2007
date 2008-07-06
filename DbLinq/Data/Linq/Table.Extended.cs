@@ -24,6 +24,8 @@
 // 
 #endregion
 
+using System.Collections.Generic;
+using System.Linq;
 using DbLinq.Logging;
 
 namespace DbLinq.Data.Linq
@@ -38,12 +40,30 @@ namespace DbLinq.Data.Linq
 
         public void CancelDeleteOnSubmit(TEntity entity)
         {
-
+            Context.UnregisterDelete(entity, typeof(TEntity));
         }
 
         void ITable.CancelDeleteOnSubmit(object entity)
         {
+            Context.UnregisterDelete(entity, typeof(TEntity));
+        }
 
+        public int BulkInsertPageSize { get; set; }
+
+        public void BulkInsert(IEnumerable<TEntity> entities)
+        {
+            BulkInsert(entities, BulkInsertPageSize);
+        }
+
+        public void BulkInsert(IEnumerable<TEntity> entities, int pageSize)
+        {
+            using (Context.DatabaseContext.OpenConnection())
+            using (var transaction = Context.DatabaseContext.Transaction())
+            {
+                Context.Vendor.SetBulkInsert(this, pageSize > 0 ? pageSize : 10);
+                Context.Vendor.DoBulkInsert(this, entities.ToList(), Context.DatabaseContext.Connection);
+                transaction.Commit();
+            }
         }
     }
 }

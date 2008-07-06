@@ -24,6 +24,9 @@
 // 
 #endregion
 
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.MySql
@@ -43,6 +46,22 @@ namespace DbLinq.MySql
         protected override string GetLiteralConcat(string a, string b)
         {
             return string.Format("CONCAT({0}, {1})", a, b);
+        }
+
+        public virtual string GetBulkInsert(string table, IList<string> columns, IList<IList<string>> valuesLists)
+        {
+            if (columns.Count == 0)
+                return string.Empty;
+
+            var insertBuilder = new StringBuilder("INSERT INTO ");
+            insertBuilder.Append(table);
+            insertBuilder.AppendFormat(" ({0})", string.Join(", ", columns.ToArray()));
+            insertBuilder.Append(" VALUES ");
+            var literalValuesLists = new List<string>();
+            foreach (var values in valuesLists)
+                literalValuesLists.Add(string.Format("({0})", string.Join(", ", values.ToArray())));
+            insertBuilder.Append(string.Join(", ", literalValuesLists.ToArray()));
+            return insertBuilder.ToString();
         }
     }
 }

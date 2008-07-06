@@ -55,19 +55,13 @@ namespace DbLinq.Vendor.Implementation
 #else
     public
 #endif
-    abstract partial class Vendor : IVendor
+ abstract partial class Vendor : IVendor
     {
         public ILogger Logger { get; set; }
 
         protected Vendor()
-            : this(ObjectFactory.Get<ISqlProvider>())
-        {
-        }
-
-        protected Vendor(ISqlProvider sqlProvider)
         {
             Logger = ObjectFactory.Get<ILogger>();
-            this.sqlProvider = sqlProvider;
         }
 
         public virtual string SqlPingCommand
@@ -75,9 +69,7 @@ namespace DbLinq.Vendor.Implementation
             get { return "SELECT 11"; }
         }
 
-        private ISqlProvider sqlProvider;
-        public ISqlProvider SqlProvider { get { return sqlProvider; } }
-
+        public abstract ISqlProvider SqlProvider { get; }
 
         /// <summary>
         /// on Postgres or Oracle, return eg. ':P1'.

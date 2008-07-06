@@ -37,6 +37,7 @@ using DbLinq.Linq.Clause;
 using DbLinq.Logging;
 using DbLinq.Util;
 using DbLinq.Linq.Database;
+using DbLinq.Vendor;
 
 namespace DbLinq.MySql
 {
@@ -47,12 +48,10 @@ namespace DbLinq.MySql
         /// </summary>
         public readonly Dictionary<ITable, int> UseBulkInsert = new Dictionary<ITable, int>();
 
-        public MySqlVendor()
-            : base(new MySqlSqlProvider())
-        {
-        }
-
         public override string VendorName { get { return "MySQL"; } }
+
+        protected readonly MySqlSqlProvider sqlProvider = new MySqlSqlProvider();
+        public override ISqlProvider SqlProvider { get { return sqlProvider; } }
 
         protected override string MakeNameSafe(string namePart)
         {
@@ -77,11 +76,52 @@ namespace DbLinq.MySql
             UseBulkInsert[table] = pageSize;
         }
 
+
         /// <summary>
         /// for large number of rows, we want to use BULK INSERT, 
         /// because it does not fill up the translation log.
         /// This is enabled for tables where Vendor.UserBulkInsert[db.Table] is true.
         /// </summary>
+        public override void DoBulkInsert<T>(Table<T> table, List<T> rows, IDbConnection connection)
+        {
+            int pageSize = UseBulkInsert[table];
+            // name parameters we're going to insert
+            var members = new Dictionary<string, MemberInfo>();
+            var tableName = table.Context.Mapping.GetTable(typeof(T)).TableName;
+            foreach (var dataMember in table.Context.Mapping.GetTable(typeof(T)).RowType.PersistentDataMembers)
+            {
+                members[dataMember.MappedName.Trim('"')] = dataMember.Member;
+            }
+            var columns = new List<string>(members.Keys);
+            // performes INSERTs
+            int lineIndex = 1;
+            foreach (var page in Page.Paginate(rows, pageSize))
+            {
+                var valuesLists = new List<IList<string>>();
+                using (var command = connection.CreateCommand())
+                {
+                    foreach (T row in page)
+                    {
+                        var values = new List<string>();
+                        foreach (var keyValue in members)
+                        {
+                            var parameter = command.CreateParameter();
+                            parameter.ParameterName = SqlProvider.GetParameterName(string.Format("{0}_{1}", keyValue.Key, lineIndex));
+                            parameter.SetValue(keyValue.Value.GetMemberValue(row));
+                            values.Add(parameter.ParameterName);
+                            command.Parameters.Add(parameter);
+                        }
+                        lineIndex++;
+                        valuesLists.Add(values);
+                    }
+                    command.CommandText = sqlProvider.GetBulkInsert(SqlProvider.GetTable(tableName), columns,
+                                                                    valuesLists);
+                    var result = command.ExecuteNonQuery();
+                }
+            }
+        }
+
+#if OBSOLETE
         public override void DoBulkInsert<T>(Table<T> table, List<T> rows, IDbConnection connection)
         {
             int pageSize = UseBulkInsert[table];
@@ -118,7 +158,7 @@ namespace DbLinq.MySql
                 int result = cmd.ExecuteNonQuery();
             }
         }
-
+#endif
         /// <summary>
         /// call mysql stored proc or stored function, 
         /// optionally return DataSet, and collect return params.
