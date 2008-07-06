@@ -59,16 +59,6 @@ namespace DbLinq.PostgreSql
             SetParameterType(parameter, parameter.GetType().GetProperty("NpgsqlDbType"), literal);
         }
 
-        public override IDbDataParameter CreateDbDataParameter(IDbCommand cmd, string dbTypeName, string paramName)
-        {
-            IDbDataParameter param = cmd.CreateParameter();
-            param.ParameterName = paramName;
-            // TODO: remove this hack when a decision is made with bool/bit case
-            if (dbTypeName.StartsWith("bit"))
-                SetParameterType(param, "Bit");
-            return param;
-        }
-
         /*
                 public override IDbDataParameter CreateSqlParameter(IDbCommand cmd, string dbTypeName, string paramName)
                 {

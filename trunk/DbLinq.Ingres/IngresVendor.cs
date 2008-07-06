@@ -49,11 +49,6 @@ namespace DbLinq.Ingres
 
         private string lastIdExpression = null;
 
-        public override string GetOrderableParameterName(int index)
-        {
-            return "$param_" + index.ToString("000000") + "_param$";
-        }
-
         private bool isReplaceable(IDbDataParameter param)
         {
             switch (param.DbType)
@@ -98,16 +93,6 @@ namespace DbLinq.Ingres
         {
             // --> how is a special field escaped?
             return name;
-        }
-
-        public override IDbDataParameter CreateDbDataParameter(IDbCommand cmd, string dbTypeName, string paramName)
-        {
-            IDbDataParameter param = cmd.CreateParameter();
-            param.ParameterName = paramName;
-            // TODO: remove this hack when a decision is made with bool/bit case
-            if (dbTypeName.StartsWith("bit"))
-                SetParameterType(param, "Bit");
-            return param;
         }
 
         /// <summary>

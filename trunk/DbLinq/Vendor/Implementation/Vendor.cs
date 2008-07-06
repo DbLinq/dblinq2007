@@ -69,16 +69,6 @@ namespace DbLinq.Vendor.Implementation
 
         public abstract ISqlProvider SqlProvider { get; }
 
-        /// <summary>
-        /// on Postgres or Oracle, return eg. ':P1'.
-        /// Mysql needs to override to return '?P1'
-        /// Ingres needs to override to return '?'.
-        /// </summary>
-        public virtual string GetOrderableParameterName(int index)
-        {
-            return ":P" + index;
-        }
-
         public virtual void DoBulkInsert<T>(Table<T> table, List<T> rows, int pageSize, IDbTransaction transaction) where T : class
         {
             throw new NotImplementedException();
@@ -93,13 +83,6 @@ namespace DbLinq.Vendor.Implementation
         protected virtual IDbDataAdapter CreateDataAdapter(DataContext dataContext)
         {
             return dataContext.CreateDataAdapter();
-        }
-
-        public virtual IDbDataParameter CreateDbDataParameter(IDbCommand cmd, string dbTypeName, string paramName)
-        {
-            IDbDataParameter param = cmd.CreateParameter();
-            param.ParameterName = paramName;
-            return param;
         }
 
         public virtual bool SupportsOutputParameter { get { return true; } }

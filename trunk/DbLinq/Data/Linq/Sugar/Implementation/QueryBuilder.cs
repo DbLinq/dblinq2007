@@ -435,7 +435,8 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 var parameterIndex = int.Parse(field);
                 while (parameters.Count <= parameterIndex)
                     parameters.Add(string.Empty);
-                var literalParameterName = queryContext.DataContext.Vendor.GetOrderableParameterName(parameterIndex);
+                var literalParameterName =
+                    queryContext.DataContext.Vendor.SqlProvider.GetParameterName(string.Format("p{0}", parameterIndex));
                 parameters[parameterIndex] = literalParameterName;
                 return literalParameterName;
             });

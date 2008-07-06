@@ -51,14 +51,6 @@ namespace DbLinq.Sqlite
         public override bool SupportsOutputParameter { get { return false; } } // poor guy
 
         /// <summary>
-        /// on Postgres or Oracle, return eg. ':P1', on Mysql, '?P1', on SQLite, '@P1'
-        /// </summary>
-        public override string GetOrderableParameterName(int index)
-        {
-            return "@P" + index;
-        }
-
-        /// <summary>
         /// call SQLite stored proc or stored function, 
         /// optionally return DataSet, and collect return params.
         /// </summary>
