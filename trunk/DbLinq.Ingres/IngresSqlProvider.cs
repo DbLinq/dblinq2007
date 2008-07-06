@@ -26,6 +26,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Text;
 using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.Ingres
@@ -68,6 +72,11 @@ namespace DbLinq.Ingres
         {
             // TODO: this is for you, Thomas...
             throw new NotImplementedException("OFFSET clause is not supported on Ingres");
+        }
+
+        public override string GetParameterName(string nameBase)
+        {
+            return "?";
         }
     }
 }
