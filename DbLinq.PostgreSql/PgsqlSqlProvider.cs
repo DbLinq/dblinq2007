@@ -54,5 +54,14 @@ namespace DbLinq.PostgreSql
             return string.Format("LOWER({0})", a);
         }
 
+        /// <summary>
+        /// In PostgreSQL an insensitive name is lowercase
+        /// </summary>
+        /// <param name="dbName"></param>
+        /// <returns></returns>
+        protected override bool IsNameCaseSafe(string dbName)
+        {
+            return dbName == dbName.ToLower();
+        }
     }
 }

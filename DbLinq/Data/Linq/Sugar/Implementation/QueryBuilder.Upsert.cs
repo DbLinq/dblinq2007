@@ -160,7 +160,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     var setter = (Expression<Action<object, object>>)((o, v) => memberInfo.SetMemberValue(o, v));
                     var outputParameter = new ObjectOutputParameterExpression(setter,
                                                                               memberInfo.GetMemberType(),
-                                                                              dataMember.MappedName);
+                                                                              dataMember.Name);
                     upsertParameters.OutputParameters.Add(outputParameter);
                     upsertParameters.OutputValues.Add(sqlProvider.GetParameterName(outputParameter.Alias));
                     upsertParameters.OutputExpressions.Add(dataMember.Expression);

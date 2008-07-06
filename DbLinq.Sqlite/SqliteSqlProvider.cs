@@ -56,5 +56,9 @@ namespace DbLinq.Sqlite
             return "COUNT(*)";
         }
 
+        protected override bool IsNameCaseSafe(string namePart)
+        {
+            return true;
+        }
     }
 }

@@ -89,12 +89,6 @@ namespace DbLinq.Ingres
             SetParameterType(parameter, parameter.GetType().GetProperty("IngresDbType"), literal);
         }
 
-        protected override string MakeNameSafe(string name)
-        {
-            // --> how is a special field escaped?
-            return name;
-        }
-
         /// <summary>
         /// call mysql stored proc or stored function, 
         /// optionally return DataSet, and collect return params.
@@ -239,11 +233,6 @@ namespace DbLinq.Ingres
                 }
             }
             return outParamValues;
-        }
-
-        protected override bool IsNameCaseSafe(string dbName)
-        {
-            return dbName == dbName.ToLower();
         }
     }
 }

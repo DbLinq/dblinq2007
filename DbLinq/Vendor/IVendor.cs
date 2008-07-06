@@ -103,18 +103,5 @@ namespace DbLinq.Vendor
         /// Some vendors (SQLite) only support input parameter types (ParameterDirection.Input)
         /// </summary>
         bool SupportsOutputParameter { get; }
-
-        /// <summary>
-        /// given 'User', return '[User]' to prevent a SQL keyword conflict
-        /// </summary>
-        string GetSqlFieldSafeName(string name);
-
-        /// <summary>
-        /// Returns a case safe query, converting quoted names &lt;&ltMixedCaseName>> to "MixedCaseName"
-        /// </summary>
-        /// <param name="sqlString"></param>
-        /// <returns></returns>
-        string GetSqlCaseSafeQuery(string sqlString);
-
     }
 }

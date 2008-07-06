@@ -45,11 +45,6 @@ namespace DbLinq.SqlServer
         protected readonly SqlServerSqlProvider sqlProvider = new SqlServerSqlProvider();
         public override ISqlProvider SqlProvider { get { return sqlProvider; } }
 
-        protected override string MakeNameSafe(string name)
-        {
-            return name.Enquote('[', ']');
-        }
-
         //NOTE: for Oracle, we want to consider 'Array Binding'
         //http://download-west.oracle.com/docs/html/A96160_01/features.htm#1049674
 

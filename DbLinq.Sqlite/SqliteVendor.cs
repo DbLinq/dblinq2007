@@ -194,10 +194,5 @@ namespace DbLinq.Sqlite
             }
             return outParamValues;
         }
-
-        protected override bool IsNameCaseSafe(string namePart)
-        {
-            return true;
-        }
     }
 }

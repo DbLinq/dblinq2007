@@ -86,5 +86,10 @@ namespace DbLinq.Ingres
         {
             return "?";
         }
+
+        protected override bool IsNameCaseSafe(string dbName)
+        {
+            return dbName == dbName.ToLower();
+        }
     }
 }
