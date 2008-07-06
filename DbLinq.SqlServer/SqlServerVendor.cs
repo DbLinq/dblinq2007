@@ -41,8 +41,6 @@ namespace DbLinq.SqlServer
 {
     public class SqlServerVendor : Vendor.Implementation.Vendor
     {
-        public readonly Dictionary<ITable, int> UseBulkInsert = new Dictionary<ITable, int>();
-
         public override string VendorName { get { return "SqlServer"; } }
 
         protected readonly SqlServerSqlProvider sqlProvider = new SqlServerSqlProvider();
@@ -76,40 +74,42 @@ namespace DbLinq.SqlServer
         /// because it does not fill up the translation log.
         /// This is enabled for tables where Vendor.UserBulkInsert[db.Table] is true.
         /// </summary>
-        public override void DoBulkInsert<T>(Data.Linq.Table<T> table, List<T> rows, IDbConnection connection)
+        public override void DoBulkInsert<T>(Data.Linq.Table<T> table, List<T> rows, int pageSize, IDbTransaction transaction)
         {
             //use TableLock for speed:
-            SqlBulkCopy bulkCopy = new SqlBulkCopy((SqlConnection)connection, SqlBulkCopyOptions.TableLock, null);
+            var bulkCopy = new SqlBulkCopy((SqlConnection)transaction.Connection, SqlBulkCopyOptions.TableLock, null);
 
-            bulkCopy.DestinationTableName = AttribHelper.GetTableAttrib(typeof(T)).Name;
+            bulkCopy.DestinationTableName = table.Context.Mapping.GetTable(typeof(T)).TableName;
             //bulkCopy.SqlRowsCopied += new SqlRowsCopiedEventHandler(bulkCopy_SqlRowsCopied);
 
-            DataTable dt = new DataTable();
-            KeyValuePair<PropertyInfo, ColumnAttribute>[] columns = AttribHelper.GetColumnAttribs2(typeof(T));
+            var dt = new DataTable();
 
-            foreach (KeyValuePair<PropertyInfo, ColumnAttribute> pair in columns)
+            //KeyValuePair<PropertyInfo, ColumnAttribute>[] columns = AttribHelper.GetColumnAttribs2(typeof(T));
+            var columns = table.Context.Mapping.GetTable(typeof(T)).RowType.PersistentDataMembers;
+
+            foreach (var column in columns)
             {
                 //if (pair.Value.IsDbGenerated)
                 //    continue; //don't skip - all fields would be shifted
 
-                DataColumn dc = new DataColumn();
-                dc.ColumnName = pair.Value.Name;
-                dc.DataType = pair.Key.PropertyType;
+                var dc = new DataColumn();
+                dc.ColumnName = column.MappedName;
+                dc.DataType = column.Member.GetMemberType();
                 dt.Columns.Add(dc);
             }
 
             //TODO: cross-check null values against CanBeNull specifier
-            object[] indices = new object[] { };
+            //object[] indices = new object[] { };
             foreach (T row in rows)
             {
                 DataRow dr = dt.NewRow();
                 //use reflection to retrieve object's fields (TODO: optimize this later)
-                foreach (KeyValuePair<PropertyInfo, ColumnAttribute> pair in columns)
+                foreach (var pair in columns)
                 {
                     //if (pair.Value.IsDbGenerated)
                     //    continue; //don't assign IDENTITY col
-                    object value = pair.Key.GetValue(row, indices);
-                    dr[pair.Value.Name] = value;
+                    object value = pair.Member.GetMemberValue(row);
+                    dr[pair.MappedName] = value;
                 }
                 //dr[1
                 dt.Rows.Add(dr);
@@ -121,21 +121,6 @@ namespace DbLinq.SqlServer
         public override System.Data.Linq.IExecuteResult ExecuteMethodCall(DataContext context, System.Reflection.MethodInfo method, params object[] sqlParams)
         {
             throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Client code needs to specify: 'Vendor.UserBulkInsert[db.Products]=true' to enable bulk insert.
-        /// </summary>
-        //public static readonly Dictionary<DbLinq.Linq.IMTable, bool> UseBulkInsert = new Dictionary<DbLinq.Linq.IMTable, bool>();
-
-        public override bool CanBulkInsert<T>(Data.Linq.Table<T> table)
-        {
-            return UseBulkInsert.ContainsKey(table);
-        }
-
-        public override void SetBulkInsert<T>(Data.Linq.Table<T> table, int pageSize)
-        {
-            UseBulkInsert[table] = pageSize;
         }
     }
 }

@@ -43,11 +43,6 @@ namespace DbLinq.MySql
 {
     public class MySqlVendor : Vendor.Implementation.Vendor
     {
-        /// <summary>
-        /// Client code needs to specify: 'Vendor.UserBulkInsert[db.Products]=10' to enable bulk insert, 10 rows at a time.
-        /// </summary>
-        public readonly Dictionary<ITable, int> UseBulkInsert = new Dictionary<ITable, int>();
-
         public override string VendorName { get { return "MySQL"; } }
 
         protected readonly MySqlSqlProvider sqlProvider = new MySqlSqlProvider();
@@ -66,25 +61,14 @@ namespace DbLinq.MySql
             return "?P" + index;
         }
 
-        public override bool CanBulkInsert<T>(Table<T> table)
-        {
-            return UseBulkInsert.ContainsKey(table);
-        }
-
-        public override void SetBulkInsert<T>(Table<T> table, int pageSize)
-        {
-            UseBulkInsert[table] = pageSize;
-        }
-
 
         /// <summary>
         /// for large number of rows, we want to use BULK INSERT, 
         /// because it does not fill up the translation log.
         /// This is enabled for tables where Vendor.UserBulkInsert[db.Table] is true.
         /// </summary>
-        public override void DoBulkInsert<T>(Table<T> table, List<T> rows, IDbConnection connection)
+        public override void DoBulkInsert<T>(Table<T> table, List<T> rows, int pageSize, IDbTransaction transaction)
         {
-            int pageSize = UseBulkInsert[table];
             // name parameters we're going to insert
             var members = new Dictionary<string, MemberInfo>();
             var tableName = table.Context.Mapping.GetTable(typeof(T)).TableName;
@@ -93,12 +77,17 @@ namespace DbLinq.MySql
                 members[dataMember.MappedName.Trim('"')] = dataMember.Member;
             }
             var columns = new List<string>(members.Keys);
+
+            //PC: this is a test: when no page size specified, we manage to use less than 100 parameters
+            if (pageSize == 0)
+                pageSize = 99 / columns.Count;
+
             // performes INSERTs
             int lineIndex = 1;
             foreach (var page in Page.Paginate(rows, pageSize))
             {
                 var valuesLists = new List<IList<string>>();
-                using (var command = connection.CreateCommand())
+                using (var command = transaction.Connection.CreateCommand())
                 {
                     foreach (T row in page)
                     {

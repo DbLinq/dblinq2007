@@ -129,23 +129,6 @@ namespace DbLinq.Vendor
 
         #endregion
 
-        #region Bulk Insert
-
-        /// <summary>
-        /// Determines if the current vendor/table can do bulk insert
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="table"></param>
-        /// <returns></returns>
-        bool CanBulkInsert<T>(Data.Linq.Table<T> table) where T : class;
-        /// <summary>
-        /// Sets the bulk insert capability for a given table
-        /// If the vendor doesn't support bulk insert, then this method is ignored and the CanBulkInsert() method always return false.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="table"></param>
-        /// <param name="pageSize"></param>
-        void SetBulkInsert<T>(Data.Linq.Table<T> table, int pageSize) where T : class;
         /// <summary>
         /// Performs bulk insert.
         /// Please note that PKs may not be updated
@@ -153,9 +136,7 @@ namespace DbLinq.Vendor
         /// <typeparam name="T"></typeparam>
         /// <param name="table"></param>
         /// <param name="rows"></param>
-        /// <param name="connection"></param>
-        void DoBulkInsert<T>(Data.Linq.Table<T> table, List<T> rows, IDbConnection connection) where T : class;
-
-        #endregion
+        /// <param name="transaction"></param>
+        void DoBulkInsert<T>(Data.Linq.Table<T> table, List<T> rows, int pageSize, IDbTransaction transaction) where T : class;
     }
 }

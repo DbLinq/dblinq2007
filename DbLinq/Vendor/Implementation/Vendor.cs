@@ -81,16 +81,7 @@ namespace DbLinq.Vendor.Implementation
             return ":P" + index;
         }
 
-        public virtual bool CanBulkInsert<T>(Data.Linq.Table<T> table) where T : class
-        {
-            return false;
-        }
-
-        public virtual void SetBulkInsert<T>(Data.Linq.Table<T> table, int pageSize) where T : class
-        {
-        }
-
-        public virtual void DoBulkInsert<T>(Data.Linq.Table<T> table, List<T> rows, IDbConnection conn) where T : class
+        public virtual void DoBulkInsert<T>(Data.Linq.Table<T> table, List<T> rows, int pageSize, IDbTransaction transaction) where T : class
         {
             throw new NotImplementedException();
         }

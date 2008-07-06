@@ -138,7 +138,7 @@ namespace DbLinq.Data.Linq
             get { return _queryProvider.ElementType; }
         }
 
-        
+
         Expression IQueryable.Expression
         {
             get { return Expression.Constant(this); } // do not change this to _queryProvider.Expression, Sugar doesn't fully handle QueryProviders by now
@@ -251,7 +251,7 @@ namespace DbLinq.Data.Linq
         }
 
         [DbLinqToDo]
-        public void Attach(TEntity entity,bool asModified)
+        public void Attach(TEntity entity, bool asModified)
         {
             throw new NotImplementedException();
         }
@@ -263,7 +263,7 @@ namespace DbLinq.Data.Linq
         }
 
         [DbLinqToDo]
-        public void AttachAll<TSubEntity>(IEnumerable<TSubEntity> entities, bool asModified) where TSubEntity:TEntity
+        public void AttachAll<TSubEntity>(IEnumerable<TSubEntity> entities, bool asModified) where TSubEntity : TEntity
         {
             throw new NotImplementedException();
         }
@@ -320,12 +320,12 @@ namespace DbLinq.Data.Linq
                 {
                     switch (failureMode)
                     {
-                        case ConflictMode.ContinueOnConflict:
-                            Trace.WriteLine("Table.SubmitChanges failed: " + e);
-                            exceptions.Add(e);
-                            break;
-                        case ConflictMode.FailOnFirstConflict:
-                            throw;
+                    case ConflictMode.ContinueOnConflict:
+                        Trace.WriteLine("Table.SubmitChanges failed: " + e);
+                        exceptions.Add(e);
+                        break;
+                    case ConflictMode.FailOnFirstConflict:
+                        throw;
                     }
                 }
             }
@@ -335,23 +335,16 @@ namespace DbLinq.Data.Linq
         internal void _ProcessInsert(ConflictMode failureMode, IList<Exception> exceptions)
         {
             var toInsert = new List<TEntity>(Context.InsertList.Enumerate<TEntity>());
-            if (Context.Vendor.CanBulkInsert(this))
-            {
-                Context.Vendor.DoBulkInsert(this, toInsert, Context.Connection);
-                Context.InsertList.RemoveRange(toInsert);
-            }
-            else
-            {
-                _Process(toInsert,
-                    delegate(TEntity t, QueryContext queryContext)
-                    {
-                        var insertQuery = Context.QueryBuilder.GetInsertQuery(t, queryContext);
-                        Context.QueryRunner.Insert(t, insertQuery);
 
-                        Context.UnregisterInsert(t, typeof(TEntity));
-                        Context.RegisterUpdate(t, typeof(TEntity));
-                    }, failureMode, exceptions);
-            }
+            _Process(toInsert,
+                delegate(TEntity t, QueryContext queryContext)
+                {
+                    var insertQuery = Context.QueryBuilder.GetInsertQuery(t, queryContext);
+                    Context.QueryRunner.Insert(t, insertQuery);
+
+                    Context.UnregisterInsert(t, typeof(TEntity));
+                    Context.RegisterUpdate(t, typeof(TEntity));
+                }, failureMode, exceptions);
         }
 
         [DBLinqExtended]
