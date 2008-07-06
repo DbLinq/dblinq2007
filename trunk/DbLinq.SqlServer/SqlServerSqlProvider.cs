@@ -24,11 +24,14 @@
 // 
 #endregion
 
+using DbLinq.Util;
 using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.SqlServer
 {
     public class SqlServerSqlProvider : SqlProvider
     {
+        protected override char SafeNameStartQuote { get { return '['; } }
+        protected override char SafeNameEndQuote { get { return ']'; } }
     }
 }

@@ -427,7 +427,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         public virtual DirectQuery GetDirectQuery(string sql, QueryContext queryContext)
         {
             // TODO cache
-            var safeSql = queryContext.DataContext.Vendor.GetSqlCaseSafeQuery(sql);
+            var safeSql = queryContext.DataContext.Vendor.SqlProvider.GetSafeQuery(sql);
             var parameters = new List<string>();
             var parameterizedSql = parameterIdentifierEx.Replace(safeSql, delegate(Match e)
             {

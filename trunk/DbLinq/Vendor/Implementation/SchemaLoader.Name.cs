@@ -35,22 +35,22 @@ namespace DbLinq.Vendor.Implementation
     {
         protected virtual void CheckNamesCaseSafety(Database schema)
         {
-            schema.Name = Vendor.GetSqlFieldSafeName(schema.Name);
+            schema.Name = Vendor.SqlProvider.GetSafeName(schema.Name);
             foreach (var table in schema.Table)
             {
-                table.Name = Vendor.GetSqlFieldSafeName(table.Name);
+                table.Name = Vendor.SqlProvider.GetSafeName(table.Name);
                 foreach (var column in table.Type.Columns)
                 {
-                    column.Name = Vendor.GetSqlFieldSafeName(column.Name);
+                    column.Name = Vendor.SqlProvider.GetSafeName(column.Name);
                 }
                 foreach (var association in table.Type.Associations)
                 {
-                    association.Name = Vendor.GetSqlFieldSafeName(association.Name);
+                    association.Name = Vendor.SqlProvider.GetSafeName(association.Name);
                 }
             }
             foreach (var storedProcedure in schema.Functions)
             {
-                storedProcedure.Name = Vendor.GetSqlFieldSafeName(storedProcedure.Name);
+                storedProcedure.Name = Vendor.SqlProvider.GetSafeName(storedProcedure.Name);
             }
         }
 

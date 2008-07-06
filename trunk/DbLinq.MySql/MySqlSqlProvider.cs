@@ -27,6 +27,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DbLinq.Util;
 using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.MySql
@@ -35,7 +36,7 @@ namespace DbLinq.MySql
     {
         public override string GetParameterName(string nameBase)
         {
-            return string.Format("?{0}", nameBase.Trim('"'));
+            return string.Format("?{0}", nameBase);
         }
 
         protected override string GetLiteralCount(string a)
@@ -62,6 +63,20 @@ namespace DbLinq.MySql
                 literalValuesLists.Add(string.Format("({0})", string.Join(", ", values.ToArray())));
             insertBuilder.Append(string.Join(", ", literalValuesLists.ToArray()));
             return insertBuilder.ToString();
+        }
+
+        protected override char SafeNameStartQuote { get { return '`'; } }
+        protected override char SafeNameEndQuote { get { return '`'; } }
+
+        /// <summary>
+        /// MySQL is case insensitive, and names always specify a case (there is no default casing)
+        /// However, tables appear to be full lowercase
+        /// </summary>
+        /// <param name="dbName"></param>
+        /// <returns></returns>
+        protected override bool IsNameCaseSafe(string dbName)
+        {
+            return true;
         }
     }
 }

@@ -44,7 +44,7 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
     {
         public const ExpressionType ExpressionType = (ExpressionType)CustomExpressionType.ObjectOutputParameter;
 
-        public string Alias { get; set; }
+        public string Alias { get; private set; }
         public Type ValueType { get; private set; }
 
         private readonly Delegate setValueDelegate;

@@ -45,12 +45,6 @@ namespace DbLinq.MySql
         protected readonly MySqlSqlProvider sqlProvider = new MySqlSqlProvider();
         public override ISqlProvider SqlProvider { get { return sqlProvider; } }
 
-        protected override string MakeNameSafe(string namePart)
-        {
-            return namePart.Enquote('`');
-        }
-
-
         /// <summary>
         /// for large number of rows, we want to use BULK INSERT, 
         /// because it does not fill up the translation log.
@@ -282,17 +276,6 @@ namespace DbLinq.MySql
                 }
             }
             return outParamValues;
-        }
-
-        /// <summary>
-        /// MySQL is case insensitive, and names always specify a case (there is no default casing)
-        /// However, tables appear to be full lowercase
-        /// </summary>
-        /// <param name="dbName"></param>
-        /// <returns></returns>
-        protected override bool IsNameCaseSafe(string dbName)
-        {
-            return true;
         }
     }
 }

@@ -243,5 +243,18 @@ namespace DbLinq.Vendor
         /// <param name="inputPKValues">PK values for reference</param>
         /// <returns></returns>
         string GetDelete(string table, IList<string> inputPKColumns, IList<string> inputPKValues);
+
+        /// <summary>
+        /// given 'User', return '[User]' to prevent a SQL keyword conflict
+        /// </summary>
+        /// <param name="name"></param>
+        string GetSafeName(string name);
+
+        /// <summary>
+        /// Returns a case safe query, converting quoted names &lt;&ltMixedCaseName>> to "MixedCaseName"
+        /// </summary>
+        /// <param name="sqlString"></param>
+        /// <returns></returns>
+        string GetSafeQuery(string sqlString);
     }
 }
