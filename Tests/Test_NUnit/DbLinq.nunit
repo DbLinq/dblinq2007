@@ -8,6 +8,7 @@
     <assembly path="bin\Test_NUnit_Pgsql.exe" />
     <assembly path="bin\Test_NUnit_MsSql.dll" />
     <assembly path="bin\Test_NUnit_MsSql_Strict.dll" />
+    <assembly path="bin\Test_NUnit_OraODP.exe" />
   </Config>
   <Config name="Release" binpathtype="Auto" />
 </NUnitProject>
