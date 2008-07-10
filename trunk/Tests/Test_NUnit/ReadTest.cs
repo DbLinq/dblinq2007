@@ -258,6 +258,18 @@ namespace Test_NUnit_Ingres
             Assert.AreEqual(productCount, 1, "Expected one pen, got count=" + productCount);
         }
 
+        [Test]
+        public void C9_OrderByLeftJoin()
+        {
+            Northwind db = CreateDB();
+            var q = from p in db.Orders
+                    orderby p.Customer.City
+                    select p;
+            int count = q.ToList().Count();
+            int ordcount = db.Orders.Count();
+            Assert.AreEqual(ordcount, count);
+        }
+
         #endregion
 
         #region region D - select first or last - calls IQueryable.Execute instead of GetEnumerator
