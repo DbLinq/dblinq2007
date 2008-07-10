@@ -33,7 +33,7 @@ using System.Data.Linq.Mapping;
 
 #if !MONO_STRICT
 using nwind;
-using DataLinq=DbLinq.Data.Linq;
+using DataLinq = DbLinq.Data.Linq;
 #else
 using MsNorthwind;
 using System.Data.Linq;
@@ -199,7 +199,7 @@ namespace Test_NUnit_Ingres
         {
             //this should generate a LEFT JOIN statement, but currently does not.
             Northwind db = CreateDB();
-            
+
             var query = from e in db.Employees
                         select new
                         {
@@ -208,7 +208,7 @@ namespace Test_NUnit_Ingres
                         };
 
             var list = query.ToList();
-            Assert.IsTrue(list.Count >= 2); // PC: differences on databases
+            Assert.AreEqual(3, list.Count);
         }
 
 
@@ -461,7 +461,6 @@ namespace Test_NUnit_Ingres
             public class CustomerDerivedClass2 : CustomerDerivedClass { }
 
             public DataLinq.Table<CustomerDerivedClass> ChildCustomers
-
             {
                 get { return base.GetTable<CustomerDerivedClass>(); }
             }
