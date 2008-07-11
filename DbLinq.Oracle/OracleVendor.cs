@@ -30,11 +30,13 @@ using System.Collections.Generic;
 using System.Text;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
+using DbLinq.Data.Linq.SqlClient;
 using DbLinq.Vendor;
 using DataContext = DbLinq.Data.Linq.DataContext;
 
 namespace DbLinq.Oracle
 {
+    [Provider(typeof(OracleProvider))]
     public class OracleVendor : Vendor.Implementation.Vendor
     {
         public override string VendorName { get { return "Oracle"; } }

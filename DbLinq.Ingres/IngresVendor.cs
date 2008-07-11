@@ -31,6 +31,7 @@ using System.Data.Linq.Mapping;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
+using DbLinq.Data.Linq.SqlClient;
 using DbLinq.Util;
 using DataContext = DbLinq.Data.Linq.DataContext;
 using DbLinq.Vendor;
@@ -40,6 +41,7 @@ namespace DbLinq.Ingres
     /// <summary>
     /// Ingres - specific code.
     /// </summary>
+    [Provider(typeof(IngresProvider))]
     public class IngresVendor : Vendor.Implementation.Vendor
     {
         public override string VendorName { get { return "Ingres"; } }

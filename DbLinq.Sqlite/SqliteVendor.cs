@@ -31,6 +31,7 @@ using System.Data;
 using System.Data.Linq.Mapping;
 using System.Reflection;
 using DbLinq.Data.Linq;
+using DbLinq.Data.Linq.SqlClient;
 using DbLinq.Logging;
 using DbLinq.Sqlite;
 using DbLinq.Util;
@@ -41,6 +42,7 @@ namespace DbLinq.Sqlite
     /// <summary>
     /// SQLite - specific code.
     /// </summary>
+    [Provider(typeof(SqliteProvider))]
     public class SqliteVendor : Vendor.Implementation.Vendor
     {
         public override string VendorName { get { return "SQLite"; } }
