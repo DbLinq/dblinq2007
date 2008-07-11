@@ -54,21 +54,24 @@ namespace DbLinq.Data.Linq.Implementation
         public IVendor FindVendorByProviderType(Type providerType)
         {
             Type vendorType;
-            if (!_vendorByType.TryGetValue(providerType, out vendorType))
+            lock (_vendorByType)
             {
-                foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+                if (!_vendorByType.TryGetValue(providerType, out vendorType))
                 {
-                    foreach (var type in assembly.GetTypes())
+                    foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
                     {
-                        if (typeof(IVendor).IsAssignableFrom(type))
+                        foreach (var type in assembly.GetTypes())
                         {
-                            var providerAttribute = type.GetAttribute<ProviderAttribute>();
-                            if (providerAttribute != null)
-                                _vendorByType[providerAttribute.Type] = type;
+                            if (typeof(IVendor).IsAssignableFrom(type))
+                            {
+                                var providerAttribute = type.GetAttribute<ProviderAttribute>();
+                                if (providerAttribute != null)
+                                    _vendorByType[providerAttribute.Type] = type;
+                            }
                         }
                     }
+                    _vendorByType.TryGetValue(providerType, out vendorType);
                 }
-                _vendorByType.TryGetValue(providerType, out vendorType);
             }
             if (vendorType != null)
                 return (IVendor)Activator.CreateInstance(vendorType);
