@@ -74,8 +74,6 @@ namespace DbLinq.Vendor.Implementation
             throw new NotImplementedException();
         }
 
-        // TODO: we may split this big function is several parts, so we can override them in specific vendors
-
         public abstract string VendorName { get; }
 
         public abstract IExecuteResult ExecuteMethodCall(DataContext context, MethodInfo method, params object[] sqlParams);

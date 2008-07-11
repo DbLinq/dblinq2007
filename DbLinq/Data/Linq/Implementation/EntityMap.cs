@@ -45,11 +45,15 @@ namespace DbLinq.Data.Linq.Implementation
     /// </summary>
     internal class EntityMap : IEntityMap
     {
-        private IDictionary<IdentityKey, object> entities = new Dictionary<IdentityKey, object>();
+        private readonly IDictionary<IdentityKey, object> entities = new Dictionary<IdentityKey, object>();
 
         public IEnumerable<IdentityKey> Keys
         {
-            get { return entities.Keys; }
+            get
+            {
+                lock (entities)
+                    return entities.Keys;
+            }
         }
 
         /// <summary>
@@ -65,18 +69,21 @@ namespace DbLinq.Data.Linq.Implementation
             get
             {
                 object o;
-                entities.TryGetValue(key, out o);
+                lock (entities)
+                    entities.TryGetValue(key, out o);
                 return o;
             }
             set
             {
-                entities[key] = value;
+                lock (entities)
+                    entities[key] = value;
             }
         }
 
         public void Remove(IdentityKey key)
         {
-            entities.Remove(key);
+            lock (entities)
+                entities.Remove(key);
         }
     }
 }
