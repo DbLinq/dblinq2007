@@ -166,7 +166,7 @@ namespace DbLinq.Data.Linq
 
         public ITable GetTable(Type type)
         {
-            lock (this)
+            lock (_tableMap)
             {
                 string tableName = type.FullName;
                 ITable tableExisting;
@@ -215,23 +215,26 @@ namespace DbLinq.Data.Linq
             using (DatabaseContext.OpenConnection()) //ConnMgr will close connection for us
             using (IDatabaseTransaction transactionMgr = DatabaseContext.Transaction())
             {
-                foreach (IManagedTable table in _tableMap.Values)
+                lock (_tableMap)
                 {
-                    try
+                    foreach (IManagedTable table in _tableMap.Values)
                     {
-                        List<Exception> innerExceptions = table.SaveAll(failureMode);
-                        exceptions.AddRange(innerExceptions);
-                    }
-                    catch (Exception ex)
-                    {
-                        Trace.WriteLine("Context.SubmitChanges failed: " + ex.Message);
-                        switch (failureMode)
+                        try
                         {
-                        case ConflictMode.ContinueOnConflict:
-                            exceptions.Add(ex);
-                            break;
-                        case ConflictMode.FailOnFirstConflict:
-                            throw;
+                            List<Exception> innerExceptions = table.SaveAll(failureMode);
+                            exceptions.AddRange(innerExceptions);
+                        }
+                        catch (Exception ex)
+                        {
+                            Trace.WriteLine("Context.SubmitChanges failed: " + ex.Message);
+                            switch (failureMode)
+                            {
+                                case ConflictMode.ContinueOnConflict:
+                                    exceptions.Add(ex);
+                                    break;
+                                case ConflictMode.FailOnFirstConflict:
+                                    throw;
+                            }
                         }
                     }
                 }
@@ -268,10 +271,13 @@ namespace DbLinq.Data.Linq
         internal IIdentityReader _GetIdentityReader(Type t)
         {
             IIdentityReader identityReader;
-            if (!identityReaders.TryGetValue(t, out identityReader))
+            lock (identityReaders)
             {
-                identityReader = identityReaderFactory.GetReader(t, this);
-                identityReaders[t] = identityReader;
+                if (!identityReaders.TryGetValue(t, out identityReader))
+                {
+                    identityReader = identityReaderFactory.GetReader(t, this);
+                    identityReaders[t] = identityReader;
+                }
             }
             return identityReader;
         }

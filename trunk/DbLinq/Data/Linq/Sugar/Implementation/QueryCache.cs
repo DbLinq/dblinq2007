@@ -70,27 +70,31 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         public SelectQuery GetFromSelectCache(ExpressionChain expressions)
         {
             SelectQuery selectQuery;
-            selectQueries.TryGetValue(expressions, out selectQuery);
+            lock (selectQueries)
+                selectQueries.TryGetValue(expressions, out selectQuery);
             return selectQuery;
         }
 
         public void SetInSelectCache(ExpressionChain expressions, SelectQuery sqlSelectQuery)
         {
-            selectQueries[expressions] = sqlSelectQuery;
+            lock (selectQueries)
+                selectQueries[expressions] = sqlSelectQuery;
         }
 
         public Delegate GetFromTableReaderCache(Type tableType, IList<string> columns)
         {
             var signature = new TableReaderSignature(tableType, columns);
             Delegate tableReader;
-            tableReaders.TryGetValue(signature, out tableReader);
+            lock (tableReaders)
+                tableReaders.TryGetValue(signature, out tableReader);
             return tableReader;
         }
 
         public void SetInTableReaderCache(Type tableType, IList<string> columns, Delegate tableReader)
         {
             var signature = new TableReaderSignature(tableType, columns);
-            tableReaders[signature] = tableReader;
+            lock (tableReaders)
+                tableReaders[signature] = tableReader;
         }
     }
 }

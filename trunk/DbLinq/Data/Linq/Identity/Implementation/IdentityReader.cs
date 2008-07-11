@@ -47,16 +47,19 @@ namespace DbLinq.Data.Linq.Identity.Implementation
 
         public IdentityKey GetIdentityKey(object entity)
         {
-            // no PK? --> null as identity (==we can not collect it)
-            if (keyMembers.Count == 0)
-                return null;
-            var keys = new List<object>();
-            foreach (var keyMember in keyMembers)
+            lock (keyMembers)
             {
-                var key = keyMember.GetMemberValue(entity);
-                keys.Add(key);
+                // no PK? --> null as identity (==we can not collect it)
+                if (keyMembers.Count == 0)
+                    return null;
+                var keys = new List<object>();
+                foreach (var keyMember in keyMembers)
+                {
+                    var key = keyMember.GetMemberValue(entity);
+                    keys.Add(key);
+                }
+                return new IdentityKey(type, keys);
             }
-            return new IdentityKey(type, keys);
         }
 
         public IdentityReader(Type t, DataContext dataContext)

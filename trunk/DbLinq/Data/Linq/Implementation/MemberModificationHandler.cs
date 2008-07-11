@@ -141,35 +141,41 @@ namespace DbLinq.Data.Linq.Implementation
             // raw data, we keep a snapshot of the current state
             else
             {
-                if (!rawDataEntities.ContainsKey(entity) && entityOriginalState != null)
-                    rawDataEntities[entity] = GetEntityRawData(entityOriginalState, metaModel);
+                lock (rawDataEntities)
+                {
+                    if (!rawDataEntities.ContainsKey(entity) && entityOriginalState != null)
+                        rawDataEntities[entity] = GetEntityRawData(entityOriginalState, metaModel);
+                }
             }
         }
 
         private void RegisterNotification(object entity, object entityOriginalState, MetaModel metaModel)
         {
-            if (modifiedProperties.ContainsKey(entity))
-                return;
-            modifiedProperties[entity] = new Dictionary<string, MemberInfo>();
-            if (entity is INotifyPropertyChanging)
+            lock (modifiedProperties)
             {
-                ((INotifyPropertyChanging)entity).PropertyChanging += (OnPropertyChangingEvent);
-            }
-            else if (entity is INotifyPropertyChanged)
-            {
-                ((INotifyPropertyChanged)entity).PropertyChanged += (OnPropertyChangedEvent);
-            }
-            // then check all properties, and note them as changed if they already did
-            if (!ReferenceEquals(entity, entityOriginalState)) // only if we specified another original entity
-            {
-                foreach (var dataMember in metaModel.GetTable(entity.GetType()).RowType.PersistentDataMembers)
+                if (modifiedProperties.ContainsKey(entity))
+                    return;
+                modifiedProperties[entity] = new Dictionary<string, MemberInfo>();
+                if (entity is INotifyPropertyChanging)
                 {
-                    var memberInfo = dataMember.Member;
-                    if (entityOriginalState == null ||
-                        IsPropertyModified(memberInfo.GetMemberValue(entity),
-                                           memberInfo.GetMemberValue(entityOriginalState)))
+                    ((INotifyPropertyChanging)entity).PropertyChanging += (OnPropertyChangingEvent);
+                }
+                else if (entity is INotifyPropertyChanged)
+                {
+                    ((INotifyPropertyChanged)entity).PropertyChanged += (OnPropertyChangedEvent);
+                }
+                // then check all properties, and note them as changed if they already did
+                if (!ReferenceEquals(entity, entityOriginalState)) // only if we specified another original entity
+                {
+                    foreach (var dataMember in metaModel.GetTable(entity.GetType()).RowType.PersistentDataMembers)
                     {
-                        SetPropertyChanged(entity, memberInfo.Name);
+                        var memberInfo = dataMember.Member;
+                        if (entityOriginalState == null ||
+                            IsPropertyModified(memberInfo.GetMemberValue(entity),
+                                               memberInfo.GetMemberValue(entityOriginalState)))
+                        {
+                            SetPropertyChanged(entity, memberInfo.Name);
+                        }
                     }
                 }
             }
@@ -206,16 +212,22 @@ namespace DbLinq.Data.Linq.Implementation
                 UnregisterNotification(entity);
             else
             {
-                if (rawDataEntities.ContainsKey(entity))
-                    rawDataEntities.Remove(entity);
+                lock (rawDataEntities)
+                {
+                    if (rawDataEntities.ContainsKey(entity))
+                        rawDataEntities.Remove(entity);
+                }
             }
         }
 
         private void UnregisterNotification(object entity)
         {
-            if (!modifiedProperties.ContainsKey(entity))
-                return;
-            modifiedProperties.Remove(entity);
+            lock (modifiedProperties)
+            {
+                if (!modifiedProperties.ContainsKey(entity))
+                    return;
+                modifiedProperties.Remove(entity);
+            }
             if (entity is INotifyPropertyChanging)
             {
                 ((INotifyPropertyChanging)entity).PropertyChanging -= OnPropertyChangingEvent;
@@ -234,7 +246,10 @@ namespace DbLinq.Data.Linq.Implementation
         /// <param name="propertyName"></param>
         private void SetPropertyChanged(object entity, string propertyName)
         {
-            modifiedProperties[entity][propertyName] = GetProperty(entity, propertyName);
+            lock (modifiedProperties)
+            {
+                modifiedProperties[entity][propertyName] = GetProperty(entity, propertyName);
+            }
         }
 
         /// <summary>
@@ -255,7 +270,10 @@ namespace DbLinq.Data.Linq.Implementation
 
         private bool IsNotifyingModified(object entity)
         {
-            return !modifiedProperties.ContainsKey(entity) || modifiedProperties[entity].Count > 0;
+            lock (modifiedProperties)
+            {
+                return !modifiedProperties.ContainsKey(entity) || modifiedProperties[entity].Count > 0;
+            }
         }
 
         private bool IsPropertyModified(object p1, object p2)
@@ -265,22 +283,24 @@ namespace DbLinq.Data.Linq.Implementation
 
         private bool IsRawModified(object entity, MetaModel metaModel)
         {
-            // if not present, maybe it was inserted (or set to dirty)
-            // TODO: this will be useless when we will support the differential properties
-            if (!rawDataEntities.ContainsKey(entity))
-                return true;
-
-            IDictionary<string, object> originalData = rawDataEntities[entity];
-            IDictionary<string, object> currentData = GetEntityRawData(entity, metaModel);
-
-            foreach (string key in originalData.Keys)
+            lock (rawDataEntities)
             {
-                object originalValue = originalData[key];
-                object currentValue = currentData[key];
-                if (IsPropertyModified(originalValue, currentValue))
+                // if not present, maybe it was inserted (or set to dirty)
+                // TODO: this will be useless when we will support the differential properties
+                if (!rawDataEntities.ContainsKey(entity))
                     return true;
-            }
 
+                IDictionary<string, object> originalData = rawDataEntities[entity];
+                IDictionary<string, object> currentData = GetEntityRawData(entity, metaModel);
+
+                foreach (string key in originalData.Keys)
+                {
+                    object originalValue = originalData[key];
+                    object currentValue = currentData[key];
+                    if (IsPropertyModified(originalValue, currentValue))
+                        return true;
+                }
+            }
             return false;
         }
 
@@ -313,11 +333,14 @@ namespace DbLinq.Data.Linq.Implementation
 
         protected IList<MemberInfo> GetNotifyingModifiedProperties(object entity, MetaModel metaModel)
         {
-            IDictionary<string, MemberInfo> properties;
-            // if we don't have it, it is fully dirty
-            if (!modifiedProperties.TryGetValue(entity, out properties))
-                return GetAllColumnProperties(entity, metaModel);
-            return new List<MemberInfo>(properties.Values);
+            lock (modifiedProperties)
+            {
+                IDictionary<string, MemberInfo> properties;
+                // if we don't have it, it is fully dirty
+                if (!modifiedProperties.TryGetValue(entity, out properties))
+                    return GetAllColumnProperties(entity, metaModel);
+                return new List<MemberInfo>(properties.Values);
+            }
         }
 
         protected IList<MemberInfo> GetRawModifiedProperties(object entity, MetaModel metaModel)
@@ -325,8 +348,11 @@ namespace DbLinq.Data.Linq.Implementation
             var properties = new List<MemberInfo>();
 
             IDictionary<string, object> originalData;
-            if (!rawDataEntities.TryGetValue(entity, out originalData))
-                return GetAllColumnProperties(entity, metaModel);
+            lock (rawDataEntities)
+            {
+                if (!rawDataEntities.TryGetValue(entity, out originalData))
+                    return GetAllColumnProperties(entity, metaModel);
+            }
             IDictionary<string, object> currentData = GetEntityRawData(entity, metaModel);
 
             foreach (string key in currentData.Keys)
@@ -350,12 +376,18 @@ namespace DbLinq.Data.Linq.Implementation
 
         private void ClearNotifyingModified(object entity)
         {
-            modifiedProperties[entity] = new Dictionary<string, MemberInfo>();
+            lock (modifiedProperties)
+            {
+                modifiedProperties[entity] = new Dictionary<string, MemberInfo>();
+            }
         }
 
         private void ClearRawModified(object entity, MetaModel metaModel)
         {
-            rawDataEntities[entity] = GetEntityRawData(entity, metaModel);
+            lock (rawDataEntities)
+            {
+                rawDataEntities[entity] = GetEntityRawData(entity, metaModel);
+            }
         }
 
         private PropertyInfo GetProperty(object entity, string propertyName)

@@ -48,11 +48,11 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
 {
     internal class SqlBuilder : ISqlBuilder
     {
-        public ExpressionQualifier ExpressionQualifier { get; set; }
+        public IExpressionQualifier ExpressionQualifier { get; set; }
 
         public SqlBuilder()
         {
-            ExpressionQualifier = ObjectFactory.Get<ExpressionQualifier>();
+            ExpressionQualifier = ObjectFactory.Get<IExpressionQualifier>();
         }
 
         /// <summary>
