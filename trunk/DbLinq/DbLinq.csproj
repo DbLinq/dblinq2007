@@ -69,6 +69,7 @@
     <Compile Include="Data\Linq\DBLinqExtendedAttributte.cs" />
     <Compile Include="Data\Linq\EntityRef.cs" />
     <Compile Include="Data\Linq\EntitySet.cs" />
+    <Compile Include="Data\Linq\Implementation\VendorProvider.cs" />
     <Compile Include="Data\Linq\ITable.Extended.cs" />
     <Compile Include="Data\Linq\DataContext.cs" />
     <Compile Include="Data\Linq\DataContext.Extended.cs" />
@@ -85,6 +86,7 @@
     <Compile Include="Data\Linq\Implementation\MemberModificationHandler.cs" />
     <Compile Include="Data\Linq\Implementation\QueryProvider.cs" />
     <Compile Include="Data\Linq\ITable.cs" />
+    <Compile Include="Data\Linq\IVendorProvider.cs" />
     <Compile Include="Data\Linq\Mapping\AttributedAbstractMetaDataMember.cs" />
     <Compile Include="Data\Linq\Mapping\AttributedAssociationMetaDataMember.cs" />
     <Compile Include="Data\Linq\Mapping\AttributedColumnMetaDataMember.cs" />
@@ -95,6 +97,12 @@
     <Compile Include="Data\Linq\Mapping\AttributedMetaType.cs" />
     <Compile Include="Data\Linq\Mapping\AttributeMappingSource.cs" />
     <Compile Include="Data\Linq\Mapping\MappingContext.cs" />
+    <Compile Include="Data\Linq\SqlClient\SqlServerProvider.cs" />
+    <Compile Include="Data\Linq\SqlClient\SqliteProvider.cs" />
+    <Compile Include="Data\Linq\SqlClient\OracleProvider.cs" />
+    <Compile Include="Data\Linq\SqlClient\PostgreSqlProvider.cs" />
+    <Compile Include="Data\Linq\SqlClient\MySqlProvider.cs" />
+    <Compile Include="Data\Linq\SqlClient\IngresProvider.cs" />
     <Compile Include="Data\Linq\Sugar\BuilderContext.cs" />
     <Compile Include="Data\Linq\Sugar\DeleteQuery.cs" />
     <Compile Include="Data\Linq\Sugar\DirectQuery.cs" />

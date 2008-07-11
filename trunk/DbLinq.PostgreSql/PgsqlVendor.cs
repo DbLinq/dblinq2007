@@ -30,6 +30,7 @@ using System.Linq;
 using System.Data.Linq.Mapping;
 using System.Reflection;
 using System.Collections.Generic;
+using DbLinq.Data.Linq.SqlClient;
 using DbLinq.Logging;
 using DbLinq.PostgreSql;
 using DbLinq.Util;
@@ -41,6 +42,7 @@ namespace DbLinq.PostgreSql
     /// <summary>
     /// PostgreSQL - specific code.
     /// </summary>
+    [Provider(typeof(PostgreSqlProvider))]
     public class PgsqlVendor : Vendor.Implementation.Vendor
     {
         public override string VendorName { get { return "PostgreSQL"; } }

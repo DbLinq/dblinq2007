@@ -101,27 +101,33 @@ namespace DbLinq.Data.Linq
         [DBLinqExtended]
         internal virtual MappingContext _MappingContext { get; set; }
 
+        [DBLinqExtended]
+        internal IVendorProvider _VendorProvider { get; set; }
 
         [DbLinqToDo]
         public DataContext(IDbConnection connection, MappingSource mapping)
         {
             Init(new DatabaseContext(connection), mapping, null);
         }
+
         [DbLinqToDo]
         public DataContext(IDbConnection connection)
         {
             Init(new DatabaseContext(connection), null, null);
         }
+
         [DbLinqToDo]
         public DataContext(string fileOrServerOrConnection, MappingSource mapping)
         {
             throw new NotImplementedException();
         }
+
         [DbLinqToDo]
         public DataContext(string fileOrServerOrConnection)
         {
             throw new NotImplementedException();
         }
+
         private void Init(IDatabaseContext databaseContext, MappingSource mappingSource, IVendor vendor)
         {
             if (databaseContext == null || vendor == null)
@@ -140,11 +146,17 @@ namespace DbLinq.Data.Linq
             identityReaderFactory = ObjectFactory.Get<IIdentityReaderFactory>();
 
             _MappingContext = new MappingContext();
+            _VendorProvider = ObjectFactory.Get<IVendorProvider>();
 
             // initialize the mapping information
             if (mappingSource == null)
                 mappingSource = new AttributeMappingSource();
             Mapping = mappingSource.GetModel(GetType());
+        }
+
+        private IVendor VendorFromProviderType(Type providerType)
+        {
+            return _VendorProvider.FindVendorByProviderType(providerType);
         }
 
         public Table<TEntity> GetTable<TEntity>() where TEntity : class

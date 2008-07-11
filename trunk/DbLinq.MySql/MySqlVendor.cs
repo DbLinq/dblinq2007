@@ -32,12 +32,14 @@ using System.Data.Linq.Mapping;
 using System.Reflection;
 using System.Data;
 using DbLinq.Data.Linq;
+using DbLinq.Data.Linq.SqlClient;
 using DbLinq.Logging;
 using DbLinq.Util;
 using DbLinq.Vendor;
 
 namespace DbLinq.MySql
 {
+    [Provider(typeof(MySqlProvider))]
     public class MySqlVendor : Vendor.Implementation.Vendor
     {
         public override string VendorName { get { return "MySQL"; } }

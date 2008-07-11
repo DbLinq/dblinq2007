@@ -31,6 +31,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Data;
 using System.Data.Linq.Mapping;
+using DbLinq.Data.Linq.SqlClient;
 using DbLinq.Util;
 using DbLinq.Vendor;
 using DataContext = DbLinq.Data.Linq.DataContext;
@@ -38,6 +39,7 @@ using ITable = DbLinq.Data.Linq.ITable;
 
 namespace DbLinq.SqlServer
 {
+    [Provider(typeof(SqlServerProvider))]
     public class SqlServerVendor : Vendor.Implementation.Vendor
     {
         public override string VendorName { get { return "SqlServer"; } }
