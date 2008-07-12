@@ -39,7 +39,7 @@ using ITable = DbLinq.Data.Linq.ITable;
 
 namespace DbLinq.SqlServer
 {
-    [Provider(typeof(SqlServerProvider))]
+    [Vendor(typeof(SqlServerProvider), typeof(Sql2000Provider), typeof(Sql2005Provider))]
     public class SqlServerVendor : Vendor.Implementation.Vendor
     {
         public override string VendorName { get { return "SqlServer"; } }

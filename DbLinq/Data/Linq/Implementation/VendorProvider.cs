@@ -64,9 +64,12 @@ namespace DbLinq.Data.Linq.Implementation
                         {
                             if (typeof(IVendor).IsAssignableFrom(type))
                             {
-                                var providerAttribute = type.GetAttribute<ProviderAttribute>();
-                                if (providerAttribute != null)
-                                    _vendorByType[providerAttribute.Type] = type;
+                                var vendorAttribute = type.GetAttribute<VendorAttribute>();
+                                if (vendorAttribute != null)
+                                {
+                                    foreach (var vendorProviderType in vendorAttribute.ProviderTypes)
+                                        _vendorByType[vendorProviderType] = type;
+                                }
                             }
                         }
                     }

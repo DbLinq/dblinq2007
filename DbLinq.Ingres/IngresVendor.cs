@@ -41,7 +41,7 @@ namespace DbLinq.Ingres
     /// <summary>
     /// Ingres - specific code.
     /// </summary>
-    [Provider(typeof(IngresProvider))]
+    [Vendor(typeof(IngresProvider))]
     public class IngresVendor : Vendor.Implementation.Vendor
     {
         public override string VendorName { get { return "Ingres"; } }
