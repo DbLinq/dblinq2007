@@ -30,7 +30,12 @@ namespace System.Data.Linq.SqlClient
 namespace DbLinq.Data.Linq.SqlClient
 #endif
 {
-    public class IngresProvider
+#if MONO_STRICT && !MONO_STRICT_EXTRA_DB_SUPPORT
+    internal
+#else
+    public
+#endif
+    class IngresProvider
     {
     }
 }
