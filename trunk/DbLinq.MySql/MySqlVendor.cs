@@ -39,7 +39,7 @@ using DbLinq.Vendor;
 
 namespace DbLinq.MySql
 {
-    [Provider(typeof(MySqlProvider))]
+    [Vendor(typeof(MySqlProvider))]
     public class MySqlVendor : Vendor.Implementation.Vendor
     {
         public override string VendorName { get { return "MySQL"; } }

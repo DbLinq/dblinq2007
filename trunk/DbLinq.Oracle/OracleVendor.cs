@@ -36,7 +36,7 @@ using DataContext = DbLinq.Data.Linq.DataContext;
 
 namespace DbLinq.Oracle
 {
-    [Provider(typeof(OracleProvider))]
+    [Vendor(typeof(OracleProvider))]
     public class OracleVendor : Vendor.Implementation.Vendor
     {
         public override string VendorName { get { return "Oracle"; } }
