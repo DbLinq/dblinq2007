@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		DbLinq1.vsmdi = DbLinq1.vsmdi
 		DbLinq2.vsmdi = DbLinq2.vsmdi
+		DbLinq3.vsmdi = DbLinq3.vsmdi
 		LocalTestRun.testrunconfig = LocalTestRun.testrunconfig
 	EndProjectSection
 EndProject
@@ -83,6 +84,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Data.Linq", "DbLinq\System.Data.Linq.csproj", "{97305421-3071-4175-AA3C-9A432CC28121}"
 EndProject
 Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = DbLinq3.vsmdi
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug - Mono Strict|Any CPU = Debug - Mono Strict|Any CPU
 		Debug|Any CPU = Debug|Any CPU

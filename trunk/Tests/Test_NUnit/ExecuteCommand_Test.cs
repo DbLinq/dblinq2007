@@ -26,6 +26,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
@@ -70,7 +71,7 @@ using System.Data.Linq;
         {
             Northwind db = CreateDB();
             //string sql = "SELECT count(*) FROM Northwind.Products";
-            int result = db.ExecuteCommand("SELECT count(*) FROM <<Products>>");
+            int result = db.ExecuteCommand("SELECT count(*) FROM [Products]");
             //long iResult = base.ExecuteScalar(sql);
             Assert.Greater(result, 0, "Expecting some rows in Products table, got:" + result);
         }
@@ -82,7 +83,7 @@ using System.Data.Linq;
         public void A3_ProductCount_Param()
         {
             Northwind db = CreateDB();
-            int result = db.ExecuteCommand("SELECT count(*) FROM <<Products>> WHERE <<ProductID>>>{0}", 3);
+            int result = db.ExecuteCommand("SELECT count(*) FROM [Products] WHERE [ProductID]>{0}", 3);
             //long iResult = base.ExecuteScalar(sql);
             Assert.Greater(result, 0, "Expecting some rows in Products table, got:" + result);
         }

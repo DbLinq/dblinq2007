@@ -86,9 +86,9 @@ namespace Test_NUnit_PostgreSql
         {
             Northwind db = CreateDB();
 #if !MONO_STRICT
-            // "<<Products>>" gets converted to "Products".
+            // "[Products]" gets converted to "Products".
             //This is a DbLinq-defined escape sequence, by Pascal.
-            db.ExecuteCommand("DELETE FROM <<Products>> WHERE <<ProductName>> like 'temp%'");
+            db.ExecuteCommand("DELETE FROM [Products] WHERE [ProductName] like 'temp%'");
 #endif
         }
     }
@@ -272,7 +272,7 @@ namespace Test_NUnit_PostgreSql
         public void G7_InsertTableWithStringPK()
         {
             Northwind db = CreateDB();
-            db.ExecuteCommand("DELETE FROM <<Customers>> WHERE <<CustomerID>>='TEMP_'");
+            db.ExecuteCommand("DELETE FROM [Customers] WHERE [CustomerID]='TEMP_'");
 
             Customer custTemp = new Customer
             {

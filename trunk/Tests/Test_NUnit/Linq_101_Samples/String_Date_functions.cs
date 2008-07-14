@@ -53,7 +53,11 @@ namespace Test_NUnit_Sqlite.Linq_101_Samples
 #elif INGRES
     namespace Test_NUnit_Ingres.Linq_101_Samples
 #elif MSSQL
+#if MONO_STRICT
+    namespace Test_NUnit_MsSql_Strict.Linq_101_Samples
+#else
     namespace Test_NUnit_MsSql.Linq_101_Samples
+#endif
 #else
 #error unknown target
 #endif

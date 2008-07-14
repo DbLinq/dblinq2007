@@ -24,6 +24,7 @@
 // 
 #endregion
 
+using System;
 using DbLinq.Util;
 using DbLinq.Vendor.Implementation;
 
@@ -33,5 +34,41 @@ namespace DbLinq.SqlServer
     {
         protected override char SafeNameStartQuote { get { return '['; } }
         protected override char SafeNameEndQuote { get { return ']'; } }
+
+        public override string GetParameterName(string nameBase)
+        {
+            return string.Format("@{0}", nameBase);
+        }
+
+        public override string GetLiteralLimit(string select, string limit)
+        {
+            var selectClause = "SELECT ";
+            if (select.StartsWith(selectClause))
+            {
+                var selectContents = select.Substring(selectClause.Length);
+                return string.Format("SELECT TOP ({0}) {1}", limit, selectContents);
+            }
+            throw new ArgumentException("S0051: Unknown select format");
+        }
+
+        protected override string GetLiteralCount(string a)
+        {
+            return string.Format("COUNT(*)");
+        }
+
+        protected override string GetLiteralConcat(string a, string b)
+        {
+            return string.Format("{0} + {1}", a, b);
+        }
+
+        protected override string GetLiteralStringToLower(string a)
+        {
+            return string.Format("LOWER({0})", a);
+        }
+
+        protected override string GetLiteralStringToUpper(string a)
+        {
+            return string.Format("UPPER({0})", a);
+        }
     }
 }

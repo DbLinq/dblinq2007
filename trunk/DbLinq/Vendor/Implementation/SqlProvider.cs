@@ -891,13 +891,16 @@ namespace DbLinq.Vendor.Implementation
             }
         }
 
-        private static Regex FieldIdentifierEx = new Regex(@"\<\<(?<var>[\w.]+)\>\>", RegexOptions.Singleline | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
+        private static readonly Regex _fieldIdentifierEx = new Regex(@"\[(?<var>[\w.]+)\]",
+                                                                     RegexOptions.Singleline |
+                                                                     RegexOptions.ExplicitCapture |
+                                                                     RegexOptions.Compiled);
 
         public virtual string GetSafeQuery(string sqlString)
         {
             if (sqlString == null)
                 return null;
-            return FieldIdentifierEx.Replace(sqlString, delegate(Match e)
+            return _fieldIdentifierEx.Replace(sqlString, delegate(Match e)
             {
                 string field = e.Groups[1].Value;
                 string safeField = GetSafeNamePart(field);

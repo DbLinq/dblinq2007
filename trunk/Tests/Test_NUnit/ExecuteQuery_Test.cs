@@ -47,12 +47,12 @@ namespace Test_NUnit_MsSql_Strict
             IList<Category> categories1 = (from c in db.Categories orderby c.CategoryName select c).ToList();
             IList<Category> categories2 = db.ExecuteQuery<Category>(
                 @"select 
-                        <<Description>>, 
-                        <<CategoryName>>, 
-                        <<Picture>>,
-                        <<CategoryID>>
-                    from <<Categories>>
-                     order by <<CategoryName>>").ToList();
+                        [Description], 
+                        [CategoryName], 
+                        [Picture],
+                        [CategoryID]
+                    from [Categories]
+                     order by [CategoryName]").ToList();
 
             Assert.AreEqual(categories1.Count, categories2.Count);
             for (int index = 0; index < categories2.Count; index++)
