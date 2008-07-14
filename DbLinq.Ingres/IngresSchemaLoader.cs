@@ -65,11 +65,11 @@ namespace DbLinq.Ingres
 
                 if (keyColRow.ConstraintType.Equals("P")) //'PRIMARY KEY'
                 {
-                    foreach (string pk_name in keyColRow.column_name_primaries)
-                    {
-                        DbLinq.Schema.Dbml.Column primaryKeyCol = table.Type.Columns.First(c => c.Name == pk_name);
+                    //foreach (string pk_name in keyColRow.column_name_primaries)
+                    //{
+                        DbLinq.Schema.Dbml.Column primaryKeyCol = table.Type.Columns.First(c => c.Name == keyColRow.ColumnName);
                         primaryKeyCol.IsPrimaryKey = true;
-                    }
+                    //}
                     continue;
                 }
 
