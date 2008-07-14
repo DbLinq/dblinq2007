@@ -41,12 +41,10 @@ namespace DbLinq.Ingres
         public override IList<IDataName> ReadTables(IDbConnection connectionString, string databaseName)
         {
             // note: the ReadDataNameAndSchema relies on information order
-            const string sql = @"
-SELECT table_name, table_owner
-FROM iitables 
-WHERE table_owner <> '$ingres' 
-            AND table_type in ('T', 'V')
-            AND table_name NOT LIKE 'iietab_%'";
+            const string sql = @"SELECT table_name, table_owner FROM iitables " + 
+                "WHERE table_owner <> '$ingres' " + 
+                "AND table_type in ('T', 'V') " + 
+                "AND table_name NOT LIKE 'ii%'";
 
             return DataCommand.Find<IDataName>(connectionString, sql, ReadDataNameAndSchema);
         }
