@@ -72,7 +72,7 @@ namespace DbLinq.Oracle
 
         //          SELECT * FROM (
         //          SELECT a.*, rownum RN FROM (
-        //          select c$.CustomerID, c$.CompanyName from Customers c$ order by c$.CUSTOMERID
+        //          select c$.CustomerID, c$.CompanyName from [Customers] c$ order by c$.CUSTOMERID
         //          ) a  WHERE rownum <=5
         //          ) WHERE rn >2
 

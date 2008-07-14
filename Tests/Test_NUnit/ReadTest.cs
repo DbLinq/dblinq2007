@@ -90,7 +90,7 @@ namespace Test_NUnit_Ingres
         {
             Northwind db = CreateDB();
             //string sql = @"SELECT count(*) FROM linqtestdb.Products WHERE ProductName='Pen'";
-            string sql = @"SELECT count(*) FROM <<Products>> WHERE <<ProductName>>='Pen'";
+            string sql = @"SELECT count(*) FROM [Products] WHERE [ProductName]='Pen'";
             long iResult = db.ExecuteCommand(sql);
             //long iResult = base.ExecuteScalar(sql);
             Assert.AreEqual(iResult, 1L, "Expecting one Pen in Products table, got:" + iResult + " (SQL:" + sql + ")");
@@ -485,8 +485,8 @@ namespace Test_NUnit_Ingres
         {
             Northwind db = CreateDB();
 
-            var res = db.ExecuteQuery<Pen>(@"SELECT <<ProductID>> as PenId FROM <<Products>> WHERE
-              <<ProductName>> ='Pen'").Single();
+            var res = db.ExecuteQuery<Pen>(@"SELECT [ProductID] AS PenId FROM [Products] WHERE
+              [ProductName] ='Pen'").Single();
             Assert.AreEqual(1, res.PenId);
         }
 
