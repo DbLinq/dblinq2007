@@ -39,12 +39,6 @@ namespace DbLinq.Ingres
         {
             public string TableSchema;
             public string TableName;
-            /// <summary>
-            /// e.g.
-            /// PRIMARY KEY (productid)
-            /// FOREIGN KEY (productid) REFERENCES "linquser".products(productid)
-            /// </summary>
-            public string TextSegment;
 
             /// <summary>
             /// P = PRIMARY KEY; R = FOREIGN KEY
@@ -53,18 +47,16 @@ namespace DbLinq.Ingres
 
             public override string ToString()
             {
-                return TextSegment;
+
+                return (ConstraintType == "P" ?
+                    "PK(" + TableName + "." + ColumnName + ")"
+                        :
+                    "FK(" + TableName + "." + ColumnName + " => " + ReferencedTableName + "." + ReferencedColumnName + ")");
             }
 
-            public string ConstraintName
-            {
-                get
-                {
-                    return TableSchema + "_" + TableName + "_" + ColumnName + "_" +
-                        ReferencedTableSchema + "_" + ReferencedTableName + "_" + ReferencedColumnName;
-                }
-            }
+            public string ConstraintName;
 
+            /*
             public string[] column_name_primaries
             {
                 get
@@ -81,78 +73,75 @@ namespace DbLinq.Ingres
                     return tmp;
                 }
             }
+             */
 
-            public string ColumnName
-            {
-                get
-                {
-                    string[] tmp = TextSegment.Split('(');
-                    return tmp[1].Substring(0, tmp[1].IndexOf(")"));
-                }
-            }
+            //public string[] column_name_primaries = new string[] { "", "" };
 
-            public string ReferencedColumnName
-            {
-                get
-                {
-                    string tmp = TextSegment
-                        .Substring(TextSegment.LastIndexOf("(") + 1);
-                    return tmp
-                        .Substring(0, tmp.IndexOf(")"));
-                }
-            }
+            public string ColumnName;
 
-            public string ReferencedTableSchema
-            {
-                get
-                {
-                    string tmp = TextSegment
-                        .Substring(TextSegment.IndexOf("\"") + 1);
-                    return tmp
-                        .Substring(0, tmp.IndexOf("\""));
-                }
-            }
+            public string ReferencedColumnName;
 
-            public string ReferencedTableName
-            {
-                get
-                {
-                    string tmp = TextSegment
-                        .Substring(TextSegment.IndexOf("\".") + 2);
-                    if (tmp.Contains("("))
-                    {
-                        return tmp
-                            .Substring(0, tmp.IndexOf("("));
-                    }
-                    return tmp;
-                }
-            }
+            public string ReferencedTableSchema;
+
+            public string ReferencedTableName;
 
         }
 
         protected virtual DataConstraint ReadContraint(IDataReader rdr)
         {
-            var contraint = new DataConstraint();
+            var constraint = new DataConstraint();
             int field = 0;
-            contraint.TableSchema = rdr.GetString(field++).Trim();
-            contraint.TableName = rdr.GetString(field++).Trim();
-            contraint.TextSegment = rdr.GetString(field++).Trim();
-            contraint.ConstraintType = rdr.GetString(field++).Trim();
-            return contraint;
+            constraint.ConstraintType = rdr.GetString(field++).Trim();
+            constraint.ConstraintName = rdr.GetString(field++).Trim();
+            constraint.TableSchema = rdr.GetString(field++).Trim();
+            constraint.TableName = rdr.GetString(field++).Trim();
+            constraint.ColumnName = rdr.GetString(field++).Trim();
+            constraint.ReferencedTableSchema = rdr.GetString(field++).Trim();
+            constraint.ReferencedTableName = rdr.GetString(field++).Trim();
+            constraint.ReferencedColumnName = rdr.GetString(field++).Trim();
+            return constraint;
         }
 
         protected virtual List<DataConstraint> ReadConstraints(IDbConnection conn, string db)
         {
             string sql = @"
-SELECT
-    schema_name,
-    table_name,
-    text_segment,
-    constraint_type
-FROM
-    iiconstraints
-WHERE
-    system_use = 'U'";
+                SELECT DISTINCT 
+		                c.constraint_type as constraint_type,
+		                c.constraint_name as constraint_name, 
+                        k.schema_name as schema_name,
+                        k.table_name as table_name,
+		                k.column_name AS column_name,
+                        '' as referenced_schema_name,
+                        '' as referenced_table_name,
+                        '' as referenced_column_name
+                FROM 
+		                iiconstraints c, 
+		                iikeys k 
+                WHERE 
+		                k.constraint_name = c.constraint_name AND 
+		                c.constraint_type = 'P'
+                UNION
+                SELECT DISTINCT
+		                c.constraint_type as constraint_type,
+                        p.constraint_name as constraint_name,
+                        p.schema_name as schema_name,
+                        p.table_name as table_name,
+                        p.column_name as column_name,
+                        f.schema_name as referenced_schema_name,
+                        f.table_name as referenced_table_name,
+                        f.column_name as referenced_column_name
+                FROM
+                        iikeys p,
+                        iiconstraints c,
+                        iiref_constraints rc,
+                        iikeys f
+                WHERE
+                        c.constraint_type = 'R' and
+                        c.constraint_name = rc.ref_constraint_name AND
+                        p.constraint_name = rc.unique_constraint_name AND
+                        f.constraint_name = rc.ref_constraint_name AND
+                        p.key_position = f.key_position
+                ";
 
             return DataCommand.Find<DataConstraint>(conn, sql, ReadContraint);
         }
