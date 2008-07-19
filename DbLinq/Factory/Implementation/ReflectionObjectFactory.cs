@@ -62,7 +62,7 @@ namespace DbLinq.Factory.Implementation
                            typeof(Uri).Assembly,            // System
                            typeof(Action).Assembly,         // System.Core
                            typeof(IDbConnection).Assembly,  // System.Data
-                           typeof(ITable).Assembly,         // System.Data.Linq
+                           //typeof(ITable).Assembly,         // System.Data.Linq
                            typeof(XmlDocument).Assembly     // System.Xml
                        };
         }

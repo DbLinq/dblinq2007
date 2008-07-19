@@ -85,13 +85,14 @@ namespace Test_NUnit
     /// </summary>
     public abstract class TestBase
     {
-        public ILogger Logger { get; set; }
         static bool doRecreate = true;
-
+#if !MONO_STRICT
+        public ILogger Logger { get; set; }
         public TestBase()
         {
             Logger = ObjectFactory.Get<ILogger>();
         }
+#endif
 
         public string DbServer
         {

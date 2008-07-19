@@ -130,14 +130,20 @@ namespace DbLinq.Data.Linq
 
         private void Init(IDatabaseContext databaseContext, MappingSource mappingSource, IVendor vendor)
         {
-            if (databaseContext == null || vendor == null)
+
+            if (databaseContext == null)
                 throw new ArgumentNullException("Null arguments");
 
             Logger = ObjectFactory.Get<ILogger>();
 
-            DatabaseContext = databaseContext;
-            Vendor = vendor;
+            _VendorProvider = ObjectFactory.Get<IVendorProvider>();
+            if (vendor == null)
+                Vendor = _VendorProvider.FindVendorByProviderType(typeof(Data.Linq.SqlClient.Sql2005Provider));
+            else
+                Vendor = vendor;
 
+            DatabaseContext = databaseContext;
+            
             MemberModificationHandler = ObjectFactory.Create<IMemberModificationHandler>(); // not a singleton: object is stateful
             QueryBuilder = ObjectFactory.Get<IQueryBuilder>();
             QueryRunner = ObjectFactory.Get<IQueryRunner>();
@@ -146,7 +152,6 @@ namespace DbLinq.Data.Linq
             identityReaderFactory = ObjectFactory.Get<IIdentityReaderFactory>();
 
             _MappingContext = new MappingContext();
-            _VendorProvider = ObjectFactory.Get<IVendorProvider>();
 
             // initialize the mapping information
             if (mappingSource == null)
@@ -154,10 +159,6 @@ namespace DbLinq.Data.Linq
             Mapping = mappingSource.GetModel(GetType());
         }
 
-        private IVendor VendorFromProviderType(Type providerType)
-        {
-            return _VendorProvider.FindVendorByProviderType(providerType);
-        }
 
         public Table<TEntity> GetTable<TEntity>() where TEntity : class
         {

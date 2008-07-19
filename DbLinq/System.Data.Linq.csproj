@@ -77,6 +77,7 @@
     <Compile Include="Data\Linq\Implementation\EntityMap.cs" />
     <Compile Include="Data\Linq\Implementation\MemberModificationHandler.cs" />
     <Compile Include="Data\Linq\Implementation\QueryProvider.cs" />
+    <Compile Include="Data\Linq\Implementation\VendorProvider.cs" />
     <Compile Include="Data\Linq\ITable.cs" />
     <Compile Include="Data\Linq\IVendorProvider.cs" />
     <Compile Include="Data\Linq\Mapping\AttributedAbstractMetaDataMember.cs" />
@@ -291,6 +292,16 @@
     <Compile Include="Vendor\Implementation\SchemaLoader.cs" />
     <Compile Include="Vendor\Implementation\Vendor.cs" />
     <Compile Include="Vendor\Implementation\SqlProvider.cs" />
+    <Compile Include="..\DbLinq.SqlServer\SqlServerSqlProvider.cs">
+      <Link>Vendors\DbLinq.SqlServer\SqlServerSqlProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\DbLinq.SqlServer\SqlServerTypeConversions.cs">
+      <Link>Vendors\DbLinq.SqlServer\SqlServerTypeConversions.cs</Link>
+    </Compile>
+    <Compile Include="..\DbLinq.SqlServer\SqlServerVendor.cs">
+      <Link>Vendors\DbLinq.SqlServer\SqlServerVendor.cs</Link>
+    </Compile>
+    <Compile Include="Vendor\VendorAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\DbLinq.snk">

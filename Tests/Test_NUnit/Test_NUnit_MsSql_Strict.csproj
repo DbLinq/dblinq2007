@@ -53,9 +53,6 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="System.Data.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
     <Reference Include="System.Security" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -107,13 +104,9 @@
     <None Include="Linq_101_Samples\101_readme.htm" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\DbLinq.SqlServer\DbLinq.SqlServer.csproj">
-      <Project>{EA47FE75-0E41-4ABF-B355-9667E78072E9}</Project>
-      <Name>DbLinq.SqlServer</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\DbLinq\DbLinq.csproj">
-      <Project>{7950197D-4122-49CB-9FD7-45E666BAFEC2}</Project>
-      <Name>DbLinq</Name>
+    <ProjectReference Include="..\..\DbLinq\System.Data.Linq.csproj">
+      <Project>{97305421-3071-4175-AA3C-9A432CC28121}</Project>
+      <Name>System.Data.Linq</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

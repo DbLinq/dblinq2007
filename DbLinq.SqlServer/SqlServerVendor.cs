@@ -31,16 +31,30 @@ using System.Collections.Generic;
 using System.Text;
 using System.Data;
 using System.Data.Linq.Mapping;
-using DbLinq.Data.Linq.SqlClient;
+
 using DbLinq.Util;
 using DbLinq.Vendor;
+#if MONO_STRICT
+using System.Data.Linq.SqlClient;
+using DataContext = System.Data.Linq.DataContext;
+using ITable = System.Data.Linq.ITable;
+using DataLinq = System.Data.Linq;
+#else
+using DbLinq.Data.Linq.SqlClient;
 using DataContext = DbLinq.Data.Linq.DataContext;
 using ITable = DbLinq.Data.Linq.ITable;
+using DataLinq = DbLinq.Data.Linq;
+#endif
 
 namespace DbLinq.SqlServer
 {
     [Vendor(typeof(SqlServerProvider), typeof(Sql2000Provider), typeof(Sql2005Provider))]
-    public class SqlServerVendor : Vendor.Implementation.Vendor
+#if MONO_STRICT
+    internal
+#else
+    public 
+#endif
+    class SqlServerVendor : Vendor.Implementation.Vendor
     {
         public override string VendorName { get { return "SqlServer"; } }
 
@@ -55,7 +69,7 @@ namespace DbLinq.SqlServer
         /// because it does not fill up the translation log.
         /// This is enabled for tables where Vendor.UserBulkInsert[db.Table] is true.
         /// </summary>
-        public override void BulkInsert<T>(Data.Linq.Table<T> table, List<T> rows, int pageSize, IDbTransaction transaction)
+        public override void BulkInsert<T>(DataLinq.Table<T> table, List<T> rows, int pageSize, IDbTransaction transaction)
         {
             //use TableLock for speed:
             var bulkCopy = new SqlBulkCopy((SqlConnection)transaction.Connection, SqlBulkCopyOptions.TableLock, null);

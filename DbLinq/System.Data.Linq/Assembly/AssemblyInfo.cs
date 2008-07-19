@@ -36,6 +36,7 @@ using System.Security;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using DbLinq.Factory;
 
 // General Information about the System.Data.Linq assembly
 // v3.5 Assembly
@@ -61,4 +62,5 @@ using System.Runtime.InteropServices;
 
 [assembly: ComVisible (false)]
 [assembly: AllowPartiallyTrustedCallers]
+[assembly: DbLinqAttribute]
 
