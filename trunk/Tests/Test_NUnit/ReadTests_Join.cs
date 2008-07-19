@@ -126,7 +126,9 @@ namespace Test_NUnit_MsSql_Strict
         [Test(Description = "Problem discovered by Laurent")]
         public void Join_Laurent()
         {
+#if !MONO_STRICT
             Logger.Write(Level.Information, "\nJoin_Laurent()");
+#endif
             Northwind db = CreateDB();
 
             var q1 = (from p in db.Products

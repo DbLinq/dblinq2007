@@ -30,7 +30,12 @@ using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.SqlServer
 {
-    public class SqlServerSqlProvider : SqlProvider
+#if MONO_STRICT
+    internal
+#else
+        public
+#endif
+    class SqlServerSqlProvider : SqlProvider
     {
         protected override char SafeNameStartQuote { get { return '['; } }
         protected override char SafeNameEndQuote { get { return ']'; } }
