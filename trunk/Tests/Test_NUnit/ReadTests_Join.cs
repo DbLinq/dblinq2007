@@ -31,12 +31,13 @@ using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
 using Test_NUnit;
-using DbLinq.Logging;
+
 
 #if !MONO_STRICT
 using nwind;
 using DbLinq.Data.Linq;
 using DataLinq=DbLinq.Data.Linq;
+using DbLinq.Logging;
 #else
 using MsNorthwind;
 using System.Data.Linq;
