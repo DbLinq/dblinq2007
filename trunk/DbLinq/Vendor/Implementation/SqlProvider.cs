@@ -191,10 +191,6 @@ namespace DbLinq.Vendor.Implementation
                 return GetLiteralConditional(p[0], p[1], p[2]);
             //case ExpressionType.Constant:
             //break;
-            case ExpressionType.Convert:
-                return GetLiteralConvert(p[0]);
-            case ExpressionType.ConvertChecked:
-                return GetLiteralConvertChecked(p[0]);
             case ExpressionType.Divide:
                 return GetLiteralDivide(p[0], p[1]);
             case ExpressionType.Equal:
@@ -267,6 +263,7 @@ namespace DbLinq.Vendor.Implementation
             throw new ArgumentException(operationType.ToString());
         }
 
+        
         /// <summary>
         /// Converts a special expression type to literal
         /// </summary>
@@ -512,14 +509,9 @@ namespace DbLinq.Vendor.Implementation
             throw new NotImplementedException();
         }
 
-        protected virtual string GetLiteralConvert(string a)
+        public virtual string GetLiteralConvert(string a, Type newType)
         {
             return a;
-        }
-
-        protected virtual string GetLiteralConvertChecked(string a)
-        {
-            return GetLiteralConvert(a);
         }
 
         protected virtual string GetLiteralDivide(string a, string b)

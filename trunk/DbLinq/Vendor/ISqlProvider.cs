@@ -256,5 +256,18 @@ namespace DbLinq.Vendor
         /// <param name="sqlString"></param>
         /// <returns></returns>
         string GetSafeQuery(string sqlString);
+
+        ///<summary>
+        ///Returns a string with a conversion of an expression(value) to a type(newType)
+        ///</summary>
+        /// <example>
+        /// In sqlServer: 
+        /// value= OrderDetail.Quantity
+        /// newType= boolean
+        /// 
+        /// it should return CONVERT(bit,OrderDetail.Quantity)
+        /// </example>
+        /// <returns></returns>
+        string GetLiteralConvert(string value, System.Type newType);
     }
 }

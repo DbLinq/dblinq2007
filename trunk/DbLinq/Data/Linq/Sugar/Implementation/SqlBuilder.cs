@@ -155,6 +155,9 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 return sqlProvider.GetLiteral(((ConstantExpression)expression).Value);
             if (expression is GroupExpression)
                 return BuildExpression(((GroupExpression)expression).GroupedExpression, queryContext);
+            if (expression.NodeType == ExpressionType.Convert || expression.NodeType == ExpressionType.ConvertChecked)
+                return sqlProvider.GetLiteralConvert(literalOperands.First(), (expression as UnaryExpression).Type);
+
             return sqlProvider.GetLiteral(expression.NodeType, literalOperands);
         }
 
