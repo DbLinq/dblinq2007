@@ -25,17 +25,20 @@
 #endregion
 
 using System;
+using System.Linq;
 using DbLinq.Util;
 using DbLinq.Vendor.Implementation;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace DbLinq.SqlServer
 {
 #if MONO_STRICT
     internal
 #else
-        public
+    public
 #endif
-    class SqlServerSqlProvider : SqlProvider
+ class SqlServerSqlProvider : SqlProvider
     {
         protected override char SafeNameStartQuote { get { return '['; } }
         protected override char SafeNameEndQuote { get { return ']'; } }
@@ -75,5 +78,51 @@ namespace DbLinq.SqlServer
         {
             return string.Format("UPPER({0})", a);
         }
+
+        //http://msdn.microsoft.com/en-us/library/4e5xt97a(VS.71).aspx
+        public static readonly Dictionary<Type, string> typeMapping = new Dictionary<Type, string>()
+        {
+            {typeof(int),"int"},
+            {typeof(uint),"int"},
+
+            {typeof(long),"bigint"},
+            {typeof(ulong),"bigint"},
+
+            {typeof(float),"float"}, //TODO: could be float or real. check ranges.
+            {typeof(double),"float"}, //TODO: could be float or real. check ranges.
+            
+            {typeof(decimal),"numeric"},
+
+            {typeof(short),"tinyint"},
+            {typeof(ushort),"tinyint"},
+
+            {typeof(bool),"bit"},
+
+            // trunk? They could be: varchar, char,nchar, ntext,text... it should be the most flexible string type. TODO: check wich of them is better.
+            {typeof(string),"text"}, 
+            {typeof(char[]),"text"},
+
+            {typeof(char),"char"},
+
+            {typeof(DateTime),"datetime"},
+            {typeof(Guid),"uniqueidentifier"}
+
+            // there are more types: timestamps, images ... TODO: check what is the official behaviour
+        };
+
+        public override string GetLiteralConvert(string a, Type type)
+        {
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                type = type.GetGenericArguments().First();
+
+            string sqlTypeName;
+            if (typeMapping.ContainsKey(type))
+                sqlTypeName = typeMapping[type];
+            else
+                sqlTypeName = "variant";
+
+            return "CONVERT(" + sqlTypeName + "," + a + ")";
+        }
+
     }
 }
