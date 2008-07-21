@@ -38,35 +38,48 @@ namespace System.Data.Linq
 namespace DbLinq.Data.Linq
 #endif
 {
-	public struct EntityRef<TEntity> where TEntity : class
-	{
-        TEntity entity;
+    public struct EntityRef<TEntity> where TEntity : class
+    {
+        private TEntity entity;
+        private bool hasLoadedOrAssignedValue;
 
-		public EntityRef (TEntity entity)
-		{
+        public EntityRef(TEntity entity)
+        {
             this.entity = entity;
-		}
-
-		[DbLinqToDo]
-		public EntityRef (IEnumerable<TEntity> source)
-		{
-			throw new NotImplementedException ();
-		}
-
-		public EntityRef (EntityRef<TEntity> entityRef)
-		{
-            this.entity = entityRef.Entity;
-		}
-
-		
-		public TEntity Entity {
-            get { return entity; }
-            set { entity = value; }
-		}
+            hasLoadedOrAssignedValue = true;
+        }
 
         [DbLinqToDo]
-		public bool HasLoadedOrAssignedValue {
-			get { throw new NotImplementedException (); }
-		}
-	}
+        public EntityRef(IEnumerable<TEntity> source)
+        {
+            throw new NotImplementedException();
+        }
+
+        public EntityRef(EntityRef<TEntity> entityRef)
+        {
+            this.entity = entityRef.Entity;
+            hasLoadedOrAssignedValue = true;
+        }
+
+        public TEntity Entity
+        {
+            get 
+            { 
+                return entity; 
+            }
+            set
+            {
+                entity = value;
+                hasLoadedOrAssignedValue = true;
+            }
+        }
+
+        public bool HasLoadedOrAssignedValue
+        {
+            get
+            {
+                return hasLoadedOrAssignedValue;
+            }
+        }
+    }
 }

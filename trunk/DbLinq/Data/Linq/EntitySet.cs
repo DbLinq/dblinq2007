@@ -41,10 +41,13 @@ namespace DbLinq.Data.Linq
 {
     public sealed class EntitySet<TEntity> : ICollection, ICollection<TEntity>, IEnumerable, IEnumerable<TEntity>, IList, IList<TEntity>, IListSource
     {
+        private Action<TEntity> onAdd;
+        private Action<TEntity> onRemove;
         [DbLinqToDo]
-        public EntitySet(System.Action<TEntity> onAdd, System.Action<TEntity> onRemove)
+        public EntitySet(Action<TEntity> onAdd, Action<TEntity> onRemove)
         {
-            throw new NotImplementedException();
+            this.onAdd = onAdd;
+            this.onRemove = onRemove;
         }
 
         public EntitySet()
