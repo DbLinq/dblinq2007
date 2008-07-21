@@ -29,7 +29,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
-using DbLinq.Data.Linq;
+
 using NUnit.Framework;
 using Test_NUnit;
 using System.ComponentModel;
@@ -39,6 +39,7 @@ using System.Data.Linq.Mapping;
 using DataLinq = System.Data.Linq;
 #else
 using DataLinq = DbLinq.Data.Linq;
+using DbLinq.Data.Linq;
 #endif
 
 #if !MONO_STRICT
