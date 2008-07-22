@@ -103,6 +103,9 @@ CREATE TABLE IF NOT EXISTS [Employees] (
   [HomePhone] VARCHAR(24) NULL,
   [Photo] BLOB NULL,
   [Notes] TEXT NULL,
+  [TitleOfCourtesy] VARCHAR(25) NULL,
+  [PhotoPath] VARCHAR (255) NULL,
+  [Extension] VARCHAR(5) NULL,
   [ReportsTo] INTEGER NULL REFERENCES Employees(EmployeeID),
   PRIMARY KEY([EmployeeID])
 );

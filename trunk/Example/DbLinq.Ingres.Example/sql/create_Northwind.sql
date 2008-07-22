@@ -109,6 +109,9 @@ CREATE TABLE Employees (
   HomePhone VARCHAR(24),
   Photo LONG BYTE,
   Notes VARCHAR(100),
+  TitleOfCourtesy VARCHAR(25),
+  PhotoPath VARCHAR (255),
+  Extension VARCHAR(5),
   ReportsTo INTEGER,
   PRIMARY KEY(EmployeeID),
   FOREIGN KEY (ReportsTo)  REFERENCES Employees (EmployeeID)
