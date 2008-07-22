@@ -234,14 +234,14 @@ INSERT INTO "Products" ("ProductName","SupplierID", "QuantityPerUnit","UnitPrice
 VALUES ('Carnarvon Tigers', 3,'16 kg pkg.',62.50,  42, 0, false);
 
 
-insert INTO  "Employees"  ("LastName","FirstName","Title","BirthDate","HireDate","Address","City","ReportsTo")
-VALUES ('Fuller','Andrew','Vice President, Sales','19540101','19890101', '908 W. Capital Way','Tacoma',NULL);
+insert INTO  "Employees"  ("LastName","FirstName","Title","BirthDate","HireDate","Address","City","ReportsTo","Country","HomePhone")
+VALUES ('Fuller','Andrew','Vice President, Sales','19540101','19890101', '908 W. Capital Way','Tacoma',NULL,'USA','(111)222333');
 
-insert INTO  "Employees"  ("LastName","FirstName","Title","BirthDate","HireDate","Address","City","ReportsTo")
-VALUES ('Davolio','Nancy','Sales Representative','19640101','19940101','507 - 20th Ave. E.  Apt. 2A','Seattle',1);
+insert INTO  "Employees"  ("LastName","FirstName","Title","BirthDate","HireDate","Address","City","ReportsTo","Country","HomePhone")
+VALUES ('Davolio','Nancy','Sales Representative','19640101','19940101','507 - 20th Ave. E.  Apt. 2A','Seattle',1,'USA','(444)555666');
 
-insert INTO  "Employees"  ("LastName","FirstName","Title","BirthDate","HireDate","Address","City","ReportsTo")
-VALUES ('Builder','Bob','Handyman','19640101','19940101','666 dark street','Seattle',2);
+insert INTO  "Employees"  ("LastName","FirstName","Title","BirthDate","HireDate","Address","City","ReportsTo","Country","HomePhone")
+VALUES ('Builder','Bob','Handyman','19640101','19940101','666 dark street','Seattle',2,'USA','(777)888999');
 
 insert into "EmployeeTerritories" ("EmployeeID","TerritoryID")
 values (2,'US.Northwest');

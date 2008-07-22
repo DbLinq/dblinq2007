@@ -47,8 +47,8 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
             var q = (from c in db.Customers
                      orderby c.ContactName
                      select c)
-                    .Skip(50)
-                    .Take(50);
+                    .Skip(1)
+                    .Take(2);
 
             var list = q.ToList();
             Assert.IsTrue(list.Count > 0);
@@ -60,7 +60,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
             Northwind db = CreateDB();
 
             var q = (from p in db.Products
-                     where p.ProductID > 50
+                     where p.ProductID > 3
                      orderby p.ProductID
                      select p)
                     .Take(10);
