@@ -222,14 +222,14 @@ VALUES ('Linq Book',2, 1, 0, 26, 0);
 INSERT INTO [Products] ([ProductName], [SupplierID], [QuantityPerUnit],UnitPrice,  [UnitsInStock], [UnitsOnOrder], [Discontinued])
 VALUES ('Carnarvon Tigers', 3,'16 kg pkg.',62.50,  42, 0, 0);
 
-INSERT INTO [Employees] ([LastName], [FirstName], [Title], [BirthDate], [HireDate], [Address], [City], [ReportsTo])
-VALUES ('Fuller','Andrew','Vice President, Sales','19540101','19890101', '908 W. Capital Way','Tacoma',NULL);
+INSERT INTO [Employees] ([LastName], [FirstName], [Title], [BirthDate], [HireDate], [Address], [City], [ReportsTo],[Country],[HomePhone])
+VALUES ('Fuller','Andrew','Vice President, Sales','19540101','19890101', '908 W. Capital Way','Tacoma',NULL,'USA','(111)222333');
 
-INSERT INTO [Employees] ([LastName], [FirstName], [Title], [BirthDate], [HireDate], [Address], [City], [ReportsTo])
-VALUES ('Davolio','Nancy','Sales Representative','19640101','19940101','507 - 20th Ave. E.  Apt. 2A','Seattle',1);
+INSERT INTO [Employees] ([LastName], [FirstName], [Title], [BirthDate], [HireDate], [Address], [City], [ReportsTo],[Country],[HomePhone])
+VALUES ('Davolio','Nancy','Sales Representative','19640101','19940101','507 - 20th Ave. E.  Apt. 2A','Seattle',1,'USA','(444)555666');
 
-INSERT INTO [Employees] ([LastName], [FirstName], [Title], [BirthDate], [HireDate], [Address], [City], [ReportsTo])
-VALUES ('Builder','Bob','Handyman','19640101','19940101','666 dark street','Seattle',2);
+INSERT INTO [Employees] ([LastName], [FirstName], [Title], [BirthDate], [HireDate], [Address], [City], [ReportsTo],[Country],[HomePhone])
+VALUES ('Builder','Bob','Handyman','19640101','19940101','666 dark street','Seattle',2,'USA','(777)888999');
 
 INSERT into [EmployeeTerritories] ([EmployeeID], [TerritoryID])
 VALUES (2,'US.Northwest');

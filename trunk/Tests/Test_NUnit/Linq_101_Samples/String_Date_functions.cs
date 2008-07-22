@@ -171,7 +171,7 @@ namespace Test_NUnit_Sqlite.Linq_101_Samples
             Northwind db = CreateDB();
 
             var q = from e in db.Employees
-                    where e.HomePhone.Substring(6, 3) == "555"
+                    where e.HomePhone.Substring(5, 3) == "555"
                     select e;
 
             var list = q.ToList();
@@ -272,7 +272,7 @@ namespace Test_NUnit_Sqlite.Linq_101_Samples
             Northwind db = CreateDB();
 
             var q = from o in db.Orders
-                    where o.OrderDate.Value.Year == 1997
+                    where o.OrderDate.Value.Year == 1996
                     select o;
 
             var list = q.ToList();
@@ -285,7 +285,7 @@ namespace Test_NUnit_Sqlite.Linq_101_Samples
             Northwind db = CreateDB();
 
             var q = from o in db.Orders
-                    where o.OrderDate.Value.Month == 12
+                    where o.OrderDate.Value.Month == 10
                     select o;
 
             var list = q.ToList();
@@ -298,7 +298,7 @@ namespace Test_NUnit_Sqlite.Linq_101_Samples
             Northwind db = CreateDB();
 
             var q = from o in db.Orders
-                    where o.OrderDate.Value.Day == 31
+                    where o.OrderDate.Value.Day == 16
                     select o;
 
             var list = q.ToList();

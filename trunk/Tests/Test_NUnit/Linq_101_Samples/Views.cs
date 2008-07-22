@@ -47,7 +47,7 @@ namespace Test_NUnit_MySql.Linq_101_Samples
             Northwind db = CreateDB();
 
             var q = from i in db.Employees
-                    where i.City == "London"
+                    where i.City == "Seattle"
                     select new { i.Country, i.Address, i.City, i.BirthDate };
 
             var list = q.ToList();

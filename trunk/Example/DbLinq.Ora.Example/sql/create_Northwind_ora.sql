@@ -267,14 +267,14 @@ INSERT INTO "Products" ("ProductID", "ProductName","SupplierID", "QuantityPerUni
 VALUES (Products_seq.nextval, 'Carnarvon Tigers', 3,'16 kg pkg.',62.50,  42, 0, 0);
 
 --####################################################################
-insert INTO "Employees" ("EmployeeID", "LastName","FirstName","Title","BirthDate","HireDate","Address","City","ReportsTo")
-VALUES (Employees_seq.nextval, 'Fuller','Andrew','Vice President, Sales',to_date('01-01-1964','dd-mm-yyyy'),to_date('01-01-1989','dd-mm-yyyy'), '908 W. Capital Way','Tacoma',NULL);
+insert INTO "Employees" ("EmployeeID", "LastName","FirstName","Title","BirthDate","HireDate","Address","City","ReportsTo","Country","HomePhone")
+VALUES (Employees_seq.nextval, 'Fuller','Andrew','Vice President, Sales',to_date('01-01-1964','dd-mm-yyyy'),to_date('01-01-1989','dd-mm-yyyy'), '908 W. Capital Way','Tacoma',NULL,'USA','(111)222333');
 
-insert INTO "Employees" ("EmployeeID", "LastName","FirstName","Title","BirthDate","HireDate","Address","City","ReportsTo")
-VALUES (Employees_seq.nextval, 'Davolio','Nancy','Sales Representative',to_date('01-01-1964','dd-mm-yyyy'),to_date('01-01-1994','dd-mm-yyyy'),'507 - 20th Ave. E.  Apt. 2A','Seattle',1);
+insert INTO "Employees" ("EmployeeID", "LastName","FirstName","Title","BirthDate","HireDate","Address","City","ReportsTo","Country","HomePhone")
+VALUES (Employees_seq.nextval, 'Davolio','Nancy','Sales Representative',to_date('01-01-1964','dd-mm-yyyy'),to_date('01-01-1994','dd-mm-yyyy'),'507 - 20th Ave. E.  Apt. 2A','Seattle',1,'USA','(444)555666');
 
-insert INTO "Employees" ("EmployeeID", "LastName","FirstName","Title","BirthDate","HireDate","Address","City","ReportsTo")
-VALUES (Employees_seq.nextval, 'Builder','Bob','Handyman',to_date('01-01-1964','dd-mm-yyyy'),to_date('01-01-1964','dd-mm-yyyy'),'666 dark street','Seattle',2);
+insert INTO "Employees" ("EmployeeID", "LastName","FirstName","Title","BirthDate","HireDate","Address","City","ReportsTo","Country","HomePhone")
+VALUES (Employees_seq.nextval, 'Builder','Bob','Handyman',to_date('01-01-1964','dd-mm-yyyy'),to_date('01-01-1964','dd-mm-yyyy'),'666 dark street','Seattle',2,'USA','(777)888999');
 
 --####################################################################
 --truncate table Orders;
