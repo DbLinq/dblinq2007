@@ -89,6 +89,9 @@ CREATE TABLE "Employees" (
   "HomePhone" VARCHAR(24) NULL,
   "Photo" BLOB NULL,
   "Notes" VARCHAR(100) NULL,
+  "TitleOfCourtesy" VARCHAR(25) NULL,
+  "PhotoPath" VARCHAR (255) NULL,
+  "Extension" VARCHAR(5) NULL,
   "ReportsTo" INTEGER NULL,
   PRIMARY KEY("EmployeeID"),
   FOREIGN KEY ("ReportsTo")  REFERENCES "Employees" ("EmployeeID")

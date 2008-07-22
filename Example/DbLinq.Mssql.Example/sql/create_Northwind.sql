@@ -103,6 +103,9 @@ CREATE TABLE [Employees] (
   [HomePhone] VARCHAR(24) NULL,
   [Photo] VARBINARY(MAX) NULL,
   [Notes] TEXT NULL,
+  [TitleOfCourtesy] VARCHAR(25) NULL,
+  [PhotoPath] VARCHAR (255) NULL,
+  [Extension] VARCHAR(5) NULL,
   [ReportsTo] INTEGER NULL FOREIGN KEY REFERENCES [Employees] ([EmployeeID]),
 );
 
