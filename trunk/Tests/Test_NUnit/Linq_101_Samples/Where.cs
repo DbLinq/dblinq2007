@@ -59,20 +59,8 @@ namespace Test_NUnit_MySql.Linq_101_Samples
             Northwind db = CreateDB();
 
             var q = from e in db.Employees
-                    where e.HireDate >= DateTime.Parse("1/1/1994")
+                    where e.HireDate >= new DateTime(1994,1,1)
                     select e;
-
-            var list = q.ToList();
-            Assert.IsTrue(list.Count > 0);
-        }
-
-        [Test(Description="Where - 5. This sample calls WHERE twice to filter out Products that UnitPrice is greater than 10 and is discontinued.")]
-        public void LinqToSqlWhere05()
-        {
-            Northwind db = CreateDB();
-
-            var q = db.Products.Where(p => p.UnitPrice > 10.0m)
-                               .Where(p => Convert.ToBoolean(p.Discontinued));
 
             var list = q.ToList();
             Assert.IsTrue(list.Count > 0);
@@ -85,7 +73,7 @@ namespace Test_NUnit_MySql.Linq_101_Samples
             Northwind db = CreateDB();
 
             var q = from p in db.Products
-                    where p.UnitsInStock <= p.ReorderLevel && !Convert.ToBoolean(p.Discontinued)
+                    where p.UnitsInStock <= p.ReorderLevel || !Convert.ToBoolean(p.Discontinued)
                     select p;
 
             var list = q.ToList();
@@ -106,18 +94,24 @@ namespace Test_NUnit_MySql.Linq_101_Samples
             Assert.IsTrue(list.Count > 0);
         }
 
+        [Test(Description="Where - 5. This sample calls WHERE twice to filter out Products that UnitPrice is greater than 10 and is discontinued.")]
+        public void LinqToSqlWhere05()
+        {
+            Northwind db = CreateDB();
+
+            var q = db.Products.Where(p => p.UnitPrice > 5.0m)
+                               .Where(p => !Convert.ToBoolean(p.Discontinued));
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+        }
+
+        [Linq101SamplesModified("Changed shipper table by Employee since some of our databases haven't got such table")]
         [Test(Description = "First - Simple. This sample uses First to select the first Shipper in the table.")]
         public void LinqToSqlWhere06()
         {
-#if !INGRES && !ORACLE
             Northwind db = CreateDB();
-
-            Shipper shipper = db.Shippers.First();
-
-#else
-#warning this precomipiled stentence must be deleted earlier as possible, when Ingress and Oracle Northwind have a Supplier Table.
-            Assert.Ignore();
-#endif
+            Employee employee = db.Employees.First();
         }
 
         [Test(Description = "First - Element. This sample uses Take to select the first Customer with CustomerID 'BONAP'.")]
