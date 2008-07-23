@@ -53,6 +53,9 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
     <Reference Include="System.Security" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -63,6 +66,7 @@
     <Compile Include="..\..\lib\DynamicLinq.cs">
       <Link>lib\DynamicLinq.cs</Link>
     </Compile>
+    <Compile Include="Attach.cs" />
     <Compile Include="CompositePK_Test.cs" />
     <Compile Include="DynamicLinqTest.cs" />
     <Compile Include="ExecuteCommand_Test.cs" />
@@ -102,12 +106,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Linq_101_Samples\101_readme.htm" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\DbLinq\System.Data.Linq.csproj">
-      <Project>{97305421-3071-4175-AA3C-9A432CC28121}</Project>
-      <Name>System.Data.Linq</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

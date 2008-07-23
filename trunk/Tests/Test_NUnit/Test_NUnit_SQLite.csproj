@@ -74,6 +74,7 @@
     <Compile Include="..\..\Example\DbLinq.MsSql.Example\nwind\originalMSNorthwind.designer.cs">
       <Link>nwind\NorthwindTESTDOTNET.cs</Link>
     </Compile>
+    <Compile Include="Attach.cs" />
     <Compile Include="CompositePK_Test.cs" />
     <Compile Include="DynamicLinqTest.cs" />
     <Compile Include="ExecuteCommand_Test.cs" />
