@@ -41,6 +41,7 @@ using DbLinq.Factory;
 using DbLinq.Logging;
 using DbLinq.Util;
 using DbLinq;
+using System.Diagnostics;
 
 #if MONO_STRICT
 namespace System.Data.Linq.Sugar.Implementation
@@ -381,14 +382,20 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             var query = GetFromSelectCache(expressions);
             if (query == null)
             {
-                var t0 = DateTime.Now;
+                var timer = new Stopwatch();
+                timer.Start();
                 var expressionsQuery = BuildExpressionQuery(expressions, queryContext);
-                var t1 = DateTime.Now;
+                timer.Stop();
+                long expressionBuildTime = timer.ElapsedMilliseconds;
+
+                timer.Reset();
+                timer.Start();
                 query = BuildSqlQuery(expressionsQuery, queryContext);
-                var t2 = DateTime.Now;
-                var ticksPerMs = TimeSpan.FromSeconds(1).Ticks / 1e3;
-                queryContext.DataContext.Logger.Write(Level.Debug, "Select Expression build: {0}ms", (t1 - t0).Ticks / ticksPerMs);
-                queryContext.DataContext.Logger.Write(Level.Debug, "Select SQL build:        {0}ms", (t2 - t1).Ticks / ticksPerMs);
+                timer.Stop();
+                long sqlBuildTime = timer.ElapsedMilliseconds;
+
+                queryContext.DataContext.Logger.Write(Level.Debug, "Select Expression build: {0}ms", expressionBuildTime);
+                queryContext.DataContext.Logger.Write(Level.Debug, "Select SQL build:        {0}ms", sqlBuildTime);
                 queryContext.DataContext.Logger.Write(Level.Debug, "Select SQL: {0}", query.Sql);
                 SetInSelectCache(expressions, query);
             }
