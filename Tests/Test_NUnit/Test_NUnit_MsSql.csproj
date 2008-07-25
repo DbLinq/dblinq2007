@@ -69,6 +69,7 @@
     <Compile Include="..\..\lib\DynamicLinq.cs">
       <Link>lib\DynamicLinq.cs</Link>
     </Compile>
+    <Compile Include="Any.cs" />
     <Compile Include="Attach.cs" />
     <Compile Include="CompositePK_Test.cs" />
     <Compile Include="DynamicLinqTest.cs" />
