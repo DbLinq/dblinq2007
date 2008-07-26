@@ -65,6 +65,27 @@ namespace Test_NUnit_MsSql
             var list = q.ToList();
             Assert.IsTrue(list.Count > 0);
         }
+        [Test]
+        public void AnyInternal03()
+        {
+            Northwind db = CreateDB();
+
+            var q = (from c in db.Customers
+                     where !c.Orders.Where(o => o.Customer.ContactName == "WARTH")
+                                     .Any(o => o.Customer.Country == "USA")
+                     select c).ToList();
+        }
+
+        [Test]
+        public void AnyInternal04()
+        {
+            Northwind db = CreateDB();
+
+            var q = (from c in db.Customers
+                     where !c.Orders.Select(o => o.Customer.Country)
+                                     .Any(ct => ct == "USA")
+                     select c).ToList();
+        }
 
         [Test]
         public void AnyExternal01()
@@ -135,6 +156,27 @@ namespace Test_NUnit_MsSql
             var q = (from c in db.Customers
                      where c.Country == "USA"
                      select c).Count();
+        }
+        [Test]
+        public void CountInternal03()
+        {
+            Northwind db = CreateDB();
+
+            var q = (from c in db.Customers
+                     where c.Orders.Where(o => o.Customer.ContactName == "WARTH")
+                                     .Count(o => o.Customer.Country == "USA") % 2 == 0
+                     select c).ToList();
+        }
+
+        [Test]
+        public void CountInternal04()
+        {
+            Northwind db = CreateDB();
+
+            var q = (from c in db.Customers
+                     where c.Orders.Select(o => o.Customer.Country)
+                                     .Count(ct => ct == "USA") % 2 == 0
+                     select c).ToList();
         }
 
         [Test]
