@@ -58,7 +58,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
             Northwind db = CreateDB();
 
             var q = from o in db.Orders
-                    where o.ShipCity == "London"
+                    where o.ShipCity == "Marseille"
                     orderby o.Freight
                     select o;
 

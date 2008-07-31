@@ -16,11 +16,11 @@ using System.Data.Linq;
 #if MYSQL
     namespace Test_NUnit_MySql.Linq_101_Samples
 #elif ORACLE
-    #if ODP
+#if ODP
         namespace Test_NUnit_OracleODP.Linq_101_Samples
-    #else
+#else
         namespace Test_NUnit_Oracle.Linq_101_Samples
-    #endif
+#endif
 #elif POSTGRES
     namespace Test_NUnit_PostgreSql.Linq_101_Samples
 #elif SQLITE
@@ -29,7 +29,7 @@ namespace Test_NUnit_Sqlite.Linq_101_Samples
     namespace Test_NUnit_Ingres.Linq_101_Samples
 #elif MSSQL
 #if MONO_STRICT
-    namespace Test_NUnit_MsSql_Strict.Linq_101_Samples
+namespace Test_NUnit_MsSql_Strict.Linq_101_Samples
 #else
     namespace Test_NUnit_MsSql.Linq_101_Samples
 #endif
@@ -152,7 +152,7 @@ namespace Test_NUnit_MsSql.Linq_101_Samples
                     group p by p.CategoryID into g
                     where g.Count() >= 10
                     select new { g, ProductCount = g.Count() };
-            
+
             var list = q.ToList();
             Assert.IsTrue(list.Count > 0);
         }
@@ -176,8 +176,6 @@ namespace Test_NUnit_MsSql.Linq_101_Samples
         }
 
 
-
-
         [Linq101SamplesModified("Strange syntactical strategy. Everybody aggree with this traduction?")]
         [Test(Description = "GroupBy - Expression. This sample uses group by to return two sequences of products. The first sequence contains products with unit price greater than 10. The second sequence contains products with unit price less than or equal to 10.")]
         public void LinqToSqlGroupBy10()
@@ -185,17 +183,13 @@ namespace Test_NUnit_MsSql.Linq_101_Samples
             Northwind db = CreateDB();
 
             var categories = from p in db.Products
-                             let Key = new { Criterion = p.UnitPrice > 10 }
+                             let Key = new { Criterion = p.UnitPrice > 10 || p.UnitPrice == null }
                              group p by Key into g
                              select g;
 
             var list = categories.ToList();
             Assert.IsTrue(list.Count > 0);
 
-
         }
-
-
-
     }
 }

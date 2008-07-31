@@ -13,7 +13,7 @@ using System.Data.Linq;
 #endif
 
 #if MYSQL
-    namespace Test_NUnit_MySql.Linq_101_Samples
+namespace Test_NUnit_MySql.Linq_101_Samples
 #elif ORACLE
 #if ODP
         namespace Test_NUnit_OracleODP.Linq_101_Samples
@@ -35,7 +35,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
 #else
 #error unknown target
 #endif
-    {
+{
     /// <summary>
     /// Source:  http://msdn2.microsoft.com/en-us/vbasic/bb737922.aspx
     /// manually translated from VB into C#.
@@ -100,9 +100,10 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
         }
 
         [Test(Description = "This sample uses Min to find the Products that have the lowest unit price in each category")]
-        public void LinqToSqlCount07(bool this_test_is_disabled)
+        public void LinqToSqlCount07()
         {
-#if SHOW_MICROSOFT_GENERATED_SQL
+            #region SHOW_MICROSOFT_GENERATED_SQL
+            /*
             //the one Linq statement below gets translated into 9 SQL statements
 SELECT MIN([t0].[UnitPrice]) AS [value], [t0].[CategoryID]
 FROM [dbo].[Products] AS [t0]
@@ -155,8 +156,9 @@ FROM [dbo].[Products] AS [t0]
 WHERE ([t0].[UnitPrice] = @x2) AND (((@x1 IS NULL) AND ([t0].[CategoryID] IS NULL)) OR ((@x1 IS NOT NULL) AND ([t0].[CategoryID] IS NOT NULL) AND (@x1 = [t0].[CategoryID])))
 -- @x1: Input Int (Size = 0; Prec = 0; Scale = 0) [8]
 -- @x2: Input Money (Size = 0; Prec = 19; Scale = 4) [6.0000]
+    */
+            #endregion
 
-#endif
             Northwind db = CreateDB();
             var categories = (from p in db.Products
                               group p by p.CategoryID into g
@@ -189,7 +191,7 @@ WHERE ([t0].[UnitPrice] = @x2) AND (((@x1 IS NULL) AND ([t0].[CategoryID] IS NUL
         }
 
         [Test(Description = "This sample uses Max to find the Products that have the highest unit price in each category")]
-        public void LinqToSqlCount10(bool this_test_is_disabled)
+        public void LinqToSqlCount10()
         {
             //Miscrosoft translates this query into multiple SQL statements
             Northwind db = CreateDB();

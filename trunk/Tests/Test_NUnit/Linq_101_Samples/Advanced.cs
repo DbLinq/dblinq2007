@@ -193,7 +193,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
                        where p.Discontinued == 1 select p;
 #else
             var prods = from p in db.Products.OrderByDescending(p => p.UnitPrice).Take(10)
-                        where p.Discontinued
+                        where !p.Discontinued
                         select p;
 #endif
 

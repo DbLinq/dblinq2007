@@ -141,7 +141,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
                     {
                         o.OrderID,
                         DiscountedProducts = (from od in o.OrderDetails
-                                              where od.Discount > 0.0
+                                              where od.Discount == 0
                                               select od),
                         FreeShippingDiscount = o.Freight
                     };

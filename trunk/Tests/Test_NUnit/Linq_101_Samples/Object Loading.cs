@@ -47,7 +47,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
             Northwind db = CreateDB();
 
             var custs = from c in db.Customers
-                        where c.City == "Sao Paulo"
+                        where c.City == "Marseille"
                         select c;
 
             foreach (var cust in custs)
@@ -74,7 +74,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
             db.LoadOptions = ds;
 
             var custs = from c in db.Customers
-                        where c.City == "Sao Paulo"
+                        where c.City == "Marseille"
                         select c;
 
             foreach (var cust in custs)

@@ -29,7 +29,7 @@ namespace Test_NUnit_MySql.Linq_101_Samples
     namespace Test_NUnit_Ingres.Linq_101_Samples
 #elif MSSQL
 #if MONO_STRICT
-    namespace Test_NUnit_MsSql_Strict.Linq_101_Samples
+namespace Test_NUnit_MsSql_Strict.Linq_101_Samples
 #else
     namespace Test_NUnit_MsSql.Linq_101_Samples
 #endif
@@ -58,18 +58,11 @@ namespace Test_NUnit_MySql.Linq_101_Samples
         public void LinqToSqlExists02()
         {
             Northwind db = CreateDB();
-#if !SQLITE
-            var q = from c in db.Categories
-                    where (from p in c.Products where Convert.ToBoolean(p.Discontinued) select p).Any()
-                    select c;
 
+            var q = from p in db.Products where p.OrderDetails.Any(od=>od.Order.Customer.Country=="France") select p;
+                  
             var list = q.ToList();
             Assert.IsTrue(list.Count > 0);
-#else
-#warning this precomipiled stentence must be deleted earlier as possible, when sqlite Northwind have a Category table with a relation with products.
-            Assert.Ignore();
-#endif
-
         }
 
         [Test(Description = "All - Conditional. This sample uses All to return Customers whom all of their orders have been shipped to their own city or whom have no orders.")]
