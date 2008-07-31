@@ -154,6 +154,10 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
             var q = from e in db.Employees where e.FirstName == "Nancy" select e;
 
 
+            if (db.Employees.Any(e => e.FirstName == "Kira" && e.LastName == "Smith"))
+                Assert.Ignore();
+
+
             var newEmployee = new Employee { FirstName = "Kira", LastName = "Smith" };
             var newTerritory = new Territory
             {
@@ -224,7 +228,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
         {
             Northwind db = CreateDB();
 
-            OrderDetail ode = db.OrderDetails.FirstOrDefault();
+            OrderDetail ode = db.OrderDetails.First();
             decimal orderID = ode.OrderID;
             decimal productID = ode.ProductID;
 
