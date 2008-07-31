@@ -38,7 +38,7 @@ namespace Test_NUnit_MsSql
 #endif
 {
     [TestFixture]
-    public class Any : TestBase
+    public class AnyCount : TestBase
     {
         [Test]
         public void AnyInternal01()
@@ -86,6 +86,16 @@ namespace Test_NUnit_MsSql
                                      .Any(ct => ct == "USA")
                      select c).ToList();
         }
+
+        [Test]
+        public void AnyInternal05()
+        {
+            Northwind db = CreateDB();
+
+            var q = (from c in db.Customers
+                     select new { c.CustomerID, HasUSAOrders = c.Orders.Any(o => o.ShipCountry == "USA") }).ToList();
+        }
+
 
         [Test]
         public void AnyExternal01()
@@ -201,6 +211,15 @@ namespace Test_NUnit_MsSql
         {
             Northwind db = CreateDB();
             var q = db.Customers.Count(cust => cust.City == "Seatle");
+        }
+
+        [Test]
+        public void CountInternal05()
+        {
+            Northwind db = CreateDB();
+
+            var q = (from c in db.Customers
+                     select new { c.CustomerID, HasUSAOrders = c.Orders.Count(o => o.ShipCountry == "USA") }).ToList();
         }
     }
 }

@@ -73,6 +73,7 @@
     <Compile Include="Attach.cs" />
     <Compile Include="CompositePK_Test.cs" />
     <Compile Include="DynamicLinqTest.cs" />
+    <Compile Include="EntitySet.cs" />
     <Compile Include="ExecuteCommand_Test.cs" />
     <Compile Include="ExecuteQuery_Test.cs" />
     <Compile Include="Linq_101_Samples\Advanced.cs" />
