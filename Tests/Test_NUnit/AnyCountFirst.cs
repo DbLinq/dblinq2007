@@ -17,7 +17,7 @@ using System.Data.Linq;
 namespace Test_NUnit_MySql
 #elif ORACLE
 #if ODP
-        namespace Test_NUnit_OracleODP
+namespace Test_NUnit_OracleODP
 #else
         namespace Test_NUnit_Oracle
 #endif
@@ -132,6 +132,7 @@ namespace Test_NUnit_MsSql
             var q = db.Customers.Any(cust => cust.City == "Seatle");
         }
 
+
         [Test]
         public void CountInternal01()
         {
@@ -158,15 +159,7 @@ namespace Test_NUnit_MsSql
             Assert.IsTrue(list.Count > 0);
         }
 
-        [Test]
-        public void CountExternal01()
-        {
-            Northwind db = CreateDB();
 
-            var q = (from c in db.Customers
-                     where c.Country == "USA"
-                     select c).Count();
-        }
         [Test]
         public void CountInternal03()
         {
@@ -187,6 +180,17 @@ namespace Test_NUnit_MsSql
                      where c.Orders.Select(o => o.Customer.Country)
                                      .Count(ct => ct == "USA") % 2 == 0
                      select c).ToList();
+        }
+
+
+        [Test]
+        public void CountExternal01()
+        {
+            Northwind db = CreateDB();
+
+            var q = (from c in db.Customers
+                     where c.Country == "USA"
+                     select c).Count();
         }
 
         [Test]
@@ -221,5 +225,97 @@ namespace Test_NUnit_MsSql
             var q = (from c in db.Customers
                      select new { c.CustomerID, HasUSAOrders = c.Orders.Count(o => o.ShipCountry == "USA") }).ToList();
         }
+
+        [Test]
+        public void FirstInternal01()
+        {
+            Northwind db = CreateDB();
+
+            var q = from c in db.Customers
+                    where c.Orders.FirstOrDefault() != null
+                    select c;
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+        }
+
+        [Test]
+        public void FirstInternal02()
+        {
+            Northwind db = CreateDB();
+
+            var q = from c in db.Customers
+                    where c.Orders.FirstOrDefault(o => o.Customer.ContactName == "WARTH") != null
+                    select c;
+
+            var list = q.ToList();
+        }
+
+        [Test]
+        public void FirstInternal03()
+        {
+            Northwind db = CreateDB();
+
+            var q = (from c in db.Customers
+                     where c.Orders.Where(o => o.Customer.ContactName == "WARTH")
+                                     .FirstOrDefault(o => o.Customer.Country == "USA") != null
+                     select c).ToList();
+        }
+
+        [Test]
+        public void FirstInternal04()
+        {
+            Northwind db = CreateDB();
+
+            var q = (from c in db.Customers
+                     where c.Orders.Select(o => o.Customer.Country)
+                                   .FirstOrDefault(ct => ct == "USA") != null
+                     select c).ToList();
+        }
+
+        [Test]
+        public void FirstExternal01()
+        {
+            Northwind db = CreateDB();
+
+            var q = (from c in db.Customers
+                     where c.Country == "USA"
+                     select c).First();
+        }
+
+        [Test]
+        public void FirstExternal02()
+        {
+            Northwind db = CreateDB();
+
+            var q = (from c in db.Customers
+                     where c.Country == "France"
+                     select c).First(cust => cust.City == "Marseille");
+
+        }
+
+        [Test]
+        public void FirstExternal03()
+        {
+            Northwind db = CreateDB();
+            var q = db.Customers.First();
+        }
+
+        [Test]
+        public void FirstExternal04()
+        {
+            Northwind db = CreateDB();
+            var q = db.Customers.First(cust => cust.City == "Marseille");
+        }
+
+        [Test]
+        public void FirstInternal05()
+        {
+            Northwind db = CreateDB();
+
+            var q = (from c in db.Customers
+                     select new { c.CustomerID, FirstUSAOrder = c.Orders.First(o => o.ShipCountry == "France") }).ToList();
+        }
+
     }
 }
