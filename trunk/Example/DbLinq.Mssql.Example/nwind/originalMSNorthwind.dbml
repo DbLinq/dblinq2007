@@ -59,8 +59,8 @@
       <Column Name="UnitPrice" Type="System.Decimal" DbType="Decimal(18,0) NOT NULL" CanBeNull="false" />
       <Column Name="Quantity" Type="System.Int16" DbType="SmallInt NOT NULL" CanBeNull="false" />
       <Column Name="Discount" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
-      <Association Name="Order_Order_Detail" Member="Order" ThisKey="OrderID" Type="Order" IsForeignKey="true" />
-      <Association Name="Product_Order_Detail" Member="Product" ThisKey="ProductID" Type="Product" IsForeignKey="true" />
+      <Association Name="Order_OrderDetail" Member="Order" ThisKey="OrderID" Type="Order" IsForeignKey="true" />
+      <Association Name="Product_OrderDetail" Member="Product" ThisKey="ProductID" Type="Product" IsForeignKey="true" />
     </Type>
   </Table>
   <Table Name="dbo.EmployeeTerritories" Member="EmployeeTerritories">
@@ -87,7 +87,7 @@
       <Column Name="ShipRegion" Type="System.String" DbType="VarChar(15)" CanBeNull="true" />
       <Column Name="ShipPostalCode" Type="System.String" DbType="VarChar(10)" CanBeNull="true" />
       <Column Name="ShipCountry" Type="System.String" DbType="VarChar(15)" CanBeNull="true" />
-      <Association Name="Order_Order_Detail" Member="OrderDetails" OtherKey="OrderID" Type="OrderDetail" />
+      <Association Name="Order_OrderDetail" Member="OrderDetails" OtherKey="OrderID" Type="OrderDetail" />
       <Association Name="Customer_Order" Member="Customer" ThisKey="CustomerID" Type="Customer" IsForeignKey="true" />
       <Association Name="Employee_Order" Member="Employee" ThisKey="EmployeeID" Type="Employee" IsForeignKey="true" />
       <Association Name="Shipper_Order" Member="Shipper" ThisKey="ShipVia" Type="Shipper" IsForeignKey="true" />
@@ -105,7 +105,7 @@
       <Column Name="UnitsOnOrder" Type="System.Int16" DbType="SmallInt" CanBeNull="true" />
       <Column Name="ReorderLevel" Type="System.Int16" DbType="SmallInt" CanBeNull="true" />
       <Column Name="Discontinued" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
-      <Association Name="Product_Order_Detail" Member="OrderDetails" OtherKey="ProductID" Type="OrderDetail" />
+      <Association Name="Product_OrderDetail" Member="OrderDetails" OtherKey="ProductID" Type="OrderDetail" />
       <Association Name="Category_Product" Member="Category" ThisKey="CategoryID" Type="Category" IsForeignKey="true" />
       <Association Name="Supplier_Product" Member="Supplier" ThisKey="SupplierID" Type="Supplier" IsForeignKey="true" />
     </Type>

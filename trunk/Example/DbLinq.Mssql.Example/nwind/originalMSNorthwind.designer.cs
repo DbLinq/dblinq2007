@@ -1422,7 +1422,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Association(Name="Order_Order_Detail", Storage="_Order", ThisKey="OrderID", IsForeignKey=true)]
+		[Association(Name="Order_OrderDetail", Storage="_Order", ThisKey="OrderID", IsForeignKey=true)]
 		public Order Order
 		{
 			get
@@ -1456,7 +1456,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Association(Name="Product_Order_Detail", Storage="_Product", ThisKey="ProductID", IsForeignKey=true)]
+		[Association(Name="Product_OrderDetail", Storage="_Product", ThisKey="ProductID", IsForeignKey=true)]
 		public Product Product
 		{
 			get
@@ -2056,7 +2056,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Association(Name="Order_Order_Detail", Storage="_OrderDetails", OtherKey="OrderID")]
+		[Association(Name="Order_OrderDetail", Storage="_OrderDetails", OtherKey="OrderID")]
 		public EntitySet<OrderDetail> OrderDetails
 		{
 			get
@@ -2478,7 +2478,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Association(Name="Product_Order_Detail", Storage="_OrderDetails", OtherKey="ProductID")]
+		[Association(Name="Product_OrderDetail", Storage="_OrderDetails", OtherKey="ProductID")]
 		public EntitySet<OrderDetail> OrderDetails
 		{
 			get

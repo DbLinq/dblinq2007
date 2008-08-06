@@ -38,6 +38,7 @@ using nwind;
 using DbLinq.Data.Linq;
 using DataLinq=DbLinq.Data.Linq;
 using DbLinq.Logging;
+using System.Data.Linq;
 #else
 using MsNorthwind;
 using System.Data.Linq;

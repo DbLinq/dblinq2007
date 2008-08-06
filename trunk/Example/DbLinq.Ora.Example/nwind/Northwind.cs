@@ -180,7 +180,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "CategoryID", Name = "SYS_C005572")]
 		[DebuggerNonUserCode]
-		public EntitySet<Product> Products
+		public System.Data.Linq.EntitySet<Product> Products
 		{
             get;
             set;
@@ -440,7 +440,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "CustomerID", Name = "SYS_C005589")]
 		[DebuggerNonUserCode]
-		public EntitySet<Order> Orders
+		public System.Data.Linq.EntitySet<Order> Orders
 		{
             get;
             set;
@@ -788,7 +788,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "ReportsTo", Name = "SYS_C005581")]
 		[DebuggerNonUserCode]
-		public EntitySet<Employee> Employees
+		public System.Data.Linq.EntitySet<Employee> Employees
 		{
             get;
             set;
@@ -796,7 +796,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "EmployeeID", Name = "SYS_C005585")]
 		[DebuggerNonUserCode]
-		public EntitySet<EmployeeTerritory> EmployeeTerritories
+		public System.Data.Linq.EntitySet<EmployeeTerritory> EmployeeTerritories
 		{
             get;
             set;
@@ -804,7 +804,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "EmployeeID", Name = "SYS_C005590")]
 		[DebuggerNonUserCode]
-		public EntitySet<Order> Orders
+		public System.Data.Linq.EntitySet<Order> Orders
 		{
             get;
             set;
@@ -815,7 +815,7 @@ namespace nwind
 
 		#region Parents
 
-		private DbLinq.Data.Linq.EntityRef<Employee> _reportsToEmployee;
+		private System.Data.Linq.EntityRef<Employee> _reportsToEmployee;
 		[Association(Storage = "_reportsToEmployee", ThisKey = "ReportsTo", Name = "SYS_C005581", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Employee ReportsToEmployee
@@ -884,7 +884,7 @@ namespace nwind
 
 		#region Parents
 
-		private DbLinq.Data.Linq.EntityRef<Territory> _territory;
+		private System.Data.Linq.EntityRef<Territory> _territory;
 		[Association(Storage = "_territory", ThisKey = "TerritoryID", Name = "SYS_C005586", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Territory Territory
@@ -899,7 +899,7 @@ namespace nwind
 			}
 		}
 
-		private DbLinq.Data.Linq.EntityRef<Employee> _employee;
+		private System.Data.Linq.EntityRef<Employee> _employee;
 		[Association(Storage = "_employee", ThisKey = "EmployeeID", Name = "SYS_C005585", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Employee Employee
@@ -1234,7 +1234,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "OrderID", Name = "SYS_C005597")]
 		[DebuggerNonUserCode]
-		public EntitySet<OrderDetail> OrderDetails
+		public System.Data.Linq.EntitySet<OrderDetail> OrderDetails
 		{
             get;
             set;
@@ -1245,7 +1245,7 @@ namespace nwind
 
 		#region Parents
 
-		private DbLinq.Data.Linq.EntityRef<Employee> _employee;
+		private System.Data.Linq.EntityRef<Employee> _employee;
 		[Association(Storage = "_employee", ThisKey = "EmployeeID", Name = "SYS_C005590", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Employee Employee
@@ -1260,7 +1260,7 @@ namespace nwind
 			}
 		}
 
-		private DbLinq.Data.Linq.EntityRef<Customer> _customer;
+		private System.Data.Linq.EntityRef<Customer> _customer;
 		[Association(Storage = "_customer", ThisKey = "CustomerID", Name = "SYS_C005589", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Customer Customer
@@ -1395,7 +1395,7 @@ namespace nwind
 
 		#region Parents
 
-		private DbLinq.Data.Linq.EntityRef<Product> _product;
+		private System.Data.Linq.EntityRef<Product> _product;
 		[Association(Storage = "_product", ThisKey = "ProductID", Name = "SYS_C005598", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Product Product
@@ -1410,7 +1410,7 @@ namespace nwind
 			}
 		}
 
-		private DbLinq.Data.Linq.EntityRef<Order> _order;
+		private System.Data.Linq.EntityRef<Order> _order;
 		[Association(Storage = "_order", ThisKey = "OrderID", Name = "SYS_C005597", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Order Order
@@ -1657,7 +1657,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "ProductID", Name = "SYS_C005598")]
 		[DebuggerNonUserCode]
-		public EntitySet<OrderDetail> OrderDetails
+		public System.Data.Linq.EntitySet<OrderDetail> OrderDetails
 		{
             get;
             set;
@@ -1668,7 +1668,7 @@ namespace nwind
 
 		#region Parents
 
-		private DbLinq.Data.Linq.EntityRef<Supplier> _supplier;
+		private System.Data.Linq.EntityRef<Supplier> _supplier;
 		[Association(Storage = "_supplier", ThisKey = "SupplierID", Name = "SYS_C005573", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Supplier Supplier
@@ -1683,7 +1683,7 @@ namespace nwind
 			}
 		}
 
-		private DbLinq.Data.Linq.EntityRef<Category> _category;
+		private System.Data.Linq.EntityRef<Category> _category;
 		[Association(Storage = "_category", ThisKey = "CategoryID", Name = "SYS_C005572", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Category Category
@@ -1754,7 +1754,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "RegionID", Name = "SYS_C005561")]
 		[DebuggerNonUserCode]
-		public EntitySet<Territory> Territories
+		public System.Data.Linq.EntitySet<Territory> Territories
 		{
             get;
             set;
@@ -2014,7 +2014,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "SupplierID", Name = "SYS_C005573")]
 		[DebuggerNonUserCode]
-		public EntitySet<Product> Products
+		public System.Data.Linq.EntitySet<Product> Products
 		{
             get;
             set;
@@ -2098,7 +2098,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "TerritoryID", Name = "SYS_C005586")]
 		[DebuggerNonUserCode]
-		public EntitySet<EmployeeTerritory> EmployeeTerritories
+		public System.Data.Linq.EntitySet<EmployeeTerritory> EmployeeTerritories
 		{
             get;
             set;
@@ -2109,7 +2109,7 @@ namespace nwind
 
 		#region Parents
 
-		private DbLinq.Data.Linq.EntityRef<Region> _region;
+		private System.Data.Linq.EntityRef<Region> _region;
 		[Association(Storage = "_region", ThisKey = "RegionID", Name = "SYS_C005561", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Region Region

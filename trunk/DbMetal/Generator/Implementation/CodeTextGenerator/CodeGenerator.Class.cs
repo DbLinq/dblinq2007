@@ -34,6 +34,7 @@ using DbLinq.Factory;
 using DbLinq.Logging;
 using DbLinq.Schema.Dbml;
 using DbMetal.Generator.EntityInterface;
+using System.Data.Linq;
 
 
 namespace DbMetal.Generator.Implementation.CodeTextGenerator

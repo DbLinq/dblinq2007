@@ -426,13 +426,13 @@ namespace AndrusDB
         #region childtables
 
         [Association(Storage = "null", OtherKey = "f1", Name = "t2_f1_fkey")]
-        public EntitySet<T2> T2s
+        public System.Data.Linq.EntitySet<T2> T2s
         {
             get { return null; } //L212 - child data available only when part of query
         }
 
         [Association(Storage = "null", OtherKey = "f2", Name = "t2_f2_fkey")]
-        public EntitySet<T2> T2s_t2_f2_fkey
+        public System.Data.Linq.EntitySet<T2> T2s_t2_f2_fkey
         {
             get { return null; } //L212 - child data available only when part of query
         }
@@ -484,7 +484,7 @@ namespace AndrusDB
         #endregion
         #region parenttables
 
-        private EntityRef<T1> _T1;
+        private System.Data.Linq.EntityRef<T1> _T1;
 
         [Association(Storage = "_T1", ThisKey = "f1", Name = "t2_f1_fkey")]
         [DebuggerNonUserCode]
@@ -494,7 +494,7 @@ namespace AndrusDB
             set { this._T1.Entity = value; }
         }
 
-        private EntityRef<T1> _T1_t2_f2_fkey;
+        private System.Data.Linq.EntityRef<T1> _T1_t2_f2_fkey;
 
         [Association(Storage = "_T1_t2_f2_fkey", ThisKey = "f2", Name = "t2_f2_fkey")]
         [DebuggerNonUserCode]
