@@ -46,6 +46,18 @@ namespace DbLinq.Data.Linq
         private Action<TEntity> onRemove;
 
         private IEnumerable<TEntity> Source;
+        private List<TEntity> sourceAsList
+        {
+            get
+            {
+                if (!(Source is List<TEntity>))
+                {
+                    Source = Source.ToList();
+                    HasLoadedOrAssignedValues = true;
+                }
+                return Source as List<TEntity>;
+            }
+        }
 
 
         [DbLinqToDo]
@@ -78,7 +90,7 @@ namespace DbLinq.Data.Linq
             return Source.GetEnumerator();
         }
 
-
+        
 
         internal Expression Expression
         {
@@ -97,10 +109,9 @@ namespace DbLinq.Data.Linq
         /// <summary>
         /// TODO: Add(row)
         /// </summary>
-        [DbLinqToDo]
         public void Add(TEntity entity)
         {
-            throw new NotImplementedException();
+            sourceAsList.Add(entity);
         }
 
 
@@ -110,34 +121,28 @@ namespace DbLinq.Data.Linq
             get { throw new NotImplementedException(); }
         }
 
-        [DbLinqToDo]
         IList IListSource.GetList()
         {
-            throw new NotImplementedException();
+            return sourceAsList;
         }
 
 
         #region IList<TEntity> Members
-
-        [DbLinqToDo]
         public int IndexOf(TEntity entity)
         {
-            throw new NotImplementedException();
+            return sourceAsList.IndexOf(entity);
         }
 
-        [DbLinqToDo]
         public void Insert(int index, TEntity entity)
         {
-            throw new NotImplementedException();
+            sourceAsList.Insert(index, entity);
         }
 
-        [DbLinqToDo]
         public void RemoveAt(int index)
         {
-            throw new NotImplementedException();
+            sourceAsList.RemoveAt(index);
         }
 
-        [DbLinqToDo]
         public TEntity this[int index]
         {
             get
@@ -146,7 +151,7 @@ namespace DbLinq.Data.Linq
             }
             set
             {
-                throw new NotImplementedException();
+                sourceAsList[index] = value;
             }
         }
 
@@ -154,63 +159,59 @@ namespace DbLinq.Data.Linq
 
         #region ICollection<TEntity> Members
 
-
-        [DbLinqToDo]
         public void Clear()
         {
             Source = Enumerable.Empty<TEntity>();
         }
 
-        [DbLinqToDo]
         public bool Contains(TEntity entity)
         {
             return Source.Contains(entity);
         }
 
-        [DbLinqToDo]
         public void CopyTo(TEntity[] array, int arrayIndex)
         {
-            throw new NotImplementedException();
+            array = this.Source.Skip(arrayIndex).ToArray();
         }
 
-        [DbLinqToDo]
         public int Count
         {
             get
             {
-                return Source.Count();
+                return sourceAsList.Count;
             }
         }
 
-        [DbLinqToDo]
         bool ICollection<TEntity>.IsReadOnly
         {
             get { throw new NotImplementedException(); }
         }
 
-        [DbLinqToDo]
         public bool Remove(TEntity entity)
         {
-            throw new NotImplementedException();
+            return sourceAsList.Remove(entity);
         }
 
         #endregion
 
         #region IList Members
 
-        [DbLinqToDo]
         int IList.Add(object value)
         {
-            throw new NotImplementedException();
+            if (value is TEntity)
+            {
+                this.Add(value as TEntity);
+                return this.IndexOf(value as TEntity);
+            }
+            else
+                throw new NotSupportedException();
         }
 
-        [DbLinqToDo]
         void IList.Clear()
         {
             this.Clear();
         }
 
-        [DbLinqToDo]
         bool IList.Contains(object value)
         {
             if (value is TEntity)
@@ -219,43 +220,36 @@ namespace DbLinq.Data.Linq
                 return false;
         }
 
-        [DbLinqToDo]
         int IList.IndexOf(object value)
         {
-            throw new NotImplementedException();
+            return this.IndexOf(value as TEntity);
         }
 
-        [DbLinqToDo]
         void IList.Insert(int index, object value)
         {
-            throw new NotImplementedException();
+            this.Insert(index, value as TEntity);
         }
 
-        [DbLinqToDo]
         bool IList.IsFixedSize
         {
-            get { throw new NotImplementedException(); }
+            get { return false; }
         }
 
-        [DbLinqToDo]
         bool IList.IsReadOnly
         {
-            get { throw new NotImplementedException(); }
+            get { return false; }
         }
 
-        [DbLinqToDo]
         void IList.Remove(object value)
         {
-            throw new NotImplementedException();
+            this.Remove(value as TEntity);
         }
 
-        [DbLinqToDo]
         void IList.RemoveAt(int index)
         {
-            throw new NotImplementedException();
+            this.RemoveAt(index);
         }
 
-        [DbLinqToDo]
         object IList.this[int index]
         {
             get
@@ -264,7 +258,7 @@ namespace DbLinq.Data.Linq
             }
             set
             {
-                throw new NotImplementedException();
+                this[index] = value as TEntity;
             }
         }
 
@@ -272,16 +266,14 @@ namespace DbLinq.Data.Linq
 
         #region ICollection Members
 
-        [DbLinqToDo]
         void ICollection.CopyTo(Array array, int index)
         {
-            throw new NotImplementedException();
+            this.CopyTo(array as TEntity[], index);
         }
 
-        [DbLinqToDo]
         int ICollection.Count
         {
-            get { throw new NotImplementedException(); }
+            get { return this.Count; }
         }
 
         [DbLinqToDo]
@@ -298,46 +290,41 @@ namespace DbLinq.Data.Linq
 
         #endregion
 
-        [DbLinqToDo]
         public bool IsDeferred
         {
-            get { throw new NotImplementedException(); }
+            get { return Source is IQueryable; }
         }
 
-        [DbLinqToDo]
         public void AddRange(IEnumerable<TEntity> collection)
         {
-            throw new NotImplementedException();
+            sourceAsList.AddRange(collection);
         }
 
-        [DbLinqToDo]
         public void Assign(IEnumerable<TEntity> entitySource)
         {
-            throw new NotImplementedException();
+            this.Source = entitySource;
+            HasLoadedOrAssignedValues = true;
         }
 
-        [DbLinqToDo]
-        public void Load()
-        {
-            throw new NotImplementedException();
-        }
-
-        [DbLinqToDo]
         public void SetSource(IEnumerable<TEntity> entitySource)
         {
             this.Source = entitySource;
         }
 
-        [DbLinqToDo]
-        public bool HasLoadedOrAssignedValues
+        public void Load()
         {
-            get { throw new NotImplementedException(); }
+            this.sourceAsList.Count();
         }
 
-        [DbLinqToDo]
+        public bool HasLoadedOrAssignedValues
+        {
+            get;
+            private set;
+        }
+
         public IBindingList GetNewBindingList()
         {
-            throw new NotImplementedException();
+            return new BindingList<TEntity>(Source.ToList());
         }
 
         public event ListChangedEventHandler ListChanged;
