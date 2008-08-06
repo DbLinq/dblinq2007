@@ -395,11 +395,8 @@ namespace nwind
 		[DebuggerNonUserCode]
 		public EntitySet<Order> Orders
 		{
-			get
-			{
-				// L212 - child data available only when part of query
-				return null;
-			}
+            get;
+            set;
 		}
 
 
@@ -746,33 +743,24 @@ namespace nwind
 		[DebuggerNonUserCode]
 		public EntitySet<EmployeeTerritory> EmployeeTerritories
 		{
-			get
-			{
-				// L212 - child data available only when part of query
-				return null;
-			}
+            get;
+            set;
 		}
 
 		[Association(Storage = null, OtherKey = "ReportsTo", Name = "fk_Employees_0")]
 		[DebuggerNonUserCode]
 		public EntitySet<Employee> Employees
 		{
-			get
-			{
-				// L212 - child data available only when part of query
-				return null;
-			}
+            get;
+            set;
 		}
 
 		[Association(Storage = null, OtherKey = "EmployeeID", Name = "fk_Orders_0")]
 		[DebuggerNonUserCode]
 		public EntitySet<Order> Orders
 		{
-			get
-			{
-				// L212 - child data available only when part of query
-				return null;
-			}
+            get;
+            set;
 		}
 
 
@@ -1201,11 +1189,8 @@ namespace nwind
 		[DebuggerNonUserCode]
 		public EntitySet<OrderDetail> OrderDetails
 		{
-			get
-			{
-				// L212 - child data available only when part of query
-				return null;
-			}
+            get;
+            set;
 		}
 
 
@@ -1627,11 +1612,8 @@ namespace nwind
 		[DebuggerNonUserCode]
 		public EntitySet<OrderDetail> OrderDetails
 		{
-			get
-			{
-				// L212 - child data available only when part of query
-				return null;
-			}
+            get;
+            set;
 		}
 
 
@@ -1712,11 +1694,8 @@ namespace nwind
 		[DebuggerNonUserCode]
 		public EntitySet<Territory> Territories
 		{
-			get
-			{
-				// L212 - child data available only when part of query
-				return null;
-			}
+            get;
+            set;
 		}
 
 
@@ -2046,11 +2025,8 @@ namespace nwind
 		[DebuggerNonUserCode]
 		public EntitySet<Product> Products
 		{
-			get
-			{
-				// L212 - child data available only when part of query
-				return null;
-			}
+            get;
+            set;
 		}
 
 
@@ -2133,11 +2109,8 @@ namespace nwind
 		[DebuggerNonUserCode]
 		public EntitySet<EmployeeTerritory> EmployeeTerritories
 		{
-			get
-			{
-				// L212 - child data available only when part of query
-				return null;
-			}
+            get;
+            set;
 		}
 
 
