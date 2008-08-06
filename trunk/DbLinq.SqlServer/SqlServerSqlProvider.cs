@@ -64,6 +64,21 @@ namespace DbLinq.SqlServer
             return string.Format("COUNT(*)");
         }
 
+        protected override string GetLiteralStringLength(string a)
+        {
+            return string.Format("LEN({0})", a);
+        }
+
+        protected override string GetLiteralSubString(string a, string s, string l)
+        {
+            return string.Format("SUBSTRING({0}, {1}, {2})", a, s, l);
+        }
+
+        protected override string GetLiteralSubString(string a, string s)
+        {
+            return string.Format("SUBSTRING({0}, {1})", a, s);
+        }
+
         protected override string GetLiteralConcat(string a, string b)
         {
             return string.Format("{0} + {1}", a, b);
