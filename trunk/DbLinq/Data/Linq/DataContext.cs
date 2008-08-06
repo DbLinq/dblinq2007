@@ -57,6 +57,7 @@ using DbLinq.Logging;
 using DbLinq.Vendor;
 using DbLinq.Data.Linq.Database;
 using DbLinq.Data.Linq.Database.Implementation;
+using System.Linq.Expressions;
 
 #if MONO_STRICT
 namespace System.Data.Linq
@@ -94,6 +95,7 @@ namespace DbLinq.Data.Linq
 
         private IIdentityReaderFactory identityReaderFactory;
         private IDictionary<Type, IIdentityReader> identityReaders = new Dictionary<Type, IIdentityReader>();
+
 
         /// <summary>
         /// The default behavior creates one MappingContext.
@@ -143,7 +145,7 @@ namespace DbLinq.Data.Linq
                 Vendor = vendor;
 
             DatabaseContext = databaseContext;
-            
+
             MemberModificationHandler = ObjectFactory.Create<IMemberModificationHandler>(); // not a singleton: object is stateful
             QueryBuilder = ObjectFactory.Get<IQueryBuilder>();
             QueryRunner = ObjectFactory.Get<IQueryRunner>();
@@ -314,6 +316,8 @@ namespace DbLinq.Data.Linq
         {
             var identityReader = _GetIdentityReader(entity.GetType());
             var identityKey = identityReader.GetIdentityKey(entity);
+            SetEntitySetsQueries(entity);
+
             if (identityKey == null)
                 return entity;
             var registeredEntity = EntityMap[identityKey];
@@ -324,6 +328,54 @@ namespace DbLinq.Data.Linq
             }
             return registeredEntity;
         }
+
+        IDataMapper DataMapper = ObjectFactory.Get<IDataMapper>();
+        private void SetEntitySetsQueries(object entity)
+        {
+            IList<MemberInfo> properties = DataMapper.GetEntitySetAssociations(entity.GetType());
+            IList<MemberInfo> primaryKeys = DataMapper.GetPrimaryKeys(Mapping.GetTable(entity.GetType()));
+
+            if (primaryKeys.Count > 1 && properties.Any())
+                throw new NotSupportedException("Multiple keys object not supported yet.");
+
+            object primaryKeyValue = (primaryKeys.First() as PropertyInfo).GetValue(entity, null);
+
+            foreach (PropertyInfo prop in properties)
+            {
+                AssociationAttribute associationInfo = prop.GetAttribute<AssociationAttribute>();
+                Type otherTableType = prop.PropertyType.GetGenericArguments().First();
+                //ie:EmployeeTerritories
+
+                IQueryable otherTable = GetTable(otherTableType) as IQueryable;
+                MemberInfo otherTableMember = otherTableType.GetProperty(associationInfo.OtherKey);
+                //ie:EmployeeTerritories.EmployeeID
+
+                ParameterExpression p = Expression.Parameter(otherTableType, "other");
+                Expression predicate = Expression.Equal(Expression.MakeMemberAccess(p, otherTableMember),
+                                                             Expression.Constant(primaryKeyValue));
+                //ie: other.EmployeeID== "WARTH"
+
+
+                Expression lambdaPredicate = Expression.Lambda(predicate, p);
+                //ie: other=>other.EmployeeID== "WARTH"
+
+                var whereMethod = typeof(System.Linq.Queryable)
+                                  .GetMethods().First(m=>m.Name=="Where")
+                                  .MakeGenericMethod(otherTableType);
+
+
+                Expression call = Expression.Call(whereMethod, otherTable.Expression, lambdaPredicate);
+                //Table[EmployeesTerritories].Where(other=>other.employeeID="WARTH")
+
+                var query=otherTable.Provider.CreateQuery(call);
+                var entitySetProperty = prop.GetValue(entity, null);
+                var setSourceMethod = entitySetProperty.GetType().GetMethod("SetSource");
+                setSourceMethod.Invoke(entitySetProperty, new object[] { query });
+                //employee.EmployeeTerritories.SetSource(Table[EmployeesTerritories].Where(other=>other.employeeID="WARTH"))
+            }
+        }
+
+
 
         internal IEnumerable<T> GetRegisteredEntities<T>()
         {
@@ -542,13 +594,7 @@ namespace DbLinq.Data.Linq
             set { throw new NotImplementedException(); }
         }
 
-        [Obsolete("NOT IMPLEMENTED YET")]
-        [DbLinqToDo]
-        public DbTransaction Transaction
-        {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
-        }
+        public DbTransaction Transaction { get; set; }
 
         public IEnumerable<TResult> Translate<TResult>(DbDataReader reader)
         {

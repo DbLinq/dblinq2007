@@ -105,5 +105,11 @@ namespace DbLinq.Data.Linq.Sugar
                             out IList<MemberInfo> thisKey, out IList<MemberInfo> otherKey, out TableJoinType joinType,
                             out string joinID, DataContext dataContext);
 
+        /// <summary>
+        /// Returns child associations (EntitySets)
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        IList<MemberInfo> GetEntitySetAssociations(Type type);
     }
 }
