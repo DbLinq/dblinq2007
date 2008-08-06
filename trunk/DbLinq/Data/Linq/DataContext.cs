@@ -347,12 +347,25 @@ namespace DbLinq.Data.Linq
                 //ie:EmployeeTerritories
 
                 IQueryable otherTable = GetTable(otherTableType) as IQueryable;
-                MemberInfo otherTableMember = otherTableType.GetProperty(associationInfo.OtherKey);
+                PropertyInfo otherTableMember = otherTableType.GetProperty(associationInfo.OtherKey) as PropertyInfo;
                 //ie:EmployeeTerritories.EmployeeID
 
                 ParameterExpression p = Expression.Parameter(otherTableType, "other");
-                Expression predicate = Expression.Equal(Expression.MakeMemberAccess(p, otherTableMember),
+
+                Expression predicate;
+                if (!(otherTableMember.PropertyType.IsNullable()))
+                {
+                     predicate = Expression.Equal(Expression.MakeMemberAccess(p, otherTableMember),
+                                                                 Expression.Constant(primaryKeyValue));
+                }
+                else
+                {
+                    var ValueProperty = otherTableMember.PropertyType.GetProperty("Value");
+                    predicate = Expression.Equal(Expression.MakeMemberAccess(
+                                                                Expression.MakeMemberAccess(p, otherTableMember),
+                                                                ValueProperty),
                                                              Expression.Constant(primaryKeyValue));
+                }
                 //ie: other.EmployeeID== "WARTH"
 
 
@@ -593,12 +606,11 @@ namespace DbLinq.Data.Linq
         /// <summary>
         /// TODO: DataLoadOptions ds = new DataLoadOptions(); ds.LoadWith<Customer>(p => p.Orders);
         /// </summary>
-        [Obsolete("NOT IMPLEMENTED YET")]
         [DbLinqToDo]
         public DataLoadOptions LoadOptions
         {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            get;
+            set;
         }
 
         public DbTransaction Transaction { get; set; }
