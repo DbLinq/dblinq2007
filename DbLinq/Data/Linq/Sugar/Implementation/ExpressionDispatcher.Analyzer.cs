@@ -218,9 +218,17 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     return AnalyzeSelectOperation(SelectOperatorType.Intersection, parameters, builderContext);
                 case "Except":
                     return AnalyzeSelectOperation(SelectOperatorType.Exception, parameters, builderContext);
+                case "Trim":
+                    return AnalyzeGenericSpecialExpressinType(SpecialExpressionType.Trim,parameters,builderContext);
                 default:
                     throw Error.BadArgument("S0133: Implement QueryMethod '{0}'", methodName);
             }
+        }
+
+
+        protected virtual Expression AnalyzeGenericSpecialExpressinType(SpecialExpressionType specialType,IList<Expression> parameters, BuilderContext builderContext)
+        {
+            return new SpecialExpression(specialType, parameters.Select(p=>Analyze(p, builderContext)).ToList());
         }
 
         /// <summary>
@@ -501,6 +509,9 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 var queryColumnExpression = RegisterColumn(tableExpression, memberInfo, builderContext);
                 if (queryColumnExpression != null)
                     return queryColumnExpression;
+
+                if(memberInfo.Name=="Count")
+                    return AnalyzeCall("Count",new Expression[]{memberExpression.Expression},builderContext);
                 // then, cry
                 throw Error.BadArgument("S0293: Column must be mapped. Non-mapped columns are not handled by now.");
             }

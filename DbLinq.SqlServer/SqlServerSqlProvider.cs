@@ -79,6 +79,11 @@ namespace DbLinq.SqlServer
             return string.Format("SUBSTRING({0}, {1})", a, s);
         }
 
+        protected override string GetLiteralTrim(string a)
+        {
+            return string.Format("RTRIM(LTRIM({0}))", a);
+        }
+
         protected override string GetLiteralConcat(string a, string b)
         {
             return string.Format("{0} + {1}", a, b);
