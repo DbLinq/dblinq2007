@@ -211,8 +211,12 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         /// <returns></returns>
         protected Expression BuildExpressionQuery(ExpressionChain expressions, Expression tableExpression, BuilderContext builderContext)
         {
+            var last = expressions.Last();
             foreach (var expression in expressions)
             {
+                if (expression == last)
+                    builderContext.IsExternalInExpressionChain = true;
+
                 builderContext.QueryContext.DataContext.Logger.WriteExpression(Level.Debug, expression);
                 // Convert linq Expressions to QueryOperationExpressions and QueryConstantExpressions 
                 // Query expressions language identification

@@ -76,58 +76,58 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         {
             switch (expression.NodeType)
             {
-            case ExpressionType.Call:
-                return AnalyzeCall((MethodCallExpression)expression, parameters, builderContext);
-            case ExpressionType.Lambda:
-                return AnalyzeLambda(expression, parameters, builderContext);
-            case ExpressionType.Parameter:
-                return AnalyzeParameter(expression, builderContext);
-            case ExpressionType.Quote:
-                return AnalyzeQuote(expression, parameters, builderContext);
-            case ExpressionType.MemberAccess:
-                return AnalyzeMember(expression, builderContext);
-            #region case ExpressionType.<Common operators>:
-            case ExpressionType.Add:
-            case ExpressionType.AddChecked:
-            case ExpressionType.Divide:
-            case ExpressionType.Modulo:
-            case ExpressionType.Multiply:
-            case ExpressionType.MultiplyChecked:
-            case ExpressionType.Power:
-            case ExpressionType.Subtract:
-            case ExpressionType.SubtractChecked:
-            case ExpressionType.And:
-            case ExpressionType.Or:
-            case ExpressionType.ExclusiveOr:
-            case ExpressionType.LeftShift:
-            case ExpressionType.RightShift:
-            case ExpressionType.AndAlso:
-            case ExpressionType.OrElse:
-            case ExpressionType.Equal:
-            case ExpressionType.NotEqual:
-            case ExpressionType.GreaterThanOrEqual:
-            case ExpressionType.GreaterThan:
-            case ExpressionType.LessThan:
-            case ExpressionType.LessThanOrEqual:
-            case ExpressionType.Coalesce:
-            //case ExpressionType.ArrayIndex
-            //case ExpressionType.ArrayLength
-            case ExpressionType.Convert:
-            case ExpressionType.ConvertChecked:
-            case ExpressionType.Negate:
-            case ExpressionType.NegateChecked:
-            case ExpressionType.Not:
-            //case ExpressionType.TypeAs
-            case ExpressionType.UnaryPlus:
-            case ExpressionType.MemberInit:
-            #endregion
-                return AnalyzeOperator(expression, builderContext);
-            case ExpressionType.New:
-                return AnalyzeNewOperator(expression, builderContext);
-            case ExpressionType.Constant:
-                return AnalyzeConstant(expression, builderContext);
-            case ExpressionType.Invoke:
-                return AnalyzeInvoke(expression, parameters, builderContext);
+                case ExpressionType.Call:
+                    return AnalyzeCall((MethodCallExpression)expression, parameters, builderContext);
+                case ExpressionType.Lambda:
+                    return AnalyzeLambda(expression, parameters, builderContext);
+                case ExpressionType.Parameter:
+                    return AnalyzeParameter(expression, builderContext);
+                case ExpressionType.Quote:
+                    return AnalyzeQuote(expression, parameters, builderContext);
+                case ExpressionType.MemberAccess:
+                    return AnalyzeMember(expression, builderContext);
+                #region case ExpressionType.<Common operators>:
+                case ExpressionType.Add:
+                case ExpressionType.AddChecked:
+                case ExpressionType.Divide:
+                case ExpressionType.Modulo:
+                case ExpressionType.Multiply:
+                case ExpressionType.MultiplyChecked:
+                case ExpressionType.Power:
+                case ExpressionType.Subtract:
+                case ExpressionType.SubtractChecked:
+                case ExpressionType.And:
+                case ExpressionType.Or:
+                case ExpressionType.ExclusiveOr:
+                case ExpressionType.LeftShift:
+                case ExpressionType.RightShift:
+                case ExpressionType.AndAlso:
+                case ExpressionType.OrElse:
+                case ExpressionType.Equal:
+                case ExpressionType.NotEqual:
+                case ExpressionType.GreaterThanOrEqual:
+                case ExpressionType.GreaterThan:
+                case ExpressionType.LessThan:
+                case ExpressionType.LessThanOrEqual:
+                case ExpressionType.Coalesce:
+                //case ExpressionType.ArrayIndex
+                //case ExpressionType.ArrayLength
+                case ExpressionType.Convert:
+                case ExpressionType.ConvertChecked:
+                case ExpressionType.Negate:
+                case ExpressionType.NegateChecked:
+                case ExpressionType.Not:
+                //case ExpressionType.TypeAs
+                case ExpressionType.UnaryPlus:
+                case ExpressionType.MemberInit:
+                #endregion
+                    return AnalyzeOperator(expression, builderContext);
+                case ExpressionType.New:
+                    return AnalyzeNewOperator(expression, builderContext);
+                case ExpressionType.Constant:
+                    return AnalyzeConstant(expression, builderContext);
+                case ExpressionType.Invoke:
+                    return AnalyzeInvoke(expression, parameters, builderContext);
             }
             return expression;
         }
@@ -136,10 +136,10 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         {
             var operands = expression.GetOperands().ToList();
             var operarandsToSkip = expression.Method.IsStatic ? 1 : 0;
-            var originalParameters = ExtractParameters(operands, parameters.Count + operarandsToSkip);
-            var newParameters = MergeParameters(parameters, originalParameters);
+            var originalParameters = operands.Skip(parameters.Count + operarandsToSkip);
+            var newParameters = parameters.Union(originalParameters);
 
-            return AnalyzeCall(expression.Method.Name, newParameters, builderContext);
+            return AnalyzeCall(expression.Method.Name, newParameters.ToList(), builderContext);
         }
 
         protected virtual Expression AnalyzeCall(string methodName, IList<Expression> parameters, BuilderContext builderContext)
@@ -148,78 +148,78 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             // ms-help://MS.VSCC.v90/MS.MSDNQTR.v90.en/fxref_system.core/html/2a54ce9d-76f2-81e2-95bb-59740c85386b.htm
             switch (methodName)
             {
-            case "Select":
-                return AnalyzeSelect(parameters, builderContext);
-            case "Where":
-                return AnalyzeWhere(parameters, builderContext);
-            case "SelectMany":
-                return AnalyzeSelectMany(parameters, builderContext);
-            case "Join":
-                return AnalyzeJoin(parameters, builderContext);
-            case "GroupJoin":
-                return AnalyzeGroupJoin(parameters, builderContext);
-            case "DefaultIfEmpty":
-                return AnalyzeOuterJoin(parameters, builderContext);
-            case "Distinct":
-                return AnalyzeDistinct(parameters, builderContext);
-            case "GroupBy":
-                return AnalyzeGroupBy(parameters, builderContext);
-            case "All":
-                return AnalyzeAll(parameters, builderContext);
-            case "Any":
-                return AnalyzeAny(parameters, builderContext);
-            case "Average":
-                return AnalyzeProjectionQuery(SpecialExpressionType.Average, parameters, builderContext);
-            case "Count":
-                return AnalyzeProjectionQuery(SpecialExpressionType.Count, parameters, builderContext);
-            case "Max":
-                return AnalyzeProjectionQuery(SpecialExpressionType.Max, parameters, builderContext);
-            case "Min":
-                return AnalyzeProjectionQuery(SpecialExpressionType.Min, parameters, builderContext);
-            case "Sum":
-                return AnalyzeProjectionQuery(SpecialExpressionType.Sum, parameters, builderContext);
-            case "StartsWith":
-                return AnalyzeLikeStart(parameters, builderContext);
-            case "EndsWith":
-                return AnalyzeLikeEnd(parameters, builderContext);
-            case "Contains":
-                if (typeof(string).IsAssignableFrom(parameters[0].Type))
-                    return AnalyzeLike(parameters, builderContext);
-                return AnalyzeContains(parameters, builderContext);
-            case "Substring":
-                return AnalyzeSubString(parameters, builderContext);
-            case "First":
-            case "FirstOrDefault":
-                return AnalyzeScalar(methodName, 1, parameters, builderContext);
-            case "Single":
-            case "SingleOrDefault":
-                return AnalyzeScalar(methodName, 2, parameters, builderContext);
-            case "Last":
-                return AnalyzeScalar(methodName, null, parameters, builderContext);
-            case "Take":
-                return AnalyzeTake(parameters, builderContext);
-            case "Skip":
-                return AnalyzeSkip(parameters, builderContext);
-            case "ToUpper":
-                return AnalyzeToUpper(parameters, builderContext);
-            case "ToLower":
-                return AnalyzeToLower(parameters, builderContext);
-            case "OrderBy":
-            case "ThenBy":
-                return AnalyzeOrderBy(parameters, false, builderContext);
-            case "OrderByDescending":
-            case "ThenByDescending":
-                return AnalyzeOrderBy(parameters, true, builderContext);
-            case "Union":
-                return AnalyzeSelectOperation(SelectOperatorType.Union, parameters, builderContext);
-            case "Concat":
-                return AnalyzeSelectOperation(SelectOperatorType.UnionAll, parameters, builderContext);
-            case "Intersect":
-                return AnalyzeSelectOperation(SelectOperatorType.Intersection, parameters, builderContext);
-            case "Except":
-                return AnalyzeSelectOperation(SelectOperatorType.Exception, parameters, builderContext);
-            default:
-                throw Error.BadArgument("S0133: Implement QueryMethod '{0}'", methodName);
+                case "Select":
+                    return AnalyzeSelect(parameters, builderContext);
+                case "Where":
+                    return AnalyzeWhere(parameters, builderContext);
+                case "SelectMany":
+                    return AnalyzeSelectMany(parameters, builderContext);
+                case "Join":
+                    return AnalyzeJoin(parameters, builderContext);
+                case "GroupJoin":
+                    return AnalyzeGroupJoin(parameters, builderContext);
+                case "DefaultIfEmpty":
+                    return AnalyzeOuterJoin(parameters, builderContext);
+                case "Distinct":
+                    return AnalyzeDistinct(parameters, builderContext);
+                case "GroupBy":
+                    return AnalyzeGroupBy(parameters, builderContext);
+                case "All":
+                    return AnalyzeAll(parameters, builderContext);
+                case "Any":
+                    return AnalyzeAny(parameters, builderContext);
+                case "Average":
+                    return AnalyzeProjectionQuery(SpecialExpressionType.Average, parameters, builderContext);
+                case "Count":
+                    return AnalyzeProjectionQuery(SpecialExpressionType.Count, parameters, builderContext);
+                case "Max":
+                    return AnalyzeProjectionQuery(SpecialExpressionType.Max, parameters, builderContext);
+                case "Min":
+                    return AnalyzeProjectionQuery(SpecialExpressionType.Min, parameters, builderContext);
+                case "Sum":
+                    return AnalyzeProjectionQuery(SpecialExpressionType.Sum, parameters, builderContext);
+                case "StartsWith":
+                    return AnalyzeLikeStart(parameters, builderContext);
+                case "EndsWith":
+                    return AnalyzeLikeEnd(parameters, builderContext);
+                case "Contains":
+                    if (typeof(string).IsAssignableFrom(parameters[0].Type))
+                        return AnalyzeLike(parameters, builderContext);
+                    return AnalyzeContains(parameters, builderContext);
+                case "Substring":
+                    return AnalyzeSubString(parameters, builderContext);
+                case "First":
+                case "FirstOrDefault":
+                    return AnalyzeScalar(methodName, 1, parameters, builderContext);
+                case "Single":
+                case "SingleOrDefault":
+                    return AnalyzeScalar(methodName, 2, parameters, builderContext);
+                case "Last":
+                    return AnalyzeScalar(methodName, null, parameters, builderContext);
+                case "Take":
+                    return AnalyzeTake(parameters, builderContext);
+                case "Skip":
+                    return AnalyzeSkip(parameters, builderContext);
+                case "ToUpper":
+                    return AnalyzeToUpper(parameters, builderContext);
+                case "ToLower":
+                    return AnalyzeToLower(parameters, builderContext);
+                case "OrderBy":
+                case "ThenBy":
+                    return AnalyzeOrderBy(parameters, false, builderContext);
+                case "OrderByDescending":
+                case "ThenByDescending":
+                    return AnalyzeOrderBy(parameters, true, builderContext);
+                case "Union":
+                    return AnalyzeSelectOperation(SelectOperatorType.Union, parameters, builderContext);
+                case "Concat":
+                    return AnalyzeSelectOperation(SelectOperatorType.UnionAll, parameters, builderContext);
+                case "Intersect":
+                    return AnalyzeSelectOperation(SelectOperatorType.Intersection, parameters, builderContext);
+                case "Except":
+                    return AnalyzeSelectOperation(SelectOperatorType.Exception, parameters, builderContext);
+                default:
+                    throw Error.BadArgument("S0133: Implement QueryMethod '{0}'", methodName);
             }
         }
 
@@ -308,37 +308,64 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         protected virtual Expression AnalyzeProjectionQuery(SpecialExpressionType specialExpressionType, IList<Expression> parameters,
                                                             BuilderContext builderContext)
         {
-            var operand0 = Analyze(parameters[0], builderContext);
-            Expression projectionOperand;
 
-            // basically, we have three options for projection methods:
-            // - projection on grouped table (1 operand, a GroupExpression)
-            // - projection on grouped column (2 operands, GroupExpression and ColumnExpression)
-            // - projection on table/column, with optional restriction
-            var groupOperand0 = operand0 as GroupExpression;
-            if (groupOperand0 != null)
+            if (builderContext.IsExternalInExpressionChain)
             {
-                if (parameters.Count > 1)
+                var operand0 = Analyze(parameters[0], builderContext);
+                Expression projectionOperand;
+
+                // basically, we have three options for projection methods:
+                // - projection on grouped table (1 operand, a GroupExpression)
+                // - projection on grouped column (2 operands, GroupExpression and ColumnExpression)
+                // - projection on table/column, with optional restriction
+                var groupOperand0 = operand0 as GroupExpression;
+                if (groupOperand0 != null)
                 {
-                    projectionOperand = Analyze(parameters[1], groupOperand0.GroupedExpression,
-                                                builderContext);
+                    if (parameters.Count > 1)
+                    {
+                        projectionOperand = Analyze(parameters[1], groupOperand0.GroupedExpression,
+                                                    builderContext);
+                    }
+                    else
+                        projectionOperand = Analyze(groupOperand0.GroupedExpression, builderContext);
                 }
                 else
-                    projectionOperand = Analyze(groupOperand0.GroupedExpression, builderContext);
+                {
+                    projectionOperand = operand0;
+                    CheckWhere(projectionOperand, parameters, 1, builderContext);
+                }
+
+                if (projectionOperand is TableExpression)
+                    projectionOperand = RegisterTable((TableExpression)projectionOperand, builderContext);
+
+                if (groupOperand0 != null)
+                    projectionOperand = new GroupExpression(projectionOperand, groupOperand0.KeyExpression);
+
+                return new SpecialExpression(specialExpressionType, projectionOperand);
             }
             else
             {
-                projectionOperand = operand0;
-                CheckWhere(projectionOperand, parameters, 1, builderContext);
+                var projectionQueryBuilderContext = builderContext.NewSelect();
+                var tableExpression = Analyze(parameters[0], projectionQueryBuilderContext);
+
+                if (!(tableExpression is TableExpression))
+                    tableExpression = Analyze(tableExpression, projectionQueryBuilderContext);
+
+                // from here we build a custom clause:
+                // <anyClause> ==> "(select count(*) from <table> where <anyClause>)>0"
+                // TODO (later...): see if some vendors support native Any operator and avoid this substitution
+                if (parameters.Count > 1)
+                {
+                    var anyClause = Analyze(parameters[1], tableExpression, projectionQueryBuilderContext);
+                    RegisterWhere(anyClause, projectionQueryBuilderContext);
+                }
+
+                projectionQueryBuilderContext.CurrentSelect = projectionQueryBuilderContext.CurrentSelect.ChangeOperands(new SpecialExpression(specialExpressionType, tableExpression));
+
+                // we now switch back to current context, and compare the result with 0
+                return projectionQueryBuilderContext.CurrentSelect;
+
             }
-
-            if (projectionOperand is TableExpression)
-                projectionOperand = RegisterTable((TableExpression)projectionOperand, builderContext);
-
-            if (groupOperand0 != null)
-                projectionOperand = new GroupExpression(projectionOperand, groupOperand0.KeyExpression);
-
-            return new SpecialExpression(specialExpressionType, projectionOperand);
         }
 
         /// <summary>
@@ -551,8 +578,8 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             {
                 switch (memberInfo.Name)
                 {
-                case "Length":
-                    return new SpecialExpression(SpecialExpressionType.StringLength, objectExpression);
+                    case "Length":
+                        return new SpecialExpression(SpecialExpressionType.StringLength, objectExpression);
                 }
             }
             //throw Error.BadArgument("S0324: Don't know how to handle Piece");
@@ -821,22 +848,63 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         /// <returns></returns>
         protected virtual Expression AnalyzeAny(IList<Expression> parameters, BuilderContext builderContext)
         {
-            var anyBuilderContext = builderContext.NewSelect();
-            var tableExpression = Analyze(parameters[0], anyBuilderContext);
-            // from here we build a custom clause:
-            // <anyClause> ==> "(select count(*) from <table> where <anyClause>)>0"
-            // TODO (later...): see if some vendors support native Any operator and avoid this substitution
-            if (parameters.Count > 1)
+            if (builderContext.IsExternalInExpressionChain)
             {
-                var anyClause = Analyze(parameters[1], tableExpression, anyBuilderContext);
-                RegisterWhere(anyClause, anyBuilderContext);
-            }
-            anyBuilderContext.CurrentSelect = anyBuilderContext.CurrentSelect.ChangeOperands(new SpecialExpression(SpecialExpressionType.Count, tableExpression));
-            // TODO: see if we need to register the tablePiece here (we probably don't)
+                var tableExpression = Analyze(parameters[0], builderContext);
+                Expression projectionOperand;
 
-            // we now switch back to current context, and compare the result with 0
-            var anyExpression = Expression.GreaterThan(anyBuilderContext.CurrentSelect, Expression.Constant(0));
-            return anyExpression;
+                // basically, we have three options for projection methods:
+                // - projection on grouped table (1 operand, a GroupExpression)
+                // - projection on grouped column (2 operands, GroupExpression and ColumnExpression)
+                // - projection on table/column, with optional restriction
+                var groupOperand0 = tableExpression as GroupExpression;
+                if (groupOperand0 != null)
+                {
+                    if (parameters.Count > 1)
+                    {
+                        projectionOperand = Analyze(parameters[1], groupOperand0.GroupedExpression,
+                                                    builderContext);
+                    }
+                    else
+                        projectionOperand = Analyze(groupOperand0.GroupedExpression, builderContext);
+                }
+                else
+                {
+                    projectionOperand = tableExpression;
+                    CheckWhere(projectionOperand, parameters, 1, builderContext);
+                }
+
+                if (projectionOperand is TableExpression)
+                    projectionOperand = RegisterTable((TableExpression)projectionOperand, builderContext);
+
+                if (groupOperand0 != null)
+                    projectionOperand = new GroupExpression(projectionOperand, groupOperand0.KeyExpression);
+
+                return Expression.GreaterThan(new SpecialExpression(SpecialExpressionType.Count, projectionOperand), Expression.Constant(0));
+            }
+            else
+            {
+                var anyBuilderContext = builderContext.NewSelect();
+                var tableExpression = Analyze(parameters[0], anyBuilderContext);
+
+                if(!(tableExpression is TableExpression))
+                    tableExpression=Analyze(tableExpression,anyBuilderContext);
+
+                // from here we build a custom clause:
+                // <anyClause> ==> "(select count(*) from <table> where <anyClause>)>0"
+                // TODO (later...): see if some vendors support native Any operator and avoid this substitution
+                if (parameters.Count > 1)
+                {
+                    var anyClause = Analyze(parameters[1], tableExpression, anyBuilderContext);
+                    RegisterWhere(anyClause, anyBuilderContext);
+                }
+                anyBuilderContext.CurrentSelect = anyBuilderContext.CurrentSelect.ChangeOperands(new SpecialExpression(SpecialExpressionType.Count, tableExpression));
+                // TODO: see if we need to register the tablePiece here (we probably don't)
+
+                // we now switch back to current context, and compare the result with 0
+                var anyExpression = Expression.GreaterThan(anyBuilderContext.CurrentSelect, Expression.Constant(0));
+                return anyExpression;
+            }
         }
 
         protected virtual Expression AnalyzeLikeStart(IList<Expression> parameters, BuilderContext builderContext)
