@@ -40,11 +40,17 @@ namespace DbLinq.Data.Linq
 #endif
 {
     public sealed class EntitySet<TEntity> : ICollection, ICollection<TEntity>, IEnumerable, IEnumerable<TEntity>, IList, IList<TEntity>, IListSource
+        where TEntity : class
     {
         private Action<TEntity> onAdd;
         private Action<TEntity> onRemove;
+
+        private IEnumerable<TEntity> Source;
+
+
         [DbLinqToDo]
         public EntitySet(Action<TEntity> onAdd, Action<TEntity> onRemove)
+            : this()
         {
             this.onAdd = onAdd;
             this.onRemove = onRemove;
@@ -52,7 +58,7 @@ namespace DbLinq.Data.Linq
 
         public EntitySet()
         {
- 
+            Source = System.Linq.Enumerable.Empty<TEntity>();
         }
 
         /// <summary>
@@ -60,8 +66,8 @@ namespace DbLinq.Data.Linq
         /// </summary>
         public IEnumerator<TEntity> GetEnumerator()
         {
-            throw new ApplicationException("Not impl");
-            //SessionVars vars = GetVars();
+            return Source.GetEnumerator();
+            //vars = GetVars();
             //IEnumerator<T> enumerator = new RowEnumerator<T>(vars);
             //return (IEnumerator<T>)enumerator;
         }
@@ -69,19 +75,24 @@ namespace DbLinq.Data.Linq
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            throw new ApplicationException("L68 Not implemented");
+            return Source.GetEnumerator();
         }
 
-        
+
 
         internal Expression Expression
         {
-            //copied from RdfProvider
-            get { return Expression.Constant(this); }
+            get
+            {
+                if (this.Source is IQueryable<TEntity>)
+                    return (Source as IQueryable<TEntity>).Expression;
+                else
+                    return Expression.Constant(this);
+            }
         }
 
 
-      
+
 
         /// <summary>
         /// TODO: Add(row)
@@ -92,8 +103,7 @@ namespace DbLinq.Data.Linq
             throw new NotImplementedException();
         }
 
-        #region IListSource Members
-        
+
         [DbLinqToDo]
         bool IListSource.ContainsListCollection
         {
@@ -106,7 +116,6 @@ namespace DbLinq.Data.Linq
             throw new NotImplementedException();
         }
 
-        #endregion
 
         #region IList<TEntity> Members
 
@@ -133,7 +142,7 @@ namespace DbLinq.Data.Linq
         {
             get
             {
-                throw new NotImplementedException();
+                return Source.ElementAt(index);
             }
             set
             {
@@ -149,13 +158,13 @@ namespace DbLinq.Data.Linq
         [DbLinqToDo]
         public void Clear()
         {
-            throw new NotImplementedException();
+            Source = Enumerable.Empty<TEntity>();
         }
 
         [DbLinqToDo]
         public bool Contains(TEntity entity)
         {
-            throw new NotImplementedException();
+            return Source.Contains(entity);
         }
 
         [DbLinqToDo]
@@ -167,7 +176,10 @@ namespace DbLinq.Data.Linq
         [DbLinqToDo]
         public int Count
         {
-            get { throw new NotImplementedException(); }
+            get
+            {
+                return Source.Count();
+            }
         }
 
         [DbLinqToDo]
@@ -195,13 +207,16 @@ namespace DbLinq.Data.Linq
         [DbLinqToDo]
         void IList.Clear()
         {
-            throw new NotImplementedException();
+            this.Clear();
         }
 
         [DbLinqToDo]
         bool IList.Contains(object value)
         {
-            throw new NotImplementedException();
+            if (value is TEntity)
+                return this.Contains(value as TEntity);
+            else
+                return false;
         }
 
         [DbLinqToDo]
@@ -245,7 +260,7 @@ namespace DbLinq.Data.Linq
         {
             get
             {
-                throw new NotImplementedException();
+                return this[index];
             }
             set
             {
@@ -310,13 +325,13 @@ namespace DbLinq.Data.Linq
         [DbLinqToDo]
         public void SetSource(IEnumerable<TEntity> entitySource)
         {
-            throw new NotImplementedException();
+            this.Source = entitySource;
         }
 
         [DbLinqToDo]
         public bool HasLoadedOrAssignedValues
         {
-            get{throw new NotImplementedException();}
+            get { throw new NotImplementedException(); }
         }
 
         [DbLinqToDo]

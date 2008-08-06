@@ -150,5 +150,15 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             var members = (from key in sourceKeys select key.Member).ToList();
             return members;
         }
+
+        public IList<MemberInfo> GetEntitySetAssociations(Type type)
+        {
+            return type.GetProperties()
+                .Where(p => p.PropertyType.IsGenericType && 
+                    p.PropertyType.GetGenericTypeDefinition() == typeof(EntitySet<>) &&
+                    p.IsDefined(typeof(AssociationAttribute),true))
+                .Cast<MemberInfo>().ToList();
+        }
+
     }
 }
