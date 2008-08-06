@@ -174,5 +174,7 @@ namespace DbLinq.Data.Linq.Sugar
 
             return builderContext;
         }
+
+        public bool IsExternalInExpressionChain { get; set; }
     }
 }

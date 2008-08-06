@@ -292,19 +292,6 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         }
 
         /// <summary>
-        /// Merges two parameters lists
-        /// </summary>
-        /// <param name="p1"></param>
-        /// <param name="p2"></param>
-        /// <returns></returns>
-        public virtual IList<Expression> MergeParameters(IEnumerable<Expression> p1, IEnumerable<Expression> p2)
-        {
-            var p = new List<Expression>(p1);
-            p.AddRange(p2);
-            return p;
-        }
-
-        /// <summary>
         /// Merges a parameter and a parameter list
         /// </summary>
         /// <param name="p1"></param>
@@ -316,17 +303,6 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             p.Add(p1);
             p.AddRange(p2);
             return p;
-        }
-
-        /// <summary>
-        /// Extracts a subset of a parameters list
-        /// </summary>
-        /// <param name="expressions"></param>
-        /// <param name="first">The index for the first parameter to be kept</param>
-        /// <returns></returns>
-        public virtual IList<Expression> ExtractParameters(IEnumerable<Expression> expressions, int first)
-        {
-            return new List<Expression>(expressions.Skip(first));
         }
     }
 }

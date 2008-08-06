@@ -81,7 +81,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
     <None Include="nwind\originalMSNorthwind.dbml.layout">
       <DependentUpon>originalMSNorthwind.dbml</DependentUpon>
     </None>
