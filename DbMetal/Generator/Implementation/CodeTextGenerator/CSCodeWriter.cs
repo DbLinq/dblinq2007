@@ -197,6 +197,10 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             return WriteBrackets();
         }
 
+        public override void WriteLazyPropertyGetSet()
+        {
+            WriteLine("get;set;");
+        }
         public override IDisposable WritePropertyGet()
         {
             WriteLine("get");

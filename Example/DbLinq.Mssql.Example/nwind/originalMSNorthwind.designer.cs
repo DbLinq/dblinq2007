@@ -32,24 +32,18 @@ namespace MsNorthwind
     partial void InsertCategory(Category instance);
     partial void UpdateCategory(Category instance);
     partial void DeleteCategory(Category instance);
-    partial void InsertCustomerCustomerDemo(CustomerCustomerDemo instance);
-    partial void UpdateCustomerCustomerDemo(CustomerCustomerDemo instance);
-    partial void DeleteCustomerCustomerDemo(CustomerCustomerDemo instance);
-    partial void InsertCustomerDemographic(CustomerDemographic instance);
-    partial void UpdateCustomerDemographic(CustomerDemographic instance);
-    partial void DeleteCustomerDemographic(CustomerDemographic instance);
     partial void InsertCustomer(Customer instance);
     partial void UpdateCustomer(Customer instance);
     partial void DeleteCustomer(Customer instance);
     partial void InsertEmployee(Employee instance);
     partial void UpdateEmployee(Employee instance);
     partial void DeleteEmployee(Employee instance);
-    partial void InsertEmployeeTerritory(EmployeeTerritory instance);
-    partial void UpdateEmployeeTerritory(EmployeeTerritory instance);
-    partial void DeleteEmployeeTerritory(EmployeeTerritory instance);
     partial void InsertOrderDetail(OrderDetail instance);
     partial void UpdateOrderDetail(OrderDetail instance);
     partial void DeleteOrderDetail(OrderDetail instance);
+    partial void InsertEmployeeTerritory(EmployeeTerritory instance);
+    partial void UpdateEmployeeTerritory(EmployeeTerritory instance);
+    partial void DeleteEmployeeTerritory(EmployeeTerritory instance);
     partial void InsertOrder(Order instance);
     partial void UpdateOrder(Order instance);
     partial void DeleteOrder(Order instance);
@@ -69,6 +63,13 @@ namespace MsNorthwind
     partial void UpdateTerritory(Territory instance);
     partial void DeleteTerritory(Territory instance);
     #endregion
+		
+		public Northwind() : 
+				base("Data Source=GEUS-LAPTOP\\SQLEXPRESS;Initial Catalog=Northwind;Integrated Security=" +
+						"True", mappingSource)
+		{
+			OnCreated();
+		}
 		
 		public Northwind(string connection) : 
 				base(connection, mappingSource)
@@ -102,22 +103,6 @@ namespace MsNorthwind
 			}
 		}
 		
-		public System.Data.Linq.Table<CustomerCustomerDemo> CustomerCustomerDemos
-		{
-			get
-			{
-				return this.GetTable<CustomerCustomerDemo>();
-			}
-		}
-		
-		public System.Data.Linq.Table<CustomerDemographic> CustomerDemographics
-		{
-			get
-			{
-				return this.GetTable<CustomerDemographic>();
-			}
-		}
-		
 		public System.Data.Linq.Table<Customer> Customers
 		{
 			get
@@ -134,19 +119,19 @@ namespace MsNorthwind
 			}
 		}
 		
-		public System.Data.Linq.Table<EmployeeTerritory> EmployeeTerritories
-		{
-			get
-			{
-				return this.GetTable<EmployeeTerritory>();
-			}
-		}
-		
 		public System.Data.Linq.Table<OrderDetail> OrderDetails
 		{
 			get
 			{
 				return this.GetTable<OrderDetail>();
+			}
+		}
+		
+		public System.Data.Linq.Table<EmployeeTerritory> EmployeeTerritories
+		{
+			get
+			{
+				return this.GetTable<EmployeeTerritory>();
 			}
 		}
 		
@@ -255,7 +240,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_CategoryName", DbType="NVarChar(15) NOT NULL", CanBeNull=false)]
+		[Column(Storage="_CategoryName", DbType="VarChar(15)")]
 		public string CategoryName
 		{
 			get
@@ -275,7 +260,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_Description", DbType="NText", UpdateCheck=UpdateCheck.Never)]
+		[Column(Storage="_Description", DbType="Text", UpdateCheck=UpdateCheck.Never)]
 		public string Description
 		{
 			get
@@ -295,7 +280,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_Picture", DbType="Image", UpdateCheck=UpdateCheck.Never)]
+		[Column(Storage="_Picture", DbType="VarBinary(MAX)", UpdateCheck=UpdateCheck.Never)]
 		public System.Data.Linq.Binary Picture
 		{
 			get
@@ -361,288 +346,6 @@ namespace MsNorthwind
 		}
 	}
 	
-	[Table(Name="dbo.CustomerCustomerDemo")]
-	public partial class CustomerCustomerDemo : INotifyPropertyChanging, INotifyPropertyChanged
-	{
-		
-		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
-		
-		private string _CustomerID;
-		
-		private string _CustomerTypeID;
-		
-		private EntityRef<CustomerDemographic> _CustomerDemographic;
-		
-		private EntityRef<Customer> _Customer;
-		
-    #region Extensibility Method Definitions
-    partial void OnLoaded();
-    partial void OnValidate(System.Data.Linq.ChangeAction action);
-    partial void OnCreated();
-    partial void OnCustomerIDChanging(string value);
-    partial void OnCustomerIDChanged();
-    partial void OnCustomerTypeIDChanging(string value);
-    partial void OnCustomerTypeIDChanged();
-    #endregion
-		
-		public CustomerCustomerDemo()
-		{
-			this._CustomerDemographic = default(EntityRef<CustomerDemographic>);
-			this._Customer = default(EntityRef<Customer>);
-			OnCreated();
-		}
-		
-		[Column(Storage="_CustomerID", DbType="NChar(5) NOT NULL", CanBeNull=false, IsPrimaryKey=true)]
-		public string CustomerID
-		{
-			get
-			{
-				return this._CustomerID;
-			}
-			set
-			{
-				if ((this._CustomerID != value))
-				{
-					if (this._Customer.HasLoadedOrAssignedValue)
-					{
-						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
-					}
-					this.OnCustomerIDChanging(value);
-					this.SendPropertyChanging();
-					this._CustomerID = value;
-					this.SendPropertyChanged("CustomerID");
-					this.OnCustomerIDChanged();
-				}
-			}
-		}
-		
-		[Column(Storage="_CustomerTypeID", DbType="NChar(10) NOT NULL", CanBeNull=false, IsPrimaryKey=true)]
-		public string CustomerTypeID
-		{
-			get
-			{
-				return this._CustomerTypeID;
-			}
-			set
-			{
-				if ((this._CustomerTypeID != value))
-				{
-					if (this._CustomerDemographic.HasLoadedOrAssignedValue)
-					{
-						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
-					}
-					this.OnCustomerTypeIDChanging(value);
-					this.SendPropertyChanging();
-					this._CustomerTypeID = value;
-					this.SendPropertyChanged("CustomerTypeID");
-					this.OnCustomerTypeIDChanged();
-				}
-			}
-		}
-		
-		[Association(Name="CustomerDemographic_CustomerCustomerDemo", Storage="_CustomerDemographic", ThisKey="CustomerTypeID", IsForeignKey=true)]
-		public CustomerDemographic CustomerDemographic
-		{
-			get
-			{
-				return this._CustomerDemographic.Entity;
-			}
-			set
-			{
-				CustomerDemographic previousValue = this._CustomerDemographic.Entity;
-				if (((previousValue != value) 
-							|| (this._CustomerDemographic.HasLoadedOrAssignedValue == false)))
-				{
-					this.SendPropertyChanging();
-					if ((previousValue != null))
-					{
-						this._CustomerDemographic.Entity = null;
-						previousValue.CustomerCustomerDemos.Remove(this);
-					}
-					this._CustomerDemographic.Entity = value;
-					if ((value != null))
-					{
-						value.CustomerCustomerDemos.Add(this);
-						this._CustomerTypeID = value.CustomerTypeID;
-					}
-					else
-					{
-						this._CustomerTypeID = default(string);
-					}
-					this.SendPropertyChanged("CustomerDemographic");
-				}
-			}
-		}
-		
-		[Association(Name="Customer_CustomerCustomerDemo", Storage="_Customer", ThisKey="CustomerID", IsForeignKey=true)]
-		public Customer Customer
-		{
-			get
-			{
-				return this._Customer.Entity;
-			}
-			set
-			{
-				Customer previousValue = this._Customer.Entity;
-				if (((previousValue != value) 
-							|| (this._Customer.HasLoadedOrAssignedValue == false)))
-				{
-					this.SendPropertyChanging();
-					if ((previousValue != null))
-					{
-						this._Customer.Entity = null;
-						previousValue.CustomerCustomerDemos.Remove(this);
-					}
-					this._Customer.Entity = value;
-					if ((value != null))
-					{
-						value.CustomerCustomerDemos.Add(this);
-						this._CustomerID = value.CustomerID;
-					}
-					else
-					{
-						this._CustomerID = default(string);
-					}
-					this.SendPropertyChanged("Customer");
-				}
-			}
-		}
-		
-		public event PropertyChangingEventHandler PropertyChanging;
-		
-		public event PropertyChangedEventHandler PropertyChanged;
-		
-		protected virtual void SendPropertyChanging()
-		{
-			if ((this.PropertyChanging != null))
-			{
-				this.PropertyChanging(this, emptyChangingEventArgs);
-			}
-		}
-		
-		protected virtual void SendPropertyChanged(String propertyName)
-		{
-			if ((this.PropertyChanged != null))
-			{
-				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-			}
-		}
-	}
-	
-	[Table(Name="dbo.CustomerDemographics")]
-	public partial class CustomerDemographic : INotifyPropertyChanging, INotifyPropertyChanged
-	{
-		
-		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
-		
-		private string _CustomerTypeID;
-		
-		private string _CustomerDesc;
-		
-		private EntitySet<CustomerCustomerDemo> _CustomerCustomerDemos;
-		
-    #region Extensibility Method Definitions
-    partial void OnLoaded();
-    partial void OnValidate(System.Data.Linq.ChangeAction action);
-    partial void OnCreated();
-    partial void OnCustomerTypeIDChanging(string value);
-    partial void OnCustomerTypeIDChanged();
-    partial void OnCustomerDescChanging(string value);
-    partial void OnCustomerDescChanged();
-    #endregion
-		
-		public CustomerDemographic()
-		{
-			this._CustomerCustomerDemos = new EntitySet<CustomerCustomerDemo>(new Action<CustomerCustomerDemo>(this.attach_CustomerCustomerDemos), new Action<CustomerCustomerDemo>(this.detach_CustomerCustomerDemos));
-			OnCreated();
-		}
-		
-		[Column(Storage="_CustomerTypeID", DbType="NChar(10) NOT NULL", CanBeNull=false, IsPrimaryKey=true)]
-		public string CustomerTypeID
-		{
-			get
-			{
-				return this._CustomerTypeID;
-			}
-			set
-			{
-				if ((this._CustomerTypeID != value))
-				{
-					this.OnCustomerTypeIDChanging(value);
-					this.SendPropertyChanging();
-					this._CustomerTypeID = value;
-					this.SendPropertyChanged("CustomerTypeID");
-					this.OnCustomerTypeIDChanged();
-				}
-			}
-		}
-		
-		[Column(Storage="_CustomerDesc", DbType="NText", UpdateCheck=UpdateCheck.Never)]
-		public string CustomerDesc
-		{
-			get
-			{
-				return this._CustomerDesc;
-			}
-			set
-			{
-				if ((this._CustomerDesc != value))
-				{
-					this.OnCustomerDescChanging(value);
-					this.SendPropertyChanging();
-					this._CustomerDesc = value;
-					this.SendPropertyChanged("CustomerDesc");
-					this.OnCustomerDescChanged();
-				}
-			}
-		}
-		
-		[Association(Name="CustomerDemographic_CustomerCustomerDemo", Storage="_CustomerCustomerDemos", OtherKey="CustomerTypeID")]
-		public EntitySet<CustomerCustomerDemo> CustomerCustomerDemos
-		{
-			get
-			{
-				return this._CustomerCustomerDemos;
-			}
-			set
-			{
-				this._CustomerCustomerDemos.Assign(value);
-			}
-		}
-		
-		public event PropertyChangingEventHandler PropertyChanging;
-		
-		public event PropertyChangedEventHandler PropertyChanged;
-		
-		protected virtual void SendPropertyChanging()
-		{
-			if ((this.PropertyChanging != null))
-			{
-				this.PropertyChanging(this, emptyChangingEventArgs);
-			}
-		}
-		
-		protected virtual void SendPropertyChanged(String propertyName)
-		{
-			if ((this.PropertyChanged != null))
-			{
-				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-			}
-		}
-		
-		private void attach_CustomerCustomerDemos(CustomerCustomerDemo entity)
-		{
-			this.SendPropertyChanging();
-			entity.CustomerDemographic = this;
-		}
-		
-		private void detach_CustomerCustomerDemos(CustomerCustomerDemo entity)
-		{
-			this.SendPropertyChanging();
-			entity.CustomerDemographic = null;
-		}
-	}
-	
 	[Table(Name="dbo.Customers")]
 	public partial class Customer : INotifyPropertyChanging, INotifyPropertyChanged
 	{
@@ -670,8 +373,6 @@ namespace MsNorthwind
 		private string _Phone;
 		
 		private string _Fax;
-		
-		private EntitySet<CustomerCustomerDemo> _CustomerCustomerDemos;
 		
 		private EntitySet<Order> _Orders;
 		
@@ -705,12 +406,11 @@ namespace MsNorthwind
 		
 		public Customer()
 		{
-			this._CustomerCustomerDemos = new EntitySet<CustomerCustomerDemo>(new Action<CustomerCustomerDemo>(this.attach_CustomerCustomerDemos), new Action<CustomerCustomerDemo>(this.detach_CustomerCustomerDemos));
 			this._Orders = new EntitySet<Order>(new Action<Order>(this.attach_Orders), new Action<Order>(this.detach_Orders));
 			OnCreated();
 		}
 		
-		[Column(Storage="_CustomerID", DbType="NChar(5) NOT NULL", CanBeNull=false, IsPrimaryKey=true)]
+		[Column(Storage="_CustomerID", DbType="VarChar(5) NOT NULL", CanBeNull=false, IsPrimaryKey=true)]
 		public string CustomerID
 		{
 			get
@@ -730,7 +430,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_CompanyName", DbType="NVarChar(40) NOT NULL", CanBeNull=false)]
+		[Column(Storage="_CompanyName", DbType="VarChar(40) NOT NULL", CanBeNull=false)]
 		public string CompanyName
 		{
 			get
@@ -750,7 +450,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_ContactName", DbType="NVarChar(30)")]
+		[Column(Storage="_ContactName", DbType="VarChar(30)")]
 		public string ContactName
 		{
 			get
@@ -770,7 +470,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_ContactTitle", DbType="NVarChar(30)")]
+		[Column(Storage="_ContactTitle", DbType="VarChar(30)")]
 		public string ContactTitle
 		{
 			get
@@ -790,7 +490,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_Address", DbType="NVarChar(60)")]
+		[Column(Storage="_Address", DbType="VarChar(60)")]
 		public string Address
 		{
 			get
@@ -810,7 +510,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_City", DbType="NVarChar(15)")]
+		[Column(Storage="_City", DbType="VarChar(15)")]
 		public string City
 		{
 			get
@@ -830,7 +530,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_Region", DbType="NVarChar(15)")]
+		[Column(Storage="_Region", DbType="VarChar(15)")]
 		public string Region
 		{
 			get
@@ -850,7 +550,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_PostalCode", DbType="NVarChar(10)")]
+		[Column(Storage="_PostalCode", DbType="VarChar(10)")]
 		public string PostalCode
 		{
 			get
@@ -870,7 +570,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_Country", DbType="NVarChar(15)")]
+		[Column(Storage="_Country", DbType="VarChar(15)")]
 		public string Country
 		{
 			get
@@ -890,7 +590,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_Phone", DbType="NVarChar(24)")]
+		[Column(Storage="_Phone", DbType="VarChar(24)")]
 		public string Phone
 		{
 			get
@@ -910,7 +610,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_Fax", DbType="NVarChar(24)")]
+		[Column(Storage="_Fax", DbType="VarChar(24)")]
 		public string Fax
 		{
 			get
@@ -927,19 +627,6 @@ namespace MsNorthwind
 					this.SendPropertyChanged("Fax");
 					this.OnFaxChanged();
 				}
-			}
-		}
-		
-		[Association(Name="Customer_CustomerCustomerDemo", Storage="_CustomerCustomerDemos", OtherKey="CustomerID")]
-		public EntitySet<CustomerCustomerDemo> CustomerCustomerDemos
-		{
-			get
-			{
-				return this._CustomerCustomerDemos;
-			}
-			set
-			{
-				this._CustomerCustomerDemos.Assign(value);
 			}
 		}
 		
@@ -976,18 +663,6 @@ namespace MsNorthwind
 			}
 		}
 		
-		private void attach_CustomerCustomerDemos(CustomerCustomerDemo entity)
-		{
-			this.SendPropertyChanging();
-			entity.Customer = this;
-		}
-		
-		private void detach_CustomerCustomerDemos(CustomerCustomerDemo entity)
-		{
-			this.SendPropertyChanging();
-			entity.Customer = null;
-		}
-		
 		private void attach_Orders(Order entity)
 		{
 			this.SendPropertyChanging();
@@ -1015,8 +690,6 @@ namespace MsNorthwind
 		
 		private string _Title;
 		
-		private string _TitleOfCourtesy;
-		
 		private System.Nullable<System.DateTime> _BirthDate;
 		
 		private System.Nullable<System.DateTime> _HireDate;
@@ -1033,15 +706,17 @@ namespace MsNorthwind
 		
 		private string _HomePhone;
 		
-		private string _Extension;
-		
 		private System.Data.Linq.Binary _Photo;
 		
 		private string _Notes;
 		
-		private System.Nullable<int> _ReportsTo;
+		private string _TitleOfCourtesy;
 		
 		private string _PhotoPath;
+		
+		private string _Extension;
+		
+		private System.Nullable<int> _ReportsTo;
 		
 		private EntitySet<Employee> _Employees;
 		
@@ -1049,7 +724,7 @@ namespace MsNorthwind
 		
 		private EntitySet<Order> _Orders;
 		
-		private EntityRef<Employee> _Employee1;
+		private EntityRef<Employee> _ReportsToEmployee;
 		
     #region Extensibility Method Definitions
     partial void OnLoaded();
@@ -1063,8 +738,6 @@ namespace MsNorthwind
     partial void OnFirstNameChanged();
     partial void OnTitleChanging(string value);
     partial void OnTitleChanged();
-    partial void OnTitleOfCourtesyChanging(string value);
-    partial void OnTitleOfCourtesyChanged();
     partial void OnBirthDateChanging(System.Nullable<System.DateTime> value);
     partial void OnBirthDateChanged();
     partial void OnHireDateChanging(System.Nullable<System.DateTime> value);
@@ -1081,16 +754,18 @@ namespace MsNorthwind
     partial void OnCountryChanged();
     partial void OnHomePhoneChanging(string value);
     partial void OnHomePhoneChanged();
-    partial void OnExtensionChanging(string value);
-    partial void OnExtensionChanged();
     partial void OnPhotoChanging(System.Data.Linq.Binary value);
     partial void OnPhotoChanged();
     partial void OnNotesChanging(string value);
     partial void OnNotesChanged();
-    partial void OnReportsToChanging(System.Nullable<int> value);
-    partial void OnReportsToChanged();
+    partial void OnTitleOfCourtesyChanging(string value);
+    partial void OnTitleOfCourtesyChanged();
     partial void OnPhotoPathChanging(string value);
     partial void OnPhotoPathChanged();
+    partial void OnExtensionChanging(string value);
+    partial void OnExtensionChanged();
+    partial void OnReportsToChanging(System.Nullable<int> value);
+    partial void OnReportsToChanged();
     #endregion
 		
 		public Employee()
@@ -1098,7 +773,7 @@ namespace MsNorthwind
 			this._Employees = new EntitySet<Employee>(new Action<Employee>(this.attach_Employees), new Action<Employee>(this.detach_Employees));
 			this._EmployeeTerritories = new EntitySet<EmployeeTerritory>(new Action<EmployeeTerritory>(this.attach_EmployeeTerritories), new Action<EmployeeTerritory>(this.detach_EmployeeTerritories));
 			this._Orders = new EntitySet<Order>(new Action<Order>(this.attach_Orders), new Action<Order>(this.detach_Orders));
-			this._Employee1 = default(EntityRef<Employee>);
+			this._ReportsToEmployee = default(EntityRef<Employee>);
 			OnCreated();
 		}
 		
@@ -1122,7 +797,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_LastName", DbType="NVarChar(20) NOT NULL", CanBeNull=false)]
+		[Column(Storage="_LastName", DbType="VarChar(20) NOT NULL", CanBeNull=false)]
 		public string LastName
 		{
 			get
@@ -1142,7 +817,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_FirstName", DbType="NVarChar(10) NOT NULL", CanBeNull=false)]
+		[Column(Storage="_FirstName", DbType="VarChar(10) NOT NULL", CanBeNull=false)]
 		public string FirstName
 		{
 			get
@@ -1162,7 +837,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_Title", DbType="NVarChar(30)")]
+		[Column(Storage="_Title", DbType="VarChar(30)")]
 		public string Title
 		{
 			get
@@ -1178,26 +853,6 @@ namespace MsNorthwind
 					this._Title = value;
 					this.SendPropertyChanged("Title");
 					this.OnTitleChanged();
-				}
-			}
-		}
-		
-		[Column(Storage="_TitleOfCourtesy", DbType="NVarChar(25)")]
-		public string TitleOfCourtesy
-		{
-			get
-			{
-				return this._TitleOfCourtesy;
-			}
-			set
-			{
-				if ((this._TitleOfCourtesy != value))
-				{
-					this.OnTitleOfCourtesyChanging(value);
-					this.SendPropertyChanging();
-					this._TitleOfCourtesy = value;
-					this.SendPropertyChanged("TitleOfCourtesy");
-					this.OnTitleOfCourtesyChanged();
 				}
 			}
 		}
@@ -1242,7 +897,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_Address", DbType="NVarChar(60)")]
+		[Column(Storage="_Address", DbType="VarChar(60)")]
 		public string Address
 		{
 			get
@@ -1262,7 +917,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_City", DbType="NVarChar(15)")]
+		[Column(Storage="_City", DbType="VarChar(15)")]
 		public string City
 		{
 			get
@@ -1282,7 +937,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_Region", DbType="NVarChar(15)")]
+		[Column(Storage="_Region", DbType="VarChar(15)")]
 		public string Region
 		{
 			get
@@ -1302,7 +957,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_PostalCode", DbType="NVarChar(10)")]
+		[Column(Storage="_PostalCode", DbType="VarChar(10)")]
 		public string PostalCode
 		{
 			get
@@ -1322,7 +977,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_Country", DbType="NVarChar(15)")]
+		[Column(Storage="_Country", DbType="VarChar(15)")]
 		public string Country
 		{
 			get
@@ -1342,7 +997,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_HomePhone", DbType="NVarChar(24)")]
+		[Column(Storage="_HomePhone", DbType="VarChar(24)")]
 		public string HomePhone
 		{
 			get
@@ -1362,27 +1017,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_Extension", DbType="NVarChar(4)")]
-		public string Extension
-		{
-			get
-			{
-				return this._Extension;
-			}
-			set
-			{
-				if ((this._Extension != value))
-				{
-					this.OnExtensionChanging(value);
-					this.SendPropertyChanging();
-					this._Extension = value;
-					this.SendPropertyChanged("Extension");
-					this.OnExtensionChanged();
-				}
-			}
-		}
-		
-		[Column(Storage="_Photo", DbType="Image", UpdateCheck=UpdateCheck.Never)]
+		[Column(Storage="_Photo", DbType="VarBinary(MAX)", UpdateCheck=UpdateCheck.Never)]
 		public System.Data.Linq.Binary Photo
 		{
 			get
@@ -1402,7 +1037,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_Notes", DbType="NText", UpdateCheck=UpdateCheck.Never)]
+		[Column(Storage="_Notes", DbType="Text", UpdateCheck=UpdateCheck.Never)]
 		public string Notes
 		{
 			get
@@ -1422,31 +1057,27 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_ReportsTo", DbType="Int")]
-		public System.Nullable<int> ReportsTo
+		[Column(Storage="_TitleOfCourtesy", DbType="VarChar(25)")]
+		public string TitleOfCourtesy
 		{
 			get
 			{
-				return this._ReportsTo;
+				return this._TitleOfCourtesy;
 			}
 			set
 			{
-				if ((this._ReportsTo != value))
+				if ((this._TitleOfCourtesy != value))
 				{
-					if (this._Employee1.HasLoadedOrAssignedValue)
-					{
-						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
-					}
-					this.OnReportsToChanging(value);
+					this.OnTitleOfCourtesyChanging(value);
 					this.SendPropertyChanging();
-					this._ReportsTo = value;
-					this.SendPropertyChanged("ReportsTo");
-					this.OnReportsToChanged();
+					this._TitleOfCourtesy = value;
+					this.SendPropertyChanged("TitleOfCourtesy");
+					this.OnTitleOfCourtesyChanged();
 				}
 			}
 		}
 		
-		[Column(Storage="_PhotoPath", DbType="NVarChar(255)")]
+		[Column(Storage="_PhotoPath", DbType="VarChar(255)")]
 		public string PhotoPath
 		{
 			get
@@ -1462,6 +1093,50 @@ namespace MsNorthwind
 					this._PhotoPath = value;
 					this.SendPropertyChanged("PhotoPath");
 					this.OnPhotoPathChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_Extension", DbType="VarChar(5)")]
+		public string Extension
+		{
+			get
+			{
+				return this._Extension;
+			}
+			set
+			{
+				if ((this._Extension != value))
+				{
+					this.OnExtensionChanging(value);
+					this.SendPropertyChanging();
+					this._Extension = value;
+					this.SendPropertyChanged("Extension");
+					this.OnExtensionChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_ReportsTo", DbType="Int")]
+		public System.Nullable<int> ReportsTo
+		{
+			get
+			{
+				return this._ReportsTo;
+			}
+			set
+			{
+				if ((this._ReportsTo != value))
+				{
+					if (this._ReportsToEmployee.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OnReportsToChanging(value);
+					this.SendPropertyChanging();
+					this._ReportsTo = value;
+					this.SendPropertyChanged("ReportsTo");
+					this.OnReportsToChanged();
 				}
 			}
 		}
@@ -1505,26 +1180,26 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Association(Name="Employee_Employee", Storage="_Employee1", ThisKey="ReportsTo", IsForeignKey=true)]
+		[Association(Name="Employee_Employee", Storage="_ReportsToEmployee", ThisKey="ReportsTo", IsForeignKey=true)]
 		public Employee ReportsToEmployee
 		{
 			get
 			{
-				return this._Employee1.Entity;
+				return this._ReportsToEmployee.Entity;
 			}
 			set
 			{
-				Employee previousValue = this._Employee1.Entity;
+				Employee previousValue = this._ReportsToEmployee.Entity;
 				if (((previousValue != value) 
-							|| (this._Employee1.HasLoadedOrAssignedValue == false)))
+							|| (this._ReportsToEmployee.HasLoadedOrAssignedValue == false)))
 				{
 					this.SendPropertyChanging();
 					if ((previousValue != null))
 					{
-						this._Employee1.Entity = null;
+						this._ReportsToEmployee.Entity = null;
 						previousValue.Employees.Remove(this);
 					}
-					this._Employee1.Entity = value;
+					this._ReportsToEmployee.Entity = value;
 					if ((value != null))
 					{
 						value.Employees.Add(this);
@@ -1596,6 +1271,246 @@ namespace MsNorthwind
 		}
 	}
 	
+	[Table(Name="dbo.[Order Details]")]
+	public partial class OrderDetail : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _OrderID;
+		
+		private int _ProductID;
+		
+		private decimal _UnitPrice;
+		
+		private short _Quantity;
+		
+		private double _Discount;
+		
+		private EntityRef<Order> _Order;
+		
+		private EntityRef<Product> _Product;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnOrderIDChanging(int value);
+    partial void OnOrderIDChanged();
+    partial void OnProductIDChanging(int value);
+    partial void OnProductIDChanged();
+    partial void OnUnitPriceChanging(decimal value);
+    partial void OnUnitPriceChanged();
+    partial void OnQuantityChanging(short value);
+    partial void OnQuantityChanged();
+    partial void OnDiscountChanging(double value);
+    partial void OnDiscountChanged();
+    #endregion
+		
+		public OrderDetail()
+		{
+			this._Order = default(EntityRef<Order>);
+			this._Product = default(EntityRef<Product>);
+			OnCreated();
+		}
+		
+		[Column(Storage="_OrderID", DbType="Int NOT NULL", IsPrimaryKey=true)]
+		public int OrderID
+		{
+			get
+			{
+				return this._OrderID;
+			}
+			set
+			{
+				if ((this._OrderID != value))
+				{
+					if (this._Order.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OnOrderIDChanging(value);
+					this.SendPropertyChanging();
+					this._OrderID = value;
+					this.SendPropertyChanged("OrderID");
+					this.OnOrderIDChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_ProductID", DbType="Int NOT NULL", IsPrimaryKey=true)]
+		public int ProductID
+		{
+			get
+			{
+				return this._ProductID;
+			}
+			set
+			{
+				if ((this._ProductID != value))
+				{
+					if (this._Product.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OnProductIDChanging(value);
+					this.SendPropertyChanging();
+					this._ProductID = value;
+					this.SendPropertyChanged("ProductID");
+					this.OnProductIDChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_UnitPrice", DbType="Decimal(18,0) NOT NULL")]
+		public decimal UnitPrice
+		{
+			get
+			{
+				return this._UnitPrice;
+			}
+			set
+			{
+				if ((this._UnitPrice != value))
+				{
+					this.OnUnitPriceChanging(value);
+					this.SendPropertyChanging();
+					this._UnitPrice = value;
+					this.SendPropertyChanged("UnitPrice");
+					this.OnUnitPriceChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_Quantity", DbType="SmallInt NOT NULL")]
+		public short Quantity
+		{
+			get
+			{
+				return this._Quantity;
+			}
+			set
+			{
+				if ((this._Quantity != value))
+				{
+					this.OnQuantityChanging(value);
+					this.SendPropertyChanging();
+					this._Quantity = value;
+					this.SendPropertyChanged("Quantity");
+					this.OnQuantityChanged();
+				}
+			}
+		}
+		
+		[Column(Storage="_Discount", DbType="Float NOT NULL")]
+		public double Discount
+		{
+			get
+			{
+				return this._Discount;
+			}
+			set
+			{
+				if ((this._Discount != value))
+				{
+					this.OnDiscountChanging(value);
+					this.SendPropertyChanging();
+					this._Discount = value;
+					this.SendPropertyChanged("Discount");
+					this.OnDiscountChanged();
+				}
+			}
+		}
+		
+		[Association(Name="Order_Order_Detail", Storage="_Order", ThisKey="OrderID", IsForeignKey=true)]
+		public Order Order
+		{
+			get
+			{
+				return this._Order.Entity;
+			}
+			set
+			{
+				Order previousValue = this._Order.Entity;
+				if (((previousValue != value) 
+							|| (this._Order.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._Order.Entity = null;
+						previousValue.OrderDetails.Remove(this);
+					}
+					this._Order.Entity = value;
+					if ((value != null))
+					{
+						value.OrderDetails.Add(this);
+						this._OrderID = value.OrderID;
+					}
+					else
+					{
+						this._OrderID = default(int);
+					}
+					this.SendPropertyChanged("Order");
+				}
+			}
+		}
+		
+		[Association(Name="Product_Order_Detail", Storage="_Product", ThisKey="ProductID", IsForeignKey=true)]
+		public Product Product
+		{
+			get
+			{
+				return this._Product.Entity;
+			}
+			set
+			{
+				Product previousValue = this._Product.Entity;
+				if (((previousValue != value) 
+							|| (this._Product.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._Product.Entity = null;
+						previousValue.OrderDetails.Remove(this);
+					}
+					this._Product.Entity = value;
+					if ((value != null))
+					{
+						value.OrderDetails.Add(this);
+						this._ProductID = value.ProductID;
+					}
+					else
+					{
+						this._ProductID = default(int);
+					}
+					this.SendPropertyChanged("Product");
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
 	[Table(Name="dbo.EmployeeTerritories")]
 	public partial class EmployeeTerritory : INotifyPropertyChanging, INotifyPropertyChanged
 	{
@@ -1651,7 +1566,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_TerritoryID", DbType="NVarChar(20) NOT NULL", CanBeNull=false, IsPrimaryKey=true)]
+		[Column(Storage="_TerritoryID", DbType="VarChar(20) NOT NULL", CanBeNull=false, IsPrimaryKey=true)]
 		public string TerritoryID
 		{
 			get
@@ -1739,246 +1654,6 @@ namespace MsNorthwind
 						this._TerritoryID = default(string);
 					}
 					this.SendPropertyChanged("Territory");
-				}
-			}
-		}
-		
-		public event PropertyChangingEventHandler PropertyChanging;
-		
-		public event PropertyChangedEventHandler PropertyChanged;
-		
-		protected virtual void SendPropertyChanging()
-		{
-			if ((this.PropertyChanging != null))
-			{
-				this.PropertyChanging(this, emptyChangingEventArgs);
-			}
-		}
-		
-		protected virtual void SendPropertyChanged(String propertyName)
-		{
-			if ((this.PropertyChanged != null))
-			{
-				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-			}
-		}
-	}
-	
-	[Table(Name="dbo.[Order Details]")]
-	public partial class OrderDetail : INotifyPropertyChanging, INotifyPropertyChanged
-	{
-		
-		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
-		
-		private int _OrderID;
-		
-		private int _ProductID;
-		
-		private decimal _UnitPrice;
-		
-		private short _Quantity;
-		
-		private float _Discount;
-		
-		private EntityRef<Order> _Order;
-		
-		private EntityRef<Product> _Product;
-		
-    #region Extensibility Method Definitions
-    partial void OnLoaded();
-    partial void OnValidate(System.Data.Linq.ChangeAction action);
-    partial void OnCreated();
-    partial void OnOrderIDChanging(int value);
-    partial void OnOrderIDChanged();
-    partial void OnProductIDChanging(int value);
-    partial void OnProductIDChanged();
-    partial void OnUnitPriceChanging(decimal value);
-    partial void OnUnitPriceChanged();
-    partial void OnQuantityChanging(short value);
-    partial void OnQuantityChanged();
-    partial void OnDiscountChanging(float value);
-    partial void OnDiscountChanged();
-    #endregion
-		
-		public OrderDetail()
-		{
-			this._Order = default(EntityRef<Order>);
-			this._Product = default(EntityRef<Product>);
-			OnCreated();
-		}
-		
-		[Column(Storage="_OrderID", DbType="Int NOT NULL", IsPrimaryKey=true)]
-		public int OrderID
-		{
-			get
-			{
-				return this._OrderID;
-			}
-			set
-			{
-				if ((this._OrderID != value))
-				{
-					if (this._Order.HasLoadedOrAssignedValue)
-					{
-						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
-					}
-					this.OnOrderIDChanging(value);
-					this.SendPropertyChanging();
-					this._OrderID = value;
-					this.SendPropertyChanged("OrderID");
-					this.OnOrderIDChanged();
-				}
-			}
-		}
-		
-		[Column(Storage="_ProductID", DbType="Int NOT NULL", IsPrimaryKey=true)]
-		public int ProductID
-		{
-			get
-			{
-				return this._ProductID;
-			}
-			set
-			{
-				if ((this._ProductID != value))
-				{
-					if (this._Product.HasLoadedOrAssignedValue)
-					{
-						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
-					}
-					this.OnProductIDChanging(value);
-					this.SendPropertyChanging();
-					this._ProductID = value;
-					this.SendPropertyChanged("ProductID");
-					this.OnProductIDChanged();
-				}
-			}
-		}
-		
-		[Column(Storage="_UnitPrice", DbType="Money NOT NULL")]
-		public decimal UnitPrice
-		{
-			get
-			{
-				return this._UnitPrice;
-			}
-			set
-			{
-				if ((this._UnitPrice != value))
-				{
-					this.OnUnitPriceChanging(value);
-					this.SendPropertyChanging();
-					this._UnitPrice = value;
-					this.SendPropertyChanged("UnitPrice");
-					this.OnUnitPriceChanged();
-				}
-			}
-		}
-		
-		[Column(Storage="_Quantity", DbType="SmallInt NOT NULL")]
-		public short Quantity
-		{
-			get
-			{
-				return this._Quantity;
-			}
-			set
-			{
-				if ((this._Quantity != value))
-				{
-					this.OnQuantityChanging(value);
-					this.SendPropertyChanging();
-					this._Quantity = value;
-					this.SendPropertyChanged("Quantity");
-					this.OnQuantityChanged();
-				}
-			}
-		}
-		
-		[Column(Storage="_Discount", DbType="Real NOT NULL")]
-		public float Discount
-		{
-			get
-			{
-				return this._Discount;
-			}
-			set
-			{
-				if ((this._Discount != value))
-				{
-					this.OnDiscountChanging(value);
-					this.SendPropertyChanging();
-					this._Discount = value;
-					this.SendPropertyChanged("Discount");
-					this.OnDiscountChanged();
-				}
-			}
-		}
-		
-		[Association(Name="Order_OrderDetail", Storage="_Order", ThisKey="OrderID", IsForeignKey=true)]
-		public Order Order
-		{
-			get
-			{
-				return this._Order.Entity;
-			}
-			set
-			{
-				Order previousValue = this._Order.Entity;
-				if (((previousValue != value) 
-							|| (this._Order.HasLoadedOrAssignedValue == false)))
-				{
-					this.SendPropertyChanging();
-					if ((previousValue != null))
-					{
-						this._Order.Entity = null;
-						previousValue.OrderDetails.Remove(this);
-					}
-					this._Order.Entity = value;
-					if ((value != null))
-					{
-						value.OrderDetails.Add(this);
-						this._OrderID = value.OrderID;
-					}
-					else
-					{
-						this._OrderID = default(int);
-					}
-					this.SendPropertyChanged("Order");
-				}
-			}
-		}
-		
-		[Association(Name="Product_OrderDetail", Storage="_Product", ThisKey="ProductID", IsForeignKey=true)]
-		public Product Product
-		{
-			get
-			{
-				return this._Product.Entity;
-			}
-			set
-			{
-				Product previousValue = this._Product.Entity;
-				if (((previousValue != value) 
-							|| (this._Product.HasLoadedOrAssignedValue == false)))
-				{
-					this.SendPropertyChanging();
-					if ((previousValue != null))
-					{
-						this._Product.Entity = null;
-						previousValue.OrderDetails.Remove(this);
-					}
-					this._Product.Entity = value;
-					if ((value != null))
-					{
-						value.OrderDetails.Add(this);
-						this._ProductID = value.ProductID;
-					}
-					else
-					{
-						this._ProductID = default(int);
-					}
-					this.SendPropertyChanged("Product");
 				}
 			}
 		}
@@ -2109,7 +1784,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_CustomerID", DbType="NChar(5)")]
+		[Column(Storage="_CustomerID", DbType="VarChar(5)")]
 		public string CustomerID
 		{
 			get
@@ -2241,7 +1916,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_Freight", DbType="Money")]
+		[Column(Storage="_Freight", DbType="Decimal(18,0)")]
 		public System.Nullable<decimal> Freight
 		{
 			get
@@ -2261,7 +1936,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_ShipName", DbType="NVarChar(40)")]
+		[Column(Storage="_ShipName", DbType="VarChar(40)")]
 		public string ShipName
 		{
 			get
@@ -2281,7 +1956,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_ShipAddress", DbType="NVarChar(60)")]
+		[Column(Storage="_ShipAddress", DbType="VarChar(60)")]
 		public string ShipAddress
 		{
 			get
@@ -2301,7 +1976,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_ShipCity", DbType="NVarChar(15)")]
+		[Column(Storage="_ShipCity", DbType="VarChar(15)")]
 		public string ShipCity
 		{
 			get
@@ -2321,7 +1996,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_ShipRegion", DbType="NVarChar(15)")]
+		[Column(Storage="_ShipRegion", DbType="VarChar(15)")]
 		public string ShipRegion
 		{
 			get
@@ -2341,7 +2016,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_ShipPostalCode", DbType="NVarChar(10)")]
+		[Column(Storage="_ShipPostalCode", DbType="VarChar(10)")]
 		public string ShipPostalCode
 		{
 			get
@@ -2361,7 +2036,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_ShipCountry", DbType="NVarChar(15)")]
+		[Column(Storage="_ShipCountry", DbType="VarChar(15)")]
 		public string ShipCountry
 		{
 			get
@@ -2381,7 +2056,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Association(Name="Order_OrderDetail", Storage="_OrderDetails", OtherKey="OrderID")]
+		[Association(Name="Order_Order_Detail", Storage="_OrderDetails", OtherKey="OrderID")]
 		public EntitySet<OrderDetail> OrderDetails
 		{
 			get
@@ -2615,7 +2290,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_ProductName", DbType="NVarChar(40) NOT NULL", CanBeNull=false)]
+		[Column(Storage="_ProductName", DbType="VarChar(40) NOT NULL", CanBeNull=false)]
 		public string ProductName
 		{
 			get
@@ -2683,7 +2358,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_QuantityPerUnit", DbType="NVarChar(20)")]
+		[Column(Storage="_QuantityPerUnit", DbType="VarChar(20)")]
 		public string QuantityPerUnit
 		{
 			get
@@ -2703,7 +2378,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_UnitPrice", DbType="Money")]
+		[Column(Storage="_UnitPrice", DbType="Decimal(18,0)")]
 		public System.Nullable<decimal> UnitPrice
 		{
 			get
@@ -2803,7 +2478,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Association(Name="Product_OrderDetail", Storage="_OrderDetails", OtherKey="ProductID")]
+		[Association(Name="Product_Order_Detail", Storage="_OrderDetails", OtherKey="ProductID")]
 		public EntitySet<OrderDetail> OrderDetails
 		{
 			get
@@ -2945,7 +2620,7 @@ namespace MsNorthwind
 			OnCreated();
 		}
 		
-		[Column(Storage="_RegionID", DbType="Int NOT NULL", IsPrimaryKey=true)]
+		[Column(Storage="_RegionID", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
 		public int RegionID
 		{
 			get
@@ -2965,7 +2640,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_RegionDescription", DbType="NChar(50) NOT NULL", CanBeNull=false)]
+		[Column(Storage="_RegionDescription", DbType="VarChar(50) NOT NULL", CanBeNull=false)]
 		public string RegionDescription
 		{
 			get
@@ -3083,7 +2758,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_CompanyName", DbType="NVarChar(40) NOT NULL", CanBeNull=false)]
+		[Column(Storage="_CompanyName", DbType="VarChar(40) NOT NULL", CanBeNull=false)]
 		public string CompanyName
 		{
 			get
@@ -3103,7 +2778,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_Phone", DbType="NVarChar(24)")]
+		[Column(Storage="_Phone", DbType="VarChar(24)")]
 		public string Phone
 		{
 			get
@@ -3197,8 +2872,6 @@ namespace MsNorthwind
 		
 		private string _Fax;
 		
-		private string _HomePage;
-		
 		private EntitySet<Product> _Products;
 		
     #region Extensibility Method Definitions
@@ -3227,8 +2900,6 @@ namespace MsNorthwind
     partial void OnPhoneChanged();
     partial void OnFaxChanging(string value);
     partial void OnFaxChanged();
-    partial void OnHomePageChanging(string value);
-    partial void OnHomePageChanged();
     #endregion
 		
 		public Supplier()
@@ -3257,7 +2928,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_CompanyName", DbType="NVarChar(40) NOT NULL", CanBeNull=false)]
+		[Column(Storage="_CompanyName", DbType="VarChar(40) NOT NULL", CanBeNull=false)]
 		public string CompanyName
 		{
 			get
@@ -3277,7 +2948,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_ContactName", DbType="NVarChar(30)")]
+		[Column(Storage="_ContactName", DbType="VarChar(30)")]
 		public string ContactName
 		{
 			get
@@ -3297,7 +2968,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_ContactTitle", DbType="NVarChar(30)")]
+		[Column(Storage="_ContactTitle", DbType="VarChar(30)")]
 		public string ContactTitle
 		{
 			get
@@ -3317,7 +2988,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_Address", DbType="NVarChar(60)")]
+		[Column(Storage="_Address", DbType="VarChar(60)")]
 		public string Address
 		{
 			get
@@ -3337,7 +3008,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_City", DbType="NVarChar(15)")]
+		[Column(Storage="_City", DbType="VarChar(15)")]
 		public string City
 		{
 			get
@@ -3357,7 +3028,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_Region", DbType="NVarChar(15)")]
+		[Column(Storage="_Region", DbType="VarChar(15)")]
 		public string Region
 		{
 			get
@@ -3377,7 +3048,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_PostalCode", DbType="NVarChar(10)")]
+		[Column(Storage="_PostalCode", DbType="VarChar(10)")]
 		public string PostalCode
 		{
 			get
@@ -3397,7 +3068,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_Country", DbType="NVarChar(15)")]
+		[Column(Storage="_Country", DbType="VarChar(15)")]
 		public string Country
 		{
 			get
@@ -3417,7 +3088,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_Phone", DbType="NVarChar(24)")]
+		[Column(Storage="_Phone", DbType="VarChar(24)")]
 		public string Phone
 		{
 			get
@@ -3437,7 +3108,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_Fax", DbType="NVarChar(24)")]
+		[Column(Storage="_Fax", DbType="VarChar(24)")]
 		public string Fax
 		{
 			get
@@ -3453,26 +3124,6 @@ namespace MsNorthwind
 					this._Fax = value;
 					this.SendPropertyChanged("Fax");
 					this.OnFaxChanged();
-				}
-			}
-		}
-		
-		[Column(Storage="_HomePage", DbType="NText", UpdateCheck=UpdateCheck.Never)]
-		public string HomePage
-		{
-			get
-			{
-				return this._HomePage;
-			}
-			set
-			{
-				if ((this._HomePage != value))
-				{
-					this.OnHomePageChanging(value);
-					this.SendPropertyChanging();
-					this._HomePage = value;
-					this.SendPropertyChanged("HomePage");
-					this.OnHomePageChanged();
 				}
 			}
 		}
@@ -3533,7 +3184,7 @@ namespace MsNorthwind
 		
 		private string _TerritoryDescription;
 		
-		private int _RegionID;
+		private System.Nullable<int> _RegionID;
 		
 		private EntitySet<EmployeeTerritory> _EmployeeTerritories;
 		
@@ -3547,7 +3198,7 @@ namespace MsNorthwind
     partial void OnTerritoryIDChanged();
     partial void OnTerritoryDescriptionChanging(string value);
     partial void OnTerritoryDescriptionChanged();
-    partial void OnRegionIDChanging(int value);
+    partial void OnRegionIDChanging(System.Nullable<int> value);
     partial void OnRegionIDChanged();
     #endregion
 		
@@ -3558,7 +3209,7 @@ namespace MsNorthwind
 			OnCreated();
 		}
 		
-		[Column(Storage="_TerritoryID", DbType="NVarChar(20) NOT NULL", CanBeNull=false, IsPrimaryKey=true)]
+		[Column(Storage="_TerritoryID", DbType="VarChar(20) NOT NULL", CanBeNull=false, IsPrimaryKey=true)]
 		public string TerritoryID
 		{
 			get
@@ -3578,7 +3229,7 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_TerritoryDescription", DbType="NChar(50) NOT NULL", CanBeNull=false)]
+		[Column(Storage="_TerritoryDescription", DbType="VarChar(50) NOT NULL", CanBeNull=false)]
 		public string TerritoryDescription
 		{
 			get
@@ -3598,8 +3249,8 @@ namespace MsNorthwind
 			}
 		}
 		
-		[Column(Storage="_RegionID", DbType="Int NOT NULL")]
-		public int RegionID
+		[Column(Storage="_RegionID", DbType="Int")]
+		public System.Nullable<int> RegionID
 		{
 			get
 			{
@@ -3662,7 +3313,7 @@ namespace MsNorthwind
 					}
 					else
 					{
-						this._RegionID = default(int);
+						this._RegionID = default(Nullable<int>);
 					}
 					this.SendPropertyChanged("Region");
 				}

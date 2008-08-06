@@ -287,11 +287,12 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             using (writer.WriteProperty(specifications, child.Member,
                                         writer.GetGenericName(typeof(EntitySet<>).Name.Split('`')[0], child.Type)))
             {
-                using (writer.WritePropertyGet())
-                {
-                    writer.WriteCommentLine("L212 - child data available only when part of query");
-                    writer.WriteLine(writer.GetReturnStatement(writer.GetNullExpression()));
-                }
+                //using (writer.WritePropertyGet())
+                //{
+                //    writer.WriteCommentLine("L212 - child data available only when part of query");
+                //    writer.WriteLine(writer.GetReturnStatement(writer.GetNullExpression()));
+                //}
+                writer.WriteLazyPropertyGetSet();
             }
             writer.WriteLine();
         }

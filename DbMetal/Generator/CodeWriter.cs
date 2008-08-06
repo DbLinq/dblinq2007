@@ -213,6 +213,7 @@ namespace DbMetal.Generator
                                                 params ParameterDefinition[] parameters);
 
         public abstract IDisposable WriteProperty(SpecificationDefinition specificationDefinition, string name, string propertyType);
+        public abstract void WriteLazyPropertyGetSet();
         public abstract IDisposable WritePropertyGet();
         public abstract IDisposable WritePropertySet();
 

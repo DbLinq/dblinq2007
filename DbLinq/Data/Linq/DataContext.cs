@@ -368,9 +368,16 @@ namespace DbLinq.Data.Linq
                 //Table[EmployeesTerritories].Where(other=>other.employeeID="WARTH")
 
                 var query=otherTable.Provider.CreateQuery(call);
-                var entitySetProperty = prop.GetValue(entity, null);
-                var setSourceMethod = entitySetProperty.GetType().GetMethod("SetSource");
-                setSourceMethod.Invoke(entitySetProperty, new object[] { query });
+                var entitySetValue = prop.GetValue(entity, null);
+
+                if (entitySetValue == null)
+                {
+                    entitySetValue = Activator.CreateInstance(typeof(EntitySet<>).MakeGenericType(otherTableType));
+                    prop.SetValue(entity, entitySetValue, null);
+                }
+
+                var setSourceMethod = entitySetValue.GetType().GetMethod("SetSource");
+                setSourceMethod.Invoke(entitySetValue, new object[] { query });
                 //employee.EmployeeTerritories.SetSource(Table[EmployeesTerritories].Where(other=>other.employeeID="WARTH"))
             }
         }
