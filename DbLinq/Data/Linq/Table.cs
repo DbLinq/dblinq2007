@@ -124,7 +124,9 @@ namespace DbLinq.Data.Linq
         /// </summary>
         public IEnumerator<TEntity> GetEnumerator()
         {
-            return _queryProvider.GetEnumerator();
+            IQueryable<TEntity> queryable = this as IQueryable<TEntity>;
+            var query = queryable.Select(t => t);
+            return query.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
