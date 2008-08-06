@@ -41,6 +41,13 @@ namespace Test_NUnit_MsSql
     public class Table : TestBase
     {
         [Test]
+        public void BasicAccess()
+        {
+            var db = CreateDB();
+            var customers = db.Customers.ToArray();
+        }
+
+        [Test]
         public void GetModifiedMembers()
         {
             var db = CreateDB();

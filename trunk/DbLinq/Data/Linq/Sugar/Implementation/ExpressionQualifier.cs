@@ -72,6 +72,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     case SpecialExpressionType.ToUpper:
                     case SpecialExpressionType.ToLower:
                     case SpecialExpressionType.SubString:
+                    case SpecialExpressionType.Trim:
                         return ExpressionPrecedence.Primary;
                     case SpecialExpressionType.In:
                         return ExpressionPrecedence.Equality; // not sure for this one
@@ -196,6 +197,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     case SpecialExpressionType.ToUpper:
                     case SpecialExpressionType.ToLower:
                     case SpecialExpressionType.SubString:
+                    case SpecialExpressionType.Trim:
                         return ExpressionTier.Any;
 
                     case SpecialExpressionType.Like:
