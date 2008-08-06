@@ -145,7 +145,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "CategoryID", Name = "linquser_products_categoryid_linquser_categories_categoryid")]
 		[DebuggerNonUserCode]
-		public EntitySet<Product> Products
+		public System.Data.Linq.EntitySet<Product> Products
 		{
             get;
             set;
@@ -405,7 +405,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "CustomerID", Name = "linquser_orders_customerid_linquser_customers_customerid")]
 		[DebuggerNonUserCode]
-		public EntitySet<Order> Orders
+		public System.Data.Linq.EntitySet<Order> Orders
 		{
             get;
             set;
@@ -753,7 +753,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "ReportsTo", Name = "linquser_employees_reportsto_linquser_employees_employeeid")]
 		[DebuggerNonUserCode]
-		public EntitySet<Employee> Employees
+		public System.Data.Linq.EntitySet<Employee> Employees
 		{
             get;
             set;
@@ -761,7 +761,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "EmployeeID", Name = "linquser_employeeterritories_employeeid_linquser_employees_employeeid")]
 		[DebuggerNonUserCode]
-		public EntitySet<EmployeeTerritory> EmployeeTerritories
+		public System.Data.Linq.EntitySet<EmployeeTerritory> EmployeeTerritories
 		{
             get;
             set;
@@ -769,7 +769,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "EmployeeID", Name = "linquser_orders_employeeid_linquser_employees_employeeid")]
 		[DebuggerNonUserCode]
-		public EntitySet<Order> Orders
+		public System.Data.Linq.EntitySet<Order> Orders
 		{
             get;
             set;
@@ -780,7 +780,7 @@ namespace nwind
 
 		#region Parents
 
-		private DbLinq.Data.Linq.EntityRef<Employee> _reportsToEmployee;
+		private System.Data.Linq.EntityRef<Employee> _reportsToEmployee;
 		[Association(Storage = "_reportsToEmployee", ThisKey = "ReportsTo", Name = "linquser_employees_reportsto_linquser_employees_employeeid", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Employee ReportsToEmployee
@@ -849,7 +849,7 @@ namespace nwind
 
 		#region Parents
 
-		private DbLinq.Data.Linq.EntityRef<Employee> _employee;
+		private System.Data.Linq.EntityRef<Employee> _employee;
 		[Association(Storage = "_employee", ThisKey = "EmployeeID", Name = "linquser_employeeterritories_employeeid_linquser_employees_employeeid", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Employee Employee
@@ -864,7 +864,7 @@ namespace nwind
 			}
 		}
 
-		private DbLinq.Data.Linq.EntityRef<Territory> _territory;
+		private System.Data.Linq.EntityRef<Territory> _territory;
 		[Association(Storage = "_territory", ThisKey = "TerritoryID", Name = "linquser_employeeterritories_territoryid_linquser_territories_territoryid", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Territory Territory
@@ -1199,7 +1199,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "OrderID", Name = "linquser_orderdetails_orderid_linquser_orders_orderid")]
 		[DebuggerNonUserCode]
-		public EntitySet<OrderDetail> OrderDetails
+		public System.Data.Linq.EntitySet<OrderDetail> OrderDetails
 		{
             get;
             set;
@@ -1210,7 +1210,7 @@ namespace nwind
 
 		#region Parents
 
-		private DbLinq.Data.Linq.EntityRef<Customer> _customer;
+		private System.Data.Linq.EntityRef<Customer> _customer;
 		[Association(Storage = "_customer", ThisKey = "CustomerID", Name = "linquser_orders_customerid_linquser_customers_customerid", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Customer Customer
@@ -1225,7 +1225,7 @@ namespace nwind
 			}
 		}
 
-		private DbLinq.Data.Linq.EntityRef<Employee> _employee;
+		private System.Data.Linq.EntityRef<Employee> _employee;
 		[Association(Storage = "_employee", ThisKey = "EmployeeID", Name = "linquser_orders_employeeid_linquser_employees_employeeid", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Employee Employee
@@ -1360,7 +1360,7 @@ namespace nwind
 
 		#region Parents
 
-		private DbLinq.Data.Linq.EntityRef<Order> _order;
+		private System.Data.Linq.EntityRef<Order> _order;
 		[Association(Storage = "_order", ThisKey = "OrderID", Name = "linquser_orderdetails_orderid_linquser_orders_orderid", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Order Order
@@ -1375,7 +1375,7 @@ namespace nwind
 			}
 		}
 
-		private DbLinq.Data.Linq.EntityRef<Product> _product;
+		private System.Data.Linq.EntityRef<Product> _product;
 		[Association(Storage = "_product", ThisKey = "ProductID", Name = "linquser_orderdetails_productid_linquser_products_productid", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Product Product
@@ -1622,7 +1622,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "ProductID", Name = "linquser_orderdetails_productid_linquser_products_productid")]
 		[DebuggerNonUserCode]
-		public EntitySet<OrderDetail> OrderDetails
+		public System.Data.Linq.EntitySet<OrderDetail> OrderDetails
 		{
             get;
             set;
@@ -1633,7 +1633,7 @@ namespace nwind
 
 		#region Parents
 
-		private DbLinq.Data.Linq.EntityRef<Supplier> _supplier;
+		private System.Data.Linq.EntityRef<Supplier> _supplier;
 		[Association(Storage = "_supplier", ThisKey = "SupplierID", Name = "linquser_products_supplierid_linquser_suppliers_supplierid", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Supplier Supplier
@@ -1648,7 +1648,7 @@ namespace nwind
 			}
 		}
 
-		private DbLinq.Data.Linq.EntityRef<Category> _category;
+		private System.Data.Linq.EntityRef<Category> _category;
 		[Association(Storage = "_category", ThisKey = "CategoryID", Name = "linquser_products_categoryid_linquser_categories_categoryid", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Category Category
@@ -1719,7 +1719,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "RegionID", Name = "linquser_territories_regionid_linquser_region_regionid")]
 		[DebuggerNonUserCode]
-		public EntitySet<Territory> Territories
+		public System.Data.Linq.EntitySet<Territory> Territories
 		{
             get;
             set;
@@ -1979,7 +1979,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "SupplierID", Name = "linquser_products_supplierid_linquser_suppliers_supplierid")]
 		[DebuggerNonUserCode]
-		public EntitySet<Product> Products
+		public System.Data.Linq.EntitySet<Product> Products
 		{
             get;
             set;
@@ -2063,7 +2063,7 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "TerritoryID", Name = "linquser_employeeterritories_territoryid_linquser_territories_territoryid")]
 		[DebuggerNonUserCode]
-		public EntitySet<EmployeeTerritory> EmployeeTerritories
+		public System.Data.Linq.EntitySet<EmployeeTerritory> EmployeeTerritories
 		{
             get;
             set;
@@ -2074,7 +2074,7 @@ namespace nwind
 
 		#region Parents
 
-		private DbLinq.Data.Linq.EntityRef<Region> _region;
+		private System.Data.Linq.EntityRef<Region> _region;
 		[Association(Storage = "_region", ThisKey = "RegionID", Name = "linquser_territories_regionid_linquser_region_regionid", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Region Region

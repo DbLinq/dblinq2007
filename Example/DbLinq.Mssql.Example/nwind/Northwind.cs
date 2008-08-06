@@ -21,7 +21,6 @@ namespace nwind
     using System;
     using DbLinq.Data.Linq;
 
-    [Provider(typeof(DbLinq.SqlServer.SqlServerSqlProvider))]
     public partial class Northwind : DbLinq.Data.Linq.DataContext
     {
 
@@ -65,30 +64,14 @@ namespace nwind
         partial void DeleteTerritory(Territory instance);
         #endregion
 
-
-
-        public Northwind(string connection) :
-            base(connection, mappingSource)
+        public Northwind(System.Data.IDbConnection connection)
+            : base(connection, new DbLinq.SqlServer.SqlServerVendor())
         {
-            OnCreated();
         }
 
-        public Northwind(System.Data.IDbConnection connection) :
-            base(connection, mappingSource)
+        public Northwind(System.Data.IDbConnection connection, DbLinq.Vendor.IVendor vendor)
+            : base(connection, vendor)
         {
-            OnCreated();
-        }
-
-        public Northwind(string connection, System.Data.Linq.Mapping.MappingSource mappingSource) :
-            base(connection, mappingSource)
-        {
-            OnCreated();
-        }
-
-        public Northwind(System.Data.IDbConnection connection, System.Data.Linq.Mapping.MappingSource mappingSource) :
-            base(connection, mappingSource)
-        {
-            OnCreated();
         }
 
         public Table<Category> Categories
@@ -720,7 +703,7 @@ namespace nwind
 
         private System.Data.Linq.EntitySet<Order> _Orders;
 
-        private EntityRef<Employee> _ReportsToEmployee;
+        private System.Data.Linq.EntityRef<Employee> _ReportsToEmployee;
 
         #region Extensibility Method Definitions
         partial void OnLoaded();
@@ -769,7 +752,7 @@ namespace nwind
             this._Employees = new System.Data.Linq.EntitySet<Employee>(new Action<Employee>(this.attach_Employees), new Action<Employee>(this.detach_Employees));
             this._EmployeeTerritories = new System.Data.Linq.EntitySet<EmployeeTerritory>(new Action<EmployeeTerritory>(this.attach_EmployeeTerritories), new Action<EmployeeTerritory>(this.detach_EmployeeTerritories));
             this._Orders = new System.Data.Linq.EntitySet<Order>(new Action<Order>(this.attach_Orders), new Action<Order>(this.detach_Orders));
-            this._ReportsToEmployee = default(EntityRef<Employee>);
+            this._ReportsToEmployee = default(System.Data.Linq.EntityRef<Employee>);
             OnCreated();
         }
 
@@ -1283,9 +1266,9 @@ namespace nwind
 
         private double _Discount;
 
-        private EntityRef<Order> _Order;
+        private System.Data.Linq.EntityRef<Order> _Order;
 
-        private EntityRef<Product> _Product;
+        private System.Data.Linq.EntityRef<Product> _Product;
 
         #region Extensibility Method Definitions
         partial void OnLoaded();
@@ -1305,8 +1288,8 @@ namespace nwind
 
         public OrderDetail()
         {
-            this._Order = default(EntityRef<Order>);
-            this._Product = default(EntityRef<Product>);
+            this._Order = default(System.Data.Linq.EntityRef<Order>);
+            this._Product = default(System.Data.Linq.EntityRef<Product>);
             OnCreated();
         }
 
@@ -1517,9 +1500,9 @@ namespace nwind
 
         private string _TerritoryID;
 
-        private EntityRef<Employee> _Employee;
+        private System.Data.Linq.EntityRef<Employee> _Employee;
 
-        private EntityRef<Territory> _Territory;
+        private System.Data.Linq.EntityRef<Territory> _Territory;
 
         #region Extensibility Method Definitions
         partial void OnLoaded();
@@ -1533,8 +1516,8 @@ namespace nwind
 
         public EmployeeTerritory()
         {
-            this._Employee = default(EntityRef<Employee>);
-            this._Territory = default(EntityRef<Territory>);
+            this._Employee = default(System.Data.Linq.EntityRef<Employee>);
+            this._Territory = default(System.Data.Linq.EntityRef<Territory>);
             OnCreated();
         }
 
@@ -1711,11 +1694,11 @@ namespace nwind
 
         private System.Data.Linq.EntitySet<OrderDetail> _OrderDetails;
 
-        private EntityRef<Customer> _Customer;
+        private System.Data.Linq.EntityRef<Customer> _Customer;
 
-        private EntityRef<Employee> _Employee;
+        private System.Data.Linq.EntityRef<Employee> _Employee;
 
-        private EntityRef<Shipper> _Shipper;
+        private System.Data.Linq.EntityRef<Shipper> _Shipper;
 
         #region Extensibility Method Definitions
         partial void OnLoaded();
@@ -1754,9 +1737,9 @@ namespace nwind
         public Order()
         {
             this._OrderDetails = new System.Data.Linq.EntitySet<OrderDetail>(new Action<OrderDetail>(this.attach_OrderDetails), new Action<OrderDetail>(this.detach_OrderDetails));
-            this._Customer = default(EntityRef<Customer>);
-            this._Employee = default(EntityRef<Employee>);
-            this._Shipper = default(EntityRef<Shipper>);
+            this._Customer = default(System.Data.Linq.EntityRef<Customer>);
+            this._Employee = default(System.Data.Linq.EntityRef<Employee>);
+            this._Shipper = default(System.Data.Linq.EntityRef<Shipper>);
             OnCreated();
         }
 
@@ -2228,9 +2211,9 @@ namespace nwind
 
         private System.Data.Linq.EntitySet<OrderDetail> _OrderDetails;
 
-        private EntityRef<Category> _Category;
+        private System.Data.Linq.EntityRef<Category> _Category;
 
-        private EntityRef<Supplier> _Supplier;
+        private System.Data.Linq.EntityRef<Supplier> _Supplier;
 
         #region Extensibility Method Definitions
         partial void OnLoaded();
@@ -2261,8 +2244,8 @@ namespace nwind
         public Product()
         {
             this._OrderDetails = new System.Data.Linq.EntitySet<OrderDetail>(new Action<OrderDetail>(this.attach_OrderDetails), new Action<OrderDetail>(this.detach_OrderDetails));
-            this._Category = default(EntityRef<Category>);
-            this._Supplier = default(EntityRef<Supplier>);
+            this._Category = default(System.Data.Linq.EntityRef<Category>);
+            this._Supplier = default(System.Data.Linq.EntityRef<Supplier>);
             OnCreated();
         }
 
@@ -3184,7 +3167,7 @@ namespace nwind
 
         private System.Data.Linq.EntitySet<EmployeeTerritory> _EmployeeTerritories;
 
-        private EntityRef<Region> _Region;
+        private System.Data.Linq.EntityRef<Region> _Region;
 
         #region Extensibility Method Definitions
         partial void OnLoaded();
@@ -3201,7 +3184,7 @@ namespace nwind
         public Territory()
         {
             this._EmployeeTerritories = new System.Data.Linq.EntitySet<EmployeeTerritory>(new Action<EmployeeTerritory>(this.attach_EmployeeTerritories), new Action<EmployeeTerritory>(this.detach_EmployeeTerritories));
-            this._Region = default(EntityRef<Region>);
+            this._Region = default(System.Data.Linq.EntityRef<Region>);
             OnCreated();
         }
 

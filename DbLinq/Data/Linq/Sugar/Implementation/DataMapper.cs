@@ -155,7 +155,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         {
             return type.GetProperties()
                 .Where(p => p.PropertyType.IsGenericType && 
-                    p.PropertyType.GetGenericTypeDefinition() == typeof(EntitySet<>) &&
+                    p.PropertyType.GetGenericTypeDefinition() == typeof(System.Data.Linq.EntitySet<>) &&
                     p.IsDefined(typeof(AssociationAttribute),true))
                 .Cast<MemberInfo>().ToList();
         }
