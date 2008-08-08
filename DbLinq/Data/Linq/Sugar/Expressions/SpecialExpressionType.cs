@@ -56,6 +56,7 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
         ToLower,
         In,
         SubString,
-        Trim
+        Trim,
+        StringInsert
     }
 }

@@ -44,7 +44,7 @@ namespace DbLinq.MySql
             return "COUNT(*)";
         }
 
-        protected override string GetLiteralConcat(string a, string b)
+        protected override string GetLiteralStringConcat(string a, string b)
         {
             return string.Format("CONCAT({0}, {1})", a, b);
         }

@@ -88,7 +88,9 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
                 case SpecialExpressionType.SubString:
                     return defaultType;
                 case SpecialExpressionType.Trim:
-                    return defaultType;
+                    return typeof(string);
+                case SpecialExpressionType.StringInsert:
+                    return typeof(string);
                 default:
                     throw Error.BadArgument("S0058: Unknown SpecialExpressionType value {0}", specialExpressionType);
             }

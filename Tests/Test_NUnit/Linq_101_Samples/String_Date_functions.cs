@@ -54,7 +54,7 @@ namespace Test_NUnit_Sqlite.Linq_101_Samples
     namespace Test_NUnit_Ingres.Linq_101_Samples
 #elif MSSQL
 #if MONO_STRICT
-    namespace Test_NUnit_MsSql_Strict.Linq_101_Samples
+namespace Test_NUnit_MsSql_Strict.Linq_101_Samples
 #else
     namespace Test_NUnit_MsSql.Linq_101_Samples
 #endif
@@ -209,7 +209,8 @@ namespace Test_NUnit_Sqlite.Linq_101_Samples
             Northwind db = CreateDB();
 
             var q = from e in db.Employees
-                    select e.HomePhone.Substring(0, 5).Trim();
+                    where !("  "+(e.LastName)).Trim().Contains(" ")
+                    select e.LastName;
 
             var list = q.ToList();
             Assert.IsTrue(list.Count > 0);
@@ -303,6 +304,18 @@ namespace Test_NUnit_Sqlite.Linq_101_Samples
 
             var list = q.ToList();
             Assert.IsTrue(list.Count > 0);
+        }
+
+        [Test(Description = "DateTime.Seconds. This sample uses the DateTime's Day property to find Orders placed on the 31st day of the month.")]
+        public void LinqToSqlString19()
+        {
+            Northwind db = CreateDB();
+
+            var q = (from o in db.Orders
+                    where o.OrderDate.Value.Second == 16
+                    select o).ToList();
+
+ 
         }
     }
 }
