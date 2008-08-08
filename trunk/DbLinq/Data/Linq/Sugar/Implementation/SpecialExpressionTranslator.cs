@@ -104,9 +104,16 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     return TranslateSubString(operands);
                 case SpecialExpressionType.Trim:
                     return TranslateTrim(operands);
+                case SpecialExpressionType.StringInsert:
+                    return TranslateInsert(operands);
                 default:
                     throw Error.BadArgument("S0078: Implement translator for {0}", specialExpression.SpecialNodeType);
             }
+        }
+
+        protected virtual Expression TranslateInsert(List<Expression> operands)
+        {
+            return Expression.Call(operands.First(), typeof(string).GetMethod("Insert"), operands[1], operands[2]);
         }
 
         protected virtual Expression TranslateTrim(List<Expression> operands)

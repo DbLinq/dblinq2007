@@ -220,6 +220,8 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     return AnalyzeSelectOperation(SelectOperatorType.Exception, parameters, builderContext);
                 case "Trim":
                     return AnalyzeGenericSpecialExpressinType(SpecialExpressionType.Trim,parameters,builderContext);
+                case "Insert":
+                    return AnalyzeGenericSpecialExpressinType(SpecialExpressionType.StringInsert,parameters,builderContext);
                 default:
                     throw Error.BadArgument("S0133: Implement QueryMethod '{0}'", methodName);
             }

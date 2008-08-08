@@ -279,7 +279,7 @@ namespace DbLinq.Vendor.Implementation
                 case SpecialExpressionType.IsNotNull:
                     return GetLiteralIsNotNull(p[0]);
                 case SpecialExpressionType.Concat:
-                    return GetLiteralConcat(p[0], p[1]);
+                    return GetLiteralStringConcat(p[0], p[1]);
                 case SpecialExpressionType.Count:
                     return GetLiteralCount(p[0]);
                 case SpecialExpressionType.Like:
@@ -306,12 +306,23 @@ namespace DbLinq.Vendor.Implementation
                     return GetLiteralSubString(p[0], p[1]);
                 case SpecialExpressionType.Trim:
                     return GetLiteralTrim(p[0]);
+                case SpecialExpressionType.StringInsert:
+                    return GetLiteralStringInsert(p[0], p[1], p[2]);
 
             }
             throw new ArgumentException(operationType.ToString());
         }
 
-        
+        private string GetLiteralStringInsert(string innerExpression, string position, string insertString)
+        {
+
+            return this.GetLiteralStringConcat(this.GetLiteralStringConcat(
+                                        this.GetLiteralSubString(innerExpression,"0",position), 
+                                        insertString),
+                                        this.GetLiteralSubString(innerExpression,(int.Parse(position)+1).ToString()));
+        }
+
+
         /// <summary>
         /// Returns an operation between two SELECT clauses (UNION, UNION ALL, etc.)
         /// </summary>
@@ -638,7 +649,7 @@ namespace DbLinq.Vendor.Implementation
             return string.Format("{0} IS NOT NULL", a);
         }
 
-        protected virtual string GetLiteralConcat(string a, string b)
+        protected virtual string GetLiteralStringConcat(string a, string b)
         {
             // for some vendors, it is "CONCAT(a,b)"
             return string.Format("{0} || {1}", a, b);
@@ -659,16 +670,16 @@ namespace DbLinq.Vendor.Implementation
             return string.Format("LCASE({0})", a);
         }
 
-        protected virtual string GetLiteralSubString(string a, string s, string l)
-        {
-            return string.Format("SUBSTR({0}, {1}, {2})", a, s, l);
-        }
 
         protected virtual string GetLiteralTrim(string a)
         {
             return string.Format("TRIM({0})", a);
         }
 
+        protected virtual string GetLiteralSubString(string a, string s, string l)
+        {
+            return string.Format("SUBSTR({0}, {1}, {2})", a, s, l);
+        }
 
         protected virtual string GetLiteralSubString(string a, string s)
         {
