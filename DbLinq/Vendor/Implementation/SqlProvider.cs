@@ -308,18 +308,25 @@ namespace DbLinq.Vendor.Implementation
                     return GetLiteralTrim(p[0]);
                 case SpecialExpressionType.StringInsert:
                     return GetLiteralStringInsert(p[0], p[1], p[2]);
+                case SpecialExpressionType.Replace:
+                    return GetLiteralStringReplace(p[0], p[1], p[2]);
 
             }
             throw new ArgumentException(operationType.ToString());
         }
 
-        private string GetLiteralStringInsert(string innerExpression, string position, string insertString)
+        private string GetLiteralStringReplace(string stringExpresision, string searchString, string replacementstring)
+        {
+            return string.Format("REPLACE({0},{1},{2})", stringExpresision, searchString, replacementstring);
+        }
+
+        private string GetLiteralStringInsert(string stringExpression, string position, string insertString)
         {
 
             return this.GetLiteralStringConcat(this.GetLiteralStringConcat(
-                                        this.GetLiteralSubString(innerExpression,"0",position), 
+                                        this.GetLiteralSubString(stringExpression, "0", position), 
                                         insertString),
-                                        this.GetLiteralSubString(innerExpression,(int.Parse(position)+1).ToString()));
+                                        this.GetLiteralSubString(stringExpression, (int.Parse(position) + 1).ToString()));
         }
 
 

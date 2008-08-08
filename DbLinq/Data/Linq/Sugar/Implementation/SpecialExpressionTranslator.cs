@@ -80,45 +80,54 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     return TranslateIsNotNull(operands);
                 case SpecialExpressionType.Concat:
                     return TranslateConcat(operands);
-                    //case SpecialExpressionType.Count:
-                    //    break;
-                    //case SpecialExpressionType.Like:
-                    //    break;
-                    //case SpecialExpressionType.Min:
-                    //    break;
-                    //case SpecialExpressionType.Max:
-                    //    break;
-                    //case SpecialExpressionType.Sum:
-                    //    break;
-                    //case SpecialExpressionType.Average:
-                    //    break;
-                    //case SpecialExpressionType.StringLength:
-                    //    break;
+                //case SpecialExpressionType.Count:
+                //    break;
+                //case SpecialExpressionType.Like:
+                //    break;
+                //case SpecialExpressionType.Min:
+                //    break;
+                //case SpecialExpressionType.Max:
+                //    break;
+                //case SpecialExpressionType.Sum:
+                //    break;
+                //case SpecialExpressionType.Average:
+                //    break;
+                //case SpecialExpressionType.StringLength:
+                //    break;
                 case SpecialExpressionType.ToUpper:
                     return TranslateToUpper(operands);
                 case SpecialExpressionType.ToLower:
                     return TranslateToLower(operands);
-                    //case SpecialExpressionType.In:
-                    //    break;
+                //case SpecialExpressionType.In:
+                //    break;
                 case SpecialExpressionType.SubString:
                     return TranslateSubString(operands);
                 case SpecialExpressionType.Trim:
                     return TranslateTrim(operands);
                 case SpecialExpressionType.StringInsert:
-                    return TranslateInsert(operands);
+                    return TranslateInsertString(operands);
+                case SpecialExpressionType.Replace:
+                    return TranslateReplace(operands);
+
                 default:
                     throw Error.BadArgument("S0078: Implement translator for {0}", specialExpression.SpecialNodeType);
             }
         }
 
-        protected virtual Expression TranslateInsert(List<Expression> operands)
+        protected virtual Expression TranslateReplace(List<Expression> operands)
+        {
+            return Expression.Call(operands[0],
+                               typeof(string).GetMethod("Replace", new[] { typeof(string), typeof(string) }),
+                               operands[1], operands[2]);
+        }
+        protected virtual Expression TranslateInsertString(List<Expression> operands)
         {
             return Expression.Call(operands.First(), typeof(string).GetMethod("Insert"), operands[1], operands[2]);
         }
 
         protected virtual Expression TranslateTrim(List<Expression> operands)
         {
-            return Expression.Call(operands.First(), typeof(string).GetMethod("Trim",new Type[]{}));
+            return Expression.Call(operands.First(), typeof(string).GetMethod("Trim", new Type[] { }));
         }
         protected virtual Expression TranslateSubString(List<Expression> operands)
         {
@@ -128,9 +137,9 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                                        typeof(string).GetMethod("Substring", new[] { operands[1].Type, operands[2].Type }),
                                        operands[1], operands[2]);
             }
+
             return Expression.Call(operands[0],
-                                   typeof(string).GetMethod("Substring",
-                                                            new[] { operands[1].Type }),
+                                   typeof(string).GetMethod("Substring", new[] { operands[1].Type }),
                                    operands[1]);
         }
 
