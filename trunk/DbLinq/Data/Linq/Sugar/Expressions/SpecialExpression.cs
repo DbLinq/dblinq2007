@@ -94,6 +94,8 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
                     return typeof(string);
                 case SpecialExpressionType.Replace:
                     return typeof(string);
+                case SpecialExpressionType.Remove:
+                    return typeof(string);
                 default:
                     throw Error.BadArgument("S0058: Unknown SpecialExpressionType value {0}", specialExpressionType);
             }
@@ -204,8 +206,14 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
                     throw new NotImplementedException();
                     break;
                 case SpecialExpressionType.Replace:
-                    string baseString = operands.First().Evaluate() as string;
-                    return baseString.Replace(operands[1].Evaluate().ToString(),operands[2].Evaluate().ToString());
+                    string replaceString = operands.First().Evaluate() as string;
+                    return replaceString.Replace(operands[1].Evaluate().ToString(),operands[2].Evaluate().ToString());
+                case SpecialExpressionType.Remove:
+                    string removeString = operands.First().Evaluate() as string;
+                    if (operands.Count > 2)
+                        return removeString.Remove((int)operands[1].Evaluate(), (int)operands[2].Evaluate());
+                    else
+                        return removeString.Remove((int)operands[1].Evaluate());
                 default:
                     throw Error.BadArgument("S0116: Unknown SpecialExpressionType ({0})", SpecialNodeType);
             }

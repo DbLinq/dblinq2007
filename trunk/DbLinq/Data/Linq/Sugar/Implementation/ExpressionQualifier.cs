@@ -75,6 +75,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     case SpecialExpressionType.Trim:
                     case SpecialExpressionType.StringInsert:
                     case SpecialExpressionType.Replace:
+                    case SpecialExpressionType.Remove:
                         return ExpressionPrecedence.Primary;
                     case SpecialExpressionType.In:
                         return ExpressionPrecedence.Equality; // not sure for this one
@@ -202,6 +203,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     case SpecialExpressionType.Trim:
                     case SpecialExpressionType.StringInsert:
                     case SpecialExpressionType.Replace:
+                    case SpecialExpressionType.Remove:
                         return ExpressionTier.Any;
 
                     case SpecialExpressionType.Like:

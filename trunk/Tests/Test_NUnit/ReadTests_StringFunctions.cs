@@ -147,7 +147,7 @@ namespace Test_NUnit_MsSql
             Northwind db = CreateDB();
 
             var q = from e in db.Employees
-                    select e.LastName+" .".Replace('.', 'a');
+                    select e.LastName + " .".Replace('.', 'a');
 
             var list = q.ToList();
             Assert.IsTrue(list.Count > 0);
@@ -165,7 +165,111 @@ namespace Test_NUnit_MsSql
             Assert.IsTrue(list.Count > 0);
 
         }
- 
+
+        [Test]
+        public void Remove01()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    where " .".Remove(1) == " "
+                    select e;
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+
+        }
+
+        [Test]
+        public void Remove02()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    where e.LastName.Remove(1).Length > 0
+                    select e;
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+
+        }
+
+        [Test]
+        public void Remove03()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    where " ..".Remove(1, 2) == " "
+                    select e;
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+        }
+
+        [Test]
+        public void Remove04()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    where e.LastName.Remove(1, 2).Length > 0
+                    select e;
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+        }
+
+        [Test]
+        public void Remove05()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    select " .".Remove(1) == " ";
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+
+        }
+
+        [Test]
+        public void Remove06()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    select e.LastName.Remove(1).Length > 0;
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+
+        }
+
+        [Test]
+        public void Remove07()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    select " ..".Remove(1, 2) == " ";
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+        }
+
+        [Test]
+        public void Remove08()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    select e.LastName.Remove(1, 2).Length > 0;
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+        }
+
         [Test]
         public void H7_String_StartsWith()
         {
