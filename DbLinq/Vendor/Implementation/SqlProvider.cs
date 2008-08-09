@@ -156,6 +156,8 @@ namespace DbLinq.Vendor.Implementation
                 return GetNullLiteral();
             if (literal is string)
                 return GetLiteral((string)literal);
+            if (literal is char)
+                return GetLiteral(literal.ToString());
             if (literal.GetType().IsArray)
                 return GetLiteral((Array)literal);
             return Convert.ToString(literal, CultureInfo.InvariantCulture);
