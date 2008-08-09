@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq.Expressions;
+using System.Linq;
 #if MONO_STRICT
 using System.Data.Linq.Sugar;
 using System.Data.Linq.Sugar.ExpressionMutator;
@@ -172,10 +173,8 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
                     }
                 case SpecialExpressionType.Sum:
                     {
-                        decimal sum = 0;
-                        foreach (var operand in operands)
-                            sum += System.Convert.ToDecimal(operand.Evaluate());
-                        return System.Convert.ChangeType(sum, operands[0].Type);
+                        decimal sum = operands.Select(op => System.Convert.ToDecimal(op.Evaluate())).Sum();
+                        return System.Convert.ChangeType(sum, operands.First().Type);
                     }
                 case SpecialExpressionType.Average:
                     {
@@ -202,7 +201,11 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
                         return str.Substring(start);
                     }
                 case SpecialExpressionType.In:
-                    // TODO
+                    throw new NotImplementedException();
+                    break;
+                case SpecialExpressionType.Replace:
+                    string baseString = operands.First().Evaluate() as string;
+                    return baseString.Replace(operands[1].Evaluate().ToString(),operands[2].Evaluate().ToString());
                 default:
                     throw Error.BadArgument("S0116: Unknown SpecialExpressionType ({0})", SpecialNodeType);
             }
