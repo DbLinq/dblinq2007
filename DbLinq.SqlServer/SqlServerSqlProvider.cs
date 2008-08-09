@@ -69,14 +69,15 @@ namespace DbLinq.SqlServer
             return string.Format("LEN({0})", a);
         }
 
-        protected override string GetLiteralSubString(string a, string s, string l)
+        protected override string GetLiteralSubString(string baseString, string startIndex, string count)
         {
-            return string.Format("SUBSTRING({0}, {1}, {2})", a, s, l);
+            //in standard sql base string index is 1 instead 0
+            return string.Format("SUBSTRING({0}, {1}, {2})", baseString, (int.Parse(startIndex) + 1), count);
         }
 
-        protected override string GetLiteralSubString(string a, string s)
+        protected override string GetLiteralSubString(string baseString, string startIndex)
         {
-            return GetLiteralSubString(a, s, GetLiteralStringLength(a));
+            return GetLiteralSubString(baseString, startIndex, GetLiteralStringLength(baseString));
         }
 
         protected override string GetLiteralTrim(string a)

@@ -92,8 +92,9 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 //    break;
                 //case SpecialExpressionType.Average:
                 //    break;
-                //case SpecialExpressionType.StringLength:
-                //    break;
+                case SpecialExpressionType.StringLength:
+                    return TranslateStringLength(operands);
+                    break;
                 case SpecialExpressionType.ToUpper:
                     return TranslateToUpper(operands);
                 case SpecialExpressionType.ToLower:
@@ -108,10 +109,30 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     return TranslateInsertString(operands);
                 case SpecialExpressionType.Replace:
                     return TranslateReplace(operands);
+                case SpecialExpressionType.Remove:
+                    return TranslateRemove(operands);
 
                 default:
                     throw Error.BadArgument("S0078: Implement translator for {0}", specialExpression.SpecialNodeType);
             }
+        }
+
+        private Expression TranslateStringLength(List<Expression> operands)
+        {
+            return Expression.MakeMemberAccess(operands[0], typeof(string).GetProperty("Length"));
+        }
+
+        protected virtual Expression TranslateRemove(List<Expression> operands)
+        {
+            if (operands.Count > 2)
+            {
+                return Expression.Call(operands[0], 
+                                    typeof(string).GetMethod("Remove", new[] { typeof(int), typeof(int) }), 
+                                    operands[1], operands[2]);
+            }
+            return Expression.Call(operands[0], 
+                                    typeof(string).GetMethod("Remove", new[] { typeof(int) }),
+                                    operands[1]);
         }
 
         protected virtual Expression TranslateReplace(List<Expression> operands)
