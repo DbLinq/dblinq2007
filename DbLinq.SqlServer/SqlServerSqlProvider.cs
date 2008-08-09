@@ -72,12 +72,12 @@ namespace DbLinq.SqlServer
         protected override string GetLiteralSubString(string baseString, string startIndex, string count)
         {
             //in standard sql base string index is 1 instead 0
-            return string.Format("SUBSTRING({0}, {1}, {2})", baseString, (int.Parse(startIndex) + 1), count);
+            return string.Format("SUBSTRING({0}, {1}, {2})", baseString, GetLiteralAdd(startIndex,"1"), count);
         }
 
         protected override string GetLiteralSubString(string baseString, string startIndex)
         {
-            return GetLiteralSubString(baseString, startIndex, GetLiteralStringLength(baseString));
+            return GetLiteralSubString(baseString, GetLiteralAdd(startIndex, "1"), GetLiteralStringLength(baseString));
         }
 
         protected override string GetLiteralTrim(string a)
@@ -98,6 +98,21 @@ namespace DbLinq.SqlServer
         protected override string GetLiteralStringToUpper(string a)
         {
             return string.Format("UPPER({0})", a);
+        }
+
+        protected override string GetLiteralStringIndexOf(string baseString, string searchString)
+        {
+            return GetLiteralSubtract(string.Format("CHARINDEX({0},{1})", searchString, baseString), "1");
+        }
+
+        protected override string GetLiteralStringIndexOf(string baseString, string searchString, string startIndex)
+        {
+            return GetLiteralSubtract(string.Format("CHARINDEX({0},{1},{2})", searchString, baseString, startIndex), "1");
+        }
+
+        protected override string GetLiteralStringIndexOf(string baseString, string searchString, string startIndex, string count)
+        {
+            return GetLiteralSubtract(string.Format("CHARINDEX({0},{1},{2})", searchString, GetLiteralSubString(baseString, "1", GetLiteralStringConcat(count, startIndex)), startIndex), "1");
         }
 
         //http://msdn.microsoft.com/en-us/library/4e5xt97a(VS.71).aspx

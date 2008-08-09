@@ -498,6 +498,30 @@ namespace Test_NUnit_MsSql
             Assert.IsTrue(custID == "ALFKI");
         }
 
+        [Test]
+        public void EndsWith03()
+        {
+            Northwind db = CreateDB();
+
+            var q = from c in db.Customers
+                    where "ALFKI".EndsWith("LFKI")
+                    select c.CustomerID;
+
+            string custID = q.Single();
+            Assert.IsTrue(custID == "ALFKI");
+        }
+
+        [Test]
+        public void EndsWith04()
+        {
+            Northwind db = CreateDB();
+
+            var q = from c in db.Customers
+                    select c.CustomerID.EndsWith("LFKI");
+
+            Assert.IsTrue(q.Any(r=>r==true));
+        }
+
 
         [Test]
         public void StartsWithPercent01()
