@@ -116,9 +116,15 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
 
         protected virtual Expression TranslateReplace(List<Expression> operands)
         {
+            if (operands.ElementAt(1).Type == typeof(string))
+            {
+                return Expression.Call(operands[0],
+                                   typeof(string).GetMethod("Replace", new[] { typeof(string), typeof(string) }),
+                                   operands[1], operands[2]);
+            }
             return Expression.Call(operands[0],
-                               typeof(string).GetMethod("Replace", new[] { typeof(string), typeof(string) }),
-                               operands[1], operands[2]);
+                                typeof(string).GetMethod("Replace", new[] { typeof(char), typeof(char) }),
+                                operands[1], operands[2]);
         }
         protected virtual Expression TranslateInsertString(List<Expression> operands)
         {

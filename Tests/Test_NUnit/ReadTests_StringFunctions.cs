@@ -119,6 +119,21 @@ namespace Test_NUnit_MsSql
             Northwind db = CreateDB();
 
             var q = from e in db.Employees
+                    where e.LastName.Replace('A', 'B').Contains('B')
+                    select e;
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+
+        }
+
+        [Test]
+        public void Replace03()
+        {
+            //white-box test: Testing preevalutation of the where predicate (SpecialExpression.Execute method) before of building the sql query
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
                     where " .".Replace(" ", "f") == "f."
                     select e;
 
@@ -126,12 +141,13 @@ namespace Test_NUnit_MsSql
             Assert.IsTrue(list.Count > 0);
         }
         [Test]
-        public void Replace03()
+        public void Replace04()
         {
+            //white-box test: Testing the select's projection field execution in clr.
             Northwind db = CreateDB();
 
             var q = from e in db.Employees
-                    select " .".Replace('.', 'a');
+                    select e.LastName+" .".Replace('.', 'a');
 
             var list = q.ToList();
             Assert.IsTrue(list.Count > 0);
@@ -139,7 +155,7 @@ namespace Test_NUnit_MsSql
         }
 
         [Test]
-        public void Replace04()
+        public void Replace05()
         {
             Northwind db = CreateDB();
 
