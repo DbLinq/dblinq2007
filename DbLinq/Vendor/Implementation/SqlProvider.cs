@@ -312,9 +312,24 @@ namespace DbLinq.Vendor.Implementation
                     return GetLiteralStringInsert(p[0], p[1], p[2]);
                 case SpecialExpressionType.Replace:
                     return GetLiteralStringReplace(p[0], p[1], p[2]);
+                case SpecialExpressionType.Remove:
+                    if (p.Count > 2)
+                        return GetLiteralStringRemove(p[0], p[1], p[2]);
+                    return GetLiteralStringRemove(p[0], p[1]);
 
             }
             throw new ArgumentException(operationType.ToString());
+        }
+
+        private string GetLiteralStringRemove(string baseString, string startIndex, string count)
+        {
+            return GetLiteralStringConcat(
+                    GetLiteralSubString(baseString, "0", int.Parse(startIndex).ToString()),
+                    GetLiteralSubString(baseString, (int.Parse(startIndex) + int.Parse(count)).ToString(), GetLiteralStringLength(baseString)));
+        }
+        private string GetLiteralStringRemove(string baseString, string startIndex)
+        {
+            return GetLiteralSubString(baseString, "0", int.Parse(startIndex).ToString());
         }
 
         private string GetLiteralStringReplace(string stringExpresision, string searchString, string replacementstring)
@@ -326,7 +341,7 @@ namespace DbLinq.Vendor.Implementation
         {
 
             return this.GetLiteralStringConcat(this.GetLiteralStringConcat(
-                                        this.GetLiteralSubString(stringExpression, "0", position), 
+                                        this.GetLiteralSubString(stringExpression, "0", position),
                                         insertString),
                                         this.GetLiteralSubString(stringExpression, (int.Parse(position) + 1).ToString()));
         }
@@ -685,14 +700,16 @@ namespace DbLinq.Vendor.Implementation
             return string.Format("TRIM({0})", a);
         }
 
-        protected virtual string GetLiteralSubString(string a, string s, string l)
+        protected virtual string GetLiteralSubString(string baseString, string startIndex, string count)
         {
-            return string.Format("SUBSTR({0}, {1}, {2})", a, s, l);
+            //in standard sql base string index is 1 instead 0
+            return string.Format("SUBSTR({0}, {1}, {2})", baseString, (int.Parse(startIndex) + 1), count);
         }
 
-        protected virtual string GetLiteralSubString(string a, string s)
+        protected virtual string GetLiteralSubString(string baseString, string startIndex)
         {
-            return string.Format("SUBSTR({0}, {1})", a, s);
+            //in standard sql base string index is 1 instead 0
+            return string.Format("SUBSTR({0}, {1})", baseString, (int.Parse(startIndex) + 1).ToString());
         }
 
         protected virtual string GetLiteralLike(string a, string b)
