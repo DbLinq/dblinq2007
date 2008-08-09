@@ -109,7 +109,7 @@ namespace Test_NUnit_MsSql
                     select e;
 
             var list = q.ToList();
-            Assert.IsTrue(list.Count > 0);
+            Assert.AreEqual(list.Count, db.Employees.Count());
 
         }
 
@@ -119,7 +119,7 @@ namespace Test_NUnit_MsSql
             Northwind db = CreateDB();
 
             var q = from e in db.Employees
-                    where e.LastName.Replace('A', 'B').Contains('B')
+                    where e.LastName.Replace('A', 'B').Contains("B")
                     select e;
 
             var list = q.ToList();
@@ -140,6 +140,7 @@ namespace Test_NUnit_MsSql
             var list = q.ToList();
             Assert.IsTrue(list.Count > 0);
         }
+
         [Test]
         public void Replace04()
         {
@@ -150,8 +151,7 @@ namespace Test_NUnit_MsSql
                     select e.LastName + " .".Replace('.', 'a');
 
             var list = q.ToList();
-            Assert.IsTrue(list.Count > 0);
-
+            Assert.AreEqual(list.Count, db.Employees.Count());
         }
 
         [Test]
@@ -162,9 +162,185 @@ namespace Test_NUnit_MsSql
             var q = from e in db.Employees
                     select " .".Replace(" ", "f");
             var list = q.ToList();
+            Assert.AreEqual(list.Count, db.Employees.Count());
+        }
+
+        [Test]
+        public void IndexOf01()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    where " fu".IndexOf("fu") == 1
+                    select e;
+
+            var list = q.ToList();
             Assert.IsTrue(list.Count > 0);
 
         }
+
+        [Test]
+        public void IndexOf02()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    where e.LastName.IndexOf("Fu") == 0
+                    select e;
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+        }
+
+        [Test]
+        public void IndexOf03()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    where " fu".IndexOf('f') == 1
+                    select e;
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+
+        }
+
+        [Test]
+        public void IndexOf04()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    where e.LastName.IndexOf('F') == 0
+                    select e;
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+        }
+
+      
+
+        [Test]
+        public void IndexOf05()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    where e.LastName.IndexOf("u",1) == 1
+                    select e;
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+        }
+
+       
+
+        [Test]
+        public void IndexOf06()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    where e.LastName.IndexOf('u',1,1) == 1
+                    select e;
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+        }
+
+        [Test]
+        public void IndexOf08()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    where e.LastName.IndexOf("u",1,1) == 1
+                    select e;
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+        }
+
+
+        [Test]
+        public void IndexOf09()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    select e.LastName.IndexOf("Fu") == 0;
+
+            var list = q.ToList();
+            Assert.AreEqual(list.Count, db.Employees.Count());
+        }
+
+        [Test]
+        public void IndexOf10()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    select " fu".IndexOf('f') == 1;
+                    
+
+            var list = q.ToList();
+            Assert.AreEqual(list.Count, db.Employees.Count());
+
+        }
+
+        [Test]
+        public void IndexOf11()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    select e.LastName.IndexOf('F') == 0;
+
+            var list = q.ToList();
+            Assert.AreEqual(list.Count, db.Employees.Count());
+        }
+
+
+
+        [Test]
+        public void IndexOf12()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    select e.LastName.IndexOf("u", 1) == 1;
+
+            var list = q.ToList();
+            Assert.AreEqual(list.Count, db.Employees.Count());
+        }
+
+
+
+        [Test]
+        public void IndexOf13()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    select e.LastName.IndexOf('u', 1, 1) == 1;
+
+            var list = q.ToList();
+            Assert.AreEqual(list.Count, db.Employees.Count());
+        }
+
+        [Test]
+        public void IndexOf14()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    select e.LastName.IndexOf("u", 1, 1) == 1;
+
+            var list = q.ToList();
+            Assert.AreEqual(list.Count, db.Employees.Count());
+        }
+
 
         [Test]
         public void Remove01()
@@ -229,8 +405,7 @@ namespace Test_NUnit_MsSql
                     select " .".Remove(1) == " ";
 
             var list = q.ToList();
-            Assert.IsTrue(list.Count > 0);
-
+            Assert.AreEqual(list.Count, db.Employees.Count());
         }
 
         [Test]
@@ -242,7 +417,7 @@ namespace Test_NUnit_MsSql
                     select e.LastName.Remove(1).Length > 0;
 
             var list = q.ToList();
-            Assert.IsTrue(list.Count > 0);
+            Assert.AreEqual(list.Count, db.Employees.Count());
 
         }
 
@@ -255,7 +430,7 @@ namespace Test_NUnit_MsSql
                     select " ..".Remove(1, 2) == " ";
 
             var list = q.ToList();
-            Assert.IsTrue(list.Count > 0);
+            Assert.AreEqual(list.Count, db.Employees.Count());
         }
 
         [Test]
@@ -267,11 +442,11 @@ namespace Test_NUnit_MsSql
                     select e.LastName.Remove(1, 2).Length > 0;
 
             var list = q.ToList();
-            Assert.IsTrue(list.Count > 0);
+            Assert.AreEqual(list.Count, db.Employees.Count());
         }
 
         [Test]
-        public void H7_String_StartsWith()
+        public void StartsWith01()
         {
             Northwind db = CreateDB();
 
@@ -284,7 +459,7 @@ namespace Test_NUnit_MsSql
         }
 
         [Test]
-        public void H8_String_StartsWith()
+        public void StartsWith02()
         {
             Northwind db = CreateDB();
 
@@ -297,7 +472,7 @@ namespace Test_NUnit_MsSql
         }
 
         [Test]
-        public void H9_String_EndsWith()
+        public void EndsWith01()
         {
             Northwind db = CreateDB();
 
@@ -310,7 +485,7 @@ namespace Test_NUnit_MsSql
         }
 
         [Test]
-        public void H10_String_EndsWith()
+        public void EndsWith02()
         {
             string param = "LFKI";
             Northwind db = CreateDB();
@@ -325,7 +500,7 @@ namespace Test_NUnit_MsSql
 
 
         [Test]
-        public void H11_String_StartsWithPercent()
+        public void StartsWithPercent01()
         {
             string param = "%";
             Northwind db = CreateDB();

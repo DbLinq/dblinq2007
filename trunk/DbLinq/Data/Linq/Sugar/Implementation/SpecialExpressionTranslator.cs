@@ -94,91 +94,112 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 //    break;
                 case SpecialExpressionType.StringLength:
                     return TranslateStringLength(operands);
-                    break;
                 case SpecialExpressionType.ToUpper:
-                    return TranslateToUpper(operands);
+                    return GetStandarCallInvoke("ToUpper", operands);
                 case SpecialExpressionType.ToLower:
-                    return TranslateToLower(operands);
+                    return GetStandarCallInvoke("ToLower",operands);
                 //case SpecialExpressionType.In:
                 //    break;
                 case SpecialExpressionType.SubString:
-                    return TranslateSubString(operands);
+                    return GetStandarCallInvoke("SubString", operands);
                 case SpecialExpressionType.Trim:
-                    return TranslateTrim(operands);
+                    return GetStandarCallInvoke("Trim", operands);
                 case SpecialExpressionType.StringInsert:
-                    return TranslateInsertString(operands);
+                    return GetStandarCallInvoke("Insert", operands);
                 case SpecialExpressionType.Replace:
-                    return TranslateReplace(operands);
+                    return GetStandarCallInvoke("Replace", operands);
                 case SpecialExpressionType.Remove:
-                    return TranslateRemove(operands);
-
+                    return GetStandarCallInvoke("Remove",operands);
+                case SpecialExpressionType.IndexOf:
+                    return GetStandarCallInvoke("IndexOf", operands);
                 default:
                     throw Error.BadArgument("S0078: Implement translator for {0}", specialExpression.SpecialNodeType);
+
             }
         }
+
+
 
         private Expression TranslateStringLength(List<Expression> operands)
         {
             return Expression.MakeMemberAccess(operands[0], typeof(string).GetProperty("Length"));
         }
 
-        protected virtual Expression TranslateRemove(List<Expression> operands)
+        protected virtual Expression GetStandarCallInvoke(string methodName, List<Expression> operands)
         {
-            if (operands.Count > 2)
-            {
-                return Expression.Call(operands[0], 
-                                    typeof(string).GetMethod("Remove", new[] { typeof(int), typeof(int) }), 
-                                    operands[1], operands[2]);
-            }
             return Expression.Call(operands[0], 
-                                    typeof(string).GetMethod("Remove", new[] { typeof(int) }),
-                                    operands[1]);
+                                   operands[0].Type.GetMethod(methodName, operands.Skip(1).Select(op => op.Type).ToArray()),
+                                   operands.Skip(1));
         }
 
-        protected virtual Expression TranslateReplace(List<Expression> operands)
-        {
-            if (operands.ElementAt(1).Type == typeof(string))
-            {
-                return Expression.Call(operands[0],
-                                   typeof(string).GetMethod("Replace", new[] { typeof(string), typeof(string) }),
-                                   operands[1], operands[2]);
-            }
-            return Expression.Call(operands[0],
-                                typeof(string).GetMethod("Replace", new[] { typeof(char), typeof(char) }),
-                                operands[1], operands[2]);
-        }
-        protected virtual Expression TranslateInsertString(List<Expression> operands)
-        {
-            return Expression.Call(operands.First(), typeof(string).GetMethod("Insert"), operands[1], operands[2]);
-        }
+        //protected virtual Expression TranslateRemove(List<Expression> operands)
+        //{
+        //    if (operands.Count > 2)
+        //    {
+        //        return Expression.Call(operands[0], 
+        //                            typeof(string).GetMethod("Remove", new[] { typeof(int), typeof(int) }), 
+        //                            operands[1], operands[2]);
+        //    }
+        //    return Expression.Call(operands[0], 
+        //                            typeof(string).GetMethod("Remove", new[] { typeof(int) }),
+        //                            operands[1]);
+        //}
 
-        protected virtual Expression TranslateTrim(List<Expression> operands)
-        {
-            return Expression.Call(operands.First(), typeof(string).GetMethod("Trim", new Type[] { }));
-        }
-        protected virtual Expression TranslateSubString(List<Expression> operands)
-        {
-            if (operands.Count > 2)
-            {
-                return Expression.Call(operands[0],
-                                       typeof(string).GetMethod("Substring", new[] { operands[1].Type, operands[2].Type }),
-                                       operands[1], operands[2]);
-            }
+        //protected virtual Expression TranslateStringIndexOf(List<Expression> operands)
+        //{
+        //    if (operands.Count == 2 && operands[1].Type == typeof(string))
+        //    {
+        //         return Expression.Call(operands[0], 
+        //                            typeof(string).GetMethod("IndexOf", new[] { typeof(string)}), 
+        //                            operands[1]);
+        //    }
+        //    throw new NotSupportedException();
+        //}
 
-            return Expression.Call(operands[0],
-                                   typeof(string).GetMethod("Substring", new[] { operands[1].Type }),
-                                   operands[1]);
-        }
+        //protected virtual Expression TranslateReplace(List<Expression> operands)
+        //{
+        //    if (operands.ElementAt(1).Type == typeof(string))
+        //    {
+        //        return Expression.Call(operands[0],
+        //                           typeof(string).GetMethod("Replace", new[] { typeof(string), typeof(string) }),
+        //                           operands[1], operands[2]);
+        //    }
+        //    return Expression.Call(operands[0],
+        //                        typeof(string).GetMethod("Replace", new[] { typeof(char), typeof(char) }),
+        //                        operands[1], operands[2]);
+        //}
+        //protected virtual Expression TranslateInsertString(List<Expression> operands)
+        //{
+        //    return Expression.Call(operands.First(), typeof(string).GetMethod("Insert"), operands[1], operands[2]);
+        //}
 
-        protected virtual Expression TranslateToLower(List<Expression> operands)
-        {
-            return Expression.Call(operands[0], typeof(string).GetMethod("ToLower", new Type[0]));
-        }
+        //protected virtual Expression TranslateTrim(List<Expression> operands)
+        //{
+        //    return Expression.Call(operands.First(), typeof(string).GetMethod("Trim", new Type[] { }));
+        //}
+        //protected virtual Expression TranslateSubString(List<Expression> operands)
+        //{
+        //    if (operands.Count > 2)
+        //    {
+        //        return Expression.Call(operands[0],
+        //                               typeof(string).GetMethod("Substring", new[] { operands[1].Type, operands[2].Type }),
+        //                               operands[1], operands[2]);
+        //    }
 
-        protected virtual Expression TranslateToUpper(List<Expression> operands)
-        {
-            return Expression.Call(operands[0], typeof(string).GetMethod("ToUpper", new Type[0]));
-        }
+        //    return Expression.Call(operands[0],
+        //                           typeof(string).GetMethod("Substring", new[] { operands[1].Type }),
+        //                           operands[1]);
+        //}
+
+        //protected virtual Expression TranslateToLower(List<Expression> operands)
+        //{
+        //    return Expression.Call(operands[0], typeof(string).GetMethod("ToLower", new Type[0]));
+        //}
+
+        //protected virtual Expression TranslateToUpper(List<Expression> operands)
+        //{
+        //    return Expression.Call(operands[0], typeof(string).GetMethod("ToUpper", new Type[0]));
+        //}
 
         protected virtual Expression TranslateConcat(List<Expression> operands)
         {

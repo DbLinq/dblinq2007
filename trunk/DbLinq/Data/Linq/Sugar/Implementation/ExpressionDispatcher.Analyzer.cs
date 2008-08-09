@@ -226,6 +226,8 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     return AnalyzeGenericSpecialExpressinType(SpecialExpressionType.Replace, parameters, builderContext);
                 case "Remove":
                     return AnalyzeGenericSpecialExpressinType(SpecialExpressionType.Remove, parameters, builderContext);
+                case "IndexOf":
+                    return AnalyzeGenericSpecialExpressinType(SpecialExpressionType.IndexOf, parameters, builderContext);
                 default:
                     throw Error.BadArgument("S0133: Implement QueryMethod '{0}'", methodName);
             }

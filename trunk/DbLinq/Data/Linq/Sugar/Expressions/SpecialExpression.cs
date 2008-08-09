@@ -31,6 +31,8 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Linq;
+using System.Collections.ObjectModel;
+
 #if MONO_STRICT
 using System.Data.Linq.Sugar;
 using System.Data.Linq.Sugar.ExpressionMutator;
@@ -96,6 +98,8 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
                     return typeof(string);
                 case SpecialExpressionType.Remove:
                     return typeof(string);
+                case SpecialExpressionType.IndexOf:
+                    return typeof(int);
                 default:
                     throw Error.BadArgument("S0058: Unknown SpecialExpressionType value {0}", specialExpressionType);
             }
@@ -192,31 +196,27 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
                 case SpecialExpressionType.ToLower:
                     return operands[0].Evaluate().ToString().ToLower();
                 case SpecialExpressionType.SubString:
-                    {
-                        var str = operands[0].Evaluate().ToString();
-                        var start = (int)operands[1].Evaluate();
-                        if (operands.Count > 2)
-                        {
-                            var length = (int)operands[2].Evaluate();
-                            return str.Substring(start, length);
-                        }
-                        return str.Substring(start);
-                    }
+                    return EvaluateStandarCallInvoke("SubString", operands);
                 case SpecialExpressionType.In:
                     throw new NotImplementedException();
                     break;
                 case SpecialExpressionType.Replace:
-                    string replaceString = operands.First().Evaluate() as string;
-                    return replaceString.Replace(operands[1].Evaluate().ToString(),operands[2].Evaluate().ToString());
+                    return EvaluateStandarCallInvoke("Replace", operands);
                 case SpecialExpressionType.Remove:
-                    string removeString = operands.First().Evaluate() as string;
-                    if (operands.Count > 2)
-                        return removeString.Remove((int)operands[1].Evaluate(), (int)operands[2].Evaluate());
-                    else
-                        return removeString.Remove((int)operands[1].Evaluate());
+                    return EvaluateStandarCallInvoke("Remove", operands);
+                case SpecialExpressionType.IndexOf:
+                    return EvaluateStandarCallInvoke("IndexOf", operands);
+
                 default:
                     throw Error.BadArgument("S0116: Unknown SpecialExpressionType ({0})", SpecialNodeType);
             }
+        }
+        protected virtual object EvaluateStandarCallInvoke(string methodName, ReadOnlyCollection<Expression> operands)
+        {
+            return operands[0].Type.GetMethod(methodName, 
+                                       operands.Skip(1).Select(op => op.Type).ToArray())
+                                       .Invoke(operands[0].Evaluate(),
+                                               operands.Skip(1).Select(op=>op.Evaluate()).ToArray());
         }
     }
 }
