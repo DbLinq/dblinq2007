@@ -322,17 +322,33 @@ namespace DbLinq.Vendor.Implementation
                     else if (p.Count == 3)
                         return GetLiteralStringIndexOf(p[0], p[1], p[2]);
                     else if (p.Count == 4)
-                        return GetLiteralStringIndexOf(p[0], p[1], p[2],p[3]);
+                        return GetLiteralStringIndexOf(p[0], p[1], p[2], p[3]);
                     break;
 
             }
             throw new ArgumentException(operationType.ToString());
         }
 
-        private string GetLiteralStringIndexOf(string baseString, string searchString,string startIndex,string count)
+        protected virtual string GetLiteralStringIndexOf(string baseString, string searchString, string startIndex, string count)
+        {
+            string translatedStartIndex = GetLiteralAdd(startIndex, "1");
+            //SUBSTRING(baseString,StartIndex+1)
+            string substring = GetLiteralSubString(baseString, translatedStartIndex, count);
+
+            //STRPOS(SUBSTRING(baseString,StartIndex),searchString)---> range 1:n , 0 => doesn't exist
+            string substringIndexOf = string.Format("STRPOS({0},{1})", substring, searchString);
+
+            //(STRPOS(SUBSTRING(baseString,StartIndex),searchString)+ startIndex+1)*STRPOS(SUBSTRING(baseString,StartIndex),searchString)
+            // range 1:m, m>n, 0=>doesn't exist
+            string literalRangeShifted = GetLiteralMultiply(GetLiteralAdd(substringIndexOf, translatedStartIndex), substringIndexOf);
+
+            return GetLiteralSubtract(literalRangeShifted, "1");
+        }
+
+        protected virtual string GetLiteralStringIndexOf(string baseString, string searchString, string startIndex)
         {
             //SUBSTRING(baseString,StartIndex)
-            string substring = GetLiteralSubString(baseString, startIndex,count);
+            string substring = GetLiteralSubString(baseString, startIndex);
 
             //STRPOS(SUBSTRING(baseString,StartIndex),searchString)---> range 1:n , 0 => doesn't exist
             string substringIndexOf = string.Format("STRPOS({0},{1})", substring, searchString);
@@ -344,43 +360,29 @@ namespace DbLinq.Vendor.Implementation
             return GetLiteralSubtract(literalRangeShifted, "1");
         }
 
-        private string GetLiteralStringIndexOf(string baseString, string searchString, string startIndex)
-        {
-            //SUBSTRING(baseString,StartIndex)
-            string substring = GetLiteralSubString(baseString, startIndex);
-
-            //STRPOS(SUBSTRING(baseString,StartIndex),searchString)---> range 1:n , 0 => doesn't exist
-            string substringIndexOf=string.Format("STRPOS({0},{1})", substring, searchString);
-
-            //(STRPOS(SUBSTRING(baseString,StartIndex),searchString)+ startIndex)*STRPOS(SUBSTRING(baseString,StartIndex),searchString)
-            // range 1:m, m>n, 0=>doesn't exist
-            string literalRangeShifted = GetLiteralMultiply(GetLiteralAdd(substringIndexOf, startIndex), substringIndexOf);
-
-            return GetLiteralSubtract(literalRangeShifted,"1");
-        }
-
-        private string GetLiteralStringIndexOf(string baseString, string searchString)
+        protected virtual string GetLiteralStringIndexOf(string baseString, string searchString)
         {
             return GetLiteralSubtract(string.Format("STRPOS({0},{1})", baseString, searchString), "1");
         }
 
-        private string GetLiteralStringRemove(string baseString, string startIndex, string count)
+        protected virtual string GetLiteralStringRemove(string baseString, string startIndex, string count)
         {
             return GetLiteralStringConcat(
                     GetLiteralSubString(baseString, "1", startIndex),
                     GetLiteralSubString(baseString, GetLiteralAdd(startIndex, count).ToString(), GetLiteralStringLength(baseString)));
         }
-        private string GetLiteralStringRemove(string baseString, string startIndex)
+
+        protected virtual string GetLiteralStringRemove(string baseString, string startIndex)
         {
             return GetLiteralSubString(baseString, "1", startIndex);
         }
 
-        private string GetLiteralStringReplace(string stringExpresision, string searchString, string replacementstring)
+        protected string GetLiteralStringReplace(string stringExpresision, string searchString, string replacementstring)
         {
             return string.Format("REPLACE({0},{1},{2})", stringExpresision, searchString, replacementstring);
         }
 
-        private string GetLiteralStringInsert(string stringExpression, string position, string insertString)
+        protected virtual string GetLiteralStringInsert(string stringExpression, string position, string insertString)
         {
 
             return this.GetLiteralStringConcat(
