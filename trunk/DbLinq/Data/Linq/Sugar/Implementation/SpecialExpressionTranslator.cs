@@ -95,41 +95,54 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 case SpecialExpressionType.StringLength:
                     return TranslateStringLength(operands);
                 case SpecialExpressionType.ToUpper:
-                    return GetStandarCallInvoke("ToUpper", operands);
+                    return GetStandardCallInvoke("ToUpper", operands);
                 case SpecialExpressionType.ToLower:
-                    return GetStandarCallInvoke("ToLower",operands);
+                    return GetStandardCallInvoke("ToLower",operands);
                 //case SpecialExpressionType.In:
                 //    break;
-                case SpecialExpressionType.SubString:
-                    return GetStandarCallInvoke("SubString", operands);
-                case SpecialExpressionType.Trim:
-                    return GetStandarCallInvoke("Trim", operands);
+                
                 case SpecialExpressionType.StringInsert:
-                    return GetStandarCallInvoke("Insert", operands);
+                    return GetStandardCallInvoke("Insert", operands);
+                case SpecialExpressionType.Substring:
+                case SpecialExpressionType.Trim:
                 case SpecialExpressionType.Replace:
-                    return GetStandarCallInvoke("Replace", operands);
                 case SpecialExpressionType.Remove:
-                    return GetStandarCallInvoke("Remove",operands);
                 case SpecialExpressionType.IndexOf:
-                    return GetStandarCallInvoke("IndexOf", operands);
+                case SpecialExpressionType.Year:
+                case SpecialExpressionType.Month:
+                case SpecialExpressionType.Day:
+                case SpecialExpressionType.Hour:
+                case SpecialExpressionType.Minute:
+                case SpecialExpressionType.Millisecond:
+                    return GetStandardCallInvoke(specialExpression.SpecialNodeType.ToString(),operands);
+
+                case SpecialExpressionType.Now:
+                    return GetDateTimeNowCall();
+                    
+
+
                 default:
                     throw Error.BadArgument("S0078: Implement translator for {0}", specialExpression.SpecialNodeType);
 
             }
         }
 
-
+        private Expression GetDateTimeNowCall()
+        {
+            return Expression.MakeMemberAccess(null, typeof(DateTime).GetProperty("Now"));
+        }
 
         private Expression TranslateStringLength(List<Expression> operands)
         {
             return Expression.MakeMemberAccess(operands[0], typeof(string).GetProperty("Length"));
         }
 
-        protected virtual Expression GetStandarCallInvoke(string methodName, List<Expression> operands)
+        protected virtual Expression GetStandardCallInvoke(string methodName, List<Expression> operands)
         {
+            var parametersExpressions = operands.Skip(1);
             return Expression.Call(operands[0], 
-                                   operands[0].Type.GetMethod(methodName, operands.Skip(1).Select(op => op.Type).ToArray()),
-                                   operands.Skip(1));
+                                   operands[0].Type.GetMethod(methodName, parametersExpressions.Select(op => op.Type).ToArray()),
+                                   parametersExpressions);
         }
 
         //protected virtual Expression TranslateRemove(List<Expression> operands)

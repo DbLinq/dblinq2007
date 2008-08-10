@@ -71,12 +71,20 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     case SpecialExpressionType.StringLength:
                     case SpecialExpressionType.ToUpper:
                     case SpecialExpressionType.ToLower:
-                    case SpecialExpressionType.SubString:
+                    case SpecialExpressionType.Substring:
                     case SpecialExpressionType.Trim:
                     case SpecialExpressionType.StringInsert:
                     case SpecialExpressionType.Replace:
                     case SpecialExpressionType.Remove:
                     case SpecialExpressionType.IndexOf:
+                    case SpecialExpressionType.Year:
+                    case SpecialExpressionType.Month:
+                    case SpecialExpressionType.Day:
+                    case SpecialExpressionType.Hour:
+                    case SpecialExpressionType.Minute:
+                    case SpecialExpressionType.Second:
+                    case SpecialExpressionType.Millisecond:
+                    case SpecialExpressionType.Now:
                         return ExpressionPrecedence.Primary;
                     case SpecialExpressionType.In:
                         return ExpressionPrecedence.Equality; // not sure for this one
@@ -200,12 +208,20 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     case SpecialExpressionType.StringLength:
                     case SpecialExpressionType.ToUpper:
                     case SpecialExpressionType.ToLower:
-                    case SpecialExpressionType.SubString:
+                    case SpecialExpressionType.Substring:
                     case SpecialExpressionType.Trim:
                     case SpecialExpressionType.StringInsert:
                     case SpecialExpressionType.Replace:
                     case SpecialExpressionType.Remove:
                     case SpecialExpressionType.IndexOf:
+                    case SpecialExpressionType.Year:
+                    case SpecialExpressionType.Month:
+                    case SpecialExpressionType.Day:
+                    case SpecialExpressionType.Hour:
+                    case SpecialExpressionType.Minute:
+                    case SpecialExpressionType.Second:
+                    case SpecialExpressionType.Millisecond:
+                    case SpecialExpressionType.Now:
                         return ExpressionTier.Any;
 
                     case SpecialExpressionType.Like:

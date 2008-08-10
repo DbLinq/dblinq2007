@@ -88,7 +88,7 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
                     return typeof(string);
                 case SpecialExpressionType.In:
                     return typeof(bool);
-                case SpecialExpressionType.SubString:
+                case SpecialExpressionType.Substring:
                     return defaultType;
                 case SpecialExpressionType.Trim:
                     return typeof(string);
@@ -100,6 +100,17 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
                     return typeof(string);
                 case SpecialExpressionType.IndexOf:
                     return typeof(int);
+                case SpecialExpressionType.Year:
+                case SpecialExpressionType.Month:
+                case SpecialExpressionType.Day:
+                case SpecialExpressionType.Hour:
+                case SpecialExpressionType.Second:
+                case SpecialExpressionType.Minute:
+                case SpecialExpressionType.Millisecond:
+                    return typeof(int);
+                case SpecialExpressionType.Now:
+                    return typeof(DateTime);
+
                 default:
                     throw Error.BadArgument("S0058: Unknown SpecialExpressionType value {0}", specialExpressionType);
             }
@@ -195,28 +206,47 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
                     return operands[0].Evaluate().ToString().ToUpper();
                 case SpecialExpressionType.ToLower:
                     return operands[0].Evaluate().ToString().ToLower();
-                case SpecialExpressionType.SubString:
-                    return EvaluateStandarCallInvoke("SubString", operands);
+                case SpecialExpressionType.Substring:
+                    return EvaluateStandardCallInvoke("SubString", operands);
                 case SpecialExpressionType.In:
                     throw new NotImplementedException();
                     break;
                 case SpecialExpressionType.Replace:
-                    return EvaluateStandarCallInvoke("Replace", operands);
+                    return EvaluateStandardCallInvoke("Replace", operands);
                 case SpecialExpressionType.Remove:
-                    return EvaluateStandarCallInvoke("Remove", operands);
+                    return EvaluateStandardCallInvoke("Remove", operands);
                 case SpecialExpressionType.IndexOf:
-                    return EvaluateStandarCallInvoke("IndexOf", operands);
-
+                    return EvaluateStandardCallInvoke("IndexOf", operands);
+                case SpecialExpressionType.Year:
+                    return ((DateTime)operands[0].Evaluate()).Year;
+                case SpecialExpressionType.Month:
+                    return ((DateTime)operands[0].Evaluate()).Month;
+                case SpecialExpressionType.Day:
+                    return ((DateTime)operands[0].Evaluate()).Day;
+                case SpecialExpressionType.Hour:
+                    return ((DateTime)operands[0].Evaluate()).Hour;
+                case SpecialExpressionType.Minute:
+                    return ((DateTime)operands[0].Evaluate()).Minute;
+                case SpecialExpressionType.Second:
+                    return ((DateTime)operands[0].Evaluate()).Second;
+                case SpecialExpressionType.Millisecond:
+                    return ((DateTime)operands[0].Evaluate()).Millisecond;
+                case SpecialExpressionType.Now:
+                    return DateTime.Now;
                 default:
                     throw Error.BadArgument("S0116: Unknown SpecialExpressionType ({0})", SpecialNodeType);
             }
         }
-        protected virtual object EvaluateStandarCallInvoke(string methodName, ReadOnlyCollection<Expression> operands)
+        protected object EvaluateStatardMemberAccess(string propertyName, ReadOnlyCollection<Expression> operands)
         {
-            return operands[0].Type.GetMethod(methodName, 
+            return operands[0].Type.GetProperty(propertyName).GetValue(operands.First().Evaluate(), null);
+        }
+        protected object EvaluateStandardCallInvoke(string methodName, ReadOnlyCollection<Expression> operands)
+        {
+            return operands[0].Type.GetMethod(methodName,
                                        operands.Skip(1).Select(op => op.Type).ToArray())
                                        .Invoke(operands[0].Evaluate(),
-                                               operands.Skip(1).Select(op=>op.Evaluate()).ToArray());
+                                               operands.Skip(1).Select(op => op.Evaluate()).ToArray());
         }
     }
 }

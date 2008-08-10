@@ -40,7 +40,7 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
 #else
     public
 #endif
-    enum SpecialExpressionType
+ enum SpecialExpressionType
     {
         IsNull = 100,
         IsNotNull,
@@ -55,11 +55,20 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
         ToUpper,
         ToLower,
         In,
-        SubString,
+        Substring,
         Trim,
         StringInsert,
         Replace,
         Remove,
-        IndexOf
+        IndexOf,
+
+        Year,
+        Month,
+        Day,
+        Hour,
+        Minute,
+        Second,
+        Millisecond,
+        Now
     }
 }

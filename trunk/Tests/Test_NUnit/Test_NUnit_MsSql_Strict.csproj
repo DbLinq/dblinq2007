@@ -93,6 +93,7 @@
     <Compile Include="Linq_101_Samples\UnionAll_Union_Intersect.cs" />
     <Compile Include="Linq_101_Samples\Views.cs" />
     <Compile Include="Linq_101_Samples\Where.cs" />
+    <Compile Include="ReadTests_DateTimeFunctions.cs" />
     <Compile Include="ReadTests_StringFunctions.cs" />
     <Compile Include="Table.cs" />
     <Compile Include="Transactions.cs" />

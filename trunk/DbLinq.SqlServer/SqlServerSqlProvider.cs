@@ -30,6 +30,11 @@ using DbLinq.Util;
 using DbLinq.Vendor.Implementation;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+#if MONO_STRICT
+using System.Data.Linq.Sugar.Expressions;
+#else
+using DbLinq.Data.Linq.Sugar.Expressions;
+#endif
 
 namespace DbLinq.SqlServer
 {
@@ -57,6 +62,10 @@ namespace DbLinq.SqlServer
                 return string.Format("SELECT TOP ({0}) {1}", limit, selectContents);
             }
             throw new ArgumentException("S0051: Unknown select format");
+        }
+        protected override string GetLiteralDateTimePart(string dateExpression, SpecialExpressionType operationType)
+        {
+            return string.Format("DATEPART({0},{1})", operationType.ToString().ToUpper(), dateExpression);
         }
 
         protected override string GetLiteralCount(string a)
