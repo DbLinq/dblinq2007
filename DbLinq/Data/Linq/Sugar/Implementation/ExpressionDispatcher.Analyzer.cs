@@ -545,6 +545,31 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     return new SpecialExpression(SpecialExpressionType.IsNotNull, objectExpression);
             }
 
+            if (objectExpression.Type == typeof(DateTime))
+            {
+                switch (memberInfo.Name)
+                {
+                    case "Year":
+                        return new SpecialExpression(SpecialExpressionType.Year, objectExpression);
+                    case "Month":
+                        return new SpecialExpression(SpecialExpressionType.Month, objectExpression);
+                    case "Day":
+                        return new SpecialExpression(SpecialExpressionType.Day, objectExpression);
+                    case "Hour":
+                        return new SpecialExpression(SpecialExpressionType.Hour, objectExpression);
+                    case "Minute":
+                        return new SpecialExpression(SpecialExpressionType.Minute, objectExpression);
+                    case "Second":
+                        return new SpecialExpression(SpecialExpressionType.Second, objectExpression);
+                    case "Millisecond":
+                        return new SpecialExpression(SpecialExpressionType.Millisecond, objectExpression);
+                    case "Now":
+                        return new SpecialExpression(SpecialExpressionType.Year, objectExpression);
+                        
+                }
+                
+            }
+
             if (objectExpression is InputParameterExpression)
             {
                 return AnalyzeExternalParameterMember((InputParameterExpression)objectExpression, memberInfo, builderContext);
@@ -958,9 +983,9 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             if (parameters.Count > 2)
             {
                 var endExpression = parameters[2];
-                return new SpecialExpression(SpecialExpressionType.SubString, stringExpression, startExpression, endExpression);
+                return new SpecialExpression(SpecialExpressionType.Substring, stringExpression, startExpression, endExpression);
             }
-            return new SpecialExpression(SpecialExpressionType.SubString, stringExpression, startExpression);
+            return new SpecialExpression(SpecialExpressionType.Substring, stringExpression, startExpression);
         }
 
         protected virtual Expression AnalyzeContains(IList<Expression> parameters, BuilderContext builderContext)

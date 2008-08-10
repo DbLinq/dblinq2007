@@ -302,7 +302,7 @@ namespace DbLinq.Vendor.Implementation
                     return GetLiteralStringToLower(p[0]);
                 case SpecialExpressionType.In:
                     return GetLiteralIn(p[0], p[1]);
-                case SpecialExpressionType.SubString:
+                case SpecialExpressionType.Substring:
                     if (p.Count > 2)
                         return GetLiteralSubString(p[0], p[1], p[2]);
                     return GetLiteralSubString(p[0], p[1]);
@@ -324,9 +324,23 @@ namespace DbLinq.Vendor.Implementation
                     else if (p.Count == 4)
                         return GetLiteralStringIndexOf(p[0], p[1], p[2], p[3]);
                     break;
+                case SpecialExpressionType.Year:
+                case SpecialExpressionType.Month:
+                case SpecialExpressionType.Day:
+                case SpecialExpressionType.Hour:
+                case SpecialExpressionType.Minute:
+                case SpecialExpressionType.Second:
+                case SpecialExpressionType.Millisecond:
+                    return GetLiteralDateTimePart(p[0], operationType);
 
             }
             throw new ArgumentException(operationType.ToString());
+        }
+
+
+        protected virtual string GetLiteralDateTimePart(string dateExpression, SpecialExpressionType operationType)
+        {
+            return string.Format("EXTRACT({0} FROM {1})", operationType.ToString().ToUpper(), dateExpression);
         }
 
         protected virtual string GetLiteralStringIndexOf(string baseString, string searchString, string startIndex, string count)
