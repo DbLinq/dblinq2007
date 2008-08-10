@@ -115,21 +115,18 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 case SpecialExpressionType.Minute:
                 case SpecialExpressionType.Millisecond:
                     return GetStandardCallInvoke(specialExpression.SpecialNodeType.ToString(),operands);
-
                 case SpecialExpressionType.Now:
-                    return GetDateTimeNowCall();
+                    return GetDateTimeNowCall(operands);
                     
-
-
                 default:
                     throw Error.BadArgument("S0078: Implement translator for {0}", specialExpression.SpecialNodeType);
 
             }
         }
 
-        private Expression GetDateTimeNowCall()
+        private Expression GetDateTimeNowCall(List<Expression> operands)
         {
-            return Expression.MakeMemberAccess(null, typeof(DateTime).GetProperty("Now"));
+            return Expression.Call(typeof(DateTime).GetProperty("Now").GetGetMethod());
         }
 
         private Expression TranslateStringLength(List<Expression> operands)

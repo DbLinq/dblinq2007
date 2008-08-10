@@ -219,9 +219,9 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 case "Except":
                     return AnalyzeSelectOperation(SelectOperatorType.Exception, parameters, builderContext);
                 case "Trim":
-                    return AnalyzeGenericSpecialExpressinType(SpecialExpressionType.Trim,parameters,builderContext);
+                    return AnalyzeGenericSpecialExpressinType(SpecialExpressionType.Trim, parameters, builderContext);
                 case "Insert":
-                    return AnalyzeGenericSpecialExpressinType(SpecialExpressionType.StringInsert,parameters,builderContext);
+                    return AnalyzeGenericSpecialExpressinType(SpecialExpressionType.StringInsert, parameters, builderContext);
                 case "Replace":
                     return AnalyzeGenericSpecialExpressinType(SpecialExpressionType.Replace, parameters, builderContext);
                 case "Remove":
@@ -234,9 +234,9 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         }
 
 
-        protected virtual Expression AnalyzeGenericSpecialExpressinType(SpecialExpressionType specialType,IList<Expression> parameters, BuilderContext builderContext)
+        protected virtual Expression AnalyzeGenericSpecialExpressinType(SpecialExpressionType specialType, IList<Expression> parameters, BuilderContext builderContext)
         {
-            return new SpecialExpression(specialType, parameters.Select(p=>Analyze(p, builderContext)).ToList());
+            return new SpecialExpression(specialType, parameters.Select(p => Analyze(p, builderContext)).ToList());
         }
 
         /// <summary>
@@ -481,8 +481,15 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         protected virtual Expression AnalyzeMember(Expression expression, BuilderContext builderContext)
         {
             var memberExpression = (MemberExpression)expression;
-            // first parameter is object, second is member
-            var objectExpression = Analyze(memberExpression.Expression, builderContext);
+
+            Expression objectExpression = null;
+            //maybe is a static member access like DateTime.Now
+            bool isStaticMemberAccess = memberExpression.Member.GetIsStaticMember();
+
+            if (!isStaticMemberAccess)
+                // first parameter is object, second is member
+                objectExpression = Analyze(memberExpression.Expression, builderContext);
+
             var memberInfo = memberExpression.Member;
             // then see what we can do, depending on object type
             // - MetaTable --> then the result is a table
@@ -518,8 +525,8 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 if (queryColumnExpression != null)
                     return queryColumnExpression;
 
-                if(memberInfo.Name=="Count")
-                    return AnalyzeCall("Count",new Expression[]{memberExpression.Expression},builderContext);
+                if (memberInfo.Name == "Count")
+                    return AnalyzeCall("Count", new Expression[] { memberExpression.Expression }, builderContext);
                 // then, cry
                 throw Error.BadArgument("S0293: Column must be mapped. Non-mapped columns are not handled by now.");
             }
@@ -535,7 +542,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             }
 
             // we have here a special cases for nullables
-            if (objectExpression.Type != null && objectExpression.Type.IsNullable())
+            if (!isStaticMemberAccess && objectExpression.Type != null && objectExpression.Type.IsNullable())
             {
                 // Value means we convert the nullable to a value --> use Convert instead (works both on CLR and SQL, too)
                 if (memberInfo.Name == "Value")
@@ -545,7 +552,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     return new SpecialExpression(SpecialExpressionType.IsNotNull, objectExpression);
             }
 
-            if (objectExpression.Type == typeof(DateTime))
+            if (!isStaticMemberAccess && objectExpression.Type == typeof(DateTime))
             {
                 switch (memberInfo.Name)
                 {
@@ -563,12 +570,15 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                         return new SpecialExpression(SpecialExpressionType.Second, objectExpression);
                     case "Millisecond":
                         return new SpecialExpression(SpecialExpressionType.Millisecond, objectExpression);
-                    case "Now":
-                        return new SpecialExpression(SpecialExpressionType.Year, objectExpression);
-                        
                 }
-                
             }
+
+            if (isStaticMemberAccess && expression.Type == typeof(DateTime))
+            {
+                if (memberInfo.Name == "Now")
+                    return new SpecialExpression(SpecialExpressionType.Now);
+            }
+
 
             if (objectExpression is InputParameterExpression)
             {
@@ -931,8 +941,8 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 var anyBuilderContext = builderContext.NewSelect();
                 var tableExpression = Analyze(parameters[0], anyBuilderContext);
 
-                if(!(tableExpression is TableExpression))
-                    tableExpression=Analyze(tableExpression,anyBuilderContext);
+                if (!(tableExpression is TableExpression))
+                    tableExpression = Analyze(tableExpression, anyBuilderContext);
 
                 // from here we build a custom clause:
                 // <anyClause> ==> "(select count(*) from <table> where <anyClause>)>0"

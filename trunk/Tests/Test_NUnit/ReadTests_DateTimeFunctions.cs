@@ -144,7 +144,6 @@ namespace Test_NUnit_MsSql
                      where o.OrderDate.Value.Second == 16
                      select o).ToList();
 
-
         }
 
         [Test]
@@ -156,6 +155,17 @@ namespace Test_NUnit_MsSql
                      where o.OrderDate.Value.Millisecond == 0
                      select o).ToList();
 
+        }
+
+        [Test]
+        public void GetCurrentDateTime()
+        {
+            Northwind db = CreateDB();
+            var query = from e in db.Employees
+                        where e.BirthDate.Value == DateTime.Now
+                        select e;
+
+            var list = query.ToList();
         }
     }
 }
