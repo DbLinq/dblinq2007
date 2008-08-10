@@ -81,7 +81,7 @@ namespace DbLinq.SqlServer
         protected override string GetLiteralSubString(string baseString, string startIndex, string count)
         {
             //in standard sql base string index is 1 instead 0
-            return string.Format("SUBSTRING({0}, {1}, {2})", baseString, GetLiteralAdd(startIndex,"1"), count);
+            return string.Format("SUBSTRING({0}, {1}, {2})", baseString, GetLiteralAdd(startIndex, "1"), count);
         }
 
         protected override string GetLiteralSubString(string baseString, string startIndex)
@@ -166,7 +166,7 @@ namespace DbLinq.SqlServer
             else
                 sqlTypeName = "variant";
 
-            return "CONVERT(" + sqlTypeName + "," + a + ")";
+            return string.Format("CONVERT({0},{1})", sqlTypeName, a);
         }
 
     }

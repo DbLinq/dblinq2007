@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DbLinq.Util;
 using DbLinq.Vendor.Implementation;
+using System;
 
 namespace DbLinq.PostgreSql
 {
@@ -52,6 +53,47 @@ namespace DbLinq.PostgreSql
         protected override string GetLiteralStringToLower(string a)
         {
             return string.Format("LOWER({0})", a);
+        }
+
+        public static readonly Dictionary<Type, string> typeMapping = new Dictionary<Type, string>()
+        {
+            {typeof(int),"integer"},
+            {typeof(uint),"integer"},
+
+            {typeof(long),"bigint"},
+            {typeof(ulong),"bigint"},
+
+            {typeof(float),"real"}, //TODO: could be float or real. check ranges.
+            {typeof(double),"double precision"}, //TODO: could be float or real. check ranges.
+            
+            {typeof(decimal),"decimal"},
+
+            {typeof(short),"smallint"},
+            {typeof(ushort),"smallint"},
+
+            {typeof(bool),"boolean"},
+
+            {typeof(string),"text"}, 
+            {typeof(char[]),"text"},
+
+            {typeof(char),"char"},
+
+            {typeof(DateTime),"timestamp"},
+            //{typeof(Guid),"uniqueidentifier"}
+        };
+
+        public override string GetLiteralConvert(string a, System.Type type)
+        {
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                type = type.GetGenericArguments().First();
+
+            string sqlTypeName;
+            if (typeMapping.ContainsKey(type))
+                sqlTypeName = typeMapping[type];
+            else
+                sqlTypeName = type.Name;
+
+            return string.Format("({0})::{1}", a, sqlTypeName);
         }
 
         /// <summary>
