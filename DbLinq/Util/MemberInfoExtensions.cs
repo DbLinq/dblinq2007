@@ -37,7 +37,7 @@ namespace DbLinq.Util
 #else
     public
 #endif
-    static class MemberInfoExtensions
+ static class MemberInfoExtensions
     {
         /// <summary>
         /// Returns the type of the specified member
@@ -56,6 +56,23 @@ namespace DbLinq.Util
                 return null;
             if (memberInfo is Type)
                 return (Type)memberInfo;
+            throw new ArgumentException();
+        }
+
+        public static bool GetIsStaticMember(this MemberInfo memberInfo)
+        {
+            if (memberInfo is FieldInfo)
+                return ((FieldInfo)memberInfo).IsStatic;
+            if (memberInfo is PropertyInfo)
+            {
+                MethodInfo propertyMethod;
+                PropertyInfo propertyInfo = (PropertyInfo)memberInfo;
+                if ((propertyMethod = propertyInfo.GetGetMethod()) != null || (propertyMethod = propertyInfo.GetSetMethod()) != null)
+                    return GetIsStaticMember(propertyMethod);
+
+            }
+            if (memberInfo is MethodInfo)
+                return ((MethodInfo)memberInfo).IsStatic; ;
             throw new ArgumentException();
         }
 
