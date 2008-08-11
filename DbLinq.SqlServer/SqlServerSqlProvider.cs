@@ -144,8 +144,8 @@ namespace DbLinq.SqlServer
             {typeof(bool),"bit"},
 
             // trunk? They could be: varchar, char,nchar, ntext,text... it should be the most flexible string type. TODO: check wich of them is better.
-            {typeof(string),"text"}, 
-            {typeof(char[]),"text"},
+            {typeof(string),"varchar"}, 
+            {typeof(char[]),"varchar"},
 
             {typeof(char),"char"},
 

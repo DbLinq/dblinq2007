@@ -72,6 +72,7 @@
     <Compile Include="AnyCountFirst.cs" />
     <Compile Include="Attach.cs" />
     <Compile Include="CompositePK_Test.cs" />
+    <Compile Include="ReadTests_Conversions.cs" />
     <Compile Include="ReadTests_DateTimeFunctions.cs" />
     <Compile Include="DynamicLinqTest.cs" />
     <Compile Include="EntitySet.cs" />

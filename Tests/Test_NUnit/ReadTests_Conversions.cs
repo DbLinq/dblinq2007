@@ -70,97 +70,50 @@ namespace Test_NUnit_MsSql
 #endif
 {
     [TestFixture]
-    public class ReadTests_DateTimeFunctions : TestBase
+    public class ReadTests_Conversions:TestBase
     {
-        [Test]
-        public void GetYear()
-        {
-            Northwind db = CreateDB();
-
-            var q = from o in db.Orders
-                    where o.OrderDate.Value.Year == 1996
-                    select o;
-
-            var list = q.ToList();
-            Assert.IsTrue(list.Count > 0);
-        }
 
         [Test]
-        public void GetMonth()
-        {
-            Northwind db = CreateDB();
-
-            var q = from o in db.Orders
-                    where o.OrderDate.Value.Month == 10
-                    select o;
-
-            var list = q.ToList();
-            Assert.IsTrue(list.Count > 0);
-        }
-
-        [Test]
-        public void GetDay()
-        {
-            Northwind db = CreateDB();
-
-            var q = from o in db.Orders
-                    where o.OrderDate.Value.Day == 16
-                    select o;
-
-            var list = q.ToList();
-            Assert.IsTrue(list.Count > 0);
-        }
-
-        [Test]
-        public void GetHours()
-        {
-            Northwind db = CreateDB();
-
-            var q = (from o in db.Orders
-                     where o.OrderDate.Value.Hour == 0
-                     select o).ToList();
-
-
-        }
-        [Test]
-        public void GetMinutes()
-        {
-            Northwind db = CreateDB();
-
-            var q = (from o in db.Orders
-                     where o.OrderDate.Value.Minute == 0
-                     select o).ToList();
-
-
-        }
-        [Test]
-        public void GetSeconds()
-        {
-            Northwind db = CreateDB();
-
-            var q = (from o in db.Orders
-                     where o.OrderDate.Value.Second == 16
-                     select o).ToList();
-
-        }
-
-        [Test]
-        public void GetMilliSeconds()
-        {
-            Northwind db = CreateDB();
-
-            var q = (from o in db.Orders
-                     where o.OrderDate.Value.Millisecond == 0
-                     select o).ToList();
-
-        }
-
-        [Test]
-        public void GetCurrentDateTime()
+        public void TestToString01()
         {
             Northwind db = CreateDB();
             var query = from e in db.Employees
-                        where e.BirthDate.Value == DateTime.Now
+                        where e.LastName.ToString() == "F"
+                        select e;
+
+            var list = query.ToList();
+        }
+
+        [Test]
+        [ExpectedException(typeof(System.NotSupportedException))]
+        public void TestToString02()
+        {
+            Northwind db = CreateDB();
+            var query = from e in db.OrderDetails
+                        where e.ToString() == "1"
+                        select e;
+
+            var list = query.ToList();
+        }
+
+        [Test]
+        public void TestToString03()
+        {
+            Northwind db = CreateDB();
+            var query = from e in db.OrderDetails
+                        where e.Discount.ToString() == "1"
+                        select e;
+
+            var list = query.ToList();
+        }
+
+        [Test]
+        public void TestToString04()
+        {
+            Northwind db = CreateDB();
+            object strangeObject4Sql = new HttpStyleUriParser();
+            var query = from e in db.OrderDetails
+                        where e.Discount.ToString() == strangeObject4Sql.ToString()
                         select e;
 
             var list = query.ToList();

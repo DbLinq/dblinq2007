@@ -139,13 +139,14 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             var originalParameters = operands.Skip(parameters.Count + operarandsToSkip);
             var newParameters = parameters.Union(originalParameters);
 
-            return AnalyzeCall(expression.Method.Name, newParameters.ToList(), builderContext);
+            return AnalyzeCall(expression.Method, newParameters.ToList(), builderContext);
         }
 
-        protected virtual Expression AnalyzeCall(string methodName, IList<Expression> parameters, BuilderContext builderContext)
+        protected virtual Expression AnalyzeCall(MethodInfo method, IList<Expression> parameters, BuilderContext builderContext)
         {
             // all methods to handle are listed here:
             // ms-help://MS.VSCC.v90/MS.MSDNQTR.v90.en/fxref_system.core/html/2a54ce9d-76f2-81e2-95bb-59740c85386b.htm
+            string methodName = method.Name;
             switch (methodName)
             {
                 case "Select":
@@ -219,24 +220,50 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 case "Except":
                     return AnalyzeSelectOperation(SelectOperatorType.Exception, parameters, builderContext);
                 case "Trim":
-                    return AnalyzeGenericSpecialExpressinType(SpecialExpressionType.Trim, parameters, builderContext);
+                    return AnalyzeGenericSpecialExpressionType(SpecialExpressionType.Trim, parameters, builderContext);
                 case "Insert":
-                    return AnalyzeGenericSpecialExpressinType(SpecialExpressionType.StringInsert, parameters, builderContext);
+                    return AnalyzeGenericSpecialExpressionType(SpecialExpressionType.StringInsert, parameters, builderContext);
                 case "Replace":
-                    return AnalyzeGenericSpecialExpressinType(SpecialExpressionType.Replace, parameters, builderContext);
+                    return AnalyzeGenericSpecialExpressionType(SpecialExpressionType.Replace, parameters, builderContext);
                 case "Remove":
-                    return AnalyzeGenericSpecialExpressinType(SpecialExpressionType.Remove, parameters, builderContext);
+                    return AnalyzeGenericSpecialExpressionType(SpecialExpressionType.Remove, parameters, builderContext);
                 case "IndexOf":
-                    return AnalyzeGenericSpecialExpressinType(SpecialExpressionType.IndexOf, parameters, builderContext);
+                    return AnalyzeGenericSpecialExpressionType(SpecialExpressionType.IndexOf, parameters, builderContext);
+                case "ToString":
+                    return AnalyzeToString(method, parameters, builderContext);
                 default:
                     throw Error.BadArgument("S0133: Implement QueryMethod '{0}'", methodName);
             }
         }
 
-
-        protected virtual Expression AnalyzeGenericSpecialExpressinType(SpecialExpressionType specialType, IList<Expression> parameters, BuilderContext builderContext)
+        protected virtual Expression AnalyzeGenericSpecialExpressionType(SpecialExpressionType specialType, IList<Expression> parameters, BuilderContext builderContext)
         {
             return new SpecialExpression(specialType, parameters.Select(p => Analyze(p, builderContext)).ToList());
+        }
+
+
+        protected virtual Expression AnalyzeToString(MethodInfo method, IList<Expression> parameters, BuilderContext builderContext)
+        {
+            if (parameters.Count != 1)
+                throw new ArgumentException();
+
+            Expression parameter;
+            if (parameters.First().Type.IsNullable())
+                parameter = Expression.Convert(parameters.First(), parameters.First().Type.GetNullableType());
+            else
+                parameter = parameters.First();
+
+            if (!parameter.Type.IsPrimitive && parameter.Type != typeof(string))
+            {
+                //TODO: ExpressionDispacher.Analyze.AnalyzeToString is not complete
+                //This is the standar behaviour in linq2sql, nonetheless the behaviour isn't complete since when the expression
+                //can be executed in the clr, ie: (where new StrangeObject().ToString()) should work. The problem is that
+                //we don't have a reference to the optimizer here.
+                //Working samples in: /Tests/Test_Nunit/ReadTests_Conversions.cs
+                throw new NotSupportedException("Method ToString can only be translated to SQL for primitive types.");
+            }
+
+            return Expression.Convert(Analyze(parameter, builderContext), typeof(string), typeof(Convert).GetMethod("ToString", new[] { parameter.Type }));
         }
 
         /// <summary>
@@ -526,7 +553,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     return queryColumnExpression;
 
                 if (memberInfo.Name == "Count")
-                    return AnalyzeCall("Count", new Expression[] { memberExpression.Expression }, builderContext);
+                    return AnalyzeProjectionQuery(SpecialExpressionType.Count, new Expression[] { memberExpression.Expression }, builderContext);
                 // then, cry
                 throw Error.BadArgument("S0293: Column must be mapped. Non-mapped columns are not handled by now.");
             }
