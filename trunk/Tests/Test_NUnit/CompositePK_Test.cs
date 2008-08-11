@@ -29,22 +29,22 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using Test_NUnit;
+using System.Data.Linq;
 
 #if !MONO_STRICT
 using nwind;
 #else
 using MsNorthwind;
-using System.Data.Linq;
 #endif
 
 #if MYSQL
     namespace Test_NUnit_MySql
 #elif ORACLE
-    #if ODP
+#if ODP
         namespace Test_NUnit_OracleODP
-    #else
+#else
         namespace Test_NUnit_Oracle
-    #endif
+#endif
 #elif POSTGRES
     namespace Test_NUnit_PostgreSql
 #elif SQLITE
@@ -53,7 +53,7 @@ using System.Data.Linq;
     namespace Test_NUnit_Ingres
 #elif MSSQL
 #if MONO_STRICT
-    namespace Test_NUnit_MsSql_Strict
+namespace Test_NUnit_MsSql_Strict
 #else
     namespace Test_NUnit_MsSql
 #endif
@@ -140,7 +140,7 @@ using System.Data.Linq;
             cleanup(db);
             int initialCount = db.OrderDetails.Count();
 
-            var orderDetail = new OrderDetail { OrderID = 3, ProductID = 2 };
+            var orderDetail = new OrderDetail { OrderID = 2, ProductID = 2 };
             db.OrderDetails.InsertOnSubmit(orderDetail);
             db.SubmitChanges();
 
@@ -152,20 +152,24 @@ using System.Data.Linq;
         }
 
         [Test]
+        [ExpectedException(typeof(ChangeConflictException))]
         public void CP4_UnchangedColumnShouldNotUpdated()
         {
             Random rand = new Random();
 
             Northwind db = CreateDB();
-            var orderDetail = new OrderDetail { OrderID = 1, ProductID = 2 };
+            var orderDetail = new OrderDetail { OrderID = 1, ProductID=2};
             db.OrderDetails.Attach(orderDetail);
 
             float newDiscount = 15 + (float)rand.NextDouble();
             orderDetail.Discount = newDiscount;
             db.SubmitChanges();
 
-            var orderDetail2 = db.OrderDetails.Single(od => od.OrderID == 1);
-            Assert.AreEqual((float)orderDetail2.Discount, newDiscount);
+            //this test is bad conceptually, for this reason last two lines has been commented and now a changeConflictException is expected.
+            //This is the behaviour in linq2sl.
+
+            //var orderDetail2 = db.OrderDetails.Single(od => od.OrderID == 1);
+            //Assert.AreEqual((float)orderDetail2.Discount, newDiscount);
         }
 
         [Test(Description = "Check that both keys are used to determine identity")]
