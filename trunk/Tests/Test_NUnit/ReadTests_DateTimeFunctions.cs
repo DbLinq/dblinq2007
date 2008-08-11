@@ -165,5 +165,28 @@ namespace Test_NUnit_MsSql
 
             var list = query.ToList();
         }
+
+        [Test]
+        public void Parse01()
+        {
+            Northwind db = CreateDB();
+            var query = from e in db.Employees
+                        where e.BirthDate.Value == DateTime.Parse("1984/05/02")
+                        select e;
+
+            var list = query.ToList();
+        }
+
+        [Test]
+        [ExpectedException(typeof(NotSupportedException))]
+        public void Parse02()
+        {
+            Northwind db = CreateDB();
+            var query = from e in db.Employees
+                        where e.BirthDate.Value == DateTime.Parse(e.BirthDate.ToString())
+                        select e;
+
+            var list = query.ToList();
+        }
     }
 }
