@@ -116,8 +116,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 case SpecialExpressionType.Millisecond:
                     return GetStandardCallInvoke(specialExpression.SpecialNodeType.ToString(),operands);
                 case SpecialExpressionType.Now:
-                    return GetDateTimeNowCall(operands);
-                    
+                    return GetDateTimeNowCall(operands);  
                 default:
                     throw Error.BadArgument("S0078: Implement translator for {0}", specialExpression.SpecialNodeType);
 
