@@ -44,7 +44,7 @@ using System.Data.Linq;
 namespace Test_NUnit_MySql
 #elif ORACLE
 #if ODP
-        namespace Test_NUnit_OracleODP
+namespace Test_NUnit_OracleODP
 #else
         namespace Test_NUnit_Oracle
 #endif
@@ -117,9 +117,12 @@ namespace Test_NUnit_Sqlite
 
         #region NestedPropertiesDynamicSelect
 
+        const string obsoleteError=@"Since beta2 in Linq2Sql to proyect a new entity (ie: select new Order(3)) is forbiden for coherence reasons, so this tests doesn't mimic the Linq2Sql behaviour and it is obsolete and should be modified. If you apply such test cases to Linq2Sql you'll get Test_NUnit_MsSql_Strict.DynamicLinqTest.DL5_NestedObjectSelect:
+        System.NotSupportedException : Explicit construction of entity type 'MsNorthwind.XX' in query is not allowed.\n\nMore Info in: http://linqinaction.net/blogs/roller/archive/2007/11/27/explicit-construction-of-entity-type-in-query-is-not-allowed.aspx";
         [Test(Description = "dynamic version of F16_NestedObjectSelect")]
         public void DL5_NestedObjectSelect()
         {
+            Assert.Ignore(obsoleteError);
             Northwind db = CreateDB();
             var orders = db.GetTable<Order>();
             var res = orders.SelectNested(new string[] { "OrderID", "Customer.ContactName" });
@@ -131,6 +134,8 @@ namespace Test_NUnit_Sqlite
         [Test]
         public void DL6_StaticVersionOfDynamicAssociatonWithExtensionMethodTest(bool bug_in_dynamic_linq)
         {
+            Assert.Ignore(obsoleteError);
+
             //is this maybe a bug in DynamicLinq?
             //from DynamicLinq, we receive this query which has ContactName but misses ContactTitle:
             //MTable.CreateQuery: value(Table`1[Order]).Select(o => new Order() {OrderID = o.OrderID, Customer = new Customer() {ContactName = o.Customer.ContactName}})
@@ -158,6 +163,8 @@ namespace Test_NUnit_Sqlite
         [Test]
         public void DL7_DynamicAssociatonUsingDoubleProjection(bool bug_in_dynamic_linq)
         {
+            Assert.Ignore(obsoleteError);
+
             //this fails - but not in our code:
             //A first chance exception of type 'System.NullReferenceException' occurred in Unknown Module.
             //System.Transactions Critical: 0 : <TraceRecord xmlns="http://schemas.microsoft.com/2004/10/E2ETraceEvent/TraceRecord" Severity="Critical"><TraceIdentifier>http://msdn.microsoft.com/TraceCodes/System/ActivityTracing/2004/07/Reliability/Exception/Unhandled</TraceIdentifier><Description>Unhandled exception</Description><AppDomain>Test_NUnit_Mysql.vshost.exe</AppDomain><Exception><ExceptionType>System.NullReferenceException, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ExceptionType><Message>Object reference not set to an instance of an object.</Message><StackTrace>   at lambda_method(ExecutionScope , Order )
@@ -188,7 +195,7 @@ namespace Test_NUnit_Sqlite
             Northwind db = CreateDB();
             Expression<Func<Customer, bool>> predicate = c => c.City == "Paris";
             int count = db.Customers.Count(predicate);
-            Assert.IsTrue(count > 1); // Some databases have more than 1 customer in Paris
+            Assert.Greater(count, 0); // Some databases have more than 1 customer in Paris
         }
 
         /// <summary>

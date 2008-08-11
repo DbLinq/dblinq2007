@@ -302,9 +302,12 @@ namespace Test_NUnit_MySql
         }
         #endregion
 
+        const string obsoleteError = @"Since beta2 in Linq2Sql to proyect a new entity (ie: select new Order(3)) is forbiden for coherence reasons, so this tests doesn't mimic the Linq2Sql behaviour and it is obsolete and should be modified. If you apply such test cases to Linq2Sql you'll get Test_NUnit_MsSql_Strict.DynamicLinqTest.DL5_NestedObjectSelect:
+        System.NotSupportedException : Explicit construction of entity type 'MsNorthwind.XX' in query is not allowed.\n\nMore Info in: http://linqinaction.net/blogs/roller/archive/2007/11/27/explicit-construction-of-entity-type-in-query-is-not-allowed.aspx";
         [Test]
         public void F13_NewCustomer()
         {
+            Assert.Ignore(obsoleteError);
             Northwind db = CreateDB();
             IQueryable<Customer> q = (from c in db.Customers
                                       select
@@ -315,11 +318,13 @@ namespace Test_NUnit_MySql
             var list = q.ToList();
             Assert.Greater(list.Count(), 0, "Expected list");
             //Assert.Greater(list.Count(), 0, "Expected list");
+            Assert.Ignore("test passed but: theoretically constructions of entity types are not allowed");
         }
 
         [Test]
         public void F14_NewCustomer_Order()
         {
+            Assert.Ignore(obsoleteError);
             Northwind db = CreateDB();
             IQueryable<Customer> q = (from c in db.Customers
                                       select
@@ -349,6 +354,7 @@ namespace Test_NUnit_MySql
         [Test(Description = "Non-dynamic version of DL5_NestedObjectSelect")]
         public void F16_NestedObjectSelect()
         {
+            Assert.Ignore(obsoleteError);
             Northwind db = CreateDB();
             var q = from o in db.Orders
                     select new Order() { OrderID = o.OrderID, Customer = new Customer() { ContactName = o.Customer.ContactName } };
@@ -358,6 +364,7 @@ namespace Test_NUnit_MySql
         [Test(Description = "Non-dynamic version of DL5_NestedObjectSelect")]
         public void F17_NestedObjectSelect_Ver2()
         {
+            Assert.Ignore(obsoleteError);
             Northwind db = CreateDB();
             var query = from order in db.Orders
                         select new Order

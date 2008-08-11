@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using Test_NUnit;
+using System.Data.Linq;
 
 #if !MONO_STRICT
 using nwind;
 #else
 using MsNorthwind;
-using System.Data.Linq;
 #endif
 
 #if MYSQL
@@ -86,8 +86,23 @@ namespace Test_NUnit_MsSql
         {
             var db1 = CreateDB();
             var employee1 = db1.Employees.First();
-            var employees = new Employee[] { new Employee { EmployeeID = employee1.EmployeeID }};
+            var employees = new Employee[] { new Employee { EmployeeID = employee1.EmployeeID } };
             db1.Employees.AttachAll(employees);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ChangeConflictException))]
+        public void NotExistingAttatch()
+        {
+            Random rand = new Random();
+
+            Northwind db = CreateDB();
+            var orderDetail = new OrderDetail { OrderID = 0, ProductID = 0 };
+            db.OrderDetails.Attach(orderDetail);
+
+            float newDiscount = 15 + (float)rand.NextDouble();
+            orderDetail.Discount = newDiscount;
+            db.SubmitChanges();
         }
     }
 }
