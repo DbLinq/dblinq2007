@@ -231,6 +231,8 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     return AnalyzeGenericSpecialExpressionType(SpecialExpressionType.IndexOf, parameters, builderContext);
                 case "ToString":
                     return AnalyzeToString(method, parameters, builderContext);
+                case "Parse":
+                    return AnalyzeParse(method, parameters, builderContext);
                 default:
                     throw Error.BadArgument("S0133: Implement QueryMethod '{0}'", methodName);
             }
@@ -241,6 +243,32 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             return new SpecialExpression(specialType, parameters.Select(p => Analyze(p, builderContext)).ToList());
         }
 
+        protected virtual Expression AnalyzeParse(MethodInfo method, IList<Expression> parameters, BuilderContext builderContext)
+        {
+            if (method.IsStatic && parameters.Count == 1)
+            {
+                var expression = Expression.Convert(Analyze(parameters.First(), builderContext), method.ReturnType, method);
+                ExpressionTier tier = ExpressionQualifier.GetTier(expression);
+
+
+                //pibgeus: I would like to call to the expression optimizer since the exception must be thrown if the expression cannot be executed
+                //in Clr tier, if it can be executed in Clr tier it should continue
+                // ie: from e in db.Employees where DateTime.Parse("1/1/1999").Year==1999 select e  <--- this should work
+                // ie: from e in db.Employees where DateTime.Parse(e.BirthDate).Year==1999 select e  <--- a NotSupportedException must be throwed (this is the behaviour of linq2sql)
+
+                //if (method.ReturnType == typeof(DateTime))
+                //{
+                //        expression = ExpressionOptimizer.Analyze(expression);
+                //        //same behaviour that Linq2Sql
+                //        throw new NotSupportedException("Method 'System.DateTime Parse(System.String)' has no supported translation to SQL");
+                //}
+
+                return expression;
+            }
+            else
+                throw new ArgumentException();
+
+        }
 
         protected virtual Expression AnalyzeToString(MethodInfo method, IList<Expression> parameters, BuilderContext builderContext)
         {

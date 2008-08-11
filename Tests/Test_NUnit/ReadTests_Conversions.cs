@@ -118,5 +118,29 @@ namespace Test_NUnit_MsSql
 
             var list = query.ToList();
         }
+
+        [Test]
+        public void ParseInt()
+        {
+            Northwind db = CreateDB();
+            string year = "1997";
+            var query = from e in db.Employees
+                        where e.BirthDate.Value.Year == int.Parse(year)
+                        select e;
+
+            var list = query.ToList();
+        }
+
+        [Test]
+        public void ParseFloat()
+        {
+            Northwind db = CreateDB();
+            string realNumber = "0,1";
+            var query = from e in db.Employees
+                        where e.BirthDate.Value.Year == float.Parse(realNumber)
+                        select e;
+
+            var list = query.ToList();
+        }
     }
 }
