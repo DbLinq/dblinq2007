@@ -33,69 +33,79 @@ using System.Linq;
 
 namespace System.Data.Linq
 {
-	[SerializableAttribute]
+    [SerializableAttribute]
 #if WCF_ENABLED
 	[DataContractAttribute]
 #endif
-	public sealed class Binary : IEquatable<Binary>
-	{
-		[MonoTODO]
-		public Binary (byte [] value)
-		{
-			throw new NotImplementedException ();
-		}
+    public sealed class Binary : IEquatable<Binary>
+    {
+        byte[] data;
 
-		[MonoTODO]
-		public static bool operator == (Binary binary1, Binary binary2)
-		{
-			throw new NotImplementedException ();
-		}
+        public Binary(byte[] value)
+        {
+            data = value;
+        }
 
-		[MonoTODO]
-		public static bool operator != (Binary binary1, Binary binary2)
-		{
-			throw new NotImplementedException ();
-		}
+        public static bool operator ==(Binary binary1, Binary binary2)
+        {
+            bool isNull= binary1 as object==null;
+            if (isNull)
+                return binary2 as object == null;
+            else
+                return binary1.Equals(binary2);
+        }
 
-		public static implicit operator Binary (byte [] value)
-		{
-			return new Binary (value);
-		}
+        public static bool operator !=(Binary binary1, Binary binary2)
+        {
+            bool isNull = binary1 as object == null;
+            if (isNull)
+                return binary2 as object != null;
+            else
+                return !binary1.data.Equals(binary2.data);
+        }
 
-		[MonoTODO]
-		public int Length {
-			get { throw new NotImplementedException (); }
-		}
+        public static implicit operator Binary(byte[] value)
+        {
+            return new Binary(value);
+        }
 
-		[MonoTODO]
-		public bool Equals (Binary other)
-		{
-			throw new NotImplementedException ();
-		}
+        public int Length
+        {
+            get { return data.Length; }
+        }
 
-		[MonoTODO]
-		public override bool Equals (object obj)
-		{
-			Binary other = obj as Binary;
-			return other != null && Equals (other);
-		}
+        public bool Equals(Binary other)
+        {
+            if (other == null)
+                return false;
 
-		[MonoTODO]
-		public override int GetHashCode ()
-		{
-			throw new NotImplementedException ();
-		}
+            if (this.Length != other.Length)
+                return false;
 
-		[MonoTODO]
-		public byte [] ToArray ()
-		{
-			throw new NotImplementedException ();
-		}
+            for (int i = 0; i < data.Length; i++)
+                if (this.data[i] != other.data[i])
+                    return false;
 
-		[MonoTODO]
-		public override string ToString ()
-		{
-			throw new NotImplementedException ();
-		}
-	}
+            return true;
+        }
+
+        public override bool Equals(object obj)
+        {
+            Binary other = obj as Binary;
+            return other != null && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return data.GetHashCode();
+        }
+
+        public byte[] ToArray()
+        {
+            if (data != null)
+                return data.ToArray();
+            else
+                return null;
+        }
+    }
 }
