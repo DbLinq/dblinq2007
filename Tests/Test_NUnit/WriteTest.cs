@@ -56,7 +56,7 @@ using Id = System.Int32;
 #endif
 
 #if MYSQL
-    namespace Test_NUnit_MySql
+namespace Test_NUnit_MySql
 #elif ORACLE
 #if ODP
         namespace Test_NUnit_OracleODP
@@ -78,7 +78,7 @@ namespace Test_NUnit_PostgreSql
 #else
 #error unknown target
 #endif
-    {
+{
     [SetUpFixture]
     public class WriteTestSetup : TestBase
     {
@@ -86,11 +86,13 @@ namespace Test_NUnit_PostgreSql
         public void TestSetup()
         {
             Northwind db = CreateDB();
-#if !MONO_STRICT
             // "[Products]" gets converted to "Products".
             //This is a DbLinq-defined escape sequence, by Pascal.
-            db.ExecuteCommand("DELETE FROM [Products] WHERE [ProductName] like 'temp%'");
-#endif
+            //db.ExecuteCommand("DELETE FROM [Products] WHERE [ProductName] like 'temp%'");
+
+            var toDelete = db.Products.Where(p => p.ProductName.StartsWith("temp")).ToList();
+            db.Products.DeleteAllOnSubmit(toDelete);
+            db.SubmitChanges();
         }
     }
 
@@ -411,9 +413,9 @@ dummy text
             [Table(Name = "rid")]
             public class Rid : INotifyPropertyChanged
             {
-                
+
                 protected int _id;
-                
+
                 protected int _reanr;
 
 
@@ -710,12 +712,12 @@ dummy text
             Northwind db = CreateDB();
             string id = "AIRBU";
             Customer c1 = (from c in db.Customers
-                           where id ==c.CustomerID 
+                           where id == c.CustomerID
                            select c).Single();
 
             db.Connection.ConnectionString = null;
 
-            var x = db.Customers.Single(c => id == c.CustomerID );
+            var x = db.Customers.Single(c => id == c.CustomerID);
         }
 
 
@@ -736,7 +738,24 @@ dummy text
 
         #endregion
 
+        [Test]
+        public void Update01()
+        {
+            var db = CreateDB();
+            Employee p = db.Employees.First(r => r.LastName == "Fuller");
 
+            DateTime beforeDateTime = p.BirthDate.Value;
+            DateTime now = beforeDateTime.AddMinutes(10);
 
+            p.BirthDate = now;
+            db.SubmitChanges();
+
+            Employee p2 = db.Employees.First(r => r.LastName == "Fuller");
+            Assert.AreEqual(p2.BirthDate, now);
+
+            //undo changes
+            p.BirthDate = beforeDateTime;
+            db.SubmitChanges();
+        }
     }
 }
