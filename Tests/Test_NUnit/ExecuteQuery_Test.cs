@@ -15,11 +15,11 @@ using System.Data.Linq;
 #if MYSQL
     namespace Test_NUnit_MySql
 #elif ORACLE
-    #if ODP
+#if ODP
         namespace Test_NUnit_OracleODP
-    #else
+#else
         namespace Test_NUnit_Oracle
-    #endif
+#endif
 #elif POSTGRES
 namespace Test_NUnit_PostgreSql
 #elif SQLITE
@@ -61,6 +61,28 @@ namespace Test_NUnit_MsSql_Strict
                 Assert.AreEqual(categories1[index].CategoryName, categories2[index].CategoryName);
                 Assert.AreEqual(categories1[index].Description, categories2[index].Description);
             }
+        }
+
+        [Test]
+        public void X2_CheckChanges()
+        {
+            var db = CreateDB();
+            string query = "SELECT * FROM \"Customers\";";
+
+            var characters = db.ExecuteQuery<Customer>(query);
+            var character = characters.First();
+
+            string beforecountry = character.Country;
+            character.Country = "Burmuda";
+
+            Assert.Greater(db.GetChangeSet().Updates.Count, 0);
+            db.SubmitChanges();
+
+            var character2 = db.Customers.First(c=>c.CustomerID==character.CustomerID);
+            Assert.AreEqual(character2.Country, "Burmuda");
+
+            character2.Country = beforecountry;
+            db.SubmitChanges();
         }
     }
 }
