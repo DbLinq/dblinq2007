@@ -302,7 +302,7 @@ namespace Test_NUnit_MySql
         }
         #endregion
 
-        const string obsoleteError = @"Since beta2 in Linq2Sql to proyect a new entity (ie: select new Order(3)) is forbiden for coherence reasons, so this tests doesn't mimic the Linq2Sql behaviour and it is obsolete and should be modified. If you apply such test cases to Linq2Sql you'll get Test_NUnit_MsSql_Strict.DynamicLinqTest.DL5_NestedObjectSelect:
+        const string obsoleteError = @"Since beta2 in Linq2Sql to project a new entity (ie: select new Order(3)) is forbidden for coherence reasons, so this tests doesn't mimic the Linq2Sql behavior and it is obsolete and should be modified. If you apply such test cases to Linq2Sql you'll get Test_NUnit_MsSql_Strict.DynamicLinqTest.DL5_NestedObjectSelect:
         System.NotSupportedException : Explicit construction of entity type 'MsNorthwind.XX' in query is not allowed.\n\nMore Info in: http://linqinaction.net/blogs/roller/archive/2007/11/27/explicit-construction-of-entity-type-in-query-is-not-allowed.aspx";
         [Test]
         public void F13_NewCustomer()
