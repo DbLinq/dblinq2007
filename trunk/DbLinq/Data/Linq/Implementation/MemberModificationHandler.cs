@@ -160,7 +160,8 @@ namespace DbLinq.Data.Linq.Implementation
                 {
                     ((INotifyPropertyChanging)entity).PropertyChanging += (OnPropertyChangingEvent);
                 }
-                else if (entity is INotifyPropertyChanged)
+
+                if (entity is INotifyPropertyChanged)
                 {
                     ((INotifyPropertyChanged)entity).PropertyChanged += (OnPropertyChangedEvent);
                 }
@@ -188,7 +189,7 @@ namespace DbLinq.Data.Linq.Implementation
         /// <param name="e"></param>
         private void OnPropertyChangingEvent(object sender, PropertyChangingEventArgs e)
         {
-            SetPropertyChanged(sender, e.PropertyName);
+            //SetPropertyChanged(sender, e.PropertyName);
         }
 
         /// <summary>
@@ -248,7 +249,11 @@ namespace DbLinq.Data.Linq.Implementation
         {
             lock (modifiedProperties)
             {
-                modifiedProperties[entity][propertyName] = GetProperty(entity, propertyName);
+                PropertyInfo pi=GetProperty(entity, propertyName);
+                if(pi==null)
+                    throw new ArgumentException("Incorrect property changed");
+
+                modifiedProperties[entity][propertyName] = pi;
             }
         }
 
