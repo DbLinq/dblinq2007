@@ -220,7 +220,7 @@ namespace DbLinq.Data.Linq
             {
                 lock (_tableMap)
                 {
-                    foreach (IManagedTable table in _tableMap.Values)
+                    foreach (IManagedTable table in _tableMap.Values.ToArray())
                     {
                         try
                         {
@@ -355,8 +355,8 @@ namespace DbLinq.Data.Linq
                 Expression predicate;
                 if (!(otherTableMember.PropertyType.IsNullable()))
                 {
-                     predicate = Expression.Equal(Expression.MakeMemberAccess(p, otherTableMember),
-                                                                 Expression.Constant(primaryKeyValue));
+                    predicate = Expression.Equal(Expression.MakeMemberAccess(p, otherTableMember),
+                                                                Expression.Constant(primaryKeyValue));
                 }
                 else
                 {
@@ -373,14 +373,14 @@ namespace DbLinq.Data.Linq
                 //ie: other=>other.EmployeeID== "WARTH"
 
                 var whereMethod = typeof(System.Linq.Queryable)
-                                  .GetMethods().First(m=>m.Name=="Where")
+                                  .GetMethods().First(m => m.Name == "Where")
                                   .MakeGenericMethod(otherTableType);
 
 
                 Expression call = Expression.Call(whereMethod, otherTable.Expression, lambdaPredicate);
                 //Table[EmployeesTerritories].Where(other=>other.employeeID="WARTH")
 
-                var query=otherTable.Provider.CreateQuery(call);
+                var query = otherTable.Provider.CreateQuery(call);
                 var entitySetValue = prop.GetValue(entity, null);
 
                 if (entitySetValue == null)
@@ -590,8 +590,9 @@ namespace DbLinq.Data.Linq
         /// <summary>
         /// Execute raw SQL query and return object
         /// </summary>
-        public IEnumerable<TResult> ExecuteQuery<TResult>(string query, params object[] parameters) where TResult : new()
+        public IEnumerable<TResult> ExecuteQuery<TResult>(string query, params object[] parameters) where TResult : class, new()
         {
+            GetTable<TResult>();
             foreach (TResult result in ExecuteQuery(typeof(TResult), query, parameters))
                 yield return result;
         }
