@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{A348FBCE-2246-48FF-9862-35553B4B284C}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -69,13 +69,12 @@
     <Compile Include="..\..\lib\DynamicLinq.cs">
       <Link>lib\DynamicLinq.cs</Link>
     </Compile>
-    <Compile Include="AnyCountFirst.cs" />
     <Compile Include="Attach.cs" />
     <Compile Include="CompositePK_Test.cs" />
+    <Compile Include="ReadTests_AnyCountFirst.cs" />
     <Compile Include="ReadTests_Conversions.cs" />
     <Compile Include="ReadTests_DateTimeFunctions.cs" />
     <Compile Include="DynamicLinqTest.cs" />
-    <Compile Include="EntitySet.cs" />
     <Compile Include="ExecuteCommand_Test.cs" />
     <Compile Include="ExecuteQuery_Test.cs" />
     <Compile Include="Linq_101_Samples\Advanced.cs" />
@@ -100,6 +99,7 @@
     <Compile Include="Linq_101_Samples\Where.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadTest.cs" />
+    <Compile Include="ReadTests_EntitySet.cs" />
     <Compile Include="ReadTests_Join.cs" />
     <Compile Include="ReadTests_StringFunctions.cs" />
     <Compile Include="ReadTest_Complex.cs" />

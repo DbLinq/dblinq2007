@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{858BAFF7-542F-4DBB-9C9B-57FCDE4DB7CE}</ProjectGuid>
     <OutputType>WinExe</OutputType>
@@ -74,11 +74,9 @@
     <Compile Include="..\..\Example\DbLinq.MsSql.Example\nwind\originalMSNorthwind.designer.cs">
       <Link>nwind\NorthwindTESTDOTNET.cs</Link>
     </Compile>
-    <Compile Include="AnyCountFirst.cs" />
     <Compile Include="Attach.cs" />
     <Compile Include="CompositePK_Test.cs" />
     <Compile Include="DynamicLinqTest.cs" />
-    <Compile Include="EntitySet.cs" />
     <Compile Include="ExecuteCommand_Test.cs" />
     <Compile Include="ExecuteQuery_Test.cs" />
     <Compile Include="Linq_101_Samples\Advanced.cs" />
@@ -105,8 +103,10 @@
     <Compile Include="Program2Mysql.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadTest.cs" />
+    <Compile Include="ReadTests_AnyCountFirst.cs" />
     <Compile Include="ReadTests_Conversions.cs" />
     <Compile Include="ReadTests_DateTimeFunctions.cs" />
+    <Compile Include="ReadTests_EntitySet.cs" />
     <Compile Include="ReadTests_Join.cs" />
     <Compile Include="ReadTests_StringFunctions.cs" />
     <Compile Include="ReadTest_Complex.cs" />
