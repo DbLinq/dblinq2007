@@ -91,6 +91,8 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
                 case SpecialExpressionType.Substring:
                     return defaultType;
                 case SpecialExpressionType.Trim:
+                case SpecialExpressionType.LTrim:
+                case SpecialExpressionType.RTrim:
                     return typeof(string);
                 case SpecialExpressionType.StringInsert:
                     return typeof(string);

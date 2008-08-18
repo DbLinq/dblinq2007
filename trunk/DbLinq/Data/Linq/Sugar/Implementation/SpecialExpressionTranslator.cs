@@ -105,6 +105,8 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     return GetStandardCallInvoke("Insert", operands);
                 case SpecialExpressionType.Substring:
                 case SpecialExpressionType.Trim:
+                case SpecialExpressionType.LTrim:
+                case SpecialExpressionType.RTrim:
                 case SpecialExpressionType.Replace:
                 case SpecialExpressionType.Remove:
                 case SpecialExpressionType.IndexOf:

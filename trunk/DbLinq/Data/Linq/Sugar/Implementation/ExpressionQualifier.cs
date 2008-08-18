@@ -73,6 +73,8 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     case SpecialExpressionType.ToLower:
                     case SpecialExpressionType.Substring:
                     case SpecialExpressionType.Trim:
+                    case SpecialExpressionType.LTrim:
+                    case SpecialExpressionType.RTrim:
                     case SpecialExpressionType.StringInsert:
                     case SpecialExpressionType.Replace:
                     case SpecialExpressionType.Remove:
@@ -220,6 +222,8 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     case SpecialExpressionType.ToLower:
                     case SpecialExpressionType.Substring:
                     case SpecialExpressionType.Trim:
+                    case SpecialExpressionType.LTrim:
+                    case SpecialExpressionType.RTrim:
                     case SpecialExpressionType.StringInsert:
                     case SpecialExpressionType.Replace:
                     case SpecialExpressionType.Remove:
