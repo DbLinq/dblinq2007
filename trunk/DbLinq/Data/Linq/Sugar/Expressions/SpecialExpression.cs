@@ -112,6 +112,16 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
                     return typeof(DateTime);
                 case SpecialExpressionType.DateDiffInMilliseconds:
                     return typeof(long);
+                case SpecialExpressionType.Abs:
+                case SpecialExpressionType.Exp:
+                case SpecialExpressionType.Floor:
+                case SpecialExpressionType.Ln:
+                case SpecialExpressionType.Log:
+                case SpecialExpressionType.Pow:
+                case SpecialExpressionType.Round:
+                case SpecialExpressionType.Sign:
+                case SpecialExpressionType.Sqrt:
+                    return defaultType;
 
                 default:
                     throw Error.BadArgument("S0058: Unknown SpecialExpressionType value {0}", specialExpressionType);
@@ -237,9 +247,25 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
                     return DateTime.Now;
                 case SpecialExpressionType.DateDiffInMilliseconds:
                     return ((DateTime)operands[0].Evaluate()) - ((DateTime)operands[1].Evaluate());
+                case SpecialExpressionType.Abs:
+                case SpecialExpressionType.Exp:
+                case SpecialExpressionType.Floor:
+                case SpecialExpressionType.Ln:
+                case SpecialExpressionType.Log:
+                case SpecialExpressionType.Pow:
+                case SpecialExpressionType.Round:
+                case SpecialExpressionType.Sign:
+                case SpecialExpressionType.Sqrt:
+                    return EvaluateMathCallInvoke(SpecialNodeType, operands);
                 default:
                     throw Error.BadArgument("S0116: Unknown SpecialExpressionType ({0})", SpecialNodeType);
             }
+        }
+
+        private object EvaluateMathCallInvoke(SpecialExpressionType SpecialNodeType, ReadOnlyCollection<Expression> operands)
+        {
+            return typeof(Math).GetMethod(SpecialNodeType.ToString(), operands.Skip(1).Select(op => op.Type).ToArray())
+                    .Invoke(null, operands.Skip(1).Select(op => op.Evaluate()).ToArray());
         }
         protected object EvaluateStatardMemberAccess(string propertyName, ReadOnlyCollection<Expression> operands)
         {

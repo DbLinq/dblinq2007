@@ -336,9 +336,81 @@ namespace DbLinq.Vendor.Implementation
                     return GetLiteralDateTimePart(p[0], operationType);
                 case SpecialExpressionType.DateDiffInMilliseconds:
                     return GetLiteralDateDiff(p[0], p[1]);
+                case SpecialExpressionType.Abs:
+                    return GetLiteralMathAbs(p[0]);
+                case SpecialExpressionType.Exp:
+                    return GetLiteralMathExp(p[0]);
+                case SpecialExpressionType.Floor:
+                    return GetLiteralMathFloor(p[0]);
+                case SpecialExpressionType.Ln:
+                    return GetLiteralMathLn(p[0]);
+
+                case SpecialExpressionType.Log:
+                    if (p.Count == 1)
+                        return GetLiteralMathLog(p[0]);
+                    else
+                        return GetLiteralMathLog(p[0], p[1]);
+                case SpecialExpressionType.Pow:
+                    return GetLiteralMathPow(p[0], p[1]);
+                case SpecialExpressionType.Round:
+                    return GetLiteralMathRound(p[0]);
+                case SpecialExpressionType.Sign:
+                    return GetLiteralMathSign(p[0]);
+                case SpecialExpressionType.Sqrt:
+                    return GetLiteralMathSqrt(p[0]);
 
             }
             throw new ArgumentException(operationType.ToString());
+        }
+
+        protected virtual string GetLiteralMathSqrt(string p)
+        {
+            return string.Format("SQRT({0})", p);
+        }
+
+        protected virtual string GetLiteralMathSign(string p)
+        {
+            return string.Format("SIGN({0})", p);
+        }
+
+        protected virtual string GetLiteralMathRound(string p)
+        {
+            return string.Format("ROUND({0})", p);
+        }
+
+        protected virtual string GetLiteralMathPow(string p, string p_2)
+        {
+            return string.Format("POW({0},{1})", p, p_2);
+        }
+
+        protected virtual string GetLiteralMathLog(string p)
+        {
+            return string.Format("LOG({0})", p);
+        }
+
+        protected virtual string GetLiteralMathLog(string p, string p_2)
+        {
+            return string.Format("LOG({0},{1})", p, p_2);
+        }
+
+        protected virtual string GetLiteralMathLn(string p)
+        {
+            return string.Format("LN({0})", p);
+        }
+
+        protected virtual string GetLiteralMathFloor(string p)
+        {
+            return string.Format("FLOOR({0})", p);
+        }
+
+        protected virtual string GetLiteralMathExp(string p)
+        {
+            return string.Format("EXP({0})", p);
+        }
+
+        protected virtual string GetLiteralMathAbs(string p)
+        {
+            return string.Format("ABS({0})", p);
         }
 
         /// <summary>

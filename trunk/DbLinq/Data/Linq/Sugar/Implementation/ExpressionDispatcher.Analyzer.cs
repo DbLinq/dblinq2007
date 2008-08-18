@@ -233,9 +233,31 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     return AnalyzeToString(method, parameters, builderContext);
                 case "Parse":
                     return AnalyzeParse(method, parameters, builderContext);
+                case "Abs":
+                case "Exp":
+                case "Floor":
+                case "Pow":
+                case "Round":
+                case "Sign":
+                case "Sqrt":
+                    return AnalyzeGenericSpecialExpressionType((SpecialExpressionType)Enum.Parse(typeof(SpecialExpressionType), methodName), parameters, builderContext);
+                case "Log10":
+                    return AnalyzeGenericSpecialExpressionType(SpecialExpressionType.Log, parameters, builderContext);
+                case "Log":
+                    return AnalyzeLog(parameters, builderContext);
                 default:
                     throw Error.BadArgument("S0133: Implement QueryMethod '{0}'", methodName);
             }
+        }
+
+        protected virtual Expression AnalyzeLog(IList<Expression> parameters, BuilderContext builderContext)
+        {
+            if (parameters.Count == 1)
+                return new SpecialExpression(SpecialExpressionType.Ln, parameters.Select(p => Analyze(p, builderContext)).ToList());
+            else if (parameters.Count == 2)
+                return new SpecialExpression(SpecialExpressionType.Log, parameters.Select(p => Analyze(p, builderContext)).ToList());
+            else
+                throw new NotSupportedException();
         }
 
         protected virtual Expression AnalyzeGenericSpecialExpressionType(SpecialExpressionType specialType, IList<Expression> parameters, BuilderContext builderContext)
@@ -630,7 +652,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
 
 
             }
-            else if (isStaticMemberAccess && memberInfo.DeclaringType==typeof(DateTime))
+            else if (isStaticMemberAccess && memberInfo.DeclaringType == typeof(DateTime))
             {
                 if (memberInfo.Name == "Now")
                     return new SpecialExpression(SpecialExpressionType.Now);

@@ -70,7 +70,16 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
         Second,
         Millisecond,
         Now,
-        DateDiffInMilliseconds
+        DateDiffInMilliseconds,
 
+        Abs,
+        Exp,
+        Floor,
+        Ln,
+        Log,
+        Pow,
+        Round,
+        Sign,
+        Sqrt
     }
 }

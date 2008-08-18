@@ -67,9 +67,9 @@ namespace DbLinq.SqlServer
         {
             return string.Format("(CONVERT(BigInt,DATEDIFF(DAY, {0}, {1}))) * 86400000 +" //diffierence in milliseconds regards days
                      + "DATEDIFF(MILLISECOND, "
-                                
+
                                 // (DateA-DateB) in days +DateB = difference in time
-                                +@"DATEADD(DAY, 
+                                + @"DATEADD(DAY, 
                                       DATEDIFF(DAY, {0}, {1})
                                       ,{0})"
 
@@ -83,6 +83,22 @@ namespace DbLinq.SqlServer
         {
             return string.Format("DATEPART({0},{1})", operationType.ToString().ToUpper(), dateExpression);
         }
+
+        protected override string GetLiteralMathPow(string p, string p_2)
+        {
+            return string.Format("POWER({0},{1})", p, p_2);
+        }
+
+        protected override string GetLiteralMathLog(string p, string p_2)
+        {
+            return string.Format("(LOG({0})/LOG({1}))", p, p_2);
+        }
+
+        protected override string GetLiteralMathLn(string p)
+        {
+            return GetLiteralMathLog(p, string.Format("{0}",Math.E));
+        }
+
 
         protected override string GetLiteralCount(string a)
         {
