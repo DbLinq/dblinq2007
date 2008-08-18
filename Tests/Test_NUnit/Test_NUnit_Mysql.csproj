@@ -108,6 +108,7 @@
     <Compile Include="ReadTests_DateTimeFunctions.cs" />
     <Compile Include="ReadTests_EntitySet.cs" />
     <Compile Include="ReadTests_Join.cs" />
+    <Compile Include="ReadTests_Maths.cs" />
     <Compile Include="ReadTests_StringFunctions.cs" />
     <Compile Include="ReadTest_Complex.cs" />
     <Compile Include="ReadTest_GroupBy.cs" />
