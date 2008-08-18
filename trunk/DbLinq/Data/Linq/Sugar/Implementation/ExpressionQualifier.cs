@@ -85,6 +85,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     case SpecialExpressionType.Second:
                     case SpecialExpressionType.Millisecond:
                     case SpecialExpressionType.Now:
+                    case SpecialExpressionType.DateDiffInMilliseconds:
                         return ExpressionPrecedence.Primary;
                     case SpecialExpressionType.In:
                         return ExpressionPrecedence.Equality; // not sure for this one
@@ -222,6 +223,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     case SpecialExpressionType.Second:
                     case SpecialExpressionType.Millisecond:
                     case SpecialExpressionType.Now:
+                    case SpecialExpressionType.DateDiffInMilliseconds:
                         return ExpressionTier.Any;
 
                     case SpecialExpressionType.Like:

@@ -63,6 +63,22 @@ namespace DbLinq.SqlServer
             }
             throw new ArgumentException("S0051: Unknown select format");
         }
+        protected override string GetLiteralDateDiff(string dateA, string dateB)
+        {
+            return string.Format("(CONVERT(BigInt,DATEDIFF(DAY, {0}, {1}))) * 86400000 +" //diffierence in milliseconds regards days
+                     + "DATEDIFF(MILLISECOND, "
+                                
+                                // (DateA-DateB) in days +DateB = difference in time
+                                +@"DATEADD(DAY, 
+                                      DATEDIFF(DAY, {0}, {1})
+                                      ,{0})"
+
+                                + ",{1})", dateB, dateA);
+
+            //this trick is needed in sqlserver since DATEDIFF(MILLISECONDS,{0},{1}) usually crhases in the database engine due an overflow:
+            //System.Data.SqlClient.SqlException : Difference of two datetime columns caused overflow at runtime.
+        }
+
         protected override string GetLiteralDateTimePart(string dateExpression, SpecialExpressionType operationType)
         {
             return string.Format("DATEPART({0},{1})", operationType.ToString().ToUpper(), dateExpression);

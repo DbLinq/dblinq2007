@@ -73,7 +73,7 @@ namespace Test_NUnit_MySql.Linq_101_Samples
             Northwind db = CreateDB();
 
             var q = from p in db.Products
-                    where p.UnitsInStock <= p.ReorderLevel || !Convert.ToBoolean(p.Discontinued)
+                    where p.UnitsInStock <= p.ReorderLevel || !Convert.ToBoolean(p.Discontinued)==true
                     select p;
 
             var list = q.ToList();
@@ -87,7 +87,7 @@ namespace Test_NUnit_MySql.Linq_101_Samples
             Northwind db = CreateDB();
 
             var q = from p in db.Products
-                    where p.UnitPrice > 10.0m || Convert.ToBoolean(p.Discontinued)
+                    where p.UnitPrice > 10.0m || Convert.ToBoolean(p.Discontinued)==true
                     select p;
 
             var list = q.ToList();
@@ -100,7 +100,7 @@ namespace Test_NUnit_MySql.Linq_101_Samples
             Northwind db = CreateDB();
 
             var q = db.Products.Where(p => p.UnitPrice > 5.0m)
-                               .Where(p => !Convert.ToBoolean(p.Discontinued));
+                               .Where(p => !Convert.ToBoolean(p.Discontinued)==true);
 
             var list = q.ToList();
             Assert.IsTrue(list.Count > 0);

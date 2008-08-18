@@ -59,8 +59,8 @@ namespace Test_NUnit_MsSql_Strict.Linq_101_Samples
         {
             Northwind db = CreateDB();
 
-            var q = from p in db.Products where p.OrderDetails.Any(od=>od.Order.Customer.Country=="France") select p;
-                  
+            var q = from o in db.Orders where o.OrderDetails.Any(od => od.Order.Customer.Country == "France") select o;
+
             var list = q.ToList();
             Assert.IsTrue(list.Count > 0);
         }

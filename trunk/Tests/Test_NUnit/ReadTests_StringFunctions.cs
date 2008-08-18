@@ -219,7 +219,7 @@ namespace Test_NUnit_MsSql
             Assert.IsTrue(list.Count > 0);
         }
 
-      
+
 
         [Test]
         public void IndexOf05()
@@ -227,14 +227,14 @@ namespace Test_NUnit_MsSql
             Northwind db = CreateDB();
 
             var q = from e in db.Employees
-                    where e.LastName.IndexOf("u",1) == 1
+                    where e.LastName.IndexOf("u", 1) == 1
                     select e;
 
             var list = q.ToList();
             Assert.IsTrue(list.Count > 0);
         }
 
-       
+
 
         [Test]
         public void IndexOf06()
@@ -242,7 +242,7 @@ namespace Test_NUnit_MsSql
             Northwind db = CreateDB();
 
             var q = from e in db.Employees
-                    where e.LastName.IndexOf('u',1,1) == 1
+                    where e.LastName.IndexOf('u', 1, 1) == 1
                     select e;
 
             var list = q.ToList();
@@ -255,7 +255,7 @@ namespace Test_NUnit_MsSql
             Northwind db = CreateDB();
 
             var q = from e in db.Employees
-                    where e.LastName.IndexOf("u",1,1) == 1
+                    where e.LastName.IndexOf("u", 1, 1) == 1
                     select e;
 
             var list = q.ToList();
@@ -282,7 +282,7 @@ namespace Test_NUnit_MsSql
 
             var q = from e in db.Employees
                     select " fu".IndexOf('f') == 1;
-                    
+
 
             var list = q.ToList();
             Assert.AreEqual(list.Count, db.Employees.Count());
@@ -519,9 +519,8 @@ namespace Test_NUnit_MsSql
             var q = from c in db.Customers
                     select c.CustomerID.EndsWith("LFKI");
 
-            Assert.IsTrue(q.Any(r=>r==true));
+            Assert.IsTrue(q.Any(r => r == true));
         }
-
 
         [Test]
         public void StartsWithPercent01()
@@ -536,5 +535,43 @@ namespace Test_NUnit_MsSql
             int cnt = q.Count();
             Assert.AreEqual(0, cnt);
         }
+
+        public void Substring01()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    where e.HomePhone.Substring(4, 1) == ")"
+                    select new { A = e.HomePhone.Remove(0, 6), B = e.HomePhone.Substring(4, 1) };
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+
+            var Employees = db.Employees.ToArray();
+
+            var q2 = (from e in Employees
+                      where e.HomePhone != null && e.HomePhone.Substring(4, 1) == ")"
+                      select new { A = e.HomePhone.Remove(0, 6), B = e.HomePhone.Substring(4, 1) }).ToArray();
+
+            Assert.AreEqual(list.Count, q2.Count());
+
+            for (int i = 0; i < list.Count; i++)
+                Assert.AreEqual(list[i], q2[i]);
+
+        }
+
+        [Test]
+        public void NullCompare()
+        {
+            Northwind db = CreateDB();
+
+            var q = from o in db.Orders
+                    where o.Customer.Country == null
+                    select o;
+
+            var list = q.ToList();
+            Assert.Greater(list.Count, 1);
+        }
+
     }
 }
