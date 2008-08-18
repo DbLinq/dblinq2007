@@ -117,10 +117,18 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     return GetStandardCallInvoke(specialExpression.SpecialNodeType.ToString(),operands);
                 case SpecialExpressionType.Now:
                     return GetDateTimeNowCall(operands);  
+                case SpecialExpressionType.DateDiffInMilliseconds:
+                    return GetCallDateDiffInMilliseconds(operands);
                 default:
                     throw Error.BadArgument("S0078: Implement translator for {0}", specialExpression.SpecialNodeType);
 
             }
+        }
+
+        private Expression GetCallDateDiffInMilliseconds(List<Expression> operands)
+        {
+            return Expression.MakeMemberAccess(Expression.Subtract(operands.First(), operands.ElementAt(1)),
+                                                typeof(TimeSpan).GetProperty("TotalMilliseconds"));
         }
 
         private Expression GetDateTimeNowCall(List<Expression> operands)

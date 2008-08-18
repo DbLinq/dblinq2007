@@ -317,5 +317,14 @@ namespace Test_NUnit_MsSql
                      select new { c.CustomerID, FirstUSAOrder = c.Orders.First(o => o.ShipCountry == "France") }).ToList();
         }
 
+        [Test]
+        public void DynamicContains()
+        {
+            var db = CreateDB();
+            var q=db.OrderDetails.Where(o=>new decimal[]{1,4,5,6}.Contains(o.OrderID));
+
+            Assert.Greater(q.Count(), 0);
+        }
+
     }
 }

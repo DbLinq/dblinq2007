@@ -54,6 +54,10 @@ namespace DbLinq.PostgreSql
         {
             return string.Format("LOWER({0})", a);
         }
+        protected override string GetLiteralDateDiff(string dateA, string dateB)
+        {
+            return string.Format("(DATE_PART('Day',{0}-{1})*86400000+DATE_PART('Hour',{0}-{1})*3600000+DATE_PART('Minute',{0}-{1})*60000+DATE_PART('Second',{0}-{1})*1000+DATE_PART('Millisecond',{0}-{1}))::real", dateA, dateB);
+        }
 
         public static readonly Dictionary<Type, string> typeMapping = new Dictionary<Type, string>()
         {

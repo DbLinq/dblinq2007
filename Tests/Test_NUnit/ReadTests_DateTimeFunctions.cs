@@ -160,7 +160,7 @@ namespace Test_NUnit_MsSql
         {
             Northwind db = CreateDB();
             var query = from e in db.Employees
-                        where e.BirthDate.Value == DateTime.Now
+                        where e.BirthDate.HasValue && e.BirthDate.Value == DateTime.Now
                         select e;
 
             var list = query.ToList();
@@ -185,6 +185,229 @@ namespace Test_NUnit_MsSql
             var query = from e in db.Employees
                         where e.BirthDate.Value == DateTime.Parse(e.BirthDate.ToString())
                         select e;
+
+            var list = query.ToList();
+        }
+
+        [Test]
+        public void Parse03()
+        {
+            Northwind db = CreateDB();
+            var query = from e in db.Employees
+                        select e.BirthDate.Value == DateTime.Parse("1984/05/02");
+
+
+            var list = query.ToList();
+        }
+
+        [Test]
+        [ExpectedException(typeof(NotSupportedException))]
+        public void Parse04()
+        {
+            Northwind db = CreateDB();
+            var query = from e in db.Employees
+                        select e.BirthDate.Value == DateTime.Parse(e.BirthDate.ToString());
+
+
+            var list = query.ToList();
+        }
+
+        [Test]
+        public void DateTimeDiffTotalHours()
+        {
+            Northwind db = CreateDB();
+            var query = from e in db.Employees
+                        where (e.BirthDate.Value - DateTime.Parse("1984/05/02")).TotalHours > 0
+                        select e;
+
+
+            var list = query.ToList();
+        }
+
+        [Test]
+        public void DateTimeDiffHours()
+        {
+            Northwind db = CreateDB();
+
+            DateTime parameterDateTime = db.Employees.First().BirthDate.Value.AddHours(2);
+
+            var query = from e in db.Employees
+                        where (e.BirthDate.Value - parameterDateTime).Hours > -2
+                        select e;
+
+
+            var list = query.ToList();
+            Assert.Greater(list.Count, 0);
+        }
+
+        [Test]
+        public void DateTimeDiffTotalMinutes()
+        {
+            Northwind db = CreateDB();
+            var query = from e in db.Employees
+                        where (e.BirthDate.Value - DateTime.Parse("1984/05/02")).TotalMinutes > 0
+                        select e;
+
+
+            var list = query.ToList();
+        }
+
+        [Test]
+        public void DateTimeDiffMinutes()
+        {
+            Northwind db = CreateDB();
+
+            DateTime parameterDateTime = db.Employees.First().BirthDate.Value.AddMinutes(2);
+
+            var query = from e in db.Employees
+                        where (e.BirthDate.Value - parameterDateTime).Minutes == -2
+                        select e;
+
+
+            var list = query.ToList();
+            Assert.Greater(list.Count, 0);
+        }
+
+      
+        [Test]
+        public void DateTimeDiffTotalSeconds()
+        {
+            Northwind db = CreateDB();
+            var query = from e in db.Employees
+                        where (e.BirthDate.Value - DateTime.Parse("1984/05/02")).TotalSeconds > 0
+                        select e;
+
+
+            var list = query.ToList();
+        }
+
+        [Test]
+        public void DateTimeDiffSeconds()
+        {
+            Northwind db = CreateDB();
+
+            DateTime parameterDateTime = db.Employees.First().BirthDate.Value.AddSeconds(2);
+
+            var query = from e in db.Employees
+                        where (e.BirthDate.Value - parameterDateTime).Seconds == -2
+                        select e;
+
+
+            var list = query.ToList();
+            Assert.Greater(list.Count, 0);
+        }
+
+        [Test]
+        public void DateTimeDiffMilliseconds()
+        {
+            Northwind db = CreateDB();
+
+            DateTime parameterDateTime = db.Employees.First().BirthDate.Value.AddMilliseconds(2);
+
+            var query = from e in db.Employees
+                        where (e.BirthDate.Value - parameterDateTime).Milliseconds == -2
+                        select e;
+            
+
+            var list = query.ToList();
+            Assert.Greater(list.Count, 0);
+        }
+
+        [Test]
+        public void DateTimeDiffTotalMilliseconds()
+        {
+            Northwind db = CreateDB();
+            var query = from e in db.Employees
+                        where (e.BirthDate.Value - DateTime.Parse("1984/05/02")).TotalMinutes > 0
+                        select e;
+
+
+            var list = query.ToList();
+        }
+
+        [Test]
+        public void DateTimeDiffDays()
+        {
+            Northwind db = CreateDB();
+
+            DateTime parameterDateTime = db.Employees.First().BirthDate.Value.AddDays(2);
+
+            var query = from e in db.Employees
+                        where (e.BirthDate.Value - parameterDateTime).Days == -2
+                        select e;
+
+
+            var list = query.ToList();
+            Assert.Greater(list.Count, 0);
+        }
+
+        [Test]
+        public void DateTimeDiffTotalDays()
+        {
+            Northwind db = CreateDB();
+            DateTime firstDate = db.Employees.First().BirthDate.Value;
+
+            DateTime parameterDate = firstDate.Date.AddDays(2);
+            parameterDate = parameterDate.Date.AddHours(12);
+
+
+            var query = from e in db.Employees
+                        where (e.BirthDate.Value -parameterDate).TotalDays == -2.5
+                        select e;
+
+            var list = query.ToList();
+
+            Assert.Greater(list.Count, 0);
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void DateTimeDiffTotalDaysSelectWithNulls01()
+        {
+            
+            Northwind db = CreateDB();
+            DateTime firstDate = db.Employees.First().BirthDate.Value;
+
+            firstDate.Date.AddDays(2);
+            DateTime parameterDate = firstDate.Date.AddHours(12);
+
+            //this test should throw an invalid operation exception since one BirthDate is null so select clausle should crash
+            var query = from e in db.Employees
+                        select (e.BirthDate.Value - parameterDate).TotalDays;
+
+            var list = query.ToList();
+
+            Assert.Greater(list.Count, 0);
+        }
+
+        [Test]
+        public void DateTimeDiffTotalDaysSelectWithNulls02()
+        {
+            Northwind db = CreateDB();
+            DateTime firstDate = db.Employees.First().BirthDate.Value;
+
+            DateTime parameterDate = firstDate.Date.AddDays(2);
+            parameterDate = parameterDate.Date.AddHours(12);
+
+
+            var query = from e in db.Employees
+                        where e.BirthDate.HasValue
+                        select (e.BirthDate.Value - parameterDate).TotalDays;
+
+            var list = query.ToList();
+
+            Assert.Greater(list.Count, 0);
+        }
+
+
+        [Test]
+        public void DateGetDate()
+        {
+            Northwind db = CreateDB();
+            var query = from e in db.Employees
+                        where (e.BirthDate.Value.Date).Minute == 0
+                        select e;
+
 
             var list = query.ToList();
         }

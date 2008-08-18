@@ -110,6 +110,8 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
                     return typeof(int);
                 case SpecialExpressionType.Now:
                     return typeof(DateTime);
+                case SpecialExpressionType.DateDiffInMilliseconds:
+                    return typeof(long);
 
                 default:
                     throw Error.BadArgument("S0058: Unknown SpecialExpressionType value {0}", specialExpressionType);
@@ -233,6 +235,8 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
                     return ((DateTime)operands[0].Evaluate()).Millisecond;
                 case SpecialExpressionType.Now:
                     return DateTime.Now;
+                case SpecialExpressionType.DateDiffInMilliseconds:
+                    return ((DateTime)operands[0].Evaluate()) - ((DateTime)operands[1].Evaluate());
                 default:
                     throw Error.BadArgument("S0116: Unknown SpecialExpressionType ({0})", SpecialNodeType);
             }

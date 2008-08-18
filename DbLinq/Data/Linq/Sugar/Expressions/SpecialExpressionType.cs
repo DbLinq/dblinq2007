@@ -69,6 +69,8 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
         Minute,
         Second,
         Millisecond,
-        Now
+        Now,
+        DateDiffInMilliseconds
+
     }
 }
