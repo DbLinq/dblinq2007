@@ -309,6 +309,8 @@ namespace DbLinq.Vendor.Implementation
                         return GetLiteralSubString(p[0], p[1], p[2]);
                     return GetLiteralSubString(p[0], p[1]);
                 case SpecialExpressionType.Trim:
+                case SpecialExpressionType.LTrim:
+                case SpecialExpressionType.RTrim:
                     return GetLiteralTrim(p[0]);
                 case SpecialExpressionType.StringInsert:
                     return GetLiteralStringInsert(p[0], p[1], p[2]);
@@ -871,6 +873,16 @@ namespace DbLinq.Vendor.Implementation
         protected virtual string GetLiteralTrim(string a)
         {
             return string.Format("TRIM({0})", a);
+        }
+
+        protected virtual string GetLiteralLTrim(string a)
+        {
+            return string.Format("LTRIM({0})", a);
+        }
+
+        protected virtual string GetLiteralRTrim(string a)
+        {
+            return string.Format("RTRIM({0})", a);
         }
 
         protected virtual string GetLiteralSubString(string baseString, string startIndex, string count)

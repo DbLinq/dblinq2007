@@ -221,6 +221,10 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     return AnalyzeSelectOperation(SelectOperatorType.Exception, parameters, builderContext);
                 case "Trim":
                     return AnalyzeGenericSpecialExpressionType(SpecialExpressionType.Trim, parameters, builderContext);
+                case "TrimStart":
+                    return AnalyzeGenericSpecialExpressionType(SpecialExpressionType.LTrim, parameters, builderContext);
+                case "TrimEnd":
+                    return AnalyzeGenericSpecialExpressionType(SpecialExpressionType.RTrim, parameters, builderContext);
                 case "Insert":
                     return AnalyzeGenericSpecialExpressionType(SpecialExpressionType.StringInsert, parameters, builderContext);
                 case "Replace":

@@ -57,6 +57,9 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
         In,
         Substring,
         Trim,
+        LTrim,
+        RTrim,
+
         StringInsert,
         Replace,
         Remove,

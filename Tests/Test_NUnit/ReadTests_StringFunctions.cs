@@ -536,6 +536,57 @@ namespace Test_NUnit_MsSql
             Assert.AreEqual(0, cnt);
         }
 
+        [Test]
+        public void LTrim01()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    where !((e.LastName)).TrimStart().Contains(" ")
+                    select e.LastName;
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+        }
+
+        [Test]
+        public void LTrim02()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    select !((e.LastName)).TrimStart().Contains(" ");
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+        }
+
+        [Test]
+        public void RTrim01()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    where !((e.LastName)).TrimEnd().Contains(" ")
+                    select e.LastName;
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+        }
+
+        [Test]
+        public void RTrim02()
+        {
+            Northwind db = CreateDB();
+
+            var q = from e in db.Employees
+                    select !((e.LastName)).TrimEnd().Contains(" ");
+
+            var list = q.ToList();
+            Assert.IsTrue(list.Count > 0);
+        }
+
+        [Test]
         public void Substring01()
         {
             Northwind db = CreateDB();
@@ -558,19 +609,6 @@ namespace Test_NUnit_MsSql
             for (int i = 0; i < list.Count; i++)
                 Assert.AreEqual(list[i], q2[i]);
 
-        }
-
-        [Test]
-        public void NullCompare()
-        {
-            Northwind db = CreateDB();
-
-            var q = from o in db.Orders
-                    where o.Customer.Country == null
-                    select o;
-
-            var list = q.ToList();
-            Assert.Greater(list.Count, 1);
         }
 
     }
