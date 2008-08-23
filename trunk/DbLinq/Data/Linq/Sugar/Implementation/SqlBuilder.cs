@@ -119,7 +119,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             {
                 var operandPrecedence = ExpressionQualifier.GetPrecedence(operand);
                 string literalOperand = BuildExpression(operand, queryContext);
-                if (operandPrecedence > currentPrecedence)
+                if (operandPrecedence >= currentPrecedence)
                     literalOperand = sqlProvider.GetParenthesis(literalOperand);
                 literalOperands.Add(literalOperand);
             }
@@ -277,7 +277,11 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             var selectClauses = new List<string>();
             foreach (var selectExpression in select.GetOperands())
             {
-                selectClauses.Add(BuildExpression(selectExpression, queryContext));
+                string expressionString=BuildExpression(selectExpression, queryContext);
+                if (selectExpression is SelectExpression)
+                    selectClauses.Add(sqlProvider.GetParenthesis(expressionString));
+                else
+                    selectClauses.Add(expressionString);
             }
             return sqlProvider.GetSelectClause(selectClauses.ToArray());
         }
