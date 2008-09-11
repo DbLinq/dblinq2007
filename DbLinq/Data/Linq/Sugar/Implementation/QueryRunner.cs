@@ -273,42 +273,30 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     dbParameter.SetValue(inputParameter.GetValue(target), inputParameter.ValueType);
                     dbCommand.Command.Parameters.Add(dbParameter);
                 }
-                if (insertQuery.DataContext.Vendor.SupportsOutputParameter)
+                // we may have two commands
+                int rowsCount = dbCommand.Command.ExecuteNonQuery();
+                // the second reads output parameters
+                if (!string.IsNullOrEmpty(insertQuery.IdQuerySql))
                 {
-                    //int outputStart = insertQuery.InputParameters.Count;
-                    // we may have two commands
-                    int rowsCount = dbCommand.Command.ExecuteNonQuery();
-                    // the second reads output parameters
-                    if (!string.IsNullOrEmpty(insertQuery.IdQuerySql))
+                    IDbCommand outputCommand = dbCommand.Command.Connection.CreateCommand();
+
+                    // then run commands
+                    outputCommand.Transaction = dbCommand.Command.Transaction;
+                    outputCommand.CommandText = insertQuery.IdQuerySql;
+                    using (IDataReader dataReader = outputCommand.ExecuteReader())
                     {
-                        IDbCommand outputCommand = dbCommand.Command.Connection.CreateCommand();
+                        // TODO: check if this is needed
+                        dataReader.Read();
 
-                        // then run commands
-                        outputCommand.Transaction = dbCommand.Command.Transaction;
-                        outputCommand.CommandText = insertQuery.IdQuerySql;
-                        using (IDataReader dataReader = outputCommand.ExecuteReader())
+                        for (int outputParameterIndex = 0;
+                             outputParameterIndex < insertQuery.OutputParameters.Count;
+                             outputParameterIndex++)
                         {
-                            // TODO: check if this is needed
-                            dataReader.Read();
-
-                            for (int outputParameterIndex = 0;
-                                 outputParameterIndex < insertQuery.OutputParameters.Count;
-                                 outputParameterIndex++)
-                            {
-                                var outputParameter = insertQuery.OutputParameters[outputParameterIndex];
-                                var outputDbParameter = dataReader.GetValue(outputParameterIndex);
-                                SetOutputParameterValue(target, outputParameter, outputDbParameter);
-                            }
+                            var outputParameter = insertQuery.OutputParameters[outputParameterIndex];
+                            var outputDbParameter = dataReader.GetValue(outputParameterIndex);
+                            SetOutputParameterValue(target, outputParameter, outputDbParameter);
                         }
                     }
-                }
-                else
-                {
-                    object result = dbCommand.Command.ExecuteScalar();
-                    if (insertQuery.OutputParameters.Count > 1)
-                        throw new ArgumentException();
-                    if (insertQuery.OutputParameters.Count == 1)
-                        SetOutputParameterValue(target, insertQuery.OutputParameters[0], result);
                 }
                 dbCommand.Commit();
             }
@@ -316,7 +304,9 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
 
         protected virtual void SetOutputParameterValue(object target, ObjectOutputParameterExpression outputParameter, object value)
         {
-            if (value is DBNull)
+            // depending on vendor, we can have DBNull or null
+            // so we handle both
+            if (value is DBNull || value == null)
                 outputParameter.SetValue(target, null);
             else
                 outputParameter.SetValue(target, TypeConvert.To(value, outputParameter.ValueType));

@@ -50,8 +50,6 @@ namespace DbLinq.Sqlite
         protected readonly SqliteSqlProvider sqlProvider = new SqliteSqlProvider();
         public override ISqlProvider SqlProvider { get { return sqlProvider; } }
 
-        public override bool SupportsOutputParameter { get { return false; } } // poor guy
-
         /// <summary>
         /// call SQLite stored proc or stored function, 
         /// optionally return DataSet, and collect return params.
