@@ -275,47 +275,32 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 }
                 if (insertQuery.DataContext.Vendor.SupportsOutputParameter)
                 {
-                    int outputStart = insertQuery.InputParameters.Count;
-                    /*foreach (var outputParameter in insertQuery.OutputParameters)
-                    {
-                        var dbParameter = dbCommand.Command.CreateParameter();
-                        dbParameter.ParameterName = sqlProvider.GetParameterName(outputParameter.Alias);
-                        // Oracle is lost if output variables are uninitialized. Another winner story.
-                        dbParameter.SetValue(null, outputParameter.ValueType);
-                        dbParameter.Size = 100;
-                        dbParameter.Direction = ParameterDirection.Output;
-                        dbCommand.Command.Parameters.Add(dbParameter);
-                    }*/
+                    //int outputStart = insertQuery.InputParameters.Count;
+                    // we may have two commands
                     int rowsCount = dbCommand.Command.ExecuteNonQuery();
+                    // the second reads output parameters
                     if (!string.IsNullOrEmpty(insertQuery.IdQuerySql))
                     {
-                        IDbCommand cmd = dbCommand.Command.Connection.CreateCommand();
-                        cmd.Transaction = dbCommand.Command.Transaction;
-                        cmd.CommandText = insertQuery.IdQuerySql;
-                        IDataReader rdr = cmd.ExecuteReader();
-                        rdr.Read();
-                        for (int outputParameterIndex = 0;
-                             outputParameterIndex < insertQuery.OutputParameters.Count;
-                             outputParameterIndex++)
-                        {
-                            var outputParameter = insertQuery.OutputParameters[outputParameterIndex];
-                            var outputDbParameter = rdr.GetValue(outputParameterIndex);
-                            SetOutputParameterValue(target, outputParameter, outputDbParameter);
-                        }
-                        rdr.Close();
+                        IDbCommand outputCommand = dbCommand.Command.Connection.CreateCommand();
 
+                        // then run commands
+                        outputCommand.Transaction = dbCommand.Command.Transaction;
+                        outputCommand.CommandText = insertQuery.IdQuerySql;
+                        using (IDataReader dataReader = outputCommand.ExecuteReader())
+                        {
+                            // TODO: check if this is needed
+                            dataReader.Read();
+
+                            for (int outputParameterIndex = 0;
+                                 outputParameterIndex < insertQuery.OutputParameters.Count;
+                                 outputParameterIndex++)
+                            {
+                                var outputParameter = insertQuery.OutputParameters[outputParameterIndex];
+                                var outputDbParameter = dataReader.GetValue(outputParameterIndex);
+                                SetOutputParameterValue(target, outputParameter, outputDbParameter);
+                            }
+                        }
                     }
-                    /*
-                    for (int outputParameterIndex = 0;
-                         outputParameterIndex < insertQuery.OutputParameters.Count;
-                         outputParameterIndex++)
-                    {
-                        var outputParameter = insertQuery.OutputParameters[outputParameterIndex];
-                        var outputDbParameter =
-                            (IDbDataParameter)dbCommand.Command.Parameters[outputParameterIndex + outputStart];
-                        SetOutputParameterValue(target, outputParameter, outputDbParameter.Value);
-                    }
-                     */
                 }
                 else
                 {

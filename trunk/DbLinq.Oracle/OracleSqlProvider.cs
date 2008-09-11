@@ -34,18 +34,18 @@ namespace DbLinq.Oracle
 {
     public class OracleSqlProvider : SqlProvider
     {
-        public override string  GetInsert(string table, IList<string> inputColumns, IList<string> inputValues)
-        {
- 	         return "BEGIN " + base.GetInsert(table, inputColumns, inputValues);
-        }
+        //public override string  GetInsert(string table, IList<string> inputColumns, IList<string> inputValues)
+        //{
+        //     return "BEGIN " + base.GetInsert(table, inputColumns, inputValues);
+        //}
 
         public override string GetInsertIds(IList<string> outputParameters, IList<string> outputExpressions)
         {
             // no parameters? no need to get them back
             if (outputParameters.Count == 0)
-                return "; END;";
+                return "";
             // otherwise we keep track of the new values
-            return string.Format("SELECT {0} INTO {1} FROM DUAL;END;",
+            return string.Format("SELECT {0} INTO {1} FROM DUAL",
                 string.Join(", ", (from outputExpression in outputExpressions select outputExpression.ReplaceCase(".NextVal", ".CurrVal", true)).ToArray()),
                 string.Join(", ", outputParameters.ToArray()));
         }
