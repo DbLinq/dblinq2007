@@ -83,8 +83,6 @@ namespace DbLinq.Vendor.Implementation
             return dataContext.CreateDataAdapter();
         }
 
-        public virtual bool SupportsOutputParameter { get { return true; } }
-
         protected virtual string ConnectionStringServer { get { return "server"; } }
         protected virtual string ConnectionStringUser { get { return "user id"; } }
         protected virtual string ConnectionStringPassword { get { return "password"; } }

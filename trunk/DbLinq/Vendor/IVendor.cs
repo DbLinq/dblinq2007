@@ -98,10 +98,5 @@ namespace DbLinq.Vendor
         /// <param name="pageSize"></param>
         /// <param name="transaction"></param>
         void BulkInsert<T>(Table<T> table, List<T> rows, int pageSize, IDbTransaction transaction) where T : class;
-
-        /// <summary>
-        /// Some vendors (SQLite) only support input parameter types (ParameterDirection.Input)
-        /// </summary>
-        bool SupportsOutputParameter { get; }
     }
 }
