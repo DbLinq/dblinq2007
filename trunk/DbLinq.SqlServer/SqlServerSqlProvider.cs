@@ -99,12 +99,6 @@ namespace DbLinq.SqlServer
             return GetLiteralMathLog(p, string.Format("{0}",Math.E));
         }
 
-
-        protected override string GetLiteralCount(string a)
-        {
-            return string.Format("COUNT(*)");
-        }
-
         protected override string GetLiteralStringLength(string a)
         {
             return string.Format("LEN({0})", a);
@@ -200,6 +194,17 @@ namespace DbLinq.SqlServer
 
             return string.Format("CONVERT({0},{1})", sqlTypeName, a);
         }
+
+        public override string GetColumn(string table, string column)
+        {
+            if (column != "*")
+                return base.GetColumn(table, column);
+            else
+                return "*";
+            
+
+        }
+
 
     }
 }
