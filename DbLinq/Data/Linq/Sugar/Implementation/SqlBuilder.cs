@@ -119,7 +119,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             {
                 var operandPrecedence = ExpressionQualifier.GetPrecedence(operand);
                 string literalOperand = BuildExpression(operand, queryContext);
-                if (operandPrecedence >= currentPrecedence)
+                if (operandPrecedence > currentPrecedence)
                     literalOperand = sqlProvider.GetParenthesis(literalOperand);
                 literalOperands.Add(literalOperand);
             }
