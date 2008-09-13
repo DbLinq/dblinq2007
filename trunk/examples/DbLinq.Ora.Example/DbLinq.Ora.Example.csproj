@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{2D81DF5B-E974-4131-9A41-519C6B9D0EBC}</ProjectGuid>
     <OutputType>Exe</OutputType>
@@ -57,11 +57,11 @@
     <None Include="sql\create_Northwind_ora.sql" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\DbLinq.Oracle\DbLinq.Oracle.csproj">
+    <ProjectReference Include="..\..\src\DbLinq.Oracle\DbLinq.Oracle.csproj">
       <Project>{D9DE72A2-D885-4C54-A89E-302E6829101C}</Project>
       <Name>DbLinq.Oracle</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\DbLinq\DbLinq.csproj">
+    <ProjectReference Include="..\..\src\DbLinq\DbLinq.csproj">
       <Project>{7950197D-4122-49CB-9FD7-45E666BAFEC2}</Project>
       <Name>DbLinq</Name>
     </ProjectReference>

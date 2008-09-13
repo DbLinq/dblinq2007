@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{363FF43D-C870-4423-BE50-DAED7793A6D1}</ProjectGuid>
     <OutputType>Exe</OutputType>
@@ -165,12 +165,12 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>rem this is what I call loose coupling
-copy "$(SolutionDir)lib\Npgsql.dll" "$(TargetDir)"
-copy "$(SolutionDir)lib\Mono.Security.dll" "$(TargetDir)"
-copy "$(SolutionDir)lib\Ingres.Client.dll" "$(TargetDir)"
-copy "$(SolutionDir)lib\Oracle.DataAccess.dll" "$(TargetDir)"
-copy "$(SolutionDir)lib\MySql.Data.dll" "$(TargetDir)"
-copy "$(SolutionDir)lib\System.Data.SQLite.dll" "$(TargetDir)"
+copy "$(SolutionDir)..\lib\Npgsql.dll" "$(TargetDir)"
+copy "$(SolutionDir)..\lib\Mono.Security.dll" "$(TargetDir)"
+copy "$(SolutionDir)..\lib\Ingres.Client.dll" "$(TargetDir)"
+copy "$(SolutionDir)..\lib\Oracle.DataAccess.dll" "$(TargetDir)"
+copy "$(SolutionDir)..\lib\MySql.Data.dll" "$(TargetDir)"
+copy "$(SolutionDir)..\lib\System.Data.SQLite.dll" "$(TargetDir)"
 
 </PostBuildEvent>
   </PropertyGroup>

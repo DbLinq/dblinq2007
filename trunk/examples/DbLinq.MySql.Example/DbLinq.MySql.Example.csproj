@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{B8E7590F-1EA8-49AE-9808-A36C8A67E322}</ProjectGuid>
     <OutputType>Exe</OutputType>
@@ -65,11 +65,11 @@
     <None Include="sql\create_User.sql" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\DbLinq.MySql\DbLinq.MySql.csproj">
+    <ProjectReference Include="..\..\src\DbLinq.MySql\DbLinq.MySql.csproj">
       <Project>{FA8D1068-3341-4956-BF94-54C6A816BD9E}</Project>
       <Name>DbLinq.MySql</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\DbLinq\DbLinq.csproj">
+    <ProjectReference Include="..\..\src\DbLinq\DbLinq.csproj">
       <Project>{7950197D-4122-49CB-9FD7-45E666BAFEC2}</Project>
       <Name>DbLinq</Name>
     </ProjectReference>

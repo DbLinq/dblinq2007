@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{9F424D05-5F16-4C01-8C17-14EF22FF2174}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -67,11 +67,11 @@
     <Compile Include="TypeContextTest.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\DbLinq.Localization\DbLinq.Localization.csproj">
+    <ProjectReference Include="..\..\src\DbLinq.Localization\DbLinq.Localization.csproj">
       <Project>{E636DAE5-1245-4ED1-A709-057935D20E24}</Project>
       <Name>DbLinq.Localization</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\DbLinq\DbLinq.csproj">
+    <ProjectReference Include="..\..\src\DbLinq\DbLinq.csproj">
       <Project>{7950197D-4122-49CB-9FD7-45E666BAFEC2}</Project>
       <Name>DbLinq</Name>
     </ProjectReference>
