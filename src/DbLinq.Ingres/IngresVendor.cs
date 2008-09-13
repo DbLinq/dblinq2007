@@ -49,7 +49,7 @@ namespace DbLinq.Ingres
         protected readonly IngresSqlProvider sqlProvider = new IngresSqlProvider();
         public override ISqlProvider SqlProvider { get { return sqlProvider; } }
 
-        private string lastIdExpression = null;
+        //private string lastIdExpression = null;
 
         private bool isReplaceable(IDbDataParameter param)
         {

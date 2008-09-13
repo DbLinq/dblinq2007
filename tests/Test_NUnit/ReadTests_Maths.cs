@@ -231,8 +231,8 @@ namespace Test_NUnit_MsSql
         public void Sqrt()
         {
             Northwind db = CreateDB();
-            Employee e;
-            Order o;
+            //Employee e;
+            //Order o;
             var q = from c in db.OrderDetails
                     where Math.Sqrt((double)(c.Discount)) > 0
                     select c;

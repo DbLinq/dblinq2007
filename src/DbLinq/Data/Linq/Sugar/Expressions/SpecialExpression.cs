@@ -224,7 +224,6 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
                     return EvaluateStandardCallInvoke("SubString", operands);
                 case SpecialExpressionType.In:
                     throw new NotImplementedException();
-                    break;
                 case SpecialExpressionType.Replace:
                     return EvaluateStandardCallInvoke("Replace", operands);
                 case SpecialExpressionType.Remove:

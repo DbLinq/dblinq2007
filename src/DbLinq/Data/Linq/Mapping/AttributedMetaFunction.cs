@@ -35,7 +35,7 @@ namespace System.Data.Linq.Mapping
 namespace DbLinq.Data.Linq.Mapping
 #endif
 {
-    internal class AttributedMetaFunction: MetaFunction
+    internal class AttributedMetaFunction : MetaFunction
     {
         public AttributedMetaFunction(MethodInfo method, FunctionAttribute attribute)
         {
@@ -46,10 +46,10 @@ namespace DbLinq.Data.Linq.Mapping
         private MethodInfo methodInfo;
         private readonly FunctionAttribute functionAttribute;
 
-        private bool hasMultipleResults;
+        //private bool hasMultipleResults;
         public override bool HasMultipleResults
         {
-            get { return hasMultipleResults; }
+            get { throw new NotImplementedException(); }
         }
 
         public override bool IsComposable
