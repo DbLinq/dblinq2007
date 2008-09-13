@@ -50,6 +50,6 @@ using DbLinq.Factory;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyFileVersion("0.0.1.17")]
+[assembly: AssemblyFileVersion("0.18.*")]
 
 [assembly: DbLinq]

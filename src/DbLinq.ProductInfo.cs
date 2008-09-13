@@ -2,23 +2,7 @@
 // 
 // MIT license
 //
-// MIT license
-//
-// MIT license
-//
-// MIT license
-//
-// MIT license
-//
-// MIT license
-//
-// MIT license
-//
-// MIT license
-//
-// MIT license
-//
-// Copyright (c) 2007-2008 Jiri Moudry, Pascal Craponne, Pascal Craponne, Pascal Craponne, Pascal Craponne, Pascal Craponne, Pascal Craponne, Pascal Craponne, Pascal Craponne, Pascal Craponne
+// Copyright (c) 2007-2008 Jiri Moudry, Pascal Craponne
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -39,6 +23,7 @@
 // THE SOFTWARE.
 // 
 #endregion
+
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -60,4 +45,4 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("0.17")]
+[assembly: AssemblyVersion("0.18")]
