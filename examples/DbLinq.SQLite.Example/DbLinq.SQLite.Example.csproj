@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{DB89A450-3A57-420E-B784-911B83BEA99B}</ProjectGuid>
     <OutputType>Exe</OutputType>
@@ -96,11 +96,11 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\DbLinq.Sqlite\DbLinq.Sqlite.csproj">
+    <ProjectReference Include="..\..\src\DbLinq.Sqlite\DbLinq.Sqlite.csproj">
       <Project>{60B9AFA1-99B4-4DE6-80E1-80BBED1AC755}</Project>
       <Name>DbLinq.Sqlite</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\DbLinq\DbLinq.csproj">
+    <ProjectReference Include="..\..\src\DbLinq\DbLinq.csproj">
       <Project>{7950197D-4122-49CB-9FD7-45E666BAFEC2}</Project>
       <Name>DbLinq</Name>
     </ProjectReference>

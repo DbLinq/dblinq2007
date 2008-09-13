@@ -58,17 +58,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Example\DbLinq.Ingres.Example\nwind\Northwind.cs">
+    <Compile Include="..\..\examples\DbLinq.Ingres.Example\nwind\Northwind.cs">
       <Link>nwind\Northwind.cs</Link>
-    </Compile>
-    <Compile Include="..\..\Example\DbLinq.MySql.Example\nwind\DbLinq_EnumTest.cs">
-      <Link>nwind\DbLinq_EnumTest.cs</Link>
     </Compile>
     <Compile Include="..\..\lib\DynamicLinq.cs">
       <Link>lib\DynamicLinq.cs</Link>
-    </Compile>
-    <Compile Include="..\..\Example\DbLinq.MsSql.Example\nwind\originalMSNorthwind.designer.cs">
-      <Link>nwind\NorthwindTESTDOTNET.cs</Link>
     </Compile>
     <Compile Include="CompositePK_Test.cs" />
     <Compile Include="DynamicLinqTest.cs" />
@@ -120,11 +114,11 @@
     <None Include="Linq_101_Samples\101_readme.htm" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\DbLinq.Ingres\DbLinq.Ingres.csproj">
+    <ProjectReference Include="..\..\src\DbLinq.Ingres\DbLinq.Ingres.csproj">
       <Project>{90D57CD9-D704-409E-88A1-0F22AC79065A}</Project>
       <Name>DbLinq.Ingres</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\DbLinq\DbLinq.csproj">
+    <ProjectReference Include="..\..\src\DbLinq\DbLinq.csproj">
       <Project>{7950197D-4122-49CB-9FD7-45E666BAFEC2}</Project>
       <Name>DbLinq</Name>
     </ProjectReference>

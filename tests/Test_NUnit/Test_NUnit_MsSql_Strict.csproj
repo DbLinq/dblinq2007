@@ -60,8 +60,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Example\DbLinq.MsSql.Example\nwind\originalMSNorthwind.designer.cs">
-      <Link>nwind\NorthwindTESTDOTNET.cs</Link>
+    <Compile Include="..\..\examples\DbLinq.Mssql.Example\nwind\originalMSNorthwind.designer.cs">
+      <Link>nwind\originalMSNorthwind.designer.cs</Link>
     </Compile>
     <Compile Include="..\..\lib\DynamicLinq.cs">
       <Link>lib\DynamicLinq.cs</Link>

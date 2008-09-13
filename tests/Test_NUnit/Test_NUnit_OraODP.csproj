@@ -55,14 +55,11 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Example\DbLinq.Ora.Example\nwind\Northwind.cs">
+    <Compile Include="..\..\examples\DbLinq.Ora.Example\nwind\Northwind.cs">
       <Link>nwind\Northwind.cs</Link>
     </Compile>
     <Compile Include="..\..\lib\DynamicLinq.cs">
       <Link>lib\DynamicLinq.cs</Link>
-    </Compile>
-    <Compile Include="..\..\Example\DbLinq.MsSql.Example\nwind\originalMSNorthwind.designer.cs">
-      <Link>nwind\NorthwindTESTDOTNET.cs</Link>
     </Compile>
     <Compile Include="Attach.cs" />
     <Compile Include="CompositePK_Test.cs" />
@@ -107,11 +104,11 @@
     <Compile Include="WriteTest.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\DbLinq.Oracle\DbLinq.Oracle.csproj">
+    <ProjectReference Include="..\..\src\DbLinq.Oracle\DbLinq.Oracle.csproj">
       <Project>{D9DE72A2-D885-4C54-A89E-302E6829101C}</Project>
       <Name>DbLinq.Oracle</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\DbLinq\DbLinq.csproj">
+    <ProjectReference Include="..\..\src\DbLinq\DbLinq.csproj">
       <Project>{7950197D-4122-49CB-9FD7-45E666BAFEC2}</Project>
       <Name>DbLinq</Name>
     </ProjectReference>
