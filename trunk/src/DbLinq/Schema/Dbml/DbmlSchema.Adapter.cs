@@ -524,10 +524,6 @@ namespace DbLinq.Schema.Dbml
             SpecifiedHelper.Register(this);
         }
 
-        [Browsable(false)]
-        [XmlIgnore]
-        public bool _isChild;
-
         public override string ToString()
         {
             return String.Format("{0} ({1}), {2}", Member, Name, Type);

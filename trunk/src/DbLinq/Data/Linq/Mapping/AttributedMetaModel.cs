@@ -228,10 +228,10 @@ namespace DbLinq.Data.Linq.Mapping
             return tables.Values;
         }
 
-        private Type providerType;
+        //private Type providerType;
         public override Type ProviderType
         {
-            get { return providerType; }
+            get { throw new NotImplementedException(); }
         }
 
         // just because of this, the whole model can not be cached efficiently, since we can not guarantee
