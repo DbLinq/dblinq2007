@@ -24,7 +24,6 @@
 // 
 #endregion
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using DbLinq.Factory;
 
@@ -35,7 +34,7 @@ using DbLinq.Factory;
 [assembly: AssemblyDescription("DbLinq localization")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
-// to COM componenets.  If you need to access a type in this assembly from 
+// to COM components.  If you need to access a type in this assembly from 
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
 
@@ -49,6 +48,6 @@ using DbLinq.Factory;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyFileVersion("0.18.*")]
+[assembly: AssemblyFileVersion("0.19.*")]
 
 [assembly: DbLinq]

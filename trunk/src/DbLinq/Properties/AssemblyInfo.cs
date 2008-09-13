@@ -23,9 +23,7 @@
 // THE SOFTWARE.
 // 
 #endregion
-
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using DbLinq.Factory;
 
@@ -50,6 +48,6 @@ using DbLinq.Factory;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyFileVersion("0.18.*")]
+[assembly: AssemblyFileVersion("0.19.*")]
 
 [assembly: DbLinq]
