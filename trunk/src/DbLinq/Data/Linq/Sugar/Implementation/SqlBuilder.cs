@@ -39,6 +39,7 @@ using DbLinq.Data.Linq.Sugar;
 #endif
 
 using DbLinq.Factory;
+using DbLinq.Util;
 
 #if MONO_STRICT
 namespace System.Data.Linq.Sugar.Implementation
@@ -156,9 +157,40 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             if (expression is GroupExpression)
                 return BuildExpression(((GroupExpression)expression).GroupedExpression, queryContext);
             if (expression.NodeType == ExpressionType.Convert || expression.NodeType == ExpressionType.ConvertChecked)
-                return sqlProvider.GetLiteralConvert(literalOperands.First(), (expression as UnaryExpression).Type);
-
+            {
+                var unaryExpression = (UnaryExpression)expression;
+                var firstOperand = literalOperands.First();
+                if (IsConversionRequired(unaryExpression))
+                    return sqlProvider.GetLiteralConvert(firstOperand, unaryExpression.Type);
+                return firstOperand;
+            }
             return sqlProvider.GetLiteral(expression.NodeType, literalOperands);
+        }
+
+        /// <summary>
+        /// Determines if a SQL conversion is required
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        private bool IsConversionRequired(UnaryExpression expression)
+        {
+            // obvious (and probably never happens), conversion to the same type
+            if (expression.Type == expression.Operand.Type)
+                return false;
+            // second, nullable to non-nullable for the same type
+            if (expression.Type.IsNullable() && !expression.Operand.Type.IsNullable())
+            {
+                if (expression.Type.GetNullableType() == expression.Operand.Type)
+                    return false;
+            }
+            // third, non-nullable to nullable
+            if (!expression.Type.IsNullable() && expression.Operand.Type.IsNullable())
+            {
+                if (expression.Type == expression.Operand.Type.GetNullableType())
+                    return false;
+            }
+            // found no excuse not to convert? then convert
+            return true;
         }
 
         protected virtual bool MustDeclareAsJoin(TableExpression table)
@@ -277,7 +309,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             var selectClauses = new List<string>();
             foreach (var selectExpression in select.GetOperands())
             {
-                string expressionString=BuildExpression(selectExpression, queryContext);
+                string expressionString = BuildExpression(selectExpression, queryContext);
                 if (selectExpression is SelectExpression)
                     selectClauses.Add(sqlProvider.GetParenthesis(expressionString));
                 else
