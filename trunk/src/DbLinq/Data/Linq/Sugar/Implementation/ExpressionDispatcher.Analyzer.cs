@@ -633,9 +633,112 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     return new SpecialExpression(SpecialExpressionType.IsNotNull, objectExpression);
             }
 
-            if (!isStaticMemberAccess && objectExpression.Type == typeof(DateTime))
-            {
 
+            if (memberInfo.DeclaringType == typeof(DateTime))
+                return AnalyzeDateTimeMemberAccess(objectExpression, memberInfo, isStaticMemberAccess);
+
+            if (objectExpression.Type == typeof(TimeSpan))
+                return AnalyzeTimeSpamMemberAccess(objectExpression, memberInfo);
+
+
+            if (objectExpression is InputParameterExpression)
+            {
+                return AnalyzeExternalParameterMember((InputParameterExpression)objectExpression, memberInfo, builderContext);
+            }
+
+            if (objectExpression is MemberInitExpression)
+            {
+                var foundExpression = AnalyzeMemberInit((MemberInitExpression)objectExpression, memberInfo, builderContext);
+                if (foundExpression != null)
+                    return foundExpression;
+            }
+
+            return AnalyzeCommonMember(objectExpression, memberInfo, builderContext);
+        }
+
+        protected Expression AnalyzeTimeSpamMemberAccess(Expression objectExpression, MemberInfo memberInfo)
+        {
+            //A timespan expression can be only generated in a c# query as a DateTime difference, as a function call return or as a paramter
+            //this case is for the DateTime difference operation
+
+            if (!(objectExpression is BinaryExpression))
+                throw new NotSupportedException();
+
+            var operands = objectExpression.GetOperands();
+
+            bool absoluteSpam = memberInfo.Name.StartsWith("Total");
+            string operationKey = absoluteSpam ? memberInfo.Name.Substring(5) : memberInfo.Name;
+
+            Expression currentExpression;
+            switch (operationKey)
+            {
+                case "Milliseconds":
+                    currentExpression = Expression.Convert(new SpecialExpression(SpecialExpressionType.DateDiffInMilliseconds, operands.First(), operands.ElementAt(1)), typeof(double));
+                    break;
+                case "Seconds":
+                    currentExpression = Expression.Divide(
+                        Expression.Convert(new SpecialExpression(SpecialExpressionType.DateDiffInMilliseconds, operands.First(), operands.ElementAt(1)), typeof(double)),
+                        Expression.Constant(1000.0));
+                    break;
+                case "Minutes":
+                    currentExpression = Expression.Divide(
+                            Expression.Convert(new SpecialExpression(SpecialExpressionType.DateDiffInMilliseconds, operands.First(), operands.ElementAt(1)), typeof(double)),
+                            Expression.Constant(60000.0));
+                    break;
+                case "Hours":
+                    currentExpression = Expression.Divide(
+                            Expression.Convert(new SpecialExpression(SpecialExpressionType.DateDiffInMilliseconds, operands.First(), operands.ElementAt(1)), typeof(double)),
+                            Expression.Constant(3600000.0));
+                    break;
+                case "Days":
+                    currentExpression = Expression.Divide(
+                            Expression.Convert(new SpecialExpression(SpecialExpressionType.DateDiffInMilliseconds, operands.First(), operands.ElementAt(1)), typeof(double)),
+                            Expression.Constant(86400000.0));
+                    break;
+                default:
+                    throw new NotSupportedException(string.Format("The operation {0} over the TimeSpan isn't currently supported", memberInfo.Name));
+            }
+
+            if (!absoluteSpam)
+            {
+                switch (memberInfo.Name)
+                {
+                    case "Milliseconds":
+                        currentExpression = Expression.Convert(Expression.Modulo(Expression.Convert(currentExpression, typeof(long)), Expression.Constant(1000L)), typeof(int));
+                        break;
+                    case "Seconds":
+                        currentExpression = Expression.Convert(Expression.Modulo(Expression.Convert(currentExpression, typeof(long)),
+                                                              Expression.Constant(60L)), typeof(int));
+                        break;
+                    case "Minutes":
+                        currentExpression = Expression.Convert(Expression.Modulo(Expression.Convert(currentExpression, typeof(long)),
+                                                                Expression.Constant(60L)), typeof(int));
+                        break;
+                    case "Hours":
+                        currentExpression = Expression.Convert(Expression.Modulo(Expression.Convert(
+                                                                                        currentExpression, typeof(long)),
+                                                                Expression.Constant(24L)), typeof(int));
+                        break;
+                    case "Days":
+                        currentExpression = Expression.Convert(currentExpression, typeof(int));
+                        break;
+                }
+
+            }
+            return currentExpression;
+        }
+
+        protected Expression AnalyzeDateTimeMemberAccess(Expression objectExpression, MemberInfo memberInfo, bool isStaticMemberAccess)
+        {
+            if (isStaticMemberAccess)
+            {
+                if (memberInfo.Name == "Now")
+                    return new SpecialExpression(SpecialExpressionType.Now);
+                else
+                    throw new NotSupportedException(string.Format("DateTime Member access {0} not supported", memberInfo.Name));
+            }
+            else
+            {
                 switch (memberInfo.Name)
                 {
                     case "Year":
@@ -652,103 +755,10 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                         return new SpecialExpression(SpecialExpressionType.Second, objectExpression);
                     case "Millisecond":
                         return new SpecialExpression(SpecialExpressionType.Millisecond, objectExpression);
-                }
-
-
-            }
-            else if (isStaticMemberAccess && memberInfo.DeclaringType == typeof(DateTime))
-            {
-                if (memberInfo.Name == "Now")
-                    return new SpecialExpression(SpecialExpressionType.Now);
-            }
-
-            if (objectExpression.Type == typeof(TimeSpan))
-            {
-                //A timespan expression can be only generated in a c# query as a DateTime difference, as a function call return or as a paramter
-                //this case is for the DateTime difference operation
-
-                if (!(objectExpression is BinaryExpression))
-                    throw new NotSupportedException();
-
-                var operands = objectExpression.GetOperands();
-
-                bool absoluteSpam = memberInfo.Name.StartsWith("Total");
-                string operationKey = absoluteSpam ? memberInfo.Name.Substring(5) : memberInfo.Name;
-
-                Expression currentExpression;
-                switch (operationKey)
-                {
-                    case "Milliseconds":
-                        currentExpression = Expression.Convert(new SpecialExpression(SpecialExpressionType.DateDiffInMilliseconds, operands.First(), operands.ElementAt(1)), typeof(double));
-                        break;
-                    case "Seconds":
-                        currentExpression = Expression.Divide(
-                            Expression.Convert(new SpecialExpression(SpecialExpressionType.DateDiffInMilliseconds, operands.First(), operands.ElementAt(1)), typeof(double)),
-                            Expression.Constant(1000.0));
-                        break;
-                    case "Minutes":
-                        currentExpression = Expression.Divide(
-                                Expression.Convert(new SpecialExpression(SpecialExpressionType.DateDiffInMilliseconds, operands.First(), operands.ElementAt(1)), typeof(double)),
-                                Expression.Constant(60000.0));
-                        break;
-                    case "Hours":
-                        currentExpression = Expression.Divide(
-                                Expression.Convert(new SpecialExpression(SpecialExpressionType.DateDiffInMilliseconds, operands.First(), operands.ElementAt(1)), typeof(double)),
-                                Expression.Constant(3600000.0));
-                        break;
-                    case "Days":
-                        currentExpression = Expression.Divide(
-                                Expression.Convert(new SpecialExpression(SpecialExpressionType.DateDiffInMilliseconds, operands.First(), operands.ElementAt(1)), typeof(double)),
-                                Expression.Constant(86400000.0));
-                        break;
                     default:
-                        throw new NotSupportedException(string.Format("The operation {0} over the TimeSpan isn't currently supported", memberInfo.Name));
+                        throw new NotSupportedException(string.Format("DateTime Member access {0} not supported", memberInfo.Name));
                 }
-
-                if (!absoluteSpam)
-                {
-                    switch (memberInfo.Name)
-                    {
-                        case "Milliseconds":
-                            currentExpression = Expression.Convert(Expression.Modulo(Expression.Convert(currentExpression, typeof(long)), Expression.Constant(1000L)), typeof(int));
-                            break;
-                        case "Seconds":
-                            currentExpression = Expression.Convert(Expression.Modulo(Expression.Convert(currentExpression, typeof(long)),
-                                                                  Expression.Constant(60L)), typeof(int));
-                            break;
-                        case "Minutes":
-                            currentExpression = Expression.Convert(Expression.Modulo(Expression.Convert(currentExpression, typeof(long)),
-                                                                    Expression.Constant(60L)), typeof(int));
-                            break;
-                        case "Hours":
-                            currentExpression = Expression.Convert(Expression.Modulo(Expression.Convert(
-                                                                                            currentExpression, typeof(long)),
-                                                                    Expression.Constant(24L)), typeof(int));
-                            break;
-                        case "Days":
-                            currentExpression = Expression.Convert(currentExpression, typeof(int));
-                            break;
-                    }
-
-                }
-                return currentExpression;
-
             }
-
-
-            if (objectExpression is InputParameterExpression)
-            {
-                return AnalyzeExternalParameterMember((InputParameterExpression)objectExpression, memberInfo, builderContext);
-            }
-
-            if (objectExpression is MemberInitExpression)
-            {
-                var foundExpression = AnalyzeMemberInit((MemberInitExpression)objectExpression, memberInfo, builderContext);
-                if (foundExpression != null)
-                    return foundExpression;
-            }
-
-            return AnalyzeCommonMember(objectExpression, memberInfo, builderContext);
         }
 
         /// <summary>
