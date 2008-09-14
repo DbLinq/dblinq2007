@@ -108,7 +108,7 @@ namespace Test_NUnit
                 XmlDocument xConnectionStringsDoc = new XmlDocument();
                 xConnectionStringsDoc.Load("../ConnectionStrings.xml");
                 XmlNode currentAssemblyNode = xConnectionStringsDoc.SelectSingleNode(string.Format("//Connection[@assembly=\"{0}\"]", Assembly.GetCallingAssembly().GetName().Name));
-                string stringConnection = currentAssemblyNode.FirstChild.Value.Replace(@"\\",@"\");
+                string stringConnection = currentAssemblyNode.FirstChild.Value.Replace(@"\\", @"\");
                 if (stringConnection.Contains("{0}"))
                     stringConnection = string.Format(stringConnection, DbServer);
                 return stringConnection;
@@ -160,6 +160,7 @@ namespace Test_NUnit
             if (state == System.Data.ConnectionState.Open)
                 conn.Open();
             Northwind db = new Northwind(conn);
+            db.Log = Console.Out;
             return db;
         }
 
