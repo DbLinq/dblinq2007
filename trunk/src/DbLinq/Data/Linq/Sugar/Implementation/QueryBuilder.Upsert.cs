@@ -108,13 +108,14 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             var upsertParameters = GetUpsertParameters(objectToInsert, false, null, queryContext);
             var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
             var insertSql = sqlProvider.GetInsert(
-                sqlProvider.GetTable(upsertParameters.Table.TableName), 
-                upsertParameters.InputColumns, 
+                sqlProvider.GetTable(upsertParameters.Table.TableName),
+                upsertParameters.InputColumns,
                 upsertParameters.InputValues);
             var insertIdSql = sqlProvider.GetInsertIds(
                 upsertParameters.OutputValues,
                 upsertParameters.OutputExpressions);
             queryContext.DataContext.Logger.Write(Level.Debug, "Insert SQL: {0}", insertSql);
+            queryContext.DataContext.WriteLog(insertSql);
             return new UpsertQuery(queryContext.DataContext, insertSql, insertIdSql, upsertParameters.InputParameters, upsertParameters.OutputParameters);
         }
 
@@ -270,6 +271,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 upsertParameters.InputPKColumns, upsertParameters.InputPKValues
                 );
             queryContext.DataContext.Logger.Write(Level.Debug, "Update SQL: {0}", updateSql);
+            queryContext.DataContext.WriteLog(updateSql);
             return new UpsertQuery(queryContext.DataContext, updateSql, "", upsertParameters.InputParameters, upsertParameters.OutputParameters);
         }
 
@@ -301,6 +303,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             }
             var deleteSql = sqlProvider.GetDelete(sqlProvider.GetTable(table.TableName), pkColumns, pkValues);
             queryContext.DataContext.Logger.Write(Level.Debug, "Delete SQL: {0}", deleteSql);
+            queryContext.DataContext.WriteLog(deleteSql);
             return new DeleteQuery(queryContext.DataContext, deleteSql, deleteParameters);
         }
     }

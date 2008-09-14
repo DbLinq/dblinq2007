@@ -232,11 +232,11 @@ namespace DbLinq.Data.Linq
                             Trace.WriteLine("Context.SubmitChanges failed: " + ex.Message);
                             switch (failureMode)
                             {
-                                case ConflictMode.ContinueOnConflict:
-                                    exceptions.Add(ex);
-                                    break;
-                                case ConflictMode.FailOnFirstConflict:
-                                    throw;
+                            case ConflictMode.ContinueOnConflict:
+                                exceptions.Add(ex);
+                                break;
+                            case ConflictMode.FailOnFirstConflict:
+                                throw;
                             }
                         }
                     }
@@ -653,11 +653,32 @@ namespace DbLinq.Data.Linq
             return DatabaseContext.CreateDataAdapter();
         }
 
-        [DbLinqToDo]
-        public System.IO.TextWriter Log
+        /// <summary>
+        /// Sets a TextWriter where generated SQL commands are written
+        /// </summary>
+        public System.IO.TextWriter Log { get; set; }
+
+        /// <summary>
+        /// Writes the generated SQL on Log (if not null)
+        /// Internal helper
+        /// </summary>
+        /// <param name="sql"></param>
+        internal void WriteLog(string sql)
         {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            if (Log != null)
+            {
+                // Log example:
+                //SELECT [t0].[FirstName] AS [Name], [t1].[FirstName] AS [ReportsTo]
+                //FROM [dbo].[Employees] AS [t0]
+                //LEFT OUTER JOIN [dbo].[Employees] AS [t1] ON [t1].[EmployeeID] = [t0].[ReportsTo]
+                //-- Context: SqlProvider(Sql2008) Model: AttributedMetaModel Build: 3.5.30729.1
+                Log.WriteLine(sql);
+                Log.Write("--");
+                Log.Write(" Context: {0}", Vendor.VendorName);
+                Log.Write(" Model: {0}", Mapping.GetType().Name);
+                Log.Write(" Build: {0}", Assembly.GetExecutingAssembly().GetName().Version);
+                Log.WriteLine();
+            }
         }
 
         [DbLinqToDo]
