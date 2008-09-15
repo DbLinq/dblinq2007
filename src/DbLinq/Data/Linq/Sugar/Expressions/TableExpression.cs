@@ -59,6 +59,12 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
 
         public string Alias { get; set; }
 
+        /// <summary>
+        /// Set table join
+        /// </summary>
+        /// <param name="joinType"></param>
+        /// <param name="joinedTable"></param>
+        /// <param name="joinExpression"></param>
         public void Join(TableJoinType joinType, TableExpression joinedTable, Expression joinExpression)
         {
             JoinExpression = joinExpression;
@@ -66,11 +72,32 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
             JoinedTable = joinedTable;
         }
 
+        /// <summary>
+        /// Set table join
+        /// </summary>
+        /// <param name="joinType"></param>
+        /// <param name="joinedTable"></param>
+        /// <param name="joinExpression"></param>
+        /// <param name="joinID"></param>
         public void Join(TableJoinType joinType, TableExpression joinedTable, Expression joinExpression, string joinID)
         {
             Join(joinType, joinedTable, joinExpression);
             JoinID = joinID;
         }
+
+        /// <summary>
+        /// Set the table outer join, depending on the current table location
+        /// Result can set the table to be left outer join or right outer join
+        /// </summary>
+        public void SetOuterJoin()
+        {
+            // JoinExpression is non-null for associated table
+            if (JoinExpression != null)
+                JoinType |= TableJoinType.LeftOuter;
+            else
+                JoinType |= TableJoinType.RightOuter;
+        }
+
         /// <summary>
         /// Ctor for associated table
         /// </summary>

@@ -221,7 +221,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             IList<MemberInfo> theseKeys, otherKeys;
             TableJoinType joinType;
             string joinID;
-            var otherTableType = DataMapper.GetAssociation(tableExpression, tableMemberInfo, out theseKeys, out otherKeys, 
+            var otherTableType = DataMapper.GetAssociation(tableExpression, tableMemberInfo, out theseKeys, out otherKeys,
                                                       out joinType, out joinID, builderContext.QueryContext.DataContext);
             // if the memberInfo has no corresponding association, we get a null, that we propagate
             if (otherTableType == null)

@@ -24,18 +24,40 @@
 // 
 #endregion
 
+using System;
+
 #if MONO_STRICT
 namespace System.Data.Linq.Sugar.Expressions
 #else
 namespace DbLinq.Data.Linq.Sugar.Expressions
 #endif
 {
+    [Flags]
     internal enum TableJoinType
     {
-        Default,
-        Inner,
-        LeftOuter,
-        RightOuter,
-        FullOuter,
+        /// <summary>
+        /// No join specified
+        /// </summary>
+        Default = 0,
+
+        /// <summary>
+        /// Inner join, default case for joins
+        /// </summary>
+        Inner = 0,
+
+        /// <summary>
+        /// Left outer join
+        /// </summary>
+        LeftOuter = 0x01,
+
+        /// <summary>
+        /// Right outer join
+        /// </summary>
+        RightOuter = 0x02,
+
+        /// <summary>
+        /// Full outer join
+        /// </summary>
+        FullOuter = LeftOuter | RightOuter,
     }
 }
