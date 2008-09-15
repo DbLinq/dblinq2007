@@ -50,6 +50,11 @@ namespace DbLinq.Oracle
                 string.Join(", ", outputParameters.ToArray()));
         }
 
+        protected override string GetLiteralModulo(string a, string b)
+        {
+            return string.Format("MOD({0}, {1})", a, b);
+        }
+
         protected override string GetLiteralCount(string a)
         {
             return "COUNT(*)";
@@ -92,5 +97,29 @@ namespace DbLinq.Oracle
                 @"SELECT * FROM ({3}{0}{3}) WHERE {2} > {1}",
                 GetLiteralLimit(select, offsetAndLimit), offset, LimitedRownum, NewLine);
         }
+
+        protected override string GetLiteralStringIndexOf(string baseString, string searchString, string startIndex, string count)
+        {
+            // SUBSTR(baseString, StartIndex)
+            string substring = GetLiteralSubString(baseString, startIndex, count);
+
+            // INSTR(SUBSTR(baseString, StartIndex), searchString) ---> range 1:n , 0 => doesn't exist
+            return string.Format("INSTR({0},{1})", substring, searchString);
+        }
+
+        protected override string GetLiteralStringIndexOf(string baseString, string searchString, string startIndex)
+        {
+            // SUBSTR(baseString,StartIndex)
+            string substring = GetLiteralSubString(baseString, startIndex);
+
+            // INSTR(SUBSTR(baseString, StartIndex), searchString) ---> range 1:n , 0 => doesn't exist
+            return string.Format("INSTR({0},{1})", substring, searchString);
+        }
+
+        protected override string GetLiteralStringIndexOf(string baseString, string searchString)
+        {
+            return GetLiteralSubtract(string.Format("INSTR({0},{1})", baseString, searchString), "1");
+        }
+
     }
 }
