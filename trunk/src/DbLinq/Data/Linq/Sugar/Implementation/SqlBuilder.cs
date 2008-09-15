@@ -210,8 +210,12 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 {
                     if (tableExpression.Alias != null)
                     {
-                        fromClauses.Add(sqlProvider.GetTableAsAlias(sqlProvider.GetTable(tableExpression.Name),
-                                                                    tableExpression.Alias));
+                        var tableAlias = sqlProvider.GetTableAsAlias(sqlProvider.GetTable(tableExpression.Name), tableExpression.Alias);
+                        if ((tableExpression.JoinType & TableJoinType.LeftOuter) != 0)
+                            tableAlias = "/* LEFT OUTER */ " + tableAlias;
+                        if ((tableExpression.JoinType & TableJoinType.RightOuter) != 0)
+                            tableAlias = "/* RIGHT OUTER */ " + tableAlias;
+                        fromClauses.Add(tableAlias);
                     }
                     else
                     {

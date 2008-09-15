@@ -58,6 +58,11 @@ namespace DbLinq.Data.Linq.Mapping
             get { return columnAttribute.AutoSync; }
         }
 
+        public override bool CanBeNull
+        {
+            get { return columnAttribute.CanBeNull; }
+        }
+
         public override string DbType
         {
             get { return columnAttribute.DbType; }

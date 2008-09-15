@@ -34,7 +34,6 @@ using System.Reflection;
 using System.Data.Linq.Sugar;
 using System.Data.Linq.Sugar.Expressions;
 #else
-using DbLinq.Data.Linq.Sugar;
 using DbLinq.Data.Linq.Sugar.Expressions;
 #endif
 
@@ -119,6 +118,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                  select association).SingleOrDefault();
             if (thisAssociation != null)
             {
+                // by default, join is inner
                 joinType = TableJoinType.Inner;
                 joinID = thisAssociation.ThisMember.MappedName;
                 if (string.IsNullOrEmpty(joinID))
@@ -129,8 +129,15 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     otherType = otherType.GetGenericArguments()[0];
 
                 var otherTableDescription = dataContext.Mapping.GetTable(otherType);
-                thisKey = GetAssociationKeys(thisTableDescription, thisAssociation.ThisKey, dataContext);
-                otherKey = GetAssociationKeys(otherTableDescription, thisAssociation.OtherKey, dataContext);
+                bool thisKeyHasNullables, otherKeyHasNullables;
+                thisKey = GetAssociationKeys(thisTableDescription, thisAssociation.ThisKey, dataContext, out thisKeyHasNullables);
+                otherKey = GetAssociationKeys(otherTableDescription, thisAssociation.OtherKey, dataContext, out otherKeyHasNullables);
+
+                // we just test here the left join (since associations are symmetric,
+                //        we can only find left joins here, and the otherKeyHasNullables is
+                //        always equal to thisKeyHasNullables)
+                if (thisKeyHasNullables)
+                    joinType |= TableJoinType.LeftOuter;
 
                 return otherType;
             }
@@ -141,13 +148,30 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             return null;
         }
 
+        /// <summary>
+        /// Enumerates Keys for a given table.
+        /// Keys can be provided as input. If none provided, PKs are taken from table
+        /// </summary>
+        /// <param name="description"></param>
+        /// <param name="keys">Keys to be used, leave empty to use PKs instead</param>
+        /// <param name="dataContext"></param>
+        /// <param name="hasNullableKeys">returned as true if some keys can be null (we then have an outer join)</param>
+        /// <returns></returns>
         protected virtual IList<MemberInfo> GetAssociationKeys(MetaTable description, ReadOnlyCollection<MetaDataMember> keys,
-                                                               DataContext dataContext)
+                                                               DataContext dataContext, out bool hasNullableKeys)
         {
             var sourceKeys = keys;
             if (sourceKeys.Count == 0)
                 sourceKeys = description.RowType.IdentityMembers;
-            var members = (from key in sourceKeys select key.Member).ToList();
+
+            hasNullableKeys = false;
+            var members = new List<MemberInfo>();
+            foreach (var sourceKey in sourceKeys)
+            {
+                members.Add(sourceKey.Member);
+                if (sourceKey.CanBeNull)
+                    hasNullableKeys = true;
+            }
             return members;
         }
 

@@ -62,6 +62,11 @@ namespace DbLinq.Data.Linq.Mapping
             get { return AutoSync.Never; }
         }
 
+        public override bool CanBeNull
+        {
+            get { return false; }
+        }
+
         public override string DbType
         {
             get { return string.Empty; }

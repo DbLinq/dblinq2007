@@ -35,7 +35,7 @@ namespace System.Data.Linq.Mapping
 namespace DbLinq.Data.Linq.Mapping
 #endif
 {
-    internal abstract class AttributedAbstractMetaDataMember: MetaDataMember
+    internal abstract class AttributedAbstractMetaDataMember : MetaDataMember
     {
         protected AttributedAbstractMetaDataMember(MemberInfo member, MetaType declaringType, MemberInfo storageMember)
         {
@@ -46,11 +46,6 @@ namespace DbLinq.Data.Linq.Mapping
 
         protected MemberInfo memberInfo;
         protected MetaType declaringType;
-
-        public override bool CanBeNull
-        {
-            get { return memberInfo.GetMemberType().CanBeNull(); }
-        }
 
         public override MetaType DeclaringType
         {
