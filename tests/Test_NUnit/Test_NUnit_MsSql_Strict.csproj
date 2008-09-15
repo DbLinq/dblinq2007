@@ -96,6 +96,7 @@
     <Compile Include="ReadTests_DateTimeFunctions.cs" />
     <Compile Include="ReadTests_EntitySet.cs" />
     <Compile Include="ReadTests_Maths.cs" />
+    <Compile Include="ReadTests_ReferenceLoading.cs" />
     <Compile Include="ReadTests_StringFunctions.cs" />
     <Compile Include="Table.cs" />
     <Compile Include="Transactions.cs" />

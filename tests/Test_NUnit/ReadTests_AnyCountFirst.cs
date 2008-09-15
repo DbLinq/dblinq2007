@@ -318,10 +318,11 @@ namespace Test_NUnit_MsSql
         }
 
         [Test]
-        public void DynamicContains()
+        public void ArrayContains()
         {
             var db = CreateDB();
-            var q=db.OrderDetails.Where(o=>new decimal[]{1,4,5,6}.Contains(o.OrderID));
+            decimal[] d = new decimal[] { 1, 4, 5, 6 };
+            var q = db.OrderDetails.Where(o => d.Contains(o.OrderID));
 
             Assert.Greater(q.Count(), 0);
         }
