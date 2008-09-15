@@ -164,7 +164,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         {
             return (from p in type.GetProperties()
                     let associationAttribute = p.GetCustomAttributes(typeof(AssociationAttribute), true).FirstOrDefault() as AssociationAttribute
-                    let field = type.GetField(associationAttribute != null ? associationAttribute.Storage : string.Empty, BindingFlags.NonPublic | BindingFlags.Instance)
+                    let field = type.GetField(associationAttribute != null ? (associationAttribute.Storage ?? string.Empty) : string.Empty, BindingFlags.NonPublic | BindingFlags.Instance)
                     where associationAttribute != null &&
                              field != null &&
                             field.FieldType.IsGenericType &&
