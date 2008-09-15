@@ -232,11 +232,11 @@ namespace DbLinq.Data.Linq
                             Trace.WriteLine("Context.SubmitChanges failed: " + ex.Message);
                             switch (failureMode)
                             {
-                            case ConflictMode.ContinueOnConflict:
-                                exceptions.Add(ex);
-                                break;
-                            case ConflictMode.FailOnFirstConflict:
-                                throw;
+                                case ConflictMode.ContinueOnConflict:
+                                    exceptions.Add(ex);
+                                    break;
+                                case ConflictMode.FailOnFirstConflict:
+                                    throw;
                             }
                         }
                     }
@@ -317,6 +317,7 @@ namespace DbLinq.Data.Linq
             var identityReader = _GetIdentityReader(entity.GetType());
             var identityKey = identityReader.GetIdentityKey(entity);
             SetEntitySetsQueries(entity);
+            SetEntityRefQueries(entity);
 
             if (identityKey == null)
                 return entity;
@@ -329,29 +330,93 @@ namespace DbLinq.Data.Linq
             return registeredEntity;
         }
 
+
         IDataMapper DataMapper = ObjectFactory.Get<IDataMapper>();
-        private void SetEntitySetsQueries(object entity)
+        private void SetEntityRefQueries(object entity)
         {
-            IList<MemberInfo> properties = DataMapper.GetEntitySetAssociations(entity.GetType());
-            IList<MemberInfo> primaryKeys = DataMapper.GetPrimaryKeys(Mapping.GetTable(entity.GetType()));
+            Type thisType = entity.GetType();
+            IList<MemberInfo> properties = DataMapper.GetEntityRefAssociations(thisType);
 
-            if (primaryKeys.Count > 1 && properties.Any())
-                throw new NotSupportedException("Multiple keys object not supported yet.");
-
-            object primaryKeyValue = (primaryKeys.First() as PropertyInfo).GetValue(entity, null);
 
             foreach (PropertyInfo prop in properties)
             {
+                //example of entityRef:Order.Employee
                 AssociationAttribute associationInfo = prop.GetAttribute<AssociationAttribute>();
-                Type otherTableType = prop.PropertyType.GetGenericArguments().First();
-                //ie:EmployeeTerritories
+                Type otherTableType = prop.PropertyType;
+                IList<MemberInfo> otherPKs = DataMapper.GetPrimaryKeys(Mapping.GetTable(otherTableType));
+
+                if (otherPKs.Count > 1)
+                    throw new NotSupportedException("Multiple keys object not supported yet.");
 
                 IQueryable otherTable = GetTable(otherTableType) as IQueryable;
-                PropertyInfo otherTableMember = otherTableType.GetProperty(associationInfo.OtherKey) as PropertyInfo;
+
+
                 //ie:EmployeeTerritories.EmployeeID
 
-                ParameterExpression p = Expression.Parameter(otherTableType, "other");
+                PropertyInfo thisForeignKeyProperty = thisType.GetProperty(associationInfo.ThisKey) as PropertyInfo;
+                object thisForeignKeyValue = thisForeignKeyProperty.GetValue(entity, null);
 
+                IEnumerable query = null;
+                if (thisForeignKeyValue != null)
+                {
+                    ParameterExpression p = Expression.Parameter(otherTableType, "other");
+                    Expression predicate;
+                    if (!(thisForeignKeyProperty.PropertyType.IsNullable()))
+                    {
+                        predicate = Expression.Equal(Expression.MakeMemberAccess(p, otherPKs.First()),
+                                                                    Expression.Constant(thisForeignKeyValue));
+                    }
+                    else
+                    {
+                        var ValueProperty = thisForeignKeyProperty.PropertyType.GetProperty("Value");
+                        predicate = Expression.Equal(Expression.MakeMemberAccess(p, otherPKs.First()),
+                                                                 Expression.Constant(ValueProperty.GetValue(thisForeignKeyValue, null)));
+                    }
+
+                    query = GetOtherTableQuery(predicate, p, otherTableType, otherTable) as IEnumerable;
+                    //it would be interesting surround the above query with a .Take(1) expression for performance.
+                }
+
+
+                FieldInfo entityRefField = entity.GetType().GetField(associationInfo.Storage, BindingFlags.NonPublic | BindingFlags.Instance);
+                object entityRefValue = null;
+                if (query != null)
+                    entityRefValue = Activator.CreateInstance(entityRefField.FieldType, query);
+                else
+                    entityRefValue = Activator.CreateInstance(entityRefField.FieldType);
+                entityRefField.SetValue(entity, entityRefValue);
+            }
+        }
+
+        /// <summary>
+        /// This method is executed when the entity is being registered. Each EntitySet property has a internal query that can be set using the EntitySet.SetSource method.
+        /// Here we set the query source of each EntitySetProperty
+        /// </summary>
+        /// <param name="entity"></param>
+        private void SetEntitySetsQueries(object entity)
+        {
+            IList<MemberInfo> properties = DataMapper.GetEntitySetAssociations(entity.GetType());
+            IList<MemberInfo> thisPKs = DataMapper.GetPrimaryKeys(Mapping.GetTable(entity.GetType()));
+
+            if (thisPKs.Count > 1 && properties.Any())
+                throw new NotSupportedException("Multiple keys object not supported yet.");
+
+            object primaryKeyValue = (thisPKs.First() as PropertyInfo).GetValue(entity, null);
+
+
+            foreach (PropertyInfo prop in properties)
+            {
+                //example of entitySet: Employee.EmployeeTerritories
+                AssociationAttribute associationInfo = prop.GetAttribute<AssociationAttribute>();
+                Type otherTableType = prop.PropertyType.GetGenericArguments().First();
+
+                //other table:EmployeeTerritories
+                IQueryable otherTable = GetTable(otherTableType) as IQueryable;
+                //other table member:EmployeeTerritories.EmployeeID
+                PropertyInfo otherTableMember = otherTableType.GetProperty(associationInfo.OtherKey) as PropertyInfo;
+
+
+                ParameterExpression p = Expression.Parameter(otherTableType, "other");
                 Expression predicate;
                 if (!(otherTableMember.PropertyType.IsNullable()))
                 {
@@ -366,26 +431,14 @@ namespace DbLinq.Data.Linq
                                                                 ValueProperty),
                                                              Expression.Constant(primaryKeyValue));
                 }
-                //ie: other.EmployeeID== "WARTH"
 
+                var query = GetOtherTableQuery(predicate, p, otherTableType, otherTable);
 
-                Expression lambdaPredicate = Expression.Lambda(predicate, p);
-                //ie: other=>other.EmployeeID== "WARTH"
-
-                var whereMethod = typeof(System.Linq.Queryable)
-                                  .GetMethods().First(m => m.Name == "Where")
-                                  .MakeGenericMethod(otherTableType);
-
-
-                Expression call = Expression.Call(whereMethod, otherTable.Expression, lambdaPredicate);
-                //Table[EmployeesTerritories].Where(other=>other.employeeID="WARTH")
-
-                var query = otherTable.Provider.CreateQuery(call);
                 var entitySetValue = prop.GetValue(entity, null);
 
                 if (entitySetValue == null)
                 {
-                    entitySetValue = Activator.CreateInstance(typeof(EntitySet<>).MakeGenericType(otherTableType));
+                    entitySetValue = Activator.CreateInstance(prop.PropertyType);
                     prop.SetValue(entity, entitySetValue, null);
                 }
 
@@ -395,6 +448,22 @@ namespace DbLinq.Data.Linq
             }
         }
 
+        private object GetOtherTableQuery(Expression predicate, ParameterExpression parameter, Type otherTableType, IQueryable otherTable)
+        {
+            //predicate: other.EmployeeID== "WARTH"
+            Expression lambdaPredicate = Expression.Lambda(predicate, parameter);
+            //lambdaPredicate: other=>other.EmployeeID== "WARTH"
+
+            var whereMethod = typeof(System.Linq.Queryable)
+                              .GetMethods().First(m => m.Name == "Where")
+                              .MakeGenericMethod(otherTableType);
+
+
+            Expression call = Expression.Call(whereMethod, otherTable.Expression, lambdaPredicate);
+            //Table[EmployeesTerritories].Where(other=>other.employeeID="WARTH")
+
+            return otherTable.Provider.CreateQuery(call);
+        }
 
 
         internal IEnumerable<T> GetRegisteredEntities<T>()
