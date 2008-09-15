@@ -111,5 +111,12 @@ namespace DbLinq.Data.Linq.Sugar
         /// <param name="type"></param>
         /// <returns></returns>
         IList<MemberInfo> GetEntitySetAssociations(Type type);
+
+        /// <summary>
+        /// Returns parent associations (EntityRef)
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        IList<MemberInfo> GetEntityRefAssociations(Type type);
     }
 }

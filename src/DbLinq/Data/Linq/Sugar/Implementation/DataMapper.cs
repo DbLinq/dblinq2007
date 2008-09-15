@@ -154,11 +154,23 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         public IList<MemberInfo> GetEntitySetAssociations(Type type)
         {
             return type.GetProperties()
-                .Where(p => p.PropertyType.IsGenericType && 
+                .Where(p => p.PropertyType.IsGenericType &&
                     p.PropertyType.GetGenericTypeDefinition() == typeof(System.Data.Linq.EntitySet<>) &&
-                    p.IsDefined(typeof(AssociationAttribute),true))
+                    p.IsDefined(typeof(AssociationAttribute), true))
                 .Cast<MemberInfo>().ToList();
         }
 
+        public IList<MemberInfo> GetEntityRefAssociations(Type type)
+        {
+            return (from p in type.GetProperties()
+                    let associationAttribute = p.GetCustomAttributes(typeof(AssociationAttribute), true).FirstOrDefault() as AssociationAttribute
+                    let field = type.GetField(associationAttribute != null ? associationAttribute.Storage : string.Empty, BindingFlags.NonPublic | BindingFlags.Instance)
+                    where associationAttribute != null &&
+                             field != null &&
+                            field.FieldType.IsGenericType &&
+                            field.FieldType.GetGenericTypeDefinition() == typeof(System.Data.Linq.EntityRef<>)
+                    select p)
+                .Cast<MemberInfo>().ToList();
+        }
     }
 }
