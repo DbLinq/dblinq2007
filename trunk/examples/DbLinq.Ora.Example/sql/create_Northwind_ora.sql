@@ -139,12 +139,13 @@ CREATE TABLE "OrderDetails" (
 );
 
 --####################################################################
-CREATE SEQUENCE Region_seq     START WITH 1    INCREMENT BY 1;
-CREATE SEQUENCE Categories_seq START WITH 1    INCREMENT BY 1;
-CREATE SEQUENCE Suppliers_seq  START WITH 1    INCREMENT BY 1;
-CREATE SEQUENCE Products_seq   START WITH 1    INCREMENT BY 1;
-CREATE SEQUENCE Orders_seq     START WITH 1    INCREMENT BY 1;
-CREATE SEQUENCE Employees_seq  START WITH 1    INCREMENT BY 1;
+CREATE SEQUENCE Region_seq      START WITH 1    INCREMENT BY 1;
+CREATE SEQUENCE Categories_seq  START WITH 1    INCREMENT BY 1;
+CREATE SEQUENCE Suppliers_seq   START WITH 1    INCREMENT BY 1;
+CREATE SEQUENCE Products_seq    START WITH 1    INCREMENT BY 1;
+CREATE SEQUENCE Orders_seq      START WITH 1    INCREMENT BY 1;
+CREATE SEQUENCE Employees_seq   START WITH 1    INCREMENT BY 1;
+CREATE SEQUENCE Territories_seq START WITH 1    INCREMENT BY 1;
  
 --####################################################################
 
@@ -208,6 +209,16 @@ BEGIN
 END;
 /
 
+CREATE OR REPLACE TRIGGER Territories_Trigger
+BEFORE INSERT ON "Territories" 
+FOR EACH ROW
+BEGIN
+   IF (:new."TerritoryID" IS NULL) THEN
+        SELECT Territories_seq.NEXTVAL INTO :new."TerritoryID" FROM DUAL;
+   END IF;
+END;
+/
+
 --####################################################################
 Insert INTO "Categories" ("CategoryID", "CategoryName","Description")
 values (Categories_seq.NextVal, 'Beverages',	'Soft drinks, coffees, teas, beers, and ales');
@@ -215,6 +226,13 @@ Insert INTO "Categories" ("CategoryID", "CategoryName","Description")
 values (Categories_seq.NextVal, 'Condiments','Sweet and savory sauces, relishes, spreads, and seasonings');
 Insert INTO "Categories" ("CategoryID", "CategoryName","Description")
 values (Categories_seq.NextVal, 'Seafood','Seaweed and fish');
+
+--####################################################################
+INSERT INTO "Region" ("RegionDescription") VALUES ('North America');
+INSERT INTO "Region" ("RegionDescription") VALUES ('Europe');
+
+--####################################################################
+INSERT INTO "Territories" ("TerritoryID", "TerritoryDescription", "RegionID") VALUES ('US.Northwest', 'Northwest', 1);
 
 --####################################################################
 insert INTO "Customers" ("CustomerID", "CompanyName","ContactName","Country","PostalCode","City")
@@ -275,6 +293,10 @@ VALUES (Employees_seq.nextval, 'Davolio','Nancy','Sales Representative',to_date(
 
 insert INTO "Employees" ("EmployeeID", "LastName","FirstName","Title","BirthDate","HireDate","Address","City","ReportsTo","Country","HomePhone")
 VALUES (Employees_seq.nextval, 'Builder','Bob','Handyman',to_date('01-01-1964','dd-mm-yyyy'),to_date('01-01-1964','dd-mm-yyyy'),'666 dark street','Seattle',2,'USA','(777)888999');
+
+--####################################################################
+INSERT INTO "EmployeeTerritories" ("EmployeeID", "TerritoryID") VALUES (2, 'US.Northwest');
+
 
 --####################################################################
 --truncate table Orders;
