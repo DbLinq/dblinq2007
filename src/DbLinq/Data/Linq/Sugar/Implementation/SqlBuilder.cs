@@ -24,6 +24,7 @@
 // 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -77,12 +78,13 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             // - a GROUP BY: grouping by selected columns
             // - a ORDER BY: sort
             var from = BuildFrom(selectExpression.Tables, queryContext);
+            var join = BuildJoin(selectExpression.Tables, queryContext);
             var where = BuildWhere(selectExpression.Tables, selectExpression.Where, queryContext);
             var select = BuildSelect(selectExpression, queryContext);
             var groupBy = BuildGroupBy(selectExpression.Group, queryContext);
             var having = BuildHaving(selectExpression.Where, queryContext);
             var orderBy = BuildOrderBy(selectExpression.OrderBy, queryContext);
-            select = Join(queryContext, select, from, where, groupBy, having, orderBy);
+            select = Join(queryContext, select, from, join, where, groupBy, having, orderBy);
             select = BuildLimit(selectExpression, select, queryContext);
 
             if (selectExpression.NextSelectExpression != null)
@@ -193,24 +195,31 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             return true;
         }
 
-        protected virtual bool MustDeclareAsJoin(TableExpression table)
+        protected virtual bool MustDeclareAsJoin(IList<TableExpression> tables, TableExpression table)
         {
+            return false; // for now, outer joins are disabled, until the work is done
+
+            // the first table can not be declared as join
+            if (table == tables[0])
+                return false;
+            // we must declare as join, whatever the join is,
+            // if some of the registered tables are registered as complex join
+            if (tables.Any(t => t.JoinType != TableJoinType.Inner))
+                return table.JoinExpression != null;
             return false;
         }
 
         protected virtual string BuildFrom(IList<TableExpression> tables, QueryContext queryContext)
         {
-            // TODO: as of today, all joins (since we generate only inner) are in the from and where clauses
-            //       we may consider switching to explicit syntax, join <t> on <e>
             var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
             var fromClauses = new List<string>();
             foreach (var tableExpression in tables)
             {
-                if (!MustDeclareAsJoin(tableExpression))
+                if (!MustDeclareAsJoin(tables, tableExpression))
                 {
                     if (tableExpression.Alias != null)
                     {
-                        var tableAlias = sqlProvider.GetTableAsAlias(sqlProvider.GetTable(tableExpression.Name), tableExpression.Alias);
+                        var tableAlias = sqlProvider.GetTableAsAlias(tableExpression.Name, tableExpression.Alias);
                         if ((tableExpression.JoinType & TableJoinType.LeftOuter) != 0)
                             tableAlias = "/* LEFT OUTER */ " + tableAlias;
                         if ((tableExpression.JoinType & TableJoinType.RightOuter) != 0)
@@ -224,6 +233,48 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 }
             }
             return sqlProvider.GetFromClause(fromClauses.ToArray());
+        }
+
+        /// <summary>
+        /// Builds join clauses
+        /// </summary>
+        /// <param name="tables"></param>
+        /// <param name="queryContext"></param>
+        /// <returns></returns>
+        protected virtual string BuildJoin(IList<TableExpression> tables, QueryContext queryContext)
+        {
+            var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
+            var joinClauses = new List<string>();
+            foreach (var tableExpression in tables)
+            {
+                // this is the pending declaration of direct tables
+                if (MustDeclareAsJoin(tables, tableExpression))
+                {
+                    // get constitutive parts
+                    var joinExpression = BuildExpression(tableExpression.JoinExpression, queryContext);
+                    var tableAlias = sqlProvider.GetTableAsAlias(tableExpression.Name, tableExpression.Alias);
+                    string joinClause;
+                    switch (tableExpression.JoinType)
+                    {
+                    case TableJoinType.Inner:
+                        joinClause = sqlProvider.GetInnerJoinClause(tableAlias, joinExpression);
+                        break;
+                    case TableJoinType.LeftOuter:
+                        joinClause = sqlProvider.GetLeftOuterJoinClause(tableAlias, joinExpression);
+                        break;
+                    case TableJoinType.RightOuter:
+                        joinClause = sqlProvider.GetRightOuterJoinClause(tableAlias, joinExpression);
+                        break;
+                    case TableJoinType.FullOuter:
+                        throw new NotImplementedException();
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                    }
+                    joinClauses.Add(joinClause);
+                }
+            }
+            return sqlProvider.GetJoinClauses(joinClauses.ToArray());
         }
 
         protected virtual bool IsHavingClause(Expression expression)
@@ -244,7 +295,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             var whereClauses = new List<string>();
             foreach (var tableExpression in tables)
             {
-                if (!MustDeclareAsJoin(tableExpression) && tableExpression.JoinExpression != null)
+                if (!MustDeclareAsJoin(tables, tableExpression) && tableExpression.JoinExpression != null)
                     whereClauses.Add(BuildExpression(tableExpression.JoinExpression, queryContext));
             }
             foreach (var whereExpression in wheres)
