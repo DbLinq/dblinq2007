@@ -48,6 +48,18 @@ namespace DbLinq.SqlServer
         protected override char SafeNameStartQuote { get { return '['; } }
         protected override char SafeNameEndQuote { get { return ']'; } }
 
+        /// <summary>
+        /// Returns a table alias
+        /// Ensures about the right case
+        /// </summary>
+        /// <param name="table"></param>
+        /// <param name="alias"></param>
+        /// <returns></returns>
+        public override string GetTableAsAlias(string table, string alias)
+        {
+            return string.Format("{0} AS {1}", GetTable(table), GetTableAlias(alias));
+        }
+
         public override string GetParameterName(string nameBase)
         {
             return string.Format("@{0}", nameBase);
@@ -63,6 +75,7 @@ namespace DbLinq.SqlServer
             }
             throw new ArgumentException("S0051: Unknown select format");
         }
+
         protected override string GetLiteralDateDiff(string dateA, string dateB)
         {
             return string.Format("(CONVERT(BigInt,DATEDIFF(DAY, {0}, {1}))) * 86400000 +" //diffierence in milliseconds regards days
@@ -204,7 +217,5 @@ namespace DbLinq.SqlServer
             
 
         }
-
-
     }
 }

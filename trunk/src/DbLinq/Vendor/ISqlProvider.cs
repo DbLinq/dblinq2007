@@ -269,5 +269,36 @@ namespace DbLinq.Vendor
         /// </example>
         /// <returns></returns>
         string GetLiteralConvert(string value, System.Type newType);
+
+        /// <summary>
+        /// Returns an INNER JOIN syntax
+        /// </summary>
+        /// <param name="joinedTable"></param>
+        /// <param name="joinExpression"></param>
+        /// <returns></returns>
+        string GetInnerJoinClause(string joinedTable, string joinExpression);
+
+        /// <summary>
+        /// Returns a LEFT JOIN syntax
+        /// </summary>
+        /// <param name="joinedTable"></param>
+        /// <param name="joinExpression"></param>
+        /// <returns></returns>
+        string GetLeftOuterJoinClause(string joinedTable, string joinExpression);
+
+        /// <summary>
+        /// Returns a RIGHT JOIN syntax
+        /// </summary>
+        /// <param name="joinedTable"></param>
+        /// <param name="joinExpression"></param>
+        /// <returns></returns>
+        string GetRightOuterJoinClause(string joinedTable, string joinExpression);
+
+        /// <summary>
+        /// Concatenates all join clauses
+        /// </summary>
+        /// <param name="joins"></param>
+        /// <returns></returns>
+        string GetJoinClauses(string[] joins);
     }
 }
