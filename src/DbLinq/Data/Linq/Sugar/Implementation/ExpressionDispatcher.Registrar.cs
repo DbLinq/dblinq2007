@@ -251,7 +251,9 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     otherKey = Expression.Convert(otherKey, otherKey.Type.GetNullableType());
                 if (thisKey.Type.IsNullable())
                     thisKey = Expression.Convert(thisKey, thisKey.Type.GetNullableType());
-                var referenceExpression = Expression.Equal(thisKey, otherKey);
+                // the other key is set as left operand, this must be this way
+                // since some vendors (SQL Server) don't support the opposite
+                var referenceExpression = Expression.Equal(otherKey, thisKey);
 
                 // if we already have a join expression, then we have a double condition here, so "AND" it
                 if (joinExpression != null)
@@ -309,7 +311,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             MetaTableExpression metaTableExpression;
             if (!builderContext.MetaTables.TryGetValue(metaTableType, out metaTableExpression))
             {
-                metaTableExpression = new MetaTableExpression(aliases);
+                metaTableExpression = new MetaTableExpression(aliases, metaTableType);
                 builderContext.MetaTables[metaTableType] = metaTableExpression;
             }
             return metaTableExpression;

@@ -69,6 +69,42 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             return Build(expressionQuery.Select, queryContext);
         }
 
+        /// <summary>
+        /// Returns a list of sorted tables, given a select expression.
+        /// The tables are sorted by dependency: independent tables first, dependent tables next
+        /// </summary>
+        /// <param name="selectExpression"></param>
+        /// <returns></returns>
+        protected IList<TableExpression> GetSortedTables(SelectExpression selectExpression)
+        {
+            var tables = new List<TableExpression>();
+            foreach (var table in selectExpression.Tables)
+            {
+                // the rules are:
+                // a table climbs up to 0 until we find the table it depends on
+                // we keep the index and insert on it
+                // we place joining tables under joined tables
+                int tableIndex;
+                for (tableIndex = tables.Count; tableIndex > 0; tableIndex--)
+                {
+                    // above us, the joined table? Stop now
+                    if (tables[tableIndex - 1] == table.JoinedTable)
+                        break;
+                    // if the current table is joining and we have a non-joining table above, we stop here too
+                    if (table.JoinExpression != null && tables[tableIndex - 1].JoinExpression == null)
+                        break;
+                }
+                tables.Insert(tableIndex, table);
+            }
+            return tables;
+        }
+
+        /// <summary>
+        /// Main SQL builder
+        /// </summary>
+        /// <param name="selectExpression"></param>
+        /// <param name="queryContext"></param>
+        /// <returns></returns>
         public string Build(SelectExpression selectExpression, QueryContext queryContext)
         {
             // A scope usually has:
@@ -77,9 +113,10 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             // - a WHERE: list of conditions
             // - a GROUP BY: grouping by selected columns
             // - a ORDER BY: sort
-            var from = BuildFrom(selectExpression.Tables, queryContext);
-            var join = BuildJoin(selectExpression.Tables, queryContext);
-            var where = BuildWhere(selectExpression.Tables, selectExpression.Where, queryContext);
+            var tables = GetSortedTables(selectExpression);
+            var from = BuildFrom(tables, queryContext);
+            var join = BuildJoin(tables, queryContext);
+            var where = BuildWhere(tables, selectExpression.Where, queryContext);
             var select = BuildSelect(selectExpression, queryContext);
             var groupBy = BuildGroupBy(selectExpression.Group, queryContext);
             var having = BuildHaving(selectExpression.Where, queryContext);
@@ -197,8 +234,6 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
 
         protected virtual bool MustDeclareAsJoin(IList<TableExpression> tables, TableExpression table)
         {
-            return false; // for now, outer joins are disabled, until the work is done
-
             // the first table can not be declared as join
             if (table == tables[0])
                 return false;

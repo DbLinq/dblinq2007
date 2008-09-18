@@ -24,6 +24,7 @@
 // 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -55,8 +56,8 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
             return tablePiece;
         }
 
-        public MetaTableExpression(IDictionary<MemberInfo, TableExpression> aliases)
-            : base(ExpressionType, null)
+        public MetaTableExpression(IDictionary<MemberInfo, TableExpression> aliases, Type metaTableType)
+            : base(ExpressionType, metaTableType)
         {
             Aliases = aliases;
         }
