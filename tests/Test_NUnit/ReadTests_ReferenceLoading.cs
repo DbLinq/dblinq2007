@@ -38,7 +38,7 @@ namespace Test_NUnit_MsSql
 #endif
 {
     [TestFixture]
-    public class ReadTests_ReferenceLoading:TestBase
+    public class ReadTests_ReferenceLoading : TestBase
     {
 
         [Test]
@@ -63,6 +63,78 @@ namespace Test_NUnit_MsSql
             var db = CreateDB();
             var employeeTerritory = db.EmployeeTerritories.First();
             Assert.IsNotNull(employeeTerritory.Territory.Region.RegionID);
+        }
+
+        [Test]
+        public void ReferenceLoading04()
+        {
+            var db = CreateDB();
+            var q = db.Employees.Select(e => new { e.Region });
+
+            var list = q.ToList();
+            Assert.AreEqual(db.Employees.Count(), list.Count);
+        }
+
+        [Test]
+        public void ComplexProjection01()
+        {
+            var db = CreateDB();
+            var q = db.Employees.Select(e => e.Orders);
+
+            var list = q.ToList();
+            Assert.AreEqual(db.Employees.Count(), list.Count);
+        }
+
+        [Test]
+        public void ComplexProjection02()
+        {
+            var db = CreateDB();
+            var q = db.Employees.Select(e => new { e.Orders });
+
+            var list = q.ToList();
+            Assert.AreEqual(db.Employees.Count(), list.Count);
+        }
+
+
+        [Test]
+        public void ComplexProjection03()
+        {
+            var db = CreateDB();
+            var q = db.Employees.Select(e => e.Orders.Select(o => o.OrderID));
+
+            var list = q.ToList();
+            Assert.AreEqual(db.Employees.Count(), list.Count);
+        }
+
+        
+        [Test]
+        public void ComplexProjection04()
+        {
+            var db = CreateDB();
+            var q = db.Employees.Select(e => e.Orders.Select(o => o.OrderID));
+
+            var list = q.ToList();
+            Assert.AreEqual(db.Employees.Count(), list.Count);
+        }
+
+        [Test]
+        public void ComplexProjection05()
+        {
+            var db = CreateDB();
+            var q = db.Orders.Select(o => o.Employee.EmployeeTerritories);
+
+            var list = q.ToList();
+            Assert.AreEqual(db.Orders.Count(), list.Count);
+        }
+
+        [Test]
+        public void ComplexProjection06()
+        {
+            var db = CreateDB();
+            var q = db.Orders.Select(o => new { o.Employee, X = o.OrderDetails.Select(od => od.Product) });
+
+            var list = q.ToList();
+            Assert.AreEqual(db.Orders.Count(), list.Count);
         }
     }
 }
