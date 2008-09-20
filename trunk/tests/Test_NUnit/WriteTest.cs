@@ -158,7 +158,7 @@ namespace Test_NUnit_PostgreSql
             Northwind db = CreateDB();
 
             Product newProd = new Product();
-            newProd.CategoryID = 1;
+            newProd.CategoryID = db.Categories.First().CategoryID;
             newProd.ProductName = "Temp." + Environment.TickCount;
             newProd.QuantityPerUnit = "33 1/2";
             db.Products.InsertOnSubmit(newProd);
