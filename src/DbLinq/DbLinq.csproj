@@ -102,6 +102,11 @@
     <Compile Include="Data\Linq\SqlClient\PostgreSqlProvider.cs" />
     <Compile Include="Data\Linq\SqlClient\MySqlProvider.cs" />
     <Compile Include="Data\Linq\SqlClient\IngresProvider.cs" />
+    <Compile Include="Data\Linq\Sql\SqlStatementBuilder.cs" />
+    <Compile Include="Data\Linq\Sql\SqlParameterPart.cs" />
+    <Compile Include="Data\Linq\Sql\SqlLiteralPart.cs" />
+    <Compile Include="Data\Linq\Sql\SqlPart.cs" />
+    <Compile Include="Data\Linq\Sql\SqlStatement.cs" />
     <Compile Include="Data\Linq\Sugar\BuilderContext.cs" />
     <Compile Include="Data\Linq\Sugar\DeleteQuery.cs" />
     <Compile Include="Data\Linq\Sugar\DirectQuery.cs" />

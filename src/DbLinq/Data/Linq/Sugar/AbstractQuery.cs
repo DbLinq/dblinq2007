@@ -25,11 +25,20 @@
 #endregion
 
 #if MONO_STRICT
+using System.Data.Linq.Sql;
+#else
+using DbLinq.Data.Linq.Sql;
+#endif
+
+#if MONO_STRICT
 namespace System.Data.Linq.Sugar
 #else
 namespace DbLinq.Data.Linq.Sugar
 #endif
 {
+    /// <summary>
+    /// Base class for all query types (select, insert, update, delete, raw)
+    /// </summary>
     internal abstract class AbstractQuery
     {
         /// <summary>
@@ -40,9 +49,9 @@ namespace DbLinq.Data.Linq.Sugar
         /// <summary>
         /// SQL command
         /// </summary>
-        public string Sql { get; private set; }
+        public SqlStatement Sql { get; private set; }
 
-        protected AbstractQuery(DataContext dataContext, string sql)
+        protected AbstractQuery(DataContext dataContext, SqlStatement sql)
         {
             DataContext = dataContext;
             Sql = sql;

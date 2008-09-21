@@ -75,7 +75,7 @@ namespace DbLinq.Vendor
         bool Ping(DataContext dataContext);
 
         /// <summary>
-        /// Component used to provide SQL parts
+        /// Component used to provide SQL Parts
         /// </summary>
         ISqlProvider SqlProvider { get; }
 

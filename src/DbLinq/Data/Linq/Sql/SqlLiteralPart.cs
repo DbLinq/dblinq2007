@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // MIT license
 //
@@ -24,28 +24,45 @@
 // 
 #endregion
 
-using System;
-using System.Collections.Generic;
-#if MONO_STRICT
-using System.Data.Linq.Sql;
-#else
-using DbLinq.Data.Linq.Sql;
-#endif
+using System.Diagnostics;
 
 #if MONO_STRICT
-namespace System.Data.Linq.Sugar
+namespace System.Data.Linq.Sql
 #else
-namespace DbLinq.Data.Linq.Sugar
+namespace DbLinq.Data.Linq.Sql
 #endif
 {
-    internal class DirectQuery : AbstractQuery
+    /// <summary>
+    /// Represents a literal SQL part
+    /// </summary>
+    [DebuggerDisplay("SqlLiteralPart {Literal}")]
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+ class SqlLiteralPart : SqlPart
     {
-        public IList<string> Parameters { get; private set; }
+        public override string Sql { get { return Literal; } }
 
-        public DirectQuery(DataContext dataContext, SqlStatement sql, IList<string> parameters)
-            : base(dataContext, sql)
+        /// <summary>
+        /// Literal SQL used as is
+        /// </summary>
+        public string Literal { get; private set; }
+
+        public SqlLiteralPart(string literal)
         {
-            Parameters = parameters;
+            Literal = literal;
+        }
+
+        /// <summary>
+        /// Creates a SqlLiteralPart from a given string (implicit)
+        /// </summary>
+        /// <param name="literal"></param>
+        /// <returns></returns>
+        public static implicit operator SqlLiteralPart(string literal)
+        {
+            return new SqlLiteralPart(literal);
         }
     }
 }

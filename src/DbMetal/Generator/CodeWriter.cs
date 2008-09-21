@@ -35,7 +35,7 @@ namespace DbMetal.Generator
 {
     /// <summary>
     /// Base class for writing code.
-    /// Divided in 3 parts:
+    /// Divided in 3 Parts:
     /// - Code line writing (with indentation)
     /// - Code formatting (returning a literal type)
     /// - Code writing (comment line, field, property, event...)

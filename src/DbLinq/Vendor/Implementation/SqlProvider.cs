@@ -33,8 +33,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 #if MONO_STRICT
+using System.Data.Linq.Sql;
 using System.Data.Linq.Sugar.Expressions;
 #else
+using DbLinq.Data.Linq.Sql;
 using DbLinq.Data.Linq.Sugar.Expressions;
 #endif
 
@@ -56,17 +58,17 @@ namespace DbLinq.Vendor.Implementation
         /// <param name="inputColumns">Columns to be inserted</param>
         /// <param name="inputValues">Values to be inserted into columns</param>
         /// <returns></returns>
-        public virtual string GetInsert(string table, IList<string> inputColumns, IList<string> inputValues)
+        public virtual SqlStatement GetInsert(SqlStatement table, IList<SqlStatement> inputColumns, IList<SqlStatement> inputValues)
         {
             if (inputColumns.Count == 0)
-                return string.Empty;
+                return SqlStatement.Empty;
 
-            var insertBuilder = new StringBuilder("INSERT INTO ");
+            var insertBuilder = new SqlStatementBuilder("INSERT INTO ");
             insertBuilder.Append(table);
-            insertBuilder.AppendFormat(" ({0})", string.Join(", ", inputColumns.ToArray()));
+            insertBuilder.AppendFormat(" ({0})", SqlStatement.Join(", ", inputColumns));
             insertBuilder.Append(" VALUES");
-            insertBuilder.AppendFormat(" ({0})", string.Join(", ", inputValues.ToArray()));
-            return insertBuilder.ToString();
+            insertBuilder.AppendFormat(" ({0})", SqlStatement.Join(", ", inputValues));
+            return insertBuilder.ToSqlStatement();
         }
 
         /// <summary>
@@ -75,9 +77,9 @@ namespace DbLinq.Vendor.Implementation
         /// <param name="outputParameters">Expected output parameters</param>
         /// <param name="outputExpressions">Expressions (to help generate output parameters)</param>
         /// <returns></returns>
-        public virtual string GetInsertIds(IList<string> outputParameters, IList<string> outputExpressions)
+        public virtual SqlStatement GetInsertIds(IList<SqlStatement> outputParameters, IList<SqlStatement> outputExpressions)
         {
-            return string.Format("SELECT @@IDENTITY");
+            return "SELECT @@IDENTITY";
         }
 
         /// <summary>
@@ -91,14 +93,15 @@ namespace DbLinq.Vendor.Implementation
         /// <param name="inputPKColumns">PK columns for reference</param>
         /// <param name="inputPKValues">PK values for reference</param>
         /// <returns></returns>
-        public string GetUpdate(string table, IList<string> inputColumns, IList<string> inputValues,
-            IList<string> outputParameters, IList<string> outputExpressions,
-            IList<string> inputPKColumns, IList<string> inputPKValues)
+        public SqlStatement GetUpdate(SqlStatement table, IList<SqlStatement> inputColumns,
+            IList<SqlStatement> inputValues,
+            IList<SqlStatement> outputParameters, IList<SqlStatement> outputExpressions,
+            IList<SqlStatement> inputPKColumns, IList<SqlStatement> inputPKValues)
         {
             if (inputColumns.Count == 0)
-                return string.Empty;
+                return SqlStatement.Empty;
 
-            var updateBuilder = new StringBuilder("UPDATE ");
+            var updateBuilder = new SqlStatementBuilder("UPDATE ");
             updateBuilder.Append(table);
             updateBuilder.Append(" SET ");
             for (int inputIndex = 0; inputIndex < inputColumns.Count; inputIndex++)
@@ -114,7 +117,7 @@ namespace DbLinq.Vendor.Implementation
                     updateBuilder.Append(" AND ");
                 updateBuilder.AppendFormat("{0} = {1}", inputPKColumns[pkIndex], inputPKValues[pkIndex]);
             }
-            return updateBuilder.ToString();
+            return updateBuilder.ToSqlStatement();
         }
 
         /// <summary>
@@ -124,12 +127,12 @@ namespace DbLinq.Vendor.Implementation
         /// <param name="inputPKColumns">PK columns for reference</param>
         /// <param name="inputPKValues">PK values for reference</param>
         /// <returns></returns>
-        public string GetDelete(string table, IList<string> inputPKColumns, IList<string> inputPKValues)
+        public SqlStatement GetDelete(SqlStatement table, IList<SqlStatement> inputPKColumns, IList<SqlStatement> inputPKValues)
         {
             if (inputPKColumns.Count == 0)
-                return string.Empty;
+                return SqlStatement.Empty;
 
-            var deleteBuilder = new StringBuilder("DELETE FROM ");
+            var deleteBuilder = new SqlStatementBuilder("DELETE FROM ");
             deleteBuilder.Append(table);
             deleteBuilder.Append(" WHERE ");
             for (int pkIndex = 0; pkIndex < inputPKColumns.Count; pkIndex++)
@@ -138,7 +141,7 @@ namespace DbLinq.Vendor.Implementation
                     deleteBuilder.Append(" AND ");
                 deleteBuilder.AppendFormat("{0} = {1}", inputPKColumns[pkIndex], inputPKValues[pkIndex]);
             }
-            return deleteBuilder.ToString();
+            return deleteBuilder.ToSqlStatement();
         }
 
         public string NewLine
@@ -150,7 +153,7 @@ namespace DbLinq.Vendor.Implementation
         /// </summary>
         /// <param name="literal"></param>
         /// <returns></returns>
-        public virtual string GetLiteral(object literal)
+        public virtual SqlStatement GetLiteral(object literal)
         {
             if (literal == null)
                 return GetNullLiteral();
@@ -171,7 +174,7 @@ namespace DbLinq.Vendor.Implementation
         /// <param name="operationType"></param>
         /// <param name="p"></param>
         /// <returns></returns>
-        public virtual string GetLiteral(ExpressionType operationType, IList<string> p)
+        public virtual SqlStatement GetLiteral(ExpressionType operationType, IList<SqlStatement> p)
         {
             switch (operationType)
             {
@@ -274,7 +277,7 @@ namespace DbLinq.Vendor.Implementation
         /// <param name="operationType"></param>
         /// <param name="p"></param>
         /// <returns></returns>
-        public virtual string GetLiteral(SpecialExpressionType operationType, IList<string> p)
+        public virtual SqlStatement GetLiteral(SpecialExpressionType operationType, IList<SqlStatement> p)
         {
             switch (operationType) // SETuse
             {
@@ -365,54 +368,54 @@ namespace DbLinq.Vendor.Implementation
             throw new ArgumentException(operationType.ToString());
         }
 
-        protected virtual string GetLiteralMathSqrt(string p)
+        protected virtual SqlStatement GetLiteralMathSqrt(SqlStatement p)
         {
-            return string.Format("SQRT({0})", p);
+            return SqlStatement.Format("SQRT({0})", p);
         }
 
-        protected virtual string GetLiteralMathSign(string p)
+        protected virtual SqlStatement GetLiteralMathSign(SqlStatement p)
         {
-            return string.Format("SIGN({0})", p);
+            return SqlStatement.Format("SIGN({0})", p);
         }
 
-        protected virtual string GetLiteralMathRound(string p)
+        protected virtual SqlStatement GetLiteralMathRound(SqlStatement p)
         {
-            return string.Format("ROUND({0})", p);
+            return SqlStatement.Format("ROUND({0})", p);
         }
 
-        protected virtual string GetLiteralMathPow(string p, string p_2)
+        protected virtual SqlStatement GetLiteralMathPow(SqlStatement p, SqlStatement p_2)
         {
-            return string.Format("POW({0},{1})", p, p_2);
+            return SqlStatement.Format("POW({0},{1})", p, p_2);
         }
 
-        protected virtual string GetLiteralMathLog(string p)
+        protected virtual SqlStatement GetLiteralMathLog(SqlStatement p)
         {
-            return string.Format("LOG({0})", p);
+            return SqlStatement.Format("LOG({0})", p);
         }
 
-        protected virtual string GetLiteralMathLog(string p, string p_2)
+        protected virtual SqlStatement GetLiteralMathLog(SqlStatement p, SqlStatement p_2)
         {
-            return string.Format("LOG({0},{1})", p, p_2);
+            return SqlStatement.Format("LOG({0},{1})", p, p_2);
         }
 
-        protected virtual string GetLiteralMathLn(string p)
+        protected virtual SqlStatement GetLiteralMathLn(SqlStatement p)
         {
-            return string.Format("LN({0})", p);
+            return SqlStatement.Format("LN({0})", p);
         }
 
-        protected virtual string GetLiteralMathFloor(string p)
+        protected virtual SqlStatement GetLiteralMathFloor(SqlStatement p)
         {
-            return string.Format("FLOOR({0})", p);
+            return SqlStatement.Format("FLOOR({0})", p);
         }
 
-        protected virtual string GetLiteralMathExp(string p)
+        protected virtual SqlStatement GetLiteralMathExp(SqlStatement p)
         {
-            return string.Format("EXP({0})", p);
+            return SqlStatement.Format("EXP({0})", p);
         }
 
-        protected virtual string GetLiteralMathAbs(string p)
+        protected virtual SqlStatement GetLiteralMathAbs(SqlStatement p)
         {
-            return string.Format("ABS({0})", p);
+            return SqlStatement.Format("ABS({0})", p);
         }
 
         /// <summary>
@@ -426,15 +429,15 @@ namespace DbLinq.Vendor.Implementation
         /// <param name="dateA"></param>
         /// <param name="dateB"></param>
         /// <returns></returns>
-        protected virtual string GetLiteralDateDiff(string dateA, string dateB)
+        protected virtual SqlStatement GetLiteralDateDiff(SqlStatement dateA, SqlStatement dateB)
         {
-            return string.Format("DATEDIFF(MILLISECOND,{0},{1})", dateA, dateB);
+            return SqlStatement.Format("DATEDIFF(MILLISECOND,{0},{1})", dateA, dateB);
         }
 
 
-        protected virtual string GetLiteralDateTimePart(string dateExpression, SpecialExpressionType operationType)
+        protected virtual SqlStatement GetLiteralDateTimePart(SqlStatement dateExpression, SpecialExpressionType operationType)
         {
-            return string.Format("EXTRACT({0} FROM {1})", operationType.ToString().ToUpper(), dateExpression);
+            return SqlStatement.Format("EXTRACT({0} FROM {1})", operationType.ToString().ToUpper(), dateExpression);
         }
 
         /// <summary>
@@ -450,18 +453,18 @@ namespace DbLinq.Vendor.Implementation
         /// <param name="startIndex"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        protected virtual string GetLiteralStringIndexOf(string baseString, string searchString, string startIndex, string count)
+        protected virtual SqlStatement GetLiteralStringIndexOf(SqlStatement baseString, SqlStatement searchString, SqlStatement startIndex, SqlStatement count)
         {
-            string translatedStartIndex = GetLiteralAdd(startIndex, "1");
+            var translatedStartIndex = GetLiteralAdd(startIndex, "1");
             //SUBSTRING(baseString,StartIndex+1)
-            string substring = GetLiteralSubString(baseString, translatedStartIndex, count);
+            var substring = GetLiteralSubString(baseString, translatedStartIndex, count);
 
             //STRPOS(SUBSTRING(baseString,StartIndex),searchString)---> range 1:n , 0 => doesn't exist
-            string substringIndexOf = string.Format("STRPOS({0},{1})", substring, searchString);
+            var substringIndexOf = SqlStatement.Format("STRPOS({0},{1})", substring, searchString);
 
             //(STRPOS(SUBSTRING(baseString,StartIndex),searchString)+ startIndex+1)*STRPOS(SUBSTRING(baseString,StartIndex),searchString)
             // range 1:m, m>n, 0=>doesn't exist
-            string literalRangeShifted = GetLiteralMultiply(GetLiteralAdd(substringIndexOf, translatedStartIndex), substringIndexOf);
+            var literalRangeShifted = GetLiteralMultiply(GetLiteralAdd(substringIndexOf, translatedStartIndex), substringIndexOf);
 
             return GetLiteralSubtract(literalRangeShifted, "1");
         }
@@ -473,45 +476,45 @@ namespace DbLinq.Vendor.Implementation
         /// </summary>
         /// <remarks>
         /// In the impleementation you should pay atention that in some database engines the indexes of arrays or strings are shifted one unit.
-        /// ie: in .NET stringExpression.Substring(2,2) should be translated as SUBSTRING (stringExpression, 3 , 2) since the first element in sqlserver in a string has index=1
-        protected virtual string GetLiteralStringIndexOf(string baseString, string searchString, string startIndex)
+        /// ie: in .NET stringExpression.Substring(2,2) should be translated as SUBSTRING (stringExpression, 3 , 2) since the first element in sqlserver in a SqlStatement has index=1
+        protected virtual SqlStatement GetLiteralStringIndexOf(SqlStatement baseString, SqlStatement searchString, SqlStatement startIndex)
         {
             //SUBSTRING(baseString,StartIndex)
-            string substring = GetLiteralSubString(baseString, startIndex);
+            var substring = GetLiteralSubString(baseString, startIndex);
 
             //STRPOS(SUBSTRING(baseString,StartIndex),searchString)---> range 1:n , 0 => doesn't exist
-            string substringIndexOf = string.Format("STRPOS({0},{1})", substring, searchString);
+            var substringIndexOf = SqlStatement.Format("STRPOS({0},{1})", substring, searchString);
 
             //(STRPOS(SUBSTRING(baseString,StartIndex),searchString)+ startIndex)*STRPOS(SUBSTRING(baseString,StartIndex),searchString)
             // range 1:m, m>n, 0=>doesn't exist
-            string literalRangeShifted = GetLiteralMultiply(GetLiteralAdd(substringIndexOf, startIndex), substringIndexOf);
+            var literalRangeShifted = GetLiteralMultiply(GetLiteralAdd(substringIndexOf, startIndex), substringIndexOf);
 
             return GetLiteralSubtract(literalRangeShifted, "1");
         }
 
-        protected virtual string GetLiteralStringIndexOf(string baseString, string searchString)
+        protected virtual SqlStatement GetLiteralStringIndexOf(SqlStatement baseString, SqlStatement searchString)
         {
-            return GetLiteralSubtract(string.Format("STRPOS({0},{1})", baseString, searchString), "1");
+            return GetLiteralSubtract(SqlStatement.Format("STRPOS({0},{1})", baseString, searchString), "1");
         }
 
-        protected virtual string GetLiteralStringRemove(string baseString, string startIndex, string count)
+        protected virtual SqlStatement GetLiteralStringRemove(SqlStatement baseString, SqlStatement startIndex, SqlStatement count)
         {
             return GetLiteralStringConcat(
                     GetLiteralSubString(baseString, "1", startIndex),
                     GetLiteralSubString(baseString, GetLiteralAdd(startIndex, count).ToString(), GetLiteralStringLength(baseString)));
         }
 
-        protected virtual string GetLiteralStringRemove(string baseString, string startIndex)
+        protected virtual SqlStatement GetLiteralStringRemove(SqlStatement baseString, SqlStatement startIndex)
         {
             return GetLiteralSubString(baseString, "1", startIndex);
         }
 
-        protected string GetLiteralStringReplace(string stringExpresision, string searchString, string replacementstring)
+        protected SqlStatement GetLiteralStringReplace(SqlStatement stringExpresision, SqlStatement searchString, SqlStatement replacementstring)
         {
-            return string.Format("REPLACE({0},{1},{2})", stringExpresision, searchString, replacementstring);
+            return SqlStatement.Format("REPLACE({0},{1},{2})", stringExpresision, searchString, replacementstring);
         }
 
-        protected virtual string GetLiteralStringInsert(string stringExpression, string position, string insertString)
+        protected virtual SqlStatement GetLiteralStringInsert(SqlStatement stringExpression, SqlStatement position, SqlStatement insertString)
         {
 
             return this.GetLiteralStringConcat(
@@ -529,7 +532,7 @@ namespace DbLinq.Vendor.Implementation
         /// <param name="selectA"></param>
         /// <param name="selectB"></param>
         /// <returns></returns>
-        public virtual string GetLiteral(SelectOperatorType selectOperator, string selectA, string selectB)
+        public virtual SqlStatement GetLiteral(SelectOperatorType selectOperator, SqlStatement selectA, SqlStatement selectB)
         {
             switch (selectOperator)
             {
@@ -551,9 +554,9 @@ namespace DbLinq.Vendor.Implementation
         /// </summary>
         /// <param name="a"></param>
         /// <returns></returns>
-        public virtual string GetParenthesis(string a)
+        public virtual SqlStatement GetParenthesis(SqlStatement a)
         {
-            return string.Format("({0})", a);
+            return SqlStatement.Format("({0})", a);
         }
 
         /// <summary>
@@ -607,11 +610,11 @@ namespace DbLinq.Vendor.Implementation
         /// </summary>
         /// <param name="tables"></param>
         /// <returns></returns>
-        public virtual string GetFromClause(string[] tables)
+        public virtual SqlStatement GetFromClause(SqlStatement[] tables)
         {
             if (tables.Length == 0)
-                return string.Empty;
-            return string.Format("FROM {0}", string.Join(", ", tables));
+                return SqlStatement.Empty;
+            return SqlStatement.Format("FROM {0}", SqlStatement.Join(", ", tables));
         }
 
         /// <summary>
@@ -619,12 +622,12 @@ namespace DbLinq.Vendor.Implementation
         /// </summary>
         /// <param name="joins"></param>
         /// <returns></returns>
-        public virtual string GetJoinClauses(string[] joins)
+        public virtual SqlStatement GetJoinClauses(SqlStatement[] joins)
         {
             if (joins.Length == 0)
-                return string.Empty;
+                return SqlStatement.Empty;
             var space = " ";
-            return space + string.Join(NewLine + space, joins);
+            return space + SqlStatement.Join(NewLine + space, joins);
         }
 
         /// <summary>
@@ -633,9 +636,9 @@ namespace DbLinq.Vendor.Implementation
         /// <param name="joinedTable"></param>
         /// <param name="joinExpression"></param>
         /// <returns></returns>
-        public virtual string GetInnerJoinClause(string joinedTable, string joinExpression)
+        public virtual SqlStatement GetInnerJoinClause(SqlStatement joinedTable, SqlStatement joinExpression)
         {
-            return string.Format("INNER JOIN {0} ON {1}", joinedTable, joinExpression);
+            return SqlStatement.Format("INNER JOIN {0} ON {1}", joinedTable, joinExpression);
         }
 
         /// <summary>
@@ -644,9 +647,9 @@ namespace DbLinq.Vendor.Implementation
         /// <param name="joinedTable"></param>
         /// <param name="joinExpression"></param>
         /// <returns></returns>
-        public virtual string GetLeftOuterJoinClause(string joinedTable, string joinExpression)
+        public virtual SqlStatement GetLeftOuterJoinClause(SqlStatement joinedTable, SqlStatement joinExpression)
         {
-            return string.Format("LEFT JOIN {0} ON {1}", joinedTable, joinExpression);
+            return SqlStatement.Format("LEFT JOIN {0} ON {1}", joinedTable, joinExpression);
         }
 
         /// <summary>
@@ -655,9 +658,9 @@ namespace DbLinq.Vendor.Implementation
         /// <param name="joinedTable"></param>
         /// <param name="joinExpression"></param>
         /// <returns></returns>
-        public virtual string GetRightOuterJoinClause(string joinedTable, string joinExpression)
+        public virtual SqlStatement GetRightOuterJoinClause(SqlStatement joinedTable, SqlStatement joinExpression)
         {
-            return string.Format("RIGHT JOIN {0} ON {1}", joinedTable, joinExpression);
+            return SqlStatement.Format("RIGHT JOIN {0} ON {1}", joinedTable, joinExpression);
         }
 
         /// <summary>
@@ -665,11 +668,11 @@ namespace DbLinq.Vendor.Implementation
         /// </summary>
         /// <param name="wheres"></param>
         /// <returns></returns>
-        public virtual string GetWhereClause(string[] wheres)
+        public virtual SqlStatement GetWhereClause(SqlStatement[] wheres)
         {
             if (wheres.Length == 0)
-                return string.Empty;
-            return string.Format("WHERE {0}", string.Join(" AND ", wheres));
+                return SqlStatement.Empty;
+            return SqlStatement.Format("WHERE {0}", SqlStatement.Join(" AND ", wheres));
         }
 
         /// <summary>
@@ -677,11 +680,11 @@ namespace DbLinq.Vendor.Implementation
         /// </summary>
         /// <param name="havings"></param>
         /// <returns></returns>
-        public virtual string GetHavingClause(string[] havings)
+        public virtual SqlStatement GetHavingClause(SqlStatement[] havings)
         {
             if (havings.Length == 0)
-                return string.Empty;
-            return string.Format("HAVING {0}", string.Join(" AND ", havings));
+                return SqlStatement.Empty;
+            return SqlStatement.Format("HAVING {0}", SqlStatement.Join(" AND ", havings));
         }
 
         /// <summary>
@@ -689,11 +692,11 @@ namespace DbLinq.Vendor.Implementation
         /// </summary>
         /// <param name="selects"></param>
         /// <returns></returns>
-        public virtual string GetSelectClause(string[] selects)
+        public virtual SqlStatement GetSelectClause(SqlStatement[] selects)
         {
             if (selects.Length == 0)
-                return string.Empty;
-            return string.Format("SELECT {0}", string.Join(", ", selects));
+                return SqlStatement.Empty;
+            return SqlStatement.Format("SELECT {0}", SqlStatement.Join(", ", selects));
         }
 
         /// <summary>
@@ -724,261 +727,261 @@ namespace DbLinq.Vendor.Implementation
             return string.Format("{0}$", nameBase);
         }
 
-        protected virtual string GetLiteralAdd(string a, string b)
+        protected virtual SqlStatement GetLiteralAdd(SqlStatement a, SqlStatement b)
         {
-            return string.Format("{0} + {1}", a, b);
+            return SqlStatement.Format("{0} + {1}", a, b);
         }
 
-        protected virtual string GetLiteralAddChecked(string a, string b)
+        protected virtual SqlStatement GetLiteralAddChecked(SqlStatement a, SqlStatement b)
         {
             return GetLiteralAdd(a, b);
         }
 
-        protected virtual string GetLiteralAnd(string a, string b)
+        protected virtual SqlStatement GetLiteralAnd(SqlStatement a, SqlStatement b)
         {
-            return string.Format("{0} AND {1}", a, b);
+            return SqlStatement.Format("{0} AND {1}", a, b);
         }
 
-        protected virtual string GetLiteralAndAlso(string a, string b)
+        protected virtual SqlStatement GetLiteralAndAlso(SqlStatement a, SqlStatement b)
         {
             return GetLiteralAnd(a, b);
         }
 
-        protected virtual string GetLiteralArrayLength(string a, string b)
+        protected virtual SqlStatement GetLiteralArrayLength(SqlStatement a, SqlStatement b)
         {
             throw new NotImplementedException();
         }
 
-        protected virtual string GetLiteralArrayIndex(string a, string b)
+        protected virtual SqlStatement GetLiteralArrayIndex(SqlStatement a, SqlStatement b)
         {
             throw new NotImplementedException();
         }
 
-        protected virtual string GetLiteralCall(string a)
+        protected virtual SqlStatement GetLiteralCall(SqlStatement a)
         {
             throw new NotImplementedException();
         }
 
-        protected virtual string GetLiteralCoalesce(string a, string b)
+        protected virtual SqlStatement GetLiteralCoalesce(SqlStatement a, SqlStatement b)
         {
-            return string.Format("COALESCE({0}, {1})", a, b);
+            return SqlStatement.Format("COALESCE({0}, {1})", a, b);
         }
 
-        protected virtual string GetLiteralConditional(string a, string b, string c)
+        protected virtual SqlStatement GetLiteralConditional(SqlStatement a, SqlStatement b, SqlStatement c)
         {
             throw new NotImplementedException();
         }
 
-        public virtual string GetLiteralConvert(string a, Type newType)
+        public virtual SqlStatement GetLiteralConvert(SqlStatement a, Type newType)
         {
             return a;
         }
 
-        protected virtual string GetLiteralDivide(string a, string b)
+        protected virtual SqlStatement GetLiteralDivide(SqlStatement a, SqlStatement b)
         {
-            return string.Format("{0} / {1}", a, b);
+            return SqlStatement.Format("{0} / {1}", a, b);
         }
 
-        protected virtual string GetLiteralEqual(string a, string b)
+        protected virtual SqlStatement GetLiteralEqual(SqlStatement a, SqlStatement b)
         {
-            return string.Format("{0} = {1}", a, b);
+            return SqlStatement.Format("{0} = {1}", a, b);
         }
 
-        protected virtual string GetLiteralExclusiveOr(string a, string b)
+        protected virtual SqlStatement GetLiteralExclusiveOr(SqlStatement a, SqlStatement b)
         {
-            return string.Format("{0} XOR {1}", a, b);
+            return SqlStatement.Format("{0} XOR {1}", a, b);
         }
 
-        protected virtual string GetLiteralGreaterThan(string a, string b)
+        protected virtual SqlStatement GetLiteralGreaterThan(SqlStatement a, SqlStatement b)
         {
-            return string.Format("{0} > {1}", a, b);
+            return SqlStatement.Format("{0} > {1}", a, b);
         }
 
-        protected virtual string GetLiteralGreaterThanOrEqual(string a, string b)
+        protected virtual SqlStatement GetLiteralGreaterThanOrEqual(SqlStatement a, SqlStatement b)
         {
-            return string.Format("{0} >= {1}", a, b);
+            return SqlStatement.Format("{0} >= {1}", a, b);
         }
 
-        protected virtual string GetLiteralLeftShift(string a, string b)
+        protected virtual SqlStatement GetLiteralLeftShift(SqlStatement a, SqlStatement b)
         {
             throw new NotImplementedException();
         }
 
-        protected virtual string GetLiteralLessThan(string a, string b)
+        protected virtual SqlStatement GetLiteralLessThan(SqlStatement a, SqlStatement b)
         {
-            return string.Format("{0} < {1}", a, b);
+            return SqlStatement.Format("{0} < {1}", a, b);
         }
 
-        protected virtual string GetLiteralLessThanOrEqual(string a, string b)
+        protected virtual SqlStatement GetLiteralLessThanOrEqual(SqlStatement a, SqlStatement b)
         {
-            return string.Format("{0} <= {1}", a, b);
+            return SqlStatement.Format("{0} <= {1}", a, b);
         }
 
-        protected virtual string GetLiteralModulo(string a, string b)
+        protected virtual SqlStatement GetLiteralModulo(SqlStatement a, SqlStatement b)
         {
-            return string.Format("{0} % {1}", a, b);
+            return SqlStatement.Format("{0} % {1}", a, b);
         }
 
-        protected virtual string GetLiteralMultiply(string a, string b)
+        protected virtual SqlStatement GetLiteralMultiply(SqlStatement a, SqlStatement b)
         {
-            return string.Format("{0} * {1}", a, b);
+            return SqlStatement.Format("{0} * {1}", a, b);
         }
 
-        protected virtual string GetLiteralMultiplyChecked(string a, string b)
+        protected virtual SqlStatement GetLiteralMultiplyChecked(SqlStatement a, SqlStatement b)
         {
             return GetLiteralMultiply(a, b);
         }
 
-        protected virtual string GetLiteralNegate(string a)
+        protected virtual SqlStatement GetLiteralNegate(SqlStatement a)
         {
-            return string.Format("-{0}", a);
+            return SqlStatement.Format("-{0}", a);
         }
 
-        protected virtual string GetLiteralUnaryPlus(string a)
+        protected virtual SqlStatement GetLiteralUnaryPlus(SqlStatement a)
         {
-            return string.Format("+{0}", a);
+            return SqlStatement.Format("+{0}", a);
         }
 
-        protected virtual string GetLiteralNegateChecked(string a)
+        protected virtual SqlStatement GetLiteralNegateChecked(SqlStatement a)
         {
             return GetLiteralNegate(a);
         }
 
-        protected virtual string GetLiteralNot(string a)
+        protected virtual SqlStatement GetLiteralNot(SqlStatement a)
         {
-            return string.Format("NOT {0}", a);
+            return SqlStatement.Format("NOT {0}", a);
         }
 
-        protected virtual string GetLiteralNotEqual(string a, string b)
+        protected virtual SqlStatement GetLiteralNotEqual(SqlStatement a, SqlStatement b)
         {
-            return string.Format("{0} <> {1}", a, b);
+            return SqlStatement.Format("{0} <> {1}", a, b);
         }
 
-        protected virtual string GetLiteralOr(string a, string b)
+        protected virtual SqlStatement GetLiteralOr(SqlStatement a, SqlStatement b)
         {
-            return string.Format("{0} OR {1}", a, b);
+            return SqlStatement.Format("{0} OR {1}", a, b);
         }
 
-        protected virtual string GetLiteralOrElse(string a, string b)
+        protected virtual SqlStatement GetLiteralOrElse(SqlStatement a, SqlStatement b)
         {
             return GetLiteralOr(a, b);
         }
 
-        protected virtual string GetLiteralPower(string a, string b)
+        protected virtual SqlStatement GetLiteralPower(SqlStatement a, SqlStatement b)
         {
-            return string.Format("POWER ({0}, {1})", a, b);
+            return SqlStatement.Format("POWER ({0}, {1})", a, b);
         }
 
-        protected virtual string GetLiteralRightShift(string a, string b)
+        protected virtual SqlStatement GetLiteralRightShift(SqlStatement a, SqlStatement b)
         {
             throw new NotImplementedException();
         }
 
-        protected virtual string GetLiteralSubtract(string a, string b)
+        protected virtual SqlStatement GetLiteralSubtract(SqlStatement a, SqlStatement b)
         {
-            return string.Format("{0} - {1}", a, b);
+            return SqlStatement.Format("{0} - {1}", a, b);
         }
 
-        protected virtual string GetLiteralSubtractChecked(string a, string b)
+        protected virtual SqlStatement GetLiteralSubtractChecked(SqlStatement a, SqlStatement b)
         {
             return GetLiteralSubtract(a, b);
         }
 
-        protected virtual string GetLiteralIsNull(string a)
+        protected virtual SqlStatement GetLiteralIsNull(SqlStatement a)
         {
-            return string.Format("{0} IS NULL", a);
+            return SqlStatement.Format("{0} IS NULL", a);
         }
 
-        protected virtual string GetLiteralIsNotNull(string a)
+        protected virtual SqlStatement GetLiteralIsNotNull(SqlStatement a)
         {
-            return string.Format("{0} IS NOT NULL", a);
+            return SqlStatement.Format("{0} IS NOT NULL", a);
         }
 
-        protected virtual string GetLiteralStringConcat(string a, string b)
+        protected virtual SqlStatement GetLiteralStringConcat(SqlStatement a, SqlStatement b)
         {
             // for some vendors, it is "CONCAT(a,b)"
-            return string.Format("{0} || {1}", a, b);
+            return SqlStatement.Format("{0} || {1}", a, b);
         }
 
-        protected virtual string GetLiteralStringLength(string a)
+        protected virtual SqlStatement GetLiteralStringLength(SqlStatement a)
         {
-            return string.Format("CHARACTER_LENGTH({0})", a);
+            return SqlStatement.Format("CHARACTER_LENGTH({0})", a);
         }
 
-        protected virtual string GetLiteralStringToUpper(string a)
+        protected virtual SqlStatement GetLiteralStringToUpper(SqlStatement a)
         {
-            return string.Format("UCASE({0})", a);
+            return SqlStatement.Format("UCASE({0})", a);
         }
 
-        protected virtual string GetLiteralStringToLower(string a)
+        protected virtual SqlStatement GetLiteralStringToLower(SqlStatement a)
         {
-            return string.Format("LCASE({0})", a);
+            return SqlStatement.Format("LCASE({0})", a);
         }
 
 
-        protected virtual string GetLiteralTrim(string a)
+        protected virtual SqlStatement GetLiteralTrim(SqlStatement a)
         {
-            return string.Format("TRIM({0})", a);
+            return SqlStatement.Format("TRIM({0})", a);
         }
 
-        protected virtual string GetLiteralLTrim(string a)
+        protected virtual SqlStatement GetLiteralLTrim(SqlStatement a)
         {
-            return string.Format("LTRIM({0})", a);
+            return SqlStatement.Format("LTRIM({0})", a);
         }
 
-        protected virtual string GetLiteralRTrim(string a)
+        protected virtual SqlStatement GetLiteralRTrim(SqlStatement a)
         {
-            return string.Format("RTRIM({0})", a);
+            return SqlStatement.Format("RTRIM({0})", a);
         }
 
-        protected virtual string GetLiteralSubString(string baseString, string startIndex, string count)
+        protected virtual SqlStatement GetLiteralSubString(SqlStatement baseString, SqlStatement startIndex, SqlStatement count)
         {
-            //in standard sql base string index is 1 instead 0
-            return string.Format("SUBSTR({0}, {1}, {2})", baseString, GetLiteralAdd(startIndex, "1"), count);
+            //in standard sql base SqlStatement index is 1 instead 0
+            return SqlStatement.Format("SUBSTR({0}, {1}, {2})", baseString, GetLiteralAdd(startIndex, "1"), count);
         }
 
-        protected virtual string GetLiteralSubString(string baseString, string startIndex)
+        protected virtual SqlStatement GetLiteralSubString(SqlStatement baseString, SqlStatement startIndex)
         {
-            //in standard sql base string index is 1 instead 0
-            return string.Format("SUBSTR({0}, {1})", baseString, GetLiteralAdd(startIndex, "1"));
+            //in standard sql base SqlStatement index is 1 instead 0
+            return SqlStatement.Format("SUBSTR({0}, {1})", baseString, GetLiteralAdd(startIndex, "1"));
         }
 
-        protected virtual string GetLiteralLike(string a, string b)
+        protected virtual SqlStatement GetLiteralLike(SqlStatement a, SqlStatement b)
         {
-            return string.Format("{0} LIKE {1}", a, b);
+            return SqlStatement.Format("{0} LIKE {1}", a, b);
         }
 
-        protected virtual string GetLiteralCount(string a)
+        protected virtual SqlStatement GetLiteralCount(SqlStatement a)
         {
-            return string.Format("COUNT({0})", a);
+            return SqlStatement.Format("COUNT({0})", a);
         }
 
-        protected virtual string GetLiteralMin(string a)
+        protected virtual SqlStatement GetLiteralMin(SqlStatement a)
         {
-            return string.Format("MIN({0})", a);
+            return SqlStatement.Format("MIN({0})", a);
         }
 
-        protected virtual string GetLiteralMax(string a)
+        protected virtual SqlStatement GetLiteralMax(SqlStatement a)
         {
-            return string.Format("MAX({0})", a);
+            return SqlStatement.Format("MAX({0})", a);
         }
 
-        protected virtual string GetLiteralSum(string a)
+        protected virtual SqlStatement GetLiteralSum(SqlStatement a)
         {
-            return string.Format("SUM({0})", a);
+            return SqlStatement.Format("SUM({0})", a);
         }
 
-        protected virtual string GetLiteralAverage(string a)
+        protected virtual SqlStatement GetLiteralAverage(SqlStatement a)
         {
-            return string.Format("AVG({0})", a);
+            return SqlStatement.Format("AVG({0})", a);
         }
 
-        protected virtual string GetLiteralIn(string a, string b)
+        protected virtual SqlStatement GetLiteralIn(SqlStatement a, SqlStatement b)
         {
-            return string.Format("{0} IN {1}", a, b);
+            return SqlStatement.Format("{0} IN {1}", a, b);
         }
 
-        protected virtual string GetNullLiteral()
+        protected virtual SqlStatement GetNullLiteral()
         {
             return "NULL";
         }
@@ -989,9 +992,9 @@ namespace DbLinq.Vendor.Implementation
         /// <param name="select">SELECT clause</param>
         /// <param name="limit">limit value (number of columns to be returned)</param>
         /// <returns></returns>
-        public virtual string GetLiteralLimit(string select, string limit)
+        public virtual SqlStatement GetLiteralLimit(SqlStatement select, SqlStatement limit)
         {
-            return string.Format("{0} LIMIT {1}", select, limit);
+            return SqlStatement.Format("{0} LIMIT {1}", select, limit);
         }
 
         /// <summary>
@@ -1002,10 +1005,10 @@ namespace DbLinq.Vendor.Implementation
         /// <param name="offset">first row to be returned (starting from 0)</param>
         /// <param name="offsetAndLimit">limit+offset</param>
         /// <returns></returns>
-        public virtual string GetLiteralLimit(string select, string limit, string offset, string offsetAndLimit)
+        public virtual SqlStatement GetLiteralLimit(SqlStatement select, SqlStatement limit, SqlStatement offset, SqlStatement offsetAndLimit)
         {
             // default SQL syntax: LIMIT limit OFFSET offset
-            return string.Format("{0} LIMIT {1} OFFSET {2}", select, limit, offset);
+            return SqlStatement.Format("{0} LIMIT {1} OFFSET {2}", select, limit, offset);
         }
 
         protected virtual string GetLiteral(string str)
@@ -1013,12 +1016,12 @@ namespace DbLinq.Vendor.Implementation
             return string.Format("'{0}'", str.Replace("'", "''"));
         }
 
-        protected virtual string GetLiteral(Array array)
+        protected virtual SqlStatement GetLiteral(Array array)
         {
-            var listItems = new List<string>();
+            var listItems = new List<SqlStatement>();
             foreach (object o in array)
                 listItems.Add(GetLiteral(o));
-            return string.Format("({0})", string.Join(", ", listItems.ToArray()));
+            return SqlStatement.Format("({0})", SqlStatement.Join(", ", listItems.ToArray()));
         }
 
         /// <summary>
@@ -1027,11 +1030,11 @@ namespace DbLinq.Vendor.Implementation
         /// <param name="expression"></param>
         /// <param name="descending"></param>
         /// <returns></returns>
-        public virtual string GetOrderByColumn(string expression, bool descending)
+        public virtual SqlStatement GetOrderByColumn(SqlStatement expression, bool descending)
         {
             if (!descending)
                 return expression;
-            return string.Format("{0} DESC", expression);
+            return SqlStatement.Format("{0} DESC", expression);
         }
 
         /// <summary>
@@ -1039,11 +1042,11 @@ namespace DbLinq.Vendor.Implementation
         /// </summary>
         /// <param name="orderBy"></param>
         /// <returns></returns>
-        public virtual string GetOrderByClause(string[] orderBy)
+        public virtual SqlStatement GetOrderByClause(SqlStatement[] orderBy)
         {
             if (orderBy.Length == 0)
-                return string.Empty;
-            return string.Format("ORDER BY {0}", string.Join(", ", orderBy));
+                return SqlStatement.Empty;
+            return SqlStatement.Format("ORDER BY {0}", SqlStatement.Join(", ", orderBy));
         }
 
         /// <summary>
@@ -1051,31 +1054,31 @@ namespace DbLinq.Vendor.Implementation
         /// </summary>
         /// <param name="groupBy"></param>
         /// <returns></returns>
-        public virtual string GetGroupByClause(string[] groupBy)
+        public virtual SqlStatement GetGroupByClause(SqlStatement[] groupBy)
         {
             if (groupBy.Length == 0)
-                return string.Empty;
-            return string.Format("GROUP BY {0}", string.Join(", ", groupBy));
+                return SqlStatement.Empty;
+            return SqlStatement.Format("GROUP BY {0}", SqlStatement.Join(", ", groupBy));
         }
 
-        protected virtual string GetLiteralUnion(string selectA, string selectB)
+        protected virtual SqlStatement GetLiteralUnion(SqlStatement selectA, SqlStatement selectB)
         {
-            return string.Format("{0}{2}UNION{2}{1}", selectA, selectB, NewLine);
+            return SqlStatement.Format("{0}{2}UNION{2}{1}", selectA, selectB, NewLine);
         }
 
-        protected virtual string GetLiteralUnionAll(string selectA, string selectB)
+        protected virtual SqlStatement GetLiteralUnionAll(SqlStatement selectA, SqlStatement selectB)
         {
-            return string.Format("{0}{2}UNION ALL{2}{1}", selectA, selectB, NewLine);
+            return SqlStatement.Format("{0}{2}UNION ALL{2}{1}", selectA, selectB, NewLine);
         }
 
-        protected virtual string GetLiteralIntersect(string selectA, string selectB)
+        protected virtual SqlStatement GetLiteralIntersect(SqlStatement selectA, SqlStatement selectB)
         {
-            return string.Format("{0}{2}INTERSECT{2}{1}", selectA, selectB, NewLine);
+            return SqlStatement.Format("{0}{2}INTERSECT{2}{1}", selectA, selectB, NewLine);
         }
 
-        protected virtual string GetLiteralExcept(string selectA, string selectB)
+        protected virtual SqlStatement GetLiteralExcept(SqlStatement selectA, SqlStatement selectB)
         {
-            return string.Format("{0}{2}EXCEPT{2}{1}", selectA, selectB, NewLine);
+            return SqlStatement.Format("{0}{2}EXCEPT{2}{1}", selectA, selectB, NewLine);
         }
 
         public virtual string GetSafeName(string name)
@@ -1128,7 +1131,7 @@ namespace DbLinq.Vendor.Implementation
         /// </summary>
         protected virtual bool IsNameSafe(string name)
         {
-            string nameL = name.ToLower();
+            var nameL = name.ToLower();
             switch (nameL)
             {
             case "user":
@@ -1172,8 +1175,8 @@ namespace DbLinq.Vendor.Implementation
                 return null;
             return _fieldIdentifierEx.Replace(sqlString, delegate(Match e)
             {
-                string field = e.Groups[1].Value;
-                string safeField = GetSafeNamePart(field);
+                var field = e.Groups[1].Value;
+                var safeField = GetSafeNamePart(field);
                 return safeField;
             });
         }

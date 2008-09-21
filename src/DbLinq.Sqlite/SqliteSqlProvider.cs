@@ -25,33 +25,34 @@
 #endregion
 
 using System.Collections.Generic;
+using DbLinq.Data.Linq.Sql;
 using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.Sqlite
 {
     public class SqliteSqlProvider : SqlProvider
     {
-        public override string GetInsertIds(IList<string> outputParameters, IList<string> outputExpressions)
+        public override SqlStatement GetInsertIds(IList<SqlStatement> outputParameters, IList<SqlStatement> outputExpressions)
         {
             return "SELECT last_insert_rowid()";
         }
 
-        protected override string GetLiteralStringLength(string a)
+        protected override SqlStatement GetLiteralStringLength(SqlStatement a)
         {
-            return string.Format("LENGTH({0})", a);
+            return SqlStatement.Format("LENGTH({0})", a);
         }
 
-        protected override string GetLiteralStringToUpper(string a)
+        protected override SqlStatement GetLiteralStringToUpper(SqlStatement a)
         {
-            return string.Format("UPPER({0})", a);
+            return SqlStatement.Format("UPPER({0})", a);
         }
 
-        protected override string GetLiteralStringToLower(string a)
+        protected override SqlStatement GetLiteralStringToLower(SqlStatement a)
         {
             return string.Format("LOWER({0})", a);
         }
 
-        protected override string GetLiteralCount(string a)
+        protected override SqlStatement GetLiteralCount(SqlStatement a)
         {
             return "COUNT(*)";
         }

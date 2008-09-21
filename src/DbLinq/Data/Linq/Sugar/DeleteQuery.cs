@@ -26,8 +26,10 @@
 
 using System.Collections.Generic;
 #if MONO_STRICT
+using System.Data.Linq.Sql;
 using System.Data.Linq.Sugar.Expressions;
 #else
+using DbLinq.Data.Linq.Sql;
 using DbLinq.Data.Linq.Sugar.Expressions;
 #endif
 
@@ -41,7 +43,7 @@ namespace DbLinq.Data.Linq.Sugar
     {
         public IList<ObjectInputParameterExpression> InputParameters { get; private set; }
 
-        public DeleteQuery(DataContext dataContext, string sql, IList<ObjectInputParameterExpression> inputParameters)
+        public DeleteQuery(DataContext dataContext, SqlStatement sql, IList<ObjectInputParameterExpression> inputParameters)
             : base(dataContext, sql)
         {
             InputParameters = inputParameters;

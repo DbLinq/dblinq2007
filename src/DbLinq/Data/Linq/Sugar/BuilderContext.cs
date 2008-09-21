@@ -123,7 +123,7 @@ namespace DbLinq.Data.Linq.Sugar
         {
             var builderContext = new BuilderContext();
 
-            // scope independent parts
+            // scope independent Parts
             builderContext.QueryContext = QueryContext;
             builderContext.ExpressionQuery = ExpressionQuery;
             builderContext.MetaTables = MetaTables;
@@ -131,7 +131,7 @@ namespace DbLinq.Data.Linq.Sugar
             builderContext.SelectExpressions = SelectExpressions;
             builderContext.ExpectMetaTableDefinition = ExpectMetaTableDefinition;
 
-            // scope dependent parts
+            // scope dependent Parts
             builderContext.Parameters = new Dictionary<string, Expression>(Parameters);
 
             return builderContext;

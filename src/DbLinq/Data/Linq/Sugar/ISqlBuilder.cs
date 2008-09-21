@@ -25,9 +25,9 @@
 #endregion
 
 #if MONO_STRICT
-using System.Data.Linq.Sugar;
+using System.Data.Linq.Sql;
 #else
-using DbLinq.Data.Linq.Sugar;
+using DbLinq.Data.Linq.Sql;
 #endif
 
 #if MONO_STRICT
@@ -40,11 +40,11 @@ namespace DbLinq.Data.Linq.Sugar
     {
         /// <summary>
         /// Builds a SQL string, based on a QueryContext
-        /// The build indirectly depends on ISqlProvider which provides all SQL parts.
+        /// The build indirectly depends on ISqlProvider which provides all SQL Parts.
         /// </summary>
         /// <param name="expressionQuery"></param>
         /// <param name="queryContext"></param>
         /// <returns></returns>
-        string BuildSelect(ExpressionQuery expressionQuery, QueryContext queryContext);
+        SqlStatement BuildSelect(ExpressionQuery expressionQuery, QueryContext queryContext);
     }
 }

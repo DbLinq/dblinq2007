@@ -34,7 +34,7 @@ namespace DbLinq.Util
 #else
     public
 #endif
-    static class StringExtensions
+ static class StringExtensions
     {
         public static string Enquote(this string text, char startQuote, char endQuote)
         {
@@ -59,16 +59,23 @@ namespace DbLinq.Util
                 // this is not nice, but I found no other way to identity a valid identifier
                 switch (category)
                 {
-                    case System.Globalization.UnicodeCategory.DecimalDigitNumber:
-                    case System.Globalization.UnicodeCategory.LetterNumber:
-                    case System.Globalization.UnicodeCategory.LowercaseLetter:
-                    case System.Globalization.UnicodeCategory.UppercaseLetter:
-                        break;
-                    default:
-                        return false;
+                case System.Globalization.UnicodeCategory.DecimalDigitNumber:
+                case System.Globalization.UnicodeCategory.LetterNumber:
+                case System.Globalization.UnicodeCategory.LowercaseLetter:
+                case System.Globalization.UnicodeCategory.UppercaseLetter:
+                    break;
+                default:
+                    return false;
                 }
             }
             return true;
+        }
+
+        public static bool ContainsCase(this string text, string find, bool ignoreCase)
+        {
+            var comparison = ignoreCase ? StringComparison.InvariantCultureIgnoreCase : StringComparison.InvariantCulture;
+            var endIndex = text.IndexOf(find, 0, comparison);
+            return endIndex >= 0;
         }
 
         public static string ReplaceCase(this string text, string find, string replace, bool ignoreCase)

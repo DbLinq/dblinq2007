@@ -26,7 +26,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using DbLinq.Util;
+using DbLinq.Data.Linq.Sql;
 using DbLinq.Vendor.Implementation;
 using System;
 
@@ -34,33 +34,34 @@ namespace DbLinq.PostgreSql
 {
     public class PgsqlSqlProvider : SqlProvider
     {
-        public override string GetInsertIds(IList<string> outputParameters, IList<string> outputExpressions)
+        public override SqlStatement GetInsertIds(IList<SqlStatement> outputParameters, IList<SqlStatement> outputExpressions)
         {
             // no parameters? no need to get them back
             if (outputParameters.Count == 0)
-                return "";
+                return SqlStatement.Empty;
             // otherwise we keep track of the new values
-            return string.Format("SELECT {0}",
-                string.Join(", ", (from outputExpression in outputExpressions select outputExpression.ReplaceCase("nextval(", "currval(", true)).ToArray())
+            var insertId = SqlStatement.Format("SELECT {0}",
+                SqlStatement.Join(", ", (from outputExpression in outputExpressions select outputExpression.Replace("nextval(", "currval(", true)).ToArray())
                 );
+            return insertId;
         }
 
-        protected override string GetLiteralStringToUpper(string a)
+        protected override SqlStatement GetLiteralStringToUpper(SqlStatement a)
         {
             return string.Format("UPPER({0})", a);
         }
 
-        protected override string GetLiteralStringToLower(string a)
+        protected override SqlStatement GetLiteralStringToLower(SqlStatement a)
         {
             return string.Format("LOWER({0})", a);
         }
-        protected override string GetLiteralDateDiff(string dateA, string dateB)
+        protected override SqlStatement GetLiteralDateDiff(SqlStatement dateA, SqlStatement dateB)
         {
             return string.Format("(DATE_PART('Day',{0}-{1})*86400000+DATE_PART('Hour',{0}-{1})*3600000+DATE_PART('Minute',{0}-{1})*60000+DATE_PART('Second',{0}-{1})*1000+DATE_PART('Millisecond',{0}-{1}))::real", dateA, dateB);
         }
 
-        public static readonly Dictionary<Type, string> typeMapping = new Dictionary<Type, string>()
-        {
+        public static readonly Dictionary<Type, string> typeMapping = new Dictionary<Type, string>
+                                                                          {
             {typeof(int),"integer"},
             {typeof(uint),"integer"},
 
@@ -86,7 +87,7 @@ namespace DbLinq.PostgreSql
             //{typeof(Guid),"uniqueidentifier"}
         };
 
-        public override string GetLiteralConvert(string a, System.Type type)
+        public override SqlStatement GetLiteralConvert(SqlStatement a, Type type)
         {
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
                 type = type.GetGenericArguments().First();

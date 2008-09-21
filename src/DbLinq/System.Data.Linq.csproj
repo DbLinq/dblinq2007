@@ -7,7 +7,7 @@
     <ProjectGuid>{97305421-3071-4175-AA3C-9A432CC28121}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>System.Data.Linq</RootNamespace>
+    <RootNamespace>System</RootNamespace>
     <AssemblyName>System.Data.Linq</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -97,6 +97,11 @@
     <Compile Include="Data\Linq\SqlClient\PostgreSqlProvider.cs" />
     <Compile Include="Data\Linq\SqlClient\SqliteProvider.cs" />
     <Compile Include="Data\Linq\SqlClient\SqlServerProvider.cs" />
+    <Compile Include="Data\Linq\Sql\SqlLiteralPart.cs" />
+    <Compile Include="Data\Linq\Sql\SqlParameterPart.cs" />
+    <Compile Include="Data\Linq\Sql\SqlPart.cs" />
+    <Compile Include="Data\Linq\Sql\SqlStatement.cs" />
+    <Compile Include="Data\Linq\Sql\SqlStatementBuilder.cs" />
     <Compile Include="Data\Linq\Sugar\BuilderContext.cs" />
     <Compile Include="Data\Linq\Sugar\DeleteQuery.cs" />
     <Compile Include="Data\Linq\Sugar\DirectQuery.cs" />
