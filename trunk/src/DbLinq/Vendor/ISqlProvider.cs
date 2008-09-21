@@ -28,8 +28,10 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 
 #if MONO_STRICT
+using System.Data.Linq.Sql;
 using System.Data.Linq.Sugar.Expressions;
 #else
+using DbLinq.Data.Linq.Sql;
 using DbLinq.Data.Linq.Sugar.Expressions;
 #endif
 
@@ -40,7 +42,7 @@ namespace DbLinq.Vendor
 #else
     public
 #endif
-    interface ISqlProvider
+ interface ISqlProvider
     {
         string NewLine { get; }
 
@@ -49,7 +51,7 @@ namespace DbLinq.Vendor
         /// </summary>
         /// <param name="literal"></param>
         /// <returns></returns>
-        string GetLiteral(object literal);
+        SqlStatement GetLiteral(object literal);
 
         /// <summary>
         /// Converts a standard operator to an expression
@@ -57,7 +59,7 @@ namespace DbLinq.Vendor
         /// <param name="operationType"></param>
         /// <param name="p"></param>
         /// <returns></returns>
-        string GetLiteral(ExpressionType operationType, IList<string> p);
+        SqlStatement GetLiteral(ExpressionType operationType, IList<SqlStatement> p);
 
         /// <summary>
         /// Converts a special expression type to literal
@@ -65,14 +67,14 @@ namespace DbLinq.Vendor
         /// <param name="operationType"></param>
         /// <param name="p"></param>
         /// <returns></returns>
-        string GetLiteral(SpecialExpressionType operationType, IList<string> p);
+        SqlStatement GetLiteral(SpecialExpressionType operationType, IList<SqlStatement> p);
 
         /// <summary>
         /// Places the expression into parenthesis
         /// </summary>
         /// <param name="a"></param>
         /// <returns></returns>
-        string GetParenthesis(string a);
+        SqlStatement GetParenthesis(SqlStatement a);
 
         /// <summary>
         /// Returns a column related to a table.
@@ -118,14 +120,14 @@ namespace DbLinq.Vendor
         /// </summary>
         /// <param name="tables"></param>
         /// <returns></returns>
-        string GetFromClause(string[] tables);
+        SqlStatement GetFromClause(SqlStatement[] tables);
 
         /// <summary>
         /// Joins a list of conditions to make a WHERE clause
         /// </summary>
         /// <param name="wheres"></param>
         /// <returns></returns>
-        string GetWhereClause(string[] wheres);
+        SqlStatement GetWhereClause(SqlStatement[] wheres);
 
         /// <summary>
         /// Returns a valid alias syntax for the given table
@@ -139,7 +141,7 @@ namespace DbLinq.Vendor
         /// </summary>
         /// <param name="selects"></param>
         /// <returns></returns>
-        string GetSelectClause(string[] selects);
+        SqlStatement GetSelectClause(SqlStatement[] selects);
 
         /// <summary>
         /// Returns all table columns (*)
@@ -153,7 +155,7 @@ namespace DbLinq.Vendor
         /// <param name="select">SELECT clause</param>
         /// <param name="limit">limit value (number of columns to be returned)</param>
         /// <returns></returns>
-        string GetLiteralLimit(string select, string limit);
+        SqlStatement GetLiteralLimit(SqlStatement select, SqlStatement limit);
 
         /// <summary>
         /// Returns a LIMIT clause around a SELECT clause, with offset
@@ -163,7 +165,7 @@ namespace DbLinq.Vendor
         /// <param name="offset">first row to be returned (starting from 0)</param>
         /// <param name="offsetAndLimit">limit+offset</param>
         /// <returns></returns>
-        string GetLiteralLimit(string select, string limit, string offset, string offsetAndLimit);
+        SqlStatement GetLiteralLimit(SqlStatement select, SqlStatement limit, SqlStatement offset, SqlStatement offsetAndLimit);
 
         /// <summary>
         /// Returns an ORDER criterium
@@ -171,28 +173,28 @@ namespace DbLinq.Vendor
         /// <param name="expression"></param>
         /// <param name="descending"></param>
         /// <returns></returns>
-        string GetOrderByColumn(string expression, bool descending);
+        SqlStatement GetOrderByColumn(SqlStatement expression, bool descending);
 
         /// <summary>
         /// Joins a list of conditions to make a ORDER BY clause
         /// </summary>
         /// <param name="orderBy"></param>
         /// <returns></returns>
-        string GetOrderByClause(string[] orderBy);
+        SqlStatement GetOrderByClause(SqlStatement[] orderBy);
 
         /// <summary>
         /// Joins a list of conditions to make a GROUP BY clause
         /// </summary>
         /// <param name="groupBy"></param>
         /// <returns></returns>
-        string GetGroupByClause(string[] groupBy);
+        SqlStatement GetGroupByClause(SqlStatement[] groupBy);
 
         /// <summary>
         /// Joins a list of conditions to make a HAVING clause
         /// </summary>
         /// <param name="havings"></param>
         /// <returns></returns>
-        string GetHavingClause(string[] havings);
+        SqlStatement GetHavingClause(SqlStatement[] havings);
 
         /// <summary>
         /// Returns an operation between two SELECT clauses (UNION, UNION ALL, etc.)
@@ -201,7 +203,7 @@ namespace DbLinq.Vendor
         /// <param name="selectA"></param>
         /// <param name="selectB"></param>
         /// <returns></returns>
-        string GetLiteral(SelectOperatorType selectOperator, string selectA, string selectB);
+        SqlStatement GetLiteral(SelectOperatorType selectOperator, SqlStatement selectA, SqlStatement selectB);
 
         /// <summary>
         /// Builds an insert clause
@@ -210,7 +212,7 @@ namespace DbLinq.Vendor
         /// <param name="inputColumns">Columns to be inserted</param>
         /// <param name="inputValues">Values to be inserted into columns</param>
         /// <returns></returns>
-        string GetInsert(string table, IList<string> inputColumns, IList<string> inputValues);
+        SqlStatement GetInsert(SqlStatement table, IList<SqlStatement> inputColumns, IList<SqlStatement> inputValues);
 
         /// <summary>
         /// Builds the statements that gets back the IDs for the inserted statement
@@ -218,7 +220,7 @@ namespace DbLinq.Vendor
         /// <param name="outputParameters">Expected output parameters</param>
         /// <param name="outputExpressions">Expressions (to help generate output parameters)</param>
         /// <returns></returns>
-        string GetInsertIds(IList<string> outputParameters, IList<string> outputExpressions);
+        SqlStatement GetInsertIds(IList<SqlStatement> outputParameters, IList<SqlStatement> outputExpressions);
 
         /// <summary>
         /// Builds an update clause
@@ -231,9 +233,9 @@ namespace DbLinq.Vendor
         /// <param name="inputPKColumns">PK columns for reference</param>
         /// <param name="inputPKValues">PK values for reference</param>
         /// <returns></returns>
-        string GetUpdate(string table, IList<string> inputColumns, IList<string> inputValues,
-                                         IList<string> outputParameters, IList<string> outputExpressions,
-                                         IList<string> inputPKColumns, IList<string> inputPKValues);
+        SqlStatement GetUpdate(SqlStatement table, IList<SqlStatement> inputColumns, IList<SqlStatement> inputValues,
+                                         IList<SqlStatement> outputParameters, IList<SqlStatement> outputExpressions,
+                                         IList<SqlStatement> inputPKColumns, IList<SqlStatement> inputPKValues);
 
         /// <summary>
         /// Builds a delete clause
@@ -242,7 +244,7 @@ namespace DbLinq.Vendor
         /// <param name="inputPKColumns">PK columns for reference</param>
         /// <param name="inputPKValues">PK values for reference</param>
         /// <returns></returns>
-        string GetDelete(string table, IList<string> inputPKColumns, IList<string> inputPKValues);
+        SqlStatement GetDelete(SqlStatement table, IList<SqlStatement> inputPKColumns, IList<SqlStatement> inputPKValues);
 
         /// <summary>
         /// given 'User', return '[User]' to prevent a SQL keyword conflict
@@ -258,7 +260,7 @@ namespace DbLinq.Vendor
         string GetSafeQuery(string sqlString);
 
         ///<summary>
-        ///Returns a string with a conversion of an expression(value) to a type(newType)
+        ///Returns a SqlStatement with a conversion of an expression(value) to a type(newType)
         ///</summary>
         /// <example>
         /// In sqlServer: 
@@ -268,7 +270,7 @@ namespace DbLinq.Vendor
         /// it should return CONVERT(bit,OrderDetail.Quantity)
         /// </example>
         /// <returns></returns>
-        string GetLiteralConvert(string value, System.Type newType);
+        SqlStatement GetLiteralConvert(SqlStatement value, System.Type newType);
 
         /// <summary>
         /// Returns an INNER JOIN syntax
@@ -276,7 +278,7 @@ namespace DbLinq.Vendor
         /// <param name="joinedTable"></param>
         /// <param name="joinExpression"></param>
         /// <returns></returns>
-        string GetInnerJoinClause(string joinedTable, string joinExpression);
+        SqlStatement GetInnerJoinClause(SqlStatement joinedTable, SqlStatement joinExpression);
 
         /// <summary>
         /// Returns a LEFT JOIN syntax
@@ -284,7 +286,7 @@ namespace DbLinq.Vendor
         /// <param name="joinedTable"></param>
         /// <param name="joinExpression"></param>
         /// <returns></returns>
-        string GetLeftOuterJoinClause(string joinedTable, string joinExpression);
+        SqlStatement GetLeftOuterJoinClause(SqlStatement joinedTable, SqlStatement joinExpression);
 
         /// <summary>
         /// Returns a RIGHT JOIN syntax
@@ -292,13 +294,13 @@ namespace DbLinq.Vendor
         /// <param name="joinedTable"></param>
         /// <param name="joinExpression"></param>
         /// <returns></returns>
-        string GetRightOuterJoinClause(string joinedTable, string joinExpression);
+        SqlStatement GetRightOuterJoinClause(SqlStatement joinedTable, SqlStatement joinExpression);
 
         /// <summary>
         /// Concatenates all join clauses
         /// </summary>
         /// <param name="joins"></param>
         /// <returns></returns>
-        string GetJoinClauses(string[] joins);
+        SqlStatement GetJoinClauses(SqlStatement[] joins);
     }
 }

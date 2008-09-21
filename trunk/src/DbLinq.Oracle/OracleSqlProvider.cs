@@ -27,6 +27,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DbLinq.Data.Linq.Sql;
 using DbLinq.Util;
 using DbLinq.Vendor.Implementation;
 
@@ -39,40 +40,40 @@ namespace DbLinq.Oracle
         //     return "BEGIN " + base.GetInsert(table, inputColumns, inputValues);
         //}
 
-        public override string GetInsertIds(IList<string> outputParameters, IList<string> outputExpressions)
+        public override SqlStatement GetInsertIds(IList<SqlStatement> outputParameters, IList<SqlStatement> outputExpressions)
         {
             // no parameters? no need to get them back
             if (outputParameters.Count == 0)
                 return "";
             // otherwise we keep track of the new values
-            return string.Format("SELECT {0} INTO {1} FROM DUAL",
-                string.Join(", ", (from outputExpression in outputExpressions select outputExpression.ReplaceCase(".NextVal", ".CurrVal", true)).ToArray()),
-                string.Join(", ", outputParameters.ToArray()));
+            return SqlStatement.Format("SELECT {0} INTO {1} FROM DUAL",
+                SqlStatement.Join(", ", (from outputExpression in outputExpressions select outputExpression.Replace(".NextVal", ".CurrVal", true)).ToArray()),
+                SqlStatement.Join(", ", outputParameters.ToArray()));
         }
 
-        protected override string GetLiteralModulo(string a, string b)
+        protected override SqlStatement GetLiteralModulo(SqlStatement a, SqlStatement b)
         {
             return string.Format("MOD({0}, {1})", a, b);
         }
 
-        protected override string GetLiteralCount(string a)
+        protected override SqlStatement GetLiteralCount(SqlStatement a)
         {
             return "COUNT(*)";
         }
 
-        protected override string GetLiteralStringLength(string a)
+        protected override SqlStatement GetLiteralStringLength(SqlStatement a)
         {
-            return string.Format("LENGTH({0})", a);
+            return SqlStatement.Format("LENGTH({0})", a);
         }
 
-        protected override string GetLiteralStringToLower(string a)
+        protected override SqlStatement GetLiteralStringToLower(SqlStatement a)
         {
-            return string.Format("LOWER({0})", a);
+            return SqlStatement.Format("LOWER({0})", a);
         }
 
-        protected override string GetLiteralStringToUpper(string a)
+        protected override SqlStatement GetLiteralStringToUpper(SqlStatement a)
         {
-            return string.Format("UPPER({0})", a);
+            return SqlStatement.Format("UPPER({0})", a);
         }
 
         //          SELECT * FROM (
@@ -84,41 +85,41 @@ namespace DbLinq.Oracle
         protected const string LimitedTableName = "LimitedTable___";
         protected const string LimitedRownum = "Limit___";
 
-        public override string GetLiteralLimit(string select, string limit)
+        public override SqlStatement GetLiteralLimit(SqlStatement select, SqlStatement limit)
         {
-            return string.Format(
+            return SqlStatement.Format(
                 @"SELECT {2}.*, rownum {3} FROM ({4}{0}{4}) {2} WHERE rownum <= {1}",
                 select, limit, LimitedTableName, LimitedRownum, NewLine);
         }
 
-        public override string GetLiteralLimit(string select, string limit, string offset, string offsetAndLimit)
+        public override SqlStatement GetLiteralLimit(SqlStatement select, SqlStatement limit, SqlStatement offset, SqlStatement offsetAndLimit)
         {
-            return string.Format(
+            return SqlStatement.Format(
                 @"SELECT * FROM ({3}{0}{3}) WHERE {2} > {1}",
                 GetLiteralLimit(select, offsetAndLimit), offset, LimitedRownum, NewLine);
         }
 
-        protected override string GetLiteralStringIndexOf(string baseString, string searchString, string startIndex, string count)
+        protected override SqlStatement GetLiteralStringIndexOf(SqlStatement baseString, SqlStatement searchString, SqlStatement startIndex, SqlStatement count)
         {
             // SUBSTR(baseString, StartIndex)
-            string substring = GetLiteralSubString(baseString, startIndex, count);
+            var substring = GetLiteralSubString(baseString, startIndex, count);
 
             // INSTR(SUBSTR(baseString, StartIndex), searchString) ---> range 1:n , 0 => doesn't exist
-            return string.Format("INSTR({0},{1})", substring, searchString);
+            return SqlStatement.Format("INSTR({0},{1})", substring, searchString);
         }
 
-        protected override string GetLiteralStringIndexOf(string baseString, string searchString, string startIndex)
+        protected override SqlStatement GetLiteralStringIndexOf(SqlStatement baseString, SqlStatement searchString, SqlStatement startIndex)
         {
             // SUBSTR(baseString,StartIndex)
-            string substring = GetLiteralSubString(baseString, startIndex);
+            var substring = GetLiteralSubString(baseString, startIndex);
 
             // INSTR(SUBSTR(baseString, StartIndex), searchString) ---> range 1:n , 0 => doesn't exist
-            return string.Format("INSTR({0},{1})", substring, searchString);
+            return SqlStatement.Format("INSTR({0},{1})", substring, searchString);
         }
 
-        protected override string GetLiteralStringIndexOf(string baseString, string searchString)
+        protected override SqlStatement GetLiteralStringIndexOf(SqlStatement baseString, SqlStatement searchString)
         {
-            return GetLiteralSubtract(string.Format("INSTR({0},{1})", baseString, searchString), "1");
+            return GetLiteralSubtract(SqlStatement.Format("INSTR({0},{1})", baseString, searchString), "1");
         }
 
     }

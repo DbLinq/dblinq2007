@@ -31,8 +31,10 @@ using System.Linq.Expressions;
 using System.Reflection;
 
 #if MONO_STRICT
+using System.Data.Linq.Sql;
 using System.Data.Linq.Sugar.Expressions;
 #else
+using DbLinq.Data.Linq.Sql;
 using DbLinq.Data.Linq.Sugar.Expressions;
 #endif
 
@@ -52,12 +54,12 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             public MetaTable Table;
             public readonly IList<ObjectInputParameterExpression> InputParameters = new List<ObjectInputParameterExpression>();
             public readonly IList<ObjectOutputParameterExpression> OutputParameters = new List<ObjectOutputParameterExpression>();
-            public readonly IList<string> InputColumns = new List<string>();
-            public readonly IList<string> InputValues = new List<string>();
-            public readonly IList<string> OutputValues = new List<string>();
-            public readonly IList<string> OutputExpressions = new List<string>();
-            public readonly IList<string> InputPKColumns = new List<string>();
-            public readonly IList<string> InputPKValues = new List<string>();
+            public readonly IList<SqlStatement> InputColumns = new List<SqlStatement>();
+            public readonly IList<SqlStatement> InputValues = new List<SqlStatement>();
+            public readonly IList<SqlStatement> OutputValues = new List<SqlStatement>();
+            public readonly IList<SqlStatement> OutputExpressions = new List<SqlStatement>();
+            public readonly IList<SqlStatement> InputPKColumns = new List<SqlStatement>();
+            public readonly IList<SqlStatement> InputPKValues = new List<SqlStatement>();
         }
 
         // SQLite:
@@ -115,7 +117,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 upsertParameters.OutputValues,
                 upsertParameters.OutputExpressions);
             queryContext.DataContext.Logger.Write(Level.Debug, "Insert SQL: {0}", insertSql);
-            queryContext.DataContext.WriteLog(insertSql);
+            queryContext.DataContext.WriteLog(insertSql.ToString());
             return new UpsertQuery(queryContext.DataContext, insertSql, insertIdSql, upsertParameters.InputParameters, upsertParameters.OutputParameters);
         }
 
@@ -271,7 +273,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 upsertParameters.InputPKColumns, upsertParameters.InputPKValues
                 );
             queryContext.DataContext.Logger.Write(Level.Debug, "Update SQL: {0}", updateSql);
-            queryContext.DataContext.WriteLog(updateSql);
+            queryContext.DataContext.WriteLog(updateSql.ToString());
             return new UpsertQuery(queryContext.DataContext, updateSql, "", upsertParameters.InputParameters, upsertParameters.OutputParameters);
         }
 
@@ -287,8 +289,8 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             var rowType = objectToDelete.GetType();
             var table = queryContext.DataContext.Mapping.GetTable(rowType);
             var deleteParameters = new List<ObjectInputParameterExpression>();
-            var pkColumns = new List<string>();
-            var pkValues = new List<string>();
+            var pkColumns = new List<SqlStatement>();
+            var pkValues = new List<SqlStatement>();
             foreach (var pkMember in table.RowType.IdentityMembers)
             {
                 var memberInfo = pkMember.Member;
@@ -303,7 +305,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             }
             var deleteSql = sqlProvider.GetDelete(sqlProvider.GetTable(table.TableName), pkColumns, pkValues);
             queryContext.DataContext.Logger.Write(Level.Debug, "Delete SQL: {0}", deleteSql);
-            queryContext.DataContext.WriteLog(deleteSql);
+            queryContext.DataContext.WriteLog(deleteSql.ToString());
             return new DeleteQuery(queryContext.DataContext, deleteSql, deleteParameters);
         }
     }

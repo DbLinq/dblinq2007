@@ -26,8 +26,10 @@
 
 using System.Collections.Generic;
 #if MONO_STRICT
+using System.Data.Linq.Sql;
 using System.Data.Linq.Sugar.Expressions;
 #else
+using DbLinq.Data.Linq.Sql;
 using DbLinq.Data.Linq.Sugar.Expressions;
 #endif
 
@@ -39,11 +41,22 @@ namespace DbLinq.Data.Linq.Sugar
 {
     internal class UpsertQuery : AbstractQuery
     {
+        /// <summary>
+        /// Input parameters, instance based (the instance being the entity)
+        /// </summary>
         public IList<ObjectInputParameterExpression> InputParameters { get; private set; }
-        public IList<ObjectOutputParameterExpression> OutputParameters { get; private set; }
-        public string IdQuerySql { get; private set; }
 
-        public UpsertQuery(DataContext dataContext, string sql, string idQuerySql, IList<ObjectInputParameterExpression> inputParameters,
+        /// <summary>
+        /// Output parameters, intstance based (the instance being the entity)
+        /// </summary>
+        public IList<ObjectOutputParameterExpression> OutputParameters { get; private set; }
+
+        /// <summary>
+        /// This statement returns the generated PKs
+        /// </summary>
+        public SqlStatement IdQuerySql { get; private set; }
+
+        public UpsertQuery(DataContext dataContext, SqlStatement sql, SqlStatement idQuerySql, IList<ObjectInputParameterExpression> inputParameters,
             IList<ObjectOutputParameterExpression> outputParameters)
             : base(dataContext, sql)
         {

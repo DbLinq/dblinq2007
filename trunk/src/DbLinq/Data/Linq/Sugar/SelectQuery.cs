@@ -29,9 +29,11 @@ using System.Collections.Generic;
 using System.Data;
 
 #if MONO_STRICT
+using System.Data.Linq.Sql;
 using System.Data.Linq.Sugar.Expressions;
 using MappingContext = System.Data.Linq.Mapping.MappingContext;
 #else
+using DbLinq.Data.Linq.Sql;
 using DbLinq.Data.Linq.Sugar.Expressions;
 using MappingContext = DbLinq.Data.Linq.Mapping.MappingContext;
 #endif
@@ -74,7 +76,7 @@ namespace DbLinq.Data.Linq.Sugar
         /// </summary>
         public string ExecuteMethodName { get; private set; }
 
-        public SelectQuery(DataContext dataContext, string sql, IList<InputParameterExpression> parameters,
+        public SelectQuery(DataContext dataContext, SqlStatement sql, IList<InputParameterExpression> parameters,
                      Delegate rowObjectCreator, string executeMethodName)
             : base(dataContext,sql)
         {

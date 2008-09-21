@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // MIT license
 //
@@ -24,28 +24,25 @@
 // 
 #endregion
 
-using System;
-using System.Collections.Generic;
 #if MONO_STRICT
-using System.Data.Linq.Sql;
+namespace System.Data.Linq.Sql
 #else
-using DbLinq.Data.Linq.Sql;
-#endif
-
-#if MONO_STRICT
-namespace System.Data.Linq.Sugar
-#else
-namespace DbLinq.Data.Linq.Sugar
+namespace DbLinq.Data.Linq.Sql
 #endif
 {
-    internal class DirectQuery : AbstractQuery
+    /// <summary>
+    /// An SqlPart is a constitutive string of SQL query
+    /// </summary>
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    abstract class SqlPart
     {
-        public IList<string> Parameters { get; private set; }
-
-        public DirectQuery(DataContext dataContext, SqlStatement sql, IList<string> parameters)
-            : base(dataContext, sql)
-        {
-            Parameters = parameters;
-        }
+        /// <summary>
+        /// The resulting SQL string
+        /// </summary>
+        public abstract string Sql { get; }
     }
 }

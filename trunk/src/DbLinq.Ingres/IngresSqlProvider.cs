@@ -26,57 +26,56 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using DbLinq.Util;
+using DbLinq.Data.Linq.Sql;
 using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.Ingres
 {
     public class IngresSqlProvider : SqlProvider
     {
-        public override string GetInsertIds(IList<string> outputParameters, IList<string> outputExpressions)
+        public override SqlStatement GetInsertIds(IList<SqlStatement> outputParameters, IList<SqlStatement> outputExpressions)
         {
             // no parameters? no need to get them back
             if (outputParameters.Count == 0)
                 return "";
             // otherwise we keep track of the new values
-            return string.Format("SELECT {0}",
-                string.Join(", ", (from outputExpression in outputExpressions
-                                   select outputExpression.ReplaceCase("next value", "current value", true)).ToArray())
+            return SqlStatement.Format("SELECT {0}",
+                SqlStatement.Join(", ", (from outputExpression in outputExpressions
+                                         select outputExpression.Replace("next value", "current value", true)).ToArray())
                 );
         }
 
-        protected override string GetLiteralCount(string a)
+        protected override SqlStatement GetLiteralCount(SqlStatement a)
         {
             return "COUNT(*)";
         }
 
-        protected override string GetLiteralStringToLower(string a)
+        protected override SqlStatement GetLiteralStringToLower(SqlStatement a)
         {
             return string.Format("LOWER({0})", a);
         }
 
-        protected override string GetLiteralStringToUpper(string a)
+        protected override SqlStatement GetLiteralStringToUpper(SqlStatement a)
         {
             return string.Format("UPPER({0})", a);
         }
 
-        public override string GetLiteralLimit(string select, string limit)
+        public override SqlStatement GetLiteralLimit(SqlStatement select, SqlStatement limit)
         {
             // return string.Format("SELECT FIRST {0} FROM ({1})", limit, select);
-            string trimSelect = "SELECT ";
-            if (select.StartsWith(trimSelect))
+            var trimSelect = "SELECT ";
+            if (select.Count > 0 && select[0].Sql.StartsWith(trimSelect))
             {
-                string remaining = select.Substring(trimSelect.Length);
-                return string.Format("SELECT FIRST {0} {1}", limit, remaining);
+                var selectBuilder = new SqlStatementBuilder(select);
+                var remaining = select[0].Sql.Substring(trimSelect.Length);
+                selectBuilder.Parts[0] = new SqlLiteralPart(remaining);
+                return SqlStatement.Format("SELECT FIRST {0} {1}", limit, selectBuilder.ToSqlStatement());
             }
             throw new ArgumentException("Invalid SELECT format");
         }
 
-        public override string GetLiteralLimit(string select, string limit, string offset, string offsetAndLimit)
+        public override SqlStatement GetLiteralLimit(SqlStatement select, SqlStatement limit, SqlStatement offset, SqlStatement offsetAndLimit)
         {
             // TODO: this is for you, Thomas...
             throw new NotImplementedException("OFFSET clause is not supported on Ingres");

@@ -27,6 +27,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DbLinq.Data.Linq.Sql;
 using DbLinq.Util;
 using DbLinq.Vendor.Implementation;
 
@@ -39,14 +40,14 @@ namespace DbLinq.MySql
             return string.Format("?{0}", nameBase);
         }
 
-        protected override string GetLiteralCount(string a)
+        protected override SqlStatement GetLiteralCount(SqlStatement a)
         {
             return "COUNT(*)";
         }
 
-        protected override string GetLiteralStringConcat(string a, string b)
+        protected override SqlStatement GetLiteralStringConcat(SqlStatement a, SqlStatement b)
         {
-            return string.Format("CONCAT({0}, {1})", a, b);
+            return SqlStatement.Format("CONCAT({0}, {1})", a, b);
         }
 
         public virtual string GetBulkInsert(string table, IList<string> columns, IList<IList<string>> valuesLists)

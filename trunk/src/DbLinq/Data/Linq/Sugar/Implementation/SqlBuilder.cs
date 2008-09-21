@@ -30,13 +30,13 @@ using System.Linq;
 using System.Linq.Expressions;
 
 #if MONO_STRICT
-using System.Data.Linq.Sugar;
+using System.Data.Linq.Sql;
 using System.Data.Linq.Sugar.ExpressionMutator;
 using System.Data.Linq.Sugar.Expressions;
 #else
+using DbLinq.Data.Linq.Sql;
 using DbLinq.Data.Linq.Sugar.ExpressionMutator;
 using DbLinq.Data.Linq.Sugar.Expressions;
-using DbLinq.Data.Linq.Sugar;
 #endif
 
 using DbLinq.Factory;
@@ -59,12 +59,12 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
 
         /// <summary>
         /// Builds a SQL string, based on a QueryContext
-        /// The build indirectly depends on ISqlProvider which provides all SQL parts.
+        /// The build indirectly depends on ISqlProvider which provides all SQL Parts.
         /// </summary>
         /// <param name="expressionQuery"></param>
         /// <param name="queryContext"></param>
         /// <returns></returns>
-        public string BuildSelect(ExpressionQuery expressionQuery, QueryContext queryContext)
+        public SqlStatement BuildSelect(ExpressionQuery expressionQuery, QueryContext queryContext)
         {
             return Build(expressionQuery.Select, queryContext);
         }
@@ -105,7 +105,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         /// <param name="selectExpression"></param>
         /// <param name="queryContext"></param>
         /// <returns></returns>
-        public string Build(SelectExpression selectExpression, QueryContext queryContext)
+        public SqlStatement Build(SelectExpression selectExpression, QueryContext queryContext)
         {
             // A scope usually has:
             // - a SELECT: the operation creating a CLR object with data coming from SQL tier
@@ -135,10 +135,10 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             return select;
         }
 
-        public string Join(QueryContext queryContext, params string[] clauses)
+        public SqlStatement Join(QueryContext queryContext, params SqlStatement[] clauses)
         {
-            return string.Join(queryContext.DataContext.Vendor.SqlProvider.NewLine,
-                               (from clause in clauses where !string.IsNullOrEmpty(clause) select clause).ToArray());
+            return SqlStatement.Join(queryContext.DataContext.Vendor.SqlProvider.NewLine,
+                               (from clause in clauses where clause.ToString() != string.Empty select clause).ToList());
         }
 
         /// <summary>
@@ -148,17 +148,17 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         /// <param name="expression"></param>
         /// <param name="queryContext"></param>
         /// <returns></returns>
-        protected virtual string BuildExpression(Expression expression, QueryContext queryContext)
+        protected virtual SqlStatement BuildExpression(Expression expression, QueryContext queryContext)
         {
             var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
             var currentPrecedence = ExpressionQualifier.GetPrecedence(expression);
             // first convert operands
             var operands = expression.GetOperands();
-            var literalOperands = new List<string>();
+            var literalOperands = new List<SqlStatement>();
             foreach (var operand in operands)
             {
                 var operandPrecedence = ExpressionQualifier.GetPrecedence(operand);
-                string literalOperand = BuildExpression(operand, queryContext);
+                var literalOperand = BuildExpression(operand, queryContext);
                 if (operandPrecedence > currentPrecedence)
                     literalOperand = sqlProvider.GetParenthesis(literalOperand);
                 literalOperands.Add(literalOperand);
@@ -188,7 +188,12 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 return sqlProvider.GetColumn(columnExpression.Name);
             }
             if (expression is InputParameterExpression)
-                return sqlProvider.GetParameterName(((InputParameterExpression)expression).Alias);
+            {
+                var inputParameterExpression = (InputParameterExpression) expression;
+                return
+                    new SqlStatement(new SqlParameterPart(sqlProvider.GetParameterName(inputParameterExpression.Alias),
+                                                          inputParameterExpression.Alias));
+            }
             if (expression is SelectExpression)
                 return Build((SelectExpression)expression, queryContext);
             if (expression is ConstantExpression)
@@ -244,10 +249,10 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             return false;
         }
 
-        protected virtual string BuildFrom(IList<TableExpression> tables, QueryContext queryContext)
+        protected virtual SqlStatement BuildFrom(IList<TableExpression> tables, QueryContext queryContext)
         {
             var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
-            var fromClauses = new List<string>();
+            var fromClauses = new List<SqlStatement>();
             foreach (var tableExpression in tables)
             {
                 if (!MustDeclareAsJoin(tables, tableExpression))
@@ -276,19 +281,19 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         /// <param name="tables"></param>
         /// <param name="queryContext"></param>
         /// <returns></returns>
-        protected virtual string BuildJoin(IList<TableExpression> tables, QueryContext queryContext)
+        protected virtual SqlStatement BuildJoin(IList<TableExpression> tables, QueryContext queryContext)
         {
             var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
-            var joinClauses = new List<string>();
+            var joinClauses = new List<SqlStatement>();
             foreach (var tableExpression in tables)
             {
                 // this is the pending declaration of direct tables
                 if (MustDeclareAsJoin(tables, tableExpression))
                 {
-                    // get constitutive parts
+                    // get constitutive Parts
                     var joinExpression = BuildExpression(tableExpression.JoinExpression, queryContext);
                     var tableAlias = sqlProvider.GetTableAsAlias(tableExpression.Name, tableExpression.Alias);
-                    string joinClause;
+                    SqlStatement joinClause;
                     switch (tableExpression.JoinType)
                     {
                     case TableJoinType.Inner:
@@ -324,10 +329,10 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             return isHaving;
         }
 
-        protected virtual string BuildWhere(IList<TableExpression> tables, IList<Expression> wheres, QueryContext queryContext)
+        protected virtual SqlStatement BuildWhere(IList<TableExpression> tables, IList<Expression> wheres, QueryContext queryContext)
         {
             var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
-            var whereClauses = new List<string>();
+            var whereClauses = new List<SqlStatement>();
             foreach (var tableExpression in tables)
             {
                 if (!MustDeclareAsJoin(tables, tableExpression) && tableExpression.JoinExpression != null)
@@ -341,10 +346,10 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             return sqlProvider.GetWhereClause(whereClauses.ToArray());
         }
 
-        protected virtual string BuildHaving(IList<Expression> wheres, QueryContext queryContext)
+        protected virtual SqlStatement BuildHaving(IList<Expression> wheres, QueryContext queryContext)
         {
             var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
-            var havingClauses = new List<string>();
+            var havingClauses = new List<SqlStatement>();
             foreach (var whereExpression in wheres)
             {
                 if (IsHavingClause(whereExpression))
@@ -353,7 +358,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             return sqlProvider.GetHavingClause(havingClauses.ToArray());
         }
 
-        protected virtual string GetGroupByClause(ColumnExpression columnExpression, QueryContext queryContext)
+        protected virtual SqlStatement GetGroupByClause(ColumnExpression columnExpression, QueryContext queryContext)
         {
             var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
             if (columnExpression.Table.Alias != null)
@@ -364,10 +369,10 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             return sqlProvider.GetColumn(columnExpression.Name);
         }
 
-        protected virtual string BuildGroupBy(IList<GroupExpression> groupByExpressions, QueryContext queryContext)
+        protected virtual SqlStatement BuildGroupBy(IList<GroupExpression> groupByExpressions, QueryContext queryContext)
         {
             var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
-            var groupByClauses = new List<string>();
+            var groupByClauses = new List<SqlStatement>();
             foreach (var groupByExpression in groupByExpressions)
             {
                 foreach (var operand in groupByExpression.Clauses)
@@ -381,10 +386,10 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             return sqlProvider.GetGroupByClause(groupByClauses.ToArray());
         }
 
-        protected virtual string BuildOrderBy(IList<OrderByExpression> orderByExpressions, QueryContext queryContext)
+        protected virtual SqlStatement BuildOrderBy(IList<OrderByExpression> orderByExpressions, QueryContext queryContext)
         {
             var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
-            var orderByClauses = new List<string>();
+            var orderByClauses = new List<SqlStatement>();
             foreach (var clause in orderByExpressions)
             {
                 orderByClauses.Add(sqlProvider.GetOrderByColumn(BuildExpression(clause.ColumnExpression, queryContext),
@@ -393,13 +398,13 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             return sqlProvider.GetOrderByClause(orderByClauses.ToArray());
         }
 
-        protected virtual string BuildSelect(Expression select, QueryContext queryContext)
+        protected virtual SqlStatement BuildSelect(Expression select, QueryContext queryContext)
         {
             var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
-            var selectClauses = new List<string>();
+            var selectClauses = new List<SqlStatement>();
             foreach (var selectExpression in select.GetOperands())
             {
-                string expressionString = BuildExpression(selectExpression, queryContext);
+                var expressionString = BuildExpression(selectExpression, queryContext);
                 if (selectExpression is SelectExpression)
                     selectClauses.Add(sqlProvider.GetParenthesis(expressionString));
                 else
@@ -408,7 +413,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             return sqlProvider.GetSelectClause(selectClauses.ToArray());
         }
 
-        protected virtual string BuildLimit(SelectExpression select, string literalSelect, QueryContext queryContext)
+        protected virtual SqlStatement BuildLimit(SelectExpression select, SqlStatement literalSelect, QueryContext queryContext)
         {
             if (select.Limit != null)
             {

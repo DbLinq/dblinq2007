@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // MIT license
 //
@@ -24,28 +24,44 @@
 // 
 #endregion
 
-using System;
-using System.Collections.Generic;
-#if MONO_STRICT
-using System.Data.Linq.Sql;
-#else
-using DbLinq.Data.Linq.Sql;
-#endif
+using System.Diagnostics;
 
 #if MONO_STRICT
-namespace System.Data.Linq.Sugar
+namespace System.Data.Linq.Sql
 #else
-namespace DbLinq.Data.Linq.Sugar
+namespace DbLinq.Data.Linq.Sql
 #endif
 {
-    internal class DirectQuery : AbstractQuery
+    /// <summary>
+    /// SqlPart exposing a parameter
+    /// </summary>
+    [DebuggerDisplay("SqlParameterPart {Parameter} (as {Alias})")]
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+ class SqlParameterPart : SqlPart
     {
-        public IList<string> Parameters { get; private set; }
+        /// <summary>
+        /// The SQL part is the literal parameter
+        /// </summary>
+        public override string Sql { get { return Parameter; } }
 
-        public DirectQuery(DataContext dataContext, SqlStatement sql, IList<string> parameters)
-            : base(dataContext, sql)
+        /// <summary>
+        /// Literal parameter to be used
+        /// </summary>
+        public string Parameter { get; private set; }
+
+        /// <summary>
+        /// Raw parameter name
+        /// </summary>
+        public string Alias { get; private set; }
+
+        public SqlParameterPart(string parameter, string alias)
         {
-            Parameters = parameters;
+            Parameter = parameter;
+            Alias = alias;
         }
     }
 }

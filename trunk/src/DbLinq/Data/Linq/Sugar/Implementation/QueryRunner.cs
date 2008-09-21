@@ -25,16 +25,16 @@
 #endregion
 
 using System;
+using System.Data;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data;
 using System.Reflection;
 
 #if MONO_STRICT
-using System.Data.Linq.Sugar;
+using System.Data.Linq.Sql;
 using System.Data.Linq.Sugar.Expressions;
 #else
-using DbLinq.Data.Linq.Sugar;
+using DbLinq.Data.Linq.Sql;
 using DbLinq.Data.Linq.Sugar.Expressions;
 #endif
 
@@ -89,9 +89,9 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             }
         }
 
-        protected virtual DbCommand UseDbCommand(string commandText, bool createTransaction, DataContext dataContext)
+        protected virtual DbCommand UseDbCommand(SqlStatement commandText, bool createTransaction, DataContext dataContext)
         {
-            return new DbCommand(commandText, createTransaction, dataContext);
+            return new DbCommand(commandText.ToString(), createTransaction, dataContext);
         }
 
         /// <summary>
@@ -105,7 +105,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             var rowObjectCreator = selectQuery.GetRowObjectCreator<T>();
 
             // handle the special case where the query is empty, meaning we don't need the DB
-            if (string.IsNullOrEmpty(selectQuery.Sql))
+            if (string.IsNullOrEmpty(selectQuery.Sql.ToString()))
             {
                 yield return rowObjectCreator(null, null);
                 yield break;
@@ -276,13 +276,13 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 // we may have two commands
                 int rowsCount = dbCommand.Command.ExecuteNonQuery();
                 // the second reads output parameters
-                if (!string.IsNullOrEmpty(insertQuery.IdQuerySql))
+                if (!string.IsNullOrEmpty(insertQuery.IdQuerySql.ToString()))
                 {
                     IDbCommand outputCommand = dbCommand.Command.Connection.CreateCommand();
 
                     // then run commands
                     outputCommand.Transaction = dbCommand.Command.Transaction;
-                    outputCommand.CommandText = insertQuery.IdQuerySql;
+                    outputCommand.CommandText = insertQuery.IdQuerySql.ToString();
                     using (IDataReader dataReader = outputCommand.ExecuteReader())
                     {
                         // TODO: check if this is needed

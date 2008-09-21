@@ -192,7 +192,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             var previousExpression = ExpressionDispatcher.CreateTableExpression(expressions.Expressions[0], builderContext);
             previousExpression = BuildExpressionQuery(expressions, previousExpression, builderContext);
             BuildOffsetsAndLimits(builderContext);
-            // then prepare parts for SQL translation
+            // then prepare Parts for SQL translation
             PrepareSqlOperands(builderContext);
             // now, we optimize anything we can
             OptimizeQuery(builderContext);
@@ -307,7 +307,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             // now process the main SELECT
             if (processOnlySqlParts)
             {
-                // if we process only the SQL parts, these are the operands
+                // if we process only the SQL Parts, these are the operands
                 var newOperands = new List<Expression>();
                 foreach (var operand in builderContext.CurrentSelect.Operands)
                     newOperands.Add(processor(operand, builderContext));
@@ -401,7 +401,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 queryContext.DataContext.Logger.Write(Level.Debug, "Select Expression build: {0}ms", expressionBuildTime);
                 queryContext.DataContext.Logger.Write(Level.Debug, "Select SQL build:        {0}ms", sqlBuildTime);
                 queryContext.DataContext.Logger.Write(Level.Debug, "Select SQL: {0}", query.Sql);
-                queryContext.DataContext.WriteLog(query.Sql);
+                queryContext.DataContext.WriteLog(query.Sql.ToString());
                 SetInSelectCache(expressions, query);
             }
             return query;

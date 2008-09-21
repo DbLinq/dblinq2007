@@ -26,13 +26,15 @@
 
 using System;
 using System.Linq;
-using DbLinq.Util;
-using DbLinq.Vendor.Implementation;
 using System.Collections.Generic;
-using System.Linq.Expressions;
+
+using DbLinq.Vendor.Implementation;
+
 #if MONO_STRICT
+using System.Data.Linq.Sql;
 using System.Data.Linq.Sugar.Expressions;
 #else
+using DbLinq.Data.Linq.Sql;
 using DbLinq.Data.Linq.Sugar.Expressions;
 #endif
 
@@ -65,20 +67,22 @@ namespace DbLinq.SqlServer
             return string.Format("@{0}", nameBase);
         }
 
-        public override string GetLiteralLimit(string select, string limit)
+        public override SqlStatement GetLiteralLimit(SqlStatement select, SqlStatement limit)
         {
-            var selectClause = "SELECT ";
-            if (select.StartsWith(selectClause))
+            var trimSelect = "SELECT ";
+            if (select.Count > 0 && select[0].Sql.StartsWith(trimSelect))
             {
-                var selectContents = select.Substring(selectClause.Length);
-                return string.Format("SELECT TOP ({0}) {1}", limit, selectContents);
+                var selectBuilder = new SqlStatementBuilder(select);
+                var remaining = select[0].Sql.Substring(trimSelect.Length);
+                selectBuilder.Parts[0] = new SqlLiteralPart(remaining);
+                return SqlStatement.Format("SELECT TOP ({0}) {1}", limit, selectBuilder.ToSqlStatement());
             }
             throw new ArgumentException("S0051: Unknown select format");
         }
 
-        protected override string GetLiteralDateDiff(string dateA, string dateB)
+        protected override SqlStatement GetLiteralDateDiff(SqlStatement dateA, SqlStatement dateB)
         {
-            return string.Format("(CONVERT(BigInt,DATEDIFF(DAY, {0}, {1}))) * 86400000 +" //diffierence in milliseconds regards days
+            return SqlStatement.Format("(CONVERT(BigInt,DATEDIFF(DAY, {0}, {1}))) * 86400000 +" //diffierence in milliseconds regards days
                      + "DATEDIFF(MILLISECOND, "
 
                                 // (DateA-DateB) in days +DateB = difference in time
@@ -92,79 +96,79 @@ namespace DbLinq.SqlServer
             //System.Data.SqlClient.SqlException : Difference of two datetime columns caused overflow at runtime.
         }
 
-        protected override string GetLiteralDateTimePart(string dateExpression, SpecialExpressionType operationType)
+        protected override SqlStatement GetLiteralDateTimePart(SqlStatement dateExpression, SpecialExpressionType operationType)
         {
-            return string.Format("DATEPART({0},{1})", operationType.ToString().ToUpper(), dateExpression);
+            return SqlStatement.Format("DATEPART({0},{1})", operationType.ToString().ToUpper(), dateExpression);
         }
 
-        protected override string GetLiteralMathPow(string p, string p_2)
+        protected override SqlStatement GetLiteralMathPow(SqlStatement p, SqlStatement p_2)
         {
-            return string.Format("POWER({0},{1})", p, p_2);
+            return SqlStatement.Format("POWER({0},{1})", p, p_2);
         }
 
-        protected override string GetLiteralMathLog(string p, string p_2)
+        protected override SqlStatement GetLiteralMathLog(SqlStatement p, SqlStatement p_2)
         {
-            return string.Format("(LOG({0})/LOG({1}))", p, p_2);
+            return SqlStatement.Format("(LOG({0})/LOG({1}))", p, p_2);
         }
 
-        protected override string GetLiteralMathLn(string p)
+        protected override SqlStatement GetLiteralMathLn(SqlStatement p)
         {
-            return GetLiteralMathLog(p, string.Format("{0}",Math.E));
+            return GetLiteralMathLog(p, string.Format("{0}", Math.E));
         }
 
-        protected override string GetLiteralStringLength(string a)
+        protected override SqlStatement GetLiteralStringLength(SqlStatement a)
         {
-            return string.Format("LEN({0})", a);
+            return SqlStatement.Format("LEN({0})", a);
         }
 
-        protected override string GetLiteralSubString(string baseString, string startIndex, string count)
+        protected override SqlStatement GetLiteralSubString(SqlStatement baseString, SqlStatement startIndex, SqlStatement count)
         {
             //in standard sql base string index is 1 instead 0
-            return string.Format("SUBSTRING({0}, {1}, {2})", baseString, GetLiteralAdd(startIndex, "1"), count);
+            return SqlStatement.Format("SUBSTRING({0}, {1}, {2})", baseString, GetLiteralAdd(startIndex, "1"), count);
         }
 
-        protected override string GetLiteralSubString(string baseString, string startIndex)
+        protected override SqlStatement GetLiteralSubString(SqlStatement baseString, SqlStatement startIndex)
         {
             return GetLiteralSubString(baseString, GetLiteralAdd(startIndex, "1"), GetLiteralStringLength(baseString));
         }
 
-        protected override string GetLiteralTrim(string a)
+        protected override SqlStatement GetLiteralTrim(SqlStatement a)
         {
-            return string.Format("RTRIM(LTRIM({0}))", a);
+            return SqlStatement.Format("RTRIM(LTRIM({0}))", a);
         }
 
-        protected override string GetLiteralStringConcat(string a, string b)
+        protected override SqlStatement GetLiteralStringConcat(SqlStatement a, SqlStatement b)
         {
-            return string.Format("{0} + {1}", a, b);
+            return SqlStatement.Format("{0} + {1}", a, b);
         }
 
-        protected override string GetLiteralStringToLower(string a)
+        protected override SqlStatement GetLiteralStringToLower(SqlStatement a)
         {
-            return string.Format("LOWER({0})", a);
+            return SqlStatement.Format("LOWER({0})", a);
         }
 
-        protected override string GetLiteralStringToUpper(string a)
+        protected override SqlStatement GetLiteralStringToUpper(SqlStatement a)
         {
-            return string.Format("UPPER({0})", a);
+            return SqlStatement.Format("UPPER({0})", a);
         }
 
-        protected override string GetLiteralStringIndexOf(string baseString, string searchString)
+        protected override SqlStatement GetLiteralStringIndexOf(SqlStatement baseString, SqlStatement searchString)
         {
-            return GetLiteralSubtract(string.Format("CHARINDEX({0},{1})", searchString, baseString), "1");
+            return GetLiteralSubtract(SqlStatement.Format("CHARINDEX({0},{1})", searchString, baseString), "1");
         }
 
-        protected override string GetLiteralStringIndexOf(string baseString, string searchString, string startIndex)
+        protected override SqlStatement GetLiteralStringIndexOf(SqlStatement baseString, SqlStatement searchString, SqlStatement startIndex)
         {
-            return GetLiteralSubtract(string.Format("CHARINDEX({0},{1},{2})", searchString, baseString, startIndex), "1");
+            return GetLiteralSubtract(SqlStatement.Format("CHARINDEX({0},{1},{2})", searchString, baseString, startIndex), "1");
         }
 
-        protected override string GetLiteralStringIndexOf(string baseString, string searchString, string startIndex, string count)
+        protected override SqlStatement GetLiteralStringIndexOf(SqlStatement baseString, SqlStatement searchString, SqlStatement startIndex, SqlStatement count)
         {
-            return GetLiteralSubtract(string.Format("CHARINDEX({0},{1},{2})", searchString, GetLiteralSubString(baseString, "1", GetLiteralStringConcat(count, startIndex)), startIndex), "1");
+            return GetLiteralSubtract(SqlStatement.Format("CHARINDEX({0},{1},{2})", searchString, GetLiteralSubString(baseString, "1", GetLiteralStringConcat(count, startIndex)), startIndex), "1");
         }
 
         //http://msdn.microsoft.com/en-us/library/4e5xt97a(VS.71).aspx
-        public static readonly Dictionary<Type, string> typeMapping = new Dictionary<Type, string>()
+        public static readonly Dictionary<Type, string> typeMapping = new Dictionary<Type, string>
         {
             {typeof(int),"int"},
             {typeof(uint),"int"},
@@ -194,28 +198,25 @@ namespace DbLinq.SqlServer
             // there are more types: timestamps, images ... TODO: check what is the official behaviour
         };
 
-        public override string GetLiteralConvert(string a, Type type)
+        public override SqlStatement GetLiteralConvert(SqlStatement a, Type type)
         {
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
                 type = type.GetGenericArguments().First();
 
-            string sqlTypeName;
+            SqlStatement sqlTypeName;
             if (typeMapping.ContainsKey(type))
                 sqlTypeName = typeMapping[type];
             else
                 sqlTypeName = "variant";
 
-            return string.Format("CONVERT({0},{1})", sqlTypeName, a);
+            return SqlStatement.Format("CONVERT({0},{1})", sqlTypeName, a);
         }
 
         public override string GetColumn(string table, string column)
         {
             if (column != "*")
                 return base.GetColumn(table, column);
-            else
-                return "*";
-            
-
+            return "*";
         }
     }
 }
