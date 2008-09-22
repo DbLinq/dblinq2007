@@ -136,9 +136,8 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             writer.WriteUsingNamespace("System.Data.Linq");
 #else
             writer.WriteUsingNamespace("DbLinq.Data.Linq");
+            writer.WriteUsingNamespace("DbLinq.Data.Linq.Mapping");
 #endif
-            writer.WriteUsingNamespace("DbLinq.Linq");
-            writer.WriteUsingNamespace("DbLinq.Linq.Mapping");
             writer.WriteLine();
         }
 
