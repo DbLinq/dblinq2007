@@ -66,7 +66,7 @@ namespace DbLinq.Schema.Dbml
 #else
     public
 #endif
-    class EnumType : IDictionary<string, int>, INamedType
+ class EnumType : IDictionary<string, int>, INamedType
     {
         private string name;
         public string Name
@@ -534,17 +534,17 @@ namespace DbLinq.Schema.Dbml
     {
         [Browsable(false)]
         [XmlIgnore]
-        public readonly List<Column> Columns = new List<Column>();
+        public readonly ISimpleList<Column> Columns;
 
         [Browsable(false)]
         [XmlIgnore]
-        public readonly List<Association> Associations = new List<Association>();
+        public readonly ISimpleList<Association> Associations;
 
         public Type()
         {
             SpecifiedHelper.Register(this);
-            //Columns = new ArrayHelper<Column>(this, "Items");
-            //Associations = new ArrayHelper<Association>(this, "Items");
+            Columns = new ArrayHelper<Column>(this, "Items");
+            Associations = new ArrayHelper<Association>(this, "Items");
         }
 
         public override string ToString()
