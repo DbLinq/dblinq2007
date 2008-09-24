@@ -33,7 +33,12 @@ namespace DbLinq.Vendor.Implementation
 {
     partial class SchemaLoader
     {
-        protected virtual void CheckNamesCaseSafety(Database schema)
+        /// <summary>
+        /// Checks all names in DBML schema, 
+        /// and enquotes the ones where a casing problem could occur
+        /// </summary>
+        /// <param name="schema"></param>
+        public virtual void CheckNamesSafety(Database schema)
         {
             schema.Name = Vendor.SqlProvider.GetSafeName(schema.Name);
             foreach (var table in schema.Table)

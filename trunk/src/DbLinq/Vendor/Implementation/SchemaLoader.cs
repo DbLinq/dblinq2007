@@ -89,7 +89,10 @@ namespace DbLinq.Vendor.Implementation
             LoadConstraints(schema, schemaName, Connection, nameFormat, names);
             if (loadStoredProcedures)
                 LoadStoredProcedures(schema, schemaName, Connection, nameFormat);
-            CheckNamesCaseSafety(schema);
+            // names aren't checked here anymore, because this confuses DBML editor.
+            // they will (for now) be checked before .cs generation
+            // in the end, when probably will end up in mapping source (or somewhere around)
+            //CheckNamesSafety(schema);
 
             // check for duplicate names between properties
             CheckNames(schema);
