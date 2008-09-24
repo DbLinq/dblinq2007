@@ -25,8 +25,6 @@
 #endregion
 
 using DbLinq;
-using DbLinq.Factory;
-using DbMetal.Generator;
 using DbMetal.Generator.Implementation;
 
 namespace DbMetal
