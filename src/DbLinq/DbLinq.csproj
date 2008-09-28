@@ -197,6 +197,12 @@
     <Compile Include="Data\Linq\IEntityMap.cs" />
     <Compile Include="Data\Linq\Implementation\EntityMap.cs" />
     <Compile Include="Schema\Case.cs" />
+    <Compile Include="Schema\Dbml\Adapter\ArrayAdapter.cs" />
+    <Compile Include="Schema\Dbml\Adapter\CsvArrayAdapter.cs" />
+    <Compile Include="Schema\Dbml\Adapter\EnumType.cs" />
+    <Compile Include="Schema\Dbml\Adapter\INamedType.cs" />
+    <Compile Include="Schema\Dbml\Adapter\ISimpleList.cs" />
+    <Compile Include="Schema\Dbml\Adapter\SpecifiedPropertyUpdater.cs" />
     <Compile Include="Schema\WordsExtraction.cs" />
     <Compile Include="Schema\NameFormat.cs" />
     <Compile Include="Logging\ILogger.cs" />
@@ -269,7 +275,6 @@
     <None Include="..\DbLinq.snk">
       <Link>Properties\DbLinq.snk</Link>
     </None>
-    <None Include="Schema\Dbml\DbmlSchema.bat" />
     <None Include="Schema\Dbml\DbmlSchema.bat" />
     <EmbeddedResource Include="Schema\Dbml\DbmlSchema.xsd">
     </EmbeddedResource>

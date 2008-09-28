@@ -25,6 +25,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using DbLinq.Schema;
 using DbLinq.Schema.Dbml;
@@ -59,23 +60,58 @@ namespace DbLinq.Vendor.Implementation
             }
         }
 
-        protected virtual void CheckNames(Database schema,
-                                      Func<Column, string> tableNamedColumnRenamer,
-                                      Func<Association, string> tableNamedAssociationRenamer,
-                                      Func<Association, string> columnNamedAssociationRenamer)
+        protected static List<string> GetPrimaryKeys(Table table)
+        {
+            return (from c in table.Type.Columns where c.IsPrimaryKey select c.Name).ToList();
+        }
+
+        /// <summary>
+        /// Checks for problematic names on columns
+        /// We currently have 1 case, where column is equal to table name
+        /// </summary>
+        /// <param name="schema"></param>
+        protected virtual void CheckColumnsName(Database schema)
         {
             foreach (var table in schema.Tables)
             {
                 foreach (var column in table.Type.Columns)
                 {
+                    // THE case
                     if (column.Member == table.Type.Name)
-                        column.Member = tableNamedColumnRenamer(column);
+                    {
+                        // now, we try to append 1, then 2, etc.
+                        var appendValue = 0;
+                        for (; ; )
+                        {
+                            var newColumnMember = column.Member + ++appendValue;
+                            if (!table.Type.Columns.Any(c => c.Member == newColumnMember))
+                            {
+                                column.Member = newColumnMember;
+                            }
+                        }
+                    }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Checks for name conflicts, given lambdas to correct on conflicts
+        /// </summary>
+        /// <param name="schema"></param>
+        /// <param name="tableNamedAssociationRenamer"></param>
+        /// <param name="columnNamedAssociationRenamer"></param>
+        protected virtual void CheckConstraintsName(Database schema,
+                                      Func<Association, string> tableNamedAssociationRenamer,
+                                      Func<Association, string> columnNamedAssociationRenamer)
+        {
+            foreach (var table in schema.Tables)
+            {
                 foreach (var association in table.Type.Associations)
                 {
+                    var localAssociation = association;
                     if (association.Member == table.Type.Name)
                         association.Member = tableNamedAssociationRenamer(association);
-                    else if ((from column in table.Type.Columns where column.Member == association.Member select column).FirstOrDefault() != null)
+                    else if ((from column in table.Type.Columns where column.Member == localAssociation.Member select column).FirstOrDefault() != null)
                     {
                         association.Member = columnNamedAssociationRenamer(association);
                     }
@@ -83,14 +119,22 @@ namespace DbLinq.Vendor.Implementation
             }
         }
 
-        protected virtual void CheckNames(Database schema)
+        /// <summary>
+        /// Checks for name conflicts
+        /// </summary>
+        /// <param name="schema"></param>
+        protected virtual void CheckConstraintsName(Database schema)
         {
-            CheckNames(schema,
-                       column => "Contents",
+            CheckConstraintsName(schema,
                        association => association.ThisKey + association.Member,
                        association => association.Member + association.Type);
         }
 
+        /// <summary>
+        /// Generates storage fields, given a formatting method
+        /// </summary>
+        /// <param name="schema"></param>
+        /// <param name="storageGenerator"></param>
         protected virtual void GenerateStorageFields(Database schema, Func<string, string> storageGenerator)
         {
             foreach (var table in schema.Tables)
@@ -106,11 +150,16 @@ namespace DbLinq.Vendor.Implementation
             }
         }
 
+        /// <summary>
+        /// Generates all storage fields
+        /// </summary>
+        /// <param name="schema"></param>
         protected virtual void GenerateStorageFields(Database schema)
         {
             GenerateStorageFields(schema, delegate(string name)
                                               {
                                                   //jgm 2008June: pre-pended underscore to have same storage format as MS
+                                                  // TODO: add an option for this behavior
                                                   var storage = "_" + NameFormatter.Format(name, Case.camelCase);
                                                   if (storage == name)
                                                       storage = "_" + storage;

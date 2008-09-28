@@ -33,6 +33,7 @@ using DbLinq.Data.Linq;
 using DbLinq.Factory;
 using DbLinq.Logging;
 using DbLinq.Schema.Dbml;
+using DbLinq.Schema.Dbml.Adapter;
 using DbMetal.Generator.EntityInterface;
 using System.Data.Linq;
 

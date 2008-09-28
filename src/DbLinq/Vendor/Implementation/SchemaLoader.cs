@@ -46,7 +46,7 @@ namespace DbLinq.Vendor.Implementation
 #else
     public
 #endif
-    abstract partial class SchemaLoader : ISchemaLoader
+ abstract partial class SchemaLoader : ISchemaLoader
     {
         public virtual string VendorName { get { return Vendor.VendorName; } }
         public abstract IVendor Vendor { get; }
@@ -86,7 +86,9 @@ namespace DbLinq.Vendor.Implementation
             // 3. constraints
             LoadTables(schema, schemaName, Connection, nameAliases, nameFormat, names);
             LoadColumns(schema, schemaName, Connection, nameAliases, nameFormat, names);
+            CheckColumnsName(schema);
             LoadConstraints(schema, schemaName, Connection, nameFormat, names);
+            CheckConstraintsName(schema);
             if (loadStoredProcedures)
                 LoadStoredProcedures(schema, schemaName, Connection, nameFormat);
             // names aren't checked here anymore, because this confuses DBML editor.
@@ -94,8 +96,6 @@ namespace DbLinq.Vendor.Implementation
             // in the end, when probably will end up in mapping source (or somewhere around)
             //CheckNamesSafety(schema);
 
-            // check for duplicate names between properties
-            CheckNames(schema);
             // generate backing fields name (since we have here correct names)
             GenerateStorageFields(schema);
 
@@ -163,6 +163,11 @@ namespace DbLinq.Vendor.Implementation
                 columnNameAlias = dbColumnName;
             }
             var columnName = NameFormatter.GetColumnName(columnNameAlias, extraction, nameFormat);
+            // The member name can not be the same as the class
+            // we add a "1" (just like SqlMetal does)
+            var tableName = CreateTableName(dbTableName, dbSchema, nameAliases, nameFormat);
+            if (columnName.PropertyName == tableName.ClassName)
+                columnName.PropertyName = columnName.PropertyName + "1";
             columnName.DbName = dbColumnName;
             return columnName;
         }

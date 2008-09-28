@@ -87,6 +87,11 @@
     <Compile Include="Generator\ISchemaLoaderFactory.cs" />
     <Compile Include="Generator\SpecificationDefinition.cs" />
     <Compile Include="Generator\ParameterDefinition.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
     <Compile Include="Schema\DbmlRename.cs" />
     <Compile Include="Schema\DbmlRenameLoader.cs" />
     <Compile Include="Schema\NameAliasesLoader.cs" />
@@ -161,6 +166,12 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -42,7 +42,7 @@ namespace DbLinq.Vendor.Implementation
             NameFormat nameFormat, Names names)
         {
             var foreignKey = names.ColumnsNames[tableName][columnName].PropertyName;
-            //var reverseForeignKey = names.ColumnsNames[referencedTableName][referencedColumnName].PropertyName;
+            var reverseForeignKey = names.ColumnsNames[referencedTableName][referencedColumnName].PropertyName;
 
             var associationName = CreateAssociationName(tableName, tableSchema,
                 referencedTableName, referencedTableSchema, constraintName, foreignKey, nameFormat);
@@ -53,7 +53,7 @@ namespace DbLinq.Vendor.Implementation
             assoc.Name = constraintName;
             assoc.Type = null;
             assoc.ThisKey = foreignKey;
-            //assoc.OtherKey = reverseForeignKey;
+            assoc.OtherKey = reverseForeignKey;
             assoc.Member = associationName.ManyToOneMemberName;
             assoc.Cardinality = Cardinality.Many; // TODO: check this is the right direction (even if it appears to be useless)
             table.Type.Associations.Add(assoc);
@@ -64,7 +64,7 @@ namespace DbLinq.Vendor.Implementation
             reverseAssociation.Type = table.Type.Name;
             reverseAssociation.Member = associationName.OneToManyMemberName;
             reverseAssociation.Cardinality = Cardinality.One;
-            //reverseAssociation.ThisKey = reverseForeignKey;
+            reverseAssociation.ThisKey = reverseForeignKey;
             reverseAssociation.OtherKey = foreignKey;
             reverseAssociation.DeleteRule = "NO ACTION";
 
