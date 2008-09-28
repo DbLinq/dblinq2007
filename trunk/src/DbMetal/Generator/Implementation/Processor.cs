@@ -97,7 +97,7 @@ namespace DbMetal.Generator.Implementation
                 // we always need a factory, even if generating from a DBML file, because we need a namespace
                 ISchemaLoader schemaLoader;
                 // then we load the schema
-                Database dbSchema = ReadSchema(parameters, out schemaLoader);
+                var dbSchema = ReadSchema(parameters, out schemaLoader);
                 // the we write it (to DBML or code)
                 WriteSchema(dbSchema, schemaLoader, parameters);
             }
@@ -211,7 +211,7 @@ namespace DbMetal.Generator.Implementation
                 foreach (var table in dbSchema.Tables)
                     table.Type.Columns.Sort(new LambdaComparer<Column>((x, y) => (x.Member.CompareTo(y.Member))));
                 dbSchema.Functions.Sort(new LambdaComparer<Function>((x, y) => (x.Method.CompareTo(y.Method))));
-                SchemaPostprocess.PostProcess_DB(dbSchema);
+                //SchemaPostprocess.PostProcess_DB(dbSchema);
             }
             else // load DBML
             {

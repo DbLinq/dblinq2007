@@ -24,481 +24,19 @@
 // 
 #endregion
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using DbLinq.Util;
+using DbLinq.Schema.Dbml.Adapter;
+
+/*
+ * Here are additional methods and properties to DBML class.
+ * Those properties are useful to dynamically change arrays
+ */
 
 namespace DbLinq.Schema.Dbml
 {
-#if MONO_STRICT
-    internal
-#else
-    public
-#endif
- interface ISimpleList<T> : IEnumerable<T>
-    {
-        // sort of light IList<>
-        int Count { get; }
-        void Add(T item);
-        // extension
-        void Sort(IComparer<T> sorter);
-        List<T> FindAll(Predicate<T> match);
-    }
-
-#if MONO_STRICT
-    internal
-#else
-    public
-#endif
- interface INamedType
-    {
-        string Name { get; set; }
-    }
-
-#if MONO_STRICT
-    internal
-#else
-    public
-#endif
- class EnumType : IDictionary<string, int>, INamedType
-    {
-        private string name;
-        public string Name
-        {
-            get { return name; }
-            set
-            {
-                name = value;
-                UpdateMember();
-            }
-        }
-
-        private readonly IDictionary<string, int> dictionary;
-        private readonly object owner;
-        private readonly MemberInfo memberInfo;
-
-        internal static bool IsEnum(string literalType)
-        {
-            string enumName;
-            IDictionary<string, int> values;
-            return Extract(literalType, out enumName, out values);
-        }
-
-        /// <summary>
-        /// Extracts enum name and value from a given string.
-        /// The string is in the following form:
-        /// enumName key1[=value1]{,keyN[=valueN]}
-        /// if enumName is 'enum', then the enum is anonymous
-        /// </summary>
-        /// <param name="literalType"></param>
-        /// <param name="enumName"></param>
-        /// <param name="values"></param>
-        /// <returns></returns>
-        private static bool Extract(string literalType, out string enumName, out IDictionary<string, int> values)
-        {
-            enumName = null;
-            values = new Dictionary<string, int>();
-
-            if (string.IsNullOrEmpty(literalType))
-                return false;
-
-            var nameValues = literalType.Split(new[] { ' ' }, 2);
-            if (nameValues.Length == 2)
-            {
-                // extract the name
-                string name = nameValues[0].Trim();
-                if (!name.IsIdentifier())
-                    return false;
-
-                // now extract the values
-                IDictionary<string, int> readValues = new Dictionary<string, int>();
-                int currentValue = 1;
-                var keyValues = nameValues[1].Split(',');
-                foreach (var keyValue in keyValues)
-                {
-                    // a value may indicate its numeric equivalent, or not (in this case, we work the same way as C# enums, with an implicit counter)
-                    var keyValueParts = keyValue.Split(new[] { '=' }, 2);
-                    var key = keyValueParts[0].Trim();
-
-                    if (!key.IsIdentifier())
-                        return false;
-
-                    if (keyValueParts.Length > 1)
-                    {
-                        if (!int.TryParse(keyValueParts[1], out currentValue))
-                            return false;
-                    }
-                    readValues[key] = currentValue++;
-                }
-                if (name == "enum")
-                    enumName = string.Empty;
-                else
-                    enumName = name;
-                values = readValues;
-                return true;
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Does the opposite: creates a literal string from values
-        /// </summary>
-        private void UpdateMember()
-        {
-            var pairs = from kvp in dictionary orderby kvp.Value select kvp;
-            int currentValue = 1;
-            var keyValues = new List<string>();
-            foreach (var pair in pairs)
-            {
-                string keyValue;
-                if (pair.Value == currentValue)
-                    keyValue = pair.Key;
-                else
-                {
-                    currentValue = pair.Value;
-                    keyValue = string.Format("{0}={1}", pair.Key, pair.Value);
-                }
-                keyValues.Add(keyValue);
-                currentValue++;
-            }
-            string literalType = string.IsNullOrEmpty(Name) ? "enum" : Name;
-            literalType += " ";
-            literalType += string.Join(", ", keyValues.ToArray());
-            memberInfo.SetMemberValue(owner, literalType);
-        }
-
-        internal EnumType(object owner, MemberInfo memberInfo)
-        {
-            this.owner = owner;
-            this.memberInfo = memberInfo;
-            string name;
-            Extract((string)memberInfo.GetMemberValue(owner), out name, out dictionary);
-            Name = name;
-        }
-
-        #region IDictionary implementation
-
-        public void Add(KeyValuePair<string, int> item)
-        {
-            dictionary.Add(item);
-            UpdateMember();
-        }
-
-        public void Clear()
-        {
-            dictionary.Clear();
-            UpdateMember();
-        }
-
-        public bool Contains(KeyValuePair<string, int> item)
-        {
-            return dictionary.Contains(item);
-        }
-
-        public void CopyTo(KeyValuePair<string, int>[] array, int arrayIndex)
-        {
-            dictionary.CopyTo(array, arrayIndex);
-        }
-
-        public bool Remove(KeyValuePair<string, int> item)
-        {
-            bool removed = dictionary.Remove(item);
-            UpdateMember();
-            return removed;
-        }
-
-        public int Count
-        {
-            get { return dictionary.Count; }
-        }
-
-        public bool IsReadOnly
-        {
-            get { return dictionary.IsReadOnly; }
-        }
-
-        public bool ContainsKey(string key)
-        {
-            return dictionary.ContainsKey(key);
-        }
-
-        public void Add(string key, int value)
-        {
-            dictionary.Add(key, value);
-            UpdateMember();
-        }
-
-        public bool Remove(string key)
-        {
-            bool removed = dictionary.Remove(key);
-            UpdateMember();
-            return removed;
-        }
-
-        public bool TryGetValue(string key, out int value)
-        {
-            return dictionary.TryGetValue(key, out value);
-        }
-
-        public int this[string key]
-        {
-            get { return dictionary[key]; }
-            set
-            {
-                dictionary[key] = value;
-                UpdateMember();
-            }
-        }
-
-        public ICollection<string> Keys
-        {
-            get { return dictionary.Keys; }
-        }
-
-        public ICollection<int> Values
-        {
-            get { return dictionary.Values; }
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable<KeyValuePair<string, int>>)this).GetEnumerator();
-        }
-
-        public IEnumerator<KeyValuePair<string, int>> GetEnumerator()
-        {
-            return dictionary.GetEnumerator();
-        }
-
-        #endregion
-    }
-
-    [DebuggerDisplay("{reflectedMember}")]
-    internal class ArrayHelper<T> : ISimpleList<T>
-    {
-        private object owner;
-        private MemberInfo memberInfo;
-        // just to be debugger friendly
-        private object reflectedMember { get { return memberInfo.GetMemberValue(owner); } }
-
-        protected IEnumerable GetValue()
-        {
-            return (IEnumerable)memberInfo.GetMemberValue(owner);
-        }
-
-        protected System.Type GetValueType()
-        {
-            return memberInfo.GetMemberType();
-        }
-
-        protected void SetValue(IEnumerable value)
-        {
-            memberInfo.SetMemberValue(owner, value);
-        }
-
-        protected List<T> GetDynamic()
-        {
-            List<T> list = new List<T>();
-            var fieldValue = GetValue();
-            if (fieldValue != null)
-            {
-                foreach (object o in fieldValue)
-                {
-                    if (o is T)
-                        list.Add((T)o);
-                }
-            }
-            return list;
-        }
-
-        protected void SetStatic(IList<T> list)
-        {
-            var others = new ArrayList();
-            var fieldValue = GetValue();
-            if (fieldValue != null)
-            {
-                foreach (object o in fieldValue)
-                {
-                    if (!(o is T))
-                        others.Add(o);
-                }
-            }
-            var array = Array.CreateInstance(GetValueType().GetElementType(), others.Count + list.Count);
-            others.CopyTo(array);
-            for (int listIndex = 0; listIndex < list.Count; listIndex++)
-            {
-                array.SetValue(list[listIndex], others.Count + listIndex);
-            }
-            SetValue(array);
-        }
-
-        public ArrayHelper(object o, string fieldName)
-        {
-            owner = o;
-            memberInfo = o.GetType().GetMember(fieldName)[0];
-        }
-
-        #region IList<T> Members
-
-        public int IndexOf(T item)
-        {
-            return GetDynamic().IndexOf(item);
-        }
-
-        public void Insert(int index, T item)
-        {
-            IList<T> dynamicArray = GetDynamic();
-            dynamicArray.Insert(index, item);
-            SetStatic(dynamicArray);
-        }
-
-        public void RemoveAt(int index)
-        {
-            IList<T> dynamicArray = GetDynamic();
-            dynamicArray.RemoveAt(index);
-            SetStatic(dynamicArray);
-        }
-
-        public T this[int index]
-        {
-            get
-            {
-                return GetDynamic()[index];
-            }
-            set
-            {
-                IList<T> dynamicArray = GetDynamic();
-                dynamicArray[index] = value;
-                SetStatic(dynamicArray);
-            }
-        }
-
-        #endregion
-
-        #region ICollection<T> Members
-
-        public void Add(T item)
-        {
-            IList<T> dynamicArray = GetDynamic();
-            dynamicArray.Add(item);
-            SetStatic(dynamicArray);
-        }
-
-        public void Clear()
-        {
-            SetStatic(new T[0]);
-        }
-
-        public bool Contains(T item)
-        {
-            return GetDynamic().Contains(item);
-        }
-
-        public void CopyTo(T[] array, int arrayIndex)
-        {
-            GetDynamic().CopyTo(array, arrayIndex);
-        }
-
-        public int Count
-        {
-            get { return GetDynamic().Count; }
-        }
-
-        public bool IsReadOnly
-        {
-            get { return false; }
-        }
-
-        public bool Remove(T item)
-        {
-            IList<T> dynamicArray = GetDynamic();
-            bool removed = dynamicArray.Remove(item);
-            SetStatic(dynamicArray);
-            return removed;
-        }
-
-        #endregion
-
-        #region IEnumerable<T> Members
-
-        public IEnumerator<T> GetEnumerator()
-        {
-            return GetDynamic().GetEnumerator();
-        }
-
-        #endregion
-
-        #region IEnumerable Members
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetDynamic().GetEnumerator();
-        }
-
-        #endregion
-
-        public void Sort(IComparer<T> sorter)
-        {
-            List<T> list = GetDynamic();
-            list.Sort(sorter);
-            SetStatic(list);
-        }
-
-        public List<T> FindAll(Predicate<T> match)
-        {
-            return GetDynamic().FindAll(match);
-        }
-    }
-
-    /// <summary>
-    /// The schema generates *Specified properties that we must set when the related property changes
-    /// </summary>
-    internal static class SpecifiedHelper
-    {
-        public static void Register(INotifyPropertyChanged notify)
-        {
-            notify.PropertyChanged += Notify_PropertyChanged;
-        }
-
-        private static void Notify_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName.EndsWith("Specified"))
-                return;
-
-            PropertyInfo propertyInfo = sender.GetType().GetProperty(e.PropertyName);
-#if NO
-            bool? changed = null;
-            object newValue = propertyInfo.GetGetMethod().Invoke(sender, new object[0]); ;
-            if (!propertyInfo.PropertyType.IsValueType)
-            {
-                changed = newValue != null;
-            }
-            else if (propertyInfo.PropertyType.IsEnum)
-            {
-                changed = (int)newValue != 0;
-            }
-            else if (propertyInfo.PropertyType == typeof(bool))
-            {
-                changed = (bool)newValue;
-            }
-#else
-            bool? changed = true;
-#endif
-            if (changed.HasValue)
-            {
-                PropertyInfo specifiedPropertyInfo = sender.GetType().GetProperty(e.PropertyName + "Specified");
-                if (specifiedPropertyInfo != null)
-                    specifiedPropertyInfo.GetSetMethod().Invoke(sender, new object[] { changed.Value });
-            }
-        }
-    }
-
     partial class Database
     {
         [Browsable(false)]
@@ -510,9 +48,9 @@ namespace DbLinq.Schema.Dbml
 
         public Database()
         {
-            SpecifiedHelper.Register(this);
-            Tables = new ArrayHelper<Table>(this, "Table");
-            Functions = new ArrayHelper<Function>(this, "Function");
+            SpecifiedPropertyUpdater.Register(this);
+            Tables = new ArrayAdapter<Table>(this, "Table");
+            Functions = new ArrayAdapter<Function>(this, "Function");
         }
     }
 
@@ -521,7 +59,7 @@ namespace DbLinq.Schema.Dbml
         public Table()
         {
             Type = new Type();
-            SpecifiedHelper.Register(this);
+            SpecifiedPropertyUpdater.Register(this);
         }
 
         public override string ToString()
@@ -542,9 +80,9 @@ namespace DbLinq.Schema.Dbml
 
         public Type()
         {
-            SpecifiedHelper.Register(this);
-            Columns = new ArrayHelper<Column>(this, "Items");
-            Associations = new ArrayHelper<Association>(this, "Items");
+            SpecifiedPropertyUpdater.Register(this);
+            Columns = new ArrayAdapter<Column>(this, "Items");
+            Associations = new ArrayAdapter<Association>(this, "Items");
         }
 
         public override string ToString()
@@ -608,18 +146,29 @@ namespace DbLinq.Schema.Dbml
 
         public Function()
         {
-            SpecifiedHelper.Register(this);
-            Parameters = new ArrayHelper<Parameter>(this, "Parameter");
+            SpecifiedPropertyUpdater.Register(this);
+            Parameters = new ArrayAdapter<Parameter>(this, "Parameter");
         }
     }
 
-
-
     partial class Association
     {
+        /// <summary>
+        /// ThisKey, provided as an array of strings (each string being a key)
+        /// </summary>
+        [XmlIgnore]
+        public ISimpleList<string> TheseKeys;
+        /// <summary>
+        /// OtherKey, provided as an array of strings (each string being a key)
+        /// </summary>
+        [XmlIgnore]
+        public ISimpleList<string> OtherKeys;
+
         public Association()
         {
-            SpecifiedHelper.Register(this);
+            SpecifiedPropertyUpdater.Register(this);
+            TheseKeys = new CsvArrayAdapter(this, "ThisKey");
+            OtherKeys = new CsvArrayAdapter(this, "OtherKey");
         }
 
         public override string ToString()
@@ -661,7 +210,7 @@ namespace DbLinq.Schema.Dbml
 
         public Column()
         {
-            SpecifiedHelper.Register(this);
+            SpecifiedPropertyUpdater.Register(this);
         }
 
         public override string ToString()
@@ -674,7 +223,7 @@ namespace DbLinq.Schema.Dbml
     {
         public Connection()
         {
-            SpecifiedHelper.Register(this);
+            SpecifiedPropertyUpdater.Register(this);
         }
     }
 
@@ -682,7 +231,7 @@ namespace DbLinq.Schema.Dbml
     {
         public Parameter()
         {
-            SpecifiedHelper.Register(this);
+            SpecifiedPropertyUpdater.Register(this);
         }
         [Browsable(false)]
         [XmlIgnore]
@@ -703,7 +252,7 @@ namespace DbLinq.Schema.Dbml
     {
         public Return()
         {
-            SpecifiedHelper.Register(this);
+            SpecifiedPropertyUpdater.Register(this);
         }
     }
 
@@ -711,7 +260,7 @@ namespace DbLinq.Schema.Dbml
     {
         public TableFunction()
         {
-            SpecifiedHelper.Register(this);
+            SpecifiedPropertyUpdater.Register(this);
         }
     }
 
@@ -719,7 +268,7 @@ namespace DbLinq.Schema.Dbml
     {
         public TableFunctionParameter()
         {
-            SpecifiedHelper.Register(this);
+            SpecifiedPropertyUpdater.Register(this);
         }
     }
 
@@ -727,7 +276,7 @@ namespace DbLinq.Schema.Dbml
     {
         public TableFunctionReturn()
         {
-            SpecifiedHelper.Register(this);
+            SpecifiedPropertyUpdater.Register(this);
         }
     }
 }

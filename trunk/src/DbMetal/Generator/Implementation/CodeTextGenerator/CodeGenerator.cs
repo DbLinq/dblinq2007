@@ -31,6 +31,7 @@ using DbLinq.Data.Linq;
 using DbLinq.Logging;
 using DbLinq.Schema;
 using DbLinq.Schema.Dbml;
+using DbLinq.Schema.Dbml.Adapter;
 using DbLinq.Util;
 using Type = System.Type;
 
