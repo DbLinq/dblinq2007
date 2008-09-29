@@ -248,6 +248,19 @@ namespace DbLinq.Data.Linq
             }
             return;
         }
+        
+        /// <summary>
+        /// Commits all pending changes to database 
+        /// </summary>
+        /// <param name="failureMode"></param>
+        //public virtual void SubmitChanges(ConflictMode failureMode)
+        //{
+        //    using (DatabaseContext.OpenConnection()) //ConnMgr will close connection for us
+        //    using (IDatabaseTransaction transactionMgr = DatabaseContext.Transaction())
+        //    {
+
+        //    }
+        //}
 
         /// <summary>
         /// TODO - allow generated methods to call into stored procedures
@@ -836,5 +849,82 @@ namespace DbLinq.Data.Linq
         {
             throw new NotImplementedException();
         }
+
+        #region internal management methods (all of them should end up in private)
+
+        [DBLinqExtended]
+        internal void _Process<TEntity>(IEnumerable<TEntity> ts, Action<TEntity, QueryContext> process, ConflictMode failureMode,
+            IList<Exception> exceptions)
+        {
+            var queryContext = new QueryContext(this);
+            foreach (var t in ts)
+            {
+                try
+                {
+                    process(t, queryContext);
+                }
+                catch (Exception e)
+                {
+                    switch (failureMode)
+                    {
+                    case ConflictMode.ContinueOnConflict:
+                        Trace.WriteLine("Table.SubmitChanges failed: " + e);
+                        exceptions.Add(e);
+                        break;
+                    case ConflictMode.FailOnFirstConflict:
+                        throw;
+                    }
+                }
+            }
+        }
+
+        [DBLinqExtended]
+        internal void _ProcessInsert<TEntity>(ConflictMode failureMode, IList<Exception> exceptions)
+        {
+            var toInsert = new List<TEntity>(InsertList.Enumerate<TEntity>());
+
+            _Process(toInsert,
+                delegate(TEntity t, QueryContext queryContext)
+                {
+                    var insertQuery = QueryBuilder.GetInsertQuery(t, queryContext);
+                    QueryRunner.Insert(t, insertQuery);
+
+                    UnregisterInsert(t, typeof(TEntity));
+                    RegisterUpdate(t, typeof(TEntity));
+                }, failureMode, exceptions);
+        }
+
+        [DBLinqExtended]
+        internal void _ProcessUpdate<TEntity>(ConflictMode failureMode, List<Exception> exceptions)
+        {
+            _Process(GetRegisteredEntities<TEntity>(),
+                    delegate(TEntity t, QueryContext queryContext)
+                    {
+                        if (MemberModificationHandler.IsModified(t, Mapping))
+                        {
+                            var modifiedMembers = MemberModificationHandler.GetModifiedProperties(t, Mapping);
+                            var updateQuery = QueryBuilder.GetUpdateQuery(t, modifiedMembers, queryContext);
+                            QueryRunner.Update(t, updateQuery, modifiedMembers);
+
+                            RegisterUpdateAgain(t, typeof(TEntity));
+                        }
+                    }, failureMode, exceptions);
+        }
+
+        internal void _ProcessDelete<TEntity>(ConflictMode failureMode, List<Exception> exceptions)
+        {
+            var toDelete = new List<TEntity>(DeleteList.Enumerate<TEntity>());
+            _Process(toDelete,
+                    delegate(TEntity t, QueryContext queryContext)
+                    {
+                        var deleteQuery = QueryBuilder.GetDeleteQuery(t, queryContext);
+                        QueryRunner.Delete(t, deleteQuery);
+
+                        UnregisterDelete(t, typeof(TEntity));
+                    }, failureMode, exceptions);
+        }
+
+        #endregion
+
     }
 }
