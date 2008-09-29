@@ -25,8 +25,8 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 #if MONO_STRICT
 namespace System.Data.Linq
@@ -39,32 +39,31 @@ namespace DbLinq.Data.Linq
     /// </summary>
     internal class EntityList
     {
-        private readonly Hashtable _entitiesByType = new Hashtable();
-        private readonly object _lock = new object();
-
-        private IList GetList(Type t)
+        private class EntityByType
         {
-            if (t == typeof(object))
-                throw new ArgumentException("L00048: Type must not be object - You omitted the parameter");
-            lock (_lock)
+            public readonly object Entity;
+            public readonly Type Type;
+
+            public EntityByType(object entity, Type type)
             {
-                if (!_entitiesByType.Contains(t))
-                    _entitiesByType[t] = new ArrayList();
-                return (IList)_entitiesByType[t];
+                Entity = entity;
+                Type = type;
             }
         }
 
+        private readonly List<EntityByType> _entitiesByType = new List<EntityByType>();
+        private readonly object _lock = new object();
+
+        /// <summary>
+        /// Enumerates all entites
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<object> EnumerateAll()
         {
             lock (_lock)
             {
-                foreach (Type type in _entitiesByType)
-                {
-                    foreach (var o in (IEnumerable)_entitiesByType[type])
-                    {
-                        yield return o;
-                    }
-                }
+                // do you love linq's extension methods? I do.
+                return _entitiesByType.Select(e => e.Entity);
             }
         }
 
@@ -77,8 +76,10 @@ namespace DbLinq.Data.Linq
         {
             lock (_lock)
             {
-                foreach (T t in GetList(typeof(T)))
-                    yield return t;
+                // you too, have fun with linq
+                return from e in _entitiesByType
+                       where e.Type == typeof(T)
+                       select (T)e.Entity;
             }
         }
 
@@ -92,13 +93,17 @@ namespace DbLinq.Data.Linq
             Add(t, typeof(T));
         }
 
-        public void Add(object e, Type asType)
+        /// <summary>
+        /// Adds an entity of a given type
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="asType"></param>
+        public void Add(object entity, Type asType)
         {
             lock (_lock)
             {
-                var list = GetList(asType);
-                if (!list.Contains(e))
-                    list.Add(e);
+                if (!_entitiesByType.Any(e => e.Entity == entity))
+                    _entitiesByType.Add(new EntityByType(entity, asType));
             }
         }
 
@@ -112,16 +117,29 @@ namespace DbLinq.Data.Linq
             Remove(t, typeof(T));
         }
 
+        /// <summary>
+        /// Removes an entity, declared as type
+        /// This method is O(n), use with caution
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="asType"></param>
         public void Remove(object e, Type asType)
         {
             lock (_lock)
             {
-                GetList(asType).Remove(e);
+                for (int entityIndex = 0; entityIndex < _entitiesByType.Count; entityIndex++)
+                {
+                    if (_entitiesByType[entityIndex].Entity == e)
+                    {
+                        _entitiesByType.RemoveAt(entityIndex);
+                        break;
+                    }
+                }
             }
         }
 
         /// <summary>
-        /// Removes items (and don't care if missing)
+        /// Remove items
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="ts"></param>
@@ -129,9 +147,8 @@ namespace DbLinq.Data.Linq
         {
             lock (_lock)
             {
-                var list = GetList(typeof(T));
                 foreach (var t in ts)
-                    list.Remove(t);
+                    Remove(t);
             }
         }
 
@@ -144,7 +161,7 @@ namespace DbLinq.Data.Linq
         {
             lock (_lock)
             {
-                return GetList(typeof(T)).Count;
+                return _entitiesByType.Count(e => e.Type == typeof(T));
             }
         }
 
@@ -159,12 +176,19 @@ namespace DbLinq.Data.Linq
             return Contains(t, typeof(T));
         }
 
-        public bool Contains(object e, Type asType)
+        /// <summary>
+        /// Returns true if the entity is already present in list
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="asType"></param>
+        /// <returns></returns>
+        public bool Contains(object entity, Type asType)
         {
             lock (_lock)
             {
-                return GetList(asType).Contains(e);
+                return _entitiesByType.Any(e => e.Entity == entity);
             }
         }
+
     }
 }

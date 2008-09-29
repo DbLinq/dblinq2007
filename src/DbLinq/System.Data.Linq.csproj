@@ -190,6 +190,12 @@
     <Compile Include="Factory\ObjectFactory.cs" />
     <Compile Include="MonoTODOAttribute.cs" />
     <Compile Include="Schema\Case.cs" />
+    <Compile Include="Schema\Dbml\Adapter\ArrayAdapter.cs" />
+    <Compile Include="Schema\Dbml\Adapter\CsvArrayAdapter.cs" />
+    <Compile Include="Schema\Dbml\Adapter\EnumType.cs" />
+    <Compile Include="Schema\Dbml\Adapter\INamedType.cs" />
+    <Compile Include="Schema\Dbml\Adapter\ISimpleList.cs" />
+    <Compile Include="Schema\Dbml\Adapter\SpecifiedPropertyUpdater.cs" />
     <Compile Include="Schema\WordsExtraction.cs" />
     <Compile Include="Schema\NameFormat.cs" />
     <Compile Include="Logging\ILogger.cs" />

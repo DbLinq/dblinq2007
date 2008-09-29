@@ -94,7 +94,7 @@ namespace DbLinq.Data.Linq
         internal readonly EntityList DeleteList = new EntityList();
 
         private IIdentityReaderFactory identityReaderFactory;
-        private IDictionary<Type, IIdentityReader> identityReaders = new Dictionary<Type, IIdentityReader>();
+        private readonly IDictionary<Type, IIdentityReader> identityReaders = new Dictionary<Type, IIdentityReader>();
 
 
         /// <summary>
