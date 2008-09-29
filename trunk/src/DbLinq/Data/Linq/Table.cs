@@ -300,83 +300,11 @@ namespace DbLinq.Data.Linq
             var exceptions = new List<Exception>();
             using (Context.DatabaseContext.OpenConnection())
             {
-                _ProcessInsert(failureMode, exceptions);
-                _ProcessUpdate(failureMode, exceptions);
-                _ProcessDelete(failureMode, exceptions);
+                Context._ProcessInsert<TEntity>(failureMode, exceptions);
+                Context._ProcessUpdate<TEntity>(failureMode, exceptions);
+                Context._ProcessDelete<TEntity>(failureMode, exceptions);
             }
             return exceptions;
-        }
-
-        [DBLinqExtended]
-        internal void _Process(IEnumerable<TEntity> ts, Action<TEntity, QueryContext> process, ConflictMode failureMode,
-            IList<Exception> exceptions)
-        {
-            var queryContext = new QueryContext(Context);
-            foreach (var t in ts)
-            {
-                try
-                {
-                    process(t, queryContext);
-                }
-                catch (Exception e)
-                {
-                    switch (failureMode)
-                    {
-                    case ConflictMode.ContinueOnConflict:
-                        Trace.WriteLine("Table.SubmitChanges failed: " + e);
-                        exceptions.Add(e);
-                        break;
-                    case ConflictMode.FailOnFirstConflict:
-                        throw;
-                    }
-                }
-            }
-        }
-
-        [DBLinqExtended]
-        internal void _ProcessInsert(ConflictMode failureMode, IList<Exception> exceptions)
-        {
-            var toInsert = new List<TEntity>(Context.InsertList.Enumerate<TEntity>());
-
-            _Process(toInsert,
-                delegate(TEntity t, QueryContext queryContext)
-                {
-                    var insertQuery = Context.QueryBuilder.GetInsertQuery(t, queryContext);
-                    Context.QueryRunner.Insert(t, insertQuery);
-
-                    Context.UnregisterInsert(t, typeof(TEntity));
-                    Context.RegisterUpdate(t, typeof(TEntity));
-                }, failureMode, exceptions);
-        }
-
-        [DBLinqExtended]
-        internal void _ProcessUpdate(ConflictMode failureMode, List<Exception> exceptions)
-        {
-            _Process(Context.GetRegisteredEntities<TEntity>(),
-                    delegate(TEntity t, QueryContext queryContext)
-                    {
-                        if (Context.MemberModificationHandler.IsModified(t, Context.Mapping))
-                        {
-                            var modifiedMembers = Context.MemberModificationHandler.GetModifiedProperties(t, Context.Mapping);
-                            var updateQuery = Context.QueryBuilder.GetUpdateQuery(t, modifiedMembers, queryContext);
-                            Context.QueryRunner.Update(t, updateQuery, modifiedMembers);
-
-                            Context.RegisterUpdateAgain(t, typeof(TEntity));
-                        }
-                    }, failureMode, exceptions);
-        }
-
-        internal void _ProcessDelete(ConflictMode failureMode, List<Exception> exceptions)
-        {
-            var toDelete = new List<TEntity>(Context.DeleteList.Enumerate<TEntity>());
-            _Process(toDelete,
-                    delegate(TEntity t, QueryContext queryContext)
-                    {
-                        var deleteQuery = Context.QueryBuilder.GetDeleteQuery(t, queryContext);
-                        Context.QueryRunner.Delete(t, deleteQuery);
-
-                        Context.UnregisterDelete(t, typeof(TEntity));
-                    }, failureMode, exceptions);
         }
 
         #endregion
