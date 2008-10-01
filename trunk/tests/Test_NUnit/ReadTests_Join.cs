@@ -207,8 +207,12 @@ namespace Test_NUnit_MsSql_Strict
             // Linq-SQL requires this: [System.Data.Linq.Mapping.Table(Name = "orders")]
             public class ExtendedOrder : Order
             {
-
-                EntityRef<Customer> _x_Customer;
+#if MONO_STRICT
+                System.Data.Linq
+#else
+                DbLinq.Data.Linq
+#endif
+                .EntityRef<Customer> _x_Customer;
 
                 [System.Data.Linq.Mapping.Association(Storage = "_x_Customer",
                     ThisKey = "ShipCity", Name =

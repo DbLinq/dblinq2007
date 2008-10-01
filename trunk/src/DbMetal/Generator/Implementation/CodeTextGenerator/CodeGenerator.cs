@@ -125,20 +125,34 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
         private void WriteUsings(CodeWriter writer, GenerationContext context)
         {
             writer.WriteUsingNamespace("System");
-            writer.WriteUsingNamespace("System.Collections.Generic");
-            writer.WriteUsingNamespace("System.ComponentModel");
             writer.WriteUsingNamespace("System.Data");
             writer.WriteUsingNamespace("System.Data.Linq.Mapping");
             writer.WriteUsingNamespace("System.Diagnostics");
-            writer.WriteUsingNamespace("System.Linq");
             writer.WriteUsingNamespace("System.Reflection");
-            writer.WriteUsingNamespace("System.Text");
+
 #if MONO_STRICT
             writer.WriteUsingNamespace("System.Data.Linq");
+            writer.WriteUsingNamespace("System.Vendor");
 #else
             writer.WriteUsingNamespace("DbLinq.Data.Linq");
-            writer.WriteUsingNamespace("DbLinq.Data.Linq.Mapping");
+            writer.WriteUsingNamespace("DbLinq.Vendor");
 #endif
+
+            //            writer.WriteUsingNamespace("System");
+            //            writer.WriteUsingNamespace("System.Collections.Generic");
+            //            writer.WriteUsingNamespace("System.ComponentModel");
+            //            writer.WriteUsingNamespace("System.Data");
+            //            writer.WriteUsingNamespace("System.Data.Linq.Mapping");
+            //            writer.WriteUsingNamespace("System.Diagnostics");
+            //            writer.WriteUsingNamespace("System.Linq");
+            //            writer.WriteUsingNamespace("System.Reflection");
+            //            writer.WriteUsingNamespace("System.Text");
+            //#if MONO_STRICT
+            //            writer.WriteUsingNamespace("System.Data.Linq");
+            //#else
+            //            writer.WriteUsingNamespace("DbLinq.Data.Linq");
+            //            writer.WriteUsingNamespace("DbLinq.Data.Linq.Mapping");
+            //#endif
             writer.WriteLine();
         }
 
@@ -160,11 +174,13 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
 
             string contextBase = schema.BaseType;
             var contextBaseType = TypeLoader.Load(contextBase);
+            // if we don't specify a base type, use the default
             if (string.IsNullOrEmpty(contextBase))
             {
                 contextBaseType = typeof(DataContext);
-                contextBase = contextBaseType.FullName;
             }
+            // in all cases, get the literal type name from loaded type
+            contextBase = writer.GetLiteralType(contextBaseType);
 
             var specifications = SpecificationDefinition.Partial;
             if (schema.AccessModifierSpecified)
