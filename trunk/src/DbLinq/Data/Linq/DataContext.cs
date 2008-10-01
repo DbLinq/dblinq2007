@@ -35,6 +35,7 @@ using System.Linq;
 using System.Reflection;
 
 #if MONO_STRICT
+using System.Data.Linq.Implementation;
 using System.Data.Linq.Sugar;
 using System.Data.Linq.Identity;
 using DbLinq.Util;
@@ -42,14 +43,13 @@ using AttributeMappingSource = System.Data.Linq.Mapping.AttributeMappingSource;
 using MappingContext = System.Data.Linq.Mapping.MappingContext;
 using DbLinq;
 #else
-using DbLinq.Data.Linq;
+using DbLinq.Data.Linq.Implementation;
 using DbLinq.Data.Linq.Sugar;
 using DbLinq.Data.Linq.Identity;
 using DbLinq.Util;
 using AttributeMappingSource = DbLinq.Data.Linq.Mapping.AttributeMappingSource;
 using MappingContext = DbLinq.Data.Linq.Mapping.MappingContext;
 using System.Data.Linq;
-using DataContext = DbLinq.Data.Linq.DataContext;
 #endif
 
 using DbLinq.Factory;
@@ -81,7 +81,6 @@ namespace DbLinq.Data.Linq
         internal IMemberModificationHandler MemberModificationHandler { get; set; }
         internal IDatabaseContext DatabaseContext { get; private set; }
         internal ILogger Logger { get; set; }
-        internal IEntityMap EntityMap { get; set; }
         // /all properties...
 
         // entities may be registered in 3 sets: InsertList, EntityMap and DeleteList
@@ -90,8 +89,10 @@ namespace DbLinq.Data.Linq
         // EntityMap is the cache: entities are alive in the DataContext, identified by their PK (IdentityKey)
         // an entity can only live in one of the three caches, so the DataContext will provide 6 methods:
         // 3 to register in each list, 3 to unregister
-        internal readonly EntityList InsertList = new EntityList();
-        internal readonly EntityList DeleteList = new EntityList();
+        //internal IEntityMap EntityMap { get; set; }
+        //internal readonly EntityList InsertList = new EntityList();
+        //internal readonly EntityList DeleteList = new EntityList();
+        private readonly EntityTracker entityTracker = new EntityTracker();
 
         private IIdentityReaderFactory identityReaderFactory;
         private readonly IDictionary<Type, IIdentityReader> identityReaders = new Dictionary<Type, IIdentityReader>();
@@ -134,13 +135,13 @@ namespace DbLinq.Data.Linq
         {
 
             if (databaseContext == null)
-                throw new ArgumentNullException("Null arguments");
+                throw new ArgumentNullException("databaseContext");
 
             Logger = ObjectFactory.Get<ILogger>();
 
             _VendorProvider = ObjectFactory.Get<IVendorProvider>();
             if (vendor == null)
-                Vendor = _VendorProvider.FindVendorByProviderType(typeof(Data.Linq.SqlClient.Sql2005Provider));
+                Vendor = _VendorProvider.FindVendorByProviderType(typeof(SqlClient.Sql2005Provider));
             else
                 Vendor = vendor;
 
@@ -150,7 +151,7 @@ namespace DbLinq.Data.Linq
             QueryBuilder = ObjectFactory.Get<IQueryBuilder>();
             QueryRunner = ObjectFactory.Get<IQueryRunner>();
 
-            EntityMap = ObjectFactory.Create<IEntityMap>();
+            //EntityMap = ObjectFactory.Create<IEntityMap>();
             identityReaderFactory = ObjectFactory.Get<IIdentityReaderFactory>();
 
             _MappingContext = new MappingContext();
@@ -174,11 +175,11 @@ namespace DbLinq.Data.Linq
                 string tableName = type.FullName;
                 ITable tableExisting;
                 if (_tableMap.TryGetValue(tableName, out tableExisting))
-                    return tableExisting as ITable; //return existing
+                    return tableExisting;
 
-                ITable tableNew = Activator.CreateInstance(
+                var tableNew = Activator.CreateInstance(
                                   typeof(Table<>).MakeGenericType(type)
-                                  , System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance
+                                  , BindingFlags.NonPublic | BindingFlags.Instance
                                   , null
                                   , new object[] { this }
                                   , System.Globalization.CultureInfo.CurrentCulture) as ITable;
@@ -209,58 +210,50 @@ namespace DbLinq.Data.Linq
             }
         }
 
-        public virtual void SubmitChanges(ConflictMode failureMode)
-        {
-            List<Exception> exceptions = new List<Exception>();
-            //TODO: perform all queued up operations - INSERT,DELETE,UPDATE
-            //TODO: insert order must be: first parent records, then child records
-
-            using (DatabaseContext.OpenConnection()) //ConnMgr will close connection for us
-            using (IDatabaseTransaction transactionMgr = DatabaseContext.Transaction())
-            {
-                lock (_tableMap)
-                {
-                    foreach (IManagedTable table in _tableMap.Values.ToArray())
-                    {
-                        try
-                        {
-                            List<Exception> innerExceptions = table.SaveAll(failureMode);
-                            exceptions.AddRange(innerExceptions);
-                        }
-                        catch (Exception ex)
-                        {
-                            Trace.WriteLine("Context.SubmitChanges failed: " + ex.Message);
-                            switch (failureMode)
-                            {
-                                case ConflictMode.ContinueOnConflict:
-                                    exceptions.Add(ex);
-                                    break;
-                                case ConflictMode.FailOnFirstConflict:
-                                    throw;
-                            }
-                        }
-                    }
-                }
-                bool doCommit = failureMode == ConflictMode.FailOnFirstConflict
-                                && exceptions.Count == 0;
-                if (doCommit)
-                    transactionMgr.Commit();
-            }
-            return;
-        }
-        
         /// <summary>
         /// Commits all pending changes to database 
         /// </summary>
         /// <param name="failureMode"></param>
-        //public virtual void SubmitChanges(ConflictMode failureMode)
-        //{
-        //    using (DatabaseContext.OpenConnection()) //ConnMgr will close connection for us
-        //    using (IDatabaseTransaction transactionMgr = DatabaseContext.Transaction())
-        //    {
+        public virtual void SubmitChanges(ConflictMode failureMode)
+        {
+            using (DatabaseContext.OpenConnection()) //ConnMgr will close connection for us
+            using (IDatabaseTransaction transaction = DatabaseContext.Transaction())
+            {
+                var queryContext = new QueryContext(this);
+                var entityTracks = entityTracker.EnumerateAll().ToList();
+                foreach (var entityTrack in entityTracks)
+                {
+                    switch (entityTrack.EntityState)
+                    {
+                    case EntityState.ToInsert:
+                        var insertQuery = QueryBuilder.GetInsertQuery(entityTrack.Entity, queryContext);
+                        QueryRunner.Insert(entityTrack.Entity, insertQuery);
+                        Register(entityTrack.Entity);
+                        break;
+                    case EntityState.ToWatch:
+                        if (MemberModificationHandler.IsModified(entityTrack.Entity, Mapping))
+                        {
+                            var modifiedMembers = MemberModificationHandler.GetModifiedProperties(entityTrack.Entity, Mapping);
+                            var updateQuery = QueryBuilder.GetUpdateQuery(entityTrack.Entity, modifiedMembers, queryContext);
+                            QueryRunner.Update(entityTrack.Entity, updateQuery, modifiedMembers);
 
-        //    }
-        //}
+                            RegisterUpdateAgain(entityTrack.Entity);
+                        }
+                        break;
+                    case EntityState.ToDelete:
+                        var deleteQuery = QueryBuilder.GetDeleteQuery(entityTrack.Entity, queryContext);
+                        QueryRunner.Delete(entityTrack.Entity, deleteQuery);
+
+                        UnregisterDelete(entityTrack.Entity);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                    }
+                }
+                // TODO: handle conflicts (which can only occur when concurrency mode is implemented)
+                transaction.Commit();
+            }
+        }
 
         /// <summary>
         /// TODO - allow generated methods to call into stored procedures
@@ -299,31 +292,30 @@ namespace DbLinq.Data.Linq
         }
 
         [DBLinqExtended]
-        internal void _RegisterEntity(object entity)
-        {
-            var identityReader = _GetIdentityReader(entity.GetType());
-            var identityKey = identityReader.GetIdentityKey(entity);
-            if (identityKey == null)
-                return;
-            EntityMap[identityKey] = entity;
-        }
-
-        [DBLinqExtended]
         internal object _GetRegisteredEntity(object entity)
         {
+            // TODO: check what is faster: by identity or by ref
             var identityReader = _GetIdentityReader(entity.GetType());
             var identityKey = identityReader.GetIdentityKey(entity);
             if (identityKey == null) // if we don't have an entitykey here, it means that the entity has no PK
                 return entity;
-            var registeredEntity = EntityMap[identityKey];
-            return registeredEntity;
+            // even 
+            var registeredEntityTrack = entityTracker.FindByIdentity(identityKey);
+            if (registeredEntityTrack != null)
+                return registeredEntityTrack.Entity;
+            return null;
         }
 
-        internal object GetRegisteredEntityByKey(IdentityKey identityKey)
-        {
-            return EntityMap[identityKey];
-        }
+        //internal object GetRegisteredEntityByKey(IdentityKey identityKey)
+        //{
+        //    return EntityMap[identityKey];
+        //}
 
+        /// <summary>
+        /// Registers an entity in a watch state
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
         [DBLinqExtended]
         internal object _GetOrRegisterEntity(object entity)
         {
@@ -332,19 +324,21 @@ namespace DbLinq.Data.Linq
             SetEntitySetsQueries(entity);
             SetEntityRefQueries(entity);
 
+            // if we have no identity, we can't track it
             if (identityKey == null)
                 return entity;
-            var registeredEntity = EntityMap[identityKey];
-            if (registeredEntity == null)
-            {
-                registeredEntity = entity;
-                EntityMap[identityKey] = entity;
-            }
-            return registeredEntity;
+
+            // try to find an already registered entity and return it
+            var registeredEntityTrack = entityTracker.FindByIdentity(identityKey);
+            if (registeredEntityTrack != null)
+                return registeredEntityTrack.Entity;
+
+            // otherwise, register and return
+            entityTracker.RegisterToWatch(entity, identityKey);
+            return entity;
         }
 
-
-        IDataMapper DataMapper = ObjectFactory.Get<IDataMapper>();
+        readonly IDataMapper DataMapper = ObjectFactory.Get<IDataMapper>();
         private void SetEntityRefQueries(object entity)
         {
             Type thisType = entity.GetType();
@@ -361,12 +355,11 @@ namespace DbLinq.Data.Linq
                 if (otherPKs.Count > 1)
                     throw new NotSupportedException("Multiple keys object not supported yet.");
 
-                IQueryable otherTable = GetTable(otherTableType) as IQueryable;
-
+                var otherTable = GetTable(otherTableType);
 
                 //ie:EmployeeTerritories.EmployeeID
 
-                PropertyInfo thisForeignKeyProperty = thisType.GetProperty(associationInfo.ThisKey) as PropertyInfo;
+                var thisForeignKeyProperty = thisType.GetProperty(associationInfo.ThisKey);
                 object thisForeignKeyValue = thisForeignKeyProperty.GetValue(entity, null);
 
                 IEnumerable query = null;
@@ -420,13 +413,13 @@ namespace DbLinq.Data.Linq
             foreach (PropertyInfo prop in properties)
             {
                 //example of entitySet: Employee.EmployeeTerritories
-                AssociationAttribute associationInfo = prop.GetAttribute<AssociationAttribute>();
+                var associationInfo = prop.GetAttribute<AssociationAttribute>();
                 Type otherTableType = prop.PropertyType.GetGenericArguments().First();
 
                 //other table:EmployeeTerritories
-                IQueryable otherTable = GetTable(otherTableType) as IQueryable;
+                var otherTable = GetTable(otherTableType);
                 //other table member:EmployeeTerritories.EmployeeID
-                PropertyInfo otherTableMember = otherTableType.GetProperty(associationInfo.OtherKey) as PropertyInfo;
+                var otherTableMember = otherTableType.GetProperty(associationInfo.OtherKey);
 
 
                 ParameterExpression p = Expression.Parameter(otherTableType, "other");
@@ -456,7 +449,7 @@ namespace DbLinq.Data.Linq
                 }
 
                 var setSourceMethod = entitySetValue.GetType().GetMethod("SetSource");
-                setSourceMethod.Invoke(entitySetValue, new object[] { query });
+                setSourceMethod.Invoke(entitySetValue, new[] { query });
                 //employee.EmployeeTerritories.SetSource(Table[EmployeesTerritories].Where(other=>other.employeeID="WARTH"))
             }
         }
@@ -467,7 +460,7 @@ namespace DbLinq.Data.Linq
             Expression lambdaPredicate = Expression.Lambda(predicate, parameter);
             //lambdaPredicate: other=>other.EmployeeID== "WARTH"
 
-            var whereMethod = typeof(System.Linq.Queryable)
+            var whereMethod = typeof(Queryable)
                               .GetMethods().First(m => m.Name == "Where")
                               .MakeGenericMethod(otherTableType);
 
@@ -478,81 +471,17 @@ namespace DbLinq.Data.Linq
             return otherTable.Provider.CreateQuery(call);
         }
 
-
-        internal IEnumerable<T> GetRegisteredEntities<T>()
-        {
-            foreach (IdentityKey key in EntityMap.Keys)
-            {
-                if (key.Type == typeof(T))
-                    yield return (T)EntityMap[key];
-            }
-        }
-
-        // TODO: remove this
-        internal bool HasRegisteredEntities<T>()
-        {
-            foreach (IdentityKey key in EntityMap.Keys)
-            {
-                if (key.Type == typeof(T))
-                    return true;
-            }
-            return false;
-        }
-
         #endregion
 
         #region Insert/Update/Delete management
-
-        [DBLinqExtended]
-        internal void _CheckNotRegisteredForInsert(object entity, Type asType)
-        {
-            if (InsertList.Contains(entity, asType))
-                throw new ArgumentException("Object already registered for insertion");
-        }
-
-        [DBLinqExtended]
-        internal void _CheckNotRegisteredForUpdate(object entity, Type asType)
-        {
-            if (_GetRegisteredEntity(entity) != null)
-                throw new ArgumentException("Object already attached");
-        }
-
-        [DBLinqExtended]
-        internal void _CheckRegisteredForUpdate(object entity, Type asType)
-        {
-            if (_GetRegisteredEntity(entity) == null)
-                throw new ArgumentException("Object not attached");
-        }
-
-        [DBLinqExtended]
-        internal void _CheckNotRegisteredForDelete(object entity, Type asType)
-        {
-            if (DeleteList.Contains(entity, asType))
-                throw new ArgumentException("Object already registered for deletion");
-        }
-
-        /// <summary>
-        /// Checks if the entity is not already registered somewhere in some way
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="asType"></param>
-        [DBLinqExtended]
-        internal void _CheckNotRegistered(object entity, Type asType)
-        {
-            _CheckNotRegisteredForInsert(entity, asType);
-            _CheckNotRegisteredForUpdate(entity, asType);
-            _CheckNotRegisteredForDelete(entity, asType);
-        }
 
         /// <summary>
         /// Registers an entity for insert
         /// </summary>
         /// <param name="entity"></param>
-        /// <param name="asType"></param>
-        internal void RegisterInsert(object entity, Type asType)
+        internal void RegisterInsert(object entity)
         {
-            _CheckNotRegistered(entity, asType);
-            InsertList.Add(entity, entity.GetType());
+            entityTracker.RegisterToInsert(entity);
         }
 
         /// <summary>
@@ -560,20 +489,23 @@ namespace DbLinq.Data.Linq
         /// The entity will be updated only if some of its members have changed after the registration
         /// </summary>
         /// <param name="entity"></param>
-        /// <param name="asType"></param>
-        internal void RegisterUpdate(object entity, Type asType)
+        internal void RegisterUpdate(object entity)
         {
-            _CheckNotRegistered(entity, asType);
-            Register(entity, asType);
+            var identityReader = _GetIdentityReader(entity.GetType());
+            var identityKey = identityReader.GetIdentityKey(entity);
+            // if we have no key, we can not watch
+            if (identityKey == null)
+                return;
+            // register entity
+            entityTracker.RegisterToWatch(entity, identityKey);
         }
 
         /// <summary>
         /// Registers or re-registers an entity and clears its state
         /// </summary>
         /// <param name="entity"></param>
-        /// <param name="asType"></param>
         /// <returns></returns>
-        internal object Register(object entity, Type asType)
+        internal object Register(object entity)
         {
             var registeredEntity = _GetOrRegisterEntity(entity);
             // the fact of registering again clears the modified state, so we're... clear with that
@@ -587,11 +519,9 @@ namespace DbLinq.Data.Linq
         /// </summary>
         /// <param name="entity"></param>
         /// <param name="entityOriginalState"></param>
-        /// <param name="asType"></param>
-        internal void RegisterUpdate(object entity, object entityOriginalState, Type asType)
+        internal void RegisterUpdate(object entity, object entityOriginalState)
         {
-            _CheckNotRegistered(entity, asType);
-            _RegisterEntity(entity);
+            RegisterUpdate(entity);
             MemberModificationHandler.Register(entity, entityOriginalState, Mapping);
         }
 
@@ -599,8 +529,7 @@ namespace DbLinq.Data.Linq
         /// Clears the current state, and marks the object as clean
         /// </summary>
         /// <param name="entity"></param>
-        /// <param name="asType"></param>
-        internal void RegisterUpdateAgain(object entity, Type asType)
+        internal void RegisterUpdateAgain(object entity)
         {
             MemberModificationHandler.ClearModified(entity, Mapping);
         }
@@ -609,37 +538,18 @@ namespace DbLinq.Data.Linq
         /// Registers an entity for delete
         /// </summary>
         /// <param name="entity"></param>
-        /// <param name="asType"></param>
-        internal void RegisterDelete(object entity, Type asType)
+        internal void RegisterDelete(object entity)
         {
-            _CheckNotRegisteredForInsert(entity, asType);
-            _CheckRegisteredForUpdate(entity, asType);
-            _CheckNotRegisteredForDelete(entity, asType);
-            DeleteList.Add(entity, asType);
+            entityTracker.RegisterToDelete(entity);
         }
 
-        internal void UnregisterInsert(object entity, Type asType)
+        /// <summary>
+        /// Unregisters entity after deletion
+        /// </summary>
+        /// <param name="entity"></param>
+        internal void UnregisterDelete(object entity)
         {
-            if (!InsertList.Contains(entity, asType))
-                throw new ArgumentException("Object not registered for insertion");
-            InsertList.Remove(entity, asType);
-        }
-
-        internal void UnregisterUpdate(object entity, Type asType)
-        {
-            var identityReader = _GetIdentityReader(entity.GetType());
-            var identityKey = identityReader.GetIdentityKey(entity);
-            if (EntityMap[identityKey] == null)
-                throw new ArgumentException("Object not attached");
-            EntityMap.Remove(identityKey);
-            MemberModificationHandler.Unregister(entity);
-        }
-
-        internal void UnregisterDelete(object entity, Type asType)
-        {
-            if (!DeleteList.Contains(entity, asType))
-                throw new ArgumentException("Object not registered for deletion");
-            DeleteList.Remove(entity, asType);
+            entityTracker.RegisterDeleted(entity);
         }
 
         #endregion
@@ -650,13 +560,27 @@ namespace DbLinq.Data.Linq
         /// <returns>Lists of inserted, updated, deleted objects</returns>
         public ChangeSet GetChangeSet()
         {
-            var inserts = InsertList.EnumerateAll().ToList();
-            var updates =
-                (from k in EntityMap.Keys
-                 let e = EntityMap[k]
-                 where MemberModificationHandler.IsModified(e, Mapping)
-                 select e).ToList();
-            var deletes = DeleteList.EnumerateAll().ToList();
+            var inserts = new List<object>();
+            var updates = new List<object>();
+            var deletes = new List<object>();
+            foreach (var entityTrack in entityTracker.EnumerateAll())
+            {
+                switch (entityTrack.EntityState)
+                {
+                case EntityState.ToInsert:
+                    inserts.Add(entityTrack.Entity);
+                    break;
+                case EntityState.ToWatch:
+                    if (MemberModificationHandler.IsModified(entityTrack.Entity, Mapping))
+                        updates.Add(entityTrack.Entity);
+                    break;
+                case EntityState.ToDelete:
+                    deletes.Add(entityTrack.Entity);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+                }
+            }
             return new ChangeSet(inserts, updates, deletes);
         }
 
@@ -849,82 +773,5 @@ namespace DbLinq.Data.Linq
         {
             throw new NotImplementedException();
         }
-
-        #region internal management methods (all of them should end up in private)
-
-        [DBLinqExtended]
-        internal void _Process<TEntity>(IEnumerable<TEntity> ts, Action<TEntity, QueryContext> process, ConflictMode failureMode,
-            IList<Exception> exceptions)
-        {
-            var queryContext = new QueryContext(this);
-            foreach (var t in ts)
-            {
-                try
-                {
-                    process(t, queryContext);
-                }
-                catch (Exception e)
-                {
-                    switch (failureMode)
-                    {
-                    case ConflictMode.ContinueOnConflict:
-                        Trace.WriteLine("Table.SubmitChanges failed: " + e);
-                        exceptions.Add(e);
-                        break;
-                    case ConflictMode.FailOnFirstConflict:
-                        throw;
-                    }
-                }
-            }
-        }
-
-        [DBLinqExtended]
-        internal void _ProcessInsert<TEntity>(ConflictMode failureMode, IList<Exception> exceptions)
-        {
-            var toInsert = new List<TEntity>(InsertList.Enumerate<TEntity>());
-
-            _Process(toInsert,
-                delegate(TEntity t, QueryContext queryContext)
-                {
-                    var insertQuery = QueryBuilder.GetInsertQuery(t, queryContext);
-                    QueryRunner.Insert(t, insertQuery);
-
-                    UnregisterInsert(t, typeof(TEntity));
-                    RegisterUpdate(t, typeof(TEntity));
-                }, failureMode, exceptions);
-        }
-
-        [DBLinqExtended]
-        internal void _ProcessUpdate<TEntity>(ConflictMode failureMode, List<Exception> exceptions)
-        {
-            _Process(GetRegisteredEntities<TEntity>(),
-                    delegate(TEntity t, QueryContext queryContext)
-                    {
-                        if (MemberModificationHandler.IsModified(t, Mapping))
-                        {
-                            var modifiedMembers = MemberModificationHandler.GetModifiedProperties(t, Mapping);
-                            var updateQuery = QueryBuilder.GetUpdateQuery(t, modifiedMembers, queryContext);
-                            QueryRunner.Update(t, updateQuery, modifiedMembers);
-
-                            RegisterUpdateAgain(t, typeof(TEntity));
-                        }
-                    }, failureMode, exceptions);
-        }
-
-        internal void _ProcessDelete<TEntity>(ConflictMode failureMode, List<Exception> exceptions)
-        {
-            var toDelete = new List<TEntity>(DeleteList.Enumerate<TEntity>());
-            _Process(toDelete,
-                    delegate(TEntity t, QueryContext queryContext)
-                    {
-                        var deleteQuery = QueryBuilder.GetDeleteQuery(t, queryContext);
-                        QueryRunner.Delete(t, deleteQuery);
-
-                        UnregisterDelete(t, typeof(TEntity));
-                    }, failureMode, exceptions);
-        }
-
-        #endregion
-
     }
 }

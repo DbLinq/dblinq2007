@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // MIT license
 //
@@ -24,18 +24,42 @@
 // 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Data.Linq;
+#if MONO_STRICT
+using System.Data.Linq.Identity;
+#else
+using DbLinq.Data.Linq.Identity;
+#endif
 
 #if MONO_STRICT
-namespace System.Data.Linq
+namespace System.Data.Linq.Implementation
 #else
-namespace DbLinq.Data.Linq
+namespace DbLinq.Data.Linq.Implementation
 #endif
 {
-    internal interface IManagedTable
+    /// <summary>
+    /// Keeps track of a referenced entity
+    /// </summary>
+    internal class EntityTrack
     {
-        List<Exception> SaveAll(ConflictMode failureMode);
+        /// <summary>
+        /// Current state of the entity
+        /// </summary>
+        public EntityState EntityState { get; set; }
+
+        /// <summary>
+        /// Entity being watched
+        /// </summary>
+        public object Entity { get; private set; }
+
+        /// <summary>
+        /// Current entity key
+        /// </summary>
+        public IdentityKey IdentityKey { get; set; }
+
+        public EntityTrack(object entity, EntityState entityState)
+        {
+            Entity = entity;
+            EntityState = entityState;
+        }
     }
 }
