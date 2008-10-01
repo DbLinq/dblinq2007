@@ -66,8 +66,7 @@ namespace DbLinq.Data.Linq
             IEnumerable<TEntity>,
             IEnumerable,
             IQueryable<TEntity>,
-            IQueryable,
-            IManagedTable // internal helper. One day, all data will be processed from DataContext
+            IQueryable
             where TEntity : class
     {
         /// <summary>
@@ -158,24 +157,24 @@ namespace DbLinq.Data.Linq
 
         void ITable.InsertOnSubmit(object entity)
         {
-            Context.RegisterInsert(entity, typeof(TEntity));
+            Context.RegisterInsert(entity);
         }
 
         public void InsertOnSubmit(TEntity entity)
         {
-            Context.RegisterInsert(entity, typeof(TEntity));
+            Context.RegisterInsert(entity);
         }
 
         void ITable.InsertAllOnSubmit(IEnumerable entities)
         {
             foreach (var entity in entities)
-                Context.RegisterInsert(entity, typeof(TEntity));
+                Context.RegisterInsert(entity);
         }
 
         public void InsertAllOnSubmit<TSubEntity>(IEnumerable<TSubEntity> entities) where TSubEntity : TEntity
         {
             foreach (var entity in entities)
-                Context.RegisterInsert(entity, typeof(TEntity));
+                Context.RegisterInsert(entity);
         }
 
         #endregion
@@ -185,7 +184,7 @@ namespace DbLinq.Data.Linq
         void ITable.DeleteAllOnSubmit(IEnumerable entities)
         {
             foreach (var entity in entities)
-                Context.RegisterDelete(entity, typeof(TEntity));
+                Context.RegisterDelete(entity);
         }
 
         /// <summary>
@@ -194,18 +193,18 @@ namespace DbLinq.Data.Linq
         /// <param name="entity"></param>
         void ITable.DeleteOnSubmit(object entity)
         {
-            Context.RegisterDelete(entity, typeof(TEntity));
+            Context.RegisterDelete(entity);
         }
 
         public void DeleteOnSubmit(TEntity entity)
         {
-            Context.RegisterDelete(entity, typeof(TEntity));
+            Context.RegisterDelete(entity);
         }
 
         public void DeleteAllOnSubmit<TSubEntity>(IEnumerable<TSubEntity> entities) where TSubEntity : TEntity
         {
             foreach (var row in entities)
-                Context.RegisterDelete(row, typeof(TEntity));
+                Context.RegisterDelete(row);
         }
 
         #endregion
@@ -218,28 +217,28 @@ namespace DbLinq.Data.Linq
         /// <param name="entity"></param>
         void ITable.Attach(object entity)
         {
-            Context.RegisterUpdate(entity, typeof(TEntity));
+            Context.RegisterUpdate(entity);
         }
 
         void ITable.Attach(object entity, object original)
         {
-            Context.RegisterUpdate(entity, original, typeof(TEntity));
+            Context.RegisterUpdate(entity, original);
         }
 
         void ITable.Attach(object entity, bool asModified)
         {
-            Context.RegisterUpdate(entity, asModified ? null : entity, typeof(TEntity));
+            Context.RegisterUpdate(entity, asModified ? null : entity);
         }
 
         void ITable.AttachAll(IEnumerable entities)
         {
             foreach (var entity in entities)
-                Context.RegisterUpdate(entity, typeof(TEntity));
+                Context.RegisterUpdate(entity);
         }
         void ITable.AttachAll(IEnumerable entities, bool asModified)
         {
             foreach (var entity in entities)
-                Context.RegisterUpdate(entity, typeof(TEntity));
+                Context.RegisterUpdate(entity);
         }
 
         /// <summary>
@@ -249,7 +248,7 @@ namespace DbLinq.Data.Linq
         /// <param name="entity">table row object to attach</param>
         public void Attach(TEntity entity)
         {
-            Context.RegisterUpdate(entity, typeof(TEntity));
+            Context.RegisterUpdate(entity);
         }
 
         [DbLinqToDo]
@@ -261,7 +260,7 @@ namespace DbLinq.Data.Linq
         public void AttachAll<TSubEntity>(IEnumerable<TSubEntity> entities) where TSubEntity : TEntity
         {
             foreach (var entity in entities)
-                Context.RegisterUpdate(entity, typeof(TEntity));
+                Context.RegisterUpdate(entity);
         }
 
         [DbLinqToDo]
@@ -277,34 +276,7 @@ namespace DbLinq.Data.Linq
         /// <param name="original">original unchanged property values</param>
         public void Attach(TEntity entity, TEntity original)
         {
-            Context.RegisterUpdate(entity, original, typeof(TEntity));
-        }
-
-        #endregion
-
-        #region Save functions
-
-        /// <summary>
-        /// Saves all contained entities
-        /// This has to move to DataContext (which is the real data pool)
-        /// </summary>
-        /// <param name="failureMode"></param>
-        /// <returns></returns>
-        List<Exception> IManagedTable.SaveAll(ConflictMode failureMode)
-        {
-            if (Context.InsertList.Count<TEntity>() == 0
-                && Context.DeleteList.Count<TEntity>() == 0
-                && !Context.HasRegisteredEntities<TEntity>())
-                return new List<Exception>(); //nothing to do
-
-            var exceptions = new List<Exception>();
-            using (Context.DatabaseContext.OpenConnection())
-            {
-                Context._ProcessInsert<TEntity>(failureMode, exceptions);
-                Context._ProcessUpdate<TEntity>(failureMode, exceptions);
-                Context._ProcessDelete<TEntity>(failureMode, exceptions);
-            }
-            return exceptions;
+            Context.RegisterUpdate(entity, original);
         }
 
         #endregion

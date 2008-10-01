@@ -66,6 +66,9 @@
     <Compile Include="Data\Linq\Database\Implementation\DatabaseContext.cs" />
     <Compile Include="Data\Linq\Database\Implementation\DatabaseTransaction.cs" />
     <Compile Include="Data\Linq\DBLinqExtendedAttributte.cs" />
+    <Compile Include="Data\Linq\Implementation\EntityTrack.cs" />
+    <Compile Include="Data\Linq\Implementation\EntityState.cs" />
+    <Compile Include="Data\Linq\Implementation\EntityTracker.cs" />
     <Compile Include="Data\Linq\Implementation\VendorProvider.cs" />
     <Compile Include="Data\Linq\ITable.Extended.cs" />
     <Compile Include="Data\Linq\DataContext.cs" />
@@ -78,7 +81,6 @@
     <Compile Include="Data\Linq\Identity\Implementation\IdentityProviderReader.cs" />
     <Compile Include="Data\Linq\Identity\Implementation\IdentityReader.cs" />
     <Compile Include="Data\Linq\Identity\Implementation\IdentityReaderFactory.cs" />
-    <Compile Include="Data\Linq\IManagedTable.cs" />
     <Compile Include="Data\Linq\IMemberModificationHandler.cs" />
     <Compile Include="Data\Linq\Implementation\MemberModificationHandler.cs" />
     <Compile Include="Data\Linq\Implementation\QueryProvider.cs" />

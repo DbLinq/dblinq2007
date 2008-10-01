@@ -134,7 +134,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                         // - registered in the model
                         if (row != null && selectQuery.DataContext.Mapping.GetTable(row.GetType()) != null)
                         {
-                            row = (T)selectQuery.DataContext.Register(row, typeof(T));
+                            row = (T)selectQuery.DataContext.Register(row);
                         }
 
                         yield return row;
@@ -153,7 +153,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         protected virtual object GetUniqueRow(object row, Type t, DataContext dataContext)
         {
             if (row != null && dataContext.Mapping.GetTable(row.GetType()) != null)
-                row = dataContext.Register(row, t);
+                row = dataContext.Register(row);
             return row;
         }
 

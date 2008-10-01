@@ -24,49 +24,28 @@
 // 
 #endregion
 
-using System.Collections.Generic;
-using System.Linq;
-using DbLinq.Logging;
-
 #if MONO_STRICT
-namespace System.Data.Linq
+namespace System.Data.Linq.Implementation
 #else
-namespace DbLinq.Data.Linq
+namespace DbLinq.Data.Linq.Implementation
 #endif
 {
     /// <summary>
-    /// T may be eg. class Employee or string - the output
+    /// Represents entity state in data context
     /// </summary>
-    /// <typeparam name="TEntity"></typeparam>
-    partial class Table<TEntity>
+    internal enum EntityState
     {
-        public ILogger Logger { get { return _Logger; } set { _Logger = value; } }
-
-        public void CancelDeleteOnSubmit(TEntity entity)
-        {
-            Context.UnregisterDelete(entity);
-        }
-
-        void ITable.CancelDeleteOnSubmit(object entity)
-        {
-            Context.UnregisterDelete(entity);
-        }
-
-        public int BulkInsertPageSize { get; set; }
-
-        public void BulkInsert(IEnumerable<TEntity> entities)
-        {
-            BulkInsert(entities, BulkInsertPageSize);
-        }
-
-        public void BulkInsert(IEnumerable<TEntity> entities, int pageSize)
-        {
-            using (Context.DatabaseContext.OpenConnection())
-            using (var transaction = Context.DatabaseContext.Transaction())
-            {
-                Context.Vendor.BulkInsert(this, entities.ToList(), pageSize, transaction.Transaction);
-                transaction.Commit();
-            }
-        }
+        /// <summary>
+        /// Object is new, it will be inserted next
+        /// </summary>
+        ToInsert,
+        /// <summary>
+        /// Object is being watched, we need to know if it was changed
+        /// </summary>
+        ToWatch,
+        /// <summary>
+        /// Object is to be deleted
+        /// </summary>
+        ToDelete,
     }
 }
