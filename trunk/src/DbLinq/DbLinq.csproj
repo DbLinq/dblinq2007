@@ -66,6 +66,7 @@
     <Compile Include="Data\Linq\Database\Implementation\DatabaseContext.cs" />
     <Compile Include="Data\Linq\Database\Implementation\DatabaseTransaction.cs" />
     <Compile Include="Data\Linq\DBLinqExtendedAttributte.cs" />
+    <Compile Include="Data\Linq\EntitySet.cs" />
     <Compile Include="Data\Linq\Implementation\EntityTrack.cs" />
     <Compile Include="Data\Linq\Implementation\EntityState.cs" />
     <Compile Include="Data\Linq\Implementation\EntityTracker.cs" />
