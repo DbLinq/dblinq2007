@@ -246,6 +246,11 @@ namespace DbMetal.Generator
 
         public virtual string GetLiteralType(Type type)
         {
+            return type.Name;
+        }
+
+        public virtual string GetLiteralFullType(Type type)
+        {
             return type.FullName;
         }
 

@@ -24,7 +24,6 @@
 // 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.Data.Linq.Mapping;
 using System.Diagnostics;
@@ -35,8 +34,11 @@ using DbLinq.Logging;
 using DbLinq.Schema.Dbml;
 using DbLinq.Schema.Dbml.Adapter;
 using DbMetal.Generator.EntityInterface;
-using System.Data.Linq;
 
+#if MONO_STRICT
+using System.Data.Linq;
+#else
+#endif
 
 namespace DbMetal.Generator.Implementation.CodeTextGenerator
 {
@@ -333,7 +335,8 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             }
 
             writer.WriteField(SpecificationDefinition.Private, storageField,
-                              writer.GetGenericName(typeof(EntityRef<>).FullName.Split('`')[0], targetTable.Type.Name));
+                              writer.GetGenericName(typeof(EntityRef<>).Name.Split('`')[0],
+                                                    targetTable.Type.Name));
 
             var storageAttribute = NewAttributeDefinition<AssociationAttribute>();
             storageAttribute["Storage"] = storageField;

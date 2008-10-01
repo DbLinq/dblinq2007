@@ -57,7 +57,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             // the base class requires a IVendor
             if (!WriteDataContextCtor(writer, schema, contextBaseType,
                                  new[] { new ParameterDefinition { Name = "connection", Type = typeof(IDbConnection) } },
-                                 new[] { "connection", writer.GetNewExpression(writer.GetMethodCallExpression(context.SchemaLoader.Vendor.GetType().FullName)) },
+                                 new[] { "connection", writer.GetNewExpression(writer.GetMethodCallExpression(writer.GetLiteralFullType(context.SchemaLoader.Vendor.GetType()))) },
                                  new[] { typeof(IDbConnection), typeof(IVendor) },
                                  context))
             {

@@ -23,17 +23,13 @@
 // THE SOFTWARE.
 // 
 #endregion
-using System;
-using System.Collections.Generic;
+
 using System.IO;
-using System.Linq;
 using System.Text;
-using DbLinq.Schema;
-using DbMetal.Generator.Implementation.CodeTextGenerator;
 
 namespace DbMetal.Generator.Implementation.CodeTextGenerator
 {
-    public partial class CSCodeGenerator : CodeGenerator
+    public class CSCodeGenerator : CodeGenerator
     {
         public override string LanguageCode { get { return "C#"; } }
         public override string Extension { get { return ".cs"; } }
@@ -70,7 +66,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
         {
             // picrap: there may be some more elegant ways to invoke a stored procedure, because ExecuteMethodCall is 
             //         for internal use only
-            string result = "result";
+            const string result = "result";
             var parametersBuilder = new StringBuilder();
             foreach (var parameter in procedure.Parameters)
             {

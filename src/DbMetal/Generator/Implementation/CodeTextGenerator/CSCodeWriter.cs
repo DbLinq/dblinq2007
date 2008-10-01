@@ -389,7 +389,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             if (type == typeof(object))
                 return "object";
 
-            return type.FullName;
+            return type.Name;
         }
 
         protected static readonly string[] Keywords = 
