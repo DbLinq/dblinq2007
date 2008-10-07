@@ -199,6 +199,10 @@ namespace DbMetal.Generator
             }
         }
 
+        /// <summary>
+        /// Registers namespace to be written
+        /// </summary>
+        /// <param name="name"></param>
         public abstract void WriteUsingNamespace(string name);
         public abstract IDisposable WriteNamespace(string name);
         public abstract IDisposable WriteClass(SpecificationDefinition specificationDefinition, string name,

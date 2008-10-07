@@ -75,7 +75,8 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
 
             var tableAttribute = NewAttributeDefinition<TableAttribute>();
             tableAttribute["Name"] = table.Name;
-            using (WriteAttributes(writer, context.Parameters.EntityExposedAttributes))
+            //using (WriteAttributes(writer, context.Parameters.EntityExposedAttributes))
+            using (WriteAttributes(writer, GetAttributeNames(context, context.Parameters.EntityExposedAttributes)))
             using (writer.WriteAttribute(tableAttribute))
             using (writer.WriteClass(specifications,
                                      table.Type.Name, entityBase, context.Parameters.EntityImplementedInterfaces))
@@ -165,7 +166,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
         private void WriteClassHeader(CodeWriter writer, Table table, GenerationContext context)
         {
             foreach (IImplementation implementation in context.Implementations())
-                implementation.WriteHeader(writer, table, context);
+                implementation.WriteClassHeader(writer, table, context);
         }
 
         protected virtual void WriteClassProperties(CodeWriter writer, Table table, GenerationContext context)
@@ -201,6 +202,32 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             writer.WriteField(SpecificationDefinition.Private, property.Storage, GetTypeOrExtendedType(writer, property));
         }
 
+        /// <summary>
+        /// Returns a name from a given fullname
+        /// </summary>
+        /// <param name="fullName"></param>
+        /// <returns></returns>
+        protected virtual string GetName(string fullName)
+        {
+            var namePartIndex = fullName.LastIndexOf('.');
+            // if we have a dot, we have a namespace
+            if (namePartIndex > 0)
+                return fullName.Substring(namePartIndex + 1);
+            // otherwise, it's just a name, that we keep as is
+            return fullName;
+        }
+
+        /// <summary>
+        /// Returns name for given list of attributes
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="attributes"></param>
+        /// <returns></returns>
+        protected virtual string[] GetAttributeNames(GenerationContext context, string[] attributes)
+        {
+            return (from a in attributes select GetName(a)).ToArray();
+        }
+
         protected virtual void WriteClassPropertyAccessors(CodeWriter writer, Column property, GenerationContext context)
         {
             //generate [Column(...)] attribute
@@ -225,7 +252,8 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             if (property.ModifierSpecified)
                 specifications |= GetSpecificationDefinition(property.Modifier);
 
-            using (WriteAttributes(writer, context.Parameters.MemberExposedAttributes))
+            //using (WriteAttributes(writer, context.Parameters.MemberExposedAttributes))
+            using (WriteAttributes(writer, GetAttributeNames(context, context.Parameters.MemberExposedAttributes)))
             using (writer.WriteAttribute(NewAttributeDefinition<DebuggerNonUserCodeAttribute>()))
             using (writer.WriteAttribute(column))
             using (writer.WriteProperty(specifications, property.Member, GetTypeOrExtendedType(writer, property)))

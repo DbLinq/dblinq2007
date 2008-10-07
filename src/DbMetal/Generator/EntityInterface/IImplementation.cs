@@ -23,15 +23,51 @@
 // THE SOFTWARE.
 // 
 #endregion
-using DbLinq.Schema;
 
 namespace DbMetal.Generator.EntityInterface
 {
+    /// <summary>
+    /// When asking for special interfaces implementation in generated entities,
+    /// the following is used.
+    /// It is identified by the target interface name, called 3 times,
+    /// during the header generation, before and after the setter.
+    /// </summary>
     public interface IImplementation
     {
+        /// <summary>
+        /// Interface name, in short format
+        /// </summary>
         string InterfaceName { get; }
-        void WriteHeader(CodeWriter writer, DbLinq.Schema.Dbml.Table table, GenerationContext context);
+
+        /// <summary>
+        /// Called at file top
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="context"></param>
+        void WriteHeader(CodeWriter writer, GenerationContext context);
+
+        /// <summary>
+        /// Called at class top
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="table"></param>
+        /// <param name="context"></param>
+        void WriteClassHeader(CodeWriter writer, DbLinq.Schema.Dbml.Table table, GenerationContext context);
+
+        /// <summary>
+        /// Called before the value is assigned to backing field
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="property"></param>
+        /// <param name="context"></param>
         void WritePropertyBeforeSet(CodeWriter writer, DbLinq.Schema.Dbml.Column property, GenerationContext context);
+
+        /// <summary>
+        /// Called after the value is assigned to backing field
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="property"></param>
+        /// <param name="context"></param>
         void WritePropertyAfterSet(CodeWriter writer, DbLinq.Schema.Dbml.Column property, GenerationContext context);
     }
 }
