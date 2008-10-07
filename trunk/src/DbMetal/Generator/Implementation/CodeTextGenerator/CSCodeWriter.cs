@@ -79,11 +79,20 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
         protected virtual IDisposable WriteBrackets()
         {
             WriteLine("{");
-            return EndAction(delegate { WriteLine("}"); });
+            return EndAction(() => WriteLine("}"));
         }
+
+        /// <summary>
+        /// We keep track of namespaces written already once
+        /// </summary>
+        private readonly IList<string> writtenNamespaces = new List<string>();
 
         public override void WriteUsingNamespace(string name)
         {
+            if (writtenNamespaces.Contains(name))
+                return;
+
+            writtenNamespaces.Add(name);
             WriteLine("using {0};", name);
         }
 

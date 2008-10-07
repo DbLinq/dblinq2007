@@ -34,7 +34,7 @@ namespace DbMetal.Generator.EntityInterface.Implementation
 
         private const string ModifiedName = "IsModified"; // mandatory value, since the IModified interface requires this member
 
-        public override void WriteHeader(CodeWriter writer, DbLinq.Schema.Dbml.Table table, GenerationContext context)
+        public override void WriteClassHeader(CodeWriter writer, DbLinq.Schema.Dbml.Table table, GenerationContext context)
         {
             writer.WriteCommentLine("IModified backing field");
             writer.WritePropertyWithBackingField(SpecificationDefinition.Public, ModifiedName, writer.GetLiteralType(typeof(bool)));

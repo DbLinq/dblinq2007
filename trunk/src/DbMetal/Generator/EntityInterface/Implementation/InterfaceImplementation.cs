@@ -27,11 +27,18 @@ using DbLinq.Schema;
 
 namespace DbMetal.Generator.EntityInterface.Implementation
 {
+    /// <summary>
+    /// Helper to make default IImplementation implementation
+    /// </summary>
     public abstract class InterfaceImplementation : IImplementation
     {
         public abstract string InterfaceName { get; }
 
-        public virtual void WriteHeader(CodeWriter writer, DbLinq.Schema.Dbml.Table table, GenerationContext context)
+        public virtual void WriteHeader(CodeWriter writer, GenerationContext context)
+        {
+        }
+
+        public virtual void WriteClassHeader(CodeWriter writer, DbLinq.Schema.Dbml.Table table, GenerationContext context)
         {
         }
 

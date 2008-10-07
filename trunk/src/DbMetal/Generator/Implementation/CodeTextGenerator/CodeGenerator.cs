@@ -153,7 +153,40 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             //            writer.WriteUsingNamespace("DbLinq.Data.Linq");
             //            writer.WriteUsingNamespace("DbLinq.Data.Linq.Mapping");
             //#endif
+
+            // now, we write usings required by implemented interfaces
+            foreach (var implementation in context.Implementations())
+                implementation.WriteHeader(writer, context);
+
+            // write namespaces for members attributes
+            foreach (var memberExposedAttribute in context.Parameters.MemberExposedAttributes)
+                WriteUsingNamespace(writer, GetNamespace(memberExposedAttribute));
+
+            // write namespaces for clases attributes
+            foreach (var entityExposedAttribute in context.Parameters.EntityExposedAttributes)
+                WriteUsingNamespace(writer, GetNamespace(entityExposedAttribute));
+
             writer.WriteLine();
+        }
+
+        /// <summary>
+        /// Writes a using, if given namespace is not null or empty
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="nameSpace"></param>
+        protected virtual void WriteUsingNamespace(CodeWriter writer, string nameSpace)
+        {
+            if (!string.IsNullOrEmpty(nameSpace))
+                writer.WriteUsingNamespace(nameSpace);
+        }
+
+        protected virtual string GetNamespace(string fullName)
+        {
+            var namePartIndex = fullName.LastIndexOf('.');
+            // if we have a dot, we have a namespace
+            if (namePartIndex < 0)
+                return null;
+            return fullName.Substring(0, namePartIndex);
         }
 
         private IDisposable WriteNamespace(CodeWriter writer, string nameSpace)

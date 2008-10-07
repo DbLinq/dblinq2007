@@ -37,7 +37,17 @@ namespace DbMetal.Generator.EntityInterface.Implementation
 
         private const string sendPropertyChangedMethod = "OnPropertyChanged";
 
-        public override void WriteHeader(CodeWriter writer, DbLinq.Schema.Dbml.Table table, GenerationContext context)
+        /// <summary>
+        /// Registers the required namespace
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="context"></param>
+        public override void WriteHeader(CodeWriter writer, GenerationContext context)
+        {
+            writer.WriteUsingNamespace(typeof(INotifyPropertyChanged).Namespace);
+        }
+
+        public override void WriteClassHeader(CodeWriter writer, DbLinq.Schema.Dbml.Table table, GenerationContext context)
         {
             using (writer.WriteRegion(string.Format("{0} handling", typeof(INotifyPropertyChanged).Name)))
             {
