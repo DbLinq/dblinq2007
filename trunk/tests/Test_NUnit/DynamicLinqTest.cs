@@ -60,9 +60,10 @@ namespace Test_NUnit_Sqlite
 #else
     namespace Test_NUnit_MsSql
 #endif
+#elif FIREBIRD
+    namespace Test_NUnit_Firebird
 #else
-
-#error unknown target
+    #error unknown target
 #endif
 {
     [TestFixture]

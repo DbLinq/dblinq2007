@@ -65,8 +65,10 @@ namespace Test_NUnit_MsSql_Strict
 #else
     namespace Test_NUnit_MsSql
 #endif
+#elif FIREBIRD
+    namespace Test_NUnit_Firebird
 #else
-#error unknown target
+    #error unknown target
 #endif
 {
     [TestFixture]
@@ -228,6 +230,8 @@ namespace Test_NUnit_MsSql_Strict
  "fk_order_customer"
 #elif MSSQL
  "fk_order_customer"
+#elif FIREBIRD
+ "??" // TODO: correct FK name
 #else
 #error unknown target
 #endif

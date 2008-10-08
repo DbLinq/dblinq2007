@@ -33,8 +33,10 @@ namespace Test_NUnit_MsSql_Strict.Linq_101_Samples
 #else
     namespace Test_NUnit_MsSql.Linq_101_Samples
 #endif
+#elif FIREBIRD
+    namespace Test_NUnit_Firebird.Linq_101_Samples
 #else
-namespace Test_NUnit_MsSql.Linq_101_Samples
+    #error unknown target
 #endif
 {
     /// <summary>

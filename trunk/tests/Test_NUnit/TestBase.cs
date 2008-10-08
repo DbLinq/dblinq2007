@@ -25,12 +25,9 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Xml;
 using System.Reflection;
-using System.Linq;
 using NUnit.Framework;
 
 #if !MONO_STRICT
@@ -69,6 +66,10 @@ using xint = System.UInt32;
 using XSqlConnection = Ingres.Client.IngresConnection;
 using XSqlCommand = Ingres.Client.IngresCommand;
 using xint = System.UInt32;
+#elif FIREBIRD
+using XSqlConnection = FirebirdSql.Data.FirebirdClient.FbConnection;
+using XSqlCommand = FirebirdSql.Data.FirebirdClient.FbCommand;
+using xint = System.UInt32;
 #else
 using XSqlConnection = MySql.Data.MySqlClient.MySqlConnection;
 using XSqlCommand = MySql.Data.MySqlClient.MySqlCommand;
@@ -88,7 +89,8 @@ namespace Test_NUnit
         static bool doRecreate = true;
 #if !MONO_STRICT
         public ILogger Logger { get; set; }
-        public TestBase()
+
+        protected TestBase()
         {
             Logger = ObjectFactory.Get<ILogger>();
         }
@@ -105,7 +107,7 @@ namespace Test_NUnit
         {
             get
             {
-                XmlDocument xConnectionStringsDoc = new XmlDocument();
+                var xConnectionStringsDoc = new XmlDocument();
                 xConnectionStringsDoc.Load("../ConnectionStrings.xml");
                 XmlNode currentAssemblyNode = xConnectionStringsDoc.SelectSingleNode(string.Format("//Connection[@assembly=\"{0}\"]", Assembly.GetCallingAssembly().GetName().Name));
                 string stringConnection = currentAssemblyNode.FirstChild.Value.Replace(@"\\", @"\");
@@ -137,7 +139,7 @@ namespace Test_NUnit
         //    return CreateDB(System.Data.ConnectionState.Closed);
         //}
 
-        private void CheckRecreateSqlite()
+        private static void CheckRecreateSqlite()
         {
 #if SQLITE
             if (doRecreate)
@@ -156,11 +158,10 @@ namespace Test_NUnit
         public Northwind CreateDB(System.Data.ConnectionState state)
         {
             CheckRecreateSqlite();
-            XSqlConnection conn = new XSqlConnection(connStr);
+            var conn = new XSqlConnection(connStr);
             if (state == System.Data.ConnectionState.Open)
                 conn.Open();
-            Northwind db = new Northwind(conn);
-            db.Log = Console.Out;
+            var db = new Northwind(conn) {Log = Console.Out};
             return db;
         }
 
@@ -169,7 +170,7 @@ namespace Test_NUnit
         /// </summary>
         public long ExecuteScalar(string sql)
         {
-            using (XSqlCommand cmd = new XSqlCommand(sql, Conn))
+            using (var cmd = new XSqlCommand(sql, Conn))
             {
                 object oResult = cmd.ExecuteScalar();
                 Assert.IsNotNull("Expecting result, instead got null. (sql=" + sql + ")");
@@ -183,7 +184,7 @@ namespace Test_NUnit
         /// </summary>
         public void ExecuteNonQuery(string sql)
         {
-            using (XSqlCommand cmd = new XSqlCommand(sql, Conn))
+            using (var cmd = new XSqlCommand(sql, Conn))
             {
                 int iResult = cmd.ExecuteNonQuery();
             }
@@ -191,13 +192,13 @@ namespace Test_NUnit
 
         public static Product NewProduct(string productName)
         {
-            Product p = new Product()
+            var p = new Product
             {
                 ProductName = productName,
                 SupplierID = 1,
                 CategoryID = 1,
                 QuantityPerUnit = "11",
-#if ORACLE
+#if ORACLE || FIREBIRD
                 UnitPrice = 11, //type "int?"
 #else
                 UnitPrice = 11m,
