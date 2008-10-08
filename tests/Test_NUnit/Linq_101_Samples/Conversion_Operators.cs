@@ -59,8 +59,10 @@ namespace Test_NUnit_Sqlite.Linq_101_Samples
 #else
     namespace Test_NUnit_MsSql.Linq_101_Samples
 #endif
+#elif FIREBIRD
+    namespace Test_NUnit_Firebird.Linq_101_Samples
 #else
-#error unknown target
+    #error unknown target
 #endif
 {
     [TestFixture]

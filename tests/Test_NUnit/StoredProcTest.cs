@@ -54,6 +54,8 @@ using System.Data.Linq;
 #else
     namespace Test_NUnit_MsSql
 #endif
+#elif FIREBIRD
+    namespace Test_NUnit_Firebird
 #else
     #error unknown target
 #endif
@@ -62,7 +64,7 @@ using System.Data.Linq;
     public class StoredProcTest : TestBase
     {
 
-#if !SQLITE && !MSSQL && !MONO_STRICT
+#if !SQLITE && !MSSQL && !MONO_STRICT && !FIREBIRD
         [Test]
         public void SP1_CallHello0()
         {

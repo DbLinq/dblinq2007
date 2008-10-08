@@ -32,6 +32,8 @@ using System.Data.Linq;
 #else
     namespace Test_NUnit_MsSql.Linq_101_Samples
 #endif
+#elif FIREBIRD
+    namespace Test_NUnit_Firebird
 #else
     #error unknown target
 #endif

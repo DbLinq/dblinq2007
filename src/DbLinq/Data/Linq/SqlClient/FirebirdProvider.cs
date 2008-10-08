@@ -1,8 +1,8 @@
-﻿#region MIT license
+#region MIT license
 // 
 // MIT license
 //
-// Copyright (c) 2007-2008 Jiri Moudry, Pascal Craponne, Pascal Craponne, Pascal Craponne, Pascal Craponne, Pascal Craponne
+// Copyright (c) 2007-2008 Jiri Moudry, Pascal Craponne
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,39 +23,19 @@
 // THE SOFTWARE.
 // 
 #endregion
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NUnit.Framework;
-using Test_NUnit;
 
-#if MYSQL
-    namespace Test_NUnit_MySql
-#elif ORACLE
-    namespace Test_NUnit_Oracle
-#elif POSTGRES
-    namespace Test_NUnit_PostgreSql
-#elif SQLITE
-    namespace Test_NUnit_Sqlite
-#elif INGRES
-    namespace Test_NUnit_Ingres
-#elif MSSQL
 #if MONO_STRICT
-    namespace Test_NUnit_MsSql_Strict
+namespace System.Data.Linq.SqlClient
 #else
-    namespace Test_NUnit_MsSql
-#endif
-#elif FIREBIRD
-    namespace Test_NUnit_Firebird
-#else
-    #error unknown target
+namespace DbLinq.Data.Linq.SqlClient
 #endif
 {
-    /// <summary>
-    /// TODO: write test cases which ensure that db.Employee can produce derived classes, such as HourlyEmployee.
-    /// </summary>
-    public class VerticalPartitioningTest : TestBase
+#if MONO_STRICT && !MONO_STRICT_EXTRA_DB_SUPPORT
+    internal
+#else
+    public
+#endif
+    class FirebirdProvider
     {
     }
 }

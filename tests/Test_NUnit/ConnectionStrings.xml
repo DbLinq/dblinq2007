@@ -10,6 +10,7 @@
   <Connection assembly="Test_NUnit_Mysql">server={0};user id=LinqUser; password=linq2; database=Northwind</Connection>
   <Connection assembly="Test_NUnit_Pgsql">server={0};user id=LinqUser; password=linq2; database=Northwind</Connection>
   <Connection assembly="Test_NUnit_Ingres">server={0};user id=LinqUser; password=linq2; database=Northwind</Connection>
+  <Connection assembly="Test_NUnit_Firebird">server={0};user id=LinqUser; password=linq2; database=c:\Program Files\Firebird\Firebird_2_1\examples\nwind\NORTHWIND.FDB</Connection>
 </Connections>
 
 <!--

@@ -33,6 +33,8 @@ namespace Test_NUnit_MsSql_Strict
 #else
 namespace Test_NUnit_MsSql
 #endif
+#elif FIREBIRD
+    namespace Test_NUnit_Firebird
 #else
 #error unknown target
 #endif
