@@ -25,12 +25,21 @@
 #endregion
 
 using System.Collections.Generic;
+#if MONO_STRICT
+using System.Data.Linq.Sql;
+#else
 using DbLinq.Data.Linq.Sql;
+#endif
 using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.Sqlite
 {
-    public class SqliteSqlProvider : SqlProvider
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    class SqliteSqlProvider : SqlProvider
     {
         public override SqlStatement GetInsertIds(IList<SqlStatement> outputParameters, IList<SqlStatement> outputExpressions)
         {

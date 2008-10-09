@@ -31,8 +31,13 @@ using System.Text;
 using System.Data.Linq.Mapping;
 using System.Reflection;
 using System.Data;
+#if MONO_STRICT
+using System.Data.Linq;
+using System.Data.Linq.SqlClient;
+#else
 using DbLinq.Data.Linq;
 using DbLinq.Data.Linq.SqlClient;
+#endif
 using DbLinq.Logging;
 using DbLinq.Util;
 using DbLinq.Vendor;
@@ -40,7 +45,12 @@ using DbLinq.Vendor;
 namespace DbLinq.MySql
 {
     [Vendor(typeof(MySqlProvider))]
-    public class MySqlVendor : Vendor.Implementation.Vendor
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    class MySqlVendor : Vendor.Implementation.Vendor
     {
         public override string VendorName { get { return "MySQL"; } }
 

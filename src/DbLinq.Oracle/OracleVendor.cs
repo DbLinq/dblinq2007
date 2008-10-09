@@ -30,14 +30,27 @@ using System.Collections.Generic;
 using System.Text;
 using System.Data.Linq;
 using System.Data.Linq.Mapping;
+#if MONO_STRICT
+using System.Data.Linq.SqlClient;
+#else
 using DbLinq.Data.Linq.SqlClient;
+#endif
 using DbLinq.Vendor;
+#if MONO_STRICT
+using DataContext = System.Data.Linq.DataContext;
+#else
 using DataContext = DbLinq.Data.Linq.DataContext;
+#endif
 
 namespace DbLinq.Oracle
 {
     [Vendor(typeof(OracleProvider))]
-    public class OracleVendor : Vendor.Implementation.Vendor
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    class OracleVendor : Vendor.Implementation.Vendor
     {
         public override string VendorName { get { return "Oracle"; } }
 
