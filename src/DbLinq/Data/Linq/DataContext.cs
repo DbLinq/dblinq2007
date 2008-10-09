@@ -31,6 +31,7 @@ using System.Data.Common;
 using System.Data.Linq.Mapping;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -80,7 +81,6 @@ namespace DbLinq.Data.Linq
         internal IQueryRunner QueryRunner { get; set; }
         internal IMemberModificationHandler MemberModificationHandler { get; set; }
         internal IDatabaseContext DatabaseContext { get; private set; }
-        internal ILogger Logger { get; set; }
         // /all properties...
 
         // entities may be registered in 3 sets: InsertList, EntityMap and DeleteList
@@ -136,8 +136,6 @@ namespace DbLinq.Data.Linq
 
             if (databaseContext == null)
                 throw new ArgumentNullException("databaseContext");
-
-            Logger = ObjectFactory.Get<ILogger>();
 
             _VendorProvider = ObjectFactory.Get<IVendorProvider>();
             if (vendor == null)
@@ -662,7 +660,7 @@ namespace DbLinq.Data.Linq
         /// <summary>
         /// Sets a TextWriter where generated SQL commands are written
         /// </summary>
-        public System.IO.TextWriter Log { get; set; }
+        public TextWriter Log { get; set; }
 
         /// <summary>
         /// Writes text on Log (if not null)
