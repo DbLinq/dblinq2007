@@ -25,6 +25,7 @@
 #endregion
 using System;
 using System.Collections.Generic;
+using System.Data.Linq;
 using System.Text;
 using System.Linq;
 using System.Linq.Expressions;
@@ -54,19 +55,19 @@ namespace Test_NUnit_MySql
 #elif POSTGRES
     namespace Test_NUnit_PostgreSql
 #elif SQLITE
-    namespace Test_NUnit_Sqlite
+namespace Test_NUnit_Sqlite
 #elif INGRES
     namespace Test_NUnit_Ingres
 #elif MSSQL
 #if MONO_STRICT
     namespace Test_NUnit_MsSql_Strict
 #else
-    namespace Test_NUnit_MsSql
+namespace Test_NUnit_MsSql
 #endif
 #elif FIREBIRD
     namespace Test_NUnit_Firebird
 #else
-    #error unknown target
+#error unknown target
 #endif
 {
     [TestFixture]
@@ -380,6 +381,20 @@ namespace Test_NUnit_MySql
                         };
             var list = query.ToList();
             Assert.IsTrue(list.Count > 0);
+        }
+
+        [Test(Description = "byte[] test")]
+        public void F18_ByteArrayAssignmentTest()
+        {
+            var db = CreateDB();
+
+            var nc = new Category { CategoryName = "test", Picture = new byte[] { 1, 2, 3, 4 } };
+            db.Categories.InsertOnSubmit(nc);
+            db.SubmitChanges();
+
+            var q = from c in db.Categories select new { c.Picture };
+            var l = q.ToList();
+            Assert.IsTrue(l.Count > 0);
         }
 
         /// <summary>
