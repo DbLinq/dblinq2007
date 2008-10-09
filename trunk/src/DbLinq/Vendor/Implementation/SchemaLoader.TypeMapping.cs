@@ -188,6 +188,7 @@ namespace DbLinq.Vendor.Implementation
                 case "long byte":
                 case "oid":
                 case "sytea":
+                case "mediumblob":
                     return typeof(Byte[]);
 
                 case "void":
