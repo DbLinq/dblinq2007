@@ -31,10 +31,18 @@ using System.Data.Linq.Mapping;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
+#if MONO_STRICT
+using System.Data.Linq.SqlClient;
+#else
 using DbLinq.Data.Linq.SqlClient;
+#endif
 using DbLinq.Util;
-using DataContext = DbLinq.Data.Linq.DataContext;
 using DbLinq.Vendor;
+#if MONO_STRICT
+using DataContext = System.Data.Linq.DataContext;
+#else
+using DataContext = DbLinq.Data.Linq.DataContext;
+#endif
 
 namespace DbLinq.Ingres
 {
@@ -42,7 +50,12 @@ namespace DbLinq.Ingres
     /// Ingres - specific code.
     /// </summary>
     [Vendor(typeof(IngresProvider))]
-    public class IngresVendor : Vendor.Implementation.Vendor
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    class IngresVendor : Vendor.Implementation.Vendor
     {
         public override string VendorName { get { return "Ingres"; } }
 

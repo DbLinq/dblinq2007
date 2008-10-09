@@ -26,13 +26,22 @@
 
 using System.Collections.Generic;
 using System.Linq;
+#if MONO_STRICT
+using System.Data.Linq.Sql;
+#else
 using DbLinq.Data.Linq.Sql;
+#endif
 using DbLinq.Vendor.Implementation;
 using System;
 
 namespace DbLinq.PostgreSql
 {
-    public class PgsqlSqlProvider : SqlProvider
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    class PgsqlSqlProvider : SqlProvider
     {
         public override SqlStatement GetInsertIds(IList<SqlStatement> outputParameters, IList<SqlStatement> outputExpressions)
         {
