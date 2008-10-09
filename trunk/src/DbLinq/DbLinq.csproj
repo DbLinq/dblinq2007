@@ -231,7 +231,7 @@
     <Compile Include="Language\ILanguages.cs" />
     <Compile Include="Language\ILanguageWords.cs" />
     <Compile Include="Util\IDbDataParameterExtensions.cs" />
-    <Compile Include="Util\ILoggerExtension.cs" />
+    <Compile Include="Util\TextWriterExtension.cs" />
     <Compile Include="Util\LambdaComparer.cs" />
     <Compile Include="Util\DataCommand.cs" />
     <Compile Include="Schema\INameFormatter.cs" />

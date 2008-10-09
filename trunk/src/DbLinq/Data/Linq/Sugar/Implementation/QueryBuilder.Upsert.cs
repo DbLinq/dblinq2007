@@ -116,7 +116,6 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             var insertIdSql = sqlProvider.GetInsertIds(
                 upsertParameters.OutputValues,
                 upsertParameters.OutputExpressions);
-            queryContext.DataContext.Logger.Write(Level.Debug, "Insert SQL: {0}", insertSql);
             return new UpsertQuery(queryContext.DataContext, insertSql, insertIdSql, upsertParameters.InputParameters, upsertParameters.OutputParameters);
         }
 
@@ -271,7 +270,6 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 upsertParameters.OutputValues, upsertParameters.OutputExpressions,
                 upsertParameters.InputPKColumns, upsertParameters.InputPKValues
                 );
-            queryContext.DataContext.Logger.Write(Level.Debug, "Update SQL: {0}", updateSql);
             return new UpsertQuery(queryContext.DataContext, updateSql, "", upsertParameters.InputParameters, upsertParameters.OutputParameters);
         }
 
@@ -302,7 +300,6 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 deleteParameters.Add(inputParameter);
             }
             var deleteSql = sqlProvider.GetDelete(sqlProvider.GetTable(table.TableName), pkColumns, pkValues);
-            queryContext.DataContext.Logger.Write(Level.Debug, "Delete SQL: {0}", deleteSql);
             return new DeleteQuery(queryContext.DataContext, deleteSql, deleteParameters);
         }
     }

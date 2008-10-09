@@ -26,28 +26,39 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq.Expressions;
-using DbLinq.Logging;
 
 namespace DbLinq.Util
 {
-    internal static class ILoggerExtension
+    internal static class TextWriterExtension
     {
-        public static void WriteExpression(this ILogger logger, Level level, Expression expression)
+        /// <summary>
+        /// Writes an Expression to the given textWriter
+        /// </summary>
+        /// <param name="textWriter"></param>
+        /// <param name="expression"></param>
+        public static void WriteExpression(this TextWriter textWriter, Expression expression)
         {
             try
             {
                 var rawLines = new List<string>(Write(expression, string.Empty, 0));
                 rawLines.Insert(0, string.Empty);
                 var lines = rawLines.ToArray();
-                logger.Write(level, string.Join(Environment.NewLine, lines));
+                textWriter.WriteLine(string.Join(Environment.NewLine, lines));
             }
             catch (NullReferenceException)
             {
-
             }
         }
 
+        /// <summary>
+        /// Expression visitor. Calls correct method, depending on expression real type
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <param name="header"></param>
+        /// <param name="depth"></param>
+        /// <returns></returns>
         private static IList<string> Write(Expression expression, string header, int depth)
         {
             if (expression == null)
@@ -86,8 +97,7 @@ namespace DbLinq.Util
 
         private static IList<string> WriteEx(BinaryExpression expression, string header, int depth)
         {
-            var lines = new List<string>();
-            lines.Add(WriteHeader(expression, header, depth++));
+            var lines = new List<string> {WriteHeader(expression, header, depth++)};
             lines.AddRange(Write(expression.Left, "Left ", depth));
             lines.AddRange(Write(expression.Right, "Right", depth));
             return lines;
@@ -95,8 +105,7 @@ namespace DbLinq.Util
 
         private static IList<string> WriteEx(ConditionalExpression expression, string header, int depth)
         {
-            var lines = new List<string>();
-            lines.Add(WriteHeader(expression, header, depth++));
+            var lines = new List<string> {WriteHeader(expression, header, depth++)};
             lines.AddRange(Write(expression.Test, "If  ", depth));
             lines.AddRange(Write(expression.IfTrue, "Then", depth));
             lines.AddRange(Write(expression.IfFalse, "Else", depth));
@@ -105,16 +114,17 @@ namespace DbLinq.Util
 
         private static IList<string> WriteEx(ConstantExpression expression, string header, int depth)
         {
-            var lines = new List<string>();
-            lines.Add(WriteHeader(expression, header, depth++));
-            lines.Add(WriteLiteral(expression.Value, "Value", depth));
+            var lines = new List<string>
+                            {
+                                WriteHeader(expression, header, depth++),
+                                WriteLiteral(expression.Value, "Value", depth)
+                            };
             return lines;
         }
 
         private static IList<string> WriteEx(InvocationExpression expression, string header, int depth)
         {
-            var lines = new List<string>();
-            lines.Add(WriteHeader(expression, header, depth++));
+            var lines = new List<string> {WriteHeader(expression, header, depth++)};
             lines.AddRange(Write(expression.Expression, "Call", depth));
             for (int i = 0; i < expression.Arguments.Count; i++)
                 lines.AddRange(Write(expression.Arguments[i], string.Format("#{0:0##}", i), depth));
@@ -123,8 +133,7 @@ namespace DbLinq.Util
 
         private static IList<string> WriteEx(LambdaExpression expression, string header, int depth)
         {
-            var lines = new List<string>();
-            lines.Add(WriteHeader(expression, header, depth++));
+            var lines = new List<string> {WriteHeader(expression, header, depth++)};
             lines.AddRange(Write(expression.Body, "Call", depth));
             for (int i = 0; i < expression.Parameters.Count; i++)
                 lines.AddRange(Write(expression.Parameters[i], string.Format("#{0:0##}", i), depth));
@@ -133,8 +142,7 @@ namespace DbLinq.Util
 
         private static IList<string> WriteEx(MemberExpression expression, string header, int depth)
         {
-            var lines = new List<string>();
-            lines.Add(WriteHeader(expression, header, depth++));
+            var lines = new List<string> {WriteHeader(expression, header, depth++)};
             lines.AddRange(Write(expression.Expression, "Object", depth));
             lines.Add(WriteLiteral(expression.Member.Name, "Member", depth));
             return lines;
@@ -142,8 +150,7 @@ namespace DbLinq.Util
 
         private static IList<string> WriteEx(MethodCallExpression expression, string header, int depth)
         {
-            var lines = new List<string>();
-            lines.Add(WriteHeader(expression, header, depth++));
+            var lines = new List<string> {WriteHeader(expression, header, depth++)};
             lines.AddRange(Write(expression.Object, "Object", depth));
             lines.Add(WriteLiteral(expression.Method.Name, "Method", depth));
             for (int i = 0; i < expression.Arguments.Count; i++)
@@ -153,9 +160,11 @@ namespace DbLinq.Util
 
         private static IList<string> WriteEx(NewExpression expression, string header, int depth)
         {
-            var lines = new List<string>();
-            lines.Add(WriteHeader(expression, header, depth++));
-            lines.Add(WriteLiteral(expression.Constructor.Name, "Ctor", depth));
+            var lines = new List<string>
+                            {
+                                WriteHeader(expression, header, depth++),
+                                WriteLiteral(expression.Constructor.Name, "Ctor", depth)
+                            };
             for (int i = 0; i < expression.Arguments.Count; i++)
                 lines.AddRange(Write(expression.Arguments[i], string.Format("#{0:0##}", i), depth));
             if (expression.Members != null)
@@ -168,8 +177,7 @@ namespace DbLinq.Util
 
         private static IList<string> WriteEx(NewArrayExpression expression, string header, int depth)
         {
-            var lines = new List<string>();
-            lines.Add(WriteHeader(expression, header, depth++));
+            var lines = new List<string> {WriteHeader(expression, header, depth++)};
             for (int i = 0; i < expression.Expressions.Count; i++)
                 lines.AddRange(Write(expression.Expressions[i], string.Format("#{0:0##}", i), depth));
             return lines;
@@ -177,8 +185,7 @@ namespace DbLinq.Util
 
         private static IList<string> WriteEx(MemberInitExpression expression, string header, int depth)
         {
-            var lines = new List<string>();
-            lines.Add(WriteHeader(expression, header, depth++));
+            var lines = new List<string> {WriteHeader(expression, header, depth++)};
             lines.AddRange(Write(expression.NewExpression, "New", depth));
             for (int i = 0; i < expression.Bindings.Count; i++)
                 lines.Add(WriteLiteral(expression.Bindings[i].Member.Name, string.Format("B{0:0##}", i), depth));
@@ -187,8 +194,7 @@ namespace DbLinq.Util
 
         private static IList<string> WriteEx(ListInitExpression expression, string header, int depth)
         {
-            var lines = new List<string>();
-            lines.Add(WriteHeader(expression, header, depth++));
+            var lines = new List<string> {WriteHeader(expression, header, depth++)};
             lines.AddRange(Write(expression.NewExpression, "New", depth));
             for (int i = 0; i < expression.Initializers.Count; i++)
             {
@@ -203,16 +209,17 @@ namespace DbLinq.Util
 
         private static IList<string> WriteEx(ParameterExpression expression, string header, int depth)
         {
-            var lines = new List<string>();
-            lines.Add(WriteHeader(expression, header, depth++));
-            lines.Add(WriteLiteral(expression.Name, "Parameter", depth));
+            var lines = new List<string>
+                            {
+                                WriteHeader(expression, header, depth++),
+                                WriteLiteral(expression.Name, "Parameter", depth)
+                            };
             return lines;
         }
 
         private static IList<string> WriteEx(TypeBinaryExpression expression, string header, int depth)
         {
-            var lines = new List<string>();
-            lines.Add(WriteHeader(expression, header, depth++));
+            var lines = new List<string> {WriteHeader(expression, header, depth++)};
             lines.AddRange(Write(expression.Expression, "Expression", depth));
             lines.Add(WriteLiteral(expression.TypeOperand.Name, "Type      ", depth));
             return lines;
@@ -220,9 +227,11 @@ namespace DbLinq.Util
 
         private static IList<string> WriteEx(UnaryExpression expression, string header, int depth)
         {
-            var lines = new List<string>();
-            lines.Add(WriteHeader(expression, header, depth++));
-            lines.Add(WriteLiteral(expression.Method != null ? expression.Method.Name : null, "Method ", depth));
+            var lines = new List<string>
+                            {
+                                WriteHeader(expression, header, depth++),
+                                WriteLiteral(expression.Method != null ? expression.Method.Name : null, "Method ", depth)
+                            };
             lines.AddRange(Write(expression.Operand, "Operand", depth));
             return lines;
         }

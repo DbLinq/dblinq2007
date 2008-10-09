@@ -307,7 +307,6 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                         break;
                     case TableJoinType.FullOuter:
                         throw new NotImplementedException();
-                        break;
                     default:
                         throw new ArgumentOutOfRangeException();
                     }
