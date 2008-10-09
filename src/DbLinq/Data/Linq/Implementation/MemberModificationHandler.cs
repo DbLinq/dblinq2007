@@ -86,10 +86,14 @@ namespace DbLinq.Data.Linq.Implementation
                 }
                 else if (memberType.IsArray)
                 {
-                    var arrayValue = (Array)propertyValue;
-                    for (int arrayIndex = 0; arrayIndex < arrayValue.Length; arrayIndex++)
+                    if (propertyValue != null)
                     {
-                        rawData[string.Format("{0}[{1}]", memberInfo.Name, arrayIndex)] = arrayValue.GetValue(arrayIndex);
+                        var arrayValue = (Array) propertyValue;
+                        for (int arrayIndex = 0; arrayIndex < arrayValue.Length; arrayIndex++)
+                        {
+                            rawData[string.Format("{0}[{1}]", memberInfo.Name, arrayIndex)] =
+                                arrayValue.GetValue(arrayIndex);
+                        }
                     }
                 }
                 else // otherwise, we recurse, and prefix the current property name to sub properties to avoid conflicts
