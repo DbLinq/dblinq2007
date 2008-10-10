@@ -31,16 +31,26 @@ using System.Text;
 using System.Data.Linq.Mapping;
 using System.Reflection;
 using System.Data;
+#if MONO_STRICT
+using System.Data.Linq;
+using System.Data.Linq.SqlClient;
+#else
 using DbLinq.Data.Linq;
 using DbLinq.Data.Linq.SqlClient;
+#endif
 using DbLinq.Logging;
 using DbLinq.Util;
 using DbLinq.Vendor;
 
 namespace DbLinq.Firebird
 {
-    [Vendor(typeof(Data.Linq.SqlClient.FirebirdProvider))]
-    public class FirebirdVendor : Vendor.Implementation.Vendor
+    [Vendor(typeof(FirebirdProvider))]
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+    class FirebirdVendor : Vendor.Implementation.Vendor
     {
         public override string VendorName { get { return "FirebirdSql"; } }
 
