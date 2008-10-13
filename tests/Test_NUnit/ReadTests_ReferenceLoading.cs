@@ -138,5 +138,14 @@ namespace Test_NUnit_MsSql
             var list = q.ToList();
             Assert.AreEqual(db.Orders.Count(), list.Count);
         }
+
+        [Test]
+        public void ComplexProjection07()
+        {
+            var db = CreateDB();
+            var q = db.Employees.Select(e => e.Orders.Select(o=>o));
+
+            var list = q.ToList();
+        }
     }
 }

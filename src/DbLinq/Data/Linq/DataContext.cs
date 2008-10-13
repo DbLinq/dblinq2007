@@ -133,7 +133,6 @@ namespace DbLinq.Data.Linq
 
         private void Init(IDatabaseContext databaseContext, MappingSource mappingSource, IVendor vendor)
         {
-
             if (databaseContext == null)
                 throw new ArgumentNullException("databaseContext");
 
@@ -223,29 +222,29 @@ namespace DbLinq.Data.Linq
                 {
                     switch (entityTrack.EntityState)
                     {
-                    case EntityState.ToInsert:
-                        var insertQuery = QueryBuilder.GetInsertQuery(entityTrack.Entity, queryContext);
-                        QueryRunner.Insert(entityTrack.Entity, insertQuery);
-                        Register(entityTrack.Entity);
-                        break;
-                    case EntityState.ToWatch:
-                        if (MemberModificationHandler.IsModified(entityTrack.Entity, Mapping))
-                        {
-                            var modifiedMembers = MemberModificationHandler.GetModifiedProperties(entityTrack.Entity, Mapping);
-                            var updateQuery = QueryBuilder.GetUpdateQuery(entityTrack.Entity, modifiedMembers, queryContext);
-                            QueryRunner.Update(entityTrack.Entity, updateQuery, modifiedMembers);
+                        case EntityState.ToInsert:
+                            var insertQuery = QueryBuilder.GetInsertQuery(entityTrack.Entity, queryContext);
+                            QueryRunner.Insert(entityTrack.Entity, insertQuery);
+                            Register(entityTrack.Entity);
+                            break;
+                        case EntityState.ToWatch:
+                            if (MemberModificationHandler.IsModified(entityTrack.Entity, Mapping))
+                            {
+                                var modifiedMembers = MemberModificationHandler.GetModifiedProperties(entityTrack.Entity, Mapping);
+                                var updateQuery = QueryBuilder.GetUpdateQuery(entityTrack.Entity, modifiedMembers, queryContext);
+                                QueryRunner.Update(entityTrack.Entity, updateQuery, modifiedMembers);
 
-                            RegisterUpdateAgain(entityTrack.Entity);
-                        }
-                        break;
-                    case EntityState.ToDelete:
-                        var deleteQuery = QueryBuilder.GetDeleteQuery(entityTrack.Entity, queryContext);
-                        QueryRunner.Delete(entityTrack.Entity, deleteQuery);
+                                RegisterUpdateAgain(entityTrack.Entity);
+                            }
+                            break;
+                        case EntityState.ToDelete:
+                            var deleteQuery = QueryBuilder.GetDeleteQuery(entityTrack.Entity, queryContext);
+                            QueryRunner.Delete(entityTrack.Entity, deleteQuery);
 
-                        UnregisterDelete(entityTrack.Entity);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
+                            UnregisterDelete(entityTrack.Entity);
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
                     }
                 }
                 // TODO: handle conflicts (which can only occur when concurrency mode is implemented)
@@ -565,18 +564,18 @@ namespace DbLinq.Data.Linq
             {
                 switch (entityTrack.EntityState)
                 {
-                case EntityState.ToInsert:
-                    inserts.Add(entityTrack.Entity);
-                    break;
-                case EntityState.ToWatch:
-                    if (MemberModificationHandler.IsModified(entityTrack.Entity, Mapping))
-                        updates.Add(entityTrack.Entity);
-                    break;
-                case EntityState.ToDelete:
-                    deletes.Add(entityTrack.Entity);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                    case EntityState.ToInsert:
+                        inserts.Add(entityTrack.Entity);
+                        break;
+                    case EntityState.ToWatch:
+                        if (MemberModificationHandler.IsModified(entityTrack.Entity, Mapping))
+                            updates.Add(entityTrack.Entity);
+                        break;
+                    case EntityState.ToDelete:
+                        deletes.Add(entityTrack.Entity);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             }
             return new ChangeSet(inserts, updates, deletes);
@@ -739,7 +738,15 @@ namespace DbLinq.Data.Linq
         [DbLinqToDo]
         public DbCommand GetCommand(IQueryable query)
         {
-            throw new NotImplementedException();
+            QueryProvider qp = query.Provider as QueryProvider;
+            if (qp == null)
+                throw new InvalidOperationException();
+
+            IDbCommand dbCommand = qp.GetQuery(null).GetCommand().Command;
+            if (!(dbCommand is DbCommand))
+                throw new InvalidOperationException();
+
+            return (DbCommand)dbCommand;
         }
 
         [DbLinqToDo]

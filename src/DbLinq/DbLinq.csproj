@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{7950197D-4122-49CB-9FD7-45E666BAFEC2}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -62,6 +62,7 @@
     <Compile Include="Data\Linq\ChangeSet.cs" />
     <Compile Include="Data\Linq\Database\IDatabaseContext.cs" />
     <Compile Include="Data\Linq\Database\IDatabaseTransaction.cs" />
+    <Compile Include="Data\Linq\Database\IDbLinqCommand.cs" />
     <Compile Include="Data\Linq\Database\Implementation\DatabaseConnection.cs" />
     <Compile Include="Data\Linq\Database\Implementation\DatabaseContext.cs" />
     <Compile Include="Data\Linq\Database\Implementation\DatabaseTransaction.cs" />
@@ -113,6 +114,7 @@
     <Compile Include="Data\Linq\Sql\SqlPart.cs" />
     <Compile Include="Data\Linq\Sql\SqlStatement.cs" />
     <Compile Include="Data\Linq\Sugar\BuilderContext.cs" />
+    <Compile Include="Data\Linq\Database\Implementation\DbLinqCommand.cs" />
     <Compile Include="Data\Linq\Sugar\DeleteQuery.cs" />
     <Compile Include="Data\Linq\Sugar\DirectQuery.cs" />
     <Compile Include="Data\Linq\Sugar\Error.cs" />
@@ -139,6 +141,7 @@
     <Compile Include="Data\Linq\Sugar\ExpressionMutator\Implementation\TypeBinaryExpressionMutator.cs" />
     <Compile Include="Data\Linq\Sugar\ExpressionMutator\Implementation\UnaryExpressionMutator.cs" />
     <Compile Include="Data\Linq\Sugar\ExpressionPrecedence.cs" />
+    <Compile Include="Data\Linq\Sugar\ParametrizedQuery.cs" />
     <Compile Include="Data\Linq\Sugar\ExpressionQuery.cs" />
     <Compile Include="Data\Linq\Sugar\Expressions\ColumnExpression.cs" />
     <Compile Include="Data\Linq\Sugar\Expressions\ObjectInputParameterExpression.cs" />
