@@ -141,7 +141,6 @@
     <Compile Include="Data\Linq\Sugar\ExpressionMutator\Implementation\TypeBinaryExpressionMutator.cs" />
     <Compile Include="Data\Linq\Sugar\ExpressionMutator\Implementation\UnaryExpressionMutator.cs" />
     <Compile Include="Data\Linq\Sugar\ExpressionPrecedence.cs" />
-    <Compile Include="Data\Linq\Sugar\ParametrizedQuery.cs" />
     <Compile Include="Data\Linq\Sugar\ExpressionQuery.cs" />
     <Compile Include="Data\Linq\Sugar\Expressions\ColumnExpression.cs" />
     <Compile Include="Data\Linq\Sugar\Expressions\ObjectInputParameterExpression.cs" />
@@ -177,6 +176,9 @@
     <Compile Include="Data\Linq\Sugar\Implementation\ExpressionOptimizer.cs" />
     <Compile Include="Data\Linq\Sugar\Implementation\ExpressionQualifier.cs" />
     <Compile Include="Data\Linq\Sugar\Implementation\QueryBuilder.Upsert.cs" />
+    <Compile Include="Data\Linq\Sugar\ParameterizedQuery.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Data\Linq\Sugar\UpsertQuery.cs" />
     <Compile Include="Data\Linq\Sugar\IQueryCache.cs" />
     <Compile Include="Data\Linq\Sugar\Implementation\LineGrouping.cs" />
