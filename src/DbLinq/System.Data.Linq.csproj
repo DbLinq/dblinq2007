@@ -182,7 +182,7 @@
     <Compile Include="Data\Linq\Sugar\ISpecialExpressionTranslator.cs" />
     <Compile Include="Data\Linq\Sugar\ISqlBuilder.cs" />
     <Compile Include="Data\Linq\Sugar\AbstractQuery.cs" />
-    <Compile Include="Data\Linq\Sugar\ParametrizedQuery.cs" />
+    <Compile Include="Data\Linq\Sugar\ParameterizedQuery.cs" />
     <Compile Include="Data\Linq\Sugar\SelectQuery.cs" />
     <Compile Include="Data\Linq\Sugar\QueryContext.cs" />
     <Compile Include="Data\Linq\Sugar\UpsertQuery.cs" />
