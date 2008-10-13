@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{97305421-3071-4175-AA3C-9A432CC28121}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -56,9 +56,11 @@
     <Compile Include="Data\Linq\ChangeSet.cs" />
     <Compile Include="Data\Linq\Database\IDatabaseContext.cs" />
     <Compile Include="Data\Linq\Database\IDatabaseTransaction.cs" />
+    <Compile Include="Data\Linq\Database\IDbLinqCommand.cs" />
     <Compile Include="Data\Linq\Database\Implementation\DatabaseConnection.cs" />
     <Compile Include="Data\Linq\Database\Implementation\DatabaseContext.cs" />
     <Compile Include="Data\Linq\Database\Implementation\DatabaseTransaction.cs" />
+    <Compile Include="Data\Linq\Database\Implementation\DbLinqCommand.cs" />
     <Compile Include="Data\Linq\DataContext.cs" />
     <Compile Include="Data\Linq\DBLinqExtendedAttributte.cs" />
     <Compile Include="Data\Linq\EntityList.cs" />
@@ -180,6 +182,7 @@
     <Compile Include="Data\Linq\Sugar\ISpecialExpressionTranslator.cs" />
     <Compile Include="Data\Linq\Sugar\ISqlBuilder.cs" />
     <Compile Include="Data\Linq\Sugar\AbstractQuery.cs" />
+    <Compile Include="Data\Linq\Sugar\ParametrizedQuery.cs" />
     <Compile Include="Data\Linq\Sugar\SelectQuery.cs" />
     <Compile Include="Data\Linq\Sugar\QueryContext.cs" />
     <Compile Include="Data\Linq\Sugar\UpsertQuery.cs" />

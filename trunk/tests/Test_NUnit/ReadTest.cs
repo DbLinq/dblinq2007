@@ -58,7 +58,7 @@ namespace Test_NUnit_Ingres
 #if MONO_STRICT
     namespace Test_NUnit_MsSql_Strict
 #else
-    namespace Test_NUnit_MsSql
+namespace Test_NUnit_MsSql
 #endif
 #elif FIREBIRD
     namespace Test_NUnit_Firebird
@@ -116,6 +116,23 @@ namespace Test_NUnit_Ingres
             // Query for a specific customer
             var cust = db.Customers.SingleOrDefault(c => c.CompanyName == "airbus");
             Assert.IsNotNull(cust, "Expected one customer 'airbus'");
+        }
+
+
+        [Test]
+        public void A6_ConnectionOpenTest()
+        {
+            Northwind db = CreateDB(System.Data.ConnectionState.Open);
+            Product p1 = db.Products.Single(p => p.ProductID == 1);
+            Assert.IsTrue(p1.ProductID == 1);
+        }
+
+        [Test]
+        public void A7_ConnectionClosedTest()
+        {
+            Northwind db = CreateDB(System.Data.ConnectionState.Closed);
+            Product p1 = db.Products.Single(p => p.ProductID == 1);
+            Assert.IsTrue(p1.ProductID == 1);
         }
 
         #endregion
@@ -268,9 +285,22 @@ namespace Test_NUnit_Ingres
             var q = from p in db.Orders
                     orderby p.Customer.City
                     select p;
+            
             int count = q.ToList().Count();
             int ordcount = db.Orders.Count();
             Assert.AreEqual(ordcount, count);
+        }
+
+        [Test]
+        public void C10_ConstantPredicate()
+        {
+            Northwind db = CreateDB();
+            var q = from p in db.Customers
+                    where true
+                    select p;
+
+            int count = q.ToList().Count();
+            Assert.Greater(count,0);
         }
 
         #endregion
@@ -617,22 +647,6 @@ namespace Test_NUnit_Ingres
 
 
         #endregion
-
-        [Test]
-        public void E1_ConnectionOpenTest()
-        {
-            Northwind db = CreateDB(System.Data.ConnectionState.Open);
-            Product p1 = db.Products.Single(p => p.ProductID == 1);
-            Assert.IsTrue(p1.ProductID == 1);
-        }
-
-        [Test]
-        public void E2_ConnectionClosedTest()
-        {
-            Northwind db = CreateDB(System.Data.ConnectionState.Closed);
-            Product p1 = db.Products.Single(p => p.ProductID == 1);
-            Assert.IsTrue(p1.ProductID == 1);
-        }
 
     }
 }

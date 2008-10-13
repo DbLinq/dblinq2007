@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // MIT license
 //
@@ -24,7 +24,10 @@
 // 
 #endregion
 
+using DbLinq.Util;
+using DbLinq.Data.Linq.Database;
 using System.Collections.Generic;
+
 #if MONO_STRICT
 using System.Data.Linq.Sql;
 using System.Data.Linq.Sugar.Expressions;
@@ -39,11 +42,32 @@ namespace System.Data.Linq.Sugar
 namespace DbLinq.Data.Linq.Sugar
 #endif
 {
-    internal class DeleteQuery : ParameterizedQuery
+    internal abstract class ParameterizedQuery : AbstractQuery
     {
-        public DeleteQuery(DataContext dataContext, SqlStatement sql, IList<ObjectInputParameterExpression> inputParameters)
-            : base(dataContext, sql, inputParameters)
+        protected ParameterizedQuery(DataContext dataContext, SqlStatement sql, IList<ObjectInputParameterExpression> inputParameters)
+            : base(dataContext, sql)
         {
+            this.InputParameters = inputParameters;
         }
+
+        /// <summary>
+        /// Parameters to be sent as SQL parameters
+        /// </summary>
+        public IList<ObjectInputParameterExpression> InputParameters { get; protected set; }
+
+        public override IDbLinqCommand GetCommand()
+        {
+            IDbLinqCommand dbCommand = base.GetCommand(true);
+            foreach (var inputParameter in InputParameters)
+            {
+                var dbParameter = dbCommand.Command.CreateParameter();
+                dbParameter.ParameterName = DataContext.Vendor.SqlProvider.GetParameterName(inputParameter.Alias);
+                dbParameter.SetValue(inputParameter.GetValue(Target), inputParameter.ValueType);
+                dbCommand.Command.Parameters.Add(dbParameter);
+            }
+            return dbCommand;
+        }
+
+        public object Target { get; set; }
     }
 }

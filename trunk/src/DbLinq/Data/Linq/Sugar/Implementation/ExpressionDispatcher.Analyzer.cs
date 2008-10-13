@@ -652,7 +652,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 return AnalyzeDateTimeMemberAccess(objectExpression, memberInfo, isStaticMemberAccess);
 
             if (objectExpression.Type == typeof(TimeSpan))
-                return AnalyzeTimeSpamMemberAccess(objectExpression, memberInfo);
+                return AnalyzeTimeSpanMemberAccess(objectExpression, memberInfo);
 
 
             if (objectExpression is InputParameterExpression)
@@ -668,6 +668,11 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             }
 
             return AnalyzeCommonMember(objectExpression, memberInfo, builderContext);
+        }
+
+        private Expression AnalyzeTimeSpanMemberAccess(Expression objectExpression, MemberInfo memberInfo)
+        {
+            throw new NotImplementedException();
         }
 
         protected Expression AnalyzeTimeSpamMemberAccess(Expression objectExpression, MemberInfo memberInfo)
