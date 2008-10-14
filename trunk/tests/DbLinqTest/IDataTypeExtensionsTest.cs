@@ -23,6 +23,7 @@
 // THE SOFTWARE.
 // 
 #endregion
+
 using System.Collections.Generic;
 using DbLinq.Schema;
 using DbLinq.Schema.Dbml;
@@ -30,10 +31,9 @@ using DbLinq.Util;
 using DbLinq.Vendor;
 using DbLinq.Vendor.Implementation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 namespace DbLinqTest
 {
-
-
     /// <summary>
     ///This is a test class for SchemaLoaderTest and is intended
     ///to contain all SchemaLoaderTest Unit Tests

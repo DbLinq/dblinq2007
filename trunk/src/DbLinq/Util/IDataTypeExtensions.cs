@@ -31,7 +31,6 @@ namespace DbLinq.Util
 #if MONO_STRICT
     internal
 #else
-    // TODO: declare known vendors as friend assemblies
     public // used by external vendors
 #endif
     static class IDataTypeExtensions

@@ -36,7 +36,7 @@ namespace DbLinq.Util
 #if MONO_STRICT
     internal
 #else
-    // TODO: declare known vendors as friend assemblies
+    // TODO: once R# is fixed with internal extension methods problems, switch to full internal
     public // DataCommand is used by vendors
 #endif
     static class DataCommand
