@@ -85,7 +85,9 @@ namespace Test_NUnit
     /// </summary>
     public abstract class TestBase
     {
+#if SQLITE
         static bool doRecreate = true;
+#endif
 
         public string DbServer
         {

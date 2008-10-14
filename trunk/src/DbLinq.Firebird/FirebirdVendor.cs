@@ -193,7 +193,7 @@ namespace DbLinq.Firebird
                     object val2 = TypeConvert.To(val, desired_type);
                     outParamValues.Add(val2);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     //fails with 'System.Decimal cannot be converted to Int32'
                     //Logger.Write(Level.Error, "CopyOutParams ERROR L245: failed on CastValue(): " + ex.Message);

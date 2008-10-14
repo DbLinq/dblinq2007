@@ -95,7 +95,6 @@
     <Compile Include="Schema\DbmlRename.cs" />
     <Compile Include="Schema\DbmlRenameLoader.cs" />
     <Compile Include="Schema\NameAliasesLoader.cs" />
-    <Compile Include="Utility\TextWriterExtension.cs" />
     <Compile Include="Utility\VariablesExtension.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="AbstractParameters.cs" />

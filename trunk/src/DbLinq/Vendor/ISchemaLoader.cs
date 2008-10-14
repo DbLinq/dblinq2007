@@ -25,6 +25,7 @@
 #endregion
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using DbLinq.Schema;
 using DbLinq.Schema.Dbml;
 
@@ -49,6 +50,11 @@ namespace DbLinq.Vendor
         /// Connection used to read schema
         /// </summary>
         IDbConnection Connection { get; set; }
+
+        /// <summary>
+        /// Log output
+        /// </summary>
+        TextWriter Log { get; set; }
 
         /// <summary>
         /// Loads database schema

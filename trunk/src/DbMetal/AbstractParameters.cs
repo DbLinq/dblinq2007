@@ -23,12 +23,10 @@
 // THE SOFTWARE.
 // 
 #endregion
+
 using System;
-using System.Collections;
-using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
-using System.Configuration;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
@@ -108,15 +106,21 @@ namespace DbMetal
         }
 
         public readonly IList<string> Extra = new List<string>();
+        private TextWriter log;
+        public TextWriter Log
+        {
+            get { return log ?? Console.Out; }
+            set { log = value; }
+        }
 
-        private bool IsParameter(string arg, string switchPrefix, out string parameterName, out string parameterValue)
+        private static bool IsParameter(string arg, string switchPrefix, out string parameterName, out string parameterValue)
         {
             bool isParameter;
             if (arg.StartsWith(switchPrefix))
             {
                 isParameter = true;
                 string nameValue = arg.Substring(switchPrefix.Length);
-                int separator = nameValue.IndexOfAny(new char[] { ':', '=' });
+                int separator = nameValue.IndexOfAny(new[] { ':', '=' });
                 if (separator >= 0)
                 {
                     parameterName = nameValue.Substring(0, separator);
@@ -152,14 +156,14 @@ namespace DbMetal
             return isParameter;
         }
 
-        protected bool IsParameter(string arg, out string parameterName, out string parameterValue)
+        protected static bool IsParameter(string arg, out string parameterName, out string parameterValue)
         {
             return IsParameter(arg, "--", out parameterName, out parameterValue)
                    || IsParameter(arg, "-", out parameterName, out parameterValue)
                    || IsParameter(arg, "/", out parameterName, out parameterValue);
         }
 
-        protected object GetValue(string value, Type targetType)
+        protected static object GetValue(string value, Type targetType)
         {
             object typedValue;
             if (typeof(bool).IsAssignableFrom(targetType))
@@ -181,8 +185,8 @@ namespace DbMetal
         protected virtual MemberInfo FindParameter(string name, Type type)
         {
             // the easy way: find propery or field name
-            BindingFlags flags = BindingFlags.IgnoreCase | BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public;
-            MemberInfo[] memberInfos = type.GetMember(name, flags);
+            var flags = BindingFlags.IgnoreCase | BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public;
+            var memberInfos = type.GetMember(name, flags);
             if (memberInfos.Length > 0)
                 return memberInfos[0];
             // the hard way: look for alternate names
@@ -235,11 +239,11 @@ namespace DbMetal
             }
         }
 
-        public AbstractParameters()
+        protected AbstractParameters()
         {
         }
 
-        public AbstractParameters(IList<string> args)
+        protected AbstractParameters(IList<string> args)
         {
             Load(args);
         }
@@ -349,14 +353,14 @@ namespace DbMetal
             // if we don't, just use the args
             else if (commonArgs.Count > 0)
             {
-                var p = new P();
+                var p = new P { Log = Log };
                 p.Load(commonArgs);
                 parameters.Add(p);
             }
             return parameters;
         }
 
-        private IList<P> GetParameterBatchFile<P>(IList<string> baseArgs, string argsList)
+        private IList<P> GetParameterBatchFile<P>(IEnumerable<string> baseArgs, string argsList)
             where P : AbstractParameters, new()
         {
             var parameters = new List<P>();
@@ -368,18 +372,13 @@ namespace DbMetal
                     string line = textReader.ReadLine();
                     if (line.StartsWith("#"))
                         continue;
-                    IList<string> args = ExtractArguments(line);
-                    List<string> allArgs = new List<string>(baseArgs);
+                    var args = ExtractArguments(line);
+                    var allArgs = new List<string>(baseArgs);
                     allArgs.AddRange(args);
                     parameters.AddRange(GetParameterBatch<P>(allArgs, argsFileDirectory));
                 }
             }
             return parameters;
-        }
-
-        protected int TextWidth
-        {
-            get { return Console.BufferWidth; }
         }
 
         /// <summary>
@@ -390,7 +389,7 @@ namespace DbMetal
         /// <param name="args"></param>
         public void Write(string format, params object[] args)
         {
-            Console.WriteLine(format, args);
+            Output.WriteLine(Log, OutputLevel.Information, format, args);
         }
 
         /// <summary>
@@ -398,13 +397,19 @@ namespace DbMetal
         /// </summary>
         public void WriteLine()
         {
-            Console.WriteLine();
+            Output.WriteLine(Log, OutputLevel.Information, string.Empty);
+        }
+
+        // TODO: remove this
+        protected static int TextWidth
+        {
+            get { return Console.BufferWidth; }
         }
 
         /// <summary>
         /// Returns the application (assembly) name (without extension)
         /// </summary>
-        protected string ApplicationName
+        protected static string ApplicationName
         {
             get
             {
@@ -415,7 +420,7 @@ namespace DbMetal
         /// <summary>
         /// Returns the application (assembly) version
         /// </summary>
-        protected Version ApplicationVersion
+        protected static Version ApplicationVersion
         {
             get
             {
@@ -617,7 +622,7 @@ namespace DbMetal
             return maxLength;
         }
 
-        protected string[] SplitText(string text, int width)
+        protected static string[] SplitText(string text, int width)
         {
             var lines = new List<string>(new[] { "" });
             var words = text.Split(' ');

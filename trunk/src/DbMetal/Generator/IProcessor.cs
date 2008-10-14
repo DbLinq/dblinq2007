@@ -25,6 +25,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.IO;
 using DbLinq.Schema.Dbml;
 using DbLinq.Vendor;
 
@@ -37,6 +38,11 @@ namespace DbMetal.Generator
         /// Automatically created by IProcessor implementation
         /// </summary>
         ISchemaLoaderFactory SchemaLoaderFactory { get; set; }
+
+        /// <summary>
+        /// Log output
+        /// </summary>
+        TextWriter Log { get; set; }
 
         /// <summary>
         /// Whole process, given application parameters

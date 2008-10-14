@@ -30,7 +30,7 @@ using System.Data;
 namespace DbLinq.Util
 {
 #if MONO_STRICT
-    internal 
+    internal
 #else
     public
 #endif

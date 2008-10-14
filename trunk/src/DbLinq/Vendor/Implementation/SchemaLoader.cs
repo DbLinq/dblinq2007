@@ -53,11 +53,14 @@ namespace DbLinq.Vendor.Implementation
         public IDbConnection Connection { get; set; }
         public INameFormatter NameFormatter { get; set; }
 
-        private TextWriter @out;
-        public TextWriter Out
+        private TextWriter log;
+        /// <summary>
+        /// Log output
+        /// </summary>
+        public TextWriter Log
         {
-            get { return @out ?? Console.Out; }
-            set { @out = value; }
+            get { return log ?? Console.Out; }
+            set { log = value; }
         }
 
         public virtual Database Load(string databaseName, INameAliases nameAliases, NameFormat nameFormat,
@@ -109,7 +112,7 @@ namespace DbLinq.Vendor.Implementation
 
         protected void WriteErrorLine(string format, params object[] arg)
         {
-            var o = Out;
+            var o = Log;
             if (o == Console.Out)
                 o = Console.Error;
             o.WriteLine(format, arg);
