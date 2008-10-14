@@ -37,7 +37,6 @@ using Test_NUnit;
 using nwind;
 using DbLinq.Data.Linq;
 using DataLinq=DbLinq.Data.Linq;
-using DbLinq.Logging;
 using System.Data.Linq;
 #else
 using MsNorthwind;
@@ -130,9 +129,6 @@ namespace Test_NUnit_MsSql_Strict
         [Test(Description = "Problem discovered by Laurent")]
         public void Join_Laurent()
         {
-#if !MONO_STRICT
-            Logger.Write(Level.Information, "\nJoin_Laurent()");
-#endif
             Northwind db = CreateDB();
 
             var q1 = (from p in db.Products

@@ -54,7 +54,6 @@ using System.Data.Linq;
 #endif
 
 using DbLinq.Factory;
-using DbLinq.Logging;
 using DbLinq.Vendor;
 using DbLinq.Data.Linq.Database;
 using DbLinq.Data.Linq.Database.Implementation;

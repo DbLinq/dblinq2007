@@ -5,8 +5,6 @@ using System.Text;
 using FirebirdSql.Data.FirebirdClient;
 using System.Data.Linq;
 using System.IO;
-using DbLinq.Factory;
-using DbLinq.Logging;
 using nwind;
 
 // DbMetal.exe /server:localhost /user:sysdba /password:masterkey "/database=C:\Program Files\Firebird\Firebird_2_1\examples\empbuild\EMPLOYEE.FDB" /provider:FirebirdSql /code:..\..\..\examples\DbLinq.FbSql.Example\Employee.cs
@@ -18,8 +16,6 @@ namespace DbLinq.FbSql.Example
     {
         static void Main(string[] args)
         {
-            var logger = ObjectFactory.Get<ILogger>();
-
             string programFiles = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
             string databasePath = Path.Combine(programFiles,
                 @"Firebird\Firebird_2_1\examples\nwind\NORTHWIND.FDB");
@@ -33,11 +29,11 @@ namespace DbLinq.FbSql.Example
             ObjectDumper.Write(x);
 
             Console.Clear();
-            logger.Write(Level.Debug, "from p in db.Products orderby p.ProductName select p;");
+            Console.WriteLine("from p in db.Products orderby p.ProductName select p;");
             var q2 = from p in db.Products orderby p.ProductName select p;
             foreach (var v in q2)
                 ObjectDumper.Write(v);
-            logger.Write(Level.Information, "Press enter to continue.");
+            Console.WriteLine("Press enter to continue.");
             Console.ReadKey();
 
             Console.Clear();
@@ -47,38 +43,38 @@ namespace DbLinq.FbSql.Example
                      select new { c, o };
             foreach (var v in q3)
                 ObjectDumper.Write(v);
-            logger.Write(Level.Information, "Press enter to continue.");
+            Console.WriteLine("Press enter to continue.");
             Console.ReadKey();
 
             Console.Clear();
-            logger.Write(Level.Debug, "from p in db.Products where p.ProductID == 7 select p;");
+            Console.WriteLine("from p in db.Products where p.ProductID == 7 select p;");
             var q4 = from p in db.Products where p.ProductID == 7 select p;
             foreach (var v in q4)
                 ObjectDumper.Write(v);
-            logger.Write(Level.Information, "Press enter to continue.");
+            Console.WriteLine("Press enter to continue.");
             Console.ReadKey();
 
             Console.Clear();
-            logger.Write(Level.Debug, "from c in db.Customers from o in c.Orders where c.City == \"London\" select new { c, o };");
+            Console.WriteLine("from c in db.Customers from o in c.Orders where c.City == \"London\" select new { c, o };");
             var q5 = from c in db.Customers from o in c.Orders where c.City == "London" select new { c, o };
             foreach (var v in q4)
                 ObjectDumper.Write(v);
-            logger.Write(Level.Information, "Press enter to continue.");
+            Console.WriteLine("Press enter to continue.");
             Console.ReadKey();
 
             Console.Clear();
-            logger.Write(Level.Debug, "from o in db.Orders where o.Customer.City == \"London\" select new { c = o.Customer, o };");
+            Console.WriteLine("from o in db.Orders where o.Customer.City == \"London\" select new { c = o.Customer, o };");
             var q6 = from o in db.Orders where o.Customer.City == "London" select new { c = o.Customer, o };
             foreach (var v in q4)
                 ObjectDumper.Write(v);
-            logger.Write(Level.Information, "Press enter to continue.");
+            Console.WriteLine("Press enter to continue.");
             Console.ReadKey();
 
             Console.Clear();
-            logger.Write(Level.Debug, "db.Orders");
+            Console.WriteLine("db.Orders");
             foreach (var v in db.Orders)
                 ObjectDumper.Write(v);
-            logger.Write(Level.Information, "Press enter to continue.");
+            Console.WriteLine("Press enter to continue.");
             Console.ReadKey();
 
             //// BUG: auto_increment columns aren't supported on Firebird SQL yet.
@@ -95,13 +91,13 @@ namespace DbLinq.FbSql.Example
             //Console.ReadKey();
 
             Console.Clear();
-            logger.Write(Level.Debug, "db.Orders.Remove(db.Orders.First());");
+            Console.WriteLine("db.Orders.Remove(db.Orders.First());");
             var order = db.Orders.First();
             db.Orders.DeleteOnSubmit(order);
             db.SubmitChanges();
             foreach (var v in db.Orders)
                 ObjectDumper.Write(v);
-            logger.Write(Level.Information, "Press enter to continue.");
+            Console.WriteLine("Press enter to continue.");
             Console.ReadKey();
         }
     }

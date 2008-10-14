@@ -29,18 +29,24 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using DbLinq.Factory;
-using DbLinq.Logging;
 using DbLinq.Schema;
 using DbLinq.Schema.Dbml;
 using DbLinq.Util;
 using DbLinq.Vendor;
 using DbMetal.Schema;
+using DbMetal.Utility;
 
 namespace DbMetal.Generator.Implementation
 {
     public class Processor : IProcessor
     {
-        public ILogger Logger { get; set; }
+        private TextWriter @out;
+        public TextWriter Out
+        {
+            get { return @out ?? Console.Out; }
+            set { @out = value; }
+        }
+
         public ISchemaLoaderFactory SchemaLoaderFactory { get; set; }
 
         public Processor()
@@ -48,7 +54,6 @@ namespace DbMetal.Generator.Implementation
             //for DbMetal for want to log to console
             //for VisualMetal we want to log to log4net
             //Logger = ObjectFactory.Get<ILogger>();
-            Logger = ObjectFactory.Get<ILogger>(new DbLinq.Logging.Implementation.ConsoleLogger());
             SchemaLoaderFactory = ObjectFactory.Get<ISchemaLoaderFactory>();
         }
 
@@ -76,7 +81,7 @@ namespace DbMetal.Generator.Implementation
                 }
                 catch (ArgumentException e)
                 {
-                    Logger.Write(Level.Error, e.Message);
+                    Out.WriteErrorLine(e.Message);
                     PrintUsage(parameters);
                     return;
                 }
@@ -86,8 +91,6 @@ namespace DbMetal.Generator.Implementation
                     Console.ReadKey();
                 }
             }
-
-            Logger.Write(Level.Information, "");
         }
 
         private void ProcessSchema(Parameters parameters)
@@ -103,8 +106,8 @@ namespace DbMetal.Generator.Implementation
             }
             catch (Exception ex)
             {
-                string assyName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
-                Logger.Write(Level.Error, assyName + " failed:" + ex);
+                string assemblyName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
+                Out.WriteErrorLine(assemblyName + " failed:" + ex);
             }
         }
 
@@ -166,7 +169,7 @@ namespace DbMetal.Generator.Implementation
 
         protected virtual ICodeGenerator FindCodeGeneratorByExtension(string extension)
         {
-            return EnumerateCodeGenerators().SingleOrDefault(gen=>gen.Extension==extension);
+            return EnumerateCodeGenerators().SingleOrDefault(gen => gen.Extension == extension);
         }
 
         public virtual ICodeGenerator FindCodeGenerator(Parameters parameters, string filename)
@@ -202,7 +205,7 @@ namespace DbMetal.Generator.Implementation
             {
                 schemaLoader = SchemaLoaderFactory.Load(parameters);
 
-                parameters.Write(">>> Reading schema from {0} database", schemaLoader.VendorName);
+                parameters.Write(">>> Reading schema from {0} database", schemaLoader.Vendor.VendorName);
                 dbSchema = schemaLoader.Load(parameters.Database, nameAliases,
                     new NameFormat(parameters.Pluralize, Case.PascalCase, new CultureInfo(parameters.Culture)),
                     parameters.Sprocs, parameters.Namespace, parameters.Namespace);

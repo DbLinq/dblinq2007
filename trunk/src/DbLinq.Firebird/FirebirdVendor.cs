@@ -38,7 +38,6 @@ using System.Data.Linq.SqlClient;
 using DbLinq.Data.Linq;
 using DbLinq.Data.Linq.SqlClient;
 #endif
-using DbLinq.Logging;
 using DbLinq.Util;
 using DbLinq.Vendor;
 
@@ -197,7 +196,7 @@ namespace DbLinq.Firebird
                 catch (Exception ex)
                 {
                     //fails with 'System.Decimal cannot be converted to Int32'
-                    Logger.Write(Level.Error, "CopyOutParams ERROR L245: failed on CastValue(): " + ex.Message);
+                    //Logger.Write(Level.Error, "CopyOutParams ERROR L245: failed on CastValue(): " + ex.Message);
                 }
             }
             return outParamValues;

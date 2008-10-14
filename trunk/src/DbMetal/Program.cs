@@ -25,7 +25,8 @@
 #endregion
 
 using DbLinq;
-using DbMetal.Generator.Implementation;
+using DbLinq.Factory;
+using DbMetal.Generator;
 
 namespace DbMetal
 {
@@ -33,9 +34,12 @@ namespace DbMetal
     {
         static void Main(string[] args)
         {
+            // since we require this huge assembly, include it
+            // TODO: see if we can place it into DbMetal
             Reference.DbLinqLocalizations();
-            //var processor = ObjectFactory.Get<IProcessor>(); //this is generic but does not work
-            var processor = new Processor(); //non-generic but reliable
+            // get the default processor...
+            var processor = ObjectFactory.Get<IProcessor>();
+            // ... and process
             processor.Process(args);
         }
     }

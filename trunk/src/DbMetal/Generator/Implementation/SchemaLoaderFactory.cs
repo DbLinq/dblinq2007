@@ -29,29 +29,26 @@ using System.Configuration;
 using System.Data;
 using System.IO;
 using System.Reflection;
-using System.Text;
 using DbLinq.Vendor;
-using DbMetal;
 using DbMetal.Configuration;
-using DbMetal.Generator;
-using DbLinq.Logging;
+using DbMetal.Utility;
 
-namespace DbMetal
+namespace DbMetal.Generator.Implementation
 {
     public class SchemaLoaderFactory : ISchemaLoaderFactory
     {
-        ILogger Logger = null;
+        private TextWriter @out;
+        public TextWriter Out
+        {
+            get { return @out ?? Console.Out; }
+            set { @out = value; }
+        }
 
         /// <summary>
         /// the 'main entry point' into this class
         /// </summary>
         public ISchemaLoader Load(Parameters parameters)
         {
-            if (Logger == null)
-            {
-                Logger = DbLinq.Factory.ObjectFactory.Get<ILogger>();
-            }
-
             string dbLinqSchemaLoaderType;
             string databaseConnectionType;
             GetLoaderAndConnection(out dbLinqSchemaLoaderType, out databaseConnectionType, parameters);
@@ -91,10 +88,10 @@ namespace DbMetal
             try
             {
                 errorMsg = "Failed on Activator.CreateInstance(" + dbLinqSchemaLoaderType.Name + ")";
-                ISchemaLoader loader = (ISchemaLoader)Activator.CreateInstance(dbLinqSchemaLoaderType);
+                var loader = (ISchemaLoader)Activator.CreateInstance(dbLinqSchemaLoaderType);
 
                 errorMsg = "Failed on Activator.CreateInstance(" + databaseConnectionType.Name + ")";
-                IDbConnection connection = (IDbConnection)Activator.CreateInstance(databaseConnectionType);
+                var connection = (IDbConnection)Activator.CreateInstance(databaseConnectionType);
 
                 if (parameters != null)
                 {
@@ -114,11 +111,11 @@ namespace DbMetal
             {
                 //see Pascal's comment on this failure:
                 //http://groups.google.com/group/dblinq/browse_thread/thread/b7a29138435b0678
-                Console.Error.WriteLine("LoaderFactory.Load(schemaType=" + dbLinqSchemaLoaderType.Name + ", dbConnType=" + databaseConnectionType.Name + ")");
+                Out.WriteErrorLine("LoaderFactory.Load(schemaType=" + dbLinqSchemaLoaderType.Name + ", dbConnType=" + databaseConnectionType.Name + ")");
                 if (errorMsg != "")
-                    Console.Error.WriteLine(errorMsg);
-                Console.Error.WriteLine("LoaderFactory.Load() failed: " + ex.Message);
-                throw ex;
+                    Out.WriteErrorLine(errorMsg);
+                Out.WriteErrorLine("LoaderFactory.Load() failed: " + ex.Message);
+                throw;
             }
         }
 
@@ -227,7 +224,7 @@ namespace DbMetal
             string errorMsg;
             if (!configuration.Providers.TryGetProvider(provider, out element, out errorMsg))
             {
-                Logger.Write(Level.Error, "Failed to load provider " + provider + ": " + errorMsg);
+                Out.WriteErrorLine("Failed to load provider {0} : {1}", provider, errorMsg);
                 throw new ApplicationException("Failed to load provider " + provider);
             }
 

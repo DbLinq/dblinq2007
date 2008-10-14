@@ -26,8 +26,6 @@
 using System;
 using System.Data;
 
-using System;
-
 #if MONO_STRICT
 using System.Data.Linq.Sql;
 using System.Data.Linq;

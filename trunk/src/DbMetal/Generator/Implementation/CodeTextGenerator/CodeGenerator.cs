@@ -28,7 +28,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using DbLinq.Data.Linq;
-using DbLinq.Logging;
 using DbLinq.Schema;
 using DbLinq.Schema.Dbml;
 using DbLinq.Schema.Dbml.Adapter;
@@ -61,7 +60,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
         {
             if (dbSchema == null || dbSchema.Tables == null)
             {
-                Logger.Write(Level.Error, "CodeGenAll ERROR: incomplete dbSchema, cannot start generating code");
+                //Logger.Write(Level.Error, "CodeGenAll ERROR: incomplete dbSchema, cannot start generating code");
                 return;
             }
 

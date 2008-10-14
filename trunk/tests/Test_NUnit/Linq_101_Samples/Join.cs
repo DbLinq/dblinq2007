@@ -7,7 +7,6 @@ using Test_NUnit;
 
 #if !MONO_STRICT
 using nwind;
-using DbLinq.Logging;
 #else
 using MsNorthwind;
 using System.Data.Linq;
@@ -215,9 +214,6 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
             //FROM [dbo].[Orders] AS [t0], [dbo].[Employees] AS [t1]
             //WHERE [t0].[EmployeeID] = ([t1].[EmployeeID])
 
-#if !MONO_STRICT
-            Logger.Write(Level.Information, "\nLinq.Join10()");
-#endif
             Northwind db = CreateDB();
 
             var q = from o in db.Orders

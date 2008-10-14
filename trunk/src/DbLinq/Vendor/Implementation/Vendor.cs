@@ -28,8 +28,6 @@ using System;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Data;
-using DbLinq.Factory;
-using DbLinq.Logging;
 
 #if MONO_STRICT
 using DataContext = System.Data.Linq.DataContext;
@@ -55,13 +53,6 @@ namespace DbLinq.Vendor.Implementation
 #endif
  abstract partial class Vendor : IVendor
     {
-        public ILogger Logger { get; set; }
-
-        protected Vendor()
-        {
-            Logger = ObjectFactory.Get<ILogger>();
-        }
-
         public virtual bool Ping(DataContext dataContext)
         {
             return dataContext.ExecuteCommand("SELECT 11") == 11;

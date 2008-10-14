@@ -38,7 +38,6 @@ using DbLinq.Data.Linq.Sql;
 using DbLinq.Data.Linq.Sugar.Expressions;
 #endif
 
-using DbLinq.Logging;
 using DbLinq.Util;
 
 #if MONO_STRICT

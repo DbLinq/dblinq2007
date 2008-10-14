@@ -25,7 +25,6 @@
 #endregion
 
 using System.Collections.Generic;
-using DbLinq.Logging;
 using DbLinq.Schema.Dbml;
 using DbLinq.Vendor;
 
@@ -33,8 +32,6 @@ namespace DbMetal.Generator
 {
     public interface IProcessor
     {
-        ILogger Logger { get; set; }
-
         /// <summary>
         /// The SchemaLoadFactory is used to create the ISchemaLoader (who loads the schema from the database)
         /// Automatically created by IProcessor implementation
