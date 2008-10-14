@@ -23,25 +23,29 @@
 // THE SOFTWARE.
 // 
 #endregion
+
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.IO;
 using System.Reflection;
+using DbLinq.Util;
 using DbLinq.Vendor;
 using DbMetal.Configuration;
-using DbMetal.Utility;
 
 namespace DbMetal.Generator.Implementation
 {
     public class SchemaLoaderFactory : ISchemaLoaderFactory
     {
-        private TextWriter @out;
-        public TextWriter Out
+        private TextWriter log;
+        /// <summary>
+        /// Log output
+        /// </summary>
+        public TextWriter Log
         {
-            get { return @out ?? Console.Out; }
-            set { @out = value; }
+            get { return log ?? Console.Out; }
+            set { log = value; }
         }
 
         /// <summary>
@@ -80,15 +84,17 @@ namespace DbMetal.Generator.Implementation
         public ISchemaLoader Load(Parameters parameters, Type dbLinqSchemaLoaderType, Type databaseConnectionType)
         {
             if (dbLinqSchemaLoaderType == null)
-                throw new ArgumentNullException("Null dbLinqSchemaLoaderType");
+                throw new ArgumentNullException("dbLinqSchemaLoaderType");
             if (databaseConnectionType == null)
-                throw new ArgumentNullException("Null databaseConnectionType");
+                throw new ArgumentNullException("databaseConnectionType");
 
             string errorMsg = "";
             try
             {
                 errorMsg = "Failed on Activator.CreateInstance(" + dbLinqSchemaLoaderType.Name + ")";
                 var loader = (ISchemaLoader)Activator.CreateInstance(dbLinqSchemaLoaderType);
+                // set log output
+                loader.Log = Log;
 
                 errorMsg = "Failed on Activator.CreateInstance(" + databaseConnectionType.Name + ")";
                 var connection = (IDbConnection)Activator.CreateInstance(databaseConnectionType);
@@ -111,10 +117,10 @@ namespace DbMetal.Generator.Implementation
             {
                 //see Pascal's comment on this failure:
                 //http://groups.google.com/group/dblinq/browse_thread/thread/b7a29138435b0678
-                Out.WriteErrorLine("LoaderFactory.Load(schemaType=" + dbLinqSchemaLoaderType.Name + ", dbConnType=" + databaseConnectionType.Name + ")");
+                Output.WriteErrorLine(Log, "LoaderFactory.Load(schemaType=" + dbLinqSchemaLoaderType.Name + ", dbConnType=" + databaseConnectionType.Name + ")");
                 if (errorMsg != "")
-                    Out.WriteErrorLine(errorMsg);
-                Out.WriteErrorLine("LoaderFactory.Load() failed: " + ex.Message);
+                    Output.WriteErrorLine(Log, errorMsg);
+                Output.WriteErrorLine(Log, "LoaderFactory.Load() failed: " + ex.Message);
                 throw;
             }
         }
@@ -181,12 +187,13 @@ namespace DbMetal.Generator.Implementation
         /// <returns></returns>
         private Assembly GacLoadAssembly(string shortName)
         {
-            string assemblyDirectory = Path.Combine(Environment.GetEnvironmentVariable("SystemRoot"), "Assembly");
+            var systemRoot = Environment.GetEnvironmentVariable("SystemRoot");
+            string assemblyDirectory = Path.Combine(systemRoot, "Assembly");
             var assembly = GacLoadAssembly(shortName, Path.Combine(assemblyDirectory, "GAC_MSIL"));
             if (assembly == null)
-                return GacLoadAssembly(shortName, Path.Combine(assemblyDirectory, "GAC_32"));
+                assembly = GacLoadAssembly(shortName, Path.Combine(assemblyDirectory, "GAC_32"));
             if (assembly == null)
-                return GacLoadAssembly(shortName, Path.Combine(assemblyDirectory, "GAC"));
+                assembly = GacLoadAssembly(shortName, Path.Combine(assemblyDirectory, "GAC"));
             return assembly;
         }
 
@@ -224,7 +231,7 @@ namespace DbMetal.Generator.Implementation
             string errorMsg;
             if (!configuration.Providers.TryGetProvider(provider, out element, out errorMsg))
             {
-                Out.WriteErrorLine("Failed to load provider {0} : {1}", provider, errorMsg);
+                Output.WriteErrorLine(Log, "Failed to load provider {0} : {1}", provider, errorMsg);
                 throw new ApplicationException("Failed to load provider " + provider);
             }
 

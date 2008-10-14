@@ -34,17 +34,23 @@ using DbLinq.Schema.Dbml;
 using DbLinq.Util;
 using DbLinq.Vendor;
 using DbMetal.Schema;
-using DbMetal.Utility;
 
 namespace DbMetal.Generator.Implementation
 {
     public class Processor : IProcessor
     {
-        private TextWriter @out;
-        public TextWriter Out
+        private TextWriter log;
+        /// <summary>
+        /// Log output
+        /// </summary>
+        public TextWriter Log
         {
-            get { return @out ?? Console.Out; }
-            set { @out = value; }
+            get { return log ?? Console.Out; }
+            set
+            {
+                log = value;
+                SchemaLoaderFactory.Log = value;
+            }
         }
 
         public ISchemaLoaderFactory SchemaLoaderFactory { get; set; }
@@ -59,7 +65,7 @@ namespace DbMetal.Generator.Implementation
 
         public void Process(string[] args)
         {
-            var parameters = new Parameters();
+            var parameters = new Parameters { Log = Log };
 
             if (args.Length == 0)
                 PrintUsage(parameters);
@@ -81,7 +87,7 @@ namespace DbMetal.Generator.Implementation
                 }
                 catch (ArgumentException e)
                 {
-                    Out.WriteErrorLine(e.Message);
+                    Output.WriteErrorLine(Log, e.Message);
                     PrintUsage(parameters);
                     return;
                 }
@@ -107,7 +113,7 @@ namespace DbMetal.Generator.Implementation
             catch (Exception ex)
             {
                 string assemblyName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
-                Out.WriteErrorLine(assemblyName + " failed:" + ex);
+                Output.WriteErrorLine(Log, assemblyName + " failed:" + ex);
             }
         }
 

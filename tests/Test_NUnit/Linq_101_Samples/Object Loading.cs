@@ -11,7 +11,6 @@ using Test_NUnit.Linq_101_Samples;
 using nwind;
 #else
 using MsNorthwind;
-using System.Data.Linq;
 #endif
 
 #if MYSQL

@@ -24,40 +24,16 @@
 // 
 #endregion
 
-using System;
-using System.IO;
-
-namespace DbMetal.Utility
+namespace DbLinq.Util
 {
     /// <summary>
-    /// Allows to differentiate notes/warnings/errors... At some point in the future.
-    /// For now, it all falls back into same output
+    /// Log output level
     /// </summary>
-    public static class TextWriterExtension
+    internal enum OutputLevel
     {
-        /// <summary>
-        /// Writes a warning
-        /// </summary>
-        /// <param name="textWriter"></param>
-        /// <param name="format"></param>
-        /// <param name="arg"></param>
-        public static void WriteWarningLine(this TextWriter textWriter, string format, params object[] arg)
-        {
-            textWriter.WriteLine(format, arg);
-        }
-
-        /// <summary>
-        /// Writes an error
-        /// </summary>
-        /// <param name="textWriter"></param>
-        /// <param name="format"></param>
-        /// <param name="arg"></param>
-        public static void WriteErrorLine(this TextWriter textWriter, string format, params object[] arg)
-        {
-            // the most common use is console output. Since we make no difference above, we make it here
-            if (textWriter == Console.Out)
-                textWriter = Console.Error;
-            textWriter.WriteLine(format, arg);
-        }
+        Debug,
+        Information,
+        Warning,
+        Error,
     }
 }

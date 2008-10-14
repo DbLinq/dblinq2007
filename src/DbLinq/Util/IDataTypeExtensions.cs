@@ -31,11 +31,12 @@ namespace DbLinq.Util
 #if MONO_STRICT
     internal
 #else
-    public
+    // TODO: declare known vendors as friend assemblies
+    public // used by external vendors
 #endif
     static class IDataTypeExtensions
     {
-        private static Regex rawTypeEx = new Regex(@"(?<type>\w+)(\((?<length>\d+)(,(?<scale>\d+))?\))?( (?<qualifier>\w+))?", RegexOptions.Compiled);
+        private static readonly Regex rawTypeEx = new Regex(@"(?<type>\w+)(\((?<length>\d+)(,(?<scale>\d+))?\))?( (?<qualifier>\w+))?", RegexOptions.Compiled);
         /// <summary>
         /// unpacks a raw db type
         /// </summary>

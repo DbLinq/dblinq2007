@@ -50,7 +50,7 @@ namespace DbLinq.Vendor.Implementation
 #else
         public
 #endif
-    class DataType : IDataType
+        class DataType : IDataType
         {
             public virtual string Type { get; set; }
             public virtual bool Nullable { get; set; }

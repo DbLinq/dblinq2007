@@ -24,6 +24,7 @@
 // 
 #endregion
 using System;
+using System.IO;
 using DbLinq.Vendor;
 
 namespace DbMetal.Generator
@@ -51,5 +52,9 @@ namespace DbMetal.Generator
 
         ISchemaLoader Load(Parameters parameters, string dbLinqSchemaLoaderTypeName, string databaseConnectionTypeName);
 
+        /// <summary>
+        /// Log output
+        /// </summary>
+        TextWriter Log { get; set; }
     }
 }
