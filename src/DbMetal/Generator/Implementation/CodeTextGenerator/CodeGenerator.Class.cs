@@ -30,7 +30,6 @@ using System.Diagnostics;
 using System.Linq;
 using DbLinq.Data.Linq;
 using DbLinq.Factory;
-using DbLinq.Logging;
 using DbLinq.Schema.Dbml;
 using DbLinq.Schema.Dbml.Adapter;
 using DbMetal.Generator.EntityInterface;
@@ -44,13 +43,6 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
 {
     public partial class CodeGenerator
     {
-        public ILogger Logger { get; set; }
-
-        public CodeGenerator()
-        {
-            Logger = ObjectFactory.Get<ILogger>();
-        }
-
         protected virtual void WriteClasses(CodeWriter writer, Database schema, GenerationContext context)
         {
             foreach (var table in schema.Tables)
@@ -297,7 +289,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             DbLinq.Schema.Dbml.Table targetTable = schema.Tables.FirstOrDefault(t => t.Type.Name == child.Type);
             if (targetTable == null)
             {
-                Logger.Write(Level.Error, "ERROR L143 target table class not found:" + child.Type);
+                //Logger.Write(Level.Error, "ERROR L143 target table class not found:" + child.Type);
                 return;
             }
 
@@ -350,12 +342,13 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             DbLinq.Schema.Dbml.Table targetTable = schema.Tables.FirstOrDefault(t => t.Type.Name == parent.Type);
             if (targetTable == null)
             {
-                Logger.Write(Level.Error, "ERROR L191 target table type not found: " + parent.Type + "  (processing " + parent.Name + ")");
+                //Logger.Write(Level.Error, "ERROR L191 target table type not found: " + parent.Type + "  (processing " + parent.Name + ")");
                 return;
             }
 
             string member = parent.Member;
             string storageField = parent.Storage;
+            // TODO: remove this
             if (member == parent.ThisKey)
             {
                 member = parent.ThisKey + targetTable.Type.Name; //repeat name to prevent collision (same as Linq)

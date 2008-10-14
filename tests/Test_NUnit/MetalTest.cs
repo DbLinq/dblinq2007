@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using DbLinq.Factory;
-using DbLinq.Logging;
 using NUnit.Framework;
 
 namespace Test_NUnit_MySql
@@ -13,13 +8,6 @@ namespace Test_NUnit_MySql
     [TestFixture]
     public class MetalTest
     {
-        public ILogger Logger { get; set; }
-
-        public MetalTest()
-        {
-            Logger = ObjectFactory.Get<ILogger>();
-        }
-
         static string GetSqlMetalPath()
         {
             string path = "../../../SqlMetal/bin/SqlMetal.exe";
@@ -67,7 +55,7 @@ namespace Test_NUnit_MySql
 
             ProcessRunner p2 = new ProcessRunner();
             int cscExitCode = p2.Run(cscExe, cscArgs, 5000);
-            Logger.Write(Level.Information, "csc exitCode:" + cscExitCode + ",  output: " + p2._stdout);
+            Console.Out.WriteLine("csc exitCode:" + cscExitCode + ",  output: " + p2._stdout);
             Assert.IsTrue(cscExitCode == 0, "csc.exe failed with exit code " + cscExitCode);
 
             Directory.SetCurrentDirectory(currDir);

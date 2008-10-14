@@ -37,10 +37,29 @@ namespace DbLinq.Vendor
 #endif
     interface ISchemaLoader
     {
-        string VendorName { get; }
+        /// <summary>
+        /// Underlying vendor
+        /// </summary>
         IVendor Vendor { get; }
+        /// <summary>
+        /// Vendor typed DataContext type
+        /// </summary>
         System.Type DataContextType { get; }
+        /// <summary>
+        /// Connection used to read schema
+        /// </summary>
         IDbConnection Connection { get; set; }
+
+        /// <summary>
+        /// Loads database schema
+        /// </summary>
+        /// <param name="databaseName"></param>
+        /// <param name="nameAliases"></param>
+        /// <param name="nameFormat"></param>
+        /// <param name="loadStoredProcedures"></param>
+        /// <param name="contextNamespace"></param>
+        /// <param name="entityNamespace"></param>
+        /// <returns></returns>
         Database Load(string databaseName, INameAliases nameAliases, NameFormat nameFormat,
             bool loadStoredProcedures, string contextNamespace, string entityNamespace);
 

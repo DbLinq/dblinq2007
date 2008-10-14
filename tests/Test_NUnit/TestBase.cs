@@ -33,7 +33,6 @@ using NUnit.Framework;
 #if !MONO_STRICT
 using nwind;
 using DbLinq.Factory;
-using DbLinq.Logging;
 #else
 using MsNorthwind;
 using System.Data.Linq;
@@ -87,14 +86,6 @@ namespace Test_NUnit
     public abstract class TestBase
     {
         static bool doRecreate = true;
-#if !MONO_STRICT
-        public ILogger Logger { get; set; }
-
-        protected TestBase()
-        {
-            Logger = ObjectFactory.Get<ILogger>();
-        }
-#endif
 
         public string DbServer
         {

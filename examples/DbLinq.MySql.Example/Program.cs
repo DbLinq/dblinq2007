@@ -29,7 +29,6 @@ using System.Text;
 using System.Data;
 using System.Linq;
 using DbLinq.Factory;
-using DbLinq.Logging;
 using MySql.Data.MySqlClient;
 
 using nwind;  // contains Northwind context
@@ -40,8 +39,6 @@ namespace DbLinq.MySql.Example
     {
         static void Main(string[] args)
         {
-            var logger = ObjectFactory.Get<ILogger>();
-
 /*            if (args.Length != 4)
             {
                 Logger.Write("Usage: DbLinq.MySql.Example.exe server user password database");
@@ -89,11 +86,11 @@ namespace DbLinq.MySql.Example
 #endif
 
             Console.Clear();
-            logger.Write(Level.Debug, "from p in db.Products orderby p.ProductName select p;");
+            Console.WriteLine( "from p in db.Products orderby p.ProductName select p;");
             var q2 = from p in db.Products orderby p.ProductName select p;
             foreach (var v in q2)
                 ObjectDumper.Write(v);
-            logger.Write(Level.Information, "Press enter to continue.");
+            Console.WriteLine( "Press enter to continue.");
             Console.ReadLine();
 
             // BUG: This one throws a null reference for some reason.
@@ -106,57 +103,57 @@ namespace DbLinq.MySql.Example
             //Console.ReadLine();
 
             Console.Clear();
-            logger.Write(Level.Debug, "from p in db.Products where p.ProductID == 7 select p;");
+            Console.WriteLine( "from p in db.Products where p.ProductID == 7 select p;");
             var q4 = from p in db.Products where p.ProductID == 7 select p;
             foreach (var v in q4)
                 ObjectDumper.Write(v);
-            logger.Write(Level.Information, "Press enter to continue.");
+            Console.WriteLine( "Press enter to continue.");
             Console.ReadLine();
 
             Console.Clear();
-            logger.Write(Level.Debug, "from c in db.Customers from o in c.Orders where c.City == \"London\" select new { c, o };");
+            Console.WriteLine( "from c in db.Customers from o in c.Orders where c.City == \"London\" select new { c, o };");
             var q5 = from c in db.Customers from o in c.Orders where c.City == "London" select new { c, o };
             foreach (var v in q4)
                 ObjectDumper.Write(v);
-            logger.Write(Level.Information, "Press enter to continue.");
+            Console.WriteLine( "Press enter to continue.");
             Console.ReadLine();
 
             Console.Clear();
-            logger.Write(Level.Debug, "from o in db.Orders where o.Customer.City == \"London\" select new { c = o.Customer, o };");
+            Console.WriteLine( "from o in db.Orders where o.Customer.City == \"London\" select new { c = o.Customer, o };");
             var q6 = from o in db.Orders where o.Customer.City == "London" select new { c = o.Customer, o };
             foreach (var v in q4)
                 ObjectDumper.Write(v);
-            logger.Write(Level.Information, "Press enter to continue.");
+            Console.WriteLine( "Press enter to continue.");
             Console.ReadLine();
 
             Console.Clear();
-            logger.Write(Level.Debug, "db.Orders");
+            Console.WriteLine( "db.Orders");
             foreach (var v in db.Orders)
                 ObjectDumper.Write(v);
-            logger.Write(Level.Information, "Press enter to continue.");
+            Console.WriteLine( "Press enter to continue.");
             Console.ReadLine();
 
             // BUG: This currently will insert 3 rows when it should insert only 2
             // SubmitChanges isn't clearing the client side transaction data
             //Console.Clear();
-            //logger.Write(Level.Debug, "db.Orders.Add(new Order { ProductID = 7, CustomerId = 1, OrderDate = DateTime.Now });");
+            //Console.WriteLine( "db.Orders.Add(new Order { ProductID = 7, CustomerId = 1, OrderDate = DateTime.Now });");
             //db.Orders.InsertOnSubmit(new Order { EmployeeID = 1, CustomerId = "ALFKI", OrderDate = DateTime.Now });
             //db.SubmitChanges();
-            //logger.Write(Level.Debug, "db.Orders.Add(new Order { ProductID = 2, CustomerId = 2, OrderDate = DateTime.Now });");
+            //Console.WriteLine( "db.Orders.Add(new Order { ProductID = 2, CustomerId = 2, OrderDate = DateTime.Now });");
             //db.Orders.InsertOnSubmit(new Order { EmployeeID = 1, CustomerId = "ALFKI", OrderDate = DateTime.Now });
             //db.SubmitChanges();
             //foreach (var v in db.Orders)
             //    ObjectDumper.Write(v);
-            //logger.Write(Level.Information,"Press enter to continue.");
+            //Console.WriteLine("Press enter to continue.");
             //Console.ReadLine();
 
             Console.Clear();
-            logger.Write(Level.Debug, "db.Orders.Remove(db.Orders.First());");
+            Console.WriteLine( "db.Orders.Remove(db.Orders.First());");
             db.Orders.DeleteOnSubmit(db.Orders.First());
             db.SubmitChanges();
             foreach (var v in db.Orders)
                 ObjectDumper.Write(v);
-            logger.Write(Level.Information, "Press enter to continue.");
+            Console.WriteLine( "Press enter to continue.");
             Console.ReadLine();
 
         }
