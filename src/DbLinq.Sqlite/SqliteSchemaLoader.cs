@@ -85,7 +85,7 @@ namespace DbLinq.Sqlite
         /// <summary>
         /// parse strings such as 'INOUT param2 INT' or 'param4 varchar ( 32 )'
         /// </summary>
-        /// <param name="paramStr"></param>
+        /// <param name="param"></param>
         /// <returns></returns>
         protected DbLinq.Schema.Dbml.Parameter ParseParameterString(string param)
         {
