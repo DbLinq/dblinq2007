@@ -82,20 +82,10 @@ namespace DbLinq.Data.Linq
         internal IDatabaseContext DatabaseContext { get; private set; }
         // /all properties...
 
-        // entities may be registered in 3 sets: InsertList, EntityMap and DeleteList
-        // InsertList is for new entities
-        // DeleteList is for entities to be deleted
-        // EntityMap is the cache: entities are alive in the DataContext, identified by their PK (IdentityKey)
-        // an entity can only live in one of the three caches, so the DataContext will provide 6 methods:
-        // 3 to register in each list, 3 to unregister
-        //internal IEntityMap EntityMap { get; set; }
-        //internal readonly EntityList InsertList = new EntityList();
-        //internal readonly EntityList DeleteList = new EntityList();
         private readonly EntityTracker entityTracker = new EntityTracker();
 
         private IIdentityReaderFactory identityReaderFactory;
         private readonly IDictionary<Type, IIdentityReader> identityReaders = new Dictionary<Type, IIdentityReader>();
-
 
         /// <summary>
         /// The default behavior creates one MappingContext.
@@ -106,13 +96,11 @@ namespace DbLinq.Data.Linq
         [DBLinqExtended]
         internal IVendorProvider _VendorProvider { get; set; }
 
-        [DbLinqToDo]
         public DataContext(IDbConnection connection, MappingSource mapping)
         {
             Init(new DatabaseContext(connection), mapping, null);
         }
 
-        [DbLinqToDo]
         public DataContext(IDbConnection connection)
         {
             Init(new DatabaseContext(connection), null, null);

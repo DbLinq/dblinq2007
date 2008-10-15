@@ -621,7 +621,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     return queryColumnExpression;
 
                 if (memberInfo.Name == "Count")
-                    return AnalyzeProjectionQuery(SpecialExpressionType.Count, new Expression[] { memberExpression.Expression }, builderContext);
+                    return AnalyzeProjectionQuery(SpecialExpressionType.Count, new [] { memberExpression.Expression }, builderContext);
                 // then, cry
                 throw Error.BadArgument("S0293: Column must be mapped. Non-mapped columns are not handled by now.");
             }

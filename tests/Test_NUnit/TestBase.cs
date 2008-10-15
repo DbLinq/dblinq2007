@@ -154,9 +154,35 @@ namespace Test_NUnit
             var conn = new XSqlConnection(connStr);
             if (state == System.Data.ConnectionState.Open)
                 conn.Open();
-            var db = new Northwind(conn) {Log = Console.Out};
+            var db = new Northwind(conn) { Log = Console.Out };
             return db;
         }
+
+#if !MONO_STRICT
+        public DbLinq.Vendor.IVendor CreateVendor()
+        {
+            var vendor =
+#if MYSQL
+    new DbLinq.MySql.MySqlVendor()
+#elif ORACLE
+    new DbLinq.Oracle.OracleVendor()
+#elif POSTGRES
+    new DbLinq.PostgreSql.PgsqlVendor()
+#elif SQLITE
+    new DbLinq.Sqlite.SqliteVendor()
+#elif INGRES
+    new DbLinq.Ingres.IngresVendor()
+#elif MSSQL
+    new DbLinq.SqlServer.SqlServerVendor()
+#elif FIREBIRD
+    new DbLinq.Firebird.FirebirdVendor()
+#else
+    #error unknown target
+#endif
+            ;
+            return vendor;
+        }
+#endif
 
         /// <summary>
         /// execute a sql statement, return an Int64.
