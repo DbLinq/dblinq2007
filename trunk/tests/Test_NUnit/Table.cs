@@ -24,7 +24,7 @@ namespace Test_NUnit_MySql
 #elif POSTGRES
     namespace Test_NUnit_PostgreSql
 #elif SQLITE
-    namespace Test_NUnit_Sqlite
+namespace Test_NUnit_Sqlite
 #elif INGRES
     namespace Test_NUnit_Ingres
 #elif MSSQL
@@ -196,5 +196,27 @@ namespace Test_NUnit_MsSql
             Assert.AreEqual(customers.Count, db.Customers.Count());
         }
 
+        [Description("Check direct use of DataContext instead of typed DataContext")]
+        [Test]
+        public void T1_DirectDataContext()
+        {
+            var db = CreateDB();
+
+
+            var dc = new 
+#if MONO_STRICT
+            System.Data.Linq.DataContext(db.Connection);
+#else
+            DbLinq.Data.Linq.DataContext(db.Connection, CreateVendor());
+#endif
+
+            var dbq = from p in db.Products where p.ProductName == "Pen" select p.ProductID;
+            var dbc = dbq.ToList().Count;
+            Assert.AreEqual(dbc, 1);
+
+            var dcq = from p in dc.GetTable<Product>() where p.ProductName == "Pen" select p.ProductID;
+            var dcc = dcq.ToList().Count;
+            Assert.AreEqual(dbc, 1);
+        }
     }
 }
