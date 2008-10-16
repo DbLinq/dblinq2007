@@ -77,18 +77,18 @@ namespace DbLinq.FbSql.Example
             Console.WriteLine("Press enter to continue.");
             Console.ReadKey();
 
-            //// BUG: auto_increment columns aren't supported on Firebird SQL yet.
-            //Console.Clear();
-            //logger.Write(Level.Debug, "db.Orders.Add(new Order { ProductID = 7, CustomerId = 1, OrderDate = DateTime.Now });");
-            //db.Orders.InsertOnSubmit(new Order { EmployeeID = 1, CustomerID = "ALFKI", OrderDate = DateTime.Now });
-            //db.SubmitChanges();
-            //logger.Write(Level.Debug, "db.Orders.Add(new Order { ProductID = 2, CustomerId = 2, OrderDate = DateTime.Now });");
-            //db.Orders.InsertOnSubmit(new Order { EmployeeID = 1, CustomerID = "ALFKI", OrderDate = DateTime.Now });
-            //db.SubmitChanges();
-            //foreach (var v in db.Orders)
-            //    ObjectDumper.Write(v);
-            //logger.Write(Level.Information, "Press enter to continue.");
-            //Console.ReadKey();
+            // BUG: auto_increment columns aren't supported on Firebird SQL yet.
+            Console.Clear();
+            Console.WriteLine("db.Orders.Add(new Order { ProductID = 7, CustomerId = 1, OrderDate = DateTime.Now });");
+            db.Orders.InsertOnSubmit(new Order { EmployeeID = 1, CustomerID = "ALFKI", OrderDate = DateTime.Now });
+            db.SubmitChanges();
+            Console.WriteLine("db.Orders.Add(new Order { ProductID = 2, CustomerId = 2, OrderDate = DateTime.Now });");
+            db.Orders.InsertOnSubmit(new Order { EmployeeID = 1, CustomerID = "ALFKI", OrderDate = DateTime.Now });
+            db.SubmitChanges();
+            foreach (var v in db.Orders)
+                ObjectDumper.Write(v);
+            Console.WriteLine("Press enter to continue.");
+            Console.ReadKey();
 
             Console.Clear();
             Console.WriteLine("db.Orders.Remove(db.Orders.First());");
