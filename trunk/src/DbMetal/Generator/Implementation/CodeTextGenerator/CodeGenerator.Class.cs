@@ -32,6 +32,7 @@ using DbLinq.Data.Linq;
 using DbLinq.Factory;
 using DbLinq.Schema.Dbml;
 using DbLinq.Schema.Dbml.Adapter;
+using DbLinq.Util;
 using DbMetal.Generator.EntityInterface;
 
 #if MONO_STRICT
@@ -309,7 +310,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             using (writer.WriteAttribute(storageAttribute))
             using (writer.WriteAttribute(NewAttributeDefinition<DebuggerNonUserCodeAttribute>()))
             using (writer.WriteProperty(specifications, child.Member,
-                                        writer.GetGenericName(typeof(EntitySet<>).Name.Split('`')[0], child.Type)))
+                                        writer.GetGenericName(TypeExtensions.GetShortName(typeof(EntitySet<>)), child.Type)))
             {
                 //using (writer.WritePropertyGet())
                 //{
@@ -356,7 +357,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             }
 
             writer.WriteField(SpecificationDefinition.Private, storageField,
-                              writer.GetGenericName(typeof(EntityRef<>).Name.Split('`')[0],
+                              writer.GetGenericName(TypeExtensions.GetShortName(typeof(EntityRef<>)),
                                                     targetTable.Type.Name));
 
             var storageAttribute = NewAttributeDefinition<AssociationAttribute>();
