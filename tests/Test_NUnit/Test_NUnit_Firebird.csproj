@@ -103,6 +103,7 @@
     <Compile Include="ReadTest_Complex.cs" />
     <Compile Include="ReadTest_GroupBy.cs" />
     <Compile Include="ReadTest_Operands.cs" />
+    <Compile Include="ReadTest_Subquery.cs" />
     <Compile Include="StoredProcTest.cs" />
     <Compile Include="Table.cs" />
     <Compile Include="TestBase.cs" />

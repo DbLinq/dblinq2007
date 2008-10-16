@@ -577,9 +577,14 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             entityType = memberType;
             if (!memberType.IsGenericType)
                 return false;
+            // TODO: improve, like check arguments count
             entityType = memberType.GetGenericArguments()[0];
+            // EntitySet<> has a class constraint
+            if (!entityType.IsClass)
+                return false;
             // to test for EntitySet<T>, we create the EntitySet<T> type, then ask if assignment is possible
-            var entitySetType = typeof(EntitySet<>).MakeGenericType(entityType);
+            var genericEntitySet = typeof(EntitySet<>);
+            var entitySetType = genericEntitySet.MakeGenericType(entityType);
             if (entitySetType.IsAssignableFrom(memberType))
                 return true;
             return false;

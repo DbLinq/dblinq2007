@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{A348FBCE-2246-48FF-9862-35553B4B284C}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -68,7 +68,6 @@
     </Compile>
     <Compile Include="Attach.cs" />
     <Compile Include="CompositePK_Test.cs" />
-    <Compile Include="DataContext.cs" />
     <Compile Include="ReadTests_AnyCountFirst.cs" />
     <Compile Include="ReadTests_Conversions.cs" />
     <Compile Include="ReadTests_DateTimeFunctions.cs" />
@@ -105,6 +104,7 @@
     <Compile Include="ReadTest_Complex.cs" />
     <Compile Include="ReadTest_GroupBy.cs" />
     <Compile Include="ReadTest_Operands.cs" />
+    <Compile Include="ReadTest_Subquery.cs" />
     <Compile Include="StoredProcTest.cs" />
     <Compile Include="Table.cs" />
     <Compile Include="TestBase.cs" />
