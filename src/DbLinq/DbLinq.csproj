@@ -143,6 +143,7 @@
     <Compile Include="Data\Linq\Sugar\ExpressionPrecedence.cs" />
     <Compile Include="Data\Linq\Sugar\ExpressionQuery.cs" />
     <Compile Include="Data\Linq\Sugar\Expressions\ColumnExpression.cs" />
+    <Compile Include="Data\Linq\Sugar\Expressions\EntitySetExpression.cs" />
     <Compile Include="Data\Linq\Sugar\Expressions\ObjectInputParameterExpression.cs" />
     <Compile Include="Data\Linq\Sugar\Expressions\ObjectOutputParameterExpression.cs" />
     <Compile Include="Data\Linq\Sugar\Expressions\CustomExpressionType.cs" />

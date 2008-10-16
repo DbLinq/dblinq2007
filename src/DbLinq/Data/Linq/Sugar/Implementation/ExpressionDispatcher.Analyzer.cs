@@ -567,6 +567,25 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         }
 
         /// <summary>
+        /// Returns if the given member can be considered as an EntitySet<>
+        /// </summary>
+        /// <param name="memberType"></param>
+        /// <param name="entityType"></param>
+        /// <returns></returns>
+        protected virtual bool IsEntitySet(Type memberType, out Type entityType)
+        {
+            entityType = memberType;
+            if (!memberType.IsGenericType)
+                return false;
+            entityType = memberType.GetGenericArguments()[0];
+            // to test for EntitySet<T>, we create the EntitySet<T> type, then ask if assignment is possible
+            var entitySetType = typeof(EntitySet<>).MakeGenericType(entityType);
+            if (entitySetType.IsAssignableFrom(memberType))
+                return true;
+            return false;
+        }
+
+        /// <summary>
         /// Analyzes a member access.
         /// This analyzis is down to top: the highest identifier is at bottom
         /// </summary>
@@ -610,18 +629,30 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             if (objectExpression is TableExpression)
             {
                 var tableExpression = (TableExpression)objectExpression;
+
+                // before finding an association, we check for an EntitySet<>
+                // this will be used in RegisterAssociation
+                Type entityType;
+                bool isEntitySet = IsEntitySet(memberInfo.GetMemberType(), out entityType);
                 // first of all, then, try to find the association
-                var queryAssociationExpression = RegisterAssociation(tableExpression, memberInfo,
+                var queryAssociationExpression = RegisterAssociation(tableExpression, memberInfo, entityType,
                                                                      builderContext);
                 if (queryAssociationExpression != null)
-                    return queryAssociationExpression;
+                {
+                    // no entitySet? we have right association
+                    if (!isEntitySet)
+                        return queryAssociationExpression;
+
+                    // from here, we may require to cast the table to an entitySet
+                    return new EntitySetExpression(queryAssociationExpression, memberInfo.GetMemberType());
+                }
                 // then, try the column
                 var queryColumnExpression = RegisterColumn(tableExpression, memberInfo, builderContext);
                 if (queryColumnExpression != null)
                     return queryColumnExpression;
 
                 if (memberInfo.Name == "Count")
-                    return AnalyzeProjectionQuery(SpecialExpressionType.Count, new [] { memberExpression.Expression }, builderContext);
+                    return AnalyzeProjectionQuery(SpecialExpressionType.Count, new[] { memberExpression.Expression }, builderContext);
                 // then, cry
                 throw Error.BadArgument("S0293: Column must be mapped. Non-mapped columns are not handled by now.");
             }
@@ -651,6 +682,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             if (memberInfo.DeclaringType == typeof(DateTime))
                 return AnalyzeDateTimeMemberAccess(objectExpression, memberInfo, isStaticMemberAccess);
 
+            // TODO: make this expresion safe (objectExpression can be null here)
             if (objectExpression.Type == typeof(TimeSpan))
                 return AnalyzeTimeSpanMemberAccess(objectExpression, memberInfo);
 

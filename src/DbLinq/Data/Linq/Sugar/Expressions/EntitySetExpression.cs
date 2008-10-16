@@ -1,4 +1,4 @@
-﻿#region MIT license
+#region MIT license
 // 
 // MIT license
 //
@@ -24,6 +24,16 @@
 // 
 #endregion
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq.Expressions;
+#if MONO_STRICT
+using System.Data.Linq.Sugar.ExpressionMutator;
+#else
+using DbLinq.Data.Linq.Sugar.ExpressionMutator;
+#endif
+
 #if MONO_STRICT
 namespace System.Data.Linq.Sugar.Expressions
 #else
@@ -31,20 +41,28 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
 #endif
 {
     /// <summary>
-    /// Those types are required by DbLinq internal expressions
+    /// A GroupExpression holds a grouped result
+    /// It is usually transparent, except for return value, where it mutates the type to IGrouping
     /// </summary>
-    internal enum CustomExpressionType
+    [DebuggerDisplay("EntityExpression: {TableExpression.Type}")]
+    internal class EntitySetExpression : MutableExpression
     {
-        Scope = 1000,
-        MetaTable = 1010,
-        Table,
-        Column,
-        EntitySet,
-        InputParameter = 1020,
-        ObjectInputParameter,
-        ObjectOutputParameter,
-        OrderBy = 1030,
-        GroupBy,
-        Group = 1040,
+        public const ExpressionType ExpressionType = (ExpressionType)CustomExpressionType.EntitySet;
+
+        public TableExpression TableExpression { get; set; }
+
+        public EntitySetExpression(TableExpression tableExpression, Type entitySetType)
+            : base(ExpressionType, entitySetType)
+        {
+            TableExpression = tableExpression;
+        }
+
+        public override Expression Mutate(IList<Expression> newOperands)
+        {
+            if (newOperands.Count != 1)
+                throw Error.BadArgument("S0063: Bad argument count");
+            TableExpression = (TableExpression)newOperands[0];
+            return this;
+        }
     }
 }
