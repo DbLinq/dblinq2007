@@ -173,9 +173,13 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         public IList<MemberInfo> GetEntitySetAssociations(Type type)
         {
             return type.GetProperties()
-                .Where(p => p.PropertyType.IsGenericType &&
-                    p.PropertyType.GetGenericTypeDefinition() == typeof(System.Data.Linq.EntitySet<>) &&
-                    p.IsDefined(typeof(AssociationAttribute), true))
+                .Where(p => p.PropertyType.IsGenericType 
+                    && (p.PropertyType.GetGenericTypeDefinition() == typeof(System.Data.Linq.EntitySet<>) 
+#if !MONO_STRICT
+                    || p.PropertyType.GetGenericTypeDefinition() == typeof(DbLinq.Data.Linq.EntitySet<>)
+#endif
+                    )
+                    && p.IsDefined(typeof(AssociationAttribute), true))
                 .Cast<MemberInfo>().ToList();
         }
 

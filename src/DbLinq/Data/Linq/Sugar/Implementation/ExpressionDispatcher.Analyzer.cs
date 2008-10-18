@@ -575,18 +575,21 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         protected virtual bool IsEntitySet(Type memberType, out Type entityType)
         {
             entityType = memberType;
-            if (!memberType.IsGenericType)
-                return false;
-            // TODO: improve, like check arguments count
-            entityType = memberType.GetGenericArguments()[0];
-            // EntitySet<> has a class constraint
-            if (!entityType.IsClass)
-                return false;
-            // to test for EntitySet<T>, we create the EntitySet<T> type, then ask if assignment is possible
-            var genericEntitySet = typeof(EntitySet<>);
-            var entitySetType = genericEntitySet.MakeGenericType(entityType);
-            if (entitySetType.IsAssignableFrom(memberType))
+            // one check, a generic EntityRef<> or inherited
+            if (memberType.IsGenericType && typeof(EntitySet<>).IsAssignableFrom(memberType.GetGenericTypeDefinition()))
+            {
+                entityType = memberType.GetGenericArguments()[0];
                 return true;
+            }
+#if !MONO_STRICT
+            // this is for compatibility with previously generated .cs files
+            // TODO: remove in 2009
+            if (memberType.IsGenericType && typeof(System.Data.Linq.EntitySet<>).IsAssignableFrom(memberType.GetGenericTypeDefinition()))
+            {
+                entityType = memberType.GetGenericArguments()[0];
+                return true;
+            }
+#endif
             return false;
         }
 
@@ -645,8 +648,8 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 if (queryAssociationExpression != null)
                 {
                     // no entitySet? we have right association
-                    if (!isEntitySet)
-                        return queryAssociationExpression;
+                    //if (!isEntitySet)
+                    return queryAssociationExpression;
 
                     // from here, we may require to cast the table to an entitySet
                     return new EntitySetExpression(queryAssociationExpression, memberInfo.GetMemberType());

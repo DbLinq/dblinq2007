@@ -1,4 +1,4 @@
-#region Auto-generated classes for "Northwind" database on 2008-07-06 01:11:01Z
+#region Auto-generated classes for "Northwind" database on 2008-10-18 13:06:47Z
 
 //
 //  ____  _     __  __      _        _
@@ -7,32 +7,29 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from "Northwind" on 2008-07-06 01:11:01Z
+// Auto-generated from "Northwind" on 2008-10-18 13:06:47Z
 // Please visit http://linq.to/db for more information
 
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Data.Linq.Mapping;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using DbLinq.Data.Linq;
+using DbLinq.Vendor;
 
 namespace nwind
 {
-	public partial class Northwind : DbLinq.Data.Linq.DataContext
+	public partial class Northwind : DataContext
 	{
-		public Northwind(System.Data.IDbConnection connection)
+		public Northwind(IDbConnection connection)
 		: base(connection, new DbLinq.PostgreSql.PgsqlVendor())
 		{
 		}
 
-		public Northwind(System.Data.IDbConnection connection, DbLinq.Vendor.IVendor vendor)
+		public Northwind(IDbConnection connection, IVendor vendor)
 		: base(connection, vendor)
 		{
 		}
@@ -148,12 +145,12 @@ namespace nwind
 
 		#endregion
 
-		#region System.Byte[] Picture
+		#region Byte[] Picture
 
-		private System.Byte[] _picture;
+		private Byte[] _picture;
 		[DebuggerNonUserCode]
 		[Column(Storage = "_picture", Name = "\"Picture\"", DbType = "bytea")]
-		public System.Byte[] Picture
+		public Byte[] Picture
 		{
 			get
 			{
@@ -174,10 +171,9 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "CategoryID", Name = "\"FK_prod_catg\"")]
 		[DebuggerNonUserCode]
-		public System.Data.Linq.EntitySet<Product> Products
+		public EntitySet<Product> Products
 		{
-            get;
-            set;
+			get;set;
 		}
 
 
@@ -434,10 +430,9 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "CustomerID", Name = "fk_order_customer")]
 		[DebuggerNonUserCode]
-		public System.Data.Linq.EntitySet<Order> Orders
+		public EntitySet<Order> Orders
 		{
-            get;
-            set;
+			get;set;
 		}
 
 
@@ -470,12 +465,12 @@ namespace nwind
 
 		#endregion
 
-		#region System.DateTime? BirthDate
+		#region DateTime? BirthDate
 
-		private System.DateTime? _birthDate;
+		private DateTime? _birthDate;
 		[DebuggerNonUserCode]
 		[Column(Storage = "_birthDate", Name = "\"BirthDate\"", DbType = "date")]
-		public System.DateTime? BirthDate
+		public DateTime? BirthDate
 		{
 			get
 			{
@@ -558,6 +553,28 @@ namespace nwind
 
 		#endregion
 
+		#region string Extension
+
+		private string _extension;
+		[DebuggerNonUserCode]
+		[Column(Storage = "_extension", Name = "\"Extension\"", DbType = "character varying(5)")]
+		public string Extension
+		{
+			get
+			{
+				return _extension;
+			}
+			set
+			{
+				if (value != _extension)
+				{
+					_extension = value;
+				}
+			}
+		}
+
+		#endregion
+
 		#region string FirstName
 
 		private string _firstName;
@@ -580,12 +597,12 @@ namespace nwind
 
 		#endregion
 
-		#region System.DateTime? HireDate
+		#region DateTime? HireDate
 
-		private System.DateTime? _hireDate;
+		private DateTime? _hireDate;
 		[DebuggerNonUserCode]
 		[Column(Storage = "_hireDate", Name = "\"HireDate\"", DbType = "timestamp without time zone")]
-		public System.DateTime? HireDate
+		public DateTime? HireDate
 		{
 			get
 			{
@@ -668,12 +685,12 @@ namespace nwind
 
 		#endregion
 
-		#region System.Byte[] Photo
+		#region Byte[] Photo
 
-		private System.Byte[] _photo;
+		private Byte[] _photo;
 		[DebuggerNonUserCode]
 		[Column(Storage = "_photo", Name = "\"Photo\"", DbType = "bytea")]
-		public System.Byte[] Photo
+		public Byte[] Photo
 		{
 			get
 			{
@@ -684,6 +701,28 @@ namespace nwind
 				if (value != _photo)
 				{
 					_photo = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string PhotoPath
+
+		private string _photoPath;
+		[DebuggerNonUserCode]
+		[Column(Storage = "_photoPath", Name = "\"PhotoPath\"", DbType = "character varying(255)")]
+		public string PhotoPath
+		{
+			get
+			{
+				return _photoPath;
+			}
+			set
+			{
+				if (value != _photoPath)
+				{
+					_photoPath = value;
 				}
 			}
 		}
@@ -778,30 +817,49 @@ namespace nwind
 
 		#endregion
 
+		#region string TitleOfCourtesy
+
+		private string _titleOfCourtesy;
+		[DebuggerNonUserCode]
+		[Column(Storage = "_titleOfCourtesy", Name = "\"TitleOfCourtesy\"", DbType = "character varying(25)")]
+		public string TitleOfCourtesy
+		{
+			get
+			{
+				return _titleOfCourtesy;
+			}
+			set
+			{
+				if (value != _titleOfCourtesy)
+				{
+					_titleOfCourtesy = value;
+				}
+			}
+		}
+
+		#endregion
+
 		#region Children
 
 		[Association(Storage = null, OtherKey = "ReportsTo", Name = "\"FK_Emp_ReportsToEmp\"")]
 		[DebuggerNonUserCode]
-		public System.Data.Linq.EntitySet<Employee> Employees
+		public EntitySet<Employee> Employees
 		{
-            get;
-            set;
+			get;set;
 		}
 
 		[Association(Storage = null, OtherKey = "EmployeeID", Name = "\"EmployeeTerritories_EmployeeID_fkey\"")]
 		[DebuggerNonUserCode]
-		public System.Data.Linq.EntitySet<EmployeeTerritory> EmployeeTerritories
+		public EntitySet<EmployeeTerritory> EmployeeTerritories
 		{
-            get;
-            set;
+			get;set;
 		}
 
 		[Association(Storage = null, OtherKey = "EmployeeID", Name = "fk_order_product")]
 		[DebuggerNonUserCode]
-		public System.Data.Linq.EntitySet<Order> Orders
+		public EntitySet<Order> Orders
 		{
-            get;
-            set;
+			get;set;
 		}
 
 
@@ -809,7 +867,7 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Employee> _reportsToEmployee;
+		private EntityRef<Employee> _reportsToEmployee;
 		[Association(Storage = "_reportsToEmployee", ThisKey = "ReportsTo", Name = "\"FK_Emp_ReportsToEmp\"", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Employee ReportsToEmployee
@@ -878,7 +936,7 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Employee> _employee;
+		private EntityRef<Employee> _employee;
 		[Association(Storage = "_employee", ThisKey = "EmployeeID", Name = "\"EmployeeTerritories_EmployeeID_fkey\"", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Employee Employee
@@ -893,7 +951,7 @@ namespace nwind
 			}
 		}
 
-		private System.Data.Linq.EntityRef<Territory> _territory;
+		private EntityRef<Territory> _territory;
 		[Association(Storage = "_territory", ThisKey = "TerritoryID", Name = "\"EmployeeTerritories_TerritoryID_fkey\"", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Territory Territory
@@ -982,12 +1040,12 @@ namespace nwind
 
 		#endregion
 
-		#region System.DateTime? OrderDate
+		#region DateTime? OrderDate
 
-		private System.DateTime? _orderDate;
+		private DateTime? _orderDate;
 		[DebuggerNonUserCode]
 		[Column(Storage = "_orderDate", Name = "\"OrderDate\"", DbType = "timestamp without time zone")]
-		public System.DateTime? OrderDate
+		public DateTime? OrderDate
 		{
 			get
 			{
@@ -1026,12 +1084,12 @@ namespace nwind
 
 		#endregion
 
-		#region System.DateTime? RequiredDate
+		#region DateTime? RequiredDate
 
-		private System.DateTime? _requiredDate;
+		private DateTime? _requiredDate;
 		[DebuggerNonUserCode]
 		[Column(Storage = "_requiredDate", Name = "\"RequiredDate\"", DbType = "timestamp without time zone")]
-		public System.DateTime? RequiredDate
+		public DateTime? RequiredDate
 		{
 			get
 			{
@@ -1136,12 +1194,12 @@ namespace nwind
 
 		#endregion
 
-		#region System.DateTime? ShippedDate
+		#region DateTime? ShippedDate
 
-		private System.DateTime? _shippedDate;
+		private DateTime? _shippedDate;
 		[DebuggerNonUserCode]
 		[Column(Storage = "_shippedDate", Name = "\"ShippedDate\"", DbType = "timestamp without time zone")]
-		public System.DateTime? ShippedDate
+		public DateTime? ShippedDate
 		{
 			get
 			{
@@ -1228,10 +1286,9 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "OrderID", Name = "\"OrderDetails_OrderID_fkey\"")]
 		[DebuggerNonUserCode]
-		public System.Data.Linq.EntitySet<OrderDetail> OrderDetails
+		public EntitySet<OrderDetail> OrderDetails
 		{
-            get;
-            set;
+			get;set;
 		}
 
 
@@ -1239,7 +1296,7 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Customer> _customer;
+		private EntityRef<Customer> _customer;
 		[Association(Storage = "_customer", ThisKey = "CustomerID", Name = "fk_order_customer", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Customer Customer
@@ -1254,7 +1311,7 @@ namespace nwind
 			}
 		}
 
-		private System.Data.Linq.EntityRef<Employee> _employee;
+		private EntityRef<Employee> _employee;
 		[Association(Storage = "_employee", ThisKey = "EmployeeID", Name = "fk_order_product", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Employee Employee
@@ -1389,7 +1446,7 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Order> _order;
+		private EntityRef<Order> _order;
 		[Association(Storage = "_order", ThisKey = "OrderID", Name = "\"OrderDetails_OrderID_fkey\"", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Order Order
@@ -1404,7 +1461,7 @@ namespace nwind
 			}
 		}
 
-		private System.Data.Linq.EntityRef<Product> _product;
+		private EntityRef<Product> _product;
 		[Association(Storage = "_product", ThisKey = "ProductID", Name = "\"OrderDetails_ProductID_fkey\"", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Product Product
@@ -1651,10 +1708,9 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "ProductID", Name = "\"OrderDetails_ProductID_fkey\"")]
 		[DebuggerNonUserCode]
-		public System.Data.Linq.EntitySet<OrderDetail> OrderDetails
+		public EntitySet<OrderDetail> OrderDetails
 		{
-            get;
-            set;
+			get;set;
 		}
 
 
@@ -1662,7 +1718,7 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Category> _category;
+		private EntityRef<Category> _category;
 		[Association(Storage = "_category", ThisKey = "CategoryID", Name = "\"FK_prod_catg\"", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Category Category
@@ -1677,7 +1733,7 @@ namespace nwind
 			}
 		}
 
-		private System.Data.Linq.EntityRef<Supplier> _supplier;
+		private EntityRef<Supplier> _supplier;
 		[Association(Storage = "_supplier", ThisKey = "SupplierID", Name = "\"FK_prod_supp\"", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Supplier Supplier
@@ -1748,10 +1804,9 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "RegionID", Name = "\"FK_Terr_Region\"")]
 		[DebuggerNonUserCode]
-		public System.Data.Linq.EntitySet<Territory> Territories
+		public EntitySet<Territory> Territories
 		{
-            get;
-            set;
+			get;set;
 		}
 
 
@@ -2079,10 +2134,9 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "SupplierID", Name = "\"FK_prod_supp\"")]
 		[DebuggerNonUserCode]
-		public System.Data.Linq.EntitySet<Product> Products
+		public EntitySet<Product> Products
 		{
-            get;
-            set;
+			get;set;
 		}
 
 
@@ -2163,10 +2217,9 @@ namespace nwind
 
 		[Association(Storage = null, OtherKey = "TerritoryID", Name = "\"EmployeeTerritories_TerritoryID_fkey\"")]
 		[DebuggerNonUserCode]
-		public System.Data.Linq.EntitySet<EmployeeTerritory> EmployeeTerritories
+		public EntitySet<EmployeeTerritory> EmployeeTerritories
 		{
-            get;
-            set;
+			get;set;
 		}
 
 
@@ -2174,7 +2227,7 @@ namespace nwind
 
 		#region Parents
 
-		private System.Data.Linq.EntityRef<Region> _region;
+		private EntityRef<Region> _region;
 		[Association(Storage = "_region", ThisKey = "RegionID", Name = "\"FK_Terr_Region\"", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Region Region
