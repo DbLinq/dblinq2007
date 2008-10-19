@@ -66,6 +66,7 @@
     <Compile Include="Data\Linq\Database\Implementation\DatabaseConnection.cs" />
     <Compile Include="Data\Linq\Database\Implementation\DatabaseContext.cs" />
     <Compile Include="Data\Linq\Database\Implementation\DatabaseTransaction.cs" />
+    <Compile Include="Data\Linq\DataLoadOptions.cs" />
     <Compile Include="Data\Linq\DBLinqExtendedAttributte.cs" />
     <Compile Include="Data\Linq\EntityRef.cs" />
     <Compile Include="Data\Linq\EntitySet.cs" />
@@ -235,6 +236,7 @@
     <Compile Include="Language\ILanguageWords.cs" />
     <Compile Include="Util\IDbDataParameterExtensions.cs" />
     <Compile Include="Util\OutputLevel.cs" />
+    <Compile Include="Util\ReflectionUtility.cs" />
     <Compile Include="Util\TextWriterExtension.cs" />
     <Compile Include="Util\LambdaComparer.cs" />
     <Compile Include="Util\DataCommand.cs" />

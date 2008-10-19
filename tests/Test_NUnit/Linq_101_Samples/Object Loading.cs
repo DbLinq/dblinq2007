@@ -7,6 +7,12 @@ using NUnit.Framework;
 using System.Data.Linq;
 using Test_NUnit.Linq_101_Samples;
 
+#if MONO_STRICT
+using DataLoadOptions = System.Data.Linq.DataLoadOptions;
+#else
+using DataLoadOptions = DbLinq.Data.Linq.DataLoadOptions;
+#endif
+
 #if !MONO_STRICT
 using nwind;
 #else
@@ -16,11 +22,11 @@ using MsNorthwind;
 #if MYSQL
     namespace Test_NUnit_MySql.Linq_101_Samples
 #elif ORACLE
-    #if ODP
+#if ODP
             namespace Test_NUnit_OracleODP.Linq_101_Samples
-    #else
+#else
             namespace Test_NUnit_Oracle.Linq_101_Samples
-    #endif
+#endif
 #elif POSTGRES
 namespace Test_NUnit_PostgreSql.Linq_101_Samples
 #elif SQLITE
@@ -34,11 +40,11 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
     namespace Test_NUnit_MsSql.Linq_101_Samples
 #endif
 #elif FIREBIRD
-    namespace Test_NUnit_Firebird
+namespace Test_NUnit_Firebird
 #else
-    #error unknown target
+#error unknown target
 #endif
-    {
+{
     [TestFixture]
     public class Object_Loading : TestBase
     {
@@ -63,11 +69,11 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
         }
 
         [Linq101SamplesModified("The original sample didn't compile, db2 Northwind context was used for nothing")]
-        [Test(Description="This sample demonstrates how to use Including to request related data during the original query so that additional roundtrips to the database are not required later when navigating through the retrieved objects.")]
+        [Test(Description = "This sample demonstrates how to use Including to request related data during the original query so that additional roundtrips to the database are not required later when navigating through the retrieved objects.")]
         public void LinqToSqlObject02()
         {
             Northwind db = CreateDB();
-          
+
 
             var ds = new DataLoadOptions();
             ds.LoadWith<Customer>(p => p.Orders);
