@@ -7,6 +7,13 @@ using NUnit.Framework;
 using Test_NUnit.Linq_101_Samples;
 using System.Data.Linq;
 
+#if MONO_STRICT
+using DataLoadOptions = System.Data.Linq.DataLoadOptions;
+#else
+using DataLoadOptions = DbLinq.Data.Linq.DataLoadOptions;
+#endif
+
+
 #if !MONO_STRICT
 using nwind;
 #else

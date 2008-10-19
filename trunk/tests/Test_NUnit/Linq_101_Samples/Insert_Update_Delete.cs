@@ -5,6 +5,12 @@ using NUnit.Framework;
 using Test_NUnit;
 using Test_NUnit.Linq_101_Samples;
 
+#if MONO_STRICT
+using System.Data.Linq;
+#else
+using DbLinq.Data.Linq;
+#endif
+
 #if !MONO_STRICT
 using nwind;
 #else
@@ -104,7 +110,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
         {
             Northwind db = CreateDB();
 
-            var ds = new System.Data.Linq.DataLoadOptions();
+            var ds = new DataLoadOptions();
 
             ds.LoadWith<Category>(c => c.Products);
             db.LoadOptions = ds;
@@ -148,7 +154,7 @@ namespace Test_NUnit_PostgreSql.Linq_101_Samples
         {
             Northwind db = CreateDB();
 
-            var ds = new System.Data.Linq.DataLoadOptions();
+            var ds = new DataLoadOptions();
             ds.LoadWith<Employee>(p => p.EmployeeTerritories);
             ds.LoadWith<EmployeeTerritory>(p => p.Territory);
 
