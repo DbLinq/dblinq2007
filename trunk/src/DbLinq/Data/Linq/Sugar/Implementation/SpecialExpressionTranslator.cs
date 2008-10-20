@@ -123,8 +123,6 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     return GetDateTimeNowCall(operands);
                 case SpecialExpressionType.DateDiffInMilliseconds:
                     return GetCallDateDiffInMilliseconds(operands);
-                case SpecialExpressionType.StartIndexOffset:
-                    return operands[0];
                 default:
                     throw Error.BadArgument("S0078: Implement translator for {0}", specialExpression.SpecialNodeType);
 
