@@ -287,7 +287,6 @@ namespace Test_NUnit_MsSql
 
             var list = q.ToList();
             Assert.AreEqual(list.Count, db.Employees.Count());
-
         }
 
         [Test]
@@ -589,6 +588,31 @@ namespace Test_NUnit_MsSql
 
         [Test]
         public void Substring01()
+        {
+            Northwind db = CreateDB();
+
+            int index = 0;
+            var q = (from e in db.Customers
+                     where e.CustomerID == "WARTH"
+                     select new { name = e.CustomerID.Substring(index) }).First();
+
+            Assert.AreEqual(q.name, "WARTH".Substring(index));
+        }
+
+        [Test]
+        public void Substring02()
+        {
+            Northwind db = CreateDB();
+
+            var q = (from e in db.Customers
+                     where e.CustomerID.Substring(2) == "RTH"
+                     select e);
+
+            Assert.IsTrue(q.Any());
+        }
+
+        [Test]
+        public void Substring03()
         {
             Northwind db = CreateDB();
 
