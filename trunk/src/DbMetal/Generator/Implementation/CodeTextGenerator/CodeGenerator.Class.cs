@@ -278,13 +278,14 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                 {
                     foreach (var child in children)
                     {
-                        WriteClassChild(writer, child, schema, context);
+                        bool hasDuplicates = (from c in children where c.Member == child.Member select c).Count() > 1;
+                        WriteClassChild(writer, child, hasDuplicates, schema, context);
                     }
                 }
             }
         }
 
-        private void WriteClassChild(CodeWriter writer, Association child, Database schema, GenerationContext context)
+        private void WriteClassChild(CodeWriter writer, Association child, bool hasDuplicates, Database schema, GenerationContext context)
         {
             // the following is apparently useless
             DbLinq.Schema.Dbml.Table targetTable = schema.Tables.FirstOrDefault(t => t.Type.Name == child.Type);
@@ -307,9 +308,13 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             if (child.ModifierSpecified)
                 specifications |= GetSpecificationDefinition(child.Modifier);
 
+            var propertyName = hasDuplicates
+                                   ? child.Member + "_" + string.Join("", child.OtherKeys.ToArray())
+                                   : child.Member;
+
             using (writer.WriteAttribute(storageAttribute))
             using (writer.WriteAttribute(NewAttributeDefinition<DebuggerNonUserCodeAttribute>()))
-            using (writer.WriteProperty(specifications, child.Member,
+            using (writer.WriteProperty(specifications, propertyName,
                                         writer.GetGenericName(TypeExtensions.GetShortName(typeof(EntitySet<>)), child.Type)))
             {
                 //using (writer.WritePropertyGet())
@@ -331,13 +336,14 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                 {
                     foreach (var parent in parents)
                     {
-                        WriteClassParent(writer, parent, schema, context);
+                        bool hasDuplicates = (from p in parents where p.Member == parent.Member select p).Count() > 1;
+                        WriteClassParent(writer, parent, hasDuplicates, schema, context);
                     }
                 }
             }
         }
 
-        protected virtual void WriteClassParent(CodeWriter writer, Association parent, Database schema, GenerationContext context)
+        protected virtual void WriteClassParent(CodeWriter writer, Association parent, bool hasDuplicates, Database schema, GenerationContext context)
         {
             // the following is apparently useless
             DbLinq.Schema.Dbml.Table targetTable = schema.Tables.FirstOrDefault(t => t.Type.Name == parent.Type);
@@ -374,9 +380,13 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             if (parent.ModifierSpecified)
                 specifications |= GetSpecificationDefinition(parent.Modifier);
 
+            var propertyName = hasDuplicates
+                                   ? member + "_" + string.Join("", parent.TheseKeys.ToArray())
+                                   : member;
+
             using (writer.WriteAttribute(storageAttribute))
             using (writer.WriteAttribute(NewAttributeDefinition<DebuggerNonUserCodeAttribute>()))
-            using (writer.WriteProperty(specifications, member, targetTable.Type.Name))
+            using (writer.WriteProperty(specifications, propertyName, targetTable.Type.Name))
             {
                 string storage = writer.GetMemberExpression(storageField, "Entity");
                 using (writer.WritePropertyGet())
