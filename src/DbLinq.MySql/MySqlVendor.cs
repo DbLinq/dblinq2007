@@ -288,5 +288,14 @@ namespace DbLinq.MySql
             }
             return outParamValues;
         }
+
+        /// <summary>
+        /// required by DataContext ctor, which needs to load an IDbConnection, given an IVendor
+        /// </summary>
+        public override IDbConnection CreateDbConnection(string connectionString)
+        {
+            return new global::MySql.Data.MySqlClient.MySqlConnection(connectionString);
+        }
+
     }
 }

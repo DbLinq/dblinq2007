@@ -94,5 +94,11 @@ namespace DbLinq.Vendor.Implementation
             AddConnectionStringPart(connectionStringParts, ConnectionStringPassword, password);
             return string.Join(";", connectionStringParts.ToArray());
         }
+
+        /// <summary>
+        /// required by DataContext ctor, which needs to create an IDbConnection, given an IVendor
+        /// </summary>
+        public abstract IDbConnection CreateDbConnection(string connectionString);
+
     }
 }
