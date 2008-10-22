@@ -52,7 +52,7 @@ namespace DbLinq.Sqlite
 #else
     public
 #endif
-    class SqliteVendor : Vendor.Implementation.Vendor
+ class SqliteVendor : Vendor.Implementation.Vendor
     {
         public override string VendorName { get { return "SQLite"; } }
 
@@ -202,6 +202,14 @@ namespace DbLinq.Sqlite
                 }
             }
             return outParamValues;
+        }
+
+        /// <summary>
+        /// required by DataContext ctor, which needs to create an IDbConnection, given an IVendor
+        /// </summary>
+        public override IDbConnection CreateDbConnection(string connectionString)
+        {
+            return new System.Data.SQLite.SQLiteConnection(connectionString);
         }
     }
 }

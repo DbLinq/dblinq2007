@@ -201,5 +201,13 @@ namespace DbLinq.Firebird
             }
             return outParamValues;
         }
+
+        /// <summary>
+        /// required by DataContext ctor, which needs to create an IDbConnection, given an IVendor
+        /// </summary>
+        public override IDbConnection CreateDbConnection(string connectionString)
+        {
+            return new FirebirdSql.Data.FirebirdClient.FbConnection(connectionString);
+        }
     }
 }
