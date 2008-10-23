@@ -52,6 +52,45 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\DbLinq.Firebird\FirebirdSqlProvider.cs">
+      <Link>Vendors\DbLinq.FirebirdSql\FirebirdSqlProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\DbLinq.Firebird\FirebirdVendor.cs">
+      <Link>Vendors\DbLinq.FirebirdSql\FirebirdVendor.cs</Link>
+    </Compile>
+    <Compile Include="..\DbLinq.Ingres\IngresSqlProvider.cs">
+      <Link>Vendors\DbLinq.Ingres\IngresSqlProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\DbLinq.Ingres\IngresVendor.cs">
+      <Link>Vendors\DbLinq.Ingres\IngresVendor.cs</Link>
+    </Compile>
+    <Compile Include="..\DbLinq.MySql\MySqlSqlProvider.cs">
+      <Link>Vendors\DbLinq.MySql\MySqlSqlProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\DbLinq.MySql\MySqlVendor.cs">
+      <Link>Vendors\DbLinq.MySql\MySqlVendor.cs</Link>
+    </Compile>
+    <Compile Include="..\DbLinq.Oracle\OracleSqlProvider.cs">
+      <Link>Vendors\DbLinq.Oracle\OracleSqlProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\DbLinq.Oracle\OracleVendor.cs">
+      <Link>Vendors\DbLinq.Oracle\OracleVendor.cs</Link>
+    </Compile>
+    <Compile Include="..\DbLinq.PostgreSql\PgsqlSqlProvider.cs">
+      <Link>Vendors\DbLinq.PostgreSql\PgsqlSqlProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\DbLinq.PostgreSql\PgsqlVendor.cs">
+      <Link>Vendors\DbLinq.PostgreSql\PgsqlVendor.cs</Link>
+    </Compile>
+    <Compile Include="..\DbLinq.Sqlite\Schema\DataCommand.cs">
+      <Link>Vendors\DbLinq.Sqlite\DataCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\DbLinq.Sqlite\SqliteSqlProvider.cs">
+      <Link>Vendors\DbLinq.Sqlite\SqliteSqlProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\DbLinq.Sqlite\SqliteVendor.cs">
+      <Link>Vendors\DbLinq.Sqlite\SqliteVendor.cs</Link>
+    </Compile>
     <Compile Include="Data\Linq\ChangeAction.cs" />
     <Compile Include="Data\Linq\ChangeSet.cs" />
     <Compile Include="Data\Linq\Database\IDatabaseContext.cs" />
@@ -343,4 +382,4 @@
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>
-</Project>
+</Project> 
