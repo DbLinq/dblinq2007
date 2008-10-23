@@ -87,12 +87,13 @@ namespace DbLinq.Oracle
         protected override string ConnectionStringDatabase { get { return null; } }
         protected override string ConnectionStringServer { get { return "data source"; } }
 
-        /// <summary>
-        /// required by DataContext ctor, which needs to create an IDbConnection, given an IVendor
-        /// </summary>
-        public override IDbConnection CreateDbConnection(string connectionString)
+        override protected TypeToLoadData GetProviderTypeName()
         {
-            return new global::Oracle.DataAccess.Client.OracleConnection(connectionString);
+            return new TypeToLoadData
+            {
+                assemblyName = "Oracle.DataAccess.DLL",
+                className = "OracleConnection",
+            };
         }
     }
 }
