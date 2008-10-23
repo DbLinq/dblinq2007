@@ -204,12 +204,13 @@ namespace DbLinq.Sqlite
             return outParamValues;
         }
 
-        /// <summary>
-        /// required by DataContext ctor, which needs to create an IDbConnection, given an IVendor
-        /// </summary>
-        public override IDbConnection CreateDbConnection(string connectionString)
+        override protected TypeToLoadData GetProviderTypeName()
         {
-            return new System.Data.SQLite.SQLiteConnection(connectionString);
+            return new TypeToLoadData
+            {
+                assemblyName = "System.Data.SQLite.DLL",
+                className = "SQLiteConnection",
+            };
         }
     }
 }

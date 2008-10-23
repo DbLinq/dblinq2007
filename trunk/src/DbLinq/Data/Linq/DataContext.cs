@@ -113,12 +113,13 @@ namespace DbLinq.Data.Linq
         }
 
         /// <summary>
-        /// To determine which DB type to go against, we look for DbLinqProvider=xxx substring.
+        /// Construct DataContext, given a connectionString.
+        /// To determine which DB type to go against, we look for 'DbLinqProvider=xxx' substring.
         /// If not found, we assume that we are dealing with MS Sql Server.
         /// 
-        /// Valid values are names of provider DLLs:
-        /// DbLinqProvider=DbLinq.Mysql.dll
-        /// DbLinqProvider=DbLinq.Oracle.dll etc.
+        /// Valid values are names of provider DLLs (or any other DLL containing an IVendor implementation)
+        /// DbLinqProvider=Mysql
+        /// DbLinqProvider=Oracle etc.
         /// </summary>
         /// <param name="connectionString">specifies file or server connection</param>
         [DbLinqToDo]
@@ -133,15 +134,36 @@ namespace DbLinq.Data.Linq
 
             int startPos = connectionString.IndexOf("DbLinqProvider=");
             string assemblyToLoad;
+            string vendorClassToLoad;
             if (!reProvider.IsMatch(connectionString))
             {
                 assemblyToLoad = "DbLinq.SqlServer.dll";
+                vendorClassToLoad = "SqlServerVendor";
             }
             else
             {
                 System.Text.RegularExpressions.Match match = reProvider.Match(connectionString);
+#if MONO_STRICT
+                //Pascal says on the forum: 
+                //[in MONO] "all vendors are (will be) embedded in the System.Data.Linq assembly"
+                assemblyToLoad = "System.Data.Linq.dll";
+                vendorClassToLoad = match.Groups[1].Value; //eg. "MySql"
+#else
+                //plain DbLinq - non MONO: 
+                //IVendor classes are in DLLs such as "DbLinq.MySql.dll"
                 assemblyToLoad = match.Groups[1].Value; //eg. assemblyToLoad="DbLinq.MySql.dll"
-
+                if (assemblyToLoad.Contains("."))
+                {
+                    //already fully qualified DLL name?
+                    throw new ArgumentException("Please provide a short name, such as 'MySql', not '" + assemblyToLoad + "'");
+                }
+                else
+                {
+                    //we were given short name, such as MySql
+                    vendorClassToLoad = assemblyToLoad + "Vendor"; //eg. MySqlVendor
+                    assemblyToLoad = "DbLinq." + assemblyToLoad + ".dll"; //eg. DbLinq.MySql.dll
+                }
+#endif
                 //shorten: "DbLinqProvider=X;Server=Y" -> ";Server=Y"
                 string shortenedConnStr = reProvider.Replace(connectionString, "");
                 connectionString = shortenedConnStr;
@@ -164,6 +186,7 @@ namespace DbLinq.Data.Linq
             var ctors = (from mod in assy.GetModules()
                          from cls in mod.GetTypes()
                          where cls.GetInterfaces().Contains(typeof(IVendor))
+                            && cls.Name.ToLower() == vendorClassToLoad.ToLower()
                          let ctorInfo = cls.GetConstructor(Type.EmptyTypes)
                          where ctorInfo != null
                          select ctorInfo).ToList();
@@ -172,7 +195,7 @@ namespace DbLinq.Data.Linq
                 string msg = "Found no IVendor class in assembly " + assemblyToLoad + " having a string ctor";
                 throw new ArgumentException(msg);
             }
-            else if (ctors.Count == 0)
+            else if (ctors.Count > 1)
             {
                 string msg = "Found more than one IVendor class in assembly " + assemblyToLoad + " having a string ctor";
                 throw new ArgumentException(msg);
@@ -187,7 +210,7 @@ namespace DbLinq.Data.Linq
             catch (Exception ex)
             {
                 //TODO: add proper logging here
-                Console.WriteLine("DataContext ctor: Failed to invoke IDbConnection ctor " + ctorInfo2.Name + ": " + ex);
+                Console.WriteLine("DataContext ctor: Failed to invoke IVendor ctor " + ctorInfo2.Name + ": " + ex);
                 throw ex;
             }
             IVendor ivendor = (IVendor)ivendorObject;

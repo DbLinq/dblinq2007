@@ -229,12 +229,13 @@ namespace DbLinq.PostgreSql
             return outParamValues;
         }
 
-        /// <summary>
-        /// required by DataContext ctor, which needs to create an IDbConnection, given an IVendor
-        /// </summary>
-        public override IDbConnection CreateDbConnection(string connectionString)
+        override protected TypeToLoadData GetProviderTypeName()
         {
-            return new Npgsql.NpgsqlConnection(connectionString);
+            return new TypeToLoadData
+            {
+                assemblyName = "Npgsql.DLL",
+                className = "NpgsqlConnection",
+            };
         }
     }
 }

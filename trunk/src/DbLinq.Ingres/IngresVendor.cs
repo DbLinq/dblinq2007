@@ -250,12 +250,13 @@ namespace DbLinq.Ingres
             return outParamValues;
         }
 
-        /// <summary>
-        /// required by DataContext ctor, which needs to create an IDbConnection, given an IVendor
-        /// </summary>
-        public override IDbConnection CreateDbConnection(string connectionString)
+        override protected TypeToLoadData GetProviderTypeName()
         {
-            return new global::Ingres.Client.IngresConnection(connectionString);
+            return new TypeToLoadData
+            {
+                assemblyName = "Ingres.Client.DLL",
+                className = "IngresConnection",
+            };
         }
     }
 }
