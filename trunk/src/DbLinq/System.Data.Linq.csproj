@@ -135,6 +135,7 @@
     <Compile Include="Data\Linq\Mapping\AttributeMappingSource.cs" />
     <Compile Include="Data\Linq\Mapping\MappingContext.cs" />
     <Compile Include="Data\Linq\RefreshMode.cs" />
+    <Compile Include="Data\Linq\SqlClient\FirebirdProvider.cs" />
     <Compile Include="Data\Linq\SqlClient\IngresProvider.cs" />
     <Compile Include="Data\Linq\SqlClient\MySqlProvider.cs" />
     <Compile Include="Data\Linq\SqlClient\OracleProvider.cs" />
@@ -339,6 +340,7 @@
     <Compile Include="Vendor\Implementation\SchemaLoader.StoredProcedures.cs" />
     <Compile Include="Vendor\Implementation\SchemaLoader.Tables.cs" />
     <Compile Include="Vendor\Implementation\SchemaLoader.TypeMapping.cs" />
+    <Compile Include="Vendor\Implementation\Vendor.ProcedureResult.cs" />
     <Compile Include="Vendor\INameAliases.cs" />
     <Compile Include="Vendor\ISchemaLoader.cs" />
     <Compile Include="Vendor\ISqlProvider.cs" />
@@ -382,4 +384,4 @@
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>
-</Project> 
+</Project>
