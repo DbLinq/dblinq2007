@@ -42,9 +42,11 @@ namespace DbLinq.Data.Linq
     {
         private TEntity entity;
         private bool hasLoadedOrAssignedValue;
+        private IEnumerable<TEntity> source;
 
         public EntityRef(TEntity entity)
         {
+            this.source = null;
             this.entity = entity;
             hasLoadedOrAssignedValue = true;
         }
@@ -52,11 +54,14 @@ namespace DbLinq.Data.Linq
         [DbLinqToDo]
         public EntityRef(IEnumerable<TEntity> source)
         {
-            throw new NotImplementedException();
+            this.source = source;
+            hasLoadedOrAssignedValue = false;
+            entity = null;
         }
 
         public EntityRef(EntityRef<TEntity> entityRef)
         {
+            this.source = null;
             this.entity = entityRef.Entity;
             hasLoadedOrAssignedValue = true;
         }
@@ -65,6 +70,14 @@ namespace DbLinq.Data.Linq
         {
             get 
             { 
+                if (source != null) {
+                    foreach (var s in source) {
+                        if (entity != null)
+                            throw new InvalidOperationException ("Sequence contains more than one element");
+                        entity = s;
+                    }
+                    source = null;
+                }
                 return entity; 
             }
             set
