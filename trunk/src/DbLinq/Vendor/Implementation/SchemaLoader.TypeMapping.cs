@@ -110,7 +110,12 @@ namespace DbLinq.Vendor.Implementation
             case "tinyint":
                 if (dataType.Length == 1)
                     return typeof(Boolean);
-                return typeof(Byte);
+                // tinyint is supposed to be signed
+                // but we can have explicit sign
+                if (dataType.Unsigned ?? false)
+                    return typeof(Byte);
+                // default case, unsigned
+                return typeof(SByte);
 
             // int16
             case "short":
