@@ -32,6 +32,8 @@ using System.Reflection;
 
 #if MONO_STRICT
 using System.Data.Linq;
+using DbLinq.Util;
+
 #else
 using DbLinq.Data.Linq;
 using DbLinq.Data.Linq.Mapping;
