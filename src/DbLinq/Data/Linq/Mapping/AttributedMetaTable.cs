@@ -42,11 +42,22 @@ namespace DbLinq.Data.Linq.Mapping
             _tableAttribute = attribute;
             _metaType = type;
         	_containingModel = model;
+
+			//If the attribute doesn't specify a table name the name of the table class is used
+			if(attribute.Name != null)
+			{
+				_tableName = attribute.Name;
+			}
+			else
+			{
+				_tableName = type.Name;
+			}
         }
 
         private TableAttribute _tableAttribute;
         private MetaType _metaType;
     	private MetaModel _containingModel;
+    	private readonly string _tableName;
 
         public override MethodInfo DeleteMethod
         {
@@ -70,7 +81,7 @@ namespace DbLinq.Data.Linq.Mapping
 
         public override string TableName
         {
-            get { return _tableAttribute.Name; }
+            get { return _tableName; }
         }
 
         public override MethodInfo UpdateMethod
