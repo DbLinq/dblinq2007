@@ -375,8 +375,17 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             }
         }
 
+        /// <summary>
+        /// The "custom types" are types related to a class
+        /// Currently, we only support enums (non-standard)
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="table"></param>
+        /// <param name="schema"></param>
+        /// <param name="context"></param>
         protected virtual void WriteCustomTypes(CodeWriter writer, Table table, Database schema, GenerationContext context)
         {
+            // detect required custom types
             foreach (var column in table.Type.Columns)
             {
                 var extendedType = column.ExtendedType;
@@ -416,6 +425,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                 customTypesNames.Add(extendedTypePair.Value.Type.Name);
             }
 
+            // write custom types
             if (customTypesNames.Count > 0)
             {
                 using (writer.WriteRegion(string.Format("Custom type definition for {0}", string.Join(", ", customTypesNames.ToArray()))))

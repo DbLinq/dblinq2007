@@ -77,6 +77,8 @@ namespace DbLinq.Vendor.Implementation
             if (string.IsNullOrEmpty(databaseName))
                 throw new ArgumentException("A database name is required. Please specify /database=<databaseName>");
 
+            databaseName = GetDatabaseName(databaseName);
+
             var schemaName = NameFormatter.GetSchemaName(databaseName, GetExtraction(databaseName), nameFormat);
             var names = new Names();
             var schema = new Database
@@ -108,6 +110,16 @@ namespace DbLinq.Vendor.Implementation
             GenerateStorageFields(schema);
 
             return schema;
+        }
+
+        /// <summary>
+        /// Gets a usable name for the database.
+        /// </summary>
+        /// <param name="databaseName">Name of the database.</param>
+        /// <returns></returns>
+        protected virtual string GetDatabaseName(string databaseName)
+        {
+            return databaseName;
         }
 
         protected void WriteErrorLine(string format, params object[] arg)

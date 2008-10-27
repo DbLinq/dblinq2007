@@ -24,35 +24,38 @@
 // 
 #endregion
 
-using System;
+using System.Linq;
+using DbLinq.Schema.Dbml;
 
-namespace DbMetal.Generator
+namespace DbLinq.Util
 {
     /// <summary>
-    /// Parameter definition for code generation
+    /// Executes a given SQL command, with parameter and delegate
     /// </summary>
-    public class ParameterDefinition
+#if MONO_STRICT
+    internal
+#else
+    // TODO: once R# is fixed with internal extension methods problems, switch to full internal
+    public // DataCommand is used by vendors
+#endif
+    static class DbmlExtensions
     {
         /// <summary>
-        /// Parameter attributes
+        /// Returns the reverse association
         /// </summary>
-        public AttributeDefinition Attribute;
-        /// <summary>
-        /// Parameter name
-        /// </summary>
-        public string Name { get; set; }
-        /// <summary>
-        /// Parameter CLR type
-        /// </summary>
-        public Type Type { get; set; }
-        /// <summary>
-        /// Parameter literal type
-        /// If null, the Type is used
-        /// </summary>
-        public string LiteralType { get; set; }
-        /// <summary>
-        /// Parameter specifications, in, out, etc.
-        /// </summary>
-        public SpecificationDefinition SpecificationDefinition;
+        /// <param name="schema"></param>
+        /// <param name="association"></param>
+        /// <returns></returns>
+        public static Association GetReverseAssociation(this Database schema, Association association)
+        {
+            // we use Single() because we NEED the opposite association
+            // (and it must be here
+            var reverseTable = (from t in schema.Table where t.Type.Name == association.Type select t).Single();
+            // same thing for association
+            var reverseAssociation = (from a in reverseTable.Type.Associations
+                                      where a.Name == association.Name && a != association
+                                      select a).Single();
+            return reverseAssociation;
+        }
     }
 }

@@ -1,4 +1,4 @@
-#region Auto-generated classes for Northwind database on 2008-10-18 13:06:37Z
+#region Auto-generated classes for Northwind database on 2008-10-27 20:16:31Z
 
 //
 //  ____  _     __  __      _        _
@@ -7,7 +7,7 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from Northwind on 2008-10-18 13:06:37Z
+// Auto-generated from Northwind on 2008-10-27 20:16:31Z
 // Please visit http://linq.to/db for more information
 
 #endregion
@@ -135,6 +135,14 @@ namespace nwind
 					_picture = value;
 				}
 			}
+		}
+
+		#endregion
+
+		#region ctor
+
+		public Category()
+		{
 		}
 
 		#endregion
@@ -388,13 +396,45 @@ namespace nwind
 
 		#region Children
 
-		[Association(Storage = null, OtherKey = "CustomerID", Name = "fk_Orders_1")]
+		private EntitySet<Order> _orders;
+		[Association(Storage = "_orders", OtherKey = "CustomerID", Name = "fk_Orders_1")]
 		[DebuggerNonUserCode]
 		public EntitySet<Order> Orders
 		{
-			get;set;
+			get
+			{
+				return _orders;
+			}
+			set
+			{
+				_orders = value;
+			}
 		}
 
+
+		#endregion
+
+		#region Attachement handlers
+
+		private void Orders_Attach(Order entity)
+		{
+			entity.Customer = this;
+		}
+
+		private void Orders_Detach(Order entity)
+		{
+			entity.Customer = null;
+		}
+
+
+		#endregion
+
+		#region ctor
+
+		public Customer()
+		{
+			_orders = new EntitySet<Order>(Orders_Attach, Orders_Detach);
+		}
 
 		#endregion
 
@@ -507,6 +547,28 @@ namespace nwind
 				if (value != _employeeID)
 				{
 					_employeeID = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region string Extension
+
+		private string _extension;
+		[DebuggerNonUserCode]
+		[Column(Storage = "_extension", Name = "Extension", DbType = "VARCHAR(5)")]
+		public string Extension
+		{
+			get
+			{
+				return _extension;
+			}
+			set
+			{
+				if (value != _extension)
+				{
+					_extension = value;
 				}
 			}
 		}
@@ -645,6 +707,28 @@ namespace nwind
 
 		#endregion
 
+		#region string PhotoPath
+
+		private string _photoPath;
+		[DebuggerNonUserCode]
+		[Column(Storage = "_photoPath", Name = "PhotoPath", DbType = "VARCHAR (255)")]
+		public string PhotoPath
+		{
+			get
+			{
+				return _photoPath;
+			}
+			set
+			{
+				if (value != _photoPath)
+				{
+					_photoPath = value;
+				}
+			}
+		}
+
+		#endregion
+
 		#region string PostalCode
 
 		private string _postalCode;
@@ -704,6 +788,10 @@ namespace nwind
 			{
 				if (value != _reportsTo)
 				{
+					if (_reportsToEmployee.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
 					_reportsTo = value;
 				}
 			}
@@ -733,27 +821,73 @@ namespace nwind
 
 		#endregion
 
+		#region string TitleOfCourtesy
+
+		private string _titleOfCourtesy;
+		[DebuggerNonUserCode]
+		[Column(Storage = "_titleOfCourtesy", Name = "TitleOfCourtesy", DbType = "VARCHAR(25)")]
+		public string TitleOfCourtesy
+		{
+			get
+			{
+				return _titleOfCourtesy;
+			}
+			set
+			{
+				if (value != _titleOfCourtesy)
+				{
+					_titleOfCourtesy = value;
+				}
+			}
+		}
+
+		#endregion
+
 		#region Children
 
-		[Association(Storage = null, OtherKey = "EmployeeID", Name = "fk_EmployeeTerritories_1")]
+		private EntitySet<EmployeeTerritory> _employeeTerritories;
+		[Association(Storage = "_employeeTerritories", OtherKey = "EmployeeID", Name = "fk_EmployeeTerritories_1")]
 		[DebuggerNonUserCode]
 		public EntitySet<EmployeeTerritory> EmployeeTerritories
 		{
-			get;set;
+			get
+			{
+				return _employeeTerritories;
+			}
+			set
+			{
+				_employeeTerritories = value;
+			}
 		}
 
-		[Association(Storage = null, OtherKey = "ReportsTo", Name = "fk_Employees_0")]
+		private EntitySet<Employee> _employees;
+		[Association(Storage = "_employees", OtherKey = "ReportsTo", Name = "fk_Employees_0")]
 		[DebuggerNonUserCode]
 		public EntitySet<Employee> Employees
 		{
-			get;set;
+			get
+			{
+				return _employees;
+			}
+			set
+			{
+				_employees = value;
+			}
 		}
 
-		[Association(Storage = null, OtherKey = "EmployeeID", Name = "fk_Orders_0")]
+		private EntitySet<Order> _orders;
+		[Association(Storage = "_orders", OtherKey = "EmployeeID", Name = "fk_Orders_0")]
 		[DebuggerNonUserCode]
 		public EntitySet<Order> Orders
 		{
-			get;set;
+			get
+			{
+				return _orders;
+			}
+			set
+			{
+				_orders = value;
+			}
 		}
 
 
@@ -772,10 +906,75 @@ namespace nwind
 			}
 			set
 			{
-				_reportsToEmployee.Entity = value;
+				if (value != _reportsToEmployee.Entity)
+				{
+					if (_reportsToEmployee.Entity != null)
+					{
+						var previousEmployee = _reportsToEmployee.Entity;
+						_reportsToEmployee.Entity = null;
+						previousEmployee.Employees.Remove(this);
+					}
+					_reportsToEmployee.Entity = value;
+					if (value != null)
+					{
+						value.Employees.Add(this);
+						_reportsTo = value.EmployeeID;
+					}
+					else
+					{
+						_reportsTo = null;
+					}
+				}
 			}
 		}
 
+
+		#endregion
+
+		#region Attachement handlers
+
+		private void EmployeeTerritories_Attach(EmployeeTerritory entity)
+		{
+			entity.Employee = this;
+		}
+
+		private void EmployeeTerritories_Detach(EmployeeTerritory entity)
+		{
+			entity.Employee = null;
+		}
+
+		private void Employees_Attach(Employee entity)
+		{
+			entity.ReportsToEmployee = this;
+		}
+
+		private void Employees_Detach(Employee entity)
+		{
+			entity.ReportsToEmployee = null;
+		}
+
+		private void Orders_Attach(Order entity)
+		{
+			entity.Employee = this;
+		}
+
+		private void Orders_Detach(Order entity)
+		{
+			entity.Employee = null;
+		}
+
+
+		#endregion
+
+		#region ctor
+
+		public Employee()
+		{
+			_employeeTerritories = new EntitySet<EmployeeTerritory>(EmployeeTerritories_Attach, EmployeeTerritories_Detach);
+			_employees = new EntitySet<Employee>(Employees_Attach, Employees_Detach);
+			_orders = new EntitySet<Order>(Orders_Attach, Orders_Detach);
+			_reportsToEmployee = new EntityRef<Employee>();
+		}
 
 		#endregion
 
@@ -799,6 +998,10 @@ namespace nwind
 			{
 				if (value != _employeeID)
 				{
+					if (_employee.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
 					_employeeID = value;
 				}
 			}
@@ -821,6 +1024,10 @@ namespace nwind
 			{
 				if (value != _territoryID)
 				{
+					if (_territory.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
 					_territoryID = value;
 				}
 			}
@@ -841,7 +1048,25 @@ namespace nwind
 			}
 			set
 			{
-				_territory.Entity = value;
+				if (value != _territory.Entity)
+				{
+					if (_territory.Entity != null)
+					{
+						var previousTerritory = _territory.Entity;
+						_territory.Entity = null;
+						previousTerritory.EmployeeTerritories.Remove(this);
+					}
+					_territory.Entity = value;
+					if (value != null)
+					{
+						value.EmployeeTerritories.Add(this);
+						_territoryID = value.TerritoryID;
+					}
+					else
+					{
+						_territoryID = default(string);
+					}
+				}
 			}
 		}
 
@@ -856,10 +1081,38 @@ namespace nwind
 			}
 			set
 			{
-				_employee.Entity = value;
+				if (value != _employee.Entity)
+				{
+					if (_employee.Entity != null)
+					{
+						var previousEmployee = _employee.Entity;
+						_employee.Entity = null;
+						previousEmployee.EmployeeTerritories.Remove(this);
+					}
+					_employee.Entity = value;
+					if (value != null)
+					{
+						value.EmployeeTerritories.Add(this);
+						_employeeID = value.EmployeeID;
+					}
+					else
+					{
+						_employeeID = default(int);
+					}
+				}
 			}
 		}
 
+
+		#endregion
+
+		#region ctor
+
+		public EmployeeTerritory()
+		{
+			_territory = new EntityRef<Territory>();
+			_employee = new EntityRef<Employee>();
+		}
 
 		#endregion
 
@@ -883,6 +1136,10 @@ namespace nwind
 			{
 				if (value != _customerID)
 				{
+					if (_customer.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
 					_customerID = value;
 				}
 			}
@@ -905,6 +1162,10 @@ namespace nwind
 			{
 				if (value != _employeeID)
 				{
+					if (_employee.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
 					_employeeID = value;
 				}
 			}
@@ -1178,11 +1439,19 @@ namespace nwind
 
 		#region Children
 
-		[Association(Storage = null, OtherKey = "OrderID", Name = "\"fk_Order Details_1\"")]
+		private EntitySet<OrderDetail> _orderDetails;
+		[Association(Storage = "_orderDetails", OtherKey = "OrderID", Name = "\"fk_Order Details_1\"")]
 		[DebuggerNonUserCode]
 		public EntitySet<OrderDetail> OrderDetails
 		{
-			get;set;
+			get
+			{
+				return _orderDetails;
+			}
+			set
+			{
+				_orderDetails = value;
+			}
 		}
 
 
@@ -1201,7 +1470,25 @@ namespace nwind
 			}
 			set
 			{
-				_employee.Entity = value;
+				if (value != _employee.Entity)
+				{
+					if (_employee.Entity != null)
+					{
+						var previousEmployee = _employee.Entity;
+						_employee.Entity = null;
+						previousEmployee.Orders.Remove(this);
+					}
+					_employee.Entity = value;
+					if (value != null)
+					{
+						value.Orders.Add(this);
+						_employeeID = value.EmployeeID;
+					}
+					else
+					{
+						_employeeID = null;
+					}
+				}
 			}
 		}
 
@@ -1216,10 +1503,54 @@ namespace nwind
 			}
 			set
 			{
-				_customer.Entity = value;
+				if (value != _customer.Entity)
+				{
+					if (_customer.Entity != null)
+					{
+						var previousCustomer = _customer.Entity;
+						_customer.Entity = null;
+						previousCustomer.Orders.Remove(this);
+					}
+					_customer.Entity = value;
+					if (value != null)
+					{
+						value.Orders.Add(this);
+						_customerID = value.CustomerID;
+					}
+					else
+					{
+						_customerID = null;
+					}
+				}
 			}
 		}
 
+
+		#endregion
+
+		#region Attachement handlers
+
+		private void OrderDetails_Attach(OrderDetail entity)
+		{
+			entity.Order = this;
+		}
+
+		private void OrderDetails_Detach(OrderDetail entity)
+		{
+			entity.Order = null;
+		}
+
+
+		#endregion
+
+		#region ctor
+
+		public Order()
+		{
+			_orderDetails = new EntitySet<OrderDetail>(OrderDetails_Attach, OrderDetails_Detach);
+			_employee = new EntityRef<Employee>();
+			_customer = new EntityRef<Customer>();
+		}
 
 		#endregion
 
@@ -1265,6 +1596,10 @@ namespace nwind
 			{
 				if (value != _orderID)
 				{
+					if (_order.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
 					_orderID = value;
 				}
 			}
@@ -1287,6 +1622,10 @@ namespace nwind
 			{
 				if (value != _productID)
 				{
+					if (_product.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
 					_productID = value;
 				}
 			}
@@ -1351,7 +1690,25 @@ namespace nwind
 			}
 			set
 			{
-				_product.Entity = value;
+				if (value != _product.Entity)
+				{
+					if (_product.Entity != null)
+					{
+						var previousProduct = _product.Entity;
+						_product.Entity = null;
+						previousProduct.OrderDetails.Remove(this);
+					}
+					_product.Entity = value;
+					if (value != null)
+					{
+						value.OrderDetails.Add(this);
+						_productID = value.ProductID;
+					}
+					else
+					{
+						_productID = default(int);
+					}
+				}
 			}
 		}
 
@@ -1366,10 +1723,38 @@ namespace nwind
 			}
 			set
 			{
-				_order.Entity = value;
+				if (value != _order.Entity)
+				{
+					if (_order.Entity != null)
+					{
+						var previousOrder = _order.Entity;
+						_order.Entity = null;
+						previousOrder.OrderDetails.Remove(this);
+					}
+					_order.Entity = value;
+					if (value != null)
+					{
+						value.OrderDetails.Add(this);
+						_orderID = value.OrderID;
+					}
+					else
+					{
+						_orderID = default(int);
+					}
+				}
 			}
 		}
 
+
+		#endregion
+
+		#region ctor
+
+		public OrderDetail()
+		{
+			_product = new EntityRef<Product>();
+			_order = new EntityRef<Order>();
+		}
 
 		#endregion
 
@@ -1525,6 +1910,10 @@ namespace nwind
 			{
 				if (value != _supplierID)
 				{
+					if (_supplier.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
 					_supplierID = value;
 				}
 			}
@@ -1600,11 +1989,19 @@ namespace nwind
 
 		#region Children
 
-		[Association(Storage = null, OtherKey = "ProductID", Name = "\"fk_Order Details_0\"")]
+		private EntitySet<OrderDetail> _orderDetails;
+		[Association(Storage = "_orderDetails", OtherKey = "ProductID", Name = "\"fk_Order Details_0\"")]
 		[DebuggerNonUserCode]
 		public EntitySet<OrderDetail> OrderDetails
 		{
-			get;set;
+			get
+			{
+				return _orderDetails;
+			}
+			set
+			{
+				_orderDetails = value;
+			}
 		}
 
 
@@ -1623,10 +2020,53 @@ namespace nwind
 			}
 			set
 			{
-				_supplier.Entity = value;
+				if (value != _supplier.Entity)
+				{
+					if (_supplier.Entity != null)
+					{
+						var previousSupplier = _supplier.Entity;
+						_supplier.Entity = null;
+						previousSupplier.Products.Remove(this);
+					}
+					_supplier.Entity = value;
+					if (value != null)
+					{
+						value.Products.Add(this);
+						_supplierID = value.SupplierID;
+					}
+					else
+					{
+						_supplierID = null;
+					}
+				}
 			}
 		}
 
+
+		#endregion
+
+		#region Attachement handlers
+
+		private void OrderDetails_Attach(OrderDetail entity)
+		{
+			entity.Product = this;
+		}
+
+		private void OrderDetails_Detach(OrderDetail entity)
+		{
+			entity.Product = null;
+		}
+
+
+		#endregion
+
+		#region ctor
+
+		public Product()
+		{
+			_orderDetails = new EntitySet<OrderDetail>(OrderDetails_Attach, OrderDetails_Detach);
+			_supplier = new EntityRef<Supplier>();
+		}
 
 		#endregion
 
@@ -1657,12 +2097,12 @@ namespace nwind
 
 		#endregion
 
-		#region int? RegionID
+		#region int RegionID
 
-		private int? _regionID;
+		private int _regionID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_regionID", Name = "RegionID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true)]
-		public int? RegionID
+		[Column(Storage = "_regionID", Name = "RegionID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
+		public int RegionID
 		{
 			get
 			{
@@ -1681,13 +2121,45 @@ namespace nwind
 
 		#region Children
 
-		[Association(Storage = null, OtherKey = "RegionID", Name = "fk_Territories_0")]
+		private EntitySet<Territory> _territories;
+		[Association(Storage = "_territories", OtherKey = "RegionID", Name = "fk_Territories_0")]
 		[DebuggerNonUserCode]
 		public EntitySet<Territory> Territories
 		{
-			get;set;
+			get
+			{
+				return _territories;
+			}
+			set
+			{
+				_territories = value;
+			}
 		}
 
+
+		#endregion
+
+		#region Attachement handlers
+
+		private void Territories_Attach(Territory entity)
+		{
+			entity.Region = this;
+		}
+
+		private void Territories_Detach(Territory entity)
+		{
+			entity.Region = null;
+		}
+
+
+		#endregion
+
+		#region ctor
+
+		public Region()
+		{
+			_territories = new EntitySet<Territory>(Territories_Attach, Territories_Detach);
+		}
 
 		#endregion
 
@@ -1758,6 +2230,14 @@ namespace nwind
 					_shipperID = value;
 				}
 			}
+		}
+
+		#endregion
+
+		#region ctor
+
+		public Shipper()
+		{
 		}
 
 		#endregion
@@ -2011,13 +2491,45 @@ namespace nwind
 
 		#region Children
 
-		[Association(Storage = null, OtherKey = "SupplierID", Name = "fk_Products_0")]
+		private EntitySet<Product> _products;
+		[Association(Storage = "_products", OtherKey = "SupplierID", Name = "fk_Products_0")]
 		[DebuggerNonUserCode]
 		public EntitySet<Product> Products
 		{
-			get;set;
+			get
+			{
+				return _products;
+			}
+			set
+			{
+				_products = value;
+			}
 		}
 
+
+		#endregion
+
+		#region Attachement handlers
+
+		private void Products_Attach(Product entity)
+		{
+			entity.Supplier = this;
+		}
+
+		private void Products_Detach(Product entity)
+		{
+			entity.Supplier = null;
+		}
+
+
+		#endregion
+
+		#region ctor
+
+		public Supplier()
+		{
+			_products = new EntitySet<Product>(Products_Attach, Products_Detach);
+		}
 
 		#endregion
 
@@ -2041,6 +2553,10 @@ namespace nwind
 			{
 				if (value != _regionID)
 				{
+					if (_region.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
 					_regionID = value;
 				}
 			}
@@ -2074,7 +2590,7 @@ namespace nwind
 
 		private string _territoryID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_territoryID", Name = "TerritoryID", DbType = "VARCHAR(20)", IsPrimaryKey = true)]
+		[Column(Storage = "_territoryID", Name = "TerritoryID", DbType = "VARCHAR(20)", IsPrimaryKey = true, CanBeNull = false)]
 		public string TerritoryID
 		{
 			get
@@ -2094,11 +2610,19 @@ namespace nwind
 
 		#region Children
 
-		[Association(Storage = null, OtherKey = "TerritoryID", Name = "fk_EmployeeTerritories_0")]
+		private EntitySet<EmployeeTerritory> _employeeTerritories;
+		[Association(Storage = "_employeeTerritories", OtherKey = "TerritoryID", Name = "fk_EmployeeTerritories_0")]
 		[DebuggerNonUserCode]
 		public EntitySet<EmployeeTerritory> EmployeeTerritories
 		{
-			get;set;
+			get
+			{
+				return _employeeTerritories;
+			}
+			set
+			{
+				_employeeTerritories = value;
+			}
 		}
 
 
@@ -2117,10 +2641,53 @@ namespace nwind
 			}
 			set
 			{
-				_region.Entity = value;
+				if (value != _region.Entity)
+				{
+					if (_region.Entity != null)
+					{
+						var previousRegion = _region.Entity;
+						_region.Entity = null;
+						previousRegion.Territories.Remove(this);
+					}
+					_region.Entity = value;
+					if (value != null)
+					{
+						value.Territories.Add(this);
+						_regionID = value.RegionID;
+					}
+					else
+					{
+						_regionID = default(int);
+					}
+				}
 			}
 		}
 
+
+		#endregion
+
+		#region Attachement handlers
+
+		private void EmployeeTerritories_Attach(EmployeeTerritory entity)
+		{
+			entity.Territory = this;
+		}
+
+		private void EmployeeTerritories_Detach(EmployeeTerritory entity)
+		{
+			entity.Territory = null;
+		}
+
+
+		#endregion
+
+		#region ctor
+
+		public Territory()
+		{
+			_employeeTerritories = new EntitySet<EmployeeTerritory>(EmployeeTerritories_Attach, EmployeeTerritories_Detach);
+			_region = new EntityRef<Region>();
+		}
 
 		#endregion
 
