@@ -32,6 +32,9 @@ using System.Text;
 
 namespace DbMetal.Generator.Implementation.CodeTextGenerator
 {
+    /// <summary>
+    /// C# Code writer
+    /// </summary>
     class CSCodeWriter : CodeWriter
     {
         public string Indent { get; set; }
@@ -159,7 +162,8 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             {
                 string literalParameter = string.Format("{0}{3}{1} {2}",
                                                         parameter.Attribute != null ? GetAttribute(parameter.Attribute) + " " : string.Empty,
-                                                        GetLiteralType(parameter.Type), parameter.Name,
+                                                        parameter.LiteralType ?? GetLiteralType(parameter.Type),
+                                                        parameter.Name,
                                                         GetDirectionSpecifications(parameter.SpecificationDefinition));
                 literalParameters.Add(literalParameter);
             }
@@ -206,9 +210,9 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             return WriteBrackets();
         }
 
-        public override void WriteLazyPropertyGetSet()
+        public override void WriteAutomaticPropertyGetSet()
         {
-            WriteLine("get;set;");
+            WriteLine("get; set;");
         }
         public override IDisposable WritePropertyGet()
         {
@@ -246,6 +250,41 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             return WriteBrackets();
         }
 
+
+        /// <summary>
+        /// Writes the raw if.
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        public override void WriteRawIf(string expression)
+        {
+            WriteLine("if ({0})", expression);
+            WriteLine("{");
+        }
+
+        /// <summary>
+        /// Writes the raw else.
+        /// </summary>
+        public override void WriteRawElse()
+        {
+            WriteLine("}");
+            WriteLine("else");
+            WriteLine("{");
+        }
+
+        /// <summary>
+        /// Writes the raw endif.
+        /// </summary>
+        public override void WriteRawEndif()
+        {
+            WriteLine("}");
+        }
+
+        /// <summary>
+        /// Writes the enum.
+        /// </summary>
+        /// <param name="specificationDefinition">The specification definition.</param>
+        /// <param name="name">The name.</param>
+        /// <returns></returns>
         public override IDisposable WriteEnum(SpecificationDefinition specificationDefinition, string name)
         {
             WriteLine("{0}enum {1}", GetProtectionSpecifications(specificationDefinition), name);
@@ -476,11 +515,24 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             return string.Format("{0} != {1}", a, b);
         }
 
+        /// <summary>
+        /// Gets the equal expression.
+        /// </summary>
+        /// <param name="a">A.</param>
+        /// <param name="b">The b.</param>
+        /// <returns></returns>
         public override string GetEqualExpression(string a, string b)
         {
             return string.Format("{0} == {1}", a, b);
         }
 
+        /// <summary>
+        /// Gets the ternary expression.
+        /// </summary>
+        /// <param name="conditionExpression">The condition expression.</param>
+        /// <param name="trueExpression">The true expression.</param>
+        /// <param name="falseExpression">The false expression.</param>
+        /// <returns></returns>
         public override string GetTernaryExpression(string conditionExpression, string trueExpression, string falseExpression)
         {
             return string.Format("{0} ? {1} : {2}", conditionExpression, trueExpression, falseExpression);
@@ -489,6 +541,30 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
         public override string GetNullValueExpression(string literalType)
         {
             return string.Format("default({0})", literalType);
+        }
+
+        /// <summary>
+        /// Returns a code that throw the given expression
+        /// </summary>
+        /// <param name="throwExpression"></param>
+        /// <returns></returns>
+        public override string GetThrowStatement(string throwExpression)
+        {
+            return string.Format("throw {0};", throwExpression);
+        }
+
+        /// <summary>
+        /// Returns a declaration and assignement expression
+        /// </summary>
+        /// <param name="variableType"></param>
+        /// <param name="variableName"></param>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        public override string GetVariableDeclarationInitialization(string variableType, string variableName, string expression)
+        {
+            //return string.Format("{0} {1} = {2}", variableType, variableName, expression);
+            // we can do this since we generate for C# 3
+            return string.Format("var {0} = {1}", variableName, expression);
         }
 
         #endregion

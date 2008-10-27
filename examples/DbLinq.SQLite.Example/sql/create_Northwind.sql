@@ -3,14 +3,14 @@
 --####################################################################
 
 CREATE TABLE IF NOT EXISTS [Regions] (
-  [RegionID] INTEGER PRIMARY KEY ,
+  [RegionID] INTEGER PRIMARY KEY  NOT NULL,
   [RegionDescription] VARCHAR(50) NOT NULL
   
 );
 
 
 CREATE TABLE IF NOT EXISTS [Territories] (
-  [TerritoryID] VARCHAR(20),
+  [TerritoryID] VARCHAR(20)  NOT NULL,
   [TerritoryDescription] VARCHAR(50) NOT NULL,
   [RegionID] INTEGER NOT NULL REFERENCES Regions(RegionID),
   PRIMARY KEY([TerritoryID])

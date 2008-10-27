@@ -28,8 +28,6 @@ using System.Collections.Generic;
 using System.Data.Linq.Mapping;
 using System.Diagnostics;
 using System.Linq;
-using DbLinq.Data.Linq;
-using DbLinq.Factory;
 using DbLinq.Schema.Dbml;
 using DbLinq.Schema.Dbml.Adapter;
 using DbLinq.Util;
@@ -81,6 +79,8 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                     WriteClassEqualsAndHash(writer, table, context);
                 WriteClassChildren(writer, table, schema, context);
                 WriteClassParents(writer, table, schema, context);
+                WriteClassChildrenAttachment(writer, table, schema, context);
+                WriteClassCtor(writer, table, schema, context);
             }
         }
 
@@ -156,16 +156,36 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             }
         }
 
+        /// <summary>
+        /// Class headers are written at top of class
+        /// They consist in specific headers writen by interface implementors
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="table"></param>
+        /// <param name="context"></param>
         private void WriteClassHeader(CodeWriter writer, Table table, GenerationContext context)
         {
             foreach (IImplementation implementation in context.Implementations())
                 implementation.WriteClassHeader(writer, table, context);
         }
 
+        /// <summary>
+        /// Writes all properties, depending on the use (simple property or FK)
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="table"></param>
+        /// <param name="context"></param>
         protected virtual void WriteClassProperties(CodeWriter writer, Table table, GenerationContext context)
         {
             foreach (var property in table.Type.Columns)
-                WriteClassProperty(writer, property, context);
+            {
+                var property1 = property;
+                var relatedAssociations = from a in table.Type.Associations
+                                          where a.IsForeignKey
+                                          && a.TheseKeys.Contains(property1.Name)
+                                          select a;
+                WriteClassProperty(writer, property, relatedAssociations, context);
+            }
         }
 
         protected virtual string GetTypeOrExtendedType(CodeWriter writer, Column property)
@@ -177,12 +197,19 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             return writer.GetLiteralType(GetType(property.Type, property.CanBeNull));
         }
 
-        protected virtual void WriteClassProperty(CodeWriter writer, Column property, GenerationContext context)
+        /// <summary>
+        /// Writes class property
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="property"></param>
+        /// <param name="relatedAssociations">non null if property is a FK</param>
+        /// <param name="context"></param>
+        protected virtual void WriteClassProperty(CodeWriter writer, Column property, IEnumerable<Association> relatedAssociations, GenerationContext context)
         {
             using (writer.WriteRegion(string.Format("{0} {1}", GetTypeOrExtendedType(writer, property), property.Member)))
             {
                 WriteClassPropertyBackingField(writer, property, context);
-                WriteClassPropertyAccessors(writer, property, context);
+                WriteClassPropertyAccessors(writer, property, relatedAssociations, context);
             }
         }
 
@@ -192,7 +219,9 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             //if (property.IsDbGenerated)
             //    autoGenAttribute = NewAttributeDefinition<AutoGenIdAttribute>();
             //using (writer.WriteAttribute(autoGenAttribute))
-            writer.WriteField(SpecificationDefinition.Private, property.Storage, GetTypeOrExtendedType(writer, property));
+            // for auto-properties, we just won't generate a private field
+            if (property.Storage != null)
+                writer.WriteField(SpecificationDefinition.Private, property.Storage, GetTypeOrExtendedType(writer, property));
         }
 
         /// <summary>
@@ -221,7 +250,14 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             return (from a in attributes select GetName(a)).ToArray();
         }
 
-        protected virtual void WriteClassPropertyAccessors(CodeWriter writer, Column property, GenerationContext context)
+        /// <summary>
+        /// Writes property accessor
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="property"></param>
+        /// <param name="relatedAssociations"></param>
+        /// <param name="context"></param>
+        protected virtual void WriteClassPropertyAccessors(CodeWriter writer, Column property, IEnumerable<Association> relatedAssociations, GenerationContext context)
         {
             //generate [Column(...)] attribute
             var column = NewAttributeDefinition<ColumnAttribute>();
@@ -251,27 +287,96 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             using (writer.WriteAttribute(column))
             using (writer.WriteProperty(specifications, property.Member, GetTypeOrExtendedType(writer, property)))
             {
-                using (writer.WritePropertyGet())
+                // on auto storage, we're just lazy
+                if (property.Storage == null)
+                    writer.WriteAutomaticPropertyGetSet();
+                else
                 {
-                    writer.WriteLine(writer.GetReturnStatement(writer.GetVariableExpression(property.Storage)));
-                }
-                using (writer.WritePropertySet())
-                {
-                    using (writer.WriteIf(writer.GetDifferentExpression(writer.GetPropertySetValueExpression(), writer.GetVariableExpression(property.Storage))))
+                    using (writer.WritePropertyGet())
                     {
-                        foreach (IImplementation implementation in context.Implementations())
-                            implementation.WritePropertyBeforeSet(writer, property, context);
-                        writer.WriteLine(writer.GetStatement(writer.GetAssignmentExpression(writer.GetVariableExpression(property.Storage), writer.GetPropertySetValueExpression())));
-                        foreach (IImplementation implementation in context.Implementations())
-                            implementation.WritePropertyAfterSet(writer, property, context);
+                        writer.WriteLine(writer.GetReturnStatement(writer.GetVariableExpression(property.Storage)));
+                    }
+                    using (writer.WritePropertySet())
+                    {
+                        WriteClassPropertyAccessorSet(writer, property, relatedAssociations, context);
                     }
                 }
             }
         }
 
+        /// <summary>
+        /// Writes property setter, for FK properties
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="property"></param>
+        /// <param name="relatedAssociations"></param>
+        /// <param name="context"></param>
+        private void WriteClassPropertyAccessorSet(CodeWriter writer, Column property, IEnumerable<Association> relatedAssociations, GenerationContext context)
+        {
+            // if new value if different from old one
+            using (writer.WriteIf(writer.GetDifferentExpression(writer.GetPropertySetValueExpression(),
+                                                                writer.GetVariableExpression(property.Storage))))
+            {
+                // if the property is used as a FK, we ensure that it hasn't been already loaded or assigned
+                foreach (var relatedAssociation in relatedAssociations)
+                {
+                    // first thing to check: ensure the association backend isn't already affected.
+                    // if it is the case, then the property must not be manually set
+
+                    // R# considers the following as an error, but the csc doesn't
+                    //var memberName = ReflectionUtility.GetMemberInfo<DbLinq.Data.Linq.EntityRef<object>>(e => e.HasLoadedOrAssignedValue).Name;
+                    var memberName = "HasLoadedOrAssignedValue";
+                    using (writer.WriteIf(writer.GetMemberExpression(relatedAssociation.Storage, memberName)))
+                    {
+                        writer.WriteLine(writer.GetThrowStatement(writer.GetNewExpression(
+                                                                      writer.GetMethodCallExpression(
+                                                                          writer.GetLiteralFullType(
+                                                                              typeof(
+                                                                                  System.Data.Linq.
+                                                                                  ForeignKeyReferenceAlreadyHasValueException
+                                                                                  )))
+                                                                      )));
+                    }
+                }
+                // the before and after are used by extensions related to interfaces
+                // for example INotifyPropertyChanged
+                // here the code before the change
+                foreach (IImplementation implementation in context.Implementations())
+                    implementation.WritePropertyBeforeSet(writer, property, context);
+                // property assignment
+                writer.WriteLine(
+                    writer.GetStatement(
+                        writer.GetAssignmentExpression(writer.GetVariableExpression(property.Storage),
+                                                       writer.GetPropertySetValueExpression())));
+                // here the code after change
+                foreach (IImplementation implementation in context.Implementations())
+                    implementation.WritePropertyAfterSet(writer, property, context);
+            }
+        }
+
+        /// <summary>
+        /// Returns all children (ie members of EntitySet)
+        /// </summary>
+        /// <param name="table"></param>
+        /// <returns></returns>
+        protected virtual IEnumerable<Association> GetClassChildren(Table table)
+        {
+            return table.Type.Associations.Where(a => !a.IsForeignKey);
+        }
+
+        /// <summary>
+        /// Returns all parents (ie member referenced as EntityRef)
+        /// </summary>
+        /// <param name="table"></param>
+        /// <returns></returns>
+        protected virtual IEnumerable<Association> GetClassParents(Table table)
+        {
+            return table.Type.Associations.Where(a => a.IsForeignKey);
+        }
+
         protected virtual void WriteClassChildren(CodeWriter writer, Table table, Database schema, GenerationContext context)
         {
-            var children = table.Type.Associations.Where(a => !a.IsForeignKey).ToList();
+            var children = GetClassChildren(table).ToList();
             if (children.Count > 0)
             {
                 using (writer.WriteRegion("Children"))
@@ -296,7 +401,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             }
 
             var storageAttribute = NewAttributeDefinition<AssociationAttribute>();
-            storageAttribute["Storage"] = null;
+            storageAttribute["Storage"] = child.Storage;
             storageAttribute["OtherKey"] = child.OtherKey;
             storageAttribute["Name"] = child.Name;
 
@@ -312,24 +417,46 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                                    ? child.Member + "_" + string.Join("", child.OtherKeys.ToArray())
                                    : child.Member;
 
+            var propertyType = writer.GetGenericName(TypeExtensions.GetShortName(typeof(DbLinq.Data.Linq.EntitySet<>)), child.Type);
+
+            if (child.Storage != null)
+                writer.WriteField(SpecificationDefinition.Private, child.Storage, propertyType);
+
             using (writer.WriteAttribute(storageAttribute))
             using (writer.WriteAttribute(NewAttributeDefinition<DebuggerNonUserCodeAttribute>()))
             using (writer.WriteProperty(specifications, propertyName,
-                                        writer.GetGenericName(TypeExtensions.GetShortName(typeof(EntitySet<>)), child.Type)))
+                                        writer.GetGenericName(TypeExtensions.GetShortName(typeof(DbLinq.Data.Linq.EntitySet<>)), child.Type)))
             {
-                //using (writer.WritePropertyGet())
-                //{
-                //    writer.WriteCommentLine("L212 - child data available only when part of query");
-                //    writer.WriteLine(writer.GetReturnStatement(writer.GetNullExpression()));
-                //}
-                writer.WriteLazyPropertyGetSet();
+                // if we have a backing field, use it
+                if (child.Storage != null)
+                {
+                    // the getter returns the field
+                    using (writer.WritePropertyGet())
+                    {
+                        writer.WriteLine(writer.GetReturnStatement(
+                            child.Storage
+                            ));
+                    }
+                    // the setter assigns the field
+                    using (writer.WritePropertySet())
+                    {
+                        writer.WriteLine(writer.GetStatement(
+                            writer.GetAssignmentExpression(
+                            child.Storage,
+                            writer.GetPropertySetValueExpression())
+                            ));
+                    }
+                }
+                // otherwise, use automatic property
+                else
+                    writer.WriteAutomaticPropertyGetSet();
             }
             writer.WriteLine();
         }
 
         protected virtual void WriteClassParents(CodeWriter writer, Table table, Database schema, GenerationContext context)
         {
-            var parents = table.Type.Associations.Where(a => a.IsForeignKey).ToList();
+            var parents = GetClassParents(table).ToList();
             if (parents.Count > 0)
             {
                 using (writer.WriteRegion("Parents"))
@@ -363,7 +490,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             }
 
             writer.WriteField(SpecificationDefinition.Private, storageField,
-                              writer.GetGenericName(TypeExtensions.GetShortName(typeof(EntityRef<>)),
+                              writer.GetGenericName(TypeExtensions.GetShortName(typeof(DbLinq.Data.Linq.EntityRef<>)),
                                                     targetTable.Type.Name));
 
             var storageAttribute = NewAttributeDefinition<AssociationAttribute>();
@@ -395,10 +522,232 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                 }
                 using (writer.WritePropertySet())
                 {
-                    writer.WriteLine(writer.GetStatement(writer.GetAssignmentExpression(storage, writer.GetPropertySetValueExpression())));
+                    // algorithm is:
+                    // 1.1. must be different than previous value
+                    // 1.2. or HasLoadedOrAssignedValue is false (but why?)
+                    // 2. implementations before change
+                    // 3. if previous value not null
+                    // 3.1. place parent in temp variable
+                    // 3.2. set [Storage].Entity to null
+                    // 3.3. remove it from parent list
+                    // 4. assign value to [Storage].Entity
+                    // 5. if value is not null
+                    // 5.1. add it to parent list
+                    // 5.2. set FK members with entity keys
+                    // 6. else
+                    // 6.1. set FK members to defaults (null or 0)
+                    // 7. implementationas after change
+
+                    //writer.WriteLine(writer.GetStatement(writer.GetAssignmentExpression(storage, writer.GetPropertySetValueExpression())));
+                    var entityMember = writer.GetMemberExpression(parent.Storage, "Entity");
+                    // 1.1
+                    using (writer.WriteIf(writer.GetDifferentExpression(writer.GetPropertySetValueExpression(),
+                                                                        entityMember)))
+                    {
+                        var otherAssociation = schema.GetReverseAssociation(parent);
+                        // 2. code before the change
+                        // TODO change interface to require a member instead of a column
+                        //foreach (IImplementation implementation in context.Implementations())
+                        //    implementation.WritePropertyBeforeSet(writer, ???, context);
+                        // 3.
+                        using (writer.WriteIf(writer.GetDifferentExpression(entityMember, writer.GetNullExpression())))
+                        {
+                            var previousEntityRefName = "previous" + parent.Type;
+                            // 3.1.
+                            writer.WriteLine(writer.GetStatement(
+                                writer.GetVariableDeclarationInitialization(parent.Type, previousEntityRefName, entityMember)
+                                ));
+                            // 3.2.
+                            writer.WriteLine(writer.GetStatement(
+                                writer.GetAssignmentExpression(entityMember, writer.GetNullExpression())
+                                ));
+                            // 3.3.
+                            writer.WriteLine(writer.GetStatement(
+                                writer.GetMethodCallExpression(
+                                    writer.GetMemberExpression(writer.GetMemberExpression(previousEntityRefName, otherAssociation.Member), "Remove"),
+                                    writer.GetThisExpression())
+                                ));
+                        }
+                        // 4.
+                        writer.WriteLine(writer.GetStatement(
+                            writer.GetAssignmentExpression(entityMember, writer.GetPropertySetValueExpression())
+                            ));
+
+                        // 5. if value is null or not
+                        writer.WriteRawIf(writer.GetDifferentExpression(writer.GetPropertySetValueExpression(), writer.GetNullExpression()));
+                        // 5.1.
+                        writer.WriteLine(writer.GetStatement(
+                            writer.GetMethodCallExpression(
+                                writer.GetMemberExpression(writer.GetMemberExpression(writer.GetPropertySetValueExpression(), otherAssociation.Member), "Add"),
+                                writer.GetThisExpression())
+                            ));
+
+                        // 5.2
+                        var table = schema.Tables.Single(t => t.Type.Associations.Contains(parent));
+                        var childKeys = parent.TheseKeys.ToArray();
+                        var childColumns = (from ck in childKeys select table.Type.Columns.Single(c => c.Member == ck))
+                                            .ToArray();
+                        var parentKeys = parent.OtherKeys.ToArray();
+
+                        for (int keyIndex = 0; keyIndex < parentKeys.Length; keyIndex++)
+                        {
+                            writer.WriteLine(writer.GetStatement(writer.GetAssignmentExpression(
+                                childColumns[keyIndex].Storage ?? childColumns[keyIndex].Member,
+                                writer.GetMemberExpression(writer.GetPropertySetValueExpression(), parentKeys[keyIndex])
+                                )));
+                        }
+
+                        // 6.
+                        writer.WriteRawElse();
+
+                        // 6.1.
+                        for (int keyIndex = 0; keyIndex < parentKeys.Length; keyIndex++)
+                        {
+                            var column = table.Type.Columns.Single(c => c.Member == childKeys[keyIndex]);
+                            var columnType = System.Type.GetType(column.Type);
+                            var columnLiteralType = columnType != null ? writer.GetLiteralType(columnType) : column.Type;
+                            writer.WriteLine(writer.GetStatement(writer.GetAssignmentExpression(
+                                childColumns[keyIndex].Storage ?? childColumns[keyIndex].Member,
+                                column.CanBeNull ? writer.GetNullExpression() : writer.GetNullValueExpression(columnLiteralType)
+                                )));
+                        }
+
+                        writer.WriteRawEndif();
+
+                        // 7. code after change
+                        // TODO change interface to require a member instead of a column
+                        //foreach (IImplementation implementation in context.Implementations())
+                        //    implementation.WritePropertyAfterSet(writer, ???, context);
+
+                    }
                 }
             }
             writer.WriteLine();
+        }
+
+        /// <summary>
+        /// Returns event method name related to a child
+        /// </summary>
+        /// <param name="child"></param>
+        /// <param name="method"></param>
+        /// <returns></returns>
+        protected virtual string GetChildMethodName(Association child, string method)
+        {
+            return string.Format("{0}_{1}", child.Member, method);
+        }
+
+        /// <summary>
+        /// Returns child attach method name
+        /// </summary>
+        /// <param name="child"></param>
+        /// <returns></returns>
+        protected virtual string GetChildAttachMethodName(Association child)
+        {
+            return GetChildMethodName(child, "Attach");
+        }
+
+        /// <summary>
+        /// Returns child detach method name
+        /// </summary>
+        /// <param name="child"></param>
+        /// <returns></returns>
+        protected virtual string GetChildDetachMethodName(Association child)
+        {
+            return GetChildMethodName(child, "Detach");
+        }
+
+        /// <summary>
+        /// Writes attach/detach method
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="table"></param>
+        /// <param name="schema"></param>
+        /// <param name="context"></param>
+        protected virtual void WriteClassChildrenAttachment(CodeWriter writer, Table table, Database schema, GenerationContext context)
+        {
+            var children = GetClassChildren(table).ToList();
+            if (children.Count > 0)
+            {
+                using (writer.WriteRegion("Attachement handlers"))
+                {
+                    foreach (var child in children)
+                    {
+                        // the reverse child is the association seen from the child
+                        // we're going to use it...
+                        var reverseChild = schema.GetReverseAssociation(child);
+                        // ... to get the parent name
+                        var memberName = reverseChild.Member;
+                        var entityParameter = new ParameterDefinition { Name = "entity", LiteralType = child.Type };
+                        // the Attach event handler sets the child entity parent to "this"
+                        using (writer.WriteMethod(SpecificationDefinition.Private, GetChildAttachMethodName(child),
+                                                  null, entityParameter))
+                        {
+                            writer.WriteLine(
+                                writer.GetStatement(
+                                    writer.GetAssignmentExpression(
+                                        writer.GetMemberExpression(entityParameter.Name, memberName),
+                                        writer.GetThisExpression())));
+                        }
+                        writer.WriteLine();
+                        // the Detach event handler sets the child entity parent to null
+                        using (writer.WriteMethod(SpecificationDefinition.Private, GetChildDetachMethodName(child),
+                                                  null, entityParameter))
+                        {
+                            writer.WriteLine(
+                                writer.GetStatement(
+                                    writer.GetAssignmentExpression(
+                                        writer.GetMemberExpression(entityParameter.Name, memberName),
+                                        writer.GetNullExpression())));
+                        }
+                        writer.WriteLine();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Writes class ctor.
+        /// EntitySet initializations
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="table"></param>
+        /// <param name="schema"></param>
+        /// <param name="context"></param>
+        protected virtual void WriteClassCtor(CodeWriter writer, Table table, Database schema, GenerationContext context)
+        {
+            using (writer.WriteRegion("ctor"))
+            using (writer.WriteCtor(SpecificationDefinition.Public, table.Type.Name, new ParameterDefinition[0], null))
+            {
+                // children are EntitySet
+                foreach (var child in GetClassChildren(table))
+                {
+                    // if the association has a storage, we use it. Otherwise, we use the property name
+                    var entitySetMember = child.Storage ?? child.Member;
+                    writer.WriteLine(writer.GetStatement(
+                        writer.GetAssignmentExpression(
+                            entitySetMember,
+                            writer.GetNewExpression(writer.GetMethodCallExpression(
+                                writer.GetGenericName(TypeExtensions.GetShortName(typeof(DbLinq.Data.Linq.EntitySet<>)), child.Type),
+                                GetChildAttachMethodName(child),
+                                GetChildDetachMethodName(child)
+                            ))
+                        )
+                        ));
+                }
+                // the parents are the entities referenced by a FK. So a "parent" is an EntityRef
+                foreach (var parent in GetClassParents(table))
+                {
+                    var entityRefMember = parent.Storage;
+                    writer.WriteLine(writer.GetStatement(
+                        writer.GetAssignmentExpression(
+                            entityRefMember,
+                            writer.GetNewExpression(writer.GetMethodCallExpression(
+                            writer.GetGenericName(TypeExtensions.GetShortName(typeof(DbLinq.Data.Linq.EntityRef<>)), parent.Type)
+                            ))
+                        )
+                    ));
+                }
+            }
         }
     }
 }

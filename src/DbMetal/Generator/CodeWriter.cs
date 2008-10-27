@@ -217,7 +217,7 @@ namespace DbMetal.Generator
                                                 params ParameterDefinition[] parameters);
 
         public abstract IDisposable WriteProperty(SpecificationDefinition specificationDefinition, string name, string propertyType);
-        public abstract void WriteLazyPropertyGetSet();
+        public abstract void WriteAutomaticPropertyGetSet();
         public abstract IDisposable WritePropertyGet();
         public abstract IDisposable WritePropertySet();
 
@@ -327,5 +327,36 @@ namespace DbMetal.Generator
 
         #endregion
 
+        /// <summary>
+        /// Returns a code that throw the given expression
+        /// </summary>
+        /// <param name="throwExpression"></param>
+        /// <returns></returns>
+        public abstract string GetThrowStatement(string throwExpression);
+
+        /// <summary>
+        /// Returns a declaration and assignement expression
+        /// </summary>
+        /// <param name="variableType"></param>
+        /// <param name="variableName"></param>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        public abstract string GetVariableDeclarationInitialization(string variableType, string variableName, string expression);
+
+        /// <summary>
+        /// Writes the raw if.
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        public abstract void WriteRawIf(string expression);
+
+        /// <summary>
+        /// Writes the raw else.
+        /// </summary>
+        public abstract void WriteRawElse();
+
+        /// <summary>
+        /// Writes the raw endif.
+        /// </summary>
+        public abstract void WriteRawEndif();
     }
 }
