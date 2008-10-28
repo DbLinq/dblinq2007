@@ -38,7 +38,7 @@ namespace DbLinq.Language.Implementation
 #else
     public
 #endif
-    abstract class AbstractWords : ILanguageWords
+ abstract class AbstractWords : ILanguageWords
     {
         protected IDictionary<string, int> WordsWeights;
         protected IDictionary<string, string> SingularToPlural = new Dictionary<string, string>();
@@ -145,7 +145,10 @@ namespace DbLinq.Language.Implementation
             {
                 if (index == text.Length || !char.IsLetterOrDigit(text[index]))
                 {
-                    GetMagmaWords(text.Substring(lastIndex, index - lastIndex), words, context);
+                    var word = text.Substring(lastIndex, index - lastIndex);
+                    // if the word is empty, we skip it
+                    if (!string.IsNullOrEmpty(word))
+                        GetMagmaWords(word, words, context);
                     lastIndex = index + 1;
                 }
             }
