@@ -24,7 +24,7 @@
 // 
 #endregion
 
-namespace DbLinq
+namespace DbMetal
 {
     public static class Reference
     {

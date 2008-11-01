@@ -24,32 +24,22 @@
 // 
 #endregion
 
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 using DbLinq.Language.Implementation;
 
-namespace DbLinq.Language
+namespace DbMetal.Language
 {
-    public class FrenchWords : AbstractEndPluralWords
+    public class EnglishWords : AbstractEndPluralWords
     {
         public override void Load()
         {
             if (WordsWeights == null)
-                Load("FrenchWords.txt");
+                Load("EnglishWords.txt");
         }
 
         public override bool Supports(CultureInfo cultureInfo)
         {
-            return cultureInfo.ThreeLetterISOLanguageName == "fra"
-                || cultureInfo.ThreeLetterISOLanguageName == "fre";
-        }
-
-        protected override string GetStandard(string word)
-        {
-            return word.Replace("œ", "oe").Replace("æ", "ae");
+            return cultureInfo.ThreeLetterISOLanguageName == "eng";
         }
 
         protected override SingularPlural[] SingularsPlurals
@@ -60,14 +50,13 @@ namespace DbLinq.Language
         // important: keep this from most specific to less specific
         private SingularPlural[] singularsPlurals =
             {
-                new SingularPlural { Singular="al", Plural="aux" },
-                new SingularPlural { Singular="eu", Plural="eux" },
-                new SingularPlural { Singular="eau", Plural="eaux" },
-                new SingularPlural { Singular="au", Plural="aux" },
-                new SingularPlural { Singular="z", Plural="z" },
-                new SingularPlural { Singular="x", Plural="x" },
-                new SingularPlural { Singular="", Plural="s" }, // regular ending first
-                new SingularPlural { Singular="s", Plural="s" },
+                new SingularPlural { Singular="ss", Plural="sses" },
+                new SingularPlural { Singular="ch", Plural="ches" },
+                new SingularPlural { Singular="sh", Plural="shes" },
+                new SingularPlural { Singular="zz", Plural="zzes" },
+                new SingularPlural { Singular="x", Plural="xes" },
+                new SingularPlural { Singular="y", Plural="ies" },
+                new SingularPlural { Singular="", Plural="s" },
             };
     }
 }
