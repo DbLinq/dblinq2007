@@ -25,6 +25,7 @@
 #endregion
 
 using DbLinq.Language;
+using DbLinq.Schema.Implementation;
 using DbLinq.Util;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
@@ -176,22 +177,5 @@ namespace DbLinqTest
         {
             Assert.IsTrue(englishWords.GetNote(new[] { "hello" }) > englishWords.GetNote(new[] { "h", "e", "l", "l", "o" }));
         }
-
-        [TestMethod]
-        [Test]
-        public void GetWordsTest_MyTableName()
-        {
-            var actual = englishWords.GetWords("MY_TABLE_NAME_");
-            AssertAreEqual(actual, "MY", "TABLE", "NAME");
-        }
-
-        [TestMethod]
-        [Test]
-        public void GetWordsTest_MyTableName2()
-        {
-            var actual = englishWords.GetWords("_MY_TABLE__NAME");
-            AssertAreEqual(actual, "MY", "TABLE", "NAME");
-        }
-
     }
 }

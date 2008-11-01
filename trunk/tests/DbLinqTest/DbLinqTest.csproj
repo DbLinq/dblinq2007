@@ -63,6 +63,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NameFormatterTest.cs" />
     <Compile Include="CsvArrayAdapterTest.cs" />
     <Compile Include="FrenchWordsTest.cs" />
     <Compile Include="EnglishWordsTest.cs" />

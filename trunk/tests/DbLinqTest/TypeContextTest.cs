@@ -24,10 +24,13 @@
 // 
 #endregion
 
+using System.Globalization;
+using DbLinq.Schema;
+using DbLinq.Schema.Implementation;
 using DbLinq.Util;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NUnit.Framework;
-using Assert=NUnit.Framework.Assert;
+using Assert = NUnit.Framework.Assert;
 
 namespace DbLinqTest
 {
@@ -40,8 +43,8 @@ namespace DbLinqTest
     {
         public enum SomeEnum
         {
-            A=1,
-            B=2,
+            A = 1,
+            B = 2,
         }
 
         [TestMethod]
