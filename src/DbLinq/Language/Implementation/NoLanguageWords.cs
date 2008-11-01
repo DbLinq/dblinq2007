@@ -26,7 +26,6 @@
 
 using System.Collections.Generic;
 using System.Globalization;
-using DbLinq.Language;
 
 namespace DbLinq.Language.Implementation
 {

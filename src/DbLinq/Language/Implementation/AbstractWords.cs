@@ -138,24 +138,27 @@ namespace DbLinq.Language.Implementation
 
         public virtual IList<string> GetWords(string text)
         {
-            var context = new Context();
-            IList<string> words = new List<string>();
-            int lastIndex = 0;
-            for (int index = 0; index <= text.Length; index++)
-            {
-                if (index == text.Length || !char.IsLetterOrDigit(text[index]))
-                {
-                    var word = text.Substring(lastIndex, index - lastIndex);
-                    // if the word is empty, we skip it
-                    if (!string.IsNullOrEmpty(word))
-                        GetMagmaWords(word, words, context);
-                    lastIndex = index + 1;
-                }
-            }
+            //var context = new Context();
+            //IList<string> words = new List<string>();
+            //int lastIndex = 0;
+            //for (int index = 0; index <= text.Length; index++)
+            //{
+            //    if (index == text.Length || !char.IsLetterOrDigit(text[index]))
+            //    {
+            //        var word = text.Substring(lastIndex, index - lastIndex);
+            //        // if the word is empty, we skip it
+            //        if (!string.IsNullOrEmpty(word))
+            //            GetMagmaWords(word, words, context);
+            //        lastIndex = index + 1;
+            //    }
+            //}
+            //return words;
+            var words = new List<string>();
+            GetMagmaWords(text, words, new Context());
             return words;
         }
 
-        private void GetMagmaWords(string magma, IList<string> words, Context context)
+        private void GetMagmaWords(string magma, ICollection<string> words, Context context)
         {
             foreach (var word in GetMagmaWords(magma, context))
                 words.Add(word);
@@ -165,7 +168,8 @@ namespace DbLinq.Language.Implementation
         /// Extracts words from a "word magma" by splitting the string on every position and keep the best score.
         /// The method is recursive
         /// </summary>
-        /// <param name="magma"></param>
+        /// <param name="magma">The magma.</param>
+        /// <param name="context">The context.</param>
         /// <returns></returns>
         private IList<string> GetMagmaWords(string magma, Context context)
         {
