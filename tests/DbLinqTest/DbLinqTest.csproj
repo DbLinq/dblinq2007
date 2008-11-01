@@ -72,13 +72,13 @@
     <Compile Include="TypeContextTest.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\DbLinq.Localization\DbLinq.Localization.csproj">
-      <Project>{E636DAE5-1245-4ED1-A709-057935D20E24}</Project>
-      <Name>DbLinq.Localization</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\src\DbLinq\DbLinq.csproj">
       <Project>{7950197D-4122-49CB-9FD7-45E666BAFEC2}</Project>
       <Name>DbLinq</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\DbMetal\DbMetal.csproj">
+      <Project>{363FF43D-C870-4423-BE50-DAED7793A6D1}</Project>
+      <Name>DbMetal</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -23,28 +23,23 @@
 // THE SOFTWARE.
 // 
 #endregion
-using System;
-using System.Collections.Generic;
+
 using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 using DbLinq.Language.Implementation;
 
-namespace DbLinq.Language
+namespace DbMetal.Language
 {
-    public class EnglishWords : AbstractEndPluralWords
+    public class GermanWords : AbstractEndPluralWords
     {
         public override void Load()
         {
             if (WordsWeights == null)
-                Load("EnglishWords.txt");
+                Load("GermanWords.txt");
         }
 
         public override bool Supports(CultureInfo cultureInfo)
         {
-            return cultureInfo.ThreeLetterISOLanguageName == "eng";
+            return cultureInfo.ThreeLetterISOLanguageName == "deu";
         }
 
         protected override SingularPlural[] SingularsPlurals
@@ -53,15 +48,10 @@ namespace DbLinq.Language
         }
 
         // important: keep this from most specific to less specific
-        private SingularPlural[] singularsPlurals =
+        private static SingularPlural[] singularsPlurals =
             {
-                new SingularPlural { Singular="ss", Plural="sses" },
-                new SingularPlural { Singular="ch", Plural="ches" },
-                new SingularPlural { Singular="sh", Plural="shes" },
-                new SingularPlural { Singular="zz", Plural="zzes" },
-                new SingularPlural { Singular="x", Plural="xes" },
-                new SingularPlural { Singular="y", Plural="ies" },
-                new SingularPlural { Singular="", Plural="s" },
+                new SingularPlural { Singular="e", Plural="en" },
+                new SingularPlural { Singular="", Plural="e" },
             };
     }
 }

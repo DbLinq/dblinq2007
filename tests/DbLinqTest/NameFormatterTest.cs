@@ -29,6 +29,7 @@ using DbLinq;
 using DbLinq.Schema;
 using DbLinq.Schema.Implementation;
 using DbLinq.Util;
+using DbMetal;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NUnit.Framework;
 using Assert = NUnit.Framework.Assert;

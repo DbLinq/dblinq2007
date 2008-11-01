@@ -23,28 +23,29 @@
 // THE SOFTWARE.
 // 
 #endregion
-using System;
-using System.Collections.Generic;
+
 using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 using DbLinq.Language.Implementation;
 
-namespace DbLinq.Language
+namespace DbMetal.Language
 {
-    public class GermanWords : AbstractEndPluralWords
+    public class FrenchWords : AbstractEndPluralWords
     {
         public override void Load()
         {
             if (WordsWeights == null)
-                Load("GermanWords.txt");
+                Load("FrenchWords.txt");
         }
 
         public override bool Supports(CultureInfo cultureInfo)
         {
-            return cultureInfo.ThreeLetterISOLanguageName == "deu";
+            return cultureInfo.ThreeLetterISOLanguageName == "fra"
+                   || cultureInfo.ThreeLetterISOLanguageName == "fre";
+        }
+
+        protected override string GetStandard(string word)
+        {
+            return word.Replace("œ", "oe").Replace("æ", "ae");
         }
 
         protected override SingularPlural[] SingularsPlurals
@@ -53,10 +54,16 @@ namespace DbLinq.Language
         }
 
         // important: keep this from most specific to less specific
-        private static SingularPlural[] singularsPlurals =
+        private SingularPlural[] singularsPlurals =
             {
-                new SingularPlural { Singular="e", Plural="en" },
-                new SingularPlural { Singular="", Plural="e" },
+                new SingularPlural { Singular="al", Plural="aux" },
+                new SingularPlural { Singular="eu", Plural="eux" },
+                new SingularPlural { Singular="eau", Plural="eaux" },
+                new SingularPlural { Singular="au", Plural="aux" },
+                new SingularPlural { Singular="z", Plural="z" },
+                new SingularPlural { Singular="x", Plural="x" },
+                new SingularPlural { Singular="", Plural="s" }, // regular ending first
+                new SingularPlural { Singular="s", Plural="s" },
             };
     }
 }

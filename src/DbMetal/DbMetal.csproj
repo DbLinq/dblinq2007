@@ -87,11 +87,15 @@
     <Compile Include="Generator\ISchemaLoaderFactory.cs" />
     <Compile Include="Generator\SpecificationDefinition.cs" />
     <Compile Include="Generator\ParameterDefinition.cs" />
+    <Compile Include="Language\EnglishWords.cs" />
+    <Compile Include="Language\FrenchWords.cs" />
+    <Compile Include="Language\GermanWords.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Reference.cs" />
     <Compile Include="Schema\DbmlRename.cs" />
     <Compile Include="Schema\DbmlRenameLoader.cs" />
     <Compile Include="Schema\NameAliasesLoader.cs" />
@@ -119,10 +123,6 @@
     <ProjectReference Include="..\DbLinq.Ingres\DbLinq.Ingres.csproj">
       <Project>{90D57CD9-D704-409E-88A1-0F22AC79065A}</Project>
       <Name>DbLinq.Ingres</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\DbLinq.Localization\DbLinq.Localization.csproj">
-      <Project>{E636DAE5-1245-4ED1-A709-057935D20E24}</Project>
-      <Name>DbLinq.Localization</Name>
     </ProjectReference>
     <ProjectReference Include="..\DbLinq.MySql\DbLinq.MySql.csproj">
       <Project>{FA8D1068-3341-4956-BF94-54C6A816BD9E}</Project>
@@ -175,6 +175,15 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Language\EnglishWords.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Language\FrenchWords.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Language\GermanWords.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
