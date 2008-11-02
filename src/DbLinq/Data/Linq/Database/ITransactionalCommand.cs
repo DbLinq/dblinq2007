@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // MIT license
 //
@@ -24,35 +24,30 @@
 // 
 #endregion
 
-#if MONO_STRICT
-using System.Data.Linq.Identity;
-#else
-using DbLinq.Data.Linq.Identity;
-#endif
-using System.Collections.Generic;
+using System;
+using System.Data;
 
-#if MONO_STRICT
-namespace System.Data.Linq
-#else
-namespace DbLinq.Data.Linq
-#endif
+namespace DbLinq.Data.Linq.Database
 {
     /// <summary>
-    /// IEntityMap stores entities by key
+    /// Transaction-aware command
     /// </summary>
-    internal interface IEntityMap
+#if MONO_STRICT
+    internal
+#else
+    public
+#endif
+ interface ITransactionalCommand : IDisposable
     {
-        IEnumerable<IdentityKey> Keys { get; }
         /// <summary>
-        /// Accessor. Allows to get or set an entity, provided its key.
+        /// Gets the command.
         /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        object this[IdentityKey key] { get; set; }
+        /// <value>The command.</value>
+        IDbCommand Command { get; }
         /// <summary>
-        /// Removes an entity from cache, provided its key
+        /// Commits the current transaction.
+        /// throws NRE if _transaction is null. Behavior is intentional.
         /// </summary>
-        /// <param name="key"></param>
-        void Remove(IdentityKey key);
+        void Commit();
     }
 }
