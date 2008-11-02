@@ -23,16 +23,19 @@
 // THE SOFTWARE.
 // 
 #endregion
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using DbLinq.Factory;
 using DbLinq.Language;
-using DbLinq.Schema;
 
 namespace DbLinq.Schema.Implementation
 {
+    /// <summary>
+    /// INameFormatter default implementation
+    /// </summary>
     internal class NameFormatter : INameFormatter
     {
         /// <summary>

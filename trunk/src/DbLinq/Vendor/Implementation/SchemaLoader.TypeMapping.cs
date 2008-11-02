@@ -23,11 +23,11 @@
 // THE SOFTWARE.
 // 
 #endregion
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
-using System.Reflection.Emit;
 using System.Text.RegularExpressions;
 
 namespace DbLinq.Vendor.Implementation
@@ -46,11 +46,11 @@ namespace DbLinq.Vendor.Implementation
         /// Default IDataType implementation (see IDataType for details)
         /// </summary>
 #if MONO_STRICT
-    internal
+        internal
 #else
         public
 #endif
- class DataType : IDataType
+        class DataType : IDataType
         {
             public virtual string Type { get; set; }
             public virtual bool Nullable { get; set; }
@@ -416,6 +416,11 @@ namespace DbLinq.Vendor.Implementation
         protected static Regex DefaultEnumDefinitionEx = new Regex(@"\s*enum\s*\((?<values>.*)\s*\)\s*", RegexOptions.Compiled);
         protected static Regex EnumValuesEx = new Regex(@"\'(?<value>\w*)\'\s*,?\s*", RegexOptions.Compiled);
 
+        /// <summary>
+        /// Maps a type to enum type, if possible.
+        /// </summary>
+        /// <param name="dataType">Type of the data.</param>
+        /// <returns></returns>
         protected virtual EnumType MapEnumDbType(IDataType dataType)
         {
             var enumType = new EnumType();

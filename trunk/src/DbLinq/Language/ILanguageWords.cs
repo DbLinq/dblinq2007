@@ -28,6 +28,11 @@ using System.Globalization;
 
 namespace DbLinq.Language
 {
+    /// <summary>
+    /// Words manipulation for a specific language.
+    /// - Singularization/pluralization
+    /// - Words extraction
+    /// </summary>
     internal interface ILanguageWords
     {
         /// <summary>
