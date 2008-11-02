@@ -723,17 +723,19 @@ namespace DbLinq.Data.Linq
         }
 
         /// <summary>
-        /// TODO: DataLoadOptions ds = new DataLoadOptions(); ds.LoadWith<Customer>(p => p.Orders);
+        /// Gets or sets the load options
         /// </summary>
         [DbLinqToDo]
-        public DataLoadOptions LoadOptions
-        {
-            get;
-            set;
-        }
+        public DataLoadOptions LoadOptions { get; set; }
 
         public DbTransaction Transaction { get; set; }
 
+        /// <summary>
+        /// Runs the given reader and returns columns.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="reader">The reader.</param>
+        /// <returns></returns>
         public IEnumerable<TResult> Translate<TResult>(DbDataReader reader)
         {
             foreach (TResult result in Translate(typeof(TResult), reader))
@@ -853,7 +855,7 @@ namespace DbLinq.Data.Linq
         [DbLinqToDo]
         public DbCommand GetCommand(IQueryable query)
         {
-            QueryProvider qp = query.Provider as QueryProvider;
+            var qp = query.Provider as QueryProvider;
             if (qp == null)
                 throw new InvalidOperationException();
 
@@ -865,7 +867,7 @@ namespace DbLinq.Data.Linq
         }
 
         [DbLinqToDo]
-        public void Refresh(System.Data.Linq.RefreshMode mode, System.Collections.IEnumerable entities)
+        public void Refresh(RefreshMode mode, IEnumerable entities)
         {
             throw new NotImplementedException();
         }

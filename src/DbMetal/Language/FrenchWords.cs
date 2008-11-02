@@ -29,20 +29,37 @@ using DbLinq.Language.Implementation;
 
 namespace DbMetal.Language
 {
+    /// <summary>
+    /// Words for french language
+    /// </summary>
     public class FrenchWords : AbstractEndPluralWords
     {
+        /// <summary>
+        /// Loads the words (operation may be slow, so it is excluded from ctor)
+        /// </summary>
         public override void Load()
         {
             if (WordsWeights == null)
                 Load("FrenchWords.txt");
         }
 
+        /// <summary>
+        /// Returns true if the required culture is supported
+        /// </summary>
+        /// <param name="cultureInfo"></param>
+        /// <returns></returns>
         public override bool Supports(CultureInfo cultureInfo)
         {
             return cultureInfo.ThreeLetterISOLanguageName == "fra"
                    || cultureInfo.ThreeLetterISOLanguageName == "fre";
         }
 
+        /// <summary>
+        /// Gets the standard form for word (removes mixed letters, for example).
+        /// The goal is to make it usable from dictionary.
+        /// </summary>
+        /// <param name="word">The word.</param>
+        /// <returns></returns>
         protected override string GetStandard(string word)
         {
             return word.Replace("œ", "oe").Replace("æ", "ae");
@@ -54,7 +71,7 @@ namespace DbMetal.Language
         }
 
         // important: keep this from most specific to less specific
-        private SingularPlural[] singularsPlurals =
+        private readonly SingularPlural[] singularsPlurals =
             {
                 new SingularPlural { Singular="al", Plural="aux" },
                 new SingularPlural { Singular="eu", Plural="eux" },

@@ -29,14 +29,25 @@ using DbLinq.Language.Implementation;
 
 namespace DbMetal.Language
 {
+    /// <summary>
+    /// Support for english words
+    /// </summary>
     public class EnglishWords : AbstractEndPluralWords
     {
+        /// <summary>
+        /// Loads the words (operation may be slow, so it is excluded from ctor)
+        /// </summary>
         public override void Load()
         {
             if (WordsWeights == null)
                 Load("EnglishWords.txt");
         }
 
+        /// <summary>
+        /// Returns true if the required culture is supported
+        /// </summary>
+        /// <param name="cultureInfo"></param>
+        /// <returns></returns>
         public override bool Supports(CultureInfo cultureInfo)
         {
             return cultureInfo.ThreeLetterISOLanguageName == "eng";
@@ -48,7 +59,7 @@ namespace DbMetal.Language
         }
 
         // important: keep this from most specific to less specific
-        private SingularPlural[] singularsPlurals =
+        private readonly SingularPlural[] singularsPlurals =
             {
                 new SingularPlural { Singular="ss", Plural="sses" },
                 new SingularPlural { Singular="ch", Plural="ches" },

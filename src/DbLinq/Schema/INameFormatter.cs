@@ -26,6 +26,9 @@
 
 namespace DbLinq.Schema
 {
+    /// <summary>
+    /// Allows to manipulate words
+    /// </summary>
 #if MONO_STRICT
     internal
 #else
