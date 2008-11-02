@@ -28,6 +28,10 @@ namespace DbLinq.Data.Linq
 {
     partial interface ITable
     {
+        /// <summary>
+        /// Cancels the delete on submit.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
         void CancelDeleteOnSubmit(object entity);
     }
 }

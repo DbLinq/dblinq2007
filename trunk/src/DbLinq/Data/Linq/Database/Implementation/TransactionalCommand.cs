@@ -23,6 +23,7 @@
 // THE SOFTWARE.
 // 
 #endregion
+
 using System;
 using System.Data;
 
@@ -35,20 +36,34 @@ using DbLinq.Data.Linq.Sql;
 
 namespace DbLinq.Data.Linq.Database.Implementation
 {
-    public class DbLinqCommand : IDbLinqCommand
+    /// <summary>
+    /// Transactional command
+    /// </summary>
+    public class TransactionalCommand : ITransactionalCommand
     {
-        private IDisposable _connection;
-        private IDatabaseTransaction _transaction;
-        private readonly IDbCommand cmd;
+        private readonly IDisposable _connection;
+        /// <summary>
+        /// Ambient transaction
+        /// </summary>
+        private readonly IDatabaseTransaction _transaction;
+
+        private readonly IDbCommand _command;
+        /// <summary>
+        /// Gets the command.
+        /// </summary>
+        /// <value>The command.</value>
         public IDbCommand Command
         {
             get
             {
-                return cmd;
+                return _command;
             }
         }
 
 
+        /// <summary>
+        /// Commits current transaction.
+        /// </summary>
         public virtual void Dispose()
         {
             Command.Dispose();
@@ -67,7 +82,7 @@ namespace DbLinq.Data.Linq.Database.Implementation
             _transaction.Commit();
         }
 
-        public DbLinqCommand(string commandText, bool createTransaction, DataContext dataContext)
+        public TransactionalCommand(string commandText, bool createTransaction, DataContext dataContext)
         {
             // TODO: check if all this stuff is necessary
             // the OpenConnection() checks that the connection is already open
@@ -76,7 +91,7 @@ namespace DbLinq.Data.Linq.Database.Implementation
             // the transaction is optional
             if (createTransaction)
                 _transaction = dataContext.DatabaseContext.Transaction();
-            cmd = dataContext.DatabaseContext.CreateCommand();
+            _command = dataContext.DatabaseContext.CreateCommand();
             Command.CommandText = commandText;
             if (createTransaction)
                 Command.Transaction = _transaction.Transaction;
