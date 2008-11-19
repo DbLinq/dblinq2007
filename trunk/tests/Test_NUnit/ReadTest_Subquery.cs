@@ -53,7 +53,7 @@ namespace Test_NUnit_MySql
         namespace Test_NUnit_Oracle
 #endif
 #elif POSTGRES
-    namespace Test_NUnit_PostgreSql
+namespace Test_NUnit_PostgreSql
 #elif SQLITE
 namespace Test_NUnit_Sqlite
 #elif INGRES
@@ -119,5 +119,21 @@ LEFT OUTER JOIN Orders AS o$ ON o$.[EmployeeID] = e$.[EmployeeID]
             var count = q.ToList().Count;
             Assert.IsTrue(count > 0);
         }
+
+        [Description("Subquery with nested query")]
+        [Test]
+        public void CQ5_SubqueryNestedQuery()
+        {
+            var db = CreateDB();
+            var q = from d in db.Orders
+                    where (from r in db.OrderDetails
+                           where r.ProductID == 1
+                           select
+                               r.OrderID).Contains(d.OrderID)
+                    select d;
+            var count = q.ToList().Count;
+            Assert.AreEqual(count,1 );
+        }
+
     }
 }
