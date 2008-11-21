@@ -99,5 +99,11 @@ namespace DbLinq.Ingres
         {
             return dbName == dbName.ToLower();
         }
+
+        protected override SqlStatement GetLiteralStringConcat(SqlStatement a, SqlStatement b)
+        {
+            // This needs to be bracketed in case subsequent functions are called upon it
+            return SqlStatement.Format("({0} || {1})", a, b);
+        }
     }
 }
