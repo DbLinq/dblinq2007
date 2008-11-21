@@ -65,7 +65,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             }
         }
 
-        private readonly IDictionary<ExpressionChain, SelectQuery> selectQueries = new Dictionary<ExpressionChain, SelectQuery>(new ExpressionChainEqualityComparer());
+        private readonly IDictionary<ExpressionChain, SelectQuery> selectQueries = new Dictionary<ExpressionChain, SelectQuery>((IEqualityComparer<ExpressionChain>) new ExpressionChainEqualityComparer());
         private readonly IDictionary<TableReaderSignature, Delegate> tableReaders = new Dictionary<TableReaderSignature, Delegate>();
 
         public SelectQuery GetFromSelectCache(ExpressionChain expressions)
