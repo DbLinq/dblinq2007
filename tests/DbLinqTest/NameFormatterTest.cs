@@ -94,7 +94,7 @@ namespace DbLinqTest
         public void GetWordsTest_MyTableName()
         {
             var nf = new NameFormatter();
-            var tn = nf.GetTableName("MY_TABLE_NAME_", WordsExtraction.FromDictionary, InvariantNameFormat);
+            var tn = nf.GetTableName("MY_TABLE_NAME_", WordsExtraction.FromDictionary, EnglishNameFormat);
             Assert.AreEqual("MyTableName", tn.ClassName);
         }
 
@@ -103,7 +103,7 @@ namespace DbLinqTest
         public void GetWordsTest_MyTableName2()
         {
             var nf = new NameFormatter();
-            var tn = nf.GetTableName("_MY_TABLE__NAME", WordsExtraction.FromDictionary, InvariantNameFormat);
+            var tn = nf.GetTableName("_MY_TABLE__NAME", WordsExtraction.FromDictionary, EnglishNameFormat);
             Assert.AreEqual("MyTableName", tn.ClassName);
         }
 
