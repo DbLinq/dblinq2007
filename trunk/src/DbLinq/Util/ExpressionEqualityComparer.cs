@@ -38,7 +38,7 @@ namespace DbLinq.Util
     /// <summary>
     /// IEqualityComparer implementation for Expression
     /// </summary>
-    public class ExpressionEqualityComparer : IEqualityComparer<Expression>
+    internal class ExpressionEqualityComparer : IEqualityComparer<Expression>
     {
         /// <summary>
         /// Determines whether the specified objects are equal.

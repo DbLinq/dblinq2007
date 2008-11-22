@@ -8,8 +8,6 @@ using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace DbLinqTest
 {
-
-
     /// <summary>
     ///This is a test class for ExpressionEqualityComparerTest and is intended
     ///to contain all ExpressionEqualityComparerTest Unit Tests
