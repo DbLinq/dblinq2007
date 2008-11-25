@@ -46,16 +46,16 @@ namespace DbLinq.Data.Linq
         private readonly Action<TEntity> onRemove;
 
         private IEnumerable<TEntity> Source;
+        private List<TEntity> SourceInUse;
         private List<TEntity> sourceAsList
         {
             get
             {
-                if (!(Source is List<TEntity>))
+                if (SourceInUse == null)
                 {
-                    Source = Source.ToList();
-                    HasLoadedOrAssignedValues = true;
+                    SourceInUse = Source.ToList();
                 }
-                return Source as List<TEntity>;
+                return SourceInUse;
             }
         }
 
@@ -398,7 +398,7 @@ namespace DbLinq.Data.Linq
             foreach (var entity in entitySource)
                 OnAdd(entity);
             this.Source = entitySource;
-            HasLoadedOrAssignedValues = true;
+            this.SourceInUse = sourceAsList;
         }
 
         /// <summary>
@@ -407,6 +407,8 @@ namespace DbLinq.Data.Linq
         /// <param name="entitySource">The entity source.</param>
         public void SetSource(IEnumerable<TEntity> entitySource)
         {
+            if(HasLoadedOrAssignedValues)
+                throw new InvalidOperationException("The EntitySet is already loaded and the source cannot be changed.");
             this.Source = entitySource;
         }
 
@@ -426,8 +428,7 @@ namespace DbLinq.Data.Linq
         /// </value>
         public bool HasLoadedOrAssignedValues
         {
-            get;
-            private set;
+            get { return SourceInUse != null; }
         }
 
         /// <summary>

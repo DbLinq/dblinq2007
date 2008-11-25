@@ -105,7 +105,33 @@ namespace Test_NUnit_MsSql
             var db = CreateDB();
             var customer = db.Customers.First();
 
-            Assert.Greater(customer.Orders.Count, 0);
+            Assert.Greater(customer.Orders.Count, 0, "#1");
+            Assert.IsTrue(customer.Orders.HasLoadedOrAssignedValues, "#2");
+            customer.Orders.SetSource(System.Linq.Enumerable.Empty<Order>());
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void InvalidSourceChange2()
+        {
+            var db = CreateDB();
+            var customer = db.Customers.First();
+            Assert.IsFalse(customer.Orders.HasLoadedOrAssignedValues, "#1");
+            customer.Orders.Assign(new List<Order>());
+            Assert.IsTrue(customer.Orders.HasLoadedOrAssignedValues, "#2");
+            customer.Orders.SetSource(System.Linq.Enumerable.Empty<Order>());
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void InvalidSourceChange3()
+        {
+            var db = CreateDB();
+            var customer = db.Customers.First();
+            customer.Orders.SetSource(new List<Order>());
+            Assert.IsFalse(customer.Orders.HasLoadedOrAssignedValues, "#1");
+            customer.Orders.Load();
+            Assert.IsTrue(customer.Orders.HasLoadedOrAssignedValues, "#2");
             customer.Orders.SetSource(System.Linq.Enumerable.Empty<Order>());
         }
 
