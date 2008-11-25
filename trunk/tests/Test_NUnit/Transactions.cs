@@ -137,14 +137,8 @@ namespace Test_NUnit_MsSql
             afterCustomercount = db.Customers.Count();
             Assert.IsTrue(beforeCustomersCount == afterCustomercount);
 
-            try
-            {
-                var customer = db.Customers.FirstOrDefault(c => c.CustomerID == id);
-
-                if (customer != null)
-                    Assert.Fail();
-            }
-            catch (ArgumentException) { }
+            var customer = db.Customers.FirstOrDefault(c => c.CustomerID == id);
+            Assert.IsNull(customer);
         }
     }
 }
