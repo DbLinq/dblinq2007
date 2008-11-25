@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -270,9 +271,28 @@ namespace Test_NUnit_MsSql
         {
             var db = CreateDB();
             var customer = db.Customers.First();
+            Assert.AreEqual("jacques", customer.ContactName, "#1");
             int beforeCount = customer.Orders.Count;
-            customer.Orders.Add(new Order());
-            Assert.AreEqual(customer.Orders.Count, beforeCount + 1);
+            Assert.AreEqual(1, beforeCount, "#2");
+            var order = new Order();
+            customer.Orders.Add(order);
+            Assert.AreEqual(beforeCount + 1, customer.Orders.Count, "#3");
+            customer.Orders.Add(order); // do not actually add
+            Assert.AreEqual(beforeCount + 1, customer.Orders.Count, "#4");
+        }
+
+        [Test]
+        [ExpectedException (typeof (ArgumentOutOfRangeException))]
+        public void IList_Add()
+        {
+            var db = CreateDB();
+            var customer = db.Customers.First();
+            Assert.AreEqual("jacques", customer.ContactName, "#1");
+            int beforeCount = customer.Orders.Count;
+            Assert.AreEqual(1, beforeCount, "#2");
+            var order = new Order();
+            ((IList)customer.Orders).Add(order);
+            ((IList)customer.Orders).Add(order); // raises ArgumentOutOfRangeException for duplicate
         }
 
         [Test]
@@ -294,8 +314,11 @@ namespace Test_NUnit_MsSql
             var db = CreateDB();
             var customer = db.Customers.First();
             int beforeCount = customer.Orders.Count;
-            customer.Orders.AddRange(new Order[] { new Order(), new Order() });
-            Assert.AreEqual(customer.Orders.Count, beforeCount + 2);
+            var order = new Order();
+            customer.Orders.AddRange(new Order[] { order, new Order() });
+            Assert.AreEqual(beforeCount + 2, customer.Orders.Count);
+            customer.Orders.AddRange(new Order[] { new Order(), order }); // one is existing -> not added
+            Assert.AreEqual(beforeCount + 3, customer.Orders.Count);
         }
 
         [Test]

@@ -121,8 +121,10 @@ namespace DbLinq.Data.Linq
         /// </summary>
         public void Add(TEntity entity)
         {
-            OnAdd(entity);
+            if (Contains (entity))
+                return;
             sourceAsList.Add(entity);
+            OnAdd(entity);
         }
 
         [DbLinqToDo]
@@ -155,6 +157,8 @@ namespace DbLinq.Data.Linq
         /// <param name="entity">The entity.</param>
         public void Insert(int index, TEntity entity)
         {
+            if (Contains(entity))
+                throw new ArgumentOutOfRangeException();
             OnAdd(entity);
             sourceAsList.Insert(index, entity);
         }
@@ -196,10 +200,8 @@ namespace DbLinq.Data.Linq
         /// </summary>
         public void Clear()
         {
-            foreach (var entity in sourceAsList)
-            {
-                OnRemove(entity);
-            }
+            while (sourceAsList.Count > 0)
+                OnRemove(sourceAsList [0]);
             Source = Enumerable.Empty<TEntity>();
         }
 
@@ -266,8 +268,11 @@ namespace DbLinq.Data.Linq
         {
             if (value is TEntity)
             {
-                this.Add(value as TEntity);
-                return this.IndexOf(value as TEntity);
+                var v = value as TEntity;
+                if (this.IndexOf(v) >= 0)
+                    throw new ArgumentOutOfRangeException();
+                this.Add(v);
+                return this.Count - 1;
             }
             else
                 throw new NotSupportedException();
@@ -377,10 +382,9 @@ namespace DbLinq.Data.Linq
             {
                 foreach (var entity in collection)
                 {
-                    OnAdd(entity);
+                    Add(entity);
                 }
             }
-            sourceAsList.AddRange(collection);
         }
 
         /// <summary>
