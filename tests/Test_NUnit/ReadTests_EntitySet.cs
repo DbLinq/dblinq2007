@@ -288,8 +288,8 @@ namespace Test_NUnit_MsSql
             db.LoadOptions = loadoptions;
 
             var customer = db.Customers.First();
-            Assert.IsFalse(customer.Orders.IsDeferred);
-            Assert.IsTrue(customer.Orders.HasLoadedOrAssignedValues);
+            Assert.IsFalse(customer.Orders.IsDeferred, "#1");
+            Assert.IsTrue(customer.Orders.HasLoadedOrAssignedValues, "#2");
         }
 
         [Test]
