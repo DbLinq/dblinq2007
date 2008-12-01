@@ -726,16 +726,32 @@ dummy text
         [Test]
         public void G20_CustomerCacheHitComparingToLocalVariable()
         {
-            Northwind db = CreateDB();
-            Customer c1 = new Customer() { CustomerID = "temp", CompanyName = "Test", ContactName = "Test" };
-            db.Customers.InsertOnSubmit(c1);
-            db.SubmitChanges();
-            db.ExecuteCommand("delete from customers WHERE CustomerID='temp'");
+             Northwind db = CreateDB();
+             try
+             {
+                Customer c1 = new Customer() { CustomerID = "temp", CompanyName = "Test", ContactName = "Test" };
+                db.Customers.InsertOnSubmit(c1);
+                db.SubmitChanges();
 
-            string id = "temp";
-            var res = (from c in db.Customers
-                       where c.CustomerID == id
-                       select c).Single();
+                string id = "temp";
+                var res = from c in db.Customers
+                          where c.CustomerID == id
+                          select c;
+
+                Assert.AreEqual(1, res.Count(), "#1");
+
+                db.ExecuteCommand("delete from customers WHERE CustomerID='temp'");
+
+                res = from c in db.Customers
+                      where c.CustomerID == id
+                      select c;
+                Assert.AreEqual(0, res.Count(), "#2");
+            }
+            finally
+            {
+                db.ExecuteCommand("delete from customers WHERE CustomerID='temp'");
+
+            }
         }
 
         #endregion
