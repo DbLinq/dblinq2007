@@ -36,7 +36,7 @@ using Test_NUnit;
 #if !MONO_STRICT
 using nwind;
 using DbLinq.Data.Linq;
-using DataLinq=DbLinq.Data.Linq;
+using DataLinq = DbLinq.Data.Linq;
 using System.Data.Linq;
 #else
 using MsNorthwind;
@@ -45,7 +45,7 @@ using DataLinq = System.Data.Linq;
 #endif
 
 #if MYSQL
-    namespace Test_NUnit_MySql
+namespace Test_NUnit_MySql
 #elif ORACLE
 #if ODP
         namespace Test_NUnit_OracleODP
@@ -67,7 +67,7 @@ namespace Test_NUnit_MsSql_Strict
 #elif FIREBIRD
     namespace Test_NUnit_Firebird
 #else
-    #error unknown target
+#error unknown target
 #endif
 {
     [TestFixture]
@@ -210,12 +210,12 @@ namespace Test_NUnit_MsSql_Strict
 #else
                 DbLinq.Data.Linq
 #endif
-                .EntityRef<Customer> _x_Customer;
+.EntityRef<Customer> _x_Customer;
 
                 [System.Data.Linq.Mapping.Association(Storage = "_x_Customer",
                     ThisKey = "ShipCity", Name =
 #if MYSQL
-"orders_ibfk_1"
+ "orders_ibfk_1"
 #elif ORACLE
  "SYS_C004742"
 #elif POSTGRES
@@ -306,6 +306,21 @@ namespace Test_NUnit_MsSql_Strict
                                 select new { o, em };
 
             var l = custOderInfos.ToList();
+        }
+
+        [Test]
+        // submitted by bryan costanich
+        public void ImplicitLeftOuterJoin()
+        {
+            var db = CreateDB();
+
+            var dbItems =
+                    (from a in db.Products
+                     from b in db.Suppliers
+                     where a.SupplierID == b.SupplierID
+                     select a);
+
+            var list = dbItems.ToList();
         }
     }
 
