@@ -202,7 +202,6 @@ namespace Test_NUnit_MsSql
         {
             var db = CreateDB();
 
-
             var dc = new 
 #if MONO_STRICT
             System.Data.Linq.DataContext(db.Connection);

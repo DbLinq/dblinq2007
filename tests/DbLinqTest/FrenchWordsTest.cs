@@ -24,8 +24,6 @@
 // 
 #endregion
 
-using DbLinq.Language;
-using DbLinq.Util;
 using DbMetal.Language;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
