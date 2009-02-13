@@ -214,8 +214,6 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
                 var columnMember = column.Member ?? column.Name;
 
                 var field = new CodeMemberField(type, "_" + columnMember);
-                if (column.IsDbGenerated)
-                    field.CustomAttributes.Add(new CodeAttributeDeclaration("AutoGenId"));
                 _class.Members.Add(field);
                 var fieldReference = new CodeFieldReferenceExpression(new CodeThisReferenceExpression(), field.Name);
 
@@ -237,7 +235,8 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
                         new CodeAttributeArgument("Storage", new CodePrimitiveExpression(column.Storage)),
                         new CodeAttributeArgument("Name", new CodePrimitiveExpression(column.Name)),
                         new CodeAttributeArgument("DbType", new CodePrimitiveExpression(column.DbType)),
-                        new CodeAttributeArgument("CanBeNull", new CodePrimitiveExpression(column.CanBeNull))
+                        new CodeAttributeArgument("CanBeNull", new CodePrimitiveExpression(column.CanBeNull)),
+                        new CodeAttributeArgument("IsPrimaryKey", new CodePrimitiveExpression(column.IsPrimaryKey))
                         )
                     );
                 property.CustomAttributes.Add(new CodeAttributeDeclaration("DebuggerNonUserCode"));
