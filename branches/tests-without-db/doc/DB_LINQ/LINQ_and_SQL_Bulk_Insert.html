@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>DB LINQ and SQL Bulk Insert</title>
+    <link rel="stylesheet" type="text/css" href="../lib/style2.css"/>
+    <style type="text/css">
+        .style2
+        {
+            color: #009900;
+        }
+    </style>
+</head>
+<body>
+<a href="../Default.aspx">&gt;Code2Code.net Home</a>  &nbsp;
+<a href="index.html">&gt;DB Linq Project Home</a>  &nbsp;
+<br />
+<h2>Bulk insert support in the official Microsoft Linq-to-SQL</h2>
+    In the Microsoft implementation (official Linq-to-SQL), bulk insert is not supported
+    (at least not as of 2007).
+<h2>Bulk insert in DB LINQ provider for MS SQL server</h2>
+DB LINQ provider for MS SQL Server supports bulk insert.<br />
+    This example from Northwind DB shows how to enable it on a per-table level via the
+    'UseBulkInsert' line:<br />
+
+
+<p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'><span
+lang=EN-GB style='font-size:10.0pt;font-family:"Courier New";mso-ansi-language:
+EN-GB'><span style='mso-spacerun:yes'>    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span><span style='color:#2B91AF'>Vendor</span>.UseBulkInsert[db.Shippers]
+= <span style='color:blue'>true</span>;<br />
+</span><span
+lang=EN-GB style='font-size:10.0pt;font-family:"Courier New";mso-ansi-language:
+EN-GB'><span style='mso-spacerun:yes'>    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span>db.Shippers.Add(<span
+style='color:blue'>new</span> <span style='color:#2B91AF'>Shippers</span>(-1, <span
+style='color:#A31515'>&quot;UPS&quot;</span>, <span style='color:#A31515'>&quot;800-800-8888&quot;</span>));<br />
+</span><span
+lang=EN-GB style='font-size:10.0pt;font-family:"Courier New";mso-ansi-language:
+EN-GB'><span style='mso-spacerun:yes'>    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span>db.Shippers.Add(<span
+style='color:blue'>new</span> <span style='color:#2B91AF'>Shippers</span>(-1, <span
+style='color:#A31515'>&quot;Fedex&quot;</span>, <span style='color:#A31515'>&quot;900-900-9999&quot;</span>));<br />
+</span><span
+lang=EN-GB style='font-size:10.0pt;font-family:"Courier New";mso-ansi-language:
+EN-GB'><span style='mso-spacerun:yes'>    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span>db.SubmitChanges();<o:p></o:p></span></p>
+    <p class="MsoNormal"
+    style="mso-layout-grid-align: none;text-autospace: none">
+        Limitations:</p>
+    <ul>
+        <li>
+            <p class="MsoNormal" style="mso-layout-grid-align: none;text-autospace: none">
+          ShipperID field (the IDENTITY column) is never updated on the client, because
+                the communication is one-way</p>
+        </li>
+        <li>
+            <p class="MsoNormal" style="mso-layout-grid-align: none;text-autospace: none">
+                Additional permissions are required for bulk insert (vs. regular insert)</p>
+        </li>
+        <li>
+            <p class="MsoNormal" style="mso-layout-grid-align: none;text-autospace: none">
+          SqlBulkCopyOptions.TableLock flag is always on</p>
+        </li>
+        <li>
+            <p class="MsoNormal" style="mso-layout-grid-align: none;text-autospace: none">
+                internally, we create a DataTable (containing all rows) to send - this costs extra memory.
+                See Azamsharp, below, for alternative.</p>
+        </li>
+    </ul>
+    Internally, we use the SqlBulkCopy class. I use Mladen's example on <a href="http://weblogs.sqlteam.com/mladenp/archive/2006/08/26/11368.aspx">
+        weblogs.sqlteam.comqlteam.com</a>, which internally creates a DataTable with another copy
+    of our data. This has memory implications. Another option would be to follow Azamsharp's
+    example on <a href="http://www.codeproject.com/cs/database/TransferUsingSQLBulkCopy.asp">
+        codeproject</a>. By default, SqlBulkCopyOptions.TableLock is turned <strong>ON</strong>.<br />
+<h2>Bulk insert DB LINQ Mysql provider</h2>
+In MySql, bulk insert seems to be called multiple-row insert.<br />
+    Raw sql looks like this:<br />
+    <br />
+    <p class="MsoNormal" style="margin: 0cm 0cm 0pt; mso-layout-grid-align: none">
+        <span style="font-size: 10pt; font-family: 'Courier New'; mso-no-proof: yes"><span
+            style="mso-tab-count: 1">&nbsp; &nbsp; &nbsp; </span><span style="color: blue">INSERT
+                INTO </span>Shippers (ShipperName,PhoneNumber) <span style="color: blue">VALUES
+                    <?xml namespace="" ns="urn:schemas-microsoft-com:office:office" prefix="o" ?>
+                    <o:p></o:p>
+                </span></span>
+    </p>
+    <p class="MsoNormal" style="margin: 0cm 0cm 0pt; mso-layout-grid-align: none">
+        <span style="font-size: 10pt; font-family: 'Courier New'; mso-no-proof: yes"><span
+            style="mso-tab-count: 1">&nbsp; &nbsp; &nbsp; </span>(<span style="color: maroon">'UPS'</span>,
+            <span style="color: maroon">'800-800-8888'</span>),<o:p></o:p></span></p>
+    <p class="MsoNormal" style="margin: 0cm 0cm 0pt; mso-layout-grid-align: none">
+        <span style="font-size: 10pt; font-family: 'Courier New'; mso-no-proof: yes"><span
+            style="mso-tab-count: 1">&nbsp; &nbsp; &nbsp; </span>(<span style="color: maroon">'Fedex'</span>,
+            <span style="color: maroon">'900-900-9999'</span>),<o:p></o:p></span></p>
+    <p class="MsoNormal" style="margin: 0cm 0cm 0pt; mso-layout-grid-align: none">
+        <span style="font-size: 10pt; font-family: 'Courier New'; mso-no-proof: yes"><span
+            style="mso-tab-count: 1">&nbsp; &nbsp; &nbsp; </span>...<o:p></o:p></span></p>
+    <br />
+    The one problem, when using this technique, is to choose the row multiple 'just
+    right' to prevent the 'statement was bigger than the Max Allowed Packet size' -
+    see <a href="http://www.petefreitag.com/item/379.cfm">Peter Freitag's</a> post.<br />
+    Here is a code snippet:<p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'><span
+lang=EN-GB style='font-size:10.0pt;font-family:"Courier New";mso-ansi-language:
+EN-GB'><span style='mso-spacerun:yes'>    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span><span style='color:#2B91AF'>Vendor</span>.UseBulkInsert[db.Shippers]
+= <span style='color:blue'>3</span>; <span class="style2">//specify bulk insert, three
+        rows at a time</span><br />
+        <span style='mso-spacerun:yes'>    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span>db.Shippers.Add(<span
+style='color:blue'>new</span> <span style='color:#2B91AF'>Shippers</span>(-1, <span
+style='color:#A31515'>&quot;UPS&quot;</span>, <span style='color:#A31515'>&quot;800-800-8888&quot;</span>));<br />
+        <span style='mso-spacerun:yes'>    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span>db.Shippers.Add(<span
+style='color:blue'>new</span> <span style='color:#2B91AF'>Shippers</span>(-1, <span
+style='color:#A31515'>&quot;Fedex&quot;</span>, <span style='color:#A31515'>&quot;900-900-9999&quot;</span>));<br />
+        <span style='mso-spacerun:yes'>    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span>db.SubmitChanges();<o:p></o:p></span></p>
+    <p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'>Please
+        have a look at unit test WriteTest_BulkInsert.</p>
+    <h2>Bulk Copy DB LINQ PostgreSQL provider</h2>
+
+<p>The PostgreSQL command is called <a href="http://www.postgresql.org/docs/8.1/interactive/sql-copy.html">COPY</a>. This is currently not exposed from DB LINQ.<br />
+    Please can someone research if this can be used with anything else besides local
+    files?</p>
+
+Andrus points out:<BR/>
+npgsql2 beta 1 is released.<BR/>
+
+beta 1 release notes contain note for bulk copy support:<BR/>
+
+New NpgsqlCopyIn and NpgsqlCopyOut classes support fast bulk data transfer
+with COPY FROM STDIN and COPY TO STDOUT commands as explained at<BR/>
+http://www.postgresql.org/docs/8.2/interactive/sql-copy.html
+
+
+<h2>Array Binding DB LINQ Oracle provider</h2>
+    In the world of Oracle, there is a very powerful option of inserting arrays of objects.<br />
+    Unfortunaltely, the DB LINQ Oracle provider is on hold as of 2007-Oct, because my Oracle box has died. Thus, no Array Bindings yet.<br />
+
+</body>
+</html>

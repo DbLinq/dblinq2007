@@ -1,0 +1,164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head id="Head1" runat="server">
+    <title>Linq Provider for MySql, Postgres, Oracle</title>
+    <link rel="stylesheet" type="text/css" href="../lib/style2.css"/>
+</head>
+<body>
+    <form id="form1" runat="server">
+<a href="../Default.aspx">&gt;Code2Code.net Home</a>  &nbsp; 
+<a href="../Contact.html">&gt;Contacts</a> &nbsp; <a href="../doc/Credits.html">&gt;Credits</a> &nbsp; 
+
+<a href="../doc/Links.html">&gt;Links</a> &nbsp; <a href="../doc/Other_Translators.html">&gt;Other Translation Engines</a>
+
+        <h1>
+            DbLinq Project: Linq Provider for <a href="Linq_To_Mysql.html">MySql</a>, <a href="Linq_To_SQLite.html">SQLite</a>,
+            <a href="Linq_To_Oracle.html">Oracle</a> and <a href="Linq_To_Postgres.html">PostgreSQL</a></h1>
+
+    <div>
+        <h3> What is LINQ?</h3>
+        <p>
+            LINQ stands for Language-Integrated Query,
+        which allows .NET programs (e.g. C# or
+            VB.NET) to connect to databases. </p>
+        <p>
+            It is an O/R (Object-Relational) mapping tool, with some similarities to <a href="http://www.hibernate.org/">
+                Hibernate</a> or LlblGen. &nbsp;LINQ is type-safe, queries get compiled into MSIL on
+            the fly, and your C# WHERE clauses are translated into SQL and sent to SQL server for execution. In short, it makes design of data access layers safer and faster. In C# 3.0, linq code looks
+            like this:</p>
+
+        <p>
+            <code><span style="color: #3300ff">&nbsp;var</span> q = <span style="color: #0000ff">
+                from</span> p <span style="color: #0000ff">in</span> db.Products 
+                &nbsp;&nbsp; &nbsp;
+                &nbsp;&nbsp; &nbsp; &nbsp;&nbsp;<br />
+
+                <span style="color: #0000ff">    &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; where</span> p.ProductName == <span style="color: #663300">"Pen"</span> &nbsp;<br />
+                    <span style="color: #0000ff">&nbsp; &nbsp; &nbsp; &nbsp;&nbsp; select</span>
+
+                p.ProductID;
+                &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;</code></p>
+        <h3>
+            Status Update - 2007 Nov:</h3>
+        1. Miguel de Icaza is considering adding this project to <a href="http://www.mono-project.com/Main_Page">
+            Mono</a> - which required re-licensing under MIT license.<br />
+
+        2. Suspended Oracle support, because my Oracle box died. The Oracle provider compiles,
+        but status is unknown.<br />
+        3. Added support for client-side enums.<br />
+        4. Partial support for <a href="DB_LINQ_Stored_Procedures.html">stored procedures and stored functions</a> in MySql and PostgreSQL<br />
+        5. <a href="LINQ_and_SQL_Bulk_Insert.html">BULK Insert support</a> (using SqlBulkCopy)
+        in MS provider, and multi-row insert in Mysql provider.<br />
+        6. Bug fixes in 'IS NULL/ IS NOT NULL' clauses<br />
+        7. Starting to add test cases from '<a href="http://msdn2.microsoft.com/en-us/vbasic/bb688088.aspx">101
+            Linq Samples</a>' - please help (there is a C# version available also, but license
+        says 'All Rights Reserved' - not sure if I can place it in this project). Failure
+        rate: 18 out of 67.<br />
+        8. Preparing a 2007-Nov source code release<br />
+
+        <br />
+        <h3>
+            Status Update - 2007 Sep:</h3>
+        1. New package supports Visual Studio 2008 (Orcas) Beta2. Download ver 0.11 <a href="http://code.google.com/p/dblinq2007/downloads/list">
+            here</a>. My <a href="/wordpress/">blog</a> entry discusses the main changes.<br />
+
+        2. Thanks to Bryan Livingston for the original package, ver 0.10.<br />
+        3. Added support for <a href="Linq_To_Postgres.html">PostgresSQL</a> and Microsoft<br />
+        4. Added support for GROUP BY, HAVING clauses.<br />
+        <br />
+        <h3>
+            How good is DB_Linq compared to Microsoft's LINQ-to-SQL?</h3>
+
+        DB_Linq is prototype software. Simple queries should work, complex ones probably
+        not. Microsoft LINQ-to-SQL is approaching production quality. Microsoft only supports MS Sql Server and Acces, but has nice GUI integration, has
+        Linq-to-entities, and can call stored procedures.
+        <br />
+        <br />
+        The only two things that DB_Linq does better: DB_Linq supports MySql
+        and Postgres, and won't fall over when you try to insert tens of thousands of rows.<br />
+        <br />
+        <h3>
+            Getting Started:</h3>
+        1. Download source code package, compile in Visual Studio.<br />
+
+        2. edit and run script 'run_myMetal.bat' (or run_oraMetal or run_pgMetal) to generate
+        a C# file representing your database<br />
+        3. include DbLinq.Mysql.dll and the new file in your project (or DbLinq.Postgres.dll
+        etc)<br />
+        <br />
+        <h3>
+            Links:</h3>
+        - Microsoft Visual Studio 2008 (Orcas) Beta2&nbsp; (<a href="http://msdn.microsoft.com/vstudio/express/">free
+            download</a>)<br />
+
+        - Download source code package (ver 0.11) from <a href="http://code.google.com/p/dblinq2007/downloads/list">
+            code.google.com</a><br />
+        - if you want to contribute, use<div style="float:right"><a href="tsvn:http://code.google.com/p/dblinq2007/source"><img width="48" height="48" src="../img/TortoiseCheckout.png" /></a></div>
+        <a href="http://subversion.tigris.org">Subversion</a> (or <a href="http://tortoisesvn.tigris.org">
+            TortoiseSVN</a>) to download source code from version control (Tortoise users
+        can just click turtle picture on the right)<br />
+
+        - MySql 5.0 and <a href="http://dev.mysql.com/downloads/gui-tools/5.0.html">MySql query browser</a> - to run the DB create script<br />
+        - Alternately, download pgsql packages.&nbsp;
+        <h3>
+            Licence:</h3>
+        <p>
+            MIT license (formerly LGPL, changed to be compatible with Mono project)</p>
+
+        <h3>
+            Contact / Questions / Bugs / Comments:</h3><p>
+                Author: Jiri George Moudry, gmoudry@yahoo.com.<br />
+        When you make your first edits to the code, how do you submit changes to the googlecode
+        repository? I have no idea what project admin tools are available there. If there
+        are any problems joining the project at googlecode, please email me.
+        Optionally, you could also leave a reply on my <a href="http://code2code.net/wordpress/">
+            blog</a>. Thanks.<br /><br />
+        <br />
+
+            </p>
+        <h3>
+            Documentation</h3>
+        Linq (or DLinq) documentation can be found in the doc/ folder of your C# 3.0 installation.<br />
+        Also, here is the <a href="http://msdn.microsoft.com/data/ref/linq/">Linq project home
+            page</a> [microsoft.com].<br />
+        DB_Linq has currently no documentation.<br />
+
+        <br />
+        Also:<br />
+        Got mail from Oren from the NHibernate project. They are also working on a Linq
+        interface, and making good progress.
+                Oren writes:<br />
+                &nbsp; I have started to work on an implementation of Linq to NHibernate, you can
+                see the current results here:<br />
+                &nbsp; <a href="http://www.ayende.com/Blog/archive/2007/03/17/Implementing-Linq-for-NHibernate-A-How-To-Guide--Part.aspx"
+                    rel="nofollow" target="_blank"><span style="color: #0000ff; text-decoration: underline">
+                        http://www.ayende.com/Blog/archive/2007/03/17/Implementing-Linq-for-NHibernate-A-How-To-Guide--Part.aspx</span></a><br />
+
+        <br />
+        <br />
+        xx<br />
+        
+        <div style="float:right; width:170px">
+<a href="http://www2.clustrmaps.com/counter/maps.php?url=http://code2code.net" id="clustrMapsLink"><img src="http://www2.clustrmaps.com/counter/index2.php?url=http://code2code.net" style="border:1px solid;" alt="Locations of visitors to this page" title="Locations of visitors to this page" id="clustrMapsImg" />
+</a>
+<script type="text/javascript">
+function cantload() {
+img = document.getElementById("clustrMapsImg");
+img.onerror = null;
+img.src = "http://clustrmaps.com/images/clustrmaps-back-soon.jpg";
+document.getElementById("clustrMapsLink").href = "http://clustrmaps.com";
+}
+img = document.getElementById("clustrMapsImg");
+img.onerror = cantload;
+</script>
+        </div>
+        
+        <h3>
+
+            &nbsp;</h3>
+    
+    
+    </div>
+    </form>
+</body>
+</html>
