@@ -8,7 +8,7 @@
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Test_NUnit</RootNamespace>
-    <AssemblyName>Test_NUnit_OraODP</AssemblyName>
+    <AssemblyName>DbLinq.Oracle_test_odp</AssemblyName>
     <StartupObject>
     </StartupObject>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
@@ -19,7 +19,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\</OutputPath>
+    <OutputPath>..\..\..\build.dbg\</OutputPath>
     <DefineConstants>TRACE;DEBUG;ORACLE;ODP</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>1</WarningLevel>
@@ -29,7 +29,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\</OutputPath>
+    <OutputPath>..\..\..\build\</OutputPath>
     <DefineConstants>TRACE;DEBUG;ORACLE;ODP</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
