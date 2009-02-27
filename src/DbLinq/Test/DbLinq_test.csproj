@@ -83,7 +83,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CsvArrayAdapterTest.cs" />
-    <Compile Include="DataContractTest.cs" />
+    <Compile Include="DataContextTest.cs" />
     <Compile Include="EnglishWordsTest.cs" />
     <Compile Include="ExpressionEqualityComparerTest.cs" />
     <Compile Include="FrenchWordsTest.cs" />
