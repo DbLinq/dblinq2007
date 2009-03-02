@@ -48,7 +48,7 @@
     <Compile Include="..\..\DbLinq\Test\PeopleTable.cs">
       <Link>PeopleTable.cs</Link>
     </Compile>
-    <Compile Include="MsSqlDataContractTest.cs" />
+    <Compile Include="MsSqlDataContextTest.cs" />
     <Compile Include="..\..\DbLinq\Test\NullProvider.cs">
       <SubType>Component</SubType>
     </Compile>
