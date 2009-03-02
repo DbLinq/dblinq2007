@@ -37,13 +37,17 @@ using DbLinq.Data.Linq.Mapping;
 using DbLinq.Null;
 using NUnit.Framework;
 
-using DbLinqTests.DbLinq.Data.Linq;
-
-namespace DbLinqTests.DbLinq.Data.Linq {
+namespace DbLinqTest {
 
     [TestFixture]
-    public class MsSqlDataContextTest : DataContextTest
+    public class MsSqlDataContextTest : DataContextTestBase
     {
+        static MsSqlDataContextTest()
+        {
+            // Make sure this assembly has a ref to DbLinq.SqlServer.dll.
+            var dummy = new DbLinq.SqlServer.SqlServerSqlProvider();
+        }
+
         protected override DataContext CreateDataContext()
         {
             return new DataContext (new NullConnection (), new AttributeMappingSource ());

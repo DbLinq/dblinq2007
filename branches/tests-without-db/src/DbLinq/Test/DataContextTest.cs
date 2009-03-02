@@ -38,7 +38,7 @@ using NUnit.Framework;
 
 using DbLinq.Null;
 
-namespace DbLinqTests.DbLinq.Data.Linq {
+namespace DbLinqTest {
 
     class DummyConnection : IDbConnection
     {
@@ -55,22 +55,6 @@ namespace DbLinqTests.DbLinq.Data.Linq {
         public ConnectionState State{get {return ConnectionState.Closed;}}
     }
 
-    [Table(Name="people")]
-    class BadPerson
-    {
-        public string FirstName {get; set;}
-        public string LastName {get; set;}
-    }
-
-    [Table(Name="people")]
-    class Person
-    {
-        [Column(Name="first_name")]
-        public string FirstName {get; set;}
-        [Column(Name="last_name")]
-        public string LastName {get; set;}
-    }
-
     public abstract class DataContextTest
     {
         DataContext context;
@@ -78,10 +62,8 @@ namespace DbLinqTests.DbLinq.Data.Linq {
         [SetUp]
         public void SetUp()
         {
-            context = CreateDataContext();
+            context = new DataContext(new NullConnection());
         }
-
-        protected abstract DataContext CreateDataContext();
 
         [TearDown]
         public void TearDown()
@@ -115,84 +97,25 @@ namespace DbLinqTests.DbLinq.Data.Linq {
         }
 
         [Test]
-        public void ExecuteCommand()
-        {
-            context.Log = new StringWriter ();
-            try 
-            {
-                context.ExecuteCommand("SomeCommand", 1, 2, 3);
-            }
-            catch (NotSupportedException)
-            {
-            }
-            catch (Exception e)
-            {
-                Assert.Fail();
-            }
-            Console.WriteLine ("# ExecuteCommand: Log={0}", context.Log);
-        }
-
-        [Test/*, ExpectedException(typeof(ArgumentNullException))*/]
         public void ExecuteQuery_ElementTypeNull()
         {
+            // TODO: Should this really not generate an exception?
             Type elementType = null;
             context.ExecuteQuery(elementType, "command");
         }
 
-        [Test, ExpectedException(typeof(NullReferenceException))]
+        [Test, ExpectedException(typeof(ArgumentNullException))]
         public void ExecuteQuery_QueryNull()
         {
             Type elementType = typeof(Person);
             context.ExecuteQuery(elementType, null);
         }
 
-        [Test]
-        public void ExecuteQuery()
-        {
-            context.Log = new StringWriter ();
-            try 
-            {
-                context.ExecuteQuery(typeof(Person), "select * from people", 1, 2, 3);
-            }
-            catch (NotSupportedException)
-            {
-            }
-            catch (Exception)
-            {
-                Assert.Fail();
-            }
-            Console.WriteLine ("# ExecuteQuery: Log={0}", context.Log);
-        }
-
         [Test /*, ExpectedException(typeof(ArgumentNullException))*/]
         public void ExecuteQueryTResult_QueryNull()
         {
+            // TODO: should this really not generate an exception?
             context.ExecuteQuery<Person>(null);
-        }
-
-        [Test]
-        public void ExecuteQueryTResult()
-        {
-            context.Log = new StringWriter ();
-            try 
-            {
-                context.ExecuteQuery<Person>("select * from people", 1, 2, 3);
-            }
-            catch (NotSupportedException)
-            {
-            }
-            catch (Exception)
-            {
-                Assert.Fail();
-            }
-            Console.WriteLine ("# ExecuteQueryTResult: Log={0}", context.Log);
-        }
-
-        [Test]
-        public void GetChangeSet()
-        {
-            // TODO
-            context.GetChangeSet();
         }
 
         [Test, ExpectedException(typeof(NullReferenceException))]
@@ -200,30 +123,6 @@ namespace DbLinqTests.DbLinq.Data.Linq {
         {
             IQueryable query = null;
             context.GetCommand(query);
-        }
-
-        protected abstract string People(string firstName);
-        protected abstract string People(string firstName, string lastName);
-
-        [Test]
-        public void GetCommand()
-        {
-            var foos = 
-                from p in context.GetTable<Person>()
-                where p.FirstName == "foo"
-                select p;
-            var cmd = context.GetCommand(foos);
-
-            Console.WriteLine ("# GetCommand: cmd={0}", cmd.CommandText);
-            // Assert.AreEqual(People("foo"), cmd.CommandText);
-
-            foos = foos.Where(p => p.LastName == "bar");
-            var cmd2 = context.GetCommand(foos);
-
-            Assert.IsFalse(object.ReferenceEquals(cmd, cmd2));
-
-            Console.WriteLine ("# GetCommand: cmd2={0}", cmd2.CommandText);
-            // Assert.AreEqual(People("foo", "bar"), cmd2.CommandText);
         }
     }
 }
