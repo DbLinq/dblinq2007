@@ -33,8 +33,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_NUnit_MsSql", "DbLinq.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.SqlServer_test_ndb", "DbLinq.SqlServer\Test\DbLinq.SqlServer_test_ndb.csproj", "{6661D6CB-8AE4-4CEF-A81E-8A4AFB6A1CEE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.Localization", "DbLinq.Localization\DbLinq.Localization.csproj", "{E636DAE5-1245-4ED1-A709-057935D20E24}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbMetal_test", "DbMetal\Test\DbMetal_test.csproj", "{4A829353-5A69-4EFD-8CD7-92C9D5DEB102}"
 EndProject
 Global
@@ -107,10 +105,6 @@ Global
 		{6661D6CB-8AE4-4CEF-A81E-8A4AFB6A1CEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6661D6CB-8AE4-4CEF-A81E-8A4AFB6A1CEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6661D6CB-8AE4-4CEF-A81E-8A4AFB6A1CEE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E636DAE5-1245-4ED1-A709-057935D20E24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E636DAE5-1245-4ED1-A709-057935D20E24}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E636DAE5-1245-4ED1-A709-057935D20E24}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E636DAE5-1245-4ED1-A709-057935D20E24}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4A829353-5A69-4EFD-8CD7-92C9D5DEB102}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4A829353-5A69-4EFD-8CD7-92C9D5DEB102}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4A829353-5A69-4EFD-8CD7-92C9D5DEB102}.Release|Any CPU.ActiveCfg = Release|Any CPU
