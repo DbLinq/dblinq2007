@@ -35,6 +35,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.SqlServer_test_ndb",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbMetal_test", "DbMetal\Test\DbMetal_test.csproj", "{4A829353-5A69-4EFD-8CD7-92C9D5DEB102}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.Sqlite_test", "DbLinq.Sqlite\Test\DbLinq.Sqlite_test.csproj", "{3B13F240-D5E3-4BD4-BA4B-8CBDEE18207A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -109,6 +111,10 @@ Global
 		{4A829353-5A69-4EFD-8CD7-92C9D5DEB102}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4A829353-5A69-4EFD-8CD7-92C9D5DEB102}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4A829353-5A69-4EFD-8CD7-92C9D5DEB102}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B13F240-D5E3-4BD4-BA4B-8CBDEE18207A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B13F240-D5E3-4BD4-BA4B-8CBDEE18207A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B13F240-D5E3-4BD4-BA4B-8CBDEE18207A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B13F240-D5E3-4BD4-BA4B-8CBDEE18207A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
