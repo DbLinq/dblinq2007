@@ -126,6 +126,13 @@ namespace DbLinq.Data.Linq
         [DbLinqToDo]
         public DataContext(string connectionString)
         {
+            IVendor ivendor = GetVendor(connectionString);
+            IDbConnection dbConnection = ivendor.CreateDbConnection(connectionString);
+            Init(new DatabaseContext(dbConnection), null, ivendor);
+        }
+
+        private IVendor GetVendor(string connectionString)
+        {
             #region DataContext connectionString ctor
             if (connectionString == null)
                 throw new ArgumentNullException("connectionString");
@@ -184,7 +191,7 @@ namespace DbLinq.Data.Linq
             {
                 //TODO: add proper logging here
                 Console.WriteLine("DataContext ctor: Assembly load failed for " + assemblyToLoad + ": " + ex);
-                throw ex;
+                throw;
             }
 
             //find IDbProvider class in this assembly:
@@ -216,11 +223,9 @@ namespace DbLinq.Data.Linq
             {
                 //TODO: add proper logging here
                 Console.WriteLine("DataContext ctor: Failed to invoke IVendor ctor " + ctorInfo2.Name + ": " + ex);
-                throw ex;
+                throw;
             }
-            IVendor ivendor = (IVendor)ivendorObject;
-            IDbConnection dbConnection = ivendor.CreateDbConnection(connectionString);
-            Init(new DatabaseContext(dbConnection), null, ivendor);
+            return (IVendor)ivendorObject;
             #endregion
         }
 
@@ -230,10 +235,9 @@ namespace DbLinq.Data.Linq
                 throw new ArgumentNullException("databaseContext");
 
             _VendorProvider = ObjectFactory.Get<IVendorProvider>();
-            if (vendor == null)
-                Vendor = _VendorProvider.FindVendorByProviderType(typeof(SqlClient.Sql2005Provider));
-            else
-                Vendor = vendor;
+            Vendor = vendor ?? 
+                GetVendor(databaseContext.Connection.ConnectionString) ??
+                _VendorProvider.FindVendorByProviderType(typeof(SqlClient.Sql2005Provider));
 
             DatabaseContext = databaseContext;
 
