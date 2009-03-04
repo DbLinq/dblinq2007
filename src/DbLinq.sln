@@ -68,9 +68,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinqTest", "DbLinq\Test\D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_NUnit_Ingres", "DbLinq.Ingres\Test\Test_NUnit_Ingres.csproj", "{858BAFF7-542F-4DBB-9C9B-57FCDE0DB7CE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_NUnit_MsSql", "DbLinq.SqlServer\Test\Test_NUnit_MsSql.csproj", "{A348FBCE-2246-48FF-9862-35553B4B284C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.SqlServer_test", "DbLinq.SqlServer\Test\DbLinq.SqlServer_test.csproj", "{A348FBCE-2246-48FF-9862-35553B4B284C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_NUnit_MsSql_Strict", "DbLinq.SqlServer\Test\Test_NUnit_MsSql_Strict.csproj", "{D63B7158-6F23-4B35-9C39-871D37C9BAA6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.SqlServer_test_strict", "DbLinq.SqlServer\Test\DbLinq.SqlServer_test_strict.csproj", "{D63B7158-6F23-4B35-9C39-871D37C9BAA6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_NUnit_Mysql", "DbLinq.MySql\Test\Test_NUnit_Mysql.csproj", "{858BAFF7-542F-4DBB-9C9B-57FCDE4DB7CE}"
 EndProject
