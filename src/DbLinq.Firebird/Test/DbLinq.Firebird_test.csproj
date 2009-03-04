@@ -222,7 +222,7 @@
   <ItemGroup>
     <Folder Include="..\..\DbLinq\Test\">
       <Link>Internals\</Link>
-    </Compile>
+    </Folder>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
