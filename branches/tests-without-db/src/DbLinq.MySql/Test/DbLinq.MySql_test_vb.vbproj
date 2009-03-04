@@ -8,7 +8,7 @@
     <ProjectGuid>{E6E31FB6-1559-44E1-AFA2-C11981A591FC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Test_NUnit_Mysql_VB</RootNamespace>
-    <AssemblyName>Test_NUnit_Mysql_VB</AssemblyName>
+    <AssemblyName>DbLinq.MySql_test_vb</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>Windows</MyType>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
@@ -23,7 +23,7 @@
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <OutputPath>..\..\..\build.dbg\</OutputPath>
-    <DocumentationFile>Test_NUnit_Mysql_VB.xml</DocumentationFile>
+    <DocumentationFile>DbLinq.MySql_test_vb.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -32,8 +32,7 @@
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
     <OutputPath>..\..\..\build\</OutputPath>
-    <DocumentationFile>Test_NUnit_Mysql_VB.xml</DocumentationFile>
-    <DocumentationFile>Test_NUnit_Mysql_VB.xml</DocumentationFile>
+    <DocumentationFile>DbLinq.MySql_test_vb.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <ItemGroup>
@@ -117,9 +116,9 @@
       <Project>{7950197D-4122-49CB-9FD7-45E666BAFEC2}</Project>
       <Name>DbLinq</Name>
     </ProjectReference>
-    <ProjectReference Include="Test_NUnit_Mysql.csproj">
+    <ProjectReference Include="DbLinq.MySql_test.csproj">
       <Project>{858BAFF7-542F-4DBB-9C9B-57FCDE4DB7CE}</Project>
-      <Name>Test_NUnit_Mysql</Name>
+      <Name>DbLinq.MySql_test</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
