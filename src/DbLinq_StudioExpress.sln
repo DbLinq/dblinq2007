@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq", "DbLinq\DbLinq.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.MySql", "DbLinq.MySql\DbLinq.MySql.csproj", "{FA8D1068-3341-4956-BF94-54C6A816BD9E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_NUnit_Mysql", "DbLinq.MySql\Test\Test_NUnit_Mysql.csproj", "{858BAFF7-542F-4DBB-9C9B-57FCDE4DB7CE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.MySql_test", "DbLinq.MySql\Test\DbLinq.MySql_test.csproj", "{858BAFF7-542F-4DBB-9C9B-57FCDE4DB7CE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualMetal", "VisualMetal\VisualMetal.csproj", "{05260362-DD1C-4DF4-890B-163D0A6D94B9}"
 EndProject
@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbMetal", "DbMetal\DbMetal.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.PostgreSql", "DbLinq.PostgreSql\DbLinq.PostgreSql.csproj", "{32824F7E-9260-413C-B174-F3E315936FA7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_NUnit_Pgsql", "DbLinq.PostgreSql\Test\Test_NUnit_Pgsql.csproj", "{858BAFF7-542F-4DBB-940B-57333E4DB7CE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.PostgreSql_test", "DbLinq.PostgreSql\Test\DbLinq.PostgreSql_test.csproj", "{858BAFF7-542F-4DBB-940B-57333E4DB7CE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.Ingres", "DbLinq.Ingres\DbLinq.Ingres.csproj", "{90D57CD9-D704-409E-88A1-0F22AC79065A}"
 EndProject
