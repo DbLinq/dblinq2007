@@ -203,6 +203,7 @@
     <Compile Include="..\..\DbLinq\Test\Providers\WriteTest_BulkInsert.cs">
       <Link>Providers\WriteTest_BulkInsert.cs</Link>
     </Compile>
+    <Compile Include="TestBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\DbLinq\Test\Providers\Linq_101_Samples\101_readme.htm">
@@ -218,11 +219,6 @@
       <Project>{7950197D-4122-49CB-9FD7-45E666BAFEC2}</Project>
       <Name>DbLinq</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="..\..\DbLinq\Test\">
-      <Link>Internals\</Link>
-    </Folder>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

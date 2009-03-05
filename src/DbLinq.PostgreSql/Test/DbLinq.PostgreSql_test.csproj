@@ -196,6 +196,7 @@
     <Compile Include="..\..\DbLinq\Test\Providers\WriteTest.cs">
       <Link>Providers\WriteTest.cs</Link>
     </Compile>
+    <Compile Include="TestBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\..\DbLinq\Test\Providers\Linq_101_Samples\101_readme.htm">

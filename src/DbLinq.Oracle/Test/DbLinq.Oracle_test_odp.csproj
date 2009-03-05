@@ -190,6 +190,7 @@
     <Compile Include="..\..\DbLinq\Test\Providers\WriteTest.cs">
       <Link>Providers\WriteTest.cs</Link>
     </Compile>
+    <Compile Include="TestBase_odp.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DbLinq.Oracle.csproj">
