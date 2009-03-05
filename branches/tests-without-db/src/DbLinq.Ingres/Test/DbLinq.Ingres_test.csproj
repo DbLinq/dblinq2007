@@ -200,6 +200,7 @@
     <Compile Include="..\..\DbLinq\Test\Providers\WriteTest_BulkInsert.cs">
       <Link>Providers\WriteTest_BulkInsert.cs</Link>
     </Compile>
+    <Compile Include="TestBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\DbLinq\Test\Providers\Linq_101_Samples\101_readme.htm">
