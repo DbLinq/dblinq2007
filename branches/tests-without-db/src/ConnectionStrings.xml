@@ -7,6 +7,7 @@
   <Connection assembly="DbLinq.Oracle_test">Data Source = (DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = {0})(PORT = 1521)))(CONNECT_DATA = (SERVER = DEDICATED))); User Id = Northwind; Password = linq2</Connection>
 
   <Connection assembly="DbLinq.Sqlite_test">Data Source=Northwind.db3</Connection>
+  <Connection assembly="DbLinq.Sqlite_test_mono">Data Source=Northwind.db3</Connection>
   <Connection assembly="DbLinq.MySql_test">server={0};user id=LinqUser; password=linq2; database=Northwind</Connection>
   <Connection assembly="DbLinq.PostgreSql_test">server={0};user id=LinqUser; password=linq2; database=Northwind</Connection>
   <Connection assembly="DbLinq.Ingres_test">server={0};user id=LinqUser; password=linq2; database=Northwind</Connection>
