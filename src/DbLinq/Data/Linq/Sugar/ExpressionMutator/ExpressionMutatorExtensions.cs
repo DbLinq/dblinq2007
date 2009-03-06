@@ -139,6 +139,12 @@ namespace DbLinq.Data.Linq.Sugar.ExpressionMutator
             var executableExpression = expression as IExecutableExpression;
             if (executableExpression != null)
                 return executableExpression.Execute();
+            if (expression is ColumnExpression)
+                return expression;
+            if (expression is TableExpression)
+                return expression;
+            if (expression.NodeType == ExpressionType.Constant || expression.NodeType == ExpressionType.Parameter)
+                return expression;
             try
             {
                 // here, we may have non-evaluable expressions, so we "try"/"catch"
