@@ -55,9 +55,11 @@ namespace Test_NUnit
             return new SqliteConnection(connectionString);
         }
 
+#if !MONO_STRICT
         public DbLinq.Vendor.IVendor CreateVendor()
         {
             return new DbLinq.Sqlite.SqliteVendor();
         }
+#endif
     }
 }

@@ -8,6 +8,7 @@
 
   <Connection assembly="DbLinq.Sqlite_test">Data Source=Northwind.db3</Connection>
   <Connection assembly="DbLinq.Sqlite_test_mono">Data Source=Northwind.db3</Connection>
+  <Connection assembly="DbLinq.Sqlite_test_mono_strict">DbLinqProvider=Sqlite;Data Source=Northwind.db3</Connection>
   <Connection assembly="DbLinq.MySql_test">server={0};user id=LinqUser; password=linq2; database=Northwind</Connection>
   <Connection assembly="DbLinq.PostgreSql_test">server={0};user id=LinqUser; password=linq2; database=Northwind</Connection>
   <Connection assembly="DbLinq.Ingres_test">server={0};user id=LinqUser; password=linq2; database=Northwind</Connection>

@@ -49,6 +49,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.Oracle_test_odp", "D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.Sqlite_test_mono", "DbLinq.Sqlite\Test\DbLinq.Sqlite_test_mono.csproj", "{68267FB0-0771-4507-942F-395A1AE556FD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbLinq.Sqlite_test_mono_strict", "DbLinq.Sqlite\Test\DbLinq.Sqlite_test_mono_strict.csproj", "{06413209-2415-4541-8033-D5AAFF778A23}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -151,6 +153,10 @@ Global
 		{68267FB0-0771-4507-942F-395A1AE556FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{68267FB0-0771-4507-942F-395A1AE556FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{68267FB0-0771-4507-942F-395A1AE556FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06413209-2415-4541-8033-D5AAFF778A23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06413209-2415-4541-8033-D5AAFF778A23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06413209-2415-4541-8033-D5AAFF778A23}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06413209-2415-4541-8033-D5AAFF778A23}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

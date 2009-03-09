@@ -17,22 +17,32 @@ using System.Data;
 using System.Data.Linq.Mapping;
 using System.Diagnostics;
 using System.Reflection;
+#if MONO_STRICT
+using System.Data.Linq;
+#else
 using DbLinq.Data.Linq;
 using DbLinq.Vendor;
+#endif
 
 namespace nwind
 {
 	public partial class Northwind : DataContext
 	{
 		public Northwind(IDbConnection connection)
+#if MONO_STRICT
+        : base(connection)
+#else
 		: base(connection, new DbLinq.Sqlite.SqliteVendor())
+#endif
 		{
 		}
 
+#if !MONO_STRICT
 		public Northwind(IDbConnection connection, IVendor vendor)
 		: base(connection, vendor)
 		{
 		}
+#endif
 
 		public Table<Category> Categories { get { return GetTable<Category>(); } }
 		public Table<Customer> Customers { get { return GetTable<Customer>(); } }
