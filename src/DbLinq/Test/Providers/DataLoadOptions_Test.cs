@@ -5,19 +5,15 @@ using System.Text;
 using NUnit.Framework;
 using Test_NUnit;
 
-#if !MONO_STRICT
 using nwind;
-using DbLinq.Data.Linq;
-#else
-using MsNorthwind;
-using System.Data.Linq;
-#endif
 
 #if MONO_STRICT
-namespace MsNorthwind
+using System.Data.Linq;
 #else
-namespace nwind
+using DbLinq.Data.Linq;
 #endif
+
+namespace nwind
 {
     public partial class Customer
     {

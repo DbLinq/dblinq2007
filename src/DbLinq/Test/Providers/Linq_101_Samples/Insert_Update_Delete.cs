@@ -11,11 +11,7 @@ using System.Data.Linq;
 using DbLinq.Data.Linq;
 #endif
 
-#if !MONO_STRICT
 using nwind;
-#else
-using MsNorthwind;
-#endif
 
 #if MYSQL
 namespace Test_NUnit_MySql.Linq_101_Samples

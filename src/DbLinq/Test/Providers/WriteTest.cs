@@ -35,18 +35,12 @@ using Test_NUnit;
 using System.ComponentModel;
 using System.Data.Linq.Mapping;
 
-#if MONO_STRICT
-using DataLinq = System.Data.Linq;
-#else
-using DataLinq = DbLinq.Data.Linq;
-using DbLinq.Data.Linq;
-#endif
-
-#if !MONO_STRICT
 using nwind;
-#else
-using MsNorthwind;
+
+#if MONO_STRICT
 using System.Data.Linq;
+#else
+using DbLinq.Data.Linq;
 #endif
 
 #if ORACLE
@@ -388,7 +382,7 @@ dummy text
 );
 ");
 
-                DataLinq.Table<Northwind1.Cust1> cust1s =
+                Table<Northwind1.Cust1> cust1s =
                     db.GetTable<Northwind1.Cust1>();
 
                 var cust1 = new Northwind1.Cust1();
@@ -466,7 +460,7 @@ dummy text
             }
 
 
-            public DataLinq.Table<Rid> Rids
+            public Table<Rid> Rids
             {
                 get
                 {
@@ -637,7 +631,7 @@ dummy text
             internal NorthwindLocalProperty(System.Data.IDbConnection connection)
                 : base(connection) { }
 
-            internal DataLinq.Table<OrderDetailWithSum> OrderDetailWithSums
+            internal Table<OrderDetailWithSum> OrderDetailWithSums
             {
                 get
                 {

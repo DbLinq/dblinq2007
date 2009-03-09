@@ -8,11 +8,7 @@ using Test_NUnit;
 using System.Data;
 using System.Data.Common;
 
-#if !MONO_STRICT
 using nwind;
-#else
-using MsNorthwind;
-#endif
 
 #if MYSQL
 namespace Test_NUnit_MySql

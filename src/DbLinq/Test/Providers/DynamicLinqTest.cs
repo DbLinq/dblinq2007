@@ -33,12 +33,7 @@ using Test_NUnit;
 using System.Linq.Expressions;
 using System.Reflection;
 
-#if !MONO_STRICT
 using nwind;
-#else
-using MsNorthwind;
-using System.Data.Linq;
-#endif
 
 #if MYSQL
 namespace Test_NUnit_MySql

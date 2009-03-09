@@ -31,13 +31,7 @@ using System.Xml;
 using System.Reflection;
 using NUnit.Framework;
 
-#if !MONO_STRICT
 using nwind;
-using DbLinq.Factory;
-#else
-using MsNorthwind;
-using System.Data.Linq;
-#endif
 
 namespace Test_NUnit
 {
