@@ -32,16 +32,12 @@ using System.Linq.Expressions;
 using NUnit.Framework;
 using Test_NUnit;
 
-
-#if !MONO_STRICT
 using nwind;
-using DbLinq.Data.Linq;
-using DataLinq = DbLinq.Data.Linq;
+
+#if MONO_STRICT
 using System.Data.Linq;
 #else
-using MsNorthwind;
-using System.Data.Linq;
-using DataLinq = System.Data.Linq;
+using DbLinq.Data.Linq;
 #endif
 
 #if MYSQL
@@ -247,7 +243,7 @@ namespace Test_NUnit_MsSql_Strict
                 }
             }
 
-            public DataLinq.Table<ExtendedOrder> ExtendedOrders
+            public Table<ExtendedOrder> ExtendedOrders
             {
                 get { return base.GetTable<ExtendedOrder>(); }
             }

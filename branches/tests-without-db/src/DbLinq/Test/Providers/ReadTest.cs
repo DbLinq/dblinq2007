@@ -31,13 +31,12 @@ using NUnit.Framework;
 using Test_NUnit;
 using System.Data.Linq.Mapping;
 
-#if !MONO_STRICT
 using nwind;
-using DataLinq = DbLinq.Data.Linq;
-#else
-using MsNorthwind;
-using System.Data.Linq;
+
+#if MONO_STRICT
 using DataLinq = System.Data.Linq;
+#else
+using DataLinq = DbLinq.Data.Linq;
 #endif
 
 #if MYSQL
@@ -56,7 +55,7 @@ namespace Test_NUnit_Sqlite
 namespace Test_NUnit_Ingres
 #elif MSSQL
 #if MONO_STRICT
-    namespace Test_NUnit_MsSql_Strict
+namespace Test_NUnit_MsSql_Strict
 #else
 namespace Test_NUnit_MsSql
 #endif

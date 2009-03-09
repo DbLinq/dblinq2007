@@ -4,20 +4,15 @@ using System.Linq;
 using System.Text;
 using Test_NUnit;
 using NUnit.Framework;
-using System.Data.Linq;
 using Test_NUnit.Linq_101_Samples;
 
 #if MONO_STRICT
-using DataLoadOptions = System.Data.Linq.DataLoadOptions;
+using System.Data.Linq;
 #else
-using DataLoadOptions = DbLinq.Data.Linq.DataLoadOptions;
+using DbLinq.Data.Linq;
 #endif
 
-#if !MONO_STRICT
 using nwind;
-#else
-using MsNorthwind;
-#endif
 
 #if MYSQL
     namespace Test_NUnit_MySql.Linq_101_Samples

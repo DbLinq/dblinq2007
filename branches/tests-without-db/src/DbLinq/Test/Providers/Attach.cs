@@ -6,11 +6,7 @@ using NUnit.Framework;
 using Test_NUnit;
 using System.Data.Linq;
 
-#if !MONO_STRICT
 using nwind;
-#else
-using MsNorthwind;
-#endif
 
 #if MYSQL
 namespace Test_NUnit_MySql

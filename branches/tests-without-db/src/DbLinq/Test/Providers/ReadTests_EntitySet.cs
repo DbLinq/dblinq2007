@@ -14,12 +14,7 @@ using DataLoadOptions = System.Data.Linq.DataLoadOptions;
 using DataLoadOptions = DbLinq.Data.Linq.DataLoadOptions;
 #endif
 
-
-#if !MONO_STRICT
 using nwind;
-#else
-using MsNorthwind;
-#endif
 
 #if MYSQL
 namespace Test_NUnit_MySql
