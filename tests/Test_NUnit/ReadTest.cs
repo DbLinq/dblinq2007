@@ -303,6 +303,19 @@ namespace Test_NUnit_MsSql
             Assert.Greater(count,0);
         }
 
+        [Test]
+        public void C11_SelectProductsDiscontinued()
+        {
+            Northwind db = CreateDB();
+            var q = from p in db.Products 
+                    where p.Discontinued == true 
+                    select p.ProductID;
+
+            var productIDs = q.ToList();
+            int productCount = productIDs.Count;
+            Assert.AreEqual(productCount, 8, "Expected eight products discontinued, got count=" + productCount);
+        }
+
         #endregion
 
         #region region D - select first or last - calls IQueryable.Execute instead of GetEnumerator
