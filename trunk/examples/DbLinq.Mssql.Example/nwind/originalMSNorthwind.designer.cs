@@ -9,7 +9,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace MsNorthwind
+namespace nwind
 {
 	using System.Data.Linq;
 	using System.Data.Linq.Mapping;
