@@ -126,9 +126,11 @@ namespace DbLinq.Data.Linq
         [DbLinqToDo]
         public DataContext(string connectionString)
         {
-            IVendor ivendor = GetVendor(connectionString);
+            IVendor ivendor = GetVendor(connectionString);
+
             IDbConnection dbConnection = ivendor.CreateDbConnection(connectionString);
-            Init(new DatabaseContext(dbConnection), null, ivendor);
+            Init(new DatabaseContext(dbConnection), null, ivendor);
+
         }
 
         private IVendor GetVendor(string connectionString)
