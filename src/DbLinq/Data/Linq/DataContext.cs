@@ -104,6 +104,9 @@ namespace DbLinq.Data.Linq
 
         public DataContext(IDbConnection connection)
         {
+            if (connection == null)
+                throw new ArgumentNullException("connection");
+
             Init(new DatabaseContext(connection), null, null);
         }
 
@@ -238,7 +241,9 @@ namespace DbLinq.Data.Linq
 
             _VendorProvider = ObjectFactory.Get<IVendorProvider>();
             Vendor = vendor ?? 
-                GetVendor(databaseContext.Connection.ConnectionString) ??
+                (databaseContext.Connection.ConnectionString != null
+                    ? GetVendor(databaseContext.Connection.ConnectionString)
+                    : null) ??
                 _VendorProvider.FindVendorByProviderType(typeof(SqlClient.Sql2005Provider));
 
             DatabaseContext = databaseContext;
@@ -722,13 +727,27 @@ namespace DbLinq.Data.Linq
         /// </summary>
         public IEnumerable<TResult> ExecuteQuery<TResult>(string query, params object[] parameters) where TResult : class, new()
         {
-            //GetTable<TResult>();
+            if (query == null)
+                throw new ArgumentNullException("query");
+
+            return CreateExecuteQueryEnumerable<TResult>(query, parameters);
+        }
+
+        private IEnumerable<TResult> CreateExecuteQueryEnumerable<TResult>(string query, object[] parameters)
+            where TResult : class, new()
+        {
             foreach (TResult result in ExecuteQuery(typeof(TResult), query, parameters))
                 yield return result;
         }
 
         public IEnumerable ExecuteQuery(Type elementType, string query, params object[] parameters)
         {
+            Console.WriteLine("# ExecuteQuery: query={0}", query != null ? query : "<null>");
+            if (elementType == null)
+                throw new ArgumentNullException("elementType");
+            if (query == null)
+                throw new ArgumentNullException("query");
+
             var queryContext = new QueryContext(this);
             var directQuery = QueryBuilder.GetDirectQuery(query, queryContext);
             return QueryRunner.ExecuteSelect(elementType, directQuery, parameters);
@@ -867,6 +886,9 @@ namespace DbLinq.Data.Linq
         [DbLinqToDo]
         public DbCommand GetCommand(IQueryable query)
         {
+            if (query == null)
+                throw new ArgumentNullException("query");
+
             var qp = query.Provider as QueryProvider;
             if (qp == null)
                 throw new InvalidOperationException();
