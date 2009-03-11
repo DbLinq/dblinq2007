@@ -209,6 +209,7 @@
     <Compile Include="..\..\DbLinq\Test\Providers\WriteTest_BulkInsert.cs">
       <Link>Providers\WriteTest_BulkInsert.cs</Link>
     </Compile>
+    <Compile Include="DirectDataContext.cs" />
     <Compile Include="TestBase_mono.cs" />
   </ItemGroup>
   <ItemGroup>
