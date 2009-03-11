@@ -32,7 +32,11 @@ using System.Data.Linq.Mapping;
 using System.Linq;
 using System.IO;
 
+#if MONO_STRICT
+using System.Data.Linq;
+#else
 using DbLinq.Data.Linq;
+#endif
 
 using NUnit.Framework;
 

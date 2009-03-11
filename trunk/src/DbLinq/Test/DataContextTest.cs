@@ -27,12 +27,15 @@
 using System;
 using System.Data;
 using System.Data.Common;
-// using System.Data.Linq;
 using System.Data.Linq.Mapping;
 using System.Linq;
 using System.IO;
 
+#if MONO_STRICT
+using System.Data.Linq;
+#else
 using DbLinq.Data.Linq;
+#endif
 
 using NUnit.Framework;
 
@@ -55,14 +58,15 @@ namespace DbLinqTest {
         public ConnectionState State{get {return ConnectionState.Closed;}}
     }
 
-    public abstract class DataContextTest
+    [TestFixture]
+    public class DataContextTest
     {
         DataContext context;
 
         [SetUp]
         public void SetUp()
         {
-            context = new DataContext(new NullConnection());
+            context = new DataContext(new NullConnection() { ConnectionString = "" });
         }
 
         [TearDown]
@@ -78,7 +82,7 @@ namespace DbLinqTest {
             new DataContext(connectionString);
         }
 
-        [Test, ExpectedException(typeof(NullReferenceException))]
+        [Test, ExpectedException(typeof(ArgumentNullException))]
         public void Ctor_ConnectionNull()
         {
             IDbConnection connection = null;
@@ -88,18 +92,19 @@ namespace DbLinqTest {
         [Test]
         public void Connection()
         {
-            IDbConnection connection = new NullConnection();
+            IDbConnection connection = new NullConnection() { ConnectionString = "" };
             DataContext dc = new DataContext(connection);
             Assert.AreEqual(connection, dc.Connection);
 
+#if !MONO_STRICT
             dc = new DataContext (new DummyConnection());
             Assert.AreEqual(null, dc.Connection);
+#endif
         }
 
-        [Test]
+        [Test, ExpectedException(typeof(ArgumentNullException))]
         public void ExecuteQuery_ElementTypeNull()
         {
-            // TODO: Should this really not generate an exception?
             Type elementType = null;
             context.ExecuteQuery(elementType, "command");
         }
@@ -111,14 +116,13 @@ namespace DbLinqTest {
             context.ExecuteQuery(elementType, null);
         }
 
-        [Test /*, ExpectedException(typeof(ArgumentNullException))*/]
+        [Test, ExpectedException(typeof(ArgumentNullException))]
         public void ExecuteQueryTResult_QueryNull()
         {
-            // TODO: should this really not generate an exception?
             context.ExecuteQuery<Person>(null);
         }
 
-        [Test, ExpectedException(typeof(NullReferenceException))]
+        [Test, ExpectedException(typeof(ArgumentNullException))]
         public void GetCommand_QueryNull()
         {
             IQueryable query = null;
