@@ -307,7 +307,11 @@ namespace Test_NUnit_MsSql
         {
             Northwind db = CreateDB();
             var q = from p in db.Products 
+#if INGRES
+                    where p.Discontinued != 0
+#else
                     where p.Discontinued == true 
+#endif
                     select p.ProductID;
 
             var productIDs = q.ToList();
