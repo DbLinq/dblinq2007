@@ -7,11 +7,14 @@
     <assembly path="build.dbg\DbLinq.Oracle_test.exe" />
     <assembly path="build.dbg\DbLinq.Oracle_test_odp.exe" />
     <assembly path="build.dbg\DbLinq.PostgreSql_test.exe" />
+    <assembly path="build.dbg\DbLinq.Sqlite_test.dll" />
+    <assembly path="build.dbg\DbLinq.Sqlite_test_mono.dll" />
+    <assembly path="build.dbg\DbLinq.Sqlite_test_mono_strict.dll" />
     <assembly path="build.dbg\DbLinq.SqlServer_test.dll" />
     <assembly path="build.dbg\DbLinq.SqlServer_test_ndb.dll" />
     <assembly path="build.dbg\DbLinq.SqlServer_test_strict.dll" />
-    <assembly path="build.dbg\DbLinq.Sqlite_test.dll" />
     <assembly path="build.dbg\DbLinq_test.dll" />
+    <assembly path="build.dbg\DbLinq_test_ndb_strict.dll" />
     <assembly path="build.dbg\DbMetal_test.dll" />
   </Config>
   <Config name="Release" binpathtype="Auto">
@@ -21,11 +24,14 @@
     <assembly path="build\DbLinq.Oracle_test.exe" />
     <assembly path="build\DbLinq.Oracle_test_odp.exe" />
     <assembly path="build\DbLinq.PostgreSql_test.exe" />
+    <assembly path="build\DbLinq.Sqlite_test.dll" />
+    <assembly path="build\DbLinq.Sqlite_test_mono.dll" />
+    <assembly path="build\DbLinq.Sqlite_test_mono_strict.dll" />
     <assembly path="build\DbLinq.SqlServer_test.dll" />
     <assembly path="build\DbLinq.SqlServer_test_ndb.dll" />
     <assembly path="build\DbLinq.SqlServer_test_strict.dll" />
-    <assembly path="build\DbLinq.Sqlite_test.dll" />
     <assembly path="build\DbLinq_test.dll" />
+    <assembly path="build\DbLinq_test_ndb_strict.dll" />
     <assembly path="build\DbMetal_test.dll" />
   </Config>
 </NUnitProject>
