@@ -172,10 +172,16 @@ namespace DbLinq.Vendor.Implementation
                     "Please specify the assembly qualified type name to use for the Connection Type.",
                     "connectionString");
 
-            var    match          = reConnectionType.Match(connectionString);
-            string connectionType = match.Groups[1].Value;
-            connectionString      = reConnectionType.Replace(connectionString, "");
-            return (IDbConnection)Activator.CreateInstance(Type.GetType(connectionType), connectionString);
+            var    match        = reConnectionType.Match(connectionString);
+            string connTypeVal  = match.Groups[1].Value;
+            var    connType     = Type.GetType(connTypeVal);
+            if (connType == null)
+                throw new ArgumentException(string.Format(
+                        "Could not load the specified DbLinqConnectionType `{0}'.",
+                        connTypeVal),
+                    "connectionString");
+            connectionString = reConnectionType.Replace(connectionString, "");
+            return (IDbConnection)Activator.CreateInstance(connType, connectionString);
         }
     }
 }

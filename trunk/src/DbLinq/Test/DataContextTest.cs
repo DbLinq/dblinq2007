@@ -45,6 +45,11 @@ namespace DbLinqTest {
 
     class DummyConnection : IDbConnection
     {
+        public DummyConnection()
+        {
+            ConnectionString = "";
+        }
+
         public IDbTransaction BeginTransaction() {return null;}
         public IDbTransaction BeginTransaction(IsolationLevel il) {return null;}
         public void ChangeDatabase(string databaseName) {}
@@ -87,6 +92,37 @@ namespace DbLinqTest {
         {
             IDbConnection connection = null;
             new DataContext(connection);
+        }
+
+        [Test, ExpectedException(typeof(NullReferenceException))]
+        public void Ctor_ConnectionStringOfConnectionIsNull()
+        {
+            IDbConnection connection = new NullConnection() { ConnectionString = null };
+            new DataContext(connection);
+        }
+
+        [Test, ExpectedException(typeof(ArgumentException))]
+        public void Ctor_ConnectionString_DbLinqConnectionType_Empty()
+        {
+            new DataContext("DbLinqConnectionType=");
+        }
+
+        [Test, ExpectedException(typeof(ArgumentException))]
+        public void Ctor_ConnectionString_DbLinqConnectionType_Invalid()
+        {
+            new DataContext("DbLinqConnectionType=InvalidType, DoesNotExist");
+        }
+
+        [Test, ExpectedException(typeof(ArgumentException))]
+        public void Ctor_ConnectionString_DbLinqProvider_InvalidVendor()
+        {
+            new DataContext("DbLinqProvider=ThisVendorDoesNotExist");
+        }
+
+        [Test, ExpectedException(typeof(ArgumentException))]
+        public void Ctor_ConnectionString_DbLinqProvider_InvalidVendorWithDots()
+        {
+            new DataContext("DbLinqProvider=DbLinq.Sqlite.dll");
         }
 
         [Test]

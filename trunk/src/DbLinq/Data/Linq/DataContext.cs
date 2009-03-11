@@ -138,106 +138,91 @@ namespace DbLinq.Data.Linq
 
         private IVendor GetVendor(string connectionString)
         {
-            #region DataContext connectionString ctor
             if (connectionString == null)
                 throw new ArgumentNullException("connectionString");
 
+            Assembly assy;
+            string vendorClassToLoad;
+            GetVendorInfo(connectionString, out assy, out vendorClassToLoad);
+
+            var types =
+                from type in assy.GetTypes()
+                where type.Name.ToLowerInvariant() == vendorClassToLoad.ToLowerInvariant() &&
+                    type.GetInterfaces().Contains(typeof(IVendor)) &&
+                    type.GetConstructor(Type.EmptyTypes) != null
+                select type;
+            if (!types.Any())
+            {
+                throw new ArgumentException(string.Format("Found no IVendor class in assembly `{0}' named `{1}' having a default constructor.",
+                    assy.GetName().Name, vendorClassToLoad));
+            }
+            else if (types.Count() > 1)
+            {
+                throw new ArgumentException(string.Format("Found too many IVendor classes in assembly `{0}' named `{1}' having a default constructor.",
+                    assy.GetName().Name, vendorClassToLoad));
+            }
+            return (IVendor) Activator.CreateInstance(types.First());
+        }
+
+        private void GetVendorInfo(string connectionString, out Assembly assembly, out string typeName)
+        {
             System.Text.RegularExpressions.Regex reProvider
                 = new System.Text.RegularExpressions.Regex(@"DbLinqProvider=([\w\.]+)");
 
-            int startPos = connectionString.IndexOf("DbLinqProvider=");
-            string assemblyToLoad;
-            string vendorClassToLoad;
+            string assemblyFile = null;
+            string vendor;
             if (!reProvider.IsMatch(connectionString))
             {
-                assemblyToLoad = "DbLinq.SqlServer.dll";
-                vendorClassToLoad = "SqlServerVendor";
+                vendor       = "SqlServer";
+                assemblyFile = "DbLinq.SqlServer.dll";
             }
             else
             {
-                System.Text.RegularExpressions.Match match = reProvider.Match(connectionString);
-#if MONO_STRICT
-                //Pascal says on the forum: 
-                //[in MONO] "all vendors are (will be) embedded in the System.Data.Linq assembly"
-                assemblyToLoad = "System.Data.Linq.dll";
-                vendorClassToLoad = match.Groups[1].Value; //eg. "MySql"
-#else
+                var match    = reProvider.Match(connectionString);
+                vendor       = match.Groups[1].Value;
+                assemblyFile = "DbLinq." + vendor + ".dll";
+
                 //plain DbLinq - non MONO: 
                 //IVendor classes are in DLLs such as "DbLinq.MySql.dll"
-                assemblyToLoad = match.Groups[1].Value; //eg. assemblyToLoad="DbLinq.MySql.dll"
-                if (assemblyToLoad.Contains("."))
+                if (vendor.Contains("."))
                 {
                     //already fully qualified DLL name?
-                    throw new ArgumentException("Please provide a short name, such as 'MySql', not '" + assemblyToLoad + "'");
+                    throw new ArgumentException("Please provide a short name, such as 'MySql', not '" + vendor + "'");
                 }
-                else
-                {
-                    //we were given short name, such as MySql
-                    vendorClassToLoad = assemblyToLoad + "Vendor"; //eg. MySqlVendor
-                    assemblyToLoad = "DbLinq." + assemblyToLoad + ".dll"; //eg. DbLinq.MySql.dll
-                }
-#endif
+
                 //shorten: "DbLinqProvider=X;Server=Y" -> ";Server=Y"
-                string shortenedConnStr = reProvider.Replace(connectionString, "");
-                connectionString = shortenedConnStr;
+                connectionString = reProvider.Replace(connectionString, "");
             }
 
-            Assembly assy;
+            typeName = vendor + "Vendor";
+
             try
             {
 #if MONO_STRICT
-                assy = typeof (DataContext).Assembly; // System.Data.Linq.dll
+                assembly = typeof (DataContext).Assembly; // System.Data.Linq.dll
 #else
                 //TODO: check if DLL is already loaded?
-                assy = Assembly.LoadFrom(assemblyToLoad);
+                assembly = Assembly.LoadFrom(assemblyFile);
 #endif
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                //TODO: add proper logging here
-                Console.WriteLine("DataContext ctor: Assembly load failed for " + assemblyToLoad + ": " + ex);
-                throw;
+                throw new ArgumentException(
+                        string.Format(
+                            "Unable to load the `{0}' DbLinq vendor within assembly `{1}'.",
+                            assemblyFile, vendor),
+                        "connectionString", e);
             }
-
-            //find IDbProvider class in this assembly:
-            var ctors = (from mod in assy.GetModules()
-                         from cls in mod.GetTypes()
-                         where cls.GetInterfaces().Contains(typeof(IVendor))
-                            && cls.Name.ToLower() == vendorClassToLoad.ToLower()
-                         let ctorInfo = cls.GetConstructor(Type.EmptyTypes)
-                         where ctorInfo != null
-                         select ctorInfo).ToList();
-            if (ctors.Count == 0)
-            {
-                string msg = "Found no IVendor class in assembly " + assemblyToLoad + " having a string ctor";
-                throw new ArgumentException(msg);
-            }
-            else if (ctors.Count > 1)
-            {
-                string msg = "Found more than one IVendor class in assembly " + assemblyToLoad + " having a string ctor";
-                throw new ArgumentException(msg);
-            }
-            ConstructorInfo ctorInfo2 = ctors[0];
-
-            object ivendorObject;
-            try
-            {
-                ivendorObject = ctorInfo2.Invoke(new object[]{});
-            }
-            catch (Exception ex)
-            {
-                //TODO: add proper logging here
-                Console.WriteLine("DataContext ctor: Failed to invoke IVendor ctor " + ctorInfo2.Name + ": " + ex);
-                throw;
-            }
-            return (IVendor)ivendorObject;
-            #endregion
         }
 
         private void Init(IDatabaseContext databaseContext, MappingSource mappingSource, IVendor vendor)
         {
             if (databaseContext == null)
                 throw new ArgumentNullException("databaseContext");
+
+            // Yes, .NET throws an NRE for this.  Why it's not ArgumentNullException, I couldn't tell you.
+            if (databaseContext.Connection.ConnectionString == null)
+                throw new NullReferenceException();
 
             _VendorProvider = ObjectFactory.Get<IVendorProvider>();
             Vendor = vendor ?? 
