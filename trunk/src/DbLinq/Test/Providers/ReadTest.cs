@@ -319,6 +319,25 @@ namespace Test_NUnit_MsSql
             Assert.AreEqual(productCount, 8, "Expected eight products discontinued, got count=" + productCount);
         }
 
+        [Test]
+        public void C12_SelectEmployee_MultiJoinWithWhere()
+        {
+            Northwind db = CreateDB();
+            var q = from t in db.Territories
+                      join l in db.EmployeeTerritories on t.TerritoryID equals l.TerritoryID
+                      join e in db.Employees on l.EmployeeID equals e.EmployeeID
+                      where t.RegionID > 3
+                      select e; 
+            /* Note that written this way it work, but it's not always possible.
+            var q = from t in db.Territories.Where(t => t.RegionID > 3)
+                    join l in db.EmployeeTerritories on t.TerritoryID equals l.TerritoryID
+                    join e in db.Employees on l.EmployeeID equals e.EmployeeID
+                    select e; 
+             */
+            var employeeCount = q.Count();
+            Assert.AreEqual(4, employeeCount, "Expected for employees, got count=" + employeeCount);
+        }
+
         #endregion
 
         #region region D - select first or last - calls IQueryable.Execute instead of GetEnumerator
