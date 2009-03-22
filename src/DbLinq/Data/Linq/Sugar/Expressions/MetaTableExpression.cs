@@ -47,7 +47,7 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
     {
         public const ExpressionType ExpressionType = (ExpressionType)CustomExpressionType.MetaTable;
 
-        protected IDictionary<MemberInfo, MutableExpression> Aliases;
+        protected IDictionary<MemberInfo, MutableExpression> Aliases; 
 
         public MutableExpression GetTableExpression(MemberInfo memberInfo)
         {
