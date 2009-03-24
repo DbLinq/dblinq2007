@@ -772,6 +772,11 @@ namespace DbLinq.Data.Linq
 
         public IEnumerable Translate(Type elementType, DbDataReader reader)
         {
+            if (elementType == null)
+                throw new ArgumentNullException("elementType");
+            if (reader == null)
+                throw new ArgumentNullException("reader");
+
             return QueryRunner.EnumerateResult(elementType, reader, this);
         }
 
