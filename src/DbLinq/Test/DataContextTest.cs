@@ -164,6 +164,12 @@ namespace DbLinqTest {
             IQueryable query = null;
             context.GetCommand(query);
         }
+
+        [Test, ExpectedException(typeof(ArgumentNullException))]
+        public void TranslateTResult_ReaderNull()
+        {
+            context.Translate<Person>(null);
+        }
     }
 }
 

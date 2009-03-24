@@ -754,6 +754,13 @@ namespace DbLinq.Data.Linq
         /// <returns></returns>
         public IEnumerable<TResult> Translate<TResult>(DbDataReader reader)
         {
+            if (reader == null)
+                throw new ArgumentNullException("reader");
+            return CreateTranslateIterator<TResult>(reader);
+        }
+
+        IEnumerable<TResult> CreateTranslateIterator<TResult>(DbDataReader reader)
+        {
             foreach (TResult result in Translate(typeof(TResult), reader))
                 yield return result;
         }
