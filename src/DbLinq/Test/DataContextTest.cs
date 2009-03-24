@@ -166,6 +166,19 @@ namespace DbLinqTest {
         }
 
         [Test, ExpectedException(typeof(ArgumentNullException))]
+        public void Translate_ReaderNull()
+        {
+            context.Translate(typeof(Person), null);
+        }
+
+        [Test, ExpectedException(typeof(ArgumentNullException))]
+        public void Translate_ElementTypeNull()
+        {
+            DbDataReader reader = new NullDataReader();
+            context.Translate(null, reader);
+        }
+
+        [Test, ExpectedException(typeof(ArgumentNullException))]
         public void TranslateTResult_ReaderNull()
         {
             context.Translate<Person>(null);
