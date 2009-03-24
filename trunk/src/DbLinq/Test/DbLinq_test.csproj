@@ -70,6 +70,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
     <Compile Include="CsvArrayAdapterTest.cs" />
     <Compile Include="DataContextTest.cs" />
     <Compile Include="ExpressionEqualityComparerTest.cs" />

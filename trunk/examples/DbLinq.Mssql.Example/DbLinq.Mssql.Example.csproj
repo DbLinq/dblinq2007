@@ -48,10 +48,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="nwind\Northwind.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <Compile Include="nwind\originalMSNorthwind.designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
