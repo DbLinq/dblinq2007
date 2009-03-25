@@ -80,6 +80,7 @@
     </Compile>
     <Compile Include="PeopleTable.cs" />
     <Compile Include="Providers\Internals\ReflectionTest.cs" />
+    <Compile Include="TableTest.cs" />
     <Compile Include="TypeContextTest.cs" />
   </ItemGroup>
   <ItemGroup>
