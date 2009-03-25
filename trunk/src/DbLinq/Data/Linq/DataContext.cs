@@ -605,6 +605,9 @@ namespace DbLinq.Data.Linq
         /// <param name="entity"></param>
         internal void RegisterUpdate(object entity)
         {
+            if (entity == null)
+                throw new ArgumentNullException("entity");
+
             var identityReader = _GetIdentityReader(entity.GetType());
             var identityKey = identityReader.GetIdentityKey(entity);
             // if we have no key, we can not watch
