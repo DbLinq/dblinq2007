@@ -70,6 +70,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BinaryTest.cs" />
     <Compile Include="DataContextTest.cs" />
     <Compile Include="NullProvider.cs">
       <SubType>Component</SubType>
