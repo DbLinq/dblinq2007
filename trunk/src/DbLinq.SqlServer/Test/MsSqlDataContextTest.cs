@@ -31,8 +31,13 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 
+#if MONO_STRICT
+using System.Data.Linq;
+using System.Data.Linq.Mapping;
+#else
 using DbLinq.Data.Linq;
 using DbLinq.Data.Linq.Mapping;
+#endif
 
 using DbLinq.Null;
 using NUnit.Framework;
@@ -44,8 +49,10 @@ namespace DbLinqTest {
     {
         static MsSqlDataContextTest()
         {
+#if !MONO_STRICT
             // Make sure this assembly has a ref to DbLinq.SqlServer.dll.
             var dummy = new DbLinq.SqlServer.SqlServerSqlProvider();
+#endif
         }
 
         protected override DataContext CreateDataContext()
