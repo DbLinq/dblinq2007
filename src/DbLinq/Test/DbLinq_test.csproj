@@ -75,7 +75,9 @@
     <Compile Include="DataContextTest.cs" />
     <Compile Include="ExpressionEqualityComparerTest.cs" />
     <Compile Include="IDataTypeExtensionsTest.cs" />
-    <Compile Include="NullProvider.cs" />
+    <Compile Include="NullProvider.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="PeopleTable.cs" />
     <Compile Include="Providers\Internals\ReflectionTest.cs" />
     <Compile Include="TableTest.cs" />

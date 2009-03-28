@@ -50,7 +50,9 @@
       <Link>PeopleTable.cs</Link>
     </Compile>
     <Compile Include="MsSqlDataContextTest.cs" />
-    <Compile Include="..\..\DbLinq\Test\NullProvider.cs" />
+    <Compile Include="..\..\DbLinq\Test\NullProvider.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="..\..\DbLinq\Test\Providers\DataContextTestBase.cs" />
   </ItemGroup>
   <ItemGroup>
