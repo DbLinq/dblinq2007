@@ -14,6 +14,7 @@ using DbLinq.Data.Linq;
 
 using nwind;
 
+// test ns Linq_101_Samples
 #if MYSQL
     namespace Test_NUnit_MySql.Linq_101_Samples
 #elif ORACLE

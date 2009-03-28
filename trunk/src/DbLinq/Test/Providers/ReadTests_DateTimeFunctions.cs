@@ -2,7 +2,7 @@
 // 
 // MIT license
 //
-// Copyright (c) 2007-2008 Jiri Moudry, Pascal Craponne, Pascal Craponne, Pascal Craponne, Pascal Craponne, Pascal Craponne, Pascal Craponne, Pascal Craponne, Pascal Craponne
+// Copyright (c) 2007-2008 Jiri Moudry, Pascal Craponne
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -40,6 +40,7 @@ using System.Data.Linq;
 using DbLinq.Data.Linq;
 #endif
 
+// test ns
 #if MYSQL
     namespace Test_NUnit_MySql
 #elif ORACLE

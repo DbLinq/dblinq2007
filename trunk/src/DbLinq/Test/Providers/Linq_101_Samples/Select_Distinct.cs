@@ -8,6 +8,7 @@ using Test_NUnit.Linq_101_Samples;
 
 using nwind;
 
+// test ns Linq_101_Samples
 #if MYSQL
 namespace Test_NUnit_MySql.Linq_101_Samples
 #elif ORACLE

@@ -7,6 +7,7 @@ using Test_NUnit;
 
 using nwind;
 
+// test ns
 #if MYSQL
     namespace Test_NUnit_MySql
 #elif ORACLE

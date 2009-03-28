@@ -8,6 +8,7 @@ using System.Data.Linq;
 
 using nwind;
 
+// test ns
 #if MYSQL
 namespace Test_NUnit_MySql
 #elif ORACLE
