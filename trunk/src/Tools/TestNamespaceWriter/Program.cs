@@ -57,14 +57,19 @@ namespace TestNamespaceWriter
         private static void ProcessFile(string file)
         {
             string codeText;
-            using (var fileStream = File.OpenText(file))
+            using (var textStream = File.OpenText(file))
             {
-                codeText = fileStream.ReadToEnd();
+                codeText = textStream.ReadToEnd();
             }
             if (IsTest(codeText))
             {
                 Console.WriteLine("Processing {0}", Path.GetFileName(file));
                 codeText = SetNamespaces(codeText);
+                using (var fileStream = File.Create(file))
+                using (var textStream = new StreamWriter(fileStream, Encoding.UTF8))
+                {
+                    textStream.Write(codeText);
+                }
             }
         }
 
@@ -83,7 +88,7 @@ namespace TestNamespaceWriter
             return HeaderEx.Replace(text, delegate(Match match)
                                               {
                                                   var ns = match.Groups["ns"].Value.Trim();
-                                                  var newHeader = Marker + " " + ns + GetNamespaces(ns) + "\r\n{";
+                                                  var newHeader = Marker + " " + ns + "\r\n" + GetNamespaces(ns) + "{";
                                                   return newHeader;
                                               });
         }
@@ -101,7 +106,8 @@ namespace TestNamespaceWriter
                 var keys = key.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                 var literalKeys = string.Join(" && ", keys);
                 namespacesBuilder.AppendLine(literalKeys);
-                namespacesBuilder.AppendFormat("namespace {0}\r\n", ConfigurationManager.AppSettings[key]);
+                namespacesBuilder.AppendFormat("    namespace {0}{1}\r\n", ConfigurationManager.AppSettings[key],
+                    string.IsNullOrEmpty(ns) ? "" : "." + ns);
             }
             namespacesBuilder.AppendLine("#endif");
             return namespacesBuilder.ToString();
@@ -116,7 +122,7 @@ namespace TestNamespaceWriter
         /// </returns>
         private static bool IsTest(string codeText)
         {
-            return codeText.Contains(Marker);
+            return codeText.Contains("\r\n" + Marker);
         }
 
         static void Main(string[] args)
