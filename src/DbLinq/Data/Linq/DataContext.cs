@@ -83,7 +83,25 @@ namespace DbLinq.Data.Linq
         internal IDatabaseContext DatabaseContext { get; private set; }
         // /all properties...
 
-        private readonly EntityTracker entityTracker = new EntityTracker();
+        private bool objectTrackingEnabled = true;
+
+        private IEntityTracker entityTracker;
+        private IEntityTracker EntityTracker
+        {
+            get
+            {
+                if (this.entityTracker == null)
+                {
+                    if (this.ObjectTrackingEnabled)
+                        this.entityTracker = new EntityTracker();
+                    else
+                        this.entityTracker = new DisabledEntityTracker();
+                }
+                return this.entityTracker;
+            }
+        }
+
+
 
         private IIdentityReaderFactory identityReaderFactory;
         private readonly IDictionary<Type, IIdentityReader> identityReaders = new Dictionary<Type, IIdentityReader>();
@@ -327,11 +345,13 @@ namespace DbLinq.Data.Linq
         /// <param name="failureMode"></param>
         public virtual void SubmitChanges(ConflictMode failureMode)
         {
+            if (this.objectTrackingEnabled == false)
+                throw new InvalidOperationException("Object tracking is not enabled for the current data context instance.");
             using (DatabaseContext.OpenConnection()) //ConnMgr will close connection for us
             using (IDatabaseTransaction transaction = DatabaseContext.Transaction())
             {
                 var queryContext = new QueryContext(this);
-                var entityTracks = entityTracker.EnumerateAll().ToList();
+                var entityTracks = EntityTracker.EnumerateAll().ToList();
                 foreach (var entityTrack in entityTracks)
                 {
                     switch (entityTrack.EntityState)
@@ -411,7 +431,7 @@ namespace DbLinq.Data.Linq
             if (identityKey == null) // if we don't have an entitykey here, it means that the entity has no PK
                 return entity;
             // even 
-            var registeredEntityTrack = entityTracker.FindByIdentity(identityKey);
+            var registeredEntityTrack = EntityTracker.FindByIdentity(identityKey);
             if (registeredEntityTrack != null)
                 return registeredEntityTrack.Entity;
             return null;
@@ -440,12 +460,12 @@ namespace DbLinq.Data.Linq
                 return entity;
 
             // try to find an already registered entity and return it
-            var registeredEntityTrack = entityTracker.FindByIdentity(identityKey);
+            var registeredEntityTrack = EntityTracker.FindByIdentity(identityKey);
             if (registeredEntityTrack != null)
                 return registeredEntityTrack.Entity;
 
             // otherwise, register and return
-            entityTracker.RegisterToWatch(entity, identityKey);
+            EntityTracker.RegisterToWatch(entity, identityKey);
             return entity;
         }
 
@@ -595,7 +615,7 @@ namespace DbLinq.Data.Linq
         /// <param name="entity"></param>
         internal void RegisterInsert(object entity)
         {
-            entityTracker.RegisterToInsert(entity);
+            EntityTracker.RegisterToInsert(entity);
         }
 
         /// <summary>
@@ -614,7 +634,7 @@ namespace DbLinq.Data.Linq
             if (identityKey == null)
                 return;
             // register entity
-            entityTracker.RegisterToWatch(entity, identityKey);
+            EntityTracker.RegisterToWatch(entity, identityKey);
         }
 
         /// <summary>
@@ -657,7 +677,7 @@ namespace DbLinq.Data.Linq
         /// <param name="entity"></param>
         internal void RegisterDelete(object entity)
         {
-            entityTracker.RegisterToDelete(entity);
+            EntityTracker.RegisterToDelete(entity);
         }
 
         /// <summary>
@@ -666,7 +686,7 @@ namespace DbLinq.Data.Linq
         /// <param name="entity"></param>
         internal void UnregisterDelete(object entity)
         {
-            entityTracker.RegisterDeleted(entity);
+            EntityTracker.RegisterDeleted(entity);
         }
 
         #endregion
@@ -680,7 +700,7 @@ namespace DbLinq.Data.Linq
             var inserts = new List<object>();
             var updates = new List<object>();
             var deletes = new List<object>();
-            foreach (var entityTrack in entityTracker.EnumerateAll())
+            foreach (var entityTrack in EntityTracker.EnumerateAll())
             {
                 switch (entityTrack.EntityState)
                 {
@@ -855,12 +875,15 @@ namespace DbLinq.Data.Linq
             }
         }
 
-
-        [DbLinqToDo]
         public bool ObjectTrackingEnabled
         {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            get { return this.objectTrackingEnabled; }
+            set 
+            {
+                if (this.entityTracker != null && value != this.objectTrackingEnabled)
+                    throw new InvalidOperationException("Data context options cannot be modified after results have been returned from a query.");
+                this.objectTrackingEnabled = value;
+            }
         }
 
         [DbLinqToDo]
