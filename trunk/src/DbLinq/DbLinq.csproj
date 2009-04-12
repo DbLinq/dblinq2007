@@ -68,6 +68,8 @@
     <Compile Include="Data\Linq\DBLinqExtendedAttributte.cs" />
     <Compile Include="Data\Linq\EntityRef.cs" />
     <Compile Include="Data\Linq\EntitySet.cs" />
+    <Compile Include="Data\Linq\Implementation\DisabledEntityTracker.cs" />
+    <Compile Include="Data\Linq\Implementation\IEntityTracker.cs" />
     <Compile Include="Data\Linq\Implementation\EntityTrack.cs" />
     <Compile Include="Data\Linq\Implementation\EntityState.cs" />
     <Compile Include="Data\Linq\Implementation\EntityTracker.cs" />

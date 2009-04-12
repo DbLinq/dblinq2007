@@ -43,7 +43,7 @@ namespace DbLinq.Data.Linq.Implementation
     /// <summary>
     /// List of entities, with their corresponding state (to insert, to watch, to delete)
     /// </summary>
-    internal class EntityTracker
+    internal class EntityTracker : IEntityTracker
     {
         /// <summary>
         /// Entities being watched
@@ -63,7 +63,7 @@ namespace DbLinq.Data.Linq.Implementation
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public EntityTrack FindByReference(object entity)
+        private EntityTrack FindByReference(object entity)
         {
             lock (lockObject)
                 return (from e in entities where e.Entity == entity select e).FirstOrDefault();
