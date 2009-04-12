@@ -340,9 +340,8 @@ using DataLinq = DbLinq.Data.Linq;
             Northwind db = CreateDB();
             var q = from t in db.Territories
                     select t;
-            var employeeCount = q.Count();
+            var employeeCount = q.FirstOrDefault();
             db.ObjectTrackingEnabled = false;
-            Assert.AreEqual(4, employeeCount, "Expected for employees, got count=" + employeeCount);
         }
 
         [Test]
@@ -352,9 +351,8 @@ using DataLinq = DbLinq.Data.Linq;
             Northwind db = CreateDB();
             var q = from t in db.Territories
                     select t;
-            var employeeCount = q.Count();
+            var employeeCount = q.FirstOrDefault();
             db.DeferredLoadingEnabled = false;
-            Assert.AreEqual(4, employeeCount, "Expected for employees, got count=" + employeeCount);
         }
 
         [Test]
