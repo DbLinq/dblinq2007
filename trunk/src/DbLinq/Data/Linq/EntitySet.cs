@@ -125,6 +125,9 @@ namespace DbLinq.Data.Linq
                 return;
             sourceAsList.Add(entity);
             OnAdd(entity);
+            ListChangedEventHandler handler = ListChanged;
+            if (handler != null)
+                handler(this, new ListChangedEventArgs(ListChangedType.ItemAdded, sourceAsList.Count - 1));
         }
 
         [DbLinqToDo]
@@ -161,6 +164,9 @@ namespace DbLinq.Data.Linq
                 throw new ArgumentOutOfRangeException();
             OnAdd(entity);
             sourceAsList.Insert(index, entity);
+            ListChangedEventHandler handler = ListChanged;
+            if (handler != null)
+                handler(this, new ListChangedEventArgs(ListChangedType.ItemAdded, index));
         }
 
         /// <summary>
@@ -200,14 +206,21 @@ namespace DbLinq.Data.Linq
 
         #region ICollection<TEntity> Members
 
+        private void clear()
+        {
+            sourceAsList.Clear();
+            Source = Enumerable.Empty<TEntity>();
+        }
+
         /// <summary>
         /// Removes all items in collection
         /// </summary>
         public void Clear()
         {
-            while (sourceAsList.Count > 0)
-                Remove(sourceAsList [0]);
-            Source = Enumerable.Empty<TEntity>();
+            clear();
+            ListChangedEventHandler handler = ListChanged;
+            if (handler != null)
+                handler(this, new ListChangedEventArgs(ListChangedType.Reset, -1));
         }
 
         /// <summary>
@@ -217,9 +230,10 @@ namespace DbLinq.Data.Linq
         /// <returns>
         /// 	<c>true</c> if [contains] [the specified entity]; otherwise, <c>false</c>.
         /// </returns>
+        [DbLinqToDo]
         public bool Contains(TEntity entity)
         {
-            return Source.Contains(entity);
+            return sourceAsList.Contains(entity);
         }
 
         /// <summary>
@@ -405,19 +419,16 @@ namespace DbLinq.Data.Linq
         public void Assign(IEnumerable<TEntity> entitySource)
         {
             // notifies removals and adds
-            Clear();
-            int i = 0;
+            clear();
             foreach (var entity in entitySource)
             {
                 OnAdd(entity);
-                ListChangedEventHandler handler = ListChanged;
-                ListChangedEventArgs e = new ListChangedEventArgs(ListChangedType.ItemAdded, i);
-                if (handler != null)
-                    handler(this, e);
-                i++;
             }
             this.Source = entitySource;
             this.SourceInUse = sourceAsList;
+            ListChangedEventHandler handler = ListChanged;
+            if (handler != null)
+                handler(this, new ListChangedEventArgs(ListChangedType.Reset,-1));
         }
 
         /// <summary>
