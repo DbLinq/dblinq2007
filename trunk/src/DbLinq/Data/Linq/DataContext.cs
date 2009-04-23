@@ -472,6 +472,8 @@ namespace DbLinq.Data.Linq
         readonly IDataMapper DataMapper = ObjectFactory.Get<IDataMapper>();
         private void SetEntityRefQueries(object entity)
         {
+            // BUG: This is ignoring External Mappings from XmlMappingSource.
+
             Type thisType = entity.GetType();
             IList<MemberInfo> properties = DataMapper.GetEntityRefAssociations(thisType);
 
@@ -532,6 +534,8 @@ namespace DbLinq.Data.Linq
         /// <param name="entity"></param>
         private void SetEntitySetsQueries(object entity)
         {
+            // BUG: This is ignoring External Mappings from XmlMappingSource.
+
             IList<MemberInfo> properties = DataMapper.GetEntitySetAssociations(entity.GetType());
             
             if (properties.Any()) {
@@ -628,6 +632,9 @@ namespace DbLinq.Data.Linq
             if (entity == null)
                 throw new ArgumentNullException("entity");
 
+            if (!this.objectTrackingEnabled)
+                return;
+
             var identityReader = _GetIdentityReader(entity.GetType());
             var identityKey = identityReader.GetIdentityKey(entity);
             // if we have no key, we can not watch
@@ -644,6 +651,8 @@ namespace DbLinq.Data.Linq
         /// <returns></returns>
         internal object Register(object entity)
         {
+            if (! this.objectTrackingEnabled)
+                return entity;
             var registeredEntity = _GetOrRegisterEntity(entity);
             // the fact of registering again clears the modified state, so we're... clear with that
             MemberModificationHandler.Register(registeredEntity, Mapping);
@@ -658,6 +667,8 @@ namespace DbLinq.Data.Linq
         /// <param name="entityOriginalState"></param>
         internal void RegisterUpdate(object entity, object entityOriginalState)
         {
+            if (!this.objectTrackingEnabled)
+                return;
             RegisterUpdate(entity);
             MemberModificationHandler.Register(entity, entityOriginalState, Mapping);
         }
@@ -668,6 +679,8 @@ namespace DbLinq.Data.Linq
         /// <param name="entity"></param>
         internal void RegisterUpdateAgain(object entity)
         {
+            if (!this.objectTrackingEnabled)
+                return;
             MemberModificationHandler.ClearModified(entity, Mapping);
         }
 
@@ -677,6 +690,8 @@ namespace DbLinq.Data.Linq
         /// <param name="entity"></param>
         internal void RegisterDelete(object entity)
         {
+            if (!this.objectTrackingEnabled)
+                return;
             EntityTracker.RegisterToDelete(entity);
         }
 
@@ -686,6 +701,8 @@ namespace DbLinq.Data.Linq
         /// <param name="entity"></param>
         internal void UnregisterDelete(object entity)
         {
+            if (!this.objectTrackingEnabled)
+                return;
             EntityTracker.RegisterDeleted(entity);
         }
 

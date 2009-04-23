@@ -218,6 +218,7 @@ using nwind;
         {
             var db = CreateDB();
             var customer = db.Customers.First();
+            Assert.Greater(0, customer.Orders.Count);
             bool ok;
             customer.Orders.ListChanged += delegate { ok = true; };
 
