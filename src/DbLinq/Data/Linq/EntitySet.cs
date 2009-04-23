@@ -171,6 +171,9 @@ namespace DbLinq.Data.Linq
         {
             OnRemove(sourceAsList[index]);
             sourceAsList.RemoveAt(index);
+            ListChangedEventHandler handler = ListChanged;
+            if (handler != null)
+                handler(this, new ListChangedEventArgs(ListChangedType.ItemDeleted, index));
         }
 
         /// <summary>
@@ -181,7 +184,9 @@ namespace DbLinq.Data.Linq
         {
             get
             {
-                return Source.ElementAt(index);
+                if(! this.HasLoadedOrAssignedValues)
+                    return Source.ElementAt(index);
+                return sourceAsList[index];
             }
             set
             {
@@ -234,6 +239,8 @@ namespace DbLinq.Data.Linq
         {
             get
             {
+                if (!this.HasLoadedOrAssignedValues)
+                    return Source.Count();
                 return sourceAsList.Count;
             }
         }
@@ -257,6 +264,10 @@ namespace DbLinq.Data.Linq
         public bool Remove(TEntity entity)
         {
             OnRemove(entity);
+            ListChangedEventHandler handler = ListChanged;
+            int i = sourceAsList.IndexOf(entity);
+            if (handler != null)
+                handler(this, new ListChangedEventArgs(ListChangedType.ItemDeleted, i));
             return sourceAsList.Remove(entity);
         }
 
@@ -369,7 +380,7 @@ namespace DbLinq.Data.Linq
         /// </value>
         public bool IsDeferred
         {
-            get { return Source is IQueryable; }
+            get { return Source is IQueryable && SourceInUse == null; }
         }
 
         /// <summary>
@@ -395,8 +406,16 @@ namespace DbLinq.Data.Linq
         {
             // notifies removals and adds
             Clear();
+            int i = 0;
             foreach (var entity in entitySource)
+            {
                 OnAdd(entity);
+                ListChangedEventHandler handler = ListChanged;
+                ListChangedEventArgs e = new ListChangedEventArgs(ListChangedType.ItemAdded, i);
+                if (handler != null)
+                    handler(this, e);
+                i++;
+            }
             this.Source = entitySource;
             this.SourceInUse = sourceAsList;
         }
