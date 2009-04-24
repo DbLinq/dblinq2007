@@ -84,6 +84,7 @@ namespace DbLinq.Data.Linq
         // /all properties...
 
         private bool objectTrackingEnabled = true;
+        private bool deferredLoadingEnabled = true;
 
         private IEntityTracker entityTracker;
         private IEntityTracker EntityTracker
@@ -472,6 +473,9 @@ namespace DbLinq.Data.Linq
         readonly IDataMapper DataMapper = ObjectFactory.Get<IDataMapper>();
         private void SetEntityRefQueries(object entity)
         {
+            if (!this.deferredLoadingEnabled)
+                return;
+
             // BUG: This is ignoring External Mappings from XmlMappingSource.
 
             Type thisType = entity.GetType();
@@ -534,6 +538,9 @@ namespace DbLinq.Data.Linq
         /// <param name="entity"></param>
         private void SetEntitySetsQueries(object entity)
         {
+            if (!this.deferredLoadingEnabled)
+                return;
+
             // BUG: This is ignoring External Mappings from XmlMappingSource.
 
             IList<MemberInfo> properties = DataMapper.GetEntitySetAssociations(entity.GetType());
@@ -782,7 +789,11 @@ namespace DbLinq.Data.Linq
         /// Gets or sets the load options
         /// </summary>
         [DbLinqToDo]
-        public DataLoadOptions LoadOptions { get; set; }
+        public DataLoadOptions LoadOptions 
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
 
         public DbTransaction Transaction { get; set; }
 
@@ -910,11 +921,15 @@ namespace DbLinq.Data.Linq
             set { throw new NotImplementedException(); }
         }
 
-        [DbLinqToDo]
         public bool DeferredLoadingEnabled
         {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            get { return this.deferredLoadingEnabled; }
+            set
+            {
+                if (this.entityTracker != null && value != this.deferredLoadingEnabled)
+                    throw new InvalidOperationException("Data context options cannot be modified after results have been returned from a query.");
+                this.deferredLoadingEnabled = value;
+            }
         }
 
         [DbLinqToDo]

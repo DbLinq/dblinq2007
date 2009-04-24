@@ -340,7 +340,7 @@ using DataLinq = DbLinq.Data.Linq;
             Northwind db = CreateDB();
             var q = from t in db.Territories
                     select t;
-            var employeeCount = q.FirstOrDefault();
+            var territoryCount = q.FirstOrDefault();
             db.ObjectTrackingEnabled = false;
         }
 
@@ -351,7 +351,7 @@ using DataLinq = DbLinq.Data.Linq;
             Northwind db = CreateDB();
             var q = from t in db.Territories
                     select t;
-            var employeeCount = q.FirstOrDefault();
+            var territoryCount = q.FirstOrDefault();
             db.DeferredLoadingEnabled = false;
         }
 
@@ -363,9 +363,45 @@ using DataLinq = DbLinq.Data.Linq;
             db.ObjectTrackingEnabled = false;
             var q = from t in db.Territories
                     select t;
-            var employeeCount = q.Count();
+            var territoryCount = q.Count();
             db.SubmitChanges();
         }
+
+        [Test]
+        public void C16_GettingProperty_DeferredLoadingEnabled2False()
+        {
+            Northwind db = CreateDB();
+            db.DeferredLoadingEnabled = false;
+            var q = from t in db.Territories
+                    select t;
+            Territory territory = q.FirstOrDefault();
+            Assert.IsNotNull(territory);
+            Assert.IsNull(territory.Region);
+        }
+
+        [Test]
+        public void C17_GettingProperty_ObjectTrackingEnabled2False()
+        {
+            Northwind db = CreateDB();
+            db.ObjectTrackingEnabled = false;
+            var q = from t in db.Territories
+                    select t;
+            Territory territory = q.FirstOrDefault();
+            Assert.IsNotNull(territory);
+            Assert.IsNull(territory.Region);
+        }
+
+        [Test]
+        public void C18_GettingProperty_LazyLoaded()
+        {
+            Northwind db = CreateDB();
+            var q = from t in db.Territories
+                    select t;
+            Territory territory = q.FirstOrDefault();
+            Assert.IsNotNull(territory);
+            Assert.IsNotNull(territory.Region);
+        }
+
 
         #endregion
 
