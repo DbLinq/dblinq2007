@@ -132,7 +132,25 @@ namespace DbLinq.Data.Linq
         [DbLinqToDo]
         public DataContext(string fileOrServerOrConnection, MappingSource mapping)
         {
-            throw new NotImplementedException();
+            if (fileOrServerOrConnection == null)
+                throw new ArgumentNullException("fileOrServerOrConnection");
+            if (mapping == null)
+                throw new ArgumentNullException("mapping");
+
+            if (File.Exists(fileOrServerOrConnection))
+                throw new NotImplementedException("File names not supported.");
+
+            // Is this a decent server name check?
+            // It assumes that the connection string will have at least 2
+            // parameters (separated by ';')
+            if (!fileOrServerOrConnection.Contains(";"))
+                throw new NotImplementedException("Server name not supported.");
+
+            // Assume it's a connection string...
+            IVendor ivendor = GetVendor(fileOrServerOrConnection);
+
+            IDbConnection dbConnection = ivendor.CreateDbConnection(fileOrServerOrConnection);
+            Init(new DatabaseContext(dbConnection), mapping, ivendor);
         }
 
         /// <summary>
