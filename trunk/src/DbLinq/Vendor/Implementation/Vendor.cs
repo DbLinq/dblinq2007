@@ -166,7 +166,7 @@ namespace DbLinq.Vendor.Implementation
         /// </summary>
         public IDbConnection CreateDbConnection(string connectionString)
         {
-            var reConnectionType = new System.Text.RegularExpressions.Regex(@"DbLinqConnectionType=([^;]+)");
+            var reConnectionType = new System.Text.RegularExpressions.Regex(@"DbLinqConnectionType=([^;]*)");
             string connTypeVal = null;
             if (!reConnectionType.IsMatch(connectionString))
             {
