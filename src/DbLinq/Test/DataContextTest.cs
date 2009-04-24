@@ -108,6 +108,12 @@ namespace DbLinqTest {
         }
 
         [Test, ExpectedException(typeof(ArgumentException))]
+        public void Ctor_ConnectionString_DbLinqConnectionType_Empty2()
+        {
+            new DataContext("DbLinqConnectionType=;");
+        }
+
+        [Test, ExpectedException(typeof(ArgumentException))]
         public void Ctor_ConnectionString_DbLinqConnectionType_Invalid()
         {
             new DataContext("DbLinqConnectionType=InvalidType, DoesNotExist");
