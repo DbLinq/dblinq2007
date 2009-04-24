@@ -394,7 +394,7 @@ namespace DbLinq.Data.Linq
         /// </value>
         public bool IsDeferred
         {
-            get { return Source is IQueryable && SourceInUse == null; }
+            get { return SourceInUse == null && Source is IQueryable; }
         }
 
         /// <summary>
@@ -447,7 +447,7 @@ namespace DbLinq.Data.Linq
         /// </summary>
         public void Load()
         {
-            this.sourceAsList.Count();
+            IList<TEntity> list = this.sourceAsList;
         }
 
         /// <summary>
