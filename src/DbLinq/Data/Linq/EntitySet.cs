@@ -121,7 +121,7 @@ namespace DbLinq.Data.Linq
         /// </summary>
         public void Add(TEntity entity)
         {
-            if (Contains (entity))
+            if (sourceAsList.Contains (entity))
                 return;
             sourceAsList.Add(entity);
             OnAdd(entity);
@@ -160,7 +160,7 @@ namespace DbLinq.Data.Linq
         /// <param name="entity">The entity.</param>
         public void Insert(int index, TEntity entity)
         {
-            if (Contains(entity))
+            if (sourceAsList.Contains(entity))
                 throw new ArgumentOutOfRangeException();
             OnAdd(entity);
             sourceAsList.Insert(index, entity);
@@ -206,21 +206,17 @@ namespace DbLinq.Data.Linq
 
         #region ICollection<TEntity> Members
 
-        private void clear()
-        {
-            sourceAsList.Clear();
-            Source = Enumerable.Empty<TEntity>();
-        }
-
         /// <summary>
         /// Removes all items in collection
         /// </summary>
         public void Clear()
         {
-            clear();
+            sourceAsList.Clear();
+            SourceInUse = null;
+            Source = Enumerable.Empty<TEntity>();
             ListChangedEventHandler handler = ListChanged;
             if (handler != null)
-                handler(this, new ListChangedEventArgs(ListChangedType.Reset, -1));
+                handler(this, new ListChangedEventArgs(ListChangedType.Reset, 0));
         }
 
         /// <summary>
@@ -278,8 +274,10 @@ namespace DbLinq.Data.Linq
         public bool Remove(TEntity entity)
         {
             OnRemove(entity);
-            ListChangedEventHandler handler = ListChanged;
             int i = sourceAsList.IndexOf(entity);
+            if(i < 0)
+            	return false;
+            ListChangedEventHandler handler = ListChanged;
             if (handler != null)
                 handler(this, new ListChangedEventArgs(ListChangedType.ItemDeleted, i));
             return sourceAsList.Remove(entity);
@@ -419,16 +417,13 @@ namespace DbLinq.Data.Linq
         public void Assign(IEnumerable<TEntity> entitySource)
         {
             // notifies removals and adds
-            clear();
+            Clear();
             foreach (var entity in entitySource)
             {
                 OnAdd(entity);
             }
             this.Source = entitySource;
-            this.SourceInUse = sourceAsList;
-            ListChangedEventHandler handler = ListChanged;
-            if (handler != null)
-                handler(this, new ListChangedEventArgs(ListChangedType.Reset,-1));
+            // this.SourceInUse = sourceAsList;
         }
 
         /// <summary>
