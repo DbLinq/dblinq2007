@@ -353,29 +353,25 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         protected virtual SelectQuery GetFromSelectCache(ExpressionChain expressions)
         {
             var cache = QueryCache;
-            lock (cache)
-                return cache.GetFromSelectCache(expressions);
+            return cache.GetFromSelectCache(expressions);
         }
 
         protected virtual void SetInSelectCache(ExpressionChain expressions, SelectQuery sqlSelectQuery)
         {
             var cache = QueryCache;
-            lock (cache)
-                cache.SetInSelectCache(expressions, sqlSelectQuery);
+            cache.SetInSelectCache(expressions, sqlSelectQuery);
         }
 
         protected virtual Delegate GetFromTableReaderCache(Type tableType, IList<string> columns)
         {
             var cache = QueryCache;
-            lock (cache)
-                return cache.GetFromTableReaderCache(tableType, columns);
+            return cache.GetFromTableReaderCache(tableType, columns);
         }
 
         protected virtual void SetInTableReaderCache(Type tableType, IList<string> columns, Delegate tableReader)
         {
             var cache = queryCache;
-            lock (cache)
-                cache.SetInTableReaderCache(tableType, columns, tableReader);
+            cache.SetInTableReaderCache(tableType, columns, tableReader);
         }
 
         /// <summary>
