@@ -73,8 +73,6 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         {
             SelectQuery selectQuery;
             selectQueries.TryGetValue(expressions, out selectQuery);
-            if (selectQuery != null)
-                return selectQuery;
             return selectQuery;
         }
 
