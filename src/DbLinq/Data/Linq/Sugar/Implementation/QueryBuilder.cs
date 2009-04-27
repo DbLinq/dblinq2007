@@ -385,18 +385,23 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             var query = GetFromSelectCache(expressions);
             if (query == null)
             {
+#if DEBUG && !MONO_STRICT
                 var timer = new Stopwatch();
                 timer.Start();
+#endif
                 var expressionsQuery = BuildExpressionQuery(expressions, queryContext);
+#if DEBUG && !MONO_STRICT
                 timer.Stop();
                 long expressionBuildTime = timer.ElapsedMilliseconds;
 
                 timer.Reset();
                 timer.Start();
+#endif
                 query = BuildSqlQuery(expressionsQuery, queryContext);
+#if DEBUG && !MONO_STRICT
                 timer.Stop();
                 long sqlBuildTime = timer.ElapsedMilliseconds;
-
+#endif
 #if DEBUG && !MONO_STRICT
                 // generation time statistics
                 var log = queryContext.DataContext.Log;
