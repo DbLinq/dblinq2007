@@ -311,6 +311,7 @@
     <Compile Include="Language\ILanguages.cs" />
     <Compile Include="Language\ILanguageWords.cs" />
     <Compile Include="Util\IDbDataParameterExtensions.cs" />
+    <Compile Include="Util\IThreadSafeDictionary.cs" />
     <Compile Include="Util\LambdaComparer.cs" />
     <Compile Include="Util\DataCommand.cs" />
     <Compile Include="Schema\INameFormatter.cs" />
@@ -324,6 +325,7 @@
     <Compile Include="Util\ReflectionUtility.cs" />
     <Compile Include="Util\StringExtensions.cs" />
     <Compile Include="Util\TextWriterExtension.cs" />
+    <Compile Include="Util\ThreadSafeDictionary.cs" />
     <Compile Include="Util\TypeConvert.cs" />
     <Compile Include="Util\QuotesHelper.cs" />
     <Compile Include="Util\ReferenceEqualityComparer.cs" />
