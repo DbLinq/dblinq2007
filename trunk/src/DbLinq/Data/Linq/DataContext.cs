@@ -316,25 +316,22 @@ namespace DbLinq.Data.Linq
 		/// <exception cref="InvalidOperationException">If the type is not mappable as a Table.</exception>
         public ITable GetTable(Type type)
         {
-            lock (_tableMap)
-            {
-                ITable tableExisting;
-				if (_tableMap.TryGetValue(type, out tableExisting))
-                    return tableExisting;
+            ITable tableExisting;
+			if (_tableMap.TryGetValue(type, out tableExisting))
+                return tableExisting;
 
-				//Check for table mapping
-				CheckTableMapping(type);
+			//Check for table mapping
+			CheckTableMapping(type);
 
-                var tableNew = Activator.CreateInstance(
-                                  typeof(Table<>).MakeGenericType(type)
-                                  , BindingFlags.NonPublic | BindingFlags.Instance
-                                  , null
-                                  , new object[] { this }
-                                  , System.Globalization.CultureInfo.CurrentCulture) as ITable;
+            var tableNew = Activator.CreateInstance(
+                              typeof(Table<>).MakeGenericType(type)
+                              , BindingFlags.NonPublic | BindingFlags.Instance
+                              , null
+                              , new object[] { this }
+                              , System.Globalization.CultureInfo.CurrentCulture) as ITable;
 
-                _tableMap[type] = tableNew;
-                return tableNew;
-            }
+            _tableMap[type] = tableNew;
+            return tableNew;
         }
 
         public void SubmitChanges()
@@ -430,13 +427,10 @@ namespace DbLinq.Data.Linq
         internal IIdentityReader _GetIdentityReader(Type t)
         {
             IIdentityReader identityReader;
-            lock (identityReaders)
+            if (!identityReaders.TryGetValue(t, out identityReader))
             {
-                if (!identityReaders.TryGetValue(t, out identityReader))
-                {
-                    identityReader = identityReaderFactory.GetReader(t, this);
-                    identityReaders[t] = identityReader;
-                }
+                identityReader = identityReaderFactory.GetReader(t, this);
+                identityReaders[t] = identityReader;
             }
             return identityReader;
         }

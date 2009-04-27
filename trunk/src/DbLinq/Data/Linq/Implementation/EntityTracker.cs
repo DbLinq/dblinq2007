@@ -55,9 +55,6 @@ namespace DbLinq.Data.Linq.Implementation
         /// </summary>
         private readonly IDictionary<IdentityKey, EntityTrack> entitiesByKey = new Dictionary<IdentityKey, EntityTrack>();
 
-        /// lock key, for thread safety
-//        private readonly object lockObject = new object();
-
         /// <summary>
         /// Finds an entity tracking info by object reference
         /// </summary>
