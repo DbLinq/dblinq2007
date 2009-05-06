@@ -10,7 +10,10 @@ namespace DbLinq.Util
     /// </summary>
     /// <typeparam name="TKey">Type of Keys</typeparam>
     /// <typeparam name="TValue">Type of Values</typeparam>
-    public interface IThreadSafeDictionary<TKey, TValue> : IDictionary<TKey, TValue>
+#if !MONO_STRICT
+    public
+#endif
+    interface IThreadSafeDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     {
         /// <summary>
         /// Merge is similar to the SQL merge or upsert statement.  

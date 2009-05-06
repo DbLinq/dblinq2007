@@ -10,7 +10,10 @@ namespace DbLinq.Util
     /// </summary>
     /// <typeparam name="TKey">Type of Keys</typeparam>
     /// <typeparam name="TValue">Type of Values</typeparam>
-    public class ThreadSafeDictionary<TKey, TValue> : IThreadSafeDictionary<TKey, TValue>
+#if !MONO_STRICT
+    public
+#endif
+    class ThreadSafeDictionary<TKey, TValue> : IThreadSafeDictionary<TKey, TValue>
     {
         //This is the internal dictionary that we are wrapping
         IDictionary<TKey, TValue> dict;
