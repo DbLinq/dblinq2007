@@ -98,8 +98,8 @@ using DataLinq = DbLinq.Data.Linq;
             Northwind db = CreateDB();
 
             // Query for a specific customer
-            var cust = db.Customers.Single(c => c.CompanyName == "airbus");
-            Assert.IsNotNull(cust, "Expected one customer 'airbus'");
+            var cust = db.Customers.Single(c => c.CompanyName == "Around the Horn");
+            Assert.IsNotNull(cust, "Expected one customer 'Around the Horn'.");
         }
 
         [Test]
@@ -108,8 +108,15 @@ using DataLinq = DbLinq.Data.Linq;
             Northwind db = CreateDB();
 
             // Query for a specific customer
-            var cust = db.Customers.SingleOrDefault(c => c.CompanyName == "airbus");
-            Assert.IsNotNull(cust, "Expected one customer 'airbus'");
+            var cust = db.Customers.SingleOrDefault(c => c.CompanyName == "Around the Horn");
+            Assert.IsNotNull(cust, "Expected one customer 'Around the Horn'.");
+
+            cust = db.Customers.SingleOrDefault(c => c.CustomerID == "ALFKI");
+            Assert.AreEqual("ALFKI", cust.CustomerID);
+            cust = db.Customers.SingleOrDefault(c => c.CustomerID == "BLAUS");
+            Assert.AreEqual("BLAUS", cust.CustomerID);
+            cust = db.Customers.SingleOrDefault(c => c.CustomerID == "DNE"); // Does Not Exist
+            Assert.IsNull(cust);
         }
 
 
