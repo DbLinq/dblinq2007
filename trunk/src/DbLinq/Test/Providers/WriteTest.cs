@@ -764,5 +764,31 @@ dummy text
             p.BirthDate = beforeDateTime;
             db.SubmitChanges();
         }
+
+        [Test]
+        public void InsertAndDeleteWithDependencies()
+        {
+            var db = CreateDB();
+
+            var product = new Product
+            {
+                Discontinued = true,
+                ProductName = "This is a test product",
+            };
+
+            var category = new Category
+            {
+                CategoryName = "My New Category",
+                Description  = "Insert Description Here",
+            };
+            category.Products.Add(product);
+
+            db.Categories.InsertOnSubmit(category);
+            db.SubmitChanges();
+
+            db.Products.DeleteOnSubmit(product);
+            db.Categories.DeleteOnSubmit(category);
+            db.SubmitChanges();
+        }
     }
 }
