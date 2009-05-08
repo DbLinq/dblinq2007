@@ -144,6 +144,7 @@
     <Compile Include="Data\Linq\Sugar\ExpressionMutator\Implementation\UnaryExpressionMutator.cs" />
     <Compile Include="Data\Linq\Sugar\ExpressionPrecedence.cs" />
     <Compile Include="Data\Linq\Sugar\ExpressionQuery.cs" />
+    <Compile Include="Data\Linq\Sugar\Expressions\ExpressionTranslator.cs" />
     <Compile Include="Data\Linq\Sugar\Expressions\ColumnExpression.cs" />
     <Compile Include="Data\Linq\Sugar\Expressions\EntitySetExpression.cs" />
     <Compile Include="Data\Linq\Sugar\Expressions\ObjectInputParameterExpression.cs" />
