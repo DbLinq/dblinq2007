@@ -100,6 +100,12 @@ using DataLinq = DbLinq.Data.Linq;
             // Query for a specific customer
             var cust = db.Customers.Single(c => c.CompanyName == "Around the Horn");
             Assert.IsNotNull(cust, "Expected one customer 'Around the Horn'.");
+            var id = 1;
+            var prod = db.Products.Single(p => p.ProductID == id);
+            Assert.AreEqual("Chai", prod.ProductName);
+            id = 2;
+            prod = db.Products.Single(p => p.ProductID == id);
+            Assert.AreEqual("Chang", prod.ProductName);
         }
 
         [Test]
@@ -111,12 +117,21 @@ using DataLinq = DbLinq.Data.Linq;
             var cust = db.Customers.SingleOrDefault(c => c.CompanyName == "Around the Horn");
             Assert.IsNotNull(cust, "Expected one customer 'Around the Horn'.");
 
-            cust = db.Customers.SingleOrDefault(c => c.CustomerID == "ALFKI");
+            var id = "ALFKI";
+            cust = db.Customers.SingleOrDefault(c => c.CustomerID == id);
             Assert.AreEqual("ALFKI", cust.CustomerID);
-            cust = db.Customers.SingleOrDefault(c => c.CustomerID == "BLAUS");
+            id = "BLAUS";
+            cust = db.Customers.SingleOrDefault(c => c.CustomerID == id);
             Assert.AreEqual("BLAUS", cust.CustomerID);
-            cust = db.Customers.SingleOrDefault(c => c.CustomerID == "DNE"); // Does Not Exist
+            id = "DNE";
+            cust = db.Customers.SingleOrDefault(c => c.CustomerID == id); // Does Not Exist
             Assert.IsNull(cust);
+
+            id = "ALFKI";
+            cust = db.Customers.SingleOrDefault(c => c.CustomerID == id);
+            Assert.AreEqual("ALFKI", cust.CustomerID);
+            id = "BLAUS";
+            cust = db.Customers.SingleOrDefault(c => c.CustomerID == id);
         }
 
 
