@@ -47,6 +47,11 @@ namespace DbLinq.SqlServer
 #endif
  class SqlServerSqlProvider : SqlProvider
     {
+        public override ExpressionTranslator GetTranslator()
+        {
+            return new SqlServerExpressionTranslator();
+        }
+
         protected override char SafeNameStartQuote { get { return '['; } }
         protected override char SafeNameEndQuote { get { return ']'; } }
 

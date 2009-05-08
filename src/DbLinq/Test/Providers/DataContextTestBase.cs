@@ -48,6 +48,10 @@ namespace DbLinqTest {
     {
         DataContext context;
 
+        protected DataContext Context {
+            get { return context; }
+        }
+
         [SetUp]
         public void SetUp()
         {
