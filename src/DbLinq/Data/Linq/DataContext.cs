@@ -604,6 +604,10 @@ namespace DbLinq.Data.Linq
                         prop.SetValue(entity, entitySetValue, null);
                     }
 
+                    var hasLoadedOrAssignedValues = entitySetValue.GetType().GetProperty("HasLoadedOrAssignedValues");
+                    if ((bool)hasLoadedOrAssignedValues.GetValue(entitySetValue, null))
+                        continue;
+
                     var setSourceMethod = entitySetValue.GetType().GetMethod("SetSource");
                     setSourceMethod.Invoke(entitySetValue, new[] { query });
                     //employee.EmployeeTerritories.SetSource(Table[EmployeesTerritories].Where(other=>other.employeeID="WARTH"))
