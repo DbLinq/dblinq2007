@@ -46,6 +46,8 @@ namespace DbLinq.Data.Linq.Implementation
         private readonly IDictionary<object, IDictionary<string, object>> rawDataEntities = new Dictionary<object, IDictionary<string, object>>(new ReferenceEqualityComparer<object>());
         private readonly IDictionary<object, IDictionary<string, MemberInfo>> modifiedProperties = new Dictionary<object, IDictionary<string, MemberInfo>>(new ReferenceEqualityComparer<object>());
 
+        private static readonly IDictionary<string, MemberInfo> propertyChangingSentinal = new Dictionary<string, MemberInfo>();
+
         /// <summary>
         /// Gets the column members.
         /// </summary>
@@ -176,12 +178,20 @@ namespace DbLinq.Data.Linq.Implementation
         {
             if (modifiedProperties.ContainsKey(entity))
                 return;
-            modifiedProperties[entity] = new Dictionary<string, MemberInfo>();
+            modifiedProperties[entity] = null;
 
-            if (entity is INotifyPropertyChanged)
+            var entityChanged = entity as INotifyPropertyChanged;
+            if (entityChanged != null)
             {
-                ((INotifyPropertyChanged)entity).PropertyChanged += (OnPropertyChangedEvent);
+                entityChanged.PropertyChanged += OnPropertyChangedEvent;
             }
+
+            var entityChanging = entity as INotifyPropertyChanging;
+            if (entityChanging != null)
+            {
+                entityChanging.PropertyChanging += OnPropertyChangingEvent;
+            }
+
             // then check all properties, and note them as changed if they already did
             if (!ReferenceEquals(entity, entityOriginalState)) // only if we specified another original entity
             {
@@ -206,6 +216,12 @@ namespace DbLinq.Data.Linq.Implementation
         private void OnPropertyChangedEvent(object sender, PropertyChangedEventArgs e)
         {
             SetPropertyChanged(sender, e.PropertyName);
+        }
+
+        private void OnPropertyChangingEvent(object entity, PropertyChangingEventArgs e)
+        {
+            if (modifiedProperties[entity] == null)
+                modifiedProperties[entity] = propertyChangingSentinal;
         }
 
         /// <summary>
@@ -234,6 +250,11 @@ namespace DbLinq.Data.Linq.Implementation
             {
                 npc.PropertyChanged -= OnPropertyChangedEvent;
             }
+            var changing = entity as INotifyPropertyChanging;
+            if (changing != null)
+            {
+                changing.PropertyChanging -= OnPropertyChangingEvent;
+            }
         }
 
         /// <summary>
@@ -248,6 +269,11 @@ namespace DbLinq.Data.Linq.Implementation
             if (pi == null)
                 throw new ArgumentException("Incorrect property changed");
 
+            if (modifiedProperties[entity] == null || 
+                    ReferenceEquals(propertyChangingSentinal, modifiedProperties[entity]))
+            {
+                modifiedProperties[entity] = new Dictionary<string, MemberInfo>();
+            }
             modifiedProperties[entity][propertyName] = pi;
         }
 
@@ -276,7 +302,10 @@ namespace DbLinq.Data.Linq.Implementation
         /// </returns>
         private bool IsNotifyingModified(object entity)
         {
-            return !modifiedProperties.ContainsKey(entity) || modifiedProperties[entity].Count > 0;
+            if (!modifiedProperties.ContainsKey(entity) || modifiedProperties[entity] == null)
+                return false;
+            return ReferenceEquals(propertyChangingSentinal, modifiedProperties[entity]) ||
+                modifiedProperties[entity].Count > 0;
         }
 
         /// <summary>
@@ -369,7 +398,8 @@ namespace DbLinq.Data.Linq.Implementation
         {
             IDictionary<string, MemberInfo> properties;
             // if we don't have it, it is fully dirty
-            if (!modifiedProperties.TryGetValue(entity, out properties))
+            if (!modifiedProperties.TryGetValue(entity, out properties) || 
+                    ReferenceEquals(propertyChangingSentinal, modifiedProperties[entity]))
                 return GetAllColumnProperties(entity, metaModel);
             return new List<MemberInfo>(properties.Values);
         }
@@ -421,7 +451,7 @@ namespace DbLinq.Data.Linq.Implementation
         /// <param name="entity">The entity.</param>
         private void ClearNotifyingModified(object entity)
         {
-            modifiedProperties[entity] = new Dictionary<string, MemberInfo>();
+            modifiedProperties[entity] = null;
         }
 
         /// <summary>

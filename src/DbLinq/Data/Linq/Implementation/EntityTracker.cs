@@ -85,7 +85,7 @@ namespace DbLinq.Data.Linq.Implementation
         /// <returns></returns>
         public bool ContainsReference(object entity)
         {
-            return FindByReference(entity) == null;
+            return FindByReference(entity) != null;
         }
 
         /// <summary>
