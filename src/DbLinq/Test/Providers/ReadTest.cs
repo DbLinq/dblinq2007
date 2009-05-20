@@ -471,6 +471,16 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.IsNotNull(territory.Region);
         }
 
+        [Test]
+        public void C12_SelectEmployee_Fluent()
+        {
+            Northwind db = CreateDB();
+            var q = db.GetTable<Territory>()
+                        .Join(db.GetTable<EmployeeTerritory>(), t => t.TerritoryID, l => l.TerritoryID, (t, l) => l)
+                        .Join(db.GetTable<Employee>().Where(e => e.EmployeeID > 0), l => l.EmployeeID, e => e.EmployeeID, (l, e) => e);
+            var employeeCount = q.Count();
+            Assert.Greater(employeeCount, 0, "Expected any employees, got count=" + employeeCount);
+        }
 
         #endregion
 

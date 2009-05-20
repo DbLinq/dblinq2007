@@ -1306,6 +1306,37 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     var tableType = constantExpression.Type.GetGenericArguments()[0];
                     return new TableExpression(tableType, DataMapper.GetTableName(tableType, builderContext.QueryContext.DataContext));
                 }
+                else
+                {
+                    QueryProvider qp = constantExpression.Value as QueryProvider;
+                    if (qp != null)
+                    {
+                        ExpressionChain expressions = qp.ExpressionChain;
+                        Expression tableExpression = CreateTableExpression(qp.ExpressionChain.Expressions[0], builderContext);
+                        Expression last = expressions.Last();
+                        IExpressionLanguageParser languageParser = ObjectFactory.Get<IExpressionLanguageParser>();
+                        foreach (Expression e in expressions)
+                        {
+                            if (e == last)
+                                builderContext.IsExternalInExpressionChain = true;
+
+                            // write full debug
+#if DEBUG && !MONO_STRICT
+                            var log = builderContext.QueryContext.DataContext.Log;
+                            if (log != null)
+                                log.WriteExpression(expression);
+#endif
+                            // Convert linq Expressions to QueryOperationExpressions and QueryConstantExpressions 
+                            // Query expressions language identification
+                            var currentExpression = languageParser.Parse(e, builderContext);
+                            // Query expressions query identification 
+                            currentExpression = this.Analyze(currentExpression, tableExpression, builderContext);
+
+                            tableExpression = currentExpression;
+                        }
+                        return tableExpression;
+                    }
+                }
             }
             return expression;
         }
