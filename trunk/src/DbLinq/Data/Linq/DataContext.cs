@@ -28,36 +28,32 @@ using System;
 using System.Collections;
 using System.Data;
 using System.Data.Common;
+using System.Data.Linq;
 using System.Data.Linq.Mapping;
+using System.Linq.Expressions;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 
 #if MONO_STRICT
-using System.Data.Linq.Implementation;
-using System.Data.Linq.Sugar;
-using System.Data.Linq.Identity;
-using DbLinq.Util;
-using AttributeMappingSource = System.Data.Linq.Mapping.AttributeMappingSource;
-using MappingContext = System.Data.Linq.Mapping.MappingContext;
-using DbLinq;
+using AttributeMappingSource  = System.Data.Linq.Mapping.AttributeMappingSource;
 #else
-using DbLinq.Data.Linq.Implementation;
-using DbLinq.Data.Linq.Sugar;
-using DbLinq.Data.Linq.Identity;
-using DbLinq.Util;
-using AttributeMappingSource = DbLinq.Data.Linq.Mapping.AttributeMappingSource;
-using MappingContext = DbLinq.Data.Linq.Mapping.MappingContext;
-using System.Data.Linq;
+using AttributeMappingSource  = DbLinq.Data.Linq.Mapping.AttributeMappingSource;
 #endif
 
-using DbLinq.Factory;
-using DbLinq.Vendor;
+using DbLinq;
+using DbLinq.Data.Linq;
 using DbLinq.Data.Linq.Database;
 using DbLinq.Data.Linq.Database.Implementation;
-using System.Linq.Expressions;
-using System.Reflection.Emit;
+using DbLinq.Data.Linq.Identity;
+using DbLinq.Data.Linq.Implementation;
+using DbLinq.Data.Linq.Mapping;
+using DbLinq.Data.Linq.Sugar;
+using DbLinq.Factory;
+using DbLinq.Util;
+using DbLinq.Vendor;
 
 #if MONO_STRICT
 namespace System.Data.Linq

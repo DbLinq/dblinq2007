@@ -25,18 +25,12 @@
 #endregion
 
 using System.Collections.Generic;
-#if MONO_STRICT
-using System.Data.Linq.Sql;
-#else
 using DbLinq.Data.Linq.Sql;
-#endif
 using DbLinq.Vendor.Implementation;
 
 namespace DbLinq.Sqlite
 {
-#if MONO_STRICT
-    internal
-#else
+#if !MONO_STRICT
     public
 #endif
     class SqliteSqlProvider : SqlProvider

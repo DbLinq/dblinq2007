@@ -31,24 +31,17 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 
-#if MONO_STRICT
-using System.Data.Linq.Sql;
-using System.Data.Linq.Sugar.Expressions;
-#else
 using DbLinq.Data.Linq.Sql;
 using DbLinq.Data.Linq.Sugar.Expressions;
-#endif
 
 using DbLinq.Util;
 
 namespace DbLinq.Vendor.Implementation
 {
-#if MONO_STRICT
-    internal
-#else
+#if !MONO_STRICT
     public
 #endif
- class SqlProvider : ISqlProvider
+    class SqlProvider : ISqlProvider
     {
         public virtual ExpressionTranslator GetTranslator()
         {

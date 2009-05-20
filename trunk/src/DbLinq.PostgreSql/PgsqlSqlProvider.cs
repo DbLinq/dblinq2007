@@ -24,21 +24,15 @@
 // 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
-#if MONO_STRICT
-using System.Data.Linq.Sql;
-#else
 using DbLinq.Data.Linq.Sql;
-#endif
 using DbLinq.Vendor.Implementation;
-using System;
 
 namespace DbLinq.PostgreSql
 {
-#if MONO_STRICT
-    internal
-#else
+#if !MONO_STRICT
     public
 #endif
     class PgsqlSqlProvider : SqlProvider

@@ -32,22 +32,12 @@ using System.Linq.Expressions;
 using System.Reflection;
 using DbLinq.Util;
 
-#if MONO_STRICT
-using System.Data.Linq.Mapping;
-using System.Data.Linq.Sugar;
-using System.Data.Linq.Sugar.Expressions;
-#else
 using DbLinq.Data.Linq.Mapping;
 using DbLinq.Data.Linq.Sugar;
 using DbLinq.Data.Linq.Sugar.Expressions;
-#endif
 
 
-#if MONO_STRICT
-namespace System.Data.Linq.Sugar.Implementation
-#else
 namespace DbLinq.Data.Linq.Sugar.Implementation
-#endif
 {
     internal partial class ExpressionDispatcher
     {

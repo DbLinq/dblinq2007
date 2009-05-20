@@ -28,9 +28,7 @@ using System.Data;
 
 namespace DbLinq.Util
 {
-#if MONO_STRICT || !DEBUG
-    internal
-#else
+#if !MONO_STRICT
     public
 #endif
     static class IDataRecordExtensions

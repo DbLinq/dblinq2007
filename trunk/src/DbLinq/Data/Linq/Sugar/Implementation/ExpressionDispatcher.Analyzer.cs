@@ -31,27 +31,20 @@ using System.Linq.Expressions;
 using System.Reflection;
 
 #if MONO_STRICT
-using System.Data.Linq.Implementation;
-using System.Data.Linq.Sugar;
-using System.Data.Linq.Sugar.ExpressionMutator;
-using System.Data.Linq.Sugar.Expressions;
-using System.Data.Linq.Sugar.Implementation;
+using System.Data.Linq;
 #else
+using DbLinq.Data.Linq;
+#endif
+
 using DbLinq.Data.Linq.Implementation;
 using DbLinq.Data.Linq.Sugar;
 using DbLinq.Data.Linq.Sugar.ExpressionMutator;
 using DbLinq.Data.Linq.Sugar.Expressions;
 using DbLinq.Data.Linq.Sugar.Implementation;
-#endif
-
 using DbLinq.Factory;
 using DbLinq.Util;
 
-#if MONO_STRICT
-namespace System.Data.Linq.Sugar.Implementation
-#else
 namespace DbLinq.Data.Linq.Sugar.Implementation
-#endif
 {
     partial class ExpressionDispatcher
     {

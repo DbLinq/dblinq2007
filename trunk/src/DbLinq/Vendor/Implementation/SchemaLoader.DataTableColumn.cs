@@ -27,9 +27,7 @@ namespace DbLinq.Vendor.Implementation
 {
     partial class SchemaLoader
     {
-#if MONO_STRICT
-        internal
-#else
+#if !MONO_STRICT
         public
 #endif
         class DataTableColumn : DataType, IDataTableColumn
