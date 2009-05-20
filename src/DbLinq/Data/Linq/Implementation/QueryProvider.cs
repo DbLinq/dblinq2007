@@ -29,17 +29,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-#if MONO_STRICT
-using System.Data.Linq.Sugar;
-#else
 using DbLinq.Data.Linq.Sugar;
-#endif
 
 #if MONO_STRICT
-namespace System.Data.Linq.Implementation
+using System.Data.Linq;
 #else
-namespace DbLinq.Data.Linq.Implementation
+using DbLinq.Data.Linq;
 #endif
+
+namespace DbLinq.Data.Linq.Implementation
 {
     /// <summary>
     /// QueryProvider is used by both DataContext and Table

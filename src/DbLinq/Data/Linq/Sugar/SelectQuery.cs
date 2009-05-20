@@ -30,20 +30,16 @@ using System.Data;
 using DbLinq.Data.Linq.Database;
 
 #if MONO_STRICT
-using System.Data.Linq.Sql;
-using System.Data.Linq.Sugar.Expressions;
-using MappingContext = System.Data.Linq.Mapping.MappingContext;
+using System.Data.Linq;
 #else
-using DbLinq.Data.Linq.Sql;
-using DbLinq.Data.Linq.Sugar.Expressions;
-using MappingContext = DbLinq.Data.Linq.Mapping.MappingContext;
+using DbLinq.Data.Linq;
 #endif
 
-#if MONO_STRICT
-namespace System.Data.Linq.Sugar
-#else
+using DbLinq.Data.Linq.Mapping;
+using DbLinq.Data.Linq.Sql;
+using DbLinq.Data.Linq.Sugar.Expressions;
+
 namespace DbLinq.Data.Linq.Sugar
-#endif
 {
     /// <summary>
     /// Represents a linq query, parsed and compiled, to be sent to database

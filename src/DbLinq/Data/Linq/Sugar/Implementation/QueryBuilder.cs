@@ -26,26 +26,17 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 
-#if MONO_STRICT
-using System.Data.Linq.Sugar.ExpressionMutator;
-using System.Data.Linq.Sugar.Expressions;
-#else
 using DbLinq.Data.Linq.Sugar.ExpressionMutator;
 using DbLinq.Data.Linq.Sugar.Expressions;
-#endif
-using System.Text.RegularExpressions;
 using DbLinq.Factory;
 using DbLinq.Util;
-using System.Diagnostics;
 
-#if MONO_STRICT
-namespace System.Data.Linq.Sugar.Implementation
-#else
 namespace DbLinq.Data.Linq.Sugar.Implementation
-#endif
 {
     /// <summary>
     /// Full query builder, with cache management

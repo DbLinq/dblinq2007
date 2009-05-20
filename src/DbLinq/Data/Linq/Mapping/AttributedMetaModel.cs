@@ -32,24 +32,18 @@ using System.Reflection;
 
 #if MONO_STRICT
 using System.Data.Linq;
-using DbLinq.Util;
-
 #else
 using DbLinq.Data.Linq;
+#endif
+
 using DbLinq.Data.Linq.Mapping;
 using DbLinq.Util;
-
-#endif
 
 //Change notes:
 //removed virtual init call from constructor
 //renamed member variables to be better distinguishable from local variables
 
-#if MONO_STRICT
-namespace System.Data.Linq.Mapping
-#else
 namespace DbLinq.Data.Linq.Mapping
-#endif
 {
     /// <summary>
     /// This class is a stateless attribute meta model (it does not depend on any provider)

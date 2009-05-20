@@ -31,14 +31,13 @@ using System.Data;
 using System.Linq;
 
 #if MONO_STRICT
-using DataContext = System.Data.Linq.DataContext;
-using Data = System.Data;
 using System.Data.Linq;
 #else
-using DataContext = DbLinq.Data.Linq.DataContext;
-using Data = DbLinq.Data;
 using DbLinq.Data.Linq;
 #endif
+
+using Data = DbLinq.Data;
+
 using IExecuteResult = System.Data.Linq.IExecuteResult;
 
 namespace DbLinq.Vendor.Implementation
@@ -47,12 +46,10 @@ namespace DbLinq.Vendor.Implementation
     /// some IVendor functionality is the same for many vendors,
     /// implemented here as virtual functions.
     /// </summary>
-#if MONO_STRICT
-    internal
-#else
+#if !MONO_STRICT
     public
 #endif
- abstract partial class Vendor : IVendor
+    abstract partial class Vendor : IVendor
     {
         /// <summary>
         /// Pings requested DB, true is result is OK.
