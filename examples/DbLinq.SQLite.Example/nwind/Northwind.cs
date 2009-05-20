@@ -1,4 +1,4 @@
-#region Auto-generated classes for Northwind database on 2008-10-27 20:16:31Z
+#region Auto-generated classes for Northwind database on 2009-05-19 16:59:42Z
 
 //
 //  ____  _     __  __      _        _
@@ -7,7 +7,7 @@
 // | |_| | |_) | |  | |  __/ || (_| | |
 // |____/|_.__/|_|  |_|\___|\__\__,_|_|
 //
-// Auto-generated from Northwind on 2008-10-27 20:16:31Z
+// Auto-generated from Northwind on 2009-05-19 16:59:42Z
 // Please visit http://linq.to/db for more information
 
 #endregion
@@ -23,6 +23,7 @@ using System.Data.Linq;
 using DbLinq.Data.Linq;
 using DbLinq.Vendor;
 #endif
+using System.ComponentModel;
 
 namespace nwind
 {
@@ -30,26 +31,26 @@ namespace nwind
 	{
 		public Northwind(IDbConnection connection)
 #if MONO_STRICT
-        : base(connection)
+    		: base(connection)
 #else
-		: base(connection, new DbLinq.Sqlite.SqliteVendor())
+            : base(connection, new DbLinq.Sqlite.SqliteVendor())
 #endif
 		{
 		}
 
 #if !MONO_STRICT
-		public Northwind(IDbConnection connection, IVendor vendor)
-		: base(connection, vendor)
-		{
-		}
+        public Northwind(IDbConnection connection, IVendor vendor)
+            : base(connection, vendor)
+        {
+        }
 #endif
 
 		public Table<Category> Categories { get { return GetTable<Category>(); } }
 		public Table<Customer> Customers { get { return GetTable<Customer>(); } }
 		public Table<Employee> Employees { get { return GetTable<Employee>(); } }
 		public Table<EmployeeTerritory> EmployeeTerritories { get { return GetTable<EmployeeTerritory>(); } }
-		public Table<Order> Orders { get { return GetTable<Order>(); } }
 		public Table<OrderDetail> OrderDetails { get { return GetTable<OrderDetail>(); } }
+		public Table<Order> Orders { get { return GetTable<Order>(); } }
 		public Table<Product> Products { get { return GetTable<Product>(); } }
 		public Table<Region> Regions { get { return GetTable<Region>(); } }
 		public Table<Shipper> Shippers { get { return GetTable<Shipper>(); } }
@@ -59,13 +60,27 @@ namespace nwind
 	}
 
 	[Table(Name = "main.Categories")]
-	public partial class Category
+	public partial class Category : INotifyPropertyChanged
 	{
+		#region INotifyPropertyChanged handling
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		protected virtual void OnPropertyChanged(string propertyName)
+		{
+			if (PropertyChanged != null)
+			{
+				PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+
+		#endregion
+
 		#region int CategoryID
 
 		private int _categoryID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_categoryID", Name = "CategoryID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
+		[Column(Storage = "_categoryID", Name = "CategoryID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true)]
 		public int CategoryID
 		{
 			get
@@ -77,6 +92,7 @@ namespace nwind
 				if (value != _categoryID)
 				{
 					_categoryID = value;
+					OnPropertyChanged("CategoryID");
 				}
 			}
 		}
@@ -87,7 +103,7 @@ namespace nwind
 
 		private string _categoryName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_categoryName", Name = "CategoryName", DbType = "VARCHAR(15)", CanBeNull = false)]
+		[Column(Storage = "_categoryName", Name = "CategoryName", DbType = "VARCHAR(15)")]
 		public string CategoryName
 		{
 			get
@@ -99,6 +115,7 @@ namespace nwind
 				if (value != _categoryName)
 				{
 					_categoryName = value;
+					OnPropertyChanged("CategoryName");
 				}
 			}
 		}
@@ -109,7 +126,7 @@ namespace nwind
 
 		private string _description;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_description", Name = "Description", DbType = "TEXT")]
+		[Column(Storage = "_description", Name = "Description", DbType = "TEXT", CanBeNull = true)]
 		public string Description
 		{
 			get
@@ -121,6 +138,7 @@ namespace nwind
 				if (value != _description)
 				{
 					_description = value;
+					OnPropertyChanged("Description");
 				}
 			}
 		}
@@ -131,7 +149,7 @@ namespace nwind
 
 		private Byte[] _picture;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_picture", Name = "Picture", DbType = "BLOB")]
+		[Column(Storage = "_picture", Name = "Picture", DbType = "BLOB", CanBeNull = true)]
 		public Byte[] Picture
 		{
 			get
@@ -143,9 +161,45 @@ namespace nwind
 				if (value != _picture)
 				{
 					_picture = value;
+					OnPropertyChanged("Picture");
 				}
 			}
 		}
+
+		#endregion
+
+		#region Children
+
+		private EntitySet<Product> _products;
+		[Association(Storage = "_products", OtherKey = "CategoryID", Name = "fk_Products_0")]
+		[DebuggerNonUserCode]
+		public EntitySet<Product> Products
+		{
+			get
+			{
+				return _products;
+			}
+			set
+			{
+				_products = value;
+			}
+		}
+
+
+		#endregion
+
+		#region Attachement handlers
+
+		private void Products_Attach(Product entity)
+		{
+			entity.Category = this;
+		}
+
+		private void Products_Detach(Product entity)
+		{
+			entity.Category = null;
+		}
+
 
 		#endregion
 
@@ -153,6 +207,7 @@ namespace nwind
 
 		public Category()
 		{
+			_products = new EntitySet<Product>(Products_Attach, Products_Detach);
 		}
 
 		#endregion
@@ -160,13 +215,27 @@ namespace nwind
 	}
 
 	[Table(Name = "main.Customers")]
-	public partial class Customer
+	public partial class Customer : INotifyPropertyChanged
 	{
+		#region INotifyPropertyChanged handling
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		protected virtual void OnPropertyChanged(string propertyName)
+		{
+			if (PropertyChanged != null)
+			{
+				PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+
+		#endregion
+
 		#region string Address
 
 		private string _address;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_address", Name = "Address", DbType = "VARCHAR(60)")]
+		[Column(Storage = "_address", Name = "Address", DbType = "VARCHAR(60)", CanBeNull = true)]
 		public string Address
 		{
 			get
@@ -178,6 +247,7 @@ namespace nwind
 				if (value != _address)
 				{
 					_address = value;
+					OnPropertyChanged("Address");
 				}
 			}
 		}
@@ -188,7 +258,7 @@ namespace nwind
 
 		private string _city;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_city", Name = "City", DbType = "VARCHAR(15)")]
+		[Column(Storage = "_city", Name = "City", DbType = "VARCHAR(15)", CanBeNull = true)]
 		public string City
 		{
 			get
@@ -200,6 +270,7 @@ namespace nwind
 				if (value != _city)
 				{
 					_city = value;
+					OnPropertyChanged("City");
 				}
 			}
 		}
@@ -210,7 +281,7 @@ namespace nwind
 
 		private string _companyName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_companyName", Name = "CompanyName", DbType = "VARCHAR(40)", CanBeNull = false)]
+		[Column(Storage = "_companyName", Name = "CompanyName", DbType = "VARCHAR(40)")]
 		public string CompanyName
 		{
 			get
@@ -222,6 +293,7 @@ namespace nwind
 				if (value != _companyName)
 				{
 					_companyName = value;
+					OnPropertyChanged("CompanyName");
 				}
 			}
 		}
@@ -232,7 +304,7 @@ namespace nwind
 
 		private string _contactName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_contactName", Name = "ContactName", DbType = "VARCHAR(30)")]
+		[Column(Storage = "_contactName", Name = "ContactName", DbType = "VARCHAR(30)", CanBeNull = true)]
 		public string ContactName
 		{
 			get
@@ -244,6 +316,7 @@ namespace nwind
 				if (value != _contactName)
 				{
 					_contactName = value;
+					OnPropertyChanged("ContactName");
 				}
 			}
 		}
@@ -254,7 +327,7 @@ namespace nwind
 
 		private string _contactTitle;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_contactTitle", Name = "ContactTitle", DbType = "VARCHAR(30)")]
+		[Column(Storage = "_contactTitle", Name = "ContactTitle", DbType = "VARCHAR(30)", CanBeNull = true)]
 		public string ContactTitle
 		{
 			get
@@ -266,6 +339,7 @@ namespace nwind
 				if (value != _contactTitle)
 				{
 					_contactTitle = value;
+					OnPropertyChanged("ContactTitle");
 				}
 			}
 		}
@@ -276,7 +350,7 @@ namespace nwind
 
 		private string _country;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_country", Name = "Country", DbType = "VARCHAR(15)")]
+		[Column(Storage = "_country", Name = "Country", DbType = "VARCHAR(15)", CanBeNull = true)]
 		public string Country
 		{
 			get
@@ -288,6 +362,7 @@ namespace nwind
 				if (value != _country)
 				{
 					_country = value;
+					OnPropertyChanged("Country");
 				}
 			}
 		}
@@ -298,7 +373,7 @@ namespace nwind
 
 		private string _customerID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_customerID", Name = "CustomerID", DbType = "VARCHAR(5)", IsPrimaryKey = true, CanBeNull = false)]
+		[Column(Storage = "_customerID", Name = "CustomerID", DbType = "VARCHAR(5)", IsPrimaryKey = true)]
 		public string CustomerID
 		{
 			get
@@ -310,6 +385,7 @@ namespace nwind
 				if (value != _customerID)
 				{
 					_customerID = value;
+					OnPropertyChanged("CustomerID");
 				}
 			}
 		}
@@ -320,7 +396,7 @@ namespace nwind
 
 		private string _fax;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_fax", Name = "Fax", DbType = "VARCHAR(24)")]
+		[Column(Storage = "_fax", Name = "Fax", DbType = "VARCHAR(24)", CanBeNull = true)]
 		public string Fax
 		{
 			get
@@ -332,6 +408,7 @@ namespace nwind
 				if (value != _fax)
 				{
 					_fax = value;
+					OnPropertyChanged("Fax");
 				}
 			}
 		}
@@ -342,7 +419,7 @@ namespace nwind
 
 		private string _phone;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_phone", Name = "Phone", DbType = "VARCHAR(24)")]
+		[Column(Storage = "_phone", Name = "Phone", DbType = "VARCHAR(24)", CanBeNull = true)]
 		public string Phone
 		{
 			get
@@ -354,6 +431,7 @@ namespace nwind
 				if (value != _phone)
 				{
 					_phone = value;
+					OnPropertyChanged("Phone");
 				}
 			}
 		}
@@ -364,7 +442,7 @@ namespace nwind
 
 		private string _postalCode;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_postalCode", Name = "PostalCode", DbType = "VARCHAR(10)")]
+		[Column(Storage = "_postalCode", Name = "PostalCode", DbType = "VARCHAR(10)", CanBeNull = true)]
 		public string PostalCode
 		{
 			get
@@ -376,6 +454,7 @@ namespace nwind
 				if (value != _postalCode)
 				{
 					_postalCode = value;
+					OnPropertyChanged("PostalCode");
 				}
 			}
 		}
@@ -386,7 +465,7 @@ namespace nwind
 
 		private string _region;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_region", Name = "Region", DbType = "VARCHAR(15)")]
+		[Column(Storage = "_region", Name = "Region", DbType = "VARCHAR(15)", CanBeNull = true)]
 		public string Region
 		{
 			get
@@ -398,6 +477,7 @@ namespace nwind
 				if (value != _region)
 				{
 					_region = value;
+					OnPropertyChanged("Region");
 				}
 			}
 		}
@@ -451,13 +531,27 @@ namespace nwind
 	}
 
 	[Table(Name = "main.Employees")]
-	public partial class Employee
+	public partial class Employee : INotifyPropertyChanged
 	{
+		#region INotifyPropertyChanged handling
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		protected virtual void OnPropertyChanged(string propertyName)
+		{
+			if (PropertyChanged != null)
+			{
+				PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+
+		#endregion
+
 		#region string Address
 
 		private string _address;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_address", Name = "Address", DbType = "VARCHAR(60)")]
+		[Column(Storage = "_address", Name = "Address", DbType = "VARCHAR(60)", CanBeNull = true)]
 		public string Address
 		{
 			get
@@ -469,6 +563,7 @@ namespace nwind
 				if (value != _address)
 				{
 					_address = value;
+					OnPropertyChanged("Address");
 				}
 			}
 		}
@@ -479,7 +574,7 @@ namespace nwind
 
 		private DateTime? _birthDate;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_birthDate", Name = "BirthDate", DbType = "DATETIME")]
+		[Column(Storage = "_birthDate", Name = "BirthDate", DbType = "DATETIME", CanBeNull = true)]
 		public DateTime? BirthDate
 		{
 			get
@@ -491,6 +586,7 @@ namespace nwind
 				if (value != _birthDate)
 				{
 					_birthDate = value;
+					OnPropertyChanged("BirthDate");
 				}
 			}
 		}
@@ -501,7 +597,7 @@ namespace nwind
 
 		private string _city;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_city", Name = "City", DbType = "VARCHAR(15)")]
+		[Column(Storage = "_city", Name = "City", DbType = "VARCHAR(15)", CanBeNull = true)]
 		public string City
 		{
 			get
@@ -513,6 +609,7 @@ namespace nwind
 				if (value != _city)
 				{
 					_city = value;
+					OnPropertyChanged("City");
 				}
 			}
 		}
@@ -523,7 +620,7 @@ namespace nwind
 
 		private string _country;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_country", Name = "Country", DbType = "VARCHAR(15)")]
+		[Column(Storage = "_country", Name = "Country", DbType = "VARCHAR(15)", CanBeNull = true)]
 		public string Country
 		{
 			get
@@ -535,6 +632,7 @@ namespace nwind
 				if (value != _country)
 				{
 					_country = value;
+					OnPropertyChanged("Country");
 				}
 			}
 		}
@@ -545,7 +643,7 @@ namespace nwind
 
 		private int _employeeID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_employeeID", Name = "EmployeeID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
+		[Column(Storage = "_employeeID", Name = "EmployeeID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true)]
 		public int EmployeeID
 		{
 			get
@@ -557,6 +655,7 @@ namespace nwind
 				if (value != _employeeID)
 				{
 					_employeeID = value;
+					OnPropertyChanged("EmployeeID");
 				}
 			}
 		}
@@ -567,7 +666,7 @@ namespace nwind
 
 		private string _extension;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_extension", Name = "Extension", DbType = "VARCHAR(5)")]
+		[Column(Storage = "_extension", Name = "Extension", DbType = "VARCHAR(5)", CanBeNull = true)]
 		public string Extension
 		{
 			get
@@ -579,6 +678,7 @@ namespace nwind
 				if (value != _extension)
 				{
 					_extension = value;
+					OnPropertyChanged("Extension");
 				}
 			}
 		}
@@ -589,7 +689,7 @@ namespace nwind
 
 		private string _firstName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_firstName", Name = "FirstName", DbType = "VARCHAR(10)", CanBeNull = false)]
+		[Column(Storage = "_firstName", Name = "FirstName", DbType = "VARCHAR(10)")]
 		public string FirstName
 		{
 			get
@@ -601,6 +701,7 @@ namespace nwind
 				if (value != _firstName)
 				{
 					_firstName = value;
+					OnPropertyChanged("FirstName");
 				}
 			}
 		}
@@ -611,7 +712,7 @@ namespace nwind
 
 		private DateTime? _hireDate;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_hireDate", Name = "HireDate", DbType = "DATETIME")]
+		[Column(Storage = "_hireDate", Name = "HireDate", DbType = "DATETIME", CanBeNull = true)]
 		public DateTime? HireDate
 		{
 			get
@@ -623,6 +724,7 @@ namespace nwind
 				if (value != _hireDate)
 				{
 					_hireDate = value;
+					OnPropertyChanged("HireDate");
 				}
 			}
 		}
@@ -633,7 +735,7 @@ namespace nwind
 
 		private string _homePhone;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_homePhone", Name = "HomePhone", DbType = "VARCHAR(24)")]
+		[Column(Storage = "_homePhone", Name = "HomePhone", DbType = "VARCHAR(24)", CanBeNull = true)]
 		public string HomePhone
 		{
 			get
@@ -645,6 +747,7 @@ namespace nwind
 				if (value != _homePhone)
 				{
 					_homePhone = value;
+					OnPropertyChanged("HomePhone");
 				}
 			}
 		}
@@ -655,7 +758,7 @@ namespace nwind
 
 		private string _lastName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_lastName", Name = "LastName", DbType = "VARCHAR(20)", CanBeNull = false)]
+		[Column(Storage = "_lastName", Name = "LastName", DbType = "VARCHAR(20)")]
 		public string LastName
 		{
 			get
@@ -667,6 +770,7 @@ namespace nwind
 				if (value != _lastName)
 				{
 					_lastName = value;
+					OnPropertyChanged("LastName");
 				}
 			}
 		}
@@ -677,7 +781,7 @@ namespace nwind
 
 		private string _notes;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_notes", Name = "Notes", DbType = "TEXT")]
+		[Column(Storage = "_notes", Name = "Notes", DbType = "TEXT", CanBeNull = true)]
 		public string Notes
 		{
 			get
@@ -689,6 +793,7 @@ namespace nwind
 				if (value != _notes)
 				{
 					_notes = value;
+					OnPropertyChanged("Notes");
 				}
 			}
 		}
@@ -699,7 +804,7 @@ namespace nwind
 
 		private Byte[] _photo;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_photo", Name = "Photo", DbType = "BLOB")]
+		[Column(Storage = "_photo", Name = "Photo", DbType = "BLOB", CanBeNull = true)]
 		public Byte[] Photo
 		{
 			get
@@ -711,6 +816,7 @@ namespace nwind
 				if (value != _photo)
 				{
 					_photo = value;
+					OnPropertyChanged("Photo");
 				}
 			}
 		}
@@ -721,7 +827,7 @@ namespace nwind
 
 		private string _photoPath;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_photoPath", Name = "PhotoPath", DbType = "VARCHAR (255)")]
+		[Column(Storage = "_photoPath", Name = "PhotoPath", DbType = "VARCHAR (255)", CanBeNull = true)]
 		public string PhotoPath
 		{
 			get
@@ -733,6 +839,7 @@ namespace nwind
 				if (value != _photoPath)
 				{
 					_photoPath = value;
+					OnPropertyChanged("PhotoPath");
 				}
 			}
 		}
@@ -743,7 +850,7 @@ namespace nwind
 
 		private string _postalCode;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_postalCode", Name = "PostalCode", DbType = "VARCHAR(10)")]
+		[Column(Storage = "_postalCode", Name = "PostalCode", DbType = "VARCHAR(10)", CanBeNull = true)]
 		public string PostalCode
 		{
 			get
@@ -755,6 +862,7 @@ namespace nwind
 				if (value != _postalCode)
 				{
 					_postalCode = value;
+					OnPropertyChanged("PostalCode");
 				}
 			}
 		}
@@ -765,7 +873,7 @@ namespace nwind
 
 		private string _region;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_region", Name = "Region", DbType = "VARCHAR(15)")]
+		[Column(Storage = "_region", Name = "Region", DbType = "VARCHAR(15)", CanBeNull = true)]
 		public string Region
 		{
 			get
@@ -777,6 +885,7 @@ namespace nwind
 				if (value != _region)
 				{
 					_region = value;
+					OnPropertyChanged("Region");
 				}
 			}
 		}
@@ -787,7 +896,7 @@ namespace nwind
 
 		private int? _reportsTo;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_reportsTo", Name = "ReportsTo", DbType = "INTEGER")]
+		[Column(Storage = "_reportsTo", Name = "ReportsTo", DbType = "INTEGER", CanBeNull = true)]
 		public int? ReportsTo
 		{
 			get
@@ -798,11 +907,12 @@ namespace nwind
 			{
 				if (value != _reportsTo)
 				{
-					if (_reportsToEmployee.HasLoadedOrAssignedValue)
+					if (_reportsToEmployees.HasLoadedOrAssignedValue)
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
 					_reportsTo = value;
+					OnPropertyChanged("ReportsTo");
 				}
 			}
 		}
@@ -813,7 +923,7 @@ namespace nwind
 
 		private string _title;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_title", Name = "Title", DbType = "VARCHAR(30)")]
+		[Column(Storage = "_title", Name = "Title", DbType = "VARCHAR(30)", CanBeNull = true)]
 		public string Title
 		{
 			get
@@ -825,6 +935,7 @@ namespace nwind
 				if (value != _title)
 				{
 					_title = value;
+					OnPropertyChanged("Title");
 				}
 			}
 		}
@@ -835,7 +946,7 @@ namespace nwind
 
 		private string _titleOfCourtesy;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_titleOfCourtesy", Name = "TitleOfCourtesy", DbType = "VARCHAR(25)")]
+		[Column(Storage = "_titleOfCourtesy", Name = "TitleOfCourtesy", DbType = "VARCHAR(25)", CanBeNull = true)]
 		public string TitleOfCourtesy
 		{
 			get
@@ -847,6 +958,7 @@ namespace nwind
 				if (value != _titleOfCourtesy)
 				{
 					_titleOfCourtesy = value;
+					OnPropertyChanged("TitleOfCourtesy");
 				}
 			}
 		}
@@ -870,18 +982,18 @@ namespace nwind
 			}
 		}
 
-		private EntitySet<Employee> _employees;
-		[Association(Storage = "_employees", OtherKey = "ReportsTo", Name = "fk_Employees_0")]
+		private EntitySet<Employee> _employeeIdeMployees;
+		[Association(Storage = "_employeeIdeMployees", OtherKey = "ReportsTo", Name = "fk_Employees_0")]
 		[DebuggerNonUserCode]
 		public EntitySet<Employee> Employees
 		{
 			get
 			{
-				return _employees;
+				return _employeeIdeMployees;
 			}
 			set
 			{
-				_employees = value;
+				_employeeIdeMployees = value;
 			}
 		}
 
@@ -905,26 +1017,26 @@ namespace nwind
 
 		#region Parents
 
-		private EntityRef<Employee> _reportsToEmployee;
-		[Association(Storage = "_reportsToEmployee", ThisKey = "ReportsTo", Name = "fk_Employees_0", IsForeignKey = true)]
+		private EntityRef<Employee> _reportsToEmployees;
+		[Association(Storage = "_reportsToEmployees", ThisKey = "ReportsTo", Name = "fk_Employees_0", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Employee ReportsToEmployee
 		{
 			get
 			{
-				return _reportsToEmployee.Entity;
+				return _reportsToEmployees.Entity;
 			}
 			set
 			{
-				if (value != _reportsToEmployee.Entity)
+				if (value != _reportsToEmployees.Entity)
 				{
-					if (_reportsToEmployee.Entity != null)
+					if (_reportsToEmployees.Entity != null)
 					{
-						var previousEmployee = _reportsToEmployee.Entity;
-						_reportsToEmployee.Entity = null;
-						previousEmployee.Employees.Remove(this);
+						var previousEmployees = _reportsToEmployees.Entity;
+						_reportsToEmployees.Entity = null;
+						previousEmployees.Employees.Remove(this);
 					}
-					_reportsToEmployee.Entity = value;
+					_reportsToEmployees.Entity = value;
 					if (value != null)
 					{
 						value.Employees.Add(this);
@@ -953,12 +1065,12 @@ namespace nwind
 			entity.Employee = null;
 		}
 
-		private void Employees_Attach(Employee entity)
+		private void EmployeeIDEmployees_Attach(Employee entity)
 		{
 			entity.ReportsToEmployee = this;
 		}
 
-		private void Employees_Detach(Employee entity)
+		private void EmployeeIDEmployees_Detach(Employee entity)
 		{
 			entity.ReportsToEmployee = null;
 		}
@@ -981,9 +1093,9 @@ namespace nwind
 		public Employee()
 		{
 			_employeeTerritories = new EntitySet<EmployeeTerritory>(EmployeeTerritories_Attach, EmployeeTerritories_Detach);
-			_employees = new EntitySet<Employee>(Employees_Attach, Employees_Detach);
+			_employeeIdeMployees = new EntitySet<Employee>(EmployeeIDEmployees_Attach, EmployeeIDEmployees_Detach);
 			_orders = new EntitySet<Order>(Orders_Attach, Orders_Detach);
-			_reportsToEmployee = new EntityRef<Employee>();
+			_reportsToEmployees = new EntityRef<Employee>();
 		}
 
 		#endregion
@@ -991,13 +1103,27 @@ namespace nwind
 	}
 
 	[Table(Name = "main.EmployeeTerritories")]
-	public partial class EmployeeTerritory
+	public partial class EmployeeTerritory : INotifyPropertyChanged
 	{
+		#region INotifyPropertyChanged handling
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		protected virtual void OnPropertyChanged(string propertyName)
+		{
+			if (PropertyChanged != null)
+			{
+				PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+
+		#endregion
+
 		#region int EmployeeID
 
 		private int _employeeID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_employeeID", Name = "EmployeeID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
+		[Column(Storage = "_employeeID", Name = "EmployeeID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true)]
 		public int EmployeeID
 		{
 			get
@@ -1008,11 +1134,12 @@ namespace nwind
 			{
 				if (value != _employeeID)
 				{
-					if (_employee.HasLoadedOrAssignedValue)
+					if (_employees.HasLoadedOrAssignedValue)
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
 					_employeeID = value;
+					OnPropertyChanged("EmployeeID");
 				}
 			}
 		}
@@ -1023,7 +1150,7 @@ namespace nwind
 
 		private string _territoryID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_territoryID", Name = "TerritoryID", DbType = "VARCHAR(20)", IsPrimaryKey = true, CanBeNull = false)]
+		[Column(Storage = "_territoryID", Name = "TerritoryID", DbType = "VARCHAR(20)", IsPrimaryKey = true)]
 		public string TerritoryID
 		{
 			get
@@ -1034,11 +1161,12 @@ namespace nwind
 			{
 				if (value != _territoryID)
 				{
-					if (_territory.HasLoadedOrAssignedValue)
+					if (_territories.HasLoadedOrAssignedValue)
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
 					_territoryID = value;
+					OnPropertyChanged("TerritoryID");
 				}
 			}
 		}
@@ -1047,26 +1175,26 @@ namespace nwind
 
 		#region Parents
 
-		private EntityRef<Territory> _territory;
-		[Association(Storage = "_territory", ThisKey = "TerritoryID", Name = "fk_EmployeeTerritories_0", IsForeignKey = true)]
+		private EntityRef<Territory> _territories;
+		[Association(Storage = "_territories", ThisKey = "TerritoryID", Name = "fk_EmployeeTerritories_0", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Territory Territory
 		{
 			get
 			{
-				return _territory.Entity;
+				return _territories.Entity;
 			}
 			set
 			{
-				if (value != _territory.Entity)
+				if (value != _territories.Entity)
 				{
-					if (_territory.Entity != null)
+					if (_territories.Entity != null)
 					{
-						var previousTerritory = _territory.Entity;
-						_territory.Entity = null;
-						previousTerritory.EmployeeTerritories.Remove(this);
+						var previousTerritories = _territories.Entity;
+						_territories.Entity = null;
+						previousTerritories.EmployeeTerritories.Remove(this);
 					}
-					_territory.Entity = value;
+					_territories.Entity = value;
 					if (value != null)
 					{
 						value.EmployeeTerritories.Add(this);
@@ -1080,26 +1208,26 @@ namespace nwind
 			}
 		}
 
-		private EntityRef<Employee> _employee;
-		[Association(Storage = "_employee", ThisKey = "EmployeeID", Name = "fk_EmployeeTerritories_1", IsForeignKey = true)]
+		private EntityRef<Employee> _employees;
+		[Association(Storage = "_employees", ThisKey = "EmployeeID", Name = "fk_EmployeeTerritories_1", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Employee Employee
 		{
 			get
 			{
-				return _employee.Entity;
+				return _employees.Entity;
 			}
 			set
 			{
-				if (value != _employee.Entity)
+				if (value != _employees.Entity)
 				{
-					if (_employee.Entity != null)
+					if (_employees.Entity != null)
 					{
-						var previousEmployee = _employee.Entity;
-						_employee.Entity = null;
-						previousEmployee.EmployeeTerritories.Remove(this);
+						var previousEmployees = _employees.Entity;
+						_employees.Entity = null;
+						previousEmployees.EmployeeTerritories.Remove(this);
 					}
-					_employee.Entity = value;
+					_employees.Entity = value;
 					if (value != null)
 					{
 						value.EmployeeTerritories.Add(this);
@@ -1120,8 +1248,231 @@ namespace nwind
 
 		public EmployeeTerritory()
 		{
-			_territory = new EntityRef<Territory>();
-			_employee = new EntityRef<Employee>();
+			_territories = new EntityRef<Territory>();
+			_employees = new EntityRef<Employee>();
+		}
+
+		#endregion
+
+	}
+
+	[Table(Name = "main.\"Order Details\"")]
+	public partial class OrderDetail : INotifyPropertyChanged
+	{
+		#region INotifyPropertyChanged handling
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		protected virtual void OnPropertyChanged(string propertyName)
+		{
+			if (PropertyChanged != null)
+			{
+				PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+
+		#endregion
+
+		#region float Discount
+
+		private float _discount;
+		[DebuggerNonUserCode]
+		[Column(Storage = "_discount", Name = "Discount", DbType = "FLOAT")]
+		public float Discount
+		{
+			get
+			{
+				return _discount;
+			}
+			set
+			{
+				if (value != _discount)
+				{
+					_discount = value;
+					OnPropertyChanged("Discount");
+				}
+			}
+		}
+
+		#endregion
+
+		#region int OrderID
+
+		private int _orderID;
+		[DebuggerNonUserCode]
+		[Column(Storage = "_orderID", Name = "OrderID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true)]
+		public int OrderID
+		{
+			get
+			{
+				return _orderID;
+			}
+			set
+			{
+				if (value != _orderID)
+				{
+					if (_orders.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					_orderID = value;
+					OnPropertyChanged("OrderID");
+				}
+			}
+		}
+
+		#endregion
+
+		#region int ProductID
+
+		private int _productID;
+		[DebuggerNonUserCode]
+		[Column(Storage = "_productID", Name = "ProductID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true)]
+		public int ProductID
+		{
+			get
+			{
+				return _productID;
+			}
+			set
+			{
+				if (value != _productID)
+				{
+					if (_products.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					_productID = value;
+					OnPropertyChanged("ProductID");
+				}
+			}
+		}
+
+		#endregion
+
+		#region short Quantity
+
+		private short _quantity;
+		[DebuggerNonUserCode]
+		[Column(Storage = "_quantity", Name = "Quantity", DbType = "SMALLINT")]
+		public short Quantity
+		{
+			get
+			{
+				return _quantity;
+			}
+			set
+			{
+				if (value != _quantity)
+				{
+					_quantity = value;
+					OnPropertyChanged("Quantity");
+				}
+			}
+		}
+
+		#endregion
+
+		#region decimal UnitPrice
+
+		private decimal _unitPrice;
+		[DebuggerNonUserCode]
+		[Column(Storage = "_unitPrice", Name = "UnitPrice", DbType = "DECIMAL")]
+		public decimal UnitPrice
+		{
+			get
+			{
+				return _unitPrice;
+			}
+			set
+			{
+				if (value != _unitPrice)
+				{
+					_unitPrice = value;
+					OnPropertyChanged("UnitPrice");
+				}
+			}
+		}
+
+		#endregion
+
+		#region Parents
+
+		private EntityRef<Product> _products;
+		[Association(Storage = "_products", ThisKey = "ProductID", Name = "\"fk_Order Details_0\"", IsForeignKey = true)]
+		[DebuggerNonUserCode]
+		public Product Product
+		{
+			get
+			{
+				return _products.Entity;
+			}
+			set
+			{
+				if (value != _products.Entity)
+				{
+					if (_products.Entity != null)
+					{
+						var previousProducts = _products.Entity;
+						_products.Entity = null;
+						previousProducts.OrderDetails.Remove(this);
+					}
+					_products.Entity = value;
+					if (value != null)
+					{
+						value.OrderDetails.Add(this);
+						_productID = value.ProductID;
+					}
+					else
+					{
+						_productID = default(int);
+					}
+				}
+			}
+		}
+
+		private EntityRef<Order> _orders;
+		[Association(Storage = "_orders", ThisKey = "OrderID", Name = "\"fk_Order Details_1\"", IsForeignKey = true)]
+		[DebuggerNonUserCode]
+		public Order Order
+		{
+			get
+			{
+				return _orders.Entity;
+			}
+			set
+			{
+				if (value != _orders.Entity)
+				{
+					if (_orders.Entity != null)
+					{
+						var previousOrders = _orders.Entity;
+						_orders.Entity = null;
+						previousOrders.OrderDetails.Remove(this);
+					}
+					_orders.Entity = value;
+					if (value != null)
+					{
+						value.OrderDetails.Add(this);
+						_orderID = value.OrderID;
+					}
+					else
+					{
+						_orderID = default(int);
+					}
+				}
+			}
+		}
+
+
+		#endregion
+
+		#region ctor
+
+		public OrderDetail()
+		{
+			_products = new EntityRef<Product>();
+			_orders = new EntityRef<Order>();
 		}
 
 		#endregion
@@ -1129,13 +1480,27 @@ namespace nwind
 	}
 
 	[Table(Name = "main.Orders")]
-	public partial class Order
+	public partial class Order : INotifyPropertyChanged
 	{
+		#region INotifyPropertyChanged handling
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		protected virtual void OnPropertyChanged(string propertyName)
+		{
+			if (PropertyChanged != null)
+			{
+				PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+
+		#endregion
+
 		#region string CustomerID
 
 		private string _customerID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_customerID", Name = "CustomerID", DbType = "VARCHAR(5)")]
+		[Column(Storage = "_customerID", Name = "CustomerID", DbType = "VARCHAR(5)", CanBeNull = true)]
 		public string CustomerID
 		{
 			get
@@ -1146,11 +1511,12 @@ namespace nwind
 			{
 				if (value != _customerID)
 				{
-					if (_customer.HasLoadedOrAssignedValue)
+					if (_customers.HasLoadedOrAssignedValue)
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
 					_customerID = value;
+					OnPropertyChanged("CustomerID");
 				}
 			}
 		}
@@ -1161,7 +1527,7 @@ namespace nwind
 
 		private int? _employeeID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_employeeID", Name = "EmployeeID", DbType = "INTEGER")]
+		[Column(Storage = "_employeeID", Name = "EmployeeID", DbType = "INTEGER", CanBeNull = true)]
 		public int? EmployeeID
 		{
 			get
@@ -1172,11 +1538,12 @@ namespace nwind
 			{
 				if (value != _employeeID)
 				{
-					if (_employee.HasLoadedOrAssignedValue)
+					if (_employees.HasLoadedOrAssignedValue)
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
 					_employeeID = value;
+					OnPropertyChanged("EmployeeID");
 				}
 			}
 		}
@@ -1187,7 +1554,7 @@ namespace nwind
 
 		private decimal? _freight;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_freight", Name = "Freight", DbType = "DECIMAL")]
+		[Column(Storage = "_freight", Name = "Freight", DbType = "DECIMAL", CanBeNull = true)]
 		public decimal? Freight
 		{
 			get
@@ -1199,6 +1566,7 @@ namespace nwind
 				if (value != _freight)
 				{
 					_freight = value;
+					OnPropertyChanged("Freight");
 				}
 			}
 		}
@@ -1209,7 +1577,7 @@ namespace nwind
 
 		private DateTime? _orderDate;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_orderDate", Name = "OrderDate", DbType = "DATETIME")]
+		[Column(Storage = "_orderDate", Name = "OrderDate", DbType = "DATETIME", CanBeNull = true)]
 		public DateTime? OrderDate
 		{
 			get
@@ -1221,6 +1589,7 @@ namespace nwind
 				if (value != _orderDate)
 				{
 					_orderDate = value;
+					OnPropertyChanged("OrderDate");
 				}
 			}
 		}
@@ -1231,7 +1600,7 @@ namespace nwind
 
 		private int _orderID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_orderID", Name = "OrderID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
+		[Column(Storage = "_orderID", Name = "OrderID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true)]
 		public int OrderID
 		{
 			get
@@ -1243,6 +1612,7 @@ namespace nwind
 				if (value != _orderID)
 				{
 					_orderID = value;
+					OnPropertyChanged("OrderID");
 				}
 			}
 		}
@@ -1253,7 +1623,7 @@ namespace nwind
 
 		private DateTime? _requiredDate;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_requiredDate", Name = "RequiredDate", DbType = "DATETIME")]
+		[Column(Storage = "_requiredDate", Name = "RequiredDate", DbType = "DATETIME", CanBeNull = true)]
 		public DateTime? RequiredDate
 		{
 			get
@@ -1265,6 +1635,7 @@ namespace nwind
 				if (value != _requiredDate)
 				{
 					_requiredDate = value;
+					OnPropertyChanged("RequiredDate");
 				}
 			}
 		}
@@ -1275,7 +1646,7 @@ namespace nwind
 
 		private string _shipAddress;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_shipAddress", Name = "ShipAddress", DbType = "VARCHAR(60)")]
+		[Column(Storage = "_shipAddress", Name = "ShipAddress", DbType = "VARCHAR(60)", CanBeNull = true)]
 		public string ShipAddress
 		{
 			get
@@ -1287,6 +1658,7 @@ namespace nwind
 				if (value != _shipAddress)
 				{
 					_shipAddress = value;
+					OnPropertyChanged("ShipAddress");
 				}
 			}
 		}
@@ -1297,7 +1669,7 @@ namespace nwind
 
 		private string _shipCity;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_shipCity", Name = "ShipCity", DbType = "VARCHAR(15)")]
+		[Column(Storage = "_shipCity", Name = "ShipCity", DbType = "VARCHAR(15)", CanBeNull = true)]
 		public string ShipCity
 		{
 			get
@@ -1309,6 +1681,7 @@ namespace nwind
 				if (value != _shipCity)
 				{
 					_shipCity = value;
+					OnPropertyChanged("ShipCity");
 				}
 			}
 		}
@@ -1319,7 +1692,7 @@ namespace nwind
 
 		private string _shipCountry;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_shipCountry", Name = "ShipCountry", DbType = "VARCHAR(15)")]
+		[Column(Storage = "_shipCountry", Name = "ShipCountry", DbType = "VARCHAR(15)", CanBeNull = true)]
 		public string ShipCountry
 		{
 			get
@@ -1331,6 +1704,7 @@ namespace nwind
 				if (value != _shipCountry)
 				{
 					_shipCountry = value;
+					OnPropertyChanged("ShipCountry");
 				}
 			}
 		}
@@ -1341,7 +1715,7 @@ namespace nwind
 
 		private string _shipName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_shipName", Name = "ShipName", DbType = "VARCHAR(40)")]
+		[Column(Storage = "_shipName", Name = "ShipName", DbType = "VARCHAR(40)", CanBeNull = true)]
 		public string ShipName
 		{
 			get
@@ -1353,6 +1727,7 @@ namespace nwind
 				if (value != _shipName)
 				{
 					_shipName = value;
+					OnPropertyChanged("ShipName");
 				}
 			}
 		}
@@ -1363,7 +1738,7 @@ namespace nwind
 
 		private DateTime? _shippedDate;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_shippedDate", Name = "ShippedDate", DbType = "DATETIME")]
+		[Column(Storage = "_shippedDate", Name = "ShippedDate", DbType = "DATETIME", CanBeNull = true)]
 		public DateTime? ShippedDate
 		{
 			get
@@ -1375,6 +1750,7 @@ namespace nwind
 				if (value != _shippedDate)
 				{
 					_shippedDate = value;
+					OnPropertyChanged("ShippedDate");
 				}
 			}
 		}
@@ -1385,7 +1761,7 @@ namespace nwind
 
 		private string _shipPostalCode;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_shipPostalCode", Name = "ShipPostalCode", DbType = "VARCHAR(10)")]
+		[Column(Storage = "_shipPostalCode", Name = "ShipPostalCode", DbType = "VARCHAR(10)", CanBeNull = true)]
 		public string ShipPostalCode
 		{
 			get
@@ -1397,6 +1773,7 @@ namespace nwind
 				if (value != _shipPostalCode)
 				{
 					_shipPostalCode = value;
+					OnPropertyChanged("ShipPostalCode");
 				}
 			}
 		}
@@ -1407,7 +1784,7 @@ namespace nwind
 
 		private string _shipRegion;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_shipRegion", Name = "ShipRegion", DbType = "VARCHAR(15)")]
+		[Column(Storage = "_shipRegion", Name = "ShipRegion", DbType = "VARCHAR(15)", CanBeNull = true)]
 		public string ShipRegion
 		{
 			get
@@ -1419,6 +1796,7 @@ namespace nwind
 				if (value != _shipRegion)
 				{
 					_shipRegion = value;
+					OnPropertyChanged("ShipRegion");
 				}
 			}
 		}
@@ -1429,7 +1807,7 @@ namespace nwind
 
 		private int? _shipVia;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_shipVia", Name = "ShipVia", DbType = "INT")]
+		[Column(Storage = "_shipVia", Name = "ShipVia", DbType = "INT", CanBeNull = true)]
 		public int? ShipVia
 		{
 			get
@@ -1441,6 +1819,7 @@ namespace nwind
 				if (value != _shipVia)
 				{
 					_shipVia = value;
+					OnPropertyChanged("ShipVia");
 				}
 			}
 		}
@@ -1469,26 +1848,26 @@ namespace nwind
 
 		#region Parents
 
-		private EntityRef<Employee> _employee;
-		[Association(Storage = "_employee", ThisKey = "EmployeeID", Name = "fk_Orders_0", IsForeignKey = true)]
+		private EntityRef<Employee> _employees;
+		[Association(Storage = "_employees", ThisKey = "EmployeeID", Name = "fk_Orders_0", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Employee Employee
 		{
 			get
 			{
-				return _employee.Entity;
+				return _employees.Entity;
 			}
 			set
 			{
-				if (value != _employee.Entity)
+				if (value != _employees.Entity)
 				{
-					if (_employee.Entity != null)
+					if (_employees.Entity != null)
 					{
-						var previousEmployee = _employee.Entity;
-						_employee.Entity = null;
-						previousEmployee.Orders.Remove(this);
+						var previousEmployees = _employees.Entity;
+						_employees.Entity = null;
+						previousEmployees.Orders.Remove(this);
 					}
-					_employee.Entity = value;
+					_employees.Entity = value;
 					if (value != null)
 					{
 						value.Orders.Add(this);
@@ -1502,26 +1881,26 @@ namespace nwind
 			}
 		}
 
-		private EntityRef<Customer> _customer;
-		[Association(Storage = "_customer", ThisKey = "CustomerID", Name = "fk_Orders_1", IsForeignKey = true)]
+		private EntityRef<Customer> _customers;
+		[Association(Storage = "_customers", ThisKey = "CustomerID", Name = "fk_Orders_1", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Customer Customer
 		{
 			get
 			{
-				return _customer.Entity;
+				return _customers.Entity;
 			}
 			set
 			{
-				if (value != _customer.Entity)
+				if (value != _customers.Entity)
 				{
-					if (_customer.Entity != null)
+					if (_customers.Entity != null)
 					{
-						var previousCustomer = _customer.Entity;
-						_customer.Entity = null;
-						previousCustomer.Orders.Remove(this);
+						var previousCustomers = _customers.Entity;
+						_customers.Entity = null;
+						previousCustomers.Orders.Remove(this);
 					}
-					_customer.Entity = value;
+					_customers.Entity = value;
 					if (value != null)
 					{
 						value.Orders.Add(this);
@@ -1558,212 +1937,8 @@ namespace nwind
 		public Order()
 		{
 			_orderDetails = new EntitySet<OrderDetail>(OrderDetails_Attach, OrderDetails_Detach);
-			_employee = new EntityRef<Employee>();
-			_customer = new EntityRef<Customer>();
-		}
-
-		#endregion
-
-	}
-
-	[Table(Name = "main.\"Order Details\"")]
-	public partial class OrderDetail
-	{
-		#region float Discount
-
-		private float _discount;
-		[DebuggerNonUserCode]
-		[Column(Storage = "_discount", Name = "Discount", DbType = "FLOAT", CanBeNull = false)]
-		public float Discount
-		{
-			get
-			{
-				return _discount;
-			}
-			set
-			{
-				if (value != _discount)
-				{
-					_discount = value;
-				}
-			}
-		}
-
-		#endregion
-
-		#region int OrderID
-
-		private int _orderID;
-		[DebuggerNonUserCode]
-		[Column(Storage = "_orderID", Name = "OrderID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
-		public int OrderID
-		{
-			get
-			{
-				return _orderID;
-			}
-			set
-			{
-				if (value != _orderID)
-				{
-					if (_order.HasLoadedOrAssignedValue)
-					{
-						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
-					}
-					_orderID = value;
-				}
-			}
-		}
-
-		#endregion
-
-		#region int ProductID
-
-		private int _productID;
-		[DebuggerNonUserCode]
-		[Column(Storage = "_productID", Name = "ProductID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
-		public int ProductID
-		{
-			get
-			{
-				return _productID;
-			}
-			set
-			{
-				if (value != _productID)
-				{
-					if (_product.HasLoadedOrAssignedValue)
-					{
-						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
-					}
-					_productID = value;
-				}
-			}
-		}
-
-		#endregion
-
-		#region short Quantity
-
-		private short _quantity;
-		[DebuggerNonUserCode]
-		[Column(Storage = "_quantity", Name = "Quantity", DbType = "SMALLINT", CanBeNull = false)]
-		public short Quantity
-		{
-			get
-			{
-				return _quantity;
-			}
-			set
-			{
-				if (value != _quantity)
-				{
-					_quantity = value;
-				}
-			}
-		}
-
-		#endregion
-
-		#region decimal UnitPrice
-
-		private decimal _unitPrice;
-		[DebuggerNonUserCode]
-		[Column(Storage = "_unitPrice", Name = "UnitPrice", DbType = "DECIMAL", CanBeNull = false)]
-		public decimal UnitPrice
-		{
-			get
-			{
-				return _unitPrice;
-			}
-			set
-			{
-				if (value != _unitPrice)
-				{
-					_unitPrice = value;
-				}
-			}
-		}
-
-		#endregion
-
-		#region Parents
-
-		private EntityRef<Product> _product;
-		[Association(Storage = "_product", ThisKey = "ProductID", Name = "\"fk_Order Details_0\"", IsForeignKey = true)]
-		[DebuggerNonUserCode]
-		public Product Product
-		{
-			get
-			{
-				return _product.Entity;
-			}
-			set
-			{
-				if (value != _product.Entity)
-				{
-					if (_product.Entity != null)
-					{
-						var previousProduct = _product.Entity;
-						_product.Entity = null;
-						previousProduct.OrderDetails.Remove(this);
-					}
-					_product.Entity = value;
-					if (value != null)
-					{
-						value.OrderDetails.Add(this);
-						_productID = value.ProductID;
-					}
-					else
-					{
-						_productID = default(int);
-					}
-				}
-			}
-		}
-
-		private EntityRef<Order> _order;
-		[Association(Storage = "_order", ThisKey = "OrderID", Name = "\"fk_Order Details_1\"", IsForeignKey = true)]
-		[DebuggerNonUserCode]
-		public Order Order
-		{
-			get
-			{
-				return _order.Entity;
-			}
-			set
-			{
-				if (value != _order.Entity)
-				{
-					if (_order.Entity != null)
-					{
-						var previousOrder = _order.Entity;
-						_order.Entity = null;
-						previousOrder.OrderDetails.Remove(this);
-					}
-					_order.Entity = value;
-					if (value != null)
-					{
-						value.OrderDetails.Add(this);
-						_orderID = value.OrderID;
-					}
-					else
-					{
-						_orderID = default(int);
-					}
-				}
-			}
-		}
-
-
-		#endregion
-
-		#region ctor
-
-		public OrderDetail()
-		{
-			_product = new EntityRef<Product>();
-			_order = new EntityRef<Order>();
+			_employees = new EntityRef<Employee>();
+			_customers = new EntityRef<Customer>();
 		}
 
 		#endregion
@@ -1771,13 +1946,27 @@ namespace nwind
 	}
 
 	[Table(Name = "main.Products")]
-	public partial class Product
+	public partial class Product : INotifyPropertyChanged
 	{
+		#region INotifyPropertyChanged handling
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		protected virtual void OnPropertyChanged(string propertyName)
+		{
+			if (PropertyChanged != null)
+			{
+				PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+
+		#endregion
+
 		#region int? CategoryID
 
 		private int? _categoryID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_categoryID", Name = "CategoryID", DbType = "INTEGER")]
+		[Column(Storage = "_categoryID", Name = "CategoryID", DbType = "INTEGER", CanBeNull = true)]
 		public int? CategoryID
 		{
 			get
@@ -1788,7 +1977,12 @@ namespace nwind
 			{
 				if (value != _categoryID)
 				{
+					if (_categories.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
 					_categoryID = value;
+					OnPropertyChanged("CategoryID");
 				}
 			}
 		}
@@ -1799,7 +1993,7 @@ namespace nwind
 
 		private bool _discontinued;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_discontinued", Name = "Discontinued", DbType = "BIT", CanBeNull = false)]
+		[Column(Storage = "_discontinued", Name = "Discontinued", DbType = "BIT")]
 		public bool Discontinued
 		{
 			get
@@ -1811,6 +2005,7 @@ namespace nwind
 				if (value != _discontinued)
 				{
 					_discontinued = value;
+					OnPropertyChanged("Discontinued");
 				}
 			}
 		}
@@ -1821,7 +2016,7 @@ namespace nwind
 
 		private int _productID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_productID", Name = "ProductID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
+		[Column(Storage = "_productID", Name = "ProductID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true)]
 		public int ProductID
 		{
 			get
@@ -1833,6 +2028,7 @@ namespace nwind
 				if (value != _productID)
 				{
 					_productID = value;
+					OnPropertyChanged("ProductID");
 				}
 			}
 		}
@@ -1843,7 +2039,7 @@ namespace nwind
 
 		private string _productName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_productName", Name = "ProductName", DbType = "VARCHAR(40)", CanBeNull = false)]
+		[Column(Storage = "_productName", Name = "ProductName", DbType = "VARCHAR(40)")]
 		public string ProductName
 		{
 			get
@@ -1855,6 +2051,7 @@ namespace nwind
 				if (value != _productName)
 				{
 					_productName = value;
+					OnPropertyChanged("ProductName");
 				}
 			}
 		}
@@ -1865,7 +2062,7 @@ namespace nwind
 
 		private string _quantityPerUnit;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_quantityPerUnit", Name = "QuantityPerUnit", DbType = "VARCHAR(20)")]
+		[Column(Storage = "_quantityPerUnit", Name = "QuantityPerUnit", DbType = "VARCHAR(20)", CanBeNull = true)]
 		public string QuantityPerUnit
 		{
 			get
@@ -1877,6 +2074,7 @@ namespace nwind
 				if (value != _quantityPerUnit)
 				{
 					_quantityPerUnit = value;
+					OnPropertyChanged("QuantityPerUnit");
 				}
 			}
 		}
@@ -1887,7 +2085,7 @@ namespace nwind
 
 		private short? _reorderLevel;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_reorderLevel", Name = "ReorderLevel", DbType = "SMALLINT")]
+		[Column(Storage = "_reorderLevel", Name = "ReorderLevel", DbType = "SMALLINT", CanBeNull = true)]
 		public short? ReorderLevel
 		{
 			get
@@ -1899,6 +2097,7 @@ namespace nwind
 				if (value != _reorderLevel)
 				{
 					_reorderLevel = value;
+					OnPropertyChanged("ReorderLevel");
 				}
 			}
 		}
@@ -1909,7 +2108,7 @@ namespace nwind
 
 		private int? _supplierID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_supplierID", Name = "SupplierID", DbType = "INTEGER")]
+		[Column(Storage = "_supplierID", Name = "SupplierID", DbType = "INTEGER", CanBeNull = true)]
 		public int? SupplierID
 		{
 			get
@@ -1920,11 +2119,12 @@ namespace nwind
 			{
 				if (value != _supplierID)
 				{
-					if (_supplier.HasLoadedOrAssignedValue)
+					if (_suppliers.HasLoadedOrAssignedValue)
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
 					_supplierID = value;
+					OnPropertyChanged("SupplierID");
 				}
 			}
 		}
@@ -1935,7 +2135,7 @@ namespace nwind
 
 		private decimal? _unitPrice;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_unitPrice", Name = "UnitPrice", DbType = "DECIMAL")]
+		[Column(Storage = "_unitPrice", Name = "UnitPrice", DbType = "DECIMAL", CanBeNull = true)]
 		public decimal? UnitPrice
 		{
 			get
@@ -1947,6 +2147,7 @@ namespace nwind
 				if (value != _unitPrice)
 				{
 					_unitPrice = value;
+					OnPropertyChanged("UnitPrice");
 				}
 			}
 		}
@@ -1957,7 +2158,7 @@ namespace nwind
 
 		private short? _unitsInStock;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_unitsInStock", Name = "UnitsInStock", DbType = "SMALLINT")]
+		[Column(Storage = "_unitsInStock", Name = "UnitsInStock", DbType = "SMALLINT", CanBeNull = true)]
 		public short? UnitsInStock
 		{
 			get
@@ -1969,6 +2170,7 @@ namespace nwind
 				if (value != _unitsInStock)
 				{
 					_unitsInStock = value;
+					OnPropertyChanged("UnitsInStock");
 				}
 			}
 		}
@@ -1979,7 +2181,7 @@ namespace nwind
 
 		private short? _unitsOnOrder;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_unitsOnOrder", Name = "UnitsOnOrder", DbType = "SMALLINT")]
+		[Column(Storage = "_unitsOnOrder", Name = "UnitsOnOrder", DbType = "SMALLINT", CanBeNull = true)]
 		public short? UnitsOnOrder
 		{
 			get
@@ -1991,6 +2193,7 @@ namespace nwind
 				if (value != _unitsOnOrder)
 				{
 					_unitsOnOrder = value;
+					OnPropertyChanged("UnitsOnOrder");
 				}
 			}
 		}
@@ -2019,26 +2222,59 @@ namespace nwind
 
 		#region Parents
 
-		private EntityRef<Supplier> _supplier;
-		[Association(Storage = "_supplier", ThisKey = "SupplierID", Name = "fk_Products_0", IsForeignKey = true)]
+		private EntityRef<Category> _categories;
+		[Association(Storage = "_categories", ThisKey = "CategoryID", Name = "fk_Products_0", IsForeignKey = true)]
+		[DebuggerNonUserCode]
+		public Category Category
+		{
+			get
+			{
+				return _categories.Entity;
+			}
+			set
+			{
+				if (value != _categories.Entity)
+				{
+					if (_categories.Entity != null)
+					{
+						var previousCategories = _categories.Entity;
+						_categories.Entity = null;
+						previousCategories.Products.Remove(this);
+					}
+					_categories.Entity = value;
+					if (value != null)
+					{
+						value.Products.Add(this);
+						_categoryID = value.CategoryID;
+					}
+					else
+					{
+						_categoryID = null;
+					}
+				}
+			}
+		}
+
+		private EntityRef<Supplier> _suppliers;
+		[Association(Storage = "_suppliers", ThisKey = "SupplierID", Name = "fk_Products_1", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Supplier Supplier
 		{
 			get
 			{
-				return _supplier.Entity;
+				return _suppliers.Entity;
 			}
 			set
 			{
-				if (value != _supplier.Entity)
+				if (value != _suppliers.Entity)
 				{
-					if (_supplier.Entity != null)
+					if (_suppliers.Entity != null)
 					{
-						var previousSupplier = _supplier.Entity;
-						_supplier.Entity = null;
-						previousSupplier.Products.Remove(this);
+						var previousSuppliers = _suppliers.Entity;
+						_suppliers.Entity = null;
+						previousSuppliers.Products.Remove(this);
 					}
-					_supplier.Entity = value;
+					_suppliers.Entity = value;
 					if (value != null)
 					{
 						value.Products.Add(this);
@@ -2075,7 +2311,8 @@ namespace nwind
 		public Product()
 		{
 			_orderDetails = new EntitySet<OrderDetail>(OrderDetails_Attach, OrderDetails_Detach);
-			_supplier = new EntityRef<Supplier>();
+			_categories = new EntityRef<Category>();
+			_suppliers = new EntityRef<Supplier>();
 		}
 
 		#endregion
@@ -2083,13 +2320,27 @@ namespace nwind
 	}
 
 	[Table(Name = "main.Regions")]
-	public partial class Region
+	public partial class Region : INotifyPropertyChanged
 	{
+		#region INotifyPropertyChanged handling
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		protected virtual void OnPropertyChanged(string propertyName)
+		{
+			if (PropertyChanged != null)
+			{
+				PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+
+		#endregion
+
 		#region string RegionDescription
 
 		private string _regionDescription;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_regionDescription", Name = "RegionDescription", DbType = "VARCHAR(50)", CanBeNull = false)]
+		[Column(Storage = "_regionDescription", Name = "RegionDescription", DbType = "VARCHAR(50)")]
 		public string RegionDescription
 		{
 			get
@@ -2101,6 +2352,7 @@ namespace nwind
 				if (value != _regionDescription)
 				{
 					_regionDescription = value;
+					OnPropertyChanged("RegionDescription");
 				}
 			}
 		}
@@ -2111,7 +2363,7 @@ namespace nwind
 
 		private int _regionID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_regionID", Name = "RegionID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
+		[Column(Storage = "_regionID", Name = "RegionID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true)]
 		public int RegionID
 		{
 			get
@@ -2123,6 +2375,7 @@ namespace nwind
 				if (value != _regionID)
 				{
 					_regionID = value;
+					OnPropertyChanged("RegionID");
 				}
 			}
 		}
@@ -2176,13 +2429,27 @@ namespace nwind
 	}
 
 	[Table(Name = "main.Shippers")]
-	public partial class Shipper
+	public partial class Shipper : INotifyPropertyChanged
 	{
+		#region INotifyPropertyChanged handling
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		protected virtual void OnPropertyChanged(string propertyName)
+		{
+			if (PropertyChanged != null)
+			{
+				PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+
+		#endregion
+
 		#region string CompanyName
 
 		private string _companyName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_companyName", Name = "CompanyName", DbType = "VARCHAR(40)", CanBeNull = false)]
+		[Column(Storage = "_companyName", Name = "CompanyName", DbType = "VARCHAR(40)")]
 		public string CompanyName
 		{
 			get
@@ -2194,6 +2461,7 @@ namespace nwind
 				if (value != _companyName)
 				{
 					_companyName = value;
+					OnPropertyChanged("CompanyName");
 				}
 			}
 		}
@@ -2204,7 +2472,7 @@ namespace nwind
 
 		private string _phone;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_phone", Name = "Phone", DbType = "VARCHAR(24)")]
+		[Column(Storage = "_phone", Name = "Phone", DbType = "VARCHAR(24)", CanBeNull = true)]
 		public string Phone
 		{
 			get
@@ -2216,6 +2484,7 @@ namespace nwind
 				if (value != _phone)
 				{
 					_phone = value;
+					OnPropertyChanged("Phone");
 				}
 			}
 		}
@@ -2226,7 +2495,7 @@ namespace nwind
 
 		private int _shipperID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_shipperID", Name = "ShipperID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
+		[Column(Storage = "_shipperID", Name = "ShipperID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true)]
 		public int ShipperID
 		{
 			get
@@ -2238,6 +2507,7 @@ namespace nwind
 				if (value != _shipperID)
 				{
 					_shipperID = value;
+					OnPropertyChanged("ShipperID");
 				}
 			}
 		}
@@ -2255,13 +2525,27 @@ namespace nwind
 	}
 
 	[Table(Name = "main.Suppliers")]
-	public partial class Supplier
+	public partial class Supplier : INotifyPropertyChanged
 	{
+		#region INotifyPropertyChanged handling
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		protected virtual void OnPropertyChanged(string propertyName)
+		{
+			if (PropertyChanged != null)
+			{
+				PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+
+		#endregion
+
 		#region string Address
 
 		private string _address;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_address", Name = "Address", DbType = "VARCHAR(60)")]
+		[Column(Storage = "_address", Name = "Address", DbType = "VARCHAR(60)", CanBeNull = true)]
 		public string Address
 		{
 			get
@@ -2273,6 +2557,7 @@ namespace nwind
 				if (value != _address)
 				{
 					_address = value;
+					OnPropertyChanged("Address");
 				}
 			}
 		}
@@ -2283,7 +2568,7 @@ namespace nwind
 
 		private string _city;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_city", Name = "City", DbType = "VARCHAR(15)")]
+		[Column(Storage = "_city", Name = "City", DbType = "VARCHAR(15)", CanBeNull = true)]
 		public string City
 		{
 			get
@@ -2295,6 +2580,7 @@ namespace nwind
 				if (value != _city)
 				{
 					_city = value;
+					OnPropertyChanged("City");
 				}
 			}
 		}
@@ -2305,7 +2591,7 @@ namespace nwind
 
 		private string _companyName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_companyName", Name = "CompanyName", DbType = "VARCHAR(40)", CanBeNull = false)]
+		[Column(Storage = "_companyName", Name = "CompanyName", DbType = "VARCHAR(40)")]
 		public string CompanyName
 		{
 			get
@@ -2317,6 +2603,7 @@ namespace nwind
 				if (value != _companyName)
 				{
 					_companyName = value;
+					OnPropertyChanged("CompanyName");
 				}
 			}
 		}
@@ -2327,7 +2614,7 @@ namespace nwind
 
 		private string _contactName;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_contactName", Name = "ContactName", DbType = "VARCHAR(30)")]
+		[Column(Storage = "_contactName", Name = "ContactName", DbType = "VARCHAR(30)", CanBeNull = true)]
 		public string ContactName
 		{
 			get
@@ -2339,6 +2626,7 @@ namespace nwind
 				if (value != _contactName)
 				{
 					_contactName = value;
+					OnPropertyChanged("ContactName");
 				}
 			}
 		}
@@ -2349,7 +2637,7 @@ namespace nwind
 
 		private string _contactTitle;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_contactTitle", Name = "ContactTitle", DbType = "VARCHAR(30)")]
+		[Column(Storage = "_contactTitle", Name = "ContactTitle", DbType = "VARCHAR(30)", CanBeNull = true)]
 		public string ContactTitle
 		{
 			get
@@ -2361,6 +2649,7 @@ namespace nwind
 				if (value != _contactTitle)
 				{
 					_contactTitle = value;
+					OnPropertyChanged("ContactTitle");
 				}
 			}
 		}
@@ -2371,7 +2660,7 @@ namespace nwind
 
 		private string _country;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_country", Name = "Country", DbType = "VARCHAR(15)")]
+		[Column(Storage = "_country", Name = "Country", DbType = "VARCHAR(15)", CanBeNull = true)]
 		public string Country
 		{
 			get
@@ -2383,6 +2672,7 @@ namespace nwind
 				if (value != _country)
 				{
 					_country = value;
+					OnPropertyChanged("Country");
 				}
 			}
 		}
@@ -2393,7 +2683,7 @@ namespace nwind
 
 		private string _fax;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_fax", Name = "Fax", DbType = "VARCHAR(24)")]
+		[Column(Storage = "_fax", Name = "Fax", DbType = "VARCHAR(24)", CanBeNull = true)]
 		public string Fax
 		{
 			get
@@ -2405,6 +2695,7 @@ namespace nwind
 				if (value != _fax)
 				{
 					_fax = value;
+					OnPropertyChanged("Fax");
 				}
 			}
 		}
@@ -2415,7 +2706,7 @@ namespace nwind
 
 		private string _phone;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_phone", Name = "Phone", DbType = "VARCHAR(24)")]
+		[Column(Storage = "_phone", Name = "Phone", DbType = "VARCHAR(24)", CanBeNull = true)]
 		public string Phone
 		{
 			get
@@ -2427,6 +2718,7 @@ namespace nwind
 				if (value != _phone)
 				{
 					_phone = value;
+					OnPropertyChanged("Phone");
 				}
 			}
 		}
@@ -2437,7 +2729,7 @@ namespace nwind
 
 		private string _postalCode;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_postalCode", Name = "PostalCode", DbType = "VARCHAR(10)")]
+		[Column(Storage = "_postalCode", Name = "PostalCode", DbType = "VARCHAR(10)", CanBeNull = true)]
 		public string PostalCode
 		{
 			get
@@ -2449,6 +2741,7 @@ namespace nwind
 				if (value != _postalCode)
 				{
 					_postalCode = value;
+					OnPropertyChanged("PostalCode");
 				}
 			}
 		}
@@ -2459,7 +2752,7 @@ namespace nwind
 
 		private string _region;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_region", Name = "Region", DbType = "VARCHAR(15)")]
+		[Column(Storage = "_region", Name = "Region", DbType = "VARCHAR(15)", CanBeNull = true)]
 		public string Region
 		{
 			get
@@ -2471,6 +2764,7 @@ namespace nwind
 				if (value != _region)
 				{
 					_region = value;
+					OnPropertyChanged("Region");
 				}
 			}
 		}
@@ -2481,7 +2775,7 @@ namespace nwind
 
 		private int _supplierID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_supplierID", Name = "SupplierID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false)]
+		[Column(Storage = "_supplierID", Name = "SupplierID", DbType = "INTEGER", IsPrimaryKey = true, IsDbGenerated = true)]
 		public int SupplierID
 		{
 			get
@@ -2493,6 +2787,7 @@ namespace nwind
 				if (value != _supplierID)
 				{
 					_supplierID = value;
+					OnPropertyChanged("SupplierID");
 				}
 			}
 		}
@@ -2502,7 +2797,7 @@ namespace nwind
 		#region Children
 
 		private EntitySet<Product> _products;
-		[Association(Storage = "_products", OtherKey = "SupplierID", Name = "fk_Products_0")]
+		[Association(Storage = "_products", OtherKey = "SupplierID", Name = "fk_Products_1")]
 		[DebuggerNonUserCode]
 		public EntitySet<Product> Products
 		{
@@ -2546,13 +2841,27 @@ namespace nwind
 	}
 
 	[Table(Name = "main.Territories")]
-	public partial class Territory
+	public partial class Territory : INotifyPropertyChanged
 	{
+		#region INotifyPropertyChanged handling
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		protected virtual void OnPropertyChanged(string propertyName)
+		{
+			if (PropertyChanged != null)
+			{
+				PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+
+		#endregion
+
 		#region int RegionID
 
 		private int _regionID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_regionID", Name = "RegionID", DbType = "INTEGER", CanBeNull = false)]
+		[Column(Storage = "_regionID", Name = "RegionID", DbType = "INTEGER")]
 		public int RegionID
 		{
 			get
@@ -2563,11 +2872,12 @@ namespace nwind
 			{
 				if (value != _regionID)
 				{
-					if (_region.HasLoadedOrAssignedValue)
+					if (_regions.HasLoadedOrAssignedValue)
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
 					_regionID = value;
+					OnPropertyChanged("RegionID");
 				}
 			}
 		}
@@ -2578,7 +2888,7 @@ namespace nwind
 
 		private string _territoryDescription;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_territoryDescription", Name = "TerritoryDescription", DbType = "VARCHAR(50)", CanBeNull = false)]
+		[Column(Storage = "_territoryDescription", Name = "TerritoryDescription", DbType = "VARCHAR(50)")]
 		public string TerritoryDescription
 		{
 			get
@@ -2590,6 +2900,7 @@ namespace nwind
 				if (value != _territoryDescription)
 				{
 					_territoryDescription = value;
+					OnPropertyChanged("TerritoryDescription");
 				}
 			}
 		}
@@ -2600,7 +2911,7 @@ namespace nwind
 
 		private string _territoryID;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_territoryID", Name = "TerritoryID", DbType = "VARCHAR(20)", IsPrimaryKey = true, CanBeNull = false)]
+		[Column(Storage = "_territoryID", Name = "TerritoryID", DbType = "VARCHAR(20)", IsPrimaryKey = true)]
 		public string TerritoryID
 		{
 			get
@@ -2612,6 +2923,7 @@ namespace nwind
 				if (value != _territoryID)
 				{
 					_territoryID = value;
+					OnPropertyChanged("TerritoryID");
 				}
 			}
 		}
@@ -2640,26 +2952,26 @@ namespace nwind
 
 		#region Parents
 
-		private EntityRef<Region> _region;
-		[Association(Storage = "_region", ThisKey = "RegionID", Name = "fk_Territories_0", IsForeignKey = true)]
+		private EntityRef<Region> _regions;
+		[Association(Storage = "_regions", ThisKey = "RegionID", Name = "fk_Territories_0", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Region Region
 		{
 			get
 			{
-				return _region.Entity;
+				return _regions.Entity;
 			}
 			set
 			{
-				if (value != _region.Entity)
+				if (value != _regions.Entity)
 				{
-					if (_region.Entity != null)
+					if (_regions.Entity != null)
 					{
-						var previousRegion = _region.Entity;
-						_region.Entity = null;
-						previousRegion.Territories.Remove(this);
+						var previousRegions = _regions.Entity;
+						_regions.Entity = null;
+						previousRegions.Territories.Remove(this);
 					}
-					_region.Entity = value;
+					_regions.Entity = value;
 					if (value != null)
 					{
 						value.Territories.Add(this);
@@ -2696,7 +3008,7 @@ namespace nwind
 		public Territory()
 		{
 			_employeeTerritories = new EntitySet<EmployeeTerritory>(EmployeeTerritories_Attach, EmployeeTerritories_Detach);
-			_region = new EntityRef<Region>();
+			_regions = new EntityRef<Region>();
 		}
 
 		#endregion
