@@ -780,7 +780,11 @@ dummy text
 
             var product = new Product
             {
+#if INGRES
+                Discontinued = 1,
+#else
                 Discontinued = true,
+#endif
                 ProductName = newProduct1,
             };
 
@@ -804,7 +808,11 @@ dummy text
 
             var p2 = new Product
             {
+#if INGRES
+                Discontinued = 1,
+#else
                 Discontinued = true,
+#endif
                 ProductName = newProduct2
             };
             category.Products.Add(p2);

@@ -176,7 +176,9 @@ using DataLinq = DbLinq.Data.Linq;
         public void A8_SelectSingleOrDefault_QueryCacheDisabled()
         {
             Northwind db = CreateDB();
+#if !MONO_STRICT
             db.QueryCacheEnabled = false;
+#endif
 
             // Query for a specific customer
             var cust = db.Customers.SingleOrDefault(c => c.CompanyName == "Around the Horn");
