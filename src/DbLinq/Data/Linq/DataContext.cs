@@ -86,6 +86,19 @@ namespace DbLinq.Data.Linq
         private bool objectTrackingEnabled = true;
         private bool deferredLoadingEnabled = true;
 
+        private bool queryCacheEnabled = true;  // By Default we enable QueryCache, tring to get a bit better performances
+
+        /// <summary>
+        /// Disable the QueryCache: this is surely good for rarely used Select, since preparing
+        /// the SelectQuery to be cached could require more time than build the sql from scratch.
+        /// </summary>
+        [DBLinqExtended]
+        public bool QueryCacheEnabled 
+        {
+            get { return queryCacheEnabled; }
+            set { queryCacheEnabled = value; }
+        }
+
         private IEntityTracker currentTransactionEntities;
         private IEntityTracker CurrentTransactionEntities
         {

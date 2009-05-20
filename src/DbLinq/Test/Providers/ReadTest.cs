@@ -117,6 +117,7 @@ using DataLinq = DbLinq.Data.Linq;
             var cust = db.Customers.SingleOrDefault(c => c.CompanyName == "Around the Horn");
             Assert.IsNotNull(cust, "Expected one customer 'Around the Horn'.");
 
+#if false
             var id = "ALFKI";
             cust = db.Customers.SingleOrDefault(c => c.CustomerID == id);
             Assert.AreEqual("ALFKI", cust.CustomerID);
@@ -132,6 +133,27 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.AreEqual("ALFKI", cust.CustomerID);
             id = "BLAUS";
             cust = db.Customers.SingleOrDefault(c => c.CustomerID == id);
+#endif
+            cust = GetCustomerById(db, "ALFKI");
+            Assert.AreEqual("ALFKI", cust.CustomerID);
+
+            cust = GetCustomerById(db, "BLAUS");
+            Assert.AreEqual("BLAUS", cust.CustomerID);
+
+            cust = GetCustomerById(db, "DNE");
+            Assert.IsNull(cust);
+
+            cust = GetCustomerById(db, "ALFKI");
+            Assert.AreEqual("ALFKI", cust.CustomerID);
+
+            cust = GetCustomerById(db, "BLAUS");
+            Assert.AreEqual("BLAUS", cust.CustomerID);
+        }
+
+
+        private static Customer GetCustomerById(Northwind db, string id)
+        {
+            return db.Customers.SingleOrDefault(c => c.CustomerID == id);
         }
 
 
@@ -149,6 +171,31 @@ using DataLinq = DbLinq.Data.Linq;
             Northwind db = CreateDB(System.Data.ConnectionState.Closed);
             Product p1 = db.Products.Single(p => p.ProductID == 1);
             Assert.IsTrue(p1.ProductID == 1);
+        }
+
+        public void A8_SelectSingleOrDefault_QueryCacheDisabled()
+        {
+            Northwind db = CreateDB();
+            db.QueryCacheEnabled = false;
+
+            // Query for a specific customer
+            var cust = db.Customers.SingleOrDefault(c => c.CompanyName == "Around the Horn");
+            Assert.IsNotNull(cust, "Expected one customer 'Around the Horn'.");
+
+            cust = GetCustomerById(db, "ALFKI");
+            Assert.AreEqual("ALFKI", cust.CustomerID);
+
+            cust = GetCustomerById(db, "BLAUS");
+            Assert.AreEqual("BLAUS", cust.CustomerID);
+
+            cust = GetCustomerById(db, "DNE");
+            Assert.IsNull(cust);
+
+            cust = GetCustomerById(db, "ALFKI");
+            Assert.AreEqual("ALFKI", cust.CustomerID);
+
+            cust = GetCustomerById(db, "BLAUS");
+            Assert.AreEqual("BLAUS", cust.CustomerID);
         }
 
         #endregion

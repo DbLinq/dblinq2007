@@ -382,7 +382,11 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         /// <returns></returns>
         public SelectQuery GetSelectQuery(ExpressionChain expressions, QueryContext queryContext)
         {
-            var query = GetFromSelectCache(expressions);
+            SelectQuery query = null;
+            if (queryContext.DataContext.QueryCacheEnabled)
+            {
+                query = GetFromSelectCache(expressions);
+            }
             if (query == null)
             {
 #if DEBUG && !MONO_STRICT
@@ -411,7 +415,10 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     log.WriteLine("Select SQL build:        {0}ms", sqlBuildTime);
                 }
 #endif
-                SetInSelectCache(expressions, query);
+                if (queryContext.DataContext.QueryCacheEnabled)
+                {
+                    SetInSelectCache(expressions, query);
+                }
             }
             return query;
         }
@@ -426,13 +433,20 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         /// <returns></returns>
         public virtual Delegate GetTableReader(Type tableType, IList<string> parameters, QueryContext queryContext)
         {
-            var reader = GetFromTableReaderCache(tableType, parameters);
+            Delegate reader = null;
+            if (queryContext.DataContext.QueryCacheEnabled)
+            {
+                reader = GetFromTableReaderCache(tableType, parameters);
+            }
             if (reader == null)
             {
                 var lambda = ExpressionDispatcher.BuildTableReader(tableType, parameters,
                                                                    new BuilderContext(queryContext));
                 reader = lambda.Compile();
-                SetInTableReaderCache(tableType, parameters, reader);
+                if (queryContext.DataContext.QueryCacheEnabled)
+                {
+                    SetInTableReaderCache(tableType, parameters, reader);
+                }
             }
             return reader;
         }
