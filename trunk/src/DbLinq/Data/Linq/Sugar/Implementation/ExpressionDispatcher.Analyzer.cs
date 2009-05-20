@@ -1299,7 +1299,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 var queriedType = GetQueriedType(expression);
                 if (queriedType != null)
                 {
-
+                    //return new TableExpression(queriedType, DataMapper.GetTableName(queriedType, builderContext.QueryContext.DataContext));
                 }
                 if (constantExpression.Value is ITable)
                 {
