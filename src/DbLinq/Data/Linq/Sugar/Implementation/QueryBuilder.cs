@@ -166,7 +166,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     do
                     {
                         externalParameterExpression.Alias = MakeTableName(aliasBase, ++anonymousIndex, builderContext);
-                    } while (FindExpressionsByName(externalParameterExpression.Alias, builderContext).Count != 1);
+                    } while (FindExpressionsByName(externalParameterExpression.Alias, builderContext).Count > 1);
                 }
             }
         }

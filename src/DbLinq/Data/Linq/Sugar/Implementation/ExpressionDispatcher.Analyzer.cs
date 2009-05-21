@@ -1304,29 +1304,49 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     QueryProvider qp = constantExpression.Value as QueryProvider;
                     if (qp != null)
                     {
+                        // TODO: check if the QueryProvider qp belong to DataContext present in builderContext.QueryContext.DataContext
+                        // otherwise strange things could happen in the future (I suppose)
+
+                        // Build a new Context for the query
+                        BuilderContext newContext = new BuilderContext(builderContext.QueryContext);
                         ExpressionChain expressions = qp.ExpressionChain;
-                        Expression tableExpression = CreateTableExpression(qp.ExpressionChain.Expressions[0], builderContext);
+                        Expression tableExpression = CreateTableExpression(qp.ExpressionChain.Expressions[0], newContext);
                         Expression last = expressions.Last();
                         IExpressionLanguageParser languageParser = ObjectFactory.Get<IExpressionLanguageParser>();
                         foreach (Expression e in expressions)
                         {
                             if (e == last)
-                                builderContext.IsExternalInExpressionChain = true;
+                                newContext.IsExternalInExpressionChain = true;
 
                             // write full debug
 #if DEBUG && !MONO_STRICT
-                            var log = builderContext.QueryContext.DataContext.Log;
+                            var log = newContext.QueryContext.DataContext.Log;
                             if (log != null)
                                 log.WriteExpression(expression);
 #endif
                             // Convert linq Expressions to QueryOperationExpressions and QueryConstantExpressions 
                             // Query expressions language identification
-                            var currentExpression = languageParser.Parse(e, builderContext);
+                            var currentExpression = languageParser.Parse(e, newContext);
                             // Query expressions query identification 
-                            currentExpression = this.Analyze(currentExpression, tableExpression, builderContext);
+                            currentExpression = this.Analyze(currentExpression, tableExpression, newContext);
 
                             tableExpression = currentExpression;
                         }
+                        // Fill the current Context with the newContext contents
+                        //builderContext.ExpressionQuery. = ExpressionQuery;
+                        foreach (InputParameterExpression inputParameter in newContext.ExpressionQuery.Parameters)
+                            builderContext.ExpressionQuery.Parameters.Add(inputParameter);
+                        foreach(KeyValuePair<Type, MetaTableExpression> newMetaTable in newContext.MetaTables)
+                            builderContext.MetaTables.Add(newMetaTable);
+                        foreach (TableExpression table in newContext.CurrentSelect.Tables)
+                            if (table != tableExpression && !builderContext.CurrentSelect.Tables.Contains(table))
+                                builderContext.CurrentSelect.Tables.Add(table);
+                        foreach (Expression whereExpression in newContext.CurrentSelect.Where)
+                            builderContext.CurrentSelect.Where.Add(whereExpression);
+                        /*
+                        foreach(SelectExpression newSelect in newContext.SelectExpressions)
+                            builderContext.SelectExpressions.Add(newSelect);
+                        */
                         return tableExpression;
                     }
                 }
