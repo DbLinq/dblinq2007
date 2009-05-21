@@ -474,7 +474,7 @@ using DataLinq = DbLinq.Data.Linq;
         }
 
         [Test]
-        public void C12_SelectEmployee_Fluent()
+        public void C19_SelectEmployee_Fluent()
         {
             Northwind db = CreateDB();
             var q = db.GetTable<Territory>()
@@ -482,6 +482,69 @@ using DataLinq = DbLinq.Data.Linq;
                         .Join(db.GetTable<Employee>().Where(e => e.EmployeeID > 0), l => l.EmployeeID, e => e.EmployeeID, (l, e) => e);
             var employeeCount = q.Count();
             Assert.Greater(employeeCount, 0, "Expected any employees, got count=" + employeeCount);
+        }
+
+        /// <summary>
+        /// Test the use of DbLinq as a QueryObject
+        /// http://www.martinfowler.com/eaaCatalog/queryObject.html
+        /// </summary>
+        [Test]
+        public void C20_SelectEmployee_DbLinqAsQueryObject()
+        {
+            Northwind db = CreateDB();
+            IQueryable<Employee> allEmployees = db.GetTable<Employee>();
+
+            allEmployees = filterByNameOrSurnameContains(db, allEmployees, "an");
+
+            allEmployees = filterByTerritoryName(db, allEmployees, "Neward");
+
+            Assert.AreEqual(1, allEmployees.Count());
+        }
+
+        [Test]
+        public void C21_SelectEmployee_DbLinqAsQueryObjectWithOrderCount()
+        {
+            Northwind db = CreateDB();
+            IQueryable<Employee> allEmployees = db.GetTable<Employee>();
+
+            allEmployees = filterByOrderCountGreaterThan(db, allEmployees, 50);
+            allEmployees = filterByNameOrSurnameContains(db, allEmployees, "an");
+
+            allEmployees = filterByTerritoryName(db, allEmployees, "Neward");
+            string commandText = db.GetCommand(allEmployees).CommandText;
+
+            Assert.AreEqual(1, allEmployees.Count());
+        }
+
+        private IQueryable<Employee> filterByOrderCountGreaterThan(Northwind db, IQueryable<Employee> allEmployees, int minimumOrderNumber)
+        {
+            return from e in allEmployees.Where(e => e.Orders.Count > minimumOrderNumber) select e;
+        }
+
+        private IQueryable<Employee> filterByNameOrSurnameContains(Northwind db, IQueryable<Employee> allEmployees, string namePart)
+        {
+            return from e in allEmployees.Where(e => e.FirstName.Contains(namePart) || e.LastName.Contains(namePart)) select e;
+        }
+
+        private IQueryable<Employee> filterByTerritoryName(Northwind db, IQueryable<Employee> allEmployees, string territoryName)
+        {
+            IQueryable<Territory> territoryRequired = db.GetTable<Territory>().Where(t => t.TerritoryDescription == territoryName);
+            var q = territoryRequired
+                        .Join(db.GetTable<EmployeeTerritory>(), t => t.TerritoryID, l => l.TerritoryID, (t, l) => l)
+                        .Join(allEmployees, l => l.EmployeeID, e => e.EmployeeID, (l, e) => e);
+            return q;
+        }
+
+        [Test]
+        public void C22_SelectEmployee_GetCommandTextWithNoFilter()
+        {
+            string commandText;
+            Northwind db = CreateDB();
+            IQueryable<Employee> allEmployees = db.GetTable<Employee>();
+            // this way this test pass
+            // IQueryable<Employee> allEmployees = db.GetTable<Employee>().Select(e => e);
+            commandText = db.GetCommand(allEmployees).CommandText;
+            Assert.IsNotNull(commandText);
         }
 
         #endregion
