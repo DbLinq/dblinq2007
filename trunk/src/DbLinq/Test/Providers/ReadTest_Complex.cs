@@ -282,17 +282,16 @@ using Id = System.Int32;
         {
             var q4 = from p in db.Products
                      where (p.ProductName + p.ProductID).Contains("e")
-                     select p.ProductName;
-            //select p.ProductName+p.ProductID;
+                     select p.ProductName+p.ProductID;
             //var q4 = from p in db.Products select p.ProductID;
-            var q5 = q4.ToList();
-            //Assert.Greater( q5.Count, 2, "Expected to see some concat strings");
-            //foreach(string s0 in q5)
-            //{
-            //    bool startWithLetter = Char.IsLetter(s0[0]);
-            //    bool endsWithDigit = Char.IsDigit(s0[s0.Length-1]);
-            //    Assert.IsTrue(startWithLetter && endsWithDigit, "String must start with letter and end with digit");
-            //}
+            //var q5 = q4.ToList();
+            Assert.Greater( q4.Count(), 2, "Expected to see some concat strings");
+            foreach(string s0 in q4)
+            {
+                bool startWithLetter = Char.IsLetter(s0[0]);
+                bool endsWithDigit = Char.IsDigit(s0[s0.Length-1]);
+                Assert.IsTrue(startWithLetter && endsWithDigit, "String must start with letter and end with digit");
+            }
         }
         #endregion
 
