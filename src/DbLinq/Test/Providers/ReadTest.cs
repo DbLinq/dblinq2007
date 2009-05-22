@@ -538,13 +538,26 @@ using DataLinq = DbLinq.Data.Linq;
         [Test]
         public void C22_SelectEmployee_GetCommandTextWithNoFilter()
         {
-            string commandText;
             Northwind db = CreateDB();
             IQueryable<Employee> allEmployees = db.GetTable<Employee>();
-            // this way this test pass
-            // IQueryable<Employee> allEmployees = db.GetTable<Employee>().Select(e => e);
-            commandText = db.GetCommand(allEmployees).CommandText;
+            var commandText = db.GetCommand(allEmployees).CommandText;
             Assert.IsNotNull(commandText);
+        }
+
+        [Test]
+        public void C23_SelectEmployees()
+        {
+            Northwind db = CreateDB();
+            var allEmployees = db.GetTable<Employee>();
+            int count = 0;
+            foreach (var emp in allEmployees)
+            {
+                ++count;
+                Console.WriteLine("# Photo: {0}", emp.Photo == null ? "<null>" : emp.Photo.ToString());
+                Console.WriteLine("# Photo Length: {0}", emp.Photo == null ? -1 : emp.Photo.Length);
+            }
+            Console.WriteLine("# C23: count={0}", count);
+            Assert.AreEqual(10, count);
         }
 
         #endregion
