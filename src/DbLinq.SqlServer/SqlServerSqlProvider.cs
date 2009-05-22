@@ -187,7 +187,7 @@ namespace DbLinq.SqlServer
 
         protected override SqlStatement GetLiteralStringConcat(SqlStatement a, SqlStatement b)
         {
-            return SqlStatement.Format("{0} + {1}", a, b);
+            return SqlStatement.Format("{0} + {1}", a.Replace("sql_variant", "varchar", false), b.Replace("sql_variant", "varchar", false));
         }
 
         protected override SqlStatement GetLiteralStringToLower(SqlStatement a)
