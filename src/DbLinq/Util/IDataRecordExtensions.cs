@@ -103,7 +103,7 @@ namespace DbLinq.Util
         public static byte[] GetAsBytes(this IDataRecord dataRecord, int index)
         {
             if (dataRecord.IsDBNull(index))
-                return null;
+                return new byte[0];
             object obj = dataRecord.GetValue(index);
             if (obj == null)
                 return null; //nullable blob?
