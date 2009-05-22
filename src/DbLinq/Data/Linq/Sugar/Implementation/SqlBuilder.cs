@@ -183,6 +183,18 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             if (expression is InputParameterExpression)
             {
                 var inputParameterExpression = (InputParameterExpression)expression;
+                if (expression.Type.IsArray)
+                {
+                    int i = 0;
+                    List<SqlStatement> inputParameters = new List<SqlStatement>();
+                    foreach (object p in (Array)inputParameterExpression.GetValue())
+                    {
+                        inputParameters.Add(new SqlStatement(new SqlParameterPart(sqlProvider.GetParameterName(inputParameterExpression.Alias + i.ToString()),
+                                                          inputParameterExpression.Alias + i.ToString())));
+                        ++i;
+                    }
+                    return new SqlStatement(sqlProvider.GetLiteral(inputParameters.ToArray()));
+                }
                 return
                     new SqlStatement(new SqlParameterPart(sqlProvider.GetParameterName(inputParameterExpression.Alias),
                                                           inputParameterExpression.Alias));

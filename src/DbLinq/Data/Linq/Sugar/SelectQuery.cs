@@ -84,13 +84,29 @@ namespace DbLinq.Data.Linq.Sugar
 
         public override ITransactionalCommand GetCommand()
         {
+            IDbDataParameter dbParameter;
             var dbCommand = base.GetCommand(false);
             foreach (var parameter in InputParameters)
             {
-                var dbParameter = dbCommand.Command.CreateParameter();
-                dbParameter.ParameterName = DataContext.Vendor.SqlProvider.GetParameterName(parameter.Alias);
-                dbParameter.Value = parameter.GetValue();
-                dbCommand.Command.Parameters.Add(dbParameter);
+                if (parameter.Type.IsArray)
+                {
+                    int i = 0;
+                    foreach (object p in (Array)parameter.GetValue())
+                    {
+                        dbParameter = dbCommand.Command.CreateParameter();
+                        dbParameter.ParameterName = DataContext.Vendor.SqlProvider.GetParameterName(parameter.Alias + i.ToString());
+                        dbParameter.Value = p;
+                        dbCommand.Command.Parameters.Add(dbParameter);
+                        ++i;
+                    }
+                }
+                else
+                {
+                    dbParameter = dbCommand.Command.CreateParameter();
+                    dbParameter.ParameterName = DataContext.Vendor.SqlProvider.GetParameterName(parameter.Alias);
+                    dbParameter.Value = parameter.GetValue();
+                    dbCommand.Command.Parameters.Add(dbParameter);
+                }
             }
             return dbCommand;
         }

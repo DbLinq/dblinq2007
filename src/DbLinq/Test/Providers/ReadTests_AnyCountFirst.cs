@@ -313,7 +313,7 @@ using nwind;
         public void ArrayContains()
         {
             var db = CreateDB();
-            decimal[] d = new decimal[] { 1, 4, 5, 6 };
+            decimal[] d = new decimal[] { 1, 4, 5, 6, 10248, 10255 };
             var q = db.OrderDetails.Where(o => d.Contains(o.OrderID));
 
             Assert.Greater(q.Count(), 0);
