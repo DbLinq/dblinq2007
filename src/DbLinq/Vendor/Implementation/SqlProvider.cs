@@ -165,10 +165,15 @@ namespace DbLinq.Vendor.Implementation
             if (literal is bool)
                 return GetLiteral((bool)literal);
             if (literal is DateTime)
-                return GetLiteral(literal.ToString());
+                return GetLiteral((DateTime)literal);
             if (literal.GetType().IsArray)
                 return GetLiteral((Array)literal);
             return Convert.ToString(literal, CultureInfo.InvariantCulture);
+        }
+
+        public virtual SqlStatement GetLiteral(DateTime literal)
+        {
+            return Convert.ToString(literal.ToString());
         }
 
         public virtual SqlStatement GetLiteral(bool literal)

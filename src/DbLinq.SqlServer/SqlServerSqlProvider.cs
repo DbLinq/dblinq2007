@@ -67,6 +67,11 @@ namespace DbLinq.SqlServer
             return "0";
         }
 
+        public override SqlStatement GetLiteral(DateTime literal)
+        {
+            return "'" + literal.ToString("o").Split('.')[0] + "'";
+        }
+
         public override string GetParameterName(string nameBase)
         {
             return string.Format("@{0}", nameBase);
@@ -250,7 +255,7 @@ namespace DbLinq.SqlServer
             if (typeMapping.ContainsKey(type))
                 sqlTypeName = typeMapping[type];
             else
-                sqlTypeName = "variant";
+                sqlTypeName = "sql_variant";
 
             return SqlStatement.Format("CONVERT({0},{1})", sqlTypeName, a);
         }
