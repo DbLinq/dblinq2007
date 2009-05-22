@@ -151,8 +151,8 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             }
             if (simpleReturnType == typeof(System.Data.Linq.Binary))
             {
-                return (Expression<Func<IDataRecord, MappingContext, int, byte[]>>)((dataRecord, mappingContext, valueIndex)
-                                                                                    => dataRecord.GetAsBytes(valueIndex));
+                return (Expression<Func<IDataRecord, MappingContext, int, System.Data.Linq.Binary>>)((dataRecord, mappingContext, valueIndex)
+                                                                                    => dataRecord.GetAsBinary(valueIndex));
             }
             // for polymorphic types especially for ExecuteQuery<>()
             if (simpleReturnType == typeof(object))

@@ -106,13 +106,21 @@ namespace DbLinq.Util
                 return new byte[0];
             object obj = dataRecord.GetValue(index);
             if (obj == null)
-                return null; //nullable blob?
+                return new byte[0]; //nullable blob?
             byte[] bytes = obj as byte[];
             if (bytes != null)
                 return bytes; //works for BLOB field
             Console.WriteLine("GetBytes: received unexpected type:" + obj);
             //return _rdr.GetInt32(index);
             return new byte[0];
+        }
+
+        public static System.Data.Linq.Binary GetAsBinary(this IDataRecord dataRecord, int index)
+        {
+            byte[] bytes = GetAsBytes(dataRecord, index);
+            if (bytes.Length == 0)
+                return null;
+            return new System.Data.Linq.Binary(bytes);
         }
 
         public static object GetAsObject(this IDataRecord dataRecord, int index)
