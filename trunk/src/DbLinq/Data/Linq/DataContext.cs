@@ -1114,11 +1114,33 @@ namespace DbLinq.Data.Linq
             if (qp == null)
                 throw new InvalidOperationException();
 
+            if (qp.ExpressionChain.Expressions.Count == 0)
+                qp.ExpressionChain.Expressions.Add(CreateDefaultQuery(query));
+
             IDbCommand dbCommand = qp.GetQuery(null).GetCommand().Command;
             if (!(dbCommand is DbCommand))
                 throw new InvalidOperationException();
 
             return (DbCommand)dbCommand;
+        }
+
+        private Expression CreateDefaultQuery(IQueryable query)
+        {
+            // Manually create the expression tree for: IQueryable<TableType>.Select(e => e)
+            var identityParameter = Expression.Parameter(query.ElementType, "e");
+            var identityBody = Expression.Lambda(
+                typeof(Func<,>).MakeGenericType(query.ElementType, query.ElementType),
+                identityParameter,
+                new[] { identityParameter }
+            );
+
+            return Expression.Call(
+                typeof(Queryable),
+                "Select",
+                new[] { query.ElementType, query.ElementType },
+                query.Expression,
+                Expression.Quote(identityBody)
+            );
         }
 
         [DbLinqToDo]
