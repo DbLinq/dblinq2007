@@ -81,7 +81,7 @@ using Id = System.Int32;
 
             Northwind db = CreateDB();
 
-            Product localProduct = new Product { ProductName = "Pen" };
+            Product localProduct = new Product { ProductName = "Chai" };
             var q = from p in db.Products where p.ProductName == localProduct.ProductName select p;
 
             List<Product> products = q.ToList();
@@ -93,7 +93,7 @@ using Id = System.Int32;
         public void D1_SelectPensByLocalProperty()
         {
             Northwind db = CreateDB();
-            var pen = new { Name = "Pen" };
+            var pen = new { Name = "Chai" };
             var q = from p in db.Products where p.ProductName == pen.Name select p;
 
             List<Product> products = q.ToList();
@@ -106,7 +106,7 @@ using Id = System.Int32;
         {
 
             Northwind db = CreateDB();
-            string pen = "Pen";
+            string pen = "Chai";
             var q = from p in db.Products
                     where p.ProductName == pen &&
                         p.QuantityPerUnit == "10"
@@ -188,7 +188,7 @@ using Id = System.Int32;
         public void F7_ExplicitJoin()
         {
             //a nice and light nonsense join:
-            //bring in rows such as {Pen,AIRBU}
+            //bring in rows such as {Chai,AIRBU}
             var q =
                 from p in db.Products
                 join o in db.Orders on p.ProductID equals o.OrderID

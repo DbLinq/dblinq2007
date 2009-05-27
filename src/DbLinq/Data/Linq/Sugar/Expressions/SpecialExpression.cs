@@ -104,6 +104,7 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
                 case SpecialExpressionType.Millisecond:
                     return typeof(int);
                 case SpecialExpressionType.Now:
+                case SpecialExpressionType.Date:
                     return typeof(DateTime);
                 case SpecialExpressionType.DateDiffInMilliseconds:
                     return typeof(long);
@@ -239,6 +240,8 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
                     return ((DateTime)operands[0].Evaluate()).Millisecond;
                 case SpecialExpressionType.Now:
                     return DateTime.Now;
+                case SpecialExpressionType.Date:
+                    return ((DateTime)operands[0].Evaluate());
                 case SpecialExpressionType.DateDiffInMilliseconds:
                     return ((DateTime)operands[0].Evaluate()) - ((DateTime)operands[1].Evaluate());
                 case SpecialExpressionType.Abs:

@@ -108,6 +108,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 case SpecialExpressionType.Hour:
                 case SpecialExpressionType.Minute:
                 case SpecialExpressionType.Millisecond:
+                case SpecialExpressionType.Date:
                     return GetStandardCallInvoke(specialExpression.SpecialNodeType.ToString(), operands);
                 case SpecialExpressionType.Now:
                     return GetDateTimeNowCall(operands);

@@ -200,11 +200,11 @@ using nwind;
             DbLinq.Data.Linq.DataContext(db.Connection, CreateVendor());
 #endif
 
-            var dbq = from p in db.Products where p.ProductName == "Pen" select p.ProductID;
+            var dbq = from p in db.Products where p.ProductName == "Chai" select p.ProductID;
             var dbc = dbq.ToList().Count;
             Assert.AreEqual(dbc, 1);
 
-            var dcq = from p in dc.GetTable<Product>() where p.ProductName == "Pen" select p.ProductID;
+            var dcq = from p in dc.GetTable<Product>() where p.ProductName == "Chai" select p.ProductID;
             var dcc = dcq.ToList().Count;
             Assert.AreEqual(dbc, 1);
         }

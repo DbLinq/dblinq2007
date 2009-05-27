@@ -78,6 +78,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 case SpecialExpressionType.Second:
                 case SpecialExpressionType.Millisecond:
                 case SpecialExpressionType.Now:
+                case SpecialExpressionType.Date:
                 case SpecialExpressionType.DateDiffInMilliseconds:
                 case SpecialExpressionType.Abs:
                 case SpecialExpressionType.Exp:
@@ -229,6 +230,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 case SpecialExpressionType.Second:
                 case SpecialExpressionType.Millisecond:
                 case SpecialExpressionType.Now:
+                case SpecialExpressionType.Date:
                 case SpecialExpressionType.DateDiffInMilliseconds:
                 case SpecialExpressionType.Abs:
                 case SpecialExpressionType.Exp:

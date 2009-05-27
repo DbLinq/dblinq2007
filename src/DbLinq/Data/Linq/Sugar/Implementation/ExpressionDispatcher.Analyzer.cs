@@ -287,23 +287,35 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         {
             if (method.IsStatic && parameters.Count == 1)
             {
-                var expression = Expression.Convert(Analyze(parameters.First(), builderContext), method.ReturnType, method);
-                ExpressionTier tier = ExpressionQualifier.GetTier(expression);
+                Expression parsed = null;
+                Expression toParse = Analyze(parameters.First(), builderContext);
+                InputParameterExpression inputParameterToParse = toParse as InputParameterExpression;
+                if (inputParameterToParse != null)
+                {
+                    ExpressionTier tier = ExpressionQualifier.GetTier(parameters[0]);
+                    if (tier == ExpressionTier.Clr)
+                    {
+                        parsed = RegisterParameter(System.Linq.Expressions.Expression.Call(method, inputParameterToParse.Expression), inputParameterToParse.Alias, builderContext);
+                        UnregisterParameter(inputParameterToParse, builderContext);
+                    }
+                }
+                if(parsed == null)
+                {
+                    parsed = Expression.Convert(toParse, method.ReturnType, method);
+                    ExpressionTier tier = ExpressionQualifier.GetTier(toParse);
+                    //pibgeus: I would like to call to the expression optimizer since the exception must be thrown if the expression cannot be executed
+                    //in Clr tier, if it can be executed in Clr tier it should continue
+                    // ie: from e in db.Employees where DateTime.Parse("1/1/1999").Year==1999 select e  <--- this should work
+                    // ie: from e in db.Employees where DateTime.Parse(e.BirthDate).Year==1999 select e  <--- a NotSupportedException must be throwed (this is the behaviour of linq2sql)
 
-
-                //pibgeus: I would like to call to the expression optimizer since the exception must be thrown if the expression cannot be executed
-                //in Clr tier, if it can be executed in Clr tier it should continue
-                // ie: from e in db.Employees where DateTime.Parse("1/1/1999").Year==1999 select e  <--- this should work
-                // ie: from e in db.Employees where DateTime.Parse(e.BirthDate).Year==1999 select e  <--- a NotSupportedException must be throwed (this is the behaviour of linq2sql)
-
-                //if (method.ReturnType == typeof(DateTime))
-                //{
-                //        expression = ExpressionOptimizer.Analyze(expression);
-                //        //same behaviour that Linq2Sql
-                //        throw new NotSupportedException("Method 'System.DateTime Parse(System.String)' has no supported translation to SQL");
-                //}
-
-                return expression;
+                    //if (method.ReturnType == typeof(DateTime))
+                    //{
+                    //        expression = ExpressionOptimizer.Analyze(expression);
+                    //        //same behaviour that Linq2Sql
+                    //        throw new NotSupportedException("Method 'System.DateTime Parse(System.String)' has no supported translation to SQL");
+                    //}
+                }
+                return parsed;
             }
             else
                 throw new ArgumentException();
@@ -315,13 +327,24 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             if (parameters.Count != 1)
                 throw new ArgumentException();
 
-            Expression parameter;
-            if (parameters.First().Type.IsNullable())
-                parameter = Expression.Convert(parameters.First(), parameters.First().Type.GetNullableType());
-            else
-                parameter = parameters.First();
+            Expression parameter = parameters.First();
+            Expression parameterToHandle;
 
-            if (!parameter.Type.IsPrimitive && parameter.Type != typeof(string))
+            if(parameter.Type.IsNullable())
+                parameter = Analyze(Expression.Convert(parameter, parameter.Type.GetNullableType()), builderContext);
+
+            parameterToHandle = Analyze(parameter, builderContext);
+
+            InputParameterExpression inputParameter = parameterToHandle as InputParameterExpression;
+            if (inputParameter != null)
+            {
+                parameterToHandle = RegisterParameter(System.Linq.Expressions.Expression.Call(inputParameter.Expression, method), inputParameter.Alias, builderContext);
+                UnregisterParameter(inputParameter, builderContext);
+
+                return parameterToHandle;
+            }
+            
+            if (!parameter.Type.IsPrimitive && parameterToHandle.Type != typeof(string))
             {
                 //TODO: ExpressionDispacher.Analyze.AnalyzeToString is not complete
                 //This is the standar behaviour in linq2sql, nonetheless the behaviour isn't complete since when the expression
@@ -331,7 +354,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 throw new NotSupportedException("Method ToString can only be translated to SQL for primitive types.");
             }
 
-            return Expression.Convert(Analyze(parameter, builderContext), typeof(string), typeof(Convert).GetMethod("ToString", new[] { parameter.Type }));
+            return Expression.Convert(parameterToHandle, typeof(string), typeof(Convert).GetMethod("ToString", new[] { parameterToHandle.Type }));
         }
 
         /// <summary>
@@ -709,13 +732,13 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
 
             return AnalyzeCommonMember(objectExpression, memberInfo, builderContext);
         }
-
+        /*
         private Expression AnalyzeTimeSpanMemberAccess(Expression objectExpression, MemberInfo memberInfo)
         {
             throw new NotImplementedException();
         }
-
-        protected Expression AnalyzeTimeSpamMemberAccess(Expression objectExpression, MemberInfo memberInfo)
+        */
+        protected Expression AnalyzeTimeSpanMemberAccess(Expression objectExpression, MemberInfo memberInfo)
         {
             //A timespan expression can be only generated in a c# query as a DateTime difference, as a function call return or as a paramter
             //this case is for the DateTime difference operation
@@ -814,6 +837,8 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                         return new SpecialExpression(SpecialExpressionType.Second, objectExpression);
                     case "Millisecond":
                         return new SpecialExpression(SpecialExpressionType.Millisecond, objectExpression);
+                    case "Date":
+                        return new SpecialExpression(SpecialExpressionType.Date, objectExpression);
                     default:
                         throw new NotSupportedException(string.Format("DateTime Member access {0} not supported", memberInfo.Name));
                 }
