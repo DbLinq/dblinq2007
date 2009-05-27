@@ -814,7 +814,9 @@ namespace DbLinq.Data.Linq.Mapping
             public override System.Data.Linq.Mapping.MetaDataMember GetDataMember(MemberInfo member)
             {
                 //return members.First(m => m.Member == member);
-                foreach (var m in members) if (m.Member == member) return m;
+                foreach (var m in members) 
+                    if (m.Member == member || (m.Member.ToString() == member.ToString() && member.DeclaringType.IsAssignableFrom(m.Member.DeclaringType))) 
+                        return m;
                 throw new ArgumentException(String.Format("No corresponding metadata member for '{0}'", member));
             }
 
@@ -1030,7 +1032,7 @@ namespace DbLinq.Data.Linq.Mapping
                 }
             }
             public override string MappedName { get { return c.Name; } }
-            public override string Name { get { return c.Name ?? c.Member; } }
+            public override string Name { get { return c.Member ?? c.Name; } }
             public override System.Data.Linq.Mapping.UpdateCheck UpdateCheck { get { return c.UpdateCheck; } }
         }
 

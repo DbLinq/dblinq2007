@@ -680,8 +680,17 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 // then, try the column
                 var queryColumnExpression = RegisterColumn(tableExpression, memberInfo, builderContext);
                 if (queryColumnExpression != null)
-                    return queryColumnExpression;
-
+                {
+                    Type memberType = memberInfo.GetMemberType();
+                    if (queryColumnExpression.Type != memberType)
+                    {
+                        return Expression.Convert(queryColumnExpression, memberInfo.GetMemberType(), typeof(Convert).GetMethod("To" + memberType.Name, new Type[] { queryColumnExpression.Type }));
+                    }
+                    else
+                    {
+                        return queryColumnExpression;
+                    }
+                }
                 if (memberInfo.Name == "Count")
                     return AnalyzeProjectionQuery(SpecialExpressionType.Count, new[] { memberExpression.Expression }, builderContext);
                 // then, cry

@@ -375,10 +375,14 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             var bindings = new List<MemberBinding>();
             foreach (var columnExpression in RegisterAllColumns(tableExpression, builderContext))
             {
-                var parameterColumn = GetOutputValueReader(columnExpression,
-                                                           dataRecordParameter, mappingContextParameter, builderContext);
-                var binding = Expression.Bind(columnExpression.MemberInfo, parameterColumn);
-                bindings.Add(binding);
+                PropertyInfo propertyInfo = columnExpression.MemberInfo as PropertyInfo;
+                if (propertyInfo == null || propertyInfo.CanWrite)
+                {
+                    var parameterColumn = GetOutputValueReader(columnExpression,
+                                                               dataRecordParameter, mappingContextParameter, builderContext);
+                    var binding = Expression.Bind(columnExpression.MemberInfo, parameterColumn);
+                    bindings.Add(binding);
+                }
             }
             var newExpression = Expression.New(tableExpression.Type);
             var initExpression = Expression.MemberInit(newExpression, bindings);
