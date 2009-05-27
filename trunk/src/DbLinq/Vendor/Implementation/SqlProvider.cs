@@ -352,6 +352,8 @@ namespace DbLinq.Vendor.Implementation
             case SpecialExpressionType.Second:
             case SpecialExpressionType.Millisecond:
                 return GetLiteralDateTimePart(p[0], operationType);
+            case SpecialExpressionType.Date:
+                return p[0];
             case SpecialExpressionType.DateDiffInMilliseconds:
                 return GetLiteralDateDiff(p[0], p[1]);
             case SpecialExpressionType.Abs:
@@ -856,7 +858,7 @@ namespace DbLinq.Vendor.Implementation
         /// <returns></returns>
         protected virtual SqlStatement GetLiteralAnd(SqlStatement a, SqlStatement b)
         {
-            return SqlStatement.Format("({0} AND {1})", a, b);
+            return SqlStatement.Format("({0}) AND ({1})", a, b);
         }
 
         /// <summary>
@@ -966,7 +968,7 @@ namespace DbLinq.Vendor.Implementation
         /// <returns></returns>
         protected virtual SqlStatement GetLiteralExclusiveOr(SqlStatement a, SqlStatement b)
         {
-            return SqlStatement.Format("({0} XOR {1})", a, b);
+            return SqlStatement.Format("({0}) XOR ({1})", a, b);
         }
 
         /// <summary>
@@ -1116,7 +1118,7 @@ namespace DbLinq.Vendor.Implementation
         /// <returns></returns>
         protected virtual SqlStatement GetLiteralOr(SqlStatement a, SqlStatement b)
         {
-            return SqlStatement.Format("({0} OR {1})", a, b);
+            return SqlStatement.Format("({0}) OR ({1})", a, b);
         }
 
         /// <summary>

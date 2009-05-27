@@ -85,11 +85,11 @@ using DataLinq = DbLinq.Data.Linq;
         public void A3_ProductsTableHasPen()
         {
             Northwind db = CreateDB();
-            //string sql = @"SELECT count(*) FROM linqtestdb.Products WHERE ProductName='Pen'";
-            string sql = @"SELECT count(*) FROM [Products] WHERE [ProductName]='Pen'";
+            //string sql = @"SELECT count(*) FROM linqtestdb.Products WHERE ProductName='Chai'";
+            string sql = @"SELECT count(*) FROM [Products] WHERE [ProductName]='Chai'";
             long iResult = db.ExecuteCommand(sql);
             //long iResult = base.ExecuteScalar(sql);
-            Assert.AreEqual(iResult, 1L, "Expecting one Pen in Products table, got:" + iResult + " (SQL:" + sql + ")");
+            Assert.AreEqual(iResult, 1L, "Expecting one Chai in Products table, got:" + iResult + " (SQL:" + sql + ")");
         }
 
         [Test]
@@ -221,7 +221,7 @@ using DataLinq = DbLinq.Data.Linq;
         {
             Northwind db = CreateDB();
 
-            var q = from p in db.Products where p.ProductName == "Pen" select p.ProductID;
+            var q = from p in db.Products where p.ProductName == "Chai" select p.ProductID;
             var productIDs = q.ToList();
             int productCount = productIDs.Count;
             Assert.AreEqual(productCount, 1, "Expected one pen, got count=" + productCount);
@@ -232,7 +232,7 @@ using DataLinq = DbLinq.Data.Linq;
         {
             Northwind db = CreateDB();
 
-            var pen = "Pen";
+            var pen = "Chai";
             var q = from p in db.Products where p.ProductName == pen select p.ProductID;
             var productIDs = q.ToList();
             int productCount = productIDs.Count;
@@ -245,13 +245,13 @@ using DataLinq = DbLinq.Data.Linq;
             Northwind db = CreateDB();
 
             var q = from p in db.Products
-                    where p.ProductName == "Pen"
+                    where p.ProductName == "Chai"
                     select new { ProductId = p.ProductID, Name = p.ProductName };
             int count = 0;
             //string penName;
             foreach (var v in q)
             {
-                Assert.AreEqual(v.Name, "Pen", "Expected ProductName='Pen'");
+                Assert.AreEqual(v.Name, "Chai", "Expected ProductName='Chai'");
                 count++;
             }
             Assert.AreEqual(count, 1, "Expected one pen, got count=" + count);
@@ -333,7 +333,7 @@ using DataLinq = DbLinq.Data.Linq;
         public void C8_SelectPenByLocalVariable()
         {
             Northwind db = CreateDB();
-            string pen = "Pen";
+            string pen = "Chai";
 
             var q = from p in db.Products
                     where (p.ProductName == pen)
@@ -568,7 +568,7 @@ using DataLinq = DbLinq.Data.Linq;
         {
             Northwind db = CreateDB();
 
-            var q = from p in db.Products where p.ProductName == "Pen" select p.ProductID;
+            var q = from p in db.Products where p.ProductName == "Chai" select p.ProductID;
             var productID = q.First();
             Assert.Greater(productID, 0, "Expected penID>0, got " + productID);
         }
@@ -595,7 +595,7 @@ using DataLinq = DbLinq.Data.Linq;
         {
             Northwind db = CreateDB();
 
-            var q = from p in db.Products where p.ProductName == "Pen" select p;
+            var q = from p in db.Products where p.ProductName == "Chai" select p;
             Product pen = q.First();
             Assert.IsNotNull(pen, "Expected non-null Product");
         }
@@ -605,7 +605,7 @@ using DataLinq = DbLinq.Data.Linq;
         {
             Northwind db = CreateDB();
 
-            var q = from p in db.Products where p.ProductName == "Pen" select p.ProductID;
+            var q = from p in db.Products where p.ProductName == "Chai" select p.ProductID;
             var productID = q.Last();
             Assert.Greater(productID, 0, "Expected penID>0, got " + productID);
         }
@@ -637,9 +637,9 @@ using DataLinq = DbLinq.Data.Linq;
         public void D05_SelectOrdersForProduct()
         {
             Northwind db = CreateDB();
-            //var q = from p in db.Products where "Pen"==p.ProductName select p.Order;
+            //var q = from p in db.Products where "Chai"==p.ProductName select p.Order;
             //List<Order> penOrders = q.ToList();
-            //Assert.Greater(penOrders.Count,0,"Expected some orders for product 'Pen'");
+            //Assert.Greater(penOrders.Count,0,"Expected some orders for product 'Chai'");
 
             var q =
                 from o in db.Orders
@@ -775,14 +775,14 @@ using DataLinq = DbLinq.Data.Linq;
         {
             Northwind db = CreateDB();
 
-            var res = db.ExecuteQuery<Pen>(@"SELECT [ProductID] AS PenId FROM [Products] WHERE
-              [ProductName] ='Pen'").Single();
-            Assert.AreEqual(1, res.PenId);
+            var res = db.ExecuteQuery<Chai>(@"SELECT [ProductID] AS PenId FROM [Products] WHERE
+              [ProductName] ='Chai'").Single();
+            Assert.AreEqual(1, res.ChaiId);
         }
 
-        class Pen
+        class Chai
         {
-            internal int PenId;
+            internal int ChaiId;
         }
 
         [Test]

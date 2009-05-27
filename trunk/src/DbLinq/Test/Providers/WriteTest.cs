@@ -70,8 +70,8 @@ using Id = System.Int32;
     namespace Test_NUnit_Firebird
 #endif
 {
-    [SetUpFixture]
-    public class WriteTestSetup : TestBase
+    [TestFixture]
+    public class WriteTest : TestBase
     {
         [SetUp]
         public void TestSetup()
@@ -89,11 +89,6 @@ using Id = System.Int32;
 
             db.SubmitChanges();
         }
-    }
-
-    [TestFixture]
-    public class WriteTest : TestBase
-    {
 
         #region Tests 'E' test live object cache
         [Test]
@@ -102,16 +97,18 @@ using Id = System.Int32;
             //grab an object twice, make sure we get the same object each time
             Northwind db = CreateDB();
             var q = from p in db.Products select p;
-            Product pen1 = q.First();
-            Product pen2 = q.First();
+            Product product1 = q.First();
+            Product product2 = q.First();
+            Assert.AreSame(product1, product2); 
+
             string uniqueStr = "Unique" + Environment.TickCount;
-            pen1.QuantityPerUnit = uniqueStr;
-            bool isSameObject1 = pen2.QuantityPerUnit == uniqueStr;
-            Assert.IsTrue(isSameObject1, "Expected pen1 and pen2 to be the same live object, but their fields are different");
-            object oPen1 = pen1;
-            object oPen2 = pen2;
-            bool isSameObject2 = oPen1 == oPen2;
-            Assert.IsTrue(isSameObject2, "Expected pen1 and pen2 to be the same live object, but their fields are different");
+            product1.QuantityPerUnit = uniqueStr;
+            bool isSameObject1 = product2.QuantityPerUnit == uniqueStr;
+            Assert.IsTrue(isSameObject1, "Expected product1 and product2 to be the same live object, but their fields are different");
+            object oProduct1 = product1;
+            object oProduct2 = product2;
+            bool isSameObject2 = oProduct1 == oProduct2;
+            Assert.IsTrue(isSameObject2, "Expected product1 and product2 to be the same live object, but their fields are different");
         }
 
         [Test]
@@ -120,10 +117,10 @@ using Id = System.Int32;
             //grab an object twice, make sure we get the same object each time
             Northwind db = CreateDB();
             var q = from p in db.Products select p;
-            Product pen1 = q.First(p => p.ProductName == "Pen");
-            Product pen2 = q.Single(p => p.ProductName == "Pen");
-            bool isSame = object.ReferenceEquals(pen1, pen2);
-            Assert.IsTrue(isSame, "Expected pen1 and pen2 to be the same live object");
+            Product product1 = q.First(p => p.ProductName == "Chai");
+            Product product2 = q.Single(p => p.ProductName == "Chai");
+            bool isSame = object.ReferenceEquals(product1, product2);
+            Assert.IsTrue(isSame, "Expected product2 and product2 to be the same live object");
         }
 
 #if MYSQL && USE_ALLTYPES

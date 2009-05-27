@@ -251,6 +251,9 @@ namespace DbLinq.SqlServer
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
                 type = type.GetGenericArguments().First();
 
+            if (type.IsValueType && a[0].Sql.StartsWith("@"))
+                return a;
+
             SqlStatement sqlTypeName;
             if (typeMapping.ContainsKey(type))
                 sqlTypeName = typeMapping[type];
