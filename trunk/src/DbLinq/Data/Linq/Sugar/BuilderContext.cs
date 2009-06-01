@@ -152,6 +152,23 @@ namespace DbLinq.Data.Linq.Sugar
             return builderContext;
         }
 
+        public void MergeWith(BuilderContext builderContext)
+        {
+            // Fill the current Context with the newContext contents
+            foreach (InputParameterExpression inputParameter in builderContext.ExpressionQuery.Parameters)
+                if (!this.ExpressionQuery.Parameters.Contains(inputParameter))
+                    this.ExpressionQuery.Parameters.Add(inputParameter);
+            foreach (KeyValuePair<Type, MetaTableExpression> newMetaTable in builderContext.MetaTables)
+                if(this.MetaTables.Contains(newMetaTable))
+                    this.MetaTables.Add(newMetaTable);
+            foreach (TableExpression table in builderContext.CurrentSelect.Tables)
+                if (this.CurrentSelect.Tables.Contains(table))
+                    this.CurrentSelect.Tables.Add(table);
+            foreach (Expression whereExpression in builderContext.CurrentSelect.Where)
+                if (!this.CurrentSelect.Where.Contains(whereExpression))
+                    this.CurrentSelect.Where.Add(whereExpression);
+        }
+
         public BuilderContext Clone()
         {
             var builderContext = new BuilderContext();
