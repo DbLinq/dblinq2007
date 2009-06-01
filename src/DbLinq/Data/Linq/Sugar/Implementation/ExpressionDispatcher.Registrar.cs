@@ -96,7 +96,8 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 return null;
             // 2. Find a common ScopeExpression
             var commonScope = FindCommonScope(oldSelect, builderContext.CurrentSelect);
-            commonScope.Tables.Add(tableExpression);
+            if(commonScope != null)
+                commonScope.Tables.Add(tableExpression);
             return tableExpression;
         }
 
@@ -133,6 +134,8 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                         return aScope;
                 }
             }
+            if (a.Parent == b.Parent)
+                return a.Parent;
             throw Error.BadArgument("S0127: No common ScopeExpression found");
         }
 
