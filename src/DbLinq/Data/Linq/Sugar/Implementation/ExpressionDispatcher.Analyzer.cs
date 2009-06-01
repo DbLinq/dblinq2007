@@ -741,12 +741,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
 
             return AnalyzeCommonMember(objectExpression, memberInfo, builderContext);
         }
-        /*
-        private Expression AnalyzeTimeSpanMemberAccess(Expression objectExpression, MemberInfo memberInfo)
-        {
-            throw new NotImplementedException();
-        }
-        */
+
         protected Expression AnalyzeTimeSpanMemberAccess(Expression objectExpression, MemberInfo memberInfo)
         {
             //A timespan expression can be only generated in a c# query as a DateTime difference, as a function call return or as a paramter
@@ -1335,57 +1330,46 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 }
                 else
                 {
-                    QueryProvider qp = constantExpression.Value as QueryProvider;
-                    if (qp != null)
+                    QueryProvider queryProvider = constantExpression.Value as QueryProvider;
+                    if (queryProvider != null)
                     {
-                        // TODO: check if the QueryProvider qp belong to DataContext present in builderContext.QueryContext.DataContext
-                        // otherwise strange things could happen in the future (I suppose)
-
-                        // Build a new Context for the query
                         BuilderContext newContext = new BuilderContext(builderContext.QueryContext);
-                        ExpressionChain expressions = qp.ExpressionChain;
-                        Expression tableExpression = CreateTableExpression(qp.ExpressionChain.Expressions[0], newContext);
-                        Expression last = expressions.Last();
-                        IExpressionLanguageParser languageParser = ObjectFactory.Get<IExpressionLanguageParser>();
-                        foreach (Expression e in expressions)
-                        {
-                            if (e == last)
-                                newContext.IsExternalInExpressionChain = true;
+                        Expression tableExpression = AnalyzeQueryProvider(queryProvider, newContext);
+                        builderContext.MergeWith(newContext);
 
-                            // write full debug
-#if DEBUG && !MONO_STRICT
-                            var log = newContext.QueryContext.DataContext.Log;
-                            if (log != null)
-                                log.WriteExpression(expression);
-#endif
-                            // Convert linq Expressions to QueryOperationExpressions and QueryConstantExpressions 
-                            // Query expressions language identification
-                            var currentExpression = languageParser.Parse(e, newContext);
-                            // Query expressions query identification 
-                            currentExpression = this.Analyze(currentExpression, tableExpression, newContext);
-
-                            tableExpression = currentExpression;
-                        }
-                        // Fill the current Context with the newContext contents
-                        //builderContext.ExpressionQuery. = ExpressionQuery;
-                        foreach (InputParameterExpression inputParameter in newContext.ExpressionQuery.Parameters)
-                            builderContext.ExpressionQuery.Parameters.Add(inputParameter);
-                        foreach(KeyValuePair<Type, MetaTableExpression> newMetaTable in newContext.MetaTables)
-                            builderContext.MetaTables.Add(newMetaTable);
-                        foreach (TableExpression table in newContext.CurrentSelect.Tables)
-                            if (table != tableExpression && !builderContext.CurrentSelect.Tables.Contains(table))
-                                builderContext.CurrentSelect.Tables.Add(table);
-                        foreach (Expression whereExpression in newContext.CurrentSelect.Where)
-                            builderContext.CurrentSelect.Where.Add(whereExpression);
-                        /*
-                        foreach(SelectExpression newSelect in newContext.SelectExpressions)
-                            builderContext.SelectExpressions.Add(newSelect);
-                        */
                         return tableExpression;
                     }
                 }
             }
             return expression;
+        }
+
+        protected virtual Expression AnalyzeQueryProvider(QueryProvider queryProvider, BuilderContext builderContext)
+        {
+            // TODO: check if the QueryProvider qp belong to DataContext present in builderContext.QueryContext.DataContext
+            // otherwise strange things could happen in the future (I suppose)
+
+            // Build a new Context for the query
+            ExpressionChain expressions = queryProvider.ExpressionChain;
+            Expression tableExpression = CreateTableExpression(queryProvider.ExpressionChain.Expressions[0], builderContext);
+            Expression last = expressions.Last();
+            IExpressionLanguageParser languageParser = ObjectFactory.Get<IExpressionLanguageParser>();
+            foreach (Expression e in expressions)
+            {
+                if (e == last)
+                    builderContext.IsExternalInExpressionChain = true;
+
+                // Convert linq Expressions to QueryOperationExpressions and QueryConstantExpressions 
+                // Query expressions language identification
+                var currentExpression = languageParser.Parse(e, builderContext);
+                // Query expressions query identification 
+                currentExpression = this.Analyze(currentExpression, tableExpression, builderContext);
+
+                tableExpression = currentExpression;
+            }
+
+
+            return tableExpression;
         }
 
         protected virtual Expression AnalyzeSelectOperation(SelectOperatorType operatorType, IList<Expression> parameters, BuilderContext builderContext)
@@ -1395,6 +1379,29 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             // types and count.
             builderContext.QueryContext.MaximumDatabaseLoad = true; // all select expression goes to SQL tier
 
+            /*
+            var constantExpression = parameters[1] as ConstantExpression;
+            QueryProvider queryProvider = constantExpression.Value as QueryProvider;
+            if (queryProvider != null)
+            {
+                BuilderContext newContext = new BuilderContext(builderContext.QueryContext);
+                Expression tableExpression = AnalyzeQueryProvider(queryProvider, newContext);
+
+                foreach (InputParameterExpression inputParameter in newContext.ExpressionQuery.Parameters)
+                    if (!builderContext.ExpressionQuery.Parameters.Contains(inputParameter))
+                        builderContext.ExpressionQuery.Parameters.Add(inputParameter);
+                foreach (KeyValuePair<Type, MetaTableExpression> newMetaTable in newContext.MetaTables)
+                    if (builderContext.MetaTables.Contains(newMetaTable))
+                        builderContext.MetaTables.Add(newMetaTable);
+                builderContext.SelectExpressions.Add(newContext.CurrentSelect);
+                builderContext.CurrentSelect.NextSelectExpression = newContext.CurrentSelect;
+                builderContext.CurrentSelect.NextSelectExpressionOperator = operatorType;
+
+                return Analyze(parameters[0], builderContext);
+            }
+
+
+/* */
             var currentSelect = builderContext.CurrentSelect;
             var nextSelect = new SelectExpression(currentSelect.Parent);
             builderContext.CurrentSelect = nextSelect;
@@ -1411,12 +1418,12 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             // /TODO
             var selectOperandExpression = queryBuilder.BuildSelectExpression(expressionChain, tableExpression, builderContext);
             builderContext.SelectExpressions.Add(selectOperandExpression);
-
+       
             nextSelect = builderContext.CurrentSelect;
             builderContext.CurrentSelect = currentSelect;
             currentSelect.NextSelectExpression = nextSelect;
             currentSelect.NextSelectExpressionOperator = operatorType;
-
+/*            */
             return Analyze(parameters[0], builderContext);
         }
 
