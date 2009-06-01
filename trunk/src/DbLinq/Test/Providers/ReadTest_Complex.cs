@@ -387,6 +387,19 @@ using Id = System.Int32;
             Assert.IsTrue(l.Count > 0);
         }
 
+        [Test]
+        public void F19_ExceptWithCount()
+        {
+            var db = CreateDB();
+
+            var toExclude = from t in db.GetTable<Territory>()
+                            where t.TerritoryDescription.StartsWith("A")
+                            select t;
+            var toTake = db.GetTable<Territory>().Except(toExclude);
+
+            Assert.AreEqual(toTake.ToList().Count, toTake.Count());
+        }
+
         /// <summary>
         /// the following three tests are from Jahmani's page
         /// LinqToSQL: Comprehensive Support for SQLite, MS Access, SQServer2000/2005
