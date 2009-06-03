@@ -41,7 +41,7 @@ using nwind;
             db1.Employees.Attach(employee);
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -86,7 +86,7 @@ using nwind;
             db1.Employees.AttachAll(employees);
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]

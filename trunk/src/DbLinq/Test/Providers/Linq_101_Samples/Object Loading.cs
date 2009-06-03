@@ -58,7 +58,7 @@ using nwind;
 
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Linq101SamplesModified("The original sample didn't compile, db2 Northwind context was used for nothing")]
@@ -107,7 +107,7 @@ using nwind;
 
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Linq101SamplesModified("The original sample didn't compile, db2 Northwind context was used for nothing")]

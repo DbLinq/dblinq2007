@@ -80,7 +80,7 @@ SELECT o$.*
 FROM Employees AS e$
 LEFT OUTER JOIN Orders AS o$ ON o$.[EmployeeID] = e$.[EmployeeID]
          */
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Description("Subquery")]
@@ -94,7 +94,7 @@ LEFT OUTER JOIN Orders AS o$ ON o$.[EmployeeID] = e$.[EmployeeID]
             Assert.IsTrue(count > 0);
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Description("Subquery with nested select")]
@@ -107,7 +107,7 @@ LEFT OUTER JOIN Orders AS o$ ON o$.[EmployeeID] = e$.[EmployeeID]
             Assert.IsTrue(count > 0);
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Description("Subquery with nested entityset")]
@@ -120,7 +120,7 @@ LEFT OUTER JOIN Orders AS o$ ON o$.[EmployeeID] = e$.[EmployeeID]
             Assert.IsTrue(count > 0);
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Description("Subquery with nested query")]

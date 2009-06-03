@@ -55,6 +55,9 @@ using nwind;
             Assert.IsTrue(cust1.CustomerID == "BONAP", "CustomerID must be BONAP - was: " + cust1.CustomerID);
         }
 
+#if (MSSQL && !MONO_STRICT)
+        [Explicit]
+#endif
         [Test(Description="Example 2 from msdn")]
         public void MSDN_ObjectIdentity2()
         {

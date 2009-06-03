@@ -125,7 +125,7 @@ using nwind;
         }
 
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test(Description = "This sample dynamically builds a Union to return a sequence of all countries where either a customer or an employee live.")]
@@ -179,6 +179,9 @@ using nwind;
         }
 
 
+#if (MSSQL && !MONO_STRICT)
+        [Explicit]
+#endif
         [Test(Description = "This sample uses orderbyDescending and Take to return the discontinued products of the top 10 most expensive products")]
         public void LinqToSqlAdvanced06()
         {

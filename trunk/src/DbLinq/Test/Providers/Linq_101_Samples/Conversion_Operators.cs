@@ -111,7 +111,9 @@ using nwind;
             Assert.IsTrue(qList.Count > 0);
         }
 
-
+#if (MSSQL && !MONO_STRICT)
+        [Explicit]
+#endif
         [Linq101SamplesModified("Strange short to boolean casting, perhaps in the original Northwind Product.Discontinued was a boolean property")]
         [Test(Description = "ToDictionary. This sample uses ToDictionary to immediately evaluate a query and a key expression into an Dictionary(Of K, T).")]
         public void LinqToSqlConversion04()

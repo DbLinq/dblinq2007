@@ -59,7 +59,7 @@ using nwind;
     [TestFixture]
     public class WriteTest_BulkInsert : TestBase
     {
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]

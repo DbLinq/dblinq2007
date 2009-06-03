@@ -94,6 +94,9 @@ using nwind;
         }
 
 #if !SQLITE
+#if (MSSQL && !MONO_STRICT)
+        [Explicit]
+#endif
         [Linq101SamplesModified("Console and ObjectDummper references deleted")]
         [Linq101SamplesModified("The original sample didn't compile, db2 Northwind context was used for nothing")]
         [Test(Description = "Insert - 1-to-Many. This sample uses the Add method to add a new Category to the Categories table object, and a new Product to the Products Table object with a foreign key relationship to the new Category. The call to SubmitChanges persists these new objects and their relationships to the database.")]
@@ -138,7 +141,7 @@ using nwind;
         }
 #endif
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Linq101SamplesModified("Console and ObjectDummper references deleted")]
