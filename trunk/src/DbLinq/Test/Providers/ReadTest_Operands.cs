@@ -180,6 +180,9 @@ using nwind;
             Assert.IsTrue(count > 0, "Expected some products with ProductID != 1, got none");
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void J1_LocalFunction_DateTime_ParseExact()
         {

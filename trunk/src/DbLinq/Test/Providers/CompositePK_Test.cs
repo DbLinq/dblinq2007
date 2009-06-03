@@ -144,6 +144,9 @@ using nwind;
             Assert.AreEqual(db.OrderDetails.Count(), initialCount);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         [ExpectedException(typeof(ChangeConflictException))]
         public void CP4_UnchangedColumnShouldNotUpdated()

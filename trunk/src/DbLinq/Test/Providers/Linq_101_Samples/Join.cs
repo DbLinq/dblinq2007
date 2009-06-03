@@ -132,6 +132,9 @@ using nwind;
 
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test(Description = "GroupJoin - Three-way join. This sample explictly joins three tables and projects results from each of them.")]
         public void LinqToSqlJoin06()
         {
@@ -146,6 +149,9 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test(Description = "GroupJoin - LEFT OUTER JOIN. This sample shows how to get LEFT OUTER JOIN by using DefaultIfEmpty(). The DefaultIfEmpty() method returns null when there is no Order for the Employee.")]
         public void LinqToSqlJoin07()
         {
@@ -160,6 +166,9 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test(Description = "GroupJoin - Projected let assignment. This sample projects a 'let' expression resulting from a join.")]
         public void LinqToSqlJoin08()
         {
@@ -175,6 +184,9 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test(Description = "GroupJoin - Composite Key.This sample shows a join with a composite key.")]
         public void LinqToSqlJoin09()
         {

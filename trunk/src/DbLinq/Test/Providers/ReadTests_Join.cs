@@ -65,6 +65,9 @@ using DbLinq.Data.Linq;
     public class ReadTests_Join : TestBase
     {
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test(Description = "example by Frans Brouma: select all customers that have no orders")]
         public void LeftJoin_DefaultIfEmpty()
         {
@@ -87,6 +90,9 @@ using DbLinq.Data.Linq;
             Assert.IsTrue(countALFKI == 1);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void LeftOuterJoin_Suppliers()
         {
@@ -136,6 +142,9 @@ using DbLinq.Data.Linq;
             Assert.IsTrue(q1.Count > 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void RetrieveParentAssociationProperty()
         {
@@ -154,6 +163,9 @@ using DbLinq.Data.Linq;
 
 
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void DifferentParentAndAssociationPropertyNames()
         {
@@ -170,6 +182,9 @@ using DbLinq.Data.Linq;
             Assert.IsTrue(list.Count > 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void SelectCustomerContactNameFromOrder()
         {
@@ -299,6 +314,9 @@ using DbLinq.Data.Linq;
             var l = custOderInfos.ToList();
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         // submitted by bryan costanich
         public void ImplicitLeftOuterJoin()

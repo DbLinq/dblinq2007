@@ -63,6 +63,9 @@ using nwind;
 
         //EXP (SSIS)
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void Exp()
         {
@@ -84,6 +87,9 @@ using nwind;
 
         //Devuelve el menor entero mayor o igual que una expresión numérica.
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void Floor()
         {
@@ -102,6 +108,9 @@ using nwind;
 
         //LN (SSIS)
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void Log01()
         {
@@ -115,6 +124,9 @@ using nwind;
 
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void Log02()
         {
@@ -133,6 +145,9 @@ using nwind;
 
         //LOG (SSIS)
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void Log03()
         {
@@ -151,6 +166,9 @@ using nwind;
 
         //POWER (SSIS)
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void Pow()
         {
@@ -180,6 +198,9 @@ using nwind;
 
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         [ExpectedException(typeof(NotSupportedException))]
         public void Round02()
@@ -199,6 +220,9 @@ using nwind;
         //SIGN (SSIS)
 
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void Sign01()
         {
@@ -219,6 +243,9 @@ using nwind;
 
         //SQRT (SSIS) 
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void Sqrt()
         {

@@ -42,6 +42,9 @@ using nwind;
             Assert.IsNotNull(order.Employee);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void ReferenceLoading02()
         {
@@ -68,6 +71,9 @@ using nwind;
             Assert.AreEqual(db.Employees.Count(), list.Count);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void ComplexProjection01()
         {
@@ -78,6 +84,9 @@ using nwind;
             Assert.AreEqual(db.Employees.Count(), list.Count);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void ComplexProjection02()
         {
@@ -89,6 +98,9 @@ using nwind;
         }
 
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void ComplexProjection03()
         {
@@ -99,7 +111,10 @@ using nwind;
             Assert.AreEqual(db.Employees.Count(), list.Count);
         }
 
-        
+
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void ComplexProjection04()
         {
@@ -110,6 +125,9 @@ using nwind;
             Assert.AreEqual(db.Employees.Count(), list.Count);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void ComplexProjection05()
         {
@@ -120,6 +138,9 @@ using nwind;
             Assert.AreEqual(db.Orders.Count(), list.Count);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void ComplexProjection06()
         {
@@ -130,6 +151,9 @@ using nwind;
             Assert.AreEqual(db.Orders.Count(), list.Count);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void ComplexProjection07()
         {

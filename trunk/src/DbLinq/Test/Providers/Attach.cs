@@ -41,6 +41,9 @@ using nwind;
             db1.Employees.Attach(employee);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         [ExpectedException(typeof(NotSupportedException))]
         public void Attach02()
@@ -83,6 +86,9 @@ using nwind;
             db1.Employees.AttachAll(employees);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         [ExpectedException(typeof(ChangeConflictException))]
         public void NotExistingAttatch()
