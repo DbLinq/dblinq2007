@@ -78,6 +78,9 @@ using nwind;
             Assert.IsTrue(rowCount > 0, "Must have some rows");
         }
 
+#if (MSSQL && !MONO_STRICT)
+        [Explicit]
+#endif
         [Test]
         public void G02_SimpleGroup_First()
         {
@@ -103,6 +106,9 @@ using nwind;
             }
         }
 
+#if (MSSQL && !MONO_STRICT)
+        [Explicit]
+#endif
         [Test]
         public void G03_SimpleGroup_WithSelector_Invalid()
         {
@@ -132,6 +138,9 @@ using nwind;
             }
         }
 
+#if (MSSQL && !MONO_STRICT)
+        [Explicit]
+#endif
         [Test]
         public void G03_DoubleKey()
         {
@@ -156,6 +165,9 @@ using nwind;
         }
 
 
+#if (MSSQL && !MONO_STRICT)
+        [Explicit]
+#endif
         [Test]
         public void G04_SimpleGroup_WithSelector()
         {
@@ -184,7 +196,7 @@ using nwind;
             }
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -211,6 +223,9 @@ using nwind;
         }
 
 
+#if (MSSQL && !MONO_STRICT)
+        [Explicit]
+#endif
         [Test]
         public void G06_OrderCountByCustomerID()
         {
@@ -229,7 +244,7 @@ using nwind;
             //select new { g.Key , SumPerCustomer = g.Sum(o2=>o2.OrderID) };
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -250,7 +265,7 @@ using nwind;
             //select new { g.Key , SumPerCustomer = g.Sum(o2=>o2.OrderID) };
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -276,6 +291,9 @@ using nwind;
         /// <summary>
         /// Reported by  pwy.mail in http://code.google.com/p/dblinq2007/issues/detail?id=64
         /// </summary>
+#if (MSSQL && !MONO_STRICT)
+        [Explicit]
+#endif
         [Test]
         public void G09_UnitPriceGreaterThan10()
         {

@@ -192,7 +192,7 @@ using nwind;
         /// <summary>
         /// Reported by pwy.mail in issue http://code.google.com/p/dblinq2007/issues/detail?id=69
         /// </summary>
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -211,7 +211,7 @@ using nwind;
         /// <summary>
         /// Reported by pwy.mail in issue http://code.google.com/p/dblinq2007/issues/detail?id=69
         /// </summary>
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]

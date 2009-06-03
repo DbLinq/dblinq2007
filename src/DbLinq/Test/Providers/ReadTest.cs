@@ -114,7 +114,7 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.AreEqual("Chang", prod.ProductName);
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -333,7 +333,7 @@ using DataLinq = DbLinq.Data.Linq;
         /// <summary>
         /// from http://www.agilior.pt/blogs/pedro.rainho/archive/2008/04/11/4271.aspx
         /// </summary>
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test(Description = "Using LIKE operator from linq query")]
@@ -380,7 +380,7 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.AreEqual(ordcount, count);
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -448,7 +448,7 @@ using DataLinq = DbLinq.Data.Linq;
             db.ObjectTrackingEnabled = false;
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -474,7 +474,7 @@ using DataLinq = DbLinq.Data.Linq;
             db.SubmitChanges();
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -489,7 +489,7 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.IsNull(territory.Region);
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -530,7 +530,7 @@ using DataLinq = DbLinq.Data.Linq;
         /// Test the use of DbLinq as a QueryObject
         /// http://www.martinfowler.com/eaaCatalog/queryObject.html
         /// </summary>
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -546,7 +546,7 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.AreEqual(1, allEmployees.Count());
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -670,6 +670,9 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.Greater(productID, 0, "Expected penID>0, got " + productID);
         }
 
+#if (MSSQL && !MONO_STRICT)
+        [Explicit]
+#endif
         [Test]
         public void D04_SelectProducts_OrderByName()
         {
@@ -693,6 +696,9 @@ using DataLinq = DbLinq.Data.Linq;
             //Assert.Greater(productID,0,"Expected penID>0, got "+productID);
         }
 
+#if (MSSQL && !MONO_STRICT)
+        [Explicit]
+#endif
         [Test]
         public void D05_SelectOrdersForProduct()
         {
@@ -716,6 +722,9 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.Greater(list1.Count, 0, "Expected some orders for London customers");
         }
 
+#if (MSSQL && !MONO_STRICT)
+        [Explicit]
+#endif
         [Test]
         public void D06_OrdersFromLondon()
         {
@@ -733,6 +742,10 @@ using DataLinq = DbLinq.Data.Linq;
             }
             Assert.Greater(list1.Count, 0, "Expected some orders for London customers");
         }
+
+#if (MSSQL && !MONO_STRICT)
+        [Explicit]
+#endif
         [Test]
         public void D07_OrdersFromLondon_Alt()
         {
@@ -801,7 +814,7 @@ using DataLinq = DbLinq.Data.Linq;
         }
 
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -832,7 +845,7 @@ using DataLinq = DbLinq.Data.Linq;
         }
 
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test(Description = "Calls ExecuteQuery<> to store result into object type property")]
@@ -851,7 +864,7 @@ using DataLinq = DbLinq.Data.Linq;
             internal int ChaiId;
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -878,7 +891,7 @@ using DataLinq = DbLinq.Data.Linq;
             }
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]

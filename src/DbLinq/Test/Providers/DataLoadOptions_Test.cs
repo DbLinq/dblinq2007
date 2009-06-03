@@ -88,6 +88,9 @@ namespace nwind
             new DataLoadOptions().LoadWith<Order> (o => o.Customer.Orders);
         }
 
+#if (MSSQL && !MONO_STRICT)
+        [Explicit]
+#endif
         [Test]
         [ExpectedException(typeof(InvalidOperationException))]
         public void LoadWith_BadCycles1()
@@ -97,6 +100,9 @@ namespace nwind
             lo.LoadWith<Order>(o => o.Customer);
         }
 
+#if (MSSQL && !MONO_STRICT)
+        [Explicit]
+#endif
         [Test]
         [ExpectedException(typeof(InvalidOperationException))]
         public void LoadWith_BadCycles2()

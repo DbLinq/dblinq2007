@@ -184,7 +184,9 @@ using nwind;
         //Devuelve el resultado de elevar una expresión numérica a una determinada potencia.
 
         //ROUND (SSIS)
-
+#if (MSSQL && !MONO_STRICT)
+        [Explicit]
+#endif
         [Test]
         public void Round()
         {
@@ -198,7 +200,7 @@ using nwind;
 
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]

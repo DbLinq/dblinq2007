@@ -210,6 +210,9 @@ using DbLinq.Data.Linq;
             var list = query.ToList();
         }
 
+#if (MSSQL && !MONO_STRICT)
+        [Explicit]
+#endif
         [Test]
         public void Parse03()
         {
@@ -336,7 +339,7 @@ using DbLinq.Data.Linq;
             Assert.Greater(list.Count, 0);
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]

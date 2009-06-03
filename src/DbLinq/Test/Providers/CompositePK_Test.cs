@@ -92,6 +92,9 @@ using nwind;
             db.SubmitChanges();
         }
 
+#if (MSSQL && !MONO_STRICT)
+        [Explicit]
+#endif
         [Test]
         public void CP2_UpdateTableWithCompositePK()
         {
@@ -126,6 +129,9 @@ using nwind;
         }
 
 
+#if (MSSQL && !MONO_STRICT)
+        [Explicit]
+#endif
         [Test]
         public void CP3_DeleteTableWithCompositePK()
         {
@@ -144,7 +150,7 @@ using nwind;
             Assert.AreEqual(db.OrderDetails.Count(), initialCount);
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -168,6 +174,9 @@ using nwind;
             //Assert.AreEqual((float)orderDetail2.Discount, newDiscount);
         }
 
+#if (MSSQL && !MONO_STRICT)
+        [Explicit]
+#endif
         [Test(Description = "Check that both keys are used to determine identity")]
         public void CP5_Composite_ObjectIdentity()
         {

@@ -44,7 +44,10 @@ using nwind;
             var list = q.ToList();
             Assert.IsTrue(list.Count > 0);
         }
-
+ 
+#if (MSSQL && !MONO_STRICT)
+        [Explicit]
+#endif
         [Linq101SamplesModified("Strange casting, It seems like original northwind discontinued were boolean")]
         [Test(Description = "Any - Conditional. This sample uses Any to return only Categories that have at least one Discontinued product.")]
         public void LinqToSqlExists02()

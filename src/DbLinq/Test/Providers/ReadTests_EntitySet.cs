@@ -48,7 +48,7 @@ using nwind;
             var orders = customer.Orders;
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -59,7 +59,7 @@ using nwind;
             Assert.Greater(customer.Orders.Count, 0);
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -71,7 +71,7 @@ using nwind;
             Assert.Greater(results.Count, 0);
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -85,7 +85,7 @@ using nwind;
             Assert.IsTrue(customer.Orders.HasLoadedOrAssignedValues);
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -100,7 +100,7 @@ using nwind;
         }
 
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -115,7 +115,7 @@ using nwind;
             customer.Orders.SetSource(System.Linq.Enumerable.Empty<Order>());
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -143,7 +143,7 @@ using nwind;
             customer.Orders.SetSource(System.Linq.Enumerable.Empty<Order>());
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -162,7 +162,7 @@ using nwind;
         }
 
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -182,7 +182,7 @@ using nwind;
             Assert.AreEqual(c.Orders.Count, beforeCount);
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -208,7 +208,7 @@ using nwind;
         }
 
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -225,7 +225,7 @@ using nwind;
             Assert.AreNotEqual(order.CustomerID, newcustomerId);
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -309,7 +309,7 @@ using nwind;
             Assert.AreEqual(args.OldIndex, -1);
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -324,7 +324,7 @@ using nwind;
             Assert.IsTrue(orders.HasLoadedOrAssignedValues);
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -338,7 +338,7 @@ using nwind;
             Assert.IsFalse(customer.Orders.IsDeferred);
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -354,6 +354,9 @@ using nwind;
             Assert.IsTrue(customer.Orders.HasLoadedOrAssignedValues, "#2");
         }
 
+#if (MSSQL && !MONO_STRICT)
+        [Explicit]
+#endif
         [Test]
         public void Add()
         {
@@ -369,7 +372,7 @@ using nwind;
             Assert.AreEqual(beforeCount + 1, customer.Orders.Count, "#4");
         }
 
-#if SQLITE
+#if SQLITE || (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
