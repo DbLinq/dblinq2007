@@ -89,7 +89,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         protected virtual IList<Expression> FindExpressionsByName(string name, BuilderContext builderContext)
         {
             var expressions = new List<Expression>();
-            expressions.AddRange(from t in builderContext.EnumerateAllTables() where t.Alias == name select (Expression)t);
+            expressions.AddRange((from t in builderContext.EnumerateAllTables() where t.Alias == name select (Expression)t).Distinct());
             expressions.AddRange(from c in builderContext.EnumerateScopeColumns() where c.Alias == name select (Expression)c);
             return expressions;
         }
@@ -117,7 +117,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         /// <param name="builderContext"></param>
         protected virtual void CheckTablesAlias(BuilderContext builderContext)
         {
-            var tables = builderContext.EnumerateAllTables().ToList();
+            var tables = builderContext.EnumerateAllTables().Distinct().ToList();
             // just to be nice: if we have only one table involved, there's no need to alias it
             if (tables.Count == 1)
             {
