@@ -397,6 +397,9 @@ using Id = System.Int32;
         }
 
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void F19_ExceptWithCount_ViaToList()
         {
