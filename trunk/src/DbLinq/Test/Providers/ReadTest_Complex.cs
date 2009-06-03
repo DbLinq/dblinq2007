@@ -407,9 +407,12 @@ using Id = System.Int32;
             var toExclude = from t in db.GetTable<Territory>()
                             where t.TerritoryDescription.StartsWith("A")
                             select t;
-            var toTake = db.GetTable<Territory>().Except(toExclude);
-
-            Assert.AreEqual(toTake.ToList().Count, toTake.Count());
+            var universe = from t in db.GetTable<Territory>() select t;
+            var toTake = universe.Except(toExclude);
+            
+            int toListCount = toTake.ToList().Count;
+            int toTakeCount = toTake.Count();
+            Assert.AreEqual(toListCount, toTakeCount);
         }
 
         /// <summary>
