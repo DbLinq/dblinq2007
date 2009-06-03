@@ -45,6 +45,9 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test(Description = "where - 2. This sample uses where to filter for Employees hired during or after 1994.")]
         public void LinqToSqlWhere02()
         {
@@ -58,6 +61,9 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Linq101SamplesModified("Strange casting, It seems like original northwind discontinued were boolean")]
         [Test(Description = "where - 3. This sample uses where to filter for Products that have stock below their reorder level and are not discontinued.")]
         public void LinqToSqlWhere03()
@@ -72,6 +78,9 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Linq101SamplesModified("Strange casting, It seems like original northwind discontinued were boolean")]
         [Test(Description = "where - 4. This sample uses WHERE to filter out Products that are either UnitPrice is greater than 10 or is discontinued.")]
         public void LinqToSqlWhere04()
@@ -86,6 +95,9 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test(Description="Where - 5. This sample calls WHERE twice to filter out Products that UnitPrice is greater than 10 and is discontinued.")]
         public void LinqToSqlWhere05()
         {

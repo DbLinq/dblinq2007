@@ -184,6 +184,9 @@ using nwind;
             }
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void G05_Group_Into()
         {
@@ -226,6 +229,9 @@ using nwind;
             //select new { g.Key , SumPerCustomer = g.Sum(o2=>o2.OrderID) };
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void G07_OrderCountByCustomerID_Where()
         {
@@ -244,6 +250,9 @@ using nwind;
             //select new { g.Key , SumPerCustomer = g.Sum(o2=>o2.OrderID) };
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void G08_OrderSumByCustomerID()
         {

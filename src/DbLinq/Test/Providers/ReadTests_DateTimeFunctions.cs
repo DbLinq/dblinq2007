@@ -64,6 +64,9 @@ using DbLinq.Data.Linq;
     [TestFixture]
     public class ReadTests_DateTimeFunctions : TestBase
     {
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void GetYear()
         {
@@ -77,6 +80,9 @@ using DbLinq.Data.Linq;
             Assert.IsTrue(list.Count > 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void GetMonth()
         {
@@ -90,6 +96,9 @@ using DbLinq.Data.Linq;
             Assert.IsTrue(list.Count > 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void GetDay()
         {
@@ -103,6 +112,9 @@ using DbLinq.Data.Linq;
             Assert.IsTrue(list.Count > 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void GetHours()
         {
@@ -114,6 +126,10 @@ using DbLinq.Data.Linq;
 
 
         }
+
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void GetMinutes()
         {
@@ -125,6 +141,10 @@ using DbLinq.Data.Linq;
 
 
         }
+
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void GetSeconds()
         {
@@ -136,6 +156,9 @@ using DbLinq.Data.Linq;
 
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void GetMilliSeconds()
         {
@@ -147,6 +170,9 @@ using DbLinq.Data.Linq;
 
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void GetCurrentDateTime()
         {
@@ -158,6 +184,9 @@ using DbLinq.Data.Linq;
             var list = query.ToList();
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void Parse01()
         {
@@ -204,6 +233,9 @@ using DbLinq.Data.Linq;
             var list = query.ToList();
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void DateTimeDiffTotalHours()
         {
@@ -216,6 +248,9 @@ using DbLinq.Data.Linq;
             var list = query.ToList();
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void DateTimeDiffHours()
         {
@@ -232,6 +267,9 @@ using DbLinq.Data.Linq;
             Assert.Greater(list.Count, 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void DateTimeDiffTotalMinutes()
         {
@@ -244,6 +282,9 @@ using DbLinq.Data.Linq;
             var list = query.ToList();
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void DateTimeDiffMinutes()
         {
@@ -260,7 +301,10 @@ using DbLinq.Data.Linq;
             Assert.Greater(list.Count, 0);
         }
 
-      
+
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void DateTimeDiffTotalSeconds()
         {
@@ -273,6 +317,9 @@ using DbLinq.Data.Linq;
             var list = query.ToList();
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void DateTimeDiffSeconds()
         {
@@ -289,6 +336,9 @@ using DbLinq.Data.Linq;
             Assert.Greater(list.Count, 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void DateTimeDiffMilliseconds()
         {
@@ -305,6 +355,9 @@ using DbLinq.Data.Linq;
             Assert.Greater(list.Count, 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void DateTimeDiffTotalMilliseconds()
         {
@@ -317,6 +370,9 @@ using DbLinq.Data.Linq;
             var list = query.ToList();
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void DateTimeDiffDays()
         {
@@ -333,6 +389,9 @@ using DbLinq.Data.Linq;
             Assert.Greater(list.Count, 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void DateTimeDiffTotalDays()
         {
@@ -352,6 +411,9 @@ using DbLinq.Data.Linq;
             Assert.Greater(list.Count, 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         [ExpectedException(typeof(InvalidOperationException))]
         public void DateTimeDiffTotalDaysSelectWithNulls01()
@@ -392,6 +454,9 @@ using DbLinq.Data.Linq;
         }
 
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void DateGetDate()
         {

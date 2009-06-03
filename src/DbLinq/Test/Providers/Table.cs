@@ -40,6 +40,9 @@ using nwind;
             var customers = db.Customers.ToArray();
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void GetModifiedMembers()
         {
@@ -68,6 +71,9 @@ using nwind;
             Assert.AreEqual(modInfo.OriginalValue, beforeFax);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void GetOriginalEntityState()
         {
@@ -102,6 +108,9 @@ using nwind;
         //    Assert.IsTrue(db2.Customers.IsReadOnly);
         //}
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void Attach01()
         {
@@ -112,6 +121,9 @@ using nwind;
             Assert.IsFalse(db.Customers.Contains(customer));
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         [ExpectedException(typeof(NotSupportedException))]
         public void Attach02()
@@ -125,6 +137,9 @@ using nwind;
             db2.Customers.Attach(customer);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         [ExpectedException(typeof(InvalidOperationException))]
         public void Attach03()
@@ -135,6 +150,9 @@ using nwind;
             db.Customers.Attach(customer);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void Attach04()
         {
@@ -146,6 +164,9 @@ using nwind;
             Assert.Greater(db.Customers.GetModifiedMembers(customer).Count(), 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         [ExpectedException(typeof(InvalidOperationException))]
         public void Attach05()
@@ -155,6 +176,9 @@ using nwind;
             db.Customers.Attach(customer, true);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void Attach06()
         {
@@ -167,6 +191,9 @@ using nwind;
         }
 
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void AttachAll()
         {
@@ -178,6 +205,9 @@ using nwind;
 
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void GetBindingList()
         {
@@ -187,6 +217,9 @@ using nwind;
             Assert.AreEqual(customers.Count, db.Customers.Count());
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Description("Check direct use of DataContext instead of typed DataContext")]
         [Test]
         public void T1_DirectDataContext()

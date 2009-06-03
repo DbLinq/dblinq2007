@@ -93,6 +93,9 @@ using nwind;
             Assert.IsTrue(list.Length > 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test(Description = "ToList. This sample uses ToList to immediately evaluate a query into a List(Of T).")]
         public void LinqToSqlConversions03()
         {

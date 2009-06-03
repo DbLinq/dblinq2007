@@ -58,6 +58,9 @@ using nwind;
             }
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void TransactionRollbackDelete()
         {
@@ -103,6 +106,9 @@ using nwind;
             return t;
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void TransactionCheckAndRollbackInsert()
         {

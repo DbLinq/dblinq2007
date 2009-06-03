@@ -81,6 +81,9 @@ using DataLinq = DbLinq.Data.Linq;
 
 
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void A3_ProductsTableHasPen()
         {
@@ -92,6 +95,9 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.AreEqual(iResult, 1L, "Expecting one Chai in Products table, got:" + iResult + " (SQL:" + sql + ")");
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void A4_SelectSingleCustomer()
         {
@@ -108,6 +114,9 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.AreEqual("Chang", prod.ProductName);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void A5_SelectSingleOrDefault()
         {
@@ -216,6 +225,9 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.Greater(productCount, 0, "Expected some products, got none");
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void C2_SelectPenId()
         {
@@ -227,6 +239,9 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.AreEqual(productCount, 1, "Expected one pen, got count=" + productCount);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void C2b_SelectPenId()
         {
@@ -239,6 +254,9 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.AreEqual(productCount, 1, "Expected one pen, got count=" + productCount);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void C3_SelectPenIdName()
         {
@@ -315,6 +333,9 @@ using DataLinq = DbLinq.Data.Linq;
         /// <summary>
         /// from http://www.agilior.pt/blogs/pedro.rainho/archive/2008/04/11/4271.aspx
         /// </summary>
+#if SQLITE
+        [Explicit]
+#endif
         [Test(Description = "Using LIKE operator from linq query")]
         public void C7B_LikeOperator()
         {
@@ -329,6 +350,9 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.AreEqual(1, list.Count);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void C8_SelectPenByLocalVariable()
         {
@@ -356,6 +380,9 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.AreEqual(ordcount, count);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void C10_ConstantPredicate()
         {
@@ -368,6 +395,9 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.Greater(count,0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void C11_SelectProductsDiscontinued()
         {
@@ -385,6 +415,9 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.AreEqual(productCount, 8, "Expected eight products discontinued, got count=" + productCount);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void C12_SelectEmployee_MultiJoinWithWhere()
         {
@@ -415,6 +448,9 @@ using DataLinq = DbLinq.Data.Linq;
             db.ObjectTrackingEnabled = false;
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         [ExpectedException(ExceptionType = typeof(InvalidOperationException), ExpectedMessage = "Data context options cannot be modified after results have been returned from a query.")]
         public void C14_Changing_DeferredLoadingEnabled2False()
@@ -438,6 +474,9 @@ using DataLinq = DbLinq.Data.Linq;
             db.SubmitChanges();
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void C16_GettingProperty_DeferredLoadingEnabled2False()
         {
@@ -450,6 +489,9 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.IsNull(territory.Region);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void C17_GettingProperty_ObjectTrackingEnabled2False()
         {
@@ -488,6 +530,9 @@ using DataLinq = DbLinq.Data.Linq;
         /// Test the use of DbLinq as a QueryObject
         /// http://www.martinfowler.com/eaaCatalog/queryObject.html
         /// </summary>
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void C20_SelectEmployee_DbLinqAsQueryObject()
         {
@@ -501,6 +546,9 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.AreEqual(1, allEmployees.Count());
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void C21_SelectEmployee_DbLinqAsQueryObjectWithOrderCount()
         {
@@ -544,6 +592,9 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.IsNotNull(commandText);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void C23_SelectEmployees()
         {
@@ -563,6 +614,9 @@ using DataLinq = DbLinq.Data.Linq;
         #endregion
 
         #region region D - select first or last - calls IQueryable.Execute instead of GetEnumerator
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void D01_SelectFirstPenID()
         {
@@ -590,6 +644,9 @@ using DataLinq = DbLinq.Data.Linq;
         }
 
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void D02_SelectFirstPen()
         {
@@ -600,6 +657,9 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.IsNotNull(pen, "Expected non-null Product");
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void D03_SelectLastPenID()
         {
@@ -741,6 +801,9 @@ using DataLinq = DbLinq.Data.Linq;
         }
 
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void D12_SelectDerivedClass()
         {
@@ -769,6 +832,9 @@ using DataLinq = DbLinq.Data.Linq;
         }
 
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test(Description = "Calls ExecuteQuery<> to store result into object type property")]
         // note: for PostgreSQL requires database with lowercase names, NorthwindReqular.SQL
         public void D13_ExecuteQueryObjectProperty()
@@ -785,6 +851,9 @@ using DataLinq = DbLinq.Data.Linq;
             internal int ChaiId;
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void D14_ProjectedProductList()
         {
@@ -809,6 +878,9 @@ using DataLinq = DbLinq.Data.Linq;
             }
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void D15_DuplicateProperty()
         {

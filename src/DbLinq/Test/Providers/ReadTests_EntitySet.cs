@@ -48,6 +48,9 @@ using nwind;
             var orders = customer.Orders;
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void SimpleMemberAccess02()
         {
@@ -56,6 +59,9 @@ using nwind;
             Assert.Greater(customer.Orders.Count, 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void EntitySetEnumerationProjection()
         {
@@ -65,6 +71,9 @@ using nwind;
             Assert.Greater(results.Count, 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void HasLoadedOrAsignedValues01()
         {
@@ -76,6 +85,9 @@ using nwind;
             Assert.IsTrue(customer.Orders.HasLoadedOrAssignedValues);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void HasLoadedOrAsignedValues02()
         {
@@ -88,6 +100,9 @@ using nwind;
         }
 
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         [ExpectedException(typeof(InvalidOperationException))]
         public void InvalidSourceChange()
@@ -100,6 +115,9 @@ using nwind;
             customer.Orders.SetSource(System.Linq.Enumerable.Empty<Order>());
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         [ExpectedException(typeof(InvalidOperationException))]
         public void InvalidSourceChange2()
@@ -125,6 +143,9 @@ using nwind;
             customer.Orders.SetSource(System.Linq.Enumerable.Empty<Order>());
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void SourceChange()
         {
@@ -141,6 +162,9 @@ using nwind;
         }
 
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void Refresh01()
         {
@@ -158,6 +182,9 @@ using nwind;
             Assert.AreEqual(c.Orders.Count, beforeCount);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void Refresh02()
         {
@@ -181,6 +208,9 @@ using nwind;
         }
 
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void Refresh03()
         {
@@ -195,6 +225,9 @@ using nwind;
             Assert.AreNotEqual(order.CustomerID, newcustomerId);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void Refresh04()
         {
@@ -276,6 +309,9 @@ using nwind;
             Assert.AreEqual(args.OldIndex, -1);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void Load()
         {
@@ -288,6 +324,9 @@ using nwind;
             Assert.IsTrue(orders.HasLoadedOrAssignedValues);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void DeferedExecution()
         {
@@ -299,6 +338,9 @@ using nwind;
             Assert.IsFalse(customer.Orders.IsDeferred);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void DeferedExecutionAndLoadWith()
         {
@@ -327,6 +369,9 @@ using nwind;
             Assert.AreEqual(beforeCount + 1, customer.Orders.Count, "#4");
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         [ExpectedException (typeof (ArgumentOutOfRangeException))]
         public void IList_Add()

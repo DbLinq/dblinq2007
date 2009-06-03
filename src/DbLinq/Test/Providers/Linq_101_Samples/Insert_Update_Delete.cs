@@ -138,6 +138,9 @@ using nwind;
         }
 #endif
 
+#if SQLITE
+        [Explicit]
+#endif
         [Linq101SamplesModified("Console and ObjectDummper references deleted")]
         [Linq101SamplesModified("The original sample didn't compile, db2 Northwind context was used for nothing")]
         [Test(Description = "Insert - Many-to-Many. This sample uses the Add method to add a new Employee to the Employees table object, a new Territory to the Territories table object, and a new EmployeeTerritory to the EmployeeTerritories table object with foreign key relationships to the new Employee and Territory. The call to SubmitChanges persists these new objects and their relationships to the database.")]

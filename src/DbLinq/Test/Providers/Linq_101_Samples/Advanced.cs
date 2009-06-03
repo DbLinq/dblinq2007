@@ -125,6 +125,9 @@ using nwind;
         }
 
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test(Description = "This sample dynamically builds a Union to return a sequence of all countries where either a customer or an employee live.")]
         public void LinqToSqlAdvanced04()
         {

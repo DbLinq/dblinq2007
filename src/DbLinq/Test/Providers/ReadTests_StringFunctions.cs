@@ -86,6 +86,9 @@ using nwind;
             Assert.IsTrue(list.All(lastname => lastname.Contains(":")));
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void Replace01()
         {
@@ -114,6 +117,9 @@ using nwind;
 
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void Replace03()
         {
@@ -141,6 +147,9 @@ using nwind;
             Assert.AreEqual(list.Count, db.Employees.Count());
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void Replace05()
         {
@@ -152,6 +161,9 @@ using nwind;
             Assert.AreEqual(list.Count, db.Employees.Count());
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void IndexOf01()
         {
@@ -166,6 +178,9 @@ using nwind;
 
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void IndexOf02()
         {
@@ -179,6 +194,9 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void IndexOf03()
         {
@@ -193,6 +211,9 @@ using nwind;
 
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void IndexOf04()
         {
@@ -208,6 +229,9 @@ using nwind;
 
 
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void IndexOf05()
         {
@@ -223,6 +247,9 @@ using nwind;
 
 
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void IndexOf06()
         {
@@ -236,6 +263,9 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void IndexOf08()
         {
@@ -262,6 +292,9 @@ using nwind;
             Assert.AreEqual(list.Count, db.Employees.Count());
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void IndexOf10()
         {
@@ -328,6 +361,9 @@ using nwind;
         }
 
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void Remove01()
         {
@@ -356,6 +392,9 @@ using nwind;
 
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void Remove03()
         {
@@ -382,6 +421,9 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void Remove05()
         {
@@ -407,6 +449,9 @@ using nwind;
 
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void Remove07()
         {
@@ -484,6 +529,9 @@ using nwind;
             Assert.IsTrue(custID == "ALFKI");
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void EndsWith03()
         {
@@ -497,6 +545,9 @@ using nwind;
             Assert.IsTrue(custID == "ALFKI");
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void EndsWith04()
         {
@@ -508,6 +559,9 @@ using nwind;
             Assert.IsTrue(q.Any(r => r == true));
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void StartsWithPercent01()
         {

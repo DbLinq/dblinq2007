@@ -80,6 +80,9 @@ SELECT o$.*
 FROM Employees AS e$
 LEFT OUTER JOIN Orders AS o$ ON o$.[EmployeeID] = e$.[EmployeeID]
          */
+#if SQLITE
+        [Explicit]
+#endif
         [Description("Subquery")]
         [Test]
         public void CQ2_Subquery()
@@ -91,6 +94,9 @@ LEFT OUTER JOIN Orders AS o$ ON o$.[EmployeeID] = e$.[EmployeeID]
             Assert.IsTrue(count > 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Description("Subquery with nested select")]
         [Test]
         public void CQ3_SubquerySelect()
@@ -101,6 +107,9 @@ LEFT OUTER JOIN Orders AS o$ ON o$.[EmployeeID] = e$.[EmployeeID]
             Assert.IsTrue(count > 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Description("Subquery with nested entityset")]
         [Test]
         public void CQ4_SubqueryNested()
@@ -111,6 +120,9 @@ LEFT OUTER JOIN Orders AS o$ ON o$.[EmployeeID] = e$.[EmployeeID]
             Assert.IsTrue(count > 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Description("Subquery with nested query")]
         [Test]
         public void CQ5_SubqueryNestedQuery()

@@ -259,6 +259,9 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test(Description = "DateTime.Year. This sample uses the DateTime's Year property to find Orders placed in 1997.")]
         public void LinqToSqlString16()
         {
@@ -272,6 +275,9 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test(Description = "DateTime.Month. This sample uses the DateTime's Month property to find Orders placed in December.")]
         public void LinqToSqlString17()
         {
@@ -285,6 +291,9 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test(Description = "DateTime.Day. This sample uses the DateTime's Day property to find Orders placed on the 31st day of the month.")]
         public void LinqToSqlString18()
         {
@@ -298,6 +307,9 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test(Description = "DateTime.Seconds. This sample uses the DateTime's Day property to find Orders placed on the 31st day of the month.")]
         public void LinqToSqlString19()
         {

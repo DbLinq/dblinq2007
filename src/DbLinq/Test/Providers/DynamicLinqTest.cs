@@ -192,6 +192,9 @@ using nwind;
         /// <summary>
         /// Reported by pwy.mail in issue http://code.google.com/p/dblinq2007/issues/detail?id=69
         /// </summary>
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void DL9_PredicateBuilderCount()
         {
@@ -208,6 +211,9 @@ using nwind;
         /// <summary>
         /// Reported by pwy.mail in issue http://code.google.com/p/dblinq2007/issues/detail?id=69
         /// </summary>
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void DL10_PredicateBuilderWhere()
         {

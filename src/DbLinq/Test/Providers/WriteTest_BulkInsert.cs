@@ -59,6 +59,9 @@ using nwind;
     [TestFixture]
     public class WriteTest_BulkInsert : TestBase
     {
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void BI01_InsertProducts()
         {

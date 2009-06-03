@@ -105,6 +105,9 @@ using nwind;
             var list = query.ToList();
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void ParseInt()
         {
@@ -117,6 +120,9 @@ using nwind;
             var list = query.ToList();
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test]
         public void ParseFloat()
         {

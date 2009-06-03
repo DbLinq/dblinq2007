@@ -57,6 +57,9 @@ using nwind;
     [TestFixture]
     public class Paging : TestBase
     {
+#if SQLITE
+        [Explicit]
+#endif
         [Test(Description = "Paging - Index. This sample uses the Skip and Take operators to do paging by skipping the first 50 records and then returning the next 10, thereby providing the data for page 6 of the Products table.")]
         public void LinqToSqlPaging01()
         {
@@ -114,6 +117,9 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
+#if SQLITE
+        [Explicit]
+#endif
         [Test(Description = "Paging - Index. This sample uses the Skip and Take operators to do paging by skipping the first 50 records and then returning the next 10, thereby providing the data for page 6 of the Products table.")]
         public void LinqToSqlPaging03()
         {
