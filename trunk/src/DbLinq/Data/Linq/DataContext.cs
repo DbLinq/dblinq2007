@@ -82,7 +82,7 @@ namespace DbLinq.Data.Linq
         private bool objectTrackingEnabled = true;
         private bool deferredLoadingEnabled = true;
 
-        private bool queryCacheEnabled = true;  // By Default we enable QueryCache, tring to get a bit better performances
+        private bool queryCacheEnabled = false;
 
         /// <summary>
         /// Disable the QueryCache: this is surely good for rarely used Select, since preparing
