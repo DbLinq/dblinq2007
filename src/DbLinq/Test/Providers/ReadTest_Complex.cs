@@ -398,7 +398,7 @@ using Id = System.Int32;
 
 
         [Test]
-        public void F19_ExceptWithCountViaToList()
+        public void F19_ExceptWithCount_ViaToList()
         {
             var db = CreateDB();
 
