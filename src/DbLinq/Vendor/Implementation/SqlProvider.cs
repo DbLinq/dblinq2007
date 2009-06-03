@@ -773,7 +773,7 @@ namespace DbLinq.Vendor.Implementation
         {
             if (wheres.Length == 0)
                 return SqlStatement.Empty;
-            return SqlStatement.Format("WHERE {0}", SqlStatement.Join(" AND ", wheres));
+            return SqlStatement.Format("WHERE ({0})", SqlStatement.Join(") AND (", wheres));
         }
 
         /// <summary>
