@@ -396,11 +396,9 @@ using Id = System.Int32;
             Assert.IsTrue(l.Count > 0);
         }
 
-#if SQLITE
-        [Explicit]
-#endif
+
         [Test]
-        public void F19_ExceptWithCount()
+        public void F19_ExceptWithCountViaToList()
         {
             var db = CreateDB();
 
@@ -411,8 +409,25 @@ using Id = System.Int32;
             var toTake = universe.Except(toExclude);
             
             int toListCount = toTake.ToList().Count;
+            Assert.AreEqual(toListCount, 51);
+        }
+
+#if SQLITE
+        [Explicit]
+#endif
+        [Test]
+        public void F20_ExceptWithCount()
+        {
+            var db = CreateDB();
+
+            var toExclude = from t in db.GetTable<Territory>()
+                            where t.TerritoryDescription.StartsWith("A")
+                            select t;
+            var universe = from t in db.GetTable<Territory>() select t;
+            var toTake = universe.Except(toExclude);
+
             int toTakeCount = toTake.Count();
-            Assert.AreEqual(toListCount, toTakeCount);
+            Assert.AreEqual(toTakeCount, 51);
         }
 
         /// <summary>

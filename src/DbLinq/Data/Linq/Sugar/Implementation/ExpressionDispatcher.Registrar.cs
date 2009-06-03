@@ -96,9 +96,13 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 return null;
             // 2. Find a common ScopeExpression
             var commonScope = FindCommonScope(oldSelect, builderContext.CurrentSelect);
-            if(commonScope != null)
+            if (commonScope != null)
+            {
+                oldSelect.Tables.Remove(tableExpression);
                 commonScope.Tables.Add(tableExpression);
-            return tableExpression;
+                return tableExpression;
+            }
+            return null;
         }
 
         protected virtual SelectExpression FindTableScope(ref TableExpression tableExpression, BuilderContext builderContext)
@@ -110,7 +114,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     if (scope.Tables[tableIndex].IsEqualTo(tableExpression))
                     {
                         tableExpression = scope.Tables[tableIndex];
-                        scope.Tables.RemoveAt(tableIndex);
+                        //scope.Tables.RemoveAt(tableIndex);
                         return scope;
                     }
                 }
