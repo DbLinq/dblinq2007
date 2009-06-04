@@ -64,7 +64,7 @@ using DbLinq.Data.Linq;
     [TestFixture]
     public class ReadTests_DateTimeFunctions : TestBase
     {
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -80,7 +80,7 @@ using DbLinq.Data.Linq;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -96,7 +96,7 @@ using DbLinq.Data.Linq;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -112,7 +112,7 @@ using DbLinq.Data.Linq;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -127,7 +127,7 @@ using DbLinq.Data.Linq;
 
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -142,7 +142,7 @@ using DbLinq.Data.Linq;
 
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -156,7 +156,7 @@ using DbLinq.Data.Linq;
 
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -170,7 +170,7 @@ using DbLinq.Data.Linq;
 
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -184,7 +184,7 @@ using DbLinq.Data.Linq;
             var list = query.ToList();
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -210,7 +210,7 @@ using DbLinq.Data.Linq;
             var list = query.ToList();
         }
 
-#if (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -236,7 +236,7 @@ using DbLinq.Data.Linq;
             var list = query.ToList();
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -251,7 +251,7 @@ using DbLinq.Data.Linq;
             var list = query.ToList();
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -270,7 +270,7 @@ using DbLinq.Data.Linq;
             Assert.Greater(list.Count, 0);
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -285,7 +285,7 @@ using DbLinq.Data.Linq;
             var list = query.ToList();
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -305,7 +305,7 @@ using DbLinq.Data.Linq;
         }
 
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -320,7 +320,7 @@ using DbLinq.Data.Linq;
             var list = query.ToList();
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -339,7 +339,7 @@ using DbLinq.Data.Linq;
             Assert.Greater(list.Count, 0);
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -358,7 +358,7 @@ using DbLinq.Data.Linq;
             Assert.Greater(list.Count, 0);
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -373,7 +373,7 @@ using DbLinq.Data.Linq;
             var list = query.ToList();
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -392,7 +392,7 @@ using DbLinq.Data.Linq;
             Assert.Greater(list.Count, 0);
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -414,7 +414,7 @@ using DbLinq.Data.Linq;
             Assert.Greater(list.Count, 0);
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -457,7 +457,7 @@ using DbLinq.Data.Linq;
         }
 
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]

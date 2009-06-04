@@ -480,16 +480,23 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             else
             {
                 var projectionQueryBuilderContext = builderContext.NewSelect();
+
                 var tableExpression = Analyze(parameters[0], projectionQueryBuilderContext);
 
-                if (!(tableExpression is TableExpression))
+                if (!(tableExpression is TableExpression) && !(tableExpression is EntitySetExpression))
                     tableExpression = Analyze(tableExpression, projectionQueryBuilderContext);
+                EntitySetExpression setExpression = tableExpression as EntitySetExpression;
+                if (setExpression != null)
+                    tableExpression = setExpression.TableExpression;
 
                 // from here we build a custom clause:
                 // <anyClause> ==> "(select count(*) from <table> where <anyClause>)>0"
                 // TODO (later...): see if some vendors support native Any operator and avoid this substitution
                 if (parameters.Count > 1)
                 {
+                    setExpression = tableExpression as EntitySetExpression;
+                    if (setExpression != null)
+                        tableExpression = setExpression.TableExpression;
                     var anyClause = Analyze(parameters[1], tableExpression, projectionQueryBuilderContext);
                     RegisterWhere(anyClause, projectionQueryBuilderContext);
                 }
@@ -498,7 +505,6 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
 
                 // we now switch back to current context, and compare the result with 0
                 return projectionQueryBuilderContext.CurrentSelect;
-
             }
         }
 
@@ -631,15 +637,24 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             //maybe is a static member access like DateTime.Now
             bool isStaticMemberAccess = memberExpression.Member.GetIsStaticMember();
 
+            var memberInfo = memberExpression.Member;
+            if (!isStaticMemberAccess && memberInfo.Name == "Count")
+                return AnalyzeProjectionQuery(SpecialExpressionType.Count, new[] { memberExpression.Expression }, builderContext);
+
             if (!isStaticMemberAccess)
                 // first parameter is object, second is member
                 objectExpression = Analyze(memberExpression.Expression, builderContext);
 
-            var memberInfo = memberExpression.Member;
             // then see what we can do, depending on object type
             // - MetaTable --> then the result is a table
             // - Table --> the result may be a column or a join
             // - Object --> external parameter or table (can this happen here? probably not... to be checked)
+
+            EntitySetExpression setExpression = objectExpression as EntitySetExpression;
+            if (setExpression != null)
+            {
+                objectExpression = setExpression.TableExpression;
+            }
 
             if (objectExpression is MetaTableExpression)
             {
@@ -661,6 +676,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             {
                 var tableExpression = (TableExpression)objectExpression;
 
+
                 // before finding an association, we check for an EntitySet<>
                 // this will be used in RegisterAssociation
                 Type entityType;
@@ -672,7 +688,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 {
                     // no entitySet? we have right association
                     //if (!isEntitySet)
-                    return queryAssociationExpression;
+                        return queryAssociationExpression;
 
                     // from here, we may require to cast the table to an entitySet
                     return new EntitySetExpression(queryAssociationExpression, memberInfo.GetMemberType());
@@ -691,8 +707,6 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                         return queryColumnExpression;
                     }
                 }
-                if (memberInfo.Name == "Count")
-                    return AnalyzeProjectionQuery(SpecialExpressionType.Count, new[] { memberExpression.Expression }, builderContext);
                 // then, cry
                 throw Error.BadArgument("S0293: Column must be mapped. Non-mapped columns are not handled by now.");
             }
@@ -933,6 +947,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 var operand = operands[operandIndex];
                 operands[operandIndex] = Analyze(operand, builderContext);
             }
+
             return expression.ChangeOperands(operands);
         }
 
@@ -1212,14 +1227,20 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 var anyBuilderContext = builderContext.NewSelect();
                 var tableExpression = Analyze(parameters[0], anyBuilderContext);
 
-                if (!(tableExpression is TableExpression))
+                if (!(tableExpression is TableExpression) && !(tableExpression is EntitySetExpression))
                     tableExpression = Analyze(tableExpression, anyBuilderContext);
+                EntitySetExpression setExpression = tableExpression as EntitySetExpression;
+                if (setExpression != null)
+                    tableExpression = setExpression.TableExpression;
 
                 // from here we build a custom clause:
                 // <anyClause> ==> "(select count(*) from <table> where <anyClause>)>0"
                 // TODO (later...): see if some vendors support native Any operator and avoid this substitution
                 if (parameters.Count > 1)
                 {
+                    setExpression = tableExpression as EntitySetExpression;
+                    if (setExpression != null)
+                        tableExpression = setExpression.TableExpression;
                     var anyClause = Analyze(parameters[1], tableExpression, anyBuilderContext);
                     RegisterWhere(anyClause, anyBuilderContext);
                 }

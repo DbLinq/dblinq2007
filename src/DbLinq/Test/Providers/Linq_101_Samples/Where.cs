@@ -45,7 +45,7 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test(Description = "where - 2. This sample uses where to filter for Employees hired during or after 1994.")]
@@ -61,7 +61,7 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Linq101SamplesModified("Strange casting, It seems like original northwind discontinued were boolean")]
@@ -78,7 +78,7 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Linq101SamplesModified("Strange casting, It seems like original northwind discontinued were boolean")]
@@ -95,7 +95,7 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test(Description="Where - 5. This sample calls WHERE twice to filter out Products that UnitPrice is greater than 10 and is discontinued.")]

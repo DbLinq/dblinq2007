@@ -111,7 +111,7 @@ using Id = System.Int32;
             Assert.IsTrue(isSameObject2, "Expected product1 and product2 to be the same live object, but their fields are different");
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -257,7 +257,7 @@ using Id = System.Int32;
         /// there is a bug in v0.14 where table Customers cannot be updated,
         /// because quotes where missing around the primaryKey in the UPDATE statement.
         /// </summary>
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -517,7 +517,7 @@ dummy text
 
 #endif
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -532,7 +532,7 @@ dummy text
             db.SubmitChanges();
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -554,7 +554,7 @@ dummy text
         }
 
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -609,7 +609,7 @@ dummy text
         /// You are not expected to hold the cache for an extended duration (except possibly for a client scenario), 
         /// or share it across threads, processes, or machines in a cluster. 
         /// </summary>
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -628,7 +628,7 @@ dummy text
 
 
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -719,7 +719,7 @@ dummy text
         }
 
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -790,7 +790,7 @@ dummy text
             db.SubmitChanges();
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]

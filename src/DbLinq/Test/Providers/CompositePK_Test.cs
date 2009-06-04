@@ -92,7 +92,7 @@ using nwind;
             db.SubmitChanges();
         }
 
-#if (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -129,7 +129,7 @@ using nwind;
         }
 
 
-#if (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -150,7 +150,7 @@ using nwind;
             Assert.AreEqual(db.OrderDetails.Count(), initialCount);
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -174,7 +174,7 @@ using nwind;
             //Assert.AreEqual((float)orderDetail2.Discount, newDiscount);
         }
 
-#if (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test(Description = "Check that both keys are used to determine identity")]

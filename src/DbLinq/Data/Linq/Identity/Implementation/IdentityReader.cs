@@ -62,7 +62,8 @@ namespace DbLinq.Data.Linq.Identity.Implementation
             foreach (var keyMember in keyMembers)
             {
                 var key = keyMember.GetMemberValue(entity);
-                keys.Add(key);
+                if(key != null)
+                    keys.Add(key);
             }
             return new IdentityKey(type, keys);
         }

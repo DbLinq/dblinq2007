@@ -65,7 +65,7 @@ using DbLinq.Data.Linq;
     public class ReadTests_Join : TestBase
     {
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test(Description = "example by Frans Brouma: select all customers that have no orders")]
@@ -90,7 +90,7 @@ using DbLinq.Data.Linq;
             Assert.IsTrue(countALFKI == 1);
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -142,7 +142,7 @@ using DbLinq.Data.Linq;
             Assert.IsTrue(q1.Count > 0);
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -163,7 +163,7 @@ using DbLinq.Data.Linq;
 
 
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -182,7 +182,7 @@ using DbLinq.Data.Linq;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -314,7 +314,7 @@ using DbLinq.Data.Linq;
             var l = custOderInfos.ToList();
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]

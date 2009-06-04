@@ -218,6 +218,12 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 // Query expressions query identification 
                 currentExpression = ExpressionDispatcher.Analyze(currentExpression, tableExpression, builderContext);
 
+                if(! builderContext.IsExternalInExpressionChain)
+                {
+                    EntitySetExpression setExpression = currentExpression as EntitySetExpression;
+                    if (setExpression != null)
+                        currentExpression = setExpression.TableExpression;
+                }
                 tableExpression = currentExpression;
             }
             ExpressionDispatcher.BuildSelect(tableExpression, builderContext);

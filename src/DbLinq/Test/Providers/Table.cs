@@ -40,7 +40,7 @@ using nwind;
             var customers = db.Customers.ToArray();
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -71,7 +71,7 @@ using nwind;
             Assert.AreEqual(modInfo.OriginalValue, beforeFax);
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -108,7 +108,7 @@ using nwind;
         //    Assert.IsTrue(db2.Customers.IsReadOnly);
         //}
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -121,7 +121,7 @@ using nwind;
             Assert.IsFalse(db.Customers.Contains(customer));
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -137,7 +137,7 @@ using nwind;
             db2.Customers.Attach(customer);
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -150,7 +150,7 @@ using nwind;
             db.Customers.Attach(customer);
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -164,7 +164,7 @@ using nwind;
             Assert.Greater(db.Customers.GetModifiedMembers(customer).Count(), 0);
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -176,7 +176,7 @@ using nwind;
             db.Customers.Attach(customer, true);
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -191,7 +191,7 @@ using nwind;
         }
 
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -205,7 +205,7 @@ using nwind;
 
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -217,7 +217,7 @@ using nwind;
             Assert.AreEqual(customers.Count, db.Customers.Count());
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Description("Check direct use of DataContext instead of typed DataContext")]

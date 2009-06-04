@@ -63,7 +63,7 @@ using nwind;
 
         //EXP (SSIS)
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -87,7 +87,7 @@ using nwind;
 
         //Devuelve el menor entero mayor o igual que una expresión numérica.
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -108,7 +108,7 @@ using nwind;
 
         //LN (SSIS)
 
-#if SQLITE
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -124,7 +124,7 @@ using nwind;
 
         }
 
-#if SQLITE
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -145,7 +145,7 @@ using nwind;
 
         //LOG (SSIS)
 
-#if SQLITE
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -166,7 +166,7 @@ using nwind;
 
         //POWER (SSIS)
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -184,7 +184,7 @@ using nwind;
         //Devuelve el resultado de elevar una expresión numérica a una determinada potencia.
 
         //ROUND (SSIS)
-#if (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -200,7 +200,7 @@ using nwind;
 
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -222,7 +222,7 @@ using nwind;
         //SIGN (SSIS)
 
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -245,7 +245,7 @@ using nwind;
 
         //SQRT (SSIS) 
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]

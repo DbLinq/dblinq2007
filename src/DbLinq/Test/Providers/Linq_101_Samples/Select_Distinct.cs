@@ -123,7 +123,7 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test(Description = "select - Nested. This sample uses nested queries to return a sequence of all orders containing their OrderID, a subsequence of the items in the order where there is a discount, and the money saved if shipping is not included.")]

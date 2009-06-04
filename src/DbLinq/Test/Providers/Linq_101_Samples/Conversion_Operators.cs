@@ -93,7 +93,7 @@ using nwind;
             Assert.IsTrue(list.Length > 0);
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test(Description = "ToList. This sample uses ToList to immediately evaluate a query into a List(Of T).")]
@@ -111,7 +111,7 @@ using nwind;
             Assert.IsTrue(qList.Count > 0);
         }
 
-#if (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Linq101SamplesModified("Strange short to boolean casting, perhaps in the original Northwind Product.Discontinued was a boolean property")]

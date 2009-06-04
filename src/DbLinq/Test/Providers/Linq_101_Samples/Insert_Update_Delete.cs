@@ -94,7 +94,7 @@ using nwind;
         }
 
 #if !SQLITE
-#if (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Linq101SamplesModified("Console and ObjectDummper references deleted")]
@@ -141,7 +141,7 @@ using nwind;
         }
 #endif
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Linq101SamplesModified("Console and ObjectDummper references deleted")]
