@@ -86,7 +86,7 @@ using nwind;
             Assert.IsTrue(list.All(lastname => lastname.Contains(":")));
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -117,7 +117,7 @@ using nwind;
 
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -147,7 +147,7 @@ using nwind;
             Assert.AreEqual(list.Count, db.Employees.Count());
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -161,7 +161,7 @@ using nwind;
             Assert.AreEqual(list.Count, db.Employees.Count());
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -178,7 +178,7 @@ using nwind;
 
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -194,7 +194,7 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -211,7 +211,7 @@ using nwind;
 
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -229,7 +229,7 @@ using nwind;
 
 
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -247,7 +247,7 @@ using nwind;
 
 
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -263,7 +263,7 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -292,7 +292,7 @@ using nwind;
             Assert.AreEqual(list.Count, db.Employees.Count());
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -361,7 +361,7 @@ using nwind;
         }
 
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -392,7 +392,7 @@ using nwind;
 
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -421,7 +421,7 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -449,7 +449,7 @@ using nwind;
 
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -489,7 +489,7 @@ using nwind;
             Assert.IsTrue(custID == "ALFKI");
         }
 
-#if (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -532,7 +532,7 @@ using nwind;
             Assert.IsTrue(custID == "ALFKI");
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -548,7 +548,7 @@ using nwind;
             Assert.IsTrue(custID == "ALFKI");
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -562,7 +562,7 @@ using nwind;
             Assert.IsTrue(q.Any(r => r == true));
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -592,7 +592,7 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -620,7 +620,7 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]

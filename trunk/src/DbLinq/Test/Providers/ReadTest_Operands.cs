@@ -180,7 +180,7 @@ using nwind;
             Assert.IsTrue(count > 0, "Expected some products with ProductID != 1, got none");
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]

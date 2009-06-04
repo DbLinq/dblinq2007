@@ -88,7 +88,7 @@ namespace nwind
             new DataLoadOptions().LoadWith<Order> (o => o.Customer.Orders);
         }
 
-#if (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -100,7 +100,7 @@ namespace nwind
             lo.LoadWith<Order>(o => o.Customer);
         }
 
-#if (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]

@@ -162,7 +162,7 @@ namespace DbLinq.Data.Linq.Sugar
                 if(this.MetaTables.Contains(newMetaTable))
                     this.MetaTables.Add(newMetaTable);
             foreach (TableExpression table in builderContext.CurrentSelect.Tables)
-                if (this.CurrentSelect.Tables.Contains(table))
+                if (!this.CurrentSelect.Tables.Contains(table))
                     this.CurrentSelect.Tables.Add(table);
             foreach (Expression whereExpression in builderContext.CurrentSelect.Where)
                 if (!this.CurrentSelect.Where.Contains(whereExpression))

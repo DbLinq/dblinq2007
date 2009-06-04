@@ -218,7 +218,7 @@ using nwind;
                      select new { c.CustomerID, HasUSAOrders = c.Orders.Count(o => o.ShipCountry == "USA") }).ToList();
         }
 
-#if (MSSQL && !MONO_STRICT) || SQLITE
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -234,7 +234,7 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if (MSSQL && !MONO_STRICT) || SQLITE
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -249,7 +249,7 @@ using nwind;
             var list = q.ToList();
         }
 
-#if (MSSQL && !MONO_STRICT) || SQLITE
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]

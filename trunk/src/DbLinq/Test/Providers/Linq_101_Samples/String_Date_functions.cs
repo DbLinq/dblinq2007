@@ -259,7 +259,7 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test(Description = "DateTime.Year. This sample uses the DateTime's Year property to find Orders placed in 1997.")]
@@ -275,7 +275,7 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test(Description = "DateTime.Month. This sample uses the DateTime's Month property to find Orders placed in December.")]
@@ -291,7 +291,7 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test(Description = "DateTime.Day. This sample uses the DateTime's Day property to find Orders placed on the 31st day of the month.")]
@@ -307,7 +307,7 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test(Description = "DateTime.Seconds. This sample uses the DateTime's Day property to find Orders placed on the 31st day of the month.")]

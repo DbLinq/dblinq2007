@@ -73,7 +73,7 @@ using Id = System.Int32;
         }
 
         #region 'D' tests exercise 'local object constants'
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -92,7 +92,7 @@ using Id = System.Int32;
             Assert.AreEqual(productCount, 1, "Expected one pen, got count=" + productCount);
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -107,7 +107,7 @@ using Id = System.Int32;
             Assert.AreEqual(productCount, 1, "Expected one pen, got count=" + productCount);
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -193,7 +193,7 @@ using Id = System.Int32;
 
 #endif
 
-#if (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -385,7 +385,7 @@ using Id = System.Int32;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test(Description = "byte[] test")]
@@ -403,7 +403,7 @@ using Id = System.Int32;
         }
 
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -421,7 +421,7 @@ using Id = System.Int32;
             Assert.AreEqual(toListCount, 51);
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -474,7 +474,7 @@ using Id = System.Int32;
             var list = q.ToList();
         }
 
-#if (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test(Description = "provide a list of customers and employees who live in London.")]

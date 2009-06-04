@@ -48,7 +48,7 @@ using nwind;
             var orders = customer.Orders;
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE)
         [Explicit]
 #endif
         [Test]
@@ -59,7 +59,7 @@ using nwind;
             Assert.Greater(customer.Orders.Count, 0);
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -71,7 +71,7 @@ using nwind;
             Assert.Greater(results.Count, 0);
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE)
         [Explicit]
 #endif
         [Test]
@@ -85,7 +85,7 @@ using nwind;
             Assert.IsTrue(customer.Orders.HasLoadedOrAssignedValues);
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE)
         [Explicit]
 #endif
         [Test]
@@ -100,7 +100,7 @@ using nwind;
         }
 
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE)
         [Explicit]
 #endif
         [Test]
@@ -115,7 +115,7 @@ using nwind;
             customer.Orders.SetSource(System.Linq.Enumerable.Empty<Order>());
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE)
         [Explicit]
 #endif
         [Test]
@@ -143,7 +143,7 @@ using nwind;
             customer.Orders.SetSource(System.Linq.Enumerable.Empty<Order>());
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -162,7 +162,7 @@ using nwind;
         }
 
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -182,7 +182,7 @@ using nwind;
             Assert.AreEqual(c.Orders.Count, beforeCount);
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -208,7 +208,7 @@ using nwind;
         }
 
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -225,7 +225,7 @@ using nwind;
             Assert.AreNotEqual(order.CustomerID, newcustomerId);
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -309,7 +309,7 @@ using nwind;
             Assert.AreEqual(args.OldIndex, -1);
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE)
         [Explicit]
 #endif
         [Test]
@@ -324,7 +324,7 @@ using nwind;
             Assert.IsTrue(orders.HasLoadedOrAssignedValues);
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE)
         [Explicit]
 #endif
         [Test]
@@ -338,7 +338,7 @@ using nwind;
             Assert.IsFalse(customer.Orders.IsDeferred);
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -354,7 +354,7 @@ using nwind;
             Assert.IsTrue(customer.Orders.HasLoadedOrAssignedValues, "#2");
         }
 
-#if (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -372,7 +372,7 @@ using nwind;
             Assert.AreEqual(beforeCount + 1, customer.Orders.Count, "#4");
         }
 
-#if SQLITE || (MSSQL && !MONO_STRICT)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -381,7 +381,7 @@ using nwind;
         {
             var db = CreateDB();
             var customer = db.Customers.First();
-            Assert.AreEqual("jacques", customer.ContactName, "#1");
+            Assert.AreEqual("Maria Anders", customer.ContactName, "#1");
             int beforeCount = customer.Orders.Count;
             Assert.AreEqual(1, beforeCount, "#2");
             var order = new Order();
@@ -429,6 +429,9 @@ using nwind;
             Assert.AreEqual(customer.Orders.Count, beforeCount - 1);
         }
 
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+        [Explicit]
+#endif
         [Test]
         public void RemoveAt()
         {

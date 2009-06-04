@@ -105,7 +105,7 @@ using nwind;
             var list = query.ToList();
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -120,7 +120,7 @@ using nwind;
             var list = query.ToList();
         }
 
-#if SQLITE
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]

@@ -811,7 +811,7 @@ namespace DbLinq.Data.Linq
             var identityReader = _GetIdentityReader(entity.GetType());
             var identityKey = identityReader.GetIdentityKey(entity);
             // if we have no key, we can not watch
-            if (identityKey == null)
+            if (identityKey == null || identityKey.Keys.Count == 0)
                 return;
             // register entity
             AllTrackedEntities.RegisterToWatch(entity, identityKey);
