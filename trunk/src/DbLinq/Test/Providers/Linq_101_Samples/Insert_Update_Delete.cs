@@ -121,7 +121,7 @@ using nwind;
 
             var newProduct = new Product
             {
-                ProductName = "Blue Widget",
+                ProductName = "temp Blue Widget",
                 UnitPrice = 34.56m,
                 Category = newCategory
             };
@@ -138,6 +138,9 @@ using nwind;
 
             Assert.AreEqual(reloadedCategory.CategoryName, newCategory.CategoryName);
             Assert.AreEqual(reloadedCategory.Description, reloadedCategory.Description);
+
+            db.Products.DeleteOnSubmit(newProduct);
+            db.SubmitChanges();
         }
 #endif
 
