@@ -57,6 +57,8 @@ using nwind;
     [TestFixture]
     public class CompositePK_Test : TestBase
     {
+        const short TestQuantity = short.MaxValue;
+
         protected void cleanup(Northwind db)
         {
             try
@@ -70,7 +72,7 @@ using nwind;
                         tableName = ((System.Data.Linq.Mapping.TableAttribute)obj).Name;
                     }
                 }
-                string sql = string.Format("DELETE FROM {0} WHERE OrderID=3 AND ProductID=2", tableName);
+                string sql = string.Format("DELETE FROM {0} WHERE Quantity={1}", tableName, TestQuantity);
                 db.ExecuteCommand(sql);
             }
             catch (Exception)
@@ -92,46 +94,46 @@ using nwind;
             db.SubmitChanges();
         }
 
-#if !DEBUG && (MSSQL && !MONO_STRICT)
-        [Explicit]
-#endif
         [Test]
         public void CP2_UpdateTableWithCompositePK()
         {
             Northwind db = CreateDB();
             cleanup(db);
 
+            var order   = db.Orders.First();
+            var product = db.Products.First();
+
+            var startUnitPrice = 33000m;
+            var endUnitPrice   = 34000m;
+
             var orderDetail = new OrderDetail
             {
-                OrderID = 3,
-                ProductID = 2,
-                UnitPrice = 20
+                OrderID   = order.OrderID,
+                ProductID = product.ProductID,
+                Quantity  = TestQuantity,
+                UnitPrice = startUnitPrice
             };
 
             db.OrderDetails.InsertOnSubmit(orderDetail);
             db.SubmitChanges();
 
-            orderDetail.UnitPrice = 40;
+            orderDetail.UnitPrice = endUnitPrice;
             db.SubmitChanges();
 
             OrderDetail orderDetail2 = (from c in db.OrderDetails
-                                        where c.UnitPrice == 40
+                                        where c.UnitPrice == endUnitPrice
                                         select c).Single();
 
             Assert.IsTrue(object.ReferenceEquals(orderDetail, orderDetail2), "Must be same object");
 
-            Assert.AreEqual(3, orderDetail2.OrderID);
-            Assert.AreEqual(2, orderDetail2.ProductID);
-            Assert.AreEqual(40, orderDetail2.UnitPrice);
+            Assert.AreEqual(order.OrderID,      orderDetail2.OrderID);
+            Assert.AreEqual(product.ProductID,  orderDetail2.ProductID);
+            Assert.AreEqual(endUnitPrice,       orderDetail2.UnitPrice);
 
             db.OrderDetails.DeleteOnSubmit(orderDetail);
             db.SubmitChanges();
         }
 
-
-#if !DEBUG && (MSSQL && !MONO_STRICT)
-        [Explicit]
-#endif
         [Test]
         public void CP3_DeleteTableWithCompositePK()
         {
@@ -139,7 +141,14 @@ using nwind;
             cleanup(db);
             int initialCount = db.OrderDetails.Count();
 
-            var orderDetail = new OrderDetail { OrderID = 2, ProductID = 2 };
+            var order = db.Orders.First();
+            var product = db.Products.First();
+
+            var orderDetail = new OrderDetail {
+                OrderID   = order.OrderID,
+                ProductID = product.ProductID,
+                Quantity  = TestQuantity
+            };
             db.OrderDetails.InsertOnSubmit(orderDetail);
             db.SubmitChanges();
 
