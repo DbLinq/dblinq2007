@@ -203,8 +203,9 @@ using nwind;
             Northwind db = CreateDB();
             var predicate = PredicateBuilder.True<Customer>();
             predicate = predicate.And(m => m.City == "Paris");
-            int count = db.Customers.Count(predicate);
-            Assert.AreEqual(1, count);
+            int predicateCount  = db.Customers.Count(predicate);
+            int normalCount     = db.Customers.Where(c => c.City == "Paris").Count();
+            Assert.AreEqual(normalCount, predicateCount);
         }
 
 
