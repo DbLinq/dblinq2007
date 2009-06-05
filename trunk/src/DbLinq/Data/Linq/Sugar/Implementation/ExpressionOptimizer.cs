@@ -52,8 +52,29 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
 
             expression = AnalyzeNull(expression, builderContext);
             expression = AnalyzeNot(expression, builderContext);
+            expression = AnalyzeAndAlso(expression, builderContext);
             // constant optimization at last, because the previous optimizations may generate constant expressions
             expression = AnalyzeConstant(expression, builderContext);
+            return expression;
+        }
+
+        protected virtual Expression AnalyzeAndAlso(Expression expression, BuilderContext builderContext)
+        {
+            if (expression.NodeType != ExpressionType.AndAlso)
+                return expression;
+            var bin = expression as BinaryExpression;
+            if (bin == null)
+                return expression;
+            if (bin.Type != typeof(bool))
+                return expression;
+            if (bin.Left.NodeType == ExpressionType.Constant &&
+                    bin.Left.Type == typeof(bool) &&
+                    (bool)bin.Left.Evaluate())
+                return bin.Right;
+            if (bin.Right.NodeType == ExpressionType.Constant &&
+                    bin.Right.Type == typeof(bool) &&
+                    (bool) bin.Right.Evaluate())
+                return bin.Left;
             return expression;
         }
 
