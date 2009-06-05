@@ -183,17 +183,18 @@ using nwind;
             //Assert.AreEqual((float)orderDetail2.Discount, newDiscount);
         }
 
-#if !DEBUG && (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL && MONO_STRICT)
         [Explicit]
 #endif
         [Test(Description = "Check that both keys are used to determine identity")]
         public void CP5_Composite_ObjectIdentity()
         {
             Northwind db = CreateDB();
-            var q = db.OrderDetails.Where(od => od.ProductID == 2 && od.OrderID == 1);
+
+            var d = db.OrderDetails.First();
+            var q = db.OrderDetails.Where(od => od.ProductID == d.ProductID && od.OrderID == d.OrderID);
             OrderDetail row1 = q.Single();
-            OrderDetail row2 = q.Single();
-            Assert.IsTrue(object.ReferenceEquals(row1, row2));
+            Assert.IsTrue(object.ReferenceEquals(d, row1));
         }
 
 
