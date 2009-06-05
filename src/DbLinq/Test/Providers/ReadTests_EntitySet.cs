@@ -354,17 +354,12 @@ using nwind;
             Assert.IsTrue(customer.Orders.HasLoadedOrAssignedValues, "#2");
         }
 
-#if !DEBUG && (MSSQL && !MONO_STRICT)
-        [Explicit]
-#endif
         [Test]
         public void Add()
         {
             var db = CreateDB();
             var customer = db.Customers.First();
-            Assert.AreEqual("jacques", customer.ContactName, "#1");
             int beforeCount = customer.Orders.Count;
-            Assert.AreEqual(1, beforeCount, "#2");
             var order = new Order();
             customer.Orders.Add(order);
             Assert.AreEqual(beforeCount + 1, customer.Orders.Count, "#3");
@@ -372,18 +367,12 @@ using nwind;
             Assert.AreEqual(beforeCount + 1, customer.Orders.Count, "#4");
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
-        [Explicit]
-#endif
         [Test]
         [ExpectedException (typeof (ArgumentOutOfRangeException))]
         public void IList_Add()
         {
             var db = CreateDB();
             var customer = db.Customers.First();
-            Assert.AreEqual("Maria Anders", customer.ContactName, "#1");
-            int beforeCount = customer.Orders.Count;
-            Assert.AreEqual(1, beforeCount, "#2");
             var order = new Order();
             ((IList)customer.Orders).Add(order);
             ((IList)customer.Orders).Add(order); // raises ArgumentOutOfRangeException for duplicate
