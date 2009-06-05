@@ -58,6 +58,11 @@ using nwind;
     [TestFixture]
     public class ExecuteCommand_Test : TestBase
     {
+#if !DEBUG && (MSSQL && MONO_STRICT)
+        // DataContext.ExecuteScalar() working with 'SELECT COUNT(*)' is a DbLinq extension.
+        // Exclude from Linq2Sql comparison tests.
+        [Explicit]
+#endif
         [Test]
         public void A2_ProductsTableHasEntries()
         {
@@ -71,10 +76,16 @@ using nwind;
         /// <summary>
         /// like above, but includes one parameter.
         /// </summary>
+#if !DEBUG && (MSSQL && MONO_STRICT)
+        // DataContext.ExecuteScalar() working with 'SELECT COUNT(*)' is a DbLinq extension.
+        // Exclude from Linq2Sql comparison tests.
+        [Explicit]
+#endif
         [Test]
         public void A3_ProductCount_Param()
         {
             Northwind db = CreateDB();
+            db.
             int result = db.ExecuteCommand("SELECT count(*) FROM [Products] WHERE [ProductID]>{0}", 3);
             //long iResult = base.ExecuteScalar(sql);
             Assert.Greater(result, 0, "Expecting some rows in Products table, got:" + result);
