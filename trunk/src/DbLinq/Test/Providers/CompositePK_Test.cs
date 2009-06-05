@@ -103,8 +103,8 @@ using nwind;
             var order   = db.Orders.First();
             var product = db.Products.First();
 
-            var startUnitPrice = 33000m;
-            var endUnitPrice   = 34000m;
+            var startUnitPrice = 33000;
+            var endUnitPrice   = 34000;
 
             var orderDetail = new OrderDetail
             {
