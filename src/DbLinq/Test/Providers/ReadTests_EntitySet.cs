@@ -420,12 +420,17 @@ using nwind;
         {
             var db = CreateDB();
             var customer = db.Customers.First();
+            Assert.IsTrue(customer.Orders.IsDeferred);
             int beforeCount = customer.Orders.Count;
+            Assert.IsFalse(customer.Orders.IsDeferred);
 
             if (beforeCount == 0)
                 Assert.Ignore();
 
-            customer.Orders.Remove(customer.Orders.First());
+            Assert.IsFalse(customer.Orders.Remove(null));
+            Assert.AreEqual(beforeCount, customer.Orders.Count);
+
+            Assert.IsTrue(customer.Orders.Remove(customer.Orders.First()));
             Assert.AreEqual(customer.Orders.Count, beforeCount - 1);
         }
 
