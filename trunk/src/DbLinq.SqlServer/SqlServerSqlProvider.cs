@@ -69,7 +69,7 @@ namespace DbLinq.SqlServer
 
         public override SqlStatement GetLiteral(DateTime literal)
         {
-            return "'" + literal.ToString("o").Split('.')[0] + "'";
+            return "'" + literal.ToString("o").Substring(0,23) + "'";
         }
 
         public override string GetParameterName(string nameBase)
