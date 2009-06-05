@@ -173,7 +173,7 @@ namespace DbLinq.Vendor.Implementation
 
         public virtual SqlStatement GetLiteral(DateTime literal)
         {
-            return Convert.ToString(literal.ToString());
+            return literal.ToString("o");
         }
 
         public virtual SqlStatement GetLiteral(bool literal)
