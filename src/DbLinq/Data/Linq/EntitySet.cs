@@ -175,9 +175,10 @@ namespace DbLinq.Data.Linq
         /// <param name="index"></param>
         public void RemoveAt(int index)
         {
-            OnRemove(Source[index]);
             deferred = false;
+            var item = Source[index];
             Source.RemoveAt(index);
+            OnRemove(item);
             ListChangedEventHandler handler = ListChanged;
             if (handler != null)
                 handler(this, new ListChangedEventArgs(ListChangedType.ItemDeleted, index));
