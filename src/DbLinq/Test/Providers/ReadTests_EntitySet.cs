@@ -434,9 +434,6 @@ using nwind;
             Assert.AreEqual(customer.Orders.Count, beforeCount - 1);
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
-        [Explicit]
-#endif
         [Test]
         public void RemoveAt()
         {
