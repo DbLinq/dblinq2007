@@ -191,7 +191,7 @@ using nwind;
             //Lookup EmployeeID 1:
             //Andy Fuller - HireDate: 1989-01-01 00:00:00
 
-            string hireDate = "1989.01.01";
+            string hireDate = "1992.08.14";
 
             // Ingres assumes UTC on all date queries
             var q = from e in db.Employees
@@ -200,9 +200,9 @@ using nwind;
 #else
                     where e.HireDate == DateTime.ParseExact(hireDate, "yyyy.MM.dd", CultureInfo.InvariantCulture)
 #endif
-                    select e.EmployeeID;
-            var empID = q.Single(); //MTable_Projected.GetQueryText()
-            Assert.IsTrue(empID == 1);
+                    select e.LastName;
+            var empLastName = q.Single(); //MTable_Projected.GetQueryText()
+            Assert.AreEqual("Fuller", empLastName);
         }
 
     }
