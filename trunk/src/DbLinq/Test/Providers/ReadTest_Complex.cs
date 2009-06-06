@@ -118,7 +118,7 @@ using Id = System.Int32;
             string pen = "Chai";
             var q = from p in db.Products
                     where p.ProductName == pen &&
-                        p.QuantityPerUnit == "10"
+                        p.QuantityPerUnit.StartsWith("10")
                     select p;
             List<Product> products = q.ToList();
             int productCount = products.Count;
@@ -203,15 +203,15 @@ using Id = System.Int32;
             //bring in rows such as {Chai,AIRBU}
             var q =
                 from p in db.Products
-                join o in db.Orders on p.ProductID equals o.OrderID
-                select new { p.ProductName, o.CustomerID };
+                join c in db.Categories on p.ProductID equals c.CategoryID
+                select new { p.ProductName, c.CategoryName };
 
             int rowCount = 0;
             foreach (var v in q)
             {
                 rowCount++;
                 Assert.IsTrue(v.ProductName != null);
-                Assert.IsTrue(v.CustomerID != null);
+                Assert.IsTrue(v.CategoryName != null);
             }
             Assert.IsTrue(rowCount > 2);
         }
@@ -486,9 +486,6 @@ using Id = System.Int32;
                      select new { ContactName = e.LastName });
             var list = q.ToList();
             Assert.IsTrue(list.Count > 0, "Expected some customers and employees from London");
-
-            int countOfGraeme = list.Count(l => l.ContactName == "graeme");
-            Assert.IsTrue(countOfGraeme == 1, "Expected London contacts to include graeme");
         }
 
         [Test]
