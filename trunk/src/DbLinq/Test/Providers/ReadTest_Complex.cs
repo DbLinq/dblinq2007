@@ -107,9 +107,6 @@ using Id = System.Int32;
             Assert.AreEqual(productCount, 1, "Expected one pen, got count=" + productCount);
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
-        [Explicit]
-#endif
         [Test]
         public void D2_SelectPensByLocalPropertyAndConstant()
         {
@@ -193,9 +190,6 @@ using Id = System.Int32;
 
 #endif
 
-#if !DEBUG && (MSSQL && !MONO_STRICT)
-        [Explicit]
-#endif
         [Test]
         public void F7_ExplicitJoin()
         {
@@ -474,9 +468,6 @@ using Id = System.Int32;
             var list = q.ToList();
         }
 
-#if !DEBUG && (MSSQL && !MONO_STRICT)
-        [Explicit]
-#endif
         [Test(Description = "provide a list of customers and employees who live in London.")]
         public void O3_OperatorUnion()
         {
