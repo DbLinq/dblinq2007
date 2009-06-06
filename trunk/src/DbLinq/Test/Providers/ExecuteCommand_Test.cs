@@ -85,7 +85,6 @@ using nwind;
         public void A3_ProductCount_Param()
         {
             Northwind db = CreateDB();
-            db.
             int result = db.ExecuteCommand("SELECT count(*) FROM [Products] WHERE [ProductID]>{0}", 3);
             //long iResult = base.ExecuteScalar(sql);
             Assert.Greater(result, 0, "Expecting some rows in Products table, got:" + result);
