@@ -183,9 +183,6 @@ using nwind;
             //Assert.AreEqual((float)orderDetail2.Discount, newDiscount);
         }
 
-#if !DEBUG && (MSSQL && MONO_STRICT)
-        [Explicit]
-#endif
         [Test(Description = "Check that both keys are used to determine identity")]
         public void CP5_Composite_ObjectIdentity()
         {
