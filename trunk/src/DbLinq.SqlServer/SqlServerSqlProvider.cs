@@ -60,6 +60,18 @@ namespace DbLinq.SqlServer
             return string.Format("{0} AS {1}", GetTable(table), GetTableAlias(alias));
         }
 
+        /// <summary>
+        /// Returns a table alias
+        /// Ensures about the right case
+        /// </summary>
+        /// <param name="table"></param>
+        /// <param name="alias"></param>
+        /// <returns></returns>
+        public override string GetSubQueryAsAlias(string subquery, string alias)
+        {
+            return string.Format("({0}) AS {1}", subquery, GetTableAlias(alias));
+        }
+
         public override SqlStatement GetLiteral(bool literal)
         {
             if (literal)

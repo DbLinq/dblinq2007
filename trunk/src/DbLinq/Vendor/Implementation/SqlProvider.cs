@@ -302,6 +302,8 @@ namespace DbLinq.Vendor.Implementation
                 return GetLiteralStringConcat(p[0], p[1]);
             case SpecialExpressionType.Count:
                 return GetLiteralCount(p[0]);
+            case SpecialExpressionType.Exists:
+                return GetLiteralExists(p[0]);
             case SpecialExpressionType.Like:
                 return GetLiteralLike(p[0], p[1]);
             case SpecialExpressionType.Min:
@@ -381,6 +383,11 @@ namespace DbLinq.Vendor.Implementation
 
             }
             throw new ArgumentException(operationType.ToString());
+        }
+
+        protected virtual SqlStatement GetLiteralExists(SqlStatement sqlStatement)
+        {
+            return SqlStatement.Format("EXISTS {0}", sqlStatement);
         }
 
         private int SpecificVendorStringIndexStart
@@ -693,6 +700,18 @@ namespace DbLinq.Vendor.Implementation
         public virtual string GetTableAsAlias(string table, string alias)
         {
             return string.Format("{0} {1}", GetTable(table), GetTableAlias(alias));
+        }
+
+        /// <summary>
+        /// Returns a table alias
+        /// Ensures about the right case
+        /// </summary>
+        /// <param name="table"></param>
+        /// <param name="alias"></param>
+        /// <returns></returns>
+        public virtual string GetSubQueryAsAlias(string subquery, string alias)
+        {
+            return string.Format("({0}) {1}", subquery, GetTableAlias(alias));
         }
 
         /// <summary>

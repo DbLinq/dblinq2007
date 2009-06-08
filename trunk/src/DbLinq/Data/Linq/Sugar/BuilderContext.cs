@@ -152,21 +152,45 @@ namespace DbLinq.Data.Linq.Sugar
             return builderContext;
         }
 
-        public void MergeWith(BuilderContext builderContext)
+        /// <summary>
+        /// Creates a new BuilderContext with a new query scope with the same parent of the CurrentSelect
+        /// </summary>
+        /// <returns></returns>
+        public BuilderContext NewSisterSelect()
         {
-            // Fill the current Context with the newContext contents
-            foreach (InputParameterExpression inputParameter in builderContext.ExpressionQuery.Parameters)
-                if (!this.ExpressionQuery.Parameters.Contains(inputParameter))
-                    this.ExpressionQuery.Parameters.Add(inputParameter);
-            foreach (KeyValuePair<Type, MetaTableExpression> newMetaTable in builderContext.MetaTables)
-                if(this.MetaTables.Contains(newMetaTable))
-                    this.MetaTables.Add(newMetaTable);
-            foreach (TableExpression table in builderContext.CurrentSelect.Tables)
-                if (!this.CurrentSelect.Tables.Contains(table))
-                    this.CurrentSelect.Tables.Add(table);
-            foreach (Expression whereExpression in builderContext.CurrentSelect.Where)
-                if (!this.CurrentSelect.Where.Contains(whereExpression))
-                    this.CurrentSelect.Where.Add(whereExpression);
+            var builderContext = new BuilderContext();
+
+            // we basically copy everything
+            builderContext.QueryContext = QueryContext;
+            builderContext.ExpressionQuery = ExpressionQuery;
+            builderContext.MetaTables = MetaTables;
+            builderContext.Parameters = Parameters;
+            builderContext.SelectExpressions = SelectExpressions;
+            builderContext.ExpectMetaTableDefinition = ExpectMetaTableDefinition;
+
+            // except CurrentScope, of course
+            builderContext.currentScopeIndex = SelectExpressions.Count;
+            SelectExpressions.Add(new SelectExpression(CurrentSelect.Parent));
+
+            return builderContext;
+        }
+
+        /// <summary>
+        /// Creates a new BuilderContext with a new query scope which is parent of the current one
+        /// </summary>
+        /// <returns></returns>
+        public void NewParentSelect()
+        {
+            SelectExpression currentSelect = this.CurrentSelect;
+            SelectExpression newParentSelect = new SelectExpression(currentSelect.Parent);
+
+            while (currentSelect != null)
+            {
+                currentSelect.Parent = newParentSelect;
+                currentSelect = currentSelect.NextSelectExpression;
+            }
+            this.currentScopeIndex = SelectExpressions.Count;
+            SelectExpressions.Add(newParentSelect);
         }
 
         public BuilderContext Clone()

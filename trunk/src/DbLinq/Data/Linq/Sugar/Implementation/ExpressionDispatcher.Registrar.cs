@@ -90,36 +90,40 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         /// <returns></returns>
         protected virtual TableExpression PromoteTable(TableExpression tableExpression, BuilderContext builderContext)
         {
-            // 1. Find the table ScopeExpression
-            SelectExpression oldSelect = FindTableScope(ref tableExpression, builderContext);
-            if (oldSelect == null)
-                return null;
-            // 2. Find a common ScopeExpression
-            var commonScope = FindCommonScope(oldSelect, builderContext.CurrentSelect);
-            if (commonScope != null)
+            int currentIndex = 0;
+            SelectExpression oldSelect = null;
+            SelectExpression commonScope = null;
+            TableExpression foundTable = null;
+            do
             {
-                oldSelect.Tables.Remove(tableExpression);
-                commonScope.Tables.Add(tableExpression);
-                return tableExpression;
-            }
-            return null;
-        }
+                // take a select
+                oldSelect = builderContext.SelectExpressions[currentIndex];
 
-        protected virtual SelectExpression FindTableScope(ref TableExpression tableExpression, BuilderContext builderContext)
-        {
-            foreach (var scope in builderContext.SelectExpressions)
-            {
-                for (int tableIndex = 0; tableIndex < scope.Tables.Count; tableIndex++)
+                // look for a common scope
+                if (oldSelect != builderContext.CurrentSelect)
                 {
-                    if (scope.Tables[tableIndex].IsEqualTo(tableExpression))
-                    {
-                        tableExpression = scope.Tables[tableIndex];
-                        //scope.Tables.RemoveAt(tableIndex);
-                        return scope;
-                    }
+                    commonScope = FindCommonScope(oldSelect, builderContext.CurrentSelect);
+                    if (commonScope != null)
+                        // if a common scope exists, look for an equivalent table in that select
+                        for (int tableIndex = 0; tableIndex < oldSelect.Tables.Count && foundTable == null; tableIndex++)
+                        {
+                            if (oldSelect.Tables[tableIndex].IsEqualTo(tableExpression))
+                            {
+                                // found a matching table!
+                                foundTable = oldSelect.Tables[tableIndex];
+                            }
+                        }
                 }
+                ++currentIndex;
             }
-            return null;
+            while (currentIndex < builderContext.SelectExpressions.Count && foundTable == null);
+
+            if (foundTable != null)
+            {
+                oldSelect.Tables.Remove(foundTable);
+                commonScope.Tables.Add(foundTable);
+            }
+            return foundTable;
         }
 
         /// <summary>
@@ -138,9 +142,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                         return aScope;
                 }
             }
-            if (a.Parent == b.Parent)
-                return a.Parent;
-            throw Error.BadArgument("S0127: No common ScopeExpression found");
+            return null;
         }
 
         /// <summary>

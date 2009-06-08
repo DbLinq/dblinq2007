@@ -292,7 +292,7 @@ using DataLinq = DbLinq.Data.Linq;
             var res = from o in db.Orders
                       select new { test = 1 };
             var list = res.ToList();
-            Assert.IsTrue(list.Count > 0);
+            Assert.AreEqual(db.Orders.Count(), list.Count);
         }
 
 
@@ -558,11 +558,14 @@ using DataLinq = DbLinq.Data.Linq;
             allEmployees = filterByOrderCountGreaterThan(db, allEmployees, 50);
             allEmployees = filterByNameOrSurnameContains(db, allEmployees, "an");
 
-            allEmployees = filterByTerritoryName(db, allEmployees, "Neward");
+            allEmployees = filterByTerritoryNames(db, allEmployees, "Neward", "Boston", "Wilton");
             string commandText = db.GetCommand(allEmployees).CommandText;
 
-            Assert.AreEqual(1, allEmployees.Count());
+            int employeesCount = allEmployees.ToList().Count;
+
+            Assert.AreEqual(employeesCount, allEmployees.Count());
         }
+
 
         private IQueryable<Employee> filterByOrderCountGreaterThan(Northwind db, IQueryable<Employee> allEmployees, int minimumOrderNumber)
         {
@@ -577,6 +580,15 @@ using DataLinq = DbLinq.Data.Linq;
         private IQueryable<Employee> filterByTerritoryName(Northwind db, IQueryable<Employee> allEmployees, string territoryName)
         {
             IQueryable<Territory> territoryRequired = db.GetTable<Territory>().Where(t => t.TerritoryDescription == territoryName);
+            var q = territoryRequired
+                        .Join(db.GetTable<EmployeeTerritory>(), t => t.TerritoryID, l => l.TerritoryID, (t, l) => l)
+                        .Join(allEmployees, l => l.EmployeeID, e => e.EmployeeID, (l, e) => e);
+            return q;
+        }
+
+        private IQueryable<Employee> filterByTerritoryNames(Northwind db, IQueryable<Employee> allEmployees, params string[] territoryNames)
+        {
+            IQueryable<Territory> territoryRequired = db.GetTable<Territory>().Where(t => territoryNames.Contains(t.TerritoryDescription));
             var q = territoryRequired
                         .Join(db.GetTable<EmployeeTerritory>(), t => t.TerritoryID, l => l.TerritoryID, (t, l) => l)
                         .Join(allEmployees, l => l.EmployeeID, e => e.EmployeeID, (l, e) => e);
@@ -610,6 +622,28 @@ using DataLinq = DbLinq.Data.Linq;
             Console.WriteLine("# C23: count={0}", count);
             Assert.AreEqual(10, count);
         }
+
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+        [Explicit]
+#endif
+        [Test]
+        public void C24_SelectEmployee_DbLinqAsQueryObjectWithExceptAndImage()
+        {
+            // This fail becouse Employee contains a ndata, ndata is not comparable
+            // and EXCEPT make a distinct on DATA
+            Northwind db = CreateDB();
+            IQueryable<Employee> allEmployees = db.GetTable<Employee>();
+
+            var toExclude = filterByOrderCountGreaterThan(db, allEmployees, 50);
+            allEmployees = filterByNameOrSurnameContains(db, allEmployees, "a").Except(toExclude);
+
+            string commandText = db.GetCommand(allEmployees).CommandText;
+
+            int employeesCount = allEmployees.ToList().Count;
+
+            Assert.AreEqual(employeesCount, allEmployees.Count());
+        }
+
 
         #endregion
 

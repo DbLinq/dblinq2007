@@ -163,6 +163,7 @@
     <Compile Include="Data\Linq\Sugar\Expressions\SpecialExpression.cs" />
     <Compile Include="Data\Linq\Sugar\Expressions\SpecialExpressionType.cs" />
     <Compile Include="Data\Linq\Sugar\Expressions\StartIndexOffsetExpression.cs" />
+    <Compile Include="Data\Linq\Sugar\Expressions\SubSelectExpression.cs" />
     <Compile Include="Data\Linq\Sugar\Expressions\TableExpression.cs" />
     <Compile Include="Data\Linq\Sugar\Expressions\TableJoinType.cs" />
     <Compile Include="Data\Linq\Sugar\ExpressionTier.cs" />
