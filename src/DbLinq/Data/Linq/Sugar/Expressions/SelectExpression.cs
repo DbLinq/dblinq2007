@@ -63,7 +63,7 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
         public SelectOperatorType NextSelectExpressionOperator;
 
         // Parent scope: we will climb up to find if we don't find the request table in the current scope
-        public SelectExpression Parent { get; private set; }
+        public SelectExpression Parent { get; set; }
 
         public SelectExpression()
             : base(ExpressionType, null, null)

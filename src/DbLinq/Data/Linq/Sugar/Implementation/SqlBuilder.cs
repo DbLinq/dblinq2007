@@ -98,6 +98,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         public SqlStatement Build(SelectExpression selectExpression, QueryContext queryContext)
         {
             var translator = GetTranslator(queryContext.DataContext.Vendor.SqlProvider);
+            var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
             selectExpression = translator.OuterExpression(selectExpression);
 
             // A scope usually has:
@@ -106,11 +107,24 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             // - a WHERE: list of conditions
             // - a GROUP BY: grouping by selected columns
             // - a ORDER BY: sort
+            var select = BuildSelect(selectExpression, queryContext);
+            if (select.ToString() == string.Empty)
+            {
+                SubSelectExpression subselect = null;
+                if (selectExpression.Tables.Count == 1)
+                    subselect = selectExpression.Tables[0] as SubSelectExpression;
+                if(subselect != null)
+                    return sqlProvider.GetParenthesis(Build(subselect.Select, queryContext));
+            }
+
+            // TODO: the following might be wrong (at least this might be the wrong place to do this
+            if (select.ToString() == string.Empty)
+                select = new SqlStatement("SELECT " + sqlProvider.GetLiteral(null) + " AS " + sqlProvider.GetSafeName("Empty"));
+
             var tables = GetSortedTables(selectExpression);
             var from = BuildFrom(tables, queryContext);
             var join = BuildJoin(tables, queryContext);
             var where = BuildWhere(tables, selectExpression.Where, queryContext);
-            var select = BuildSelect(selectExpression, queryContext);
             var groupBy = BuildGroupBy(selectExpression.Group, queryContext);
             var having = BuildHaving(selectExpression.Where, queryContext);
             var orderBy = BuildOrderBy(selectExpression.OrderBy, queryContext);
@@ -284,7 +298,18 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 {
                     if (tableExpression.Alias != null)
                     {
-                        var tableAlias = sqlProvider.GetTableAsAlias(tableExpression.Name, tableExpression.Alias);
+                        string tableAlias;
+
+                        // All subqueries has an alias in FROM
+                        SubSelectExpression subquery = tableExpression as SubSelectExpression;
+                        if (subquery == null)
+                            tableAlias = sqlProvider.GetTableAsAlias(tableExpression.Name, tableExpression.Alias);
+                        else
+                        {
+                            var subqueryStatements = new SqlStatement(Build(subquery.Select, queryContext));
+                            tableAlias = sqlProvider.GetSubQueryAsAlias(subqueryStatements.ToString(), tableExpression.Alias);
+                        }
+
                         if ((tableExpression.JoinType & TableJoinType.LeftOuter) != 0)
                             tableAlias = "/* LEFT OUTER */ " + tableAlias;
                         if ((tableExpression.JoinType & TableJoinType.RightOuter) != 0)

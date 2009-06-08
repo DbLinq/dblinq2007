@@ -59,6 +59,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 case SpecialExpressionType.Sum:
                 case SpecialExpressionType.Average:
                 case SpecialExpressionType.Count:
+                case SpecialExpressionType.Exists:
                 case SpecialExpressionType.StringLength:
                 case SpecialExpressionType.ToUpper:
                 case SpecialExpressionType.ToLower:

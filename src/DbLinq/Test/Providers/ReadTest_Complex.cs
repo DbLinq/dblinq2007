@@ -412,10 +412,10 @@ using Id = System.Int32;
             var toTake = universe.Except(toExclude);
             
             int toListCount = toTake.ToList().Count;
-            Assert.AreEqual(toListCount, 51);
+            Assert.AreEqual(51, toListCount);
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE)
         [Explicit]
 #endif
         [Test]
@@ -427,10 +427,86 @@ using Id = System.Int32;
                             where t.TerritoryDescription.StartsWith("A")
                             select t;
             var universe = from t in db.GetTable<Territory>() select t;
-            var toTake = universe.Except(toExclude);
+            var toTake = universe.Except(toExclude).Except(db.Territories.Where(terr => terr.TerritoryDescription.StartsWith("B")));
 
             int toTakeCount = toTake.Count();
-            Assert.AreEqual(toTakeCount, 51);
+            Assert.AreEqual(44, toTakeCount);
+        }
+
+#if !DEBUG && (SQLITE)
+        [Explicit]
+#endif
+        [Test]
+        public void F21_CountNestedExcepts()
+        {
+            var db = CreateDB();
+
+            var toExclude1 = from t in db.GetTable<Territory>()
+                            where t.TerritoryDescription.StartsWith("A")
+                            select t;
+            var toExclude2 = toExclude1.Except(db.GetTable<Territory>().Where(terr => terr.TerritoryDescription.Contains("i")));
+
+            var universe = from t in db.GetTable<Territory>() select t;
+
+            var toTake = universe.Except(toExclude2);
+
+            int toTakeCount = toTake.Count();
+            Assert.AreEqual(52, toTakeCount);
+        }
+
+#if !DEBUG && (SQLITE)
+        [Explicit]
+#endif
+        [Test]
+        public void F22_AnyNestedExcepts()
+        {
+            var db = CreateDB();
+
+            var toExclude1 = from t in db.GetTable<Territory>()
+                             where t.TerritoryDescription.StartsWith("A")
+                             select t;
+            var toExclude2 = toExclude1.Except(db.GetTable<Territory>().Where(terr => terr.TerritoryDescription.Contains("i")));
+
+            var universe = from t in db.GetTable<Territory>() select t;
+
+            var toTake = universe.Except(toExclude2);
+
+            Assert.IsTrue(toTake.Any());
+        }
+
+        [Test]
+        public void F23_AnyNestedExcepts_WithParameter()
+        {
+            var db = CreateDB();
+
+            var toExclude1 = from t in db.GetTable<Territory>()
+                             where t.TerritoryDescription.StartsWith("A")
+                             select t;
+            var toExclude2 = toExclude1.Except(db.GetTable<Territory>().Where(terr => terr.TerritoryDescription.Contains("i")));
+
+            var universe = from t in db.GetTable<Territory>() select t;
+
+            var toTake = universe.Except(toExclude2);
+
+            Assert.IsTrue(toTake.Any(t => t.TerritoryDescription.Contains("i")));
+        }
+
+        [Test]
+        public void F24_CountNestedExcepts_WithParameter()
+        {
+            var db = CreateDB();
+
+            var toExclude1 = from t in db.GetTable<Territory>()
+                             where t.TerritoryDescription.StartsWith("A")
+                             select t;
+            var toExclude2 = toExclude1.Except(db.GetTable<Territory>().Where(terr => terr.TerritoryDescription.Contains("i")));
+
+            var universe = from t in db.GetTable<Territory>() select t;
+
+            var toTake = universe.Except(toExclude2);
+
+            int toTakeCount = toTake.Count(t => t.TerritoryDescription.Contains("o"));
+            Assert.AreEqual(34, toTakeCount);
         }
 
         /// <summary>

@@ -448,6 +448,18 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 var operand0 = Analyze(parameters[0], builderContext);
                 Expression projectionOperand;
 
+                if (builderContext.CurrentSelect.NextSelectExpression != null || builderContext.CurrentSelect.Operands.Count() > 0)
+                {
+                    //BuildSelect(builderContext.CurrentSelect, builderContext);
+                    operand0 = new SubSelectExpression(builderContext.CurrentSelect, operand0.Type, "source");
+                    builderContext.NewParentSelect();
+
+                    // In the new scope we should not have MaximumDatabaseLoad
+                    builderContext.QueryContext.MaximumDatabaseLoad = false;
+
+                    builderContext.CurrentSelect.Tables.Add(operand0 as TableExpression);
+                }
+
                 // basically, we have three options for projection methods:
                 // - projection on grouped table (1 operand, a GroupExpression)
                 // - projection on grouped column (2 operands, GroupExpression and ColumnExpression)
@@ -518,7 +530,11 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         protected virtual Expression AnalyzeSelect(IList<Expression> parameters, BuilderContext builderContext)
         {
             // just call back the underlying lambda (or quote, whatever)
-            return Analyze(parameters[1], parameters[0], builderContext);
+            Expression ex = Analyze(parameters[1], parameters[0], builderContext);
+            TableExpression tableExpression = parameters[0] as TableExpression;
+            if (tableExpression != null && !builderContext.CurrentSelect.Tables.Contains(tableExpression))
+                RegisterTable(tableExpression, builderContext);
+            return ex;
         }
 
         /// <summary>
@@ -1193,6 +1209,18 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 var tableExpression = Analyze(parameters[0], builderContext);
                 Expression projectionOperand;
 
+                if (builderContext.CurrentSelect.NextSelectExpression != null)
+                {
+                    TableExpression currentTableExpression = tableExpression as TableExpression;
+                    tableExpression = new SubSelectExpression(builderContext.CurrentSelect, currentTableExpression.Type, "source");
+                    builderContext.NewParentSelect();
+
+                    // In the new scope we should not have MaximumDatabaseLoad
+                    builderContext.QueryContext.MaximumDatabaseLoad = false;
+
+                    builderContext.CurrentSelect.Tables.Add(tableExpression as TableExpression);
+                }
+
                 // basically, we have three options for projection methods:
                 // - projection on grouped table (1 operand, a GroupExpression)
                 // - projection on grouped column (2 operands, GroupExpression and ColumnExpression)
@@ -1354,10 +1382,12 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     QueryProvider queryProvider = constantExpression.Value as QueryProvider;
                     if (queryProvider != null)
                     {
+                        /*
                         BuilderContext newContext = new BuilderContext(builderContext.QueryContext);
                         Expression tableExpression = AnalyzeQueryProvider(queryProvider, newContext);
                         builderContext.MergeWith(newContext);
-
+                        */
+                        Expression tableExpression = AnalyzeQueryProvider(queryProvider, builderContext.NewQuote());
                         return tableExpression;
                     }
                 }
@@ -1386,6 +1416,12 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 // Query expressions query identification 
                 currentExpression = this.Analyze(currentExpression, tableExpression, builderContext);
 
+                if (!builderContext.IsExternalInExpressionChain)
+                {
+                    EntitySetExpression setExpression = currentExpression as EntitySetExpression;
+                    if (setExpression != null)
+                        currentExpression = setExpression.TableExpression;
+                }
                 tableExpression = currentExpression;
             }
 
@@ -1400,29 +1436,38 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             // types and count.
             builderContext.QueryContext.MaximumDatabaseLoad = true; // all select expression goes to SQL tier
 
-            /*
+/* */
             var constantExpression = parameters[1] as ConstantExpression;
             QueryProvider queryProvider = constantExpression.Value as QueryProvider;
             if (queryProvider != null)
             {
-                BuilderContext newContext = new BuilderContext(builderContext.QueryContext);
+                // Handle second select first
+                BuilderContext newContext = builderContext.NewSisterSelect();
                 Expression tableExpression = AnalyzeQueryProvider(queryProvider, newContext);
+                BuildSelect(tableExpression, newContext);
 
-                foreach (InputParameterExpression inputParameter in newContext.ExpressionQuery.Parameters)
-                    if (!builderContext.ExpressionQuery.Parameters.Contains(inputParameter))
-                        builderContext.ExpressionQuery.Parameters.Add(inputParameter);
-                foreach (KeyValuePair<Type, MetaTableExpression> newMetaTable in newContext.MetaTables)
-                    if (builderContext.MetaTables.Contains(newMetaTable))
-                        builderContext.MetaTables.Add(newMetaTable);
-                builderContext.SelectExpressions.Add(newContext.CurrentSelect);
-                builderContext.CurrentSelect.NextSelectExpression = newContext.CurrentSelect;
-                builderContext.CurrentSelect.NextSelectExpressionOperator = operatorType;
+                // add the second select select to the chain
+                if (newContext.CurrentSelect.NextSelectExpression != null)
+                {
+                    var operand0 = new SubSelectExpression(newContext.CurrentSelect, tableExpression.Type, "source");
+                    newContext.NewParentSelect();
+                    newContext.CurrentSelect.Tables.Add(operand0);
+                }
+                SelectExpression selectToModify = builderContext.CurrentSelect;
+                while (selectToModify.NextSelectExpression != null)
+                    selectToModify = selectToModify.NextSelectExpression;
 
-                return Analyze(parameters[0], builderContext);
+                selectToModify.NextSelectExpression = newContext.CurrentSelect;
+                selectToModify.NextSelectExpressionOperator = operatorType;
+
+                Expression firstSelection = Analyze(parameters[0], builderContext);
+                BuildSelect(firstSelection, builderContext);
+
+                return firstSelection;
             }
 
 
-/* */
+/* *
             var currentSelect = builderContext.CurrentSelect;
             var nextSelect = new SelectExpression(currentSelect.Parent);
             builderContext.CurrentSelect = nextSelect;

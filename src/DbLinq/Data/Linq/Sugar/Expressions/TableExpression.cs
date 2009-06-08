@@ -123,7 +123,7 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
             Name = tableExpression.Name;
         }
 
-        public bool IsEqualTo(TableExpression expression)
+        public virtual bool IsEqualTo(TableExpression expression)
         {
             return Name == expression.Name && JoinID == expression.JoinID;
         }

@@ -1,4 +1,4 @@
-#region MIT license
+﻿#region MIT license
 // 
 // MIT license
 //
@@ -24,61 +24,39 @@
 // 
 #endregion
 
+using System;
+using System.Diagnostics;
+using System.Linq.Expressions;
+
+using DbLinq.Data.Linq.Sugar.Expressions;
+
 namespace DbLinq.Data.Linq.Sugar.Expressions
 {
     /// <summary>
-    /// SQL specific (and DBlinq required) custom expression types.
-    /// To add a new value here, please be sure to handle it everywhere
-    /// For this, search for "// SETuse" comment in project
+    /// A table expression produced by a sub select, which work almost like any other table
+    /// Different joins specify different tables
     /// </summary>
+    [DebuggerDisplay("SubSelectExpression {Name} (as {Alias})")]
 #if !MONO_STRICT
     public
 #endif
-    enum SpecialExpressionType
+    class SubSelectExpression : TableExpression
     {
-        IsNull = 100,
-        IsNotNull,
-        Concat,
-        Count,
-        Exists,
-        Like,
-        Min,
-        Max,
-        Sum,
-        Average,
-        StringLength,
-        ToUpper,
-        ToLower,
-        In,
-        Substring,
-        Trim,
-        LTrim,
-        RTrim,
+        public SelectExpression Select { get; private set; }
 
-        StringInsert,
-        Replace,
-        Remove,
-        IndexOf,
+        public SubSelectExpression(SelectExpression select, Type type, string alias)
+            : base(type, alias)
+        {
+            this.Select = select;
+            this.Alias = alias;
+        }
 
-        Year,
-        Month,
-        Day,
-        Hour,
-        Minute,
-        Second,
-        Millisecond,
-        Now,
-        Date,
-        DateDiffInMilliseconds,
-
-        Abs,
-        Exp,
-        Floor,
-        Ln,
-        Log,
-        Pow,
-        Round,
-        Sign,
-        Sqrt
+        public override bool IsEqualTo(TableExpression expression)
+        {
+            SubSelectExpression subSelectTable = expression as SubSelectExpression;
+            if (subSelectTable == null)
+                return false;
+            return Name == expression.Name && JoinID == expression.JoinID && Select == subSelectTable.Select;
+        }
     }
 }

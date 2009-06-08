@@ -66,6 +66,8 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
                     return typeof(string);
                 case SpecialExpressionType.Count:
                     return typeof(int);
+                case SpecialExpressionType.Exists:
+                    return typeof(bool);
                 case SpecialExpressionType.Like:
                     return typeof(bool);
                 case SpecialExpressionType.Min:
@@ -173,6 +175,17 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
                         }
                         // TODO: by default, shall we answer 1 or throw an exception?
                         return 1;
+                    }
+                case SpecialExpressionType.Exists:
+                    {
+                        var value = operands[0].Evaluate();
+                        // TODO: string is IEnumerable. See what we do here
+                        if (value is IEnumerable)
+                        {
+                            return true;
+                        }
+                        // TODO: by default, shall we answer 1 or throw an exception?
+                        return false;
                     }
                 case SpecialExpressionType.Min:
                     {
