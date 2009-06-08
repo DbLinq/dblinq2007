@@ -532,7 +532,7 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             // just call back the underlying lambda (or quote, whatever)
             Expression ex = Analyze(parameters[1], parameters[0], builderContext);
             TableExpression tableExpression = parameters[0] as TableExpression;
-            if (tableExpression != null && !builderContext.CurrentSelect.Tables.Contains(tableExpression))
+            if (tableExpression != null && builderContext.CurrentSelect.Tables.Count == 0)
                 RegisterTable(tableExpression, builderContext);
             return ex;
         }
