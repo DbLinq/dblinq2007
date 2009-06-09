@@ -1107,6 +1107,16 @@ namespace DbLinq.Data.Linq
         [DbLinqToDo]
         public DbCommand GetCommand(IQueryable query)
         {
+            DbCommand dbCommand = GetIDbCommand(query) as DbCommand;
+            if (dbCommand == null)
+                throw new InvalidOperationException();
+
+            return dbCommand;
+        }
+
+        [DBLinqExtended]
+        public IDbCommand GetIDbCommand(IQueryable query)
+        {
             if (query == null)
                 throw new ArgumentNullException("query");
 
@@ -1117,11 +1127,7 @@ namespace DbLinq.Data.Linq
             if (qp.ExpressionChain.Expressions.Count == 0)
                 qp.ExpressionChain.Expressions.Add(CreateDefaultQuery(query));
 
-            IDbCommand dbCommand = qp.GetQuery(null).GetCommand().Command;
-            if (!(dbCommand is DbCommand))
-                throw new InvalidOperationException();
-
-            return (DbCommand)dbCommand;
+            return qp.GetQuery(null).GetCommand().Command;
         }
 
         private Expression CreateDefaultQuery(IQueryable query)
