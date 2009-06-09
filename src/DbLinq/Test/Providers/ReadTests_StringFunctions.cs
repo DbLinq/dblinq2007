@@ -505,6 +505,25 @@ using nwind;
             Assert.IsTrue(matchStart);
         }
 
+
+        /// <summary>
+        /// This test is related to paths: enable DbLinq to search for a path or it's container
+        /// Since we have no path in Nortwind we use a CustomerID.
+        /// </summary>
+        [Test]
+        public void StartsWith03()
+        {
+            string path = "ALFKI test";
+            Northwind db = CreateDB();
+
+            var q = from c in db.Customers
+                    where path.StartsWith(c.CustomerID)
+                    select c;
+
+            Customer match = q.Single();
+            Assert.IsNotNull(match);
+        }
+
         [Test]
         public void EndsWith01()
         {
@@ -532,9 +551,6 @@ using nwind;
             Assert.IsTrue(custID == "ALFKI");
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
-        [Explicit]
-#endif
         [Test]
         public void EndsWith03()
         {
@@ -544,8 +560,7 @@ using nwind;
                     where "ALFKI".EndsWith("LFKI")
                     select c.CustomerID;
 
-            string custID = q.Single();
-            Assert.IsTrue(custID == "ALFKI");
+            Assert.AreEqual(q.ToList().Count, db.Customers.Count());
         }
 
 #if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
