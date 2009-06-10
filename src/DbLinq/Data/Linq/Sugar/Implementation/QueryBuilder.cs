@@ -289,9 +289,37 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 var scopeExpression = builderContext.SelectExpressions[scopeExpressionIndex];
 
                 // where clauses
+                List<int> whereToRemove = new List<int>(); // List of where clausole evaluating TRUE (could be ignored and so removed)
+                bool falseWhere = false; // true when the full where evaluate to FALSE
                 for (int whereIndex = 0; whereIndex < scopeExpression.Where.Count; whereIndex++)
                 {
-                    scopeExpression.Where[whereIndex] = processor(scopeExpression.Where[whereIndex], builderContext);
+                    Expression whereClausole = processor(scopeExpression.Where[whereIndex], builderContext);
+                    ConstantExpression constantWhereClausole = whereClausole as ConstantExpression;
+                    if (constantWhereClausole != null)
+                    {
+                        if (constantWhereClausole.Value.Equals(false))
+                        {
+                            falseWhere = true;
+                            break;
+                        }
+                        else if (constantWhereClausole.Value.Equals(true))
+                        {
+                            whereToRemove.Add(whereIndex);
+                            continue;
+                        }
+                    }
+                    scopeExpression.Where[whereIndex] = whereClausole;
+                }
+                if (scopeExpression.Where.Count > 0)
+                {
+                    if (falseWhere)
+                    {
+                        scopeExpression.Where.Clear();
+                        scopeExpression.Where.Add(Expression.Equal(Expression.Constant(true), Expression.Constant(false)));
+                    }
+                    else
+                        foreach (int whereIndex in whereToRemove)
+                            scopeExpression.Where.RemoveAt(whereIndex);
                 }
 
                 // limit clauses

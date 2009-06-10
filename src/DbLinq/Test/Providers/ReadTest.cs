@@ -380,9 +380,6 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.AreEqual(ordcount, count);
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
-        [Explicit]
-#endif
         [Test]
         public void C10_ConstantPredicate()
         {
@@ -391,8 +388,68 @@ using DataLinq = DbLinq.Data.Linq;
                     where true
                     select p;
 
-            int count = q.ToList().Count();
-            Assert.Greater(count,0);
+            int count = q.ToList().Count;
+            Assert.AreEqual(count, db.Customers.Count());
+        }
+
+        [Test]
+        public void C10b_ConstantPredicate()
+        {
+            Northwind db = CreateDB();
+            var q = from p in db.Customers
+                    where false
+                    select p;
+
+            int count = q.Count();
+            Assert.AreEqual(count, 0);
+        }
+
+        [Test]
+        public void C10c_ConstantPredicate()
+        {
+            Northwind db = CreateDB();
+            var q = from p in db.Customers
+                    where (p.Address.StartsWith("A") && false)
+                    select p;
+
+            int count = q.Count();
+            Assert.AreEqual(count, 0);
+        }
+
+        [Test]
+        public void C10d_ConstantPredicate()
+        {
+            Northwind db = CreateDB();
+            var q = from p in db.Customers
+                    where (p.Address.StartsWith("A") || true)
+                    select p;
+
+            int count = q.Count();
+            Assert.AreEqual(count, db.Customers.Count());
+        }
+
+        [Test]
+        public void C10e_ConstantPredicate()
+        {
+            Northwind db = CreateDB();
+            var q = from p in db.Customers
+                    where (p.Address.StartsWith("A") || false)
+                    select p;
+
+            int count = q.Count();
+            Assert.Less(count, db.Customers.Count());
+        }
+
+        [Test]
+        public void C10f_ConstantPredicate()
+        {
+            Northwind db = CreateDB();
+            var q = from p in db.Customers
+                    where (p.Address.StartsWith("A") && true)
+                    select p;
+
+            int count = q.Count();
+            Assert.Less(count, db.Customers.Count());
         }
 
 #if !DEBUG && SQLITE
