@@ -108,18 +108,18 @@ using Id = System.Int32;
         }
 
         [Test]
-        public void D2_SelectPensByLocalPropertyAndConstant()
+        public void D2_SelectProductByLocalPropertyAndConstant()
         {
 
             Northwind db = CreateDB();
-            string pen = "Chai";
+            string product = "Carnarvon Tigers";
             var q = from p in db.Products
-                    where p.ProductName == pen &&
-                        p.QuantityPerUnit.StartsWith("10")
+                    where p.ProductName == product &&
+                        p.QuantityPerUnit.StartsWith("16")
                     select p;
             List<Product> products = q.ToList();
             int productCount = products.Count;
-            Assert.AreEqual(1, productCount, "Expected one pen, got count=" + productCount);
+            Assert.AreEqual(1, productCount, "Expected one product, got count=" + productCount);
         }
 
         [Test]
