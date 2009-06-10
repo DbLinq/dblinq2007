@@ -433,7 +433,7 @@ using Id = System.Int32;
             Assert.AreEqual(44, toTakeCount);
         }
 
-#if !DEBUG && (SQLITE)
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
         [Explicit]
 #endif
         [Test]
@@ -474,6 +474,9 @@ using Id = System.Int32;
             Assert.IsTrue(toTake.Any());
         }
 
+#if !DEBUG && (MSSQL && !MONO_STRICT)
+        [Explicit]
+#endif
         [Test]
         public void F23_AnyNestedExcepts_WithParameter()
         {
@@ -491,6 +494,9 @@ using Id = System.Int32;
             Assert.IsTrue(toTake.Any(t => t.TerritoryDescription.Contains("i")));
         }
 
+#if !DEBUG && (MSSQL && !MONO_STRICT)
+        [Explicit]
+#endif
         [Test]
         public void F24_CountNestedExcepts_WithParameter()
         {
