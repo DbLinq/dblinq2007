@@ -53,7 +53,7 @@ namespace Test_NUnit
             get
             {
                 var xConnectionStringsDoc = new XmlDocument();
-                xConnectionStringsDoc.Load("../src/ConnectionStrings.xml");
+                xConnectionStringsDoc.Load("../tests/ConnectionStrings.xml");
                 XmlNode currentAssemblyNode = xConnectionStringsDoc.SelectSingleNode(string.Format("//Connection[@assembly=\"{0}\"]", Assembly.GetCallingAssembly().GetName().Name));
                 string stringConnection = currentAssemblyNode.FirstChild.Value.Replace(@"\\", @"\");
                 if (stringConnection.Contains("{0}"))
