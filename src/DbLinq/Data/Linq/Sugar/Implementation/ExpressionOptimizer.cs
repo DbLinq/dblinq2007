@@ -144,11 +144,13 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 if (!(operand is ConstantExpression))
                     return expression;
             }
-            if (expression is ColumnExpression)
+            if (expression.NodeType == ExpressionType.Parameter)
                 return expression;
-            if (expression is TableExpression)
+            if (expression.NodeType == (ExpressionType)SpecialExpressionType.Like)
                 return expression;
-            if (expression is ParameterExpression)
+            // SETuse
+            // If the value of the first SpecialExpressionType change this 999 should change too
+            if ((short)expression.NodeType > 999)
                 return expression;
             // now, we just simply return a constant with new value
             try
@@ -159,7 +161,10 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     return optimizedExpression;
             }
                 // if we fail to evaluate the expression, then just return it
-            catch (ArgumentException) { }
+            catch (ArgumentException) 
+            {
+                return expression;
+            }
             return expression;
         }
 
