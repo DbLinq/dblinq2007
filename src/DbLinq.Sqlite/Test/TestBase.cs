@@ -40,7 +40,7 @@ namespace Test_NUnit
         static partial void CheckRecreateSqlite ()
         {
             if (doRecreate) {
-                File.Copy ("../src/Northwind.db3", "Northwind.db3", true);
+                File.Copy ("../tests/Northwind.db3", "Northwind.db3", true);
                 doRecreate = false;
             }
         }
