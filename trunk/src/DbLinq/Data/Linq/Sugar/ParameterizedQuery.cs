@@ -59,10 +59,19 @@ namespace DbLinq.Data.Linq.Sugar
             {
                 var dbParameter = transactionalCommand.Command.CreateParameter();
                 dbParameter.ParameterName = DataContext.Vendor.SqlProvider.GetParameterName(inputParameter.Alias);
-                dbParameter.SetValue(inputParameter.GetValue(Target), inputParameter.ValueType);
+                object value = NormalizeDbType(inputParameter.GetValue(Target));
+                dbParameter.SetValue(value, inputParameter.ValueType);
                 transactionalCommand.Command.Parameters.Add(dbParameter);
             }
             return transactionalCommand;
+        }
+
+        private object NormalizeDbType(object value)
+        {
+            System.Data.Linq.Binary b = value as System.Data.Linq.Binary;
+            if (b != null)
+                return b.ToArray();
+            return value;
         }
 
         public object Target { get; set; }

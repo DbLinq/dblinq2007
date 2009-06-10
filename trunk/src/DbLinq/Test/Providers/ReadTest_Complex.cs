@@ -379,9 +379,6 @@ using Id = System.Int32;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if !DEBUG && (MSSQL && !MONO_STRICT)
-        [Explicit]
-#endif
         [Test(Description = "byte[] test")]
         public void F18_ByteArrayAssignmentTest()
         {
@@ -433,7 +430,7 @@ using Id = System.Int32;
             Assert.AreEqual(44, toTakeCount);
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE)
         [Explicit]
 #endif
         [Test]
@@ -474,7 +471,7 @@ using Id = System.Int32;
             Assert.IsTrue(toTake.Any());
         }
 
-#if !DEBUG && (MSSQL && !MONO_STRICT)
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]
@@ -494,7 +491,7 @@ using Id = System.Int32;
             Assert.IsTrue(toTake.Any(t => t.TerritoryDescription.Contains("i")));
         }
 
-#if !DEBUG && (MSSQL && !MONO_STRICT)
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]

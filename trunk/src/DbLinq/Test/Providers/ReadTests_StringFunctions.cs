@@ -86,9 +86,6 @@ using nwind;
             Assert.IsTrue(list.All(lastname => lastname.Contains(":")));
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
-        [Explicit]
-#endif
         [Test]
         public void Replace01()
         {
@@ -117,9 +114,6 @@ using nwind;
 
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
-        [Explicit]
-#endif
         [Test]
         public void Replace03()
         {
@@ -147,9 +141,6 @@ using nwind;
             Assert.AreEqual(list.Count, db.Employees.Count());
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
-        [Explicit]
-#endif
         [Test]
         public void Replace05()
         {
@@ -161,9 +152,6 @@ using nwind;
             Assert.AreEqual(list.Count, db.Employees.Count());
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
-        [Explicit]
-#endif
         [Test]
         public void IndexOf01()
         {
@@ -194,9 +182,6 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
-        [Explicit]
-#endif
         [Test]
         public void IndexOf03()
         {
@@ -208,7 +193,6 @@ using nwind;
 
             var list = q.ToList();
             Assert.IsTrue(list.Count > 0);
-
         }
 
 #if !DEBUG && SQLITE
@@ -292,9 +276,6 @@ using nwind;
             Assert.AreEqual(list.Count, db.Employees.Count());
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
-        [Explicit]
-#endif
         [Test]
         public void IndexOf10()
         {
@@ -360,10 +341,19 @@ using nwind;
             Assert.AreEqual(list.Count, db.Employees.Count());
         }
 
+        [Test]
+        public void IndexOf15()
+        {
+            Northwind db = CreateDB();
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
-        [Explicit]
-#endif
+            var q = from e in db.Employees
+                    where " fu".IndexOf('a') == 1
+                    select e;
+
+            var list = q.ToList();
+            Assert.AreEqual(0, list.Count);
+        }
+
         [Test]
         public void Remove01()
         {
@@ -392,9 +382,6 @@ using nwind;
 
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
-        [Explicit]
-#endif
         [Test]
         public void Remove03()
         {
@@ -421,9 +408,6 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
-        [Explicit]
-#endif
         [Test]
         public void Remove05()
         {
@@ -449,9 +433,6 @@ using nwind;
 
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
-        [Explicit]
-#endif
         [Test]
         public void Remove07()
         {

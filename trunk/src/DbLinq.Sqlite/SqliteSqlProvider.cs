@@ -64,5 +64,12 @@ namespace DbLinq.Sqlite
         {
             return true;
         }
+
+        public override SqlStatement GetLiteral(bool literal)
+        {
+            if (literal)
+                return "1";
+            return "0";
+        }
     }
 }
