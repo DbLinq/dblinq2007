@@ -81,7 +81,8 @@ using DataLinq = DbLinq.Data.Linq;
 
 
 
-#if !DEBUG && SQLITE
+#if !DEBUG && (SQLITE || (MSSQL && MONO_STRICT))
+        // L2SQL doesn't support 'SELECT' queries in DataContext.ExecuteCommand().
         [Explicit]
 #endif
         [Test]
@@ -748,7 +749,8 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.IsNotNull(pen, "Expected non-null Product");
         }
 
-#if !DEBUG && SQLITE
+#if !DEBUG && (SQLITE || MSSQL)
+        // L2SQL: System.NotSupportedException : The query operator 'Last' is not supported.
         [Explicit]
 #endif
         [Test]
@@ -896,7 +898,8 @@ using DataLinq = DbLinq.Data.Linq;
         }
 
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE || MSSQL)
+        // L2SQL: System.InvalidOperationException : The type 'Test_NUnit_MsSql_Strict.ReadTest+Northwind1+CustomerDerivedClass' is not mapped as a Table.
         [Explicit]
 #endif
         [Test]
@@ -927,16 +930,13 @@ using DataLinq = DbLinq.Data.Linq;
         }
 
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
-        [Explicit]
-#endif
         [Test(Description = "Calls ExecuteQuery<> to store result into object type property")]
         // note: for PostgreSQL requires database with lowercase names, NorthwindReqular.SQL
         public void D13_ExecuteQueryObjectProperty()
         {
             Northwind db = CreateDB();
 
-            var res = db.ExecuteQuery<Chai>(@"SELECT [ProductID] AS PenId FROM [Products] WHERE
+            var res = db.ExecuteQuery<Chai>(@"SELECT [ProductID] AS ChaiId FROM [Products] WHERE
               [ProductName] ='Chai'").Single();
             Assert.AreEqual(1, res.ChaiId);
         }
@@ -973,7 +973,8 @@ using DataLinq = DbLinq.Data.Linq;
             }
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE || MSSQL)
+        // L2SQL: System.InvalidOperationException : The type 'Test_NUnit_MsSql_Strict.ReadTest+NorthwindDupl+CustomerDerivedClass' is not mapped as a Table.
         [Explicit]
 #endif
         [Test]
