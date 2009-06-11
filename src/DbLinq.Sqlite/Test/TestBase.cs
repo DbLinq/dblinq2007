@@ -35,7 +35,7 @@ namespace Test_NUnit
     public abstract partial class TestBase
     {
         static bool doRecreate = true;
-        public const StringComparison stringComparisonType = StringComparison.InvariantCulture;
+        public const StringComparison stringComparisonType = StringComparison.Ordinal;
 
         static partial void CheckRecreateSqlite ()
         {

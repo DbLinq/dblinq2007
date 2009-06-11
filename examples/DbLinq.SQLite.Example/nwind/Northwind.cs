@@ -2319,7 +2319,7 @@ namespace nwind
 
 	}
 
-	[Table(Name = "main.Regions")]
+	[Table(Name = "main.Region")]
 	public partial class Region : INotifyPropertyChanged
 	{
 		#region INotifyPropertyChanged handling
