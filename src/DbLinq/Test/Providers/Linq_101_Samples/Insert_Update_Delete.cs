@@ -162,15 +162,15 @@ using nwind;
             var q = from e in db.Employees where e.FirstName == "Nancy" select e;
 
 
-            if (db.Employees.Any(e => e.FirstName == "Kira" && e.LastName == "Smith"))
+            if (db.Employees.Any(e => e.FirstName == "Test Kira" && e.LastName == "Test Smith"))
                 Assert.Ignore();
 
 
-            var newEmployee = new Employee { FirstName = "Kira", LastName = "Smith" };
+            var newEmployee = new Employee { FirstName = "Test Kira", LastName = "Test Smith" };
             var newTerritory = new Territory
             {
                 TerritoryID = "12345",
-                TerritoryDescription = "Anytown",
+                TerritoryDescription = "Test Anytown",
                 Region = db.Regions.First()
             };
 
@@ -178,6 +178,12 @@ using nwind;
             db.Employees.InsertOnSubmit(newEmployee);
             db.Territories.InsertOnSubmit(newTerritory);
             db.EmployeeTerritories.InsertOnSubmit(newEmployeeTerritory);
+            db.SubmitChanges();
+
+            // cleanup
+            db.EmployeeTerritories.DeleteOnSubmit(newEmployeeTerritory);
+            db.Territories.DeleteOnSubmit(newTerritory);
+            db.Employees.DeleteOnSubmit(newEmployee);
             db.SubmitChanges();
         }
 
