@@ -151,99 +151,105 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         /// <returns></returns>
         protected virtual Expression AnalyzeCall(MethodInfo method, IList<Expression> parameters, BuilderContext builderContext)
         {
+            builderContext.CallStack.Push(method);
+            Func<Expression, Expression> popCallStack = r =>
+            {
+                builderContext.CallStack.Pop();
+                return r;
+            };
             // all methods to handle are listed here:
             // ms-help://MS.VSCC.v90/MS.MSDNQTR.v90.en/fxref_system.core/html/2a54ce9d-76f2-81e2-95bb-59740c85386b.htm
             string methodName = method.Name;
             switch (methodName)
             {
                 case "Select":
-                    return AnalyzeSelect(parameters, builderContext);
+                    return popCallStack(AnalyzeSelect(parameters, builderContext));
                 case "Where":
-                    return AnalyzeWhere(parameters, builderContext);
+                    return popCallStack(AnalyzeWhere(parameters, builderContext));
                 case "SelectMany":
-                    return AnalyzeSelectMany(parameters, builderContext);
+                    return popCallStack(AnalyzeSelectMany(parameters, builderContext));
                 case "Join":
-                    return AnalyzeJoin(parameters, builderContext);
+                    return popCallStack(AnalyzeJoin(parameters, builderContext));
                 case "GroupJoin":
-                    return AnalyzeGroupJoin(parameters, builderContext);
+                    return popCallStack(AnalyzeGroupJoin(parameters, builderContext));
                 case "DefaultIfEmpty":
-                    return AnalyzeOuterJoin(parameters, builderContext);
+                    return popCallStack(AnalyzeOuterJoin(parameters, builderContext));
                 case "Distinct":
-                    return AnalyzeDistinct(parameters, builderContext);
+                    return popCallStack(AnalyzeDistinct(parameters, builderContext));
                 case "GroupBy":
-                    return AnalyzeGroupBy(parameters, builderContext);
+                    return popCallStack(AnalyzeGroupBy(parameters, builderContext));
                 case "All":
-                    return AnalyzeAll(parameters, builderContext);
+                    return popCallStack(AnalyzeAll(parameters, builderContext));
                 case "Any":
-                    return AnalyzeAny(parameters, builderContext);
+                    return popCallStack(AnalyzeAny(parameters, builderContext));
                 case "Average":
-                    return AnalyzeProjectionQuery(SpecialExpressionType.Average, parameters, builderContext);
+                    return popCallStack(AnalyzeProjectionQuery(SpecialExpressionType.Average, parameters, builderContext));
                 case "Count":
-                    return AnalyzeProjectionQuery(SpecialExpressionType.Count, parameters, builderContext);
+                    return popCallStack(AnalyzeProjectionQuery(SpecialExpressionType.Count, parameters, builderContext));
                 case "Max":
-                    return AnalyzeProjectionQuery(SpecialExpressionType.Max, parameters, builderContext);
+                    return popCallStack(AnalyzeProjectionQuery(SpecialExpressionType.Max, parameters, builderContext));
                 case "Min":
-                    return AnalyzeProjectionQuery(SpecialExpressionType.Min, parameters, builderContext);
+                    return popCallStack(AnalyzeProjectionQuery(SpecialExpressionType.Min, parameters, builderContext));
                 case "Sum":
-                    return AnalyzeProjectionQuery(SpecialExpressionType.Sum, parameters, builderContext);
+                    return popCallStack(AnalyzeProjectionQuery(SpecialExpressionType.Sum, parameters, builderContext));
                 case "StartsWith":
-                    return AnalyzeLikeStart(parameters, builderContext);
+                    return popCallStack(AnalyzeLikeStart(parameters, builderContext));
                 case "EndsWith":
-                    return AnalyzeLikeEnd(parameters, builderContext);
+                    return popCallStack(AnalyzeLikeEnd(parameters, builderContext));
                 case "Contains":
                     if (typeof(string).IsAssignableFrom(parameters[0].Type))
-                        return AnalyzeLike(parameters, builderContext);
-                    return AnalyzeContains(parameters, builderContext);
+                        return popCallStack(AnalyzeLike(parameters, builderContext));
+                    return popCallStack(AnalyzeContains(parameters, builderContext));
                 case "Substring":
-                    return AnalyzeSubString(parameters, builderContext);
+                    return popCallStack(AnalyzeSubString(parameters, builderContext));
                 case "First":
                 case "FirstOrDefault":
-                    return AnalyzeScalar(methodName, 1, parameters, builderContext);
+                    return popCallStack(AnalyzeScalar(methodName, 1, parameters, builderContext));
                 case "Single":
                 case "SingleOrDefault":
-                    return AnalyzeScalar(methodName, 2, parameters, builderContext);
+                    return popCallStack(AnalyzeScalar(methodName, 2, parameters, builderContext));
                 case "Last":
-                    return AnalyzeScalar(methodName, null, parameters, builderContext);
+                    return popCallStack(AnalyzeScalar(methodName, null, parameters, builderContext));
                 case "Take":
-                    return AnalyzeTake(parameters, builderContext);
+                    return popCallStack(AnalyzeTake(parameters, builderContext));
                 case "Skip":
-                    return AnalyzeSkip(parameters, builderContext);
+                    return popCallStack(AnalyzeSkip(parameters, builderContext));
                 case "ToUpper":
-                    return AnalyzeToUpper(parameters, builderContext);
+                    return popCallStack(AnalyzeToUpper(parameters, builderContext));
                 case "ToLower":
-                    return AnalyzeToLower(parameters, builderContext);
+                    return popCallStack(AnalyzeToLower(parameters, builderContext));
                 case "OrderBy":
                 case "ThenBy":
-                    return AnalyzeOrderBy(parameters, false, builderContext);
+                    return popCallStack(AnalyzeOrderBy(parameters, false, builderContext));
                 case "OrderByDescending":
                 case "ThenByDescending":
-                    return AnalyzeOrderBy(parameters, true, builderContext);
+                    return popCallStack(AnalyzeOrderBy(parameters, true, builderContext));
                 case "Union":
-                    return AnalyzeSelectOperation(SelectOperatorType.Union, parameters, builderContext);
+                    return popCallStack(AnalyzeSelectOperation(SelectOperatorType.Union, parameters, builderContext));
                 case "Concat":
-                    return AnalyzeSelectOperation(SelectOperatorType.UnionAll, parameters, builderContext);
+                    return popCallStack(AnalyzeSelectOperation(SelectOperatorType.UnionAll, parameters, builderContext));
                 case "Intersect":
-                    return AnalyzeSelectOperation(SelectOperatorType.Intersection, parameters, builderContext);
+                    return popCallStack(AnalyzeSelectOperation(SelectOperatorType.Intersection, parameters, builderContext));
                 case "Except":
-                    return AnalyzeSelectOperation(SelectOperatorType.Exception, parameters, builderContext);
+                    return popCallStack(AnalyzeSelectOperation(SelectOperatorType.Exception, parameters, builderContext));
                 case "Trim":
-                    return AnalyzeGenericSpecialExpressionType(SpecialExpressionType.Trim, parameters, builderContext);
+                    return popCallStack(AnalyzeGenericSpecialExpressionType(SpecialExpressionType.Trim, parameters, builderContext));
                 case "TrimStart":
-                    return AnalyzeGenericSpecialExpressionType(SpecialExpressionType.LTrim, parameters, builderContext);
+                    return popCallStack(AnalyzeGenericSpecialExpressionType(SpecialExpressionType.LTrim, parameters, builderContext));
                 case "TrimEnd":
-                    return AnalyzeGenericSpecialExpressionType(SpecialExpressionType.RTrim, parameters, builderContext);
+                    return popCallStack(AnalyzeGenericSpecialExpressionType(SpecialExpressionType.RTrim, parameters, builderContext));
                 case "Insert":
-                    return AnalyzeStringInsert(parameters, builderContext);
+                    return popCallStack(AnalyzeStringInsert(parameters, builderContext));
                 case "Replace":
-                    return AnalyzeGenericSpecialExpressionType(SpecialExpressionType.Replace, parameters, builderContext);
+                    return popCallStack(AnalyzeGenericSpecialExpressionType(SpecialExpressionType.Replace, parameters, builderContext));
                 case "Remove":
-                    return AnalyzeGenericSpecialExpressionType(SpecialExpressionType.Remove, parameters, builderContext);
+                    return popCallStack(AnalyzeGenericSpecialExpressionType(SpecialExpressionType.Remove, parameters, builderContext));
                 case "IndexOf":
-                    return AnalyzeGenericSpecialExpressionType(SpecialExpressionType.IndexOf, parameters, builderContext);
+                    return popCallStack(AnalyzeGenericSpecialExpressionType(SpecialExpressionType.IndexOf, parameters, builderContext));
                 case "ToString":
-                    return AnalyzeToString(method, parameters, builderContext);
+                    return popCallStack(AnalyzeToString(method, parameters, builderContext));
                 case "Parse":
-                    return AnalyzeParse(method, parameters, builderContext);
+                    return popCallStack(AnalyzeParse(method, parameters, builderContext));
                 case "Abs":
                 case "Exp":
                 case "Floor":
@@ -251,11 +257,11 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 case "Round":
                 case "Sign":
                 case "Sqrt":
-                    return AnalyzeGenericSpecialExpressionType((SpecialExpressionType)Enum.Parse(typeof(SpecialExpressionType), methodName), parameters, builderContext);
+                    return popCallStack(AnalyzeGenericSpecialExpressionType((SpecialExpressionType)Enum.Parse(typeof(SpecialExpressionType), methodName), parameters, builderContext));
                 case "Log10":
-                    return AnalyzeGenericSpecialExpressionType(SpecialExpressionType.Log, parameters, builderContext);
+                    return popCallStack(AnalyzeGenericSpecialExpressionType(SpecialExpressionType.Log, parameters, builderContext));
                 case "Log":
-                    return AnalyzeLog(parameters, builderContext);
+                    return popCallStack(AnalyzeLog(parameters, builderContext));
                 default:
                     throw Error.BadArgument("S0133: Implement QueryMethod '{0}'", methodName);
             }
@@ -351,10 +357,32 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 //can be executed in the clr, ie: (where new StrangeObject().ToString()) should work. The problem is that
                 //we don't have a reference to the optimizer here.
                 //Working samples in: /Tests/Test_Nunit/ReadTests_Conversions.cs
-                throw new NotSupportedException("Method ToString can only be translated to SQL for primitive types.");
+                string message = "Method ToString can only be translated to SQL for primitive types.";
+                int? select = FirstIndexOf(builderContext.CallStack, "Select");
+                int? where  = FirstIndexOf(builderContext.CallStack, "Where");
+                if ((where ?? int.MaxValue) < (select ?? int.MaxValue))
+                    // Assume we're generating the .Where() clause, not .Select()
+                    throw new NotSupportedException(message);
+                // for .Select()
+                throw new InvalidOperationException(message);
             }
 
             return Expression.Convert(parameterToHandle, typeof(string), typeof(Convert).GetMethod("ToString", new[] { parameterToHandle.Type }));
+        }
+
+        static int? FirstIndexOf(Stack<MethodInfo> callStack, string methodName)
+        {
+            int? index = null;
+            callStack.Where((m, i) =>
+            {
+                if (m.Name == methodName)
+                {
+                    index = i;
+                    return true;
+                }
+                return false;
+            }).FirstOrDefault();
+            return index;
         }
 
         /// <summary>

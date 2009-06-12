@@ -27,6 +27,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 
 using DbLinq.Data.Linq.Sugar;
 using DbLinq.Data.Linq.Sugar.Expressions;
@@ -35,6 +36,8 @@ namespace DbLinq.Data.Linq.Sugar
 {
     internal class BuilderContext
     {
+        public Stack<MethodInfo> CallStack { get; private set; }
+
         // Global context
         public QueryContext QueryContext { get; private set; }
 
@@ -95,6 +98,7 @@ namespace DbLinq.Data.Linq.Sugar
 
         public BuilderContext(QueryContext queryContext)
         {
+            CallStack = new Stack<MethodInfo>();
             SelectExpressions = new List<SelectExpression>();
             currentScopeIndex = SelectExpressions.Count;
             SelectExpressions.Add(new SelectExpression());
@@ -116,6 +120,7 @@ namespace DbLinq.Data.Linq.Sugar
             var builderContext = new BuilderContext();
 
             // scope independent Parts
+            builderContext.CallStack = CallStack;
             builderContext.QueryContext = QueryContext;
             builderContext.ExpressionQuery = ExpressionQuery;
             builderContext.MetaTables = MetaTables;
@@ -138,6 +143,7 @@ namespace DbLinq.Data.Linq.Sugar
             var builderContext = new BuilderContext();
 
             // we basically copy everything
+            builderContext.CallStack = CallStack;
             builderContext.QueryContext = QueryContext;
             builderContext.ExpressionQuery = ExpressionQuery;
             builderContext.MetaTables = MetaTables;
@@ -161,6 +167,7 @@ namespace DbLinq.Data.Linq.Sugar
             var builderContext = new BuilderContext();
 
             // we basically copy everything
+            builderContext.CallStack = CallStack;
             builderContext.QueryContext = QueryContext;
             builderContext.ExpressionQuery = ExpressionQuery;
             builderContext.MetaTables = MetaTables;
@@ -197,6 +204,7 @@ namespace DbLinq.Data.Linq.Sugar
         {
             var builderContext = new BuilderContext();
 
+            builderContext.CallStack = CallStack;
             builderContext.QueryContext = QueryContext;
             builderContext.ExpressionQuery = ExpressionQuery;
             builderContext.MetaTables = MetaTables;

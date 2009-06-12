@@ -210,14 +210,12 @@ using DbLinq.Data.Linq;
             var list = query.ToList();
         }
 
-#if !DEBUG && (MSSQL && !MONO_STRICT)
-        [Explicit]
-#endif
         [Test]
         public void Parse03()
         {
             Northwind db = CreateDB();
             var query = from e in db.Employees
+                        where e.BirthDate.HasValue
                         select e.BirthDate.Value == DateTime.Parse("1984/05/02");
 
 
@@ -225,7 +223,7 @@ using DbLinq.Data.Linq;
         }
 
         [Test]
-        [ExpectedException(typeof(NotSupportedException))]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void Parse04()
         {
             Northwind db = CreateDB();
@@ -339,7 +337,8 @@ using DbLinq.Data.Linq;
             Assert.Greater(list.Count, 0);
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE || MSSQL)
+        // L2SQL: SQL Server doesnt' seem to support millisecond precision.
         [Explicit]
 #endif
         [Test]
@@ -457,7 +456,8 @@ using DbLinq.Data.Linq;
         }
 
 
-#if !DEBUG && SQLITE
+#if !DEBUG && (SQLITE || (MSSQL && MONO_STRICT))
+        // L2SQL: System.Data.SqlClient.SqlException : The datepart minute is not supported by date function datepart for data type date.
         [Explicit]
 #endif
         [Test]
