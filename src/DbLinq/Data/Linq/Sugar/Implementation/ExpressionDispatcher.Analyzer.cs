@@ -476,7 +476,10 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 var operand0 = Analyze(parameters[0], builderContext);
                 Expression projectionOperand;
 
-                if (builderContext.CurrentSelect.NextSelectExpression != null || builderContext.CurrentSelect.Operands.Count() > 0)
+                if (    builderContext.CurrentSelect.NextSelectExpression != null 
+                    ||  builderContext.CurrentSelect.Operands.Count() > 0
+                    ||  builderContext.CurrentSelect.Group.Count > 0
+                   )
                 {
                     //BuildSelect(builderContext.CurrentSelect, builderContext);
                     operand0 = new SubSelectExpression(builderContext.CurrentSelect, operand0.Type, "source");
@@ -1169,6 +1172,16 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             var expression = Analyze(parameters[0], builderContext);
             // we select and group by the same criterion
             var group = new GroupExpression(expression, expression);
+            if (builderContext.CurrentSelect.NextSelectExpression != null)
+            {
+                expression = new SubSelectExpression(builderContext.CurrentSelect, expression.Type, "source");
+                builderContext.NewParentSelect();
+
+                // In the new scope we should not have MaximumDatabaseLoad
+                builderContext.QueryContext.MaximumDatabaseLoad = false;
+
+                builderContext.CurrentSelect.Tables.Add(expression as TableExpression);
+            }
             builderContext.CurrentSelect.Group.Add(group);
             // "Distinct" method is equivalent to a GroupBy
             // but for some obscure reasons, Linq expects a IQueryable instead of an IGrouping

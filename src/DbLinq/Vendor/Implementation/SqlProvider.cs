@@ -820,6 +820,18 @@ namespace DbLinq.Vendor.Implementation
         }
 
         /// <summary>
+        /// Joins a list of operands to make a SELECT clause
+        /// </summary>
+        /// <param name="selects"></param>
+        /// <returns></returns>
+        public virtual SqlStatement GetSelectDistinctClause(SqlStatement[] selects)
+        {
+            if (selects.Length == 0)
+                return SqlStatement.Empty;
+            return SqlStatement.Format("SELECT DISTINCT {0}", SqlStatement.Join(", ", selects));
+        }
+
+        /// <summary>
         /// Returns all table columns (*)
         /// </summary>
         /// <returns></returns>

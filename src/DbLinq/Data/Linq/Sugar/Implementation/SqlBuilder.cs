@@ -459,6 +459,20 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 else
                     selectClauses.Add(expressionString);
             }
+            SelectExpression selectExp = select as SelectExpression;
+            if (selectExp != null)
+            {
+                if (selectExp.Group.Count == 1 && selectExp.Group[0].GroupedExpression == selectExp.Group[0].KeyExpression)
+                {
+                    // this is a select DISTINCT expression
+                    // TODO: better handle selected columns on DISTINCT: I suspect this will not work in some cases
+                    if (selectClauses.Count == 0)
+                    {
+                        selectClauses.Add(sqlProvider.GetColumns());
+                    }
+                    return sqlProvider.GetSelectDistinctClause(selectClauses.ToArray());
+                }
+            }
             return sqlProvider.GetSelectClause(selectClauses.ToArray());
         }
 

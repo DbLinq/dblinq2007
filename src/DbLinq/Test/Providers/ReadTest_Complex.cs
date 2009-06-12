@@ -512,7 +512,7 @@ using Id = System.Int32;
             Assert.AreEqual(34, toTakeCount);
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE)
         [Explicit]
 #endif
         [Test]
@@ -532,7 +532,7 @@ using Id = System.Int32;
             Assert.AreEqual(28, count);
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE)
         [Explicit]
 #endif
         [Test]
