@@ -512,6 +512,46 @@ using Id = System.Int32;
             Assert.AreEqual(34, toTakeCount);
         }
 
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+        [Explicit]
+#endif
+        [Test]
+        public void F25_DistinctUnion()
+        {
+            var db = CreateDB();
+
+            var toInclude1 = from t in db.GetTable<Territory>()
+                             where t.TerritoryDescription.StartsWith("A")
+                             select t;
+            var toInclude2 = toInclude1.Concat(db.GetTable<Territory>().Where(terr => terr.TerritoryDescription.Contains("i")));
+
+            var toTake = toInclude2.Distinct();
+
+            int count = toTake.ToList().Count;
+
+            Assert.AreEqual(28, count);
+        }
+
+#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+        [Explicit]
+#endif
+        [Test]
+        public void F26_DistinctUnion_Count()
+        {
+            var db = CreateDB();
+
+            var toInclude1 = from t in db.GetTable<Territory>()
+                             where t.TerritoryDescription.StartsWith("A")
+                             select t;
+            var toInclude2 = toInclude1.Concat(db.GetTable<Territory>().Where(terr => terr.TerritoryDescription.Contains("i")));
+
+            var toTake = toInclude2.Distinct();
+
+            int count = toTake.Count();
+
+            Assert.AreEqual(28, count);
+        }
+
         /// <summary>
         /// the following three tests are from Jahmani's page
         /// LinqToSQL: Comprehensive Support for SQLite, MS Access, SQServer2000/2005
