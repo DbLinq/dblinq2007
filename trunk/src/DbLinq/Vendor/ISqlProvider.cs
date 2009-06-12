@@ -151,6 +151,13 @@ namespace DbLinq.Vendor
         SqlStatement GetSelectClause(SqlStatement[] selects);
 
         /// <summary>
+        /// Joins a list of operands to make a SELECT clause
+        /// </summary>
+        /// <param name="selects"></param>
+        /// <returns></returns>
+        SqlStatement GetSelectDistinctClause(SqlStatement[] selects);
+
+        /// <summary>
         /// Returns all table columns (*)
         /// </summary>
         /// <returns></returns>
