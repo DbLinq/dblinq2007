@@ -260,6 +260,7 @@ using DbLinq.Data.Linq;
         }
 
         [Test]
+        [ExpectedException(typeof(NotSupportedException))]
         public void WhereBeforeSelect()
         {
             Northwind db = CreateDB();
@@ -275,7 +276,6 @@ using DbLinq.Data.Linq;
                 Freight = dok.Freight
             });
             var list = query.ToList();
-            Assert.IsTrue(list.Count > 0);
         }
 
         /// <summary>

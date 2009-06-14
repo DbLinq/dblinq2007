@@ -562,6 +562,13 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         {
             // just call back the underlying lambda (or quote, whatever)
             Expression ex = Analyze(parameters[1], parameters[0], builderContext);
+
+            // http://social.msdn.microsoft.com/Forums/en-US/linqprojectgeneral/thread/1ce25da3-44c6-407d-8395-4c146930004b
+            if (ex.NodeType == ExpressionType.MemberInit &&
+                    builderContext.QueryContext.DataContext.Mapping.GetMetaType(ex.Type) != null)
+                throw new NotSupportedException(
+                    string.Format("Explicit construction of entity type '{0}' in query is not allowed.",
+                        ex.Type.FullName));
             TableExpression tableExpression = parameters[0] as TableExpression;
             if (tableExpression != null && builderContext.CurrentSelect.Tables.Count == 0)
                 RegisterTable(tableExpression, builderContext);
