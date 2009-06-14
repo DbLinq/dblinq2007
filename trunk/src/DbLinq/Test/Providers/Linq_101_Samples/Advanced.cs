@@ -176,6 +176,10 @@ using nwind;
             Category customerReloaded=db.Categories.First(c=>c.CategoryID==con.CategoryID);
             Assert.AreEqual(customerReloaded.CategoryName, con.CategoryName);
             Assert.AreEqual(customerReloaded.Description, con.Description);
+
+            // cleanup
+            db.Categories.DeleteOnSubmit(con);
+            db.SubmitChanges();
         }
 
 

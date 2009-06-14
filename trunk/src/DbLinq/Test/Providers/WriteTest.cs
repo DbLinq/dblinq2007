@@ -302,13 +302,7 @@ using Id = System.Int32;
         {
             Northwind db = CreateDB();
             var cust = (from c in db.Customers
-                        select
-                        new Customer
-                        {
-                            CustomerID = c.CustomerID,
-                            City = c.City
-
-                        }).First();
+                        select c).First();
 
             var old = cust.City;
             cust.City = "Tallinn";
@@ -544,10 +538,12 @@ dummy text
             newCat.CategoryName = "test";
             db.Categories.InsertOnSubmit(newCat);
             db.SubmitChanges();
-            Assert.AreEqual(999, newCat.CategoryID);
+            // CategoryID is [Column(AutoSync=AutoSync.OnInsert)], so it's 
+            // value is ignored on insert and will be updated
+            Assert.AreNotEqual(999, newCat.CategoryID);
             // then, load our object
             var checkCat = (from c in db.Categories where c.CategoryID == newCat.CategoryID select c).Single();
-            Assert.AreEqual(999, checkCat.CategoryID);
+            Assert.AreEqual(newCat.CategoryID, checkCat.CategoryID);
             // remove the whole thing
             db.Categories.DeleteOnSubmit(newCat);
             db.SubmitChanges();
