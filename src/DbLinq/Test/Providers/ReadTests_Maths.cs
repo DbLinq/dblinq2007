@@ -108,7 +108,7 @@ using nwind;
 
         //LN (SSIS)
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE)
         [Explicit]
 #endif
         [Test]
@@ -117,14 +117,13 @@ using nwind;
             Northwind db = CreateDB();
 
             var q = from c in db.OrderDetails
-                    where Math.Log((double)(c.Discount)) > 0.0
+                    where Math.Log((double)(c.Discount + 1)) > 0.0
                     select c;
 
-            var list = q.ToList();
-
+            Assert.AreEqual(838, q.Count());
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE)
         [Explicit]
 #endif
         [Test]
@@ -133,11 +132,10 @@ using nwind;
             Northwind db = CreateDB();
 
             var q = from c in db.OrderDetails
-                    where Math.Log((double)(c.Discount),3.0) > 0.0
+                    where Math.Log((double)(c.Discount + 1),3.0) > 0.0
                     select c;
 
-            var list = q.ToList();
-
+            Assert.AreEqual(838, q.Count());
         }
 
 
@@ -145,20 +143,16 @@ using nwind;
 
         //LOG (SSIS)
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
-        [Explicit]
-#endif
         [Test]
         public void Log03()
         {
             Northwind db = CreateDB();
 
             var q = from c in db.OrderDetails
-                    where Math.Log10((double)(c.Discount)) > 0.0
+                    where Math.Log10((double)(c.Discount + 1)) > 0.0
                     select c;
 
-            var list = q.ToList();
-
+            Assert.AreEqual(838, q.Count());
         }
 
 
