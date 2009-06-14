@@ -91,6 +91,9 @@ using nwind;
             Assert.AreEqual(reloadedCustomer.Country, newCustomer.Country);
             Assert.AreEqual(reloadedCustomer.Phone, newCustomer.Phone);
             Assert.AreEqual(reloadedCustomer.Fax, newCustomer.Fax);
+
+            db.Customers.DeleteOnSubmit(reloadedCustomer);
+            db.SubmitChanges();
         }
 
 #if !SQLITE
@@ -110,12 +113,12 @@ using nwind;
             db.LoadOptions = ds;
 
             var q = from c in db.Categories
-                    where c.CategoryName == "Widgets"
+                    where c.CategoryName == "Temp Widgets"
                     select c;
 
             var newCategory = new Category
                                 {
-                                    CategoryName = "Widgets",
+                                    CategoryName = "Temp Widgets",
                                     Description = "Widgets are the customer-facing analogues to sprockets and cogs."
                                 };
 
@@ -140,6 +143,7 @@ using nwind;
             Assert.AreEqual(reloadedCategory.Description, reloadedCategory.Description);
 
             db.Products.DeleteOnSubmit(newProduct);
+            db.Categories.DeleteOnSubmit(newCategory);
             db.SubmitChanges();
         }
 #endif
@@ -201,11 +205,16 @@ using nwind;
                              where c.CustomerID == "ALFKI"
                              select c).First();
 
+            var oldContactTitle = cust.ContactTitle;
             cust.ContactTitle = "Vice President";
             db.SubmitChanges();
 
             Customer reloadedCustomer = db.Customers.First(c => c.CustomerID == cust.CustomerID);
             Assert.AreEqual(reloadedCustomer.ContactTitle, cust.ContactTitle);
+
+            // undo
+            reloadedCustomer.ContactTitle = oldContactTitle;
+            db.SubmitChanges();
         }
 
         [Linq101SamplesModified("Console and ObjectDummper references deleted")]
@@ -232,42 +241,49 @@ using nwind;
                 Assert.AreEqual(original.Current.UnitPrice, reloaded.Current.UnitPrice);
 
             Assert.AreEqual(original.MoveNext(), reloaded.MoveNext());
+
+            // undo
+            foreach (var p in q)
+                p.UnitPrice -= 1.0m;
+            db.SubmitChanges();
         }
 
 
-
+#if !DEBUG
+        [Explicit]
+#endif
         [Linq101SamplesModified("Console and ObjectDummper references deleted")]
         [Test(Description = "Delete - Simple. This sample uses the Remove method to delete an OrderDetail from the OrderDetails Table object. The call to SubmitChanges persists this deletion to the database.")]
         public void LinqToSqlInsert06()
         {
             Northwind db = CreateDB();
 
-            OrderDetail ode = db.OrderDetails.First();
-            decimal orderID = ode.OrderID;
-            decimal productID = ode.ProductID;
-
-
-            OrderDetail order = (from c in db.OrderDetails
-                                 where c.OrderID == orderID && c.ProductID == productID
-                                 select c).First();
-
-            //what happened to Table.Remove()?
-            //The Add and AddAll methods are now InsertOnSubmit and InsertAllOnSubmit. The Remove and RemoveAll are now DeleteOnSubmit and DeleteAllOnSubmit.
-            //http://blogs.vertigo.com/personal/petar/Blog/Lists/Posts/Post.aspx?List=9441ab3e%2Df290%2D4a5b%2Da591%2D49a8226de525&ID=3
-
-            db.OrderDetails.DeleteOnSubmit(order); //formerly Remove(order);
-            db.SubmitChanges();
-
-            Assert.IsFalse(db.OrderDetails.Any(od => od.OrderID == orderID && od.ProductID == productID));
-
+            db.Connection.Open();
+            db.Transaction = db.Connection.BeginTransaction();
             try
             {
-                db.OrderDetails.InsertOnSubmit(order);
+                OrderDetail ode = db.OrderDetails.First();
+                decimal orderID = ode.OrderID;
+                decimal productID = ode.ProductID;
+
+
+                OrderDetail order = (from c in db.OrderDetails
+                                     where c.OrderID == orderID && c.ProductID == productID
+                                     select c).First();
+
+                //what happened to Table.Remove()?
+                //The Add and AddAll methods are now InsertOnSubmit and InsertAllOnSubmit. The Remove and RemoveAll are now DeleteOnSubmit and DeleteAllOnSubmit.
+                //http://blogs.vertigo.com/personal/petar/Blog/Lists/Posts/Post.aspx?List=9441ab3e%2Df290%2D4a5b%2Da591%2D49a8226de525&ID=3
+
+                db.OrderDetails.DeleteOnSubmit(order); //formerly Remove(order);
                 db.SubmitChanges();
+
+                Assert.IsFalse(db.OrderDetails.Any(od => od.OrderID == orderID && od.ProductID == productID));
             }
-            catch (Exception ex)
+            finally
             {
-                Assert.Ignore("the orderDetail deleted hasn't be restored, so next run over this text will fail: " + ex.Message);
+                db.Transaction.Rollback();
+                db.Transaction = null;
             }
         }
 
@@ -282,25 +298,32 @@ using nwind;
             //db.SubmitChanges();
         }
 
+#if !DEBUG
+        [Explicit]
+#endif
         [Linq101SamplesModified("Console and ObjectDummper references deleted")]
         [Test(Description = "Delete - One-to-Many. This sample uses the Remove method to delete an Order and Order Detail from the Order Details and Orders tables. First deleting Order Details and then deleting from Orders. The call to SubmitChanges persists this deletion to the database.")]
         public void LinqToSqlInsert07()
         {
             Northwind db = CreateDB();
-           
+
+            db.Connection.Open();
+            db.Transaction = db.Connection.BeginTransaction();
+            try
+            {
                 var orderDetails =
                     from o in db.OrderDetails
-                    where o.Order.CustomerID == "WARTH" 
+                    where o.Order.CustomerID == "WARTH"
                     select o;
 
                 var order =
                     (from o in db.Orders
-                     where o.CustomerID == "WARTH" 
+                     where o.CustomerID == "WARTH"
                      select o).FirstOrDefault();
 
                 if (!orderDetails.Any() || order == null)
                     Assert.Ignore("Preconditions");
-                
+
 
                 foreach (var od in orderDetails)
                 {
@@ -313,7 +336,12 @@ using nwind;
                 Assert.IsFalse(
                     db.OrderDetails.Any(od => od.Order.Customer.CustomerID == "WARTH" && od.Order.EmployeeID == 3));
                 Assert.IsFalse(db.Orders.Any(ord => ord.OrderID == order.OrderID));
-       
+            }
+            finally
+            {
+                db.Transaction.Rollback();
+                db.Transaction = null;
+            }
         }
     }
 }

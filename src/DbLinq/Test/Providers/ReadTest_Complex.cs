@@ -384,13 +384,21 @@ using Id = System.Int32;
         {
             var db = CreateDB();
 
-            var nc = new Category { CategoryName = "test", Picture = new byte[] { 1, 2, 3, 4 } };
+            var picture = new byte[] { 1, 2, 3, 4 };
+
+            var nc = new Category { CategoryName = "test", Picture = picture };
             db.Categories.InsertOnSubmit(nc);
             db.SubmitChanges();
 
-            var q = from c in db.Categories select new { c.Picture };
+            var q = from c in db.Categories 
+                    where c.CategoryName == "test"
+                    select new { c.Picture };
             var l = q.ToList();
             Assert.IsTrue(l.Count > 0);
+            Assert.IsTrue(picture.SequenceEqual(l[0].Picture.ToArray()));
+
+            db.Categories.DeleteOnSubmit(nc);
+            db.SubmitChanges();
         }
 
 
@@ -529,7 +537,7 @@ using Id = System.Int32;
 
             int count = toTake.ToList().Count;
 
-            Assert.AreEqual(28, count);
+            Assert.AreEqual(27, count);
         }
 
 #if !DEBUG && (SQLITE)
@@ -549,7 +557,7 @@ using Id = System.Int32;
 
             int count = toTake.Count();
 
-            Assert.AreEqual(28, count);
+            Assert.AreEqual(27, count);
         }
 
         /// <summary>

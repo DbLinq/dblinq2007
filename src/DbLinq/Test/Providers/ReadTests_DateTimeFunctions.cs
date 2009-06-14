@@ -422,37 +422,69 @@ using DbLinq.Data.Linq;
         {
             
             Northwind db = CreateDB();
-            DateTime firstDate = db.Employees.First().BirthDate.Value;
 
+            var employee = new Employee
+            {
+                FirstName = "Test First",
+                LastName  = "Test Last",
+            };
+            db.Employees.InsertOnSubmit(employee);
+            db.SubmitChanges();
+
+            DateTime firstDate = db.Employees.First().BirthDate.Value;
             firstDate.Date.AddDays(2);
             DateTime parameterDate = firstDate.Date.AddHours(12);
 
-            //this test should throw an invalid operation exception since one BirthDate is null so select clausle should crash
-            var query = from e in db.Employees
-                        select (e.BirthDate.Value - parameterDate).TotalDays;
+            try
+            {
+                //this test should throw an invalid operation exception since one BirthDate is null so select clausle should crash
+                var query = from e in db.Employees
+                            select (e.BirthDate.Value - parameterDate).TotalDays;
 
-            var list = query.ToList();
+                var list = query.ToList();
 
-            Assert.Greater(list.Count, 0);
+                Assert.Greater(list.Count, 0);
+            }
+            finally
+            {
+                db.Employees.DeleteOnSubmit(employee);
+                db.SubmitChanges();
+            }
         }
 
         [Test]
         public void DateTimeDiffTotalDaysSelectWithNulls02()
         {
             Northwind db = CreateDB();
+
+            var employee = new Employee
+            {
+                FirstName = "Test First",
+                LastName = "Test Last",
+            };
+            db.Employees.InsertOnSubmit(employee);
+            db.SubmitChanges();
+
             DateTime firstDate = db.Employees.First().BirthDate.Value;
 
             DateTime parameterDate = firstDate.Date.AddDays(2);
             parameterDate = parameterDate.Date.AddHours(12);
 
+            try
+            {
+                var query = from e in db.Employees
+                            where e.BirthDate.HasValue
+                            select (e.BirthDate.Value - parameterDate).TotalDays;
 
-            var query = from e in db.Employees
-                        where e.BirthDate.HasValue
-                        select (e.BirthDate.Value - parameterDate).TotalDays;
+                var list = query.ToList();
 
-            var list = query.ToList();
-
-            Assert.Greater(list.Count, 0);
+                Assert.Greater(list.Count, 0);
+            }
+            finally
+            {
+                db.Employees.DeleteOnSubmit(employee);
+                db.SubmitChanges();
+            }
         }
 
 

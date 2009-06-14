@@ -674,11 +674,8 @@ using DataLinq = DbLinq.Data.Linq;
             foreach (var emp in allEmployees)
             {
                 ++count;
-                Console.WriteLine("# Photo: {0}", emp.Photo == null ? "<null>" : emp.Photo.ToString());
-                Console.WriteLine("# Photo Length: {0}", emp.Photo == null ? -1 : emp.Photo.Length);
             }
-            Console.WriteLine("# C23: count={0}", count);
-            Assert.AreEqual(10, count);
+            Assert.AreEqual(9, count);
         }
 
 #if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
