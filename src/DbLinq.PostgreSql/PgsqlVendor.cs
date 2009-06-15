@@ -43,6 +43,12 @@ using DataContext=DbLinq.Data.Linq.DataContext;
 
 namespace DbLinq.PostgreSql
 {
+    public class PgsqlVendor : PostgreSqlVendor
+    {
+        // This is a compatibility class. It will go away after the
+        // big PostgreSql rename.
+    }
+    
     /// <summary>
     /// PostgreSQL - specific code.
     /// </summary>
@@ -50,7 +56,7 @@ namespace DbLinq.PostgreSql
 #if !MONO_STRICT
     public
 #endif
-    class PgsqlVendor : Vendor.Implementation.Vendor
+    class PostgreSqlVendor : Vendor.Implementation.Vendor
     {
         public override string VendorName { get { return "PostgreSQL"; } }
 

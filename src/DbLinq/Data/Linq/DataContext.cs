@@ -169,7 +169,7 @@ namespace DbLinq.Data.Linq
                 throw new NotImplementedException("Server name not supported.");
 
             // Assume it's a connection string...
-            IVendor ivendor = GetVendor(fileOrServerOrConnection);
+            IVendor ivendor = GetVendor(ref fileOrServerOrConnection);
 
             IDbConnection dbConnection = ivendor.CreateDbConnection(fileOrServerOrConnection);
             Init(new DatabaseContext(dbConnection), mapping, ivendor);
@@ -188,21 +188,21 @@ namespace DbLinq.Data.Linq
         [DbLinqToDo]
         public DataContext(string connectionString)
         {
-            IVendor ivendor = GetVendor(connectionString);
+            IVendor ivendor = GetVendor(ref connectionString);
 
             IDbConnection dbConnection = ivendor.CreateDbConnection(connectionString);
             Init(new DatabaseContext(dbConnection), null, ivendor);
 
         }
 
-        private IVendor GetVendor(string connectionString)
+        private IVendor GetVendor(ref string connectionString)
         {
             if (connectionString == null)
                 throw new ArgumentNullException("connectionString");
 
             Assembly assy;
             string vendorClassToLoad;
-            GetVendorInfo(connectionString, out assy, out vendorClassToLoad);
+            GetVendorInfo(ref connectionString, out assy, out vendorClassToLoad);
 
             var types =
                 from type in assy.GetTypes()
@@ -223,10 +223,10 @@ namespace DbLinq.Data.Linq
             return (IVendor) Activator.CreateInstance(types.First());
         }
 
-        private void GetVendorInfo(string connectionString, out Assembly assembly, out string typeName)
+        private void GetVendorInfo(ref string connectionString, out Assembly assembly, out string typeName)
         {
             System.Text.RegularExpressions.Regex reProvider
-                = new System.Text.RegularExpressions.Regex(@"DbLinqProvider=([\w\.]+)");
+                = new System.Text.RegularExpressions.Regex(@"DbLinqProvider=([\w\.]+);?");
 
             string assemblyFile = null;
             string vendor;
@@ -283,13 +283,13 @@ namespace DbLinq.Data.Linq
             if (databaseContext.Connection.ConnectionString == null)
                 throw new NullReferenceException();
 
+            string connectionString = databaseContext.Connection.ConnectionString;
             _VendorProvider = ObjectFactory.Get<IVendorProvider>();
             Vendor = vendor ?? 
-                (databaseContext.Connection.ConnectionString != null
-                    ? GetVendor(databaseContext.Connection.ConnectionString)
-                    : null) ??
+                (connectionString != null ? GetVendor(ref connectionString) : null) ??
                 _VendorProvider.FindVendorByProviderType(typeof(SqlClient.Sql2005Provider));
-
+            databaseContext.Connection.ConnectionString = connectionString;
+            
             DatabaseContext = databaseContext;
 
             MemberModificationHandler = ObjectFactory.Create<IMemberModificationHandler>(); // not a singleton: object is stateful
@@ -429,7 +429,6 @@ namespace DbLinq.Data.Linq
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
-                            break;
                     }
                 }
                 // TODO: handle conflicts (which can only occur when concurrency mode is implemented)

@@ -147,6 +147,14 @@ namespace DbLinqTest {
             new DataContext("", mapping);
         }
 
+        [Test]
+        public void Ctor_ConnectionString_ExtraParameters_Munging()
+        {
+            DataContext ctx = new DataContext("Server=localhost;User id=test;Database=test;DbLinqProvider=PostgreSql;DbLinqConnectionType=Npgsql.NpgsqlConnection,Npgsql");
+            Assert.AreEqual(-1, ctx.Connection.ConnectionString.IndexOf("DbLinqProvider"));
+            Assert.AreEqual(-1, ctx.Connection.ConnectionString.IndexOf("DbLinqConnectionType"));
+        }
+        
 #if !MONO_STRICT
         [Test, ExpectedException(typeof(NotImplementedException))]
         public void Ctor_FileOrServerOrConnectionIsFilename()
