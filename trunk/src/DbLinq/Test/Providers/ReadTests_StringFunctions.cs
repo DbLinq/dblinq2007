@@ -491,6 +491,10 @@ using nwind;
         /// This test is related to paths: enable DbLinq to search for a path or it's container
         /// Since we have no path in Nortwind we use a CustomerID.
         /// </summary>
+#if !DEBUG && (MSSQL && MONO_STRICT)
+        // L2SQL: System.NotSupportedException : Only arguments that can be evaluated on the client are supported for the String.StartsWith method.        [Test]
+        [Explicit]
+#endif
         [Test]
         public void StartsWith03()
         {
@@ -575,6 +579,10 @@ using nwind;
             Assert.AreEqual(0, cnt);
         }
 
+#if !DEBUG && (MSSQL && MONO_STRICT)
+        // L2SQL: System.NotSupportedException : Method 'System.String TrimStart(Char[])' has no supported translation to SQL.        [Test]
+        [Explicit]
+#endif
         [Test]
         public void LTrim01()
         {
@@ -588,7 +596,8 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if !DEBUG && (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL)
+        // L2SQL: System.InvalidOperationException : Could not translate expression 'Table(Employee).Select(e => Not(e.LastName.TrimStart(Invoke(value(System.Func`1[System.Char[]]))).Contains(" ")))' into SQL and could not treat it as a local expression.
         [Explicit]
 #endif
         [Test]
@@ -603,6 +612,10 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
+#if !DEBUG && (MSSQL && MONO_STRICT)
+        // L2SQL: System.NotSupportedException : Method 'System.String TrimEnd(Char[])' has no supported translation to SQL.
+        [Explicit]
+#endif
         [Test]
         public void RTrim01()
         {
@@ -616,7 +629,8 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if !DEBUG && (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL)
+        // L2SQL: System.InvalidOperationException : Could not translate expression 'Table(Employee).Select(e => Not(e.LastName.TrimEnd(Invoke(value(System.Func`1[System.Char[]]))).Contains(" ")))' into SQL and could not treat it as a local expression.
         [Explicit]
 #endif
         [Test]
