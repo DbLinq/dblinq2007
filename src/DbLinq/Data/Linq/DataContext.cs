@@ -288,7 +288,6 @@ namespace DbLinq.Data.Linq
             Vendor = vendor ?? 
                 (connectionString != null ? GetVendor(ref connectionString) : null) ??
                 _VendorProvider.FindVendorByProviderType(typeof(SqlClient.Sql2005Provider));
-            databaseContext.Connection.ConnectionString = connectionString;
             
             DatabaseContext = databaseContext;
 
