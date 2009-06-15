@@ -135,7 +135,7 @@ LEFT OUTER JOIN Orders AS o$ ON o$.[EmployeeID] = e$.[EmployeeID]
                                r.OrderID).Contains(d.OrderID)
                     select d;
             var count = q.ToList().Count;
-            Assert.AreEqual(36, count);
+            Assert.AreEqual(38, count);
         }
 
     }
