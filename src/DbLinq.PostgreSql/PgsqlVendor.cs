@@ -43,7 +43,10 @@ using DataContext=DbLinq.Data.Linq.DataContext;
 
 namespace DbLinq.PostgreSql
 {
-    public class PgsqlVendor : PostgreSqlVendor
+#if !MONO_STRICT
+    public
+#endif
+    class PgsqlVendor : PostgreSqlVendor
     {
         // This is a compatibility class. It will go away after the
         // big PostgreSql rename.
