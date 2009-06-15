@@ -134,7 +134,17 @@ using nwind;
             afterCustomercount = db.Customers.Count();
             Assert.IsTrue(beforeCustomersCount == afterCustomercount);
 
+            // The Count is correct.  However, DataContext doesn't know that the 
+            // transaction was aborted, and will satisfy the following from
+            // an internal cache
             var customer = db.Customers.FirstOrDefault(c => c.CustomerID == id);
+            Assert.IsNotNull(customer);
+
+            // Let's let DataContext know that it doesn't exist anymore.
+            db.Customers.DeleteOnSubmit(customer);
+            db.SubmitChanges(); // Note no exception from deleting a non-existent entity
+
+            customer = db.Customers.FirstOrDefault(c => c.CustomerID == id);
             Assert.IsNull(customer);
         }
     }
