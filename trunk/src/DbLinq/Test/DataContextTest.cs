@@ -147,6 +147,10 @@ namespace DbLinqTest {
             new DataContext("", mapping);
         }
 
+#if MONO_STRICT
+        // DbLinqProvider/etc. obviously aren't removed under L2SQL
+        [ExpectedException(typeof(ArgumentException))]
+#endif
         [Test]
         public void Ctor_ConnectionString_ExtraParameters_Munging()
         {
