@@ -90,9 +90,6 @@ using DbLinq.Data.Linq;
             Assert.IsTrue(countPARIS == 1);
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
-        [Explicit]
-#endif
         [Test]
         public void LeftOuterJoin_Suppliers()
         {

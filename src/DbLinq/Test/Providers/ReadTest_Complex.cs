@@ -73,9 +73,6 @@ using Id = System.Int32;
         }
 
         #region 'D' tests exercise 'local object constants'
-#if !DEBUG && SQLITE
-        [Explicit]
-#endif
         [Test]
         public void D0_SelectPensByLocalProperty()
         {
@@ -92,9 +89,6 @@ using Id = System.Int32;
             Assert.AreEqual(productCount, 1, "Expected one pen, got count=" + productCount);
         }
 
-#if !DEBUG && SQLITE
-        [Explicit]
-#endif
         [Test]
         public void D1_SelectPensByLocalProperty()
         {
@@ -402,9 +396,6 @@ using Id = System.Int32;
         }
 
 
-#if !DEBUG && SQLITE
-        [Explicit]
-#endif
         [Test]
         public void F19_ExceptWithCount_ViaToList()
         {
@@ -420,9 +411,6 @@ using Id = System.Int32;
             Assert.AreEqual(51, toListCount);
         }
 
-#if !DEBUG && (SQLITE)
-        [Explicit]
-#endif
         [Test]
         public void F20_ExceptWithCount()
         {
@@ -520,9 +508,6 @@ using Id = System.Int32;
             Assert.AreEqual(34, toTakeCount);
         }
 
-#if !DEBUG && (SQLITE)
-        [Explicit]
-#endif
         [Test]
         public void F25_DistinctUnion()
         {
@@ -540,9 +525,6 @@ using Id = System.Int32;
             Assert.AreEqual(27, count);
         }
 
-#if !DEBUG && (SQLITE)
-        [Explicit]
-#endif
         [Test]
         public void F26_DistinctUnion_Count()
         {

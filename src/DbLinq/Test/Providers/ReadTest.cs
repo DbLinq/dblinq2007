@@ -81,7 +81,7 @@ using DataLinq = DbLinq.Data.Linq;
 
 
 
-#if !DEBUG && (SQLITE || (MSSQL && MONO_STRICT))
+#if !DEBUG && (MSSQL && MONO_STRICT)
         // L2SQL doesn't support 'SELECT' queries in DataContext.ExecuteCommand().
         [Explicit]
 #endif
@@ -96,9 +96,6 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.AreEqual(iResult, 1L, "Expecting one Chai in Products table, got:" + iResult + " (SQL:" + sql + ")");
         }
 
-#if !DEBUG && SQLITE
-        [Explicit]
-#endif
         [Test]
         public void A4_SelectSingleCustomer()
         {
@@ -115,9 +112,6 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.AreEqual("Chang", prod.ProductName);
         }
 
-#if !DEBUG && (SQLITE)
-        [Explicit]
-#endif
         [Test]
         public void A5_SelectSingleOrDefault()
         {
@@ -240,9 +234,6 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.AreEqual(productCount, 1, "Expected one pen, got count=" + productCount);
         }
 
-#if !DEBUG && SQLITE
-        [Explicit]
-#endif
         [Test]
         public void C2b_SelectPenId()
         {
@@ -255,9 +246,6 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.AreEqual(productCount, 1, "Expected one pen, got count=" + productCount);
         }
 
-#if !DEBUG && SQLITE
-        [Explicit]
-#endif
         [Test]
         public void C3_SelectPenIdName()
         {
@@ -351,9 +339,6 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.AreEqual(1, list.Count);
         }
 
-#if !DEBUG && SQLITE
-        [Explicit]
-#endif
         [Test]
         public void C8_SelectPenByLocalVariable()
         {
@@ -453,9 +438,6 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.Less(count, db.Customers.Count());
         }
 
-#if !DEBUG && SQLITE
-        [Explicit]
-#endif
         [Test]
         public void C11_SelectProductsDiscontinued()
         {
@@ -473,9 +455,6 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.AreEqual(productCount, 8, "Expected eight products discontinued, got count=" + productCount);
         }
 
-#if !DEBUG && SQLITE
-        [Explicit]
-#endif
         [Test]
         public void C12_SelectEmployee_MultiJoinWithWhere()
         {
@@ -506,9 +485,6 @@ using DataLinq = DbLinq.Data.Linq;
             db.ObjectTrackingEnabled = false;
         }
 
-#if !DEBUG && (SQLITE)
-        [Explicit]
-#endif
         [Test]
         [ExpectedException(ExceptionType = typeof(InvalidOperationException), ExpectedMessage = "Data context options cannot be modified after results have been returned from a query.")]
         public void C14_Changing_DeferredLoadingEnabled2False()
@@ -532,9 +508,6 @@ using DataLinq = DbLinq.Data.Linq;
             db.SubmitChanges();
         }
 
-#if !DEBUG && (SQLITE)
-        [Explicit]
-#endif
         [Test]
         public void C16_GettingProperty_DeferredLoadingEnabled2False()
         {
@@ -547,9 +520,6 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.IsNull(territory.Region);
         }
 
-#if !DEBUG && (SQLITE)
-        [Explicit]
-#endif
         [Test]
         public void C17_GettingProperty_ObjectTrackingEnabled2False()
         {
@@ -588,9 +558,6 @@ using DataLinq = DbLinq.Data.Linq;
         /// Test the use of DbLinq as a QueryObject
         /// http://www.martinfowler.com/eaaCatalog/queryObject.html
         /// </summary>
-#if !DEBUG && (SQLITE)
-        [Explicit]
-#endif
         [Test]
         public void C20_SelectEmployee_DbLinqAsQueryObject()
         {
@@ -604,9 +571,6 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.AreEqual(1, allEmployees.Count());
         }
 
-#if !DEBUG && (SQLITE)
-        [Explicit]
-#endif
         [Test]
         public void C21_SelectEmployee_DbLinqAsQueryObjectWithOrderCount()
         {
@@ -662,9 +626,6 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.IsNotNull(commandText);
         }
 
-#if !DEBUG && SQLITE
-        [Explicit]
-#endif
         [Test]
         public void C23_SelectEmployees()
         {
@@ -678,7 +639,7 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.AreEqual(9, count);
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]
@@ -703,9 +664,6 @@ using DataLinq = DbLinq.Data.Linq;
         #endregion
 
         #region region D - select first or last - calls IQueryable.Execute instead of GetEnumerator
-#if !DEBUG && SQLITE
-        [Explicit]
-#endif
         [Test]
         public void D01_SelectFirstPenID()
         {
@@ -733,9 +691,6 @@ using DataLinq = DbLinq.Data.Linq;
         }
 
 
-#if !DEBUG && SQLITE
-        [Explicit]
-#endif
         [Test]
         public void D02_SelectFirstPen()
         {
@@ -746,7 +701,7 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.IsNotNull(pen, "Expected non-null Product");
         }
 
-#if !DEBUG && (SQLITE || MSSQL)
+#if !DEBUG && MSSQL
         // L2SQL: System.NotSupportedException : The query operator 'Last' is not supported.
         [Explicit]
 #endif
@@ -943,9 +898,6 @@ using DataLinq = DbLinq.Data.Linq;
             internal int ChaiId;
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
-        [Explicit]
-#endif
         [Test]
         public void D14_ProjectedProductList()
         {

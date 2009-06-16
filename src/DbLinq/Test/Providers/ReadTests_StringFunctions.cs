@@ -548,7 +548,7 @@ using nwind;
             Assert.AreEqual(q.ToList().Count, db.Customers.Count());
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Test]

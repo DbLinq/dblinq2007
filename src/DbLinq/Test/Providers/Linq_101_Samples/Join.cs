@@ -133,9 +133,6 @@ using nwind;
 
         }
 
-#if !DEBUG && (SQLITE)
-        [Explicit]
-#endif
         [Test(Description = "GroupJoin - Three-way join. This sample explictly joins three tables and projects results from each of them.")]
         public void LinqToSqlJoin06()
         {

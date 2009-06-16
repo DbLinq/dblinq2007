@@ -42,9 +42,6 @@ using nwind;
             Assert.IsNotNull(order.Employee);
         }
 
-#if !DEBUG && (SQLITE)
-        [Explicit]
-#endif
         [Test]
         public void ReferenceLoading02()
         {

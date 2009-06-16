@@ -48,9 +48,6 @@ using nwind;
             var orders = customer.Orders;
         }
 
-#if !DEBUG && (SQLITE)
-        [Explicit]
-#endif
         [Test]
         public void SimpleMemberAccess02()
         {
@@ -71,9 +68,6 @@ using nwind;
             Assert.Greater(results.Count, 0);
         }
 
-#if !DEBUG && (SQLITE)
-        [Explicit]
-#endif
         [Test]
         public void HasLoadedOrAsignedValues01()
         {
@@ -85,9 +79,6 @@ using nwind;
             Assert.IsTrue(customer.Orders.HasLoadedOrAssignedValues);
         }
 
-#if !DEBUG && (SQLITE)
-        [Explicit]
-#endif
         [Test]
         public void HasLoadedOrAsignedValues02()
         {
@@ -100,9 +91,6 @@ using nwind;
         }
 
 
-#if !DEBUG && (SQLITE)
-        [Explicit]
-#endif
         [Test]
         [ExpectedException(typeof(InvalidOperationException))]
         public void InvalidSourceChange()
@@ -115,9 +103,6 @@ using nwind;
             customer.Orders.SetSource(System.Linq.Enumerable.Empty<Order>());
         }
 
-#if !DEBUG && (SQLITE)
-        [Explicit]
-#endif
         [Test]
         [ExpectedException(typeof(InvalidOperationException))]
         public void InvalidSourceChange2()
@@ -143,9 +128,6 @@ using nwind;
             customer.Orders.SetSource(System.Linq.Enumerable.Empty<Order>());
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
-        [Explicit]
-#endif
         [Test]
         public void SourceChange()
         {
@@ -309,9 +291,6 @@ using nwind;
             Assert.AreEqual(args.OldIndex, -1);
         }
 
-#if !DEBUG && (SQLITE)
-        [Explicit]
-#endif
         [Test]
         public void Load()
         {
@@ -324,9 +303,6 @@ using nwind;
             Assert.IsTrue(orders.HasLoadedOrAssignedValues);
         }
 
-#if !DEBUG && (SQLITE)
-        [Explicit]
-#endif
         [Test]
         public void DeferedExecution()
         {
