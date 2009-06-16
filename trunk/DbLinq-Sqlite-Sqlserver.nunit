@@ -1,6 +1,7 @@
 ﻿<NUnitProject>
   <Settings activeconfig="Debug" />
   <Config name="Debug" binpathtype="Auto">
+    <assembly path="build.dbg\DbLinq.Sqlite_mono_test.dll" />
     <assembly path="build.dbg\DbLinq.Sqlite_test.dll" />
     <assembly path="build.dbg\DbLinq.SqlServer_test.dll" />
     <assembly path="build.dbg\DbLinq.SqlServer_test_ndb.dll" />
@@ -10,6 +11,7 @@
     <assembly path="build.dbg\DbMetal_test.dll" />
   </Config>
   <Config name="Release" binpathtype="Auto">
+    <assembly path="build\DbLinq.Sqlite_mono_test.dll" />
     <assembly path="build\DbLinq.Sqlite_test.dll" />
     <assembly path="build\DbLinq.SqlServer_test.dll" />
     <assembly path="build\DbLinq.SqlServer_test_ndb.dll" />

@@ -142,7 +142,9 @@ using nwind;
         //Devuelve el logaritmo natural de una expresión numérica.
 
         //LOG (SSIS)
-
+#if !DEBUG && (SQLITE && MONO)
+        [Explicit]
+#endif
         [Test]
         public void Log03()
         {
