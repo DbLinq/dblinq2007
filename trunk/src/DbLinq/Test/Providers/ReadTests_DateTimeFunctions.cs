@@ -413,9 +413,6 @@ using DbLinq.Data.Linq;
             Assert.Greater(list.Count, 0);
         }
 
-#if !DEBUG && SQLITE
-        [Explicit]
-#endif
         [Test]
         [ExpectedException(typeof(InvalidOperationException))]
         public void DateTimeDiffTotalDaysSelectWithNulls01()

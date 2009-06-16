@@ -249,7 +249,7 @@ using nwind;
         }
 
 
-#if !DEBUG
+#if !DEBUG && (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Linq101SamplesModified("Console and ObjectDummper references deleted")]
@@ -298,7 +298,7 @@ using nwind;
             //db.SubmitChanges();
         }
 
-#if !DEBUG
+#if !DEBUG && (MSSQL && !MONO_STRICT)
         [Explicit]
 #endif
         [Linq101SamplesModified("Console and ObjectDummper references deleted")]

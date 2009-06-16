@@ -217,9 +217,6 @@ using nwind;
             Assert.AreEqual(customers.Count, db.Customers.Count());
         }
 
-#if !DEBUG && SQLITE
-        [Explicit]
-#endif
         [Description("Check direct use of DataContext instead of typed DataContext")]
         [Test]
         public void T1_DirectDataContext()
