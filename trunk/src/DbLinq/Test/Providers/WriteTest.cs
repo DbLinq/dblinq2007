@@ -39,8 +39,12 @@ using nwind;
 
 #if MONO_STRICT
 using System.Data.Linq;
+#if MONO
+using DbLinq.Util;
+#endif
 #else
 using DbLinq.Data.Linq;
+using DbLinq.Util;
 #endif
 
 #if ORACLE
@@ -76,6 +80,10 @@ using Id = System.Int32;
         [SetUp]
         public void TestSetup()
         {
+            base.BaseSetUp();
+
+            Profiler.At("START: WriteTest.TestSetup()");
+
             Northwind db = CreateDB();
             // "[Products]" gets converted to "Products".
             //This is a DbLinq-defined escape sequence, by Pascal.
@@ -88,6 +96,8 @@ using Id = System.Int32;
             db.Categories.DeleteAllOnSubmit(deleteCategories);
 
             db.SubmitChanges();
+
+            Profiler.At("END: WriteTest.TestSetup()");
         }
 
         #region Tests 'E' test live object cache
