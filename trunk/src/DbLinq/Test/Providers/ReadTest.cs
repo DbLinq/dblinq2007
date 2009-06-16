@@ -1070,5 +1070,12 @@ using DataLinq = DbLinq.Data.Linq;
 
         #endregion
 
+        [Test]
+        public void SqlInjectionAttack()
+        {
+            var db = CreateDB();
+            var q = db.Customers.Where(c => c.ContactName == "'; DROP TABLE DoesNotExist; --");
+            Assert.AreEqual(0, q.Count());
+        }
     }
 }
