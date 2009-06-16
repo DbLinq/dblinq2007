@@ -414,32 +414,14 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             }
             if (query == null)
             {
-#if DEBUG && !MONO_STRICT
-                var timer = new Stopwatch();
-                timer.Start();
-#endif
+                Profiler.At("START: GetSelectQuery(), building Expression query");
                 var expressionsQuery = BuildExpressionQuery(expressions, queryContext);
-#if DEBUG && !MONO_STRICT
-                timer.Stop();
-                long expressionBuildTime = timer.ElapsedMilliseconds;
+                Profiler.At("END: GetSelectQuery(), building Expression query");
 
-                timer.Reset();
-                timer.Start();
-#endif
+                Profiler.At("START: GetSelectQuery(), building Sql query");
                 query = BuildSqlQuery(expressionsQuery, queryContext);
-#if DEBUG && !MONO_STRICT
-                timer.Stop();
-                long sqlBuildTime = timer.ElapsedMilliseconds;
-#endif
-#if DEBUG && !MONO_STRICT
-                // generation time statistics
-                var log = queryContext.DataContext.Log;
-                if (log != null)
-                {
-                    log.WriteLine("Select Expression build: {0}ms", expressionBuildTime);
-                    log.WriteLine("Select SQL build:        {0}ms", sqlBuildTime);
-                }
-#endif
+                Profiler.At("END: GetSelectQuery(), building Sql query");
+
                 if (queryContext.DataContext.QueryCacheEnabled)
                 {
                     SetInSelectCache(expressions, query);

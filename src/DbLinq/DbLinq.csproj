@@ -241,6 +241,7 @@
     <Compile Include="Language\ILanguageWords.cs" />
     <Compile Include="Util\IDbDataParameterExtensions.cs" />
     <Compile Include="Util\OutputLevel.cs" />
+    <Compile Include="Util\Profiler.cs" />
     <Compile Include="Util\ReflectionUtility.cs" />
     <Compile Include="Util\TextWriterExtension.cs" />
     <Compile Include="Util\LambdaComparer.cs" />
