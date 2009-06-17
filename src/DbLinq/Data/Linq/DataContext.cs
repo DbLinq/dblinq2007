@@ -140,20 +140,25 @@ namespace DbLinq.Data.Linq
 
         public DataContext(IDbConnection connection, MappingSource mapping)
         {
+            Profiler.At("START DataContext(IDbConnection, MappingSource)");
             Init(new DatabaseContext(connection), mapping, null);
+            Profiler.At("END DataContext(IDbConnection, MappingSource)");
         }
 
         public DataContext(IDbConnection connection)
         {
+            Profiler.At("START DataContext(IDbConnection)");
             if (connection == null)
                 throw new ArgumentNullException("connection");
 
             Init(new DatabaseContext(connection), null, null);
+            Profiler.At("END DataContext(IDbConnection)");
         }
 
         [DbLinqToDo]
         public DataContext(string fileOrServerOrConnection, MappingSource mapping)
         {
+            Profiler.At("START DataContext(string, MappingSource)");
             if (fileOrServerOrConnection == null)
                 throw new ArgumentNullException("fileOrServerOrConnection");
             if (mapping == null)
@@ -173,6 +178,7 @@ namespace DbLinq.Data.Linq
 
             IDbConnection dbConnection = ivendor.CreateDbConnection(fileOrServerOrConnection);
             Init(new DatabaseContext(dbConnection), mapping, ivendor);
+            Profiler.At("END DataContext(string, MappingSource)");
         }
 
         /// <summary>
@@ -188,11 +194,13 @@ namespace DbLinq.Data.Linq
         [DbLinqToDo]
         public DataContext(string connectionString)
         {
+            Profiler.At("START DataContext(string)");
             IVendor ivendor = GetVendor(ref connectionString);
 
             IDbConnection dbConnection = ivendor.CreateDbConnection(connectionString);
             Init(new DatabaseContext(dbConnection), null, ivendor);
 
+            Profiler.At("END DataContext(string)");
         }
 
         private IVendor GetVendor(ref string connectionString)
@@ -337,6 +345,7 @@ namespace DbLinq.Data.Linq
 		/// <exception cref="InvalidOperationException">If the type is not mappable as a Table.</exception>
         public ITable GetTable(Type type)
         {
+            Profiler.At("DataContext.GetTable(typeof({0}))", type.Name);
             ITable tableExisting;
 			if (_tableMap.TryGetValue(type, out tableExisting))
                 return tableExisting;
