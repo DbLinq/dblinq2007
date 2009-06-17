@@ -11,30 +11,39 @@ namespace DbLinq.Util
 #endif
     static class Profiler
     {
+        [ThreadStatic]
         private static Stopwatch timer = new Stopwatch();
+        [ThreadStatic]
         private static long prevTicks;
+        [ThreadStatic]
+        private static bool profiling;
 
         [Conditional("DEBUG")]
         public static void Start()
         {
+            profiling = true;
+            prevTicks = 0;
             timer.Reset();
             timer.Start();
-            prevTicks = 0;
         }
 
         [Conditional("DEBUG")]
         public static void At(string format, params object[] args)
         {
-            timer.Stop();
-            Console.Write("#AT(time={0:D10}, elapsed={1:D10}) ", timer.ElapsedTicks, timer.ElapsedTicks - prevTicks);
-            prevTicks = timer.ElapsedTicks;
-            Console.WriteLine(format, args);
-            timer.Start();
+            if (profiling)
+            {
+                timer.Stop();
+                Console.Write("#AT(time={0:D10}, elapsed={1:D10}) ", timer.ElapsedTicks, timer.ElapsedTicks - prevTicks);
+                prevTicks = timer.ElapsedTicks;
+                Console.WriteLine(format, args);
+                timer.Start();
+            }
         }
 
         [Conditional("DEBUG")]
         public static void Stop()
         {
+            profiling = false;
             timer.Stop();
         }
     }
