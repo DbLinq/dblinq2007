@@ -6,7 +6,10 @@ using System.Diagnostics;
 
 namespace DbLinq.Util
 {
-    public static class Profiler
+#if MONO_STRICT
+    public
+#endif
+    static class Profiler
     {
         private static Stopwatch timer = new Stopwatch();
         private static long prevTicks;
