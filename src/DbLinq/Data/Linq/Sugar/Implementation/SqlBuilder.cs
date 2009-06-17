@@ -159,6 +159,11 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         {
             var sqlProvider = queryContext.DataContext.Vendor.SqlProvider;
             var currentPrecedence = ExpressionQualifier.GetPrecedence(expression);
+
+			//Process call which does not depend on table columns
+			if (expression.NodeType == ExpressionType.Call)
+				return sqlProvider.GetLiteral(((MethodCallExpression)expression).Evaluate());
+
             // first convert operands
             var operands = expression.GetOperands();
             var literalOperands = new List<SqlStatement>();

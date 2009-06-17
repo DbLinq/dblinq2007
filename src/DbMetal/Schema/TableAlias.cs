@@ -37,7 +37,13 @@ namespace DbMetal.Schema
     public class TableAlias
     {
         public class Renamings : INameAliases
-        {
+		{
+			[XmlAttribute("Name")]
+			public string Name { get; set; }
+
+			[XmlAttribute("Class")]
+			public string Class { get; set; }
+
             [XmlElement("Renaming")]
             public readonly List<Renaming> Arr = new List<Renaming>();
 
@@ -65,6 +71,16 @@ namespace DbMetal.Schema
             {
                 return GetAlias(column);
             }
+
+			public string GetDatabaseNameAlias(string databaseName)
+			{
+				return Name;
+			}
+
+			public string GetClassNameAlias(string className)
+			{
+				return Class;
+			}
         }
 
         public class Renaming
@@ -108,6 +124,5 @@ namespace DbMetal.Schema
                 return new Dictionary<string, string>();
             return Load(parameters.Aliases, parameters);
         }
-
     }
 }
