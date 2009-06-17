@@ -135,15 +135,5 @@ namespace DbMetal.Schema
                 return null;
             return c.Type;
         }
-
-		public string GetDatabaseNameAlias(string databaseName)
-		{
-			return Name;
-		}
-
-		public string GetClassNameAlias(string className)
-		{
-			return Class;
-		}
     }
 }

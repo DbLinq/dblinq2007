@@ -39,11 +39,11 @@ namespace System.Data.Linq
 namespace DbLinq.Data.Linq
 #endif
 {
-	public sealed class EntitySet<TEntity> : ICollection, ICollection<TEntity>, IEnumerable, IEnumerable<TEntity>, IList, IList<TEntity>, IListSource
-		where TEntity : class
-	{
-		private readonly Action<TEntity> onAdd;
-		private readonly Action<TEntity> onRemove;
+    public sealed class EntitySet<TEntity> : ICollection, ICollection<TEntity>, IEnumerable, IEnumerable<TEntity>, IList, IList<TEntity>, IListSource
+        where TEntity : class
+    {
+        private readonly Action<TEntity> onAdd;
+        private readonly Action<TEntity> onRemove;
 
         private IEnumerable<TEntity> deferredSource;
         private bool deferred;
@@ -61,134 +61,107 @@ namespace DbLinq.Data.Linq
         }
 
 
-		/// <summary>
-		/// Gets or sets a value indicating whether this instance has loaded or assigned values.
-		/// </summary>
-		/// <value>
-		/// 	<c>true</c> if this instance has loaded or assigned values; otherwise, <c>false</c>.
-		/// </value>
-		public bool HasAssignedValues
-		{
-			get { return source != null; }
-		}
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EntitySet&lt;TEntity&gt;"/> class.
+        /// </summary>
+        /// <param name="onAdd">The on add.</param>
+        /// <param name="onRemove">The on remove.</param>
+        [DbLinqToDo]
+        public EntitySet(Action<TEntity> onAdd, Action<TEntity> onRemove)
+            : this()
+        {
+            this.onAdd = onAdd;
+            this.onRemove = onRemove;
+        }
 
-		public bool HasLoadedValues
-		{
-			get { return deferredSource != null; }
-		}
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EntitySet&lt;TEntity&gt;"/> class.
+        /// </summary>
+        public EntitySet()
+        {
+        }
 
-		/// <summary>
-		/// Gets a value indicating whether this instance has loaded or assigned values.
-		/// </summary>
-		/// <value>
-		/// 	<c>true</c> if this instance has loaded or assigned values; otherwise, <c>false</c>.
-		/// </value>
-		public bool HasLoadedOrAssignedValues
-		{
-			get { return HasLoadedValues || HasAssignedValues; }
-		}
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="EntitySet&lt;TEntity&gt;"/> class.
-		/// </summary>
-		/// <param name="onAdd">The on add.</param>
-		/// <param name="onRemove">The on remove.</param>
-		[DbLinqToDo]
-		public EntitySet(Action<TEntity> onAdd, Action<TEntity> onRemove)
-			: this()
-		{
-			this.onAdd = onAdd;
-			this.onRemove = onRemove;
-		}
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="EntitySet&lt;TEntity&gt;"/> class.
-		/// </summary>
-		public EntitySet()
-		{
-		}
-
-		/// <summary>
-		/// entry point for 'foreach' statement.
-		/// </summary>
-		public IEnumerator<TEntity> GetEnumerator()
-		{
+        /// <summary>
+        /// entry point for 'foreach' statement.
+        /// </summary>
+        public IEnumerator<TEntity> GetEnumerator()
+        {
             deferred = false;
             return Source.GetEnumerator();
-		}
+        }
 
-		/// <summary>
-		/// Enumerates all entities
-		/// </summary>
-		/// <returns></returns>
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return GetEnumerator();
-		}
+        /// <summary>
+        /// Enumerates all entities
+        /// </summary>
+        /// <returns></returns>
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
 
-		/// <summary>
-		/// Gets the source expression (used to nest queries)
-		/// </summary>
-		/// <value>The expression.</value>
-		internal Expression Expression
-		{
-			get
-			{
+        /// <summary>
+        /// Gets the source expression (used to nest queries)
+        /// </summary>
+        /// <value>The expression.</value>
+        internal Expression Expression
+        {
+            get
+            {
                 if (deferred && this.deferredSource is IQueryable<TEntity>)
                     return (deferredSource as IQueryable<TEntity>).Expression;
-				else
-					return Expression.Constant(this);
-			}
-		}
+                else
+                    return Expression.Constant(this);
+            }
+        }
 
-		/// <summary>
-		/// Adds a row
-		/// </summary>
-		public void Add(TEntity entity)
-		{
+        /// <summary>
+        /// TODO: Add(row)
+        /// </summary>
+        public void Add(TEntity entity)
+        {
             if (entity == null)
                 throw new ArgumentNullException("entity");
 
             if (Source.Contains (entity))
-				return;
+                return;
             Source.Add(entity);
-			//OnAdd(entity); <-- this causes unnecessary recursion
+            OnAdd(entity);
             ListChangedEventHandler handler = ListChanged;
             if (!deferred && deferredSource != null && handler != null)
                 handler(this, new ListChangedEventArgs(ListChangedType.ItemAdded, Source.Count - 1));
-		}
+        }
 
-		[DbLinqToDo]
-		bool IListSource.ContainsListCollection
-		{
-			get { throw new NotImplementedException(); }
-		}
+        [DbLinqToDo]
+        bool IListSource.ContainsListCollection
+        {
+            get { throw new NotImplementedException(); }
+        }
 
-		IList IListSource.GetList()
-		{
+        IList IListSource.GetList()
+        {
             return Source;
-		}
+        }
 
-		#region IList<TEntity> Members
+        #region IList<TEntity> Members
 
-		/// <summary>
-		/// Returns entity's index
-		/// </summary>
-		/// <param name="entity">The entity.</param>
-		/// <returns></returns>
-		public int IndexOf(TEntity entity)
-		{
+        /// <summary>
+        /// Returns entity's index
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        /// <returns></returns>
+        public int IndexOf(TEntity entity)
+        {
             deferred = false;
             return Source.IndexOf(entity);
-		}
+        }
 
-		/// <summary>
-		/// Inserts entity at specified index.
-		/// </summary>
-		/// <param name="index">The index.</param>
-		/// <param name="entity">The entity.</param>
-		public void Insert(int index, TEntity entity)
-		{
+        /// <summary>
+        /// Inserts entity at specified index.
+        /// </summary>
+        /// <param name="index">The index.</param>
+        /// <param name="entity">The entity.</param>
+        public void Insert(int index, TEntity entity)
+        {
             if (Source.Contains(entity))
                 throw new ArgumentOutOfRangeException();
             OnAdd(entity);
@@ -197,14 +170,14 @@ namespace DbLinq.Data.Linq
             ListChangedEventHandler handler = ListChanged;
             if (handler != null)
                 handler(this, new ListChangedEventArgs(ListChangedType.ItemAdded, index));
-		}
+        }
 
-		/// <summary>
-		/// Removes entity at specified index
-		/// </summary>
-		/// <param name="index"></param>
-		public void RemoveAt(int index)
-		{
+        /// <summary>
+        /// Removes entity as specified index
+        /// </summary>
+        /// <param name="index"></param>
+        public void RemoveAt(int index)
+        {
             deferred = false;
             var item = Source[index];
             Source.RemoveAt(index);
@@ -212,14 +185,14 @@ namespace DbLinq.Data.Linq
             ListChangedEventHandler handler = ListChanged;
             if (handler != null)
                 handler(this, new ListChangedEventArgs(ListChangedType.ItemDeleted, index));
-		}
+        }
 
-		/// <summary>
-		/// Gets or sets the <see cref="TEntity"/> at the specified index.
-		/// </summary>
-		/// <value></value>
-		public TEntity this[int index]
-		{
+        /// <summary>
+        /// Gets or sets the <see cref="TEntity"/> at the specified index.
+        /// </summary>
+        /// <value></value>
+        public TEntity this[int index]
+        {
             get
             {
                 deferred = false;
@@ -240,15 +213,15 @@ namespace DbLinq.Data.Linq
             }
         }
 
-		#endregion
+        #endregion
 
-		#region ICollection<TEntity> Members
+        #region ICollection<TEntity> Members
 
-		/// <summary>
-		/// Removes all items in collection
-		/// </summary>
-		public void Clear()
-		{
+        /// <summary>
+        /// Removes all items in collection
+        /// </summary>
+        public void Clear()
+        {
             ListChangedEventHandler handler = ListChanged;
             deferred = false;
             if (deferredSource != null && handler != null)
@@ -259,15 +232,15 @@ namespace DbLinq.Data.Linq
             if (handler != null)
                 handler(this, new ListChangedEventArgs(ListChangedType.Reset, 0));
             Source.Clear();
-		}
+        }
 
-		/// <summary>
-		/// Determines whether [contains] [the specified entity].
-		/// </summary>
-		/// <param name="entity">The entity.</param>
-		/// <returns>
-		/// 	<c>true</c> if [contains] [the specified entity]; otherwise, <c>false</c>.
-		/// </returns>
+        /// <summary>
+        /// Determines whether [contains] [the specified entity].
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        /// <returns>
+        /// 	<c>true</c> if [contains] [the specified entity]; otherwise, <c>false</c>.
+        /// </returns>
         [DbLinqToDo]
         public bool Contains(TEntity entity)
         {
@@ -275,47 +248,47 @@ namespace DbLinq.Data.Linq
             return Source.Contains(entity);
         }
 
-		/// <summary>
-		/// Copies items to target array
-		/// </summary>
-		/// <param name="array"></param>
-		/// <param name="arrayIndex"></param>
-		public void CopyTo(TEntity[] array, int arrayIndex)
-		{
+        /// <summary>
+        /// Copies items to target array
+        /// </summary>
+        /// <param name="array"></param>
+        /// <param name="arrayIndex"></param>
+        public void CopyTo(TEntity[] array, int arrayIndex)
+        {
             deferred = false;
             Source.CopyTo(array, arrayIndex);
-		}
+        }
 
-		/// <summary>
-		/// Returns entities count
-		/// </summary>
-		public int Count
-		{
-			get
-			{
+        /// <summary>
+        /// Returns entities count
+        /// </summary>
+        public int Count
+        {
+            get
+            {
                 deferred = false;
                 return Source.Count;
-			}
-		}
+            }
+        }
 
-		/// <summary>
-		/// Gets a value indicating whether the <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only.
-		/// </summary>
-		/// <value></value>
-		/// <returns>true if the <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only; otherwise, false.
-		/// </returns>
-		bool ICollection<TEntity>.IsReadOnly
-		{
-			get { throw new NotImplementedException(); }
-		}
+        /// <summary>
+        /// Gets a value indicating whether the <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only.
+        /// </summary>
+        /// <value></value>
+        /// <returns>true if the <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only; otherwise, false.
+        /// </returns>
+        bool ICollection<TEntity>.IsReadOnly
+        {
+            get { throw new NotImplementedException(); }
+        }
 
-		/// <summary>
-		/// Removes the specified entity.
-		/// </summary>
-		/// <param name="entity">The entity.</param>
-		/// <returns></returns>
-		public bool Remove(TEntity entity)
-		{
+        /// <summary>
+        /// Removes the specified entity.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        /// <returns></returns>
+        public bool Remove(TEntity entity)
+        {
             int i = Source.IndexOf(entity);
             if(i < 0)
             	return false;
@@ -325,15 +298,15 @@ namespace DbLinq.Data.Linq
             ListChangedEventHandler handler = ListChanged;
             if (deferredSource != null && handler != null)
                 handler(this, new ListChangedEventArgs(ListChangedType.ItemDeleted, i));
-			return true;
-		}
+            return true;
+        }
 
-		#endregion
+        #endregion
 
-		#region IList Members
+        #region IList Members
 
-		int IList.Add(object value)
-		{
+        int IList.Add(object value)
+        {
             var v = value as TEntity;
             if (v != null && !Contains(v))
             {
@@ -341,139 +314,139 @@ namespace DbLinq.Data.Linq
                 return Count - 1;
             }
             throw new ArgumentOutOfRangeException("value");
-		}
+        }
 
-		void IList.Clear()
-		{
-			this.Clear();
-		}
+        void IList.Clear()
+        {
+            this.Clear();
+        }
 
-		bool IList.Contains(object value)
-		{
+        bool IList.Contains(object value)
+        {
             var v = value as TEntity;
             if (v != null)
                 return Contains(v);
             return false;
-		}
+        }
 
-		int IList.IndexOf(object value)
-		{
-			return this.IndexOf(value as TEntity);
-		}
+        int IList.IndexOf(object value)
+        {
+            return this.IndexOf(value as TEntity);
+        }
 
-		void IList.Insert(int index, object value)
-		{
-			this.Insert(index, value as TEntity);
-		}
+        void IList.Insert(int index, object value)
+        {
+            this.Insert(index, value as TEntity);
+        }
 
-		bool IList.IsFixedSize
-		{
-			get { return false; }
-		}
+        bool IList.IsFixedSize
+        {
+            get { return false; }
+        }
 
-		bool IList.IsReadOnly
-		{
-			get { return false; }
-		}
+        bool IList.IsReadOnly
+        {
+            get { return false; }
+        }
 
-		void IList.Remove(object value)
-		{
-			this.Remove(value as TEntity);
-		}
+        void IList.Remove(object value)
+        {
+            this.Remove(value as TEntity);
+        }
 
-		void IList.RemoveAt(int index)
-		{
-			this.RemoveAt(index);
-		}
+        void IList.RemoveAt(int index)
+        {
+            this.RemoveAt(index);
+        }
 
-		object IList.this[int index]
-		{
-			get
-			{
-				return this[index];
-			}
-			set
-			{
-				this[index] = value as TEntity;
-			}
-		}
+        object IList.this[int index]
+        {
+            get
+            {
+                return this[index];
+            }
+            set
+            {
+                this[index] = value as TEntity;
+            }
+        }
 
-		#endregion
+        #endregion
 
-		#region ICollection Members
+        #region ICollection Members
 
-		void ICollection.CopyTo(Array array, int index)
-		{
+        void ICollection.CopyTo(Array array, int index)
+        {
             for (int i = 0; i < Source.Count; ++i)
             {
                 array.SetValue(this[i], index + i);
             }
-		}
+        }
 
-		int ICollection.Count
-		{
-			get { return this.Count; }
-		}
+        int ICollection.Count
+        {
+            get { return this.Count; }
+        }
 
-		[DbLinqToDo]
-		bool ICollection.IsSynchronized
-		{
-			get { throw new NotImplementedException(); }
-		}
+        [DbLinqToDo]
+        bool ICollection.IsSynchronized
+        {
+            get { throw new NotImplementedException(); }
+        }
 
-		[DbLinqToDo]
-		object ICollection.SyncRoot
-		{
-			get { throw new NotImplementedException(); }
-		}
+        [DbLinqToDo]
+        object ICollection.SyncRoot
+        {
+            get { throw new NotImplementedException(); }
+        }
 
-		#endregion
+        #endregion
 
-		/// <summary>
-		/// Gets a value indicating whether this instance is deferred.
-		/// </summary>
-		/// <value>
-		/// 	<c>true</c> if this instance is deferred; otherwise, <c>false</c>.
-		/// </value>
-		public bool IsDeferred
-		{
+        /// <summary>
+        /// Gets a value indicating whether this instance is deferred.
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if this instance is deferred; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsDeferred
+        {
             get { return deferred; }
-		}
+        }
 
-		/// <summary>
-		/// Adds the range.
-		/// </summary>
-		/// <param name="collection">The collection.</param>
-		public void AddRange(IEnumerable<TEntity> collection)
-		{
+        /// <summary>
+        /// Adds the range.
+        /// </summary>
+        /// <param name="collection">The collection.</param>
+        public void AddRange(IEnumerable<TEntity> collection)
+        {
             foreach (var entity in collection)
             {
                 Add(entity);
             }
         }
 
-		/// <summary>
-		/// Assigns the specified entity source.
-		/// </summary>
-		/// <param name="entitySource">The entity source.</param>
-		public void Assign(IEnumerable<TEntity> entitySource)
-		{
-			// notifies removals and adds
-			Clear();
+        /// <summary>
+        /// Assigns the specified entity source.
+        /// </summary>
+        /// <param name="entitySource">The entity source.</param>
+        public void Assign(IEnumerable<TEntity> entitySource)
+        {
+            // notifies removals and adds
+            Clear();
             foreach (var entity in entitySource)
             {
                 OnAdd(entity);
             }
             this.source = entitySource.ToList();
             // this.SourceInUse = sourceAsList;
-		}
+        }
 
-		/// <summary>
-		/// Sets the entity source.
-		/// </summary>
-		/// <param name="entitySource">The entity source.</param>
-		public void SetSource(IEnumerable<TEntity> entitySource)
-		{
+        /// <summary>
+        /// Sets the entity source.
+        /// </summary>
+        /// <param name="entitySource">The entity source.</param>
+        public void SetSource(IEnumerable<TEntity> entitySource)
+        {
 #if false
             Console.WriteLine("# EntitySet<{0}>.SetSource: HashCode={1}; Stack={2}", typeof(TEntity).Name,
                 GetHashCode(), new System.Diagnostics.StackTrace());
@@ -482,46 +455,57 @@ namespace DbLinq.Data.Linq
                 throw new InvalidOperationException("The EntitySet is already loaded and the source cannot be changed.");
             deferred = true;
             deferredSource = entitySource;
-		}
+        }
 
-		/// <summary>
-		/// Loads all entities.
-		/// </summary>
-		public void Load()
-		{
+        /// <summary>
+        /// Loads all entities.
+        /// </summary>
+        public void Load()
+        {
             deferred = false;
             var _ = Source;
-		}
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance has loaded or assigned values.
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if this instance has loaded or assigned values; otherwise, <c>false</c>.
+        /// </value>
+        public bool HasLoadedOrAssignedValues
+        {
+            get { return source != null; }
+        }
 
         /// <summary>
         /// Gets a new binding list.
         /// </summary>
         /// <returns></returns>
         public IBindingList GetNewBindingList()
-		{
-			return new BindingList<TEntity>(Source.ToList());
-		}
+        {
+            return new BindingList<TEntity>(Source.ToList());
+        }
 
         // TODO: implement handler call
-		public event ListChangedEventHandler ListChanged;
+        public event ListChangedEventHandler ListChanged;
 
-		/// <summary>
-		/// Called when entity is added.
-		/// </summary>
-		/// <param name="entity">The entity.</param>
+        /// <summary>
+        /// Called when entity is added.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
         private void OnAdd(TEntity entity)
         {
-			if (onAdd != null)
-				onAdd(entity);
-		}
-		/// <summary>
-		/// Called when entity is removed
-		/// </summary>
-		/// <param name="entity">The entity.</param>
+            if (onAdd != null)
+                onAdd(entity);
+        }
+        /// <summary>
+        /// Called when entity is removed
+        /// </summary>
+        /// <param name="entity">The entity.</param>
         private void OnRemove(TEntity entity)
         {
-			if (onRemove != null)
-				onRemove(entity);
-		}
-	}
+            if (onRemove != null)
+                onRemove(entity);
+        }
+    }
 }
