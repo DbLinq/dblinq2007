@@ -42,10 +42,14 @@ using DbLinq.Util;
     public sealed class DataLoadOptions
     {
         /// <summary>
+        /// There are the associations to load with a type
+        /// </summary>
+        private readonly IList<MemberInfo> eagerLoading = new List<MemberInfo>();
+
+        /// <summary>
         /// Criteria to restrict associations
-		/// </summary>
-		private readonly Dictionary<MemberInfo, bool> eagerLoading = new Dictionary<MemberInfo, bool>();
-        private readonly Dictionary<MemberInfo, LambdaExpression> criteria = new Dictionary<MemberInfo, LambdaExpression>();
+        /// </summary>
+        private readonly IDictionary<MemberInfo, LambdaExpression> criteria = new Dictionary<MemberInfo, LambdaExpression>();
 
         /// <summary>
         /// Filters objects retrieved for a particular relationship. 
@@ -63,15 +67,7 @@ using DbLinq.Util;
         /// <param name="expression"></param>
         public void AssociateWith(LambdaExpression expression)
         {
-            // TODO: ensure we have an EntitySet<>
-            var memberInfo = ReflectionUtility.GetMemberCallInfo(expression);
-            if (memberInfo == null)
-                throw new InvalidOperationException("The argument expression must be a property access or a field access where the target object is the parameter");
-            if (!criteria.ContainsKey(memberInfo))
-            {
-                VerifyMemberAccessCycles(memberInfo);
-                criteria.Add(memberInfo, expression);
-            }
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -79,9 +75,11 @@ using DbLinq.Util;
         /// </summary>
         /// <param name="memberInfo"></param>
         /// <returns></returns>
-        public bool GetAssociationCriteria(MemberInfo memberInfo, out LambdaExpression associationCriteria)
+        internal LambdaExpression GetAssociationCriteria(MemberInfo memberInfo)
         {
-            return criteria.TryGetValue(memberInfo, out associationCriteria);
+            LambdaExpression associationCriteria;
+            criteria.TryGetValue(memberInfo, out associationCriteria);
+            return associationCriteria;
         }
 
         /// <summary>
@@ -104,10 +102,10 @@ using DbLinq.Util;
             var memberInfo = ReflectionUtility.GetMemberInfo(expression);
             if (memberInfo == null)
                 throw new InvalidOperationException("The argument expression must be a property access or a field access where the target object is the parameter");
-            if (!eagerLoading.ContainsKey(memberInfo))
+            if (!eagerLoading.Contains(memberInfo))
             {
                 VerifyMemberAccessCycles(memberInfo);
-                eagerLoading.Add(memberInfo, true);
+                eagerLoading.Add(memberInfo);
             }
         }
 
@@ -115,9 +113,9 @@ using DbLinq.Util;
         {
             var mt = GetMemberEntityType (member);
             var d = member.DeclaringType;
-            foreach (KeyValuePair<MemberInfo, bool> m in eagerLoading)
+            foreach (var m in eagerLoading)
             {
-                if (m.Key.DeclaringType == mt && GetMemberEntityType (m.Key) == d)
+                if (m.DeclaringType == mt && GetMemberEntityType (m) == d)
                     throw new InvalidOperationException("Illegal cycles are detected in the argument expression among other eager-loading expressions");
             }
         }
@@ -140,9 +138,9 @@ using DbLinq.Util;
         /// </summary>
         /// <param name="memberInfo"></param>
         /// <returns>True on eager (immediate) logging</returns>
-        public bool IsImmediate(MemberInfo memberInfo)
+        internal bool IsImmediate(MemberInfo memberInfo)
         {
-            return eagerLoading.ContainsKey(memberInfo);
+            return eagerLoading.Contains(memberInfo);
         }
     }
 }

@@ -198,7 +198,6 @@ namespace DbLinq.Vendor.Implementation
             case "oid":
             case "sytea":
             case "mediumblob":
-			case "tinyblob":
             case "raw":       // oracle type
             case "long raw":  // oracle type
             case "varbinary":

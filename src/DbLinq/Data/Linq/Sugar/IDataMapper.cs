@@ -115,12 +115,5 @@ namespace DbLinq.Data.Linq.Sugar
         /// <param name="dataContext"></param>
         /// <returns>ThisKey</returns>
         IList<MemberInfo> GetAssociation(TableExpression thisTableExpression, MemberInfo memberInfo, Type otherType, out IList<MemberInfo> otherKey, out TableJoinType joinType, out string joinID, DataContext dataContext);
-
-        /// <summary>
-        /// Returns the MemberInfo object for the member names passed in
-        /// </summary>
-        /// <param name="type">The type in which to look up the members</param>
-        /// <param name="members">The list of member names to lookup</param>
-        IList<MemberInfo> GetTypeMembers(Type type, string[] members);
     }
 }

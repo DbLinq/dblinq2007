@@ -210,17 +210,5 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             }
             return associations;
         }
-
-        public IList<MemberInfo> GetTypeMembers(Type type, string[] members)
-        {
-            Dictionary<string, MemberInfo> memberLookup = new Dictionary<string, MemberInfo>();
-            foreach (MemberInfo info in type.GetMembers())
-            {
-                if ((info.MemberType == MemberTypes.Property) || (info.MemberType == MemberTypes.Field))
-                    memberLookup[info.Name] = info;
-            }
-
-            return (from memberName in members select memberLookup[memberName]).ToList();
-        }
     }
 }
