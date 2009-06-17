@@ -6,7 +6,7 @@ using System.Diagnostics;
 
 namespace DbLinq.Util
 {
-#if MONO_STRICT
+#if !MONO_STRICT
     public
 #endif
     static class Profiler
