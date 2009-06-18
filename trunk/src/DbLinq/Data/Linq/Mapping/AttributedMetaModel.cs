@@ -246,12 +246,6 @@ namespace DbLinq.Data.Linq.Mapping
 			metaType.SetMetaTable(metaTable);
 			_Tables[tableType] = metaTable;
 
-			//After that we are ready to setup table associations, need to to this late
-			//because of possible circular dependencies
-			//In worst case if SetupAssociations throws an exception we end up with a table
-			//without complete association information, but this seems to be and ok tradeoff
-			metaType.SetupAssociations();
-
 			return metaTable;
 		}
 	}
