@@ -345,7 +345,7 @@ namespace DbLinq.Data.Linq
 		/// <exception cref="InvalidOperationException">If the type is not mappable as a Table.</exception>
         public ITable GetTable(Type type)
         {
-            Profiler.At("DataContext.GetTable(typeof({0}))", type.Name);
+            Profiler.At("DataContext.GetTable(typeof({0}))", type != null ? type.Name : null);
             ITable tableExisting;
 			if (_tableMap.TryGetValue(type, out tableExisting))
                 return tableExisting;
