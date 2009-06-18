@@ -581,9 +581,14 @@ using DataLinq = DbLinq.Data.Linq;
             allEmployees = filterByNameOrSurnameContains(db, allEmployees, "an");
 
             allEmployees = filterByTerritoryNames(db, allEmployees, "Neward", "Boston", "Wilton");
-            string commandText = db.GetCommand(allEmployees).CommandText;
 
             int employeesCount = allEmployees.ToList().Count;
+
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine();
 
             Assert.AreEqual(employeesCount, allEmployees.Count());
         }

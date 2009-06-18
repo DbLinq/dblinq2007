@@ -33,7 +33,7 @@ namespace DbLinq.Util
             if (profiling)
             {
                 timer.Stop();
-                Console.Write("#AT(time={0:D10}, elapsed={1:D10}) ", timer.ElapsedTicks, timer.ElapsedTicks - prevTicks);
+                Console.Write("#AT(time={0:D12}, elapsed={1:D12}) ", timer.ElapsedTicks, timer.ElapsedTicks - prevTicks);
                 prevTicks = timer.ElapsedTicks;
                 Console.WriteLine(format, args);
                 timer.Start();
