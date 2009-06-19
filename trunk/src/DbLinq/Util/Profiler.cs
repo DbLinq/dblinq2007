@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Diagnostics;
+using System.IO;
 
 namespace DbLinq.Util
 {
@@ -17,6 +18,22 @@ namespace DbLinq.Util
         private static long prevTicks;
         [ThreadStatic]
         private static bool profiling;
+        [ThreadStatic]
+        private static TextWriter log;
+
+        private static TextWriter Log
+        {
+            get
+            {
+                if (log == null)
+                    log = Console.Out;
+                return log;
+            }
+            set 
+            { 
+                log = value; 
+            }
+        }
 
         [Conditional("DEBUG")]
         public static void Start()
@@ -33,9 +50,9 @@ namespace DbLinq.Util
             if (profiling)
             {
                 timer.Stop();
-                Console.Write("#AT(time={0:D12}, elapsed={1:D12}) ", timer.ElapsedTicks, timer.ElapsedTicks - prevTicks);
+                Log.Write("#AT(time={0:D12}, elapsed={1:D12}) ", timer.ElapsedTicks, timer.ElapsedTicks - prevTicks);
                 prevTicks = timer.ElapsedTicks;
-                Console.WriteLine(format, args);
+                Log.WriteLine(format, args);
                 timer.Start();
             }
         }
