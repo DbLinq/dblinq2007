@@ -584,12 +584,6 @@ using DataLinq = DbLinq.Data.Linq;
 
             int employeesCount = allEmployees.ToList().Count;
 
-            Console.WriteLine();
-            Console.WriteLine();
-            Console.WriteLine();
-            Console.WriteLine();
-            Console.WriteLine();
-
             Assert.AreEqual(employeesCount, allEmployees.Count());
         }
 
