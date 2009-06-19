@@ -26,7 +26,7 @@ using nwind;
     namespace Test_NUnit_Sqlite.Linq_101_Samples
 #elif INGRES
     namespace Test_NUnit_Ingres.Linq_101_Samples
-#elif MSSQL && MONO_STRICT
+#elif MSSQL && L2SQL
     namespace Test_NUnit_MsSql_Strict.Linq_101_Samples
 #elif MSSQL
     namespace Test_NUnit_MsSql.Linq_101_Samples
@@ -97,7 +97,7 @@ using nwind;
         }
 
 #if !SQLITE
-#if !DEBUG && (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL && !L2SQL)
         [Explicit]
 #endif
         [Linq101SamplesModified("Console and ObjectDummper references deleted")]
@@ -148,7 +148,7 @@ using nwind;
         }
 #endif
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE || (MSSQL && !L2SQL))
         [Explicit]
 #endif
         [Linq101SamplesModified("Console and ObjectDummper references deleted")]
@@ -249,7 +249,7 @@ using nwind;
         }
 
 
-#if !DEBUG && (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL && !L2SQL)
         [Explicit]
 #endif
         [Linq101SamplesModified("Console and ObjectDummper references deleted")]
@@ -298,7 +298,7 @@ using nwind;
             //db.SubmitChanges();
         }
 
-#if !DEBUG && (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL && !L2SQL)
         [Explicit]
 #endif
         [Linq101SamplesModified("Console and ObjectDummper references deleted")]

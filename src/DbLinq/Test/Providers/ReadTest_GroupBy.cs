@@ -47,7 +47,7 @@ using nwind;
     namespace Test_NUnit_Sqlite
 #elif INGRES
     namespace Test_NUnit_Ingres
-#elif MSSQL && MONO_STRICT
+#elif MSSQL && L2SQL
     namespace Test_NUnit_MsSql_Strict
 #elif MSSQL
     namespace Test_NUnit_MsSql
@@ -78,7 +78,7 @@ using nwind;
             Assert.IsTrue(rowCount > 0, "Must have some rows");
         }
 
-#if !DEBUG && (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL && !L2SQL)
         [Explicit]
 #endif
         [Test]
@@ -106,7 +106,7 @@ using nwind;
             }
         }
 
-#if !DEBUG && (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL && !L2SQL)
         [Explicit]
 #endif
         [Test]
@@ -162,7 +162,7 @@ using nwind;
         }
 
 
-#if !DEBUG && (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL && !L2SQL)
         [Explicit]
 #endif
         [Test]
@@ -193,7 +193,7 @@ using nwind;
             }
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE || (MSSQL && !L2SQL))
         [Explicit]
 #endif
         [Test]
@@ -238,7 +238,7 @@ using nwind;
             //select new { g.Key , SumPerCustomer = g.Sum(o2=>o2.OrderID) };
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE || (MSSQL && !L2SQL))
         [Explicit]
 #endif
         [Test]
@@ -259,7 +259,7 @@ using nwind;
             //select new { g.Key , SumPerCustomer = g.Sum(o2=>o2.OrderID) };
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE || (MSSQL && !L2SQL))
         [Explicit]
 #endif
         [Test]
@@ -285,7 +285,7 @@ using nwind;
         /// <summary>
         /// Reported by  pwy.mail in http://code.google.com/p/dblinq2007/issues/detail?id=64
         /// </summary>
-#if !DEBUG && (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL && !L2SQL)
         [Explicit]
 #endif
         [Test]

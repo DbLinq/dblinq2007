@@ -53,7 +53,7 @@ using Id = System.Int32;
     namespace Test_NUnit_Sqlite
 #elif INGRES
     namespace Test_NUnit_Ingres
-#elif MSSQL && MONO_STRICT
+#elif MSSQL && L2SQL
     namespace Test_NUnit_MsSql_Strict
 #elif MSSQL
     namespace Test_NUnit_MsSql
@@ -80,7 +80,7 @@ SELECT o$.*
 FROM Employees AS e$
 LEFT OUTER JOIN Orders AS o$ ON o$.[EmployeeID] = e$.[EmployeeID]
          */
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE || (MSSQL && !L2SQL))
         [Explicit]
 #endif
         [Description("Subquery")]
@@ -94,7 +94,7 @@ LEFT OUTER JOIN Orders AS o$ ON o$.[EmployeeID] = e$.[EmployeeID]
             Assert.IsTrue(count > 0);
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE || (MSSQL && !L2SQL))
         [Explicit]
 #endif
         [Description("Subquery with nested select")]
@@ -107,7 +107,7 @@ LEFT OUTER JOIN Orders AS o$ ON o$.[EmployeeID] = e$.[EmployeeID]
             Assert.IsTrue(count > 0);
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE || (MSSQL && !L2SQL))
         [Explicit]
 #endif
         [Description("Subquery with nested entityset")]
@@ -120,7 +120,7 @@ LEFT OUTER JOIN Orders AS o$ ON o$.[EmployeeID] = e$.[EmployeeID]
             Assert.IsTrue(count > 0);
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE || (MSSQL && !L2SQL))
         [Explicit]
 #endif
         [Description("Subquery with nested query")]

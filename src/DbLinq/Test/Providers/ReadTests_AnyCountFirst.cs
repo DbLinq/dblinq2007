@@ -21,7 +21,7 @@ using nwind;
     namespace Test_NUnit_Sqlite
 #elif INGRES
     namespace Test_NUnit_Ingres
-#elif MSSQL && MONO_STRICT
+#elif MSSQL && L2SQL
     namespace Test_NUnit_MsSql_Strict
 #elif MSSQL
     namespace Test_NUnit_MsSql
@@ -218,7 +218,7 @@ using nwind;
                      select new { c.CustomerID, HasUSAOrders = c.Orders.Count(o => o.ShipCountry == "USA") }).ToList();
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE || (MSSQL && !L2SQL))
         [Explicit]
 #endif
         [Test]
@@ -234,7 +234,7 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE || (MSSQL && !L2SQL))
         [Explicit]
 #endif
         [Test]
@@ -249,7 +249,7 @@ using nwind;
             var list = q.ToList();
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE || (MSSQL && !L2SQL))
         [Explicit]
 #endif
         [Test]

@@ -147,7 +147,7 @@ namespace DbLinqTest {
             new DataContext("", mapping);
         }
 
-#if MONO_STRICT
+#if L2SQL
         // DbLinqProvider/etc. obviously aren't removed under L2SQL
         [ExpectedException(typeof(ArgumentException))]
 #endif
@@ -159,7 +159,7 @@ namespace DbLinqTest {
             Assert.AreEqual(-1, ctx.Connection.ConnectionString.IndexOf("DbLinqConnectionType"));
         }
         
-#if !MONO_STRICT
+#if !L2SQL
         [Test, ExpectedException(typeof(NotImplementedException))]
         public void Ctor_FileOrServerOrConnectionIsFilename()
         {
@@ -184,7 +184,7 @@ namespace DbLinqTest {
             DataContext dc = new DataContext(connection);
             Assert.AreEqual(connection, dc.Connection);
 
-#if !MONO_STRICT
+#if !L2SQL
             dc = new DataContext (new DummyConnection());
             Assert.AreEqual(null, dc.Connection);
 #endif
