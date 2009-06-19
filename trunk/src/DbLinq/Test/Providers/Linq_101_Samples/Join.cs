@@ -20,7 +20,7 @@ using nwind;
     namespace Test_NUnit_Sqlite.Linq_101_Samples
 #elif INGRES
     namespace Test_NUnit_Ingres.Linq_101_Samples
-#elif MSSQL && MONO_STRICT
+#elif MSSQL && L2SQL
     namespace Test_NUnit_MsSql_Strict.Linq_101_Samples
 #elif MSSQL
     namespace Test_NUnit_MsSql.Linq_101_Samples
@@ -147,7 +147,7 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE || (MSSQL && !L2SQL))
         [Explicit]
 #endif
         [Test(Description = "GroupJoin - LEFT OUTER JOIN. This sample shows how to get LEFT OUTER JOIN by using DefaultIfEmpty(). The DefaultIfEmpty() method returns null when there is no Order for the Employee.")]
@@ -164,7 +164,7 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE || (MSSQL && !L2SQL))
         [Explicit]
 #endif
         [Test(Description = "GroupJoin - Projected let assignment. This sample projects a 'let' expression resulting from a join.")]
@@ -182,7 +182,7 @@ using nwind;
             Assert.IsTrue(list.Count > 0);
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE || (MSSQL && !L2SQL))
         [Explicit]
 #endif
         [Test(Description = "GroupJoin - Composite Key.This sample shows a join with a composite key.")]

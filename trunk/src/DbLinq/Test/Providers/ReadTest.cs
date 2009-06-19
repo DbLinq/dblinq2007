@@ -52,7 +52,7 @@ using DataLinq = DbLinq.Data.Linq;
     namespace Test_NUnit_Sqlite
 #elif INGRES
     namespace Test_NUnit_Ingres
-#elif MSSQL && MONO_STRICT
+#elif MSSQL && L2SQL
     namespace Test_NUnit_MsSql_Strict
 #elif MSSQL
     namespace Test_NUnit_MsSql
@@ -81,7 +81,7 @@ using DataLinq = DbLinq.Data.Linq;
 
 
 
-#if !DEBUG && (MSSQL && MONO_STRICT)
+#if !DEBUG && (MSSQL && L2SQL)
         // L2SQL doesn't support 'SELECT' queries in DataContext.ExecuteCommand().
         [Explicit]
 #endif
@@ -322,7 +322,7 @@ using DataLinq = DbLinq.Data.Linq;
         /// <summary>
         /// from http://www.agilior.pt/blogs/pedro.rainho/archive/2008/04/11/4271.aspx
         /// </summary>
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE || (MSSQL && !L2SQL))
         [Explicit]
 #endif
         [Test(Description = "Using LIKE operator from linq query")]
@@ -638,7 +638,7 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.AreEqual(9, count);
         }
 
-#if !DEBUG && (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL && !L2SQL)
         [Explicit]
 #endif
         [Test]
@@ -714,7 +714,7 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.Greater(productID, 0, "Expected penID>0, got " + productID);
         }
 
-#if !DEBUG && (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL && !L2SQL)
         [Explicit]
 #endif
         [Test]

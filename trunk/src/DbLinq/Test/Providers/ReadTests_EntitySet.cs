@@ -29,7 +29,7 @@ using nwind;
     namespace Test_NUnit_Sqlite
 #elif INGRES
     namespace Test_NUnit_Ingres
-#elif MSSQL && MONO_STRICT
+#elif MSSQL && L2SQL
     namespace Test_NUnit_MsSql_Strict
 #elif MSSQL
     namespace Test_NUnit_MsSql
@@ -56,7 +56,7 @@ using nwind;
             Assert.Greater(customer.Orders.Count, 0);
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE || (MSSQL && !L2SQL))
         [Explicit]
 #endif
         [Test]
@@ -144,7 +144,7 @@ using nwind;
         }
 
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE || (MSSQL && !L2SQL))
         [Explicit]
 #endif
         [Test]
@@ -164,7 +164,7 @@ using nwind;
             Assert.AreEqual(c.Orders.Count, beforeCount);
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE || (MSSQL && !L2SQL))
         [Explicit]
 #endif
         [Test]
@@ -190,7 +190,7 @@ using nwind;
         }
 
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE || (MSSQL && !L2SQL))
         [Explicit]
 #endif
         [Test]
@@ -207,7 +207,7 @@ using nwind;
             Assert.AreNotEqual(order.CustomerID, newcustomerId);
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE || (MSSQL && !L2SQL))
         [Explicit]
 #endif
         [Test]
@@ -314,7 +314,7 @@ using nwind;
             Assert.IsFalse(customer.Orders.IsDeferred);
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE || (MSSQL && !L2SQL))
         [Explicit]
 #endif
         [Test]

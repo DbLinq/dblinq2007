@@ -66,7 +66,7 @@ using Id = System.Int32;
     namespace Test_NUnit_Sqlite
 #elif INGRES
     namespace Test_NUnit_Ingres
-#elif MSSQL && MONO_STRICT
+#elif MSSQL && L2SQL
     namespace Test_NUnit_MsSql_Strict
 #elif MSSQL
     namespace Test_NUnit_MsSql
@@ -526,7 +526,7 @@ dummy text
 
 #endif
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE || (MSSQL && !L2SQL))
         [Explicit]
 #endif
         [Test]
@@ -541,7 +541,7 @@ dummy text
             db.SubmitChanges();
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE || (MSSQL && !L2SQL))
         [Explicit]
 #endif
         [Test]
@@ -620,7 +620,7 @@ dummy text
         /// You are not expected to hold the cache for an extended duration (except possibly for a client scenario), 
         /// or share it across threads, processes, or machines in a cluster. 
         /// </summary>
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE || (MSSQL && !L2SQL))
         [Explicit]
 #endif
         [Test]
@@ -694,7 +694,7 @@ dummy text
             }
         }
 
-#if !DEBUG && (!(MSSQL && MONO_STRICT))
+#if !DEBUG && (!(MSSQL && L2SQL))
         [Explicit]
 #endif
         // L2SQL: System.NotSupportedException : An attempt has been made to Attach or Add an entity that is not new, perhaps having been loaded from another DataContext.  This is not supported.
@@ -720,7 +720,7 @@ dummy text
         }
 
 
-#if !DEBUG && (SQLITE || (MSSQL && !MONO_STRICT))
+#if !DEBUG && (SQLITE || (MSSQL && !L2SQL))
         [Explicit]
 #endif
         [Test]

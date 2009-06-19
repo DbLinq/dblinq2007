@@ -37,7 +37,7 @@ namespace nwind
     namespace Test_NUnit_Sqlite
 #elif INGRES
     namespace Test_NUnit_Ingres
-#elif MSSQL && MONO_STRICT
+#elif MSSQL && L2SQL
     namespace Test_NUnit_MsSql_Strict
 #elif MSSQL
     namespace Test_NUnit_MsSql
@@ -88,7 +88,7 @@ namespace nwind
             new DataLoadOptions().LoadWith<Order> (o => o.Customer.Orders);
         }
 
-#if !DEBUG && (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL && !L2SQL)
         [Explicit]
 #endif
         [Test]
@@ -100,7 +100,7 @@ namespace nwind
             lo.LoadWith<Order>(o => o.Customer);
         }
 
-#if !DEBUG && (MSSQL && !MONO_STRICT)
+#if !DEBUG && (MSSQL && !L2SQL)
         [Explicit]
 #endif
         [Test]

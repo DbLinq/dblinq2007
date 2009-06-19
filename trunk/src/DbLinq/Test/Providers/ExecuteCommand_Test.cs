@@ -47,7 +47,7 @@ using nwind;
     namespace Test_NUnit_Sqlite
 #elif INGRES
     namespace Test_NUnit_Ingres
-#elif MSSQL && MONO_STRICT
+#elif MSSQL && L2SQL
     namespace Test_NUnit_MsSql_Strict
 #elif MSSQL
     namespace Test_NUnit_MsSql
@@ -58,7 +58,7 @@ using nwind;
     [TestFixture]
     public class ExecuteCommand_Test : TestBase
     {
-#if !DEBUG && (MSSQL && MONO_STRICT)
+#if !DEBUG && (MSSQL && L2SQL)
         // DataContext.ExecuteScalar() working with 'SELECT COUNT(*)' is a DbLinq extension.
         // Exclude from Linq2Sql comparison tests.
         [Explicit]
@@ -76,7 +76,7 @@ using nwind;
         /// <summary>
         /// like above, but includes one parameter.
         /// </summary>
-#if !DEBUG && (MSSQL && MONO_STRICT)
+#if !DEBUG && (MSSQL && L2SQL)
         // DataContext.ExecuteScalar() working with 'SELECT COUNT(*)' is a DbLinq extension.
         // Exclude from Linq2Sql comparison tests.
         [Explicit]
