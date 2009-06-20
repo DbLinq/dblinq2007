@@ -25,6 +25,7 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -35,7 +36,6 @@ using System.Data.Linq;
 #else
 using DbLinq.Data.Linq;
 #endif
-
 using DbLinq.Data.Linq.Implementation;
 using DbLinq.Data.Linq.Sugar;
 using DbLinq.Data.Linq.Sugar.ExpressionMutator;
@@ -584,7 +584,10 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         /// <returns></returns>
         protected virtual Expression AnalyzeWhere(IList<Expression> parameters, BuilderContext builderContext)
         {
-            var tablePiece = parameters[0];
+			var tablePiece = parameters[0];
+			//Type queriedTableType = GetQueriedType(tablePiece);
+			//if (queriedTableType != null)
+				//tablePiece = CreateTable(queriedTableType, builderContext);
             RegisterWhere(Analyze(parameters[1], tablePiece, builderContext), builderContext);
             return tablePiece;
         }
@@ -1371,10 +1374,17 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         {
             if (parameters[0].Type.IsArray)
             {
-                var array = Analyze(parameters[0], builderContext);
+                //TODO: Need to figure out how to get a ParameterExpression to be processed through GetLiteral(Array array)
+                //Tried adding to SelectQuery.GetCommand, but values there are quoted by DBProvider
+                //Meanwhile, "hack" by converting it to a LiteralExpression
+                Expression array = Analyze(parameters[0], builderContext);
+                if (array is InputParameterExpression)
+                    array = Analyze(Expression.Constant(((InputParameterExpression)array).GetValue()), builderContext);
                 var expression = Analyze(parameters[1], builderContext);
                 return new SpecialExpression(SpecialExpressionType.In, expression, array);
             }
+            else if (typeof(IQueryable).IsAssignableFrom(parameters[0].Type))
+                return new SpecialExpression(SpecialExpressionType.In, Analyze(parameters[1], builderContext), Analyze(parameters[0], builderContext));
             throw Error.BadArgument("S0548: Can't analyze Contains() method");
         }
 
