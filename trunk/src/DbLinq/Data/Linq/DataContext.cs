@@ -981,7 +981,11 @@ namespace DbLinq.Data.Linq
         /// Gets or sets the load options
         /// </summary>
         [DbLinqToDo]
-        public DataLoadOptions LoadOptions { get; set; }
+		public DataLoadOptions LoadOptions
+		{
+			get { throw new NotImplementedException(); }
+			set { throw new NotImplementedException(); }
+		}
 
         public DbTransaction Transaction { get; set; }
 
