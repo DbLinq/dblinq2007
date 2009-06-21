@@ -328,5 +328,27 @@ using nwind;
             Assert.Greater(q.Count(), 0);
         }
 
+        [Test]
+        public void QueryableContains()
+        {
+            var db = CreateDB();
+            var q1 = db.OrderDetails.Where(o => o.Discount > 0).Select(o => o.OrderID);
+            var q = db.OrderDetails.Where(o => !q1.Contains(o.OrderID));
+            string query = db.GetCommand(q).CommandText;
+            Assert.Greater(q.Count(), 0);
+        }
+
+        [Test]
+        public void ArrayContains_QueryParserCacheHit()
+        {
+            var db = CreateDB();
+            decimal[] d = new decimal[] { 1, 4, 5, 6, 10248, 10255 };
+            var q = db.OrderDetails.Where(o => d.Contains(o.OrderID));
+            string query1 = db.GetCommand(q).CommandText;
+            d = new decimal[] { 1, 4, 5, 6, 7, 8 };
+            q = db.OrderDetails.Where(o => d.Contains(o.OrderID));
+            string query2 = db.GetCommand(q).CommandText;
+            Assert.AreEqual(query1, query2);
+        }
     }
 }

@@ -1374,17 +1374,32 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         {
             if (parameters[0].Type.IsArray)
             {
+                Expression array = Analyze(parameters[0], builderContext);
+                /* Giacomo Tesio note: this code avoid the dbms to hit query plan cache, w/o any reason
+                 * 
+                 * Please, let me know why you did this, what did you tried to fix, so that I can help you fix it in the right way.
+                 * 
                 //TODO: Need to figure out how to get a ParameterExpression to be processed through GetLiteral(Array array)
                 //Tried adding to SelectQuery.GetCommand, but values there are quoted by DBProvider
                 //Meanwhile, "hack" by converting it to a LiteralExpression
-                Expression array = Analyze(parameters[0], builderContext);
                 if (array is InputParameterExpression)
                     array = Analyze(Expression.Constant(((InputParameterExpression)array).GetValue()), builderContext);
+                 */
                 var expression = Analyze(parameters[1], builderContext);
                 return new SpecialExpression(SpecialExpressionType.In, expression, array);
             }
-            else if (typeof(IQueryable).IsAssignableFrom(parameters[0].Type))
-                return new SpecialExpression(SpecialExpressionType.In, Analyze(parameters[1], builderContext), Analyze(parameters[0], builderContext));
+            else
+            {
+                if (typeof(IQueryable).IsAssignableFrom(parameters[0].Type))
+                {
+                    Expression p0 = Analyze(parameters[1], builderContext);
+                    BuilderContext newContext = builderContext.NewSelect();
+                    InputParameterExpression ip1 = new InputParameterExpression(parameters[0], "dummy");
+
+                    Expression p1 = AnalyzeQueryProvider(ip1.GetValue() as QueryProvider, newContext);
+                    return new SpecialExpression(SpecialExpressionType.In, p0, newContext.CurrentSelect);
+                }
+            }
             throw Error.BadArgument("S0548: Can't analyze Contains() method");
         }
 
