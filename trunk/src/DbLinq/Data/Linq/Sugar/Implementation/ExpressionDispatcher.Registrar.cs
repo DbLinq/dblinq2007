@@ -382,14 +382,19 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                                                           BuilderContext builderContext)
         {
             var bindings = new List<MemberBinding>();
+            var row = builderContext.QueryContext.DataContext.Mapping.GetTable(tableExpression.Type).RowType;
+            
             foreach (var columnExpression in RegisterAllColumns(tableExpression, builderContext))
             {
-                PropertyInfo propertyInfo = columnExpression.MemberInfo as PropertyInfo;
+                var dataMember = row.GetDataMember(columnExpression.MemberInfo);
+                
+                MemberInfo memberInfo = dataMember.StorageMember ?? columnExpression.MemberInfo;
+                PropertyInfo propertyInfo = memberInfo as PropertyInfo;
                 if (propertyInfo == null || propertyInfo.CanWrite)
                 {
                     var parameterColumn = GetOutputValueReader(columnExpression,
                                                                dataRecordParameter, mappingContextParameter, builderContext);
-                    var binding = Expression.Bind(columnExpression.MemberInfo, parameterColumn);
+                    var binding = Expression.Bind(memberInfo, parameterColumn);
                     bindings.Add(binding);
                 }
             }

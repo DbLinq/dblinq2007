@@ -138,6 +138,23 @@ namespace Test_NUnit
             return db;
         }
 
+#if POSTGRES
+        public NorthwindCustom CreateCustomDB()
+        {
+            return CreateCustomDB(System.Data.ConnectionState.Closed);
+        }
+
+        public NorthwindCustom CreateCustomDB(System.Data.ConnectionState state)
+        {
+            CheckRecreateSqlite();
+            var conn = CreateConnection(connStr);
+            if (state == System.Data.ConnectionState.Open)
+                conn.Open();
+            var db = new NorthwindCustom(conn) { Log = Console.Out };
+            return db;
+        }     
+#endif
+        
         /// <summary>
         /// execute a sql statement, return an Int64.
         /// </summary>
