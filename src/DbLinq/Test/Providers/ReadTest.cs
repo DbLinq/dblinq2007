@@ -1028,5 +1028,19 @@ using DataLinq = DbLinq.Data.Linq;
             var q = db.Customers.Where(c => c.ContactName == "'; DROP TABLE DoesNotExist; --");
             Assert.AreEqual(0, q.Count());
         }
+              
+#if POSTGRES
+        [Test]
+        public void NoStorage()
+        {
+            var db = CreateCustomDB();
+            var q = db.Categories.Where(c => c.CategoryID == 1);
+            var r = q.First();
+            Assert.AreEqual(1, q.Count());
+            Assert.AreEqual(1, r.CategoryID);
+            Assert.IsTrue(r.propertyInvoked_CategoryName);     
+            Assert.IsFalse(r.propertyInvoked_Description);     
+        }
+#endif    
     }
 }
