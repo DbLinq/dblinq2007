@@ -1384,7 +1384,13 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     InputParameterExpression ip1 = new InputParameterExpression(parameters[0], "dummy");
 
                     Expression p1 = AnalyzeQueryProvider(ip1.GetValue() as QueryProvider, newContext);
-                    return new SpecialExpression(SpecialExpressionType.In, p0, newContext.CurrentSelect);
+                    ColumnExpression c = p1 as ColumnExpression;
+                    if (!newContext.CurrentSelect.Tables.Contains(c.Table))
+                    {
+                        newContext.CurrentSelect.Tables.Add(c.Table);
+                    }
+                    // TODO: verify if this is the right place to work
+                    return new SpecialExpression(SpecialExpressionType.In, p0, newContext.CurrentSelect.Mutate(new Expression[] { p1 }));
                 }
             }
             throw Error.BadArgument("S0548: Can't analyze Contains() method");

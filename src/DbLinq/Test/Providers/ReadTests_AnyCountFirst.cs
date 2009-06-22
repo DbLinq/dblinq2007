@@ -328,15 +328,6 @@ using nwind;
             Assert.Greater(q.Count(), 0);
         }
 
-        [Test]
-        public void QueryableContains()
-        {
-            var db = CreateDB();
-            var q1 = db.OrderDetails.Where(o => o.Discount > 0).Select(o => o.OrderID);
-            var q = db.OrderDetails.Where(o => !q1.Contains(o.OrderID));
-            string query = db.GetCommand(q).CommandText;
-            Assert.Greater(q.Count(), 0);
-        }
 
         [Test]
         public void ArrayContains_QueryParserCacheHit()
@@ -350,5 +341,6 @@ using nwind;
             string query2 = db.GetCommand(q).CommandText;
             Assert.AreEqual(query1, query2);
         }
+
     }
 }
