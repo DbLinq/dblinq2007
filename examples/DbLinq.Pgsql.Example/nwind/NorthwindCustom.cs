@@ -4,27 +4,37 @@ using System.Data.Linq.Mapping;
 using System.Diagnostics;
 using System.Reflection;
 using DbLinq.Data.Linq;
+using DbLinq.Vendor;
 
 namespace nwind
 {
-    public partial class Northwind
+    partial class Northwind
     {
-        public Table<NoStorageCategory> NoStorageCategories { get { return GetTable<NoStorageCategory>(); } }
+        public Table<NoStorageCategory> NoStorageCategories { get { return GetTable<NoStorageCategory>(); }}
     }
-
+        
+    partial class Employee
+    {
+        [Column(Storage = "_EmployeeID", Name = "EmployeeID", DbType = "serial", IsDbGenerated = true)]
+        public string Identifier
+        {
+            get { return null; /* this._EmployeeID.ToString();*/ }
+        }
+    }
+        
     [Table(Name = "public.\"Categories\"")]
     public partial class NoStorageCategory
     {
         public bool propertyInvoked_CategoryName = false;
         public bool propertyInvoked_Description = false;
         
-        // Tests the Storage without a setter for the property.
+        // Tests the "Storage" without a setter for the property.
         private int _categoryID;
         [Column(Storage = "_categoryID", Name = "\"CategoryID\"", DbType = "integer(32,0)", IsPrimaryKey = true, IsDbGenerated = true, CanBeNull = false, Expression = "nextval('\"Categories_CategoryID_seq\"')")]
         public int CategoryID {
             get { return _categoryID; }
         }
-
+                
         // No "Storage" attribute, this should go through the property.
         private string _categoryName;
         [Column(Name = "\"CategoryName\"", DbType = "character varying(15)", CanBeNull = false)]
