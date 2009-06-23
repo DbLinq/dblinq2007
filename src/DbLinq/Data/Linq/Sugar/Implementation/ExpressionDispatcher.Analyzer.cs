@@ -751,8 +751,8 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 ColumnExpression queryColumnExpression = RegisterColumn(tableExpression, memberInfo, builderContext);
                 if (queryColumnExpression != null)
                 {
-                    Type storageType = queryColumnExpression.StorageInfo.GetMemberType();
-                    if (queryColumnExpression.Type != storageType)
+                    Type storageType = queryColumnExpression.StorageInfo != null ? queryColumnExpression.StorageInfo.GetMemberType() : null;
+                    if (storageType != null && queryColumnExpression.Type != storageType)
                     {
                         return Expression.Convert(queryColumnExpression, queryColumnExpression.Type, typeof(Convert).GetMethod("To" + queryColumnExpression.Type.Name, new Type[] { queryColumnExpression.Type }));
                     }
