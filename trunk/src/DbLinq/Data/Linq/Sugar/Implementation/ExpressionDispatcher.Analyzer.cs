@@ -748,13 +748,13 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     return new EntitySetExpression(queryAssociationExpression, memberInfo.GetMemberType());
                 }
                 // then, try the column
-                var queryColumnExpression = RegisterColumn(tableExpression, memberInfo, builderContext);
+                ColumnExpression queryColumnExpression = RegisterColumn(tableExpression, memberInfo, builderContext);
                 if (queryColumnExpression != null)
                 {
-                    Type memberType = memberInfo.GetMemberType();
-                    if (queryColumnExpression.Type != memberType)
+                    Type storageType = queryColumnExpression.StorageInfo.GetMemberType();
+                    if (queryColumnExpression.Type != storageType)
                     {
-                        return Expression.Convert(queryColumnExpression, memberInfo.GetMemberType(), typeof(Convert).GetMethod("To" + memberType.Name, new Type[] { queryColumnExpression.Type }));
+                        return Expression.Convert(queryColumnExpression, queryColumnExpression.Type, typeof(Convert).GetMethod("To" + queryColumnExpression.Type.Name, new Type[] { queryColumnExpression.Type }));
                     }
                     else
                     {
@@ -1441,18 +1441,13 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 if (constantExpression.Value is ITable)
                 {
                     var tableType = constantExpression.Type.GetGenericArguments()[0];
-                    return new TableExpression(tableType, DataMapper.GetTableName(tableType, builderContext.QueryContext.DataContext));
+                    return CreateTable(tableType, builderContext);
                 }
                 else
                 {
                     QueryProvider queryProvider = constantExpression.Value as QueryProvider;
                     if (queryProvider != null)
                     {
-                        /*
-                        BuilderContext newContext = new BuilderContext(builderContext.QueryContext);
-                        Expression tableExpression = AnalyzeQueryProvider(queryProvider, newContext);
-                        builderContext.MergeWith(newContext);
-                        */
                         Expression tableExpression = AnalyzeQueryProvider(queryProvider, builderContext.NewQuote());
                         return tableExpression;
                     }

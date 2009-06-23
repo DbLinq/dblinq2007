@@ -1029,7 +1029,7 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.AreEqual(0, q.Count());
         }
               
-#if POSTGRES
+#if POSTGRES || MSSQL || L2SQL
         [Test]
         public void NoStorage()
         {

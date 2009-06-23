@@ -542,6 +542,19 @@ using Id = System.Int32;
             Assert.AreEqual(27, count);
         }
 
+#if MSSQL || L2SQL
+
+        [Test]
+        public void F27_SelectEmployee_Identifier()
+        {
+            var db = CreateDB();
+            Employee em = (from e in db.Employees where e.Identifier == "7" select e).Single();
+
+            Assert.AreEqual("King", em.LastName);
+        }
+
+#endif
+
         /// <summary>
         /// the following three tests are from Jahmani's page
         /// LinqToSQL: Comprehensive Support for SQLite, MS Access, SQServer2000/2005
