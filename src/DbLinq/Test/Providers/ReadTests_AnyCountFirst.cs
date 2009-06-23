@@ -249,7 +249,7 @@ using nwind;
             var list = q.ToList();
         }
 
-#if !DEBUG && (SQLITE || (MSSQL && !L2SQL))
+#if !DEBUG && (SQLITE || POSTGRES || (MSSQL && !L2SQL))
         [Explicit]
 #endif
         [Test]
