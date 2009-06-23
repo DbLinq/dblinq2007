@@ -1029,12 +1029,12 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.AreEqual(0, q.Count());
         }
               
-#if POSTGRES || MSSQL || L2SQL
+#if POSTGRES || MSSQL
         [Test]
         public void Storage01()
         {
-            var db = CreateCustomDB();
-            var q = db.Categories.Where(c => c.CategoryID == 1);
+            var db = CreateDB();
+            var q = db.NoStorageCategories.Where(c => c.CategoryID == 1);
             var r = q.First();
             Assert.AreEqual(1, q.Count());
             Assert.AreEqual(1, r.CategoryID);

@@ -4,27 +4,16 @@ using System.Data.Linq.Mapping;
 using System.Diagnostics;
 using System.Reflection;
 using DbLinq.Data.Linq;
-using DbLinq.Vendor;
 
 namespace nwind
 {
-    public partial class NorthwindCustom : DataContext
+    public partial class Northwind
     {
-        public NorthwindCustom(IDbConnection connection)
-        : base(connection, new DbLinq.PostgreSql.PgsqlVendor())
-        {
-        }
-
-        public NorthwindCustom(IDbConnection connection, IVendor vendor)
-        : base(connection, vendor)
-        {
-        }
-
-        public Table<CategoryCustom> Categories { get { return GetTable<CategoryCustom>(); } }
+        public Table<NoStorageCategory> NoStorageCategories { get { return GetTable<NoStorageCategory>(); } }
     }
 
     [Table(Name = "public.\"Categories\"")]
-    public partial class CategoryCustom
+    public partial class NoStorageCategory
     {
         public bool propertyInvoked_CategoryName = false;
         public bool propertyInvoked_Description = false;

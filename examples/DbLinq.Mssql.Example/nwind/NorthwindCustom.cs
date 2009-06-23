@@ -3,24 +3,18 @@ using System.Data;
 using System.Data.Linq.Mapping;
 using System.Diagnostics;
 using System.Reflection;
+
+#if MONO_STRICT
+using System.Data.Linq;
+#else
 using DbLinq.Data.Linq;
-using DbLinq.Vendor;
+#endif
 
 namespace nwind
 {
-    public partial class NorthwindCustom : DataContext
+    partial class Northwind
     {
-        public NorthwindCustom(IDbConnection connection)
-            : base(connection, new DbLinq.SqlServer.SqlServerVendor())
-        {
-        }
-
-        public NorthwindCustom(IDbConnection connection, IVendor vendor)
-            : base(connection, vendor)
-        {
-        }
-
-        public Table<CategoryCustom> Categories { get { return GetTable<CategoryCustom>(); } }
+        public Table<NoStorageCategory> NoStorageCategories { get { return GetTable<NoStorageCategory>(); } }
     }
 
     partial class Employee
@@ -32,8 +26,9 @@ namespace nwind
         }
     }
 
+
     [Table(Name = "dbo.Categories")]
-    public partial class CategoryCustom
+    public partial class NoStorageCategory
     {
         public bool propertyInvoked_CategoryName = false;
         public bool propertyInvoked_Description = false;
