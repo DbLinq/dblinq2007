@@ -54,6 +54,7 @@ namespace DbLinq.Util
                 return null;
             if (memberInfo is Type)
                 return (Type)memberInfo;
+            Console.WriteLine("# Error: Found member: type={0}; name={1}", memberInfo.GetType().FullName, memberInfo.Name);
             throw new ArgumentException();
         }
 
