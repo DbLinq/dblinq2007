@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="nwind\Adrus_Employee_Types.cs" />
     <Compile Include="nwind\AndrusDB.cs" />
+    <Compile Include="nwind\NorthwindCustom.cs" />
     <Compile Include="PgAndrusClient.cs" />
     <Compile Include="ProgramPg.cs" />
     <Compile Include="nwind\Northwind.cs" />

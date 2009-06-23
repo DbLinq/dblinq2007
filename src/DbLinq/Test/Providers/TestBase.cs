@@ -138,7 +138,8 @@ namespace Test_NUnit
             return db;
         }
 
-#if POSTGRES
+#if POSTGRES || MSSQL || L2SQL
+
         public NorthwindCustom CreateCustomDB()
         {
             return CreateCustomDB(System.Data.ConnectionState.Closed);
