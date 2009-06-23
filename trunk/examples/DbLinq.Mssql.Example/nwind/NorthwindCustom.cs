@@ -35,7 +35,7 @@ namespace nwind
 
         // Tests the Storage without a setter for the property.
         private int _categoryID;
-        [Column(Storage = "_CategoryID", AutoSync = AutoSync.OnInsert, DbType = "Int NOT NULL IDENTITY", IsPrimaryKey = true, IsDbGenerated = true)]
+        [Column(Storage = "_categoryID", AutoSync = AutoSync.OnInsert, DbType = "Int NOT NULL IDENTITY", IsPrimaryKey = true, IsDbGenerated = true)]
         public int CategoryID
         {
             get { return _categoryID; }
@@ -43,7 +43,7 @@ namespace nwind
 
         // No "Storage" attribute, this should go through the property.
         private string _categoryName;
-        [Column(Storage = "_CategoryName", DbType = "NVarChar(15) NOT NULL", CanBeNull = false)]
+        [Column(DbType = "NVarChar(15) NOT NULL", CanBeNull = false)]
         public string CategoryName
         {
             get { return _categoryName; }
@@ -60,7 +60,7 @@ namespace nwind
         // "Storage" and property, should set the field directly.
         private string _description;
         [DebuggerNonUserCode]
-        [Column(Storage = "_Description", DbType = "NText", UpdateCheck = UpdateCheck.Never)]
+        [Column(Storage = "_description", DbType = "NText", UpdateCheck = UpdateCheck.Never)]
         public string Description
         {
             get { return _description; }
