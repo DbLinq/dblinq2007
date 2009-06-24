@@ -544,11 +544,15 @@ using Id = System.Int32;
 
 #if MSSQL || L2SQL
 
+#if L2SQL
+        [Explicit]
+#endif
         [Test]
         public void F27_SelectEmployee_Identifier()
         {
             var db = CreateDB();
-            Employee em = (from e in db.Employees where e.Identifier == "7" select e).Single();
+            var q = from e in db.GetTable<EmployeeWithStringIdentifier>() where e.Identifier == "7" select e;
+            EmployeeWithStringIdentifier em = q.Single();
 
             Assert.AreEqual("King", em.LastName);
         }
