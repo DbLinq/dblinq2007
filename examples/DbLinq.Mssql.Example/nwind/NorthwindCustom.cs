@@ -17,12 +17,29 @@ namespace nwind
         public Table<NoStorageCategory> NoStorageCategories { get { return GetTable<NoStorageCategory>(); } }
     }
 
-    partial class Employee
+    [Table(Name = "dbo.Employees")]
+    partial class EmployeeWithStringIdentifier
     {
-        [Column(Storage = "_EmployeeID", Name = "EmployeeID", DbType = "Int NOT NULL IDENTITY", IsDbGenerated = true)]
+        private int _EmployeeID;
+        private string _LastName;
+
+        [Column(Storage = "_EmployeeID", Name = "EmployeeID", AutoSync = AutoSync.OnInsert, DbType = "Int NOT NULL IDENTITY", IsPrimaryKey = true, IsDbGenerated = true)]
         public string Identifier
         {
             get { return this._EmployeeID.ToString(); }
+        }
+
+        [Column(Storage = "_LastName", DbType = "NVarChar(20) NOT NULL", CanBeNull = false)]
+        public string LastName
+        {
+            get
+            {
+                return this._LastName;
+            }
+            set
+            {
+                this._LastName = value;
+            }
         }
     }
 
