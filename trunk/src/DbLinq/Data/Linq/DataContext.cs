@@ -513,8 +513,10 @@ namespace DbLinq.Data.Linq
             foreach (var assoc in metaType.Associations)
             {
                 var memberData = assoc.ThisMember;
-                if (memberData.Association.ThisKey.Any(m => m.AutoSync != sync))
-                    continue;
+				//This is not correct - AutoSyncing applies to auto-updating columns, such as a TimeStamp, not to foreign key associations, which is always automatically synched
+				//Confirmed against default .NET l2sql - association columns are always set, even if AutoSync==AutoSync.Never
+				//if (memberData.Association.ThisKey.Any(m => (m.AutoSync != AutoSync.Always) && (m.AutoSync != sync)))
+                //    continue;
                 var oks = memberData.Association.OtherKey.Select(m => m.StorageMember).ToList();
                 if (oks.Count == 0)
                     continue;
