@@ -50,7 +50,7 @@ namespace DbLinq.PostgreSql
             IList<SqlStatement> ids = new List<SqlStatement>();           
             foreach (SqlStatement outputExpression in outputExpressions) {
                 if (outputExpression != null)
-                    ids.Add(outputExpression);
+                    ids.Add(outputExpression.Replace("nextval(", "currval(", true));
             }
             return SqlStatement.Format("SELECT {0}", SqlStatement.Join(", ", ids.ToArray()));
         }
