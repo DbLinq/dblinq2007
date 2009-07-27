@@ -842,7 +842,8 @@ namespace DbLinq.Data.Linq
             if (identityKey == null || identityKey.Keys.Count == 0)
                 return;
             // register entity
-            AllTrackedEntities.RegisterToWatch(entity, identityKey);
+			AllTrackedEntities.RegisterToWatch(entity, identityKey);
+			MemberModificationHandler.Register(entity, Mapping);
         }
 
         /// <summary>
@@ -1029,6 +1030,9 @@ namespace DbLinq.Data.Linq
         {
             //connection closing should not be done here.
             //read: http://msdn2.microsoft.com/en-us/library/bb292288.aspx
+
+			//We own the instance of MemberModificationHandler - we must unregister listeners of entities we attached to
+			MemberModificationHandler.UnregisterAll();
         }
 
         [DbLinqToDo]
