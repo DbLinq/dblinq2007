@@ -37,7 +37,7 @@ namespace DbLinq.PostgreSql
 #endif
     class PgsqlSqlProvider : SqlProvider
     {
-        public override SqlStatement GetInsertIds(IList<SqlStatement> outputParameters, IList<SqlStatement> outputExpressions)
+        public override SqlStatement GetInsertIds(SqlStatement table, IList<SqlStatement> autoPKColumn, IList<SqlStatement> inputPKColumns, IList<SqlStatement> inputPKValues, IList<SqlStatement> outputColumns, IList<SqlStatement> outputParameters, IList<SqlStatement> outputExpressions)
         {
             // No parameters? no need to get them back.
             
