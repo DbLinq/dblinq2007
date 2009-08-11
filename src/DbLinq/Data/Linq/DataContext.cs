@@ -524,7 +524,7 @@ namespace DbLinq.Data.Linq
                 var pks = memberData.Association.ThisKey
                     .Select(m => m.StorageMember.GetMemberValue(root))
                     .ToList();
-                if (pks.Count != pks.Count)
+                if (pks.Count != oks.Count)
                     throw new InvalidOperationException(
                         string.Format("Count of primary keys ({0}) doesn't match count of other keys ({1}).",
                             pks.Count, oks.Count));

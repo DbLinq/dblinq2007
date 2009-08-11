@@ -1685,6 +1685,7 @@ namespace DbLinq.Vendor.Implementation
             case "order":
             case "by":
             case "key":
+			case "index":
 
                 return false;
             default:
