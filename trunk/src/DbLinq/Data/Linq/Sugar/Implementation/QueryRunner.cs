@@ -79,7 +79,8 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                             // the conditions to register and watch an entity are:
                             // - not null (can this happen?)
                             // - registered in the model
-                            if (row != null && selectQuery.DataContext.Mapping.GetTable(row.GetType()) != null)
+                            if (row != null && selectQuery.DataContext.ObjectTrackingEnabled && 
+                                    selectQuery.DataContext.Mapping.GetTable(row.GetType()) != null)
                             {
                                 row = (T)selectQuery.DataContext.Register(row);
                             }
