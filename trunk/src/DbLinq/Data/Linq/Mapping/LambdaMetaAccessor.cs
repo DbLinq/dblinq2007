@@ -9,7 +9,7 @@ using System.Reflection.Emit;
 
 namespace DbLinq.Data.Linq.Mapping
 {
-	public static class LambdaMetaAccessor
+	static class LambdaMetaAccessor
 	{
 		//This will go away with C# 4.0 ActionExpression
 		static Delegate MakeSetter(MemberInfo member, Type memberType, Type declaringType)
@@ -18,11 +18,15 @@ namespace DbLinq.Data.Linq.Mapping
 
 			switch (member.MemberType)
 			{
-				case MemberTypes.Property:
-					{
-					 MethodInfo method = ((PropertyInfo)member).GetSetMethod(); 
-					 return Delegate.CreateDelegate(delegateType, method);
-					}
+				case MemberTypes.Property: {
+                    MethodInfo method = ((PropertyInfo)member).GetSetMethod();
+                    if (method != null)
+                        return Delegate.CreateDelegate(delegateType, method);
+                    var ca = member.GetCustomAttributes(typeof(ColumnAttribute), true)[0] as ColumnAttribute;
+                    member = declaringType.GetField(ca.Storage,
+                        BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
+                    goto case MemberTypes.Field;
+                }
 				case MemberTypes.Field:
 					{
 						DynamicMethod m = new DynamicMethod("setter", typeof(void), new Type[] { declaringType, memberType });
@@ -70,7 +74,7 @@ namespace DbLinq.Data.Linq.Mapping
 		}
 	}
 
-	public class LambdaMetaAccessor<TEntity, TMember> : MetaAccessor<TEntity, TMember>
+	class LambdaMetaAccessor<TEntity, TMember> : MetaAccessor<TEntity, TMember>
 	{
 		Func<TEntity, TMember> _Accessor;
 		Action<TEntity, TMember> _Setter;
