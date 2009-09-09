@@ -234,7 +234,7 @@ namespace DbMetal.Generator.Implementation
 
             ProvidersSection.ProviderElement element;
             string errorMsg;
-            if (!configuration.Providers.TryGetProvider(provider, out element, out errorMsg))
+            if (configuration == null || !configuration.Providers.TryGetProvider(provider, out element, out errorMsg))
             {
                 Output.WriteErrorLine(Log, "Failed to load provider {0} : {1}", provider, errorMsg);
                 throw new ApplicationException("Failed to load provider " + provider);
