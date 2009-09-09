@@ -163,8 +163,10 @@ namespace DbMetal.Generator.Implementation
         private Assembly LocalLoadAssembly(string baseName)
         {
             Assembly assembly = LoadAssembly(baseName, Directory.GetCurrentDirectory());
-            if (assembly == null)
-                assembly = LoadAssembly(baseName, new Uri(Path.GetDirectoryName(Assembly.GetEntryAssembly().CodeBase)).LocalPath);
+            if (assembly == null) {
+                var path = Path.GetDirectoryName(Assembly.GetEntryAssembly().CodeBase);
+                assembly = LoadAssembly(baseName, path);
+            }
             return assembly;
         }
 
