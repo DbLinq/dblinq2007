@@ -233,7 +233,7 @@ namespace DbMetal.Generator.Implementation
             var configuration = (ProvidersSection)ConfigurationManager.GetSection("providers");
 
             ProvidersSection.ProviderElement element;
-            string errorMsg;
+            string errorMsg = null;
             if (configuration == null || !configuration.Providers.TryGetProvider(provider, out element, out errorMsg))
             {
                 Output.WriteErrorLine(Log, "Failed to load provider {0} : {1}", provider, errorMsg);
