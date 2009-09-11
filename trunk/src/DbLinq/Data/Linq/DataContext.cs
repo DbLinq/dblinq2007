@@ -704,14 +704,27 @@ namespace DbLinq.Data.Linq
 					//it would be interesting surround the above query with a .Take(1) expression for performance.
 				}
 
+				// If no separate Storage is specified, use the member directly
+				MemberInfo storage = memberData.StorageMember;
+				if (storage == null)
+					storage = memberData.Member;
 
-				FieldInfo entityRefField = (FieldInfo)memberData.StorageMember;
+				 // Check that the storage is a field or a writable property
+				if (!(storage is FieldInfo) && !(storage is PropertyInfo && ((PropertyInfo)storage).CanWrite)) {
+					throw new InvalidOperationException(String.Format(
+						"Member {0}.{1} is not a field nor a writable property",
+						storage.DeclaringType, storage.Name));
+				}
+
+				Type storageType = storage.GetMemberType();
+
 				object entityRefValue = null;
 				if (query != null)
-					entityRefValue = Activator.CreateInstance(entityRefField.FieldType, query);
+					entityRefValue = Activator.CreateInstance(storageType, query);
 				else
-					entityRefValue = Activator.CreateInstance(entityRefField.FieldType);
-				entityRefField.SetValue(entity, entityRefValue);
+					entityRefValue = Activator.CreateInstance(storageType);
+
+				storage.SetMemberValue(entity, entityRefValue);
 			}
 		}
 
