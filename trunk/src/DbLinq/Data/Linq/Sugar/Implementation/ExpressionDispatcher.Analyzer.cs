@@ -1031,6 +1031,18 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
         /// <returns></returns>
         protected virtual Expression AnalyzeOperator(Expression expression, BuilderContext builderContext)
         {
+            var u = expression as UnaryExpression;
+            string parameterName;
+            if (expression.NodeType == ExpressionType.Convert && 
+                    u.Method == null &&
+                    (parameterName = GetParameterName(u.Operand)) != null)
+            {
+                Expression unaliasedExpression;
+                builderContext.Parameters.TryGetValue(parameterName, out unaliasedExpression);
+                var unaliasedTableExpression = unaliasedExpression as TableExpression;
+                if (unaliasedExpression != null && unaliasedTableExpression != null)
+                    return unaliasedTableExpression;
+            }
             var operands = expression.GetOperands().ToList();
             for (int operandIndex = 0; operandIndex < operands.Count; operandIndex++)
             {
