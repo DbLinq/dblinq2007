@@ -39,6 +39,22 @@ using DataLinq = System.Data.Linq;
 using DataLinq = DbLinq.Data.Linq;
 #endif
 
+namespace nwind
+{
+    interface IHasAddress
+    {
+        string Address { get; set; }
+    }
+
+    partial class Customer : IHasAddress
+    {
+    }
+
+    partial class Employee : IHasAddress
+    {
+    }
+}
+
 // test ns 
 #if MYSQL
     namespace Test_NUnit_MySql
@@ -659,6 +675,22 @@ using DataLinq = DbLinq.Data.Linq;
             Assert.AreEqual(employeesCount, allEmployees.Count());
         }
 
+        [Test]
+        public void C25_SelectViaInterface()
+        {
+            var db = CreateDB();
+            var c = MatchAddress(db.Customers, "ignoreme").FirstOrDefault();
+            Assert.IsNotNull(c);
+            var e = MatchAddress(db.Employees, "ignoreme").FirstOrDefault();
+            Assert.IsNotNull(e);
+        }
+
+        private static IEnumerable<T> MatchAddress<T>(IQueryable<T> query, string searchValue)
+            where T : IHasAddress
+        {
+            var lookups = query.OrderByDescending(v => v.Address.Length);
+            return lookups;
+        }
 
         #endregion
 
