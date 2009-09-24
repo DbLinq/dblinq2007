@@ -692,6 +692,84 @@ namespace nwind
             return lookups;
         }
 
+        [Test]
+        public void C26_SelectWithNestedMethodCall()
+        {
+            var db = CreateDB();
+            var q = from e in db.Employees select new
+            {
+                BackName    = e.LastName + ", " + e.FirstName,
+                StaticName  = GetStaticName(e),
+                // InstanceName= GetInstanceName(e, "ignore", "me"),
+                // Territories = e.EmployeeTerritories.ToList(),
+            };
+            var actual  = q.ToList();
+            var expected = new[]{
+                new {
+                    BackName    = "Davolio, Nancy",
+                    StaticName  = "Nancy Davolio [Hired: 1992-05-01]",
+                    InstanceName= "Nancy Davolio [Home Phone: (206) 555-9857]",
+                },
+                new {
+                    BackName    = "Fuller, Andrew",
+                    StaticName  = "Andrew Fuller [Hired: 1992-08-14]",
+                    InstanceName= "Andrew Fuller [Home Phone: (206) 555-9482]",
+                },
+                new {
+                    BackName    = "Leverling, Janet",
+                    StaticName  = "Janet Leverling [Hired: 1992-04-01]",
+                    InstanceName= "Janet Leverling [Home Phone: (206) 555-3412]",
+                },
+                new {
+                    BackName    = "Peacock, Margaret",
+                    StaticName  = "Margaret Peacock [Hired: 1993-05-03]",
+                    InstanceName= "Margaret Peacock [Home Phone: (206) 555-8122]",
+                },
+                new {
+                    BackName    = "Buchanan, Steven",
+                    StaticName  = "Steven Buchanan [Hired: 1993-10-17]",
+                    InstanceName= "Steven Buchanan [Home Phone: (71) 555-4848]",
+                },
+                new {
+                    BackName    = "Suyama, Michael",
+                    StaticName  = "Michael Suyama [Hired: 1993-10-17]",
+                    InstanceName= "Michael Suyama [Home Phone: (71) 555-7773]",
+                },
+                new {
+                    BackName    = "King, Robert",
+                    StaticName  = "Robert King [Hired: 1994-01-02]",
+                    InstanceName= "Robert King [Home Phone: (71) 555-5598]",
+                },
+                new {
+                    BackName    = "Callahan, Laura",
+                    StaticName  = "Laura Callahan [Hired: 1994-03-05]",
+                    InstanceName= "Laura Callahan [Home Phone: (206) 555-1189]",
+                },
+                new {
+                    BackName    = "Dodsworth, Anne",
+                    StaticName  = "Anne Dodsworth [Hired: 1994-11-15]",
+                    InstanceName= "Anne Dodsworth [Home Phone: (71) 555-4444]",
+                },
+            };
+            Assert.AreEqual(expected.Length, actual.Count);
+            for (int i = 0; i < expected.Length; ++i)
+            {
+                Assert.AreEqual(expected[i].BackName, actual[i].BackName);
+                Assert.AreEqual(expected[i].StaticName, actual[i].StaticName);
+                // Assert.AreEqual(expected[i].InstanceName, actual[i].InstanceName);
+            }
+        }
+
+        static string GetStaticName(Employee e)
+        {
+            return e.FirstName + " " + e.LastName + " [Hired: " + 
+                (e.HireDate.HasValue ? e.HireDate.Value.ToString("yyyy-MM-dd") : "") + "]";
+        }
+
+        string GetInstanceName(Employee e, string a, string b)
+        {
+            return e.FirstName + " " + e.LastName + " [Home Phone: " + e.HomePhone.ToString() + "]";
+        }
         #endregion
 
         #region region D - select first or last - calls IQueryable.Execute instead of GetEnumerator
