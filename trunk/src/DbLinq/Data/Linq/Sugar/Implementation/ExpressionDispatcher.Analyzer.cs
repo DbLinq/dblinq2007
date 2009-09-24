@@ -342,7 +342,20 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 case "ToString": // Can we sanity check this type?
                     return AnalyzeToString(method, parameters, builderContext);
             }
-            throw Error.BadArgument("S0133: Implement QueryMethod {0}.'{1}'", method.DeclaringType.FullName, method.Name);
+
+            var args = new List<Expression>();
+            foreach (var arg in expression.Arguments)
+            {
+                Expression newArg = arg;
+                var pe = arg as ParameterExpression;
+                if (pe != null)
+                {
+                    if (!builderContext.Parameters.TryGetValue(pe.Name, out newArg))
+                        throw new NotSupportedException("Do not currently support expression: " + expression);
+                }
+                args.Add(newArg);
+            }
+            return Expression.Call(expression.Object, expression.Method, args);
         }
 
         private Expression AnalyzeStringInsert(IList<Expression> parameters, BuilderContext builderContext)
