@@ -696,11 +696,12 @@ namespace nwind
         public void C26_SelectWithNestedMethodCall()
         {
             var db = CreateDB();
+            var s = "param";
             var q = from e in db.Employees select new
             {
                 BackName    = e.LastName + ", " + e.FirstName,
                 StaticName  = GetStaticName(e),
-                // InstanceName= GetInstanceName(e, "ignore", "me"),
+                InstanceName= GetInstanceName(e, s, "constant"),
                 // Territories = e.EmployeeTerritories.ToList(),
             };
             var actual  = q.ToList();
@@ -756,7 +757,7 @@ namespace nwind
             {
                 Assert.AreEqual(expected[i].BackName, actual[i].BackName);
                 Assert.AreEqual(expected[i].StaticName, actual[i].StaticName);
-                // Assert.AreEqual(expected[i].InstanceName, actual[i].InstanceName);
+                Assert.AreEqual(expected[i].InstanceName, actual[i].InstanceName);
             }
         }
 
