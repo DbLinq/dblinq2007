@@ -1,5 +1,5 @@
 ﻿<NUnitProject>
-  <Settings activeconfig="Debug" />
+  <Settings activeconfig="Release" />
   <Config name="Debug" binpathtype="Auto">
     <assembly path="build.dbg\DbLinq.Sqlite_test.dll" />
     <assembly path="build.dbg\DbLinq.Sqlite_test_mono.dll" />
