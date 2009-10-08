@@ -52,7 +52,7 @@ namespace DbLinq.Firebird
 
         protected override SqlStatement GetLiteralStringConcat(SqlStatement a, SqlStatement b)
         {
-            return SqlStatement.Format("{0} || {1})", a, b);
+            return SqlStatement.Format("{0} || {1}", a, b);
         }
 
         protected override char SafeNameStartQuote { get { return ' '; } }
