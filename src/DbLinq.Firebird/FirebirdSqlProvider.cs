@@ -55,6 +55,16 @@ namespace DbLinq.Firebird
             return SqlStatement.Format("{0} || {1}", a, b);
         }
 
+        protected override SqlStatement GetLiteralStringToLower(SqlStatement a)
+        {
+            return string.Format("LOWER({0})", a);
+        }
+
+        protected override SqlStatement GetLiteralStringToUpper(SqlStatement a)
+        {
+            return string.Format("UPPER({0})", a);
+        }
+
         protected override char SafeNameStartQuote { get { return ' '; } }
         protected override char SafeNameEndQuote { get { return ' '; } }
 
