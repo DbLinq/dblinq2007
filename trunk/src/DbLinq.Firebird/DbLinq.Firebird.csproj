@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FirebirdDataContext.cs" />
+	<Compile Include="FirebirdExpressionTranslator.cs" />	
     <Compile Include="FirebirdSchemaLoader.Columns.cs" />
     <Compile Include="FirebirdSchemaLoader.Constraints.cs" />
     <Compile Include="FirebirdSchemaLoader.cs" />
