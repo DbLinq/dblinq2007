@@ -1,4 +1,4 @@
-﻿#region MIT license
+#region MIT license
 // 
 // MIT license
 //
@@ -177,6 +177,13 @@ namespace DbMetal
         /// </summary>
         [Option("Extract stored procedures.", Group = 2)]
         public bool Sprocs { get; set; }
+
+        /// <summary>
+        /// preserve case of database names
+        /// DbLinq specific
+        /// </summary>
+        [Option("Transform names as indicated (default: net; may be: leave, pascal, camel, net).", Group = 4)]
+        public string Case { get; set; }
 
         /// <summary>
         /// ??
