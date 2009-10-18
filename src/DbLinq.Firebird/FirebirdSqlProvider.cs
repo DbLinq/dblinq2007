@@ -25,17 +25,12 @@
 #endregion
 
 using System;
-using System.Diagnostics;
-using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Linq;
-using System.Text;
+using System.Collections.Generic;
+
+using DbLinq.Vendor.Implementation;
 
 using DbLinq.Data.Linq.Sql;
-using DbLinq.Util;
-using DbLinq.Vendor.Implementation;
-using DbLinq.Data.Linq.Sugar;
-using DbLinq.Data.Linq.Sugar.Implementation;
 using DbLinq.Data.Linq.Sugar.Expressions;
 
 
@@ -44,12 +39,13 @@ namespace DbLinq.Firebird
 #if !MONO_STRICT
     public
 #endif
+
     class FirebirdSqlProvider : SqlProvider
     {
-        public override ExpressionTranslator GetTranslator()
+        /*public override ExpressionTranslator GetTranslator()
         {
             return new FirebirdExpressionTranslator();
-        }
+        }*/
 
         public override string GetParameterName(string nameBase)
         {
