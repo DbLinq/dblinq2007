@@ -54,6 +54,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\DbLinq.Firebird\FirebirdExpressionTranslator.cs">
+      <Link>Vendors\DbLinq.FirebirdSql\FirebirdExpressionTranslator.cs</Link>
+    </Compile>
     <Compile Include="..\DbLinq.Firebird\FirebirdSqlProvider.cs">
       <Link>Vendors\DbLinq.FirebirdSql\FirebirdSqlProvider.cs</Link>
     </Compile>

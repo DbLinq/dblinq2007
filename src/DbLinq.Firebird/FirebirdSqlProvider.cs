@@ -42,10 +42,10 @@ namespace DbLinq.Firebird
 
     class FirebirdSqlProvider : SqlProvider
     {
-        /*public override ExpressionTranslator GetTranslator()
+        public override ExpressionTranslator GetTranslator()
         {
             return new FirebirdExpressionTranslator();
-        }*/
+        }
 
         public override string GetParameterName(string nameBase)
         {
