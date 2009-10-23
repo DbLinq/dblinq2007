@@ -533,6 +533,9 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
             if (limit.HasValue)
                 AddLimit(Expression.Constant(limit.Value), builderContext);
             var table = Analyze(parameters[0], builderContext);
+            var set = table as EntitySetExpression;
+            if (set != null)
+                table = set.TableExpression;
             CheckWhere(table, parameters, 1, builderContext);
             return table;
         }
@@ -826,17 +829,18 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 // this will be used in RegisterAssociation
                 Type entityType;
                 bool isEntitySet = IsEntitySet(memberInfo.GetMemberType(), out entityType);
+
                 // first of all, then, try to find the association
                 var queryAssociationExpression = RegisterAssociation(tableExpression, memberInfo, entityType,
                                                                      builderContext);
                 if (queryAssociationExpression != null)
                 {
                     // no entitySet? we have right association
-                    //if (!isEntitySet)
+                    if (!isEntitySet)
                         return queryAssociationExpression;
 
                     // from here, we may require to cast the table to an entitySet
-                    return new EntitySetExpression(queryAssociationExpression, memberInfo.GetMemberType());
+                    return new EntitySetExpression(queryAssociationExpression, memberInfo.GetMemberType(), builderContext, this);
                 }
                 // then, try the column
                 ColumnExpression queryColumnExpression = RegisterColumn(tableExpression, memberInfo, builderContext);
@@ -1118,7 +1122,11 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 var aliases = new Dictionary<MemberInfo, MutableExpression>();
                 foreach (var memberInfo in typeInitializers.Keys)
                 {
-                    var tableExpression = Analyze(typeInitializers[memberInfo], builderContext) as TableExpression;
+                    var e = Analyze(typeInitializers[memberInfo], builderContext);
+                    var tableExpression = e as TableExpression;
+                    var ese = e as EntitySetExpression;
+                    if (ese != null)
+                        tableExpression = ese.TableExpression;
                     if (tableExpression != null)
                     {
                         aliases[memberInfo] = tableExpression;

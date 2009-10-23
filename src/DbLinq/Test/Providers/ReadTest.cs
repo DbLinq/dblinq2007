@@ -771,6 +771,40 @@ namespace nwind
         {
             return e.FirstName + " " + e.LastName + " [Home Phone: " + e.HomePhone.ToString() + "]";
         }
+
+#if !DEBUG && !L2SQL
+        [Explicit]
+#endif
+        [Test]
+        public void C27_SelectEntitySet()
+        {
+            // Debugger.Break();
+            var db = CreateDB();
+            var q = from e in db.Employees
+                    orderby e.EmployeeID
+                    select new
+                    {
+                        e.Orders
+                    };
+            var expectedOrderCounts = new[]{
+                123,    // Nancy Davolio
+                 96,    // Andrew Fuller
+                127,    // Janet Leverling
+                156,    // Margaret Peacock
+                 42,    // Steven Buchanan
+                 67,    // Michael Suyama
+                 72,    // Robert King
+                104,    // Laura Callahan
+                 43,    // Anne Dodsworth
+            };
+            int c = 0;
+            foreach (var e in q)
+            {
+                Assert.AreEqual(expectedOrderCounts[c], e.Orders.Count);
+                ++c;
+            }
+            Assert.AreEqual(expectedOrderCounts.Length, c);
+        }
         #endregion
 
         #region region D - select first or last - calls IQueryable.Execute instead of GetEnumerator

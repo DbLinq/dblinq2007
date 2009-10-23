@@ -37,7 +37,13 @@ namespace DbLinq.Data.Linq.Sugar.ExpressionMutator.Implementation
 
         public Expression Mutate(IList<Expression> operands)
         {
-            return Expression.ListInit((NewExpression)operands[0], ListInitExpression.Initializers);
+            // It's possible that the NewExpression was "optimized away" and 
+            // replaced with a ConstantExpression.
+            // See Test_NUnit_MsSql.ReadTest.C27_SelectEntitySet, 
+            var ne = operands[0] as NewExpression;
+            if (ne != null)
+                return Expression.ListInit(ne, ListInitExpression.Initializers);
+            return ListInitExpression;
         }
 
         public IEnumerable<Expression> Operands
