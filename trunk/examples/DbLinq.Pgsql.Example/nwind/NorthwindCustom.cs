@@ -15,7 +15,7 @@ namespace nwind
         
     partial class Employee
     {
-        [Column(Storage = "_EmployeeID", Name = "EmployeeID", DbType = "serial", IsDbGenerated = true)]
+        [Column(Storage = "_employeeID", Name = "EmployeeID", DbType = "serial", IsDbGenerated = true)]
         public string Identifier
         {
             get { return null; /* this._EmployeeID.ToString();*/ }
