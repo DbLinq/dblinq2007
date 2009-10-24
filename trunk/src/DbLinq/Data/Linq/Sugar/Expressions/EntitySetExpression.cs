@@ -50,22 +50,38 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
     {
         public const ExpressionType ExpressionType = (ExpressionType)CustomExpressionType.EntitySet;
 
-        public TableExpression TableExpression { get; set; }
+        TableExpression tableExpression;
+
+        public TableExpression TableExpression {
+            get {
+                if (tableExpression != null)
+                    return tableExpression;
+                var entityType = EntitySetType.GetGenericArguments()[0];
+                tableExpression = dispatcher.RegisterAssociation(sourceTable, memberInfo, entityType, builderContext);
+                return tableExpression;
+            }
+            set {
+                tableExpression = value;
+            }
+        }
 
         BuilderContext builderContext;
         public Type EntitySetType;
         ExpressionDispatcher dispatcher;
+        TableExpression sourceTable;
+        MemberInfo memberInfo;
 
         public List<KeyValuePair<ColumnExpression, MetaDataMember>> Columns = new List<KeyValuePair<ColumnExpression, MetaDataMember>>();
 
-        internal EntitySetExpression(TableExpression tableExpression, Type entitySetType, BuilderContext builderContext, ExpressionDispatcher dispatcher)
+        internal EntitySetExpression(TableExpression sourceTable, MemberInfo memberInfo, Type entitySetType, BuilderContext builderContext, ExpressionDispatcher dispatcher)
             : base(ExpressionType, entitySetType)
         {
             this.builderContext = builderContext;
             this.EntitySetType = entitySetType;
             this.dispatcher = dispatcher;
-            this.TableExpression = tableExpression;
-            ParseExpression(tableExpression.JoinedTable);
+            this.sourceTable = sourceTable;
+            this.memberInfo = memberInfo;
+            ParseExpression(sourceTable);
         }
 
         private void ParseExpression(TableExpression sourceTable)
@@ -97,7 +113,7 @@ namespace DbLinq.Data.Linq.Sugar.Expressions
             if (newOperands.Count != 1)
                 throw Error.BadArgument("S0063: Bad argument count");
             TableExpression = (TableExpression)newOperands[0];
-            ParseExpression(TableExpression);
+            // ParseExpression(TableExpression);
             return this;
         }
     }

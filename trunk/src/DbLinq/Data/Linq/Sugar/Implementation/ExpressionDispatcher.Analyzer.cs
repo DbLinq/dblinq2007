@@ -828,19 +828,15 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 // before finding an association, we check for an EntitySet<>
                 // this will be used in RegisterAssociation
                 Type entityType;
-                bool isEntitySet = IsEntitySet(memberInfo.GetMemberType(), out entityType);
+                if (IsEntitySet(memberInfo.GetMemberType(), out entityType))
+                    return new EntitySetExpression(tableExpression, memberInfo, memberInfo.GetMemberType(), builderContext, this);
 
                 // first of all, then, try to find the association
                 var queryAssociationExpression = RegisterAssociation(tableExpression, memberInfo, entityType,
                                                                      builderContext);
                 if (queryAssociationExpression != null)
                 {
-                    // no entitySet? we have right association
-                    if (!isEntitySet)
-                        return queryAssociationExpression;
-
-                    // from here, we may require to cast the table to an entitySet
-                    return new EntitySetExpression(queryAssociationExpression, memberInfo.GetMemberType(), builderContext, this);
+                    return queryAssociationExpression;
                 }
                 // then, try the column
                 ColumnExpression queryColumnExpression = RegisterColumn(tableExpression, memberInfo, builderContext);

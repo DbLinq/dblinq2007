@@ -772,9 +772,6 @@ namespace nwind
             return e.FirstName + " " + e.LastName + " [Home Phone: " + e.HomePhone.ToString() + "]";
         }
 
-#if !DEBUG && !L2SQL
-        [Explicit]
-#endif
         [Test]
         public void C27_SelectEntitySet()
         {
