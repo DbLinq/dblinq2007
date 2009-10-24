@@ -250,7 +250,9 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                 case "Where":
                     return popCallStack(AnalyzeWhere(parameters, builderContext));
                 default:
-                    throw Error.BadArgument("S0133: Implement QueryMethod Queryable.{0}.", methodName);
+                    if (method.DeclaringType == typeof(Queryable))
+                        throw Error.BadArgument("S0133: Implement QueryMethod Queryable.{0}.", methodName);
+                    return popCallStack(null);
             }
         }
 
@@ -353,6 +355,8 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     if (!builderContext.Parameters.TryGetValue(pe.Name, out newArg))
                         throw new NotSupportedException("Do not currently support expression: " + expression);
                 }
+                else
+                    newArg = Analyze(arg, builderContext);
                 args.Add(newArg);
             }
             return Expression.Call(expression.Object, expression.Method, args);
