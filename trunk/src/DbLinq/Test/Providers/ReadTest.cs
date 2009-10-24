@@ -702,54 +702,63 @@ namespace nwind
                 BackName    = e.LastName + ", " + e.FirstName,
                 StaticName  = GetStaticName(e),
                 InstanceName= GetInstanceName(e, s, "constant"),
-                // Territories = e.EmployeeTerritories.ToList(),
+                Territories = e.EmployeeTerritories.ToList(),
             };
             var actual  = q.ToList();
             var expected = new[]{
                 new {
-                    BackName    = "Davolio, Nancy",
-                    StaticName  = "Nancy Davolio [Hired: 1992-05-01]",
-                    InstanceName= "Nancy Davolio [Home Phone: (206) 555-9857]",
+                    BackName        = "Davolio, Nancy",
+                    StaticName      = "Nancy Davolio [Hired: 1992-05-01]",
+                    InstanceName    = "Nancy Davolio [Home Phone: (206) 555-9857]",
+                    TerritoryCount  = 2,
                 },
                 new {
-                    BackName    = "Fuller, Andrew",
-                    StaticName  = "Andrew Fuller [Hired: 1992-08-14]",
-                    InstanceName= "Andrew Fuller [Home Phone: (206) 555-9482]",
+                    BackName        = "Fuller, Andrew",
+                    StaticName      = "Andrew Fuller [Hired: 1992-08-14]",
+                    InstanceName    = "Andrew Fuller [Home Phone: (206) 555-9482]",
+                    TerritoryCount  = 7,
                 },
                 new {
-                    BackName    = "Leverling, Janet",
-                    StaticName  = "Janet Leverling [Hired: 1992-04-01]",
-                    InstanceName= "Janet Leverling [Home Phone: (206) 555-3412]",
+                    BackName        = "Leverling, Janet",
+                    StaticName      = "Janet Leverling [Hired: 1992-04-01]",
+                    InstanceName    = "Janet Leverling [Home Phone: (206) 555-3412]",
+                    TerritoryCount  = 4,
                 },
                 new {
-                    BackName    = "Peacock, Margaret",
-                    StaticName  = "Margaret Peacock [Hired: 1993-05-03]",
-                    InstanceName= "Margaret Peacock [Home Phone: (206) 555-8122]",
+                    BackName        = "Peacock, Margaret",
+                    StaticName      = "Margaret Peacock [Hired: 1993-05-03]",
+                    InstanceName    = "Margaret Peacock [Home Phone: (206) 555-8122]",
+                    TerritoryCount  = 3,
                 },
                 new {
-                    BackName    = "Buchanan, Steven",
-                    StaticName  = "Steven Buchanan [Hired: 1993-10-17]",
-                    InstanceName= "Steven Buchanan [Home Phone: (71) 555-4848]",
+                    BackName        = "Buchanan, Steven",
+                    StaticName      = "Steven Buchanan [Hired: 1993-10-17]",
+                    InstanceName    = "Steven Buchanan [Home Phone: (71) 555-4848]",
+                    TerritoryCount  = 7,
                 },
                 new {
-                    BackName    = "Suyama, Michael",
-                    StaticName  = "Michael Suyama [Hired: 1993-10-17]",
-                    InstanceName= "Michael Suyama [Home Phone: (71) 555-7773]",
+                    BackName        = "Suyama, Michael",
+                    StaticName      = "Michael Suyama [Hired: 1993-10-17]",
+                    InstanceName    = "Michael Suyama [Home Phone: (71) 555-7773]",
+                    TerritoryCount  = 5,
                 },
                 new {
-                    BackName    = "King, Robert",
-                    StaticName  = "Robert King [Hired: 1994-01-02]",
-                    InstanceName= "Robert King [Home Phone: (71) 555-5598]",
+                    BackName        = "King, Robert",
+                    StaticName      = "Robert King [Hired: 1994-01-02]",
+                    InstanceName    = "Robert King [Home Phone: (71) 555-5598]",
+                    TerritoryCount  = 10,
                 },
                 new {
-                    BackName    = "Callahan, Laura",
-                    StaticName  = "Laura Callahan [Hired: 1994-03-05]",
-                    InstanceName= "Laura Callahan [Home Phone: (206) 555-1189]",
+                    BackName        = "Callahan, Laura",
+                    StaticName      = "Laura Callahan [Hired: 1994-03-05]",
+                    InstanceName    = "Laura Callahan [Home Phone: (206) 555-1189]",
+                    TerritoryCount  = 4,
                 },
                 new {
-                    BackName    = "Dodsworth, Anne",
-                    StaticName  = "Anne Dodsworth [Hired: 1994-11-15]",
-                    InstanceName= "Anne Dodsworth [Home Phone: (71) 555-4444]",
+                    BackName        = "Dodsworth, Anne",
+                    StaticName      = "Anne Dodsworth [Hired: 1994-11-15]",
+                    InstanceName    = "Anne Dodsworth [Home Phone: (71) 555-4444]",
+                    TerritoryCount  = 7,
                 },
             };
             Assert.AreEqual(expected.Length, actual.Count);
@@ -758,6 +767,7 @@ namespace nwind
                 Assert.AreEqual(expected[i].BackName, actual[i].BackName);
                 Assert.AreEqual(expected[i].StaticName, actual[i].StaticName);
                 Assert.AreEqual(expected[i].InstanceName, actual[i].InstanceName);
+                Assert.AreEqual(expected[i].TerritoryCount, actual[i].Territories.Count);
             }
         }
 
