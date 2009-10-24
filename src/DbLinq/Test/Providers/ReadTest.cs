@@ -812,6 +812,15 @@ namespace nwind
             }
             Assert.AreEqual(expectedOrderCounts.Length, c);
         }
+
+        [Test]
+        public void C28_SelectEntityRef()
+        {
+            var db = CreateDB();
+            var emp = db.Employees.Single(e => e.EmployeeID == 1);
+            Assert.IsNotNull(emp.ReportsToEmployee);
+            Assert.AreEqual(emp.ReportsTo.Value, emp.ReportsToEmployee.EmployeeID);
+        }
         #endregion
 
         #region region D - select first or last - calls IQueryable.Execute instead of GetEnumerator
