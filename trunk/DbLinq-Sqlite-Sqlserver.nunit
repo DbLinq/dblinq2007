@@ -9,6 +9,7 @@
     <assembly path="build.dbg\DbLinq_test.dll" />
     <assembly path="build.dbg\DbLinq_test_ndb_strict.dll" />
     <assembly path="build.dbg\DbMetal_test.dll" />
+    <assembly path="build.dbg\DbMetal_test_sqlite.dll" />
   </Config>
   <Config name="Release" binpathtype="Auto">
     <assembly path="build\DbLinq.Sqlite_test.dll" />
@@ -19,5 +20,6 @@
     <assembly path="build\DbLinq_test.dll" />
     <assembly path="build\DbLinq_test_ndb_strict.dll" />
     <assembly path="build\DbMetal_test.dll" />
+    <assembly path="build\DbMetal_test_sqlite.dll" />
   </Config>
 </NUnitProject>
