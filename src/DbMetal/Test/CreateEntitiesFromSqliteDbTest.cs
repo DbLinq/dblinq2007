@@ -1,8 +1,8 @@
-#region MIT license
+﻿#region MIT license
 // 
 // MIT license
 //
-// Copyright (c) 2007-2008 Jiri Moudry, Pascal Craponne
+// Copyright (c) 2007-2008 Jiri Moudry
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,20 +25,27 @@
 #endregion
 
 using System;
-using DbLinq.Factory;
-using DbMetal.Generator;
+using System.IO;
+using DbMetal;
+using NUnit.Framework;
 
-namespace DbMetal
+namespace DbMetal_Test_Sqlite
 {
-    public class Program
+    [TestFixture]
+    public class CreateEntitiesFromSqliteDbTest
     {
-        public static void Main(string[] args)
+        [Test]
+        public void Create()
         {
-            // get the default processor...
-            var processor = ObjectFactory.Get<IProcessor>();
-            processor.Log = Console.Out;
-            // ... and process
-            processor.Process(args);
+            var bd = AppDomain.CurrentDomain.BaseDirectory;
+            var db = Path.Combine(bd, Path.Combine ("..", Path.Combine ("tests", "Northwind.db3")));
+            Program.Main(new string[]{
+                "/code:Northwind.Sqlite.cs",
+                "/conn:Data Source=" + db,
+                "/namespace:nwind",
+                "/pluralize",
+                "/provider:Sqlite",
+            });
         }
     }
 }
