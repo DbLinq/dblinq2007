@@ -254,7 +254,7 @@ namespace DbMetal.Generator.Implementation
         private Case GetCase(Parameters parameters)
         {
             if (String.IsNullOrEmpty(parameters.Case))
-                return Case.NetCase;
+                return Case.PascalCase;
 
             switch (parameters.Case.ToLowerInvariant())
             {
