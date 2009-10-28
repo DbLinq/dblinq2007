@@ -147,7 +147,7 @@ namespace DbLinqTest {
             new DataContext("", mapping);
         }
 
-#if L2SQL
+#if L2SQL && !MONO_STRICT
         // DbLinqProvider/etc. obviously aren't removed under L2SQL
         [ExpectedException(typeof(ArgumentException))]
 #endif
