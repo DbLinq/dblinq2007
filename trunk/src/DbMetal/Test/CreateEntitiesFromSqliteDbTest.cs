@@ -31,6 +31,19 @@ using NUnit.Framework;
 
 namespace DbMetal_Test_Sqlite
 {
+    class DbMetalAppDomainSetup : MarshalByRefObject
+    {
+        public void SetStandardError(TextWriter stderr)
+        {
+            Console.SetError(stderr);
+        }
+
+        public void Run(string[] args)
+        {
+            Program.Main(args);
+        }
+    }
+
     [TestFixture]
     public class CreateEntitiesFromSqliteDbTest
     {
@@ -38,14 +51,29 @@ namespace DbMetal_Test_Sqlite
         public void Create()
         {
             var bd = AppDomain.CurrentDomain.BaseDirectory;
-            var db = Path.Combine(bd, Path.Combine ("..", Path.Combine ("tests", "Northwind.db3")));
-            Program.Main(new string[]{
+            var info = new AppDomainSetup()
+            {
+                ApplicationBase     = bd,
+                ApplicationName     = "DbMetal.exe",
+                ConfigurationFile   = "DbMetal.exe.config",
+            };
+            AppDomain ad = AppDomain.CreateDomain("DbMetal Sqlite Test", null, info);
+            var t = typeof(DbMetalAppDomainSetup);
+            var s = (DbMetalAppDomainSetup)ad.CreateInstanceAndUnwrap(t.Assembly.GetName().Name, t.FullName);
+            var stderr = new StringWriter();
+            s.SetStandardError(stderr);
+            var db = Path.Combine(bd, Path.Combine("..", Path.Combine("tests", "Northwind.db3")));
+            s.Run(new string[]{
                 "/code:Northwind.Sqlite.cs",
                 "/conn:Data Source=" + db,
                 "/namespace:nwind",
                 "/pluralize",
                 "/provider:Sqlite",
             });
+            AppDomain.Unload(ad);
+            if (stderr.GetStringBuilder().Length != 0)
+                Console.Error.Write(stderr.GetStringBuilder().ToString());
+            Assert.AreEqual(0, stderr.GetStringBuilder().Length);
         }
     }
 }
