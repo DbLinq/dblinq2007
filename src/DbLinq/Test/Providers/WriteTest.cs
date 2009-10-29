@@ -481,7 +481,9 @@ dummy text
         }
 
 #if (POSTGRES || INGRES) && !MONO_STRICT
-
+#if !DEBUG && POSTGRES
+        [Explicit]
+#endif
         [Test]
         public void G11_TwoSequencesInTable()
         {

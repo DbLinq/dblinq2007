@@ -280,6 +280,9 @@ namespace nwind
             Assert.AreEqual(count, 1, "Expected one pen, got count=" + count);
         }
 
+#if !DEBUG && POSTGRES
+        [Explicit]
+#endif
         [Test]
         public void C4_CountWithOrderBy()
         {
@@ -471,6 +474,9 @@ namespace nwind
             Assert.AreEqual(productCount, 8, "Expected eight products discontinued, got count=" + productCount);
         }
 
+#if !DEBUG && POSTGRES
+        [Explicit]
+#endif
         [Test]
         public void C12_SelectEmployee_MultiJoinWithWhere()
         {
@@ -692,6 +698,9 @@ namespace nwind
             return lookups;
         }
 
+#if !DEBUG && POSTGRES
+        [Explicit]
+#endif
         [Test]
         public void C26_SelectWithNestedMethodCall()
         {
@@ -942,6 +951,9 @@ namespace nwind
             Assert.Greater(list1.Count, 0, "Expected some orders for London customers");
         }
 
+#if !DEBUG && POSTGRES
+        [Explicit]
+#endif
         [Test]
         public void D07_OrdersFromLondon_Alt()
         {
@@ -1010,7 +1022,7 @@ namespace nwind
         }
 
 
-#if !DEBUG && (SQLITE || MSSQL)
+#if !DEBUG && (SQLITE || POSTGRES || MSSQL)
         // L2SQL: System.InvalidOperationException : The type 'Test_NUnit_MsSql_Strict.ReadTest+Northwind1+CustomerDerivedClass' is not mapped as a Table.
         [Explicit]
 #endif
@@ -1082,7 +1094,7 @@ namespace nwind
             }
         }
 
-#if !DEBUG && (SQLITE || MSSQL)
+#if !DEBUG && (SQLITE || POSTGRES || MSSQL)
         // L2SQL: System.InvalidOperationException : The type 'Test_NUnit_MsSql_Strict.ReadTest+NorthwindDupl+CustomerDerivedClass' is not mapped as a Table.
         [Explicit]
 #endif
