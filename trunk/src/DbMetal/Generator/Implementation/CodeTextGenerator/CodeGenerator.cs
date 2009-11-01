@@ -75,7 +75,9 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                                        ? dbSchema.ContextNamespace
                                        : context.Parameters.Namespace;
             context["database"] = dbSchema.Name;
-            context["generationTime"] = DateTime.Now.ToString("u");
+            context["generationTime"] = context.Parameters.GenerateTimestamps
+                ? DateTime.Now.ToString("u")
+                : "[TIMESTAMP]";
             context["class"] = dbSchema.Class;
 
             using (var codeWriter = CreateCodeWriter(textWriter))

@@ -62,10 +62,13 @@ namespace DbMetal_Test_Sqlite
             var s = (DbMetalAppDomainSetup)ad.CreateInstanceAndUnwrap(t.Assembly.GetName().Name, t.FullName);
             var stderr = new StringWriter();
             s.SetStandardError(stderr);
+            var testdir = Path.Combine(bd, Path.Combine("..", "tests"));
             var db = Path.Combine(bd, Path.Combine("..", Path.Combine("tests", "Northwind.db3")));
             s.Run(new string[]{
                 "/code:Northwind.Sqlite.cs",
-                "/conn:Data Source=" + db,
+                "/conn:Data Source=" + Path.Combine(testdir, "Northwind.db3"),
+                "/database:Northwind",
+                "--generate-timestamps-",
                 "/namespace:nwind",
                 "/pluralize",
                 "/provider:Sqlite",
@@ -74,6 +77,8 @@ namespace DbMetal_Test_Sqlite
             if (stderr.GetStringBuilder().Length != 0)
                 Console.Error.Write(stderr.GetStringBuilder().ToString());
             Assert.AreEqual(0, stderr.GetStringBuilder().Length);
+            FileAssert.AreEqual(Path.Combine(testdir, "Northwind.Expected.Sqlite.cs"), "Northwind.Sqlite.cs");
+            File.Delete("Northwind.Sqlite.cs");
         }
     }
 }
