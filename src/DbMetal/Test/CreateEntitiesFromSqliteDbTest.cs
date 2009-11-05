@@ -50,12 +50,17 @@ namespace DbMetal_Test_Sqlite
         [Test]
         public void Create()
         {
+#if MONO_STRICT
+            var app = "sqlmetal";
+#else
+            var app = "DbMetal";
+#endif
             var bd = AppDomain.CurrentDomain.BaseDirectory;
             var info = new AppDomainSetup()
             {
                 ApplicationBase     = bd,
-                ApplicationName     = "DbMetal.exe",
-                ConfigurationFile   = "DbMetal.exe.config",
+                ApplicationName     = app + ".exe",
+                ConfigurationFile   = app + ".exe.config",
             };
             AppDomain ad = AppDomain.CreateDomain("DbMetal Sqlite Test", null, info);
             var t = typeof(DbMetalAppDomainSetup);
@@ -77,7 +82,7 @@ namespace DbMetal_Test_Sqlite
             if (stderr.GetStringBuilder().Length != 0)
                 Console.Error.Write(stderr.GetStringBuilder().ToString());
             Assert.AreEqual(0, stderr.GetStringBuilder().Length);
-            FileAssert.AreEqual(Path.Combine(testdir, "Northwind.Expected.Sqlite.cs"), "Northwind.Sqlite.cs");
+            FileAssert.AreEqual(Path.Combine(testdir, "Northwind.Expected.Sqlite-" + app + ".cs"), "Northwind.Sqlite.cs");
             File.Delete("Northwind.Sqlite.cs");
         }
     }
