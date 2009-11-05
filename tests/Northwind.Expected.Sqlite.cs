@@ -119,12 +119,12 @@ namespace nwind
 
 		#endregion
 
-		#region  Description
+		#region string Description
 
-		private  _description;
+		private string _description;
 		[DebuggerNonUserCode]
 		[Column(Storage = "_description", Name = "Description", DbType = "ntext", AutoSync = AutoSync.Never)]
-		public  Description
+		public string Description
 		{
 			get
 			{
@@ -142,12 +142,12 @@ namespace nwind
 
 		#endregion
 
-		#region  Picture
+		#region Byte[] Picture
 
-		private  _picture;
+		private Byte[] _picture;
 		[DebuggerNonUserCode]
 		[Column(Storage = "_picture", Name = "Picture", DbType = "image", AutoSync = AutoSync.Never)]
-		public  Picture
+		public Byte[] Picture
 		{
 			get
 			{
@@ -724,12 +724,12 @@ namespace nwind
 
 		#endregion
 
-		#region  CustomerDesc
+		#region string CustomerDesc
 
-		private  _customerDesc;
+		private string _customerDesc;
 		[DebuggerNonUserCode]
 		[Column(Storage = "_customerDesc", Name = "CustomerDesc", DbType = "ntext", AutoSync = AutoSync.Never)]
-		public  CustomerDesc
+		public string CustomerDesc
 		{
 			get
 			{
@@ -1063,12 +1063,12 @@ namespace nwind
 
 		#endregion
 
-		#region  Notes
+		#region string Notes
 
-		private  _notes;
+		private string _notes;
 		[DebuggerNonUserCode]
 		[Column(Storage = "_notes", Name = "Notes", DbType = "ntext", AutoSync = AutoSync.Never)]
-		public  Notes
+		public string Notes
 		{
 			get
 			{
@@ -1086,12 +1086,12 @@ namespace nwind
 
 		#endregion
 
-		#region  Photo
+		#region Byte[] Photo
 
-		private  _photo;
+		private Byte[] _photo;
 		[DebuggerNonUserCode]
 		[Column(Storage = "_photo", Name = "Photo", DbType = "image", AutoSync = AutoSync.Never)]
-		public  Photo
+		public Byte[] Photo
 		{
 			get
 			{
@@ -1613,12 +1613,12 @@ namespace nwind
 
 		#endregion
 
-		#region  Freight
+		#region decimal? Freight
 
-		private  _freight;
+		private decimal? _freight;
 		[DebuggerNonUserCode]
 		[Column(Storage = "_freight", Name = "Freight", DbType = "money", AutoSync = AutoSync.Never)]
-		public  Freight
+		public decimal? Freight
 		{
 			get
 			{
@@ -2163,12 +2163,12 @@ namespace nwind
 
 		#endregion
 
-		#region  UnitPrice
+		#region decimal UnitPrice
 
-		private  _unitPrice;
+		private decimal _unitPrice;
 		[DebuggerNonUserCode]
 		[Column(Storage = "_unitPrice", Name = "UnitPrice", DbType = "money", AutoSync = AutoSync.Never, CanBeNull = false)]
-		public  UnitPrice
+		public decimal UnitPrice
 		{
 			get
 			{
@@ -2455,12 +2455,12 @@ namespace nwind
 
 		#endregion
 
-		#region  UnitPrice
+		#region decimal? UnitPrice
 
-		private  _unitPrice;
+		private decimal? _unitPrice;
 		[DebuggerNonUserCode]
 		[Column(Storage = "_unitPrice", Name = "UnitPrice", DbType = "money", AutoSync = AutoSync.Never)]
-		public  UnitPrice
+		public decimal? UnitPrice
 		{
 			get
 			{
@@ -3062,12 +3062,12 @@ namespace nwind
 
 		#endregion
 
-		#region  HomePage
+		#region string HomePage
 
-		private  _homePage;
+		private string _homePage;
 		[DebuggerNonUserCode]
 		[Column(Storage = "_homePage", Name = "HomePage", DbType = "ntext", AutoSync = AutoSync.Never)]
-		public  HomePage
+		public string HomePage
 		{
 			get
 			{
