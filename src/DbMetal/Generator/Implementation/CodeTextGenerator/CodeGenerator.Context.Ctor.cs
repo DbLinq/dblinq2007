@@ -47,7 +47,9 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                     return false;
             }
             using (writer.WriteCtor(SpecificationDefinition.Public, schema.Class, parameters, baseCallParameterNames))
-            { }
+            {
+                writer.WriteLine(writer.GetStatement(writer.GetMethodCallExpression("OnCreated")));
+            }
             writer.WriteLine();
             return true;
         }
@@ -111,6 +113,14 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                     new[] { "connection", "mappingSource", "vendor" },
                     new[] { typeof(IDbConnection), typeof(MappingSource), typeof(IVendor) },
                     context);
+        }
+
+        protected virtual void WriteDataContextExtensibilityDeclarations(CodeWriter writer, Database schema, GenerationContext context)
+        {
+            using (writer.WriteRegion("Extensibility Method Definitions"))
+            {
+                writer.WriteLine("partial void OnCreated();");
+            }
         }
     }
 }

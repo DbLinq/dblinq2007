@@ -231,6 +231,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                 specifications |= GetSpecificationDefinition(schema.Modifier);
             using (writer.WriteClass(specifications, schema.Class, contextBase))
             {
+                WriteDataContextExtensibilityDeclarations(writer, schema, context);
                 WriteDataContextCtors(writer, schema, contextBaseType, context);
                 WriteDataContextTables(writer, schema, context);
                 WriteDataContextProcedures(writer, schema, context);

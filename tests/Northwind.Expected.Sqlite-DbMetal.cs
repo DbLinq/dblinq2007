@@ -25,34 +25,46 @@ namespace nwind
 {
 	public partial class Northwind : DataContext
 	{
+		#region Extensibility Method Definitions
+
+		partial void OnCreated();
+
+		#endregion
+
 		public Northwind(string connectionString)
 		: base(connectionString)
 		{
+			OnCreated();
 		}
 
 		public Northwind(IDbConnection connection)
 		: base(connection, new DbLinq.Sqlite.SqliteVendor())
 		{
+			OnCreated();
 		}
 
 		public Northwind(string connection, MappingSource mappingSource)
 		: base(connection, mappingSource)
 		{
+			OnCreated();
 		}
 
 		public Northwind(IDbConnection connection, MappingSource mappingSource)
 		: base(connection, mappingSource)
 		{
+			OnCreated();
 		}
 
 		public Northwind(IDbConnection connection, IVendor vendor)
 		: base(connection, vendor)
 		{
+			OnCreated();
 		}
 
 		public Northwind(IDbConnection connection, MappingSource mappingSource, IVendor vendor)
 		: base(connection, mappingSource, vendor)
 		{
+			OnCreated();
 		}
 
 		public Table<Category> Categories { get { return GetTable<Category>(); } }
@@ -103,6 +115,20 @@ namespace nwind
 
 		#endregion
 
+		#region Extensibility Method Definitions
+
+		partial void OnCreated();
+		partial void OnCategoryIDChanged()
+		partial void OnCategoryIDChanging(int value);
+		partial void OnCategoryNameChanged()
+		partial void OnCategoryNameChanging(string value);
+		partial void OnDescriptionChanged()
+		partial void OnDescriptionChanging(string value);
+		partial void OnPictureChanged()
+		partial void OnPictureChanging(Byte[] value);
+
+		#endregion
+
 		#region int CategoryID
 
 		private int _categoryID;
@@ -118,9 +144,11 @@ namespace nwind
 			{
 				if (value != _categoryID)
 				{
+					OnCategoryIDChanging(value);
 					SendPropertyChanging();
 					_categoryID = value;
 					SendPropertyChanged("CategoryID");
+					OnCategoryIDChanged();
 				}
 			}
 		}
@@ -142,9 +170,11 @@ namespace nwind
 			{
 				if (value != _categoryName)
 				{
+					OnCategoryNameChanging(value);
 					SendPropertyChanging();
 					_categoryName = value;
 					SendPropertyChanged("CategoryName");
+					OnCategoryNameChanged();
 				}
 			}
 		}
@@ -166,9 +196,11 @@ namespace nwind
 			{
 				if (value != _description)
 				{
+					OnDescriptionChanging(value);
 					SendPropertyChanging();
 					_description = value;
 					SendPropertyChanged("Description");
+					OnDescriptionChanged();
 				}
 			}
 		}
@@ -190,9 +222,11 @@ namespace nwind
 			{
 				if (value != _picture)
 				{
+					OnPictureChanging(value);
 					SendPropertyChanging();
 					_picture = value;
 					SendPropertyChanged("Picture");
+					OnPictureChanged();
 				}
 			}
 		}
@@ -239,6 +273,7 @@ namespace nwind
 		public Category()
 		{
 			_products = new EntitySet<Product>(Products_Attach, Products_Detach);
+			OnCreated();
 		}
 
 		#endregion
@@ -277,6 +312,34 @@ namespace nwind
 
 		#endregion
 
+		#region Extensibility Method Definitions
+
+		partial void OnCreated();
+		partial void OnAddressChanged()
+		partial void OnAddressChanging(string value);
+		partial void OnCityChanged()
+		partial void OnCityChanging(string value);
+		partial void OnCompanyNameChanged()
+		partial void OnCompanyNameChanging(string value);
+		partial void OnContactNameChanged()
+		partial void OnContactNameChanging(string value);
+		partial void OnContactTitleChanged()
+		partial void OnContactTitleChanging(string value);
+		partial void OnCountryChanged()
+		partial void OnCountryChanging(string value);
+		partial void OnCustomerIDChanged()
+		partial void OnCustomerIDChanging(string value);
+		partial void OnFaxChanged()
+		partial void OnFaxChanging(string value);
+		partial void OnPhoneChanged()
+		partial void OnPhoneChanging(string value);
+		partial void OnPostalCodeChanged()
+		partial void OnPostalCodeChanging(string value);
+		partial void OnRegionChanged()
+		partial void OnRegionChanging(string value);
+
+		#endregion
+
 		#region string Address
 
 		private string _address;
@@ -292,9 +355,11 @@ namespace nwind
 			{
 				if (value != _address)
 				{
+					OnAddressChanging(value);
 					SendPropertyChanging();
 					_address = value;
 					SendPropertyChanged("Address");
+					OnAddressChanged();
 				}
 			}
 		}
@@ -316,9 +381,11 @@ namespace nwind
 			{
 				if (value != _city)
 				{
+					OnCityChanging(value);
 					SendPropertyChanging();
 					_city = value;
 					SendPropertyChanged("City");
+					OnCityChanged();
 				}
 			}
 		}
@@ -340,9 +407,11 @@ namespace nwind
 			{
 				if (value != _companyName)
 				{
+					OnCompanyNameChanging(value);
 					SendPropertyChanging();
 					_companyName = value;
 					SendPropertyChanged("CompanyName");
+					OnCompanyNameChanged();
 				}
 			}
 		}
@@ -364,9 +433,11 @@ namespace nwind
 			{
 				if (value != _contactName)
 				{
+					OnContactNameChanging(value);
 					SendPropertyChanging();
 					_contactName = value;
 					SendPropertyChanged("ContactName");
+					OnContactNameChanged();
 				}
 			}
 		}
@@ -388,9 +459,11 @@ namespace nwind
 			{
 				if (value != _contactTitle)
 				{
+					OnContactTitleChanging(value);
 					SendPropertyChanging();
 					_contactTitle = value;
 					SendPropertyChanged("ContactTitle");
+					OnContactTitleChanged();
 				}
 			}
 		}
@@ -412,9 +485,11 @@ namespace nwind
 			{
 				if (value != _country)
 				{
+					OnCountryChanging(value);
 					SendPropertyChanging();
 					_country = value;
 					SendPropertyChanged("Country");
+					OnCountryChanged();
 				}
 			}
 		}
@@ -436,9 +511,11 @@ namespace nwind
 			{
 				if (value != _customerID)
 				{
+					OnCustomerIDChanging(value);
 					SendPropertyChanging();
 					_customerID = value;
 					SendPropertyChanged("CustomerID");
+					OnCustomerIDChanged();
 				}
 			}
 		}
@@ -460,9 +537,11 @@ namespace nwind
 			{
 				if (value != _fax)
 				{
+					OnFaxChanging(value);
 					SendPropertyChanging();
 					_fax = value;
 					SendPropertyChanged("Fax");
+					OnFaxChanged();
 				}
 			}
 		}
@@ -484,9 +563,11 @@ namespace nwind
 			{
 				if (value != _phone)
 				{
+					OnPhoneChanging(value);
 					SendPropertyChanging();
 					_phone = value;
 					SendPropertyChanged("Phone");
+					OnPhoneChanged();
 				}
 			}
 		}
@@ -508,9 +589,11 @@ namespace nwind
 			{
 				if (value != _postalCode)
 				{
+					OnPostalCodeChanging(value);
 					SendPropertyChanging();
 					_postalCode = value;
 					SendPropertyChanged("PostalCode");
+					OnPostalCodeChanged();
 				}
 			}
 		}
@@ -532,9 +615,11 @@ namespace nwind
 			{
 				if (value != _region)
 				{
+					OnRegionChanging(value);
 					SendPropertyChanging();
 					_region = value;
 					SendPropertyChanged("Region");
+					OnRegionChanged();
 				}
 			}
 		}
@@ -607,6 +692,7 @@ namespace nwind
 		{
 			_customerCustomerDemo = new EntitySet<CustomerCustomerDemo>(CustomerCustomerDemo_Attach, CustomerCustomerDemo_Detach);
 			_orders = new EntitySet<Order>(Orders_Attach, Orders_Detach);
+			OnCreated();
 		}
 
 		#endregion
@@ -645,6 +731,16 @@ namespace nwind
 
 		#endregion
 
+		#region Extensibility Method Definitions
+
+		partial void OnCreated();
+		partial void OnCustomerIDChanged()
+		partial void OnCustomerIDChanging(string value);
+		partial void OnCustomerTypeIDChanged()
+		partial void OnCustomerTypeIDChanging(string value);
+
+		#endregion
+
 		#region string CustomerID
 
 		private string _customerID;
@@ -664,9 +760,11 @@ namespace nwind
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
+					OnCustomerIDChanging(value);
 					SendPropertyChanging();
 					_customerID = value;
 					SendPropertyChanged("CustomerID");
+					OnCustomerIDChanged();
 				}
 			}
 		}
@@ -692,9 +790,11 @@ namespace nwind
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
+					OnCustomerTypeIDChanging(value);
 					SendPropertyChanging();
 					_customerTypeID = value;
 					SendPropertyChanged("CustomerTypeID");
+					OnCustomerTypeIDChanged();
 				}
 			}
 		}
@@ -778,6 +878,7 @@ namespace nwind
 		{
 			_customer = new EntityRef<Customer>();
 			_customerDemographic = new EntityRef<CustomerDemographic>();
+			OnCreated();
 		}
 
 		#endregion
@@ -816,6 +917,16 @@ namespace nwind
 
 		#endregion
 
+		#region Extensibility Method Definitions
+
+		partial void OnCreated();
+		partial void OnCustomerDescChanged()
+		partial void OnCustomerDescChanging(string value);
+		partial void OnCustomerTypeIDChanged()
+		partial void OnCustomerTypeIDChanging(string value);
+
+		#endregion
+
 		#region string CustomerDesc
 
 		private string _customerDesc;
@@ -831,9 +942,11 @@ namespace nwind
 			{
 				if (value != _customerDesc)
 				{
+					OnCustomerDescChanging(value);
 					SendPropertyChanging();
 					_customerDesc = value;
 					SendPropertyChanged("CustomerDesc");
+					OnCustomerDescChanged();
 				}
 			}
 		}
@@ -855,9 +968,11 @@ namespace nwind
 			{
 				if (value != _customerTypeID)
 				{
+					OnCustomerTypeIDChanging(value);
 					SendPropertyChanging();
 					_customerTypeID = value;
 					SendPropertyChanged("CustomerTypeID");
+					OnCustomerTypeIDChanged();
 				}
 			}
 		}
@@ -904,6 +1019,7 @@ namespace nwind
 		public CustomerDemographic()
 		{
 			_customerCustomerDemo = new EntitySet<CustomerCustomerDemo>(CustomerCustomerDemo_Attach, CustomerCustomerDemo_Detach);
+			OnCreated();
 		}
 
 		#endregion
@@ -942,6 +1058,48 @@ namespace nwind
 
 		#endregion
 
+		#region Extensibility Method Definitions
+
+		partial void OnCreated();
+		partial void OnAddressChanged()
+		partial void OnAddressChanging(string value);
+		partial void OnBirthDateChanged()
+		partial void OnBirthDateChanging(DateTime? value);
+		partial void OnCityChanged()
+		partial void OnCityChanging(string value);
+		partial void OnCountryChanged()
+		partial void OnCountryChanging(string value);
+		partial void OnEmployeeIDChanged()
+		partial void OnEmployeeIDChanging(int value);
+		partial void OnExtensionChanged()
+		partial void OnExtensionChanging(string value);
+		partial void OnFirstNameChanged()
+		partial void OnFirstNameChanging(string value);
+		partial void OnHireDateChanged()
+		partial void OnHireDateChanging(DateTime? value);
+		partial void OnHomePhoneChanged()
+		partial void OnHomePhoneChanging(string value);
+		partial void OnLastNameChanged()
+		partial void OnLastNameChanging(string value);
+		partial void OnNotesChanged()
+		partial void OnNotesChanging(string value);
+		partial void OnPhotoChanged()
+		partial void OnPhotoChanging(Byte[] value);
+		partial void OnPhotoPathChanged()
+		partial void OnPhotoPathChanging(string value);
+		partial void OnPostalCodeChanged()
+		partial void OnPostalCodeChanging(string value);
+		partial void OnRegionChanged()
+		partial void OnRegionChanging(string value);
+		partial void OnReportsToChanged()
+		partial void OnReportsToChanging(int? value);
+		partial void OnTitleChanged()
+		partial void OnTitleChanging(string value);
+		partial void OnTitleOfCourtesyChanged()
+		partial void OnTitleOfCourtesyChanging(string value);
+
+		#endregion
+
 		#region string Address
 
 		private string _address;
@@ -957,9 +1115,11 @@ namespace nwind
 			{
 				if (value != _address)
 				{
+					OnAddressChanging(value);
 					SendPropertyChanging();
 					_address = value;
 					SendPropertyChanged("Address");
+					OnAddressChanged();
 				}
 			}
 		}
@@ -981,9 +1141,11 @@ namespace nwind
 			{
 				if (value != _birthDate)
 				{
+					OnBirthDateChanging(value);
 					SendPropertyChanging();
 					_birthDate = value;
 					SendPropertyChanged("BirthDate");
+					OnBirthDateChanged();
 				}
 			}
 		}
@@ -1005,9 +1167,11 @@ namespace nwind
 			{
 				if (value != _city)
 				{
+					OnCityChanging(value);
 					SendPropertyChanging();
 					_city = value;
 					SendPropertyChanged("City");
+					OnCityChanged();
 				}
 			}
 		}
@@ -1029,9 +1193,11 @@ namespace nwind
 			{
 				if (value != _country)
 				{
+					OnCountryChanging(value);
 					SendPropertyChanging();
 					_country = value;
 					SendPropertyChanged("Country");
+					OnCountryChanged();
 				}
 			}
 		}
@@ -1053,9 +1219,11 @@ namespace nwind
 			{
 				if (value != _employeeID)
 				{
+					OnEmployeeIDChanging(value);
 					SendPropertyChanging();
 					_employeeID = value;
 					SendPropertyChanged("EmployeeID");
+					OnEmployeeIDChanged();
 				}
 			}
 		}
@@ -1077,9 +1245,11 @@ namespace nwind
 			{
 				if (value != _extension)
 				{
+					OnExtensionChanging(value);
 					SendPropertyChanging();
 					_extension = value;
 					SendPropertyChanged("Extension");
+					OnExtensionChanged();
 				}
 			}
 		}
@@ -1101,9 +1271,11 @@ namespace nwind
 			{
 				if (value != _firstName)
 				{
+					OnFirstNameChanging(value);
 					SendPropertyChanging();
 					_firstName = value;
 					SendPropertyChanged("FirstName");
+					OnFirstNameChanged();
 				}
 			}
 		}
@@ -1125,9 +1297,11 @@ namespace nwind
 			{
 				if (value != _hireDate)
 				{
+					OnHireDateChanging(value);
 					SendPropertyChanging();
 					_hireDate = value;
 					SendPropertyChanged("HireDate");
+					OnHireDateChanged();
 				}
 			}
 		}
@@ -1149,9 +1323,11 @@ namespace nwind
 			{
 				if (value != _homePhone)
 				{
+					OnHomePhoneChanging(value);
 					SendPropertyChanging();
 					_homePhone = value;
 					SendPropertyChanged("HomePhone");
+					OnHomePhoneChanged();
 				}
 			}
 		}
@@ -1173,9 +1349,11 @@ namespace nwind
 			{
 				if (value != _lastName)
 				{
+					OnLastNameChanging(value);
 					SendPropertyChanging();
 					_lastName = value;
 					SendPropertyChanged("LastName");
+					OnLastNameChanged();
 				}
 			}
 		}
@@ -1197,9 +1375,11 @@ namespace nwind
 			{
 				if (value != _notes)
 				{
+					OnNotesChanging(value);
 					SendPropertyChanging();
 					_notes = value;
 					SendPropertyChanged("Notes");
+					OnNotesChanged();
 				}
 			}
 		}
@@ -1221,9 +1401,11 @@ namespace nwind
 			{
 				if (value != _photo)
 				{
+					OnPhotoChanging(value);
 					SendPropertyChanging();
 					_photo = value;
 					SendPropertyChanged("Photo");
+					OnPhotoChanged();
 				}
 			}
 		}
@@ -1245,9 +1427,11 @@ namespace nwind
 			{
 				if (value != _photoPath)
 				{
+					OnPhotoPathChanging(value);
 					SendPropertyChanging();
 					_photoPath = value;
 					SendPropertyChanged("PhotoPath");
+					OnPhotoPathChanged();
 				}
 			}
 		}
@@ -1269,9 +1453,11 @@ namespace nwind
 			{
 				if (value != _postalCode)
 				{
+					OnPostalCodeChanging(value);
 					SendPropertyChanging();
 					_postalCode = value;
 					SendPropertyChanged("PostalCode");
+					OnPostalCodeChanged();
 				}
 			}
 		}
@@ -1293,9 +1479,11 @@ namespace nwind
 			{
 				if (value != _region)
 				{
+					OnRegionChanging(value);
 					SendPropertyChanging();
 					_region = value;
 					SendPropertyChanged("Region");
+					OnRegionChanged();
 				}
 			}
 		}
@@ -1321,9 +1509,11 @@ namespace nwind
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
+					OnReportsToChanging(value);
 					SendPropertyChanging();
 					_reportsTo = value;
 					SendPropertyChanged("ReportsTo");
+					OnReportsToChanged();
 				}
 			}
 		}
@@ -1345,9 +1535,11 @@ namespace nwind
 			{
 				if (value != _title)
 				{
+					OnTitleChanging(value);
 					SendPropertyChanging();
 					_title = value;
 					SendPropertyChanged("Title");
+					OnTitleChanged();
 				}
 			}
 		}
@@ -1369,9 +1561,11 @@ namespace nwind
 			{
 				if (value != _titleOfCourtesy)
 				{
+					OnTitleOfCourtesyChanging(value);
 					SendPropertyChanging();
 					_titleOfCourtesy = value;
 					SendPropertyChanged("TitleOfCourtesy");
+					OnTitleOfCourtesyChanged();
 				}
 			}
 		}
@@ -1509,6 +1703,7 @@ namespace nwind
 			_employees = new EntitySet<Employee>(Employees_Attach, Employees_Detach);
 			_orders = new EntitySet<Order>(Orders_Attach, Orders_Detach);
 			_reportsToEmployee = new EntityRef<Employee>();
+			OnCreated();
 		}
 
 		#endregion
@@ -1547,6 +1742,16 @@ namespace nwind
 
 		#endregion
 
+		#region Extensibility Method Definitions
+
+		partial void OnCreated();
+		partial void OnEmployeeIDChanged()
+		partial void OnEmployeeIDChanging(int value);
+		partial void OnTerritoryIDChanged()
+		partial void OnTerritoryIDChanging(string value);
+
+		#endregion
+
 		#region int EmployeeID
 
 		private int _employeeID;
@@ -1566,9 +1771,11 @@ namespace nwind
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
+					OnEmployeeIDChanging(value);
 					SendPropertyChanging();
 					_employeeID = value;
 					SendPropertyChanged("EmployeeID");
+					OnEmployeeIDChanged();
 				}
 			}
 		}
@@ -1594,9 +1801,11 @@ namespace nwind
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
+					OnTerritoryIDChanging(value);
 					SendPropertyChanging();
 					_territoryID = value;
 					SendPropertyChanged("TerritoryID");
+					OnTerritoryIDChanged();
 				}
 			}
 		}
@@ -1680,6 +1889,7 @@ namespace nwind
 		{
 			_territory = new EntityRef<Territory>();
 			_employee = new EntityRef<Employee>();
+			OnCreated();
 		}
 
 		#endregion
@@ -1718,6 +1928,40 @@ namespace nwind
 
 		#endregion
 
+		#region Extensibility Method Definitions
+
+		partial void OnCreated();
+		partial void OnCustomerIDChanged()
+		partial void OnCustomerIDChanging(string value);
+		partial void OnEmployeeIDChanged()
+		partial void OnEmployeeIDChanging(int? value);
+		partial void OnFreightChanged()
+		partial void OnFreightChanging(decimal? value);
+		partial void OnOrderDateChanged()
+		partial void OnOrderDateChanging(DateTime? value);
+		partial void OnOrderIDChanged()
+		partial void OnOrderIDChanging(int value);
+		partial void OnRequiredDateChanged()
+		partial void OnRequiredDateChanging(DateTime? value);
+		partial void OnShipAddressChanged()
+		partial void OnShipAddressChanging(string value);
+		partial void OnShipCityChanged()
+		partial void OnShipCityChanging(string value);
+		partial void OnShipCountryChanged()
+		partial void OnShipCountryChanging(string value);
+		partial void OnShipNameChanged()
+		partial void OnShipNameChanging(string value);
+		partial void OnShippedDateChanged()
+		partial void OnShippedDateChanging(DateTime? value);
+		partial void OnShipPostalCodeChanged()
+		partial void OnShipPostalCodeChanging(string value);
+		partial void OnShipRegionChanged()
+		partial void OnShipRegionChanging(string value);
+		partial void OnShipViaChanged()
+		partial void OnShipViaChanging(int? value);
+
+		#endregion
+
 		#region string CustomerID
 
 		private string _customerID;
@@ -1737,9 +1981,11 @@ namespace nwind
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
+					OnCustomerIDChanging(value);
 					SendPropertyChanging();
 					_customerID = value;
 					SendPropertyChanged("CustomerID");
+					OnCustomerIDChanged();
 				}
 			}
 		}
@@ -1765,9 +2011,11 @@ namespace nwind
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
+					OnEmployeeIDChanging(value);
 					SendPropertyChanging();
 					_employeeID = value;
 					SendPropertyChanged("EmployeeID");
+					OnEmployeeIDChanged();
 				}
 			}
 		}
@@ -1789,9 +2037,11 @@ namespace nwind
 			{
 				if (value != _freight)
 				{
+					OnFreightChanging(value);
 					SendPropertyChanging();
 					_freight = value;
 					SendPropertyChanged("Freight");
+					OnFreightChanged();
 				}
 			}
 		}
@@ -1813,9 +2063,11 @@ namespace nwind
 			{
 				if (value != _orderDate)
 				{
+					OnOrderDateChanging(value);
 					SendPropertyChanging();
 					_orderDate = value;
 					SendPropertyChanged("OrderDate");
+					OnOrderDateChanged();
 				}
 			}
 		}
@@ -1837,9 +2089,11 @@ namespace nwind
 			{
 				if (value != _orderID)
 				{
+					OnOrderIDChanging(value);
 					SendPropertyChanging();
 					_orderID = value;
 					SendPropertyChanged("OrderID");
+					OnOrderIDChanged();
 				}
 			}
 		}
@@ -1861,9 +2115,11 @@ namespace nwind
 			{
 				if (value != _requiredDate)
 				{
+					OnRequiredDateChanging(value);
 					SendPropertyChanging();
 					_requiredDate = value;
 					SendPropertyChanged("RequiredDate");
+					OnRequiredDateChanged();
 				}
 			}
 		}
@@ -1885,9 +2141,11 @@ namespace nwind
 			{
 				if (value != _shipAddress)
 				{
+					OnShipAddressChanging(value);
 					SendPropertyChanging();
 					_shipAddress = value;
 					SendPropertyChanged("ShipAddress");
+					OnShipAddressChanged();
 				}
 			}
 		}
@@ -1909,9 +2167,11 @@ namespace nwind
 			{
 				if (value != _shipCity)
 				{
+					OnShipCityChanging(value);
 					SendPropertyChanging();
 					_shipCity = value;
 					SendPropertyChanged("ShipCity");
+					OnShipCityChanged();
 				}
 			}
 		}
@@ -1933,9 +2193,11 @@ namespace nwind
 			{
 				if (value != _shipCountry)
 				{
+					OnShipCountryChanging(value);
 					SendPropertyChanging();
 					_shipCountry = value;
 					SendPropertyChanged("ShipCountry");
+					OnShipCountryChanged();
 				}
 			}
 		}
@@ -1957,9 +2219,11 @@ namespace nwind
 			{
 				if (value != _shipName)
 				{
+					OnShipNameChanging(value);
 					SendPropertyChanging();
 					_shipName = value;
 					SendPropertyChanged("ShipName");
+					OnShipNameChanged();
 				}
 			}
 		}
@@ -1981,9 +2245,11 @@ namespace nwind
 			{
 				if (value != _shippedDate)
 				{
+					OnShippedDateChanging(value);
 					SendPropertyChanging();
 					_shippedDate = value;
 					SendPropertyChanged("ShippedDate");
+					OnShippedDateChanged();
 				}
 			}
 		}
@@ -2005,9 +2271,11 @@ namespace nwind
 			{
 				if (value != _shipPostalCode)
 				{
+					OnShipPostalCodeChanging(value);
 					SendPropertyChanging();
 					_shipPostalCode = value;
 					SendPropertyChanged("ShipPostalCode");
+					OnShipPostalCodeChanged();
 				}
 			}
 		}
@@ -2029,9 +2297,11 @@ namespace nwind
 			{
 				if (value != _shipRegion)
 				{
+					OnShipRegionChanging(value);
 					SendPropertyChanging();
 					_shipRegion = value;
 					SendPropertyChanged("ShipRegion");
+					OnShipRegionChanged();
 				}
 			}
 		}
@@ -2057,9 +2327,11 @@ namespace nwind
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
+					OnShipViaChanging(value);
 					SendPropertyChanging();
 					_shipVia = value;
 					SendPropertyChanged("ShipVia");
+					OnShipViaChanged();
 				}
 			}
 		}
@@ -2213,6 +2485,7 @@ namespace nwind
 			_shipper = new EntityRef<Shipper>();
 			_employee = new EntityRef<Employee>();
 			_customer = new EntityRef<Customer>();
+			OnCreated();
 		}
 
 		#endregion
@@ -2251,6 +2524,22 @@ namespace nwind
 
 		#endregion
 
+		#region Extensibility Method Definitions
+
+		partial void OnCreated();
+		partial void OnDiscountChanged()
+		partial void OnDiscountChanging(float value);
+		partial void OnOrderIDChanged()
+		partial void OnOrderIDChanging(int value);
+		partial void OnProductIDChanged()
+		partial void OnProductIDChanging(int value);
+		partial void OnQuantityChanged()
+		partial void OnQuantityChanging(short value);
+		partial void OnUnitPriceChanged()
+		partial void OnUnitPriceChanging(decimal value);
+
+		#endregion
+
 		#region float Discount
 
 		private float _discount;
@@ -2266,9 +2555,11 @@ namespace nwind
 			{
 				if (value != _discount)
 				{
+					OnDiscountChanging(value);
 					SendPropertyChanging();
 					_discount = value;
 					SendPropertyChanged("Discount");
+					OnDiscountChanged();
 				}
 			}
 		}
@@ -2294,9 +2585,11 @@ namespace nwind
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
+					OnOrderIDChanging(value);
 					SendPropertyChanging();
 					_orderID = value;
 					SendPropertyChanged("OrderID");
+					OnOrderIDChanged();
 				}
 			}
 		}
@@ -2322,9 +2615,11 @@ namespace nwind
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
+					OnProductIDChanging(value);
 					SendPropertyChanging();
 					_productID = value;
 					SendPropertyChanged("ProductID");
+					OnProductIDChanged();
 				}
 			}
 		}
@@ -2346,9 +2641,11 @@ namespace nwind
 			{
 				if (value != _quantity)
 				{
+					OnQuantityChanging(value);
 					SendPropertyChanging();
 					_quantity = value;
 					SendPropertyChanged("Quantity");
+					OnQuantityChanged();
 				}
 			}
 		}
@@ -2370,9 +2667,11 @@ namespace nwind
 			{
 				if (value != _unitPrice)
 				{
+					OnUnitPriceChanging(value);
 					SendPropertyChanging();
 					_unitPrice = value;
 					SendPropertyChanged("UnitPrice");
+					OnUnitPriceChanged();
 				}
 			}
 		}
@@ -2456,6 +2755,7 @@ namespace nwind
 		{
 			_product = new EntityRef<Product>();
 			_order = new EntityRef<Order>();
+			OnCreated();
 		}
 
 		#endregion
@@ -2494,6 +2794,32 @@ namespace nwind
 
 		#endregion
 
+		#region Extensibility Method Definitions
+
+		partial void OnCreated();
+		partial void OnCategoryIDChanged()
+		partial void OnCategoryIDChanging(int? value);
+		partial void OnDiscontinuedChanged()
+		partial void OnDiscontinuedChanging(bool value);
+		partial void OnProductIDChanged()
+		partial void OnProductIDChanging(int value);
+		partial void OnProductNameChanged()
+		partial void OnProductNameChanging(string value);
+		partial void OnQuantityPerUnitChanged()
+		partial void OnQuantityPerUnitChanging(string value);
+		partial void OnReorderLevelChanged()
+		partial void OnReorderLevelChanging(short? value);
+		partial void OnSupplierIDChanged()
+		partial void OnSupplierIDChanging(int? value);
+		partial void OnUnitPriceChanged()
+		partial void OnUnitPriceChanging(decimal? value);
+		partial void OnUnitsInStockChanged()
+		partial void OnUnitsInStockChanging(short? value);
+		partial void OnUnitsOnOrderChanged()
+		partial void OnUnitsOnOrderChanging(short? value);
+
+		#endregion
+
 		#region int? CategoryID
 
 		private int? _categoryID;
@@ -2513,9 +2839,11 @@ namespace nwind
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
+					OnCategoryIDChanging(value);
 					SendPropertyChanging();
 					_categoryID = value;
 					SendPropertyChanged("CategoryID");
+					OnCategoryIDChanged();
 				}
 			}
 		}
@@ -2537,9 +2865,11 @@ namespace nwind
 			{
 				if (value != _discontinued)
 				{
+					OnDiscontinuedChanging(value);
 					SendPropertyChanging();
 					_discontinued = value;
 					SendPropertyChanged("Discontinued");
+					OnDiscontinuedChanged();
 				}
 			}
 		}
@@ -2561,9 +2891,11 @@ namespace nwind
 			{
 				if (value != _productID)
 				{
+					OnProductIDChanging(value);
 					SendPropertyChanging();
 					_productID = value;
 					SendPropertyChanged("ProductID");
+					OnProductIDChanged();
 				}
 			}
 		}
@@ -2585,9 +2917,11 @@ namespace nwind
 			{
 				if (value != _productName)
 				{
+					OnProductNameChanging(value);
 					SendPropertyChanging();
 					_productName = value;
 					SendPropertyChanged("ProductName");
+					OnProductNameChanged();
 				}
 			}
 		}
@@ -2609,9 +2943,11 @@ namespace nwind
 			{
 				if (value != _quantityPerUnit)
 				{
+					OnQuantityPerUnitChanging(value);
 					SendPropertyChanging();
 					_quantityPerUnit = value;
 					SendPropertyChanged("QuantityPerUnit");
+					OnQuantityPerUnitChanged();
 				}
 			}
 		}
@@ -2633,9 +2969,11 @@ namespace nwind
 			{
 				if (value != _reorderLevel)
 				{
+					OnReorderLevelChanging(value);
 					SendPropertyChanging();
 					_reorderLevel = value;
 					SendPropertyChanged("ReorderLevel");
+					OnReorderLevelChanged();
 				}
 			}
 		}
@@ -2661,9 +2999,11 @@ namespace nwind
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
+					OnSupplierIDChanging(value);
 					SendPropertyChanging();
 					_supplierID = value;
 					SendPropertyChanged("SupplierID");
+					OnSupplierIDChanged();
 				}
 			}
 		}
@@ -2685,9 +3025,11 @@ namespace nwind
 			{
 				if (value != _unitPrice)
 				{
+					OnUnitPriceChanging(value);
 					SendPropertyChanging();
 					_unitPrice = value;
 					SendPropertyChanged("UnitPrice");
+					OnUnitPriceChanged();
 				}
 			}
 		}
@@ -2709,9 +3051,11 @@ namespace nwind
 			{
 				if (value != _unitsInStock)
 				{
+					OnUnitsInStockChanging(value);
 					SendPropertyChanging();
 					_unitsInStock = value;
 					SendPropertyChanged("UnitsInStock");
+					OnUnitsInStockChanged();
 				}
 			}
 		}
@@ -2733,9 +3077,11 @@ namespace nwind
 			{
 				if (value != _unitsOnOrder)
 				{
+					OnUnitsOnOrderChanging(value);
 					SendPropertyChanging();
 					_unitsOnOrder = value;
 					SendPropertyChanged("UnitsOnOrder");
+					OnUnitsOnOrderChanged();
 				}
 			}
 		}
@@ -2855,6 +3201,7 @@ namespace nwind
 			_orderDetails = new EntitySet<OrderDetail>(OrderDetails_Attach, OrderDetails_Detach);
 			_supplier = new EntityRef<Supplier>();
 			_category = new EntityRef<Category>();
+			OnCreated();
 		}
 
 		#endregion
@@ -2893,6 +3240,16 @@ namespace nwind
 
 		#endregion
 
+		#region Extensibility Method Definitions
+
+		partial void OnCreated();
+		partial void OnRegionDescriptionChanged()
+		partial void OnRegionDescriptionChanging(string value);
+		partial void OnRegionIDChanged()
+		partial void OnRegionIDChanging(int value);
+
+		#endregion
+
 		#region string RegionDescription
 
 		private string _regionDescription;
@@ -2908,9 +3265,11 @@ namespace nwind
 			{
 				if (value != _regionDescription)
 				{
+					OnRegionDescriptionChanging(value);
 					SendPropertyChanging();
 					_regionDescription = value;
 					SendPropertyChanged("RegionDescription");
+					OnRegionDescriptionChanged();
 				}
 			}
 		}
@@ -2932,9 +3291,11 @@ namespace nwind
 			{
 				if (value != _regionID)
 				{
+					OnRegionIDChanging(value);
 					SendPropertyChanging();
 					_regionID = value;
 					SendPropertyChanged("RegionID");
+					OnRegionIDChanged();
 				}
 			}
 		}
@@ -2981,6 +3342,7 @@ namespace nwind
 		public Region()
 		{
 			_territories = new EntitySet<Territory>(Territories_Attach, Territories_Detach);
+			OnCreated();
 		}
 
 		#endregion
@@ -3019,6 +3381,18 @@ namespace nwind
 
 		#endregion
 
+		#region Extensibility Method Definitions
+
+		partial void OnCreated();
+		partial void OnCompanyNameChanged()
+		partial void OnCompanyNameChanging(string value);
+		partial void OnPhoneChanged()
+		partial void OnPhoneChanging(string value);
+		partial void OnShipperIDChanged()
+		partial void OnShipperIDChanging(int value);
+
+		#endregion
+
 		#region string CompanyName
 
 		private string _companyName;
@@ -3034,9 +3408,11 @@ namespace nwind
 			{
 				if (value != _companyName)
 				{
+					OnCompanyNameChanging(value);
 					SendPropertyChanging();
 					_companyName = value;
 					SendPropertyChanged("CompanyName");
+					OnCompanyNameChanged();
 				}
 			}
 		}
@@ -3058,9 +3434,11 @@ namespace nwind
 			{
 				if (value != _phone)
 				{
+					OnPhoneChanging(value);
 					SendPropertyChanging();
 					_phone = value;
 					SendPropertyChanged("Phone");
+					OnPhoneChanged();
 				}
 			}
 		}
@@ -3082,9 +3460,11 @@ namespace nwind
 			{
 				if (value != _shipperID)
 				{
+					OnShipperIDChanging(value);
 					SendPropertyChanging();
 					_shipperID = value;
 					SendPropertyChanged("ShipperID");
+					OnShipperIDChanged();
 				}
 			}
 		}
@@ -3131,6 +3511,7 @@ namespace nwind
 		public Shipper()
 		{
 			_orders = new EntitySet<Order>(Orders_Attach, Orders_Detach);
+			OnCreated();
 		}
 
 		#endregion
@@ -3169,6 +3550,36 @@ namespace nwind
 
 		#endregion
 
+		#region Extensibility Method Definitions
+
+		partial void OnCreated();
+		partial void OnAddressChanged()
+		partial void OnAddressChanging(string value);
+		partial void OnCityChanged()
+		partial void OnCityChanging(string value);
+		partial void OnCompanyNameChanged()
+		partial void OnCompanyNameChanging(string value);
+		partial void OnContactNameChanged()
+		partial void OnContactNameChanging(string value);
+		partial void OnContactTitleChanged()
+		partial void OnContactTitleChanging(string value);
+		partial void OnCountryChanged()
+		partial void OnCountryChanging(string value);
+		partial void OnFaxChanged()
+		partial void OnFaxChanging(string value);
+		partial void OnHomePageChanged()
+		partial void OnHomePageChanging(string value);
+		partial void OnPhoneChanged()
+		partial void OnPhoneChanging(string value);
+		partial void OnPostalCodeChanged()
+		partial void OnPostalCodeChanging(string value);
+		partial void OnRegionChanged()
+		partial void OnRegionChanging(string value);
+		partial void OnSupplierIDChanged()
+		partial void OnSupplierIDChanging(int value);
+
+		#endregion
+
 		#region string Address
 
 		private string _address;
@@ -3184,9 +3595,11 @@ namespace nwind
 			{
 				if (value != _address)
 				{
+					OnAddressChanging(value);
 					SendPropertyChanging();
 					_address = value;
 					SendPropertyChanged("Address");
+					OnAddressChanged();
 				}
 			}
 		}
@@ -3208,9 +3621,11 @@ namespace nwind
 			{
 				if (value != _city)
 				{
+					OnCityChanging(value);
 					SendPropertyChanging();
 					_city = value;
 					SendPropertyChanged("City");
+					OnCityChanged();
 				}
 			}
 		}
@@ -3232,9 +3647,11 @@ namespace nwind
 			{
 				if (value != _companyName)
 				{
+					OnCompanyNameChanging(value);
 					SendPropertyChanging();
 					_companyName = value;
 					SendPropertyChanged("CompanyName");
+					OnCompanyNameChanged();
 				}
 			}
 		}
@@ -3256,9 +3673,11 @@ namespace nwind
 			{
 				if (value != _contactName)
 				{
+					OnContactNameChanging(value);
 					SendPropertyChanging();
 					_contactName = value;
 					SendPropertyChanged("ContactName");
+					OnContactNameChanged();
 				}
 			}
 		}
@@ -3280,9 +3699,11 @@ namespace nwind
 			{
 				if (value != _contactTitle)
 				{
+					OnContactTitleChanging(value);
 					SendPropertyChanging();
 					_contactTitle = value;
 					SendPropertyChanged("ContactTitle");
+					OnContactTitleChanged();
 				}
 			}
 		}
@@ -3304,9 +3725,11 @@ namespace nwind
 			{
 				if (value != _country)
 				{
+					OnCountryChanging(value);
 					SendPropertyChanging();
 					_country = value;
 					SendPropertyChanged("Country");
+					OnCountryChanged();
 				}
 			}
 		}
@@ -3328,9 +3751,11 @@ namespace nwind
 			{
 				if (value != _fax)
 				{
+					OnFaxChanging(value);
 					SendPropertyChanging();
 					_fax = value;
 					SendPropertyChanged("Fax");
+					OnFaxChanged();
 				}
 			}
 		}
@@ -3352,9 +3777,11 @@ namespace nwind
 			{
 				if (value != _homePage)
 				{
+					OnHomePageChanging(value);
 					SendPropertyChanging();
 					_homePage = value;
 					SendPropertyChanged("HomePage");
+					OnHomePageChanged();
 				}
 			}
 		}
@@ -3376,9 +3803,11 @@ namespace nwind
 			{
 				if (value != _phone)
 				{
+					OnPhoneChanging(value);
 					SendPropertyChanging();
 					_phone = value;
 					SendPropertyChanged("Phone");
+					OnPhoneChanged();
 				}
 			}
 		}
@@ -3400,9 +3829,11 @@ namespace nwind
 			{
 				if (value != _postalCode)
 				{
+					OnPostalCodeChanging(value);
 					SendPropertyChanging();
 					_postalCode = value;
 					SendPropertyChanged("PostalCode");
+					OnPostalCodeChanged();
 				}
 			}
 		}
@@ -3424,9 +3855,11 @@ namespace nwind
 			{
 				if (value != _region)
 				{
+					OnRegionChanging(value);
 					SendPropertyChanging();
 					_region = value;
 					SendPropertyChanged("Region");
+					OnRegionChanged();
 				}
 			}
 		}
@@ -3448,9 +3881,11 @@ namespace nwind
 			{
 				if (value != _supplierID)
 				{
+					OnSupplierIDChanging(value);
 					SendPropertyChanging();
 					_supplierID = value;
 					SendPropertyChanged("SupplierID");
+					OnSupplierIDChanged();
 				}
 			}
 		}
@@ -3497,6 +3932,7 @@ namespace nwind
 		public Supplier()
 		{
 			_products = new EntitySet<Product>(Products_Attach, Products_Detach);
+			OnCreated();
 		}
 
 		#endregion
@@ -3535,6 +3971,18 @@ namespace nwind
 
 		#endregion
 
+		#region Extensibility Method Definitions
+
+		partial void OnCreated();
+		partial void OnRegionIDChanged()
+		partial void OnRegionIDChanging(int value);
+		partial void OnTerritoryDescriptionChanged()
+		partial void OnTerritoryDescriptionChanging(string value);
+		partial void OnTerritoryIDChanged()
+		partial void OnTerritoryIDChanging(string value);
+
+		#endregion
+
 		#region int RegionID
 
 		private int _regionID;
@@ -3554,9 +4002,11 @@ namespace nwind
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
+					OnRegionIDChanging(value);
 					SendPropertyChanging();
 					_regionID = value;
 					SendPropertyChanged("RegionID");
+					OnRegionIDChanged();
 				}
 			}
 		}
@@ -3578,9 +4028,11 @@ namespace nwind
 			{
 				if (value != _territoryDescription)
 				{
+					OnTerritoryDescriptionChanging(value);
 					SendPropertyChanging();
 					_territoryDescription = value;
 					SendPropertyChanged("TerritoryDescription");
+					OnTerritoryDescriptionChanged();
 				}
 			}
 		}
@@ -3602,9 +4054,11 @@ namespace nwind
 			{
 				if (value != _territoryID)
 				{
+					OnTerritoryIDChanging(value);
 					SendPropertyChanging();
 					_territoryID = value;
 					SendPropertyChanged("TerritoryID");
+					OnTerritoryIDChanged();
 				}
 			}
 		}
@@ -3690,6 +4144,7 @@ namespace nwind
 		{
 			_employeeTerritories = new EntitySet<EmployeeTerritory>(EmployeeTerritories_Attach, EmployeeTerritories_Detach);
 			_region = new EntityRef<Region>();
+			OnCreated();
 		}
 
 		#endregion
