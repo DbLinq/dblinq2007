@@ -143,7 +143,7 @@ namespace DbMetal
         /// <summary>
         /// Interfaces to be implemented
         /// </summary>
-        [Option("Comma separated base interfaces of entity classes in the generated code (default: entities implement INotifyPropertyChanged).",
+        [Option("Comma separated base interfaces of entity classes in the generated code (default: entities implement INotifyPropertyChanging, INotifyPropertyChanged).",
             ValueName = "interface(s)", Group = 4)]
         public string EntityInterfaces { get; set; }
         public string[] EntityImplementedInterfaces { get { return GetArray(EntityInterfaces); } }
@@ -245,7 +245,7 @@ namespace DbMetal
             Schema = true;
             Culture = "en";
             GenerateTimestamps = true;
-            EntityInterfaces = "INotifyPropertyChanged";//INotifyPropertyChanging INotifyPropertyChanged IModified
+            EntityInterfaces = "INotifyPropertyChanging,INotifyPropertyChanged";//INotifyPropertyChanging INotifyPropertyChanged IModified
         }
 
         public IEnumerable<Parameters> GetBatch(IList<string> args)
