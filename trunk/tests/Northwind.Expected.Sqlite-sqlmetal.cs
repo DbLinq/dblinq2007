@@ -24,13 +24,23 @@ namespace nwind
 {
 	public partial class Northwind : DataContext
 	{
+		public Northwind(string connectionString)
+		: base(connectionString)
+		{
+		}
+
 		public Northwind(IDbConnection connection)
 		: base(connection)
 		{
 		}
 
-		public Northwind(string connectionString, IVendor vendor)
-		: base(connectionString)
+		public Northwind(string connection, MappingSource mappingSource)
+		: base(connection, mappingSource)
+		{
+		}
+
+		public Northwind(IDbConnection connection, MappingSource mappingSource)
+		: base(connection, mappingSource)
 		{
 		}
 
