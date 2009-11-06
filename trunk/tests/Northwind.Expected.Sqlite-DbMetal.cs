@@ -17,8 +17,12 @@ using System.Data;
 using System.Data.Linq.Mapping;
 using System.Diagnostics;
 using System.Reflection;
+#if MONO_STRICT
+using System.Data.Linq;
+#else   // MONO_STRICT
 using DbLinq.Data.Linq;
 using DbLinq.Vendor;
+#endif  // MONO_STRICT
 using System.ComponentModel;
 
 namespace nwind
@@ -32,40 +36,48 @@ namespace nwind
 		#endregion
 
 		public Northwind(string connectionString)
-		: base(connectionString)
+			: base(connectionString)
 		{
 			OnCreated();
 		}
 
 		public Northwind(IDbConnection connection)
-		: base(connection, new DbLinq.Sqlite.SqliteVendor())
+		#if MONO_STRICT
+			: base(connection)
+		#else   // MONO_STRICT
+			: base(connection, new DbLinq.Sqlite.SqliteVendor())
+		#endif  // MONO_STRICT
 		{
 			OnCreated();
 		}
 
 		public Northwind(string connection, MappingSource mappingSource)
-		: base(connection, mappingSource)
+			: base(connection, mappingSource)
 		{
 			OnCreated();
 		}
 
 		public Northwind(IDbConnection connection, MappingSource mappingSource)
-		: base(connection, mappingSource)
+			: base(connection, mappingSource)
 		{
 			OnCreated();
 		}
 
+		#if !MONO_STRICT
 		public Northwind(IDbConnection connection, IVendor vendor)
-		: base(connection, vendor)
+			: base(connection, vendor)
 		{
 			OnCreated();
 		}
+		#endif  // !MONO_STRICT
 
+		#if !MONO_STRICT
 		public Northwind(IDbConnection connection, MappingSource mappingSource, IVendor vendor)
-		: base(connection, mappingSource, vendor)
+			: base(connection, mappingSource, vendor)
 		{
 			OnCreated();
 		}
+		#endif  // !MONO_STRICT
 
 		public Table<Category> Categories { get { return GetTable<Category>(); } }
 		public Table<Customer> Customers { get { return GetTable<Customer>(); } }
@@ -118,13 +130,13 @@ namespace nwind
 		#region Extensibility Method Definitions
 
 		partial void OnCreated();
-		partial void OnCategoryIDChanged()
+		partial void OnCategoryIDChanged();
 		partial void OnCategoryIDChanging(int value);
-		partial void OnCategoryNameChanged()
+		partial void OnCategoryNameChanged();
 		partial void OnCategoryNameChanging(string value);
-		partial void OnDescriptionChanged()
+		partial void OnDescriptionChanged();
 		partial void OnDescriptionChanging(string value);
-		partial void OnPictureChanged()
+		partial void OnPictureChanged();
 		partial void OnPictureChanging(Byte[] value);
 
 		#endregion
@@ -315,27 +327,27 @@ namespace nwind
 		#region Extensibility Method Definitions
 
 		partial void OnCreated();
-		partial void OnAddressChanged()
+		partial void OnAddressChanged();
 		partial void OnAddressChanging(string value);
-		partial void OnCityChanged()
+		partial void OnCityChanged();
 		partial void OnCityChanging(string value);
-		partial void OnCompanyNameChanged()
+		partial void OnCompanyNameChanged();
 		partial void OnCompanyNameChanging(string value);
-		partial void OnContactNameChanged()
+		partial void OnContactNameChanged();
 		partial void OnContactNameChanging(string value);
-		partial void OnContactTitleChanged()
+		partial void OnContactTitleChanged();
 		partial void OnContactTitleChanging(string value);
-		partial void OnCountryChanged()
+		partial void OnCountryChanged();
 		partial void OnCountryChanging(string value);
-		partial void OnCustomerIDChanged()
+		partial void OnCustomerIDChanged();
 		partial void OnCustomerIDChanging(string value);
-		partial void OnFaxChanged()
+		partial void OnFaxChanged();
 		partial void OnFaxChanging(string value);
-		partial void OnPhoneChanged()
+		partial void OnPhoneChanged();
 		partial void OnPhoneChanging(string value);
-		partial void OnPostalCodeChanged()
+		partial void OnPostalCodeChanged();
 		partial void OnPostalCodeChanging(string value);
-		partial void OnRegionChanged()
+		partial void OnRegionChanged();
 		partial void OnRegionChanging(string value);
 
 		#endregion
@@ -734,9 +746,9 @@ namespace nwind
 		#region Extensibility Method Definitions
 
 		partial void OnCreated();
-		partial void OnCustomerIDChanged()
+		partial void OnCustomerIDChanged();
 		partial void OnCustomerIDChanging(string value);
-		partial void OnCustomerTypeIDChanged()
+		partial void OnCustomerTypeIDChanged();
 		partial void OnCustomerTypeIDChanging(string value);
 
 		#endregion
@@ -920,9 +932,9 @@ namespace nwind
 		#region Extensibility Method Definitions
 
 		partial void OnCreated();
-		partial void OnCustomerDescChanged()
+		partial void OnCustomerDescChanged();
 		partial void OnCustomerDescChanging(string value);
-		partial void OnCustomerTypeIDChanged()
+		partial void OnCustomerTypeIDChanged();
 		partial void OnCustomerTypeIDChanging(string value);
 
 		#endregion
@@ -1061,41 +1073,41 @@ namespace nwind
 		#region Extensibility Method Definitions
 
 		partial void OnCreated();
-		partial void OnAddressChanged()
+		partial void OnAddressChanged();
 		partial void OnAddressChanging(string value);
-		partial void OnBirthDateChanged()
+		partial void OnBirthDateChanged();
 		partial void OnBirthDateChanging(DateTime? value);
-		partial void OnCityChanged()
+		partial void OnCityChanged();
 		partial void OnCityChanging(string value);
-		partial void OnCountryChanged()
+		partial void OnCountryChanged();
 		partial void OnCountryChanging(string value);
-		partial void OnEmployeeIDChanged()
+		partial void OnEmployeeIDChanged();
 		partial void OnEmployeeIDChanging(int value);
-		partial void OnExtensionChanged()
+		partial void OnExtensionChanged();
 		partial void OnExtensionChanging(string value);
-		partial void OnFirstNameChanged()
+		partial void OnFirstNameChanged();
 		partial void OnFirstNameChanging(string value);
-		partial void OnHireDateChanged()
+		partial void OnHireDateChanged();
 		partial void OnHireDateChanging(DateTime? value);
-		partial void OnHomePhoneChanged()
+		partial void OnHomePhoneChanged();
 		partial void OnHomePhoneChanging(string value);
-		partial void OnLastNameChanged()
+		partial void OnLastNameChanged();
 		partial void OnLastNameChanging(string value);
-		partial void OnNotesChanged()
+		partial void OnNotesChanged();
 		partial void OnNotesChanging(string value);
-		partial void OnPhotoChanged()
+		partial void OnPhotoChanged();
 		partial void OnPhotoChanging(Byte[] value);
-		partial void OnPhotoPathChanged()
+		partial void OnPhotoPathChanged();
 		partial void OnPhotoPathChanging(string value);
-		partial void OnPostalCodeChanged()
+		partial void OnPostalCodeChanged();
 		partial void OnPostalCodeChanging(string value);
-		partial void OnRegionChanged()
+		partial void OnRegionChanged();
 		partial void OnRegionChanging(string value);
-		partial void OnReportsToChanged()
+		partial void OnReportsToChanged();
 		partial void OnReportsToChanging(int? value);
-		partial void OnTitleChanged()
+		partial void OnTitleChanged();
 		partial void OnTitleChanging(string value);
-		partial void OnTitleOfCourtesyChanged()
+		partial void OnTitleOfCourtesyChanged();
 		partial void OnTitleOfCourtesyChanging(string value);
 
 		#endregion
@@ -1745,9 +1757,9 @@ namespace nwind
 		#region Extensibility Method Definitions
 
 		partial void OnCreated();
-		partial void OnEmployeeIDChanged()
+		partial void OnEmployeeIDChanged();
 		partial void OnEmployeeIDChanging(int value);
-		partial void OnTerritoryIDChanged()
+		partial void OnTerritoryIDChanged();
 		partial void OnTerritoryIDChanging(string value);
 
 		#endregion
@@ -1931,33 +1943,33 @@ namespace nwind
 		#region Extensibility Method Definitions
 
 		partial void OnCreated();
-		partial void OnCustomerIDChanged()
+		partial void OnCustomerIDChanged();
 		partial void OnCustomerIDChanging(string value);
-		partial void OnEmployeeIDChanged()
+		partial void OnEmployeeIDChanged();
 		partial void OnEmployeeIDChanging(int? value);
-		partial void OnFreightChanged()
+		partial void OnFreightChanged();
 		partial void OnFreightChanging(decimal? value);
-		partial void OnOrderDateChanged()
+		partial void OnOrderDateChanged();
 		partial void OnOrderDateChanging(DateTime? value);
-		partial void OnOrderIDChanged()
+		partial void OnOrderIDChanged();
 		partial void OnOrderIDChanging(int value);
-		partial void OnRequiredDateChanged()
+		partial void OnRequiredDateChanged();
 		partial void OnRequiredDateChanging(DateTime? value);
-		partial void OnShipAddressChanged()
+		partial void OnShipAddressChanged();
 		partial void OnShipAddressChanging(string value);
-		partial void OnShipCityChanged()
+		partial void OnShipCityChanged();
 		partial void OnShipCityChanging(string value);
-		partial void OnShipCountryChanged()
+		partial void OnShipCountryChanged();
 		partial void OnShipCountryChanging(string value);
-		partial void OnShipNameChanged()
+		partial void OnShipNameChanged();
 		partial void OnShipNameChanging(string value);
-		partial void OnShippedDateChanged()
+		partial void OnShippedDateChanged();
 		partial void OnShippedDateChanging(DateTime? value);
-		partial void OnShipPostalCodeChanged()
+		partial void OnShipPostalCodeChanged();
 		partial void OnShipPostalCodeChanging(string value);
-		partial void OnShipRegionChanged()
+		partial void OnShipRegionChanged();
 		partial void OnShipRegionChanging(string value);
-		partial void OnShipViaChanged()
+		partial void OnShipViaChanged();
 		partial void OnShipViaChanging(int? value);
 
 		#endregion
@@ -2527,15 +2539,15 @@ namespace nwind
 		#region Extensibility Method Definitions
 
 		partial void OnCreated();
-		partial void OnDiscountChanged()
+		partial void OnDiscountChanged();
 		partial void OnDiscountChanging(float value);
-		partial void OnOrderIDChanged()
+		partial void OnOrderIDChanged();
 		partial void OnOrderIDChanging(int value);
-		partial void OnProductIDChanged()
+		partial void OnProductIDChanged();
 		partial void OnProductIDChanging(int value);
-		partial void OnQuantityChanged()
+		partial void OnQuantityChanged();
 		partial void OnQuantityChanging(short value);
-		partial void OnUnitPriceChanged()
+		partial void OnUnitPriceChanged();
 		partial void OnUnitPriceChanging(decimal value);
 
 		#endregion
@@ -2797,25 +2809,25 @@ namespace nwind
 		#region Extensibility Method Definitions
 
 		partial void OnCreated();
-		partial void OnCategoryIDChanged()
+		partial void OnCategoryIDChanged();
 		partial void OnCategoryIDChanging(int? value);
-		partial void OnDiscontinuedChanged()
+		partial void OnDiscontinuedChanged();
 		partial void OnDiscontinuedChanging(bool value);
-		partial void OnProductIDChanged()
+		partial void OnProductIDChanged();
 		partial void OnProductIDChanging(int value);
-		partial void OnProductNameChanged()
+		partial void OnProductNameChanged();
 		partial void OnProductNameChanging(string value);
-		partial void OnQuantityPerUnitChanged()
+		partial void OnQuantityPerUnitChanged();
 		partial void OnQuantityPerUnitChanging(string value);
-		partial void OnReorderLevelChanged()
+		partial void OnReorderLevelChanged();
 		partial void OnReorderLevelChanging(short? value);
-		partial void OnSupplierIDChanged()
+		partial void OnSupplierIDChanged();
 		partial void OnSupplierIDChanging(int? value);
-		partial void OnUnitPriceChanged()
+		partial void OnUnitPriceChanged();
 		partial void OnUnitPriceChanging(decimal? value);
-		partial void OnUnitsInStockChanged()
+		partial void OnUnitsInStockChanged();
 		partial void OnUnitsInStockChanging(short? value);
-		partial void OnUnitsOnOrderChanged()
+		partial void OnUnitsOnOrderChanged();
 		partial void OnUnitsOnOrderChanging(short? value);
 
 		#endregion
@@ -3243,9 +3255,9 @@ namespace nwind
 		#region Extensibility Method Definitions
 
 		partial void OnCreated();
-		partial void OnRegionDescriptionChanged()
+		partial void OnRegionDescriptionChanged();
 		partial void OnRegionDescriptionChanging(string value);
-		partial void OnRegionIDChanged()
+		partial void OnRegionIDChanged();
 		partial void OnRegionIDChanging(int value);
 
 		#endregion
@@ -3384,11 +3396,11 @@ namespace nwind
 		#region Extensibility Method Definitions
 
 		partial void OnCreated();
-		partial void OnCompanyNameChanged()
+		partial void OnCompanyNameChanged();
 		partial void OnCompanyNameChanging(string value);
-		partial void OnPhoneChanged()
+		partial void OnPhoneChanged();
 		partial void OnPhoneChanging(string value);
-		partial void OnShipperIDChanged()
+		partial void OnShipperIDChanged();
 		partial void OnShipperIDChanging(int value);
 
 		#endregion
@@ -3553,29 +3565,29 @@ namespace nwind
 		#region Extensibility Method Definitions
 
 		partial void OnCreated();
-		partial void OnAddressChanged()
+		partial void OnAddressChanged();
 		partial void OnAddressChanging(string value);
-		partial void OnCityChanged()
+		partial void OnCityChanged();
 		partial void OnCityChanging(string value);
-		partial void OnCompanyNameChanged()
+		partial void OnCompanyNameChanged();
 		partial void OnCompanyNameChanging(string value);
-		partial void OnContactNameChanged()
+		partial void OnContactNameChanged();
 		partial void OnContactNameChanging(string value);
-		partial void OnContactTitleChanged()
+		partial void OnContactTitleChanged();
 		partial void OnContactTitleChanging(string value);
-		partial void OnCountryChanged()
+		partial void OnCountryChanged();
 		partial void OnCountryChanging(string value);
-		partial void OnFaxChanged()
+		partial void OnFaxChanged();
 		partial void OnFaxChanging(string value);
-		partial void OnHomePageChanged()
+		partial void OnHomePageChanged();
 		partial void OnHomePageChanging(string value);
-		partial void OnPhoneChanged()
+		partial void OnPhoneChanged();
 		partial void OnPhoneChanging(string value);
-		partial void OnPostalCodeChanged()
+		partial void OnPostalCodeChanged();
 		partial void OnPostalCodeChanging(string value);
-		partial void OnRegionChanged()
+		partial void OnRegionChanged();
 		partial void OnRegionChanging(string value);
-		partial void OnSupplierIDChanged()
+		partial void OnSupplierIDChanged();
 		partial void OnSupplierIDChanging(int value);
 
 		#endregion
@@ -3974,11 +3986,11 @@ namespace nwind
 		#region Extensibility Method Definitions
 
 		partial void OnCreated();
-		partial void OnRegionIDChanged()
+		partial void OnRegionIDChanged();
 		partial void OnRegionIDChanging(int value);
-		partial void OnTerritoryDescriptionChanged()
+		partial void OnTerritoryDescriptionChanged();
 		partial void OnTerritoryDescriptionChanging(string value);
-		partial void OnTerritoryIDChanged()
+		partial void OnTerritoryIDChanged();
 		partial void OnTerritoryIDChanging(string value);
 
 		#endregion
