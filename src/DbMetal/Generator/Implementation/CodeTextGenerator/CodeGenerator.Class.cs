@@ -181,7 +181,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                 writer.WriteLine("partial void OnCreated();");
                 foreach (var c in table.Type.Columns)
                 {
-                    writer.WriteLine("partial void On{0}Changed()", c.Name);
+                    writer.WriteLine("partial void On{0}Changed();", c.Name);
                     writer.WriteLine("partial void On{0}Changing({1} value);", c.Name, GetTypeOrExtendedType(writer, c));
                 }
             }
