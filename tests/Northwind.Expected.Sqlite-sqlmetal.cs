@@ -61,13 +61,28 @@ namespace nwind
 	}
 
 	[Table(Name = "main.Categories")]
-	public partial class Category : INotifyPropertyChanged
+	public partial class Category : INotifyPropertyChanging, INotifyPropertyChanged
 	{
+		#region INotifyPropertyChanging handling
+
+		public event PropertyChangingEventHandler PropertyChanging;
+
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs("");
+		protected virtual void SendPropertyChanging()
+		{
+			if (PropertyChanging != null)
+			{
+				PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+
+		#endregion
+
 		#region INotifyPropertyChanged handling
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		protected virtual void OnPropertyChanged(string propertyName)
+		protected virtual void SendPropertyChanged(string propertyName)
 		{
 			if (PropertyChanged != null)
 			{
@@ -92,8 +107,9 @@ namespace nwind
 			{
 				if (value != _categoryID)
 				{
+					SendPropertyChanging();
 					_categoryID = value;
-					OnPropertyChanged("CategoryID");
+					SendPropertyChanged("CategoryID");
 				}
 			}
 		}
@@ -115,8 +131,9 @@ namespace nwind
 			{
 				if (value != _categoryName)
 				{
+					SendPropertyChanging();
 					_categoryName = value;
-					OnPropertyChanged("CategoryName");
+					SendPropertyChanged("CategoryName");
 				}
 			}
 		}
@@ -138,8 +155,9 @@ namespace nwind
 			{
 				if (value != _description)
 				{
+					SendPropertyChanging();
 					_description = value;
-					OnPropertyChanged("Description");
+					SendPropertyChanged("Description");
 				}
 			}
 		}
@@ -161,8 +179,9 @@ namespace nwind
 			{
 				if (value != _picture)
 				{
+					SendPropertyChanging();
 					_picture = value;
-					OnPropertyChanged("Picture");
+					SendPropertyChanged("Picture");
 				}
 			}
 		}
@@ -216,13 +235,28 @@ namespace nwind
 	}
 
 	[Table(Name = "main.Customers")]
-	public partial class Customer : INotifyPropertyChanged
+	public partial class Customer : INotifyPropertyChanging, INotifyPropertyChanged
 	{
+		#region INotifyPropertyChanging handling
+
+		public event PropertyChangingEventHandler PropertyChanging;
+
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs("");
+		protected virtual void SendPropertyChanging()
+		{
+			if (PropertyChanging != null)
+			{
+				PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+
+		#endregion
+
 		#region INotifyPropertyChanged handling
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		protected virtual void OnPropertyChanged(string propertyName)
+		protected virtual void SendPropertyChanged(string propertyName)
 		{
 			if (PropertyChanged != null)
 			{
@@ -247,8 +281,9 @@ namespace nwind
 			{
 				if (value != _address)
 				{
+					SendPropertyChanging();
 					_address = value;
-					OnPropertyChanged("Address");
+					SendPropertyChanged("Address");
 				}
 			}
 		}
@@ -270,8 +305,9 @@ namespace nwind
 			{
 				if (value != _city)
 				{
+					SendPropertyChanging();
 					_city = value;
-					OnPropertyChanged("City");
+					SendPropertyChanged("City");
 				}
 			}
 		}
@@ -293,8 +329,9 @@ namespace nwind
 			{
 				if (value != _companyName)
 				{
+					SendPropertyChanging();
 					_companyName = value;
-					OnPropertyChanged("CompanyName");
+					SendPropertyChanged("CompanyName");
 				}
 			}
 		}
@@ -316,8 +353,9 @@ namespace nwind
 			{
 				if (value != _contactName)
 				{
+					SendPropertyChanging();
 					_contactName = value;
-					OnPropertyChanged("ContactName");
+					SendPropertyChanged("ContactName");
 				}
 			}
 		}
@@ -339,8 +377,9 @@ namespace nwind
 			{
 				if (value != _contactTitle)
 				{
+					SendPropertyChanging();
 					_contactTitle = value;
-					OnPropertyChanged("ContactTitle");
+					SendPropertyChanged("ContactTitle");
 				}
 			}
 		}
@@ -362,8 +401,9 @@ namespace nwind
 			{
 				if (value != _country)
 				{
+					SendPropertyChanging();
 					_country = value;
-					OnPropertyChanged("Country");
+					SendPropertyChanged("Country");
 				}
 			}
 		}
@@ -385,8 +425,9 @@ namespace nwind
 			{
 				if (value != _customerID)
 				{
+					SendPropertyChanging();
 					_customerID = value;
-					OnPropertyChanged("CustomerID");
+					SendPropertyChanged("CustomerID");
 				}
 			}
 		}
@@ -408,8 +449,9 @@ namespace nwind
 			{
 				if (value != _fax)
 				{
+					SendPropertyChanging();
 					_fax = value;
-					OnPropertyChanged("Fax");
+					SendPropertyChanged("Fax");
 				}
 			}
 		}
@@ -431,8 +473,9 @@ namespace nwind
 			{
 				if (value != _phone)
 				{
+					SendPropertyChanging();
 					_phone = value;
-					OnPropertyChanged("Phone");
+					SendPropertyChanged("Phone");
 				}
 			}
 		}
@@ -454,8 +497,9 @@ namespace nwind
 			{
 				if (value != _postalCode)
 				{
+					SendPropertyChanging();
 					_postalCode = value;
-					OnPropertyChanged("PostalCode");
+					SendPropertyChanged("PostalCode");
 				}
 			}
 		}
@@ -477,8 +521,9 @@ namespace nwind
 			{
 				if (value != _region)
 				{
+					SendPropertyChanging();
 					_region = value;
-					OnPropertyChanged("Region");
+					SendPropertyChanged("Region");
 				}
 			}
 		}
@@ -558,13 +603,28 @@ namespace nwind
 	}
 
 	[Table(Name = "main.CustomerCustomerDemo")]
-	public partial class CustomerCustomerDemo : INotifyPropertyChanged
+	public partial class CustomerCustomerDemo : INotifyPropertyChanging, INotifyPropertyChanged
 	{
+		#region INotifyPropertyChanging handling
+
+		public event PropertyChangingEventHandler PropertyChanging;
+
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs("");
+		protected virtual void SendPropertyChanging()
+		{
+			if (PropertyChanging != null)
+			{
+				PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+
+		#endregion
+
 		#region INotifyPropertyChanged handling
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		protected virtual void OnPropertyChanged(string propertyName)
+		protected virtual void SendPropertyChanged(string propertyName)
 		{
 			if (PropertyChanged != null)
 			{
@@ -593,8 +653,9 @@ namespace nwind
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
+					SendPropertyChanging();
 					_customerID = value;
-					OnPropertyChanged("CustomerID");
+					SendPropertyChanged("CustomerID");
 				}
 			}
 		}
@@ -620,8 +681,9 @@ namespace nwind
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
+					SendPropertyChanging();
 					_customerTypeID = value;
-					OnPropertyChanged("CustomerTypeID");
+					SendPropertyChanged("CustomerTypeID");
 				}
 			}
 		}
@@ -712,13 +774,28 @@ namespace nwind
 	}
 
 	[Table(Name = "main.CustomerDemographics")]
-	public partial class CustomerDemographic : INotifyPropertyChanged
+	public partial class CustomerDemographic : INotifyPropertyChanging, INotifyPropertyChanged
 	{
+		#region INotifyPropertyChanging handling
+
+		public event PropertyChangingEventHandler PropertyChanging;
+
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs("");
+		protected virtual void SendPropertyChanging()
+		{
+			if (PropertyChanging != null)
+			{
+				PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+
+		#endregion
+
 		#region INotifyPropertyChanged handling
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		protected virtual void OnPropertyChanged(string propertyName)
+		protected virtual void SendPropertyChanged(string propertyName)
 		{
 			if (PropertyChanged != null)
 			{
@@ -743,8 +820,9 @@ namespace nwind
 			{
 				if (value != _customerDesc)
 				{
+					SendPropertyChanging();
 					_customerDesc = value;
-					OnPropertyChanged("CustomerDesc");
+					SendPropertyChanged("CustomerDesc");
 				}
 			}
 		}
@@ -766,8 +844,9 @@ namespace nwind
 			{
 				if (value != _customerTypeID)
 				{
+					SendPropertyChanging();
 					_customerTypeID = value;
-					OnPropertyChanged("CustomerTypeID");
+					SendPropertyChanged("CustomerTypeID");
 				}
 			}
 		}
@@ -821,13 +900,28 @@ namespace nwind
 	}
 
 	[Table(Name = "main.Employees")]
-	public partial class Employee : INotifyPropertyChanged
+	public partial class Employee : INotifyPropertyChanging, INotifyPropertyChanged
 	{
+		#region INotifyPropertyChanging handling
+
+		public event PropertyChangingEventHandler PropertyChanging;
+
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs("");
+		protected virtual void SendPropertyChanging()
+		{
+			if (PropertyChanging != null)
+			{
+				PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+
+		#endregion
+
 		#region INotifyPropertyChanged handling
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		protected virtual void OnPropertyChanged(string propertyName)
+		protected virtual void SendPropertyChanged(string propertyName)
 		{
 			if (PropertyChanged != null)
 			{
@@ -852,8 +946,9 @@ namespace nwind
 			{
 				if (value != _address)
 				{
+					SendPropertyChanging();
 					_address = value;
-					OnPropertyChanged("Address");
+					SendPropertyChanged("Address");
 				}
 			}
 		}
@@ -875,8 +970,9 @@ namespace nwind
 			{
 				if (value != _birthDate)
 				{
+					SendPropertyChanging();
 					_birthDate = value;
-					OnPropertyChanged("BirthDate");
+					SendPropertyChanged("BirthDate");
 				}
 			}
 		}
@@ -898,8 +994,9 @@ namespace nwind
 			{
 				if (value != _city)
 				{
+					SendPropertyChanging();
 					_city = value;
-					OnPropertyChanged("City");
+					SendPropertyChanged("City");
 				}
 			}
 		}
@@ -921,8 +1018,9 @@ namespace nwind
 			{
 				if (value != _country)
 				{
+					SendPropertyChanging();
 					_country = value;
-					OnPropertyChanged("Country");
+					SendPropertyChanged("Country");
 				}
 			}
 		}
@@ -944,8 +1042,9 @@ namespace nwind
 			{
 				if (value != _employeeID)
 				{
+					SendPropertyChanging();
 					_employeeID = value;
-					OnPropertyChanged("EmployeeID");
+					SendPropertyChanged("EmployeeID");
 				}
 			}
 		}
@@ -967,8 +1066,9 @@ namespace nwind
 			{
 				if (value != _extension)
 				{
+					SendPropertyChanging();
 					_extension = value;
-					OnPropertyChanged("Extension");
+					SendPropertyChanged("Extension");
 				}
 			}
 		}
@@ -990,8 +1090,9 @@ namespace nwind
 			{
 				if (value != _firstName)
 				{
+					SendPropertyChanging();
 					_firstName = value;
-					OnPropertyChanged("FirstName");
+					SendPropertyChanged("FirstName");
 				}
 			}
 		}
@@ -1013,8 +1114,9 @@ namespace nwind
 			{
 				if (value != _hireDate)
 				{
+					SendPropertyChanging();
 					_hireDate = value;
-					OnPropertyChanged("HireDate");
+					SendPropertyChanged("HireDate");
 				}
 			}
 		}
@@ -1036,8 +1138,9 @@ namespace nwind
 			{
 				if (value != _homePhone)
 				{
+					SendPropertyChanging();
 					_homePhone = value;
-					OnPropertyChanged("HomePhone");
+					SendPropertyChanged("HomePhone");
 				}
 			}
 		}
@@ -1059,8 +1162,9 @@ namespace nwind
 			{
 				if (value != _lastName)
 				{
+					SendPropertyChanging();
 					_lastName = value;
-					OnPropertyChanged("LastName");
+					SendPropertyChanged("LastName");
 				}
 			}
 		}
@@ -1082,8 +1186,9 @@ namespace nwind
 			{
 				if (value != _notes)
 				{
+					SendPropertyChanging();
 					_notes = value;
-					OnPropertyChanged("Notes");
+					SendPropertyChanged("Notes");
 				}
 			}
 		}
@@ -1105,8 +1210,9 @@ namespace nwind
 			{
 				if (value != _photo)
 				{
+					SendPropertyChanging();
 					_photo = value;
-					OnPropertyChanged("Photo");
+					SendPropertyChanged("Photo");
 				}
 			}
 		}
@@ -1128,8 +1234,9 @@ namespace nwind
 			{
 				if (value != _photoPath)
 				{
+					SendPropertyChanging();
 					_photoPath = value;
-					OnPropertyChanged("PhotoPath");
+					SendPropertyChanged("PhotoPath");
 				}
 			}
 		}
@@ -1151,8 +1258,9 @@ namespace nwind
 			{
 				if (value != _postalCode)
 				{
+					SendPropertyChanging();
 					_postalCode = value;
-					OnPropertyChanged("PostalCode");
+					SendPropertyChanged("PostalCode");
 				}
 			}
 		}
@@ -1174,8 +1282,9 @@ namespace nwind
 			{
 				if (value != _region)
 				{
+					SendPropertyChanging();
 					_region = value;
-					OnPropertyChanged("Region");
+					SendPropertyChanged("Region");
 				}
 			}
 		}
@@ -1201,8 +1310,9 @@ namespace nwind
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
+					SendPropertyChanging();
 					_reportsTo = value;
-					OnPropertyChanged("ReportsTo");
+					SendPropertyChanged("ReportsTo");
 				}
 			}
 		}
@@ -1224,8 +1334,9 @@ namespace nwind
 			{
 				if (value != _title)
 				{
+					SendPropertyChanging();
 					_title = value;
-					OnPropertyChanged("Title");
+					SendPropertyChanged("Title");
 				}
 			}
 		}
@@ -1247,8 +1358,9 @@ namespace nwind
 			{
 				if (value != _titleOfCourtesy)
 				{
+					SendPropertyChanging();
 					_titleOfCourtesy = value;
-					OnPropertyChanged("TitleOfCourtesy");
+					SendPropertyChanged("TitleOfCourtesy");
 				}
 			}
 		}
@@ -1393,13 +1505,28 @@ namespace nwind
 	}
 
 	[Table(Name = "main.EmployeeTerritories")]
-	public partial class EmployeeTerritory : INotifyPropertyChanged
+	public partial class EmployeeTerritory : INotifyPropertyChanging, INotifyPropertyChanged
 	{
+		#region INotifyPropertyChanging handling
+
+		public event PropertyChangingEventHandler PropertyChanging;
+
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs("");
+		protected virtual void SendPropertyChanging()
+		{
+			if (PropertyChanging != null)
+			{
+				PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+
+		#endregion
+
 		#region INotifyPropertyChanged handling
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		protected virtual void OnPropertyChanged(string propertyName)
+		protected virtual void SendPropertyChanged(string propertyName)
 		{
 			if (PropertyChanged != null)
 			{
@@ -1428,8 +1555,9 @@ namespace nwind
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
+					SendPropertyChanging();
 					_employeeID = value;
-					OnPropertyChanged("EmployeeID");
+					SendPropertyChanged("EmployeeID");
 				}
 			}
 		}
@@ -1455,8 +1583,9 @@ namespace nwind
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
+					SendPropertyChanging();
 					_territoryID = value;
-					OnPropertyChanged("TerritoryID");
+					SendPropertyChanged("TerritoryID");
 				}
 			}
 		}
@@ -1547,13 +1676,28 @@ namespace nwind
 	}
 
 	[Table(Name = "main.Orders")]
-	public partial class Order : INotifyPropertyChanged
+	public partial class Order : INotifyPropertyChanging, INotifyPropertyChanged
 	{
+		#region INotifyPropertyChanging handling
+
+		public event PropertyChangingEventHandler PropertyChanging;
+
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs("");
+		protected virtual void SendPropertyChanging()
+		{
+			if (PropertyChanging != null)
+			{
+				PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+
+		#endregion
+
 		#region INotifyPropertyChanged handling
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		protected virtual void OnPropertyChanged(string propertyName)
+		protected virtual void SendPropertyChanged(string propertyName)
 		{
 			if (PropertyChanged != null)
 			{
@@ -1582,8 +1726,9 @@ namespace nwind
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
+					SendPropertyChanging();
 					_customerID = value;
-					OnPropertyChanged("CustomerID");
+					SendPropertyChanged("CustomerID");
 				}
 			}
 		}
@@ -1609,8 +1754,9 @@ namespace nwind
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
+					SendPropertyChanging();
 					_employeeID = value;
-					OnPropertyChanged("EmployeeID");
+					SendPropertyChanged("EmployeeID");
 				}
 			}
 		}
@@ -1632,8 +1778,9 @@ namespace nwind
 			{
 				if (value != _freight)
 				{
+					SendPropertyChanging();
 					_freight = value;
-					OnPropertyChanged("Freight");
+					SendPropertyChanged("Freight");
 				}
 			}
 		}
@@ -1655,8 +1802,9 @@ namespace nwind
 			{
 				if (value != _orderDate)
 				{
+					SendPropertyChanging();
 					_orderDate = value;
-					OnPropertyChanged("OrderDate");
+					SendPropertyChanged("OrderDate");
 				}
 			}
 		}
@@ -1678,8 +1826,9 @@ namespace nwind
 			{
 				if (value != _orderID)
 				{
+					SendPropertyChanging();
 					_orderID = value;
-					OnPropertyChanged("OrderID");
+					SendPropertyChanged("OrderID");
 				}
 			}
 		}
@@ -1701,8 +1850,9 @@ namespace nwind
 			{
 				if (value != _requiredDate)
 				{
+					SendPropertyChanging();
 					_requiredDate = value;
-					OnPropertyChanged("RequiredDate");
+					SendPropertyChanged("RequiredDate");
 				}
 			}
 		}
@@ -1724,8 +1874,9 @@ namespace nwind
 			{
 				if (value != _shipAddress)
 				{
+					SendPropertyChanging();
 					_shipAddress = value;
-					OnPropertyChanged("ShipAddress");
+					SendPropertyChanged("ShipAddress");
 				}
 			}
 		}
@@ -1747,8 +1898,9 @@ namespace nwind
 			{
 				if (value != _shipCity)
 				{
+					SendPropertyChanging();
 					_shipCity = value;
-					OnPropertyChanged("ShipCity");
+					SendPropertyChanged("ShipCity");
 				}
 			}
 		}
@@ -1770,8 +1922,9 @@ namespace nwind
 			{
 				if (value != _shipCountry)
 				{
+					SendPropertyChanging();
 					_shipCountry = value;
-					OnPropertyChanged("ShipCountry");
+					SendPropertyChanged("ShipCountry");
 				}
 			}
 		}
@@ -1793,8 +1946,9 @@ namespace nwind
 			{
 				if (value != _shipName)
 				{
+					SendPropertyChanging();
 					_shipName = value;
-					OnPropertyChanged("ShipName");
+					SendPropertyChanged("ShipName");
 				}
 			}
 		}
@@ -1816,8 +1970,9 @@ namespace nwind
 			{
 				if (value != _shippedDate)
 				{
+					SendPropertyChanging();
 					_shippedDate = value;
-					OnPropertyChanged("ShippedDate");
+					SendPropertyChanged("ShippedDate");
 				}
 			}
 		}
@@ -1839,8 +1994,9 @@ namespace nwind
 			{
 				if (value != _shipPostalCode)
 				{
+					SendPropertyChanging();
 					_shipPostalCode = value;
-					OnPropertyChanged("ShipPostalCode");
+					SendPropertyChanged("ShipPostalCode");
 				}
 			}
 		}
@@ -1862,8 +2018,9 @@ namespace nwind
 			{
 				if (value != _shipRegion)
 				{
+					SendPropertyChanging();
 					_shipRegion = value;
-					OnPropertyChanged("ShipRegion");
+					SendPropertyChanged("ShipRegion");
 				}
 			}
 		}
@@ -1889,8 +2046,9 @@ namespace nwind
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
+					SendPropertyChanging();
 					_shipVia = value;
-					OnPropertyChanged("ShipVia");
+					SendPropertyChanged("ShipVia");
 				}
 			}
 		}
@@ -2051,13 +2209,28 @@ namespace nwind
 	}
 
 	[Table(Name = "main.\"Order Details\"")]
-	public partial class OrderDetail : INotifyPropertyChanged
+	public partial class OrderDetail : INotifyPropertyChanging, INotifyPropertyChanged
 	{
+		#region INotifyPropertyChanging handling
+
+		public event PropertyChangingEventHandler PropertyChanging;
+
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs("");
+		protected virtual void SendPropertyChanging()
+		{
+			if (PropertyChanging != null)
+			{
+				PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+
+		#endregion
+
 		#region INotifyPropertyChanged handling
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		protected virtual void OnPropertyChanged(string propertyName)
+		protected virtual void SendPropertyChanged(string propertyName)
 		{
 			if (PropertyChanged != null)
 			{
@@ -2082,8 +2255,9 @@ namespace nwind
 			{
 				if (value != _discount)
 				{
+					SendPropertyChanging();
 					_discount = value;
-					OnPropertyChanged("Discount");
+					SendPropertyChanged("Discount");
 				}
 			}
 		}
@@ -2109,8 +2283,9 @@ namespace nwind
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
+					SendPropertyChanging();
 					_orderID = value;
-					OnPropertyChanged("OrderID");
+					SendPropertyChanged("OrderID");
 				}
 			}
 		}
@@ -2136,8 +2311,9 @@ namespace nwind
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
+					SendPropertyChanging();
 					_productID = value;
-					OnPropertyChanged("ProductID");
+					SendPropertyChanged("ProductID");
 				}
 			}
 		}
@@ -2159,8 +2335,9 @@ namespace nwind
 			{
 				if (value != _quantity)
 				{
+					SendPropertyChanging();
 					_quantity = value;
-					OnPropertyChanged("Quantity");
+					SendPropertyChanged("Quantity");
 				}
 			}
 		}
@@ -2182,8 +2359,9 @@ namespace nwind
 			{
 				if (value != _unitPrice)
 				{
+					SendPropertyChanging();
 					_unitPrice = value;
-					OnPropertyChanged("UnitPrice");
+					SendPropertyChanged("UnitPrice");
 				}
 			}
 		}
@@ -2274,13 +2452,28 @@ namespace nwind
 	}
 
 	[Table(Name = "main.Products")]
-	public partial class Product : INotifyPropertyChanged
+	public partial class Product : INotifyPropertyChanging, INotifyPropertyChanged
 	{
+		#region INotifyPropertyChanging handling
+
+		public event PropertyChangingEventHandler PropertyChanging;
+
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs("");
+		protected virtual void SendPropertyChanging()
+		{
+			if (PropertyChanging != null)
+			{
+				PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+
+		#endregion
+
 		#region INotifyPropertyChanged handling
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		protected virtual void OnPropertyChanged(string propertyName)
+		protected virtual void SendPropertyChanged(string propertyName)
 		{
 			if (PropertyChanged != null)
 			{
@@ -2309,8 +2502,9 @@ namespace nwind
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
+					SendPropertyChanging();
 					_categoryID = value;
-					OnPropertyChanged("CategoryID");
+					SendPropertyChanged("CategoryID");
 				}
 			}
 		}
@@ -2332,8 +2526,9 @@ namespace nwind
 			{
 				if (value != _discontinued)
 				{
+					SendPropertyChanging();
 					_discontinued = value;
-					OnPropertyChanged("Discontinued");
+					SendPropertyChanged("Discontinued");
 				}
 			}
 		}
@@ -2355,8 +2550,9 @@ namespace nwind
 			{
 				if (value != _productID)
 				{
+					SendPropertyChanging();
 					_productID = value;
-					OnPropertyChanged("ProductID");
+					SendPropertyChanged("ProductID");
 				}
 			}
 		}
@@ -2378,8 +2574,9 @@ namespace nwind
 			{
 				if (value != _productName)
 				{
+					SendPropertyChanging();
 					_productName = value;
-					OnPropertyChanged("ProductName");
+					SendPropertyChanged("ProductName");
 				}
 			}
 		}
@@ -2401,8 +2598,9 @@ namespace nwind
 			{
 				if (value != _quantityPerUnit)
 				{
+					SendPropertyChanging();
 					_quantityPerUnit = value;
-					OnPropertyChanged("QuantityPerUnit");
+					SendPropertyChanged("QuantityPerUnit");
 				}
 			}
 		}
@@ -2424,8 +2622,9 @@ namespace nwind
 			{
 				if (value != _reorderLevel)
 				{
+					SendPropertyChanging();
 					_reorderLevel = value;
-					OnPropertyChanged("ReorderLevel");
+					SendPropertyChanged("ReorderLevel");
 				}
 			}
 		}
@@ -2451,8 +2650,9 @@ namespace nwind
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
+					SendPropertyChanging();
 					_supplierID = value;
-					OnPropertyChanged("SupplierID");
+					SendPropertyChanged("SupplierID");
 				}
 			}
 		}
@@ -2474,8 +2674,9 @@ namespace nwind
 			{
 				if (value != _unitPrice)
 				{
+					SendPropertyChanging();
 					_unitPrice = value;
-					OnPropertyChanged("UnitPrice");
+					SendPropertyChanged("UnitPrice");
 				}
 			}
 		}
@@ -2497,8 +2698,9 @@ namespace nwind
 			{
 				if (value != _unitsInStock)
 				{
+					SendPropertyChanging();
 					_unitsInStock = value;
-					OnPropertyChanged("UnitsInStock");
+					SendPropertyChanged("UnitsInStock");
 				}
 			}
 		}
@@ -2520,8 +2722,9 @@ namespace nwind
 			{
 				if (value != _unitsOnOrder)
 				{
+					SendPropertyChanging();
 					_unitsOnOrder = value;
-					OnPropertyChanged("UnitsOnOrder");
+					SendPropertyChanged("UnitsOnOrder");
 				}
 			}
 		}
@@ -2648,13 +2851,28 @@ namespace nwind
 	}
 
 	[Table(Name = "main.Region")]
-	public partial class Region : INotifyPropertyChanged
+	public partial class Region : INotifyPropertyChanging, INotifyPropertyChanged
 	{
+		#region INotifyPropertyChanging handling
+
+		public event PropertyChangingEventHandler PropertyChanging;
+
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs("");
+		protected virtual void SendPropertyChanging()
+		{
+			if (PropertyChanging != null)
+			{
+				PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+
+		#endregion
+
 		#region INotifyPropertyChanged handling
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		protected virtual void OnPropertyChanged(string propertyName)
+		protected virtual void SendPropertyChanged(string propertyName)
 		{
 			if (PropertyChanged != null)
 			{
@@ -2679,8 +2897,9 @@ namespace nwind
 			{
 				if (value != _regionDescription)
 				{
+					SendPropertyChanging();
 					_regionDescription = value;
-					OnPropertyChanged("RegionDescription");
+					SendPropertyChanged("RegionDescription");
 				}
 			}
 		}
@@ -2702,8 +2921,9 @@ namespace nwind
 			{
 				if (value != _regionID)
 				{
+					SendPropertyChanging();
 					_regionID = value;
-					OnPropertyChanged("RegionID");
+					SendPropertyChanged("RegionID");
 				}
 			}
 		}
@@ -2757,13 +2977,28 @@ namespace nwind
 	}
 
 	[Table(Name = "main.Shippers")]
-	public partial class Shipper : INotifyPropertyChanged
+	public partial class Shipper : INotifyPropertyChanging, INotifyPropertyChanged
 	{
+		#region INotifyPropertyChanging handling
+
+		public event PropertyChangingEventHandler PropertyChanging;
+
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs("");
+		protected virtual void SendPropertyChanging()
+		{
+			if (PropertyChanging != null)
+			{
+				PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+
+		#endregion
+
 		#region INotifyPropertyChanged handling
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		protected virtual void OnPropertyChanged(string propertyName)
+		protected virtual void SendPropertyChanged(string propertyName)
 		{
 			if (PropertyChanged != null)
 			{
@@ -2788,8 +3023,9 @@ namespace nwind
 			{
 				if (value != _companyName)
 				{
+					SendPropertyChanging();
 					_companyName = value;
-					OnPropertyChanged("CompanyName");
+					SendPropertyChanged("CompanyName");
 				}
 			}
 		}
@@ -2811,8 +3047,9 @@ namespace nwind
 			{
 				if (value != _phone)
 				{
+					SendPropertyChanging();
 					_phone = value;
-					OnPropertyChanged("Phone");
+					SendPropertyChanged("Phone");
 				}
 			}
 		}
@@ -2834,8 +3071,9 @@ namespace nwind
 			{
 				if (value != _shipperID)
 				{
+					SendPropertyChanging();
 					_shipperID = value;
-					OnPropertyChanged("ShipperID");
+					SendPropertyChanged("ShipperID");
 				}
 			}
 		}
@@ -2889,13 +3127,28 @@ namespace nwind
 	}
 
 	[Table(Name = "main.Suppliers")]
-	public partial class Supplier : INotifyPropertyChanged
+	public partial class Supplier : INotifyPropertyChanging, INotifyPropertyChanged
 	{
+		#region INotifyPropertyChanging handling
+
+		public event PropertyChangingEventHandler PropertyChanging;
+
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs("");
+		protected virtual void SendPropertyChanging()
+		{
+			if (PropertyChanging != null)
+			{
+				PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+
+		#endregion
+
 		#region INotifyPropertyChanged handling
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		protected virtual void OnPropertyChanged(string propertyName)
+		protected virtual void SendPropertyChanged(string propertyName)
 		{
 			if (PropertyChanged != null)
 			{
@@ -2920,8 +3173,9 @@ namespace nwind
 			{
 				if (value != _address)
 				{
+					SendPropertyChanging();
 					_address = value;
-					OnPropertyChanged("Address");
+					SendPropertyChanged("Address");
 				}
 			}
 		}
@@ -2943,8 +3197,9 @@ namespace nwind
 			{
 				if (value != _city)
 				{
+					SendPropertyChanging();
 					_city = value;
-					OnPropertyChanged("City");
+					SendPropertyChanged("City");
 				}
 			}
 		}
@@ -2966,8 +3221,9 @@ namespace nwind
 			{
 				if (value != _companyName)
 				{
+					SendPropertyChanging();
 					_companyName = value;
-					OnPropertyChanged("CompanyName");
+					SendPropertyChanged("CompanyName");
 				}
 			}
 		}
@@ -2989,8 +3245,9 @@ namespace nwind
 			{
 				if (value != _contactName)
 				{
+					SendPropertyChanging();
 					_contactName = value;
-					OnPropertyChanged("ContactName");
+					SendPropertyChanged("ContactName");
 				}
 			}
 		}
@@ -3012,8 +3269,9 @@ namespace nwind
 			{
 				if (value != _contactTitle)
 				{
+					SendPropertyChanging();
 					_contactTitle = value;
-					OnPropertyChanged("ContactTitle");
+					SendPropertyChanged("ContactTitle");
 				}
 			}
 		}
@@ -3035,8 +3293,9 @@ namespace nwind
 			{
 				if (value != _country)
 				{
+					SendPropertyChanging();
 					_country = value;
-					OnPropertyChanged("Country");
+					SendPropertyChanged("Country");
 				}
 			}
 		}
@@ -3058,8 +3317,9 @@ namespace nwind
 			{
 				if (value != _fax)
 				{
+					SendPropertyChanging();
 					_fax = value;
-					OnPropertyChanged("Fax");
+					SendPropertyChanged("Fax");
 				}
 			}
 		}
@@ -3081,8 +3341,9 @@ namespace nwind
 			{
 				if (value != _homePage)
 				{
+					SendPropertyChanging();
 					_homePage = value;
-					OnPropertyChanged("HomePage");
+					SendPropertyChanged("HomePage");
 				}
 			}
 		}
@@ -3104,8 +3365,9 @@ namespace nwind
 			{
 				if (value != _phone)
 				{
+					SendPropertyChanging();
 					_phone = value;
-					OnPropertyChanged("Phone");
+					SendPropertyChanged("Phone");
 				}
 			}
 		}
@@ -3127,8 +3389,9 @@ namespace nwind
 			{
 				if (value != _postalCode)
 				{
+					SendPropertyChanging();
 					_postalCode = value;
-					OnPropertyChanged("PostalCode");
+					SendPropertyChanged("PostalCode");
 				}
 			}
 		}
@@ -3150,8 +3413,9 @@ namespace nwind
 			{
 				if (value != _region)
 				{
+					SendPropertyChanging();
 					_region = value;
-					OnPropertyChanged("Region");
+					SendPropertyChanged("Region");
 				}
 			}
 		}
@@ -3173,8 +3437,9 @@ namespace nwind
 			{
 				if (value != _supplierID)
 				{
+					SendPropertyChanging();
 					_supplierID = value;
-					OnPropertyChanged("SupplierID");
+					SendPropertyChanged("SupplierID");
 				}
 			}
 		}
@@ -3228,13 +3493,28 @@ namespace nwind
 	}
 
 	[Table(Name = "main.Territories")]
-	public partial class Territory : INotifyPropertyChanged
+	public partial class Territory : INotifyPropertyChanging, INotifyPropertyChanged
 	{
+		#region INotifyPropertyChanging handling
+
+		public event PropertyChangingEventHandler PropertyChanging;
+
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs("");
+		protected virtual void SendPropertyChanging()
+		{
+			if (PropertyChanging != null)
+			{
+				PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+
+		#endregion
+
 		#region INotifyPropertyChanged handling
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		protected virtual void OnPropertyChanged(string propertyName)
+		protected virtual void SendPropertyChanged(string propertyName)
 		{
 			if (PropertyChanged != null)
 			{
@@ -3263,8 +3543,9 @@ namespace nwind
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
+					SendPropertyChanging();
 					_regionID = value;
-					OnPropertyChanged("RegionID");
+					SendPropertyChanged("RegionID");
 				}
 			}
 		}
@@ -3286,8 +3567,9 @@ namespace nwind
 			{
 				if (value != _territoryDescription)
 				{
+					SendPropertyChanging();
 					_territoryDescription = value;
-					OnPropertyChanged("TerritoryDescription");
+					SendPropertyChanged("TerritoryDescription");
 				}
 			}
 		}
@@ -3309,8 +3591,9 @@ namespace nwind
 			{
 				if (value != _territoryID)
 				{
+					SendPropertyChanging();
 					_territoryID = value;
-					OnPropertyChanged("TerritoryID");
+					SendPropertyChanged("TerritoryID");
 				}
 			}
 		}
