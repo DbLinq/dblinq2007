@@ -792,7 +792,7 @@ dummy text
             db.SubmitChanges();
         }
 
-#if !DEBUG && (SQLITE || POSTGRES)
+#if !DEBUG && SQLITE
         [Explicit]
 #endif
         [Test]

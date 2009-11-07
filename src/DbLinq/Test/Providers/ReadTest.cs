@@ -474,9 +474,7 @@ namespace nwind
             Assert.AreEqual(productCount, 8, "Expected eight products discontinued, got count=" + productCount);
         }
 
-#if !DEBUG && POSTGRES
         [Explicit]
-#endif
         [Test]
         public void C12_SelectEmployee_MultiJoinWithWhere()
         {
@@ -951,9 +949,6 @@ namespace nwind
             Assert.Greater(list1.Count, 0, "Expected some orders for London customers");
         }
 
-#if !DEBUG && POSTGRES
-        [Explicit]
-#endif
         [Test]
         public void D07_OrdersFromLondon_Alt()
         {
