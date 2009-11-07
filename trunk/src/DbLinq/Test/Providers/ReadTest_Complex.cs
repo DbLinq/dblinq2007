@@ -184,9 +184,6 @@ using Id = System.Int32;
 
 #endif
 
-#if !DEBUG && POSTGRES
-        [Explicit]
-#endif
         [Test]
         public void F7_ExplicitJoin()
         {
