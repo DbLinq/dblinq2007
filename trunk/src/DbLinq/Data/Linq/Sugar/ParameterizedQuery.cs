@@ -73,9 +73,12 @@ namespace DbLinq.Data.Linq.Sugar
 
         private object NormalizeDbType(object value)
         {
-            System.Data.Linq.Binary b = value as System.Data.Linq.Binary;
-            if (b != null)
-                return b.ToArray();
+			if (value is System.Data.Linq.Binary)
+			{
+            	System.Data.Linq.Binary b = value as System.Data.Linq.Binary;
+            	if (b != null)
+                	return b.ToArray();
+			}
             return value;
         }
 

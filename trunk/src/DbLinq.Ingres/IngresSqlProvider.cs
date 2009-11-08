@@ -86,7 +86,7 @@ namespace DbLinq.Ingres
 
         public override string GetParameterName(string nameBase)
         {
-            return "?";
+            return (":" + nameBase).ToLower();
         }
 
         protected override bool IsNameCaseSafe(string dbName)

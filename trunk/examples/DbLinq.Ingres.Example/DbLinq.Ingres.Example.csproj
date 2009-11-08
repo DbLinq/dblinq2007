@@ -36,7 +36,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ingres.Client, Version=2.0.0.0, Culture=neutral, PublicKeyToken=7ab2d069d405ce41, processorArchitecture=MSIL">
+    <Reference Include="Ingres.Client, Version=2.1.0.0, Culture=neutral, PublicKeyToken=null">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Ingres.Client.dll</HintPath>
     </Reference>
