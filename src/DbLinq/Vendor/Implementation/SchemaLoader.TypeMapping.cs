@@ -189,6 +189,7 @@ namespace DbLinq.Vendor.Implementation
                 return typeof(DateTime);
 
             // byte[]
+            case "binary":
             case "blob":
             case "bytea":
             case "byte varying":
