@@ -1799,10 +1799,10 @@ namespace nwind
 
 		#region short Discontinued
 
-		public short _discontinued;
+		public string _discontinued;
 		[DebuggerNonUserCode]
-		[Column(Storage = "_discontinued", Name = "discontinued", DbType = "INTEGER(2)", AutoSync = AutoSync.Never, CanBeNull = false)]
-		public short Discontinued
+		[Column(Storage = "_discontinued", Name = "discontinued", DbType = "CHAR(1)", AutoSync = AutoSync.Never, CanBeNull = false)]
+		public string Discontinued
 		{
 			get
 			{
