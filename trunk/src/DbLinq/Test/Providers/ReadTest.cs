@@ -463,7 +463,7 @@ namespace nwind
             Northwind db = CreateDB();
             var q = from p in db.Products 
 #if INGRES
-                    where p.Discontinued != 0
+                    where p.Discontinued == "Y"
 #else
                     where p.Discontinued == true 
 #endif
