@@ -86,6 +86,7 @@ namespace DbLinq.Vendor.Implementation
             case "long":
             case "longtext":
             case "long varchar":
+            case "mediumtext":
             case "nchar":
             case "ntext":
             case "nvarchar":
