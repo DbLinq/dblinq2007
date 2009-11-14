@@ -236,6 +236,9 @@ namespace DbMetal
         [Option("Specify a custom IDbConnection implementation type.", ValueName = "type", Group = 1)]
         public string DatabaseConnectionProvider { get; set; }
 
+        [Option("The IVendor implementation type.", ValueName="type", Group = 1)]
+        public string SqlDialectType { get; set; }
+
         [Alternate("generate-timestamps")]
         [Option("Generate timestampes within the /code:<file> file.  True by default.")]
         public bool GenerateTimestamps { get; set; }
