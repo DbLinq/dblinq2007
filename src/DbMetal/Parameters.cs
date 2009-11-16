@@ -130,8 +130,7 @@ namespace DbMetal
         /// <summary>
         /// Interfaces to be implemented
         /// </summary>
-        public string EntityInterfaces { get; set; }
-        public string[] EntityImplementedInterfaces { get { return GetArray(EntityInterfaces); } }
+        public string[] EntityInterfaces { get; set; }
 
         /// <summary>
         /// Extra attributes to be implemented by class
@@ -229,7 +228,7 @@ namespace DbMetal
             Culture = "en";
             GenerateTypes = new List<string>();
             GenerateTimestamps = true;
-            EntityInterfaces = "INotifyPropertyChanging,INotifyPropertyChanged";//INotifyPropertyChanging INotifyPropertyChanged IModified
+            EntityInterfaces = new []{ "INotifyPropertyChanging", "INotifyPropertyChanged" };
         }
 
         /// <summary>
@@ -299,10 +298,6 @@ namespace DbMetal
                   "Base {TYPE} of entity classes in the generated code "
                   +"(default: entities have no base class).",
                   type => EntityBase = type },
-                { "entityInterfaces=",
-                  "Comma separated base {INTERFACE(S)} of entity classes in the "
-                  +"generated code (default: entities implement INotifyPropertyChanging, INotifyPropertyChanged).",
-                  interfaces => EntityInterfaces = interfaces },
                 { "entityAttributes=",
                   "Comma separated {ATTRIBUTE(S)} of entity classes in the generated code.",
                   attributes => EntityAttributes = attributes },
