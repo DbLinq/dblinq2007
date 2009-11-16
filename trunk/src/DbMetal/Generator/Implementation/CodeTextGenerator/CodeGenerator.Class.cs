@@ -80,7 +80,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
             using (WriteAttributes(writer, GetAttributeNames(context, context.Parameters.EntityExposedAttributes)))
             using (writer.WriteAttribute(tableAttribute))
             using (writer.WriteClass(specifications,
-                                     table.Type.Name, entityBase, context.Parameters.EntityImplementedInterfaces))
+                                     table.Type.Name, entityBase, context.Parameters.EntityInterfaces))
             {
                 WriteClassHeader(writer, table, context);
                 WriteCustomTypes(writer, table, schema, context);
