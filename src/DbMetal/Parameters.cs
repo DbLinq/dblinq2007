@@ -205,6 +205,8 @@ namespace DbMetal
 
         public string SqlDialectType { get; set; }
 
+        public IList<string> GenerateTypes { get; set; }
+
         public bool GenerateTimestamps { get; set; }
 
         public bool Help { get; set; }
@@ -225,6 +227,7 @@ namespace DbMetal
         {
             Schema = true;
             Culture = "en";
+            GenerateTypes = new List<string>();
             GenerateTimestamps = true;
             EntityInterfaces = "INotifyPropertyChanging,INotifyPropertyChanged";//INotifyPropertyChanging INotifyPropertyChanged IModified
         }
@@ -306,6 +309,11 @@ namespace DbMetal
                 { "memberAttributes=",
                   "Comma separated {ATTRIBUTE(S)} of entity members in the generated code.",
                   attributes => MemberAttributes = attributes },
+                { "generate-type=",
+                  "Generate only the {TYPE} selected, can be specified multiple times "
+                  +"and does not prevent references from being generated (default: "
+                  +"generate a DataContex subclass and all the entities in the schema).",
+                  type => GenerateTypes.Add(type) },
                 { "generateEqualsAndHash",
                   "Generates overrides for Equals() and GetHashCode() methods.",
                   (bool v) => GenerateEqualsAndHash = v },

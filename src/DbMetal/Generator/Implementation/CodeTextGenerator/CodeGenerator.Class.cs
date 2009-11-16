@@ -48,7 +48,13 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
     {
         protected virtual void WriteClasses(CodeWriter writer, Database schema, GenerationContext context)
         {
-            foreach (var table in schema.Tables)
+            IEnumerable<Table> tables = schema.Tables;
+
+            var types = context.Parameters.GenerateTypes;
+            if (types.Count > 0)
+                tables = tables.Where(t => types.Contains(t.Type.Name));
+
+            foreach (var table in tables)
                 WriteClass(writer, table, schema, context);
         }
 
