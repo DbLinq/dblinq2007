@@ -73,12 +73,10 @@ namespace DbLinq.Data.Linq.Sugar
 
         private object NormalizeDbType(object value)
         {
-			if (value is System.Data.Linq.Binary)
-			{
-            	System.Data.Linq.Binary b = value as System.Data.Linq.Binary;
-            	if (b != null)
-                	return b.ToArray();
-			}
+            System.Data.Linq.Binary b = value as System.Data.Linq.Binary;
+            // Mono 2.4.2.3's Binary.operator!= is bad; avoid it.
+            if (!object.ReferenceEquals(b, null))
+                return b.ToArray();
             return value;
         }
 
