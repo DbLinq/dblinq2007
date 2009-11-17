@@ -196,7 +196,7 @@
     <PostBuildEvent>rem this is what I call loose coupling
 copy "$(SolutionDir)..\lib\Npgsql.dll" "$(TargetDir)"
 copy "$(SolutionDir)..\lib\Mono.Security.dll" "$(TargetDir)"
-copy "$(SolutionDir)..\lib\Ingres.Client.dll" "$(TargetDir)"
+copy "$(SolutionDir)..\lib\Ingres.Stereo.dll" "$(TargetDir)"
 copy "$(SolutionDir)..\lib\Oracle.DataAccess.dll" "$(TargetDir)"
 copy "$(SolutionDir)..\lib\MySql.Data.dll" "$(TargetDir)"
 copy "$(SolutionDir)..\lib\System.Data.SQLite.dll" "$(TargetDir)"
