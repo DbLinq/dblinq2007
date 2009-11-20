@@ -290,7 +290,7 @@ namespace DbMetal
                   file => Aliases = file },
                 { "schema",
                   "Generate schema in code files (default='true').",
-                  (bool v) => Schema = v },
+                  v => Schema = v != null},
                 { "namespace=",
                   "Namespace {NAME} of generated code (default: no namespace).",
                   name => Namespace = name },
@@ -311,14 +311,14 @@ namespace DbMetal
                   type => GenerateTypes.Add(type) },
                 { "generateEqualsAndHash",
                   "Generates overrides for Equals() and GetHashCode() methods.",
-                  (bool v) => GenerateEqualsAndHash = v },
+                  v => GenerateEqualsAndHash = v != null},
                 { "sprocs",
                   "Extract stored procedures.",
-                  (bool v) => Sprocs = v },
+                  v => Sprocs = v != null},
                 { "pluralize",
                   "Automatically pluralize or singularize class and member names "
                   +"using specified culture rules.",
-                  (bool v) => Pluralize = v },
+                  v => Pluralize = v != null},
                 { "culture=",
                   "Specify {CULTURE} for word recognition and pluralization (default=\"en\").",
                   culture => Culture = culture },
@@ -328,13 +328,13 @@ namespace DbMetal
                   style => Case = style },
                 { "generate-timestamps",
                   "Generate timestampes in the generated code. True by default.",
-                  (bool v) => GenerateTimestamps = v },
+                  v => GenerateTimestamps = v != null },
                 { "readlineAtExit",
                   "Wait for a key to be pressed after processing.",
-                  (bool v) => ReadLineAtExit = v },
+                  v => ReadLineAtExit = v != null },
                 { "h|?|help",
                   "Show this help",
-                  (bool v) => Help = v }
+                  v => Help = v != null }
             };
 
             Extra = Options.Parse(args);
