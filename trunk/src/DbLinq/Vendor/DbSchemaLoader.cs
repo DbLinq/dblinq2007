@@ -22,9 +22,21 @@ namespace DbLinq.Vendor
 
         public override IVendor Vendor { get; set; }
 
-        public new DbConnection Connection {
-            get { return base.Connection as DbConnection; }
-            set { base.Connection = value; }
+        protected virtual string UnquoteSqlName(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return name;
+            var quotes = new[]{
+                new { Start = "[",  End = "]" },
+                new { Start = "`",  End = "`" },
+                new { Start = "\"", End = "\"" },
+            };
+            foreach (var q in quotes)
+            {
+                if (name.StartsWith(q.Start) && name.EndsWith(q.End))
+                    return name.Substring(q.Start.Length, name.Length - q.Start.Length - q.End.Length);
+            }
+            return name;
         }
 
         protected override void LoadConstraints(Database schema, DbLinq.Schema.SchemaName schemaName, IDbConnection conn, DbLinq.Schema.NameFormat nameFormat, Names names)
@@ -52,9 +64,9 @@ namespace DbLinq.Vendor
 
             foreach (DataRow r in foreignKeys.Rows)
             {
-                var fromTable = GetValue(r, iFromTable, (string) null);
-                var fromSchema = GetValue(r, iFromSchema, (string) null);
-                var fromColumn = GetValue(r, iFromColumn, (string) null);
+                var fromTable  = UnquoteSqlName(GetValue<string>(r, iFromTable, null));
+                var fromSchema = UnquoteSqlName(GetValue<string>(r, iFromSchema, null));
+                var fromColumn = UnquoteSqlName(GetValue<string>(r, iFromColumn, null));
 
                 string fullFromTable = GetFullDbName(fromTable, fromSchema);
                 DbLinq.Schema.Dbml.Table table = schema.Tables.FirstOrDefault(t => fullFromTable == t.Name);
@@ -64,14 +76,14 @@ namespace DbLinq.Vendor
                     continue;
                 }
 
-                var constraintType = GetValue(r, iConstType, (string) null);
-                var toTable = GetValue(r, iToTable, (string) null);
+                var constraintType  = GetValue<string>(r, iConstType, null);
+                var toTable         = UnquoteSqlName(GetValue<string>(r, iToTable, null));
 
                 if (constraintType == "FOREIGN KEY" && toTable != null)
                 {
-                    var constraintName = GetValue(r, iConstName, (string) null);
-                    var toColumn = GetValue(r, iToColumn, (string) null);
-                    var toSchema = GetValue(r, iToSchema, (string) null);
+                    var constraintName  = GetValue(r, iConstName, (string) null);
+                    var toColumn        = UnquoteSqlName(GetValue<string>(r, iToColumn, null));
+                    var toSchema        = UnquoteSqlName(GetValue<string>(r, iToSchema, null));
                     Console.WriteLine("# processing FK: {0}.{1}.{2} -> {3}.{4}.{5}",
                         fromSchema, fromTable, fromColumn, toSchema, toTable, toColumn);
                     LoadForeignKey(schema, table, 
@@ -91,25 +103,25 @@ namespace DbLinq.Vendor
             return connection.GetSchema(schema);
         }
 
+#if false
         protected override void LoadForeignKey(Database schema, Table table, string columnName, string tableName, string tableSchema, string referencedColumnName, string referencedTableName, string referencedTableSchema, string constraintName, DbLinq.Schema.NameFormat nameFormat, SchemaLoader.Names names)
         {
-#if false
             var foriegnKeys = GetSchema("ForeignKeys");
             if (foriegnKeys == null)
                 return;
-#endif
             // throw new NotImplementedException();
         }
+#endif
 
+#if false
         protected override void LoadStoredProcedures(Database schema, DbLinq.Schema.SchemaName schemaName, IDbConnection conn, DbLinq.Schema.NameFormat nameFormat)
         {
-#if false
             var foriegnKeys = GetSchema("Procedures");
             if (foriegnKeys == null)
                 return;
-#endif
            //  throw new NotImplementedException();
         }
+#endif
 
         protected override IList<IDataTableColumn> ReadColumns(IDbConnection connection, string databaseName)
         {
@@ -128,13 +140,20 @@ namespace DbLinq.Vendor
             var iSchema   = dbColumns.Columns.IndexOf("TABLE_SCHEMA");
             var iSqlType  = dbColumns.Columns.IndexOf("DATA_TYPE");
 
+            var iPK = dbColumns.Columns.IndexOf("PRIMARY_KEY");
+            if (iPK < 0)
+            {
+                WriteErrorLine("Database connection '{0}' doesn't support querying primary key information.",
+                        db.GetType().Name);
+            }
+
             var columns = new List<IDataTableColumn>();
             foreach (DataRow c in dbColumns.Rows)
             {
                 var sqlType     = c[iSqlType].ToString().Trim();
-                var tableName   = GetValue<string>(c, iTable, null);
-                var tableSchema = GetValue<string>(c, iSchema, null);
-                var columnName  = GetValue<string>(c, iColumn, null);
+                var tableName   = UnquoteSqlName(GetValue<string>(c, iTable, null));
+                var tableSchema = UnquoteSqlName(GetValue<string>(c, iSchema, null));
+                var columnName  = UnquoteSqlName(GetValue<string>(c, iColumn, null));
 
                 if (sqlType.Length == 0)
                 {
@@ -155,13 +174,22 @@ namespace DbLinq.Vendor
                     ManagedType     = typeMap[sqlType],
                     Nullable        = (bool) c[iNullable],
                     Precision       = GetValue<int?>(c, iNumPrec, null),
+                    PrimaryKey      = iPK < 0 ? (bool?) null : (bool?) GetValue<bool>(c, iPK, false),
                     SqlType         = sqlType,
                     TableName       = tableName,
                     TableSchema     = tableSchema,
                 };
+                FillDataTableColumnInformation(c, v);
                 columns.Add(v);
             }
             return columns;
+        }
+
+        protected virtual void FillDataTableColumnInformation(DataRow row, DataTableColumn column)
+        {
+            if (column.PrimaryKey.HasValue && column.PrimaryKey.Value &&
+                    (column.ManagedType == "System.Int32" || column.ManagedType == "System.Int64"))
+                column.Generated = true;
         }
 
         private static T GetValue<T>(DataRow r, int index, T defaultValue)
@@ -190,10 +218,10 @@ namespace DbLinq.Vendor
             List<IDataName> tables = new List<IDataName>();
             foreach (DataRow table in dbTables.Rows)
             {
-                var schema = GetValue(table, iSchema, (string) null);
+                var schema = UnquoteSqlName(GetValue<string>(table, iSchema, null));
                 tables.Add(new DataName()
                 {
-                    Name    = table[iName].ToString(),
+                    Name    = UnquoteSqlName(table[iName].ToString()),
                     Schema  = string.IsNullOrEmpty(schema) ? null : schema,
                 });
             }
