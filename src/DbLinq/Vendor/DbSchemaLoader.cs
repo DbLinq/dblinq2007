@@ -168,11 +168,11 @@ namespace DbLinq.Vendor
                 var v = new DataTableColumn()
                 {
                     ColumnName      = columnName,
-                    DefaultValue    = c[iDefValue].ToString(),
+                    DefaultValue    = GetValue<string>(c, iDefValue, null),
                     FullType        = sqlType,
-                    Length          = (long) (int) c[iMaxLen],
+                    Length          = (long) GetValue<int>(c, iMaxLen, 0),
                     ManagedType     = typeMap[sqlType],
-                    Nullable        = (bool) c[iNullable],
+                    Nullable        = GetValue<bool>(c, iNullable, false),
                     Precision       = GetValue<int?>(c, iNumPrec, null),
                     PrimaryKey      = iPK < 0 ? (bool?) null : (bool?) GetValue<bool>(c, iPK, false),
                     SqlType         = sqlType,
