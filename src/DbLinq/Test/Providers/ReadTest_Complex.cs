@@ -621,7 +621,7 @@ using Id = System.Int32;
             //int productCount = q.Count();
 
             var products = from p in db.Products
-                           where ids.Contains(p.ProductID)
+                           where ids.Contains((Id) p.ProductID)
                            select p;
 
             Assert.AreEqual(3, products.Count());
