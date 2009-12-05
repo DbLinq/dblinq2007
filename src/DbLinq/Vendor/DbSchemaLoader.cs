@@ -84,8 +84,6 @@ namespace DbLinq.Vendor
                     var constraintName  = GetValue(r, iConstName, (string) null);
                     var toColumn        = UnquoteSqlName(GetValue<string>(r, iToColumn, null));
                     var toSchema        = UnquoteSqlName(GetValue<string>(r, iToSchema, null));
-                    Console.WriteLine("# processing FK: {0}.{1}.{2} -> {3}.{4}.{5}",
-                        fromSchema, fromTable, fromColumn, toSchema, toTable, toColumn);
                     LoadForeignKey(schema, table, 
                             fromColumn, fromTable, fromSchema,
                             toColumn, toTable, toSchema,
