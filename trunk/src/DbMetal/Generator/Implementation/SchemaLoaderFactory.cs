@@ -270,6 +270,12 @@ namespace DbMetal.Generator.Implementation
                 databaseConnectionType = parameters.DatabaseConnectionProvider;
                 sqlDialectType         = parameters.SqlDialectType;
             }
+            if (string.IsNullOrEmpty(dbLinqSchemaLoaderType))
+            {
+                // No provider specified, not explicitly provided either
+                // Default to using SQL Server for sqlmetal.exe compatibility
+                GetLoaderAndConnection("SqlServer", out dbLinqSchemaLoaderType, out databaseConnectionType, out sqlDialectType);
+            }
         }
 
     }
