@@ -42,7 +42,7 @@ namespace DbLinq.Vendor
         protected override void LoadConstraints(Database schema, DbLinq.Schema.SchemaName schemaName, IDbConnection conn, DbLinq.Schema.NameFormat nameFormat, Names names)
         {
             DbConnection c = (DbConnection) conn;
-            var foreignKeys = c.GetSchema("ForeignKeys");
+            var foreignKeys = GetForeignKeys(c);
 
             int iConstName  = foreignKeys.Columns.IndexOf("CONSTRAINT_NAME");
             int iConstType  = foreignKeys.Columns.IndexOf("CONSTRAINT_TYPE");
@@ -94,6 +94,11 @@ namespace DbLinq.Vendor
             }
         }
 
+        protected virtual DataTable GetForeignKeys(DbConnection connection)
+        {
+            return connection.GetSchema("ForeignKeys");
+        }
+
         private DataTable GetSchema(DbConnection connection, string schema)
         {
             var schemas = connection.GetSchema();
@@ -129,7 +134,7 @@ namespace DbLinq.Vendor
 
             var typeMap   = GetSqlToManagedTypeMapping(db);
 
-            var dbColumns = db.GetSchema("Columns");
+            var dbColumns = GetColumns(db);
             var iColumn   = dbColumns.Columns.IndexOf("COLUMN_NAME");
             var iDefValue = dbColumns.Columns.IndexOf("COLUMN_DEFAULT");
             var iNullable = dbColumns.Columns.IndexOf("IS_NULLABLE");
@@ -172,9 +177,9 @@ namespace DbLinq.Vendor
                     FullType        = sqlType,
                     Length          = (long) GetValue<int>(c, iMaxLen, 0),
                     ManagedType     = typeMap[sqlType],
-                    Nullable        = GetValue<bool>(c, iNullable, false),
+                    Nullable        = GetValue(c, iNullable, false),
                     Precision       = GetValue<int?>(c, iNumPrec, null),
-                    PrimaryKey      = iPK < 0 ? (bool?) null : (bool?) GetValue<bool>(c, iPK, false),
+                    PrimaryKey      = iPK < 0 ? (bool?) null : (bool?) GetValue(c, iPK, false),
                     SqlType         = sqlType,
                     TableName       = tableName,
                     TableSchema     = tableSchema,
@@ -185,11 +190,33 @@ namespace DbLinq.Vendor
             return columns;
         }
 
+        protected virtual DataTable GetColumns(DbConnection connection)
+        {
+            return connection.GetSchema("Columns");
+        }
+
         protected virtual void FillDataTableColumnInformation(DataRow row, DataTableColumn column)
         {
             if (column.PrimaryKey.HasValue && column.PrimaryKey.Value &&
                     (column.ManagedType == "System.Int32" || column.ManagedType == "System.Int64"))
                 column.Generated = true;
+        }
+
+        private static bool GetValue(DataRow r, int index, bool defaultValue)
+        {
+            var v = r[index];
+            if (v is DBNull)
+                return defaultValue;
+            if (v is string)
+            {
+                switch (v.ToString().ToUpperInvariant())
+                {
+                    case "YES": return true;
+                    case "NO":  return false;
+                    default:    return defaultValue;
+                }
+            }
+            return (bool) v;
         }
 
         private static T GetValue<T>(DataRow r, int index, T defaultValue)
