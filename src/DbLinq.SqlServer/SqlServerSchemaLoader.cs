@@ -70,7 +70,8 @@ INNER JOIN
         rc.UNIQUE_CONSTRAINT_CATALOG  = rcu_to.CONSTRAINT_CATALOG AND
         rc.UNIQUE_CONSTRAINT_NAME     = rcu_to.CONSTRAINT_NAME
 ";
-                t.Load(c.ExecuteReader());
+                using (var r = c.ExecuteReader())
+                    t.Load(r);
             }
             return t;
         }
@@ -120,7 +121,8 @@ ORDER BY
     columns.TABLE_CATALOG, columns.TABLE_SCHEMA, 
     columns.TABLE_NAME, columns.COLUMN_NAME
 ";
-                t.Load(c.ExecuteReader());
+                using (var r = c.ExecuteReader())
+                    t.Load(r);
             }
             return t;
         }
