@@ -177,12 +177,8 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                 implementation.WriteHeader(writer, context);
 
             // write namespaces for members attributes
-            foreach (var memberExposedAttribute in context.Parameters.MemberExposedAttributes)
-                WriteUsingNamespace(writer, GetNamespace(memberExposedAttribute));
-
-            // write namespaces for clases attributes
-            foreach (var entityExposedAttribute in context.Parameters.EntityExposedAttributes)
-                WriteUsingNamespace(writer, GetNamespace(entityExposedAttribute));
+            foreach (var memberAttribute in context.Parameters.MemberAttributes)
+                WriteUsingNamespace(writer, GetNamespace(memberAttribute));
 
             writer.WriteLine();
         }

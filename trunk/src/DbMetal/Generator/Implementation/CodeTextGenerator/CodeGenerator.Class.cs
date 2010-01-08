@@ -76,8 +76,6 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
 
             var tableAttribute = NewAttributeDefinition<TableAttribute>();
             tableAttribute["Name"] = table.Name;
-            //using (WriteAttributes(writer, context.Parameters.EntityExposedAttributes))
-            using (WriteAttributes(writer, GetAttributeNames(context, context.Parameters.EntityExposedAttributes)))
             using (writer.WriteAttribute(tableAttribute))
             using (writer.WriteClass(specifications,
                                      table.Type.Name, entityBase, context.Parameters.EntityInterfaces))
@@ -86,7 +84,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                 WriteCustomTypes(writer, table, schema, context);
                 WriteClassExtensibilityDeclarations(writer, table, context);
                 WriteClassProperties(writer, table, context);
-                if (context.Parameters.GenerateEqualsAndHash)
+                if (context.Parameters.GenerateEqualsHash)
                     WriteClassEqualsAndHash(writer, table, context);
                 WriteClassChildren(writer, table, schema, context);
                 WriteClassParents(writer, table, schema, context);
@@ -269,7 +267,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
         /// <param name="context"></param>
         /// <param name="attributes"></param>
         /// <returns></returns>
-        protected virtual string[] GetAttributeNames(GenerationContext context, string[] attributes)
+        protected virtual string[] GetAttributeNames(GenerationContext context, IEnumerable<string> attributes)
         {
             return (from a in attributes select GetName(a)).ToArray();
         }
@@ -325,7 +323,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                 specifications |= GetSpecificationDefinition(property.Modifier);
 
             //using (WriteAttributes(writer, context.Parameters.MemberExposedAttributes))
-            using (WriteAttributes(writer, GetAttributeNames(context, context.Parameters.MemberExposedAttributes)))
+            using (WriteAttributes(writer, GetAttributeNames(context, context.Parameters.MemberAttributes)))
             using (writer.WriteAttribute(NewAttributeDefinition<DebuggerNonUserCodeAttribute>()))
             using (writer.WriteAttribute(column))
             using (writer.WriteProperty(specifications, property.Member, GetTypeOrExtendedType(writer, property)))
