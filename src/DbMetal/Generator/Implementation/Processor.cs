@@ -72,37 +72,31 @@ namespace DbMetal.Generator.Implementation
         {
             var parameters = new Parameters { Log = Log };
 
-            if (args.Length == 0)
-                PrintUsage(parameters);
+            parameters.WriteHeader();
 
-            else
+            try
             {
-                parameters.WriteHeader();
+                parameters.Parse(args);
+            }
+            catch (Exception e)
+            {
+                Output.WriteErrorLine(Log, e.Message);
+                PrintUsage(parameters);
+                return;
+            }
 
-                try
-                {
-                    parameters.Parse(args);
-                }
-                catch (Exception e)
-                {
-                    Output.WriteErrorLine(Log, e.Message);
-                    PrintUsage(parameters);
-                    return;
-                }
+            if (args.Length == 0 || parameters.Help)
+            {
+                PrintUsage(parameters);
+                return;
+            }
 
-                if (parameters.Help)
-                {
-                    PrintUsage(parameters);
-                    return;
-                }
+            ProcessSchema(parameters);
 
-                ProcessSchema(parameters);
-
-                if (parameters.ReadLineAtExit)
-                {
-                    // '-readLineAtExit' flag: useful when running from Visual Studio
-                    Console.ReadKey();
-                }
+            if (parameters.Readline)
+            {
+                // '-readLineAtExit' flag: useful when running from Visual Studio
+                Console.ReadKey();
             }
         }
 
