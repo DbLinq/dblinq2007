@@ -108,12 +108,12 @@ namespace DbMetal_Test_Sqlite
                 "/code:Northwind.Sqlite.cs",
                 "/conn:Data Source=" + Path.Combine(testdir, "Northwind.db3"),
                 "/database:Northwind",
-                "/databaseConnectionProvider=" + dbConnectionProvider,
-                "/dbLinqSchemaLoaderProvider=" + dbLinqSchemaLoader,
+                "--with-dbconnection=" + dbConnectionProvider,
+                "--with-schema-loader=" + dbLinqSchemaLoader,
                 "--generate-timestamps-",
                 "/namespace:nwind",
                 "/pluralize",
-                "/sqlDialectType=" + sqlDialect,
+                "--with-sql-dialect=" + sqlDialect,
             });
 
             FileAssert.AreEqual(Path.Combine(expectedDir, "Northwind.Sqlite+DbSchemaLoader-" + app + ".cs"), "Northwind.Sqlite.cs");
