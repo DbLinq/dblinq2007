@@ -147,12 +147,16 @@ namespace DbLinq.Vendor.Implementation
             case "float4":
             case "real":
             case "binary_float":   // oracle type
+            case "unsigned float": // mysql type
+            case "float unsigned": // mysql type
                 return typeof(Single);
 
             // double
             case "double":
             case "double precision":
             case "binary_double":  // oracle type
+            case "unsigned double":// mysql type
+            case "double unsigned":// mysql type
                 return typeof(Double);
 
             // decimal
