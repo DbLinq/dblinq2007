@@ -192,6 +192,7 @@ namespace DbLinq.Vendor.Implementation
             case "ingresdate":
             case "timestamp":
             case "timestamp without time zone":
+            case "timestamp with time zone":
             case "time":
             case "time without time zone": //reported by twain_bu...@msn.com,
             case "time with time zone":
