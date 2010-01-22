@@ -220,12 +220,10 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
 
 
             string contextBase = schema.BaseType;
-            var contextBaseType = TypeLoader.Load(contextBase);
-            // if we don't specify a base type, use the default
-            if (string.IsNullOrEmpty(contextBase))
-            {
-                contextBaseType = typeof(DataContext);
-            }
+            var contextBaseType = string.IsNullOrEmpty(contextBase)
+                ? typeof(DataContext)
+                : TypeLoader.Load(contextBase);
+
             // in all cases, get the literal type name from loaded type
             contextBase = writer.GetLiteralType(contextBaseType);
 
