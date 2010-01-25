@@ -260,22 +260,33 @@ namespace DbMetal.Generator.Implementation
 
         protected void GetLoaderAndConnection(Parameters parameters, out string dbLinqSchemaLoaderType, out string databaseConnectionType, out string sqlDialectType)
         {
+            dbLinqSchemaLoaderType = databaseConnectionType = sqlDialectType = null;
+
             if (!string.IsNullOrEmpty(parameters.Provider))
             {
                 GetLoaderAndConnection(parameters.Provider, out dbLinqSchemaLoaderType, out databaseConnectionType, out sqlDialectType);
             }
-            else
+            else if (!string.IsNullOrEmpty(parameters.DbLinqSchemaLoaderProvider) &&
+                !string.IsNullOrEmpty(parameters.DatabaseConnectionProvider) &&
+                !string.IsNullOrEmpty(parameters.SqlDialectType))
             {
-                dbLinqSchemaLoaderType = parameters.DbLinqSchemaLoaderProvider;
-                databaseConnectionType = parameters.DatabaseConnectionProvider;
-                sqlDialectType         = parameters.SqlDialectType;
+                // User manually specified everything we need; don't bother with the
+                // default .exe.config provider lookup
             }
-            if (string.IsNullOrEmpty(dbLinqSchemaLoaderType))
+            else
             {
                 // No provider specified, not explicitly provided either
                 // Default to using SQL Server for sqlmetal.exe compatibility
                 GetLoaderAndConnection("SqlServer", out dbLinqSchemaLoaderType, out databaseConnectionType, out sqlDialectType);
             }
+
+            // Allow command-line options to override the .exe.config file.
+            if (!string.IsNullOrEmpty(parameters.DbLinqSchemaLoaderProvider))
+                dbLinqSchemaLoaderType = parameters.DbLinqSchemaLoaderProvider;
+            if (!string.IsNullOrEmpty(parameters.DatabaseConnectionProvider))
+                databaseConnectionType = parameters.DatabaseConnectionProvider;
+            if (!string.IsNullOrEmpty(parameters.SqlDialectType))
+                sqlDialectType = parameters.SqlDialectType;
         }
 
     }
