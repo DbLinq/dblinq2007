@@ -33,9 +33,7 @@ namespace DbLinq.Sqlite
     {
         public override IList<IDataName> ReadTables(IDbConnection connectionString, string databaseName)
         {
-            // note: the ReadDataNameAndSchema relies on information order
-            const string sql = @" SELECT tbl_name, 'main' FROM sqlite_master WHERE type='table' order by tbl_name";
-
+            string sql = string.Format(SelectTablesFormat, ", 'main'");
             return Util.DataCommand.Find<IDataName>(connectionString, sql, ReadDataNameAndSchema);
         }
     }
