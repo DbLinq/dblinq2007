@@ -112,6 +112,7 @@ SELECT UCC.owner, UCC.constraint_name, UCC.table_name, UCC.column_name, UC.const
 FROM all_cons_columns UCC, all_constraints UC
 WHERE UCC.constraint_name=UC.constraint_name
 AND UCC.table_name=UC.table_name
+AND UCC.owner=UC.owner
 AND UCC.TABLE_NAME NOT LIKE '%$%' AND UCC.TABLE_NAME NOT LIKE 'LOGMNR%' AND UCC.TABLE_NAME NOT IN ('HELP','SQLPLUS_PRODUCT_PROFILE')
 AND UC.CONSTRAINT_TYPE!='C'
 and lower(UCC.owner) = :owner";
