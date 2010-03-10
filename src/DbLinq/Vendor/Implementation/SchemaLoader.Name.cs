@@ -149,22 +149,36 @@ namespace DbLinq.Vendor.Implementation
                     column.Storage = storageGenerator(column.Member);
                 }
 
-                Dictionary<string, int> storageFields = new Dictionary<string,int>();
-                Dictionary<string, int> memberFields = new Dictionary<string,int>();
+                HashSet<string> storageFields = new HashSet<string>();
+                HashSet<string> memberFields = new HashSet<string>();
+                foreach (var column in table.Type.Columns)
+                {
+                    storageFields.Add(column.Storage);
+                    memberFields.Add(column.Member);
+                }
+
                 foreach (var association in table.Type.Associations)
                 {
                     association.Storage = storageGenerator(association.Member);
 
                     //Associations may contain the same foreign key more than once - add a number suffix to duplicates
-                    int storageSuffix = 0;
-                    if ( storageFields.TryGetValue(association.Storage, out storageSuffix) )
-                        association.Storage += storageSuffix;
-                    storageFields[association.Storage] = storageSuffix + 1;
+                    for (var suffix = 0; ; suffix++)
+                    {
+                        var name = suffix == 0 ? association.Storage : association.Storage + suffix;
+                        if (storageFields.Contains(name)) continue;
+                        association.Storage = name;
+                        storageFields.Add(name);
+                        break;
+                    }
 
-                    int memberSuffix = 0;
-                    if ( memberFields.TryGetValue(association.Member, out memberSuffix) )
-                        association.Member += memberSuffix;
-                    memberFields[association.Member] = memberSuffix + 1;
+                    for (var suffix = 0; ; suffix++)
+                    {
+                        var name = suffix == 0 ? association.Member : association.Member + suffix;
+                        if (memberFields.Contains(name)) continue;
+                        association.Member = name;
+                        memberFields.Add(name) = true;
+                        break;
+                    }
                 }
             }
         }
