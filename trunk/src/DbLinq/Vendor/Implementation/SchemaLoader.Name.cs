@@ -176,7 +176,7 @@ namespace DbLinq.Vendor.Implementation
                         var name = suffix == 0 ? association.Member : association.Member + suffix;
                         if (memberFields.Contains(name)) continue;
                         association.Member = name;
-                        memberFields.Add(name) = true;
+                        memberFields.Add(name);
                         break;
                     }
                 }
