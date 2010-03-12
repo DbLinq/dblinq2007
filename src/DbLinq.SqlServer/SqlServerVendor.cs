@@ -91,6 +91,11 @@ namespace DbLinq.SqlServer
                 var dc = new DataColumn();
                 dc.ColumnName = column.MappedName;
                 dc.DataType = column.Member.GetMemberType();
+                if (dc.DataType.IsNullable())
+                {
+                    dc.AllowDBNull  = true;
+                    dc.DataType     = dc.DataType.GetNullableType();
+                }
                 dt.Columns.Add(dc);
             }
 
@@ -105,7 +110,7 @@ namespace DbLinq.SqlServer
                     //if (pair.Value.IsDbGenerated)
                     //    continue; //don't assign IDENTITY col
                     object value = pair.Member.GetMemberValue(row);
-                    dr[pair.MappedName] = value;
+                    dr[pair.MappedName] = value ?? DBNull.Value;
                 }
                 //dr[1
                 dt.Rows.Add(dr);
