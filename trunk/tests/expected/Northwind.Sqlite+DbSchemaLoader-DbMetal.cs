@@ -2353,7 +2353,7 @@ namespace nwind
 		#region Children
 
 		private EntitySet<OrderDetail> _orderDetails;
-		[Association(Storage = "_orderDetails", OtherKey = "OrderID", ThisKey = "OrderID", Name = "\"FK_Order Details_1\"")]
+		[Association(Storage = "_orderDetails", OtherKey = "OrderID", ThisKey = "OrderID", Name = "FK_Order Details_1")]
 		[DebuggerNonUserCode]
 		public EntitySet<OrderDetail> OrderDetails
 		{
@@ -2504,7 +2504,7 @@ namespace nwind
 
 	}
 
-	[Table(Name = "\"Order Details\"")]
+	[Table(Name = "Order Details")]
 	public partial class OrderDetail : INotifyPropertyChanging, INotifyPropertyChanged
 	{
 		#region INotifyPropertyChanging handling
@@ -2693,7 +2693,7 @@ namespace nwind
 		#region Parents
 
 		private EntityRef<Product> _product;
-		[Association(Storage = "_product", OtherKey = "ProductID", ThisKey = "ProductID", Name = "\"FK_Order Details_0\"", IsForeignKey = true)]
+		[Association(Storage = "_product", OtherKey = "ProductID", ThisKey = "ProductID", Name = "FK_Order Details_0", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Product Product
 		{
@@ -2726,7 +2726,7 @@ namespace nwind
 		}
 
 		private EntityRef<Order> _order;
-		[Association(Storage = "_order", OtherKey = "OrderID", ThisKey = "OrderID", Name = "\"FK_Order Details_1\"", IsForeignKey = true)]
+		[Association(Storage = "_order", OtherKey = "OrderID", ThisKey = "OrderID", Name = "FK_Order Details_1", IsForeignKey = true)]
 		[DebuggerNonUserCode]
 		public Order Order
 		{
@@ -3103,7 +3103,7 @@ namespace nwind
 		#region Children
 
 		private EntitySet<OrderDetail> _orderDetails;
-		[Association(Storage = "_orderDetails", OtherKey = "ProductID", ThisKey = "ProductID", Name = "\"FK_Order Details_0\"")]
+		[Association(Storage = "_orderDetails", OtherKey = "ProductID", ThisKey = "ProductID", Name = "FK_Order Details_0")]
 		[DebuggerNonUserCode]
 		public EntitySet<OrderDetail> OrderDetails
 		{

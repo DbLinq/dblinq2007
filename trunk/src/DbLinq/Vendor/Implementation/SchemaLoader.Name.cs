@@ -35,32 +35,6 @@ namespace DbLinq.Vendor.Implementation
     partial class SchemaLoader
     {
         /// <summary>
-        /// Checks all names in DBML schema, 
-        /// and enquotes the ones where a casing problem could occur
-        /// </summary>
-        /// <param name="schema"></param>
-        public virtual void CheckNamesSafety(Database schema)
-        {
-            schema.Name = Vendor.SqlProvider.GetSafeName(schema.Name);
-            foreach (var table in schema.Table)
-            {
-                table.Name = Vendor.SqlProvider.GetSafeName(table.Name);
-                foreach (var column in table.Type.Columns)
-                {
-                    column.Name = Vendor.SqlProvider.GetSafeName(column.Name);
-                }
-                foreach (var association in table.Type.Associations)
-                {
-                    association.Name = Vendor.SqlProvider.GetSafeName(association.Name);
-                }
-            }
-            foreach (var storedProcedure in schema.Functions)
-            {
-                storedProcedure.Name = Vendor.SqlProvider.GetSafeName(storedProcedure.Name);
-            }
-        }
-
-        /// <summary>
         /// Gets the primary keys.
         /// </summary>
         /// <param name="table">The table.</param>

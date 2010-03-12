@@ -141,9 +141,6 @@ namespace DbMetal.Generator.Implementation
                 if (string.IsNullOrEmpty(filename))
                     filename = dbSchema.Name;
 
-                // TODO: move such check to runtime.
-                schemaLoader.CheckNamesSafety(dbSchema);
-
                 parameters.Write("<<< writing C# classes in file '{0}'", filename);
                 GenerateCode(parameters, dbSchema, schemaLoader, filename);
 
