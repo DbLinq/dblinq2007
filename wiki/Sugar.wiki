@@ -1,4 +1,4 @@
-#sidebar db/SideBar
+#sidebar SideBar
 = Sugar =
 
 "Sugar" is the codename for the new linq to sql generation engine.

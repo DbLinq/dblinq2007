@@ -1,4 +1,4 @@
-#sidebar db/SideBar
+#sidebar SideBar
 = Roadmap =
 
 This page contains (or will contain) DbLinq roadmap.

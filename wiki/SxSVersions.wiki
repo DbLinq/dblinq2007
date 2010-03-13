@@ -1,4 +1,4 @@
-#sidebar db/SideBar
+#sidebar SideBar
 = Differences between DbLinq implementations =
 
 This page describes the two implementations and how to contribute to them.

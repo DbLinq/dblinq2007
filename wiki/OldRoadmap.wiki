@@ -1,4 +1,4 @@
-#sidebar db/SideBar
+#sidebar SideBar
 === Features ===
 Here are some features that would be useful:
 

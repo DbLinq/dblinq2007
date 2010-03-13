@@ -1,4 +1,4 @@
-#sidebar db/SideBar
+#sidebar SideBar
 
 = Roadmap to Mono =
 

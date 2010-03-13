@@ -1,4 +1,4 @@
-#sidebar db/SideBar
+#sidebar SideBar
 
  * 16x16 [http://dblinq2007.googlecode.com/svn/wiki/img/16x16.png]
  * 48x48 [http://dblinq2007.googlecode.com/svn/wiki/img/48x48.png]

@@ -1,4 +1,4 @@
-#sidebar db/SideBar
+#sidebar SideBar
 = DbLinq unit tests =
 
 This grid is generated automatically from NUnit results. Don't waste your time editing it by hand ;)

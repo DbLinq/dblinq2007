@@ -1,4 +1,4 @@
-#sidebar db/SideBar
+#sidebar SideBar
 
 = DBML format documentation and use by DbMetal =
 

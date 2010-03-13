@@ -1,4 +1,4 @@
-#sidebar db/SideBar
+#sidebar SideBar
 
 = Development guidelines =
 === Conception recommendations ===
