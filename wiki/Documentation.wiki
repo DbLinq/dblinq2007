@@ -1,0 +1,24 @@
+#sidebar db/SideBar
+
+= DbLinq documentation page =
+
+== Main pages ==
+
+ * [Roadmap Roadmap]
+ * [Architecture Architecture]
+ * {*} [SxSVersions Standalone and Mono versions]
+ * [DevelopmentGuidelines Development guidelines]
+ * [IssueSubmission Issue submission]
+ * [Sugar Sugar, new linq parser engine]
+
+== Tests ==
+
+ * [Tests Unit tests and results, per category and vendor]
+
+== File formats ==
+
+ * [Dbml DBML format and usage by DbLinq]
+
+== Logo ==
+
+Tony Hild did it for us. All versions are in the [Logo Logo] page.

@@ -1,0 +1,7 @@
+#sidebar db/SideBar
+
+ * 16x16 [http://dblinq2007.googlecode.com/svn/wiki/img/16x16.png]
+ * 48x48 [http://dblinq2007.googlecode.com/svn/wiki/img/48x48.png]
+ * 64x64 [http://dblinq2007.googlecode.com/svn/wiki/img/64x64.png]
+ * 128x128 [http://dblinq2007.googlecode.com/svn/wiki/img/128x128.png]
+ * 600x600 [http://dblinq2007.googlecode.com/svn/wiki/img/600x600.png]

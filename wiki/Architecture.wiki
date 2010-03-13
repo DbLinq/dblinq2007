@@ -1,0 +1,9 @@
+#sidebar db/SideBar
+
+= DbLinq architecture =
+
+=== Main classes and interfaces ===
+
+[http://dblinq2007.googlecode.com/svn/wiki/img/Classes.png]
+
+(raw UML file [http://dblinq2007.googlecode.com/svn/wiki/img/DbLinq.Data.Linq.uml here], edit with [http://staruml.com/ StarUML])
