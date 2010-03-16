@@ -15,18 +15,18 @@ DbLinq only uses standard ADO.NET interfaces in order to interact with databases
 In order to run `DbMetal.exe`, the specific ADO.NET provider must be available.  There are three ways that the ADO.NET provider can be provided to `DbMetal.exe`:
 
   # Copy the ADO.NET provider assembly into the DbLinq installation directory.  For example, for [http://www.mysql.com/ MySQL] support the [http://dev.mysql.com/downloads/connector/net/ MySql.Data.dll] assembly should be copied into the same directory as `DbMetal.exe`.
-  # If your ADO.NET provider is present within the Global Assembly Cache, you can edit `DbMetal.exe.config` (in the DbLinq installation directory) to use an assembly-qualified type name in the `/configuration/providers/provider/@databaseConnection` attribute.  For example, if you installed `MySql.Data.dll` into the GAC, you could edit `DbMetal.exe.config` and change the `/configuration/providers/provider[@name='MySQL']/@databaseConnection` attribute to `MySql.Data.MySqlClient.MySqlConnection, MySql.Data, Version=5.0.8.1, Culture=neutral, PublicKeyToken=c5687fc88969c44d`:
+  # If your ADO.NET provider is present within the Global Assembly Cache, you can edit `DbMetal.exe.config` (in the DbLinq installation directory) to use an assembly-qualified type name in the `/configuration/providers/provider/@databaseConnection` attribute.  For example, if you installed `System.Data.SQLite.dll` into the GAC, you could edit `DbMetal.exe.config` and change the `/configuration/providers/provider[@name='SQLite']/@databaseConnection` attribute to `System.Data.SQLite.SQLiteConnection, System.Data.SQLite, Version=1.0.61.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139`:
 {{{
 <provider
-    name="MySQL"
-    dbLinqSchemaLoader="DbLinq.MySql.MySqlSchemaLoader, DbLinq.MySql" 
-    databaseConnection="MySql.Data.MySqlClient.MySqlConnection, MySql.Data, Version=5.0.8.1, Culture=neutral, PublicKeyToken=c5687fc88969c44d" />
+    name="SQLite"
+    dbLinqSchemaLoader="DbLinq.Sqlite.SqliteSchemaLoader, DbLinq.Sqlite" 
+    databaseConnection="System.Data.SQLite.SQLiteConnection, System.Data.SQLite, Version=1.0.61.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139" />
 }}}
   # You can use the `DbMetal.exe --with-dbconnection=TYPE` option, where TYPE is an assembly-qualified type name for the [http://msdn.microsoft.com/en-us/library/system.data.idbconnection.aspx IDbConnection] implementation to use.
 {{{
 DbMetal.exe \
-    --provider=MySql \
-    --with-dbconnection="MySql.Data.MySqlClient.MySqlConnection, MySql.Data, Version=5.0.8.1, Culture=neutral, PublicKeyToken=c5687fc88969c44d" \
+    --provider=Sqlite \
+    --with-dbconnection="System.Data.SQLite.SQLiteConnection, System.Data.SQLite, Version=1.0.61.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139" \
     ...
 }}}
 
@@ -39,26 +39,28 @@ There are three ways to create a `DataContext` instance.  Depending on how you c
   # *When using a _connection string_ with the `DataContext(string)` constructor*, _both_ the ADO.NET provider _and_ the DbLinq provider need to be specified.  The ADO.NET provider is provided via the `DbLinqConnectionType` key/value pair in the connection string, while the DbLinq provider is in the `DbLinqProvider` key/value pair.  If neither is listed, then DbLinq _defaults_ to using [http://msdn.microsoft.com/en-us/library/system.data.sqlclient.sqlconnection.aspx SqlConnection] for `DbLinqConnectionType` and to using `SqlServer` for `DbLinqProvider`.  ([http://msdn.microsoft.com/en-us/library/system.type.gettype.aspx Type.GetType()] is used to get the assembly-qualified type name used by `DbLinqConnectionType`, so a "full" assembly name (complete with `PublicKeyToken` may not be necessary if)
 {{{
 var db = new Northwind(
-    "DbLinqProvider=MySql;" +
-    "DbLinqConnectionType=MySql.Data.MySqlClient.MySqlConnection, MySql.Data, Version=5.0.8.1, Culture=neutral, PublicKeyToken=c5687fc88969c44d"
+    "DbLinqProvider=Sqlite;" +
+    "DbLinqConnectionType=System.Data.SQLite.SQLiteConnection, System.Data.SQLite, Version=1.0.61.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139" +
+    "Data Source=Filename.db3"
     // + other connection string key/value pairs
 );
 }}}
   # *When using an existing `IDbConnection` with the `DataContext(IDbConnection)` constructor*, the `DbLinqConnectionType` key/value pair isn't necessary, as the provided `IDbConnection` instance will be used.  The `DbLinqProvider` key/value pair is required (unless you want Microsoft SQL Server support), and thus must be provided to the `IDbConnection` implementation before constructing the `DataContext`:
 {{{
-var connection = new MySqlConnection(
-    "DbLinqProvider=MySql; "
-    // other connection string key/value pairs
+var connection = new SQLiteConnection(
+    "DbLinqProvider=Sqlite; " +
+    "Data Source=Filename.db3"
+    // + other connection string key/value pairs
 );
 var db = new Northwind(connection);
 }}}
   # *When using an existing `IDbConnection` and a provided `IVendor` implementation with the `DataContext(IDbConnection, IVendor)` constructor*, neither `DbLinqConnectionType` nor the `DbLinqProvider` key/value pairs need to be within the connection string.  Note: if using Mono's `System.Data.Linq.dll`, this option isn't available as the `DataContext(IDbConnection, IVendor)` constructor doesn't exist.
 {{{
-var connection = new MySqlConnection(
-    "DbLinqProvider=MySql; "
-    // other connection string key/value pairs
+var connection = new SQLiteConnection(
+    "Data Source=Filename.db3"
+    // + other connection string key/value pairs
 );
-var db = new Northwind(connection, new DbLinq.MySql.MySqlVendor());
+var db = new Northwind(connection, new DbLinq.Sqlite.SqliteVendor());
 }}}
 
 = Why? =
