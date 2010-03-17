@@ -184,6 +184,7 @@ namespace DbLinq.Vendor.Implementation
 
             //enum
             case "enum":
+            case "set":
                 return MapEnumDbType(dataType);
 
             // date
@@ -435,7 +436,7 @@ namespace DbLinq.Vendor.Implementation
             #endregion
         }
 
-        protected static Regex DefaultEnumDefinitionEx = new Regex(@"\s*enum\s*\((?<values>.*)\s*\)\s*", RegexOptions.Compiled);
+        protected static Regex DefaultEnumDefinitionEx = new Regex(@"\s*(enum|set)\s*\((?<values>.*)\s*\)\s*", RegexOptions.Compiled);
         protected static Regex EnumValuesEx = new Regex(@"\'(?<value>\w*)\'\s*,?\s*", RegexOptions.Compiled);
 
         /// <summary>
