@@ -236,18 +236,18 @@ namespace DbLinq.Data.Linq
             System.Text.RegularExpressions.Regex reProvider
                 = new System.Text.RegularExpressions.Regex(@"DbLinqProvider=([\w\.]+);?");
 
-            string assemblyFile = null;
+            string assemblyName = null;
             string vendor;
             if (!reProvider.IsMatch(connectionString))
             {
                 vendor       = "SqlServer";
-                assemblyFile = "DbLinq.SqlServer.dll";
+                assemblyName = "DbLinq.SqlServer";
             }
             else
             {
                 var match    = reProvider.Match(connectionString);
                 vendor       = match.Groups[1].Value;
-                assemblyFile = "DbLinq." + vendor + ".dll";
+                assemblyName = "DbLinq." + vendor;
 
                 //plain DbLinq - non MONO: 
                 //IVendor classes are in DLLs such as "DbLinq.MySql.dll"
@@ -269,15 +269,15 @@ namespace DbLinq.Data.Linq
                 assembly = typeof (DataContext).Assembly; // System.Data.Linq.dll
 #else
                 //TODO: check if DLL is already loaded?
-                assembly = Assembly.LoadFrom(assemblyFile);
+                assembly = Assembly.Load(assemblyName);
 #endif
             }
             catch (Exception e)
             {
                 throw new ArgumentException(
                         string.Format(
-                            "Unable to load the `{0}' DbLinq vendor within assembly `{1}'.",
-                            assemblyFile, vendor),
+                            "Unable to load the `{0}' DbLinq vendor within assembly '{1}.dll'.",
+                            assemblyName, vendor),
                         "connectionString", e);
             }
         }
