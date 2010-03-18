@@ -140,103 +140,17 @@ namespace DbMetal.Generator.Implementation
 
         public ISchemaLoader Load(Parameters parameters, string dbLinqSchemaLoaderTypeName, string databaseConnectionTypeName, string sqlDialectTypeName)
         {
-            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
             Type dbLinqSchemaLoaderType = Type.GetType(dbLinqSchemaLoaderTypeName);
             Type databaseConnectionType = Type.GetType(databaseConnectionTypeName);
             Type sqlDialectType         = string.IsNullOrEmpty(sqlDialectTypeName) ? null : Type.GetType(sqlDialectTypeName);
 
             if (dbLinqSchemaLoaderType == null)
-                throw new ArgumentException("Unable to resolve dbLinqSchemaLoaderType: " + dbLinqSchemaLoaderTypeName);
+                throw new ArgumentException("Could not load dbLinqSchemaLoaderType type '" + dbLinqSchemaLoaderTypeName + "'.  Try using the --with-schema-loader=TYPE option.");
             if (databaseConnectionType == null)
-                throw new ArgumentException("Unable to resolve databaseConnectionType: " + databaseConnectionTypeName);
+                throw new ArgumentException("Could not load databaseConnectionType type '" + databaseConnectionTypeName + "'.  Try using the --with-dbconnection=TYPE option.");
 
             ISchemaLoader loader = Load(parameters, dbLinqSchemaLoaderType, databaseConnectionType, sqlDialectType);
-            AppDomain.CurrentDomain.AssemblyResolve -= CurrentDomain_AssemblyResolve;
             return loader;
-        }
-
-        private Assembly LoadAssembly(string path)
-        {
-            if (File.Exists(path))
-                return Assembly.LoadFile(path);
-            return null;
-        }
-
-        private Assembly LoadAssembly(string baseName, string path)
-        {
-            string basePath = Path.Combine(path, baseName);
-            Assembly assembly = LoadAssembly(basePath + ".dll");
-            if (assembly == null)
-                assembly = LoadAssembly(basePath + ".exe");
-            return assembly;
-        }
-
-        private Assembly LocalLoadAssembly(string baseName)
-        {
-            Assembly assembly = LoadAssembly(baseName, Directory.GetCurrentDirectory());
-            if (assembly == null) {
-                var path = Path.GetDirectoryName(Assembly.GetEntryAssembly().CodeBase);
-                assembly = LoadAssembly(baseName, path);
-            }
-            return assembly;
-        }
-
-        private Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
-        {
-            // try to load from within the current AppDomain
-            IList<Assembly> assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            foreach (Assembly loadedAssembly in assemblies)
-            {
-                if (loadedAssembly.GetName().Name == args.Name)
-                    return loadedAssembly;
-            }
-            var assembly = LocalLoadAssembly(args.Name);
-            if (assembly == null)
-                assembly = GacLoadAssembly(args.Name);
-            return assembly;
-        }
-
-        /// <summary>
-        /// This is dirty, and must not be used in production environment
-        /// </summary>
-        /// <param name="shortName"></param>
-        /// <returns></returns>
-        private Assembly GacLoadAssembly(string shortName)
-        {
-            var systemRoot = Environment.GetEnvironmentVariable("SystemRoot");
-            string assemblyDirectory = Path.Combine(systemRoot, "Assembly");
-            var assembly = GacLoadAssembly(shortName, Path.Combine(assemblyDirectory, "GAC_MSIL"));
-            if (assembly == null)
-                assembly = GacLoadAssembly(shortName, Path.Combine(assemblyDirectory, "GAC_32"));
-            if (assembly == null)
-                assembly = GacLoadAssembly(shortName, Path.Combine(assemblyDirectory, "GAC"));
-            return assembly;
-        }
-
-        private Assembly GacLoadAssembly(string shortName, string directory)
-        {
-            string assemblyDirectory = Path.Combine(directory, shortName);
-            if (Directory.Exists(assemblyDirectory))
-            {
-                Version latestVersion = null;
-                string latestVersionDirectory = null;
-                foreach (string versionDirectory in Directory.GetDirectories(assemblyDirectory))
-                {
-                    var testVersion = new Version(Path.GetFileName(versionDirectory).Split('_')[0]);
-                    if (latestVersion == null || testVersion.CompareTo(latestVersion) > 0)
-                    {
-                        latestVersion = testVersion;
-                        latestVersionDirectory = versionDirectory;
-                    }
-                }
-                if (latestVersionDirectory != null)
-                {
-                    string assemblyPath = Path.Combine(latestVersionDirectory, shortName + ".dll");
-                    if (File.Exists(assemblyPath))
-                        return Assembly.LoadFile(assemblyPath);
-                }
-            }
-            return null;
         }
 
         protected void GetLoaderAndConnection(string provider, out string dbLinqSchemaLoaderType, out string databaseConnectionType, out string sqlDialectType)
