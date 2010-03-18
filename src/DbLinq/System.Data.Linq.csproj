@@ -269,6 +269,7 @@
     <Compile Include="Schema\Dbml\Adapter\INamedType.cs" />
     <Compile Include="Schema\Dbml\Adapter\ISimpleList.cs" />
     <Compile Include="Schema\Dbml\Adapter\SpecifiedPropertyUpdater.cs" />
+    <Compile Include="Schema\Dbml\DatabaseSerializer.cs" />
     <Compile Include="Schema\WordsExtraction.cs" />
     <Compile Include="Schema\NameFormat.cs" />
     <Compile Include="Schema\AssociationName.cs" />
