@@ -114,7 +114,7 @@ namespace DbMetal.Generator.Implementation
             catch (Exception ex)
             {
                 string assemblyName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
-                Output.WriteErrorLine(Log, assemblyName + " failed:" + ex);
+                Log.WriteErrorLine(assemblyName + ": {0}", parameters.Debug ? ex.ToString() : ex.Message);
             }
         }
 

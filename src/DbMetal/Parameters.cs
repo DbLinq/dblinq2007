@@ -186,6 +186,11 @@ namespace DbMetal
         public bool Help { get; set; }
 
         /// <summary>
+        /// Show stack traces in error messages, etc., instead of just the message.
+        /// </summary>
+        public bool Debug { get; set; }
+
+        /// <summary>
         /// non-option parameters
         /// </summary>
         public IList<string> Extra = new List<string>();
@@ -308,6 +313,10 @@ namespace DbMetal
                 { "readline",
                   "Wait for a key to be pressed after processing.",
                   v => Readline = v != null },
+                { "debug",
+                  "Enables additional information to help with debugging, " + 
+                  "such as full stack traces in error messages.",
+                  v => Debug = v != null },
                 { "h|?|help",
                   "Show this help",
                   v => Help = v != null }
