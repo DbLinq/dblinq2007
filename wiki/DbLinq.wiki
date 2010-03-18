@@ -3,7 +3,7 @@
 = DbLinq =
 
 <dl>
-<dt>IRC</dt><dd>[irc://irc.freenode.net:6667/%23%23dblinq ##dblinq@irc.freenode.net]</dd>
+<dt>IRC</dt><dd><a href="irc://irc.freenode.net:6667/%23%23dblinq">##dblinq@irc.freenode.net</a></dd>
 <dt>Mailing List</dt><dd>[http://groups.google.com/group/dblinq http://groups.google.com/group/dblinq]</dd>
 <dt>Project Page</dt><dd>[http://code.google.com/p/dblinq2007/ http://code.google.com/p/dblinq2007/]</dd>
 <dt>Source</dt><dd>[http://dblinq2007.googlecode.com/svn/trunk/ http://dblinq2007.googlecode.com/svn/trunk/]</dd>
