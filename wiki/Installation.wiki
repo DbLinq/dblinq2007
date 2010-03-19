@@ -10,7 +10,7 @@ The [http://dblinq2007.googlecode.com/files/DbLinq-0.19.zip DbLinq-0.19.zip] fil
 DbLinq only uses standard ADO.NET interfaces in order to interact with databases.  An ADO.NET provider (e.g. `System.Data.SQLite.dll`) in combination with a DbLinq provider (e.g. `DbLinq.Sqlite.dll`) is needed in order for DbLinq to interact with a database.
 
 
-<h2 id="DbMetal">DbMetal</h2>
+== Running DbMetal ==
 
 In order to run `DbMetal.exe`, the specific ADO.NET provider must be available.  There are three ways that the ADO.NET provider can be provided to `DbMetal.exe`:
 
@@ -30,7 +30,7 @@ DbMetal.exe \
     ...
 }}}
 
-<h2 id="DbLinq">DbLinq</h2>
+== DbLinq at Runtime ==
 
 When running your program, you may or may not need to do anything depending upon how you create your `DataContext` instance.
 
