@@ -5,14 +5,38 @@
 
 The [http://dblinq2007.googlecode.com/files/DbLinq-0.19.zip DbLinq-0.19.zip] file contains the DbLinq binaries such as `DbMetal.exe` and `DbLinq.dll`.  However, these are not usable by themselves.  No ADO.NET providers are distributed with DbLinq, and ADO.NET providers are needed in order for DbLinq to interact with databases.
 
-= ADO.NET provider installation =
-
 DbLinq only uses standard ADO.NET interfaces in order to interact with databases.  An ADO.NET provider (e.g. `System.Data.SQLite.dll`) in combination with a DbLinq provider (e.g. `DbLinq.Sqlite.dll`) is needed in order for DbLinq to interact with a database.
 
+= !DbLinq provider assemblies =
 
-== Running DbMetal ==
+DbLinq ships with provider assemblies which implement support for various SQL "dialects."  DbLinq provider assemblies may be usable by multiple different ADO.NET providers; what's important is that the the DbLinq provider is responsible for generating SQL for a given database, and may refer to various database-specific internal tables, e.g. to retrieve the primary key of a recently inserted row.
 
-In order to run `DbMetal.exe`, the specific ADO.NET provider must be available.  There are three ways that the ADO.NET provider can be provided to `DbMetal.exe`:
+The DbLinq provider assemblies include:
+
+  * `DbLinq.Firebird.dll`: [http://www.firebirdsql.org/ Firebird] support.
+  * `DbLinq.Ingres.dll`: [http://www.ingres.com/ Ingres] support.
+  * `DbLinq.MySql.dll`: [http://www.mysql.com/ MySQL] support.
+  * `DbLinq.Oracle.dll`: [http://www.oracle.com/ Oracle] support, using either the System.Data.OracleClient or [http://www.oracle.com/technology/software/tech/windows/odpnet/index.html Oracle.DataAccess] drivers.
+  * `DbLinq.PostgreSql.dll`: [http://www.postgresql.org/ PostgreSQL] support.
+  * `DbLinq.Sqlite.dll`: [http://www.sqlite.org/ SQLite] support, using either the [http://sqlite.phxsoftware.com/ System.Data.SQLite] or [http://www.mono-project.com/SQLite Mono.Data.Sqlite] drivers.
+  * `DbLinq.SqlServer.dll`: [http://www.microsoft.com/sqlserver/ Microsoft SQL Server] support.
+
+= To run !DbMetal =
+
+DbMetal has two modes of operation:
+
+  # Connecting to a database to generate either a `.dbml` or source code containing entities, for example:
+{{{
+DbMetal /provider:Sqlite /conn "Data Source=File.db3" /dbml:File.dbml
+}}}
+  # Generating source code containing entities contained in a `.dbml` file, for example:
+{{{
+DbMetal /code:File.cs File.dbml
+}}}
+
+Both of these require both an ADO.NET provider and a DbLinq provider for your database.  DbLinq provider assemblies are bundled with DbLinq, e.g. `DbLinq.Sqlite.dll`.
+
+There are three ways that the ADO.NET provider can be used with `DbMetal.exe`:
 
   # Copy the ADO.NET provider assembly into the DbLinq installation directory.  For example, for [http://www.mysql.com/ MySQL] support the [http://dev.mysql.com/downloads/connector/net/ MySql.Data.dll] assembly should be copied into the same directory as `DbMetal.exe`.
   # If your ADO.NET provider is present within the Global Assembly Cache, you can edit `DbMetal.exe.config` (in the DbLinq installation directory) to use an assembly-qualified type name in the `/configuration/providers/provider/@databaseConnection` attribute.  For example, if you installed `System.Data.SQLite.dll` into the GAC, you could edit `DbMetal.exe.config` and change the `/configuration/providers/provider[@name='SQLite']/@databaseConnection` attribute to `System.Data.SQLite.SQLiteConnection, System.Data.SQLite, Version=1.0.61.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139`:
@@ -26,15 +50,15 @@ In order to run `DbMetal.exe`, the specific ADO.NET provider must be available. 
 {{{
 DbMetal.exe \
     --provider=Sqlite \
-    --with-dbconnection="System.Data.SQLite.SQLiteConnection, System.Data.SQLite, Version=1.0.61.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139" \
+    --with-dbconnection="Mono.Data.Sqlite.SqliteConnection, Mono.Data.Sqlite, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756" \
     ...
 }}}
 
-== DbLinq at Runtime ==
+= To use !DbLinq =
 
-When running your program, you may or may not need to do anything depending upon how you create your `DataContext` instance.
+Just as with DbMetal, using DbLinq within your app _also_ requires both an ADO.NET provider and a DbLinq provider.
 
-There are three ways to create a `DataContext` instance.  Depending on how you create the `DataContext`, you may need to provide either the ADO.NET provider, the DbLinq provider, or both.
+There are three ways to create a `DataContext` instance.  Depending on how you create the `DataContext`, you may need to explicitly provide either the ADO.NET provider, the DbLinq provider, or both.
 
   # *When using a _connection string_ with the `DataContext(string)` constructor*, _both_ the ADO.NET provider _and_ the DbLinq provider need to be specified.  The ADO.NET provider is provided via the `DbLinqConnectionType` key/value pair in the connection string, while the DbLinq provider is in the `DbLinqProvider` key/value pair.  If neither is listed, then DbLinq _defaults_ to using [http://msdn.microsoft.com/en-us/library/system.data.sqlclient.sqlconnection.aspx SqlConnection] for `DbLinqConnectionType` and to using `SqlServer` for `DbLinqProvider`.  ([http://msdn.microsoft.com/en-us/library/system.type.gettype.aspx Type.GetType()] is used to get the assembly-qualified type name used by `DbLinqConnectionType`, so a "full" assembly name (complete with `PublicKeyToken` may not be necessary if)
 {{{
@@ -62,6 +86,8 @@ var connection = new SQLiteConnection(
 );
 var db = new Northwind(connection, new DbLinq.Sqlite.SqliteVendor());
 }}}
+
+Note that in all three situations, the ADO.NET provider assembly and the DbLinq provider assembly must be present in locations that `Type.GetType()` can find them, e.g. the GAC, the same directory as your main `.exe` assembly, your webapp `bin` directory, etc.
 
 = Why? =
 
