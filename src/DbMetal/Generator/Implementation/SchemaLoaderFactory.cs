@@ -66,22 +66,6 @@ namespace DbMetal.Generator.Implementation
         }
 
         /// <summary>
-        /// loads a ISchemaLoader from a provider id string (used by schema loader)
-        /// </summary>
-        /// <param name="provider"></param>
-        /// <returns></returns>
-        public ISchemaLoader Load(string provider)
-        {
-            string dbLinqSchemaLoaderType;
-            string databaseConnectionType;
-            string sqlDialectType;
-            GetLoaderAndConnection(provider, out dbLinqSchemaLoaderType, out databaseConnectionType, out sqlDialectType);
-            if (dbLinqSchemaLoaderType == null)
-                return null;
-            return Load(null, dbLinqSchemaLoaderType, databaseConnectionType, sqlDialectType);
-        }
-
-        /// <summary>
         /// given a schemaLoaderType and dbConnType 
         /// (e.g. DbLinq.Oracle.OracleSchemaLoader and System.Data.OracleClient.OracleConnection),
         /// return an instance of the OracleSchemaLoader.
@@ -153,7 +137,7 @@ namespace DbMetal.Generator.Implementation
             return loader;
         }
 
-        protected void GetLoaderAndConnection(string provider, out string dbLinqSchemaLoaderType, out string databaseConnectionType, out string sqlDialectType)
+        private void GetLoaderAndConnection(string provider, out string dbLinqSchemaLoaderType, out string databaseConnectionType, out string sqlDialectType)
         {
             var configuration = (ProvidersSection)ConfigurationManager.GetSection("providers");
 
