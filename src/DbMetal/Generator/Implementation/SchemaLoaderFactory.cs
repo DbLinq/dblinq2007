@@ -60,8 +60,6 @@ namespace DbMetal.Generator.Implementation
             string databaseConnectionType;
             string sqlDialectType;
             GetLoaderAndConnection(parameters, out dbLinqSchemaLoaderType, out databaseConnectionType, out sqlDialectType);
-            if (dbLinqSchemaLoaderType == null)
-                throw new ApplicationException("Please provide -Provider=MySql (or Oracle, OracleODP, PostgreSql, Sqlite - see app.config for provider listing)");
             return Load(parameters, dbLinqSchemaLoaderType, databaseConnectionType, sqlDialectType);
         }
 
@@ -145,8 +143,7 @@ namespace DbMetal.Generator.Implementation
             string errorMsg = null;
             if (configuration == null || !configuration.Providers.TryGetProvider(provider, out element, out errorMsg))
             {
-                Output.WriteErrorLine(Log, "Failed to load provider {0} : {1}", provider, errorMsg);
-                throw new ApplicationException("Failed to load provider " + provider);
+                throw new ApplicationException(string.Format("Failed to load provider {0}: {1}", provider, errorMsg));
             }
 
             //var element = configuration.Providers.GetProvider(provider);
