@@ -223,7 +223,7 @@ namespace DbMetal.Generator.Implementation
             else // load DBML
             {
                 dbSchema = ReadSchema(parameters, parameters.SchemaXmlFile);
-                parameters.Provider = dbSchema.Provider;
+                parameters.Provider = parameters.Provider ?? dbSchema.Provider;
                 schemaLoader = SchemaLoaderFactory.Load(parameters);
             }
 
