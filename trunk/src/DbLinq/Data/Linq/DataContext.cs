@@ -399,11 +399,11 @@ namespace DbLinq.Data.Linq
                     SubmitChangesImpl(failureMode);
                 else
                 {
-                    using (IDatabaseTransaction transaction = DatabaseContext.Transaction())
+                    using (IDbTransaction transaction = DatabaseContext.CreateTransaction())
                     {
                         try
                         {
-                            Transaction = (DbTransaction) transaction.Transaction;
+                            Transaction = (DbTransaction) transaction;
                             SubmitChangesImpl(failureMode);
                             // TODO: handle conflicts (which can only occur when concurrency mode is implemented)
                             transaction.Commit();
@@ -1025,7 +1025,10 @@ namespace DbLinq.Data.Linq
 			set { throw new NotImplementedException(); }
 		}
 
-        public DbTransaction Transaction { get; set; }
+        public DbTransaction Transaction {
+            get { return (DbTransaction) DatabaseContext.CurrentTransaction; }
+            set { DatabaseContext.CurrentTransaction = value; }
+        }
 
         /// <summary>
         /// Runs the given reader and returns columns.
