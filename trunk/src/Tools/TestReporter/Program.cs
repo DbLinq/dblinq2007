@@ -104,8 +104,7 @@ namespace TestReporter
                     foreach (var t in tests
                         .Where(t => t.File.Group == group)
                         .GroupBy(t => new { t.Name, t.Description },
-                                 (t, ts) => new { t.Name, t.Description, Results = ts.Select(r => new { r.File, r.Success }).ToArray() })
-                        .Where(t => t.Results.Count(r => r.Success == "True") != tempFiles.Length))
+                                 (t, ts) => new { t.Name, t.Description, Results = ts.Select(r => new { r.File, r.Success }).ToArray() }))
                     {
                         sb.AppendLine("||`" + t.Name + "`" +
                             (!string.IsNullOrEmpty(t.Description) ? "<br><font color=#999999 size=1>" + t.Description : "") +
