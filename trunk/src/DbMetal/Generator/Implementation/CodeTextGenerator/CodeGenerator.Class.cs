@@ -117,7 +117,6 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                         var member = writer.GetVariableExpression(primaryKey.Storage);
                         string primaryKeyHashCode = writer.GetMethodCallExpression(writer.GetMemberExpression(member, "GetHashCode"));
                         if (primaryKey.CanBeNull
-                        || primaryKey.ExtendedType == null
                         || GetType(primaryKey.Type, false).IsClass) // this patch to ensure that even if DB does not allow nulls,
                         // our in-memory object won't generate a fault
                         {

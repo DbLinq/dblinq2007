@@ -249,7 +249,7 @@ namespace nwind
 
 		public override int GetHashCode()
 		{
-			return (_categoryID == null ? 0 : _categoryID.GetHashCode());
+			return _categoryID.GetHashCode();
 		}
 
 		public override bool Equals(object o)
@@ -1664,7 +1664,7 @@ namespace nwind
 
 		public override int GetHashCode()
 		{
-			return (_employeeID == null ? 0 : _employeeID.GetHashCode());
+			return _employeeID.GetHashCode();
 		}
 
 		public override bool Equals(object o)
@@ -1923,7 +1923,7 @@ namespace nwind
 
 		public override int GetHashCode()
 		{
-			return (_employeeID == null ? 0 : _employeeID.GetHashCode()) ^ (_territoryID == null ? 0 : _territoryID.GetHashCode());
+			return _employeeID.GetHashCode() ^ (_territoryID == null ? 0 : _territoryID.GetHashCode());
 		}
 
 		public override bool Equals(object o)
@@ -2468,7 +2468,7 @@ namespace nwind
 
 		public override int GetHashCode()
 		{
-			return (_orderID == null ? 0 : _orderID.GetHashCode());
+			return _orderID.GetHashCode();
 		}
 
 		public override bool Equals(object o)
@@ -2827,7 +2827,7 @@ namespace nwind
 
 		public override int GetHashCode()
 		{
-			return (_orderID == null ? 0 : _orderID.GetHashCode()) ^ (_productID == null ? 0 : _productID.GetHashCode());
+			return _orderID.GetHashCode() ^ _productID.GetHashCode();
 		}
 
 		public override bool Equals(object o)
@@ -3256,7 +3256,7 @@ namespace nwind
 
 		public override int GetHashCode()
 		{
-			return (_productID == null ? 0 : _productID.GetHashCode());
+			return _productID.GetHashCode();
 		}
 
 		public override bool Equals(object o)
@@ -3489,7 +3489,7 @@ namespace nwind
 
 		public override int GetHashCode()
 		{
-			return (_regionID == null ? 0 : _regionID.GetHashCode());
+			return _regionID.GetHashCode();
 		}
 
 		public override bool Equals(object o)
@@ -3677,7 +3677,7 @@ namespace nwind
 
 		public override int GetHashCode()
 		{
-			return (_shipperID == null ? 0 : _shipperID.GetHashCode());
+			return _shipperID.GetHashCode();
 		}
 
 		public override bool Equals(object o)
@@ -4117,7 +4117,7 @@ namespace nwind
 
 		public override int GetHashCode()
 		{
-			return (_supplierID == null ? 0 : _supplierID.GetHashCode());
+			return _supplierID.GetHashCode();
 		}
 
 		public override bool Equals(object o)
