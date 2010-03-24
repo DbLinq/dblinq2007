@@ -62,6 +62,13 @@ namespace DbLinq.SqlServer
         protected readonly SqlServerSqlProvider sqlProvider = new SqlServerSqlProvider();
         public override ISqlProvider SqlProvider { get { return sqlProvider; } }
 
+        protected override void AppendServer(StringBuilder connectionString, string host)
+        {
+            // As per http://www.connectionstrings.com/sql-server, 
+            // port numbers are separated from host names via comma
+            AppendConnectionString(connectionString, ConnectionStringServer, host.Replace(':', ','));
+        }
+
         //NOTE: for Oracle, we want to consider 'Array Binding'
         //http://download-west.oracle.com/docs/html/A96160_01/features.htm#1049674
 
