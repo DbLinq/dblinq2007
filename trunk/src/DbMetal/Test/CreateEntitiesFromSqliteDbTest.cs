@@ -41,6 +41,7 @@ namespace DbMetal_Test_Sqlite
             AppRunner.WithinAppDomain("Northwind.Sqlite-{0}.cs", created, new[]{
                 "/code:" + created,
                 "/database:Northwind",
+                "--generate-equals-hash",
                 "--generate-timestamps-",
                 "/namespace:nwind",
                 "/pluralize",
@@ -54,6 +55,7 @@ namespace DbMetal_Test_Sqlite
             AppRunner.WithDbSchemaLoader("Northwind.Sqlite+DbSchemaLoader-{0}.cs", created, new[]{
                 "/code:" + created,
                 "/database:Northwind",
+                "--generate-equals-hash",
                 "--generate-timestamps-",
                 "/namespace:nwind",
                 "/pluralize",
