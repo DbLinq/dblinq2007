@@ -123,7 +123,7 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                         {
                             var isNullExpression = writer.GetEqualExpression(member, writer.GetNullExpression());
                             var nullExpression = writer.GetLiteralValue(0);
-                            primaryKeyHashCode = writer.GetTernaryExpression(isNullExpression, nullExpression, primaryKeyHashCode);
+                            primaryKeyHashCode = "(" + writer.GetTernaryExpression(isNullExpression, nullExpression, primaryKeyHashCode) + ")";
                         }
                         if (string.IsNullOrEmpty(hashCode))
                             hashCode = primaryKeyHashCode;
@@ -152,9 +152,14 @@ namespace DbMetal.Generator.Implementation.CodeTextGenerator
                     foreach (var primaryKey in primaryKeys)
                     {
                         var member = writer.GetVariableExpression(primaryKey.Storage);
-                        string primaryKeyTest = writer.GetMethodCallExpression(writer.GetMemberExpression(writer.GetLiteralType(typeof(object)), "Equals"),
-                                                                               member,
-                                                                               writer.GetMemberExpression(other, member));
+                        string primaryKeyTest = writer.GetMethodCallExpression(
+                                writer.GetMemberExpression(
+                                    writer.GetMemberExpression(
+                                        writer.GetGenericName("System.Collections.Generic.EqualityComparer", primaryKey.Type),
+                                        "Default"),
+                                    "Equals"),
+                                member,
+                                writer.GetMemberExpression(other, member));
                         if (string.IsNullOrEmpty(andExpression))
                             andExpression = primaryKeyTest;
                         else

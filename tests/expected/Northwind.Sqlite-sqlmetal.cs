@@ -220,6 +220,25 @@ namespace nwind
 
 		#endregion
 
+		#region GetHashCode(), Equals() - uses column CategoryID to look up objects in liveObjectMap
+
+		public override int GetHashCode()
+		{
+			return (_categoryID == null ? 0 : _categoryID.GetHashCode());
+		}
+
+		public override bool Equals(object o)
+		{
+			Category other = o as Category;
+			if (other == null)
+			{
+				return false;
+			}
+			return System.Collections.Generic.EqualityComparer<System.Int32>.Default.Equals(_categoryID, other._categoryID);
+		}
+
+		#endregion
+
 		#region Children
 
 		private EntitySet<Product> _products;
@@ -613,6 +632,25 @@ namespace nwind
 
 		#endregion
 
+		#region GetHashCode(), Equals() - uses column CustomerID to look up objects in liveObjectMap
+
+		public override int GetHashCode()
+		{
+			return (_customerID == null ? 0 : _customerID.GetHashCode());
+		}
+
+		public override bool Equals(object o)
+		{
+			Customer other = o as Customer;
+			if (other == null)
+			{
+				return false;
+			}
+			return System.Collections.Generic.EqualityComparer<System.String>.Default.Equals(_customerID, other._customerID);
+		}
+
+		#endregion
+
 		#region Children
 
 		private EntitySet<CustomerCustomerDemo> _customerCustomerDemo;
@@ -784,6 +822,25 @@ namespace nwind
 					OnCustomerTypeIDChanged();
 				}
 			}
+		}
+
+		#endregion
+
+		#region GetHashCode(), Equals() - uses column CustomerID, CustomerTypeID to look up objects in liveObjectMap
+
+		public override int GetHashCode()
+		{
+			return (_customerID == null ? 0 : _customerID.GetHashCode()) ^ (_customerTypeID == null ? 0 : _customerTypeID.GetHashCode());
+		}
+
+		public override bool Equals(object o)
+		{
+			CustomerCustomerDemo other = o as CustomerCustomerDemo;
+			if (other == null)
+			{
+				return false;
+			}
+			return System.Collections.Generic.EqualityComparer<System.String>.Default.Equals(_customerID, other._customerID) && System.Collections.Generic.EqualityComparer<System.String>.Default.Equals(_customerTypeID, other._customerTypeID);
 		}
 
 		#endregion
@@ -962,6 +1019,25 @@ namespace nwind
 					OnCustomerTypeIDChanged();
 				}
 			}
+		}
+
+		#endregion
+
+		#region GetHashCode(), Equals() - uses column CustomerTypeID to look up objects in liveObjectMap
+
+		public override int GetHashCode()
+		{
+			return (_customerTypeID == null ? 0 : _customerTypeID.GetHashCode());
+		}
+
+		public override bool Equals(object o)
+		{
+			CustomerDemographic other = o as CustomerDemographic;
+			if (other == null)
+			{
+				return false;
+			}
+			return System.Collections.Generic.EqualityComparer<System.String>.Default.Equals(_customerTypeID, other._customerTypeID);
 		}
 
 		#endregion
@@ -1559,6 +1635,25 @@ namespace nwind
 
 		#endregion
 
+		#region GetHashCode(), Equals() - uses column EmployeeID to look up objects in liveObjectMap
+
+		public override int GetHashCode()
+		{
+			return (_employeeID == null ? 0 : _employeeID.GetHashCode());
+		}
+
+		public override bool Equals(object o)
+		{
+			Employee other = o as Employee;
+			if (other == null)
+			{
+				return false;
+			}
+			return System.Collections.Generic.EqualityComparer<System.Int32>.Default.Equals(_employeeID, other._employeeID);
+		}
+
+		#endregion
+
 		#region Children
 
 		private EntitySet<EmployeeTerritory> _employeeTerritories;
@@ -1795,6 +1890,25 @@ namespace nwind
 					OnTerritoryIDChanged();
 				}
 			}
+		}
+
+		#endregion
+
+		#region GetHashCode(), Equals() - uses column EmployeeID, TerritoryID to look up objects in liveObjectMap
+
+		public override int GetHashCode()
+		{
+			return (_employeeID == null ? 0 : _employeeID.GetHashCode()) ^ (_territoryID == null ? 0 : _territoryID.GetHashCode());
+		}
+
+		public override bool Equals(object o)
+		{
+			EmployeeTerritory other = o as EmployeeTerritory;
+			if (other == null)
+			{
+				return false;
+			}
+			return System.Collections.Generic.EqualityComparer<System.Int32>.Default.Equals(_employeeID, other._employeeID) && System.Collections.Generic.EqualityComparer<System.String>.Default.Equals(_territoryID, other._territoryID);
 		}
 
 		#endregion
@@ -2325,6 +2439,25 @@ namespace nwind
 
 		#endregion
 
+		#region GetHashCode(), Equals() - uses column OrderID to look up objects in liveObjectMap
+
+		public override int GetHashCode()
+		{
+			return (_orderID == null ? 0 : _orderID.GetHashCode());
+		}
+
+		public override bool Equals(object o)
+		{
+			Order other = o as Order;
+			if (other == null)
+			{
+				return false;
+			}
+			return System.Collections.Generic.EqualityComparer<System.Int32>.Default.Equals(_orderID, other._orderID);
+		}
+
+		#endregion
+
 		#region Children
 
 		private EntitySet<OrderDetail> _orderDetails;
@@ -2661,6 +2794,25 @@ namespace nwind
 					OnUnitPriceChanged();
 				}
 			}
+		}
+
+		#endregion
+
+		#region GetHashCode(), Equals() - uses column OrderID, ProductID to look up objects in liveObjectMap
+
+		public override int GetHashCode()
+		{
+			return (_orderID == null ? 0 : _orderID.GetHashCode()) ^ (_productID == null ? 0 : _productID.GetHashCode());
+		}
+
+		public override bool Equals(object o)
+		{
+			OrderDetail other = o as OrderDetail;
+			if (other == null)
+			{
+				return false;
+			}
+			return System.Collections.Generic.EqualityComparer<System.Int32>.Default.Equals(_orderID, other._orderID) && System.Collections.Generic.EqualityComparer<System.Int32>.Default.Equals(_productID, other._productID);
 		}
 
 		#endregion
@@ -3075,6 +3227,25 @@ namespace nwind
 
 		#endregion
 
+		#region GetHashCode(), Equals() - uses column ProductID to look up objects in liveObjectMap
+
+		public override int GetHashCode()
+		{
+			return (_productID == null ? 0 : _productID.GetHashCode());
+		}
+
+		public override bool Equals(object o)
+		{
+			Product other = o as Product;
+			if (other == null)
+			{
+				return false;
+			}
+			return System.Collections.Generic.EqualityComparer<System.Int32>.Default.Equals(_productID, other._productID);
+		}
+
+		#endregion
+
 		#region Children
 
 		private EntitySet<OrderDetail> _orderDetails;
@@ -3289,6 +3460,25 @@ namespace nwind
 
 		#endregion
 
+		#region GetHashCode(), Equals() - uses column RegionID to look up objects in liveObjectMap
+
+		public override int GetHashCode()
+		{
+			return (_regionID == null ? 0 : _regionID.GetHashCode());
+		}
+
+		public override bool Equals(object o)
+		{
+			Region other = o as Region;
+			if (other == null)
+			{
+				return false;
+			}
+			return System.Collections.Generic.EqualityComparer<System.Int32>.Default.Equals(_regionID, other._regionID);
+		}
+
+		#endregion
+
 		#region Children
 
 		private EntitySet<Territory> _territories;
@@ -3454,6 +3644,25 @@ namespace nwind
 					OnShipperIDChanged();
 				}
 			}
+		}
+
+		#endregion
+
+		#region GetHashCode(), Equals() - uses column ShipperID to look up objects in liveObjectMap
+
+		public override int GetHashCode()
+		{
+			return (_shipperID == null ? 0 : _shipperID.GetHashCode());
+		}
+
+		public override bool Equals(object o)
+		{
+			Shipper other = o as Shipper;
+			if (other == null)
+			{
+				return false;
+			}
+			return System.Collections.Generic.EqualityComparer<System.Int32>.Default.Equals(_shipperID, other._shipperID);
 		}
 
 		#endregion
@@ -3879,6 +4088,25 @@ namespace nwind
 
 		#endregion
 
+		#region GetHashCode(), Equals() - uses column SupplierID to look up objects in liveObjectMap
+
+		public override int GetHashCode()
+		{
+			return (_supplierID == null ? 0 : _supplierID.GetHashCode());
+		}
+
+		public override bool Equals(object o)
+		{
+			Supplier other = o as Supplier;
+			if (other == null)
+			{
+				return false;
+			}
+			return System.Collections.Generic.EqualityComparer<System.Int32>.Default.Equals(_supplierID, other._supplierID);
+		}
+
+		#endregion
+
 		#region Children
 
 		private EntitySet<Product> _products;
@@ -4048,6 +4276,25 @@ namespace nwind
 					OnTerritoryIDChanged();
 				}
 			}
+		}
+
+		#endregion
+
+		#region GetHashCode(), Equals() - uses column TerritoryID to look up objects in liveObjectMap
+
+		public override int GetHashCode()
+		{
+			return (_territoryID == null ? 0 : _territoryID.GetHashCode());
+		}
+
+		public override bool Equals(object o)
+		{
+			Territory other = o as Territory;
+			if (other == null)
+			{
+				return false;
+			}
+			return System.Collections.Generic.EqualityComparer<System.String>.Default.Equals(_territoryID, other._territoryID);
 		}
 
 		#endregion
