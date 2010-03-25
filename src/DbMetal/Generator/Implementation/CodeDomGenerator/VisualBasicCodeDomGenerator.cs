@@ -24,8 +24,11 @@
 // 
 #endregion
 
+using System;
+using System.CodeDom;
 using System.CodeDom.Compiler;
 using System.IO;
+using System.Text;
 using DbLinq.Schema.Dbml;
 using Microsoft.VisualBasic;
 
@@ -45,5 +48,31 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
                                                                                 new CodeGeneratorOptions() { BracingStyle = "C" });
         }
 
+
+        public override void AddConditionalImports(System.CodeDom.CodeNamespaceImportCollection imports, string firstImport, string conditional, string[] importsIfTrue, string[] importsIfFalse, string lastImport)
+        {
+            // HACK HACK HACK
+            // Would be better if CodeDom actually supported conditional compilation constructs...
+            // This is predecated upon VBCodeGenerator.GenerateNamespaceImport() being implemented as:
+            //      output.Write ("Imports ");
+            //      output.Write (import.Namespace);
+            //      output.WriteLine ();
+            // Thus, with "crafty" execution of the namespace, we can stuff arbitrary text in there...
+
+            var block = new StringBuilder();
+            // No 'Imports', as GenerateNamespaceImport() writes it.
+            block.Append(firstImport).Append(Environment.NewLine);
+            block.Append("#If ").Append(conditional).Append(" Then").Append(Environment.NewLine);
+            foreach (var ns in importsIfTrue)
+                block.Append("    Imports ").Append(ns).Append(Environment.NewLine);
+            block.Append("#Else     ' ").Append(conditional).Append(Environment.NewLine);
+            foreach (var ns in importsIfFalse)
+                block.Append("    Imports ").Append(ns).Append(Environment.NewLine);
+            block.Append("#End If   ' ").Append(conditional).Append(Environment.NewLine);
+            block.Append("    Imports ").Append(lastImport);
+            // No newline, as GenerateNamespaceImport() writes it.
+
+            imports.Add(new CodeNamespaceImport(block.ToString()));
+        }
     }
 }
