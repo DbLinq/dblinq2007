@@ -37,6 +37,7 @@ using Microsoft.CSharp;
 using Microsoft.VisualBasic;
 
 using DbLinq.Schema.Dbml;
+using DbLinq.Util;
 
 namespace DbMetal.Generator.Implementation.CodeDomGenerator
 {
@@ -120,10 +121,10 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
                 TypeAttributes  = TypeAttributes.Public 
             };
 
-            if (database.BaseType != null)
-                _class.BaseTypes.Add(database.BaseType);
-            else
-                _class.BaseTypes.Add(new CodeTypeReference("DataContext"));
+            var contextBaseType = string.IsNullOrEmpty(database.BaseType)
+                ? "DataContext"
+                : TypeLoader.Load(database.BaseType).Name;
+            _class.BaseTypes.Add(contextBaseType);
 
             // CodeDom does not currently support partial methods.  This will be a problem for VB.  Will probably be fixed in .net 4
             _class.Members.Add(new CodeSnippetTypeMember("\tpartial void OnCreated();"));
