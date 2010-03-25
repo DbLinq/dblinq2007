@@ -57,6 +57,8 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
 
         CodeThisReferenceExpression thisReference = new CodeThisReferenceExpression();
 
+        protected GenerationContext Context { get; set; }
+
         protected virtual CodeNamespace GenerateCodeDomModel(Database database)
         {
             CodeNamespace _namespace = new CodeNamespace(database.ContextNamespace);
@@ -77,7 +79,9 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
 #endif
             _namespace.Imports.Add(new CodeNamespaceImport("System.Diagnostics"));
 
-            _namespace.Comments.Add(new CodeCommentStatement(GenerateCommentBanner(database)));
+            var time = Context.Parameters.GenerateTimestamps ? DateTime.Now.ToString("u") : "[TIMESTAMP]";
+            var header = new CodeCommentStatement(GenerateCommentBanner(database, time));
+            _namespace.Comments.Add(header);
 
             _namespace.Types.Add(GenerateContextClass(database));
 
@@ -86,7 +90,7 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
             return _namespace;
         }
 
-        protected virtual string GenerateCommentBanner(Database database)
+        private string GenerateCommentBanner(Database database, string time)
         {
             var result = new StringBuilder();
 
@@ -101,8 +105,8 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
  |____/|_.__/|_|  |_|\___|\__\__,_|_|
 
 ");
-            result.AppendLine(String.Format(" Auto-generated from {0} on {1}.", database.Name, DateTime.Now));
-            result.AppendLine(" Please visit http://linq.to/db for more information.");
+            result.AppendLine(String.Format(" Auto-generated from {0} on {1}.", database.Name, time));
+            result.AppendLine(" Please visit http://code.google.com/p/dblinq2007/ for more information.");
 
             return result.ToString();
         }

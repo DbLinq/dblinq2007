@@ -44,6 +44,7 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
 
         public override void Write(TextWriter textWriter, Database dbSchema, GenerationContext context)
         {
+            Context = context;
             new CSharpCodeProvider().CreateGenerator(textWriter).GenerateCodeFromNamespace(GenerateCodeDomModel(dbSchema), textWriter,
                                                                                 new CodeGeneratorOptions() { BracingStyle = "C" });
         }
