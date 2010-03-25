@@ -115,7 +115,6 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
                 Name            = database.Class, 
                 TypeAttributes  = TypeAttributes.Public 
             };
-            Console.WriteLine("# database.BaseType={0}", database.BaseType);
 
             if (database.BaseType != null)
                 _class.BaseTypes.Add(database.BaseType);
