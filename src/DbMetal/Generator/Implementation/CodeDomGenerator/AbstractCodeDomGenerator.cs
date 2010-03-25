@@ -48,13 +48,21 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
     {
         public abstract string LanguageCode { get; }
         public abstract string Extension { get; }
-        public abstract void Write(TextWriter textWriter, Database dbSchema, GenerationContext context);
-        public abstract void AddConditionalImports(CodeNamespaceImportCollection imports,
+
+        protected abstract CodeDomProvider CreateProvider();
+        protected abstract void AddConditionalImports(CodeNamespaceImportCollection imports,
                 string firstImport,
                 string conditional,
                 string[] importsIfTrue,
                 string[] importsIfFalse,
                 string lastImport);
+
+        public void Write(TextWriter textWriter, Database dbSchema, GenerationContext context)
+        {
+            Context = context;
+            CreateProvider().CreateGenerator(textWriter).GenerateCodeFromNamespace(
+                GenerateCodeDomModel(dbSchema), textWriter, new CodeGeneratorOptions() { BracingStyle = "C" });
+        }
 
         CodeThisReferenceExpression thisReference = new CodeThisReferenceExpression();
 

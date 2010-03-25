@@ -42,15 +42,12 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
         public override string LanguageCode { get { return "VB"; } }
         public override string Extension { get { return ".vb"; } }
 
-        public override void Write(TextWriter textWriter, Database dbSchema, GenerationContext context)
+        protected override CodeDomProvider CreateProvider()
         {
-            Context = context;
-            new VBCodeProvider().CreateGenerator(textWriter).GenerateCodeFromNamespace(GenerateCodeDomModel(dbSchema), textWriter,
-                                                                                new CodeGeneratorOptions() { BracingStyle = "C" });
+            return CodeDomProvider.CreateProvider("VB");
         }
 
-
-        public override void AddConditionalImports(System.CodeDom.CodeNamespaceImportCollection imports, string firstImport, string conditional, string[] importsIfTrue, string[] importsIfFalse, string lastImport)
+        protected override void AddConditionalImports(System.CodeDom.CodeNamespaceImportCollection imports, string firstImport, string conditional, string[] importsIfTrue, string[] importsIfFalse, string lastImport)
         {
             // HACK HACK HACK
             // Would be better if CodeDom actually supported conditional compilation constructs...
