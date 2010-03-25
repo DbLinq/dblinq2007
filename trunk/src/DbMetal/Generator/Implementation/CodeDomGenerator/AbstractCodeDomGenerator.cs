@@ -48,38 +48,12 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
         public abstract string LanguageCode { get; }
         public abstract string Extension { get; }
         public abstract void Write(TextWriter textWriter, Database dbSchema, GenerationContext context);
-
-        /// <summary>
-        /// Generates a C# source code wrapper for the database schema objects.
-        /// </summary>
-        /// <param name="database"></param>
-        /// <param name="filename"></param>
-        public void GenerateCSharp(Database database, string filename)
-        {
-            using (Stream stream = File.Open(filename, FileMode.Create))
-            {
-                using (StreamWriter writer = new StreamWriter(stream))
-                {
-                    new CSharpCodeProvider().CreateGenerator(writer).GenerateCodeFromNamespace(GenerateCodeDomModel(database), writer, new CodeGeneratorOptions() { BracingStyle = "C" });
-                }
-            }
-        }
-
-        /// <summary>
-        /// Generates a Visual Basic source code wrapper for the database schema objects.
-        /// </summary>
-        /// <param name="database"></param>
-        /// <param name="filename"></param>
-        public void GenerateVisualBasic(Database database, string filename)
-        {
-            using (Stream stream = File.Open(filename, FileMode.Create))
-            {
-                using (StreamWriter writer = new StreamWriter(stream))
-                {
-                    new VBCodeProvider().CreateGenerator(writer).GenerateCodeFromNamespace(GenerateCodeDomModel(database), writer, new CodeGeneratorOptions() { BracingStyle = "C" });
-                }
-            }
-        }
+        public abstract void AddConditionalImports(CodeNamespaceImportCollection imports,
+                string firstImport,
+                string conditional,
+                string[] importsIfTrue,
+                string[] importsIfFalse,
+                string lastImport);
 
         CodeThisReferenceExpression thisReference = new CodeThisReferenceExpression();
 
@@ -89,11 +63,19 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
 
             _namespace.Imports.Add(new CodeNamespaceImport("System"));
             _namespace.Imports.Add(new CodeNamespaceImport("System.ComponentModel"));
+#if MONO_STRICT
             _namespace.Imports.Add(new CodeNamespaceImport("System.Data"));
+            _namespace.Imports.Add(new CodeNamespaceImport("System.Data.Linq"));
             _namespace.Imports.Add(new CodeNamespaceImport("System.Data.Linq.Mapping"));
+#else
+            AddConditionalImports(_namespace.Imports,
+                "System.Data",
+                "MONO_STRICT",
+                new[] { "System.Data.Linq" },
+                new[] { "DbLinq.Data.Linq", "DbLinq.Vendor" },
+                "System.Data.Linq.Mapping");
+#endif
             _namespace.Imports.Add(new CodeNamespaceImport("System.Diagnostics"));
-            _namespace.Imports.Add(new CodeNamespaceImport("DbLinq.Linq"));
-            _namespace.Imports.Add(new CodeNamespaceImport("DbLinq.Linq.Mapping"));
 
             _namespace.Comments.Add(new CodeCommentStatement(GenerateCommentBanner(database)));
 
@@ -127,18 +109,27 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
 
         protected virtual CodeTypeDeclaration GenerateContextClass(Database database)
         {
-            var _class = new CodeTypeDeclaration() { IsClass = true, IsPartial = true, Name = database.Class, TypeAttributes = TypeAttributes.Public };
+            var _class = new CodeTypeDeclaration() {
+                IsClass         = true, 
+                IsPartial       = true, 
+                Name            = database.Class, 
+                TypeAttributes  = TypeAttributes.Public 
+            };
+            Console.WriteLine("# database.BaseType={0}", database.BaseType);
 
             if (database.BaseType != null)
                 _class.BaseTypes.Add(database.BaseType);
-            else // TODO: something with less risk
-                _class.BaseTypes.Add(String.Format("DbLinq.{0}.{0}DataContext", database.Provider));
+            else
+                _class.BaseTypes.Add(new CodeTypeReference("DataContext"));
 
             // CodeDom does not currently support partial methods.  This will be a problem for VB.  Will probably be fixed in .net 4
             _class.Members.Add(new CodeSnippetTypeMember("\tpartial void OnCreated();"));
 
             // Implement Constructor
-            var constructor = new CodeConstructor() { Attributes = MemberAttributes.Public, Parameters = { new CodeParameterDeclarationExpression("IDbConnection", "connection") } };
+            var constructor = new CodeConstructor() {
+                Attributes = MemberAttributes.Public, 
+                Parameters = { new CodeParameterDeclarationExpression("IDbConnection", "connection") }, 
+            };
             constructor.BaseConstructorArgs.Add(new CodeArgumentReferenceExpression("connection"));
             constructor.Statements.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, "OnCreated")));
             _class.Members.Add(constructor);
