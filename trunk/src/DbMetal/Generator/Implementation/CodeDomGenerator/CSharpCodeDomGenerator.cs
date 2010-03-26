@@ -85,7 +85,7 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
                 comma = true;
                 methodDecl.Append(p.Type.BaseType).Append(" ").Append(p.Name);
             }
-            methodDecl.Append(");");
+            methodDecl.Append(");").Append(Environment.NewLine).Append("        ");
             return new CodeSnippetTypeMember(methodDecl.ToString());
         }
     }
