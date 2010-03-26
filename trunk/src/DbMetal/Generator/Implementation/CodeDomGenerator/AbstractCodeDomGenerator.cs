@@ -56,6 +56,7 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
                 string[] importsIfTrue,
                 string[] importsIfFalse,
                 string lastImport);
+        protected abstract CodeTypeMember CreatePartialMethod(string methodName, params CodeParameterDeclarationExpression[] parameters);
 
         public void Write(TextWriter textWriter, Database dbSchema, GenerationContext context)
         {
@@ -134,8 +135,7 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
                 : TypeLoader.Load(database.BaseType).Name;
             _class.BaseTypes.Add(contextBaseType);
 
-            // CodeDom does not currently support partial methods.  This will be a problem for VB.  Will probably be fixed in .net 4
-            _class.Members.Add(new CodeSnippetTypeMember("\tpartial void OnCreated();"));
+            _class.Members.Add(CreatePartialMethod("OnCreated"));
 
             // Implement Constructor
             var constructor = new CodeConstructor() {
@@ -151,17 +151,15 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
             foreach (Table table in database.Tables)
             {
                 var tableType = new CodeTypeReference(table.Member);
-                var property = new CodeMemberProperty() { Type = new CodeTypeReference("Table", tableType), Name = table.Member, Attributes = MemberAttributes.Public | MemberAttributes.Final };
-                property.GetStatements.Add
-                    (
-                    new CodeMethodReturnStatement
-                        (
-                        new CodeMethodInvokeExpression
-                            (
-                            new CodeMethodReferenceExpression(thisReference, "GetTable", tableType)
-                            )
-                        )
-                    );
+                var property = new CodeMemberProperty() {
+                    Attributes  = MemberAttributes.Public | MemberAttributes.Final,
+                    Name        = table.Member, 
+                    Type        = new CodeTypeReference("Table", tableType), 
+                };
+                property.GetStatements.Add(
+                    new CodeMethodReturnStatement(
+                        new CodeMethodInvokeExpression(
+                            new CodeMethodReferenceExpression(thisReference, "GetTable", tableType))));
                 _class.Members.Add(property);
             }
 
@@ -174,40 +172,15 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
 
             _class.CustomAttributes.Add(new CodeAttributeDeclaration("Table", new CodeAttributeArgument("Name", new CodePrimitiveExpression(table.Name))));
 
+            GenerateINotifyPropertyChanging(_class);
+            GenerateINotifyPropertyChanged(_class);
+
             // Implement Constructor
             var constructor = new CodeConstructor() { Attributes = MemberAttributes.Public };
             constructor.Statements.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, "OnCreated")));
             _class.Members.Add(constructor);
 
-            // todo: implement INotifyPropertyChanging
-
-            // Implement INotifyPropertyChanged
-            _class.BaseTypes.Add(typeof(INotifyPropertyChanged));
-
-            var propertyChangedEvent = new CodeMemberEvent() { Type = new CodeTypeReference(typeof(PropertyChangedEventHandler)), Name = "PropertyChanged", Attributes = MemberAttributes.Public };
-            _class.Members.Add(propertyChangedEvent);
-
-            var sendPropertyChangedMethod = new CodeMemberMethod() { Attributes = MemberAttributes.Family, Name = "SendPropertyChanged", Parameters = { new CodeParameterDeclarationExpression(typeof(System.String), "propertyName") } };
-            sendPropertyChangedMethod.Statements.Add
-                (
-                new CodeConditionStatement
-                    (
-                    new CodeSnippetExpression(propertyChangedEvent.Name + " != null"), // todo: covert this to CodeBinaryOperatorExpression
-                    new CodeExpressionStatement
-                        (
-                        new CodeMethodInvokeExpression
-                            (
-                            new CodeMethodReferenceExpression(thisReference, propertyChangedEvent.Name),
-                            thisReference,
-                            new CodeObjectCreateExpression(typeof(PropertyChangedEventArgs), new CodeArgumentReferenceExpression("propertyName"))
-                            )
-                        )
-                    )
-                );
-            _class.Members.Add(sendPropertyChangedMethod);
-
-            // CodeDom does not currently support partial methods.  This will be a problem for VB.  Will probably be fixed in .net 4
-            _class.Members.Add(new CodeSnippetTypeMember("\tpartial void OnCreated();"));
+            _class.Members.Add(CreatePartialMethod("OnCreated"));
 
             // todo: add these when the actually get called
             //partial void OnLoaded();
@@ -223,41 +196,33 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
                 _class.Members.Add(field);
                 var fieldReference = new CodeFieldReferenceExpression(new CodeThisReferenceExpression(), field.Name);
 
-                // CodeDom does not currently support partial methods.  This will be a problem for VB.  Will probably be fixed in .net 4
-                string onChangingPartialMethodName = String.Format("On{0}Changing", columnMember);
-                _class.Members.Add(new CodeSnippetTypeMember(String.Format("\tpartial void {0}({1} instance);", onChangingPartialMethodName, column.Type)));
-                string onChangedPartialMethodName = String.Format("On{0}Changed", columnMember);
-                _class.Members.Add(new CodeSnippetTypeMember(String.Format("\tpartial void {0}();", onChangedPartialMethodName)));
+                var onChanging  = string.Format("On{0}Changing", columnMember);
+                var onChanged   = string.Format("On{0}Changed", columnMember);
+                _class.Members.Add(CreatePartialMethod(onChanging,
+                    new CodeParameterDeclarationExpression(column.Type, "value")));
+                _class.Members.Add(CreatePartialMethod(onChanged));
 
                 var property = new CodeMemberProperty();
                 property.Type = type;
                 property.Name = columnMember;
                 property.Attributes = MemberAttributes.Public | MemberAttributes.Final;
-                property.CustomAttributes.Add
-                    (
-                    new CodeAttributeDeclaration
-                        (
+                property.CustomAttributes.Add(
+                    new CodeAttributeDeclaration(
                         "Column",
                         new CodeAttributeArgument("Storage", new CodePrimitiveExpression(column.Storage)),
                         new CodeAttributeArgument("Name", new CodePrimitiveExpression(column.Name)),
                         new CodeAttributeArgument("DbType", new CodePrimitiveExpression(column.DbType)),
                         new CodeAttributeArgument("CanBeNull", new CodePrimitiveExpression(column.CanBeNull)),
-                        new CodeAttributeArgument("IsPrimaryKey", new CodePrimitiveExpression(column.IsPrimaryKey))
-                        )
-                    );
+                        new CodeAttributeArgument("IsPrimaryKey", new CodePrimitiveExpression(column.IsPrimaryKey))));
                 property.CustomAttributes.Add(new CodeAttributeDeclaration("DebuggerNonUserCode"));
                 property.GetStatements.Add(new CodeMethodReturnStatement(fieldReference));
-                property.SetStatements.Add
-                    (
-                    new CodeConditionStatement
-                        (
-                        new CodeSnippetExpression(field.Name + " != value"), // todo: covert this to CodeBinaryOperatorExpression
-                        new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, onChangingPartialMethodName, new CodePropertySetValueReferenceExpression())),
+                property.SetStatements.Add(
+                    new CodeConditionStatement(
+                        new CodeBinaryOperatorExpression(new CodeVariableReferenceExpression(field.Name), CodeBinaryOperatorType.IdentityInequality, new CodePropertySetValueReferenceExpression()),
+                        new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, onChanging, new CodePropertySetValueReferenceExpression())),
                         new CodeAssignStatement(fieldReference, new CodePropertySetValueReferenceExpression()),
-                        new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, sendPropertyChangedMethod.Name, new CodePrimitiveExpression(property.Name))),
-                        new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, onChangedPartialMethodName))
-                        )
-                    );
+                        new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, "SendPropertyChanged", new CodePrimitiveExpression(property.Name))),
+                        new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, onChanged))));
                 _class.Members.Add(property);
             }
 
@@ -268,6 +233,69 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
             // TODO: Override Equals and GetHashCode
 
             return _class;
+        }
+
+        private void GenerateINotifyPropertyChanging(CodeTypeDeclaration entity)
+        {
+            entity.BaseTypes.Add(typeof(INotifyPropertyChanging));
+            var propertyChangingEvent = new CodeMemberEvent() {
+                Attributes  = MemberAttributes.Public,
+                Name        = "PropertyChanging",
+                Type        = new CodeTypeReference(typeof(PropertyChangingEventHandler)),
+                ImplementationTypes = {
+                    new CodeTypeReference(typeof(INotifyPropertyChanging))
+                },
+            };
+            var eventArgs = new CodeMemberField(new CodeTypeReference(typeof(PropertyChangingEventArgs)), "emptyChangingEventArgs") {
+                Attributes      = MemberAttributes.Static | MemberAttributes.Private,
+                InitExpression  = new CodeObjectCreateExpression(new CodeTypeReference(typeof(PropertyChangingEventArgs)),
+                    new CodePrimitiveExpression("")),
+            };
+            var method = new CodeMemberMethod() {
+                Attributes  = MemberAttributes.Family,
+                Name        = "SendPropertyChanging",
+            };
+            method.Statements.Add(new CodeVariableDeclarationStatement(typeof(PropertyChangingEventHandler), "h") {
+                InitExpression  = new CodeEventReferenceExpression(thisReference, "PropertyChanging"),
+            });
+            method.Statements.Add(new CodeConditionStatement(
+                    new CodeBinaryOperatorExpression(new CodeVariableReferenceExpression("h"), CodeBinaryOperatorType.IdentityInequality, new CodePrimitiveExpression(null)),
+                    new CodeExpressionStatement(
+                        new CodeDelegateInvokeExpression(new CodeVariableReferenceExpression("h"), thisReference, new CodeFieldReferenceExpression(null, "emptyChangingEventArgs")))));
+
+            entity.Members.Add(propertyChangingEvent);
+            entity.Members.Add(eventArgs);
+            entity.Members.Add(method);
+        }
+
+        private void GenerateINotifyPropertyChanged(CodeTypeDeclaration entity)
+        {
+            entity.BaseTypes.Add(typeof(INotifyPropertyChanged));
+
+            var propertyChangedEvent = new CodeMemberEvent() {
+                Attributes = MemberAttributes.Public,
+                Name = "PropertyChanged",
+                Type = new CodeTypeReference(typeof(PropertyChangedEventHandler)),
+                ImplementationTypes = {
+                    new CodeTypeReference(typeof(INotifyPropertyChanged))
+                },
+            };
+
+            var method = new CodeMemberMethod() { 
+                Attributes = MemberAttributes.Family, 
+                Name = "SendPropertyChanged", 
+                Parameters = { new CodeParameterDeclarationExpression(typeof(System.String), "propertyName") } 
+            };
+            method.Statements.Add(new CodeVariableDeclarationStatement(typeof(PropertyChangedEventHandler), "h") {
+                InitExpression = new CodeEventReferenceExpression(thisReference, "PropertyChanged"),
+            });
+            method.Statements.Add(new CodeConditionStatement(
+                    new CodeBinaryOperatorExpression(new CodeVariableReferenceExpression("h"), CodeBinaryOperatorType.IdentityInequality, new CodePrimitiveExpression(null)),
+                    new CodeExpressionStatement(
+                        new CodeDelegateInvokeExpression(new CodeVariableReferenceExpression("h"), thisReference, new CodeObjectCreateExpression(typeof(PropertyChangedEventArgs), new CodeVariableReferenceExpression("propertyName"))))));
+
+            entity.Members.Add(propertyChangedEvent);
+            entity.Members.Add(method);
         }
     }
 }

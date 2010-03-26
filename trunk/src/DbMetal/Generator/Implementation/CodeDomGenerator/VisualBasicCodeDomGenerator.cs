@@ -62,15 +62,32 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
             block.Append(firstImport).Append(Environment.NewLine);
             block.Append("#If ").Append(conditional).Append(" Then").Append(Environment.NewLine);
             foreach (var ns in importsIfTrue)
-                block.Append("    Imports ").Append(ns).Append(Environment.NewLine);
+                block.Append("Imports ").Append(ns).Append(Environment.NewLine);
             block.Append("#Else     ' ").Append(conditional).Append(Environment.NewLine);
             foreach (var ns in importsIfFalse)
-                block.Append("    Imports ").Append(ns).Append(Environment.NewLine);
+                block.Append("Imports ").Append(ns).Append(Environment.NewLine);
             block.Append("#End If   ' ").Append(conditional).Append(Environment.NewLine);
-            block.Append("    Imports ").Append(lastImport);
+            block.Append("Imports ").Append(lastImport);
             // No newline, as GenerateNamespaceImport() writes it.
 
             imports.Add(new CodeNamespaceImport(block.ToString()));
+        }
+
+        protected override CodeTypeMember CreatePartialMethod(string methodName, params CodeParameterDeclarationExpression[] parameters)
+        {
+            var methodDecl = new StringBuilder();
+            methodDecl.Append("        Partial Private Sub ").Append(methodName).Append("(");
+            bool comma = false;
+            foreach (var p in parameters)
+            {
+                if (comma)
+                    methodDecl.Append(", ");
+                comma = true;
+                methodDecl.Append("ByVal ").Append(p.Name).Append(" As ").Append(p.Type.BaseType);
+            }
+            methodDecl.Append(")").Append(Environment.NewLine);
+            methodDecl.Append("        End Sub").Append(Environment.NewLine);
+            return new CodeSnippetTypeMember(methodDecl.ToString());
         }
     }
 }
