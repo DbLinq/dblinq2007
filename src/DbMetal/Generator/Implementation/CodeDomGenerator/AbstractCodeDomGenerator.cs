@@ -135,7 +135,10 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
                 : TypeLoader.Load(database.BaseType).Name;
             _class.BaseTypes.Add(contextBaseType);
 
-            _class.Members.Add(CreatePartialMethod("OnCreated"));
+            var onCreated = CreatePartialMethod("OnCreated");
+            onCreated.StartDirectives.Add(new CodeRegionDirective(CodeRegionMode.Start, "Extensibility Method Declarations"));
+            onCreated.EndDirectives.Add(new CodeRegionDirective(CodeRegionMode.End, null));
+            _class.Members.Add(onCreated);
 
             // Implement Constructor
             var constructor = new CodeConstructor() {
@@ -180,7 +183,7 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
             constructor.Statements.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, "OnCreated")));
             _class.Members.Add(constructor);
 
-            _class.Members.Add(CreatePartialMethod("OnCreated"));
+            GenerateExtensibilityDeclarations(_class, table);
 
             // todo: add these when the actually get called
             //partial void OnLoaded();
@@ -196,11 +199,8 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
                 _class.Members.Add(field);
                 var fieldReference = new CodeFieldReferenceExpression(new CodeThisReferenceExpression(), field.Name);
 
-                var onChanging  = string.Format("On{0}Changing", columnMember);
-                var onChanged   = string.Format("On{0}Changed", columnMember);
-                _class.Members.Add(CreatePartialMethod(onChanging,
-                    new CodeParameterDeclarationExpression(column.Type, "value")));
-                _class.Members.Add(CreatePartialMethod(onChanged));
+                var onChanging  = GetChangingMethodName(columnMember);
+                var onChanged   = GetChangedMethodName(columnMember);
 
                 var property = new CodeMemberProperty();
                 property.Type = type;
@@ -233,6 +233,37 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
             // TODO: Override Equals and GetHashCode
 
             return _class;
+        }
+
+        void GenerateExtensibilityDeclarations(CodeTypeDeclaration entity, Table table)
+        {
+            var partialMethods = new[] { CreatePartialMethod("OnCreated") }
+                .Concat(table.Type.Columns.Select(c => new[] { CreateChangedMethodDecl(c), CreateChangingMethodDecl(c) })
+                    .SelectMany(md => md)).ToArray();
+            partialMethods.First().StartDirectives.Add(new CodeRegionDirective(CodeRegionMode.Start, "Extensibility Method Declarations"));
+            partialMethods.Last().EndDirectives.Add(new CodeRegionDirective(CodeRegionMode.End, null));
+            entity.Members.AddRange(partialMethods);
+        }
+
+        static string GetChangedMethodName(string columnName)
+        {
+            return string.Format("On{0}Changed", columnName);
+        }
+
+        CodeTypeMember CreateChangedMethodDecl(Column column)
+        {
+            return CreatePartialMethod(GetChangedMethodName(column.Name));
+        }
+
+        static string GetChangingMethodName(string columnName)
+        {
+            return string.Format("On{0}Changing", columnName);
+        }
+
+        CodeTypeMember CreateChangingMethodDecl(Column column)
+        {
+            return CreatePartialMethod(GetChangingMethodName(column.Name),
+                    new CodeParameterDeclarationExpression(column.Type, "value"));
         }
 
         private void GenerateINotifyPropertyChanging(CodeTypeDeclaration entity)
