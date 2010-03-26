@@ -167,13 +167,13 @@ namespace DbMetal.Generator.Implementation
         protected virtual ICodeGenerator FindCodeGeneratorByLanguage(string languageCode)
         {
             return (from codeGenerator in EnumerateCodeGenerators()
-                    where codeGenerator.LanguageCode == languageCode
+                    where codeGenerator.LanguageCode == languageCode.ToLowerInvariant()
                     select codeGenerator).SingleOrDefault();
         }
 
         protected virtual ICodeGenerator FindCodeGeneratorByExtension(string extension)
         {
-            return EnumerateCodeGenerators().SingleOrDefault(gen => gen.Extension == extension);
+            return EnumerateCodeGenerators().SingleOrDefault(gen => gen.Extension == extension.ToLowerInvariant());
         }
 
         public virtual ICodeGenerator FindCodeGenerator(Parameters parameters, string filename)
