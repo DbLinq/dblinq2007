@@ -39,7 +39,7 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
 #endif
     class CSharpCodeDomGenerator: AbstractCodeDomGenerator
     {
-        public override string LanguageCode { get { return "C#2"; } }
+        public override string LanguageCode { get { return "c#2"; } }
         public override string Extension { get { return ".cs2"; } }
 
         protected override CodeDomProvider CreateProvider()

@@ -39,7 +39,7 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
 #endif
     class VisualBasicCodeDomGenerator : AbstractCodeDomGenerator
     {
-        public override string LanguageCode { get { return "VB"; } }
+        public override string LanguageCode { get { return "vb"; } }
         public override string Extension { get { return ".vb"; } }
 
         protected override CodeDomProvider CreateProvider()
