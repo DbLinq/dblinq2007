@@ -38,6 +38,7 @@ using Microsoft.VisualBasic;
 
 using DbLinq.Schema.Dbml;
 using DbLinq.Util;
+using System.Data.Linq.Mapping;
 
 namespace DbMetal.Generator.Implementation.CodeDomGenerator
 {
@@ -195,7 +196,7 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
                 var type = new CodeTypeReference(column.Type);
                 var columnMember = column.Member ?? column.Name;
 
-                var field = new CodeMemberField(type, "_" + columnMember);
+                var field = new CodeMemberField(type, column.Storage);
                 _class.Members.Add(field);
                 var fieldReference = new CodeFieldReferenceExpression(new CodeThisReferenceExpression(), field.Name);
 
@@ -206,20 +207,31 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
                 property.Type = type;
                 property.Name = columnMember;
                 property.Attributes = MemberAttributes.Public | MemberAttributes.Final;
+
+                var defAttrValues = new ColumnAttribute();
+                var args = new List<CodeAttributeArgument>() {
+                    new CodeAttributeArgument("Storage", new CodePrimitiveExpression(column.Storage)),
+                    new CodeAttributeArgument("Name", new CodePrimitiveExpression(column.Name)),
+                    new CodeAttributeArgument("DbType", new CodePrimitiveExpression(column.DbType)),
+                };
+                if (defAttrValues.IsPrimaryKey != column.IsPrimaryKey)
+                    args.Add(new CodeAttributeArgument("IsPrimaryKey", new CodePrimitiveExpression(column.IsPrimaryKey)));
+                if (column.AutoSync != DbLinq.Schema.Dbml.AutoSync.Default)
+                    args.Add(new CodeAttributeArgument("AutoSync", 
+                        new CodeFieldReferenceExpression(new CodeTypeReferenceExpression("AutoSync"), column.AutoSync.ToString())));
+                if (defAttrValues.CanBeNull != column.CanBeNull)
+                    args.Add(new CodeAttributeArgument("CanBeNull", new CodePrimitiveExpression(column.CanBeNull)));
+                if (column.Expression != null)
+                    args.Add(new CodeAttributeArgument("Expression", new CodePrimitiveExpression(column.Expression)));
                 property.CustomAttributes.Add(
-                    new CodeAttributeDeclaration(
-                        "Column",
-                        new CodeAttributeArgument("Storage", new CodePrimitiveExpression(column.Storage)),
-                        new CodeAttributeArgument("Name", new CodePrimitiveExpression(column.Name)),
-                        new CodeAttributeArgument("DbType", new CodePrimitiveExpression(column.DbType)),
-                        new CodeAttributeArgument("CanBeNull", new CodePrimitiveExpression(column.CanBeNull)),
-                        new CodeAttributeArgument("IsPrimaryKey", new CodePrimitiveExpression(column.IsPrimaryKey))));
+                    new CodeAttributeDeclaration("Column", args.ToArray()));
                 property.CustomAttributes.Add(new CodeAttributeDeclaration("DebuggerNonUserCode"));
                 property.GetStatements.Add(new CodeMethodReturnStatement(fieldReference));
                 property.SetStatements.Add(
                     new CodeConditionStatement(
                         new CodeBinaryOperatorExpression(new CodeVariableReferenceExpression(field.Name), CodeBinaryOperatorType.IdentityInequality, new CodePropertySetValueReferenceExpression()),
                         new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, onChanging, new CodePropertySetValueReferenceExpression())),
+                        new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, "SendPropertyChanging")),
                         new CodeAssignStatement(fieldReference, new CodePropertySetValueReferenceExpression()),
                         new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, "SendPropertyChanged", new CodePrimitiveExpression(property.Name))),
                         new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, onChanged))));
