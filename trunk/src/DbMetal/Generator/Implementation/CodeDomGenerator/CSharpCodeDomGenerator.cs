@@ -72,21 +72,5 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
 
             imports.Add(new CodeNamespaceImport(block.ToString()));
         }
-
-        protected override CodeTypeMember CreatePartialMethod(string methodName, params CodeParameterDeclarationExpression[] parameters)
-        {
-            var methodDecl = new StringBuilder();
-            methodDecl.Append("        partial void ").Append(methodName).Append("(");
-            bool comma = false;
-            foreach (var p in parameters)
-            {
-                if (comma)
-                    methodDecl.Append(", ");
-                comma = true;
-                methodDecl.Append(p.Type.BaseType).Append(" ").Append(p.Name);
-            }
-            methodDecl.Append(");").Append(Environment.NewLine).Append("        ");
-            return new CodeSnippetTypeMember(methodDecl.ToString());
-        }
     }
 }
