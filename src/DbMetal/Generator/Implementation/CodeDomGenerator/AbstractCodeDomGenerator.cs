@@ -424,10 +424,26 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
                 property.CustomAttributes.Add(
                     new CodeAttributeDeclaration("Column", args.ToArray()));
                 property.CustomAttributes.Add(new CodeAttributeDeclaration("DebuggerNonUserCode"));
+
                 property.GetStatements.Add(new CodeMethodReturnStatement(fieldReference));
+
+                var fieldType = TypeLoader.Load(column.Type);
+                // This is needed for VB.NET generation; 
+                // int/string/etc. can use '<>' for comparison, but NOT arrays and other reference types.
+                // arrays/etc. require the 'Is' operator, which is CodeBinaryOperatorType.IdentityEquality.
+                // The VB IsNot operator is not exposed from CodeDom.
+                // Thus, we need to special-case: if fieldType is a ref or nullable type,
+                //  generate '(field Is value) = false'; otherwise, 
+                //  generate '(field <> value)'
+                CodeBinaryOperatorExpression condition = fieldType.IsClass || fieldType.IsNullable()
+                    ? new CodeBinaryOperatorExpression(
+                        new CodeBinaryOperatorExpression(new CodeVariableReferenceExpression(field.Name), CodeBinaryOperatorType.IdentityEquality, new CodePropertySetValueReferenceExpression()),
+                        CodeBinaryOperatorType.ValueEquality,
+                        new CodePrimitiveExpression(false))
+                    : new CodeBinaryOperatorExpression(new CodeVariableReferenceExpression(field.Name), CodeBinaryOperatorType.IdentityInequality, new CodePropertySetValueReferenceExpression());
                 property.SetStatements.Add(
                     new CodeConditionStatement(
-                        new CodeBinaryOperatorExpression(new CodeVariableReferenceExpression(field.Name), CodeBinaryOperatorType.IdentityInequality, new CodePropertySetValueReferenceExpression()),
+                        condition,
                         new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, onChanging, new CodePropertySetValueReferenceExpression())),
                         new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, "SendPropertyChanging")),
                         new CodeAssignStatement(fieldReference, new CodePropertySetValueReferenceExpression()),
