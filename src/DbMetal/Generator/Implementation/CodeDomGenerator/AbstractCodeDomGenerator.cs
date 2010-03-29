@@ -95,6 +95,10 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
             _namespace.Comments.Add(header);
 
             _namespace.Types.Add(GenerateContextClass(database));
+#if !MONO_STRICT
+            _namespace.Types.Add(GenerateMonoStrictContextConstructors(database));
+            _namespace.Types.Add(GenerateNotMonoStrictContextConstructors(database));
+#endif
 
             foreach (Table table in database.Tables)
                 _namespace.Types.Add(GenerateTableClass(table));
@@ -142,15 +146,7 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
             _class.Members.Add(onCreated);
 
             // Implement Constructor
-            var constructor = new CodeConstructor() {
-                Attributes = MemberAttributes.Public, 
-                Parameters = { new CodeParameterDeclarationExpression("IDbConnection", "connection") }, 
-            };
-            constructor.BaseConstructorArgs.Add(new CodeArgumentReferenceExpression("connection"));
-            constructor.Statements.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, "OnCreated")));
-            _class.Members.Add(constructor);
-
-            // todo: override other constructors
+            GenerateContextConstructors(_class, database);
 
             foreach (Table table in database.Tables)
             {
@@ -168,6 +164,167 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
             }
 
             return _class;
+        }
+
+        void GenerateContextConstructors(CodeTypeDeclaration contextType, Database database)
+        {
+            // .ctor(string connectionString);
+            var constructor = new CodeConstructor() {
+                Attributes = MemberAttributes.Public,
+                Parameters = { new CodeParameterDeclarationExpression(typeof(string), "connectionString") },
+            };
+            constructor.BaseConstructorArgs.Add(new CodeArgumentReferenceExpression("connectionString"));
+            constructor.Statements.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, "OnCreated")));
+            contextType.Members.Add(constructor);
+
+#if MONO_STRICT
+            // .ctor(IDbConnection connection);
+            constructor = new CodeConstructor() {
+                Attributes = MemberAttributes.Public,
+                Parameters = { new CodeParameterDeclarationExpression("IDbConnection", "connection") },
+            };
+            constructor.BaseConstructorArgs.Add(new CodeArgumentReferenceExpression("connection"));
+            constructor.Statements.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, "OnCreated")));
+            contextType.Members.Add(constructor);
+#endif
+
+            // .ctor(string connection, MappingSource mappingSource);
+            constructor = new CodeConstructor() {
+                Attributes = MemberAttributes.Public,
+                Parameters = { 
+                    new CodeParameterDeclarationExpression(typeof(string), "connection"),
+                    new CodeParameterDeclarationExpression("MappingSource", "mappingSource"),
+                },
+            };
+            constructor.BaseConstructorArgs.Add(new CodeArgumentReferenceExpression("connection"));
+            constructor.BaseConstructorArgs.Add(new CodeArgumentReferenceExpression("mappingSource"));
+            constructor.Statements.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, "OnCreated")));
+            contextType.Members.Add(constructor);
+
+            // .ctor(IDbConnection connection, MappingSource mappingSource);
+            constructor = new CodeConstructor() {
+                Attributes = MemberAttributes.Public,
+                Parameters = { 
+                    new CodeParameterDeclarationExpression("IDbConnection", "connection"),
+                    new CodeParameterDeclarationExpression("MappingSource", "mappingSource"),
+                },
+            };
+            constructor.BaseConstructorArgs.Add(new CodeArgumentReferenceExpression("connection"));
+            constructor.BaseConstructorArgs.Add(new CodeArgumentReferenceExpression("mappingSource"));
+            constructor.Statements.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, "OnCreated")));
+            contextType.Members.Add(constructor);
+        }
+
+        CodeTypeDeclaration GenerateMonoStrictContextConstructors(Database database)
+        {
+            var contextType = new CodeTypeDeclaration()
+            {
+                IsClass         = true,
+                IsPartial       = true,
+                Name            = database.Class,
+                TypeAttributes  = TypeAttributes.Public
+            };
+            AddConditionalIfElseBlocks(contextType, "MONO_STRICT");
+
+            // .ctor(IDbConnection connection);
+            var constructor = new CodeConstructor() {
+                Attributes = MemberAttributes.Public,
+                Parameters = { new CodeParameterDeclarationExpression("IDbConnection", "connection") },
+            };
+            constructor.BaseConstructorArgs.Add(new CodeArgumentReferenceExpression("connection"));
+            constructor.Statements.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, "OnCreated")));
+            contextType.Members.Add(constructor);
+
+            return contextType;
+        }
+
+        void AddConditionalIfElseBlocks(CodeTypeMember member, string condition)
+        {
+            string startIf = null, elseIf = null;
+            if (CreateProvider() is CSharpCodeProvider)
+            {
+                startIf = string.Format("Start {0}{1}#if {0}{1}", condition, Environment.NewLine);
+                elseIf  = string.Format("End {0}{1}    #endregion{1}#else     // {0}", condition, Environment.NewLine);
+            }
+            if (CreateProvider() is VBCodeProvider)
+            {
+                startIf = string.Format("Start {0}\"{1}#If {0} Then{1}    '", condition, Environment.NewLine);
+                elseIf  = string.Format("End {0}\"{1}    #End Region{1}#Else     ' {0}", condition, Environment.NewLine);
+            }
+            if (startIf != null && elseIf != null)
+            {
+                member.StartDirectives.Add(new CodeRegionDirective(CodeRegionMode.Start, startIf));
+                member.EndDirectives.Add(new CodeRegionDirective(CodeRegionMode.Start, elseIf));
+            }
+        }
+
+        void AddConditionalEndifBlocks(CodeTypeMember member, string condition)
+        {
+            string endIf = null;
+            if (CreateProvider() is CSharpCodeProvider)
+            {
+                endIf   = string.Format("End Not {0}{1}    #endregion{1}#endif     // {0}", condition, Environment.NewLine);
+            }
+            if (CreateProvider() is VBCodeProvider)
+            {
+                endIf   = string.Format("End Not {0}\"{1}    #End Region{1}#End If     ' {0}", condition, Environment.NewLine);
+            }
+            if (endIf != null)
+            {
+                member.EndDirectives.Add(new CodeRegionDirective(CodeRegionMode.Start, endIf));
+                member.EndDirectives.Add(new CodeRegionDirective(CodeRegionMode.End, null));
+            }
+        }
+
+        CodeTypeDeclaration GenerateNotMonoStrictContextConstructors(Database database)
+        {
+            var contextType = new CodeTypeDeclaration() {
+                IsClass         = true,
+                IsPartial       = true,
+                Name            = database.Class,
+                TypeAttributes  = TypeAttributes.Public
+            };
+            AddConditionalEndifBlocks(contextType, "MONO_STRICT");
+
+            // .ctor(IDbConnection connection);
+            var constructor = new CodeConstructor() {
+                Attributes = MemberAttributes.Public,
+                Parameters = { new CodeParameterDeclarationExpression("IDbConnection", "connection") },
+            };
+            constructor.BaseConstructorArgs.Add(new CodeArgumentReferenceExpression("connection"));
+            constructor.BaseConstructorArgs.Add(new CodeObjectCreateExpression(Context.SchemaLoader.Vendor.GetType()));
+            constructor.Statements.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, "OnCreated")));
+            contextType.Members.Add(constructor);
+
+            // .ctor(IDbConnection connection, IVendor mappingSource);
+            constructor = new CodeConstructor() {
+                Attributes = MemberAttributes.Public,
+                Parameters = {
+                    new CodeParameterDeclarationExpression("IDbConnection", "connection"),
+                    new CodeParameterDeclarationExpression("IVendor", "sqlDialect"),
+                },
+            };
+            constructor.BaseConstructorArgs.Add(new CodeArgumentReferenceExpression("connection"));
+            constructor.BaseConstructorArgs.Add(new CodeArgumentReferenceExpression("sqlDialect"));
+            constructor.Statements.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, "OnCreated")));
+            contextType.Members.Add(constructor);
+
+            // .ctor(IDbConnection connection, MappingSource mappingSource, IVendor mappingSource);
+            constructor = new CodeConstructor() {
+                Attributes = MemberAttributes.Public,
+                Parameters = {
+                    new CodeParameterDeclarationExpression("IDbConnection", "connection"),
+                    new CodeParameterDeclarationExpression("MappingSource", "mappingSource"),
+                    new CodeParameterDeclarationExpression("IVendor", "sqlDialect"),
+                },
+            };
+            constructor.BaseConstructorArgs.Add(new CodeArgumentReferenceExpression("connection"));
+            constructor.BaseConstructorArgs.Add(new CodeArgumentReferenceExpression("mappingSource"));
+            constructor.BaseConstructorArgs.Add(new CodeArgumentReferenceExpression("sqlDialect"));
+            constructor.Statements.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, "OnCreated")));
+            contextType.Members.Add(constructor);
+
+            return contextType;
         }
 
         protected virtual CodeTypeDeclaration GenerateTableClass(Table table)
