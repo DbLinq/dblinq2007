@@ -57,13 +57,54 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
                 string[] importsIfTrue,
                 string[] importsIfFalse,
                 string lastImport);
-        protected abstract CodeTypeMember CreatePartialMethod(string methodName, params CodeParameterDeclarationExpression[] parameters);
 
         public void Write(TextWriter textWriter, Database dbSchema, GenerationContext context)
         {
             Context = context;
             CreateProvider().CreateGenerator(textWriter).GenerateCodeFromNamespace(
                 GenerateCodeDomModel(dbSchema), textWriter, new CodeGeneratorOptions() { BracingStyle = "C" });
+        }
+
+        private CodeTypeMember CreatePartialMethod(string methodName, params CodeParameterDeclarationExpression[] parameters)
+        {
+            var provider = CreateProvider();
+
+            string prototype = null;
+            if (provider is CSharpCodeProvider)
+            {
+                prototype =
+                    "        partial void {0}({1});" + Environment.NewLine +
+                    "        ";
+            }
+            else if (provider is VBCodeProvider)
+            {
+                prototype =
+                    "        Partial Private Sub {0}({1})" + Environment.NewLine +
+                    "        End Sub" + Environment.NewLine +
+                    "        ";
+            }
+
+            if (prototype == null)
+            {
+                var method = new CodeMemberMethod() {
+                    Name = methodName,
+                };
+                method.Parameters.AddRange(parameters);
+                return method;
+            }
+
+            var methodDecl = new StringWriter();
+            var gen = provider.CreateGenerator(methodDecl);
+
+            bool comma = false;
+            foreach (var p in parameters)
+            {
+                if (comma)
+                    methodDecl.Write(", ");
+                comma = true;
+                gen.GenerateCodeFromExpression(p, methodDecl, null);
+            }
+            return new CodeSnippetTypeMember(string.Format(prototype, methodName, methodDecl.ToString()));
         }
 
         CodeThisReferenceExpression thisReference = new CodeThisReferenceExpression();
