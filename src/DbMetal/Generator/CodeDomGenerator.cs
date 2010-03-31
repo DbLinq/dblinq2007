@@ -37,6 +37,7 @@ using Microsoft.CSharp;
 using Microsoft.VisualBasic;
 
 using DbLinq.Schema.Dbml;
+using DbLinq.Schema.Dbml.Adapter;
 using DbLinq.Util;
 using System.Data.Linq.Mapping;
 
@@ -457,6 +458,7 @@ namespace DbMetal.Generator
             var _class = new CodeTypeDeclaration() { IsClass = true, IsPartial = true, Name = table.Member, TypeAttributes = TypeAttributes.Public };
 
             _class.CustomAttributes.Add(new CodeAttributeDeclaration("Table", new CodeAttributeArgument("Name", new CodePrimitiveExpression(table.Name))));
+            WriteCustomTypes(_class, table);
 
             GenerateINotifyPropertyChanging(_class);
             GenerateINotifyPropertyChanged(_class);
@@ -543,6 +545,92 @@ namespace DbMetal.Generator
             // TODO: Override Equals and GetHashCode
 
             return _class;
+        }
+
+        void WriteCustomTypes(CodeTypeDeclaration entity, Table table)
+        {
+            // detect required custom types
+            foreach (var column in table.Type.Columns)
+            {
+                var extendedType = column.ExtendedType;
+                var enumType = extendedType as EnumType;
+                if (enumType != null)
+                {
+                    Context.ExtendedTypes[column] = new GenerationContext.ExtendedTypeAndName {
+                        Type = column.ExtendedType,
+                        Table = table
+                    };
+                }
+            }
+
+            var customTypesNames = new List<string>();
+
+            // create names and avoid conflits
+            foreach (var extendedTypePair in Context.ExtendedTypes)
+            {
+                if (extendedTypePair.Value.Table != table)
+                    continue;
+
+                if (string.IsNullOrEmpty(extendedTypePair.Value.Type.Name))
+                {
+                    string name = extendedTypePair.Key.Member + "Type";
+                    for (; ; )
+                    {
+                        if ((from t in Context.ExtendedTypes.Values where t.Type.Name == name select t).FirstOrDefault() == null)
+                        {
+                            extendedTypePair.Value.Type.Name = name;
+                            break;
+                        }
+                        // at 3rd loop, it will look ugly, however we will never go there
+                        name = extendedTypePair.Value.Table.Type.Name + name;
+                    }
+                }
+                customTypesNames.Add(extendedTypePair.Value.Type.Name);
+            }
+
+            // write custom types
+            if (customTypesNames.Count > 0)
+            {
+                var customTypes = new List<CodeTypeDeclaration>(customTypesNames.Count);
+
+                foreach (var extendedTypePair in Context.ExtendedTypes)
+                {
+                    if (extendedTypePair.Value.Table != table)
+                        continue;
+
+                    var extendedType = extendedTypePair.Value.Type;
+                    var enumValue = extendedType as EnumType;
+
+                    if (enumValue != null)
+                    {
+                        var enumType = new CodeTypeDeclaration(enumValue.Name) {
+                            TypeAttributes = TypeAttributes.Public,
+                            IsEnum = true,
+                        };
+                        customTypes.Add(enumType);
+                        var orderedValues = from nv in enumValue orderby nv.Value select nv;
+                        int currentValue = 1, counter = 0;
+                        foreach (var nameValue in orderedValues)
+                        {
+                            var field = new CodeMemberField() {
+                                Name = nameValue.Key,
+                            };
+                            enumType.Members.Add(field);
+                            if (nameValue.Value != currentValue)
+                            {
+                                currentValue = nameValue.Value;
+                                field.InitExpression = new CodePrimitiveExpression(nameValue.Value);
+                            }
+                            currentValue++;
+                        }
+                    }
+                }
+
+                customTypes.First().StartDirectives.Add(new CodeRegionDirective(CodeRegionMode.Start,
+                        string.Format("Custom type definitions for {0}", string.Join(", ", customTypesNames.ToArray()))));
+                customTypes.Last().EndDirectives.Add(new CodeRegionDirective(CodeRegionMode.End, null));
+                entity.Members.AddRange(customTypes.ToArray());
+            }
         }
 
         void GenerateExtensibilityDeclarations(CodeTypeDeclaration entity, Table table)
