@@ -42,35 +42,9 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
         public override string LanguageCode { get { return "c#2"; } }
         public override string Extension { get { return ".cs2"; } }
 
-        protected override CodeDomProvider CreateProvider()
+        public CSharpCodeDomGenerator()
+            : base(CodeDomProvider.CreateProvider("C#"))
         {
-            return CodeDomProvider.CreateProvider("C#");
-        }
-
-        protected override void AddConditionalImports(System.CodeDom.CodeNamespaceImportCollection imports, string firstImport, string conditional, string[] importsIfTrue, string[] importsIfFalse, string lastImport)
-        {
-            // HACK HACK HACK
-            // Would be better if CodeDom actually supported conditional compilation constructs...
-            // This is predecated upon CSharpCodeGenerator.GenerateNamespaceImport() being implemented as:
-            //      output.Write ("using ");
-            //      output.Write (GetSafeName (import.Namespace));
-            //      output.WriteLine (';');
-            // Thus, with "crafty" execution of the namespace, we can stuff arbitrary text in there...
-
-            var block = new StringBuilder();
-            // No 'using', as GenerateNamespaceImport() writes it.
-            block.Append(firstImport).Append(";").Append(Environment.NewLine);
-            block.Append("#if ").Append(conditional).Append(Environment.NewLine);
-            foreach (var ns in importsIfTrue)
-                block.Append("    using ").Append(ns).Append(";").Append(Environment.NewLine);
-            block.Append("#else   // ").Append(conditional).Append(Environment.NewLine);
-            foreach (var ns in importsIfFalse)
-                block.Append("    using ").Append(ns).Append(";").Append(Environment.NewLine);
-            block.Append("#endif  // ").Append(conditional).Append(Environment.NewLine);
-            block.Append("    using ").Append(lastImport);
-            // No ';', as GenerateNamespaceImport() writes it.
-
-            imports.Add(new CodeNamespaceImport(block.ToString()));
         }
     }
 }
