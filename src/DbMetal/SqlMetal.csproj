@@ -63,13 +63,11 @@
       <Link>Properties\DbLinq.ProductInfo.cs</Link>
     </Compile>
     <Compile Include="Generator\AttributeDefinition.cs" />
-    <Compile Include="Generator\Implementation\CodeDomGenerator\AbstractCodeDomGenerator.cs" />
+    <Compile Include="Generator\CodeDomGenerator.cs" />
     <Compile Include="Generator\EntityInterface\Implementation\INotifyPropertyChangedImplementation.cs" />
     <Compile Include="Generator\GenerationContext.cs" />
     <Compile Include="Generator\ICodeGenerator.cs" />
     <Compile Include="Generator\EntityInterface\Implementation\InterfaceImplementation.cs" />
-    <Compile Include="Generator\Implementation\CodeDomGenerator\VisualBasicCodeDomGenerator.cs" />
-    <Compile Include="Generator\Implementation\CodeDomGenerator\CSharpCodeDomGenerator.cs" />
     <Compile Include="Generator\Implementation\CodeTextGenerator\CodeGenerator.Class.cs" />
     <Compile Include="Generator\Implementation\CodeTextGenerator\CodeGenerator.Context.Ctor.cs" />
     <Compile Include="Generator\Implementation\CodeTextGenerator\CodeGenerator.cs" />

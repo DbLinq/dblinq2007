@@ -40,21 +40,41 @@ using DbLinq.Schema.Dbml;
 using DbLinq.Util;
 using System.Data.Linq.Mapping;
 
-namespace DbMetal.Generator.Implementation.CodeDomGenerator
+namespace DbMetal.Generator
 {
 #if !MONO_STRICT
     public
 #endif
-    abstract class AbstractCodeDomGenerator : ICodeGenerator
+    class CodeDomGenerator : ICodeGenerator
     {
-        public abstract string LanguageCode { get; }
-        public abstract string Extension { get; }
-
         CodeDomProvider Provider { get; set; }
 
-        public AbstractCodeDomGenerator(CodeDomProvider provider)
+        // Provided only for Processor.EnumerateCodeGenerators().  DO NOT USE.
+        public CodeDomGenerator()
+        {
+        }
+
+        public CodeDomGenerator(CodeDomProvider provider)
         {
             this.Provider = provider;
+        }
+
+        public string LanguageCode {
+            get { return "*"; }
+        }
+
+        public string Extension {
+            get { return "*"; }
+        }
+
+        public static CodeDomGenerator CreateFromFileExtension(string extension)
+        {
+            return CreateFromLanguage(CodeDomProvider.GetLanguageFromExtension(extension));
+        }
+
+        public static CodeDomGenerator CreateFromLanguage(string language)
+        {
+            return new CodeDomGenerator(CodeDomProvider.CreateProvider(language));
         }
 
         public void Write(TextWriter textWriter, Database dbSchema, GenerationContext context)

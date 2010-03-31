@@ -167,7 +167,7 @@ namespace DbMetal.Generator.Implementation
         protected virtual ICodeGenerator FindCodeGeneratorByLanguage(string languageCode)
         {
             return (from codeGenerator in EnumerateCodeGenerators()
-                    where codeGenerator.LanguageCode == languageCode.ToLowerInvariant()
+                    where codeGenerator.LanguageCode == languageCode
                     select codeGenerator).SingleOrDefault();
         }
 
@@ -185,9 +185,10 @@ namespace DbMetal.Generator.Implementation
 
         public void GenerateCode(Parameters parameters, Database dbSchema, ISchemaLoader schemaLoader, string filename)
         {
-            ICodeGenerator codeGenerator = FindCodeGenerator(parameters, filename);
-            if (codeGenerator == null)
-                throw new ArgumentException("Please specify either a /language or a /code file");
+            ICodeGenerator codeGenerator = FindCodeGenerator(parameters, filename) ??
+                (string.IsNullOrEmpty(parameters.Language)
+                    ? CodeDomGenerator.CreateFromFileExtension(Path.GetExtension(filename))
+                    : CodeDomGenerator.CreateFromLanguage(parameters.Language));
 
             if (string.IsNullOrEmpty(filename))
                 filename = dbSchema.Class;
