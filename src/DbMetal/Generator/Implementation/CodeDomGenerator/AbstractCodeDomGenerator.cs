@@ -50,33 +50,30 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
         public abstract string LanguageCode { get; }
         public abstract string Extension { get; }
 
-        protected abstract CodeDomProvider CreateProvider();
-        protected abstract void AddConditionalImports(CodeNamespaceImportCollection imports,
-                string firstImport,
-                string conditional,
-                string[] importsIfTrue,
-                string[] importsIfFalse,
-                string lastImport);
+        CodeDomProvider Provider { get; set; }
+
+        public AbstractCodeDomGenerator(CodeDomProvider provider)
+        {
+            this.Provider = provider;
+        }
 
         public void Write(TextWriter textWriter, Database dbSchema, GenerationContext context)
         {
             Context = context;
-            CreateProvider().CreateGenerator(textWriter).GenerateCodeFromNamespace(
+            Provider.CreateGenerator(textWriter).GenerateCodeFromNamespace(
                 GenerateCodeDomModel(dbSchema), textWriter, new CodeGeneratorOptions() { BracingStyle = "C" });
         }
 
         private CodeTypeMember CreatePartialMethod(string methodName, params CodeParameterDeclarationExpression[] parameters)
         {
-            var provider = CreateProvider();
-
             string prototype = null;
-            if (provider is CSharpCodeProvider)
+            if (Provider is CSharpCodeProvider)
             {
                 prototype =
                     "        partial void {0}({1});" + Environment.NewLine +
                     "        ";
             }
-            else if (provider is VBCodeProvider)
+            else if (Provider is VBCodeProvider)
             {
                 prototype =
                     "        Partial Private Sub {0}({1})" + Environment.NewLine +
@@ -94,7 +91,7 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
             }
 
             var methodDecl = new StringWriter();
-            var gen = provider.CreateGenerator(methodDecl);
+            var gen = Provider.CreateGenerator(methodDecl);
 
             bool comma = false;
             foreach (var p in parameters)
@@ -144,6 +141,73 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
             foreach (Table table in database.Tables)
                 _namespace.Types.Add(GenerateTableClass(table));
             return _namespace;
+        }
+
+        void AddConditionalImports(CodeNamespaceImportCollection imports,
+                string firstImport,
+                string conditional,
+                string[] importsIfTrue,
+                string[] importsIfFalse,
+                string lastImport)
+        {
+            if (Provider is CSharpCodeProvider)
+            {
+                // HACK HACK HACK
+                // Would be better if CodeDom actually supported conditional compilation constructs...
+                // This is predecated upon CSharpCodeGenerator.GenerateNamespaceImport() being implemented as:
+                //      output.Write ("using ");
+                //      output.Write (GetSafeName (import.Namespace));
+                //      output.WriteLine (';');
+                // Thus, with "crafty" execution of the namespace, we can stuff arbitrary text in there...
+
+                var block = new StringBuilder();
+                // No 'using', as GenerateNamespaceImport() writes it.
+                block.Append(firstImport).Append(";").Append(Environment.NewLine);
+                block.Append("#if ").Append(conditional).Append(Environment.NewLine);
+                foreach (var ns in importsIfTrue)
+                    block.Append("    using ").Append(ns).Append(";").Append(Environment.NewLine);
+                block.Append("#else   // ").Append(conditional).Append(Environment.NewLine);
+                foreach (var ns in importsIfFalse)
+                    block.Append("    using ").Append(ns).Append(";").Append(Environment.NewLine);
+                block.Append("#endif  // ").Append(conditional).Append(Environment.NewLine);
+                block.Append("    using ").Append(lastImport);
+                // No ';', as GenerateNamespaceImport() writes it.
+
+                imports.Add(new CodeNamespaceImport(block.ToString()));
+            }
+            else if (Provider is VBCodeProvider)
+            {
+                // HACK HACK HACK
+                // Would be better if CodeDom actually supported conditional compilation constructs...
+                // This is predecated upon VBCodeGenerator.GenerateNamespaceImport() being implemented as:
+                //      output.Write ("Imports ");
+                //      output.Write (import.Namespace);
+                //      output.WriteLine ();
+                // Thus, with "crafty" execution of the namespace, we can stuff arbitrary text in there...
+
+                var block = new StringBuilder();
+                // No 'Imports', as GenerateNamespaceImport() writes it.
+                block.Append(firstImport).Append(Environment.NewLine);
+                block.Append("#If ").Append(conditional).Append(" Then").Append(Environment.NewLine);
+                foreach (var ns in importsIfTrue)
+                    block.Append("Imports ").Append(ns).Append(Environment.NewLine);
+                block.Append("#Else     ' ").Append(conditional).Append(Environment.NewLine);
+                foreach (var ns in importsIfFalse)
+                    block.Append("Imports ").Append(ns).Append(Environment.NewLine);
+                block.Append("#End If   ' ").Append(conditional).Append(Environment.NewLine);
+                block.Append("Imports ").Append(lastImport);
+                // No newline, as GenerateNamespaceImport() writes it.
+
+                imports.Add(new CodeNamespaceImport(block.ToString()));
+            }
+            else
+            {
+                // Default to using the DbLinq imports
+                imports.Add(new CodeNamespaceImport(firstImport));
+                foreach (var ns in importsIfTrue)
+                    imports.Add(new CodeNamespaceImport(ns));
+                imports.Add(new CodeNamespaceImport(lastImport));
+            }
         }
 
         private string GenerateCommentBanner(Database database, string time)
@@ -282,12 +346,12 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
         void AddConditionalIfElseBlocks(CodeTypeMember member, string condition)
         {
             string startIf = null, elseIf = null;
-            if (CreateProvider() is CSharpCodeProvider)
+            if (Provider is CSharpCodeProvider)
             {
                 startIf = string.Format("Start {0}{1}#if {0}{1}", condition, Environment.NewLine);
                 elseIf  = string.Format("End {0}{1}    #endregion{1}#else     // {0}", condition, Environment.NewLine);
             }
-            if (CreateProvider() is VBCodeProvider)
+            if (Provider is VBCodeProvider)
             {
                 startIf = string.Format("Start {0}\"{1}#If {0} Then{1}    '", condition, Environment.NewLine);
                 elseIf  = string.Format("End {0}\"{1}    #End Region{1}#Else     ' {0}", condition, Environment.NewLine);
@@ -302,11 +366,11 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
         void AddConditionalEndifBlocks(CodeTypeMember member, string condition)
         {
             string endIf = null;
-            if (CreateProvider() is CSharpCodeProvider)
+            if (Provider is CSharpCodeProvider)
             {
                 endIf   = string.Format("End Not {0}{1}    #endregion{1}#endif     // {0}", condition, Environment.NewLine);
             }
-            if (CreateProvider() is VBCodeProvider)
+            if (Provider is VBCodeProvider)
             {
                 endIf   = string.Format("End Not {0}\"{1}    #End Region{1}#End If     ' {0}", condition, Environment.NewLine);
             }

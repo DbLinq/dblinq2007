@@ -42,35 +42,9 @@ namespace DbMetal.Generator.Implementation.CodeDomGenerator
         public override string LanguageCode { get { return "vb"; } }
         public override string Extension { get { return ".vb"; } }
 
-        protected override CodeDomProvider CreateProvider()
+        public VisualBasicCodeDomGenerator()
+            : base(CodeDomProvider.CreateProvider("VB"))
         {
-            return CodeDomProvider.CreateProvider("VB");
-        }
-
-        protected override void AddConditionalImports(System.CodeDom.CodeNamespaceImportCollection imports, string firstImport, string conditional, string[] importsIfTrue, string[] importsIfFalse, string lastImport)
-        {
-            // HACK HACK HACK
-            // Would be better if CodeDom actually supported conditional compilation constructs...
-            // This is predecated upon VBCodeGenerator.GenerateNamespaceImport() being implemented as:
-            //      output.Write ("Imports ");
-            //      output.Write (import.Namespace);
-            //      output.WriteLine ();
-            // Thus, with "crafty" execution of the namespace, we can stuff arbitrary text in there...
-
-            var block = new StringBuilder();
-            // No 'Imports', as GenerateNamespaceImport() writes it.
-            block.Append(firstImport).Append(Environment.NewLine);
-            block.Append("#If ").Append(conditional).Append(" Then").Append(Environment.NewLine);
-            foreach (var ns in importsIfTrue)
-                block.Append("Imports ").Append(ns).Append(Environment.NewLine);
-            block.Append("#Else     ' ").Append(conditional).Append(Environment.NewLine);
-            foreach (var ns in importsIfFalse)
-                block.Append("Imports ").Append(ns).Append(Environment.NewLine);
-            block.Append("#End If   ' ").Append(conditional).Append(Environment.NewLine);
-            block.Append("Imports ").Append(lastImport);
-            // No newline, as GenerateNamespaceImport() writes it.
-
-            imports.Add(new CodeNamespaceImport(block.ToString()));
         }
     }
 }
