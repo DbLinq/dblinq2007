@@ -160,7 +160,7 @@ namespace DbMetal.Generator
 #endif
 
             foreach (Table table in database.Tables)
-                _namespace.Types.Add(GenerateTableClass(table));
+                _namespace.Types.Add(GenerateTableClass(table, database));
             return _namespace;
         }
 
@@ -453,7 +453,7 @@ namespace DbMetal.Generator
             return contextType;
         }
 
-        protected virtual CodeTypeDeclaration GenerateTableClass(Table table)
+        protected CodeTypeDeclaration GenerateTableClass(Table table, Database database)
         {
             var _class = new CodeTypeDeclaration() { IsClass = true, IsPartial = true, Name = table.Member, TypeAttributes = TypeAttributes.Public };
 
@@ -539,6 +539,7 @@ namespace DbMetal.Generator
             }
 
             // TODO: implement associations
+            GenerateClassChildren(_class, table, database);
 
             // TODO: implement functions / procedures
 
@@ -609,7 +610,7 @@ namespace DbMetal.Generator
                         };
                         customTypes.Add(enumType);
                         var orderedValues = from nv in enumValue orderby nv.Value select nv;
-                        int currentValue = 1, counter = 0;
+                        int currentValue = 1;
                         foreach (var nameValue in orderedValues)
                         {
                             var field = new CodeMemberField() {
@@ -725,6 +726,93 @@ namespace DbMetal.Generator
 
             entity.Members.Add(propertyChangedEvent);
             entity.Members.Add(method);
+        }
+
+        void GenerateClassChildren(CodeTypeDeclaration entity, Table table, Database schema)
+        {
+            var children = table.Type.Associations.Where(a => !a.IsForeignKey);
+            if (children.Any())
+            {
+                var childMembers = new List<CodeTypeMember>();
+
+                foreach (var child in children)
+                {
+                    bool hasDuplicates = (from c in children where c.Member == child.Member select c).Count() > 1;
+                    // WriteClassChild(writer, child, hasDuplicates, schema, context);
+
+                    // the following is apparently useless
+                    var targetTable = schema.Tables.FirstOrDefault(t => t.Type.Name == child.Type);
+                    if (targetTable == null)
+                    {
+                        //Logger.Write(Level.Error, "ERROR L143 target table class not found:" + child.Type);
+                        continue;
+                    }
+
+                    // TODO: Is this even possible and/or supportable?
+                    // CodeText implementation just made these a {get;set;} property...
+                    if (child.Storage == null)
+                        continue;
+
+                    var childType = new CodeTypeReference("EntitySet", new CodeTypeReference(child.Type));
+                    entity.Members.Add(new CodeMemberField(childType , child.Storage));
+
+                    var childName = hasDuplicates
+                        ? child.Member + "_" + string.Join("", child.OtherKeys.ToArray())
+                        : child.Member;
+                    var property = new CodeMemberProperty() {
+                        Name        = childName,
+                        Type        = childType,
+                        Attributes  = ToMemberAttributes(child),
+                        CustomAttributes = {
+                            new CodeAttributeDeclaration("Association",
+                                new CodeAttributeArgument("Storage", new CodePrimitiveExpression(child.Storage)),
+                                new CodeAttributeArgument("OtherKey", new CodePrimitiveExpression(child.OtherKey)),
+                                new CodeAttributeArgument("ThisKey", new CodePrimitiveExpression(child.ThisKey)),
+                                new CodeAttributeArgument("Name", new CodePrimitiveExpression(child.Name))),
+                            new CodeAttributeDeclaration("DebuggerNonUserCode"),
+                        },
+                    };
+                    childMembers.Add(property);
+                    property.GetStatements.Add(new CodeMethodReturnStatement(
+                            new CodeFieldReferenceExpression(thisReference, child.Storage)));
+                    property.SetStatements.Add(new CodeAssignStatement(
+                            new CodeFieldReferenceExpression(thisReference, child.Storage),
+                            new CodePropertySetValueReferenceExpression()));
+                }
+
+                childMembers.First().StartDirectives.Add(new CodeRegionDirective(CodeRegionMode.Start, "Children"));
+                childMembers.Last().EndDirectives.Add(new CodeRegionDirective(CodeRegionMode.End, null));
+                entity.Members.AddRange(childMembers.ToArray());
+            }
+        }
+
+        static MemberAttributes ToMemberAttributes(Association association)
+        {
+            MemberAttributes attrs = 0;
+            if (!association.AccessModifierSpecified)
+                attrs |= MemberAttributes.Public;
+            else
+                switch (association.AccessModifier)
+                {
+                    case AccessModifier.Internal:           attrs = MemberAttributes.Assembly; break;
+                    case AccessModifier.Private:            attrs = MemberAttributes.Private; break;
+                    case AccessModifier.Protected:          attrs = MemberAttributes.Family; break;
+                    case AccessModifier.ProtectedInternal:  attrs = MemberAttributes.FamilyOrAssembly; break;
+                    case AccessModifier.Public:             attrs = MemberAttributes.Public; break;
+                    default:
+                        throw new ArgumentOutOfRangeException("association", "Modifier value '" + association.AccessModifierSpecified + "' is an unsupported value.");
+                }
+            if (!association.ModifierSpecified)
+                attrs |= MemberAttributes.Final;
+            else
+                switch (association.Modifier)
+                {
+                    case MemberModifier.New:        attrs |= MemberAttributes.New | MemberAttributes.Final; break;
+                    case MemberModifier.NewVirtual: attrs |= MemberAttributes.New; break;
+                    case MemberModifier.Override:   attrs |= MemberAttributes.Override; break;
+                    case MemberModifier.Virtual:    break;
+                }
+            return attrs;
         }
     }
 }
