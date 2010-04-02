@@ -477,7 +477,7 @@ namespace DbMetal.Generator
             // columns
             foreach (Column column in table.Type.Columns)
             {
-                var type = new CodeTypeReference(column.Type);
+                var type = ToCodeTypeReference(column);
                 var columnMember = column.Member ?? column.Name;
 
                 var field = new CodeMemberField(type, column.Storage);
@@ -539,7 +539,8 @@ namespace DbMetal.Generator
             }
 
             // TODO: implement associations
-            GenerateClassChildren(_class, table, database);
+            GenerateEntityChildren(_class, table, database);
+            GenerateEntityParents(_class, table, database);
 
             // TODO: implement functions / procedures
 
@@ -662,7 +663,17 @@ namespace DbMetal.Generator
         CodeTypeMember CreateChangingMethodDecl(Column column)
         {
             return CreatePartialMethod(GetChangingMethodName(column.Name),
-                    new CodeParameterDeclarationExpression(column.Type, "value"));
+                    new CodeParameterDeclarationExpression(ToCodeTypeReference(column), "value"));
+        }
+
+        static CodeTypeReference ToCodeTypeReference(Column column)
+        {
+            var t = System.Type.GetType(column.Type);
+            if (t == null)
+                return new CodeTypeReference(column.Type);
+            return t.IsValueType && column.CanBeNull
+                ? new CodeTypeReference("System.Nullable", new CodeTypeReference(column.Type))
+                : new CodeTypeReference(column.Type);
         }
 
         private void GenerateINotifyPropertyChanging(CodeTypeDeclaration entity)
@@ -728,7 +739,7 @@ namespace DbMetal.Generator
             entity.Members.Add(method);
         }
 
-        void GenerateClassChildren(CodeTypeDeclaration entity, Table table, Database schema)
+        void GenerateEntityChildren(CodeTypeDeclaration entity, Table table, Database schema)
         {
             var children = table.Type.Associations.Where(a => !a.IsForeignKey);
             if (children.Any())
@@ -738,7 +749,6 @@ namespace DbMetal.Generator
                 foreach (var child in children)
                 {
                     bool hasDuplicates = (from c in children where c.Member == child.Member select c).Count() > 1;
-                    // WriteClassChild(writer, child, hasDuplicates, schema, context);
 
                     // the following is apparently useless
                     var targetTable = schema.Tables.FirstOrDefault(t => t.Type.Name == child.Type);
@@ -813,6 +823,158 @@ namespace DbMetal.Generator
                     case MemberModifier.Virtual:    break;
                 }
             return attrs;
+        }
+
+        void GenerateEntityParents(CodeTypeDeclaration entity, Table table, Database schema)
+        {
+            var parents = table.Type.Associations.Where(a => a.IsForeignKey);
+            if (!parents.Any())
+                return;
+
+            var parentMembers = new List<CodeTypeMember>();
+
+            foreach (var parent in parents)
+            {
+                bool hasDuplicates = (from p in parents where p.Member == parent.Member select p).Count() > 1;
+                // WriteClassParent(writer, parent, hasDuplicates, schema, context);
+                // the following is apparently useless
+                DbLinq.Schema.Dbml.Table targetTable = schema.Tables.FirstOrDefault(t => t.Type.Name == parent.Type);
+                if (targetTable == null)
+                {
+                    //Logger.Write(Level.Error, "ERROR L191 target table type not found: " + parent.Type + "  (processing " + parent.Name + ")");
+                    continue;
+                }
+
+                string member = parent.Member;
+                string storageField = parent.Storage;
+                // TODO: remove this
+                if (member == parent.ThisKey)
+                {
+                    member = parent.ThisKey + targetTable.Type.Name; //repeat name to prevent collision (same as Linq)
+                    storageField = "_x_" + parent.Member;
+                }
+
+                var parentType = new CodeTypeReference(targetTable.Type.Name);
+                entity.Members.Add(new CodeMemberField(new CodeTypeReference("EntityRef", parentType), storageField));
+
+                var parentName = hasDuplicates
+                    ? member + "_" + string.Join("", parent.TheseKeys.ToArray())
+                    : member;
+                var property = new CodeMemberProperty() {
+                    Name        = parentName,
+                    Type        = parentType,
+                    Attributes  = ToMemberAttributes(parent),
+                    CustomAttributes = {
+                        new CodeAttributeDeclaration("Association",
+                            new CodeAttributeArgument("Storage", new CodePrimitiveExpression(storageField)),
+                            new CodeAttributeArgument("OtherKey", new CodePrimitiveExpression(parent.OtherKey)),
+                            new CodeAttributeArgument("ThisKey", new CodePrimitiveExpression(parent.ThisKey)),
+                            new CodeAttributeArgument("Name", new CodePrimitiveExpression(parent.Name)),
+                            new CodeAttributeArgument("IsForeignKey", new CodePrimitiveExpression(parent.IsForeignKey))),
+                        new CodeAttributeDeclaration("DebuggerNonUserCode"),
+                    },
+                };
+                parentMembers.Add(property);
+                property.GetStatements.Add(new CodeMethodReturnStatement(
+                        new CodePropertyReferenceExpression(
+                            new CodeFieldReferenceExpression(thisReference, storageField),
+                            "Entity")));
+
+                // algorithm is:
+                // 1.1. must be different than previous value
+                // 1.2. or HasLoadedOrAssignedValue is false (but why?)
+                // 2. implementations before change
+                // 3. if previous value not null
+                // 3.1. place parent in temp variable
+                // 3.2. set [Storage].Entity to null
+                // 3.3. remove it from parent list
+                // 4. assign value to [Storage].Entity
+                // 5. if value is not null
+                // 5.1. add it to parent list
+                // 5.2. set FK members with entity keys
+                // 6. else
+                // 6.1. set FK members to defaults (null or 0)
+                // 7. implementationas after change
+                var otherAssociation = schema.GetReverseAssociation(parent);
+                var parentEntity = new CodePropertyReferenceExpression(
+                        new CodeFieldReferenceExpression(thisReference, storageField),
+                        "Entity");
+                var parentTable = schema.Tables.Single(t => t.Type.Associations.Contains(parent));
+                var childKeys = parent.TheseKeys.ToArray();
+                var childColumns = (from ck in childKeys select table.Type.Columns.Single(c => c.Member == ck))
+                                    .ToArray();
+                var parentKeys = parent.OtherKeys.ToArray();
+                property.SetStatements.Add(new CodeConditionStatement(
+                        // 1.1
+                        new CodeBinaryOperatorExpression(
+                            new CodeBinaryOperatorExpression(
+                                parentEntity,
+                                CodeBinaryOperatorType.IdentityEquality, 
+                                new CodePropertySetValueReferenceExpression()),
+                            CodeBinaryOperatorType.ValueEquality,
+                            new CodePrimitiveExpression(false)),
+                        // 2. TODO: code before the change
+                        // 3. 
+                        new CodeConditionStatement(
+                            new CodeBinaryOperatorExpression(
+                                parentEntity,
+                                CodeBinaryOperatorType.IdentityInequality, 
+                                new CodePrimitiveExpression(null)),
+                            // 3.1
+                            new CodeVariableDeclarationStatement(parentType, "previous" + parent.Type, parentEntity),
+                            // 3.2
+                            new CodeAssignStatement(parentEntity, new CodePrimitiveExpression(null)),
+                            // 3.3
+                            new CodeExpressionStatement(
+                                 new CodeMethodInvokeExpression(
+                                    new CodeMethodReferenceExpression(
+                                        new CodePropertyReferenceExpression(
+                                            new CodeVariableReferenceExpression("previous" + parent.Type),
+                                            otherAssociation.Member),
+                                        "Remove"),
+                                    thisReference))),
+                        // 4.
+                        new CodeAssignStatement(parentEntity, new CodePropertySetValueReferenceExpression()),
+                        // 5. if value is null or not...
+                        new CodeConditionStatement(
+                            new CodeBinaryOperatorExpression(
+                                new CodePropertySetValueReferenceExpression(),
+                                CodeBinaryOperatorType.IdentityInequality,
+                                new CodePrimitiveExpression(null)),
+                            // 5.1
+                            new CodeStatement[]{
+                                new CodeExpressionStatement(
+                                    new CodeMethodInvokeExpression(
+                                        new CodeMethodReferenceExpression(
+                                            new CodePropertyReferenceExpression(
+                                                new CodePropertySetValueReferenceExpression(),
+                                                otherAssociation.Member),
+                                            "Add"),
+                                        thisReference))
+                            // 5.2
+                            }.Concat(Enumerable.Range(0, parentKeys.Length).Select(i =>
+                                (CodeStatement) new CodeAssignStatement(
+                                    new CodeVariableReferenceExpression(childColumns[i].Storage ?? childColumns[i].Member),
+                                    new CodePropertyReferenceExpression(
+                                        new CodePropertySetValueReferenceExpression(),
+                                        parentKeys[i]))
+                            )).ToArray(),
+                            // 6.
+                            Enumerable.Range(0, parentKeys.Length).Select(i => {
+                                var column = parentTable.Type.Columns.Single(c => c.Member == childKeys[i]);
+                                return (CodeStatement) new CodeAssignStatement(
+                                    new CodeVariableReferenceExpression(childColumns[i].Storage ?? childColumns[i].Member),
+                                    column.CanBeNull
+                                        ? (CodeExpression) new CodePrimitiveExpression(null)
+                                        : (CodeExpression) new CodeDefaultValueExpression(new CodeTypeReference(column.Type)));
+                            }).ToArray())
+                        // 7: TODO
+                ));
+            }
+
+            parentMembers.First().StartDirectives.Add(new CodeRegionDirective(CodeRegionMode.Start, "Parents"));
+            parentMembers.Last().EndDirectives.Add(new CodeRegionDirective(CodeRegionMode.End, null));
+            entity.Members.AddRange(parentMembers.ToArray());
         }
     }
 }
