@@ -485,6 +485,11 @@ namespace DbMetal.Generator
             constructor.Statements.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, "OnCreated")));
             _class.Members.Add(constructor);
 
+            if (Context.Parameters.GenerateEqualsHash)
+            {
+                GenerateEntityGetHashCodeAndEquals(_class, table);
+            }
+
             GenerateExtensibilityDeclarations(_class, table);
 
             // todo: add these when the actually get called
@@ -539,11 +544,8 @@ namespace DbMetal.Generator
                 //  generate '(field Is value) = false'; otherwise, 
                 //  generate '(field <> value)'
                 CodeBinaryOperatorExpression condition = fieldType.IsClass || fieldType.IsNullable()
-                    ? new CodeBinaryOperatorExpression(
-                        new CodeBinaryOperatorExpression(new CodeVariableReferenceExpression(field.Name), CodeBinaryOperatorType.IdentityEquality, new CodePropertySetValueReferenceExpression()),
-                        CodeBinaryOperatorType.ValueEquality,
-                        new CodePrimitiveExpression(false))
-                    : new CodeBinaryOperatorExpression(new CodeVariableReferenceExpression(field.Name), CodeBinaryOperatorType.IdentityInequality, new CodePropertySetValueReferenceExpression());
+                    ? ValuesAreNotEqual_Ref(new CodeVariableReferenceExpression(field.Name), new CodePropertySetValueReferenceExpression())
+                    : ValuesAreNotEqual(new CodeVariableReferenceExpression(field.Name), new CodePropertySetValueReferenceExpression());
                 property.SetStatements.Add(
                     new CodeConditionStatement(
                         condition,
@@ -560,8 +562,6 @@ namespace DbMetal.Generator
             GenerateEntityParents(_class, table, database);
 
             // TODO: implement functions / procedures
-
-            // TODO: Override Equals and GetHashCode
 
             return _class;
         }
@@ -693,6 +693,38 @@ namespace DbMetal.Generator
                 : new CodeTypeReference(column.Type);
         }
 
+        CodeBinaryOperatorExpression ValuesAreNotEqual(CodeExpression a, CodeExpression b)
+        {
+            return new CodeBinaryOperatorExpression(a, CodeBinaryOperatorType.IdentityInequality, b);
+        }
+
+        CodeBinaryOperatorExpression ValuesAreNotEqual_Ref(CodeExpression a, CodeExpression b)
+        {
+            return new CodeBinaryOperatorExpression(
+                        new CodeBinaryOperatorExpression(
+                            a,
+                            CodeBinaryOperatorType.IdentityEquality,
+                            b),
+                        CodeBinaryOperatorType.ValueEquality,
+                        new CodePrimitiveExpression(false));
+        }
+
+        CodeBinaryOperatorExpression ValueIsNull(CodeExpression value)
+        {
+            return new CodeBinaryOperatorExpression(
+                value,
+                CodeBinaryOperatorType.IdentityEquality,
+                new CodePrimitiveExpression(null));
+        }
+
+        CodeBinaryOperatorExpression ValueIsNotNull(CodeExpression value)
+        {
+            return new CodeBinaryOperatorExpression(
+                value,
+                CodeBinaryOperatorType.IdentityInequality, 
+                new CodePrimitiveExpression(null));
+        }
+
         private void GenerateINotifyPropertyChanging(CodeTypeDeclaration entity)
         {
             entity.BaseTypes.Add(typeof(INotifyPropertyChanging));
@@ -717,7 +749,7 @@ namespace DbMetal.Generator
                 InitExpression  = new CodeEventReferenceExpression(thisReference, "PropertyChanging"),
             });
             method.Statements.Add(new CodeConditionStatement(
-                    new CodeBinaryOperatorExpression(new CodeVariableReferenceExpression("h"), CodeBinaryOperatorType.IdentityInequality, new CodePrimitiveExpression(null)),
+                    ValueIsNotNull(new CodeVariableReferenceExpression("h")),
                     new CodeExpressionStatement(
                         new CodeDelegateInvokeExpression(new CodeVariableReferenceExpression("h"), thisReference, new CodeFieldReferenceExpression(null, "emptyChangingEventArgs")))));
 
@@ -748,12 +780,142 @@ namespace DbMetal.Generator
                 InitExpression = new CodeEventReferenceExpression(thisReference, "PropertyChanged"),
             });
             method.Statements.Add(new CodeConditionStatement(
-                    new CodeBinaryOperatorExpression(new CodeVariableReferenceExpression("h"), CodeBinaryOperatorType.IdentityInequality, new CodePrimitiveExpression(null)),
+                    ValueIsNotNull(new CodeVariableReferenceExpression("h")),
                     new CodeExpressionStatement(
                         new CodeDelegateInvokeExpression(new CodeVariableReferenceExpression("h"), thisReference, new CodeObjectCreateExpression(typeof(PropertyChangedEventArgs), new CodeVariableReferenceExpression("propertyName"))))));
 
             entity.Members.Add(propertyChangedEvent);
             entity.Members.Add(method);
+        }
+
+        void GenerateEntityGetHashCodeAndEquals(CodeTypeDeclaration entity, Table table)
+        {
+            var primaryKeys = table.Type.Columns.Where(c => c.IsPrimaryKey);
+            var pkCount = primaryKeys.Count();
+            if (pkCount == 0)
+            {
+                Console.Error.WriteLine("{0}: warning: Table {1} has no primary key(s).  " +
+                        "Skipping /generate-equals-hash for this table.",
+                        Path.GetFileName(Environment.GetCommandLineArgs()[0]),
+                        table.Name);
+                return;
+            }
+            entity.BaseTypes.Add(new CodeTypeReference(typeof(IEquatable<>)) {
+                TypeArguments = { new CodeTypeReference(entity.Name) },
+            });
+
+            var method = new CodeMemberMethod() {
+                Attributes  = MemberAttributes.Public | MemberAttributes.Override,
+                Name        = "GetHashCode",
+                ReturnType  = new CodeTypeReference(typeof(int)),
+            };
+            entity.Members.Add(method);
+            method.Statements.Add(new CodeVariableDeclarationStatement(typeof(int), "hc", new CodePrimitiveExpression(0)));
+            var numShifts = 32 / pkCount;
+            int pki = 0;
+            foreach (var pk in primaryKeys)
+            {
+                var shift = 1 << (pki++ * numShifts);
+                // lack of exclusive-or means we instead split the 32-bit hash code value
+                // into pkCount "chunks", each chunk being numShifts in size.
+                // Thus, if there are two primary keys, the first primary key gets the
+                // lower 16 bits, while the second primray key gets the upper 16 bits.
+                CodeStatement update = new CodeAssignStatement(
+                        new CodeVariableReferenceExpression("hc"),
+                        new CodeBinaryOperatorExpression(
+                            new CodeVariableReferenceExpression("hc"),
+                            CodeBinaryOperatorType.BitwiseOr,
+                            new CodeBinaryOperatorExpression(
+                                new CodeMethodInvokeExpression(
+                                    new CodeMethodReferenceExpression(
+                                        new CodeVariableReferenceExpression(pk.Storage),
+                                        "GetHashCode")),
+                                CodeBinaryOperatorType.Multiply,
+                                new CodePrimitiveExpression(shift))));
+                var pkType = System.Type.GetType(pk.Type);
+                if (pk.CanBeNull || (pkType != null && (pkType.IsClass || pkType.IsNullable())))
+                {
+                    update = new CodeConditionStatement(
+                            ValueIsNotNull(new CodeVariableReferenceExpression(pk.Storage)),
+                            update);
+                }
+                method.Statements.Add(update);
+            }
+            method.Statements.Add(new CodeMethodReturnStatement(new CodeVariableReferenceExpression("hc")));
+
+            method = new CodeMemberMethod() {
+                Attributes  = MemberAttributes.Public | MemberAttributes.Override,
+                Name        = "Equals",
+                ReturnType  = new CodeTypeReference(typeof(bool)),
+                Parameters = {
+                    new CodeParameterDeclarationExpression(new CodeTypeReference(typeof(object)), "value"),
+                },
+            };
+            entity.Members.Add(method);
+            method.Statements.Add(
+                    new CodeConditionStatement(
+                        ValueIsNotNull(new CodeVariableReferenceExpression("value")), 
+                        new CodeMethodReturnStatement(new CodePrimitiveExpression(false))));
+            method.Statements.Add(
+                    new CodeConditionStatement(
+                        ValuesAreNotEqual_Ref(
+                            new CodeMethodInvokeExpression(
+                                new CodeMethodReferenceExpression(
+                                    new CodeVariableReferenceExpression("value"),
+                                    "GetType")),
+                            new CodeMethodInvokeExpression(
+                                new CodeMethodReferenceExpression(thisReference, "GetType"))),
+                        new CodeMethodReturnStatement(new CodePrimitiveExpression(false))));
+            method.Statements.Add(
+                    new CodeVariableDeclarationStatement(
+                        new CodeTypeReference(entity.Name),
+                        "other",
+                        new CodeCastExpression(new CodeTypeReference(entity.Name), new CodeVariableReferenceExpression("value"))));
+            method.Statements.Add(
+                    new CodeMethodReturnStatement(
+                        new CodeMethodInvokeExpression(
+                            new CodeMethodReferenceExpression(thisReference, "Equals"),
+                            new CodeVariableReferenceExpression("other"))));
+
+            method = new CodeMemberMethod() {
+                Attributes  = MemberAttributes.Public,
+                Name        = "Equals",
+                ReturnType  = new CodeTypeReference(typeof(bool)),
+                Parameters  = {
+                    new CodeParameterDeclarationExpression(new CodeTypeReference(entity.Name), "value"),
+                },
+                ImplementationTypes = {
+                    new CodeTypeReference("IEquatable", new CodeTypeReference(entity.Name)),
+                },
+            };
+            entity.Members.Add(method);
+            method.Statements.Add(
+                    new CodeConditionStatement(
+                        ValueIsNull(new CodeVariableReferenceExpression("value")),
+                        new CodeMethodReturnStatement(new CodePrimitiveExpression(false))));
+
+            CodeExpression equals = null;
+            foreach (var pk in primaryKeys)
+            {
+                var compare = new CodeMethodInvokeExpression(
+                        new CodeMethodReferenceExpression(
+                            new CodePropertyReferenceExpression(
+                                new CodeTypeReferenceExpression(
+                                    new CodeTypeReference("System.Collections.Generic.EqualityComparer",
+                                        new CodeTypeReference(pk.Type))),
+                                "Default"),
+                            "Equals"),
+                        new CodeFieldReferenceExpression(thisReference, pk.Storage),
+                        new CodeFieldReferenceExpression(new CodeVariableReferenceExpression("value"), pk.Storage));
+                equals = equals == null
+                    ? (CodeExpression) compare
+                    : (CodeExpression) new CodeBinaryOperatorExpression(
+                        equals,
+                        CodeBinaryOperatorType.BooleanAnd,
+                        compare);
+            }
+            method.Statements.Add(
+                    new CodeMethodReturnStatement(equals));
         }
 
         void GenerateEntityChildren(CodeTypeDeclaration entity, Table table, Database schema)
@@ -976,20 +1138,11 @@ namespace DbMetal.Generator
                 var parentKeys = parent.OtherKeys.ToArray();
                 property.SetStatements.Add(new CodeConditionStatement(
                         // 1.1
-                        new CodeBinaryOperatorExpression(
-                            new CodeBinaryOperatorExpression(
-                                parentEntity,
-                                CodeBinaryOperatorType.IdentityEquality, 
-                                new CodePropertySetValueReferenceExpression()),
-                            CodeBinaryOperatorType.ValueEquality,
-                            new CodePrimitiveExpression(false)),
+                        ValuesAreNotEqual_Ref(parentEntity, new CodePropertySetValueReferenceExpression()),
                         // 2. TODO: code before the change
                         // 3. 
                         new CodeConditionStatement(
-                            new CodeBinaryOperatorExpression(
-                                parentEntity,
-                                CodeBinaryOperatorType.IdentityInequality, 
-                                new CodePrimitiveExpression(null)),
+                            ValueIsNotNull(parentEntity),
                             // 3.1
                             new CodeVariableDeclarationStatement(parentType, "previous" + parent.Type, parentEntity),
                             // 3.2
@@ -1007,10 +1160,7 @@ namespace DbMetal.Generator
                         new CodeAssignStatement(parentEntity, new CodePropertySetValueReferenceExpression()),
                         // 5. if value is null or not...
                         new CodeConditionStatement(
-                            new CodeBinaryOperatorExpression(
-                                new CodePropertySetValueReferenceExpression(),
-                                CodeBinaryOperatorType.IdentityInequality,
-                                new CodePrimitiveExpression(null)),
+                            ValueIsNotNull(new CodePropertySetValueReferenceExpression()),
                             // 5.1
                             new CodeStatement[]{
                                 new CodeExpressionStatement(
