@@ -465,6 +465,23 @@ namespace DbMetal.Generator
 
             // Implement Constructor
             var constructor = new CodeConstructor() { Attributes = MemberAttributes.Public };
+            // children are EntitySet
+            foreach (var child in GetClassChildren(table))
+            {
+                // if the association has a storage, we use it. Otherwise, we use the property name
+                var entitySetMember = child.Storage ?? child.Member;
+                constructor.Statements.Add(
+                    new CodeAssignStatement(
+                        new CodeVariableReferenceExpression(entitySetMember),
+                        new CodeObjectCreateExpression(
+                            new CodeTypeReference("EntitySet", new CodeTypeReference(child.Type)),
+                            new CodeDelegateCreateExpression(
+                                new CodeTypeReference("Action", new CodeTypeReference(child.Type)),
+                                thisReference, child.Member + "_Attach"),
+                            new CodeDelegateCreateExpression(
+                                new CodeTypeReference("Action", new CodeTypeReference(child.Type)),
+                                thisReference, child.Member + "_Detach"))));
+            }
             constructor.Statements.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, "OnCreated")));
             _class.Members.Add(constructor);
 
@@ -907,7 +924,9 @@ namespace DbMetal.Generator
                 }
 
                 var parentType = new CodeTypeReference(targetTable.Type.Name);
-                entity.Members.Add(new CodeMemberField(new CodeTypeReference("EntityRef", parentType), storageField));
+                entity.Members.Add(new CodeMemberField(new CodeTypeReference("EntityRef", parentType), storageField) {
+                    InitExpression = new CodeObjectCreateExpression(new CodeTypeReference("EntityRef", parentType)),
+                });
 
                 var parentName = hasDuplicates
                     ? member + "_" + string.Join("", parent.TheseKeys.ToArray())
