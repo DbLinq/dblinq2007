@@ -540,6 +540,7 @@ namespace DbMetal.Generator
 
             // TODO: implement associations
             GenerateEntityChildren(_class, table, database);
+            GenerateEntityChildrenAttachment(_class, table, database);
             GenerateEntityParents(_class, table, database);
 
             // TODO: implement functions / procedures
@@ -741,7 +742,7 @@ namespace DbMetal.Generator
 
         void GenerateEntityChildren(CodeTypeDeclaration entity, Table table, Database schema)
         {
-            var children = table.Type.Associations.Where(a => !a.IsForeignKey);
+            var children = GetClassChildren(table);
             if (children.Any())
             {
                 var childMembers = new List<CodeTypeMember>();
@@ -796,6 +797,11 @@ namespace DbMetal.Generator
             }
         }
 
+        IEnumerable<Association> GetClassChildren(Table table)
+        {
+            return table.Type.Associations.Where(a => !a.IsForeignKey);
+        }
+
         static MemberAttributes ToMemberAttributes(Association association)
         {
             MemberAttributes attrs = 0;
@@ -823,6 +829,52 @@ namespace DbMetal.Generator
                     case MemberModifier.Virtual:    break;
                 }
             return attrs;
+        }
+
+        void GenerateEntityChildrenAttachment(CodeTypeDeclaration entity, Table table, Database schema)
+        {
+            var children = GetClassChildren(table).ToList();
+            if (!children.Any())
+                return;
+
+            var handlers = new List<CodeTypeMember>();
+
+            foreach (var child in children)
+            {
+                // the reverse child is the association seen from the child
+                // we're going to use it...
+                var reverseChild = schema.GetReverseAssociation(child);
+                // ... to get the parent name
+                var memberName = reverseChild.Member;
+
+                var attach = new CodeMemberMethod() {
+                    Name = child.Member + "_Attach",
+                    Parameters = {
+                        new CodeParameterDeclarationExpression(child.Type, "entity"),
+                    },
+                };
+                handlers.Add(attach);
+                attach.Statements.Add(
+                    new CodeAssignStatement(
+                        new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("entity"), memberName),
+                        thisReference));
+
+                var detach = new CodeMemberMethod() {
+                    Name = child.Member + "_Detach",
+                    Parameters = {
+                        new CodeParameterDeclarationExpression(child.Type, "entity"),
+                    },
+                };
+                handlers.Add(detach);
+                detach.Statements.Add(
+                    new CodeAssignStatement(
+                        new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("entity"), memberName),
+                        new CodePrimitiveExpression(null)));
+            }
+
+            handlers.First().StartDirectives.Add(new CodeRegionDirective(CodeRegionMode.Start, "Attachment handlers"));
+            handlers.Last().EndDirectives.Add(new CodeRegionDirective(CodeRegionMode.End, null));
+            entity.Members.AddRange(handlers.ToArray());
         }
 
         void GenerateEntityParents(CodeTypeDeclaration entity, Table table, Database schema)
