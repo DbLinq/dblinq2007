@@ -555,7 +555,6 @@ namespace DbMetal.Generator
                 _class.Members.Add(property);
             }
 
-            // TODO: implement associations
             GenerateEntityChildren(_class, table, database);
             GenerateEntityChildrenAttachment(_class, table, database);
             GenerateEntityParents(_class, table, database);
