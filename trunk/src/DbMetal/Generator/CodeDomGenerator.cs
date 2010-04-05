@@ -983,7 +983,7 @@ namespace DbMetal.Generator
             entity.Members.Add(method);
             method.Statements.Add(
                     new CodeConditionStatement(
-                        ValueIsNotNull(new CodeVariableReferenceExpression("value")), 
+                        ValueIsNull(new CodeVariableReferenceExpression("value")), 
                         new CodeMethodReturnStatement(new CodePrimitiveExpression(false))));
             method.Statements.Add(
                     new CodeConditionStatement(
