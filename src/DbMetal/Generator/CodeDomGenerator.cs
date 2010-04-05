@@ -494,6 +494,17 @@ namespace DbMetal.Generator
 
             contextType.Members.Add(method);
 
+            for (int i = 0; i < function.Parameters.Count; ++i)
+            {
+                var p = function.Parameters[i];
+                if (!p.DirectionOut)
+                    continue;
+                method.Statements.Add(
+                        new CodeAssignStatement(
+                            new CodeVariableReferenceExpression(p.Name),
+                            new CodeDefaultValueExpression(new CodeTypeReference(p.Type))));
+            }
+
             var executeMethodCallArgs = new List<CodeExpression>() {
                 thisReference,
                 new CodeMethodInvokeExpression(
@@ -502,8 +513,7 @@ namespace DbMetal.Generator
             };
             if (method.Parameters != null)
                 executeMethodCallArgs.AddRange(
-                        function.Parameters.Where(p => p.DirectionIn)
-                        .Select(p => (CodeExpression) new CodeVariableReferenceExpression(p.Name)));
+                        function.Parameters.Select(p => (CodeExpression) new CodeVariableReferenceExpression(p.Name)));
             method.Statements.Add(
                     new CodeVariableDeclarationStatement(
                         new CodeTypeReference("IExecuteResult"),
