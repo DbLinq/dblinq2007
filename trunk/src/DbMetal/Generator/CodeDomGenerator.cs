@@ -28,6 +28,8 @@ using System.CodeDom;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
+using System.Data.Linq.Mapping;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -39,7 +41,6 @@ using Microsoft.VisualBasic;
 using DbLinq.Schema.Dbml;
 using DbLinq.Schema.Dbml.Adapter;
 using DbLinq.Util;
-using System.Data.Linq.Mapping;
 
 namespace DbMetal.Generator
 {
@@ -83,6 +84,13 @@ namespace DbMetal.Generator
             Context = context;
             Provider.CreateGenerator(textWriter).GenerateCodeFromNamespace(
                 GenerateCodeDomModel(dbSchema), textWriter, new CodeGeneratorOptions() { BracingStyle = "C" });
+        }
+
+        static void Warning(string format, params object[] args)
+        {
+            Console.Error.Write(Path.GetFileName(Environment.GetCommandLineArgs()[0]));
+            Console.Error.Write(": warning: ");
+            Console.Error.WriteLine(format, args);
         }
 
         private CodeTypeMember CreatePartialMethod(string methodName, params CodeParameterDeclarationExpression[] parameters)
@@ -289,6 +297,11 @@ namespace DbMetal.Generator
                 _class.Members.Add(property);
             }
 
+            foreach (var function in database.Functions)
+            {
+                GenerateContextFunction(_class, function);
+            }
+
             return _class;
         }
 
@@ -452,6 +465,124 @@ namespace DbMetal.Generator
 
             return contextType;
         }
+        
+        void GenerateContextFunction(CodeTypeDeclaration contextType, Function function)
+        {
+            if (function == null || string.IsNullOrEmpty(function.Name))
+            {
+                Warning("L33 Invalid storedProcdure object: missing name.");
+                return;
+            }
+
+            var methodRetType = GetFunctionReturnType(function);
+            var method = new CodeMemberMethod() {
+                Attributes  = ToMemberAttributes(function),
+                Name        = function.Method ?? function.Name,
+                ReturnType  = methodRetType,
+                CustomAttributes = {
+                    new CodeAttributeDeclaration("Function",
+                        new CodeAttributeArgument("Name", new CodePrimitiveExpression(function.Name)),
+                        new CodeAttributeArgument("IsComposable", new CodePrimitiveExpression(function.IsComposable))),
+                },
+            };
+            if (method.Parameters != null)
+                method.Parameters.AddRange(function.Parameters.Select(x => GetFunctionParameterType(x)).ToArray());
+            contextType.Members.Add(method);
+
+            var executeMethodCallArgs = new List<CodeExpression>() {
+                thisReference,
+                new CodeMethodInvokeExpression(
+                    new CodeMethodReferenceExpression(
+                        new CodeTypeReferenceExpression("MethodBase"), "GetCurrentMethod")),
+            };
+            if (method.Parameters != null)
+                executeMethodCallArgs.AddRange(
+                        function.Parameters.Where(p => p.DirectionIn)
+                        .Select(p => (CodeExpression) new CodeVariableReferenceExpression(p.Name)));
+            method.Statements.Add(
+                    new CodeVariableDeclarationStatement(
+                        new CodeTypeReference("IExecuteResult"),
+                        "result",
+                        new CodeMethodInvokeExpression(
+                            new CodeMethodReferenceExpression(thisReference, "ExecuteMethodCall"),
+                            executeMethodCallArgs.ToArray())));
+            for (int i = 0; i < function.Parameters.Count; ++i)
+            {
+                var p = function.Parameters[i];
+                if (!p.DirectionOut)
+                    continue;
+                method.Statements.Add(
+                        new CodeAssignStatement(
+                            new CodeVariableReferenceExpression(p.Name),
+                            new CodeCastExpression(
+                                new CodeTypeReference(p.Type),
+                                new CodeMethodInvokeExpression(
+                                    new CodeMethodReferenceExpression(
+                                        new CodeVariableReferenceExpression("result"),
+                                        "GetParameterValue"),
+                                    new CodePrimitiveExpression(i)))));
+            }
+
+            if (methodRetType != null)
+            {
+                method.Statements.Add(
+                        new CodeMethodReturnStatement(
+                            new CodeCastExpression(
+                                method.ReturnType,
+                                new CodePropertyReferenceExpression(
+                                    new CodeVariableReferenceExpression("result"),
+                                    "ReturnValue"))));
+            }
+        }
+
+        CodeTypeReference GetFunctionReturnType(Function function)
+        {
+            CodeTypeReference type = null;
+            if (function.Return != null)
+            {
+                type = new CodeTypeReference(function.Return.Type);
+            }
+
+            bool isDataShapeUnknown = function.ElementType == null
+                                      && function.BodyContainsSelectStatement
+                                      && !function.IsComposable;
+            if (isDataShapeUnknown)
+            {
+                //if we don't know the shape of results, and the proc body contains some selects,
+                //we have no choice but to return an untyped DataSet.
+                //
+                //TODO: either parse proc body like microsoft, 
+                //or create a little GUI tool which would call the proc with test values, to determine result shape.
+                type = new CodeTypeReference(typeof(DataSet));
+            }
+            return type;
+        }
+
+        CodeParameterDeclarationExpression GetFunctionParameterType(Parameter parameter)
+        {
+            var p = new CodeParameterDeclarationExpression(parameter.Type, parameter.Name) {
+                CustomAttributes = {
+                    new CodeAttributeDeclaration("Parameter",
+                        new CodeAttributeArgument("Name", new CodePrimitiveExpression(parameter.Name)),
+                        new CodeAttributeArgument("DbType", new CodePrimitiveExpression(parameter.DbType))),
+                },
+            };
+            switch (parameter.Direction)
+            {
+                case DbLinq.Schema.Dbml.ParameterDirection.In:
+                    p.Direction = FieldDirection.In;
+                    break;
+                case DbLinq.Schema.Dbml.ParameterDirection.Out:
+                    p.Direction = FieldDirection.Out;
+                    break;
+                case DbLinq.Schema.Dbml.ParameterDirection.InOut:
+                    p.Direction = FieldDirection.In | FieldDirection.Out;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            return p;
+        }
 
         protected CodeTypeDeclaration GenerateTableClass(Table table, Database database)
         {
@@ -561,8 +692,6 @@ namespace DbMetal.Generator
             GenerateEntityChildrenAttachment(_class, table, database);
             GenerateEntityParents(_class, table, database);
 
-            // TODO: implement functions / procedures
-
             return _class;
         }
 
@@ -645,6 +774,8 @@ namespace DbMetal.Generator
                     }
                 }
 
+                if (customTypes.Count == 0)
+                    return;
                 customTypes.First().StartDirectives.Add(new CodeRegionDirective(CodeRegionMode.Start,
                         string.Format("Custom type definitions for {0}", string.Join(", ", customTypesNames.ToArray()))));
                 customTypes.Last().EndDirectives.Add(new CodeRegionDirective(CodeRegionMode.End, null));
@@ -794,9 +925,7 @@ namespace DbMetal.Generator
             var pkCount = primaryKeys.Count();
             if (pkCount == 0)
             {
-                Console.Error.WriteLine("{0}: warning: Table {1} has no primary key(s).  " +
-                        "Skipping /generate-equals-hash for this table.",
-                        Path.GetFileName(Environment.GetCommandLineArgs()[0]),
+                Warning("Table {0} has no primary key(s).  Skipping /generate-equals-hash for this table.",
                         table.Name);
                 return;
             }
@@ -969,6 +1098,8 @@ namespace DbMetal.Generator
                             new CodePropertySetValueReferenceExpression()));
                 }
 
+                if (childMembers.Count == 0)
+                    return;
                 childMembers.First().StartDirectives.Add(new CodeRegionDirective(CodeRegionMode.Start, "Children"));
                 childMembers.Last().EndDirectives.Add(new CodeRegionDirective(CodeRegionMode.End, null));
                 entity.Members.AddRange(childMembers.ToArray());
@@ -1000,6 +1131,35 @@ namespace DbMetal.Generator
                 attrs |= MemberAttributes.Final;
             else
                 switch (association.Modifier)
+                {
+                    case MemberModifier.New:        attrs |= MemberAttributes.New | MemberAttributes.Final; break;
+                    case MemberModifier.NewVirtual: attrs |= MemberAttributes.New; break;
+                    case MemberModifier.Override:   attrs |= MemberAttributes.Override; break;
+                    case MemberModifier.Virtual:    break;
+                }
+            return attrs;
+        }
+
+        static MemberAttributes ToMemberAttributes(Function function)
+        {
+            MemberAttributes attrs = 0;
+            if (!function.AccessModifierSpecified)
+                attrs |= MemberAttributes.Public;
+            else
+                switch (function.AccessModifier)
+                {
+                    case AccessModifier.Internal:           attrs = MemberAttributes.Assembly; break;
+                    case AccessModifier.Private:            attrs = MemberAttributes.Private; break;
+                    case AccessModifier.Protected:          attrs = MemberAttributes.Family; break;
+                    case AccessModifier.ProtectedInternal:  attrs = MemberAttributes.FamilyOrAssembly; break;
+                    case AccessModifier.Public:             attrs = MemberAttributes.Public; break;
+                    default:
+                        throw new ArgumentOutOfRangeException("function", "Modifier value '" + function.AccessModifierSpecified + "' is an unsupported value.");
+                }
+            if (!function.ModifierSpecified)
+                attrs |= MemberAttributes.Final;
+            else
+                switch (function.Modifier)
                 {
                     case MemberModifier.New:        attrs |= MemberAttributes.New | MemberAttributes.Final; break;
                     case MemberModifier.NewVirtual: attrs |= MemberAttributes.New; break;
@@ -1049,6 +1209,9 @@ namespace DbMetal.Generator
                         new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("entity"), memberName),
                         new CodePrimitiveExpression(null)));
             }
+
+            if (handlers.Count == 0)
+                return;
 
             handlers.First().StartDirectives.Add(new CodeRegionDirective(CodeRegionMode.Start, "Attachment handlers"));
             handlers.Last().EndDirectives.Add(new CodeRegionDirective(CodeRegionMode.End, null));
@@ -1192,6 +1355,8 @@ namespace DbMetal.Generator
                 ));
             }
 
+            if (parentMembers.Count == 0)
+                return;
             parentMembers.First().StartDirectives.Add(new CodeRegionDirective(CodeRegionMode.Start, "Parents"));
             parentMembers.Last().EndDirectives.Add(new CodeRegionDirective(CodeRegionMode.End, null));
             entity.Members.AddRange(parentMembers.ToArray());
