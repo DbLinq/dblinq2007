@@ -487,6 +487,11 @@ namespace DbMetal.Generator
             };
             if (method.Parameters != null)
                 method.Parameters.AddRange(function.Parameters.Select(x => GetFunctionParameterType(x)).ToArray());
+            if (function.Return != null && !string.IsNullOrEmpty(function.Return.DbType))
+                method.ReturnTypeCustomAttributes.Add(
+                        new CodeAttributeDeclaration("Parameter",
+                            new CodeAttributeArgument("DbType", new CodePrimitiveExpression(function.Return.DbType))));
+
             contextType.Members.Add(method);
 
             var executeMethodCallArgs = new List<CodeExpression>() {
