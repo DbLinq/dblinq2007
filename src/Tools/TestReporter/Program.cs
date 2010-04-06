@@ -92,44 +92,56 @@ namespace TestReporter
         /// <summary>
         /// Loads all tests from testFile, categorizing them based one the assembly
         /// </summary>
-        private static List<RawTest> LoadTests(string testFile, Dictionary<string, Column> files)
+        private static List<RawTest> LoadTests(List<string> filePatterns, Dictionary<string, Column> files)
         {
-            var tests = XDocument.Load(testFile).Root
-                .Descendants("test-case")
-                .Select(e => new
+            var tests = new List<RawTest>();
+            foreach (var filePattern in filePatterns)
+            {
+                var fileNames = Directory.GetFiles(Path.GetDirectoryName(filePattern), Path.GetFileName(filePattern));
+                if (fileNames.Length == 0)
+                    throw new ArgumentException("No files matching the pattern '" + filePattern + "' found");
+                foreach (var fileName in fileNames)
                 {
-                    Name = (string)e.Attribute("name"),
-                    Success = (string)e.Attribute("success") ?? "",
-                    Description = (string)e.Attribute("description"),
-                    //Assembly = e.Ancestors("test-suite").Select(s => (string)s.Attribute("name")).Where(n => n != null && n.StartsWith(@"Test_NUnit_")).FirstOrDefault(),
-                    File = e.Ancestors("test-suite")
-                    .Select(s => (string)s.Attribute("name"))
-                    .Where(n => n != null && (n.Contains('\\') || n.Contains('/')) && (n.EndsWith(@".dll") || n.EndsWith(@".exe")))
-                    .Select(n => n.Substring(n.LastIndexOfAny(new[] { '\\', '/' }) + 1))
-                    .Select(n => n.Substring(0, n.Length - 4))
-                    .FirstOrDefault(),
-                })
-                .Select(c => new RawTest
-                {
-                    File = files.ContainsKey(c.File ?? "") ? files[c.File ?? ""] : files[""],
-                    Name = files.ContainsKey(c.File ?? "") ? c.Name.Substring(c.Name.IndexOf(".") + 1) : c.Name,
-                    Description = c.Description,
-                    Success = c.Success,
-                })
-                .ToList();
+                    tests = tests.Union(
+                        XDocument.Load(fileName).Root
+                        .Descendants("test-case")
+                        .Select(e => new
+                        {
+                            Name = (string)e.Attribute("name"),
+                            Success = (string)e.Attribute("success") ?? "",
+                            Description = (string)e.Attribute("description"),
+                            //Assembly = e.Ancestors("test-suite").Select(s => (string)s.Attribute("name")).Where(n => n != null && n.StartsWith(@"Test_NUnit_")).FirstOrDefault(),
+                            File = e.Ancestors("test-suite")
+                            .Select(s => (string)s.Attribute("name"))
+                            .Where(n => n != null && (n.Contains('\\') || n.Contains('/')) && (n.EndsWith(@".dll") || n.EndsWith(@".exe")))
+                            .Select(n => n.Substring(n.LastIndexOfAny(new[] { '\\', '/' }) + 1))
+                            .Select(n => n.Substring(0, n.Length - 4))
+                            .FirstOrDefault(),
+                        })
+                        .Select(c => new RawTest
+                        {
+                            File = files.ContainsKey(c.File ?? "") ? files[c.File ?? ""] : files[""],
+                            Name = files.ContainsKey(c.File ?? "") ? c.Name.Substring(c.Name.IndexOf(".") + 1) : c.Name,
+                            Description = c.Description,
+                            Success = c.Success,
+                        }))
+                        .ToList();
+                }
+            }
             return tests;
         }
 
         static void Main(string[] args)
         {
-            string testFile = null, testFileBase = null, wikiInputFile = null, wikiOutputFile = null;
+            List<string> testFile = new List<string>(), testFileBase = new List<string>();
+            string wikiInputFile = null, wikiOutputFile = null;
             string htmlOutputFile = null;
             bool onlyFailures = false, onlyChanges = false;
             bool ignoreMissing = false;
             foreach (var opt in ParseArgs(args))
             {
-                if (opt.Key == "tr") testFile = opt.Value ?? "";
-                else if (opt.Key == "trb") testFileBase = opt.Value ?? "";
+                if (opt.Key == "tr") testFile.Add(opt.Value ?? "");
+                else if (opt.Key == "trb") testFileBase.Add(opt.Value ?? "");
                 else if (opt.Key == "wi") wikiInputFile = opt.Value ?? "";
                 else if (opt.Key == "wo") wikiOutputFile = opt.Value ?? "";
                 else if (opt.Key == "ho") htmlOutputFile = opt.Value ?? "";
@@ -138,10 +150,9 @@ namespace TestReporter
                 else if (opt.Key == "im") ignoreMissing = true;
                 else throw new ArgumentException("Unknown argument '" + opt.Key + "'");
             }
-            testFile = testFile ?? @"..\..\..\..\..\TestResult.xml";
+            if (testFile.Count == 0) testFile.Add(@"..\..\..\..\..\TestResult.xml");
             wikiInputFile = wikiInputFile ?? @"..\..\..\..\..\..\wiki\Tests.wiki";
             if (wikiOutputFile == null && htmlOutputFile == null) wikiOutputFile = wikiInputFile;
-            if (!File.Exists(testFile)) throw new ArgumentException("Test file '" + testFile + "' does not exist");
             if (!File.Exists(wikiInputFile)) throw new ArgumentException("Input file '" + wikiInputFile + "' does not exist");
 
             // Maps assembly file names to table names and column titles
@@ -153,7 +164,7 @@ namespace TestReporter
                 new { File = "DbLinq.Oracle_test_odp", Group = "vendor", ColName = "Oracle ODP" },
                 new { File = "DbLinq.Sqlite_test", Group = "vendor", ColName = "SQLite" },
                 new { File = "DbLinq.Sqlite_test_mono", Group = "vendor", ColName = "SQLite (Mono)" },
-                new { File = "DbLinq.Sqlite_test_mono_strict", Group = "-", ColName = "SQLite (Mono, strict)" }, // Disabled
+                new { File = "DbLinq.Sqlite_test_mono_strict", Group = "vendor", ColName = "SQLite (Mono, strict)" },
                 new { File = "DbLinq.PostgreSql_test", Group = "vendor", ColName = "pgSQL" },
                 new { File = "DbLinq.Ingres_test", Group = "vendor", ColName = "Ingres" },
                 new { File = "DbLinq.Firebird_test", Group = "vendor", ColName = "Firebird" },
@@ -164,7 +175,7 @@ namespace TestReporter
             var files = fileList.ToDictionary(f => f.File, f => new Column{ Group = f.Group, ColName = f.ColName });
 
             var currentTests = LoadTests(testFile, files);
-            var testsBase = testFileBase != null ? LoadTests(testFileBase, files) : new List<RawTest>();
+            var testsBase = LoadTests(testFileBase, files);
 
             var allTests = currentTests.Select(t => new { t.File.Group, t.File.ColName, t.Name, t.Description, t.Success, SuccessBase = (string)null })
             .Union(testsBase.Select(t => new { t.File.Group, t.File.ColName, t.Name, t.Description, Success = (string)null, SuccessBase = t.Success }))
@@ -223,7 +234,7 @@ namespace TestReporter
                     if (allTests.ContainsKey(group))
                     foreach (var t in allTests[group]
                         .Where(t => !onlyFailures || t.Value.Results.Count(r => r.Value.Success == "True") != tempFiles.Length)
-                        .Where(t => !onlyChanges || (testFileBase != null && t.Value.Results.Any(r => r.Value.Success != r.Value.SuccessBase && r.Value.Success != null)))
+                        .Where(t => !onlyChanges || (testFileBase.Count > 0 && t.Value.Results.Any(r => r.Value.Success != r.Value.SuccessBase && r.Value.Success != null)))
                         .OrderBy(t => t.Key))
                     {
                         var desc = t.Value.Description;
@@ -235,9 +246,9 @@ namespace TestReporter
                                     Success = rs.Select(r => r.Value.Success).SingleOrDefault(),
                                     SuccessBase = rs.Select(r => r.Value.SuccessBase).SingleOrDefault(),
                                 })
-                                .Select(r => testFileBase == null || r.Success == r.SuccessBase ? FormatSucces(r.Success) :
+                                .Select(r => testFileBase.Count == 0 || r.Success == r.SuccessBase ? FormatSucces(r.Success) :
                                     (ignoreMissing && r.Success == null ? FormatSucces(r.SuccessBase) :
-                                    "*" + FormatSucces(r.SuccessBase) + "</font> > " + FormatSucces(r.Success) + "*")).ToArray()) + "||");
+                                    "*" + FormatSucces(r.SuccessBase) + "</font>>" + FormatSucces(r.Success) + "*")).ToArray()) + "||");
                     }
                     return sb.ToString();
                 }));
