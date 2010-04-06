@@ -34,6 +34,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 
 using Microsoft.CSharp;
 using Microsoft.VisualBasic;
@@ -284,7 +285,7 @@ namespace DbMetal.Generator
 
             foreach (Table table in database.Tables)
             {
-                var tableType = new CodeTypeReference(table.Member);
+                var tableType = new CodeTypeReference(table.Type.Name);
                 var property = new CodeMemberProperty() {
                     Attributes  = MemberAttributes.Public | MemberAttributes.Final,
                     Name        = table.Member, 
@@ -507,9 +508,11 @@ namespace DbMetal.Generator
 
             var executeMethodCallArgs = new List<CodeExpression>() {
                 thisReference,
-                new CodeMethodInvokeExpression(
-                    new CodeMethodReferenceExpression(
-                        new CodeTypeReferenceExpression("MethodBase"), "GetCurrentMethod")),
+                new CodeCastExpression(
+                    new CodeTypeReference("System.Reflection.MethodInfo"),
+                    new CodeMethodInvokeExpression(
+                        new CodeMethodReferenceExpression(
+                            new CodeTypeReferenceExpression("System.Reflection.MethodBase"), "GetCurrentMethod"))),
             };
             if (method.Parameters != null)
                 executeMethodCallArgs.AddRange(
@@ -601,9 +604,17 @@ namespace DbMetal.Generator
 
         protected CodeTypeDeclaration GenerateTableClass(Table table, Database database)
         {
-            var _class = new CodeTypeDeclaration() { IsClass = true, IsPartial = true, Name = table.Member, TypeAttributes = TypeAttributes.Public };
+            var _class = new CodeTypeDeclaration() {
+                IsClass         = true, 
+                IsPartial       = true, 
+                Name            = table.Type.Name, 
+                TypeAttributes  = TypeAttributes.Public,
+                CustomAttributes = {
+                    new CodeAttributeDeclaration("Table", 
+                        new CodeAttributeArgument("Name", new CodePrimitiveExpression(table.Name))),
+                },
+            };
 
-            _class.CustomAttributes.Add(new CodeAttributeDeclaration("Table", new CodeAttributeArgument("Name", new CodePrimitiveExpression(table.Name))));
             WriteCustomTypes(_class, table);
 
             GenerateINotifyPropertyChanging(_class);
@@ -615,7 +626,7 @@ namespace DbMetal.Generator
             foreach (var child in GetClassChildren(table))
             {
                 // if the association has a storage, we use it. Otherwise, we use the property name
-                var entitySetMember = child.Storage ?? child.Member;
+                var entitySetMember = GetAssociationStorage(child);
                 constructor.Statements.Add(
                     new CodeAssignStatement(
                         new CodeVariableReferenceExpression(entitySetMember),
@@ -815,7 +826,7 @@ namespace DbMetal.Generator
 
         CodeTypeMember CreateChangedMethodDecl(Column column)
         {
-            return CreatePartialMethod(GetChangedMethodName(column.Name));
+            return CreatePartialMethod(GetChangedMethodName(column.Member));
         }
 
         static string GetChangingMethodName(string columnName)
@@ -825,7 +836,7 @@ namespace DbMetal.Generator
 
         CodeTypeMember CreateChangingMethodDecl(Column column)
         {
-            return CreatePartialMethod(GetChangingMethodName(column.Name),
+            return CreatePartialMethod(GetChangingMethodName(column.Member),
                     new CodeParameterDeclarationExpression(ToCodeTypeReference(column), "value"));
         }
 
@@ -1081,13 +1092,9 @@ namespace DbMetal.Generator
                         continue;
                     }
 
-                    // TODO: Is this even possible and/or supportable?
-                    // CodeText implementation just made these a {get;set;} property...
-                    if (child.Storage == null)
-                        continue;
-
                     var childType = new CodeTypeReference("EntitySet", new CodeTypeReference(child.Type));
-                    entity.Members.Add(new CodeMemberField(childType , child.Storage));
+                    var storage = GetAssociationStorage(child);
+                    entity.Members.Add(new CodeMemberField(childType, storage));
 
                     var childName = hasDuplicates
                         ? child.Member + "_" + string.Join("", child.OtherKeys.ToArray())
@@ -1107,9 +1114,9 @@ namespace DbMetal.Generator
                     };
                     childMembers.Add(property);
                     property.GetStatements.Add(new CodeMethodReturnStatement(
-                            new CodeFieldReferenceExpression(thisReference, child.Storage)));
+                            new CodeFieldReferenceExpression(thisReference, storage)));
                     property.SetStatements.Add(new CodeAssignStatement(
-                            new CodeFieldReferenceExpression(thisReference, child.Storage),
+                            new CodeFieldReferenceExpression(thisReference, storage),
                             new CodePropertySetValueReferenceExpression()));
                 }
 
@@ -1182,6 +1189,16 @@ namespace DbMetal.Generator
                     case MemberModifier.Virtual:    break;
                 }
             return attrs;
+        }
+
+        static string GetAssociationStorage(Association association)
+        {
+            return association.Storage ?? "_" + CreateIdentifier(association.Name) + "_" + association.GetHashCode();
+        }
+
+        static string CreateIdentifier(string value)
+        {
+            return Regex.Replace(value, @"\W", "_");
         }
 
         void GenerateEntityChildrenAttachment(CodeTypeDeclaration entity, Table table, Database schema)
