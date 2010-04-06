@@ -84,7 +84,11 @@ namespace DbMetal.Generator
         {
             Context = context;
             Provider.CreateGenerator(textWriter).GenerateCodeFromNamespace(
-                GenerateCodeDomModel(dbSchema), textWriter, new CodeGeneratorOptions() { BracingStyle = "C" });
+                GenerateCodeDomModel(dbSchema), textWriter, 
+                new CodeGeneratorOptions() {
+                    BracingStyle = "C",
+                    IndentString = "\t",
+                });
         }
 
         static void Warning(string format, params object[] args)
@@ -100,15 +104,15 @@ namespace DbMetal.Generator
             if (Provider is CSharpCodeProvider)
             {
                 prototype =
-                    "        partial void {0}({1});" + Environment.NewLine +
-                    "        ";
+                    "\t\tpartial void {0}({1});" + Environment.NewLine +
+                    "\t\t";
             }
             else if (Provider is VBCodeProvider)
             {
                 prototype =
-                    "        Partial Private Sub {0}({1})" + Environment.NewLine +
-                    "        End Sub" + Environment.NewLine +
-                    "        ";
+                    "\t\tPartial Private Sub {0}({1})" + Environment.NewLine +
+                    "\t\tEnd Sub" + Environment.NewLine +
+                    "\t\t";
             }
 
             if (prototype == null)
@@ -195,12 +199,12 @@ namespace DbMetal.Generator
                 block.Append(firstImport).Append(";").Append(Environment.NewLine);
                 block.Append("#if ").Append(conditional).Append(Environment.NewLine);
                 foreach (var ns in importsIfTrue)
-                    block.Append("    using ").Append(ns).Append(";").Append(Environment.NewLine);
+                    block.Append("\tusing ").Append(ns).Append(";").Append(Environment.NewLine);
                 block.Append("#else   // ").Append(conditional).Append(Environment.NewLine);
                 foreach (var ns in importsIfFalse)
-                    block.Append("    using ").Append(ns).Append(";").Append(Environment.NewLine);
+                    block.Append("\tusing ").Append(ns).Append(";").Append(Environment.NewLine);
                 block.Append("#endif  // ").Append(conditional).Append(Environment.NewLine);
-                block.Append("    using ").Append(lastImport);
+                block.Append("\tusing ").Append(lastImport);
                 // No ';', as GenerateNamespaceImport() writes it.
 
                 imports.Add(new CodeNamespaceImport(block.ToString()));
