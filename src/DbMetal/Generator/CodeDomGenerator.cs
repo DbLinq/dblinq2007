@@ -630,7 +630,7 @@ namespace DbMetal.Generator
             foreach (var child in GetClassChildren(table))
             {
                 // if the association has a storage, we use it. Otherwise, we use the property name
-                var entitySetMember = GetAssociationStorage(child);
+                var entitySetMember = GetStorageFieldName(child);
                 constructor.Statements.Add(
                     new CodeAssignStatement(
                         new CodeVariableReferenceExpression(entitySetMember),
@@ -663,7 +663,7 @@ namespace DbMetal.Generator
                 var type = ToCodeTypeReference(column);
                 var columnMember = column.Member ?? column.Name;
 
-                var field = new CodeMemberField(type, column.Storage);
+                var field = new CodeMemberField(type, GetStorageFieldName(column));
                 _class.Members.Add(field);
                 var fieldReference = new CodeFieldReferenceExpression(new CodeThisReferenceExpression(), field.Name);
 
@@ -677,7 +677,7 @@ namespace DbMetal.Generator
 
                 var defAttrValues = new ColumnAttribute();
                 var args = new List<CodeAttributeArgument>() {
-                    new CodeAttributeArgument("Storage", new CodePrimitiveExpression(column.Storage)),
+                    new CodeAttributeArgument("Storage", new CodePrimitiveExpression(GetStorageFieldName(column))),
                     new CodeAttributeArgument("Name", new CodePrimitiveExpression(column.Name)),
                     new CodeAttributeArgument("DbType", new CodePrimitiveExpression(column.DbType)),
                 };
@@ -886,6 +886,18 @@ namespace DbMetal.Generator
                 new CodePrimitiveExpression(null));
         }
 
+        static string GetStorageFieldName(Column column)
+        {
+            return GetStorageFieldName(column.Storage ?? column.Member);
+        }
+
+        static string GetStorageFieldName(string storage)
+        {
+            if (storage.StartsWith("_"))
+                return storage;
+            return "_" + storage;
+        }
+
         private void GenerateINotifyPropertyChanging(CodeTypeDeclaration entity)
         {
             entity.BaseTypes.Add(typeof(INotifyPropertyChanging));
@@ -987,7 +999,7 @@ namespace DbMetal.Generator
                             new CodeBinaryOperatorExpression(
                                 new CodeMethodInvokeExpression(
                                     new CodeMethodReferenceExpression(
-                                        new CodeVariableReferenceExpression(pk.Storage),
+                                        new CodeVariableReferenceExpression(GetStorageFieldName(pk)),
                                         "GetHashCode")),
                                 CodeBinaryOperatorType.Multiply,
                                 new CodePrimitiveExpression(shift))));
@@ -995,7 +1007,7 @@ namespace DbMetal.Generator
                 if (pk.CanBeNull || (pkType != null && (pkType.IsClass || pkType.IsNullable())))
                 {
                     update = new CodeConditionStatement(
-                            ValueIsNotNull(new CodeVariableReferenceExpression(pk.Storage)),
+                            ValueIsNotNull(new CodeVariableReferenceExpression(GetStorageFieldName(pk))),
                             update);
                 }
                 method.Statements.Add(update);
@@ -1064,8 +1076,8 @@ namespace DbMetal.Generator
                                         new CodeTypeReference(pk.Type))),
                                 "Default"),
                             "Equals"),
-                        new CodeFieldReferenceExpression(thisReference, pk.Storage),
-                        new CodeFieldReferenceExpression(new CodeVariableReferenceExpression("value"), pk.Storage));
+                        new CodeFieldReferenceExpression(thisReference, GetStorageFieldName(pk)),
+                        new CodeFieldReferenceExpression(new CodeVariableReferenceExpression("value"), GetStorageFieldName(pk)));
                 equals = equals == null
                     ? (CodeExpression) compare
                     : (CodeExpression) new CodeBinaryOperatorExpression(
@@ -1097,7 +1109,7 @@ namespace DbMetal.Generator
                     }
 
                     var childType = new CodeTypeReference("EntitySet", new CodeTypeReference(child.Type));
-                    var storage = GetAssociationStorage(child);
+                    var storage = GetStorageFieldName(child);
                     entity.Members.Add(new CodeMemberField(childType, storage));
 
                     var childName = hasDuplicates
@@ -1109,7 +1121,7 @@ namespace DbMetal.Generator
                         Attributes  = ToMemberAttributes(child),
                         CustomAttributes = {
                             new CodeAttributeDeclaration("Association",
-                                new CodeAttributeArgument("Storage", new CodePrimitiveExpression(child.Storage)),
+                                new CodeAttributeArgument("Storage", new CodePrimitiveExpression(GetStorageFieldName(child))),
                                 new CodeAttributeArgument("OtherKey", new CodePrimitiveExpression(child.OtherKey)),
                                 new CodeAttributeArgument("ThisKey", new CodePrimitiveExpression(child.ThisKey)),
                                 new CodeAttributeArgument("Name", new CodePrimitiveExpression(child.Name))),
@@ -1195,9 +1207,11 @@ namespace DbMetal.Generator
             return attrs;
         }
 
-        static string GetAssociationStorage(Association association)
+        static string GetStorageFieldName(Association association)
         {
-            return association.Storage ?? "_" + CreateIdentifier(association.Member);
+            return association.Storage != null 
+                ? GetStorageFieldName(association.Storage) 
+                : "_" + CreateIdentifier(association.Member);
         }
 
         static string CreateIdentifier(string value)
@@ -1283,7 +1297,7 @@ namespace DbMetal.Generator
                 }
 
                 string member = parent.Member;
-                string storageField = parent.Storage;
+                string storageField = GetStorageFieldName(parent);
                 // TODO: remove this
                 if (member == parent.ThisKey)
                 {
@@ -1381,7 +1395,7 @@ namespace DbMetal.Generator
                             // 5.2
                             }.Concat(Enumerable.Range(0, parentKeys.Length).Select(i =>
                                 (CodeStatement) new CodeAssignStatement(
-                                    new CodeVariableReferenceExpression(childColumns[i].Storage ?? childColumns[i].Member),
+                                    new CodeVariableReferenceExpression(GetStorageFieldName(childColumns[i])),
                                     new CodePropertyReferenceExpression(
                                         new CodePropertySetValueReferenceExpression(),
                                         parentKeys[i]))
@@ -1390,7 +1404,7 @@ namespace DbMetal.Generator
                             Enumerable.Range(0, parentKeys.Length).Select(i => {
                                 var column = parentTable.Type.Columns.Single(c => c.Member == childKeys[i]);
                                 return (CodeStatement) new CodeAssignStatement(
-                                    new CodeVariableReferenceExpression(childColumns[i].Storage ?? childColumns[i].Member),
+                                    new CodeVariableReferenceExpression(GetStorageFieldName(childColumns[i])),
                                     column.CanBeNull
                                         ? (CodeExpression) new CodePrimitiveExpression(null)
                                         : (CodeExpression) new CodeDefaultValueExpression(new CodeTypeReference(column.Type)));
