@@ -388,12 +388,12 @@ namespace DbMetal.Generator
             if (Provider is CSharpCodeProvider)
             {
                 startIf = string.Format("Start {0}{1}#if {0}{1}", condition, Environment.NewLine);
-                elseIf  = string.Format("End {0}{1}    #endregion{1}#else     // {0}", condition, Environment.NewLine);
+                elseIf  = string.Format("End {0}{1}\t#endregion{1}#else     // {0}", condition, Environment.NewLine);
             }
             if (Provider is VBCodeProvider)
             {
                 startIf = string.Format("Start {0}\"{1}#If {0} Then{1}    '", condition, Environment.NewLine);
-                elseIf  = string.Format("End {0}\"{1}    #End Region{1}#Else     ' {0}", condition, Environment.NewLine);
+                elseIf  = string.Format("End {0}\"{1}\t#End Region{1}#Else     ' {0}", condition, Environment.NewLine);
             }
             if (startIf != null && elseIf != null)
             {
@@ -407,11 +407,11 @@ namespace DbMetal.Generator
             string endIf = null;
             if (Provider is CSharpCodeProvider)
             {
-                endIf   = string.Format("End Not {0}{1}    #endregion{1}#endif     // {0}", condition, Environment.NewLine);
+                endIf   = string.Format("End Not {0}{1}\t#endregion{1}#endif     // {0}", condition, Environment.NewLine);
             }
             if (Provider is VBCodeProvider)
             {
-                endIf   = string.Format("End Not {0}\"{1}    #End Region{1}#End If     ' {0}", condition, Environment.NewLine);
+                endIf   = string.Format("End Not {0}\"{1}\t#End Region{1}#End If     ' {0}", condition, Environment.NewLine);
             }
             if (endIf != null)
             {
