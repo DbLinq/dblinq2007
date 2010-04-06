@@ -1217,29 +1217,37 @@ namespace DbMetal.Generator
                 // ... to get the parent name
                 var memberName = reverseChild.Member;
 
+                var sendPropertyChanging = new CodeExpressionStatement(
+                        new CodeMethodInvokeExpression(
+                            new CodeMethodReferenceExpression(thisReference, "SendPropertyChanging")));
+
                 var attach = new CodeMemberMethod() {
                     Name = child.Member + "_Attach",
                     Parameters = {
                         new CodeParameterDeclarationExpression(child.Type, "entity"),
                     },
+                    Statements = {
+                        sendPropertyChanging,
+                        new CodeAssignStatement(
+                            new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("entity"), memberName),
+                            thisReference),
+                    },
                 };
                 handlers.Add(attach);
-                attach.Statements.Add(
-                    new CodeAssignStatement(
-                        new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("entity"), memberName),
-                        thisReference));
 
                 var detach = new CodeMemberMethod() {
                     Name = child.Member + "_Detach",
                     Parameters = {
                         new CodeParameterDeclarationExpression(child.Type, "entity"),
                     },
+                    Statements = {
+                        sendPropertyChanging,
+                        new CodeAssignStatement(
+                            new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("entity"), memberName),
+                            new CodePrimitiveExpression(null)),
+                    },
                 };
                 handlers.Add(detach);
-                detach.Statements.Add(
-                    new CodeAssignStatement(
-                        new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("entity"), memberName),
-                        new CodePrimitiveExpression(null)));
             }
 
             if (handlers.Count == 0)
