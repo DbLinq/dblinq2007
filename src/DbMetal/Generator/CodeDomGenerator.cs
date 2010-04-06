@@ -144,7 +144,7 @@ namespace DbMetal.Generator
 
         protected virtual CodeNamespace GenerateCodeDomModel(Database database)
         {
-            CodeNamespace _namespace = new CodeNamespace(database.ContextNamespace);
+            CodeNamespace _namespace = new CodeNamespace(Context.Parameters.Namespace ?? database.ContextNamespace);
 
             _namespace.Imports.Add(new CodeNamespaceImport("System"));
             _namespace.Imports.Add(new CodeNamespaceImport("System.ComponentModel"));
