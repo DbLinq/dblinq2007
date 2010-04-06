@@ -1193,7 +1193,7 @@ namespace DbMetal.Generator
 
         static string GetAssociationStorage(Association association)
         {
-            return association.Storage ?? "_" + CreateIdentifier(association.Name) + "_" + association.GetHashCode();
+            return association.Storage ?? "_" + CreateIdentifier(association.Member);
         }
 
         static string CreateIdentifier(string value)
