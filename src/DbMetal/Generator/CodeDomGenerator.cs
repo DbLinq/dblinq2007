@@ -683,6 +683,8 @@ namespace DbMetal.Generator
                 };
                 if (defAttrValues.IsPrimaryKey != column.IsPrimaryKey)
                     args.Add(new CodeAttributeArgument("IsPrimaryKey", new CodePrimitiveExpression(column.IsPrimaryKey)));
+                if (defAttrValues.IsDbGenerated != column.IsDbGenerated)
+                    args.Add(new CodeAttributeArgument("IsDbGenerated", new CodePrimitiveExpression(column.IsDbGenerated)));
                 if (column.AutoSync != DbLinq.Schema.Dbml.AutoSync.Default)
                     args.Add(new CodeAttributeArgument("AutoSync", 
                         new CodeFieldReferenceExpression(new CodeTypeReferenceExpression("AutoSync"), column.AutoSync.ToString())));
