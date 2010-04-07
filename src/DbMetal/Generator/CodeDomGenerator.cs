@@ -660,6 +660,10 @@ namespace DbMetal.Generator
             // columns
             foreach (Column column in table.Type.Columns)
             {
+                var relatedAssociations = from a in table.Type.Associations
+                                          where a.IsForeignKey && a.TheseKeys.Contains(column.Name)
+                                          select a;
+
                 var type = ToCodeTypeReference(column);
                 var columnMember = column.Member ?? column.Name;
 
@@ -698,6 +702,22 @@ namespace DbMetal.Generator
 
                 property.GetStatements.Add(new CodeMethodReturnStatement(fieldReference));
 
+                var whenUpdating = new List<CodeStatement>(
+                    from assoc in relatedAssociations
+                    select (CodeStatement) new CodeConditionStatement(
+                        new CodePropertyReferenceExpression(
+                            new CodeVariableReferenceExpression(GetStorageFieldName(assoc)),
+                            "HasLoadedOrAssignedValue"),
+                        new CodeThrowExceptionStatement(
+                            new CodeObjectCreateExpression(typeof(System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException)))));
+                whenUpdating.AddRange(new CodeStatement[]{
+                        new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, onChanging, new CodePropertySetValueReferenceExpression())),
+                        new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, "SendPropertyChanging")),
+                        new CodeAssignStatement(fieldReference, new CodePropertySetValueReferenceExpression()),
+                        new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, "SendPropertyChanged", new CodePrimitiveExpression(property.Name))),
+                        new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, onChanged)),
+                });
+
                 var fieldType = TypeLoader.Load(column.Type);
                 // This is needed for VB.NET generation; 
                 // int/string/etc. can use '<>' for comparison, but NOT arrays and other reference types.
@@ -709,14 +729,7 @@ namespace DbMetal.Generator
                 CodeBinaryOperatorExpression condition = fieldType.IsClass || fieldType.IsNullable()
                     ? ValuesAreNotEqual_Ref(new CodeVariableReferenceExpression(field.Name), new CodePropertySetValueReferenceExpression())
                     : ValuesAreNotEqual(new CodeVariableReferenceExpression(field.Name), new CodePropertySetValueReferenceExpression());
-                property.SetStatements.Add(
-                    new CodeConditionStatement(
-                        condition,
-                        new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, onChanging, new CodePropertySetValueReferenceExpression())),
-                        new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, "SendPropertyChanging")),
-                        new CodeAssignStatement(fieldReference, new CodePropertySetValueReferenceExpression()),
-                        new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, "SendPropertyChanged", new CodePrimitiveExpression(property.Name))),
-                        new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, onChanged))));
+                property.SetStatements.Add(new CodeConditionStatement(condition, whenUpdating.ToArray()));
                 _class.Members.Add(property);
             }
 
