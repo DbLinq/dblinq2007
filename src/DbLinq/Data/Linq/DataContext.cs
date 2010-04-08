@@ -268,7 +268,6 @@ namespace DbLinq.Data.Linq
 #if MONO_STRICT
                 assembly = typeof (DataContext).Assembly; // System.Data.Linq.dll
 #else
-                //TODO: check if DLL is already loaded?
                 assembly = Assembly.Load(assemblyName);
 #endif
             }
