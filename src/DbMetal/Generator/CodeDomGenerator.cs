@@ -562,7 +562,7 @@ namespace DbMetal.Generator
             CodeTypeReference type = null;
             if (function.Return != null)
             {
-                type = new CodeTypeReference(function.Return.Type);
+                type = GetFunctionType(function.Return.Type);
             }
 
             bool isDataShapeUnknown = function.ElementType == null
@@ -580,9 +580,23 @@ namespace DbMetal.Generator
             return type;
         }
 
+        static CodeTypeReference GetFunctionType(string type)
+        {
+            var t = System.Type.GetType(type);
+            if (t == null)
+                return new CodeTypeReference(type);
+            if (t.IsValueType)
+                return new CodeTypeReference(typeof(Nullable<>)) {
+                    TypeArguments = {
+                        new CodeTypeReference(t),
+                    },
+                };
+            return new CodeTypeReference(t);
+        }
+
         CodeParameterDeclarationExpression GetFunctionParameterType(Parameter parameter)
         {
-            var p = new CodeParameterDeclarationExpression(parameter.Type, parameter.Name) {
+            var p = new CodeParameterDeclarationExpression(GetFunctionType(parameter.Type), parameter.Name) {
                 CustomAttributes = {
                     new CodeAttributeDeclaration("Parameter",
                         new CodeAttributeArgument("Name", new CodePrimitiveExpression(parameter.Name)),
