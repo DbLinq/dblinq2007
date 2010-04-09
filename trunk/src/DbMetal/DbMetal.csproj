@@ -196,6 +196,7 @@
     <DependentAssembly Include="$(SolutionDir)..\lib\Ingres.Stereo.dll" />
     <DependentAssembly Include="$(SolutionDir)..\lib\Oracle.DataAccess.dll" />
     <DependentAssembly Include="$(SolutionDir)..\lib\MySql.Data.dll" />
+    <DependentAssembly Include="$(SolutionDir)..\lib\sqlite3.dll" />
     <DependentAssembly Include="$(SolutionDir)..\lib\System.Data.SQLite.DLL" />
     <DependentAssembly Include="$(SolutionDir)..\lib\FirebirdSql.Data.FirebirdClient.dll" />
   </ItemGroup>
