@@ -108,6 +108,10 @@ namespace DbMetal.Generator.Implementation
                 ISchemaLoader schemaLoader;
                 // then we load the schema
                 var dbSchema = ReadSchema(parameters, out schemaLoader);
+
+                if (!SchemaIsValid(dbSchema))
+                    return;
+
                 // the we write it (to DBML or code)
                 WriteSchema(dbSchema, schemaLoader, parameters);
             }
@@ -116,6 +120,35 @@ namespace DbMetal.Generator.Implementation
                 string assemblyName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
                 Log.WriteErrorLine(assemblyName + ": {0}", parameters.Debug ? ex.ToString() : ex.Message);
             }
+        }
+
+        bool SchemaIsValid(Database database)
+        {
+            bool error = false;
+            foreach (var table in database.Tables)
+            {
+                error = ValidateAssociations(database, table) || error;
+            }
+            return !error;
+        }
+
+        bool ValidateAssociations(Database database, Table table)
+        {
+            bool error = false;
+            foreach (var association in table.Type.Associations)
+            {
+                var otherType           = database.Tables.Single(t => t.Type.Name == association.Type).Type;
+                var otherAssociation    = otherType.Associations.Single(a => a.Type == table.Type.Name && a.ThisKey == association.OtherKey);
+                var otherColumn         = otherType.Columns.Single(c => c.Name == association.OtherKey);
+
+                if (association.CardinalitySpecified && association.Cardinality == Cardinality.Many && association.IsForeignKey)
+                {
+                    error = true;
+                    Log.WriteErrorLine("Error DBML1059: The IsForeignKey attribute of the Association element '{0}' of the Type element '{1}' cannnot be '{2}' when the Cardinality attribute is '{3}'.",
+                            association.Name, table.Type.Name, association.IsForeignKey, association.Cardinality);
+                }
+            }
+            return error;
         }
 
         protected void WriteSchema(Database dbSchema, ISchemaLoader schemaLoader, Parameters parameters)
