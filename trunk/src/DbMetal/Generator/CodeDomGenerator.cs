@@ -621,8 +621,12 @@ namespace DbMetal.Generator
 
             WriteCustomTypes(_class, table);
 
-            GenerateINotifyPropertyChanging(_class);
-            GenerateINotifyPropertyChanged(_class);
+            var havePrimaryKeys = table.Type.Columns.Any(c => c.IsPrimaryKey);
+            if (havePrimaryKeys)
+            {
+                GenerateINotifyPropertyChanging(_class);
+                GenerateINotifyPropertyChanged(_class);
+            }
 
             // Implement Constructor
             var constructor = new CodeConstructor() { Attributes = MemberAttributes.Public };
@@ -710,13 +714,18 @@ namespace DbMetal.Generator
                             "HasLoadedOrAssignedValue"),
                         new CodeThrowExceptionStatement(
                             new CodeObjectCreateExpression(typeof(System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException)))));
-                whenUpdating.AddRange(new CodeStatement[]{
-                        new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, onChanging, new CodePropertySetValueReferenceExpression())),
-                        new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, "SendPropertyChanging")),
-                        new CodeAssignStatement(fieldReference, new CodePropertySetValueReferenceExpression()),
-                        new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, "SendPropertyChanged", new CodePrimitiveExpression(property.Name))),
-                        new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, onChanged)),
-                });
+                whenUpdating.Add(
+                        new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, onChanging, new CodePropertySetValueReferenceExpression())));
+                if (havePrimaryKeys)
+                    whenUpdating.Add(
+                            new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, "SendPropertyChanging")));
+                whenUpdating.Add(
+                        new CodeAssignStatement(fieldReference, new CodePropertySetValueReferenceExpression()));
+                if (havePrimaryKeys)
+                    whenUpdating.Add(
+                            new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, "SendPropertyChanged", new CodePrimitiveExpression(property.Name))));
+                whenUpdating.Add(
+                        new CodeExpressionStatement(new CodeMethodInvokeExpression(thisReference, onChanged)));
 
                 var fieldType = TypeLoader.Load(column.Type);
                 // This is needed for VB.NET generation; 
@@ -1240,6 +1249,8 @@ namespace DbMetal.Generator
             if (!children.Any())
                 return;
 
+            var havePrimaryKeys = table.Type.Columns.Any(c => c.IsPrimaryKey);
+
             var handlers = new List<CodeTypeMember>();
 
             foreach (var child in children)
@@ -1259,28 +1270,28 @@ namespace DbMetal.Generator
                     Parameters = {
                         new CodeParameterDeclarationExpression(child.Type, "entity"),
                     },
-                    Statements = {
-                        sendPropertyChanging,
-                        new CodeAssignStatement(
-                            new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("entity"), memberName),
-                            thisReference),
-                    },
                 };
                 handlers.Add(attach);
+                if (havePrimaryKeys)
+                    attach.Statements.Add(sendPropertyChanging);
+                attach.Statements.Add(
+                        new CodeAssignStatement(
+                            new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("entity"), memberName),
+                            thisReference));
 
                 var detach = new CodeMemberMethod() {
                     Name = child.Member + "_Detach",
                     Parameters = {
                         new CodeParameterDeclarationExpression(child.Type, "entity"),
                     },
-                    Statements = {
-                        sendPropertyChanging,
-                        new CodeAssignStatement(
-                            new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("entity"), memberName),
-                            new CodePrimitiveExpression(null)),
-                    },
                 };
                 handlers.Add(detach);
+                if (havePrimaryKeys)
+                    detach.Statements.Add(sendPropertyChanging);
+                detach.Statements.Add(
+                        new CodeAssignStatement(
+                            new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("entity"), memberName),
+                            new CodePrimitiveExpression(null)));
             }
 
             if (handlers.Count == 0)
