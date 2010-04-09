@@ -1,0 +1,39 @@
+#summary How to create a DbLinq release
+#labels Phase-Support
+
+= Introduction =
+
+Using svn trunk isn't for everyone.  Some developers like actual releases.  Here's how to create a DbLinq release.
+
+= Details =
+
+  # Create a branch:
+{{{
+svn cp https://dblinq2007.googlecode.com/svn/trunk https://dblinq2007.googlecode.com/svn/branches/dblinq-MAJOR-MINOR
+}}}
+  # Create a tag:
+{{{
+svn cp https://dblinq2007.googlecode.com/svn/trunk https://dblinq2007.googlecode.com/svn/tags/dblinq-MAJOR-MINOR
+}}}
+  # Grab "pristine" sources:
+{{{
+svn co https://dblinq2007.googlecode.com/svn/tags/dblinq-MAJOR-MINOR DbLinq-MAJOR.MINOR
+}}}
+  # Remove traces of Subversion:
+{{{
+find DbLinq-MAJOR.MINOR -type d -name .svn -exec rm -Rf {} \;
+}}}
+  # Create `src.zip` file:
+{{{
+zip -r DbLinq-MAJOR.MINOR-src.zip DbLinq-MAJOR.MINOR
+}}}
+  # Build the binaries: Open `DbLinq-MAJOR.MINOR/src/DbLinq.sln` in Visual Studio, set the Solution Configuration to `Release`, and Build.
+  # Run the unit tests: Open `DbLinq-MAJOR.MINOR/DbLinq-Sqlite-Sqlserver.nunit` within NUnit and run all the tests.
+  # Package the binaries:
+{{{
+cd DbLinq-MAJOR.MINOR
+mkdir DbLinq-MAJOR.MINOR
+cp build/DbLinq* build/DbMetal* DbLinq-MAJOR.MINOR
+rm DbLinq-MAJOR.MINOR/*_test*
+zip -r ../DbLinq-MAJOR.MINOR.zip DbLinq-MAJOR.MINOR
+}}}
