@@ -27,7 +27,12 @@ find DbLinq-MAJOR.MINOR -type d -name .svn -exec rm -Rf {} \;
 {{{
 zip -r DbLinq-MAJOR.MINOR-src.zip DbLinq-MAJOR.MINOR
 }}}
-  # Build the binaries: Open `DbLinq-MAJOR.MINOR/src/DbLinq.sln` in Visual Studio, set the Solution Configuration to `Release`, and Build.
+  # Build the binaries: 
+{{{
+MSBuild /p:Configuration=Release DbLinq-MAJOR.MINOR\src\DbLinq.sln
+# or with mono
+xbuild  /p:Configuration=Release DbLinq-MAJOR.MINOR/src/DbLinq.sln
+}}}
   # Run the unit tests: Open `DbLinq-MAJOR.MINOR/DbLinq-Sqlite-Sqlserver.nunit` within NUnit and run all the tests.
   # Package the binaries:
 {{{
