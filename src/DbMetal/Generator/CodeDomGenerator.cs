@@ -1249,7 +1249,7 @@ namespace DbMetal.Generator
         {
             return association.Storage != null 
                 ? GetStorageFieldName(association.Storage) 
-                : "_" + CreateIdentifier(association.Member);
+                : "_" + CreateIdentifier(association.Member ?? association.Name);
         }
 
         static string CreateIdentifier(string value)
