@@ -40,7 +40,7 @@ namespace DbLinq.Data.Linq.Mapping
         	_containingModel = model;
 
 			//If the attribute doesn't specify a table name the name of the table class is used
-			if(attribute.Name != null)
+			if(!string.IsNullOrEmpty(attribute.Name))
 			{
 				_tableName = attribute.Name;
 			}
