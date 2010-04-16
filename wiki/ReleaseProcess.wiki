@@ -3,42 +3,42 @@
 
 = Introduction =
 
-Using svn trunk isn't for everyone.  Some developers like actual releases.  Here's how to create a DbLinq release.
+Using svn trunk isn't for everyone.  Some developers like actual releases.  Here's how to create a DbLinq release.  In the following instructions, `$MAJOR` is the major version number, and `$MINOR` is the minor version number, thus version 0.20 would have `MAJOR=0` and `MINOR=20`.
 
 = Details =
 
   # Create a branch:
 {{{
-svn cp https://dblinq2007.googlecode.com/svn/trunk https://dblinq2007.googlecode.com/svn/branches/dblinq-MAJOR-MINOR
+svn cp https://dblinq2007.googlecode.com/svn/trunk https://dblinq2007.googlecode.com/svn/branches/dblinq-$MAJOR-$MINOR
 }}}
   # Create a tag:
 {{{
-svn cp https://dblinq2007.googlecode.com/svn/trunk https://dblinq2007.googlecode.com/svn/tags/dblinq-MAJOR-MINOR
+svn cp https://dblinq2007.googlecode.com/svn/trunk https://dblinq2007.googlecode.com/svn/tags/dblinq-$MAJOR-$MINOR
 }}}
   # Grab "pristine" sources:
 {{{
-svn co https://dblinq2007.googlecode.com/svn/tags/dblinq-MAJOR-MINOR DbLinq-MAJOR.MINOR
+svn co https://dblinq2007.googlecode.com/svn/tags/dblinq-$MAJOR-$MINOR DbLinq-$MAJOR.$MINOR
 }}}
   # Remove traces of Subversion:
 {{{
-find DbLinq-MAJOR.MINOR -type d -name .svn -exec rm -Rf {} \;
+find DbLinq-$MAJOR.$MINOR -type d -name .svn -exec rm -Rf {} \;
 }}}
   # Create `src.zip` file:
 {{{
-zip -r DbLinq-MAJOR.MINOR-src.zip DbLinq-MAJOR.MINOR
+zip -r DbLinq-$MAJOR.$MINOR-src.zip DbLinq-$MAJOR.$MINOR
 }}}
   # Build the binaries: 
 {{{
-MSBuild /p:Configuration=Release DbLinq-MAJOR.MINOR\src\DbLinq.sln
+MSBuild /p:Configuration=Release DbLinq-%MAJOR%.%MINOR%\src\DbLinq.sln
 # or with mono
-xbuild  /p:Configuration=Release DbLinq-MAJOR.MINOR/src/DbLinq.sln
+xbuild  /p:Configuration=Release DbLinq-$MAJOR.$MINOR/src/DbLinq.sln
 }}}
   # Run the unit tests: Open `DbLinq-MAJOR.MINOR/DbLinq-Sqlite-Sqlserver.nunit` within NUnit and run all the tests.
   # Package the binaries:
 {{{
-cd DbLinq-MAJOR.MINOR
-mkdir DbLinq-MAJOR.MINOR
-cp build/DbLinq* build/DbMetal* DbLinq-MAJOR.MINOR
-rm DbLinq-MAJOR.MINOR/*_test*
-zip -r ../DbLinq-MAJOR.MINOR.zip DbLinq-MAJOR.MINOR
+cd DbLinq-$MAJOR.$MINOR
+mkdir DbLinq-$MAJOR.$MINOR
+cp build/DbLinq* build/DbMetal* DbLinq-$MAJOR.$MINOR
+rm DbLinq-$MAJOR.$MINOR/*_test*
+zip -r ../DbLinq-$MAJOR.$MINOR.zip DbLinq-$MAJOR.$MINOR
 }}}
