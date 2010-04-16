@@ -33,7 +33,10 @@ MSBuild /p:Configuration=Release DbLinq-%MAJOR%.%MINOR%\src\DbLinq.sln
 # or with mono
 xbuild  /p:Configuration=Release DbLinq-$MAJOR.$MINOR/src/DbLinq.sln
 }}}
-  # Run the unit tests: Open `DbLinq-MAJOR.MINOR/DbLinq-Sqlite-Sqlserver.nunit` within NUnit and run all the tests.
+  # Run the unit tests.  No tests should fail.
+{{{
+nunit-x86.exe DbLinq-%MAJOR%-%MINOR%\DbLinq-Sqlite-Sqlserver.nunit
+}}}
   # Package the binaries:
 {{{
 cd DbLinq-$MAJOR.$MINOR
