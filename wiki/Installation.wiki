@@ -89,7 +89,7 @@ var db = new Northwind(connection, new DbLinq.Sqlite.SqliteVendor());
 
 Note that in all three situations, the ADO.NET provider assembly and the DbLinq provider assembly must be present in locations that `Type.GetType()` can find them, e.g. the GAC, the same directory as your main `.exe` assembly, your webapp `bin` directory, etc.
 
-= Why? =
+= Why aren't ADO.NET provider assemblies bundled with DbLinq? =
 
 There are a variety of ADO.NET providers for databases.  For example, there are two ADO.NET providers for Oracle (e.g. [http://msdn.microsoft.com/en-us/library/system.data.oracleclient.aspx System.Data.OracleClient] and [http://www.oracle.com/technology/software/htdocs/distlic.html?url=/technology/software/tech/windows/odpnet/utilsoft.html Oracle.DataAccess]), and multiple versions of the SQLite provider.  This raises two problems:
 
@@ -97,3 +97,11 @@ There are a variety of ADO.NET providers for databases.  For example, there are 
   # The licensing for many providers is [http://groups.google.com/group/dblinq/msg/2981c81492fcf32a unclear] or otherwise incompatible with DbLinq's license.
 
 We don't wish to step into a legal minefield, so for simplicity and consistency no ADO.NET providers are included with the DbLinq binaries.
+
+= Mono Considerations =
+
+Mono's `System.Data.Linq.dll` is built by including all of the !DbLinq Provider assembly code into `System.Data.Linq.dll`, and then by making all !DbLinq-specific types `internal` to the assembly.
+
+Consequently:
+  # If using `DbMetal.exe` to generate your entity definitions, you must define the `MONO_STRICT` conditional compilation symbol so that !DbLinq-specific types won't be referenced when compiling (e.g. by adding `-d:MONO_STRICT` to your compiler options).
+  # When [#To_use_DbLinq using] Mono's `System.Data.Linq.dll`, you can't use the `IVendor` interface, as this is `internal`.  You can only rely on the `DbLinqConnectionType` and `DbLinqProvider` connection string parameters (option 1) or provide an `IDbConnection` instance having a `DbLinqProvider` connection string parameter within the [http://msdn.microsoft.com/en-us/library/system.data.idbconnection.connectionstring.aspx IDbConnection.ConnectionString] property value (option 2).
