@@ -1,3 +1,5 @@
+**Archived project**: this project is not maintained anymore.
+
 #Welcome to DbLinq
 ##LINQ provider for Oracle, PostgreSQL, MySQL, Ingres, SQLite, Firebird and ... SQL Server (C# 3.0)
 
