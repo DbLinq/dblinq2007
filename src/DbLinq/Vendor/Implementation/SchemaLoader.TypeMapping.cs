@@ -104,6 +104,7 @@ namespace DbLinq.Vendor.Implementation
             case "rowid":   // oracle type
             case "urowid":  // oracle type
             case "tinytext": // mysql type
+            case "cstring":
                 return typeof(String);
 
             // bool
@@ -223,18 +224,63 @@ namespace DbLinq.Vendor.Implementation
             case "void":
                 return null;
 
+            // JSON data, PostgreSQL types
+            case "json":
+            case "jsonb":
+            case "jsquery":
+                return typeof(String);
+
             case "array":
-            {
                 if(dataType is DataTableColumn)
                 {
                     var dataTypeColumn = dataType as DataTableColumn;
-                    if(dataTypeColumn.UdtName == "_int4")
-                        return typeof(int[]);
-                    else if (dataTypeColumn.UdtName == "_text")
-                        return typeof(string[]);
+                    switch (dataTypeColumn.UdtName.Replace("_", ""))
+                    {
+                        case "bool":
+                            return typeof(bool[]);
+                        case "int2":
+                            return typeof(Int16[]);
+                        case "int4":
+                            return typeof(int[]);
+                        case "int8":
+                            return typeof(Int64[]);
+                        case "numeric":
+                            return typeof(decimal[]);
+                        case "float4":
+                            return typeof(float[]);
+                        case "float8":
+                            return typeof(double[]);
+                        case "text":
+                            return typeof(string[]);
+                        case "date":
+                        case "timestamp":
+                            return typeof(DateTime[]);
+                    }
                 }
                 return typeof(object[]);
-            }
+
+            case "text[]":
+                return typeof(string[]);
+
+            case "anyarray":
+                return typeof(object[]);
+
+            case "hstore":
+                return typeof(Dictionary<string, string>);
+
+            case "user-defined":
+                if ((dataType is DataTableColumn) && (dataType as DataTableColumn).UdtName.Replace("_", "") == "hstore")
+                {
+                    return typeof(Dictionary<string, string>);
+                }
+                throw new ArgumentException(string.Format("Don't know how to convert the SQL type '{0}' into a managed type.",
+                    dataTypeL), "dataType");
+
+            case "internal":
+            case "record":
+            case "anyelement":
+            case "ghstore":
+                return typeof(object);
 
             // if we fall to this case, we must handle the type
             default:

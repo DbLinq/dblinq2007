@@ -88,7 +88,7 @@ namespace DbLinq.PostgreSql
         {
             string sql = @"
 SELECT pr.proowner, pr.proname, pr.proretset, pr.prorettype, pg_catalog.format_type(pr.prorettype, NULL) 
-  ,pr.proargtypes, pr.proallargtypes, pr.proargnames, pr.proargmodes
+  ,pr.proargtypes, pr.proallargtypes::text, pr.proargnames, pr.proargmodes
 FROM pg_proc pr, pg_type tp 
 WHERE tp.oid = pr.prorettype AND pr.proisagg = FALSE 
 AND tp.typname <> 'trigger' 
