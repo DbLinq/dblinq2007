@@ -71,6 +71,7 @@ namespace DbLinq.PostgreSql
             column.Length = rdr.GetAsNullableNumeric<long>(field++);
             column.Precision = rdr.GetAsNullableNumeric<int>(field++);
             column.Scale = rdr.GetAsNullableNumeric<int>(field++);
+            column.UdtName = rdr.GetAsString(field++);
 
             column.FullType = GetColumnFullType(domain_name, domain_schema, column);
 
@@ -82,7 +83,7 @@ namespace DbLinq.PostgreSql
             const string sql = @"
 SELECT table_schema, table_name, column_name
     ,is_nullable, data_type, domain_schema, domain_name, column_default
-    ,character_maximum_length, numeric_precision, numeric_scale
+    ,character_maximum_length, numeric_precision, numeric_scale, udt_name
 FROM information_schema.COLUMNS
 WHERE table_catalog=:db
     AND table_schema NOT IN ('pg_catalog','information_schema')

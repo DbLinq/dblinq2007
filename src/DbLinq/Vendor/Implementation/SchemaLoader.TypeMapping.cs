@@ -223,6 +223,19 @@ namespace DbLinq.Vendor.Implementation
             case "void":
                 return null;
 
+            case "array":
+            {
+                if(dataType is DataTableColumn)
+                {
+                    var dataTypeColumn = dataType as DataTableColumn;
+                    if(dataTypeColumn.UdtName == "_int4")
+                        return typeof(int[]);
+                    else if (dataTypeColumn.UdtName == "_text")
+                        return typeof(string[]);
+                }
+                return typeof(object[]);
+            }
+
             // if we fall to this case, we must handle the type
             default:
                 throw new ArgumentException(
