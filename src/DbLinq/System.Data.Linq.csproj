@@ -139,6 +139,7 @@
     <Compile Include="Data\Linq\Implementation\EntityTrack.cs" />
     <Compile Include="Data\Linq\Implementation\EntityTracker.cs" />
     <Compile Include="Data\Linq\Implementation\IEntityTracker.cs" />
+    <Compile Include="Data\Linq\Implementation\IQueryProvider.cs" />
     <Compile Include="Data\Linq\Implementation\MemberModificationHandler.cs" />
     <Compile Include="Data\Linq\Implementation\QueryProvider.cs" />
     <Compile Include="Data\Linq\Implementation\VendorProvider.cs" />
