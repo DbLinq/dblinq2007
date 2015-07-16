@@ -604,8 +604,9 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     else
                         projectionOperand = Analyze(groupOperand0.GroupedExpression, builderContext);
                 }
-                else if ((operand0 is TableExpression) && parameters.Count > 1 && (specialExpressionType == SpecialExpressionType.Min ||
-                    specialExpressionType == SpecialExpressionType.Max || specialExpressionType == SpecialExpressionType.Average))
+                else if ((operand0 is TableExpression) && parameters.Count > 1 && 
+                    (specialExpressionType == SpecialExpressionType.Min || specialExpressionType == SpecialExpressionType.Max ||
+                    specialExpressionType == SpecialExpressionType.Average || specialExpressionType == SpecialExpressionType.Sum))
                 {
                     projectionOperand = Analyze(parameters[1], parameters[0], builderContext);
                 }
