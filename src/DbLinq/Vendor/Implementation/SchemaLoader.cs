@@ -73,6 +73,15 @@ namespace DbLinq.Vendor.Implementation
             set { log = value; }
         }
 
+#if !MONO_STRICT
+        protected bool useContextClassNamePostfix;
+
+        protected string ContextClassNamePostfix
+        {
+            get { return useContextClassNamePostfix ? "Context" : ""; }
+        }
+#endif
+
         /// <summary>
         /// Loads database schema
         /// </summary>
@@ -84,7 +93,11 @@ namespace DbLinq.Vendor.Implementation
         /// <param name="entityNamespace"></param>
         /// <returns></returns>
         public virtual Database Load(string databaseName, INameAliases nameAliases, NameFormat nameFormat,
-            bool loadStoredProcedures, string contextNamespace, string entityNamespace)
+            bool loadStoredProcedures, string contextNamespace, string entityNamespace
+#if !MONO_STRICT
+            , string contextNameMode
+#endif
+            )
         {
             // check if connection is open. Note: we may use something more flexible
             if (Connection.State != ConnectionState.Open)
@@ -99,7 +112,14 @@ namespace DbLinq.Vendor.Implementation
 
             databaseName = GetDatabaseNameAliased(databaseName, nameAliases);
 
+#if MONO_STRICT
             var schemaName = NameFormatter.GetSchemaName(databaseName, GetExtraction(databaseName), nameFormat);
+#else
+            var extraction = contextNameMode.StartsWith("wordcase") ? WordsExtraction.FromCase : GetExtraction(databaseName);
+            useContextClassNamePostfix = contextNameMode.Contains("context");
+            var schemaName = NameFormatter.GetSchemaName(databaseName, extraction, nameFormat, ContextClassNamePostfix);
+#endif
+
             var names = new Names();
             var schema = new Database
                              {
@@ -325,7 +345,11 @@ namespace DbLinq.Vendor.Implementation
                 if (string.IsNullOrEmpty(databaseName))
                     throw new ArgumentException("Could not deduce database name from connection string. Please specify /database=<databaseName>");
             }
+#if MONO_STRICT
             return NameFormatter.GetSchemaName(databaseName, GetExtraction(databaseName), nameFormat);
+#else
+            return NameFormatter.GetSchemaName(databaseName, GetExtraction(databaseName), nameFormat, ContextClassNamePostfix);
+#endif
         }
 
         protected virtual ParameterName CreateParameterName(string dbParameterName, NameFormat nameFormat)
