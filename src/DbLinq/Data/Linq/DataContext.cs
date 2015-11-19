@@ -1024,6 +1024,19 @@ namespace DbLinq.Data.Linq
             return QueryRunner.ExecuteSelect(elementType, directQuery, parameters);
         }
 
+#if !MONO_STRICT
+        /// <summary>
+        /// Execute raw SQL query and return primitive object
+        /// </summary>
+        public IEnumerable<TResult> ExecuteQueryPrimitive<TResult>(string query, params object[] parameters)
+        {
+            if (query == null)
+                throw new ArgumentNullException("query");
+
+            return ExecuteQuery<ObjectWrapper>(query, parameters).Select(x => (TResult)x.Value);
+        }
+#endif
+
         /// <summary>
         /// Gets or sets the load options
         /// </summary>

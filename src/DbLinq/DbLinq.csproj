@@ -100,6 +100,7 @@
     <Compile Include="Data\Linq\Mapping\LambdaMetaAccessor.cs" />
     <Compile Include="Data\Linq\Mapping\MappingContext.cs" />
     <Compile Include="Data\Linq\Mapping\XmlMappingSource.cs" />
+    <Compile Include="Data\Linq\ObjectWrapper.cs" />
     <Compile Include="Data\Linq\SqlClient\FirebirdProvider.cs" />
     <Compile Include="Data\Linq\SqlClient\Sql2005Provider.cs" />
     <Compile Include="Data\Linq\SqlClient\Sql2000Provider.cs" />
