@@ -994,6 +994,17 @@ namespace DbLinq.Data.Linq
             return QueryRunner.Execute(directQuery, parameters);
         }
 
+#if !MONO_STRICT
+        /// <summary>
+        /// use ExecuteCommandRaw to call absolutely raw, unfiltered SQL (e.g. with [] symbols)
+        /// </summary>
+        public int ExecuteCommandRaw(string command)
+        {
+            var directQuery = new DirectQuery(this, command, new List<string>());
+            return QueryRunner.Execute(directQuery, new object[0]);
+        }
+#endif
+
         /// <summary>
         /// Execute raw SQL query and return object
         /// </summary>
@@ -1027,7 +1038,7 @@ namespace DbLinq.Data.Linq
 
 #if !MONO_STRICT
         /// <summary>
-        /// Execute absolutely raw SQL query (e.g. with [] symbols) and return object
+        /// Execute absolutely raw, unfiltered SQL query (e.g. with [] symbols) and return object
         /// </summary>
         public IEnumerable<TResult> ExecuteQueryRaw<TResult>(string query) where TResult : class, new()
         {
