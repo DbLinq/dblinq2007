@@ -230,6 +230,10 @@ namespace DbLinq.Vendor.Implementation
             case "jsquery":
                 return typeof(String);
 
+            // XML data
+            case "xml":
+                return typeof(String);
+
             case "array":
                 if(dataType is DataTableColumn)
                 {
