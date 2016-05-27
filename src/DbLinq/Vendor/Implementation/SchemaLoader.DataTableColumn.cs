@@ -60,6 +60,9 @@ namespace DbLinq.Vendor.Implementation
             /// Determines if the column value is generated when there is no value given in insert
             /// </summary>
             public bool? Generated { get; set; }
+
+            /// <summary> Extended data type for PostgreSQL </summary>
+            public string UdtName { get; set; }
         }
     }
 }
