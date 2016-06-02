@@ -427,6 +427,11 @@ namespace DbLinq.Data.Linq.Sugar.Implementation
                     memberInfo = tableType.GetSingleMember(parameter, BindingFlags.Public | BindingFlags.NonPublic
                                                                       | BindingFlags.Instance | BindingFlags.IgnoreCase);
                 }
+                if (memberInfo == null && parameter.Contains('_'))
+                {
+                    memberInfo = tableType.GetSingleMember(parameter.Replace("_", ""), BindingFlags.Public | BindingFlags.NonPublic
+                                                                      | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                }
                 // TODO real error
                 if (memberInfo == null)
                     throw new ArgumentException(string.Format("Invalid column '{0}'", parameter));
