@@ -1024,7 +1024,38 @@ namespace DbLinq.Data.Linq
             return QueryRunner.ExecuteSelect(elementType, directQuery, parameters);
         }
 
+
 #if !MONO_STRICT
+        /// <summary>
+        /// Execute absolutely raw SQL query (e.g. with [] symbols) and return object
+        /// </summary>
+        public IEnumerable<TResult> ExecuteQueryRaw<TResult>(string query) where TResult : class, new()
+        {
+            if (query == null)
+                throw new ArgumentNullException("query");
+
+            return CreateExecuteQueryRawEnumerable<TResult>(query);
+        }
+
+        private IEnumerable<TResult> CreateExecuteQueryRawEnumerable<TResult>(string query)
+            where TResult : class, new()
+        {
+            foreach (TResult result in ExecuteQueryRaw(typeof(TResult), query))
+                yield return result;
+        }
+
+        public IEnumerable ExecuteQueryRaw(Type elementType, string query)
+        {
+            if (elementType == null)
+                throw new ArgumentNullException("elementType");
+            if (query == null)
+                throw new ArgumentNullException("query");
+
+            var queryContext = new QueryContext(this);
+            var directQuery = new DirectQuery(this, query, new List<string>());
+            return QueryRunner.ExecuteSelect(elementType, directQuery, new object[0]);
+        }
+
         /// <summary>
         /// Execute raw SQL query and return primitive object
         /// </summary>
