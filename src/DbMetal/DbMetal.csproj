@@ -140,6 +140,10 @@
       <Project>{32824F7E-9260-413C-B174-F3E315936FA7}</Project>
       <Name>DbLinq.PostgreSql</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DbLinq.SqlCe\DbLinq.SqlCe.csproj">
+      <Project>{76fb2e0f-c03b-4996-ad7d-81db93d0bf07}</Project>
+      <Name>DbLinq.SqlCe</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DbLinq.Sqlite\DbLinq.Sqlite.csproj">
       <Project>{60B9AFA1-99B4-4DE6-80E1-80BBED1AC755}</Project>
       <Name>DbLinq.Sqlite</Name>

@@ -169,6 +169,7 @@
     <DependentAssembly Include="$(SolutionDir)..\lib\sqlite3.dll" />
     <DependentAssembly Include="$(SolutionDir)..\lib\System.Data.SQLite.DLL" />
     <DependentAssembly Include="$(SolutionDir)..\lib\FirebirdSql.Data.FirebirdClient.dll" />
+    <DependentAssembly Include="$(SolutionDir)..\lib\System.Data.SqlServerCe.dll" />
   </ItemGroup>
   <Target Name="AfterBuild">
     <Copy 
