@@ -1075,7 +1075,7 @@ namespace DbLinq.Data.Linq
 			//We own the instance of MemberModificationHandler - we must unregister listeners of entities we attached to
 			MemberModificationHandler.UnregisterAll();
 
-            if (shouldConnectionBeDisposed)
+            if (shouldConnectionBeDisposed && DatabaseContext.Connection != null)
             {
                 DatabaseContext.Connection.Dispose();
             }
