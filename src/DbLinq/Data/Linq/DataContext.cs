@@ -83,6 +83,7 @@ namespace DbLinq.Data.Linq
         private bool deferredLoadingEnabled = true;
 
         private bool queryCacheEnabled = false;
+        private bool shouldConnectionBeDisposed = false;
 
         /// <summary>
         /// Disable the QueryCache: this is surely good for rarely used Select, since preparing
@@ -178,6 +179,11 @@ namespace DbLinq.Data.Linq
 
             IDbConnection dbConnection = ivendor.CreateDbConnection(fileOrServerOrConnection);
             Init(new DatabaseContext(dbConnection), mapping, ivendor);
+
+            // We just created the connection instance and we have to tell
+            // that it should dispose the connection when the context is disposed.
+            shouldConnectionBeDisposed = true;
+
             Profiler.At("END DataContext(string, MappingSource)");
         }
 
@@ -199,6 +205,10 @@ namespace DbLinq.Data.Linq
 
             IDbConnection dbConnection = ivendor.CreateDbConnection(connectionString);
             Init(new DatabaseContext(dbConnection), null, ivendor);
+
+            // We just created the connection instance and we have to tell
+            // that it should dispose the connection when the context is disposed.
+            shouldConnectionBeDisposed = true;
 
             Profiler.At("END DataContext(string)");
         }
@@ -1070,6 +1080,14 @@ namespace DbLinq.Data.Linq
 
 			//We own the instance of MemberModificationHandler - we must unregister listeners of entities we attached to
 			MemberModificationHandler.UnregisterAll();
+
+            // If we created the connection, we need to dispose it even if the user explicitly
+            // opened it using the Connection property on the context.
+            if (shouldConnectionBeDisposed && DatabaseContext.Connection != null)
+            {
+                DatabaseContext.Connection.Dispose();
+                DatabaseContext.Connection = null;
+            }
         }
 
         [DbLinqToDo]
