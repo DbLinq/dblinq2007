@@ -69,7 +69,10 @@ namespace DbLinq.Data.Linq.Implementation
     /// QueryProvider, generic version
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class QueryProvider<T> : QueryProvider, IQueryProvider, IQueryable<T>, IOrderedQueryable<T>, IQueryProvider<T>
+    internal class QueryProvider<T> : QueryProvider, IQueryProvider, IQueryable<T>, IOrderedQueryable<T>
+#if !MONO_STRICT
+        , IQueryProvider<T>
+#endif
     {
         /// <summary>
         /// Holder current datancontext
