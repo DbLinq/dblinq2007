@@ -41,7 +41,11 @@ namespace DbLinq.Schema
         /// <param name="extraction">The extraction.</param>
         /// <param name="nameFormat">The name format.</param>
         /// <returns></returns>
-        SchemaName GetSchemaName(string dbName, WordsExtraction extraction, NameFormat nameFormat);
+        SchemaName GetSchemaName(string dbName, WordsExtraction extraction, NameFormat nameFormat
+#if !MONO_STRICT
+            , string contextClassNamePostfix
+#endif
+            );
         /// <summary>
         /// Gets the name of the procedure.
         /// </summary>
