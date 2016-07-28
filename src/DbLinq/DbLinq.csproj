@@ -71,6 +71,7 @@
     <Compile Include="Data\Linq\Implementation\EntityTrack.cs" />
     <Compile Include="Data\Linq\Implementation\EntityState.cs" />
     <Compile Include="Data\Linq\Implementation\EntityTracker.cs" />
+    <Compile Include="Data\Linq\Implementation\IQueryProvider.cs" />
     <Compile Include="Data\Linq\Implementation\VendorProvider.cs" />
     <Compile Include="Data\Linq\ITable.Extended.cs" />
     <Compile Include="Data\Linq\DataContext.cs" />
