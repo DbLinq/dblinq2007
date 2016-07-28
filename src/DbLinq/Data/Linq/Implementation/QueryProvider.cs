@@ -70,11 +70,22 @@ namespace DbLinq.Data.Linq.Implementation
     /// </summary>
     /// <typeparam name="T"></typeparam>
     internal class QueryProvider<T> : QueryProvider, IQueryProvider, IQueryable<T>, IOrderedQueryable<T>
+#if !MONO_STRICT
+        , IQueryProvider<T>
+#endif
     {
         /// <summary>
         /// Holder current datancontext
         /// </summary>
         protected readonly DataContext _dataContext;
+
+#if !MONO_STRICT
+        /// <summary> Current dataContext </summary>
+        public DataContext Context
+        {
+            get { return _dataContext; }
+        }
+#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="QueryProvider&lt;T&gt;"/> class.
