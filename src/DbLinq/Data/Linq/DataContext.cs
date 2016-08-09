@@ -1077,6 +1077,17 @@ namespace DbLinq.Data.Linq
 
             return ExecuteQuery<ObjectWrapper>(query, parameters).Select(x => (TResult)x.Value);
         }
+
+        /// <summary>
+        /// Execute absolutely raw, unfiltered SQL query (e.g. with [] symbols) and return primitive value
+        /// </summary>
+        public IEnumerable<TResult> ExecuteQueryRawPrimitive<TResult>(string query)
+        {
+            if (query == null)
+                throw new ArgumentNullException("query");
+
+            return ExecuteQueryRaw<ObjectWrapper>(query).Select(x => (TResult)x.Value);
+        }
 #endif
 
         /// <summary>
